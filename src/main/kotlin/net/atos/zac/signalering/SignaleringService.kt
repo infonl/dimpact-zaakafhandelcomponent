@@ -214,8 +214,12 @@ class SignaleringService @Inject constructor(
                         bronnenBuilder.add(getDocument(signalering.detail))
                     }
                 }
-
-                SignaleringSubject.TAAK -> bronnenBuilder.add(getTask(signalering.subject))
+                SignaleringSubject.TAAK -> {
+                    bronnenBuilder.add(getTask(signalering.subject))
+                    // TODO: also need to add zaak data!
+                    LOG.info("*** signalering detail: ${signalering.detail}")
+                    // TODO: == "STREEFDATUM"
+                }
                 SignaleringSubject.DOCUMENT -> bronnenBuilder.add(getDocument(signalering.subject))
                 else -> {}
             }

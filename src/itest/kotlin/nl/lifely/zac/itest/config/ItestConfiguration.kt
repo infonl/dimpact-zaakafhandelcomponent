@@ -89,6 +89,7 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 5
     const val TEST_USER_1_USERNAME = "testuser1"
     const val TEST_USER_1_PASSWORD = "testuser1"
+    const val TEST_USER_1_EMAIL = "testuser1@example.com"
     const val TEST_USER_1_NAME = "Test User1 Špëçîâl Characters"
     const val TEST_USER_2_ID = "testuser2"
     const val TEST_USER_2_NAME = "Test User2"
@@ -181,11 +182,6 @@ object ItestConfiguration {
      */
     const val ZAAK_MANUAL_1_IDENTIFICATION = "ZAAK-2020-0000000001"
 
-    /**
-     * Second 'manually' created zaak using the ZAC API.
-     */
-    const val ZAAK_MANUAL_2_IDENTIFICATION = "ZAAK-2000-0000000001"
-
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
 
     /**
@@ -226,12 +222,17 @@ object ItestConfiguration {
     val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
     val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID: UUID =
         UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
-    val START_DATE = LocalDateTime.now()
+    val START_DATE: LocalDateTime = LocalDateTime.now()
 
     /**
      * Global variable to store the id of a task that is created in the integration tests.
      */
     lateinit var task1ID: String
+
+    /**
+     * Second 'manually' created zaak using the ZAC API.
+     */
+    lateinit var zaakManual2Identification: String
 
     /**
      * Global variable to store the UUID of a zaak that is created in the integration tests

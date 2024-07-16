@@ -270,31 +270,36 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     private fun sendTaskDueDateNotifications(): Int {
         val verzonden = IntArray(1)
         flowableTaskService.listOpenTasksDueNow().stream()
-            .filter { hasTaakSignaleringTarget(it) }
-            .map { buildTaakSignalering(it.assignee, it) }
-            .forEach { verzonden[0] += verzendTaakSignalering(it) }
+            .filter { hasTaskSignaleringTarget(it) }
+            .map { buildTaskSignalering(it.assignee, it) }
+            .forEach { verzonden[0] += sendTaskSignalering(it) }
         return verzonden[0]
     }
 
-    private fun hasTaakSignaleringTarget(task: Task): Boolean =
-        signaleringService.readInstellingenUser(SignaleringType.Type.TAAK_VERLOPEN, task.assignee)
-            .isMail &&
+    private fun hasTaskSignaleringTarget(task: Task): Boolean =
+        signaleringService.readInstellingenUser(
+            SignaleringType.Type.TAAK_VERLOPEN,
+            task.assignee
+        ).isMail &&
             // skip signalering if it was already sent
             !signaleringService.findSignaleringVerzonden(
                 getTaskSignaleringSentParameters(task.assignee, task.id)
             ).isPresent
 
-    private fun buildTaakSignalering(target: String, task: Task): Signalering {
+    private fun buildTaskSignalering(target: String, task: Task): Signalering {
         val signalering = signaleringService.signaleringInstance(
             SignaleringType.Type.TAAK_VERLOPEN
         )
         signalering.setTargetUser(target)
         signalering.setSubject(task)
+        // TODO: set zaak UUID in detail? the streefdatum is used to store
+        // the signalering in the database but not for creating the email
+        // is it really needed to store the streefdatum in the database?
         signalering.setDetail(SignaleringDetail.STREEFDATUM)
         return signalering
     }
 
-    private fun verzendTaakSignalering(signalering: Signalering): Int {
+    private fun sendTaskSignalering(signalering: Signalering): Int {
         signaleringService.sendSignalering(signalering)
         signaleringService.createSignaleringVerzonden(signalering)
         return 1
