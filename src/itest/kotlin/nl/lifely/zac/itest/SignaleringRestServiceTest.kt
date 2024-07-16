@@ -73,7 +73,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                     addAuthorizationHeader = true
                 )
 
-                Then("the responses should be 'ok'") {
+                Then("the response should be 'ok'") {
                     response.code shouldBe HTTP_STATUS_OK
                 }
             }
@@ -97,7 +97,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             )
 
-            Then("the responses should be 'ok'") {
+            Then("the response should be 'ok'") {
                 response.code shouldBe HTTP_STATUS_OK
             }
         }
