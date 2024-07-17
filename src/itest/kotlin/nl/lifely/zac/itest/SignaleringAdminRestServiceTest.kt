@@ -6,14 +6,16 @@ package nl.lifely.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldBeJsonArray
-import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldStartWith
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_EMAIL_ADDRESS
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
@@ -58,12 +60,14 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         )
         response.code shouldBe HTTP_STATUS_OK
 
+        val zaakDescription = "dummyDescription"
         lateinit var zaakUuid: UUID
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
+            description = zaakDescription,
             groupId = TEST_GROUP_A_ID,
             groupName = TEST_GROUP_A_DESCRIPTION,
-            startDate = LocalDate.now().atStartOfDay(TimeZone.getDefault().toZoneId())
+            startDate = LocalDate.now().atStartOfDay(TimeZone.getDefault().toZoneId()),
+            zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
         ).run {
             JSONObject(body!!.string()).run {
                 zaakManual2Identification = getString("identificatie")
@@ -122,13 +126,14 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                     receivedMails = JSONArray(receivedMailsResponse.body!!.string())
                     receivedMails.length() shouldBe 1
                 }
-                with(receivedMails[0].toString()) {
-                    shouldContainJsonKeyValue(
-                        "subject",
-                        "Actie nodig, handel jouw taak voor zaak $zaakManual2Identification spoedig af"
-                    )
-                    // TODO: extend test to check the email body as well
-                    // [{"uid":"1","subject":"Actie nodig, handel jouw taak voor zaak {ZAAK_NUMMER} spoedig af","Message-ID":"<318412515.1.1721140179491@54146cabd6e5>","contentType":"multipart/mixed; \r\n\tboundary=\"----=_Part_0_831249081.1721140179480\"","mimeMessage":"Return-Path: <gemeente-zac-test@example.com>\r\nReceived: from 172.19.0.23 (HELO 54146cabd6e5); Tue Jul 16 14:29:39 GMT 2024\r\nDate: Tue, 16 Jul 2024 14:29:39 +0000 (GMT)\r\nFrom: DummyZacGemeente <gemeente-zac-test@example.com>\r\nTo: =?UTF-8?Q?Test_User1_=C5=A0p=C3=AB=C3=A7=C3=AE=C3=A2l_Characters?=\r\n <testuser1@example.com>\r\nMessage-ID: <318412515.1.1721140179491@54146cabd6e5>\r\nSubject: Actie nodig, handel jouw taak voor zaak {ZAAK_NUMMER} spoedig af\r\nMIME-Version: 1.0\r\nContent-Type: multipart/mixed; \r\n\tboundary=\"----=_Part_0_831249081.1721140179480\"\r\nformat: flowed\r\n\r\n------=_Part_0_831249081.1721140179480\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: 7bit\r\n\r\n<p>Voor zaak {ZAAK_NUMMER} over {ZAAK_OMSCHRIJVING} staat een belangrijke een taak op jouw naam. De fatale datum voor het afhandelen is verstreken.<\/p><p>We vragen je om jouw taak spoedig af te handelen. Klik om naar de taak <a href=\"http://localhost:8080/taken/63\" title=\"de zaakafhandelcomponent...\">Aanvullende informatie<\/a> voor zaak ZAAK-2024-0000000001 (Indienen aansprakelijkstelling door derden behandelen) te gaan.<\/p>\r\n------=_Part_0_831249081.1721140179480--"}]
+                with(JSONArray(receivedMails).getJSONObject(0)) {
+                    getString("subject") shouldBe "Actie nodig, handel jouw taak voor zaak $zaakManual2Identification spoedig af"
+                    with(getString("mimeMessage")) {
+                        this shouldStartWith "Return-Path: <$TEST_GEMEENTE_EMAIL_ADDRESS>"
+                        this shouldContain
+                            "Voor zaak $zaakManual2Identification over $zaakDescription staat een belangrijke een taak op jouw naam. " +
+                            "De fatale datum voor het afhandelen is verstreken."
+                    }
                 }
             }
         }
