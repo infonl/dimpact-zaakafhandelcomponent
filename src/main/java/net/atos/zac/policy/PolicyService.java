@@ -9,6 +9,7 @@ import static net.atos.client.zgw.drc.model.generated.StatusEnum.DEFINITIEF;
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
 import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake;
+import static net.atos.zac.flowable.TaakVariabelenService.readZaaktypeOmschrijving;
 import static net.atos.zac.flowable.util.TaskUtil.isOpen;
 
 import jakarta.annotation.Nullable;
@@ -163,7 +164,7 @@ public class PolicyService {
     }
 
     public TaakRechten readTaakRechten(final TaskInfo taskInfo) {
-        return readTaakRechten(taskInfo, taakVariabelenService.readZaaktypeOmschrijving(taskInfo));
+        return readTaakRechten(taskInfo, readZaaktypeOmschrijving(taskInfo));
     }
 
     public TaakRechten readTaakRechten(final TaskInfo taskInfo, final String zaaktypeOmschrijving) {

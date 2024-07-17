@@ -54,11 +54,11 @@ public class TaakVariabelenService {
         return (Map<String, String>) findTaskVariable(taskInfo, VAR_TASK_TAAKDATA).orElse(Collections.emptyMap());
     }
 
-    public static Map<String, String> readTaskinformation(final TaskInfo taskInfo) {
+    public static Map<String, String> readTaskInformation(final TaskInfo taskInfo) {
         return (Map<String, String>) findTaskVariable(taskInfo, VAR_TASK_TAAKINFORMATIE).orElse(Collections.emptyMap());
     }
 
-    public static List<UUID> readTaskdocuments(final TaskInfo taskInfo) {
+    public static List<UUID> readTaskDocuments(final TaskInfo taskInfo) {
         return (List<UUID>) findTaskVariable(taskInfo, VAR_TASK_TAAKDOCUMENTEN).orElse(Collections.emptyList());
     }
 

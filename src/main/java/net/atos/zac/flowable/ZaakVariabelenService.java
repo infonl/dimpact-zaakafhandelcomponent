@@ -22,19 +22,13 @@ import org.flowable.engine.runtime.ProcessInstance;
 @ApplicationScoped
 @Transactional
 public class ZaakVariabelenService {
-
     public static final String VAR_ZAAK_UUID = "zaakUUID";
-
     public static final String VAR_ZAAK_IDENTIFICATIE = "zaakIdentificatie";
-
     public static final String VAR_ZAAKTYPE_UUUID = "zaaktypeUUID";
-
     public static final String VAR_ZAAKTYPE_OMSCHRIJVING = "zaaktypeOmschrijving";
 
     private static final String VAR_ONTVANGSTBEVESTIGING_VERSTUURD = "ontvangstbevestigingVerstuurd";
-
     private static final String VAR_DATUMTIJD_OPGESCHORT = "datumTijdOpgeschort";
-
     private static final String VAR_VERWACHTE_DAGEN_OPGESCHORT = "verwachteDagenOpgeschort";
 
     // Wordt gebruikt binnen het CMMN model
