@@ -122,16 +122,13 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     /**
      * Sends einddatum gepland zaak email notifications
      */
-    private fun zaakEinddatumGeplandVerzenden(zaaktype: ZaakType, venster: Int): Int {
-        val verzonden = IntArray(1)
+    private fun zaakEinddatumGeplandVerzenden(zaaktype: ZaakType, venster: Int): Int =
         zoekenService.zoek(getZaakSignaleringTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster))
-            .items.stream()
+            .items
             .map { it as ZaakZoekObject }
             .filter { hasZaakSignaleringTarget(it, SignaleringDetail.STREEFDATUM) }
             .map { buildZaakSignalering(it.behandelaarGebruikersnaam, it, SignaleringDetail.STREEFDATUM) }
-            .forEach { verzonden[0] += verzendZaakSignalering(it) }
-        return verzonden[0]
-    }
+            .sumOf { verzendZaakSignalering(it) }
 
     /**
      * Sends fatal date zaak email notifications
@@ -139,16 +136,13 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     private fun zaakUiterlijkeEinddatumAfdoeningVerzenden(
         zaaktype: ZaakType,
         venster: Int
-    ): Int {
-        val verzonden = IntArray(1)
+    ): Int =
         zoekenService.zoek(getZaakSignaleringTeVerzendenZoekParameters(DatumVeld.ZAAK_FATALE_DATUM, zaaktype, venster))
             .items
             .map { it as ZaakZoekObject }
             .filter { hasZaakSignaleringTarget(it, SignaleringDetail.FATALE_DATUM) }
             .map { buildZaakSignalering(it.behandelaarGebruikersnaam, it, SignaleringDetail.FATALE_DATUM) }
-            .forEach { verzonden[0] += verzendZaakSignalering(it) }
-        return verzonden[0]
-    }
+            .sumOf { verzendZaakSignalering(it) }
 
     private fun hasZaakSignaleringTarget(zaak: ZaakZoekObject, detail: SignaleringDetail): Boolean =
         signaleringService.readInstellingenUser(
@@ -163,15 +157,16 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
         zaakZoekObject: ZaakZoekObject,
         detail: SignaleringDetail
     ): Signalering {
-        val zaak = Zaak()
-        zaak.uuid = UUID.fromString(zaakZoekObject.uuid)
-        val signalering = signaleringService.signaleringInstance(
+        val zaak = Zaak().apply {
+            uuid = UUID.fromString(zaakZoekObject.uuid)
+        }
+        return signaleringService.signaleringInstance(
             SignaleringType.Type.ZAAK_VERLOPEND
-        )
-        signalering.setTargetUser(target)
-        signalering.setSubject(zaak)
-        signalering.setDetail(detail)
-        return signalering
+        ).apply {
+            setTargetUser(target)
+            setSubject(zaak)
+            setDetailFromSignaleringDetail(detail)
+        }
     }
 
     private fun verzendZaakSignalering(signalering: Signalering): Int {
@@ -267,14 +262,11 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
             .detail(detail)
     }
 
-    private fun sendTaskDueDateNotifications(): Int {
-        val verzonden = IntArray(1)
-        flowableTaskService.listOpenTasksDueNow().stream()
+    private fun sendTaskDueDateNotifications(): Int =
+        flowableTaskService.listOpenTasksDueNow()
             .filter { hasTaskSignaleringTarget(it) }
             .map { buildTaskSignalering(it.assignee, it) }
-            .forEach { verzonden[0] += sendTaskSignalering(it) }
-        return verzonden[0]
-    }
+            .sumOf { sendTaskSignalering(it) }
 
     private fun hasTaskSignaleringTarget(task: Task): Boolean =
         signaleringService.readInstellingenUser(
@@ -286,18 +278,14 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
                 getTaskSignaleringSentParameters(task.assignee, task.id)
             ).isPresent
 
-    private fun buildTaskSignalering(target: String, task: Task): Signalering {
-        val signalering = signaleringService.signaleringInstance(
+    private fun buildTaskSignalering(target: String, task: Task): Signalering =
+        signaleringService.signaleringInstance(
             SignaleringType.Type.TAAK_VERLOPEN
-        )
-        signalering.setTargetUser(target)
-        signalering.setSubject(task)
-        // TODO: set zaak UUID in detail? the streefdatum is used to store
-        // the signalering in the database but not for creating the email
-        // is it really needed to store the streefdatum in the database?
-        signalering.setDetail(SignaleringDetail.STREEFDATUM)
-        return signalering
-    }
+        ).apply {
+            setTargetUser(target)
+            setSubject(task)
+            setDetailFromSignaleringDetail(SignaleringDetail.STREEFDATUM)
+        }
 
     private fun sendTaskSignalering(signalering: Signalering): Int {
         signaleringService.sendSignalering(signalering)

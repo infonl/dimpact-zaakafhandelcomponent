@@ -37,7 +37,9 @@ import net.atos.zac.identity.model.Group;
 import net.atos.zac.identity.model.User;
 import net.atos.zac.util.UriUtil;
 
-/* Construction is easiest with the factory method in SignaleringService. */
+/**
+ * Construction is easiest with the factory method in SignaleringService.
+ */
 @Entity
 @Table(schema = SCHEMA, name = "signalering")
 @SequenceGenerator(schema = SCHEMA, name = "sq_signalering", sequenceName = "sq_signalering", allocationSize = 1)
@@ -141,12 +143,12 @@ public class Signalering {
         return detail;
     }
 
-    public void setDetail(final SignaleringDetail detail) {
-        this.detail = detail.name();
+    public void setDetailFromSignaleringDetail(final SignaleringDetail signaleringDetail) {
+        this.detail = signaleringDetail.name();
     }
 
-    public void setDetail(final ZaakInformatieobject detail) {
-        this.detail = UriUtil.uuidFromURI(detail.getInformatieobject()).toString();
+    public void setDetailFromZaakInformatieobject(final ZaakInformatieobject zaakInformatieobject) {
+        this.detail = UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject()).toString();
     }
 
     public ZonedDateTime getTijdstip() {

@@ -6,7 +6,7 @@ import java.time.ZonedDateTime
 
 @AllOpen
 @NoArgConstructor
-data class RESTSignaleringTaakSummary(
+data class RestSignaleringTaskSummary(
     var id: String,
     var naam: String,
     var zaakIdentificatie: String,

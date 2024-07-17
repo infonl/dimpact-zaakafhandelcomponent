@@ -26,7 +26,6 @@ import net.atos.zac.app.planitems.model.createRESTUserEventListenerData
 import net.atos.zac.app.util.exception.InputValidationFailedException
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.CMMNService
-import net.atos.zac.flowable.TaakVariabelenService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.mail.MailService
 import net.atos.zac.mail.model.Bronnen
@@ -47,7 +46,6 @@ import java.util.Optional
 import java.util.UUID
 
 class PlanItemsRESTServiceTest : BehaviorSpec({
-    val taakVariabelenService = mockk<TaakVariabelenService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val cmmnService = mockk<CMMNService>()
     val zrcClientService = mockk<ZRCClientService>()
@@ -64,7 +62,6 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
     val restMailGegevensConverter = mockk<RESTMailGegevensConverter>()
 
     val planItemsRESTService = PlanItemsRESTService(
-        taakVariabelenService,
         zaakVariabelenService,
         cmmnService,
         zrcClientService,
@@ -156,7 +153,8 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         val restHumanTaskData = createRESTHumanTaskData(
             planItemInstanceId = planItemInstanceId,
             taakdata = mapOf(
-                "dummyKey" to "dummyValue"
+                "dummyKey" to "dummyValue",
+                "zaakOpschorten" to "true"
             ),
             fataledatum = LocalDate.now().plusDays(1)
         )
@@ -182,7 +180,6 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                 zaak.uuid
             )
         } just runs
-        every { taakVariabelenService.isZaakOpschorten(any()) } returns true
         every {
             opschortenZaakHelper.opschortenZaak(zaak, 1, "Aanvullende informatie opgevraagd")
         } returns opgeschorteZaak

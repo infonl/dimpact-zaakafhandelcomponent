@@ -5,6 +5,13 @@
 
 package net.atos.zac.app.planitems;
 
+import static net.atos.zac.flowable.TaakVariabelenService.isZaakOpschorten;
+import static net.atos.zac.flowable.TaakVariabelenService.readMailAttachments;
+import static net.atos.zac.flowable.TaakVariabelenService.readMailBody;
+import static net.atos.zac.flowable.TaakVariabelenService.readMailFrom;
+import static net.atos.zac.flowable.TaakVariabelenService.readMailReplyTo;
+import static net.atos.zac.flowable.TaakVariabelenService.readMailTo;
+import static net.atos.zac.flowable.TaakVariabelenService.setMailBody;
 import static net.atos.zac.policy.PolicyService.assertPolicy;
 
 import java.time.LocalDate;
@@ -41,7 +48,6 @@ import net.atos.zac.app.planitems.model.RESTUserEventListenerData;
 import net.atos.zac.app.util.exception.InputValidationFailedException;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.flowable.CMMNService;
-import net.atos.zac.flowable.TaakVariabelenService;
 import net.atos.zac.flowable.ZaakVariabelenService;
 import net.atos.zac.mail.MailService;
 import net.atos.zac.mail.model.BronnenKt;
@@ -70,7 +76,6 @@ import net.atos.zac.zoeken.IndexeerService;
 public class PlanItemsRESTService {
     private static final String REDEN_OPSCHORTING = "Aanvullende informatie opgevraagd";
 
-    private TaakVariabelenService taakVariabelenService;
     private ZaakVariabelenService zaakVariabelenService;
     private CMMNService cmmnService;
     private ZRCClientService zrcClientService;
@@ -94,7 +99,6 @@ public class PlanItemsRESTService {
 
     @Inject
     public PlanItemsRESTService(
-            TaakVariabelenService taakVariabelenService,
             ZaakVariabelenService zaakVariabelenService,
             CMMNService cmmnService,
             ZRCClientService zrcClientService,
@@ -110,7 +114,6 @@ public class PlanItemsRESTService {
             OpschortenZaakHelper opschortenZaakHelper,
             RESTMailGegevensConverter restMailGegevensConverter
     ) {
-        this.taakVariabelenService = taakVariabelenService;
         this.zaakVariabelenService = zaakVariabelenService;
         this.cmmnService = cmmnService;
         this.zrcClientService = zrcClientService;
@@ -197,7 +200,7 @@ public class PlanItemsRESTService {
             fataleDatum = humanTaskParameters.isPresent() && humanTaskParameters.get().getDoorlooptijd() != null ?
                     LocalDate.now().plusDays(humanTaskParameters.get().getDoorlooptijd()) : null;
         }
-        if (fataleDatum != null && taakVariabelenService.isZaakOpschorten(taakdata)) {
+        if (fataleDatum != null && isZaakOpschorten(taakdata)) {
             final long aantalDagen = ChronoUnit.DAYS.between(LocalDate.now(), fataleDatum);
             opschortenZaakHelper.opschortenZaak(zaak, aantalDagen, REDEN_OPSCHORTING);
         }
@@ -212,20 +215,20 @@ public class PlanItemsRESTService {
                     .orElseGet(() -> mailTemplateService.readMailtemplate(mail));
 
             final String afzender = configuratieService.readGemeenteNaam();
-            taakVariabelenService.setMailBody(taakdata, mailService.sendMail(
+            setMailBody(taakdata, mailService.sendMail(
                     new MailGegevens(
-                            taakVariabelenService.readMailFrom(taakdata)
+                            readMailFrom(taakdata)
                                     .map(email -> new MailAdres(email, afzender))
                                     .orElseGet(() -> mailService.getGemeenteMailAdres()),
-                            taakVariabelenService.readMailTo(taakdata)
+                            readMailTo(taakdata)
                                     .map(MailAdres::new)
                                     .orElse(null),
-                            taakVariabelenService.readMailReplyTo(taakdata)
+                            readMailReplyTo(taakdata)
                                     .map(email -> new MailAdres(email, afzender))
                                     .orElse(null),
                             mailTemplate.getOnderwerp(),
-                            taakVariabelenService.readMailBody(taakdata).orElse(null),
-                            taakVariabelenService.readMailBijlagen(taakdata).orElse(null),
+                            readMailBody(taakdata).orElse(null),
+                            readMailAttachments(taakdata).orElse(null),
                             true),
                     BronnenKt.getBronnenFromZaak(zaak)));
         }

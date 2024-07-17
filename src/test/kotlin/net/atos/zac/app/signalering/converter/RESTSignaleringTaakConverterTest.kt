@@ -4,17 +4,12 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
-import io.mockk.every
-import io.mockk.mockk
-import net.atos.zac.flowable.TaakVariabelenService
-import org.flowable.task.service.impl.persistence.entity.TaskEntityImpl
+import net.atos.zac.flowable.createTestTask
+import org.flowable.common.engine.api.scope.ScopeTypes.CMMN
 import java.time.Month
 import java.util.Calendar
 
 class RESTSignaleringTaakConverterTest : BehaviorSpec({
-    val taakVariabelenService = mockk<TaakVariabelenService>()
-    val restSignaleringTaakConverter = RESTSignaleringTaakConverter(taakVariabelenService)
-
     beforeEach {
         checkUnnecessaryStub()
     }
@@ -23,26 +18,24 @@ class RESTSignaleringTaakConverterTest : BehaviorSpec({
         clearAllMocks()
     }
 
-    Given("A converter history with USER_TASK_CREATED item") {
-        val zaakIdentificatie = "my-zaak-identificatie"
+    Given("A task of scope type CMMN with a zaakIdentificatie and zaaktypeOmschrijving") {
+        val zaakIdentificatie = "dummyZzaakIdentificatie"
         val zaaktypeOmschrijving = "my-zaaktype-omschrijving"
-        every {
-            taakVariabelenService.readZaakIdentificatie(any())
-        } returns zaakIdentificatie
-        every {
-            taakVariabelenService.readZaaktypeOmschrijving(any())
-        } returns zaaktypeOmschrijving
-        val task = TaskEntityImpl()
-        task.id = "my-id"
-        task.name = "my-name"
         val cal = Calendar.getInstance()
         cal[Calendar.YEAR] = 1988
         cal[Calendar.MONTH] = Calendar.JANUARY
         cal[Calendar.DAY_OF_MONTH] = 1
-        task.createTime = cal.time
+        val task = createTestTask(
+            createTime = cal.time,
+            caseVariables = mapOf(
+                "zaakIdentificatie" to zaakIdentificatie,
+                "zaaktypeOmschrijving" to zaaktypeOmschrijving
+            ),
+            scopeType = CMMN
+        )
 
-        When("convert is called") {
-            val summary = restSignaleringTaakConverter.convert(task)
+        When("the task is converted to a rest signalering task summary") {
+            val summary = task.toRestSignaleringTaakSummary()
 
             Then("it returns correct history lines") {
                 with(summary) {

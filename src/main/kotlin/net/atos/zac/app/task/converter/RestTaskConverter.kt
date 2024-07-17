@@ -10,7 +10,13 @@ import net.atos.zac.app.identity.converter.RESTGroupConverter
 import net.atos.zac.app.identity.converter.RESTUserConverter
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
 import net.atos.zac.app.task.model.RestTask
-import net.atos.zac.flowable.TaakVariabelenService
+import net.atos.zac.flowable.TaakVariabelenService.readTaskData
+import net.atos.zac.flowable.TaakVariabelenService.readTaskdocuments
+import net.atos.zac.flowable.TaakVariabelenService.readTaskinformation
+import net.atos.zac.flowable.TaakVariabelenService.readZaakIdentificatie
+import net.atos.zac.flowable.TaakVariabelenService.readZaakUUID
+import net.atos.zac.flowable.TaakVariabelenService.readZaaktypeOmschrijving
+import net.atos.zac.flowable.TaakVariabelenService.readZaaktypeUUID
 import net.atos.zac.flowable.util.TaskUtil
 import net.atos.zac.formulieren.FormulierDefinitieService
 import net.atos.zac.policy.PolicyService
@@ -24,7 +30,6 @@ import java.util.UUID
 
 @Suppress("LongParameterList")
 class RestTaskConverter @Inject constructor(
-    private val taakVariabelenService: TaakVariabelenService,
     private val groepConverter: RESTGroupConverter,
     private val medewerkerConverter: RESTUserConverter,
     private val rechtenConverter: RESTRechtenConverter,
@@ -39,7 +44,7 @@ class RestTaskConverter @Inject constructor(
 
     @Suppress("LongMethod")
     fun convert(taskInfo: TaskInfo): RestTask {
-        val zaaktypeOmschrijving = taakVariabelenService.readZaaktypeOmschrijving(taskInfo)
+        val zaaktypeOmschrijving = readZaaktypeOmschrijving(taskInfo)
         val restTaakRechten = policyService.readTaakRechten(taskInfo, zaaktypeOmschrijving).let {
             rechtenConverter.convert(it)
         }
@@ -47,8 +52,8 @@ class RestTaskConverter @Inject constructor(
             id = taskInfo.id,
             naam = taskInfo.name,
             status = TaskUtil.getTaakStatus(taskInfo),
-            zaakUuid = taakVariabelenService.readZaakUUID(taskInfo),
-            zaakIdentificatie = taakVariabelenService.readZaakIdentificatie(taskInfo),
+            zaakUuid = readZaakUUID(taskInfo),
+            zaakIdentificatie = readZaakIdentificatie(taskInfo),
             rechten = restTaakRechten,
             zaaktypeOmschrijving = if (restTaakRechten.lezen) zaaktypeOmschrijving else null,
             toelichting = if (restTaakRechten.lezen) taskInfo.description else null,
@@ -75,10 +80,10 @@ class RestTaskConverter @Inject constructor(
             } else {
                 null
             },
-            taakinformatie = if (restTaakRechten.lezen) taakVariabelenService.readTaakinformatie(taskInfo) else null,
-            taakdata = if (restTaakRechten.lezen) taakVariabelenService.readTaakdata(taskInfo).toMutableMap() else null,
+            taakinformatie = if (restTaakRechten.lezen) readTaskinformation(taskInfo) else null,
+            taakdata = if (restTaakRechten.lezen) readTaskData(taskInfo).toMutableMap() else null,
             taakdocumenten = if (restTaakRechten.lezen) {
-                taakVariabelenService.readTaakdocumenten(
+                readTaskdocuments(
                     taskInfo
                 ).toList()
             } else {
@@ -89,7 +94,7 @@ class RestTaskConverter @Inject constructor(
         if (TaskUtil.isCmmnTask(taskInfo)) {
             convertFormulierDefinitieEnReferentieTabellen(
                 restTask,
-                taakVariabelenService.readZaaktypeUUID(taskInfo),
+                readZaaktypeUUID(taskInfo),
                 taskInfo.taskDefinitionKey
             )
         } else {
