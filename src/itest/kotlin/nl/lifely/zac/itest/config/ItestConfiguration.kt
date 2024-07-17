@@ -66,6 +66,8 @@ object ItestConfiguration {
     const val SCREEN_EVENT_TYPE_ZAKEN_VERDELEN = "ZAKEN_VERDELEN"
     const val SCREEN_EVENT_TYPE_ZAKEN_VRIJGEVEN = "ZAKEN_VRIJGEVEN"
 
+    const val TEST_GEMEENTE_EMAIL_ADDRESS = "gemeente-zac-test@example.com"
+
     /**
      * Test person that exists in both the BRP and the Klanten API databases
      */
