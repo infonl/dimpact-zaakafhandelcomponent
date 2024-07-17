@@ -53,10 +53,10 @@ class SignaleringService @Inject constructor(
     private val eventingService: EventingService,
     private val flowableTaskService: FlowableTaskService,
     private val mailService: MailService,
-    private val restZaakOverzichtConverter: RESTZaakOverzichtConverter,
     private val signaleringenMailHelper: SignaleringMailHelper,
     private val signaleringPredicateHelper: SignaleringPredicateHelper,
     private val zrcClientService: ZRCClientService,
+    private val restZaakOverzichtConverter: RESTZaakOverzichtConverter
 ) {
     companion object {
         private val LOG = Logger.getLogger(SignaleringService::class.java.name)
@@ -221,6 +221,9 @@ class SignaleringService @Inject constructor(
                     // also need to retrieve the zaak for the task and add it to the mail sources
                     // so that the relevant zaak-specific template variables in the task emails
                     // can be resolved
+                    // note that this is currently only required for the 'ZAAK_OMSCHRIJVING' template field
+                    // because the other template fields can be retrieved from the Flowable CMMN case
+                    // using the TaakVariabelenService
                     bronnenBuilder.add(getZaak(readZaakUUID(taskInfo).toString()))
                 }
                 SignaleringSubject.DOCUMENT -> bronnenBuilder.add(getDocument(signalering.subject))

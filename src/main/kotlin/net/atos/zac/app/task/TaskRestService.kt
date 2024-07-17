@@ -47,6 +47,9 @@ import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.flowable.TaakVariabelenService
+import net.atos.zac.flowable.TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
+import net.atos.zac.flowable.TaakVariabelenService.TAAK_DATA_TOELICHTING
+import net.atos.zac.flowable.TaakVariabelenService.TAAK_DATA_VERZENDDATUM
 import net.atos.zac.flowable.TaakVariabelenService.isZaakHervatten
 import net.atos.zac.flowable.TaakVariabelenService.readSignatures
 import net.atos.zac.flowable.TaakVariabelenService.readZaakUUID
@@ -215,12 +218,12 @@ class TaskRestService @Inject constructor(
             opschortenZaakHelper.hervattenZaak(zaak, REDEN_ZAAK_HERVATTEN)
         }
         restTask.taakdata?.let { taakdata ->
-            taakdata[TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST]?.let {
+            taakdata[TAAK_DATA_DOCUMENTEN_VERZENDEN_POST]?.let {
                 updateVerzenddatumEnkelvoudigInformatieObjecten(
                     documenten = it,
                     // implicitly assume that the verzenddatum key is present in taakdata
-                    verzenddatumString = taakdata[TaakVariabelenService.TAAK_DATA_VERZENDDATUM]!!,
-                    toelichting = taakdata[TaakVariabelenService.TAAK_DATA_TOELICHTING]
+                    verzenddatumString = taakdata[TAAK_DATA_VERZENDDATUM]!!,
+                    toelichting = taakdata[TAAK_DATA_TOELICHTING]
                 )
             }
             ondertekenEnkelvoudigInformatieObjecten(taakdata, zaak)

@@ -11,8 +11,8 @@ import net.atos.zac.app.identity.converter.RESTUserConverter
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
 import net.atos.zac.app.task.model.RestTask
 import net.atos.zac.flowable.TaakVariabelenService.readTaskData
-import net.atos.zac.flowable.TaakVariabelenService.readTaskdocuments
-import net.atos.zac.flowable.TaakVariabelenService.readTaskinformation
+import net.atos.zac.flowable.TaakVariabelenService.readTaskDocuments
+import net.atos.zac.flowable.TaakVariabelenService.readTaskInformation
 import net.atos.zac.flowable.TaakVariabelenService.readZaakIdentificatie
 import net.atos.zac.flowable.TaakVariabelenService.readZaakUUID
 import net.atos.zac.flowable.TaakVariabelenService.readZaaktypeOmschrijving
@@ -80,10 +80,10 @@ class RestTaskConverter @Inject constructor(
             } else {
                 null
             },
-            taakinformatie = if (restTaakRechten.lezen) readTaskinformation(taskInfo) else null,
+            taakinformatie = if (restTaakRechten.lezen) readTaskInformation(taskInfo) else null,
             taakdata = if (restTaakRechten.lezen) readTaskData(taskInfo).toMutableMap() else null,
             taakdocumenten = if (restTaakRechten.lezen) {
-                readTaskdocuments(
+                readTaskDocuments(
                     taskInfo
                 ).toList()
             } else {
