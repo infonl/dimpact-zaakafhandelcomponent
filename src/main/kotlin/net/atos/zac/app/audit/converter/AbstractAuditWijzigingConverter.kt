@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.audit.converter
@@ -13,15 +13,14 @@ import org.apache.commons.lang3.ObjectUtils
 import org.apache.commons.lang3.StringUtils
 import java.time.LocalDate
 import java.time.ZonedDateTime
-import java.util.stream.Stream
 
 abstract class AbstractAuditWijzigingConverter<W : AuditWijziging<*>?> {
-    fun convert(wijziging: AuditWijziging<*>): Stream<RESTHistorieRegel> =
+    fun convert(wijziging: AuditWijziging<*>): List<RESTHistorieRegel> =
         doConvert(wijziging as W)
 
     abstract fun supports(objectType: ObjectType): Boolean
 
-    protected abstract fun doConvert(wijziging: W): Stream<RESTHistorieRegel>
+    protected abstract fun doConvert(wijziging: W): List<RESTHistorieRegel>
 
     protected fun checkAttribuut(
         label: String,
