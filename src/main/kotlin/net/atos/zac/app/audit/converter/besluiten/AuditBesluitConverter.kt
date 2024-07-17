@@ -9,11 +9,10 @@ import java.util.LinkedList
 import java.util.stream.Stream
 
 class AuditBesluitConverter : AbstractAuditWijzigingConverter<BesluitWijziging>() {
-    override fun supports(objectType: ObjectType): Boolean {
-        return ObjectType.BESLUIT == objectType
-    }
+    override fun supports(objectType: ObjectType): Boolean =
+        ObjectType.BESLUIT == objectType
 
-    override fun doConvert(wijziging: BesluitWijziging): Stream<RESTHistorieRegel?> {
+    override fun doConvert(wijziging: BesluitWijziging): Stream<RESTHistorieRegel> {
         val oud = wijziging.oud
         val nieuw = wijziging.nieuw
 
@@ -21,7 +20,7 @@ class AuditBesluitConverter : AbstractAuditWijzigingConverter<BesluitWijziging>(
             return Stream.of(RESTHistorieRegel("Besluit", toWaarde(oud), toWaarde(nieuw)))
         }
 
-        val historieRegels: List<RESTHistorieRegel?> = LinkedList()
+        val historieRegels = LinkedList<RESTHistorieRegel>()
         checkAttribuut("identificatie", oud.identificatie, nieuw.identificatie, historieRegels)
         checkAttribuut("verzenddatum", oud.verzenddatum, nieuw.verzenddatum, historieRegels)
         checkAttribuut("ingangsdatum", oud.ingangsdatum, nieuw.ingangsdatum, historieRegels)
@@ -30,7 +29,6 @@ class AuditBesluitConverter : AbstractAuditWijzigingConverter<BesluitWijziging>(
         return historieRegels.stream()
     }
 
-    private fun toWaarde(besluit: Besluit?): String? {
-        return besluit?.identificatie
-    }
+    private fun toWaarde(besluit: Besluit?): String? =
+        besluit?.identificatie
 }

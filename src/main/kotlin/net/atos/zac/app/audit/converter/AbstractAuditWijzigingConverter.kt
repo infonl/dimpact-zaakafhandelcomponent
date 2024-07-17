@@ -16,19 +16,19 @@ import java.time.ZonedDateTime
 import java.util.stream.Stream
 
 abstract class AbstractAuditWijzigingConverter<W : AuditWijziging<*>?> {
-    fun convert(wijziging: AuditWijziging<*>): Stream<RESTHistorieRegel?> {
+    fun convert(wijziging: AuditWijziging<*>): Stream<RESTHistorieRegel> {
         return doConvert(wijziging as W)
     }
 
     abstract fun supports(objectType: ObjectType): Boolean
 
-    protected abstract fun doConvert(wijziging: W): Stream<RESTHistorieRegel?>
+    protected abstract fun doConvert(wijziging: W): Stream<RESTHistorieRegel>
 
     protected fun checkAttribuut(
         label: String,
-        oud: String?,
-        nieuw: String?,
-        historieRegels: MutableList<RESTHistorieRegel?>
+        oud: String,
+        nieuw: String,
+        historieRegels: MutableList<RESTHistorieRegel>
     ) {
         if (!StringUtils.equals(oud, nieuw)) {
             historieRegels.add(RESTHistorieRegel(label, oud, nieuw))
@@ -39,7 +39,7 @@ abstract class AbstractAuditWijzigingConverter<W : AuditWijziging<*>?> {
         label: String,
         oud: StatusEnum,
         nieuw: StatusEnum,
-        historieRegels: MutableList<RESTHistorieRegel?>
+        historieRegels: MutableList<RESTHistorieRegel>
     ) {
         if (oud != nieuw) {
             historieRegels.add(RESTHistorieRegel(label, oud, nieuw))
@@ -50,7 +50,7 @@ abstract class AbstractAuditWijzigingConverter<W : AuditWijziging<*>?> {
         label: String,
         oud: VertrouwelijkheidaanduidingEnum,
         nieuw: VertrouwelijkheidaanduidingEnum,
-        historieRegels: MutableList<RESTHistorieRegel?>
+        historieRegels: MutableList<RESTHistorieRegel>
     ) {
         if (oud != nieuw) {
             historieRegels.add(RESTHistorieRegel(label, oud, nieuw))
@@ -59,9 +59,9 @@ abstract class AbstractAuditWijzigingConverter<W : AuditWijziging<*>?> {
 
     protected fun checkAttribuut(
         label: String,
-        oud: Boolean?,
-        nieuw: Boolean?,
-        historieRegels: MutableList<RESTHistorieRegel?>
+        oud: Boolean,
+        nieuw: Boolean,
+        historieRegels: MutableList<RESTHistorieRegel>
     ) {
         if (ObjectUtils.notEqual(oud, nieuw)) {
             historieRegels.add(RESTHistorieRegel(label, oud, nieuw))
@@ -72,7 +72,7 @@ abstract class AbstractAuditWijzigingConverter<W : AuditWijziging<*>?> {
         label: String,
         oud: LocalDate?,
         nieuw: LocalDate?,
-        historieRegels: MutableList<RESTHistorieRegel?>
+        historieRegels: MutableList<RESTHistorieRegel>
     ) {
         if (ObjectUtils.notEqual(oud, nieuw)) {
             historieRegels.add(RESTHistorieRegel(label, oud, nieuw))
@@ -81,9 +81,9 @@ abstract class AbstractAuditWijzigingConverter<W : AuditWijziging<*>?> {
 
     protected fun checkAttribuut(
         label: String,
-        oud: ZonedDateTime?,
-        nieuw: ZonedDateTime?,
-        historieRegels: MutableList<RESTHistorieRegel?>
+        oud: ZonedDateTime,
+        nieuw: ZonedDateTime,
+        historieRegels: MutableList<RESTHistorieRegel>
     ) {
         if (ObjectUtils.notEqual(oud, nieuw)) {
             historieRegels.add(RESTHistorieRegel(label, oud, nieuw))
