@@ -120,7 +120,8 @@ fun createZaak(
     vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
     status: URI? = null,
     verlenging: Verlenging? = null,
-    deelzaken: Set<URI>? = null
+    deelzaken: Set<URI>? = null,
+    uuid: UUID = UUID.randomUUID()
 ) = Zaak(
     zaakTypeURI,
     startDate,
@@ -128,7 +129,7 @@ fun createZaak(
     verantwoordelijkeOrganisatie
 ).apply {
     this.url = URI("https://example.com/zaak/${UUID.randomUUID()}")
-    this.uuid = UUID.randomUUID()
+    this.uuid = uuid
     this.archiefnominatie = archiefnominatie
     this.opschorting = opschorting
     this.einddatumGepland = einddatumGepland

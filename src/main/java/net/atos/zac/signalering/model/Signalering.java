@@ -91,12 +91,12 @@ public class Signalering {
         return target;
     }
 
-    public void setTarget(final Group target) {
-        setTargetGroup(target.getId());
+    public void setTarget(final Group group) {
+        setTargetGroup(group.getId());
     }
 
-    public void setTarget(final User target) {
-        setTargetUser(target.getId());
+    public void setTarget(final User user) {
+        setTargetUser(user.getId());
     }
 
     public void setTargetGroup(final String target) {

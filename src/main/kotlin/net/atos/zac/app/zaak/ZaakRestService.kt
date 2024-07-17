@@ -141,15 +141,6 @@ import java.util.logging.Logger
 import java.util.stream.Collectors
 import java.util.stream.Stream
 
-private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
-private const val ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
-private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
-private const val VERLENGING = "Verlenging"
-private const val AANMAKEN_BESLUIT_TOELICHTING = "Aanmaken besluit"
-private const val WIJZIGEN_BESLUIT_TOELICHTING = "Wijzigen besluit"
-
-private val LOG = Logger.getLogger(ZaakRestService::class.java.name)
-
 @Path("zaken")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -193,6 +184,17 @@ class ZaakRestService @Inject constructor(
     private val zaakService: ZaakService,
     private val restZaakHistorieRegelConverter: RESTZaakHistorieRegelConverter
 ) {
+    companion object {
+        private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
+        private const val ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
+        private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
+        private const val VERLENGING = "Verlenging"
+        private const val AANMAKEN_BESLUIT_TOELICHTING = "Aanmaken besluit"
+        private const val WIJZIGEN_BESLUIT_TOELICHTING = "Wijzigen besluit"
+
+        private val LOG = Logger.getLogger(ZaakRestService::class.java.name)
+    }
+
     @GET
     @Path("zaak/{uuid}")
     fun readZaak(@PathParam("uuid") zaakUUID: UUID): RESTZaak {
@@ -733,12 +735,14 @@ class ZaakRestService @Inject constructor(
                 AardRelatie.VERVOLG,
                 gegevens.reden
             )
+
             RelatieType.ONDERWERP -> ontkoppelRelevantezaken(
                 zaak,
                 gekoppeldeZaak,
                 AardRelatie.ONDERWERP,
                 gegevens.reden
             )
+
             RelatieType.BIJDRAGE -> ontkoppelRelevantezaken(
                 zaak,
                 gekoppeldeZaak,
@@ -1018,10 +1022,12 @@ class ZaakRestService @Inject constructor(
                 assertPolicy(zaakRechten.toevoegenBetrokkenePersoon)
                 zaakService.addBetrokkenNatuurlijkPersoon(betrokkene, identificatie, zaak, toelichting)
             }
+
             IdentificatieType.VN -> {
                 assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
                 zaakService.addBetrokkenVestiging(betrokkene, identificatie, zaak, toelichting)
             }
+
             IdentificatieType.RSIN -> {
                 assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
                 zaakService.addBetrokkenNietNatuurlijkPersoon(betrokkene, identificatie, zaak, toelichting)
@@ -1041,10 +1047,12 @@ class ZaakRestService @Inject constructor(
                 assertPolicy(zaakRechten.toevoegenInitiatorPersoon)
                 zaakService.addBetrokkenNatuurlijkPersoon(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN)
             }
+
             IdentificatieType.VN -> {
                 assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
                 zaakService.addBetrokkenVestiging(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN)
             }
+
             IdentificatieType.RSIN -> {
                 assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
                 zaakService.addBetrokkenNietNatuurlijkPersoon(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN)
@@ -1259,44 +1267,44 @@ class ZaakRestService @Inject constructor(
             }
         return count[0]
     }
-}
 
-private fun removeRelevanteZaak(
-    relevanteZaken: MutableList<RelevanteZaak>?,
-    andereZaak: URI,
-    aardRelatie: AardRelatie
-): List<RelevanteZaak>? {
-    relevanteZaken?.removeAll(
-        relevanteZaken
-            .filter { it.`is`(andereZaak, aardRelatie) }
-            .toList()
-    )
-    return relevanteZaken
-}
+    private fun removeRelevanteZaak(
+        relevanteZaken: MutableList<RelevanteZaak>?,
+        andereZaak: URI,
+        aardRelatie: AardRelatie
+    ): List<RelevanteZaak>? {
+        relevanteZaken?.removeAll(
+            relevanteZaken
+                .filter { it.`is`(andereZaak, aardRelatie) }
+                .toList()
+        )
+        return relevanteZaken
+    }
 
-private fun sortAndRemoveDuplicateAfzenders(
-    afzenders: Stream<RESTZaakAfzender>
-): List<RESTZaakAfzender> {
-    val list = afzenders.sorted { a, b ->
-        val result: Int = a.mail.compareTo(b.mail)
-        if (result == 0) if (a.defaultMail) -1 else 0 else result
-    }.collect(Collectors.toList())
-    val i = list.iterator()
-    var previous: String? = null
-    while (i.hasNext()) {
-        val afzender: RESTZaakAfzender = i.next()
-        if (afzender.mail == previous) {
-            i.remove()
-        } else {
-            previous = afzender.mail
+    private fun sortAndRemoveDuplicateAfzenders(
+        afzenders: Stream<RESTZaakAfzender>
+    ): List<RESTZaakAfzender> {
+        val list = afzenders.sorted { a, b ->
+            val result: Int = a.mail.compareTo(b.mail)
+            if (result == 0) if (a.defaultMail) -1 else 0 else result
+        }.collect(Collectors.toList())
+        val i = list.iterator()
+        var previous: String? = null
+        while (i.hasNext()) {
+            val afzender: RESTZaakAfzender = i.next()
+            if (afzender.mail == previous) {
+                i.remove()
+            } else {
+                previous = afzender.mail
+            }
         }
+        return list
     }
-    return list
-}
 
-private fun speciaalMail(mail: String): Speciaal? {
-    if (!mail.contains("@")) {
-        return ZaakAfzender.Speciaal.valueOf(mail)
+    private fun speciaalMail(mail: String): Speciaal? {
+        if (!mail.contains("@")) {
+            return ZaakAfzender.Speciaal.valueOf(mail)
+        }
+        return null
     }
-    return null
 }

@@ -205,7 +205,7 @@ class SignaleringService @Inject constructor(
         ValidationUtil.valideerObject(signalering)
         signaleringenMailHelper.getTargetMail(signalering)?.let {
             val from = mailService.gemeenteMailAdres
-            val to = signaleringenMailHelper.formatTo(it)
+            val to = formatTo(it)
             val mailTemplate = signaleringenMailHelper.getMailTemplate(signalering)
             val bronnenBuilder = Bronnen.Builder()
             when (signalering.subjecttype) {
