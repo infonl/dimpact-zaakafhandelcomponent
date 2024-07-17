@@ -8,21 +8,17 @@ import net.atos.zac.app.audit.model.RESTHistorieRegel
 import java.util.stream.Stream
 
 class AuditGebruiksrechtenWijzigingConverter : AbstractAuditWijzigingConverter<GebuiksrechtenWijziging>() {
-    override fun supports(objectType: ObjectType): Boolean {
-        return ObjectType.GEBRUIKSRECHTEN == objectType
-    }
+    override fun supports(objectType: ObjectType): Boolean = ObjectType.GEBRUIKSRECHTEN == objectType
 
-    override fun doConvert(wijziging: GebuiksrechtenWijziging): Stream<RESTHistorieRegel?> {
-        return Stream.of(
+    override fun doConvert(wijziging: GebuiksrechtenWijziging): Stream<RESTHistorieRegel> =
+        Stream.of(
             RESTHistorieRegel(
                 "indicatieGebruiksrecht",
                 toWaarde(wijziging.oud),
                 toWaarde(wijziging.nieuw)
             )
         )
-    }
 
-    private fun toWaarde(gebruiksrechten: Gebruiksrechten?): String? {
-        return gebruiksrechten?.omschrijvingVoorwaarden
-    }
+    private fun toWaarde(gebruiksrechten: Gebruiksrechten?): String? =
+        gebruiksrechten?.omschrijvingVoorwaarden
 }

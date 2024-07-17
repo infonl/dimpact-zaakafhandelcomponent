@@ -17,13 +17,12 @@ import java.util.stream.Stream
 class AuditEnkelvoudigInformatieobjectConverter :
     AbstractAuditWijzigingConverter<EnkelvoudigInformatieobjectWijziging>() {
     @Inject
-    private val ztcClientService: ZtcClientService? = null
+    lateinit var ztcClientService: ZtcClientService
 
-    override fun supports(objectType: ObjectType): Boolean {
-        return ObjectType.ENKELVOUDIG_INFORMATIEOBJECT == objectType
-    }
+    override fun supports(objectType: ObjectType): Boolean =
+        ObjectType.ENKELVOUDIG_INFORMATIEOBJECT == objectType
 
-    override fun doConvert(wijziging: EnkelvoudigInformatieobjectWijziging): Stream<RESTHistorieRegel?> {
+    override fun doConvert(wijziging: EnkelvoudigInformatieobjectWijziging): Stream<RESTHistorieRegel> {
         val oud = wijziging.oud
         val nieuw = wijziging.nieuw
 
@@ -31,11 +30,13 @@ class AuditEnkelvoudigInformatieobjectConverter :
             return Stream.of(RESTHistorieRegel("informatieobject", toWaarde(oud), toWaarde(nieuw)))
         }
 
-        val historieRegels: MutableList<RESTHistorieRegel?> = LinkedList()
+        val historieRegels: MutableList<RESTHistorieRegel> = LinkedList()
         checkAttribuut("titel", oud.titel, nieuw.titel, historieRegels)
         checkAttribuut("identificatie", oud.identificatie, nieuw.identificatie, historieRegels)
         checkAttribuut(
-            "vertrouwelijkheidaanduiding", oud.vertrouwelijkheidaanduiding, nieuw.vertrouwelijkheidaanduiding,
+            "vertrouwelijkheidaanduiding",
+            oud.vertrouwelijkheidaanduiding,
+            nieuw.vertrouwelijkheidaanduiding,
             historieRegels
         )
         checkAttribuut("bestandsnaam", oud.bestandsnaam, nieuw.bestandsnaam, historieRegels)
@@ -44,8 +45,10 @@ class AuditEnkelvoudigInformatieobjectConverter :
         checkAttribuut("auteur", oud.auteur, nieuw.auteur, historieRegels)
         checkAttribuut("ontvangstdatum", oud.ontvangstdatum, nieuw.ontvangstdatum, historieRegels)
         checkAttribuut(
-            "registratiedatum", oud.beginRegistratie.toZonedDateTime(),
-            nieuw.beginRegistratie.toZonedDateTime(), historieRegels
+            "registratiedatum",
+            oud.beginRegistratie.toZonedDateTime(),
+            nieuw.beginRegistratie.toZonedDateTime(),
+            historieRegels
         )
         checkAttribuut("locked", oud.locked, nieuw.locked, historieRegels)
         checkAttribuut("versie", oud.versie.toString(), nieuw.versie.toString(), historieRegels)
@@ -58,27 +61,28 @@ class AuditEnkelvoudigInformatieobjectConverter :
         return historieRegels.stream()
     }
 
-    private fun checkInformatieobjecttype(oud: URI, nieuw: URI, historieRegels: MutableList<RESTHistorieRegel?>) {
+    private fun checkInformatieobjecttype(oud: URI, nieuw: URI, historieRegels: MutableList<RESTHistorieRegel>) {
         if (ObjectUtils.notEqual(oud, nieuw)) {
             historieRegels.add(
                 RESTHistorieRegel(
-                    "documentType", informatieobjecttypeToWaarde(oud), informatieobjecttypeToWaarde(
-                        nieuw
-                    )
+                    "documentType",
+                    informatieobjecttypeToWaarde(oud),
+                    informatieobjecttypeToWaarde(nieuw)
                 )
             )
         }
     }
 
-    private fun informatieobjecttypeToWaarde(informatieobjecttype: URI?): String? {
-        return if (informatieobjecttype != null) ztcClientService!!.readInformatieobjecttype(informatieobjecttype).omschrijving else null
-    }
+    private fun informatieobjecttypeToWaarde(informatieobjecttype: URI?): String? =
+        if (informatieobjecttype != null) {
+            ztcClientService.readInformatieobjecttype(informatieobjecttype).omschrijving
+        } else {
+            null
+        }
 
-    private fun toWaarde(enkelvoudigInformatieobject: EnkelvoudigInformatieObject?): String? {
-        return enkelvoudigInformatieobject?.identificatie
-    }
+    private fun toWaarde(enkelvoudigInformatieobject: EnkelvoudigInformatieObject?): String? =
+        enkelvoudigInformatieobject?.identificatie
 
-    private fun toWaarde(ondertekening: Ondertekening?): LocalDate? {
-        return ondertekening?.datum
-    }
+    private fun toWaarde(ondertekening: Ondertekening?): LocalDate? =
+        ondertekening?.datum
 }
