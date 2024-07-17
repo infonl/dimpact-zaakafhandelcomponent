@@ -1,81 +1,84 @@
-package net.atos.zac.app.audit.converter.documenten;
+package net.atos.zac.app.audit.converter.documenten
 
-import java.net.URI;
-import java.time.LocalDate;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Stream;
+import jakarta.inject.Inject
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import net.atos.client.zgw.drc.model.generated.Ondertekening
+import net.atos.client.zgw.shared.model.ObjectType
+import net.atos.client.zgw.shared.model.audit.documenten.EnkelvoudigInformatieobjectWijziging
+import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.zac.app.audit.converter.AbstractAuditWijzigingConverter
+import net.atos.zac.app.audit.model.RESTHistorieRegel
+import org.apache.commons.lang3.ObjectUtils
+import java.net.URI
+import java.time.LocalDate
+import java.util.LinkedList
+import java.util.stream.Stream
 
-import jakarta.inject.Inject;
-
-import org.apache.commons.lang3.ObjectUtils;
-
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.drc.model.generated.Ondertekening;
-import net.atos.client.zgw.shared.model.ObjectType;
-import net.atos.client.zgw.shared.model.audit.documenten.EnkelvoudigInformatieobjectWijziging;
-import net.atos.client.zgw.ztc.ZtcClientService;
-import net.atos.zac.app.audit.converter.AbstractAuditWijzigingConverter;
-import net.atos.zac.app.audit.model.RESTHistorieRegel;
-
-public class AuditEnkelvoudigInformatieobjectConverter extends AbstractAuditWijzigingConverter<EnkelvoudigInformatieobjectWijziging> {
-
+class AuditEnkelvoudigInformatieobjectConverter :
+    AbstractAuditWijzigingConverter<EnkelvoudigInformatieobjectWijziging>() {
     @Inject
-    private ZtcClientService ztcClientService;
+    private val ztcClientService: ZtcClientService? = null
 
-    @Override
-    public boolean supports(final ObjectType objectType) {
-        return ObjectType.ENKELVOUDIG_INFORMATIEOBJECT == objectType;
+    override fun supports(objectType: ObjectType): Boolean {
+        return ObjectType.ENKELVOUDIG_INFORMATIEOBJECT == objectType
     }
 
-    @Override
-    protected Stream<RESTHistorieRegel> doConvert(final EnkelvoudigInformatieobjectWijziging wijziging) {
-        final EnkelvoudigInformatieObject oud = wijziging.getOud();
-        final EnkelvoudigInformatieObject nieuw = wijziging.getNieuw();
+    override fun doConvert(wijziging: EnkelvoudigInformatieobjectWijziging): Stream<RESTHistorieRegel?> {
+        val oud = wijziging.oud
+        val nieuw = wijziging.nieuw
 
         if (oud == null || nieuw == null) {
-            return Stream.of(new RESTHistorieRegel("informatieobject", toWaarde(oud), toWaarde(nieuw)));
+            return Stream.of(RESTHistorieRegel("informatieobject", toWaarde(oud), toWaarde(nieuw)))
         }
 
-        final List<RESTHistorieRegel> historieRegels = new LinkedList<>();
-        checkAttribuut("titel", oud.getTitel(), nieuw.getTitel(), historieRegels);
-        checkAttribuut("identificatie", oud.getIdentificatie(), nieuw.getIdentificatie(), historieRegels);
-        checkAttribuut("vertrouwelijkheidaanduiding", oud.getVertrouwelijkheidaanduiding(), nieuw.getVertrouwelijkheidaanduiding(),
-                historieRegels);
-        checkAttribuut("bestandsnaam", oud.getBestandsnaam(), nieuw.getBestandsnaam(), historieRegels);
-        checkAttribuut("taal", oud.getTaal(), nieuw.getTaal(), historieRegels);
-        checkInformatieobjecttype(oud.getInformatieobjecttype(), nieuw.getInformatieobjecttype(), historieRegels);
-        checkAttribuut("auteur", oud.getAuteur(), nieuw.getAuteur(), historieRegels);
-        checkAttribuut("ontvangstdatum", oud.getOntvangstdatum(), nieuw.getOntvangstdatum(), historieRegels);
-        checkAttribuut("registratiedatum", oud.getBeginRegistratie().toZonedDateTime(),
-                nieuw.getBeginRegistratie().toZonedDateTime(), historieRegels);
-        checkAttribuut("locked", oud.getLocked(), nieuw.getLocked(), historieRegels);
-        checkAttribuut("versie", Integer.toString(oud.getVersie()), Integer.toString(nieuw.getVersie()), historieRegels);
-        checkAttribuut("informatieobject.status", oud.getStatus(), nieuw.getStatus(), historieRegels);
-        checkAttribuut("bronorganisatie", oud.getBronorganisatie(), nieuw.getBronorganisatie(), historieRegels);
-        checkAttribuut("verzenddatum", oud.getVerzenddatum(), nieuw.getVerzenddatum(), historieRegels);
-        checkAttribuut("formaat", oud.getFormaat(), nieuw.getFormaat(), historieRegels);
-        checkAttribuut("ondertekening", toWaarde(oud.getOndertekening()), toWaarde(nieuw.getOndertekening()), historieRegels);
-        checkAttribuut("creatiedatum", oud.getCreatiedatum(), nieuw.getCreatiedatum(), historieRegels);
-        return historieRegels.stream();
+        val historieRegels: MutableList<RESTHistorieRegel?> = LinkedList()
+        checkAttribuut("titel", oud.titel, nieuw.titel, historieRegels)
+        checkAttribuut("identificatie", oud.identificatie, nieuw.identificatie, historieRegels)
+        checkAttribuut(
+            "vertrouwelijkheidaanduiding", oud.vertrouwelijkheidaanduiding, nieuw.vertrouwelijkheidaanduiding,
+            historieRegels
+        )
+        checkAttribuut("bestandsnaam", oud.bestandsnaam, nieuw.bestandsnaam, historieRegels)
+        checkAttribuut("taal", oud.taal, nieuw.taal, historieRegels)
+        checkInformatieobjecttype(oud.informatieobjecttype, nieuw.informatieobjecttype, historieRegels)
+        checkAttribuut("auteur", oud.auteur, nieuw.auteur, historieRegels)
+        checkAttribuut("ontvangstdatum", oud.ontvangstdatum, nieuw.ontvangstdatum, historieRegels)
+        checkAttribuut(
+            "registratiedatum", oud.beginRegistratie.toZonedDateTime(),
+            nieuw.beginRegistratie.toZonedDateTime(), historieRegels
+        )
+        checkAttribuut("locked", oud.locked, nieuw.locked, historieRegels)
+        checkAttribuut("versie", oud.versie.toString(), nieuw.versie.toString(), historieRegels)
+        checkAttribuut("informatieobject.status", oud.status, nieuw.status, historieRegels)
+        checkAttribuut("bronorganisatie", oud.bronorganisatie, nieuw.bronorganisatie, historieRegels)
+        checkAttribuut("verzenddatum", oud.verzenddatum, nieuw.verzenddatum, historieRegels)
+        checkAttribuut("formaat", oud.formaat, nieuw.formaat, historieRegels)
+        checkAttribuut("ondertekening", toWaarde(oud.ondertekening), toWaarde(nieuw.ondertekening), historieRegels)
+        checkAttribuut("creatiedatum", oud.creatiedatum, nieuw.creatiedatum, historieRegels)
+        return historieRegels.stream()
     }
 
-    private void checkInformatieobjecttype(final URI oud, final URI nieuw, final List<RESTHistorieRegel> historieRegels) {
+    private fun checkInformatieobjecttype(oud: URI, nieuw: URI, historieRegels: MutableList<RESTHistorieRegel?>) {
         if (ObjectUtils.notEqual(oud, nieuw)) {
-            historieRegels.add(new RESTHistorieRegel("documentType", informatieobjecttypeToWaarde(oud), informatieobjecttypeToWaarde(
-                    nieuw)));
+            historieRegels.add(
+                RESTHistorieRegel(
+                    "documentType", informatieobjecttypeToWaarde(oud), informatieobjecttypeToWaarde(
+                        nieuw
+                    )
+                )
+            )
         }
     }
 
-    private String informatieobjecttypeToWaarde(final URI informatieobjecttype) {
-        return informatieobjecttype != null ? ztcClientService.readInformatieobjecttype(informatieobjecttype).getOmschrijving() : null;
+    private fun informatieobjecttypeToWaarde(informatieobjecttype: URI?): String? {
+        return if (informatieobjecttype != null) ztcClientService!!.readInformatieobjecttype(informatieobjecttype).omschrijving else null
     }
 
-    private String toWaarde(final EnkelvoudigInformatieObject enkelvoudigInformatieobject) {
-        return enkelvoudigInformatieobject != null ? enkelvoudigInformatieobject.getIdentificatie() : null;
+    private fun toWaarde(enkelvoudigInformatieobject: EnkelvoudigInformatieObject?): String? {
+        return enkelvoudigInformatieobject?.identificatie
     }
 
-    private LocalDate toWaarde(final Ondertekening ondertekening) {
-        return ondertekening != null ? ondertekening.getDatum() : null;
+    private fun toWaarde(ondertekening: Ondertekening?): LocalDate? {
+        return ondertekening?.datum
     }
 }
