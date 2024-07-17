@@ -19,11 +19,10 @@ class RESTHistorieRegelConverter {
     @Any
     lateinit var wijzigingConverterInstance: Instance<AbstractAuditWijzigingConverter<out AuditWijziging<*>>>
 
-    fun convert(auditTrail: List<AuditTrailRegel>): List<RESTHistorieRegel> {
-        return auditTrail.sortedByDescending { it.aanmaakdatum }.stream()
+    fun convert(auditTrail: List<AuditTrailRegel>): List<RESTHistorieRegel> =
+        auditTrail.sortedByDescending { it.aanmaakdatum }.stream()
             .flatMap { auditTrailRegel: AuditTrailRegel -> this.convert(auditTrailRegel) }
             .collect(Collectors.toList())
-    }
 
     private fun convert(auditTrailRegel: AuditTrailRegel): Stream<RESTHistorieRegel> =
         convertWijziging(auditTrailRegel.wijzigingen).peek {
