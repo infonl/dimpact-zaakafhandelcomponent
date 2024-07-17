@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 package net.atos.zac.app.audit.converter.documenten
 
 import jakarta.inject.Inject
@@ -12,7 +17,6 @@ import org.apache.commons.lang3.ObjectUtils
 import java.net.URI
 import java.time.LocalDate
 import java.util.LinkedList
-import java.util.stream.Stream
 
 class AuditEnkelvoudigInformatieobjectConverter :
     AbstractAuditWijzigingConverter<EnkelvoudigInformatieobjectWijziging>() {
@@ -22,12 +26,12 @@ class AuditEnkelvoudigInformatieobjectConverter :
     override fun supports(objectType: ObjectType): Boolean =
         ObjectType.ENKELVOUDIG_INFORMATIEOBJECT == objectType
 
-    override fun doConvert(wijziging: EnkelvoudigInformatieobjectWijziging): Stream<RESTHistorieRegel> {
+    override fun doConvert(wijziging: EnkelvoudigInformatieobjectWijziging): List<RESTHistorieRegel> {
         val oud = wijziging.oud
         val nieuw = wijziging.nieuw
 
         if (oud == null || nieuw == null) {
-            return Stream.of(RESTHistorieRegel("informatieobject", toWaarde(oud), toWaarde(nieuw)))
+            return listOf(RESTHistorieRegel("informatieobject", toWaarde(oud), toWaarde(nieuw)))
         }
 
         val historieRegels: MutableList<RESTHistorieRegel> = LinkedList()
@@ -58,7 +62,7 @@ class AuditEnkelvoudigInformatieobjectConverter :
         checkAttribuut("formaat", oud.formaat, nieuw.formaat, historieRegels)
         checkAttribuut("ondertekening", toWaarde(oud.ondertekening), toWaarde(nieuw.ondertekening), historieRegels)
         checkAttribuut("creatiedatum", oud.creatiedatum, nieuw.creatiedatum, historieRegels)
-        return historieRegels.stream()
+        return historieRegels
     }
 
     private fun checkInformatieobjecttype(oud: URI, nieuw: URI, historieRegels: MutableList<RESTHistorieRegel>) {
