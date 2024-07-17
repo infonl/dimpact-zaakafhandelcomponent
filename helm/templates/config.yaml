@@ -32,12 +32,20 @@ data:
   MP_HEALTH_EMPTY_READINESS_CHECKS_STATUS: DOWN
   OBJECTS_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.objectenApi.url entry required!" .Values.objectenApi.url }}
   OBJECTTYPES_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.objecttypenApi.url entry required!" .Values.objecttypenApi.url }}
-  OFFICE_CONVERTER_CLIENT_MP_REST_URL: {{ .Values.office_converter.url | printf "http://%s-office-converter.%s" (include "zaakafhandelcomponent.fullname" .) .Release.Namespace }}
+  {{- if .Values.office_converter.url }}
+  OFFICE_CONVERTER_CLIENT_MP_REST_URL: {{ .Values.office_converter.url }}
+  {{- else }}
+  OFFICE_CONVERTER_CLIENT_MP_REST_URL: {{ printf "http://%s-office-converter.%s" .Release.Name .Release.Namespace }}
+  {{- end }}
   {{- if .Values.opa.sidecar }}
   OPA_API_CLIENT_MP_REST_URL: {{ printf "http://localhost:8181" }}
   {{- else }}
-  OPA_API_CLIENT_MP_REST_URL: {{ .Values.opa.url | printf "http://%s-opa.%s:8181" (include "zaakafhandelcomponent.fullname" .) .Release.Namespace }}
-  {{- end}}
+  {{ if .Values.opa.url }}
+  OPA_API_CLIENT_MP_REST_URL: {{ .Values.opa.url }}
+  {{- else }}
+  OPA_API_CLIENT_MP_REST_URL: {{ printf "http://%s-opa.%s:8181" .Release.Name .Release.Namespace }}
+  {{- end }}
+  {{- end }}
   OPEN_FORMS_URL: {{ required "Valid .Values.openForms.url entry required!" .Values.openForms.url }}
   SIGNALERINGEN_DELETE_OLDER_THAN_DAYS: {{ required "Valid .Values.signaleringen.deleteOlderThanDays entry required!" .Values.signaleringen.deleteOlderThanDays | quote }}
   SMTP_PORT: {{ required "Valid .Values.mail.smtp.port entry required!" .Values.mail.smtp.port | quote }}
@@ -50,7 +58,11 @@ data:
   {{- if .Values.smartDocuments.fixedUserName }}
   SD_FIXED_USER_NAME: {{ .Values.smartDocuments.fixedUserName }}
   {{- end}}
-  SOLR_URL: {{ .Values.solr.url | printf "http://%s-solr.%s" (include "zaakafhandelcomponent.fullname" .) .Release.Name }}
+  {{- if .Values.solr.url }}
+  SOLR_URL: {{ .Values.solr.url }}
+  {{- else }}
+  SOLR_URL: {{ printf "http://%s-solr.%s" .Release.Name .Release.Namespace }}
+  {{- end }}
   TZ: Europe/Amsterdam
   ZGW_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.zgwApis.url entry required!" .Values.zgwApis.url }}
   ZGW_API_CLIENTID: {{ required "Valid .Values.zgwApis.clientId entry required!" .Values.zgwApis.clientId }}
