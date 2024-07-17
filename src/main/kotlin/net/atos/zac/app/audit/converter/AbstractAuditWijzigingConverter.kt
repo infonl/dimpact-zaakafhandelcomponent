@@ -16,9 +16,8 @@ import java.time.ZonedDateTime
 import java.util.stream.Stream
 
 abstract class AbstractAuditWijzigingConverter<W : AuditWijziging<*>?> {
-    fun convert(wijziging: AuditWijziging<*>): Stream<RESTHistorieRegel> {
-        return doConvert(wijziging as W)
-    }
+    fun convert(wijziging: AuditWijziging<*>): Stream<RESTHistorieRegel> =
+        doConvert(wijziging as W)
 
     abstract fun supports(objectType: ObjectType): Boolean
 
