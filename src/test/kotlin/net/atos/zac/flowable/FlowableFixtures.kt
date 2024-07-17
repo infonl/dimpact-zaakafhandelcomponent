@@ -30,7 +30,7 @@ fun createTestTask(
     processDefinitionId: String? = null,
     scopeId: String? = null,
     subScopeId: String? = null,
-    scopeType: String? = null,
+    scopeType: String = "cmmn",
     scopeDefinitionId: String? = null,
     taskDefinitionId: String? = null,
     suspended: Boolean = false,

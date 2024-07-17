@@ -38,8 +38,6 @@ class SignaleringMailHelper @Inject constructor(
             else -> null
         }
 
-    fun formatTo(mail: SignaleringTarget.Mail): MailAdres = MailAdres(mail.emailadres, mail.naam)
-
     fun getMailTemplate(signalering: Signalering): MailTemplate =
         mailTemplateService.readMailtemplate(
             when (signalering.type.type) {
@@ -55,3 +53,5 @@ class SignaleringMailHelper @Inject constructor(
             }
         )
 }
+
+fun formatTo(mail: SignaleringTarget.Mail): MailAdres = MailAdres(mail.emailadres, mail.naam)
