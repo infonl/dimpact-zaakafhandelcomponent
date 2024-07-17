@@ -64,6 +64,7 @@ import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockS
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.flowable.TaakVariabelenService
+import net.atos.zac.flowable.TaakVariabelenService.readTaskdocuments
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.util.UriUtil
@@ -250,7 +251,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         assertPolicy(policyService.readTaakRechten(task).toevoegenDocument)
 
         mutableListOf<UUID>().let {
-            it.addAll(taakVariabelenService.readTaakdocumenten(task))
+            it.addAll(readTaskdocuments(task))
             it.add(uuidFromURI(zaakInformatieobject.informatieobject))
             taakVariabelenService.setTaakdocumenten(task, it)
         }

@@ -237,14 +237,11 @@ class MailService @Inject constructor(
         }
 
     private fun resolveVariabelen(tekst: String, bronnen: Bronnen): String =
-        mailTemplateHelper.resolveVariabelen(
-            mailTemplateHelper.resolveVariabelen(
-                mailTemplateHelper.resolveVariabelen(
-                    mailTemplateHelper.resolveVariabelen(tekst),
-                    bronnen.zaak
-                ),
-                bronnen.document
-            ),
-            bronnen.taskInfo
-        )
+        mailTemplateHelper.resolveVariabelen(tekst).let {
+            mailTemplateHelper.resolveVariabelen(it, bronnen.zaak)
+        }.let {
+            mailTemplateHelper.resolveVariabelen(it, bronnen.document)
+        }.let {
+            mailTemplateHelper.resolveVariabelen(it, bronnen.taskInfo)
+        }
 }

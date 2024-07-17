@@ -63,7 +63,6 @@ import org.flowable.task.api.history.createHistoricTaskInstanceEntityImpl
 import java.net.URI
 import java.time.LocalDate
 import java.time.ZonedDateTime
-import java.util.Optional
 import java.util.UUID
 
 class TaskRestServiceTest : BehaviorSpec({
@@ -190,16 +189,14 @@ class TaskRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
         every { httpSessionInstance.get() } returns httpSession
         every { httpSession.getAttribute(any<String>()) } returns null
-        every { taakVariabelenService.isZaakHervatten(restTaak.taakdata) } returns false
-        every { taakVariabelenService.readOndertekeningen(restTaak.taakdata) } returns Optional.empty()
         every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
         every {
             enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
                 enkelvoudigInformatieObjectUUID, dateTime.toLocalDate(), null
             )
         } returns createEnkelvoudigInformatieObjectWithLockRequest()
-        every { taakVariabelenService.setTaakdata(task, restTaak.taakdata) } just runs
-        every { taakVariabelenService.setTaakinformatie(task, null) } just runs
+        every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
+        every { taakVariabelenService.setTaskinformation(task, null) } just runs
         every { flowableTaskService.completeTask(task) } returns historicTaskInstance
         every { indexeerService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
         every { historicTaskInstance.id } returns restTaak.id
@@ -240,12 +237,14 @@ class TaskRestServiceTest : BehaviorSpec({
         )
         val restTaakDataKey = "dummyKey"
         val restTaakDataValue = "dummyValue"
+        val signatureUUID = UUID.randomUUID()
         val restTaakData = mutableMapOf(
-            restTaakDataKey to restTaakDataValue
+            restTaakDataKey to restTaakDataValue,
+            "ondertekenen" to signatureUUID.toString()
         )
         val restTaak = createRestTask(
             behandelaar = restUser,
-            taakData = restTaakData
+            taakData = restTaakData,
         )
         val restTaakConverted = createRestTask(
             behandelaar = restUser
@@ -253,8 +252,8 @@ class TaskRestServiceTest : BehaviorSpec({
         every { task.assignee } returns "dummyAssignee"
         every { flowableTaskService.readOpenTask(restTaak.id) } returns task
         every { flowableTaskService.updateTask(task) } returns task
-        every { taakVariabelenService.setTaakdata(task, restTaak.taakdata) } just runs
-        every { taakVariabelenService.setTaakinformatie(task, null) } just runs
+        every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
+        every { taakVariabelenService.setTaskinformation(task, null) } just runs
         every { eventingService.send(any<ScreenEvent>()) } just runs
 
         When("'updateTaakdata' is called with changed description and due date from user with access") {
@@ -283,7 +282,6 @@ class TaskRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val historicTaskInstance = createHistoricTaskInstanceEntityImpl()
             val httpSession = mockk<HttpSession>()
-            val signatureUUID = UUID.randomUUID()
             val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
                 url = URI("http://example.com/$enkelvoudigInformatieObjectUUID")
@@ -295,10 +293,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { httpSessionInstance.get() } returns httpSession
             // in this test we assume there was no document uploaded to the http session beforehand
             every { httpSession.getAttribute("_FILE__${restTaak.id}__$restTaakDataKey") } returns null
-            every { taakVariabelenService.isZaakHervatten(restTaakData) } returns false
-            every {
-                taakVariabelenService.readOndertekeningen(restTaakData)
-            } returns Optional.of(signatureUUID.toString())
+            every { httpSession.getAttribute("_FILE__${restTaak.id}__ondertekenen") } returns null
             every {
                 drcClientService.readEnkelvoudigInformatieobject(signatureUUID)
             } returns enkelvoudigInformatieObject

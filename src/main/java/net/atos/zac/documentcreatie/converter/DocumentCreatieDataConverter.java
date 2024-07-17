@@ -255,7 +255,7 @@ public class DocumentCreatieDataConverter {
         if (taskInfo.getAssignee() != null) {
             taakData.behandelaar = identityService.readUser(taskInfo.getAssignee()).getFullName();
         }
-        taakData.data = taakVariabelenService.readTaakdata(taskInfo);
+        taakData.data = taakVariabelenService.readTaskData(taskInfo);
         return taakData;
     }
 }

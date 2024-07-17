@@ -141,7 +141,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
         if (behandelaar.isPresent()) {
             final Signalering signalering = getSignaleringVoorRol(event, subject, behandelaar.get());
             if (signalering != null) {
-                signalering.setDetail(detail);
+                signalering.setDetailFromZaakInformatieobject(detail);
             }
             return signalering;
         }

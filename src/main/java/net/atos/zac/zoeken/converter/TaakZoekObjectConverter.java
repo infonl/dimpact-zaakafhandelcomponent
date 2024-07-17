@@ -84,12 +84,12 @@ public class TaakZoekObjectConverter extends AbstractZoekObjectConverter<TaakZoe
         taakZoekObject.setZaakToelichting(zaak.getToelichting());
 
         taakZoekObject.setTaakData(
-                taakVariabelenService.readTaakdata(taskInfo).entrySet().stream()
+                taakVariabelenService.readTaskData(taskInfo).entrySet().stream()
                         .map(data -> "%s|%s".formatted(data.getKey(), data.getValue()))
                         .toList());
 
         taakZoekObject.setTaakInformatie(
-                taakVariabelenService.readTaakinformatie(taskInfo).entrySet().stream()
+                taakVariabelenService.readTaskinformation(taskInfo).entrySet().stream()
                         .map(informatie -> "%s|%s".formatted(informatie.getKey(), informatie.getValue()))
                         .toList());
 

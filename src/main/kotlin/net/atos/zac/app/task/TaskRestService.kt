@@ -47,6 +47,9 @@ import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.flowable.TaakVariabelenService
+import net.atos.zac.flowable.TaakVariabelenService.isZaakHervatten
+import net.atos.zac.flowable.TaakVariabelenService.readSignatures
+import net.atos.zac.flowable.TaakVariabelenService.readZaakUUID
 import net.atos.zac.flowable.util.TaskUtil
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
@@ -108,21 +111,20 @@ class TaskRestService @Inject constructor(
 
     @GET
     @Path("{taskId}")
-    fun readTask(@PathParam("taskId") taskId: String): RestTask {
+    fun readTask(@PathParam("taskId") taskId: String): RestTask =
         flowableTaskService.readTask(taskId).let {
             assertPolicy(policyService.readTaakRechten(it).lezen)
             deleteSignaleringen(it)
-            return restTaskConverter.convert(it)
+            restTaskConverter.convert(it)
         }
-    }
 
     @PUT
     @Path("taakdata")
     fun updateTaskData(restTask: RestTask): RestTask {
         flowableTaskService.readOpenTask(restTask.id).let {
             assertPolicy(TaskUtil.isOpen(it) && policyService.readTaakRechten(it).wijzigen)
-            taakVariabelenService.setTaakdata(it, restTask.taakdata)
-            taakVariabelenService.setTaakinformatie(it, restTask.taakinformatie)
+            taakVariabelenService.setTaskData(it, restTask.taakdata)
+            taakVariabelenService.setTaskinformation(it, restTask.taakinformatie)
             val updatedTask = updateDescriptionAndDueDate(restTask)
             eventingService.send(ScreenEventType.TAAK.updated(updatedTask))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
@@ -209,7 +211,7 @@ class TaskRestService @Inject constructor(
         }
         val updatedTask = updateDescriptionAndDueDate(restTask)
         createDocuments(restTask, zaak)
-        if (taakVariabelenService.isZaakHervatten(restTask.taakdata)) {
+        if (isZaakHervatten(restTask.taakdata)) {
             opschortenZaakHelper.hervattenZaak(zaak, REDEN_ZAAK_HERVATTEN)
         }
         restTask.taakdata?.let { taakdata ->
@@ -223,8 +225,8 @@ class TaskRestService @Inject constructor(
             }
             ondertekenEnkelvoudigInformatieObjecten(taakdata, zaak)
         }
-        taakVariabelenService.setTaakdata(updatedTask, restTask.taakdata)
-        taakVariabelenService.setTaakinformatie(updatedTask, restTask.taakinformatie)
+        taakVariabelenService.setTaskData(updatedTask, restTask.taakdata)
+        taakVariabelenService.setTaskinformation(updatedTask, restTask.taakinformatie)
         flowableTaskService.completeTask(updatedTask).let {
             indexeerService.addOrUpdateZaak(restTask.zaakUuid, false)
             eventingService.send(ScreenEventType.TAAK.updated(it))
@@ -305,7 +307,7 @@ class TaskRestService @Inject constructor(
                         } finally {
                             httpSession.removeAttribute(fileKey)
                         }
-                        // document can be uploaded but removed afterwards
+                        // document can be uploaded but removed afterward
                     } ?: httpSession.removeAttribute(fileKey)
                 }
             }
@@ -313,7 +315,7 @@ class TaskRestService @Inject constructor(
     }
 
     private fun ondertekenEnkelvoudigInformatieObjecten(taakdata: Map<String, String>, zaak: Zaak) {
-        val signatures = taakVariabelenService.readOndertekeningen(taakdata)
+        val signatures = readSignatures(taakdata)
         signatures.ifPresent { signature ->
             signature.split(
                 TaakVariabelenService.TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER.toRegex()
@@ -347,7 +349,7 @@ class TaskRestService @Inject constructor(
             signaleringService.deleteSignaleringen(
                 SignaleringZoekParameters(loggedInUser)
                     .types(SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD)
-                    .subjectZaak(taakVariabelenService.readZaakUUID(taskInfo))
+                    .subjectZaak(readZaakUUID(taskInfo))
             )
         }
     }
