@@ -2,21 +2,16 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.audit.converter.besluiten
 
 import net.atos.client.zgw.brc.model.generated.Besluit
-import net.atos.client.zgw.shared.model.ObjectType
-import net.atos.client.zgw.shared.model.audit.besluiten.BesluitWijziging
-import net.atos.zac.app.audit.converter.AbstractAuditWijzigingConverter
+import net.atos.client.zgw.shared.model.audit.AuditWijziging
 import net.atos.zac.app.audit.converter.addHistorieRegel
 import net.atos.zac.app.audit.model.RESTHistorieRegel
 
-class AuditBesluitConverter : AbstractAuditWijzigingConverter<BesluitWijziging>() {
-    override fun supports(objectType: ObjectType): Boolean =
-        ObjectType.BESLUIT == objectType
+object AuditBesluitConverter {
 
-    override fun doConvert(wijziging: BesluitWijziging): List<RESTHistorieRegel> {
+    fun convert(wijziging: AuditWijziging<Besluit>): List<RESTHistorieRegel> {
         val oud = wijziging.oud
         val nieuw = wijziging.nieuw
 

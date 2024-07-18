@@ -4,36 +4,46 @@
  */
 package net.atos.zac.app.audit.converter
 
-import jakarta.enterprise.inject.Any
-import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
+import net.atos.client.zgw.brc.model.generated.Besluit
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import net.atos.client.zgw.drc.model.generated.Gebruiksrechten
+import net.atos.client.zgw.shared.model.ObjectType.BESLUIT
+import net.atos.client.zgw.shared.model.ObjectType.BESLUIT_INFORMATIEOBJECT
+import net.atos.client.zgw.shared.model.ObjectType.ENKELVOUDIG_INFORMATIEOBJECT
+import net.atos.client.zgw.shared.model.ObjectType.GEBRUIKSRECHTEN
+import net.atos.client.zgw.shared.model.ObjectType.OBJECT_INFORMATIEOBJECT
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
 import net.atos.client.zgw.shared.model.audit.AuditWijziging
+import net.atos.zac.app.audit.converter.besluiten.AuditBesluitConverter
+import net.atos.zac.app.audit.converter.documenten.AuditEnkelvoudigInformatieobjectConverter
+import net.atos.zac.app.audit.converter.documenten.AuditGebruiksrechtenWijzigingConverter
 import net.atos.zac.app.audit.model.RESTHistorieRegel
 
-class RESTHistorieRegelConverter {
-
-    @Inject
-    @Any
-    lateinit var wijzigingConverterInstance: Instance<AbstractAuditWijzigingConverter<out AuditWijziging<*>>>
+class RESTHistorieRegelConverter @Inject constructor(
+    private val auditEnkelvoudigInformatieobjectConverter: AuditEnkelvoudigInformatieobjectConverter
+) {
 
     fun convert(auditTrail: List<AuditTrailRegel>): List<RESTHistorieRegel> =
         auditTrail.sortedByDescending { it.aanmaakdatum }
-            .flatMap { convert(it) }
+            .flatMap { it.toRestHistorieRegelList() }
             .toList()
 
-    private fun convert(auditTrailRegel: AuditTrailRegel): List<RESTHistorieRegel> =
-        convertWijziging(auditTrailRegel.wijzigingen)
-            .map { convertAuditTrailBasis(it, auditTrailRegel) }
-
-    private fun convertWijziging(wijziging: AuditWijziging<*>): List<RESTHistorieRegel> {
-        for (wijzigingConverter in wijzigingConverterInstance) {
-            if (wijzigingConverter.supports(wijziging.objectType)) {
-                return wijzigingConverter.convert(wijziging)
+    @Suppress("UNCHECKED_CAST")
+    private fun AuditTrailRegel.toRestHistorieRegelList(): List<RESTHistorieRegel> =
+        with(this.wijzigingen) {
+            when (this.objectType) {
+                BESLUIT ->
+                    AuditBesluitConverter.convert(this as AuditWijziging<Besluit>)
+                GEBRUIKSRECHTEN ->
+                    AuditGebruiksrechtenWijzigingConverter.convert(this as AuditWijziging<Gebruiksrechten>)
+                ENKELVOUDIG_INFORMATIEOBJECT, OBJECT_INFORMATIEOBJECT, BESLUIT_INFORMATIEOBJECT ->
+                    auditEnkelvoudigInformatieobjectConverter.convert(
+                        this as AuditWijziging<EnkelvoudigInformatieObject>
+                    )
+                else -> emptyList()
             }
-        }
-        return emptyList()
-    }
+        }.map { convertAuditTrailBasis(it, this) }
 
     private fun convertAuditTrailBasis(historieRegel: RESTHistorieRegel, auditTrailRegel: AuditTrailRegel) =
         historieRegel.apply {

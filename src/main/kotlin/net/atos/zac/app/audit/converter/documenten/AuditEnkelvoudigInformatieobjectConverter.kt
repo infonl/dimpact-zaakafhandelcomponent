@@ -8,25 +8,19 @@ package net.atos.zac.app.audit.converter.documenten
 import jakarta.inject.Inject
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.generated.Ondertekening
-import net.atos.client.zgw.shared.model.ObjectType
-import net.atos.client.zgw.shared.model.audit.documenten.EnkelvoudigInformatieobjectWijziging
+import net.atos.client.zgw.shared.model.audit.AuditWijziging
 import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.zac.app.audit.converter.AbstractAuditWijzigingConverter
 import net.atos.zac.app.audit.converter.addHistorieRegel
 import net.atos.zac.app.audit.model.RESTHistorieRegel
 import org.apache.commons.lang3.ObjectUtils
 import java.net.URI
 import java.time.LocalDate
 
-class AuditEnkelvoudigInformatieobjectConverter :
-    AbstractAuditWijzigingConverter<EnkelvoudigInformatieobjectWijziging>() {
+class AuditEnkelvoudigInformatieobjectConverter {
     @Inject
     lateinit var ztcClientService: ZtcClientService
 
-    override fun supports(objectType: ObjectType): Boolean =
-        ObjectType.ENKELVOUDIG_INFORMATIEOBJECT == objectType
-
-    override fun doConvert(wijziging: EnkelvoudigInformatieobjectWijziging): List<RESTHistorieRegel> {
+    fun convert(wijziging: AuditWijziging<EnkelvoudigInformatieObject>): List<RESTHistorieRegel> {
         val oud = wijziging.oud
         val nieuw = wijziging.nieuw
 
