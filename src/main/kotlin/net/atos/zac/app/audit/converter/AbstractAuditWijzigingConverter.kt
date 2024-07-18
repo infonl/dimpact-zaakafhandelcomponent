@@ -4,15 +4,9 @@
  */
 package net.atos.zac.app.audit.converter
 
-import net.atos.client.zgw.drc.model.generated.StatusEnum
-import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.model.ObjectType
 import net.atos.client.zgw.shared.model.audit.AuditWijziging
 import net.atos.zac.app.audit.model.RESTHistorieRegel
-import org.apache.commons.lang3.ObjectUtils
-import org.apache.commons.lang3.StringUtils
-import java.time.LocalDate
-import java.time.ZonedDateTime
 
 abstract class AbstractAuditWijzigingConverter<W : AuditWijziging<*>?> {
     fun convert(wijziging: AuditWijziging<*>): List<RESTHistorieRegel> =
@@ -21,70 +15,4 @@ abstract class AbstractAuditWijzigingConverter<W : AuditWijziging<*>?> {
     abstract fun supports(objectType: ObjectType): Boolean
 
     protected abstract fun doConvert(wijziging: W): List<RESTHistorieRegel>
-
-    protected fun checkAttribuut(
-        label: String,
-        oud: String,
-        nieuw: String,
-        historieRegels: MutableList<RESTHistorieRegel>
-    ) {
-        if (!StringUtils.equals(oud, nieuw)) {
-            historieRegels.add(RESTHistorieRegel(label, oud, nieuw))
-        }
-    }
-
-    protected fun checkAttribuut(
-        label: String,
-        oud: StatusEnum,
-        nieuw: StatusEnum,
-        historieRegels: MutableList<RESTHistorieRegel>
-    ) {
-        if (oud != nieuw) {
-            historieRegels.add(RESTHistorieRegel(label, oud, nieuw))
-        }
-    }
-
-    protected fun checkAttribuut(
-        label: String,
-        oud: VertrouwelijkheidaanduidingEnum,
-        nieuw: VertrouwelijkheidaanduidingEnum,
-        historieRegels: MutableList<RESTHistorieRegel>
-    ) {
-        if (oud != nieuw) {
-            historieRegels.add(RESTHistorieRegel(label, oud, nieuw))
-        }
-    }
-
-    protected fun checkAttribuut(
-        label: String,
-        oud: Boolean,
-        nieuw: Boolean,
-        historieRegels: MutableList<RESTHistorieRegel>
-    ) {
-        if (ObjectUtils.notEqual(oud, nieuw)) {
-            historieRegels.add(RESTHistorieRegel(label, oud, nieuw))
-        }
-    }
-
-    protected fun checkAttribuut(
-        label: String,
-        oud: LocalDate?,
-        nieuw: LocalDate?,
-        historieRegels: MutableList<RESTHistorieRegel>
-    ) {
-        if (ObjectUtils.notEqual(oud, nieuw)) {
-            historieRegels.add(RESTHistorieRegel(label, oud, nieuw))
-        }
-    }
-
-    protected fun checkAttribuut(
-        label: String,
-        oud: ZonedDateTime,
-        nieuw: ZonedDateTime,
-        historieRegels: MutableList<RESTHistorieRegel>
-    ) {
-        if (ObjectUtils.notEqual(oud, nieuw)) {
-            historieRegels.add(RESTHistorieRegel(label, oud, nieuw))
-        }
-    }
 }
