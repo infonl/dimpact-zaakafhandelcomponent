@@ -366,6 +366,7 @@
   "action.document.GEWIJZIGD": "Gewijzigd",
   "action.document.GEKOPPELD": "Gekoppeld",
   "action.document.ONTKOPPELD": "Ontkoppeld",
+  "action.document.onbekend": "Onbekend",
   "archiefActiedatum": "Archiefactiedatum",
   "archiefNominatie": "Archiefnominatie",
   "archiefNominatie.-kies-": "- Kies een archiefnominatie -",

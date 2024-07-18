@@ -366,6 +366,7 @@
   "action.document.GEWIJZIGD": "Updated",
   "action.document.GEKOPPELD": "Linked",
   "action.document.ONTKOPPELD": "Unlinked",
+  "action.document.onbekend": "Unknown",
   "archiefActiedatum": "Archive action date",
   "archiefNominatie": "Archive nomination",
   "archiefNominatie.-kies-": "- Select a archive nomination -",
