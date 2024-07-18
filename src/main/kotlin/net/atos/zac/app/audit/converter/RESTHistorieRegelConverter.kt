@@ -18,12 +18,17 @@ import net.atos.client.zgw.shared.model.audit.AuditWijziging
 import net.atos.zac.app.audit.converter.besluiten.AuditBesluitConverter
 import net.atos.zac.app.audit.converter.documenten.AuditEnkelvoudigInformatieobjectConverter
 import net.atos.zac.app.audit.converter.documenten.AuditGebruiksrechtenWijzigingConverter
+import net.atos.zac.app.audit.model.RESTHistorieActie
 import net.atos.zac.app.audit.model.RESTHistorieRegel
+
+private const val CREATE = "create"
+private const val DESTROY = "destroy"
+private const val UPDATE = "update"
+private const val PARTIAL_UPDATE = "partial_update"
 
 class RESTHistorieRegelConverter @Inject constructor(
     private val auditEnkelvoudigInformatieobjectConverter: AuditEnkelvoudigInformatieobjectConverter
 ) {
-
     fun convert(auditTrail: List<AuditTrailRegel>): List<RESTHistorieRegel> =
         auditTrail.sortedByDescending { it.aanmaakdatum }
             .flatMap { it.toRestHistorieRegelList() }
@@ -47,9 +52,18 @@ class RESTHistorieRegelConverter @Inject constructor(
 
     private fun convertAuditTrailBasis(historieRegel: RESTHistorieRegel, auditTrailRegel: AuditTrailRegel) =
         historieRegel.apply {
+            actie = convertActie(auditTrailRegel.actie)
+            applicatie = auditTrailRegel.applicatieWeergave
             datumTijd = auditTrailRegel.aanmaakdatum
             door = auditTrailRegel.gebruikersWeergave
-            applicatie = auditTrailRegel.applicatieWeergave
             toelichting = auditTrailRegel.toelichting
+        }
+
+    private fun convertActie(auditTrailActie: String): RESTHistorieActie? =
+        when (auditTrailActie) {
+            CREATE -> RESTHistorieActie.GEKOPPELD
+            UPDATE, PARTIAL_UPDATE -> RESTHistorieActie.GEWIJZIGD
+            DESTROY -> RESTHistorieActie.ONTKOPPELD
+            else -> null
         }
 }
