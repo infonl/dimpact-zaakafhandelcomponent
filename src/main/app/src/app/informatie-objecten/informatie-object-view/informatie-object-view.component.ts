@@ -75,6 +75,7 @@ export class InformatieObjectViewComponent
     "datum",
     "gebruiker",
     "wijziging",
+    "actie",
     "oudeWaarde",
     "nieuweWaarde",
     "toelichting",
