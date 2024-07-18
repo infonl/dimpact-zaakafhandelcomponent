@@ -31,7 +31,7 @@
     <div class="flex-row flex-wrap flex-col-xl gap-10">
       <mat-card class="w60" appearance="outlined">
         <mat-card-header class="flex-row space-between">
-          <mat-card-title>{{'informatieobject' | translate}}</mat-card-title>
+          <mat-card-title>{{ "informatieobject" | translate }}</mat-card-title>
           <zac-informatie-object-indicaties
             [layout]="indicatiesLayout.VIEW"
             [document]="infoObject"
@@ -43,7 +43,7 @@
             <mat-tab id="algemeneGegevens_tab">
               <ng-template mat-tab-label>
                 <mat-icon>topic</mat-icon>
-                {{'gegevens.algemeen' | translate}}
+                {{ "gegevens.algemeen" | translate }}
               </ng-template>
               <div class="content flex-row flex-wrap flex-col-xs">
                 <div class="w33 w50-sm">
@@ -57,7 +57,11 @@
                   ></zac-static-text>
                   <zac-static-text
                     [label]="'vertrouwelijkheidaanduiding' | translate"
-                    [value]="infoObject.vertrouwelijkheidaanduiding | vertrouwelijkaanduidingToTranslationKey | translate"
+                    [value]="
+                      infoObject.vertrouwelijkheidaanduiding
+                        | vertrouwelijkaanduidingToTranslationKey
+                        | translate
+                    "
                   ></zac-static-text>
                   <zac-static-text
                     [label]="'bestandsnaam' | translate"
@@ -98,9 +102,12 @@
                       [value]="versieInformatie"
                     ></zac-static-text>
                     <button
-                      [disabled]="laatsteVersieInfoObject && infoObject.versie === laatsteVersieInfoObject.versie"
+                      [disabled]="
+                        laatsteVersieInfoObject &&
+                        infoObject.versie === laatsteVersieInfoObject.versie
+                      "
                       mat-icon-button
-                      (click)="haalVersieOp(infoObject.versie + 1);"
+                      (click)="haalVersieOp(infoObject.versie + 1)"
                     >
                       <mat-icon>chevron_right</mat-icon>
                     </button>
@@ -112,7 +119,9 @@
                   </div>
                   <zac-static-text
                     [label]="'informatieobject.status' | translate"
-                    [value]="'informatieobject.status.'+infoObject.status | translate"
+                    [value]="
+                      'informatieobject.status.' + infoObject.status | translate
+                    "
                     *ngIf="infoObject.status"
                   ></zac-static-text>
                   <zac-static-text
@@ -143,7 +152,7 @@
                   </div>
                   <zac-static-text
                     [label]="'registratiedatum' | translate"
-                    [value]="infoObject.registratiedatumTijd | datum:'short'"
+                    [value]="infoObject.registratiedatumTijd | datum: 'short'"
                   ></zac-static-text>
                 </div>
                 <div class="w33 w50-sm">
@@ -167,33 +176,33 @@
             <mat-tab id="historie_tab">
               <ng-template mat-tab-label>
                 <mat-icon>history</mat-icon>
-                {{'historie' | translate}}
+                {{ "historie" | translate }}
               </ng-template>
               <div class="table-wrapper historie-table">
                 <table mat-table [dataSource]="historie" matSort>
                   <ng-container matColumnDef="datum">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                      {{'datum' | translate}}
+                      {{ "datum" | translate }}
                     </th>
                     <td *matCellDef="let regel" mat-cell>
-                      <div matTooltip="{{regel.datumTijd | datum:'short'}}">
-                        {{regel.datumTijd | datum | empty}}
+                      <div matTooltip="{{ regel.datumTijd | datum: 'short' }}">
+                        {{ regel.datumTijd | datum | empty }}
                       </div>
                     </td>
                   </ng-container>
                   <ng-container matColumnDef="gebruiker">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                      {{'door' | translate}}
+                      {{ "door" | translate }}
                     </th>
                     <td *matCellDef="let regel" mat-cell>
-                      <div matTooltip="{{regel.applicatie}}">
-                        {{regel.door | empty}}
+                      <div matTooltip="{{ regel.applicatie }}">
+                        {{ regel.door | empty }}
                       </div>
                     </td>
                   </ng-container>
                   <ng-container matColumnDef="wijziging">
                     <th mat-header-cell *matHeaderCellDef>
-                      {{'gegeven' | translate}}
+                      {{ "gegeven" | translate }}
                     </th>
                     <td mat-cell *matCellDef="let regel">
                       <read-more
@@ -221,7 +230,7 @@
                   </ng-container>
                   <ng-container matColumnDef="oudeWaarde">
                     <th mat-header-cell *matHeaderCellDef>
-                      {{'waarde.oud' | translate}}
+                      {{ "waarde.oud" | translate }}
                     </th>
                     <td mat-cell *matCellDef="let regel">
                       <read-more
@@ -232,18 +241,20 @@
                   </ng-container>
                   <ng-container matColumnDef="nieuweWaarde">
                     <th mat-header-cell *matHeaderCellDef>
-                      {{'waarde.nieuw' | translate}}
+                      {{ "waarde.nieuw" | translate }}
                     </th>
                     <td mat-cell *matCellDef="let regel">
                       <read-more
-                        [text]="regel.nieuweWaarde | empty | mimetypeToExtension"
+                        [text]="
+                          regel.nieuweWaarde | empty | mimetypeToExtension
+                        "
                         [maxLength]="20"
                       ></read-more>
                     </td>
                   </ng-container>
                   <ng-container matColumnDef="toelichting">
                     <th mat-header-cell *matHeaderCellDef>
-                      {{'toelichting' | translate}}
+                      {{ "toelichting" | translate }}
                     </th>
                     <td mat-cell *matCellDef="let regel">
                       <read-more
@@ -258,11 +269,11 @@
                   ></tr>
                   <tr
                     mat-row
-                    *matRowDef="let row; columns: historieColumns;"
+                    *matRowDef="let row; columns: historieColumns"
                   ></tr>
                 </table>
                 <p *ngIf="historie.data.length == 0">
-                  {{'msg.geen.gegevens.gevonden' | translate}}
+                  {{ "msg.geen.gegevens.gevonden" | translate }}
                 </p>
               </div>
             </mat-tab>
@@ -278,12 +289,12 @@
           <mat-card-header>
             <mat-card-title-group>
               <mat-card-title
-                >{{'zaak' | translate}}
-                {{zaak.zaakIdentificatie}}</mat-card-title
+                >{{ "zaak" | translate }}
+                {{ zaak.zaakIdentificatie }}</mat-card-title
               >
-              <mat-card-subtitle
-                >{{zaak.zaaktypeOmschrijving}}</mat-card-subtitle
-              >
+              <mat-card-subtitle>{{
+                zaak.zaaktypeOmschrijving
+              }}</mat-card-subtitle>
               <a
                 [routerLink]="['/zaken', zaak?.zaakIdentificatie]"
                 [title]="zaak.zaakIdentificatie + ' openen'"
@@ -299,7 +310,7 @@
               <zac-static-text
                 class="flex-1 w33"
                 [label]="'status' | translate"
-                [value]="zaak.zaakStatus | empty:'naam'"
+                [value]="zaak.zaakStatus | empty: 'naam'"
               ></zac-static-text>
 
               <zac-static-text
@@ -311,7 +322,7 @@
               <zac-static-text
                 class="flex-1 w33"
                 [label]="'einddatumGepland' | translate"
-                [value]="zaak.zaakEinddatumGepland | datum | empty "
+                [value]="zaak.zaakEinddatumGepland | datum | empty"
               ></zac-static-text>
             </div>
           </mat-card-content>
@@ -323,7 +334,7 @@
           <mat-expansion-panel-header>
             <mat-panel-title>
               <mat-icon outlined>plagiarism</mat-icon>
-              {{infoObject.titel}} | {{ 'document.preview' | translate}}
+              {{ infoObject.titel }} | {{ "document.preview" | translate }}
             </mat-panel-title>
           </mat-expansion-panel-header>
           <zac-document-viewer [document]="infoObject"></zac-document-viewer>
