@@ -50,11 +50,13 @@ class InformatieobjectenHistorieTest : BehaviorSpec({
 
                 val expectedResponse = """[
                   {
+                    "actie": "GEWIJZIGD",
                     "attribuutLabel": "registratiedatum",
                     "door": "$TEST_USER_1_NAME",
                     "toelichting": "Door ondertekenen"
                   },
                   {
+                    "actie": "GEWIJZIGD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "versie",
                     "door": "$TEST_USER_1_NAME",
@@ -63,6 +65,7 @@ class InformatieobjectenHistorieTest : BehaviorSpec({
                     "toelichting": "Door ondertekenen"
                   },
                   {
+                    "actie": "GEWIJZIGD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "informatieobject.status",
                     "door": "$TEST_USER_1_NAME",
@@ -71,12 +74,14 @@ class InformatieobjectenHistorieTest : BehaviorSpec({
                     "toelichting": "Door ondertekenen"
                   },
                   {
+                    "actie": "GEWIJZIGD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "ondertekening",
                     "door": "$TEST_USER_1_NAME",
                     "toelichting": "Door ondertekenen"
                   },
                   {
+                    "actie": "GEWIJZIGD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "titel",
                     "door": "$TEST_USER_1_NAME",
@@ -85,6 +90,7 @@ class InformatieobjectenHistorieTest : BehaviorSpec({
                     "toelichting": ""
                   },
                   {
+                    "actie": "GEWIJZIGD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "bestandsnaam",
                     "door": "$TEST_USER_1_NAME",
@@ -93,12 +99,14 @@ class InformatieobjectenHistorieTest : BehaviorSpec({
                     "toelichting": ""
                   },
                   {
+                    "actie": "GEWIJZIGD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "registratiedatum",
                     "door": "$TEST_USER_1_NAME",
                     "toelichting": ""
                   },
                   {
+                    "actie": "GEWIJZIGD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "versie",
                     "door": "$TEST_USER_1_NAME",
@@ -107,6 +115,7 @@ class InformatieobjectenHistorieTest : BehaviorSpec({
                     "toelichting": ""
                   },
                   {
+                    "actie": "GEWIJZIGD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "formaat",
                     "door": "$TEST_USER_1_NAME",
@@ -115,6 +124,7 @@ class InformatieobjectenHistorieTest : BehaviorSpec({
                     "toelichting": ""
                   },
                   {
+                    "actie": "GEKOPPELD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "indicatieGebruiksrecht",
                     "door": "$TEST_USER_1_NAME",
@@ -122,6 +132,7 @@ class InformatieobjectenHistorieTest : BehaviorSpec({
                     "toelichting": ""
                   },
                   {
+                    "actie": "GEKOPPELD",
                     "applicatie": "ZAC",
                     "attribuutLabel": "informatieobject",
                     "door": "$TEST_USER_1_NAME",
@@ -134,6 +145,7 @@ class InformatieobjectenHistorieTest : BehaviorSpec({
                 responseBody shouldMatchSchema jsonSchema {
                     array {
                         obj {
+                            string("actie")
                             string("applicatie")
                             string("attribuutLabel")
                             string("datumTijd") {
