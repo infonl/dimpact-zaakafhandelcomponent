@@ -9,8 +9,8 @@ import net.atos.client.zgw.brc.model.generated.Besluit
 import net.atos.client.zgw.shared.model.ObjectType
 import net.atos.client.zgw.shared.model.audit.besluiten.BesluitWijziging
 import net.atos.zac.app.audit.converter.AbstractAuditWijzigingConverter
+import net.atos.zac.app.audit.converter.addHistorieRegel
 import net.atos.zac.app.audit.model.RESTHistorieRegel
-import java.util.LinkedList
 
 class AuditBesluitConverter : AbstractAuditWijzigingConverter<BesluitWijziging>() {
     override fun supports(objectType: ObjectType): Boolean =
@@ -24,13 +24,13 @@ class AuditBesluitConverter : AbstractAuditWijzigingConverter<BesluitWijziging>(
             return listOf(RESTHistorieRegel("Besluit", toWaarde(oud), toWaarde(nieuw)))
         }
 
-        val historieRegels = LinkedList<RESTHistorieRegel>()
-        checkAttribuut("identificatie", oud.identificatie, nieuw.identificatie, historieRegels)
-        checkAttribuut("verzenddatum", oud.verzenddatum, nieuw.verzenddatum, historieRegels)
-        checkAttribuut("ingangsdatum", oud.ingangsdatum, nieuw.ingangsdatum, historieRegels)
-        checkAttribuut("vervaldatum", oud.vervaldatum, nieuw.vervaldatum, historieRegels)
-        checkAttribuut("toelichting", oud.toelichting, nieuw.toelichting, historieRegels)
-        return historieRegels
+        return mutableListOf<RESTHistorieRegel>().apply {
+            addHistorieRegel("identificatie", oud.identificatie, nieuw.identificatie)
+            addHistorieRegel("verzenddatum", oud.verzenddatum, nieuw.verzenddatum)
+            addHistorieRegel("ingangsdatum", oud.ingangsdatum, nieuw.ingangsdatum)
+            addHistorieRegel("vervaldatum", oud.vervaldatum, nieuw.vervaldatum)
+            addHistorieRegel("toelichting", oud.toelichting, nieuw.toelichting)
+        }
     }
 
     private fun toWaarde(besluit: Besluit?): String? =

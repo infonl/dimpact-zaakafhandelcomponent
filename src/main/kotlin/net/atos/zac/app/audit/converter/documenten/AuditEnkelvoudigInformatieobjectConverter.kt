@@ -12,11 +12,11 @@ import net.atos.client.zgw.shared.model.ObjectType
 import net.atos.client.zgw.shared.model.audit.documenten.EnkelvoudigInformatieobjectWijziging
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.audit.converter.AbstractAuditWijzigingConverter
+import net.atos.zac.app.audit.converter.addHistorieRegel
 import net.atos.zac.app.audit.model.RESTHistorieRegel
 import org.apache.commons.lang3.ObjectUtils
 import java.net.URI
 import java.time.LocalDate
-import java.util.LinkedList
 
 class AuditEnkelvoudigInformatieobjectConverter :
     AbstractAuditWijzigingConverter<EnkelvoudigInformatieobjectWijziging>() {
@@ -34,46 +34,42 @@ class AuditEnkelvoudigInformatieobjectConverter :
             return listOf(RESTHistorieRegel("informatieobject", toWaarde(oud), toWaarde(nieuw)))
         }
 
-        val historieRegels: MutableList<RESTHistorieRegel> = LinkedList()
-        checkAttribuut("titel", oud.titel, nieuw.titel, historieRegels)
-        checkAttribuut("identificatie", oud.identificatie, nieuw.identificatie, historieRegels)
-        checkAttribuut(
-            "vertrouwelijkheidaanduiding",
-            oud.vertrouwelijkheidaanduiding,
-            nieuw.vertrouwelijkheidaanduiding,
-            historieRegels
-        )
-        checkAttribuut("bestandsnaam", oud.bestandsnaam, nieuw.bestandsnaam, historieRegels)
-        checkAttribuut("taal", oud.taal, nieuw.taal, historieRegels)
-        checkInformatieobjecttype(oud.informatieobjecttype, nieuw.informatieobjecttype, historieRegels)
-        checkAttribuut("auteur", oud.auteur, nieuw.auteur, historieRegels)
-        checkAttribuut("ontvangstdatum", oud.ontvangstdatum, nieuw.ontvangstdatum, historieRegels)
-        checkAttribuut(
-            "registratiedatum",
-            oud.beginRegistratie.toZonedDateTime(),
-            nieuw.beginRegistratie.toZonedDateTime(),
-            historieRegels
-        )
-        checkAttribuut("locked", oud.locked, nieuw.locked, historieRegels)
-        checkAttribuut("versie", oud.versie.toString(), nieuw.versie.toString(), historieRegels)
-        checkAttribuut("informatieobject.status", oud.status, nieuw.status, historieRegels)
-        checkAttribuut("bronorganisatie", oud.bronorganisatie, nieuw.bronorganisatie, historieRegels)
-        checkAttribuut("verzenddatum", oud.verzenddatum, nieuw.verzenddatum, historieRegels)
-        checkAttribuut("formaat", oud.formaat, nieuw.formaat, historieRegels)
-        checkAttribuut("ondertekening", toWaarde(oud.ondertekening), toWaarde(nieuw.ondertekening), historieRegels)
-        checkAttribuut("creatiedatum", oud.creatiedatum, nieuw.creatiedatum, historieRegels)
-        return historieRegels
+        return mutableListOf<RESTHistorieRegel>().apply {
+            addHistorieRegel("titel", oud.titel, nieuw.titel)
+            addHistorieRegel("identificatie", oud.identificatie, nieuw.identificatie)
+            addHistorieRegel(
+                "vertrouwelijkheidaanduiding",
+                oud.vertrouwelijkheidaanduiding,
+                nieuw.vertrouwelijkheidaanduiding
+            )
+            addHistorieRegel("bestandsnaam", oud.bestandsnaam, nieuw.bestandsnaam)
+            addHistorieRegel("taal", oud.taal, nieuw.taal)
+            addHistorieRegel("documentType", oud.informatieobjecttype, nieuw.informatieobjecttype)
+            addHistorieRegel("auteur", oud.auteur, nieuw.auteur)
+            addHistorieRegel("ontvangstdatum", oud.ontvangstdatum, nieuw.ontvangstdatum)
+            addHistorieRegel(
+                "registratiedatum",
+                oud.beginRegistratie.toZonedDateTime(),
+                nieuw.beginRegistratie.toZonedDateTime()
+            )
+            addHistorieRegel("locked", oud.locked, nieuw.locked)
+            addHistorieRegel("versie", oud.versie.toString(), nieuw.versie.toString())
+            addHistorieRegel("informatieobject.status", oud.status, nieuw.status)
+            addHistorieRegel("bronorganisatie", oud.bronorganisatie, nieuw.bronorganisatie)
+            addHistorieRegel("verzenddatum", oud.verzenddatum, nieuw.verzenddatum)
+            addHistorieRegel("formaat", oud.formaat, nieuw.formaat)
+            addHistorieRegel("ondertekening", toWaarde(oud.ondertekening), toWaarde(nieuw.ondertekening))
+            addHistorieRegel("creatiedatum", oud.creatiedatum, nieuw.creatiedatum)
+        }
     }
 
-    private fun checkInformatieobjecttype(oud: URI, nieuw: URI, historieRegels: MutableList<RESTHistorieRegel>) {
+    private fun MutableList<RESTHistorieRegel>.addHistorieRegel(
+        label: String,
+        oud: URI,
+        nieuw: URI
+    ) {
         if (ObjectUtils.notEqual(oud, nieuw)) {
-            historieRegels.add(
-                RESTHistorieRegel(
-                    "documentType",
-                    informatieobjecttypeToWaarde(oud),
-                    informatieobjecttypeToWaarde(nieuw)
-                )
-            )
+            this.add(RESTHistorieRegel(label, informatieobjecttypeToWaarde(oud), informatieobjecttypeToWaarde(nieuw)))
         }
     }
 
