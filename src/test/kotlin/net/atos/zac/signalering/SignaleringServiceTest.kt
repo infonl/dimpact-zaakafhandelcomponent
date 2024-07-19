@@ -3,10 +3,8 @@ package net.atos.zac.signalering
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.date.shouldBeBefore
-import io.kotest.matchers.ints.exactly
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -68,13 +66,6 @@ class SignaleringServiceTest : BehaviorSpec({
 
     beforeEach {
         checkUnnecessaryStub()
-    }
-
-    beforeContainer { testCase ->
-        // only run before Given
-        if (testCase.parent == null) {
-            clearAllMocks()
-        }
     }
 
     Given("signaleringen older than two days") {

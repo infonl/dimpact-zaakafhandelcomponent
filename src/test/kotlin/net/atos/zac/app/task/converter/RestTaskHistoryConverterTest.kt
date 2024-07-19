@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.mockk
 import net.atos.zac.identity.IdentityService
 import org.flowable.task.api.history.HistoricTaskLogEntryType
@@ -16,10 +15,6 @@ class RestTaskHistoryConverterTest : BehaviorSpec({
 
     beforeEach {
         checkUnnecessaryStub()
-    }
-
-    beforeSpec {
-        clearAllMocks()
     }
 
     Given("A converter history with USER_TASK_CREATED item") {

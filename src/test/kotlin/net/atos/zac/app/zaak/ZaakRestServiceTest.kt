@@ -9,7 +9,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -167,10 +166,6 @@ class ZaakRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    beforeSpec {
-        clearAllMocks()
-    }
-
     Given("zaak input data is provided") {
         val group = createGroup()
         val formulierData = mapOf(Pair("dummyKey", "dummyValue"))
@@ -282,7 +277,6 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Given("a zaak exists, no one is assigned and zaak toekennen gegevens are provided") {
-        clearAllMocks()
         val restZaakToekennenGegevens = createRESTZaakToekennenGegevens()
         val zaak = createZaak()
         val user = createLoggedInUser()
@@ -324,7 +318,6 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Given("REST zaken verdeel gegevens with a group and a user") {
-        clearAllMocks()
         val zaakUUIDs = listOf(UUID.randomUUID(), UUID.randomUUID())
         val group = createGroup()
         val user = createUser()

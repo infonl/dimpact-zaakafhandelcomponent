@@ -8,7 +8,6 @@ package net.atos.zac.util
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -23,10 +22,6 @@ class JsonbConfigurationTest : BehaviorSpec({
 
     beforeEach {
         checkUnnecessaryStub()
-    }
-
-    beforeSpec {
-        clearAllMocks()
     }
 
     Given("a JSON date-string with an ISO Z timezone") {

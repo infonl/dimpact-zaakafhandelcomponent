@@ -9,7 +9,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -107,13 +106,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     )
 
     isolationMode = IsolationMode.InstancePerTest
-
-    beforeContainer { testCase ->
-        // only run before Given
-        if (testCase.parent == null) {
-            clearAllMocks()
-        }
-    }
 
     Given("document creation data is provided and zaaktype can use the 'bijlage' informatieobjecttype") {
         val zaak = createZaak()
