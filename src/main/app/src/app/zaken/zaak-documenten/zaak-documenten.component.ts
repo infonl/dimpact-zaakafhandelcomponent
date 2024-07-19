@@ -171,10 +171,14 @@ export class ZaakDocumentenComponent
         });
     }
 
-    this.isLoadingResults = true;
+    this.searchEnkelvoudigeInformatieObjecten();
+  }
+
+  private searchEnkelvoudigeInformatieObjecten(): void {
     const zoekParameters = new InformatieobjectZoekParameters();
     zoekParameters.zaakUUID = this.zaakUUID;
     zoekParameters.gekoppeldeZaakDocumenten = this.toonGekoppeldeZaakDocumenten;
+    this.isLoadingResults = true;
 
     this.informatieObjectenService
       .listEnkelvoudigInformatieobjecten(zoekParameters)
@@ -241,6 +245,7 @@ export class ZaakDocumentenComponent
           .afterClosed()
           .subscribe((result) => {
             if (result) {
+              this.searchEnkelvoudigeInformatieObjecten();
               this.utilService.openSnackbar(
                 "msg.document.ontkoppelen.uitgevoerd",
                 { document: informatieobject.titel },
