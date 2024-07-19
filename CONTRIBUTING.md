@@ -1,9 +1,12 @@
 # Contribution guidelines
 
+We welcome contributions from the open source community.
 If you want to contribute, we ask you to follow these guidelines.
-These instructions are currently mainly intended for our own Lifely developers, but
-we do also welcome contributions from the open source community.
 Please reach out to us if you have questions or wish to contribute.
+
+## Code of conduct
+
+Please follow our [Code of Conduct](./CODE_OF_CONDUCT.md) when contributing.
 
 ## License
 
