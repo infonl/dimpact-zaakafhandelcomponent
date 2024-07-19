@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -77,10 +76,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
     beforeEach {
         checkUnnecessaryStub()
-    }
-
-    beforeSpec {
-        clearAllMocks()
     }
 
     Given("a productaanvraag-dimpact object with aanvraaggegevens containing form steps with key-value pairs") {
@@ -191,7 +186,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         a betrokkene with role initiator and type BSN
         """
     ) {
-        clearAllMocks()
         val productAanvraagObjectUUID = UUID.randomUUID()
         val zaakTypeUUID = UUID.randomUUID()
         val productAanvraagType = "productaanvraag"
@@ -291,7 +285,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         a productaanvraag-dimpact object registration object containing a betrokkene with role initiator and type vestiging
         """
     ) {
-        clearAllMocks()
         val productAanvraagObjectUUID = UUID.randomUUID()
         val zaakTypeUUID = UUID.randomUUID()
         val productAanvraagType = "productaanvraag"
@@ -378,7 +371,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         but no supported initiator identification
         """
     ) {
-        clearAllMocks()
         val productAanvraagObjectUUID = UUID.randomUUID()
         val zaakTypeUUID = UUID.randomUUID()
         val productAanvraagType = "productaanvraag"
@@ -449,7 +441,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         }
     }
     Given("a productaanvraag-dimpact object registration object missing required aanvraaggegevens") {
-        clearAllMocks()
         val productAanvraagObjectUUID = UUID.randomUUID()
         val productAanvraagType = "productaanvraag"
         val formulierBron = createBron()
@@ -489,7 +480,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         and for which no zaaktype exists in the ZTC catalogus
         """
     ) {
-        clearAllMocks()
         val productAanvraagObjectUUID = UUID.randomUUID()
         val catalogusURI = URI("dummyCatalogusURI")
         val productAanvraagType = "productaanvraag"

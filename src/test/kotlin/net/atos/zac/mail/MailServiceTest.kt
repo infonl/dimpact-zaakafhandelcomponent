@@ -7,7 +7,6 @@ package net.atos.zac.mail
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -59,10 +58,6 @@ class MailServiceTest : BehaviorSpec({
 
     beforeEach {
         checkUnnecessaryStub()
-    }
-
-    beforeSpec {
-        clearAllMocks()
     }
 
     Given("a zaak and e-mail data with 'create document from mail' set to true") {

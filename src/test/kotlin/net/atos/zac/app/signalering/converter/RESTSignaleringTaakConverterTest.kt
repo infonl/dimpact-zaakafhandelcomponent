@@ -3,7 +3,6 @@ package net.atos.zac.app.signalering.converter
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import net.atos.zac.flowable.createTestTask
 import org.flowable.common.engine.api.scope.ScopeTypes.CMMN
 import java.time.Month
@@ -12,10 +11,6 @@ import java.util.Calendar
 class RESTSignaleringTaakConverterTest : BehaviorSpec({
     beforeEach {
         checkUnnecessaryStub()
-    }
-
-    beforeSpec {
-        clearAllMocks()
     }
 
     Given("A task of scope type CMMN with a zaakIdentificatie and zaaktypeOmschrijving") {

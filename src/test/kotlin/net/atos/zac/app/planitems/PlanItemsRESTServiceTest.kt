@@ -4,7 +4,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -89,10 +88,6 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    beforeSpec {
-        clearAllMocks()
-    }
-
     Given("Valid REST human task data without a fatal date") {
         val restHumanTaskData = createRESTHumanTaskData(
             planItemInstanceId = planItemInstanceId,
@@ -148,7 +143,6 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
     }
 
     Given("Valid REST human task data with a fatal date and with zaak opschorten set to true") {
-        clearAllMocks()
         val opgeschorteZaak = createZaak()
         val restHumanTaskData = createRESTHumanTaskData(
             planItemInstanceId = planItemInstanceId,
@@ -198,7 +192,6 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
     }
 
     Given("REST human task data with a fatal date that comes after the fatal date of the related zaal") {
-        clearAllMocks()
         val restHumanTaskData = createRESTHumanTaskData(
             planItemInstanceId = planItemInstanceId,
             taakdata = mapOf(

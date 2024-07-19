@@ -6,7 +6,6 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -50,10 +49,6 @@ class TaskServiceTest : BehaviorSpec({
 
     beforeEach {
         checkUnnecessaryStub()
-    }
-
-    beforeSpec {
-        clearAllMocks()
     }
 
     Given("A task that has not yet been assigned to a specific group and user") {
@@ -119,7 +114,6 @@ class TaskServiceTest : BehaviorSpec({
         }
     }
     Given("Two tasks that have not yet been assigned to a specific group and user") {
-        clearAllMocks()
         val restTaakVerdelenTaken = listOf(
             createRestTaskDistributeTask(
                 taakId = taskId1
@@ -195,7 +189,6 @@ class TaskServiceTest : BehaviorSpec({
         }
     }
     Given("REST taak vrijgeven gegevens with two tasks") {
-        clearAllMocks()
         val restTaakVerdelenTaken = listOf(
             createRestTaskDistributeTask(
                 taakId = taskId1
@@ -267,7 +260,6 @@ class TaskServiceTest : BehaviorSpec({
         }
     }
     Given("Two open tasks that have not yet been assigned to a specific group and user") {
-        clearAllMocks()
         val restTaakVerdelenTaken = listOf(
             createRestTaskDistributeTask(
                 taakId = taskId1
@@ -328,7 +320,6 @@ class TaskServiceTest : BehaviorSpec({
             task is a historical (closed) task and the second an open task
             """
     ) {
-        clearAllMocks()
         val restTaakVerdelenTaken = listOf(
             createRestTaskDistributeTask(
                 taakId = taskId1
@@ -380,7 +371,6 @@ class TaskServiceTest : BehaviorSpec({
         }
     }
     Given("Two open tasks that are already assigned to a specific group and user") {
-        clearAllMocks()
         val restTaakVerdelenTaken = listOf(
             createRestTaskDistributeTask(
                 taakId = taskId1
@@ -448,7 +438,6 @@ class TaskServiceTest : BehaviorSpec({
         }
     }
     Given("Two open tasks") {
-        clearAllMocks()
         val restTaakVerdelenTaken = listOf(
             createRestTaskDistributeTask(
                 taakId = taskId1
@@ -522,7 +511,6 @@ class TaskServiceTest : BehaviorSpec({
             task is a historical (closed) task and the second an open task
             """
     ) {
-        clearAllMocks()
         val restTaakVerdelenTaken = listOf(
             createRestTaskDistributeTask(
                 taakId = taskId1
@@ -580,7 +568,6 @@ class TaskServiceTest : BehaviorSpec({
         }
     }
     Given("Two open tasks") {
-        clearAllMocks()
         val restTaakVerdelenTaken = listOf(
             createRestTaskDistributeTask(
                 taakId = taskId1

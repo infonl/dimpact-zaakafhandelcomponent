@@ -10,7 +10,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -18,7 +17,6 @@ import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
-import kotlinx.coroutines.test.runTest
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRequest
@@ -107,10 +105,6 @@ class TaskRestServiceTest : BehaviorSpec({
 
     beforeEach {
         checkUnnecessaryStub()
-    }
-
-    beforeSpec {
-        clearAllMocks()
     }
 
     Given("a task is not yet assigned") {
@@ -305,6 +299,7 @@ class TaskRestServiceTest : BehaviorSpec({
                     enkelvoudigInformatieObjectUUID
                 )
             } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             val restTaakReturned = taskRestService.completeTask(restTaak)
 
@@ -338,10 +333,9 @@ class TaskRestServiceTest : BehaviorSpec({
             every {
                 policyService.readWerklijstRechten()
             } returns createWerklijstRechtenAllDeny(zakenTakenVerdelen = true)
+            every { loggedInUserInstance.get() } returns loggedInUser
 
-            runTest {
-                taskRestService.distributeFromList(restTaakVerdelenGegevens)
-            }
+            taskRestService.distributeFromList(restTaakVerdelenGegevens)
 
             Then("the tasks are assigned to the group and user") {
                 verify(exactly = 1) {
@@ -374,11 +368,10 @@ class TaskRestServiceTest : BehaviorSpec({
         every {
             taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
         } just Runs
+        every { loggedInUserInstance.get() } returns loggedInUser
 
         When("the 'verdelen vanuit lijst' function is called") {
-            runTest {
-                taskRestService.releaseFromList(restTaakVrijgevenGegevens)
-            }
+            taskRestService.releaseFromList(restTaakVrijgevenGegevens)
 
             Then("the tasks are assigned to the group and user") {
                 verify(exactly = 1) {

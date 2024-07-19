@@ -32,7 +32,6 @@ import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
 import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
-import net.atos.zac.flowable.TaakVariabelenService;
 import net.atos.zac.policy.exception.PolicyException;
 import net.atos.zac.policy.input.DocumentData;
 import net.atos.zac.policy.input.DocumentInput;
@@ -55,25 +54,32 @@ import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
 
 @ApplicationScoped
 public class PolicyService {
-
-    @Inject
     private Instance<LoggedInUser> loggedInUserInstance;
-
-    @Inject
-    @RestClient
     private OPAEvaluationClient evaluationClient;
-
-    @Inject
     private ZtcClientService ztcClientService;
-
-    @Inject
     private EnkelvoudigInformatieObjectLockService lockService;
-
-    @Inject
-    private TaakVariabelenService taakVariabelenService;
-
-    @Inject
     private ZRCClientService zrcClientService;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public PolicyService() {
+    }
+
+    @Inject
+    public PolicyService(
+            final Instance<LoggedInUser> loggedInUserInstance,
+            final @RestClient OPAEvaluationClient evaluationClient,
+            final ZtcClientService ztcClientService,
+            final EnkelvoudigInformatieObjectLockService lockService,
+            final ZRCClientService zrcClientService
+    ) {
+        this.loggedInUserInstance = loggedInUserInstance;
+        this.evaluationClient = evaluationClient;
+        this.ztcClientService = ztcClientService;
+        this.lockService = lockService;
+        this.zrcClientService = zrcClientService;
+    }
 
     public OverigeRechten readOverigeRechten() {
         return evaluationClient.readOverigeRechten(

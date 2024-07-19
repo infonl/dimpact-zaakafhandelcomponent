@@ -3,7 +3,6 @@ package net.atos.zac.app.zaak.converter.historie
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.zgw.shared.model.Bron
@@ -25,10 +24,6 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
     beforeEach {
         checkUnnecessaryStub()
-    }
-
-    beforeSpec {
-        clearAllMocks()
     }
 
     Given("Audit trail has resource zaak with action created") {
