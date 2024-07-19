@@ -328,12 +328,12 @@ class TaskRestServiceTest : BehaviorSpec({
         every {
             taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
         } just Runs
+        every { loggedInUserInstance.get() } returns loggedInUser
 
         When("the 'verdelen vanuit lijst' function is called from user with access") {
             every {
                 policyService.readWerklijstRechten()
             } returns createWerklijstRechtenAllDeny(zakenTakenVerdelen = true)
-            every { loggedInUserInstance.get() } returns loggedInUser
 
             taskRestService.distributeFromList(restTaakVerdelenGegevens)
 
