@@ -2,7 +2,7 @@
 
 We welcome contributions from the open source community.
 If you want to contribute, we ask you to follow these guidelines.
-Please reach out to us if you have questions or wish to contribute.
+Please reach out to [us](https://github.com/infonl/dimpact-zaakafhandelcomponent/discussions) if you have questions or wish to contribute.
 
 ## Code of conduct
 
