@@ -12,6 +12,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_2_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
@@ -92,6 +93,13 @@ class ZaakHistorieTest : BehaviorSpec({
                     "nieuweWaarde": "Intake",
                     "toelichting": "Status gewijzigd vanuit Case",
                     "actie": "GEWIJZIGD"
+                  },
+                  {
+                    "attribuutLabel": "Medeaanvrager",
+                    "door": "Functionele gebruiker",
+                    "nieuweWaarde": "$TEST_PERSON_2_BSN",
+                    "toelichting": "",
+                    "actie": "GEKOPPELD"
                   },
                   {
                     "attribuutLabel": "Melder",

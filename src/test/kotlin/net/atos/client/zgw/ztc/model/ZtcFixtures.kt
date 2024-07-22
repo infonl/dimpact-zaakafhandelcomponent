@@ -39,18 +39,30 @@ fun createBesluitType(
         setInformatieobjecttypen(informatieobjecttypen)
     }
 
+@Suppress("LongParameterList")
 fun createRolType(
-    zaakTypeURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    beginObject: LocalDate = LocalDate.now(),
+    catalogusUri: URI = URI("https://example.com/catalogus/${UUID.randomUUID()}"),
+    eindeObject: LocalDate = LocalDate.now().plusDays(1),
     omschrijving: String = "dummyOmschrijving",
-    omschrijvingGeneriek: OmschrijvingGeneriekEnum = OmschrijvingGeneriekEnum.INITIATOR
-) = RolType().apply {
-    this.zaaktype = zaakTypeURI
+    omschrijvingGeneriek: OmschrijvingGeneriekEnum = OmschrijvingGeneriekEnum.INITIATOR,
+    uri: URI = URI("https://example.com/roltype/${UUID.randomUUID()}"),
+    zaaktypeIdentificatie: String = "dummyZaaktypeIdentificatie",
+    zaakTypeUri: URI = URI("https://example.com/${UUID.randomUUID()}"),
+) = RolType(
+    uri,
+    zaaktypeIdentificatie,
+    catalogusUri,
+    beginObject,
+    eindeObject
+).apply {
+    this.zaaktype = zaakTypeUri
     this.omschrijving = omschrijving
     this.omschrijvingGeneriek = omschrijvingGeneriek
 }
 
 fun createZaakType(
-    uri: URI = URI("http://example.com/zaaktypes/${UUID.randomUUID()}"),
+    uri: URI = URI("https://example.com/zaaktypes/${UUID.randomUUID()}"),
     omschrijving: String = "dummyZaakTypeOmschrijving",
     informatieObjectTypen: List<URI>? = listOf(URI("dummyInformatieObjectType1"), URI("dummyInformatieObjectType2")),
     identifactie: String = "dummyIdentificatie",
