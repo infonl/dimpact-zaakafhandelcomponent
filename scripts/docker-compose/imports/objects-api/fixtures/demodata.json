@@ -910,6 +910,10 @@
                     {
                         "vestigingsNummer" : "000012345678",
                         "rolOmschrijvingGeneriek" : "initiator"
+                    },
+                    {
+                        "inpBsn" : "999991838",
+                        "rolOmschrijvingGeneriek" : "mede_initiator"
                     }
                 ],
                 "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e"

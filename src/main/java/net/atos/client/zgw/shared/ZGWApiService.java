@@ -269,7 +269,7 @@ public class ZGWApiService {
      * @return {@link RolOrganisatorischeEenheid} or 'null'.
      */
     public Optional<RolOrganisatorischeEenheid> findGroepForZaak(final Zaak zaak) {
-        return findRolForZaak(zaak, OmschrijvingGeneriekEnum.BEHANDELAAR, BetrokkeneType.ORGANISATORISCHE_EENHEID)
+        return findBehandelaarRoleForZaak(zaak, BetrokkeneType.ORGANISATORISCHE_EENHEID)
                 .map(RolOrganisatorischeEenheid.class::cast);
     }
 
@@ -279,29 +279,32 @@ public class ZGWApiService {
      * @param zaak {@link Zaak}
      * @return {@link RolMedewerker} or 'null'.
      */
-    public Optional<RolMedewerker> findBehandelaarForZaak(final Zaak zaak) {
-        return findRolForZaak(zaak, OmschrijvingGeneriekEnum.BEHANDELAAR, BetrokkeneType.MEDEWERKER)
+    public Optional<RolMedewerker> findBehandelaarMedewerkerRoleForZaak(final Zaak zaak) {
+        return findBehandelaarRoleForZaak(zaak, BetrokkeneType.MEDEWERKER)
                 .map(RolMedewerker.class::cast);
     }
 
-    public Optional<Rol<?>> findInitiatorForZaak(final Zaak zaak) {
-        return findRolForZaak(zaak, OmschrijvingGeneriekEnum.INITIATOR);
+    public Optional<Rol<?>> findInitiatorRoleForZaak(final Zaak zaak) {
+        return ztcClientService.findRoltype(zaak.getZaaktype(), OmschrijvingGeneriekEnum.INITIATOR)
+                .stream()
+                // there should be only one initiator role type but in case there are multiple, we take the first one
+                .findFirst()
+                .flatMap(roltype -> zrcClientService.listRollen(
+                        new RolListParameters(zaak.getUrl(), roltype.getUrl())).getSingleResult()
+                );
     }
 
-    private Optional<Rol<?>> findRolForZaak(final Zaak zaak, final OmschrijvingGeneriekEnum omschrijvingGeneriekEnum) {
-        return ztcClientService.findRoltype(zaak.getZaaktype(), omschrijvingGeneriekEnum)
-                .flatMap(roltype -> zrcClientService.listRollen(new RolListParameters(zaak.getUrl(), roltype.getUrl()))
-                        .getSingleResult());
-    }
-
-    private Optional<Rol<?>> findRolForZaak(
+    private Optional<Rol<?>> findBehandelaarRoleForZaak(
             final Zaak zaak,
-            final OmschrijvingGeneriekEnum omschrijvingGeneriekEnum,
             final BetrokkeneType betrokkeneType
     ) {
-        return ztcClientService.findRoltype(zaak.getZaaktype(), omschrijvingGeneriekEnum).flatMap(roltype -> zrcClientService.listRollen(
-                new RolListParameters(zaak.getUrl(), roltype.getUrl(), betrokkeneType))
-                .getSingleResult());
+        return ztcClientService.findRoltype(zaak.getZaaktype(), OmschrijvingGeneriekEnum.BEHANDELAAR)
+                .stream()
+                // there should be only one behandelaar role type but in case there are multiple, we take the first one
+                .findFirst()
+                .flatMap(roltype -> zrcClientService.listRollen(
+                        new RolListParameters(zaak.getUrl(), roltype.getUrl(), betrokkeneType)).getSingleResult()
+                );
     }
 
     private Status createStatusForZaak(final URI zaakURI, final URI statustypeURI, final String toelichting) {

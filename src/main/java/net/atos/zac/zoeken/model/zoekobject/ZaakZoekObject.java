@@ -320,10 +320,10 @@ public class ZaakZoekObject implements ZoekObject {
         return initiatorIdentificatie;
     }
 
-    public void setInitiator(final Rol<?> initiator) {
-        if (initiator != null) {
-            this.initiatorIdentificatie = initiator.getIdentificatienummer();
-            this.initiatorType = initiator.getBetrokkeneType().toValue();
+    public void setInitiator(final Rol<?> initiatorRole) {
+        if (initiatorRole != null) {
+            this.initiatorIdentificatie = initiatorRole.getIdentificatienummer();
+            this.initiatorType = initiatorRole.getBetrokkeneType().toValue();
         }
     }
 

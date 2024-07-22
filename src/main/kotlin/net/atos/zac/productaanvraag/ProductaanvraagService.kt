@@ -252,6 +252,10 @@ class ProductaanvraagService @Inject constructor(
         bsn: String,
         zaak: URI,
         zaaktype: URI
+        // TODO: readRoltype throws an exception when the roltype is not found
+        // switch to findRoltype and handle null case
+        // also deal with situation when there are multiple results - use the first one..
+        // we can only map on omschrijving generiek but that is not unique..
     ) = ztcClientService.readRoltype(roltypeOmschrijvingGeneriek, zaaktype).let {
         zrcClientService.createRol(
             RolNatuurlijkPersoon(
@@ -483,7 +487,7 @@ class ProductaanvraagService @Inject constructor(
     ) {
         LOG.log(
             Level.WARNING,
-            "Failed to create a zaak of process type: '$processType' for productaanvraag '${productaanvraag.aanvraaggegevens}'",
+            "Failed to create a zaak of process type: '$processType' for productaanvraag with PDF '${productaanvraag.pdf}'",
             exception
         )
     }

@@ -176,8 +176,8 @@ public class KlantRestService {
         return RestRoltypeConverter.convert(
                 ztcClientService.listRoltypen(ztcClientService.readZaaktype(zaaktype).getUrl())
                         .stream()
-                        .filter(roltype -> betrokkenen.contains(roltype.getOmschrijvingGeneriek())
-                        ).sorted(Comparator.comparing(RolType::getOmschrijving))
+                        .filter(roltype -> betrokkenen.contains(roltype.getOmschrijvingGeneriek()))
+                        .sorted(Comparator.comparing(RolType::getOmschrijving))
         );
     }
 

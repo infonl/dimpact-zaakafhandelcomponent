@@ -79,7 +79,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
         zaakZoekObject.setPublicatiedatum(DateTimeConverterUtil.convertToDate(zaak.getPublicatiedatum()));
         zaakZoekObject.setVertrouwelijkheidaanduiding(zaak.getVertrouwelijkheidaanduiding().toString());
         zaakZoekObject.setAfgehandeld(!zaak.isOpen());
-        zgwApiService.findInitiatorForZaak(zaak).ifPresent(zaakZoekObject::setInitiator);
+        zgwApiService.findInitiatorRoleForZaak(zaak).ifPresent(zaakZoekObject::setInitiator);
         zaakZoekObject.setLocatie(convertToLocatie(zaak.getZaakgeometrie()));
         zaakZoekObject.setCommunicatiekanaal(zaak.getCommunicatiekanaalNaam());
 
@@ -162,7 +162,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
     }
 
     private User findBehandelaar(final Zaak zaak) {
-        return zgwApiService.findBehandelaarForZaak(zaak)
+        return zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
                 .map(behandelaar -> identityService.readUser(
                         behandelaar.getBetrokkeneIdentificatie().getIdentificatie()))
                 .orElse(null);

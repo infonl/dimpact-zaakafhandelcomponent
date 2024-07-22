@@ -73,10 +73,10 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         val zaakStatusType = createStatusType()
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { zgwApiService.findInitiatorForZaak(zaak) } returns Optional.of(rolInitiator)
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns Optional.of(rolInitiator)
         every { zrcClientService.listRollen(zaak) } returns rollenZaak
         every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
-        every { zgwApiService.findBehandelaarForZaak(zaak) } returns Optional.of(rolMedewerkerBehandelaar)
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns Optional.of(rolMedewerkerBehandelaar)
         every {
             identityService.readUser(rolMedewerkerBehandelaar.betrokkeneIdentificatie.identificatie)
         } returns userBehandelaar
@@ -152,10 +152,10 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         }
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { zgwApiService.findInitiatorForZaak(zaak) } returns Optional.of(rolInitiator)
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns Optional.of(rolInitiator)
         every { zrcClientService.listRollen(zaak) } returns rollenZaak
         every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
-        every { zgwApiService.findBehandelaarForZaak(zaak) } returns Optional.of(rolMedewerkerBehandelaar)
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns Optional.of(rolMedewerkerBehandelaar)
         every {
             identityService.readUser(rolMedewerkerBehandelaar.betrokkeneIdentificatie.identificatie)
         } returns userBehandelaar

@@ -64,7 +64,7 @@ public class Results<T> {
     }
 
     public List<T> getResults() {
-        return results != null ? results : Collections.EMPTY_LIST;
+        return results != null ? results : Collections.emptyList();
     }
 
     public Optional<T> getSingleResult() {

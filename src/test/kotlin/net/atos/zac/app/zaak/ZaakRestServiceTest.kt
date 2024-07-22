@@ -287,7 +287,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         every { zrcClientService.readZaak(restZaakToekennenGegevens.zaakUUID) } returns zaak
         every { zrcClientService.updateRol(zaak, capture(rolSlot), restZaakToekennenGegevens.reden) } just runs
-        every { zgwApiService.findBehandelaarForZaak(zaak) } returns Optional.empty()
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns Optional.empty()
         every { identityService.readUser(restZaakToekennenGegevens.behandelaarGebruikersnaam) } returns user
         every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
         every { restZaakConverter.convert(zaak) } returns restZaak

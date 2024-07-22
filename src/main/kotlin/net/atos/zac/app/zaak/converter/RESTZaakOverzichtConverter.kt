@@ -66,7 +66,7 @@ class RESTZaakOverzichtConverter {
                     zrcClientService.readStatus(it).statustype
                 ).omschrijving
             }
-            zgwApiService.findBehandelaarForZaak(zaak)
+            zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
                 .map { userConverter.convertUserId(it.betrokkeneIdentificatie.identificatie) }
                 .ifPresent { restZaakOverzicht.behandelaar = it }
             zgwApiService.findGroepForZaak(zaak)
