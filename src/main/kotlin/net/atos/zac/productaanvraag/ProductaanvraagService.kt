@@ -175,9 +175,16 @@ class ProductaanvraagService @Inject constructor(
         zaak: Zaak
     ) {
         // only one initiator per zaak is supported so in case there are multiple we only take the first one
-        productaanvraag.betrokkenen?.first {
+        productaanvraag.betrokkenen?.filter {
             it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR
-        }?.let { initiatorBetrokkene ->
+        }?.also {
+            if (it.size > 1) {
+                LOG.warning(
+                    "Multiple betrokkenen found in productaanvraag with aanvraaggegevens: ${productaanvraag.aanvraaggegevens}. " +
+                        "Only the first one will be used. "
+                )
+            }
+        }?.first()?.let { initiatorBetrokkene ->
             when {
                 initiatorBetrokkene.inpBsn != null -> {
                     addNatuurlijkPersoonInitiatorRole(
@@ -186,7 +193,6 @@ class ProductaanvraagService @Inject constructor(
                         zaak.zaaktype
                     )
                 }
-
                 initiatorBetrokkene.vestigingsNummer != null -> {
                     addVestigingInitiatorRole(
                         initiatorBetrokkene.vestigingsNummer,
@@ -194,7 +200,6 @@ class ProductaanvraagService @Inject constructor(
                         zaak.zaaktype
                     )
                 }
-
                 else -> {
                     LOG.warning(
                         "Betrokkene with initiator role in productaanvraag does not contain a BSN or vestigingsnummer. " +
@@ -354,6 +359,8 @@ class ProductaanvraagService @Inject constructor(
         }
         productaanvraag.betrokkenen?.let { betrokkenen ->
             // we are only interested in the first betrokkene with the role 'INITIATOR'
+            // TODO: also needs to support KVK vestigingsnummer!
+            // call addBetrokkenen here?
             betrokkenen.first { it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR }
                 .let { inboxProductaanvraag.initiatorID = it.inpBsn }
         }

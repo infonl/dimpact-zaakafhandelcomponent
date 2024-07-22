@@ -183,7 +183,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     Given(
         """
         a productaanvraag-dimpact object registration object containing zaakgegevens with a point geometry and 
-        a betrokkene with role initiator and type BSN
+        a betrokkene with role initiator and type BSN as well as a betrokkene with role initiator and type vestiging
         """
     ) {
         val productAanvraagObjectUUID = UUID.randomUUID()
@@ -213,6 +213,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     "betrokkenen" to listOf(
                         mapOf(
                             "inpBsn" to bsnNumber,
+                            "rolOmschrijvingGeneriek" to "initiator"
+                        ),
+                        mapOf(
+                            "vestigingsNummer" to "dummyVestigingsNummer",
                             "rolOmschrijvingGeneriek" to "initiator"
                         )
                     )
