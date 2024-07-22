@@ -860,6 +860,14 @@
                         "indicatieCorrespondentie" : false
                     },
                     {
+                        "inpBsn" : "999991838",
+                        "rolOmschrijvingGeneriek" : "belanghebbende"
+                    },
+                    {
+                        "inpBsn" : "999992958",
+                        "rolOmschrijvingGeneriek" : "belanghebbende"
+                    },
+                    {
                         "medewerkerIdentificatie" : "MDW123",
                         "rolOmschrijvingGeneriek" : "klantcontacter"
                     }
