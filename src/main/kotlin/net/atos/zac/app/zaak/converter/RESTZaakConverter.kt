@@ -10,7 +10,6 @@ import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
-import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.Status
 import net.atos.client.zgw.zrc.model.Verlenging
 import net.atos.client.zgw.zrc.model.Zaak
@@ -98,17 +97,15 @@ class RESTZaakConverter {
     fun convert(zaak: Zaak, status: Status?, statustype: StatusType?): RESTZaak {
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val groep = zgwApiService.findGroepForZaak(zaak)
-            .map { groep -> groupConverter.convertGroupId(groep.betrokkeneIdentificatie.identificatie) }
+            .map { groupConverter.convertGroupId(it.betrokkeneIdentificatie.identificatie) }
             .orElse(null)
         val besluiten = brcClientService.listBesluiten(zaak)
-            .map { besluiten -> besluitConverter.convertToRESTBesluit(besluiten) }
+            .map { besluitConverter.convertToRESTBesluit(it) }
             .orElse(null)
-        val behandelaar = zgwApiService.findBehandelaarForZaak(zaak)
-            .map { behandelaar: RolMedewerker ->
-                userConverter.convertUserId(behandelaar.betrokkeneIdentificatie.identificatie)
-            }
+        val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+            .map { userConverter.convertUserId(it.betrokkeneIdentificatie.identificatie) }
             .orElse(null)
-        val initiator = zgwApiService.findInitiatorForZaak(zaak)
+        val initiator = zgwApiService.findInitiatorRoleForZaak(zaak)
         return RESTZaak(
             identificatie = zaak.identificatie,
             uuid = zaak.uuid,

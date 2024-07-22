@@ -80,6 +80,7 @@ object ItestConfiguration {
     const val TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE =
         "Street ¦ 38 & House ¦ 10, Baghdad, Park Al-Sadoum, Hay Al-Nidhal 103"
     const val TEST_PERSON_2_BSN = "999992958"
+    const val TEST_PERSON_3_BSN = "999991838"
     const val TEST_PDF_FILE_NAME = "dummyTestDocument.pdf"
     const val TEST_PDF_FILE_SIZE = 9268
     const val TEST_TXT_FILE_NAME = "testTextDocument.txt"

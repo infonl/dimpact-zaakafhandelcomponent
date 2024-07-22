@@ -159,7 +159,7 @@ public class MailTemplateHelper {
             if (resolvedTekst.contains(ZAAK_INITIATOR.getVariabele()) ||
                 resolvedTekst.contains(ZAAK_INITIATOR_ADRES.getVariabele())) {
                 resolvedTekst = replaceInitiatorVariabelen(resolvedTekst,
-                        zgwApiService.findInitiatorForZaak(zaak));
+                        zgwApiService.findInitiatorRoleForZaak(zaak));
             }
 
             if (resolvedTekst.contains(ZAAK_BEHANDELAAR_GROEP.getVariabele())) {
@@ -170,7 +170,7 @@ public class MailTemplateHelper {
 
             if (resolvedTekst.contains(ZAAK_BEHANDELAAR_MEDEWERKER.getVariabele())) {
                 resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_BEHANDELAAR_MEDEWERKER,
-                        zgwApiService.findBehandelaarForZaak(zaak)
+                        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
                                 .map(RolMedewerker::getNaam));
             }
         }

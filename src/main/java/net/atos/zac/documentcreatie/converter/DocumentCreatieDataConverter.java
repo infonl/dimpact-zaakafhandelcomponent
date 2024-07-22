@@ -144,14 +144,14 @@ public class DocumentCreatieDataConverter {
                 .map(RolOrganisatorischeEenheid::getNaam)
                 .ifPresent(groep -> zaakData.groep = groep);
 
-        zgwApiService.findBehandelaarForZaak(zaak)
+        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
                 .map(RolMedewerker::getNaam)
                 .ifPresent(behandelaar -> zaakData.behandelaar = behandelaar);
         return zaakData;
     }
 
     private AanvragerData createAanvragerData(final Zaak zaak) {
-        return zgwApiService.findInitiatorForZaak(zaak)
+        return zgwApiService.findInitiatorRoleForZaak(zaak)
                 .map(this::convertToAanvragerData)
                 .orElse(null);
     }

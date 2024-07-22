@@ -209,7 +209,7 @@ class ZaakRestService @Inject constructor(
     @Path("zaak/id/{identificatie}")
     fun readZaakById(@PathParam("identificatie") identificatie: String): RESTZaak {
         val zaak = zrcClientService.readZaakByID(identificatie)
-        val restZaak: RESTZaak = restZaakConverter.convert(zaak)
+        val restZaak = restZaakConverter.convert(zaak)
         assertPolicy(restZaak.rechten.lezen)
         deleteSignaleringen(zaak)
         return restZaak
@@ -219,8 +219,8 @@ class ZaakRestService @Inject constructor(
     @Path("initiator")
     fun updateInitiator(gegevens: RESTZaakBetrokkeneGegevens): RESTZaak {
         val zaak: Zaak = zrcClientService.readZaak(gegevens.zaakUUID)
-        zgwApiService.findInitiatorForZaak(zaak)
-            .ifPresent { initiator: Rol<*> -> removeInitiator(zaak, initiator, ROL_VERWIJDER_REDEN) }
+        zgwApiService.findInitiatorRoleForZaak(zaak)
+            .ifPresent { removeInitiator(zaak, it, ROL_VERWIJDER_REDEN) }
         addInitiator(gegevens.betrokkeneIdentificatieType, gegevens.betrokkeneIdentificatie, zaak)
         return restZaakConverter.convert(zaak)
     }
@@ -229,8 +229,8 @@ class ZaakRestService @Inject constructor(
     @Path("{uuid}/initiator")
     fun deleteInitiator(@PathParam("uuid") zaakUUID: UUID, reden: RESTReden): RESTZaak {
         val zaak = zrcClientService.readZaak(zaakUUID)
-        zgwApiService.findInitiatorForZaak(zaak)
-            .ifPresent { initiator: Rol<*> -> removeInitiator(zaak, initiator, reden.reden) }
+        zgwApiService.findInitiatorRoleForZaak(zaak)
+            .ifPresent { removeInitiator(zaak, it, reden.reden) }
         return restZaakConverter.convert(zaak)
     }
 
@@ -518,7 +518,7 @@ class ZaakRestService @Inject constructor(
         val zaak: Zaak = zrcClientService.readZaak(toekennenGegevens.zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak).toekennen)
 
-        val behandelaar = zgwApiService.findBehandelaarForZaak(zaak)
+        val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
             .map { rolMedewerker: RolMedewerker -> rolMedewerker.betrokkeneIdentificatie.identificatie }
             .orElse(null)
 
