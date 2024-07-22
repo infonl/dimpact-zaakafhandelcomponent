@@ -253,9 +253,7 @@ class ProductaanvraagService @Inject constructor(
         zaak: URI,
         zaaktype: URI
         // TODO: readRoltype throws an exception when the roltype is not found
-        // switch to findRoltype and handle null case
-        // also deal with situation when there are multiple results - use the first one..
-        // we can only map on omschrijving generiek but that is not unique..
+        // switch to findRoltype and handle null case ?
     ) = ztcClientService.readRoltype(roltypeOmschrijvingGeneriek, zaaktype).let {
         zrcClientService.createRol(
             RolNatuurlijkPersoon(
