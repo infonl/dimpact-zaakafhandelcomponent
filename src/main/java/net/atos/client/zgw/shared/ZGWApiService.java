@@ -285,7 +285,7 @@ public class ZGWApiService {
     }
 
     public Optional<Rol<?>> findInitiatorRoleForZaak(final Zaak zaak) {
-        return ztcClientService.findRoltype(zaak.getZaaktype(), OmschrijvingGeneriekEnum.INITIATOR)
+        return ztcClientService.findRoletypen(zaak.getZaaktype(), OmschrijvingGeneriekEnum.INITIATOR)
                 .stream()
                 // there should be only one initiator role type but in case there are multiple, we take the first one
                 .findFirst()
@@ -298,7 +298,7 @@ public class ZGWApiService {
             final Zaak zaak,
             final BetrokkeneType betrokkeneType
     ) {
-        return ztcClientService.findRoltype(zaak.getZaaktype(), OmschrijvingGeneriekEnum.BEHANDELAAR)
+        return ztcClientService.findRoletypen(zaak.getZaaktype(), OmschrijvingGeneriekEnum.BEHANDELAAR)
                 .stream()
                 // there should be only one behandelaar role type but in case there are multiple, we take the first one
                 .findFirst()

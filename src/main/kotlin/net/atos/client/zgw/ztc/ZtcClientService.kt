@@ -290,7 +290,7 @@ class ZtcClientService @Inject constructor(
      * @return the list of [RolType]s; may be empty if no rol types have been defined for the zaak type
      * and generic role type description.
      */
-    fun findRoltype(zaaktypeURI: URI, omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum): List<RolType> =
+    fun findRoletypen(zaaktypeURI: URI, omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum): List<RolType> =
         uriOmschrijvingGeneriekEnumToRolTypeCache.get("$zaaktypeURI$omschrijvingGeneriekEnum") {
             ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum)).results
         }
