@@ -44,6 +44,7 @@ import java.net.URI
 import java.util.Optional
 import java.util.UUID
 
+@Suppress("LargeClass")
 class ProductaanvraagServiceTest : BehaviorSpec({
     val objectsClientService = mockk<ObjectsClientService>()
     val zgwApiService = mockk<ZGWApiService>()
@@ -223,8 +224,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             )
         )
-        val rolType = createRolType(
-            zaakTypeURI = zaakType.url,
+        val rolTypeInitiator = createRolType(
+            zaakTypeUri = zaakType.url,
             omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR
         )
         val zaakToBeCreated = slot<Zaak>()
@@ -244,7 +245,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             )
         } returns createdZaakInformatieobject
         every { cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any()) } just Runs
-        every { ztcClientService.readRoltype(OmschrijvingGeneriekEnum.INITIATOR, any()) } returns rolType
+        every { ztcClientService.readRoltype(OmschrijvingGeneriekEnum.INITIATOR, any()) } returns rolTypeInitiator
         every { zrcClientService.createRol(capture(roleToBeCreated)) } just runs
 
         When("the productaanvraag is handled") {
@@ -278,7 +279,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 with(roleToBeCreated.captured) {
                     betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
                     identificatienummer shouldBe bsnNumber
-                    roltype shouldBe rolType.url
+                    roltype shouldBe rolTypeInitiator.url
                     zaak shouldBe createdZaak.url
                 }
             }
@@ -316,7 +317,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             )
         )
         val rolType = createRolType(
-            zaakTypeURI = zaakType.url,
+            zaakTypeUri = zaakType.url,
             omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR
         )
         val zaakToBeCreated = slot<Zaak>()
@@ -507,6 +508,218 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     bronorganisatie shouldBe BRON_ORGANISATIE
                     omschrijving shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'"
                     toelichting shouldBe null
+                }
+            }
+        }
+    }
+    given(
+        """
+        a productaanvraag-dimpact object registration object containing a list of supported betrokkenen
+        but no initiator
+        """
+    ) {
+        val productAanvraagObjectUUID = UUID.randomUUID()
+        val zaakTypeUUID = UUID.randomUUID()
+        val productAanvraagType = "productaanvraag"
+        val zaakType = createZaakType()
+        val createdZaak = createZaak()
+        val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
+        val createdZaakInformatieobject = createZaakInformatieobject()
+        val zaakafhandelParameters = createZaakafhandelParameters()
+        val formulierBron = createBron()
+        val adviseurBsn1 = "dummyBsn1"
+        val adviseurBsn2 = "dummyBsn1"
+        val behandelaarBsn = "dummyBsn3"
+        val beslisserBsn = "dummyBsn4"
+        val klantcontacterBsn = "dummyBsn5"
+        val medeInitiatorBsn = "dummyBsn6"
+        val belanghebbendeVestigingsnummer1 = "dummyVestigingsNummer1"
+        val belanghebbendeVestigingsnummer2 = "dummyVestigingsNummer2"
+        val beslisserVestigingsnummer = "dummyVestigingsNummer3"
+        val zaakcoordinatorVestigingsnummer = "dummyVestigingsNummer4"
+        val rolTypeAdviseur = createRolType(
+            zaakTypeUri = zaakType.url,
+            omschrijvingGeneriek = OmschrijvingGeneriekEnum.ADVISEUR
+        )
+        val rolTypeBehandelaar = createRolType(
+            zaakTypeUri = zaakType.url,
+            omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+        )
+        val rolTypeBelanghebbende = createRolType(
+            zaakTypeUri = zaakType.url,
+            omschrijvingGeneriek = OmschrijvingGeneriekEnum.BELANGHEBBENDE
+        )
+        val rolTypeBeslisser = createRolType(
+            zaakTypeUri = zaakType.url,
+            omschrijvingGeneriek = OmschrijvingGeneriekEnum.BESLISSER
+        )
+        val rolTypeKlantcontacter = createRolType(
+            zaakTypeUri = zaakType.url,
+            omschrijvingGeneriek = OmschrijvingGeneriekEnum.KLANTCONTACTER
+        )
+        val rolTypeMedeInitiator = createRolType(
+            zaakTypeUri = zaakType.url,
+            omschrijvingGeneriek = OmschrijvingGeneriekEnum.MEDE_INITIATOR
+        )
+        val rolTypeZaakcoordinator = createRolType(
+            zaakTypeUri = zaakType.url,
+            omschrijvingGeneriek = OmschrijvingGeneriekEnum.ZAAKCOORDINATOR
+        )
+        val productAanvraagORObject = createORObject(
+            record = createObjectRecord(
+                data = mapOf(
+                    "bron" to formulierBron,
+                    "type" to productAanvraagType,
+                    // aanvraaggegevens must contain at least one key with a map value
+                    "aanvraaggegevens" to mapOf("dummyKey" to mapOf("dummySubKey" to "dummyValue")),
+                    "betrokkenen" to listOf(
+                        mapOf(
+                            "inpBsn" to adviseurBsn1,
+                            "rolOmschrijvingGeneriek" to "adviseur"
+                        ),
+                        mapOf(
+                            "inpBsn" to adviseurBsn2,
+                            "rolOmschrijvingGeneriek" to "adviseur"
+                        ),
+                        mapOf(
+                            "inpBsn" to behandelaarBsn,
+                            "rolOmschrijvingGeneriek" to "behandelaar"
+                        ),
+                        mapOf(
+                            "vestigingsNummer" to belanghebbendeVestigingsnummer1,
+                            "rolOmschrijvingGeneriek" to "belanghebbende"
+                        ),
+                        mapOf(
+                            "vestigingsNummer" to belanghebbendeVestigingsnummer2,
+                            "rolOmschrijvingGeneriek" to "belanghebbende"
+                        ),
+                        mapOf(
+                            "inpBsn" to beslisserBsn,
+                            "rolOmschrijvingGeneriek" to "beslisser"
+                        ),
+                        mapOf(
+                            "vestigingsNummer" to beslisserVestigingsnummer,
+                            "rolOmschrijvingGeneriek" to "beslisser"
+                        ),
+                        mapOf(
+                            "inpBsn" to klantcontacterBsn,
+                            "rolOmschrijvingGeneriek" to "klantcontacter"
+                        ),
+                        mapOf(
+                            "inpBsn" to medeInitiatorBsn,
+                            "rolOmschrijvingGeneriek" to "mede_initiator"
+                        ),
+                        mapOf(
+                            "vestigingsNummer" to zaakcoordinatorVestigingsnummer,
+                            "rolOmschrijvingGeneriek" to "zaakcoordinator"
+                        )
+                    )
+                )
+            )
+        )
+        val rolesToBeCreated = mutableListOf<Rol<*>>()
+        val zaakToBeCreated = slot<Zaak>()
+        every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+        every {
+            zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(productAanvraagType)
+        } returns Optional.of(zaakTypeUUID)
+        every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
+        every { ztcClientService.readRoltype(OmschrijvingGeneriekEnum.ADVISEUR, any()) } returns rolTypeAdviseur
+        every { ztcClientService.readRoltype(OmschrijvingGeneriekEnum.BEHANDELAAR, any()) } returns rolTypeBehandelaar
+        every { ztcClientService.readRoltype(OmschrijvingGeneriekEnum.BELANGHEBBENDE, any()) } returns rolTypeBelanghebbende
+        every { ztcClientService.readRoltype(OmschrijvingGeneriekEnum.BESLISSER, any()) } returns rolTypeBeslisser
+        every { ztcClientService.readRoltype(OmschrijvingGeneriekEnum.KLANTCONTACTER, any()) } returns rolTypeKlantcontacter
+        every { ztcClientService.readRoltype(OmschrijvingGeneriekEnum.MEDE_INITIATOR, any()) } returns rolTypeMedeInitiator
+        every { ztcClientService.readRoltype(OmschrijvingGeneriekEnum.ZAAKCOORDINATOR, any()) } returns rolTypeZaakcoordinator
+        every { zrcClientService.createRol(capture(rolesToBeCreated)) } just runs
+        every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
+        every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
+        every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
+        every {
+            zrcClientService.createZaakInformatieobject(
+                any(),
+                "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+            )
+        } returns createdZaakInformatieobject
+        every { cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any()) } just Runs
+
+        When("the productaanvraag is handled") {
+            productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+            Then(
+                """
+                    a zaak should be created, roles should be created for all supported betrokkenen types 
+                    and a CMMN case process should be started
+                    """
+            ) {
+                verify(exactly = 1) {
+                    zgwApiService.createZaak(any())
+                    zrcClientService.createZaakobject(any())
+                    cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any())
+                }
+                verify(exactly = 10) {
+                    zrcClientService.createRol(any())
+                }
+                with(zaakToBeCreated.captured) {
+                    zaaktype shouldBe zaakType.url
+                    communicatiekanaalNaam shouldBe "E-formulier"
+                    bronorganisatie shouldBe BRON_ORGANISATIE
+                    omschrijving shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'"
+                    toelichting shouldBe null
+                }
+                rolesToBeCreated.forEach {
+                    it.roltoelichting shouldBe "Overgenomen vanuit de product aanvraag"
+                    it.zaak shouldBe createdZaak.url
+                }
+                with(rolesToBeCreated[0]) {
+                    betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
+                    identificatienummer shouldBe adviseurBsn1
+                    roltype shouldBe rolTypeAdviseur.url
+                }
+                with(rolesToBeCreated[1]) {
+                    betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
+                    identificatienummer shouldBe adviseurBsn2
+                    roltype shouldBe rolTypeAdviseur.url
+                }
+                with(rolesToBeCreated[2]) {
+                    betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
+                    identificatienummer shouldBe behandelaarBsn
+                    roltype shouldBe rolTypeBehandelaar.url
+                }
+                with(rolesToBeCreated[3]) {
+                    betrokkeneType shouldBe BetrokkeneType.VESTIGING
+                    identificatienummer shouldBe belanghebbendeVestigingsnummer1
+                    roltype shouldBe rolTypeBelanghebbende.url
+                }
+                with(rolesToBeCreated[4]) {
+                    betrokkeneType shouldBe BetrokkeneType.VESTIGING
+                    identificatienummer shouldBe belanghebbendeVestigingsnummer2
+                    roltype shouldBe rolTypeBelanghebbende.url
+                }
+                with(rolesToBeCreated[5]) {
+                    betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
+                    identificatienummer shouldBe beslisserBsn
+                    roltype shouldBe rolTypeBeslisser.url
+                }
+                with(rolesToBeCreated[6]) {
+                    betrokkeneType shouldBe BetrokkeneType.VESTIGING
+                    identificatienummer shouldBe beslisserVestigingsnummer
+                    roltype shouldBe rolTypeBeslisser.url
+                }
+                with(rolesToBeCreated[7]) {
+                    betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
+                    identificatienummer shouldBe klantcontacterBsn
+                    roltype shouldBe rolTypeKlantcontacter.url
+                }
+                with(rolesToBeCreated[8]) {
+                    betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
+                    identificatienummer shouldBe medeInitiatorBsn
+                    roltype shouldBe rolTypeMedeInitiator.url
+                }
+                with(rolesToBeCreated[9]) {
+                    betrokkeneType shouldBe BetrokkeneType.VESTIGING
+                    identificatienummer shouldBe zaakcoordinatorVestigingsnummer
+                    roltype shouldBe rolTypeZaakcoordinator.url
                 }
             }
         }

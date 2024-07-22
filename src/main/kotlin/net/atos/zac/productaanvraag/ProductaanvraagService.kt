@@ -170,69 +170,114 @@ class ProductaanvraagService @Inject constructor(
             }
         }
 
+    private fun addBetrokkene(betrokkene: Betrokkene, omschrijvingGeneriek: OmschrijvingGeneriekEnum, zaak: Zaak) {
+        when {
+            betrokkene.inpBsn != null -> {
+                addNatuurlijkPersoonRole(
+                    omschrijvingGeneriek,
+                    betrokkene.inpBsn,
+                    zaak.url,
+                    zaak.zaaktype
+                )
+            }
+            betrokkene.vestigingsNummer != null -> {
+                addVestigingRole(
+                    omschrijvingGeneriek,
+                    betrokkene.vestigingsNummer,
+                    zaak.url,
+                    zaak.zaaktype
+                )
+            }
+            else -> {
+                LOG.warning(
+                    "Betrokkene `$betrokkene` with role `$omschrijvingGeneriek` in productaanvraag " +
+                        "does not contain a BSN or KVK vestigingsnummer. No role created for this betrokkene."
+                )
+            }
+        }
+    }
+
     private fun addBetrokkenen(
         productaanvraag: ProductaanvraagDimpact,
         zaak: Zaak
     ) {
-        // only one initiator per zaak is supported so in case there are multiple we only take the first one
-        productaanvraag.betrokkenen?.filter {
-            it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR
-        }?.also {
-            if (it.size > 1) {
-                LOG.warning(
-                    "Multiple betrokkenen found in productaanvraag with aanvraaggegevens: ${productaanvraag.aanvraaggegevens}. " +
-                        "Only the first one will be used. "
-                )
-            }
-        }?.first()?.let { initiatorBetrokkene ->
-            when {
-                initiatorBetrokkene.inpBsn != null -> {
-                    addNatuurlijkPersoonInitiatorRole(
-                        initiatorBetrokkene.inpBsn,
-                        zaak.url,
-                        zaak.zaaktype
-                    )
+        var initiatorAdded = false
+        productaanvraag.betrokkenen?.forEach {
+            when (it.rolOmschrijvingGeneriek) {
+                Betrokkene.RolOmschrijvingGeneriek.ADVISEUR -> {
+                    addBetrokkene(it, OmschrijvingGeneriekEnum.ADVISEUR, zaak)
                 }
-                initiatorBetrokkene.vestigingsNummer != null -> {
-                    addVestigingInitiatorRole(
-                        initiatorBetrokkene.vestigingsNummer,
-                        zaak.url,
-                        zaak.zaaktype
-                    )
+                Betrokkene.RolOmschrijvingGeneriek.BEHANDELAAR -> {
+                    addBetrokkene(it, OmschrijvingGeneriekEnum.BEHANDELAAR, zaak)
+                }
+                Betrokkene.RolOmschrijvingGeneriek.BELANGHEBBENDE -> {
+                    addBetrokkene(it, OmschrijvingGeneriekEnum.BELANGHEBBENDE, zaak)
+                }
+                Betrokkene.RolOmschrijvingGeneriek.BESLISSER -> {
+                    addBetrokkene(it, OmschrijvingGeneriekEnum.BESLISSER, zaak)
+                }
+                Betrokkene.RolOmschrijvingGeneriek.INITIATOR -> {
+                    if (initiatorAdded) {
+                        LOG.warning(
+                            "Multiple initiator betrokkenen found in productaanvraag with aanvraaggegevens: " +
+                                "${productaanvraag.aanvraaggegevens}. " +
+                                "Only the first one will be used. "
+                        )
+                    } else {
+                        addBetrokkene(it, OmschrijvingGeneriekEnum.INITIATOR, zaak)
+                        initiatorAdded = true
+                    }
+                }
+                Betrokkene.RolOmschrijvingGeneriek.KLANTCONTACTER -> {
+                    addBetrokkene(it, OmschrijvingGeneriekEnum.KLANTCONTACTER, zaak)
+                }
+                Betrokkene.RolOmschrijvingGeneriek.MEDE_INITIATOR -> {
+                    addBetrokkene(it, OmschrijvingGeneriekEnum.MEDE_INITIATOR, zaak)
+                }
+                Betrokkene.RolOmschrijvingGeneriek.ZAAKCOORDINATOR -> {
+                    addBetrokkene(it, OmschrijvingGeneriekEnum.ZAAKCOORDINATOR, zaak)
                 }
                 else -> {
                     LOG.warning(
-                        "Betrokkene with initiator role in productaanvraag does not contain a BSN or vestigingsnummer. " +
-                            "No initiator role created for productaanvraag: '$productaanvraag'."
+                        "Betrokkene with role '${it.rolOmschrijvingGeneriek}' is not supported. " +
+                            "No role created for productaanvraag with aanvraaggegevens: '${productaanvraag.aanvraaggegevens}'."
                     )
                 }
             }
         }
     }
 
-    private fun addNatuurlijkPersoonInitiatorRole(bsn: String, zaak: URI, zaaktype: URI) =
-        ztcClientService.readRoltype(OmschrijvingGeneriekEnum.INITIATOR, zaaktype).let {
-            zrcClientService.createRol(
-                RolNatuurlijkPersoon(
-                    zaak,
-                    it,
-                    ROL_TOELICHTING,
-                    NatuurlijkPersoon(bsn)
-                )
+    private fun addNatuurlijkPersoonRole(
+        roltypeOmschrijvingGeneriek: OmschrijvingGeneriekEnum,
+        bsn: String,
+        zaak: URI,
+        zaaktype: URI
+    ) = ztcClientService.readRoltype(roltypeOmschrijvingGeneriek, zaaktype).let {
+        zrcClientService.createRol(
+            RolNatuurlijkPersoon(
+                zaak,
+                it,
+                ROL_TOELICHTING,
+                NatuurlijkPersoon(bsn)
             )
-        }
+        )
+    }
 
-    private fun addVestigingInitiatorRole(vestigingsNummer: String, zaak: URI, zaaktype: URI) =
-        ztcClientService.readRoltype(OmschrijvingGeneriekEnum.INITIATOR, zaaktype).let {
-            zrcClientService.createRol(
-                RolVestiging(
-                    zaak,
-                    it,
-                    ROL_TOELICHTING,
-                    Vestiging(vestigingsNummer)
-                )
+    private fun addVestigingRole(
+        roltypeOmschrijvingGeneriek: OmschrijvingGeneriekEnum,
+        vestigingsNummer: String,
+        zaak: URI,
+        zaaktype: URI
+    ) = ztcClientService.readRoltype(roltypeOmschrijvingGeneriek, zaaktype).let {
+        zrcClientService.createRol(
+            RolVestiging(
+                zaak,
+                it,
+                ROL_TOELICHTING,
+                Vestiging(vestigingsNummer)
             )
-        }
+        )
+    }
 
     private fun assignZaak(zaak: Zaak, zaakafhandelParameters: ZaakafhandelParameters) {
         zaakafhandelParameters.groepID?.let {
@@ -358,9 +403,10 @@ class ProductaanvraagService @Inject constructor(
             ontvangstdatum = productaanvraagObject.record.registrationAt
         }
         productaanvraag.betrokkenen?.let { betrokkenen ->
+            // note: we also need to support KVK vestigingsnummer type here
+            // as well as other types of betrokkenen
+
             // we are only interested in the first betrokkene with the role 'INITIATOR'
-            // TODO: also needs to support KVK vestigingsnummer!
-            // call addBetrokkenen here?
             betrokkenen.first { it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR }
                 .let { inboxProductaanvraag.initiatorID = it.inpBsn }
         }
