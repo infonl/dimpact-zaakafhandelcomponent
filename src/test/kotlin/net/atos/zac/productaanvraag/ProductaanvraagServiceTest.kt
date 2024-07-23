@@ -529,7 +529,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakafhandelParameters = createZaakafhandelParameters()
         val formulierBron = createBron()
         val adviseurBsn1 = "dummyBsn1"
-        val adviseurBsn2 = "dummyBsn1"
         val behandelaarBsn = "dummyBsn3"
         val beslisserBsn = "dummyBsn4"
         val klantcontacterBsn = "dummyBsn5"
@@ -538,10 +537,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val belanghebbendeVestigingsnummer2 = "dummyVestigingsNummer2"
         val beslisserVestigingsnummer = "dummyVestigingsNummer3"
         val zaakcoordinatorVestigingsnummer = "dummyVestigingsNummer4"
-        val rolTypeAdviseur = createRolType(
-            zaakTypeUri = zaakType.url,
-            omschrijvingGeneriek = OmschrijvingGeneriekEnum.ADVISEUR
-        )
         val rolTypeBelanghebbende = createRolType(
             zaakTypeUri = zaakType.url,
             omschrijvingGeneriek = OmschrijvingGeneriekEnum.BELANGHEBBENDE
@@ -572,10 +567,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     "betrokkenen" to listOf(
                         mapOf(
                             "inpBsn" to adviseurBsn1,
-                            "rolOmschrijvingGeneriek" to "adviseur"
-                        ),
-                        mapOf(
-                            "inpBsn" to adviseurBsn2,
                             "rolOmschrijvingGeneriek" to "adviseur"
                         ),
                         mapOf(
@@ -621,7 +612,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(productAanvraagType)
         } returns Optional.of(zaakTypeUUID)
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
-        every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.ADVISEUR) } returns listOf(rolTypeAdviseur)
+        // for this test we assume no role types have been defined for the adviseur role
+        every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.ADVISEUR) } returns emptyList()
         every {
             ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.BELANGHEBBENDE)
         } returns listOf(rolTypeBelanghebbende)
@@ -652,8 +644,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
             Then(
                 """
-                    a zaak should be created, roles should be created for all supported betrokkenen types 
-                    except for behandelaar and a CMMN case process should be started
+                    a zaak should be created, roles should be created for all supported betrokkenen types for which
+                    there are role types defined in the ZTC client service,
+                    except for the behandelaar betrokkene, and a CMMN case process should be started
                     """
             ) {
                 verify(exactly = 1) {
@@ -661,7 +654,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     zrcClientService.createZaakobject(any())
                     cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any())
                 }
-                verify(exactly = 9) {
+                verify(exactly = 7) {
                     zrcClientService.createRol(any())
                 }
                 with(zaakToBeCreated.captured) {
@@ -676,46 +669,36 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     it.zaak shouldBe createdZaak.url
                 }
                 with(rolesToBeCreated[0]) {
-                    betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
-                    identificatienummer shouldBe adviseurBsn1
-                    roltype shouldBe rolTypeAdviseur.url
-                }
-                with(rolesToBeCreated[1]) {
-                    betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
-                    identificatienummer shouldBe adviseurBsn2
-                    roltype shouldBe rolTypeAdviseur.url
-                }
-                with(rolesToBeCreated[2]) {
                     betrokkeneType shouldBe BetrokkeneType.VESTIGING
                     identificatienummer shouldBe belanghebbendeVestigingsnummer1
                     roltype shouldBe rolTypeBelanghebbende.url
                 }
-                with(rolesToBeCreated[3]) {
+                with(rolesToBeCreated[1]) {
                     betrokkeneType shouldBe BetrokkeneType.VESTIGING
                     identificatienummer shouldBe belanghebbendeVestigingsnummer2
                     roltype shouldBe rolTypeBelanghebbende.url
                 }
-                with(rolesToBeCreated[4]) {
+                with(rolesToBeCreated[2]) {
                     betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
                     identificatienummer shouldBe beslisserBsn
                     roltype shouldBe rolTypeBeslisser.url
                 }
-                with(rolesToBeCreated[5]) {
+                with(rolesToBeCreated[3]) {
                     betrokkeneType shouldBe BetrokkeneType.VESTIGING
                     identificatienummer shouldBe beslisserVestigingsnummer
                     roltype shouldBe rolTypeBeslisser.url
                 }
-                with(rolesToBeCreated[6]) {
+                with(rolesToBeCreated[4]) {
                     betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
                     identificatienummer shouldBe klantcontacterBsn
                     roltype shouldBe rolTypeKlantcontacter.url
                 }
-                with(rolesToBeCreated[7]) {
+                with(rolesToBeCreated[5]) {
                     betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
                     identificatienummer shouldBe medeInitiatorBsn
                     roltype shouldBe rolTypeMedeInitiator.url
                 }
-                with(rolesToBeCreated[8]) {
+                with(rolesToBeCreated[6]) {
                     betrokkeneType shouldBe BetrokkeneType.VESTIGING
                     identificatienummer shouldBe zaakcoordinatorVestigingsnummer
                     roltype shouldBe rolTypeZaakcoordinator.url
