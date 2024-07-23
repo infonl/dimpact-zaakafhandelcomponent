@@ -139,18 +139,26 @@ maxFileSizeMB: 80
 # remoteDebug Enable Java remote debugging
 remoteDebug: False
 
+# replicaCount the number of replicas to run
 replicaCount: 1
 
+# image the image parameters to use
 image:
   repository: ghcr.io/infonl/zaakafhandelcomponent
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
+# imagePullSecrets specifies image pull secrets 
 imagePullSecrets: [ ]
+
+# nameOverride name to use
 nameOverride: ""
+
+# fullnameOverride fullname to use
 fullnameOverride: ""
 
+# serviceAccount service account parameters
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
@@ -160,11 +168,14 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
+# podAnnotations pod specific annotations
 podAnnotations: { }
 
+# podSecurityContext pod specific security context
 podSecurityContext: { }
 # fsGroup: 2000
 
+# securityContext generic security context
 securityContext: { }
   # capabilities:
   #   drop:
@@ -173,11 +184,13 @@ securityContext: { }
 # runAsNonRoot: true
 # runAsUser: 1000
 
+# service service specifications
 service:
   type: ClusterIP
   port: 80
   annotations: { }
 
+# ingress ingress specifications
 ingress:
   enabled: false
   className: ""
@@ -194,9 +207,11 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
+# backendConfig currently not in use, specify backend in ingress instead
 backendConfig:
   enabled: false
 
+# resources specify resources limits and requests if needed, prefilled values are the minimum recommended
 resources:
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -209,6 +224,7 @@ resources:
     cpu: 100m
     memory: 1Gi
 
+# autoscaling set autoscaling parameters
 autoscaling:
   enabled: false
   minReplicas: 1
@@ -216,15 +232,19 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
+# nodeSelector set node selector parameters
 nodeSelector: { }
 
+# tolerations set toleration parameters
 tolerations: [ ]
 
+# affinity set affinity parameters
 affinity: { }
 
+# opa provision the opa deployment, prefilled resources values are the minimum recommended
 opa:
   enabled: true
-  # set sidecar to true to always run the opa service together with zac
+  # set sidecar to true to run the opa service together with the zac pod
   sidecar: false
   # set url if the opa url cannot be automatically determined and is not run as a sidecar
   # the opa url should be the url the openpolicyagent can be reached on from ZAC ( for example: http://release-opa.default.svc.cluster.local:8181 )
@@ -262,15 +282,16 @@ opa:
   tolerations: [ ]
 
 
-
 # It is recommended to use solr-operator to help provision a solr-cloud cluster, 
 # you will have to configure the zac core seperately then.
 # See the zaakafhandelcomponent wiki on more information about this.
 #
+
+#solr enable to use the included solr helm chart to provision a solr to use with zac
 solr:
   # set enabled to true to provision bitnami solr version with the zac core
   enabled: false
-  # set url if the office-converter url cannot be automatically determined
+  # you only need to set the url if the solr url cannot be automatically determined
   # the solr url should be the url solr can be reached on from ZAC ( for example: http://release-solr.default.svc.cluster.local )
   #url: ""
   # all settings below are only used when enabled is set to true
@@ -310,6 +331,7 @@ solr:
   zookeeper:
     enabled: false
 
+# office_converter use the office converter specified, prefilled resources values are the minimum recommended
 office_converter:
   enabled: true
   # set url if the office-converter url cannot be automatically determined
@@ -345,9 +367,10 @@ office_converter:
   tolerations: [ ]
 
 
-# Extra objects to deploy (value evaluated as a template)
+# extraDeploy Extra objects to deploy (value evaluated as a template)
 extraDeploy: [ ]
 
+# opentelemetry-collector enable to use the included helm chart and settings to work with zac
 opentelemetry-collector:
   enabled: false
   mode: deployment
