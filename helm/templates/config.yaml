@@ -40,10 +40,10 @@ data:
   {{- if .Values.opa.sidecar }}
   OPA_API_CLIENT_MP_REST_URL: {{ printf "http://localhost:8181" }}
   {{- else }}
-  {{ if .Values.opa.url }}
+  {{- if .Values.opa.url }}
   OPA_API_CLIENT_MP_REST_URL: {{ .Values.opa.url }}
   {{- else }}
-  OPA_API_CLIENT_MP_REST_URL: {{ printf "http://%s-opa.%s:8181" .Release.Name .Release.Namespace }}
+  OPA_API_CLIENT_MP_REST_URL: {{ printf "http://%s-%s.%s:8181" .Release.Name .Values.opa.name .Release.Namespace }}
   {{- end }}
   {{- end }}
   OPEN_FORMS_URL: {{ required "Valid .Values.openForms.url entry required!" .Values.openForms.url }}

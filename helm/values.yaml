@@ -121,6 +121,7 @@ signaleringen:
   podSecurityContext: { }
   nodeSelector: { }
   affinity: { }
+  securityContext: { }
   tolerations: [ ]
 
 # opentelemetry_zaakafhandelcomponent Overrides for opentelemetry
