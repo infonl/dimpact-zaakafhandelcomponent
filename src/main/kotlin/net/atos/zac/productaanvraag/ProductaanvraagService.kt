@@ -171,52 +171,10 @@ class ProductaanvraagService @Inject constructor(
             }
         }
 
-    private fun addBetrokkene(betrokkene: Betrokkene, roltypeOmschrijvingGeneriek: OmschrijvingGeneriekEnum, zaak: Zaak) {
-        ztcClientService.findRoltypen(zaak.zaaktype, roltypeOmschrijvingGeneriek)
-            .also {
-                if (it.isEmpty()) {
-                    LOG.warning(
-                        "No roltypen found for zaaktype '${zaak.zaaktype}' and generic roltype description " +
-                            "'$roltypeOmschrijvingGeneriek'. No betrokkene role created for zaak '$zaak'."
-                    )
-                } else if (it.size > 1) {
-                    LOG.warning(
-                        "Multiple roltypen found for zaaktype '${zaak.zaaktype}', generic roltype description " +
-                            "'$roltypeOmschrijvingGeneriek' and zaak '$zaak'. " +
-                            "Using the first one (description: '${it.first().omschrijving}')."
-                    )
-                }
-            }
-            .firstOrNull()?.let {
-                when {
-                    betrokkene.inpBsn != null -> {
-                        addNatuurlijkPersoonRole(
-                            it,
-                            betrokkene.inpBsn,
-                            zaak.url
-                        )
-                    }
-                    betrokkene.vestigingsNummer != null -> {
-                        addVestigingRole(
-                            it,
-                            betrokkene.vestigingsNummer,
-                            zaak.url
-                        )
-                    }
-                    else -> {
-                        LOG.warning(
-                            "Betrokkene with generic roletype description `$roltypeOmschrijvingGeneriek` " +
-                                "does not contain a BSN or KVK vestigingsnummer. No betrokkene role created for zaak '$zaak'."
-                        )
-                    }
-                }
-            }
-    }
-
     /**
      * Adds all betrokkenen which are present in the provided productaanvraag to the zaak for the set
-     * of (predefined role types)[Betrokkene.RolOmschrijvingGeneriek] but only if the requested role type is defined
-     * in the zaaktype of the provided zaak.
+     * of provided (role types)[Betrokkene.RolOmschrijvingGeneriek] but only for those role types which are defined
+     * in the zaaktype of the specified zaak.
      * An exception is made for betrokkenen of role type (behandelaar)[Betrokkene.RolOmschrijvingGeneriek.BEHANDELAAR]].
      * Behandelaar betrokkenen cannot be set from a productaanvraag.
      *
@@ -266,12 +224,55 @@ class ProductaanvraagService @Inject constructor(
                 }
                 else -> {
                     LOG.warning(
-                        "Betrokkene with role '${it.rolOmschrijvingGeneriek}' is not supported. " +
-                            "No role created for productaanvraag with aanvraaggegevens: '${productaanvraag.aanvraaggegevens}'."
+                        "Betrokkene with role '${it.rolOmschrijvingGeneriek}' is not supported in the mapping " +
+                            "from a productaanvraag. No role created for productaanvraag with aanvraaggegevens: " +
+                            "'${productaanvraag.aanvraaggegevens}'."
                     )
                 }
             }
         }
+    }
+
+    private fun addBetrokkene(betrokkene: Betrokkene, roltypeOmschrijvingGeneriek: OmschrijvingGeneriekEnum, zaak: Zaak) {
+        ztcClientService.findRoltypen(zaak.zaaktype, roltypeOmschrijvingGeneriek)
+            .also {
+                if (it.isEmpty()) {
+                    LOG.warning(
+                        "No roltypen found for zaaktype '${zaak.zaaktype}' and generic roltype description " +
+                            "'$roltypeOmschrijvingGeneriek'. No betrokkene role created for zaak '$zaak'."
+                    )
+                } else if (it.size > 1) {
+                    LOG.warning(
+                        "Multiple roltypen found for zaaktype '${zaak.zaaktype}', generic roltype description " +
+                            "'$roltypeOmschrijvingGeneriek' and zaak '$zaak'. " +
+                            "Using the first one (description: '${it.first().omschrijving}')."
+                    )
+                }
+            }
+            .firstOrNull()?.let {
+                when {
+                    betrokkene.inpBsn != null -> {
+                        addNatuurlijkPersoonRole(
+                            it,
+                            betrokkene.inpBsn,
+                            zaak.url
+                        )
+                    }
+                    betrokkene.vestigingsNummer != null -> {
+                        addVestigingRole(
+                            it,
+                            betrokkene.vestigingsNummer,
+                            zaak.url
+                        )
+                    }
+                    else -> {
+                        LOG.warning(
+                            "Betrokkene with generic roletype description `$roltypeOmschrijvingGeneriek` " +
+                                "does not contain a BSN or KVK vestigingsnummer. No betrokkene role created for zaak '$zaak'."
+                        )
+                    }
+                }
+            }
     }
 
     private fun addNatuurlijkPersoonRole(
