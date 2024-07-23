@@ -141,7 +141,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
         if (behandelaar.isPresent()) {
             final Signalering signalering = getSignaleringVoorRol(event, subject, behandelaar.get());
             if (signalering != null) {
-                signalering.setDetail(detail);
+                signalering.setDetailFromZaakInformatieobject(detail);
             }
             return signalering;
         }
@@ -207,7 +207,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
     }
 
     private RolType getRoltypeBehandelaar(final Zaak zaak) {
-        return ztcClientService.readRoltype(OmschrijvingGeneriekEnum.BEHANDELAAR, zaak.getZaaktype());
+        return ztcClientService.readRoltype(zaak.getZaaktype(), OmschrijvingGeneriekEnum.BEHANDELAAR);
     }
 
     private Optional<Rol<?>> getRolBehandelaarMedewerker(final Zaak zaak) {

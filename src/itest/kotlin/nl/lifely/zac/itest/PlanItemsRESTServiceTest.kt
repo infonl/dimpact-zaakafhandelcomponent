@@ -81,7 +81,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
             }
         }
         When("the start human task plan items endpoint is called") {
-            // note that the fatal date of a task cannot be later than the fatal data of the related zaak
+            // note that the fatal date of a task cannot be later than the fatal date of the related zaak
             val fataleDatum = LocalDate.parse(ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING)
                 .minusDays(1)
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))

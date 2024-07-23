@@ -6,18 +6,17 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.zac.app.taken.converter.RESTTaakConverter
-import net.atos.zac.app.taken.model.createRESTTaakToekennenGegevens
-import net.atos.zac.app.taken.model.createRESTTaakVerdelenGegevens
-import net.atos.zac.app.taken.model.createRESTTaakVerdelenTaak
-import net.atos.zac.app.taken.model.createRESTTaakVrijgevenGegevens
+import net.atos.zac.app.task.converter.RestTaskConverter
+import net.atos.zac.app.task.model.createRestTaskAssignData
+import net.atos.zac.app.task.model.createRestTaskDistributeData
+import net.atos.zac.app.task.model.createRestTaskDistributeTask
+import net.atos.zac.app.task.model.createRestTaskReleaseData
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
@@ -35,7 +34,7 @@ class TaskServiceTest : BehaviorSpec({
     val flowableTaskService = mockk<FlowableTaskService>()
     val indexeerService = mockk<IndexeerService>()
     val eventingService = mockk<EventingService>()
-    val restTaakConverter = mockk<RESTTaakConverter>()
+    val restTaskConverter = mockk<RestTaskConverter>()
     val loggedInUser = mockk<LoggedInUser>()
     val task1 = mockk<Task>()
     val task2 = mockk<Task>()
@@ -43,7 +42,7 @@ class TaskServiceTest : BehaviorSpec({
         flowableTaskService = flowableTaskService,
         indexeerService = indexeerService,
         eventingService = eventingService,
-        restTaakConverter = restTaakConverter,
+        restTaskConverter = restTaskConverter,
     )
     val taskId1 = "dummyTaskId1"
     val taskId2 = "dummyTaskId2"
@@ -52,12 +51,8 @@ class TaskServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    beforeSpec {
-        clearAllMocks()
-    }
-
     Given("A task that has not yet been assigned to a specific group and user") {
-        val restTaakToekennenGegevens = createRESTTaakToekennenGegevens()
+        val restTaakToekennenGegevens = createRestTaskAssignData()
         val taskId = "dummyTaskId"
         val task = mockk<Task>()
         val identityLinks = mutableListOf<IdentityLinkInfo>()
@@ -72,7 +67,7 @@ class TaskServiceTest : BehaviorSpec({
         every { task.id } returns taskId
         every { task.identityLinks } returns identityLinks
         every { updatedTaskAfterAssigningUser.id } returns taskId
-        every { restTaakConverter.extractGroupId(identityLinks) } returns groupId
+        every { restTaskConverter.extractGroupId(identityLinks) } returns groupId
         every {
             flowableTaskService.assignTaskToGroup(
                 task,
@@ -119,16 +114,15 @@ class TaskServiceTest : BehaviorSpec({
         }
     }
     Given("Two tasks that have not yet been assigned to a specific group and user") {
-        clearAllMocks()
         val restTaakVerdelenTaken = listOf(
-            createRESTTaakVerdelenTaak(
+            createRestTaskDistributeTask(
                 taakId = taskId1
             ),
-            createRESTTaakVerdelenTaak(
+            createRestTaskDistributeTask(
                 taakId = taskId2
             )
         )
-        val restTaakVerdelenGegevens = createRESTTaakVerdelenGegevens(
+        val restTaakVerdelenGegevens = createRestTaskDistributeData(
             taken = restTaakVerdelenTaken
         )
         val updatedTask1AfterAssigningGroup = mockk<Task>()
@@ -195,16 +189,15 @@ class TaskServiceTest : BehaviorSpec({
         }
     }
     Given("REST taak vrijgeven gegevens with two tasks") {
-        clearAllMocks()
         val restTaakVerdelenTaken = listOf(
-            createRESTTaakVerdelenTaak(
+            createRestTaskDistributeTask(
                 taakId = taskId1
             ),
-            createRESTTaakVerdelenTaak(
+            createRestTaskDistributeTask(
                 taakId = taskId2
             )
         )
-        val restTaakVrijgevenGegevens = createRESTTaakVrijgevenGegevens(
+        val restTaakVrijgevenGegevens = createRestTaskReleaseData(
             taken = restTaakVerdelenTaken
         )
         val updatedTaskAfterRelease1 = mockk<Task>()
@@ -267,16 +260,15 @@ class TaskServiceTest : BehaviorSpec({
         }
     }
     Given("Two open tasks that have not yet been assigned to a specific group and user") {
-        clearAllMocks()
         val restTaakVerdelenTaken = listOf(
-            createRESTTaakVerdelenTaak(
+            createRestTaskDistributeTask(
                 taakId = taskId1
             ),
-            createRESTTaakVerdelenTaak(
+            createRestTaskDistributeTask(
                 taakId = taskId2
             )
         )
-        val restTaakVerdelenGegevens = createRESTTaakVerdelenGegevens(
+        val restTaakVerdelenGegevens = createRestTaskDistributeData(
             taken = restTaakVerdelenTaken,
             behandelaarGebruikersnaam = null
         )
@@ -328,16 +320,15 @@ class TaskServiceTest : BehaviorSpec({
             task is a historical (closed) task and the second an open task
             """
     ) {
-        clearAllMocks()
         val restTaakVerdelenTaken = listOf(
-            createRESTTaakVerdelenTaak(
+            createRestTaskDistributeTask(
                 taakId = taskId1
             ),
-            createRESTTaakVerdelenTaak(
+            createRestTaskDistributeTask(
                 taakId = taskId2
             )
         )
-        val restTaakVerdelenGegevens = createRESTTaakVerdelenGegevens(
+        val restTaakVerdelenGegevens = createRestTaskDistributeData(
             taken = restTaakVerdelenTaken,
             behandelaarGebruikersnaam = null
         )
@@ -380,16 +371,15 @@ class TaskServiceTest : BehaviorSpec({
         }
     }
     Given("Two open tasks that are already assigned to a specific group and user") {
-        clearAllMocks()
         val restTaakVerdelenTaken = listOf(
-            createRESTTaakVerdelenTaak(
+            createRestTaskDistributeTask(
                 taakId = taskId1
             ),
-            createRESTTaakVerdelenTaak(
+            createRestTaskDistributeTask(
                 taakId = taskId2
             )
         )
-        val restTaakVerdelenGegevens = createRESTTaakVerdelenGegevens(
+        val restTaakVerdelenGegevens = createRestTaskDistributeData(
             taken = restTaakVerdelenTaken,
             behandelaarGebruikersnaam = null
         )
@@ -448,16 +438,15 @@ class TaskServiceTest : BehaviorSpec({
         }
     }
     Given("Two open tasks") {
-        clearAllMocks()
         val restTaakVerdelenTaken = listOf(
-            createRESTTaakVerdelenTaak(
+            createRestTaskDistributeTask(
                 taakId = taskId1
             ),
-            createRESTTaakVerdelenTaak(
+            createRestTaskDistributeTask(
                 taakId = taskId2
             )
         )
-        val restTaakVerdelenGegevens = createRESTTaakVerdelenGegevens(
+        val restTaakVerdelenGegevens = createRestTaskDistributeData(
             taken = restTaakVerdelenTaken,
             behandelaarGebruikersnaam = null
         )
@@ -522,16 +511,15 @@ class TaskServiceTest : BehaviorSpec({
             task is a historical (closed) task and the second an open task
             """
     ) {
-        clearAllMocks()
         val restTaakVerdelenTaken = listOf(
-            createRESTTaakVerdelenTaak(
+            createRestTaskDistributeTask(
                 taakId = taskId1
             ),
-            createRESTTaakVerdelenTaak(
+            createRestTaskDistributeTask(
                 taakId = taskId2
             )
         )
-        val restTaakVrijgevenGegevens = createRESTTaakVrijgevenGegevens(
+        val restTaakVrijgevenGegevens = createRestTaskReleaseData(
             taken = restTaakVerdelenTaken
         )
         val screenEventSlot = mutableListOf<ScreenEvent>()
@@ -580,16 +568,15 @@ class TaskServiceTest : BehaviorSpec({
         }
     }
     Given("Two open tasks") {
-        clearAllMocks()
         val restTaakVerdelenTaken = listOf(
-            createRESTTaakVerdelenTaak(
+            createRestTaskDistributeTask(
                 taakId = taskId1
             ),
-            createRESTTaakVerdelenTaak(
+            createRestTaskDistributeTask(
                 taakId = taskId2
             )
         )
-        val restTaakVerdelenGegevens = createRESTTaakVrijgevenGegevens(
+        val restTaakVerdelenGegevens = createRestTaskReleaseData(
             taken = restTaakVerdelenTaken,
         )
         val screenEventSlot = mutableListOf<ScreenEvent>()

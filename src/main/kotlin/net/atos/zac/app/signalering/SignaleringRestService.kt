@@ -21,9 +21,9 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject
 import net.atos.zac.app.signalering.converter.RESTSignaleringInstellingenConverter
-import net.atos.zac.app.signalering.converter.RESTSignaleringTaakConverter
+import net.atos.zac.app.signalering.converter.toRestSignaleringTaakSummary
 import net.atos.zac.app.signalering.model.RESTSignaleringInstellingen
-import net.atos.zac.app.signalering.model.RESTSignaleringTaakSummary
+import net.atos.zac.app.signalering.model.RestSignaleringTaskSummary
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.identity.IdentityService
@@ -49,8 +49,7 @@ class SignaleringRestService @Inject constructor(
     private val identityService: IdentityService,
     private val restInformatieobjectConverter: RESTInformatieobjectConverter,
     private val restSignaleringInstellingenConverter: RESTSignaleringInstellingenConverter,
-    private val loggedInUserInstance: Instance<LoggedInUser>,
-    private val restSignaleringTaakConverter: RESTSignaleringTaakConverter,
+    private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     private fun Instance<LoggedInUser>.getSignaleringZoekParameters() =
         SignaleringZoekParameters(get())
@@ -87,14 +86,14 @@ class SignaleringRestService @Inject constructor(
         @PathParam(
             "type"
         ) signaleringsType: SignaleringType.Type
-    ): List<RESTSignaleringTaakSummary> =
+    ): List<RestSignaleringTaskSummary> =
         loggedInUserInstance.getSignaleringZoekParameters()
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.TAAK)
             .let { signaleringService.listSignaleringen(it) }
             .stream()
             .map { flowableTaskService.readTask(it.subject) }
-            .map { restSignaleringTaakConverter.convert(it) }
+            .map { it.toRestSignaleringTaakSummary() }
             .toList()
 
     @GET

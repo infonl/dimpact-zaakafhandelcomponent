@@ -860,6 +860,14 @@
                         "indicatieCorrespondentie" : false
                     },
                     {
+                        "inpBsn" : "999991838",
+                        "rolOmschrijvingGeneriek" : "belanghebbende"
+                    },
+                    {
+                        "inpBsn" : "999992958",
+                        "rolOmschrijvingGeneriek" : "belanghebbende"
+                    },
+                    {
                         "medewerkerIdentificatie" : "MDW123",
                         "rolOmschrijvingGeneriek" : "klantcontacter"
                     }
@@ -910,6 +918,22 @@
                     {
                         "vestigingsNummer" : "000012345678",
                         "rolOmschrijvingGeneriek" : "initiator"
+                    },
+                    {
+                        "inpBsn" : "999991838",
+                        "rolOmschrijvingGeneriek" : "mede_initiator"
+                    },
+                    {
+                        "inpBsn" : "999991838",
+                        "rolOmschrijvingGeneriek" : "belanghebbende"
+                    },
+                    {
+                        "inpBsn" : "999992958",
+                        "rolOmschrijvingGeneriek" : "belanghebbende"
+                    },
+                    {
+                        "inpBsn" : "999992958",
+                        "rolOmschrijvingGeneriek" : "adviseur"
                     }
                 ],
                 "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e"

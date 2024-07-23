@@ -9,8 +9,8 @@ import jakarta.inject.Inject;
 
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.zac.app.admin.model.RESTZaakafhandelParameters;
-import net.atos.zac.app.zaken.converter.RESTResultaattypeConverter;
-import net.atos.zac.app.zaken.model.RESTZaakStatusmailOptie;
+import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter;
+import net.atos.zac.app.zaak.model.RESTZaakStatusmailOptie;
 import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
 import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 

@@ -7,6 +7,7 @@ package net.atos.zac.documentcreatie.converter;
 
 import static net.atos.client.or.shared.util.URIUtil.getUUID;
 import static net.atos.client.zgw.zrc.model.Objecttype.OVERIGE;
+import static net.atos.zac.flowable.TaakVariabelenService.readTaskData;
 import static net.atos.zac.util.StringUtil.joinNonBlank;
 
 import java.net.URI;
@@ -44,7 +45,6 @@ import net.atos.zac.documentcreatie.model.StartformulierData;
 import net.atos.zac.documentcreatie.model.TaakData;
 import net.atos.zac.documentcreatie.model.ZaakData;
 import net.atos.zac.flowable.FlowableTaskService;
-import net.atos.zac.flowable.TaakVariabelenService;
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.productaanvraag.ProductaanvraagService;
 
@@ -58,7 +58,6 @@ public class DocumentCreatieDataConverter {
     private KvkClientService kvkClientService;
     private ObjectsClientService objectsClientService;
     private FlowableTaskService flowableTaskService;
-    private TaakVariabelenService taakVariabelenService;
     private IdentityService identityService;
     private ProductaanvraagService productaanvraagService;
 
@@ -71,7 +70,6 @@ public class DocumentCreatieDataConverter {
             final KvkClientService kvkClientService,
             final ObjectsClientService objectsClientService,
             final FlowableTaskService flowableTaskService,
-            final TaakVariabelenService taakVariabelenService,
             final IdentityService identityService,
             final ProductaanvraagService productaanvraagService
     ) {
@@ -82,7 +80,6 @@ public class DocumentCreatieDataConverter {
         this.kvkClientService = kvkClientService;
         this.objectsClientService = objectsClientService;
         this.flowableTaskService = flowableTaskService;
-        this.taakVariabelenService = taakVariabelenService;
         this.identityService = identityService;
         this.productaanvraagService = productaanvraagService;
     }
@@ -147,14 +144,14 @@ public class DocumentCreatieDataConverter {
                 .map(RolOrganisatorischeEenheid::getNaam)
                 .ifPresent(groep -> zaakData.groep = groep);
 
-        zgwApiService.findBehandelaarForZaak(zaak)
+        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
                 .map(RolMedewerker::getNaam)
                 .ifPresent(behandelaar -> zaakData.behandelaar = behandelaar);
         return zaakData;
     }
 
     private AanvragerData createAanvragerData(final Zaak zaak) {
-        return zgwApiService.findInitiatorForZaak(zaak)
+        return zgwApiService.findInitiatorRoleForZaak(zaak)
                 .map(this::convertToAanvragerData)
                 .orElse(null);
     }
@@ -255,7 +252,7 @@ public class DocumentCreatieDataConverter {
         if (taskInfo.getAssignee() != null) {
             taakData.behandelaar = identityService.readUser(taskInfo.getAssignee()).getFullName();
         }
-        taakData.data = taakVariabelenService.readTaakdata(taskInfo);
+        taakData.data = readTaskData(taskInfo);
         return taakData;
     }
 }

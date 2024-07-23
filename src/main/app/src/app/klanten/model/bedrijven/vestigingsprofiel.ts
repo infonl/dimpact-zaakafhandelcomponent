@@ -9,7 +9,7 @@ export class Vestigingsprofiel {
   vestigingsnummer: string;
   kvkNummer: string;
   rsin: string;
-  handelsnaam: string;
+  eersteHandelsnaam: string;
   type: string;
   totaalWerkzamePersonen: number;
   deeltijdWerkzamePersonen: number;

@@ -39,7 +39,6 @@ import nl.lifely.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.net.URI
 import java.time.ZonedDateTime
-import java.util.Optional
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -102,7 +101,7 @@ class ZtcClientService @Inject constructor(
         private val uuidToBesluitTypeCache: Cache<UUID, BesluitType> = createCache("UUID -> BesluitType")
         private val uriToBesluitTypeListCache: Cache<URI, List<BesluitType>> = createCache("URI -> List<BesluitType>")
 
-        private val uriOmschrijvingGeneriekEnumToRolTypeCache: Cache<String, Optional<RolType>> =
+        private val uriOmschrijvingGeneriekEnumToRolTypeCache: Cache<String, List<RolType>> =
             createCache("URI & OmschrijvingGeneriekEnumT -> RolType")
         private val uriToRolTypeListCache: Cache<URI, List<RolType>> = createCache("URI -> List<RolType>")
         private val rolTypeListCache: Cache<String, List<RolType>> = createCache("List<RolType>", 1)
@@ -284,40 +283,42 @@ class ZtcClientService @Inject constructor(
     }
 
     /**
-     * Find [RolType] of [ZaakType] and [OmschrijvingGeneriekEnum].
-     * returns null if the [ResultaatType] can not be found
+     * Find all [RolType]s for a [ZaakType] and generic role type description.
      *
-     * @param zaaktypeURI              URI of [ZaakType].
-     * @param omschrijvingGeneriekEnum [OmschrijvingGeneriekEnum].
-     * @return [RolType] or NULL
+     * @param zaaktypeURI thr URI of the zaak type
+     * @param omschrijvingGeneriekEnum [OmschrijvingG
+     * @return the list of [RolType]s; may be empty if no rol types have been defined for the zaak type
+     * and generic role type description.
      */
-    fun findRoltype(zaaktypeURI: URI, omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum): Optional<RolType> =
+    fun findRoltypen(zaaktypeURI: URI, omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum): List<RolType> =
         uriOmschrijvingGeneriekEnumToRolTypeCache.get("$zaaktypeURI$omschrijvingGeneriekEnum") {
-            ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum)).singleResult
+            ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum)).results
         }
 
     /**
-     * Retrieves the [RolType] of the specified zaak type and roltype 'aard'.
+     * Retrieves the [RolType] of the specified zaak type and generic role type description.
+     * If there are multiple role types found the first one is returned.
+     * This method should only be used for role type descriptions for which you are sure there is one and only
+     * one role type defined in the zaaktype.
      *
-     * @param zaaktypeURI URI of [ZaakType].
-     * @param omschrijvingGeneriekEnum the 'aard' of the [RolType].
-     * @return [RolType]. Never 'null'
-     * @throws RoltypeNotFoundException if no [RolType] could be found.
+     * @param zaaktypeURI URI of the zaak type
+     * @param omschrijvingGeneriekEnum the generic role type description
+     * @return [RolType] the first role type for the zaak type and generic role type description
+     * @throws RoltypeNotFoundException if no role type could be found
      */
-    fun readRoltype(omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum, zaaktypeURI: URI): RolType =
+    fun readRoltype(zaaktypeURI: URI, omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum): RolType =
         uriOmschrijvingGeneriekEnumToRolTypeCache.get("$zaaktypeURI$omschrijvingGeneriekEnum") {
-            ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum)).singleResult
-        }.orElseThrow {
+            ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum)).results
+        }.firstOrNull() ?: throw
             RoltypeNotFoundException(
                 "Roltype with aard '$omschrijvingGeneriekEnum' not found for zaaktype '$zaaktypeURI':"
             )
-        }
 
     /**
-     * Read [RolType]s of [ZaakType].
+     * Returns all [RolType]s for the specified [ZaakType].
      *
-     * @param zaaktypeURI URI of [ZaakType].
-     * @return list of [RolType]s.
+     * @param zaaktypeURI URI of [ZaakType]
+     * @return list of [RolType]s
      */
     fun listRoltypen(zaaktypeURI: URI): List<RolType> = uriToRolTypeListCache.get(zaaktypeURI) {
         ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI)).results

@@ -165,6 +165,10 @@ dependencies {
     testImplementation(libs.kotest.runner.junit5)
     testImplementation(libs.mockk)
     testImplementation(libs.json)
+    // Hibernate Validator requires an implementation of the Jakarta Expression Language
+    // runtime this is provided for by the WildFly runtime environment
+    // for our unit tests we use the reference implementation
+    testImplementation(libs.glassfish.expressly)
 
     // integration test dependencies
     "itestImplementation"(libs.testcontainers.testcontainers)

@@ -10,7 +10,6 @@ import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -53,13 +52,6 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
     )
 
     isolationMode = IsolationMode.InstancePerTest
-
-    beforeContainer { testCase ->
-        // only run before Given
-        if (testCase.parent == null) {
-            clearAllMocks()
-        }
-    }
 
     Given("an id that doesn't belong to a document in the database") {
         val id: Long = 1

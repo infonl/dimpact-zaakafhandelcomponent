@@ -27,7 +27,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import net.atos.client.zgw.brc.model.generated.Besluit;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.zac.app.zaken.model.RESTZaakOverzicht;
+import net.atos.zac.app.zaak.model.RESTZaakOverzicht;
 import net.atos.zac.event.Opcode;
 import net.atos.zac.notificaties.Channel;
 import net.atos.zac.notificaties.Notificatie;

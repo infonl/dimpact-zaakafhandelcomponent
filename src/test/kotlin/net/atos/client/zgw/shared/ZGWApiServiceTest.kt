@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -34,10 +33,6 @@ class ZGWApiServiceTest : BehaviorSpec({
 
     beforeEach {
         checkUnnecessaryStub()
-    }
-
-    beforeSpec {
-        clearAllMocks()
     }
 
     Given("A zaak with an existing result") {
@@ -78,7 +73,6 @@ class ZGWApiServiceTest : BehaviorSpec({
         }
     }
     Given("A zaak without an existing result") {
-        clearAllMocks()
         val zaak = createZaak(
             resultaat = null
         )

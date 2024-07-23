@@ -52,8 +52,8 @@ import net.atos.zac.app.informatieobjecten.model.RESTGekoppeldeZaakEnkelvoudigIn
 import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjectZoekParameters
 import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjecttype
 import net.atos.zac.app.informatieobjecten.model.RESTZaakInformatieobject
-import net.atos.zac.app.zaken.converter.RESTGerelateerdeZaakConverter
-import net.atos.zac.app.zaken.model.RelatieType
+import net.atos.zac.app.zaak.converter.RESTGerelateerdeZaakConverter
+import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreatie.DocumentCreatieService
@@ -64,6 +64,7 @@ import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockS
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.flowable.TaakVariabelenService
+import net.atos.zac.flowable.TaakVariabelenService.readTaskDocuments
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.util.UriUtil
@@ -250,7 +251,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         assertPolicy(policyService.readTaakRechten(task).toevoegenDocument)
 
         mutableListOf<UUID>().let {
-            it.addAll(taakVariabelenService.readTaakdocumenten(task))
+            it.addAll(readTaskDocuments(task))
             it.add(uuidFromURI(zaakInformatieobject.informatieobject))
             taakVariabelenService.setTaakdocumenten(task, it)
         }

@@ -6,7 +6,6 @@ import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
@@ -33,10 +32,6 @@ class ZTCClientServiceTest : BehaviorSpec({
 
     beforeEach {
         checkUnnecessaryStub()
-    }
-
-    beforeSpec {
-        clearAllMocks()
     }
 
     Given("ZTC client service") {

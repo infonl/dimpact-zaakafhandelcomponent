@@ -60,7 +60,7 @@ if [ $build = "true" ]; then
 fi
 
 export ZAC_DOCKER_IMAGE=ghcr.io/infonl/zaakafhandelcomponent:dev
-[ -f check-env.sh ] && ./check-env.sh
+[ -f check-for-running-containers.sh ] && ./check-for-running-containers.sh
 
 # shellcheck disable=SC2086
 ./gradlew $args itest

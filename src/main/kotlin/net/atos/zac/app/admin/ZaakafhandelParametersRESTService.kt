@@ -26,8 +26,8 @@ import net.atos.zac.app.admin.model.RESTTaakFormulierDefinitie
 import net.atos.zac.app.admin.model.RESTTaakFormulierVeldDefinitie
 import net.atos.zac.app.admin.model.RESTZaakafhandelParameters
 import net.atos.zac.app.admin.model.RESTZaakbeeindigReden
-import net.atos.zac.app.zaken.converter.RESTResultaattypeConverter
-import net.atos.zac.app.zaken.model.RESTResultaattype
+import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter
+import net.atos.zac.app.zaak.model.RESTResultaattype
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.CMMNService
 import net.atos.zac.policy.PolicyService
@@ -140,7 +140,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
      */
     @PUT
     fun updateZaakafhandelparameters(
-        restZaakafhandelParameters: RESTZaakafhandelParameters?
+        restZaakafhandelParameters: RESTZaakafhandelParameters
     ): RESTZaakafhandelParameters {
         assertPolicy(policyService.readOverigeRechten().beheren)
         var zaakafhandelParameters = zaakafhandelParametersConverter.convertRESTZaakafhandelParameters(

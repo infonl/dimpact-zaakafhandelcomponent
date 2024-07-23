@@ -16,10 +16,11 @@ import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
+import net.atos.zac.app.zaak.converter.RESTZaakOverzichtConverter
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.FlowableTaskService
+import net.atos.zac.flowable.TaakVariabelenService.readZaakUUID
 import net.atos.zac.mail.MailService
 import net.atos.zac.mail.model.Bronnen
 import net.atos.zac.mailtemplates.model.MailGegevens
@@ -161,9 +162,9 @@ class SignaleringService @Inject constructor(
                 ZonedDateTime.now().minusDays(deleteOlderThanDays)
             )
         )
-        val deletedCount = entityManager.createQuery(query).executeUpdate()
-        LOG.info("Deleted $deletedCount signaleringen.")
-        return deletedCount
+        return entityManager.createQuery(query).executeUpdate().also {
+            LOG.info("Deleted $it signaleringen.")
+        }
     }
 
     fun listSignaleringen(parameters: SignaleringZoekParameters): List<Signalering> {
@@ -204,7 +205,7 @@ class SignaleringService @Inject constructor(
         ValidationUtil.valideerObject(signalering)
         signaleringenMailHelper.getTargetMail(signalering)?.let {
             val from = mailService.gemeenteMailAdres
-            val to = signaleringenMailHelper.formatTo(it)
+            val to = formatTo(it)
             val mailTemplate = signaleringenMailHelper.getMailTemplate(signalering)
             val bronnenBuilder = Bronnen.Builder()
             when (signalering.subjecttype) {
@@ -214,8 +215,17 @@ class SignaleringService @Inject constructor(
                         bronnenBuilder.add(getDocument(signalering.detail))
                     }
                 }
-
-                SignaleringSubject.TAAK -> bronnenBuilder.add(getTask(signalering.subject))
+                SignaleringSubject.TAAK -> {
+                    val taskInfo = getTask(signalering.subject)
+                    bronnenBuilder.add(taskInfo)
+                    // also need to retrieve the zaak for the task and add it to the mail sources
+                    // so that the relevant zaak-specific template variables in the task emails
+                    // can be resolved
+                    // note that this is currently only required for the 'ZAAK_OMSCHRIJVING' template field
+                    // because the other template fields can be retrieved from the Flowable CMMN case
+                    // using the TaakVariabelenService
+                    bronnenBuilder.add(getZaak(readZaakUUID(taskInfo).toString()))
+                }
                 SignaleringSubject.DOCUMENT -> bronnenBuilder.add(getDocument(signalering.subject))
                 else -> {}
             }

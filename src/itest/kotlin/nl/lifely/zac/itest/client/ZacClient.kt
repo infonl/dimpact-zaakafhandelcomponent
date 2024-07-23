@@ -207,11 +207,12 @@ class ZacClient {
         )
     }
 
-    @Suppress("LongMethod")
+    @Suppress("LongMethod", "LongParameterList")
     fun createZaak(
         zaakTypeUUID: UUID,
         groupId: String,
         groupName: String,
+        description: String? = "dummyOmschrijving",
         startDate: ZonedDateTime,
         communicatiekanaal: String? = COMMUNICATIEKANAAL_TEST_1
     ): Response {
@@ -233,7 +234,7 @@ class ZacClient {
                 "    },\n" +
                 "    \"communicatiekanaal\": \"$communicatiekanaal\",\n" +
                 "    \"vertrouwelijkheidaanduiding\": \"openbaar\",\n" +
-                "    \"omschrijving\": \"dummyOmschrijving\",\n" +
+                "    \"omschrijving\": \"$description\",\n" +
                 "    \"toelichting\": null\n" +
                 "  },\n" +
                 "  \"bagObjecten\": []\n" +

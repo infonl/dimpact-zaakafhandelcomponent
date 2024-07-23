@@ -1,6 +1,8 @@
 package net.atos.zac.mailtemplates;
 
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
+import static net.atos.zac.flowable.TaakVariabelenService.readZaakIdentificatie;
+import static net.atos.zac.flowable.TaakVariabelenService.readZaaktypeOmschrijving;
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.DOCUMENT_LINK;
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.DOCUMENT_TITEL;
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.DOCUMENT_URL;
@@ -64,7 +66,6 @@ import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.configuratie.ConfiguratieService;
-import net.atos.zac.flowable.TaakVariabelenService;
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.identity.model.Group;
 import net.atos.zac.identity.model.User;
@@ -81,7 +82,6 @@ public class MailTemplateHelper {
     private ConfiguratieService configuratieService;
     private IdentityService identityService;
     private KvkClientService kvkClientService;
-    private TaakVariabelenService taakVariabelenService;
     private ZGWApiService zgwApiService;
     private ZRCClientService zrcClientService;
     private ZtcClientService ztcClientService;
@@ -92,7 +92,6 @@ public class MailTemplateHelper {
             ConfiguratieService configuratieService,
             IdentityService identityService,
             KvkClientService kvkClientService,
-            TaakVariabelenService taakVariabelenService,
             ZGWApiService zgwApiService,
             ZRCClientService zrcClientService,
             ZtcClientService ztcClientService
@@ -101,7 +100,6 @@ public class MailTemplateHelper {
         this.configuratieService = configuratieService;
         this.identityService = identityService;
         this.kvkClientService = kvkClientService;
-        this.taakVariabelenService = taakVariabelenService;
         this.zgwApiService = zgwApiService;
         this.zrcClientService = zrcClientService;
         this.ztcClientService = ztcClientService;
@@ -125,7 +123,7 @@ public class MailTemplateHelper {
         if (zaak != null) {
             resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_NUMMER, zaak.getIdentificatie());
 
-            final MailLink link = getLink(zaak);
+            final MailLink link = createMailLinkFromZaak(zaak);
             resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_URL, link.url);
             resolvedTekst = replaceVariabeleHtml(resolvedTekst, ZAAK_LINK, link.toHtml());
 
@@ -161,7 +159,7 @@ public class MailTemplateHelper {
             if (resolvedTekst.contains(ZAAK_INITIATOR.getVariabele()) ||
                 resolvedTekst.contains(ZAAK_INITIATOR_ADRES.getVariabele())) {
                 resolvedTekst = replaceInitiatorVariabelen(resolvedTekst,
-                        zgwApiService.findInitiatorForZaak(zaak));
+                        zgwApiService.findInitiatorRoleForZaak(zaak));
             }
 
             if (resolvedTekst.contains(ZAAK_BEHANDELAAR_GROEP.getVariabele())) {
@@ -172,7 +170,7 @@ public class MailTemplateHelper {
 
             if (resolvedTekst.contains(ZAAK_BEHANDELAAR_MEDEWERKER.getVariabele())) {
                 resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_BEHANDELAAR_MEDEWERKER,
-                        zgwApiService.findBehandelaarForZaak(zaak)
+                        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
                                 .map(RolMedewerker::getNaam));
             }
         }
@@ -182,7 +180,7 @@ public class MailTemplateHelper {
     public String resolveVariabelen(final String tekst, final TaskInfo taskInfo) {
         String resolvedTekst = tekst;
         if (taskInfo != null) {
-            final MailLink link = getLink(taskInfo);
+            final MailLink link = createMailLinkFromTask(taskInfo);
             resolvedTekst = replaceVariabele(resolvedTekst, TAAK_URL, link.url);
             resolvedTekst = replaceVariabeleHtml(resolvedTekst, TAAK_LINK, link.toHtml());
 
@@ -223,7 +221,7 @@ public class MailTemplateHelper {
         if (document != null) {
             resolvedTekst = replaceVariabele(resolvedTekst, DOCUMENT_TITEL, document.getTitel());
 
-            final MailLink link = getLink(document);
+            final MailLink link = createMailLinkFromDocument(document);
             resolvedTekst = replaceVariabele(resolvedTekst, DOCUMENT_URL, link.url);
             resolvedTekst = replaceVariabeleHtml(resolvedTekst, DOCUMENT_LINK, link.toHtml());
         }
@@ -235,22 +233,24 @@ public class MailTemplateHelper {
         return PTAGS.matcher(onderwerp).replaceAll(StringUtils.EMPTY);
     }
 
-    private MailLink getLink(final Zaak zaak) {
+    private MailLink createMailLinkFromZaak(final Zaak zaak) {
         final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
         return new MailLink(zaak.getIdentificatie(),
                 configuratieService.zaakTonenUrl(zaak.getIdentificatie()),
                 "de zaak", "(%s)".formatted(zaaktype.getOmschrijving()));
     }
 
-    private MailLink getLink(final TaskInfo taskInfo) {
-        final String zaakIdentificatie = taakVariabelenService.readZaakIdentificatie(taskInfo);
-        final String zaaktypeOmschrijving = taakVariabelenService.readZaaktypeOmschrijving(taskInfo);
-        return new MailLink(taskInfo.getName(),
+    private MailLink createMailLinkFromTask(final TaskInfo taskInfo) {
+        final String zaakIdentificatie = readZaakIdentificatie(taskInfo);
+        final String zaaktypeOmschrijving = readZaaktypeOmschrijving(taskInfo);
+        return new MailLink(
+                taskInfo.getName(),
                 configuratieService.taakTonenUrl(taskInfo.getId()),
-                "de taak", "voor zaak %s (%s)".formatted(zaakIdentificatie, zaaktypeOmschrijving));
+                "de taak", "voor zaak %s (%s)".formatted(zaakIdentificatie, zaaktypeOmschrijving)
+        );
     }
 
-    private MailLink getLink(final EnkelvoudigInformatieObject document) {
+    private MailLink createMailLinkFromDocument(final EnkelvoudigInformatieObject document) {
         return new MailLink(
                 document.getTitel(),
                 configuratieService.informatieobjectTonenUrl(parseUUIDFromResourceURI(document.getUrl())),

@@ -6,7 +6,7 @@
 <mat-card>
   <mat-card-header class="flex-row">
     <mat-card-title
-      >{{'enkelvoudigInformatieObjecten'| translate}}</mat-card-title
+      >{{ "enkelvoudigInformatieObjecten" | translate }}</mat-card-title
     >
     <mat-slide-toggle
       *ngIf="heeftGerelateerdeZaken"
@@ -15,7 +15,7 @@
       class="flex-row"
       id="gekoppeldeZaakDocumentenToon_toggle"
       (change)="toggleGekoppeldeZaakDocumenten()"
-      >{{ 'toonGekoppeldeZaakDocumenten' | translate }}</mat-slide-toggle
+      >{{ "toonGekoppeldeZaakDocumenten" | translate }}</mat-slide-toggle
     >
   </mat-card-header>
   <mat-card-content>
@@ -51,24 +51,26 @@
 
         <ng-container matColumnDef="titel">
           <th mat-sort-header mat-header-cell *matHeaderCellDef>
-            {{'titel' | translate}}
+            {{ "titel" | translate }}
           </th>
           <td
             mat-cell
             *matCellDef="let row"
-            (click)="documentPreviewRow = documentPreviewRow === row ? null : row"
-            [ngClass]="{'pointer': isPreviewBeschikbaar(row.formaat)}"
+            (click)="
+              documentPreviewRow = documentPreviewRow === row ? null : row
+            "
+            [ngClass]="{ pointer: isPreviewBeschikbaar(row.formaat) }"
           >
             <zac-document-icon
               [bestandsnaam]="row.bestandsnaam"
             ></zac-document-icon>
-            {{row.titel}}
+            {{ row.titel }}
             <mat-icon *ngIf="isPreviewBeschikbaar(row.formaat)" outlined
               >plagiarism</mat-icon
             >
             <mat-icon
               *ngIf="row.startformulier"
-              title="{{'startformulier' | translate}}"
+              title="{{ 'startformulier' | translate }}"
               class="gold-star"
               >star</mat-icon
             >
@@ -77,45 +79,56 @@
 
         <ng-container
           [matColumnDef]="column"
-          *ngFor="let column of [ 'zaakIdentificatie', 'relatieType', 'informatieobjectTypeOmschrijving', 'bestandsomvang', 'status', 'vertrouwelijkheidaanduiding', 'registratiedatumTijd', 'auteur']"
+          *ngFor="
+            let column of [
+              'zaakIdentificatie',
+              'relatieType',
+              'informatieobjectTypeOmschrijving',
+              'bestandsomvang',
+              'status',
+              'vertrouwelijkheidaanduiding',
+              'registratiedatumTijd',
+              'auteur'
+            ]
+          "
         >
           <th mat-sort-header mat-header-cell *matHeaderCellDef>
-            {{column | translate}}
+            {{ column | translate }}
           </th>
           <td mat-cell *matCellDef="let row">
             <ng-container *ngIf="column == 'zaakIdentificatie'"
-              >{{row[column] | empty}}</ng-container
+              >{{ row[column] | empty }}</ng-container
             >
             <ng-container *ngIf="column == 'relatieType'"
-              >{{row[column] | empty}}</ng-container
+              >{{ row[column] | empty }}</ng-container
             >
             <ng-container *ngIf="column == 'informatieobjectTypeOmschrijving'"
-              >{{row[column] | empty}}</ng-container
+              >{{ row[column] | empty }}</ng-container
             >
             <ng-container *ngIf="column == 'bestandsomvang'"
-              >{{row[column] | bestandsomvang | empty}}</ng-container
+              >{{ row[column] | bestandsomvang | empty }}</ng-container
             >
             <ng-container *ngIf="column == 'status'"
-              >{{(row[column] ? 'informatieobject.status.' + row[column] :
-              '')|translate | empty}}</ng-container
+              >{{ (row[column] ? "informatieobject.status." + row[column] : "")
+              | translate | empty }}</ng-container
             >
             <ng-container *ngIf="column == 'vertrouwelijkheidaanduiding'"
-              >{{(row[column] ? row[column] : '') |
-              vertrouwelijkaanduidingToTranslationKey | translate |
-              empty}}</ng-container
+              >{{ (row[column] ? row[column] : "") |
+              vertrouwelijkaanduidingToTranslationKey | translate | empty
+              }}</ng-container
             >
             <ng-container *ngIf="column == 'registratiedatumTijd'"
-              >{{row[column] | datum:'short' | empty}}</ng-container
+              >{{ row[column] | datum: "short" | empty }}</ng-container
             >
             <ng-container *ngIf="column == 'auteur'"
-              >{{row[column]| empty}}</ng-container
+              >{{ row[column] | empty }}</ng-container
             >
           </td>
         </ng-container>
 
         <ng-container matColumnDef="indicaties">
           <th mat-header-cell *matHeaderCellDef>
-            {{'indicaties' | translate}}
+            {{ "indicaties" | translate }}
           </th>
           <td mat-cell *matCellDef="let row">
             <zac-informatie-object-indicaties
@@ -133,11 +146,11 @@
                 id="downloadZip_button"
                 (click)="downloadAlsZip()"
                 [disabled]="downloadAlsZipSelection.isEmpty()"
-                title="{{ 'actie.downloaden.zip' | translate}}"
+                title="{{ 'actie.downloaden.zip' | translate }}"
               >
                 <mat-icon>folder_zip</mat-icon>
               </button>
-              {{downloadAlsZipSelection.selected.length}}
+              {{ downloadAlsZipSelection.selected.length }}
             </div>
           </th>
           <td mat-cell *matCellDef="let row">
@@ -145,8 +158,12 @@
               <a
                 *ngIf="row.rechten.lezen"
                 mat-icon-button
-                [routerLink]="['/informatie-objecten', row.uuid, this.getZaakUuidVanInformatieObject(row)]"
-                title="{{ 'actie.document.bekijken' | translate}}"
+                [routerLink]="[
+                  '/informatie-objecten',
+                  row.uuid,
+                  this.getZaakUuidVanInformatieObject(row)
+                ]"
+                title="{{ 'actie.document.bekijken' | translate }}"
               >
                 <mat-icon>visibility</mat-icon>
               </a>
@@ -154,7 +171,7 @@
                 mat-icon-button
                 *ngIf="isBewerkenToegestaan(row)"
                 (click)="bewerken(row)"
-                title="{{ 'actie.document.bewerken' | translate}}"
+                title="{{ 'actie.document.bewerken' | translate }}"
               >
                 <mat-icon>edit</mat-icon>
               </button>
@@ -168,25 +185,33 @@
               <mat-menu #menu="matMenu">
                 <button
                   mat-menu-item
-                  *ngIf="row.rechten.wijzigen && !row.isBesluitDocument && !row.relatieType"
+                  *ngIf="
+                    row.rechten.wijzigen &&
+                    !row.isBesluitDocument &&
+                    !row.relatieType
+                  "
                   [disabled]="isOntkoppelenDisabled(row)"
                   (click)="documentOntkoppelen(row)"
                 >
                   <mat-icon>link_off</mat-icon>
-                  <span>{{ 'actie.document.ontkoppelen' | translate}}</span>
+                  <span>{{ "actie.document.ontkoppelen" | translate }}</span>
                 </button>
                 <button
                   mat-menu-item
-                  *ngIf="row.rechten.wijzigen && !row.isBesluitDocument && !row.relatieType"
+                  *ngIf="
+                    row.rechten.wijzigen &&
+                    !row.isBesluitDocument &&
+                    !row.relatieType
+                  "
                   [disabled]="isDocumentVerplaatsenDisabled(row)"
                   (click)="documentVerplaatsen(row)"
                 >
                   <mat-icon>content_cut</mat-icon>
-                  <span>{{ 'actie.document.verplaatsen' | translate}}</span>
+                  <span>{{ "actie.document.verplaatsen" | translate }}</span>
                 </button>
                 <a mat-menu-item [href]="getDownloadURL(row)">
                   <mat-icon>download</mat-icon>
-                  <span>{{ 'actie.document.downloaden' | translate}}</span>
+                  <span>{{ "actie.document.downloaden" | translate }}</span>
                 </a>
               </mat-menu>
             </div>
@@ -196,7 +221,9 @@
         <ng-container matColumnDef="expandedDetail">
           <td mat-cell *matCellDef="let row" colspan="8">
             <div
-              [@detailExpand]="row == documentPreviewRow ? 'expanded' : 'collapsed'"
+              [@detailExpand]="
+                row == documentPreviewRow ? 'expanded' : 'collapsed'
+              "
             >
               <zac-document-viewer
                 [document]="row"
@@ -208,7 +235,7 @@
         <tr mat-header-row *matHeaderRowDef="documentColumns"></tr>
         <tr
           mat-row
-          *matRowDef="let row; columns: documentColumns;"
+          *matRowDef="let row; columns: documentColumns"
           [class.expanded-row]="documentPreviewRow === row"
         ></tr>
         <tr
@@ -217,10 +244,10 @@
           class="collapsed-row document-preview"
         ></tr>
         <tr class="mat-row" *matNoDataRow>
-          <td class="mat-cell" [colSpan]="documentColumns.length">
-            <p *ngIf="isLoadingResults">{{'msg.loading' | translate}}</p>
+          <td class="mat-cell" [colSpan]="documentColumns.length + 2">
+            <p *ngIf="isLoadingResults">{{ "msg.loading" | translate }}</p>
             <p *ngIf="!isLoadingResults">
-              {{'msg.geen.gegevens.gevonden' | translate}}
+              {{ "msg.geen.gegevens.gevonden" | translate }}
             </p>
           </td>
         </tr>

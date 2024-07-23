@@ -12,7 +12,7 @@ import jakarta.inject.Inject;
 
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.zac.app.admin.model.RESTZaakbeeindigParameter;
-import net.atos.zac.app.zaken.converter.RESTResultaattypeConverter;
+import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter;
 import net.atos.zac.zaaksturing.model.ZaakbeeindigParameter;
 
 public class RESTZaakbeeindigParameterConverter {

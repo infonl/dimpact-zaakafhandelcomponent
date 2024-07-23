@@ -9,7 +9,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -38,7 +37,7 @@ import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatie
 import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
 import net.atos.zac.app.informatieobjecten.model.createRESTInformatieobjectZoekParameters
-import net.atos.zac.app.zaken.converter.RESTGerelateerdeZaakConverter
+import net.atos.zac.app.zaak.converter.RESTGerelateerdeZaakConverter
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.documentcreatie.DocumentCreatieService
 import net.atos.zac.documentcreatie.model.DocumentCreatieGegevens
@@ -107,13 +106,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     )
 
     isolationMode = IsolationMode.InstancePerTest
-
-    beforeContainer { testCase ->
-        // only run before Given
-        if (testCase.parent == null) {
-            clearAllMocks()
-        }
-    }
 
     Given("document creation data is provided and zaaktype can use the 'bijlage' informatieobjecttype") {
         val zaak = createZaak()

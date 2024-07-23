@@ -1,5 +1,10 @@
 package net.atos.zac.zoeken.converter;
 
+import static net.atos.zac.flowable.TaakVariabelenService.readTaskData;
+import static net.atos.zac.flowable.TaakVariabelenService.readTaskInformation;
+import static net.atos.zac.flowable.TaakVariabelenService.readZaakIdentificatie;
+import static net.atos.zac.flowable.TaakVariabelenService.readZaakUUID;
+import static net.atos.zac.flowable.TaakVariabelenService.readZaaktypeUUID;
 import static net.atos.zac.flowable.util.TaskUtil.getTaakStatus;
 
 import java.util.List;
@@ -69,29 +74,30 @@ public class TaakZoekObjectConverter extends AbstractZoekObjectConverter<TaakZoe
             taakZoekObject.setGroepNaam(group.getName());
         }
 
-        final ZaakType zaaktype = ztcClientService.readZaaktype(
-                taakVariabelenService.readZaaktypeUUID(taskInfo));
+        final ZaakType zaaktype = ztcClientService.readZaaktype(readZaaktypeUUID(taskInfo));
         taakZoekObject.setZaaktypeIdentificatie(zaaktype.getIdentificatie());
         taakZoekObject.setZaaktypeOmschrijving(zaaktype.getOmschrijving());
         taakZoekObject.setZaaktypeUuid(URIUtil.parseUUIDFromResourceURI(zaaktype.getUrl()).toString());
 
-        final UUID zaakUUID = taakVariabelenService.readZaakUUID(taskInfo);
+        final UUID zaakUUID = readZaakUUID(taskInfo);
         taakZoekObject.setZaakUUID(zaakUUID.toString());
-        taakZoekObject.setZaakIdentificatie(taakVariabelenService.readZaakIdentificatie(taskInfo));
+        taakZoekObject.setZaakIdentificatie(readZaakIdentificatie(taskInfo));
 
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
         taakZoekObject.setZaakOmschrijving(zaak.getOmschrijving());
         taakZoekObject.setZaakToelichting(zaak.getToelichting());
 
         taakZoekObject.setTaakData(
-                taakVariabelenService.readTaakdata(taskInfo).entrySet().stream()
+                readTaskData(taskInfo).entrySet().stream()
                         .map(data -> "%s|%s".formatted(data.getKey(), data.getValue()))
-                        .toList());
+                        .toList()
+        );
 
         taakZoekObject.setTaakInformatie(
-                taakVariabelenService.readTaakinformatie(taskInfo).entrySet().stream()
+                readTaskInformation(taskInfo).entrySet().stream()
                         .map(informatie -> "%s|%s".formatted(informatie.getKey(), informatie.getValue()))
-                        .toList());
+                        .toList()
+        );
 
         return taakZoekObject;
     }

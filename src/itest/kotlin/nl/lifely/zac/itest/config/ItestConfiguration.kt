@@ -53,7 +53,6 @@ object ItestConfiguration {
     const val OPEN_ZAAK_EXTERNAL_URI = "http://localhost:$OPEN_ZAAK_EXTERNAL_PORT"
     const val OPEN_ZAAK_CLIENT_ID = "zac_client"
     const val OPEN_ZAAK_CLIENT_SECRET = "openzaakZaakafhandelcomponentClientSecret"
-    const val PDF_MIME_TYPE = "application/pdf"
     const val PRODUCTAANVRAAG_TYPE_1 = "productaanvraag-type-1"
     const val PRODUCTAANVRAAG_TYPE_2 = "productaanvraag-type-2"
     const val PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE = 52.08968250760225
@@ -67,6 +66,8 @@ object ItestConfiguration {
     const val SCREEN_EVENT_TYPE_ZAKEN_VERDELEN = "ZAKEN_VERDELEN"
     const val SCREEN_EVENT_TYPE_ZAKEN_VRIJGEVEN = "ZAKEN_VRIJGEVEN"
 
+    const val TEST_GEMEENTE_EMAIL_ADDRESS = "gemeente-zac-test@example.com"
+
     /**
      * Test person that exists in both the BRP and the Klanten API databases
      */
@@ -78,6 +79,8 @@ object ItestConfiguration {
     const val TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER = "0612345678"
     const val TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE =
         "Street ¦ 38 & House ¦ 10, Baghdad, Park Al-Sadoum, Hay Al-Nidhal 103"
+    const val TEST_PERSON_2_BSN = "999992958"
+    const val TEST_PERSON_3_BSN = "999991838"
     const val TEST_PDF_FILE_NAME = "dummyTestDocument.pdf"
     const val TEST_PDF_FILE_SIZE = 9268
     const val TEST_TXT_FILE_NAME = "testTextDocument.txt"
@@ -90,6 +93,7 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 5
     const val TEST_USER_1_USERNAME = "testuser1"
     const val TEST_USER_1_PASSWORD = "testuser1"
+    const val TEST_USER_1_EMAIL = "testuser1@example.com"
     const val TEST_USER_1_NAME = "Test User1 Špëçîâl Characters"
     const val TEST_USER_2_ID = "testuser2"
     const val TEST_USER_2_NAME = "Test User2"
@@ -105,15 +109,33 @@ object ItestConfiguration {
     const val TEST_GROUP_RECORD_MANAGERS_DESCRIPTION = "Test group record managers"
 
     /**
+     * Constants used in the Informatieobjecten tests
+     */
+    const val DOCUMENT_FILE_TITLE = "dummyTitel"
+    const val DOCUMENT_UPDATED_FILE_TITLE = "updated title with Špëcîål characters"
+    const val DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK = "zaakvertrouwelijk"
+    const val DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR = "openbaar"
+    const val DOCUMENT_STATUS_DEFINITIEF = "definitief"
+    const val DOCUMENT_STATUS_IN_BEWERKING = "in_bewerking"
+    const val TEXT_MIME_TYPE = "application/text"
+    const val PDF_MIME_TYPE = "application/pdf"
+    const val DOCUMENT_IDENTIFICATION = "DOCUMENT-2024-0000000001"
+
+    /**
      * Constants used in the KVK WireMock template response
      */
     const val TEST_KVK_ADRES_1 = "dummyStraatnaam1"
-    const val TEST_KVK_HANDELSNAAM_1 = "dummyNaam1"
+    const val TEST_KVK_EERSTE_HANDELSNAAM_1 = "dummyEersteHandelsnaam1"
+    const val TEST_KVK_NAAM_1 = "dummyNaam1"
     const val TEST_KVK_NUMMER_1 = "12345678"
     const val TEST_KVK_PLAATS_1 = "dummyPlaats1"
     const val TEST_KVK_VESTIGINGSNUMMER_1 = "000012345678"
-
-    const val TEXT_MIME_TYPE = "application/text"
+    const val TEST_KVK_VESTIGINGSTYPE_HOOFDVESTIGING = "HOOFDVESTIGING"
+    const val TEST_KVK_VESTIGING1_TOTAAL_WERKZAME_PERSONEN = 3
+    const val TEST_KVK_VESTIGING1_VOLTIJD_WERKZAME_PERSONEN = 2
+    const val TEST_KVK_VESTIGING1_HOOFDACTIVITEIT = "dummysbiOmschrijving1"
+    const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT1 = "dummysbiOmschrijving2"
+    const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT2 = "dummysbiOmschrijving3"
 
     const val SMART_DOCUMENTS_MOCK_BASE_URI = "http://smartdocuments-wiremock:8080"
 
@@ -204,12 +226,17 @@ object ItestConfiguration {
     val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
     val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID: UUID =
         UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
-    val START_DATE = LocalDateTime.now()
+    val START_DATE: LocalDateTime = LocalDateTime.now()
 
     /**
      * Global variable to store the id of a task that is created in the integration tests.
      */
     lateinit var task1ID: String
+
+    /**
+     * Second 'manually' created zaak using the ZAC API.
+     */
+    lateinit var zaakManual2Identification: String
 
     /**
      * Global variable to store the UUID of a zaak that is created in the integration tests

@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { NestedTreeControl } from "@angular/cdk/tree";
 import { Component, Input, effect } from "@angular/core";
 import { MatTreeNestedDataSource } from "@angular/material/tree";
@@ -102,6 +107,14 @@ export class SmartDocumentsTreeComponent {
   }));
   dataSource = new MatTreeNestedDataSource<DocumentsTemplateGroup>();
   parameters: any;
+
+  zaaktypeVertrouwelijkheid(selectedUuid: string): string {
+    return selectedUuid
+      ? this.informatieObjectTypes
+          .data()
+          .find(({ uuid }) => uuid === selectedUuid).vertrouwelijkheidaanduiding
+      : null;
+  }
 
   constructor(
     private smartDocumentsService: SmartDocumentsService,

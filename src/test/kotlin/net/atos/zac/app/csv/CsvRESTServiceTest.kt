@@ -7,7 +7,6 @@ package net.atos.zac.app.csv
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.ws.rs.core.StreamingOutput
@@ -33,10 +32,6 @@ class CsvRESTServiceTest : BehaviorSpec({
 
     beforeEach {
         checkUnnecessaryStub()
-    }
-
-    beforeSpec {
-        clearAllMocks()
     }
 
     Given("The CSV REST service") {

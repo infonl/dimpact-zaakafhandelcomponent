@@ -5,10 +5,10 @@ import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.date.shouldBeBefore
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import io.mockk.verify
 import jakarta.persistence.EntityManager
 import jakarta.persistence.Query
 import jakarta.persistence.criteria.CriteriaBuilder
@@ -18,11 +18,22 @@ import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZRCClientService
-import net.atos.zac.app.zaken.converter.RESTZaakOverzichtConverter
+import net.atos.client.zgw.zrc.model.createZaak
+import net.atos.zac.app.zaak.converter.RESTZaakOverzichtConverter
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.FlowableTaskService
+import net.atos.zac.flowable.createTestTask
+import net.atos.zac.identity.model.createUser
 import net.atos.zac.mail.MailService
+import net.atos.zac.mail.model.createMailAdres
+import net.atos.zac.mailtemplates.model.MailGegevens
+import net.atos.zac.mailtemplates.model.createMailTemplate
 import net.atos.zac.signalering.model.Signalering
+import net.atos.zac.signalering.model.SignaleringSubject
+import net.atos.zac.signalering.model.SignaleringTarget
+import net.atos.zac.signalering.model.SignaleringType
+import net.atos.zac.signalering.model.createSignalering
+import net.atos.zac.signalering.model.createSignaleringType
 import java.time.ZonedDateTime
 
 class SignaleringServiceTest : BehaviorSpec({
@@ -57,10 +68,6 @@ class SignaleringServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    beforeSpec {
-        clearAllMocks()
-    }
-
     Given("signaleringen older than two days") {
         val now = ZonedDateTime.now()
         val deleteOlderThanDays = 2L
@@ -83,6 +90,54 @@ class SignaleringServiceTest : BehaviorSpec({
                     this shouldBeAfter now.minusDays(deleteOlderThanDays)
                     // allow for some seconds difference for slow running tests
                     this shouldBeBefore now.minusDays(deleteOlderThanDays).plusSeconds(10)
+                }
+            }
+        }
+    }
+
+    Given("A task signalering of type 'task expired'") {
+        val zaak = createZaak()
+        val task = createTestTask(
+            scopeType = "cmmn",
+            caseVariables = mapOf(
+                "zaakUUID" to zaak.uuid
+            )
+        )
+        val signalering = createSignalering(
+            taskInfo = task,
+            targetUser = createUser(),
+            type = createSignaleringType(
+                type = SignaleringType.Type.TAAK_VERLOPEN,
+                subjecttype = SignaleringSubject.TAAK
+            ),
+            zaak = null
+        )
+        val gemeenteMailAdres = createMailAdres("dummy-gemeente@example.com")
+        val signaleringMail = SignaleringTarget.Mail("testName", "test@example.com")
+        val mailTemplate = createMailTemplate()
+        val mailBody = "dummyMailBody"
+        val mailGegevensSlot = slot<MailGegevens>()
+        every { signaleringenMailHelper.getTargetMail(signalering) } returns signaleringMail
+        every { mailService.gemeenteMailAdres } returns gemeenteMailAdres
+        every { signaleringenMailHelper.getMailTemplate(signalering) } returns mailTemplate
+        every { flowableTaskService.readTask(task.id) } returns task
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { mailService.sendMail(capture(mailGegevensSlot), any()) } returns mailBody
+
+        When("the signalering email is sent") {
+            signaleringService.sendSignalering(signalering)
+
+            Then("the signalering is sent to the correct service") {
+                verify(exactly = 1) {
+                    mailService.sendMail(any(), any())
+                }
+                with(mailGegevensSlot.captured) {
+                    from shouldBe gemeenteMailAdres
+                    to.email shouldBe signaleringMail.emailadres
+                    to.name shouldBe signaleringMail.naam
+                    replyTo shouldBe null
+                    subject shouldBe mailTemplate.onderwerp
+                    body shouldBe mailTemplate.body
                 }
             }
         }

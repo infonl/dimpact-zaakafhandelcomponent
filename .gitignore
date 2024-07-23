@@ -37,5 +37,5 @@ scripts/github/.secrets
 
 ### Docker Compose ###
 docker-compose.override.yml
-check-env.sh
+check-for-running-containers.sh
 fix-permissions.sh

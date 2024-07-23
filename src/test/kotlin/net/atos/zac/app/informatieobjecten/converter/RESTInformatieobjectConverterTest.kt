@@ -28,7 +28,7 @@ import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
 import net.atos.zac.app.policy.model.RESTDocumentRechten
 import net.atos.zac.app.policy.model.createRESTDocumentRechten
-import net.atos.zac.app.taken.model.createRESTTaakDocumentData
+import net.atos.zac.app.task.model.createRestTaskDocumentData
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
@@ -77,7 +77,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec({
     )
 
     Given("REST taak document data and REST file upload are provided") {
-        val restTaakDocumentData = createRESTTaakDocumentData()
+        val restTaakDocumentData = createRestTaskDocumentData()
         val restFileUpload = createRESTFileUpload()
         val providedInformatieObjectType = createInformatieObjectType()
 

@@ -40,8 +40,8 @@ import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.RESTFileUpload;
 import net.atos.zac.app.informatieobjecten.model.RESTGekoppeldeZaakEnkelvoudigInformatieObject;
 import net.atos.zac.app.policy.converter.RESTRechtenConverter;
-import net.atos.zac.app.taken.model.RESTTaakDocumentData;
-import net.atos.zac.app.zaken.model.RelatieType;
+import net.atos.zac.app.task.model.RestTaskDocumentData;
+import net.atos.zac.app.zaak.model.RelatieType;
 import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
@@ -280,7 +280,7 @@ public class RESTInformatieobjectConverter {
     }
 
     public EnkelvoudigInformatieObjectCreateLockRequest convert(
-            final RESTTaakDocumentData documentData,
+            final RestTaskDocumentData documentData,
             final RESTFileUpload bestand
     ) {
         final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieObjectCreateLockRequest();

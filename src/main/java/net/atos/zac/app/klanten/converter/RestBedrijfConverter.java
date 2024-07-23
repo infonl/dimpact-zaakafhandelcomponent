@@ -36,8 +36,8 @@ public class RestBedrijfConverter {
         if (StringUtils.isNotBlank(restListParameters.rsin)) {
             zoekenParameters.setRsin(restListParameters.rsin);
         }
-        if (StringUtils.isNotBlank(restListParameters.handelsnaam)) {
-            zoekenParameters.setNaam(restListParameters.handelsnaam);
+        if (StringUtils.isNotBlank(restListParameters.naam)) {
+            zoekenParameters.setNaam(restListParameters.naam);
         }
         if (restListParameters.type != null) {
             zoekenParameters.setType(restListParameters.type.getType());
@@ -62,7 +62,7 @@ public class RestBedrijfConverter {
         final RestBedrijf restBedrijf = new RestBedrijf();
         restBedrijf.kvkNummer = bedrijf.getKvkNummer();
         restBedrijf.vestigingsnummer = bedrijf.getVestigingsnummer();
-        restBedrijf.handelsnaam = convertToNaam(bedrijf);
+        restBedrijf.naam = convertToNaam(bedrijf);
         restBedrijf.postcode = bedrijf.getAdres().getBinnenlandsAdres().getPostcode();
         restBedrijf.rsin = bedrijf.getRsin();
         restBedrijf.type = bedrijf.getType().toUpperCase(Locale.getDefault());

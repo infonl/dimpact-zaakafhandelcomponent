@@ -9,7 +9,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -42,10 +41,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    beforeSpec {
-        clearAllMocks()
-    }
-
     Given("a logged-in user is present in the http session") {
         val userId = "dummyId"
         every { httpServletRequest.userPrincipal } returns oidcPrincipal
@@ -66,7 +61,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
         }
     }
     Given("no user is present in the http session") {
-        clearAllMocks()
         val userName = "dummyUserName"
         val givenName = "dummyGivenName"
         val familyName = "dummyFamilyName"

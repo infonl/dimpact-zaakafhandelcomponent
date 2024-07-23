@@ -21,7 +21,7 @@
   </div>
   <div class="flex-row flex-col-xs gap-10 flex-fill">
     <div class="flex-1 w66">
-      <mfb-form-field [field]="handelsnaamFormField"></mfb-form-field>
+      <mfb-form-field [field]="naamFormField"></mfb-form-field>
     </div>
     <div class="flex-1">
       <mfb-form-field
@@ -57,9 +57,7 @@
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
         {{'naam' | translate}}
       </th>
-      <td *matCellDef="let bedrijf" mat-cell>
-        {{bedrijf.handelsnaam | empty}}
-      </td>
+      <td *matCellDef="let bedrijf" mat-cell>{{bedrijf.naam | empty}}</td>
     </ng-container>
     <ng-container matColumnDef="kvk">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>

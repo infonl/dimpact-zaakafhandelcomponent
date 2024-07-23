@@ -5,7 +5,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -49,18 +48,14 @@ class ZaakServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    beforeSpec {
-        clearAllMocks()
-    }
-
     Given("A list of zaken") {
         val screenEventSlot = slot<ScreenEvent>()
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
             every {
                 ztcClientService.readRoltype(
-                    OmschrijvingGeneriekEnum.BEHANDELAAR,
-                    it.zaaktype
+                    it.zaaktype,
+                    OmschrijvingGeneriekEnum.BEHANDELAAR
                 )
             } returns rolTypeBehandelaar
             every { zrcClientService.updateRol(it, any(), explanation) } just Runs
@@ -98,7 +93,6 @@ class ZaakServiceTest : BehaviorSpec({
         }
     }
     Given("A list of zaken") {
-        clearAllMocks()
         val screenEventSlot = slot<ScreenEvent>()
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
@@ -139,7 +133,6 @@ class ZaakServiceTest : BehaviorSpec({
             when retrieving the second zaak 
             """
     ) {
-        clearAllMocks()
         every { zrcClientService.readZaak(zaken[0].uuid) } returns zaken[0]
         every { zrcClientService.readZaak(zaken[1].uuid) } throws RuntimeException("dummyRuntimeException")
         When(
@@ -172,8 +165,8 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(it.uuid) } returns it
             every {
                 ztcClientService.readRoltype(
-                    OmschrijvingGeneriekEnum.BEHANDELAAR,
-                    it.zaaktype
+                    it.zaaktype,
+                    OmschrijvingGeneriekEnum.BEHANDELAAR
                 )
             } returns rolTypeBehandelaar
             every { zrcClientService.updateRol(it, any(), explanation) } just Runs

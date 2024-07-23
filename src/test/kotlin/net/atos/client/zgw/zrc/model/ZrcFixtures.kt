@@ -68,7 +68,7 @@ fun createResultaat(
 )
 
 fun createRolMedewerker(
-    zaak: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    zaak: URI = URI("https://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(),
     roltoelichting: String = "dummyToelichting",
     betrokkeneIdentificatie: Medewerker = createMedewerker()
@@ -80,8 +80,8 @@ fun createRolMedewerker(
 )
 
 fun createRolNatuurlijkPersoon(
-    zaaktypeURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
-    rolType: RolType = createRolType(zaaktypeURI),
+    zaaktypeURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    rolType: RolType = createRolType(zaakTypeUri = zaaktypeURI),
     toelichting: String = "dummyToelichting",
     natuurlijkPersoon: NatuurlijkPersoon = createNatuurlijkPersoon()
 ) = RolNatuurlijkPersoon(
@@ -92,8 +92,8 @@ fun createRolNatuurlijkPersoon(
 )
 
 fun createRolOrganisatorischeEenheid(
-    zaaktypeURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
-    rolType: RolType = createRolType(zaaktypeURI),
+    zaaktypeURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    rolType: RolType = createRolType(zaakTypeUri = zaaktypeURI),
     toelichting: String = "dummyToelichting",
     organisatorischeEenheid: OrganisatorischeEenheid = createOrganisatorischeEenheid()
 ) = RolOrganisatorischeEenheid(
@@ -120,7 +120,8 @@ fun createZaak(
     vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
     status: URI? = null,
     verlenging: Verlenging? = null,
-    deelzaken: Set<URI>? = null
+    deelzaken: Set<URI>? = null,
+    uuid: UUID = UUID.randomUUID()
 ) = Zaak(
     zaakTypeURI,
     startDate,
@@ -128,7 +129,7 @@ fun createZaak(
     verantwoordelijkeOrganisatie
 ).apply {
     this.url = URI("https://example.com/zaak/${UUID.randomUUID()}")
-    this.uuid = UUID.randomUUID()
+    this.uuid = uuid
     this.archiefnominatie = archiefnominatie
     this.opschorting = opschorting
     this.einddatumGepland = einddatumGepland
