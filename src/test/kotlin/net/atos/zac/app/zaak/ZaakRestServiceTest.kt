@@ -230,7 +230,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { zrcClientService.createZaakobject(zaakObjectOpenbareRuimte) } returns zaakObjectOpenbareRuimte
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
         every {
-            ztcClientService.readRoltype(OmschrijvingGeneriekEnum.INITIATOR, zaak.zaaktype)
+            ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
         } returns rolTypeInitiator
         every { zaakService.bepaalRolGroep(group, zaak) } returns rolOrganisatorischeEenheid
         every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker

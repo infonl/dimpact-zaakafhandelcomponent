@@ -54,8 +54,8 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(it.uuid) } returns it
             every {
                 ztcClientService.readRoltype(
-                    OmschrijvingGeneriekEnum.BEHANDELAAR,
-                    it.zaaktype
+                    it.zaaktype,
+                    OmschrijvingGeneriekEnum.BEHANDELAAR
                 )
             } returns rolTypeBehandelaar
             every { zrcClientService.updateRol(it, any(), explanation) } just Runs
@@ -165,8 +165,8 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(it.uuid) } returns it
             every {
                 ztcClientService.readRoltype(
-                    OmschrijvingGeneriekEnum.BEHANDELAAR,
-                    it.zaaktype
+                    it.zaaktype,
+                    OmschrijvingGeneriekEnum.BEHANDELAAR
                 )
             } returns rolTypeBehandelaar
             every { zrcClientService.updateRol(it, any(), explanation) } just Runs
