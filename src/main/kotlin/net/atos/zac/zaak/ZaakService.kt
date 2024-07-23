@@ -140,8 +140,8 @@ class ZaakService @Inject constructor(
         RolOrganisatorischeEenheid(
             zaak.url,
             ztcClientService.readRoltype(
-                OmschrijvingGeneriekEnum.BEHANDELAAR,
-                zaak.zaaktype
+                zaak.zaaktype,
+                OmschrijvingGeneriekEnum.BEHANDELAAR
             ),
             "Behandelend groep van de zaak",
             OrganisatorischeEenheid().apply {
@@ -154,8 +154,8 @@ class ZaakService @Inject constructor(
         RolMedewerker(
             zaak.url,
             ztcClientService.readRoltype(
-                OmschrijvingGeneriekEnum.BEHANDELAAR,
-                zaak.zaaktype
+                zaak.zaaktype,
+                OmschrijvingGeneriekEnum.BEHANDELAAR
             ),
             "Behandelaar van de zaak",
             Medewerker().apply {

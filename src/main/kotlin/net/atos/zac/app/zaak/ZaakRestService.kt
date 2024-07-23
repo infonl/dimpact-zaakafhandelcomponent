@@ -1040,7 +1040,7 @@ class ZaakRestService @Inject constructor(
         identificatie: String,
         zaak: Zaak
     ) {
-        val initiator = ztcClientService.readRoltype(OmschrijvingGeneriekEnum.INITIATOR, zaak.zaaktype)
+        val initiator = ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
         val zaakRechten = policyService.readZaakRechten(zaak)
         when (identificatieType) {
             IdentificatieType.BSN -> {
