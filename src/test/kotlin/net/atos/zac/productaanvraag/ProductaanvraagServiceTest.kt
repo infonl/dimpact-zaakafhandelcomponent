@@ -545,7 +545,11 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             zaakTypeUri = zaakType.url,
             omschrijvingGeneriek = OmschrijvingGeneriekEnum.BESLISSER
         )
-        val rolTypeKlantcontacter = createRolType(
+        val rolTypeKlantcontacter1 = createRolType(
+            zaakTypeUri = zaakType.url,
+            omschrijvingGeneriek = OmschrijvingGeneriekEnum.KLANTCONTACTER
+        )
+        val rolTypeKlantcontacter2 = createRolType(
             zaakTypeUri = zaakType.url,
             omschrijvingGeneriek = OmschrijvingGeneriekEnum.KLANTCONTACTER
         )
@@ -612,15 +616,16 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(productAanvraagType)
         } returns Optional.of(zaakTypeUUID)
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
-        // for this test we assume no role types have been defined for the adviseur role
+        // here we simulate the case that no role types have been defined for the adviseur role
         every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.ADVISEUR) } returns emptyList()
         every {
             ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.BELANGHEBBENDE)
         } returns listOf(rolTypeBelanghebbende)
         every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.BESLISSER) } returns listOf(rolTypeBeslisser)
+        // here we simulate the case that multiple role types have been defined for the klantcontacter role
         every {
             ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.KLANTCONTACTER)
-        } returns listOf(rolTypeKlantcontacter)
+        } returns listOf(rolTypeKlantcontacter1, rolTypeKlantcontacter2)
         every {
             ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.MEDE_INITIATOR)
         } returns listOf(rolTypeMedeInitiator)
@@ -691,7 +696,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 with(rolesToBeCreated[4]) {
                     betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
                     identificatienummer shouldBe klantcontacterBsn
-                    roltype shouldBe rolTypeKlantcontacter.url
+                    roltype shouldBe rolTypeKlantcontacter1.url
                 }
                 with(rolesToBeCreated[5]) {
                     betrokkeneType shouldBe BetrokkeneType.NATUURLIJK_PERSOON
