@@ -110,6 +110,7 @@ signaleringen:
   deleteOldSignaleringenSchedule: "0 3 * * *"
   # k8s settings for the signaleren jobs
   successfulJobsHistoryLimit: 1
+  concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 3
   restartPolicy: Never
   image:
