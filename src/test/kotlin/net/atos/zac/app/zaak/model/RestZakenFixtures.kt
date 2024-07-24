@@ -11,7 +11,7 @@ import net.atos.zac.app.bag.model.RESTOpenbareRuimte
 import net.atos.zac.app.bag.model.RESTPand
 import net.atos.zac.app.identity.model.RESTGroup
 import net.atos.zac.app.identity.model.RESTUser
-import net.atos.zac.app.klanten.model.klant.IdentificatieType
+import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.policy.model.RESTZaakRechten
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import net.atos.zac.zoeken.model.ZaakIndicatie

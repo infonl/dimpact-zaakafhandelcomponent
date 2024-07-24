@@ -22,8 +22,8 @@ import net.atos.client.contactmomenten.ContactmomentenClientService;
 import net.atos.client.contactmomenten.model.KlantcontactmomentListParameters;
 import net.atos.client.contactmomenten.model.generated.ContactMoment;
 import net.atos.client.contactmomenten.model.generated.KlantContactMoment;
-import net.atos.client.klanten.KlantenClientService;
-import net.atos.client.klanten.model.Klant;
+import net.atos.client.klant.KlantClientService;
+import net.atos.client.klant.model.Klant;
 import net.atos.zac.app.contactmomenten.converter.ContactmomentConverter;
 import net.atos.zac.app.contactmomenten.model.RESTContactmoment;
 import net.atos.zac.app.contactmomenten.model.RESTListContactmomentenParameters;
@@ -37,17 +37,17 @@ public class ContactmomentenRESTService {
     // Aantal items wat Open Klant (waarschijnlijk) terug geeft per pagina
     private final static int NUM_ITEMS_PER_PAGE = 100;
 
-    private KlantenClientService klantenClientService;
+    private KlantClientService klantClientService;
     private ContactmomentenClientService contactmomentenClientService;
     private ContactmomentConverter contactmomentConverter;
 
     @Inject
     public ContactmomentenRESTService(
-            final KlantenClientService klantenClientService,
+            final KlantClientService klantClientService,
             final ContactmomentenClientService contactmomentenClientService,
             final ContactmomentConverter contactmomentConverter
     ) {
-        this.klantenClientService = klantenClientService;
+        this.klantClientService = klantClientService;
         this.contactmomentenClientService = contactmomentenClientService;
         this.contactmomentConverter = contactmomentConverter;
     }
@@ -61,8 +61,8 @@ public class ContactmomentenRESTService {
     @PUT
     public RESTResultaat<RESTContactmoment> listContactmomenten(final RESTListContactmomentenParameters parameters) {
         final Optional<Klant> klantOptional = parameters.bsn != null ?
-                klantenClientService.findPersoon(parameters.bsn) :
-                klantenClientService.findVestiging(parameters.vestigingsnummer);
+                klantClientService.findPersoon(parameters.bsn) :
+                klantClientService.findVestiging(parameters.vestigingsnummer);
         return klantOptional.map(klant -> listContactmomenten(klant, parameters.page, parameters.pageSize))
                 .orElseGet(RESTResultaat::new);
     }
