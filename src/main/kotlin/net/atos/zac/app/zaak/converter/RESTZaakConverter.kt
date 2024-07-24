@@ -19,7 +19,7 @@ import net.atos.client.zgw.ztc.model.generated.StatusType
 import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.zac.app.identity.converter.RESTGroupConverter
 import net.atos.zac.app.identity.converter.RESTUserConverter
-import net.atos.zac.app.klanten.model.klant.IdentificatieType
+import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
 import net.atos.zac.app.zaak.model.RESTGerelateerdeZaak
 import net.atos.zac.app.zaak.model.RESTZaak

@@ -7,10 +7,9 @@ package net.atos.client.contactmomenten;
 
 import java.util.UUID;
 
-import jakarta.enterprise.context.ApplicationScoped;
-
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
