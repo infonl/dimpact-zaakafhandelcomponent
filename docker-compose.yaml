@@ -321,7 +321,7 @@ services:
     image: docker.io/maykinmedia/open-klant:1.0.0
     platform: linux/amd64
     environment:
-      - ALLOWED_HOSTS=localhost,host.docker.internal,openklant,openklant.local
+      - ALLOWED_HOSTS=localhost,host.docker.internal,openklant.local
       - DB_HOST=openklant-database
       - DB_USER=openklant
       - DB_PASSWORD=openklant
