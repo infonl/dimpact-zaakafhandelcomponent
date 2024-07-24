@@ -25,8 +25,6 @@ INSERT INTO public.contactmomenten_contactmoment (id, uuid, bronorganisatie, reg
 INSERT INTO public.contactmomenten_contactmoment (id, uuid, bronorganisatie, registratiedatum, tekst, voorkeurskanaal, voorkeurstaal, kanaal, initiatiefnemer, medewerker, onderwerp_links, vorig_contactmoment_id) VALUES(2, '6a295904-9fd1-4ee8-8f41-a1b14f4f0c55'::uuid, '123443210', '2010-01-01 12:00:00.000', 'dummyContactMomentText2', 'dummyContactMomentPreferredCommunicationChannel2', 'nld', 'dummyContactMomentCommunicationChannel2', 'klant', '', '{}', 1);
 
 -- insert klant contact moments for the klant created earlier
--- note that the URL reference to the klant needs to be an external URL accessible from outside of the Docker Compose network or else OpenKlant will return an error (so localhost:8002 instead of openklant:8000)
--- this means that unfortunately our integration tests cannot retrieve these klant contact moments
 INSERT INTO public.contactmomenten_klantcontactmoment (id, uuid, klant, rol, contactmoment_id, gelezen) VALUES(1, 'c59a980f-e3bd-4567-808b-4789a3f6516e'::uuid, 'http://openklant.local:8000/klanten/api/v1/klanten/6eae1573-0f78-48f1-b6dd-a6df1cb9f7a3', 'belanghebbende', 1, false);
 INSERT INTO public.contactmomenten_klantcontactmoment (id, uuid, klant, rol, contactmoment_id, gelezen) VALUES(2, '26cff460-7390-4be3-b370-31436eb04ae0'::uuid, 'http://openklant.local:8000/klanten/api/v1/klanten/6eae1573-0f78-48f1-b6dd-a6df1cb9f7a3', 'gesprekspartner', 2, true);
 
