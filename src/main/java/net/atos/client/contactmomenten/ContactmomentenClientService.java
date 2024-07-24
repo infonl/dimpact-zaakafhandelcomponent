@@ -7,9 +7,10 @@ package net.atos.client.contactmomenten;
 
 import java.util.UUID;
 
+import jakarta.enterprise.context.ApplicationScoped;
+
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
@@ -20,14 +21,23 @@ import net.atos.client.contactmomenten.model.generated.KlantcontactmomentList200
 
 @Singleton
 public class ContactmomentenClientService {
-
-    @Inject
-    @RestClient
     private KlantcontactmomentenClient klantcontactmomentenClient;
+    private ContactmomentenClient contactmomentenClient;
+
+    /**
+     * Empty no-op constructor as required by Weld.
+     */
+    public ContactmomentenClientService() {
+    }
 
     @Inject
-    @RestClient
-    private ContactmomentenClient contactmomentenClient;
+    public ContactmomentenClientService(
+            final @RestClient KlantcontactmomentenClient klantcontactmomentenClient,
+            final @RestClient ContactmomentenClient contactmomentenClient
+    ) {
+        this.klantcontactmomentenClient = klantcontactmomentenClient;
+        this.contactmomentenClient = contactmomentenClient;
+    }
 
     public KlantcontactmomentList200Response listKlantcontactmomenten(
             final KlantcontactmomentListParameters parameters

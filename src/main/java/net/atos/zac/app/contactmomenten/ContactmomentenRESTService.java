@@ -34,18 +34,29 @@ import net.atos.zac.app.shared.RESTResultaat;
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
 public class ContactmomentenRESTService {
-
-    // Aantal items wat Open klant (waarschijnlijk) terug geeft per pagina
+    // Aantal items wat Open Klant (waarschijnlijk) terug geeft per pagina
     private final static int NUM_ITEMS_PER_PAGE = 100;
 
-    @Inject
     private KlantenClientService klantenClientService;
-
-    @Inject
     private ContactmomentenClientService contactmomentenClientService;
+    private ContactmomentConverter contactmomentConverter;
 
     @Inject
-    private ContactmomentConverter contactmomentConverter;
+    public ContactmomentenRESTService(
+            final KlantenClientService klantenClientService,
+            final ContactmomentenClientService contactmomentenClientService,
+            final ContactmomentConverter contactmomentConverter
+    ) {
+        this.klantenClientService = klantenClientService;
+        this.contactmomentenClientService = contactmomentenClientService;
+        this.contactmomentConverter = contactmomentConverter;
+    }
+
+    /**
+     * Empty no-op constructor as required by Weld.
+     */
+    public ContactmomentenRESTService() {
+    }
 
     @PUT
     public RESTResultaat<RESTContactmoment> listContactmomenten(final RESTListContactmomentenParameters parameters) {
@@ -75,8 +86,8 @@ public class ContactmomentenRESTService {
 
     private RESTContactmoment convertToRESTContactmoment(final KlantContactMoment klantContactMoment) {
         final ContactMoment contactMoment = contactmomentenClientService.readContactmoment(
-                uuidFromURI(klantContactMoment.getContactmoment()));
+                uuidFromURI(klantContactMoment.getContactmoment())
+        );
         return contactmomentConverter.convert(contactMoment);
-
     }
 }
