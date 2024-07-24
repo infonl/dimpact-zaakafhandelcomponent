@@ -317,11 +317,11 @@ services:
       - ./scripts/docker-compose/imports/openklant-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/openklant-database-data:/var/lib/postgresql/data
 
-  openklant:
+  openklant.local:
     image: docker.io/maykinmedia/open-klant:1.0.0
     platform: linux/amd64
     environment:
-      - ALLOWED_HOSTS=localhost,host.docker.internal,openklant
+      - ALLOWED_HOSTS=localhost,host.docker.internal,openklant,openklant.local
       - DB_HOST=openklant-database
       - DB_USER=openklant
       - DB_PASSWORD=openklant
@@ -456,7 +456,7 @@ services:
       - BAG_API_KEY=${BAG_API_KEY:-dummyBagApiKey}
       - BRP_API_CLIENT_MP_REST_URL=http://brpproxy:5000/haalcentraal/api/brp
       - BRP_API_KEY=dummyKey # not used when using the BRP proxy
-      - CONTACTMOMENTEN_API_CLIENT_MP_REST_URL=http://openklant:8000/contactmomenten
+      - CONTACTMOMENTEN_API_CLIENT_MP_REST_URL=http://openklant.local:8000/contactmomenten
       - CONTACTMOMENTEN_API_CLIENTID=zac_client
       - CONTACTMOMENTEN_API_SECRET=openklantZaakafhandelcomponentClientSecret
       - CONTEXT_URL=http://localhost:8080
@@ -467,7 +467,7 @@ services:
       - GEMEENTE_CODE=${GEMEENTE_CODE:-9999}
       - GEMEENTE_MAIL=${GEMEENTE_MAIL:-gemeente-zac-test@example.com}
       - GEMEENTE_NAAM=${GEMEENTE_NAAM:-DummyZacGemeente}
-      - KLANTEN_API_CLIENT_MP_REST_URL=http://openklant:8000/klanten
+      - KLANTEN_API_CLIENT_MP_REST_URL=http://openklant.local:8000/klanten
       - KLANTEN_API_CLIENTID=zac_client
       - KLANTEN_API_SECRET=openklantZaakafhandelcomponentClientSecret
       - KVK_API_CLIENT_MP_REST_URL=${KVK_API_CLIENT_MP_REST_URL:-dummyKvkApiUrl}

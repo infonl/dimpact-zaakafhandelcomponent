@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.contactmomenten;
+package net.atos.zac.app.contactmoment;
 
 import static net.atos.zac.util.UriUtil.uuidFromURI;
 
@@ -24,16 +24,16 @@ import net.atos.client.contactmomenten.model.generated.ContactMoment;
 import net.atos.client.contactmomenten.model.generated.KlantContactMoment;
 import net.atos.client.klant.KlantClientService;
 import net.atos.client.klant.model.Klant;
-import net.atos.zac.app.contactmomenten.converter.ContactmomentConverter;
-import net.atos.zac.app.contactmomenten.model.RESTContactmoment;
-import net.atos.zac.app.contactmomenten.model.RESTListContactmomentenParameters;
+import net.atos.zac.app.contactmoment.converter.ContactmomentConverter;
+import net.atos.zac.app.contactmoment.model.RESTContactmoment;
+import net.atos.zac.app.contactmoment.model.RESTListContactmomentenParameters;
 import net.atos.zac.app.shared.RESTResultaat;
 
 @Path("contactmomenten")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
-public class ContactmomentenRESTService {
+public class ContactmomentRestService {
     // Aantal items wat Open Klant (waarschijnlijk) terug geeft per pagina
     private final static int NUM_ITEMS_PER_PAGE = 100;
 
@@ -42,7 +42,7 @@ public class ContactmomentenRESTService {
     private ContactmomentConverter contactmomentConverter;
 
     @Inject
-    public ContactmomentenRESTService(
+    public ContactmomentRestService(
             final KlantClientService klantClientService,
             final ContactmomentenClientService contactmomentenClientService,
             final ContactmomentConverter contactmomentConverter
@@ -55,7 +55,7 @@ public class ContactmomentenRESTService {
     /**
      * Empty no-op constructor as required by Weld.
      */
-    public ContactmomentenRESTService() {
+    public ContactmomentRestService() {
     }
 
     @PUT

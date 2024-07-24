@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.contactmomenten.converter;
+package net.atos.zac.app.contactmoment.converter;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.contactmomenten.model.generated.ContactMoment;
 import net.atos.client.contactmomenten.model.generated.Medewerker;
-import net.atos.zac.app.contactmomenten.model.RESTContactmoment;
+import net.atos.zac.app.contactmoment.model.RESTContactmoment;
 
 public class ContactmomentConverter {
 
