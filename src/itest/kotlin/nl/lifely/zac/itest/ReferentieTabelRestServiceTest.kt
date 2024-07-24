@@ -43,8 +43,8 @@ class ReferentieTabelRestServiceTest : BehaviorSpec({
                 with(JSONArray(responseBody)) {
                     length() shouldBe 8
                     get(0) shouldBe "Balie"
-                    get(1) shouldBe "E-mail"
-                    get(2) shouldBe "E-formulier"
+                    get(1) shouldBe "E-formulier"
+                    get(2) shouldBe "E-mail"
                     get(3) shouldBe "Intern"
                     get(4) shouldBe "Internet"
                     get(5) shouldBe "Medewerkersportaal"
