@@ -318,7 +318,7 @@ services:
       - ./scripts/docker-compose/volume-data/openklant-database-data:/var/lib/postgresql/data
 
   openklant.local:
-    image: docker.io/maykinmedia/open-klant:1.0.0
+    image: docker.io/maykinmedia/open-klant:2.1.0
     platform: linux/amd64
     environment:
       - ALLOWED_HOSTS=localhost,host.docker.internal,openklant.local
