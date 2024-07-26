@@ -8,25 +8,30 @@ package net.atos.zac.app.admin.converter;
 
 import net.atos.zac.admin.model.ReferenceTable;
 import net.atos.zac.app.admin.model.RestReferenceTable;
+import net.atos.zac.app.admin.model.RestReferenceTableValue;
 
+import java.util.List;
 import java.util.Objects;
+
+import static java.util.Collections.emptyList;
 
 public final class RestReferenceTableConverter {
 
     public static RestReferenceTable convert(final ReferenceTable referenceTable, boolean inclusiefWaarden) {
-        final RestReferenceTable restReferenceTable = new RestReferenceTable();
-        restReferenceTable.setId(referenceTable.getId());
-        restReferenceTable.code = referenceTable.code;
-        restReferenceTable.name = referenceTable.name;
-        restReferenceTable.setSystemReferenceTable(referenceTable.isSystemReferenceTable());
-        restReferenceTable.setValuesCount(referenceTable.getValues().size());
+        List<RestReferenceTableValue> values = emptyList();
         if (inclusiefWaarden) {
-            restReferenceTable.setValues(referenceTable.getValues().stream()
+            values = referenceTable.getValues().stream()
                     .map(RestReferenceValueConverter::convert)
-                    .toList()
-            );
+                    .toList();
         }
-        return restReferenceTable;
+        return new RestReferenceTable(
+                referenceTable.getId(),
+                referenceTable.code,
+                referenceTable.name,
+                referenceTable.isSystemReferenceTable(),
+                referenceTable.getValues().size(),
+                values
+        );
     }
 
     public static ReferenceTable convert(final RestReferenceTable restReferenceTable) {
@@ -34,8 +39,8 @@ public final class RestReferenceTableConverter {
     }
 
     public static ReferenceTable convert(final RestReferenceTable restReferenceTable, final ReferenceTable referenceTable) {
-        referenceTable.code = restReferenceTable.code;
-        referenceTable.name = restReferenceTable.name;
+        referenceTable.code = restReferenceTable.getCode();
+        referenceTable.name = restReferenceTable.getName();
         referenceTable.setValues(
                 Objects.requireNonNull(restReferenceTable.getValues())
                         .stream()
