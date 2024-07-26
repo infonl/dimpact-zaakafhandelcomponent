@@ -18,9 +18,9 @@ import jakarta.ws.rs.core.MediaType
 import net.atos.zac.admin.ReferenceTableAdminService
 import net.atos.zac.admin.ReferenceTableService
 import net.atos.zac.admin.model.ReferenceTable.Systeem
+import net.atos.zac.admin.model.ReferenceTableValue
 import net.atos.zac.app.admin.converter.convertToReferenceTable
 import net.atos.zac.app.admin.converter.convertToRestReferenceTable
-import net.atos.zac.app.admin.converter.getReferenceTableValueNames
 import net.atos.zac.app.admin.model.RestReferenceTable
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.policy.PolicyService
@@ -29,6 +29,7 @@ import net.atos.zac.policy.PolicyService
 @Path("referentietabellen")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@Suppress("TooManyFunctions")
 class ReferenceTableRestService @Inject constructor(
     private val referenceTableService: ReferenceTableService,
     private val referenceTableAdminService: ReferenceTableAdminService,
@@ -134,4 +135,9 @@ class ReferenceTableRestService @Inject constructor(
             getReferenceTableValueNames(it)
         }
     }
+
+    private fun getReferenceTableValueNames(referenceTableValues: List<ReferenceTableValue>) =
+        referenceTableValues
+            .map(ReferenceTableValue::name)
+            .toList()
 }
