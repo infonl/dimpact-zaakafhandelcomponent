@@ -8,13 +8,13 @@ package net.atos.zac.app.admin.converter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import net.atos.zac.admin.model.ReferenceTableValue;
+import net.atos.zac.admin.model.ZaakAfzender;
 import net.atos.zac.app.admin.model.RESTReplyTo;
-import net.atos.zac.zaaksturing.model.ReferentieTabelWaarde;
-import net.atos.zac.zaaksturing.model.ZaakAfzender;
 
 public final class RESTReplyToConverter {
 
-    public static List<RESTReplyTo> convertReplyTos(final List<ReferentieTabelWaarde> waarden) {
+    public static List<RESTReplyTo> convertReplyTos(final List<ReferenceTableValue> waarden) {
         final List<RESTReplyTo> restReplyTos = waarden.stream()
                 .map(RESTReplyToConverter::convertReplyTo)
                 .collect(Collectors.toList());
@@ -25,7 +25,7 @@ public final class RESTReplyToConverter {
         return restReplyTos;
     }
 
-    public static RESTReplyTo convertReplyTo(final ReferentieTabelWaarde waarde) {
+    public static RESTReplyTo convertReplyTo(final ReferenceTableValue waarde) {
         final RESTReplyTo restReplyTo = new RESTReplyTo();
         restReplyTo.mail = waarde.getNaam();
         restReplyTo.speciaal = false;

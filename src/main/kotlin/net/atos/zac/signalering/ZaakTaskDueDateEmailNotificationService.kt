@@ -11,6 +11,7 @@ import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.ZaakType
+import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
@@ -21,7 +22,6 @@ import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringVerzendInfo
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.util.UriUtil
-import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import net.atos.zac.zoeken.ZoekenService
 import net.atos.zac.zoeken.model.DatumRange
 import net.atos.zac.zoeken.model.DatumVeld

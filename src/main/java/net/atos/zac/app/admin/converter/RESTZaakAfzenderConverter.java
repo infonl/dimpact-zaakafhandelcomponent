@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import net.atos.zac.admin.model.ZaakAfzender;
 import net.atos.zac.app.admin.model.RESTZaakAfzender;
-import net.atos.zac.zaaksturing.model.ZaakAfzender;
 
 public final class RESTZaakAfzenderConverter {
 

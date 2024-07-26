@@ -20,7 +20,7 @@ import org.apache.commons.text.StringEscapeUtils;
 
 import net.atos.client.zgw.shared.cache.Caching;
 import net.atos.client.zgw.ztc.ZtcClientService;
-import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
+import net.atos.zac.admin.ZaakafhandelParameterService;
 
 @Path("util")
 @Consumes(MediaType.APPLICATION_JSON)

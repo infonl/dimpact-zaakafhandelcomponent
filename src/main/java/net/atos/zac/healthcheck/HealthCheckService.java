@@ -2,8 +2,8 @@ package net.atos.zac.healthcheck;
 
 import static java.nio.file.Files.readAllLines;
 import static net.atos.client.zgw.ztc.util.InformatieObjectTypeUtil.isNuGeldig;
+import static net.atos.zac.admin.model.ReferenceTable.Systeem.COMMUNICATIEKANAAL;
 import static net.atos.zac.util.DateTimeConverterUtil.convertToLocalDateTime;
-import static net.atos.zac.zaaksturing.model.ReferentieTabel.Systeem.COMMUNICATIEKANAAL;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,29 +23,29 @@ import net.atos.client.zgw.shared.util.URIUtil;
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.Afleidingswijze;
 import net.atos.client.zgw.ztc.model.generated.*;
+import net.atos.zac.admin.ReferenceTableService;
+import net.atos.zac.admin.ZaakafhandelParameterService;
+import net.atos.zac.admin.model.ZaakafhandelParameters;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.healthcheck.model.BuildInformatie;
 import net.atos.zac.healthcheck.model.ZaaktypeInrichtingscheck;
 import net.atos.zac.util.LocalDateUtil;
-import net.atos.zac.zaaksturing.ReferentieTabelService;
-import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
-import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 
 @Singleton
 public class HealthCheckService {
     private static final String BUILD_TIMESTAMP_FILE = "/build_timestamp.txt";
 
-    private ReferentieTabelService referentieTabelService;
+    private ReferenceTableService referenceTableService;
     private ZaakafhandelParameterService zaakafhandelParameterBeheerService;
     private ZtcClientService ztcClientService;
 
     @Inject
     public HealthCheckService(
-            ReferentieTabelService referentieTabelService,
+            ReferenceTableService referenceTableService,
             ZaakafhandelParameterService zaakafhandelParameterBeheerService,
             ZtcClientService ztcClientService
     ) {
-        this.referentieTabelService = referentieTabelService;
+        this.referenceTableService = referenceTableService;
         this.zaakafhandelParameterBeheerService = zaakafhandelParameterBeheerService;
         this.ztcClientService = ztcClientService;
     }
@@ -71,7 +71,7 @@ public class HealthCheckService {
     private BuildInformatie buildInformatie;
 
     public boolean bestaatCommunicatiekanaalEformulier() {
-        return referentieTabelService.readReferentieTabel(COMMUNICATIEKANAAL.name())
+        return referenceTableService.readReferenceTable(COMMUNICATIEKANAAL.name())
                 .getWaarden()
                 .stream()
                 .anyMatch(referentieWaarde -> ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER.equals(referentieWaarde.getNaam()));

@@ -16,6 +16,8 @@ import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.generated.Resultaat
+import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
 import net.atos.zac.app.mail.model.createRESTMailGegevens
 import net.atos.zac.app.planitems.converter.RESTPlanItemConverter
@@ -35,8 +37,6 @@ import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.shared.helper.OpschortenZaakHelper
 import net.atos.zac.util.DateTimeConverterUtil
-import net.atos.zac.zaaksturing.ZaakafhandelParameterService
-import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
 import net.atos.zac.zoeken.IndexeerService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI

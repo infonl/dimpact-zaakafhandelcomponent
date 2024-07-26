@@ -8,8 +8,8 @@ package net.atos.zac.app.planitems.model;
 import java.util.Arrays;
 import java.util.Set;
 
-import net.atos.zac.zaaksturing.model.FormulierDefinitie;
-import net.atos.zac.zaaksturing.model.FormulierVeldDefinitie;
+import net.atos.zac.admin.model.FormulierDefinitie;
+import net.atos.zac.admin.model.FormulierVeldDefinitie;
 
 public enum DefaultHumanTaskFormulierKoppeling {
 

@@ -8,13 +8,13 @@ import jakarta.inject.Inject
 import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.client.zgw.ztc.util.isNuGeldig
 import net.atos.client.zgw.ztc.util.isServicenormBeschikbaar
+import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.app.admin.converter.RESTZaakafhandelParametersConverter
 import net.atos.zac.app.zaak.model.RESTZaaktype
 import net.atos.zac.app.zaak.model.RESTZaaktypeRelatie
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.util.PeriodUtil
 import net.atos.zac.util.UriUtil
-import net.atos.zac.zaaksturing.ZaakafhandelParameterService
 import java.time.Period
 
 class RESTZaaktypeConverter {
