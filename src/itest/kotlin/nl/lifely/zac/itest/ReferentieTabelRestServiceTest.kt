@@ -6,6 +6,7 @@ package nl.lifely.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldContainInOrder
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -42,14 +43,18 @@ class ReferentieTabelRestServiceTest : BehaviorSpec({
                 response.isSuccessful shouldBe true
                 with(JSONArray(responseBody)) {
                     length() shouldBe 8
-                    get(0) shouldBe "Balie"
-                    get(1) shouldBe "E-formulier"
-                    get(2) shouldBe "E-mail"
-                    get(3) shouldBe "Intern"
-                    get(4) shouldBe "Internet"
-                    get(5) shouldBe "Medewerkersportaal"
-                    get(6) shouldBe "Post"
-                    get(7) shouldBe "Telefoon"
+                    shouldContainInOrder(
+                        listOf(
+                            "Balie",
+                            "E-formulier",
+                            "E-mail",
+                            "Intern",
+                            "Internet",
+                            "Medewerkersportaal",
+                            "Post",
+                            "Telefoon"
+                        )
+                    )
                 }
             }
         }
