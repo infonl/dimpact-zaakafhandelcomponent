@@ -5,19 +5,37 @@
 package net.atos.zac.app.admin.model
 
 import jakarta.validation.constraints.NotBlank
+import net.atos.zac.admin.model.ReferenceTable
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 
-data class RestReferenceTable(
-    val id: Long,
+@AllOpen
+@NoArgConstructor
+class RestReferenceTable(
+    var id: Long,
 
     @NotBlank
-    val code: String,
+    var code: String,
 
     @NotBlank
-    val name: String,
+    var naam: String,
 
-    val isSystemReferenceTable: Boolean = false,
+    var systeem: Boolean = false,
 
-    val valuesCount: Int = 0,
+    var aantalWaarden: Int = 0,
 
-    val values: List<RestReferenceTableValue> = emptyList()
+    var waarden: List<RestReferenceTableValue> = emptyList()
 )
+
+fun RestReferenceTable.toReferenceTable(
+    existingReferenceTable: ReferenceTable? = null
+): ReferenceTable {
+    val referenceTable = existingReferenceTable ?: ReferenceTable()
+    return referenceTable.apply {
+        code = this@toReferenceTable.code
+        name = this@toReferenceTable.naam
+        values = this@toReferenceTable.waarden
+            .map { referenceTableValue -> referenceTableValue.toReferenceTableValue(this) }
+            .toMutableList()
+    }
+}

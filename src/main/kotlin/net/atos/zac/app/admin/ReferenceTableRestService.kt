@@ -19,17 +19,19 @@ import net.atos.zac.admin.ReferenceTableAdminService
 import net.atos.zac.admin.ReferenceTableService
 import net.atos.zac.admin.model.ReferenceTable.Systeem
 import net.atos.zac.admin.model.ReferenceTableValue
-import net.atos.zac.app.admin.converter.convertToReferenceTable
-import net.atos.zac.app.admin.converter.convertToRestReferenceTable
+import net.atos.zac.admin.model.toRestReferenceTable
 import net.atos.zac.app.admin.model.RestReferenceTable
+import net.atos.zac.app.admin.model.toReferenceTable
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.policy.PolicyService
+import nl.lifely.zac.util.NoArgConstructor
 
 @Singleton
 @Path("referentietabellen")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Suppress("TooManyFunctions")
+@NoArgConstructor
 class ReferenceTableRestService @Inject constructor(
     private val referenceTableService: ReferenceTableService,
     private val referenceTableAdminService: ReferenceTableAdminService,
@@ -39,7 +41,7 @@ class ReferenceTableRestService @Inject constructor(
     fun listReferenceTables(): List<RestReferenceTable> {
         PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
         return referenceTableService.listReferenceTables()
-            .map { convertToRestReferenceTable(it, false) }
+            .map { it.toRestReferenceTable(false) }
             .toList()
     }
 
@@ -47,8 +49,7 @@ class ReferenceTableRestService @Inject constructor(
     @Path("new")
     fun newReferenceTable(): RestReferenceTable {
         PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
-        return convertToRestReferenceTable(
-            referenceTableAdminService.newReferenceTable(),
+        return referenceTableAdminService.newReferenceTable().toRestReferenceTable(
             true
         )
     }
@@ -56,10 +57,9 @@ class ReferenceTableRestService @Inject constructor(
     @POST
     fun createReferenceTable(restReferenceTable: RestReferenceTable): RestReferenceTable {
         PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
-        return convertToRestReferenceTable(
-            referenceTableAdminService.createReferenceTable(
-                convertToReferenceTable(restReferenceTable)
-            ),
+        return referenceTableAdminService.createReferenceTable(
+            restReferenceTable.toReferenceTable()
+        ).toRestReferenceTable(
             true
         )
     }
@@ -68,8 +68,7 @@ class ReferenceTableRestService @Inject constructor(
     @Path("{id}")
     fun readReferenceTable(@PathParam("id") id: Long): RestReferenceTable {
         PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
-        return convertToRestReferenceTable(
-            referenceTableService.readReferenceTable(id),
+        return referenceTableService.readReferenceTable(id).toRestReferenceTable(
             true
         )
     }
@@ -81,12 +80,10 @@ class ReferenceTableRestService @Inject constructor(
         restReferenceTable: RestReferenceTable
     ): RestReferenceTable {
         PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
-        return convertToReferenceTable(
-            restReferenceTable,
+        return restReferenceTable.toReferenceTable(
             referenceTableService.readReferenceTable(id)
         ).let {
-            convertToRestReferenceTable(
-                referenceTableAdminService.updateReferenceTable(it),
+            referenceTableAdminService.updateReferenceTable(it).toRestReferenceTable(
                 true
             )
         }

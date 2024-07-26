@@ -15,6 +15,8 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
+import net.atos.zac.app.admin.model.RestReferenceTable
+import net.atos.zac.app.admin.model.RestReferenceTableValue
 import net.atos.zac.util.FlywayIntegrator
 import nl.lifely.zac.util.AllOpen
 
@@ -58,4 +60,21 @@ class ReferenceTable {
 
     @OneToMany(mappedBy = "referenceTable", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
     var values: MutableList<ReferenceTableValue> = ArrayList()
+}
+
+fun ReferenceTable.toRestReferenceTable(inclusiefWaarden: Boolean): RestReferenceTable {
+    var restReferenceTableValues: List<RestReferenceTableValue> = emptyList()
+    if (inclusiefWaarden) {
+        restReferenceTableValues = this.values.stream()
+            .map { it.toRestReferenceTableValue() }
+            .toList()
+    }
+    return RestReferenceTable(
+        this.id!!,
+        this.code,
+        this.name,
+        this.isSystemReferenceTable,
+        this.values.size,
+        restReferenceTableValues
+    )
 }

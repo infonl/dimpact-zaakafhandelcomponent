@@ -6,16 +6,20 @@ package net.atos.zac.app.admin.model
 
 import net.atos.zac.admin.model.ReferenceTable
 import net.atos.zac.admin.model.ReferenceTableValue
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 
-data class RestReferenceTableValue(
-    val id: Long,
-    val value: String
+@AllOpen
+@NoArgConstructor
+class RestReferenceTableValue(
+    var id: Long,
+    var naam: String
 )
 
 fun RestReferenceTableValue.toReferenceTableValue(
     referenceTable: ReferenceTable
 ): ReferenceTableValue = ReferenceTableValue().apply {
     id = this@toReferenceTableValue.id
-    name = this@toReferenceTableValue.value
+    name = this@toReferenceTableValue.naam
     this.referenceTable = referenceTable
 }
