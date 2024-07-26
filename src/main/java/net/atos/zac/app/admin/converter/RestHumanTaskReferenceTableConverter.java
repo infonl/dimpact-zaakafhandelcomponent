@@ -18,7 +18,6 @@ import net.atos.zac.admin.model.ReferenceTable;
 import net.atos.zac.admin.model.ReferenceTableKt;
 import net.atos.zac.app.admin.model.RestHumanTaskReferenceTable;
 
-import static net.atos.zac.admin.model.ReferenceTableKt.toRestReferenceTable;
 
 public class RestHumanTaskReferenceTableConverter {
 
