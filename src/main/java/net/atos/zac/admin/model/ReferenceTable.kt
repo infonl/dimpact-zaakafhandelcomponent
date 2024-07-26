@@ -2,35 +2,36 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.admin.model
 
-package net.atos.zac.admin.model;
-
-import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.OneToMany
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
+import jakarta.persistence.Transient
+import jakarta.validation.constraints.NotBlank
+import net.atos.zac.util.FlywayIntegrator
+import nl.lifely.zac.util.AllOpen
+import java.util.Arrays
+import java.util.function.Consumer
 
 @Entity
-@Table(schema = SCHEMA, name = "referentie_tabel")
-@SequenceGenerator(schema = SCHEMA, name = "sq_referentie_tabel", sequenceName = "sq_referentie_tabel", allocationSize = 1)
-public class ReferenceTable {
-
-    public enum Systeem {
+@Table(schema = FlywayIntegrator.SCHEMA, name = "referentie_tabel")
+@SequenceGenerator(
+    schema = FlywayIntegrator.SCHEMA,
+    name = "sq_referentie_tabel",
+    sequenceName = "sq_referentie_tabel",
+    allocationSize = 1
+)
+@AllOpen
+class ReferenceTable {
+    enum class Systeem {
         ADVIES,
         AFZENDER,
         COMMUNICATIEKANAAL,
@@ -41,72 +42,46 @@ public class ReferenceTable {
     @Id
     @GeneratedValue(generator = "sq_referentie_tabel", strategy = GenerationType.SEQUENCE)
     @Column(name = "id_referentie_tabel")
-    private Long id;
+    var id: Long? = null
 
-    @NotBlank
     @Column(name = "code", nullable = false)
-    private String code;
+    lateinit var code: @NotBlank String
 
-    @NotBlank
     @Column(name = "naam", nullable = false)
-    private String naam;
+    lateinit var naam: @NotBlank String
 
     @Transient
-    private Boolean systeem;
-
-    @OneToMany(mappedBy = "tabel", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-    private List<ReferenceTableValue> waarden = new ArrayList<>();
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(final Long id) {
-        this.id = id;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(final String code) {
-        this.code = code;
-    }
-
-    public String getNaam() {
-        return naam;
-    }
-
-    public void setNaam(final String naam) {
-        this.naam = naam;
-    }
-
-    public boolean isSysteem() {
-        if (systeem == null) {
-            systeem = Arrays.stream(Systeem.values())
-                    .anyMatch(value -> value.name().equals(code));
+    final var isSysteem: Boolean? = null
+        get() {
+            if (field == null) {
+                field = Arrays.stream(Systeem.entries.toTypedArray())
+                    .anyMatch { value: Systeem -> value.name == code }
+            }
+            return field
         }
-        return systeem;
-    }
+        private set
 
-    public List<ReferenceTableValue> getWaarden() {
+    @OneToMany(mappedBy = "tabel", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
+    private val waarden: MutableList<ReferenceTableValue> = ArrayList()
+
+    fun getWaarden(): List<ReferenceTableValue> {
         return waarden.stream()
-                .sorted(Comparator.comparingInt(ReferenceTableValue::getVolgorde))
-                .toList();
+            .sorted(Comparator.comparingInt { obj: ReferenceTableValue -> obj.volgorde })
+            .toList()
     }
 
-    public void setWaarden(final List<ReferenceTableValue> waarden) {
-        this.waarden.clear();
-        waarden.forEach(this::addWaarde);
+    fun setWaarden(waarden: List<ReferenceTableValue>) {
+        this.waarden.clear()
+        waarden.forEach(Consumer { waarde: ReferenceTableValue -> this.addWaarde(waarde) })
     }
 
-    public void addWaarde(final ReferenceTableValue waarde) {
-        waarde.setTabel(this);
-        waarde.setVolgorde(waarden.size());
-        waarden.add(waarde);
+    fun addWaarde(waarde: ReferenceTableValue) {
+        waarde.tabel = this
+        waarde.volgorde = waarden.size
+        waarden.add(waarde)
     }
 
-    public void removeWaarde(final ReferenceTableValue waarde) {
-        waarden.remove(waarde);
+    fun removeWaarde(waarde: ReferenceTableValue) {
+        waarden.remove(waarde)
     }
 }

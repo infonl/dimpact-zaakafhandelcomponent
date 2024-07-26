@@ -66,11 +66,15 @@ open class ReferenceTableAdminService @Inject constructor(
         query.select(root).where(builder.equal(root.get<Any>("tabel").get<Any>("id"), tabel.id))
         val resultList = entityManager.createQuery(query).resultList
         if (resultList.isNotEmpty()) {
-            throw FoutmeldingException(String.format(FOREIGN_KEY_CONSTRAINT, resultList.stream()
-                .map { obj: HumanTaskReferentieTabel -> obj.veld }
-                .distinct()
-                .collect(Collectors.joining(", "))
-            ))
+            throw FoutmeldingException(
+                String.format(
+                    FOREIGN_KEY_CONSTRAINT,
+                    resultList.stream()
+                        .map { obj: HumanTaskReferentieTabel -> obj.veld }
+                        .distinct()
+                        .collect(Collectors.joining(", "))
+                )
+            )
         }
         entityManager.remove(tabel)
     }
