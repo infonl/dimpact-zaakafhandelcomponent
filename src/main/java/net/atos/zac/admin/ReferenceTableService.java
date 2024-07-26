@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
@@ -23,9 +23,18 @@ import net.atos.zac.admin.model.ReferenceTable;
 @ApplicationScoped
 @Transactional(SUPPORTS)
 public class ReferenceTableService {
-
-    @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
     private EntityManager entityManager;
+
+    @Inject
+    public ReferenceTableService(final EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public ReferenceTableService() {
+    }
 
     public List<ReferenceTable> listReferenceTables() {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -41,14 +50,14 @@ public class ReferenceTableService {
         if (referenceTable != null) {
             return referenceTable;
         } else {
-            throw new RuntimeException("%s with id=%d not found".formatted(ReferenceTable.class.getSimpleName(), id));
+            throw new RuntimeException("Reference table with id '%d' not found".formatted(id));
         }
     }
 
     public ReferenceTable readReferenceTable(final String code) {
         return findReferenceTable(code)
                 .orElseThrow(
-                        () -> new RuntimeException("%s with code='%s' not found".formatted(ReferenceTable.class.getSimpleName(), code))
+                        () -> new RuntimeException("Reference table with code '%s' not found".formatted(code))
                 );
     }
 

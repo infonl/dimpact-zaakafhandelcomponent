@@ -7,7 +7,7 @@ package net.atos.zac.admin.model
 
 import java.util.UUID
 
-fun createReferentieTabel(
+fun createReferenceTable(
     id: Long = 1234L,
     code: String = "dummyCode",
     naam: String = "dummyReferentieTabel"
@@ -18,7 +18,7 @@ fun createReferentieTabel(
         this.naam = naam
     }
 
-fun createReferentieTabelWaarde(
+fun createReferenceTableValue(
     id: Long = 1234L,
     naam: String = "dummyReferentieTabelWaarde",
     volgorde: Int = 1

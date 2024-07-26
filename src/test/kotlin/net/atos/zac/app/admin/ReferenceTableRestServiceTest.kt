@@ -12,8 +12,8 @@ import io.mockk.every
 import io.mockk.mockk
 import net.atos.zac.admin.ReferenceTableAdminService
 import net.atos.zac.admin.ReferenceTableService
-import net.atos.zac.admin.model.createReferentieTabel
-import net.atos.zac.admin.model.createReferentieTabelWaarde
+import net.atos.zac.admin.model.createReferenceTable
+import net.atos.zac.admin.model.createReferenceTableValue
 import net.atos.zac.policy.PolicyService
 
 class ReferenceTableRestServiceTest : BehaviorSpec({
@@ -31,19 +31,19 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
     }
 
     Given("Two communicatiekanalen including E-formulier") {
-        val referentieTabel = createReferentieTabel(
+        val referentieTabel = createReferenceTable(
             id = 1L,
             code = "COMMUNICATIEKANAAL",
             naam = "Communicatiekanalen"
         )
         val referentieWaarde1 = "dummyWaarde1"
         val referentieWaarde2 = "E-formulier"
-        val referentieTabelWaarde1 = createReferentieTabelWaarde(
+        val referentieTabelWaarde1 = createReferenceTableValue(
             id = 1L,
             naam = referentieWaarde1,
             volgorde = 1
         )
-        val referentieTabelWaarde2 = createReferentieTabelWaarde(
+        val referentieTabelWaarde2 = createReferenceTableValue(
             id = 2L,
             naam = referentieWaarde2,
             volgorde = 2
@@ -77,19 +77,19 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         }
     }
     Given("Two server error page texts") {
-        val referentieTabel = createReferentieTabel(
+        val referentieTabel = createReferenceTable(
             id = 1L,
             code = "SERVER_ERROR_ERROR_PAGINA_TEKST",
             naam = "Server error page text"
         )
         val referentieWaarde1 = "dummyWaarde1"
         val referentieWaarde2 = "dummyWaarde2"
-        val referentieTabelWaarde1 = createReferentieTabelWaarde(
+        val referentieTabelWaarde1 = createReferenceTableValue(
             id = 1L,
             naam = referentieWaarde1,
             volgorde = 1
         )
-        val referentieTabelWaarde2 = createReferentieTabelWaarde(
+        val referentieTabelWaarde2 = createReferenceTableValue(
             id = 2L,
             naam = referentieWaarde2,
             volgorde = 2
