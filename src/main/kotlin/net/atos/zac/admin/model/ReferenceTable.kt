@@ -46,10 +46,12 @@ class ReferenceTable {
     var id: Long? = null
 
     @Column(name = "code", nullable = false)
-    lateinit var code: @NotBlank String
+    @NotBlank
+    lateinit var code: String
 
     @Column(name = "naam", nullable = false)
-    lateinit var name: @NotBlank String
+    @NotBlank
+    lateinit var name: String
 
     @Column(name = "is_systeem_tabel", nullable = false)
     val isSystemReferenceTable: Boolean = false

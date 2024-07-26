@@ -2,25 +2,24 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.admin.model
 
-package net.atos.zac.app.admin.model;
+import jakarta.validation.constraints.NotBlank
+import nl.lifely.zac.util.AllOpen
 
-import java.util.List;
+@AllOpen
+class RestReferenceTable {
+    var id: Long? = null
 
-public class RestReferenceTable {
+    @NotBlank
+    lateinit var code: String
 
-    public Long id;
+    @NotBlank
+    lateinit var name: String
 
-    public String code;
+    val isSystemReferenceTable: Boolean = false
 
-    public String name;
+    var valuesCount: Int = 0
 
-    public boolean isSystemReferenceTable;
-
-    public int valuesCount;
-
-    public List<RestReferenceTableValue> values;
-
-    public RestReferenceTable() {
-    }
+    var values: List<RestReferenceTableValue>? = null
 }
