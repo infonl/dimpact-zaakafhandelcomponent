@@ -52,12 +52,8 @@ class ReferenceTableService @Inject constructor(
 
     fun findReferenceTable(code: String): Optional<ReferenceTable> {
         val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(
-            ReferenceTable::class.java
-        )
-        val root = query.from(
-            ReferenceTable::class.java
-        )
+        val query = builder.createQuery(ReferenceTable::class.java)
+        val root = query.from(ReferenceTable::class.java)
         query.select(root).where(builder.equal(root.get<Any>("code"), code))
         val resultList = entityManager.createQuery(query).resultList
         return if (resultList.isEmpty()) Optional.empty() else Optional.of(resultList.first())

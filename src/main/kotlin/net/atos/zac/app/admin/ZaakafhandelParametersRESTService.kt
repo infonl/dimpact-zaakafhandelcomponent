@@ -234,7 +234,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     @Path("replyTo")
     fun listReplyTos(): List<RESTReplyTo> =
         RESTReplyToConverter.convertReplyTos(
-            referenceTableService.readReferenceTable(ReferenceTable.Systeem.AFZENDER.name).waarden
+            referenceTableService.readReferenceTable(ReferenceTable.Systeem.AFZENDER.name).getWaarden()
         )
 
     @GET
