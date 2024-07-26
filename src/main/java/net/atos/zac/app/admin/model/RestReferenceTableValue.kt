@@ -2,14 +2,9 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.admin.model
 
-package net.atos.zac.app.admin.model;
-
-public class RestReferenceTableValue {
-    public RestReferenceTableValue() {
-    }
-
-    public Long id;
-
-    public String value;
-}
+data class RestReferenceTableValue(
+    val id: Long,
+    val value: String
+)

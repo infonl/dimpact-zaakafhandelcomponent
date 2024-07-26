@@ -14,10 +14,10 @@ import net.atos.zac.app.admin.model.RestReferenceTableValue;
 public final class RestReferenceValueConverter {
 
     public static RestReferenceTableValue convert(final ReferenceTableValue referenceTableValue) {
-        final RestReferenceTableValue restReferenceTableValue = new RestReferenceTableValue();
-        restReferenceTableValue.id = referenceTableValue.getId();
-        restReferenceTableValue.value = referenceTableValue.name;
-        return restReferenceTableValue;
+        return new RestReferenceTableValue(
+                referenceTableValue.getId(),
+                referenceTableValue.name
+        );
     }
 
     public static List<String> convert(final List<ReferenceTableValue> referentieTabelWaarden) {
@@ -31,8 +31,8 @@ public final class RestReferenceValueConverter {
             final RestReferenceTableValue restReferenceTableValue
     ) {
         final ReferenceTableValue referenceTableValue = new ReferenceTableValue();
-        referenceTableValue.setId(restReferenceTableValue.id);
-        referenceTableValue.name = restReferenceTableValue.value;
+        referenceTableValue.setId(restReferenceTableValue.getId());
+        referenceTableValue.name = restReferenceTableValue.getValue();
         referenceTableValue.setReferenceTable(referenceTable);
         return referenceTableValue;
     }
