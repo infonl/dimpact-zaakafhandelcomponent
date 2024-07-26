@@ -16,6 +16,8 @@ import net.atos.zac.admin.model.FormulierVeldDefinitie;
 import net.atos.zac.admin.model.HumanTaskReferentieTabel;
 import net.atos.zac.app.admin.model.RestHumanTaskReferenceTable;
 
+import static net.atos.zac.app.admin.converter.RestReferenceTableConverterKt.convertToRestReferenceTable;
+
 public class RestHumanTaskReferenceTableConverter {
 
     @Inject
@@ -23,7 +25,7 @@ public class RestHumanTaskReferenceTableConverter {
 
     public RestHumanTaskReferenceTable convertDefault(final FormulierVeldDefinitie veldDefinitie) {
         final RestHumanTaskReferenceTable referentieTabel = new RestHumanTaskReferenceTable(veldDefinitie);
-        referentieTabel.tabel = RestReferenceTableConverter.convert(
+        referentieTabel.tabel = convertToRestReferenceTable(
                 referenceTableService.readReferenceTable(veldDefinitie.getDefaultTabel().name()),
                 false
         );
@@ -46,7 +48,7 @@ public class RestHumanTaskReferenceTableConverter {
         final RestHumanTaskReferenceTable restHumanTaskReferenceTable = new RestHumanTaskReferenceTable();
         restHumanTaskReferenceTable.id = humanTaskReferentieTabel.getId();
         restHumanTaskReferenceTable.veld = humanTaskReferentieTabel.getVeld();
-        restHumanTaskReferenceTable.tabel = RestReferenceTableConverter.convert(humanTaskReferentieTabel.getTabel(), false);
+        restHumanTaskReferenceTable.tabel = convertToRestReferenceTable(humanTaskReferentieTabel.getTabel(), false);
         return restHumanTaskReferenceTable;
     }
 
