@@ -7,13 +7,13 @@ package net.atos.zac.smartdocuments.templates
 
 import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseTemplateGroup
 import net.atos.client.smartdocuments.model.templates.SmartDocumentsTemplatesResponse
+import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplate
 import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.RestSmartDocumentsTemplate
 import net.atos.zac.smartdocuments.rest.RestSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplate
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
-import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
 import java.time.ZonedDateTime
 
 @Suppress("TooManyFunctions")

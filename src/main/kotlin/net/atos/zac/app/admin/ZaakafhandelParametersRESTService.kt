@@ -16,6 +16,12 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.ZaakType
+import net.atos.zac.admin.ReferenceTableService
+import net.atos.zac.admin.ZaakafhandelParameterBeheerService
+import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.FormulierDefinitie
+import net.atos.zac.admin.model.ReferenceTable.Systeem
+import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTReplyToConverter
 import net.atos.zac.app.admin.converter.RESTZaakafhandelParametersConverter
@@ -37,12 +43,6 @@ import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.RestSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.isSubsetOf
 import net.atos.zac.util.UriUtil
-import net.atos.zac.zaaksturing.ReferentieTabelService
-import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService
-import net.atos.zac.zaaksturing.ZaakafhandelParameterService
-import net.atos.zac.zaaksturing.model.FormulierDefinitie
-import net.atos.zac.zaaksturing.model.ReferentieTabel.Systeem
-import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.repository.CaseDefinition
@@ -61,7 +61,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     private val cmmnService: CMMNService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val zaakafhandelParameterBeheerService: ZaakafhandelParameterBeheerService,
-    private val referentieTabelService: ReferentieTabelService,
+    private val referenceTableService: ReferenceTableService,
     private val zaakafhandelParametersConverter: RESTZaakafhandelParametersConverter,
     private val caseDefinitionConverter: RESTCaseDefinitionConverter,
     private val resultaattypeConverter: RESTResultaattypeConverter,
@@ -234,7 +234,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     @Path("replyTo")
     fun listReplyTos(): List<RESTReplyTo> =
         RESTReplyToConverter.convertReplyTos(
-            referentieTabelService.readReferentieTabel(Systeem.AFZENDER.name).waarden
+            referenceTableService.readReferenceTable(Systeem.AFZENDER.name).waarden
         )
 
     @GET

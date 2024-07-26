@@ -8,8 +8,8 @@ package net.atos.zac.app.admin.converter;
 
 import java.util.List;
 
+import net.atos.zac.admin.model.ZaakbeeindigReden;
 import net.atos.zac.app.admin.model.RESTZaakbeeindigReden;
-import net.atos.zac.zaaksturing.model.ZaakbeeindigReden;
 
 public final class RESTZaakbeeindigRedenConverter {
 

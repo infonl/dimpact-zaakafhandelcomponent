@@ -17,10 +17,10 @@ import jakarta.servlet.http.HttpSession
 import jakarta.ws.rs.core.HttpHeaders
 import net.atos.client.or.`object`.model.createObjecttype
 import net.atos.client.or.objecttype.ObjecttypesClientService
+import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.productaanvraag.ProductaanvraagService
-import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService
 import net.atos.zac.zoeken.IndexeerService
 import java.net.URI
 import java.util.UUID

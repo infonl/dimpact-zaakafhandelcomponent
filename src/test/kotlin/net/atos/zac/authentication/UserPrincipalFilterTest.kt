@@ -20,8 +20,8 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpSession
-import net.atos.zac.zaaksturing.ZaakafhandelParameterService
-import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
+import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.ZaakafhandelParameters
 import org.wildfly.security.http.oidc.AccessToken
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext

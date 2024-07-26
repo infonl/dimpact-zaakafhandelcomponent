@@ -8,8 +8,8 @@ package net.atos.zac.app.admin.converter;
 import java.util.List;
 import java.util.Set;
 
+import net.atos.zac.admin.model.MailtemplateKoppeling;
 import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling;
-import net.atos.zac.zaaksturing.model.MailtemplateKoppeling;
 
 public final class RESTMailtemplateKoppelingConverter {
 

@@ -8,11 +8,11 @@ package net.atos.zac.app.admin.converter;
 import jakarta.inject.Inject;
 
 import net.atos.client.zgw.ztc.ZtcClientService;
+import net.atos.zac.admin.ZaakafhandelParameterService;
+import net.atos.zac.admin.model.ZaakafhandelParameters;
 import net.atos.zac.app.admin.model.RESTZaakafhandelParameters;
 import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter;
 import net.atos.zac.app.zaak.model.RESTZaakStatusmailOptie;
-import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
-import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 
 public class RESTZaakafhandelParametersConverter {
 

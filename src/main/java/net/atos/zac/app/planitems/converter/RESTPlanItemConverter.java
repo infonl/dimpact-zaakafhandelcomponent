@@ -20,13 +20,13 @@ import org.flowable.cmmn.api.runtime.PlanItemDefinitionType;
 import org.flowable.cmmn.api.runtime.PlanItemInstance;
 
 import net.atos.client.zgw.zrc.model.Zaak;
+import net.atos.zac.admin.ZaakafhandelParameterService;
+import net.atos.zac.admin.model.FormulierDefinitie;
+import net.atos.zac.admin.model.ReferenceTableValue;
+import net.atos.zac.admin.model.ZaakafhandelParameters;
 import net.atos.zac.app.planitems.model.PlanItemType;
 import net.atos.zac.app.planitems.model.RESTPlanItem;
 import net.atos.zac.app.planitems.model.UserEventListenerActie;
-import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
-import net.atos.zac.zaaksturing.model.FormulierDefinitie;
-import net.atos.zac.zaaksturing.model.ReferentieTabelWaarde;
-import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 
 /**
  *
@@ -85,7 +85,7 @@ public class RESTPlanItemConverter {
                     restPlanItem.formulierDefinitie = FormulierDefinitie.valueOf(humanTaskParameters.getFormulierDefinitieID());
                     humanTaskParameters.getReferentieTabellen().forEach(
                             rt -> restPlanItem.tabellen.put(rt.getVeld(), rt.getTabel().getWaarden().stream()
-                                    .map(ReferentieTabelWaarde::getNaam)
+                                    .map(ReferenceTableValue::getNaam)
                                     .toList()));
                     restPlanItem.groepId = humanTaskParameters.getGroepID();
                     if (humanTaskParameters.getDoorlooptijd() != null) {

@@ -13,13 +13,13 @@ import jakarta.ws.rs.core.MediaType;
 
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
+import net.atos.zac.admin.ZaakafhandelParameterService;
+import net.atos.zac.admin.model.ZaakafhandelParameters;
 import net.atos.zac.app.admin.converter.RESTMailtemplateConverter;
 import net.atos.zac.app.admin.model.RESTMailtemplate;
 import net.atos.zac.mailtemplates.MailTemplateService;
 import net.atos.zac.mailtemplates.model.Mail;
 import net.atos.zac.util.UriUtil;
-import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
-import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 
 @Singleton
 @Path("mailtemplates")

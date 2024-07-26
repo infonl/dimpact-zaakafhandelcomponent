@@ -17,8 +17,8 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
+import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.util.FlywayIntegrator
-import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
 import nl.lifely.zac.util.AllOpen
 import java.time.ZonedDateTime
 

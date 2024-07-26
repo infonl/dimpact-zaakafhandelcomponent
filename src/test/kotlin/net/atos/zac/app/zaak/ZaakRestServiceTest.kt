@@ -39,6 +39,8 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.zaak.converter.RESTBesluittypeConverter
@@ -81,8 +83,6 @@ import net.atos.zac.productaanvraag.createProductaanvraagDimpact
 import net.atos.zac.shared.helper.OpschortenZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.zaak.ZaakService
-import net.atos.zac.zaaksturing.ZaakafhandelParameterService
-import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import java.util.Optional

@@ -12,13 +12,13 @@ import jakarta.persistence.PersistenceContext
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
+import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.documentcreatie.DocumentCreatieService
 import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toModel
 import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toREST
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
-import net.atos.zac.zaaksturing.ZaakafhandelParameterService
-import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.util.UUID

@@ -39,6 +39,10 @@ import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.generated.Resultaat;
+import net.atos.zac.admin.ZaakafhandelParameterService;
+import net.atos.zac.admin.model.HumanTaskParameters;
+import net.atos.zac.admin.model.MailtemplateKoppeling;
+import net.atos.zac.admin.model.ZaakafhandelParameters;
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter;
 import net.atos.zac.app.planitems.converter.RESTPlanItemConverter;
 import net.atos.zac.app.planitems.model.RESTHumanTaskData;
@@ -60,10 +64,6 @@ import net.atos.zac.policy.PolicyService;
 import net.atos.zac.shared.helper.OpschortenZaakHelper;
 import net.atos.zac.util.DateTimeConverterUtil;
 import net.atos.zac.util.UriUtil;
-import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
-import net.atos.zac.zaaksturing.model.HumanTaskParameters;
-import net.atos.zac.zaaksturing.model.MailtemplateKoppeling;
-import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 import net.atos.zac.zoeken.IndexeerService;
 
 /**

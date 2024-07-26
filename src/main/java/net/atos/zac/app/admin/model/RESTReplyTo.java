@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.admin.model;
 
-import net.atos.zac.zaaksturing.model.ZaakAfzender;
+import net.atos.zac.admin.model.ZaakAfzender;
 
 public class RESTReplyTo {
 
