@@ -55,7 +55,7 @@ public class RestHumanTaskReferenceTableConverter {
         humanTaskReferentieTabel.setId(restHumanTaskReferenceTable.id);
         humanTaskReferentieTabel.setVeld(restHumanTaskReferenceTable.veld);
         // The tabel is just a reference here, so don't update it from the REST but fetch it from the database
-        humanTaskReferentieTabel.setTabel(referenceTableService.readReferenceTable(restHumanTaskReferenceTable.tabel.id));
+        humanTaskReferentieTabel.setTabel(referenceTableService.readReferenceTable(restHumanTaskReferenceTable.tabel.getId()));
         return humanTaskReferentieTabel;
     }
 }

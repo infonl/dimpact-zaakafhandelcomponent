@@ -17,7 +17,7 @@ class RestReferenceTable {
     @NotBlank
     lateinit var name: String
 
-    val isSystemReferenceTable: Boolean = false
+    var isSystemReferenceTable: Boolean? = false
 
     var valuesCount: Int = 0
 

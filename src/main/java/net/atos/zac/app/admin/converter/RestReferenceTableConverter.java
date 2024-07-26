@@ -9,19 +9,22 @@ package net.atos.zac.app.admin.converter;
 import net.atos.zac.admin.model.ReferenceTable;
 import net.atos.zac.app.admin.model.RestReferenceTable;
 
+import java.util.Objects;
+
 public final class RestReferenceTableConverter {
 
     public static RestReferenceTable convert(final ReferenceTable referenceTable, boolean inclusiefWaarden) {
         final RestReferenceTable restReferenceTable = new RestReferenceTable();
-        restReferenceTable.id = referenceTable.getId();
+        restReferenceTable.setId(referenceTable.getId());
         restReferenceTable.code = referenceTable.code;
         restReferenceTable.name = referenceTable.name;
-        restReferenceTable.isSystemReferenceTable = referenceTable.isSystemReferenceTable();
-        restReferenceTable.valuesCount = referenceTable.getValues().size();
+        restReferenceTable.setSystemReferenceTable(referenceTable.isSystemReferenceTable());
+        restReferenceTable.setValuesCount(referenceTable.getValues().size());
         if (inclusiefWaarden) {
-            restReferenceTable.values = referenceTable.getValues().stream()
+            restReferenceTable.setValues(referenceTable.getValues().stream()
                     .map(RestReferenceValueConverter::convert)
-                    .toList();
+                    .toList()
+            );
         }
         return restReferenceTable;
     }
@@ -34,11 +37,11 @@ public final class RestReferenceTableConverter {
         referenceTable.code = restReferenceTable.code;
         referenceTable.name = restReferenceTable.name;
         referenceTable.setValues(
-                restReferenceTable.values
+                Objects.requireNonNull(restReferenceTable.getValues())
                         .stream()
                         .map(referenceTableValues -> RestReferenceValueConverter.convert(referenceTable, referenceTableValues))
                         .toList()
-        );
+            );
         return referenceTable;
     }
 }
