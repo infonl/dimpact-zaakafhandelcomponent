@@ -20,7 +20,7 @@ import net.atos.zac.admin.ReferenceTableService
 import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.FormulierDefinitie
-import net.atos.zac.admin.model.ReferenceTable.Systeem
+import net.atos.zac.admin.model.ReferenceTable
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTReplyToConverter
@@ -234,7 +234,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     @Path("replyTo")
     fun listReplyTos(): List<RESTReplyTo> =
         RESTReplyToConverter.convertReplyTos(
-            referenceTableService.readReferenceTable(Systeem.AFZENDER.name).waarden
+            referenceTableService.readReferenceTable(ReferenceTable.Systeem.AFZENDER.name).waarden
         )
 
     @GET
