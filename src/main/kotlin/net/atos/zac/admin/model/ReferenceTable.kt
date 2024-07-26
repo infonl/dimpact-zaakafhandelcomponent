@@ -49,11 +49,11 @@ class ReferenceTable {
     lateinit var code: @NotBlank String
 
     @Column(name = "naam", nullable = false)
-    lateinit var naam: @NotBlank String
+    lateinit var name: @NotBlank String
 
     @Column(name = "is_systeem_tabel", nullable = false)
-    val isSysteem: Boolean = false
+    val isSystemReferenceTable: Boolean = false
 
-    @OneToMany(mappedBy = "tabel", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
-    var waarden: MutableList<ReferenceTableValue> = ArrayList()
+    @OneToMany(mappedBy = "referenceTable", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
+    var values: MutableList<ReferenceTableValue> = ArrayList()
 }

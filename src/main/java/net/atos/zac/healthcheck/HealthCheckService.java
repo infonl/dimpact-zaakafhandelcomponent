@@ -72,9 +72,9 @@ public class HealthCheckService {
 
     public boolean bestaatCommunicatiekanaalEformulier() {
         return referenceTableService.readReferenceTable(COMMUNICATIEKANAAL.name())
-                .getWaarden()
+                .getValues()
                 .stream()
-                .anyMatch(referentieWaarde -> ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER.equals(referentieWaarde.naam));
+                .anyMatch(referentieWaarde -> ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER.equals(referentieWaarde.name));
     }
 
     public ZaaktypeInrichtingscheck controleerZaaktype(final URI zaaktypeUrl) {

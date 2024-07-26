@@ -13,7 +13,6 @@ import net.atos.zac.admin.exception.ReferenceTableNotFoundException
 import net.atos.zac.admin.model.ReferenceTable
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
-import java.util.Optional
 
 @ApplicationScoped
 @NoArgConstructor
@@ -22,40 +21,41 @@ import java.util.Optional
 class ReferenceTableService @Inject constructor(
     val entityManager: EntityManager
 ) {
-    fun findReferenceTable(code: String): Optional<ReferenceTable> {
-        val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(ReferenceTable::class.java)
-        val root = query.from(ReferenceTable::class.java)
-        query.select(root).where(builder.equal(root.get<Any>("code"), code))
-        val resultList = entityManager.createQuery(query).resultList
-        return if (resultList.isEmpty()) Optional.empty() else Optional.of(resultList.first())
+    fun findReferenceTable(code: String): ReferenceTable? {
+        val resultList = entityManager.criteriaBuilder.let { criteriaBuilder ->
+            criteriaBuilder.createQuery(ReferenceTable::class.java).let { query ->
+                query.from(ReferenceTable::class.java).let {
+                    query.select(it).where(criteriaBuilder.equal(it.get<Any>("code"), code))
+                }
+                entityManager.createQuery(query).resultList
+            }
+        }
+        return resultList.firstOrNull()
     }
 
     fun listReferenceTableWaardenSorted(referenceTable: ReferenceTable) =
-        referenceTable.waarden
-            .sortedBy { it.volgorde }
+        referenceTable.values
+            .sortedBy { it.sortOrder }
             .toList()
 
-    fun listReferenceTables(): List<ReferenceTable> {
-        val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(
-            ReferenceTable::class.java
-        )
-        val root = query.from(
-            ReferenceTable::class.java
-        )
-        query.orderBy(builder.asc(root.get<Any>("naam")))
-        query.select(root)
-        return entityManager.createQuery(query).resultList
-    }
+    fun listReferenceTables(): List<ReferenceTable> =
+        entityManager.criteriaBuilder.let { criteriaBuilder ->
+            criteriaBuilder.createQuery(ReferenceTable::class.java).let { query ->
+                query.from(ReferenceTable::class.java).let {
+                    query.orderBy(criteriaBuilder.asc(it.get<Any>("naam")))
+                    query.select(it)
+                }
+                entityManager.createQuery(query).resultList
+            }
+        }
 
     fun readReferenceTable(id: Long): ReferenceTable =
-        entityManager.find(ReferenceTable::class.java, id)?.let {
-            return it
-        } ?: throw ReferenceTableNotFoundException("Reference table with id '$id' not found")
+        entityManager.find(ReferenceTable::class.java, id) ?: run {
+            throw ReferenceTableNotFoundException("Reference table with id '$id' not found")
+        }
 
     fun readReferenceTable(code: String): ReferenceTable =
-        findReferenceTable(code).orElseThrow {
-            ReferenceTableNotFoundException("Reference table with code '$code' not found")
+        findReferenceTable(code) ?: run {
+            throw ReferenceTableNotFoundException("Reference table with code '$code' not found")
         }
 }

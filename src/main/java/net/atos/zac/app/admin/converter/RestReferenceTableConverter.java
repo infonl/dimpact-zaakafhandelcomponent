@@ -15,11 +15,11 @@ public final class RestReferenceTableConverter {
         final RestReferenceTable restReferenceTable = new RestReferenceTable();
         restReferenceTable.id = referenceTable.getId();
         restReferenceTable.code = referenceTable.code;
-        restReferenceTable.naam = referenceTable.naam;
-        restReferenceTable.systeem = referenceTable.isSysteem();
-        restReferenceTable.aantalWaarden = referenceTable.getWaarden().size();
+        restReferenceTable.naam = referenceTable.name;
+        restReferenceTable.systeem = referenceTable.isSystemReferenceTable();
+        restReferenceTable.aantalWaarden = referenceTable.getValues().size();
         if (inclusiefWaarden) {
-            restReferenceTable.waarden = referenceTable.getWaarden().stream()
+            restReferenceTable.waarden = referenceTable.getValues().stream()
                     .map(RestReferenceValueConverter::convert)
                     .toList();
         }
@@ -32,8 +32,8 @@ public final class RestReferenceTableConverter {
 
     public static ReferenceTable convert(final RestReferenceTable restReferenceTable, final ReferenceTable referenceTable) {
         referenceTable.code = restReferenceTable.code;
-        referenceTable.naam = restReferenceTable.naam;
-        referenceTable.setWaarden(
+        referenceTable.name = restReferenceTable.naam;
+        referenceTable.setValues(
                 restReferenceTable.waarden
                         .stream()
                         .map(referenceTableValues -> RestReferenceValueConverter.convert(referenceTable, referenceTableValues))

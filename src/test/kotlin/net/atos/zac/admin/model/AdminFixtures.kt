@@ -15,7 +15,7 @@ fun createReferenceTable(
     ReferenceTable().apply {
         this.id = id
         this.code = code
-        this.naam = naam
+        this.name = naam
     }
 
 fun createReferenceTableValue(
@@ -24,8 +24,8 @@ fun createReferenceTableValue(
     volgorde: Int = 1
 ) = ReferenceTableValue().apply {
     this.id = id
-    this.naam = naam
-    this.volgorde = volgorde
+    this.name = naam
+    this.sortOrder = volgorde
 }
 
 fun createZaakafhandelParameters(
