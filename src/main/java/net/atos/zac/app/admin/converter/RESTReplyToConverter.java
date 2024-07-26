@@ -27,7 +27,7 @@ public final class RESTReplyToConverter {
 
     public static RESTReplyTo convertReplyTo(final ReferenceTableValue waarde) {
         final RESTReplyTo restReplyTo = new RESTReplyTo();
-        restReplyTo.mail = waarde.getNaam();
+        restReplyTo.mail = waarde.naam;
         restReplyTo.speciaal = false;
         return restReplyTo;
     }
