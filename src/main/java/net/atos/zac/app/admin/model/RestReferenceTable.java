@@ -13,13 +13,13 @@ public class RestReferenceTable {
 
     public String code;
 
-    public String naam;
+    public String name;
 
-    public boolean systeem;
+    public boolean isSystemReferenceTable;
 
-    public int aantalWaarden;
+    public int valuesCount;
 
-    public List<RestReferenceTableValue> waarden;
+    public List<RestReferenceTableValue> values;
 
     public RestReferenceTable() {
     }

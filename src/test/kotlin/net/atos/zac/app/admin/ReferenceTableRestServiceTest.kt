@@ -15,12 +15,13 @@ import net.atos.zac.admin.ReferenceTableService
 import net.atos.zac.admin.model.createReferenceTable
 import net.atos.zac.admin.model.createReferenceTableValue
 import net.atos.zac.policy.PolicyService
+import net.atos.zac.policy.output.createOverigeRechten
 
 class ReferenceTableRestServiceTest : BehaviorSpec({
     val referenceTableService = mockk<ReferenceTableService>()
     val referenceTableAdminService = mockk<ReferenceTableAdminService>()
     val policyService = mockk<PolicyService>()
-    val referenceTableRESTService = ReferenceTableRestService(
+    val referenceTableRestService = ReferenceTableRestService(
         referenceTableService,
         referenceTableAdminService,
         policyService
@@ -56,7 +57,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         every { referenceTableService.readReferenceTable("COMMUNICATIEKANAAL") } returns referentieTabel
 
         When("the communicatiekanalen are retrieved including E-formulier") {
-            val communicatiekanalen = referenceTableRESTService.listCommunicationChannels(true)
+            val communicatiekanalen = referenceTableRestService.listCommunicationChannels(true)
 
             Then("the communicatiekanalen are returned including E-formulier") {
                 communicatiekanalen.size shouldBe referentieTabelWaarden.size
@@ -66,7 +67,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         }
 
         When("the communicatiekanalen are retrieved excluding E-formulier") {
-            val communicatiekanalen = referenceTableRESTService.listCommunicationChannels(false)
+            val communicatiekanalen = referenceTableRestService.listCommunicationChannels(false)
 
             Then("the communicatiekanalen are returned excluding E-formulier") {
                 communicatiekanalen.size shouldBe referentieTabelWaarden.size - 1
@@ -101,12 +102,28 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         every { referenceTableService.readReferenceTable("SERVER_ERROR_ERROR_PAGINA_TEKST") } returns referentieTabel
 
         When("the server error page texts are retrieved") {
-            val serverErrorPageTexts = referenceTableRESTService.listServerErrorPageTexts()
+            val serverErrorPageTexts = referenceTableRestService.listServerErrorPageTexts()
 
             Then("the server error page texts are returned") {
                 serverErrorPageTexts.size shouldBe referentieTabelWaarden.size
                 serverErrorPageTexts[0] shouldBe referentieWaarde1
                 serverErrorPageTexts[1] shouldBe referentieWaarde2
+            }
+        }
+    }
+    Given("'beheren overige rechten' policy permissions") {
+        val referenceTable = createReferenceTable()
+        every { referenceTableAdminService.newReferenceTable() } returns referenceTable
+        every { policyService.readOverigeRechten() } returns createOverigeRechten()
+
+        When("a new reference table is created") {
+            val restReferenceTable = referenceTableRestService.newReferenceTable()
+
+            Then("the new reference table is created succesfully") {
+                with(restReferenceTable) {
+                    code shouldBe referenceTable.code
+                    name shouldBe referenceTable.name
+                }
             }
         }
     }

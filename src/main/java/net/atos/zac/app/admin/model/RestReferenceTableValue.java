@@ -11,5 +11,5 @@ public class RestReferenceTableValue {
 
     public Long id;
 
-    public String naam;
+    public String value;
 }
