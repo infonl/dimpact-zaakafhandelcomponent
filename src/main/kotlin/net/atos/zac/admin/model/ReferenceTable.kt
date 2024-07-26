@@ -14,11 +14,9 @@ import jakarta.persistence.Id
 import jakarta.persistence.OneToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
-import jakarta.persistence.Transient
 import jakarta.validation.constraints.NotBlank
 import net.atos.zac.util.FlywayIntegrator
 import nl.lifely.zac.util.AllOpen
-import java.util.Arrays
 
 @Entity
 @Table(schema = FlywayIntegrator.SCHEMA, name = "referentie_tabel")
@@ -30,6 +28,10 @@ import java.util.Arrays
 )
 @AllOpen
 class ReferenceTable {
+    /**
+     * Defines the list of 'system reference tables'.
+     * Make sure to keep this list in sync with the 'is_systeem_tabel' column in the database.
+     */
     enum class Systeem {
         ADVIES,
         AFZENDER,
@@ -49,16 +51,8 @@ class ReferenceTable {
     @Column(name = "naam", nullable = false)
     lateinit var naam: @NotBlank String
 
-    @Transient
-    final var isSysteem: Boolean? = null
-        get() {
-            if (field == null) {
-                field = Arrays.stream(Systeem.entries.toTypedArray())
-                    .anyMatch { it.name == code }
-            }
-            return field
-        }
-        private set
+    @Column(name = "is_systeem_tabel", nullable = false)
+    val isSysteem: Boolean = false
 
     @OneToMany(mappedBy = "tabel", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
     var waarden: MutableList<ReferenceTableValue> = ArrayList()

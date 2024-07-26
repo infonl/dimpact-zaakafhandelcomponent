@@ -11,7 +11,6 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import net.atos.zac.admin.exception.ReferenceTableNotFoundException
 import net.atos.zac.admin.model.ReferenceTable
-import net.atos.zac.admin.model.ReferenceTableValue
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.util.Optional
