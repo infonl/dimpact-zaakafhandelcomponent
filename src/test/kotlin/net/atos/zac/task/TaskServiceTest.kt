@@ -317,7 +317,7 @@ class TaskServiceTest : BehaviorSpec({
     Given(
         """
             Two tasks that have not yet been assigned to a specific group and user where the first
-            task is a historical (closed) task and the second an open task
+            task is a historical (closed) task and the second an open task 
             """
     ) {
         val restTaakVerdelenTaken = listOf(
@@ -437,7 +437,7 @@ class TaskServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("Two open tasks") {
+    Given("Two open tasks that have not yet been assigned") {
         val restTaakVerdelenTaken = listOf(
             createRestTaskDistributeTask(
                 taakId = taskId1
