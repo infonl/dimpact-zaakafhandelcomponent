@@ -18,9 +18,9 @@ import jakarta.ws.rs.core.MediaType
 import net.atos.zac.admin.ReferenceTableAdminService
 import net.atos.zac.admin.ReferenceTableService
 import net.atos.zac.admin.model.ReferenceTable.Systeem
-import net.atos.zac.app.admin.converter.RestReferenceValueConverter
 import net.atos.zac.app.admin.converter.convertToReferenceTable
 import net.atos.zac.app.admin.converter.convertToRestReferenceTable
+import net.atos.zac.app.admin.converter.getReferenceTableValueNames
 import net.atos.zac.app.admin.model.RestReferenceTable
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.policy.PolicyService
@@ -77,11 +77,11 @@ class ReferenceTableRestService @Inject constructor(
     @Path("{id}")
     fun updateReferenceTable(
         @PathParam("id") id: Long,
-        referentieTabel: RestReferenceTable
+        restReferenceTable: RestReferenceTable
     ): RestReferenceTable {
         PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
         return convertToReferenceTable(
-            referentieTabel,
+            restReferenceTable,
             referenceTableService.readReferenceTable(id)
         ).let {
             convertToRestReferenceTable(
@@ -103,7 +103,7 @@ class ReferenceTableRestService @Inject constructor(
     fun listEmailSenders(): List<String> {
         PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
         return referenceTableService.readReferenceTable(Systeem.AFZENDER.name).values.let {
-            RestReferenceValueConverter.convert(it)
+            getReferenceTableValueNames(it)
         }
     }
 
@@ -112,7 +112,7 @@ class ReferenceTableRestService @Inject constructor(
     fun listCommunicationChannels(
         @PathParam("inclusiefEFormulier") inclusiefEFormulier: Boolean
     ) =
-        RestReferenceValueConverter.convert(
+        getReferenceTableValueNames(
             referenceTableService.readReferenceTable(Systeem.COMMUNICATIEKANAAL.name).values
         )
             .filter { communicatiekanaal -> inclusiefEFormulier || communicatiekanaal != ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER }
@@ -123,7 +123,7 @@ class ReferenceTableRestService @Inject constructor(
     fun listDomains(): List<String> {
         PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
         return referenceTableService.readReferenceTable(Systeem.DOMEIN.name).values.let {
-            RestReferenceValueConverter.convert(it)
+            getReferenceTableValueNames(it)
         }
     }
 
@@ -131,7 +131,7 @@ class ReferenceTableRestService @Inject constructor(
     @Path("server-error-text")
     fun listServerErrorPageTexts(): List<String> {
         return referenceTableService.readReferenceTable(Systeem.SERVER_ERROR_ERROR_PAGINA_TEKST.name).values.let {
-            RestReferenceValueConverter.convert(it)
+            getReferenceTableValueNames(it)
         }
     }
 }
