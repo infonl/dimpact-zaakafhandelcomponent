@@ -42,7 +42,7 @@ class ReferenceTableService @Inject constructor(
         entityManager.criteriaBuilder.let { criteriaBuilder ->
             criteriaBuilder.createQuery(ReferenceTable::class.java).let { query ->
                 query.from(ReferenceTable::class.java).let {
-                    query.orderBy(criteriaBuilder.asc(it.get<Any>("naam")))
+                    query.orderBy(criteriaBuilder.asc(it.get<Any>("name")))
                     query.select(it)
                 }
                 entityManager.createQuery(query).resultList

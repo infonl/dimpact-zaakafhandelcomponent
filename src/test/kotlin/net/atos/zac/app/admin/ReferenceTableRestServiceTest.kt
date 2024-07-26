@@ -122,7 +122,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             Then("the new reference table is created succesfully") {
                 with(restReferenceTable) {
                     code shouldBe referenceTable.code
-                    name shouldBe referenceTable.name
+                    naam shouldBe referenceTable.name
                 }
             }
         }

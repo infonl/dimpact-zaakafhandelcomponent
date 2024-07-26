@@ -5,8 +5,6 @@
 
 package net.atos.zac.app.admin.converter;
 
-import static net.atos.zac.app.admin.converter.RestReferenceTableConverterKt.convertToRestReferenceTable;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,7 +14,11 @@ import jakarta.inject.Inject;
 import net.atos.zac.admin.ReferenceTableService;
 import net.atos.zac.admin.model.FormulierVeldDefinitie;
 import net.atos.zac.admin.model.HumanTaskReferentieTabel;
+import net.atos.zac.admin.model.ReferenceTable;
+import net.atos.zac.admin.model.ReferenceTableKt;
 import net.atos.zac.app.admin.model.RestHumanTaskReferenceTable;
+
+import static net.atos.zac.admin.model.ReferenceTableKt.toRestReferenceTable;
 
 public class RestHumanTaskReferenceTableConverter {
 
@@ -24,12 +26,10 @@ public class RestHumanTaskReferenceTableConverter {
     private ReferenceTableService referenceTableService;
 
     public RestHumanTaskReferenceTable convertDefault(final FormulierVeldDefinitie veldDefinitie) {
-        final RestHumanTaskReferenceTable referentieTabel = new RestHumanTaskReferenceTable(veldDefinitie);
-        referentieTabel.tabel = convertToRestReferenceTable(
-                referenceTableService.readReferenceTable(veldDefinitie.getDefaultTabel().name()),
-                false
-        );
-        return referentieTabel;
+        final ReferenceTable referenceTable = referenceTableService.readReferenceTable(veldDefinitie.getDefaultTabel().name());
+        final RestHumanTaskReferenceTable restHumanTaskReferenceTable = new RestHumanTaskReferenceTable(veldDefinitie);
+        restHumanTaskReferenceTable.tabel = ReferenceTableKt.toRestReferenceTable(referenceTable, false);
+        return restHumanTaskReferenceTable;
     }
 
     public List<RestHumanTaskReferenceTable> convert(final Collection<HumanTaskReferentieTabel> humanTaskReferentieTabellen) {
@@ -48,7 +48,7 @@ public class RestHumanTaskReferenceTableConverter {
         final RestHumanTaskReferenceTable restHumanTaskReferenceTable = new RestHumanTaskReferenceTable();
         restHumanTaskReferenceTable.id = humanTaskReferentieTabel.getId();
         restHumanTaskReferenceTable.veld = humanTaskReferentieTabel.getVeld();
-        restHumanTaskReferenceTable.tabel = convertToRestReferenceTable(humanTaskReferentieTabel.getTabel(), false);
+        restHumanTaskReferenceTable.tabel = ReferenceTableKt.toRestReferenceTable(humanTaskReferentieTabel.getTabel(), false);
         return restHumanTaskReferenceTable;
     }
 
