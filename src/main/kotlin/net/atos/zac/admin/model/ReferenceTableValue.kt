@@ -35,10 +35,11 @@ class ReferenceTableValue {
 
     @ManyToOne
     @JoinColumn(name = "id_referentie_tabel", referencedColumnName = "id_referentie_tabel")
-    lateinit var referenceTable: @NotNull ReferenceTable
+    lateinit var referenceTable: ReferenceTable
 
     @Column(name = "naam", nullable = false)
-    lateinit var name: @NotBlank String
+    @NotBlank
+    lateinit var name: String
 
     @Column(name = "volgorde", nullable = false)
     var sortOrder: Int = 0
