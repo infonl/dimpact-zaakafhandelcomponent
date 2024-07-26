@@ -74,7 +74,7 @@ public class HealthCheckService {
         return referenceTableService.readReferenceTable(COMMUNICATIEKANAAL.name())
                 .getWaarden()
                 .stream()
-                .anyMatch(referentieWaarde -> ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER.equals(referentieWaarde.getNaam()));
+                .anyMatch(referentieWaarde -> ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER.equals(referentieWaarde.naam));
     }
 
     public ZaaktypeInrichtingscheck controleerZaaktype(final URI zaaktypeUrl) {

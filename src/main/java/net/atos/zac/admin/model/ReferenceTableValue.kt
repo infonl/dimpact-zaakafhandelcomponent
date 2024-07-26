@@ -2,73 +2,44 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.admin.model
 
-package net.atos.zac.admin.model;
-
-import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
+import net.atos.zac.util.FlywayIntegrator
+import nl.lifely.zac.util.AllOpen
 
 @Entity
-@Table(schema = SCHEMA, name = "referentie_waarde")
-@SequenceGenerator(schema = SCHEMA, name = "sq_referentie_waarde", sequenceName = "sq_referentie_waarde", allocationSize = 1)
-public class ReferenceTableValue {
-
+@Table(schema = FlywayIntegrator.SCHEMA, name = "referentie_waarde")
+@SequenceGenerator(
+    schema = FlywayIntegrator.SCHEMA,
+    name = "sq_referentie_waarde",
+    sequenceName = "sq_referentie_waarde",
+    allocationSize = 1
+)
+@AllOpen
+class ReferenceTableValue {
     @Id
     @GeneratedValue(generator = "sq_referentie_waarde", strategy = GenerationType.SEQUENCE)
     @Column(name = "id_referentie_waarde")
-    private Long id;
+    var id: Long? = null
 
-    @NotNull @ManyToOne
+    @ManyToOne
     @JoinColumn(name = "id_referentie_tabel", referencedColumnName = "id_referentie_tabel")
-    private ReferenceTable tabel;
+    lateinit var tabel: @NotNull ReferenceTable
 
-    @NotBlank
     @Column(name = "naam", nullable = false)
-    private String naam;
+    lateinit var naam: @NotBlank String
 
     @Column(name = "volgorde", nullable = false)
-    private int volgorde;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(final Long id) {
-        this.id = id;
-    }
-
-    public ReferenceTable getTabel() {
-        return tabel;
-    }
-
-    public void setTabel(final ReferenceTable tabel) {
-        this.tabel = tabel;
-    }
-
-    public String getNaam() {
-        return naam;
-    }
-
-    public void setNaam(final String naam) {
-        this.naam = naam;
-    }
-
-    public int getVolgorde() {
-        return volgorde;
-    }
-
-    public void setVolgorde(final int volgorde) {
-        this.volgorde = volgorde;
-    }
+    var volgorde: Int = 0
 }
