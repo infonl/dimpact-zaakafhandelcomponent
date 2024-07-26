@@ -7,6 +7,7 @@ package net.atos.zac.app.admin.converter;
 
 import java.util.List;
 
+import net.atos.zac.admin.model.ReferenceTable;
 import net.atos.zac.admin.model.ReferenceTableValue;
 import net.atos.zac.app.admin.model.RestReferenceTableValue;
 
@@ -25,10 +26,14 @@ public final class RestReferenceValueConverter {
                 .toList();
     }
 
-    public static ReferenceTableValue convert(final RestReferenceTableValue restReferenceTableValue) {
+    public static ReferenceTableValue convert(
+            final ReferenceTable referenceTable,
+            final RestReferenceTableValue restReferenceTableValue
+    ) {
         final ReferenceTableValue referenceTableValue = new ReferenceTableValue();
         referenceTableValue.setId(restReferenceTableValue.id);
         referenceTableValue.naam = restReferenceTableValue.naam;
+        referenceTableValue.setTabel(referenceTable);
         return referenceTableValue;
     }
 }

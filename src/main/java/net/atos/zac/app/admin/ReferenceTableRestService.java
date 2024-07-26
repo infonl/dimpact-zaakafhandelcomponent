@@ -109,7 +109,8 @@ public class ReferenceTableRestService {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return RestReferenceTableConverter.convert(
                 referenceTableAdminService.updateReferenceTable(
-                        RestReferenceTableConverter.convert(referentieTabel,
+                        RestReferenceTableConverter.convert(
+                                referentieTabel,
                                 referenceTableService.readReferenceTable(id)
                         )
                 ),

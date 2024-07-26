@@ -52,9 +52,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             referentieTabelWaarde1,
             referentieTabelWaarde2
         )
-        referentieTabelWaarden.forEach {
-            referentieTabel.addWaarde(it)
-        }
+        referentieTabel.waarden = referentieTabelWaarden.toMutableList()
         every { referenceTableService.readReferenceTable("COMMUNICATIEKANAAL") } returns referentieTabel
 
         When("the communicatiekanalen are retrieved including E-formulier") {
@@ -98,9 +96,8 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             referentieTabelWaarde1,
             referentieTabelWaarde2
         )
-        referentieTabelWaarden.forEach {
-            referentieTabel.addWaarde(it)
-        }
+        referentieTabel.waarden = referentieTabelWaarden.toMutableList()
+
         every { referenceTableService.readReferenceTable("SERVER_ERROR_ERROR_PAGINA_TEKST") } returns referentieTabel
 
         When("the server error page texts are retrieved") {

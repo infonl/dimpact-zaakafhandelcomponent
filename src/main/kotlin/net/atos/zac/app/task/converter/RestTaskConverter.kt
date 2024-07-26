@@ -128,7 +128,7 @@ class RestTaskConverter @Inject constructor(
     ) {
         restTask.formulierDefinitieId = humanTaskParameters.formulierDefinitieID
         humanTaskParameters.referentieTabellen.forEach {
-            restTask.tabellen[it.veld] = it.tabel.getWaarden()
+            restTask.tabellen[it.veld] = it.tabel.waarden
                 .map { value -> value.naam }
                 .toList()
         }

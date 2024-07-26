@@ -12,13 +12,15 @@ import net.atos.zac.admin.model.HumanTaskReferentieTabel
 import net.atos.zac.admin.model.ReferenceTable
 import net.atos.zac.shared.exception.FoutmeldingException
 import net.atos.zac.util.ValidationUtil
+import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.util.stream.Collectors
 
 @ApplicationScoped
 @Transactional(Transactional.TxType.SUPPORTS)
 @NoArgConstructor
-open class ReferenceTableAdminService @Inject constructor(
+@AllOpen
+class ReferenceTableAdminService @Inject constructor(
     private val entityManager: EntityManager,
     private val referenceTableService: ReferenceTableService
 ) {
@@ -29,7 +31,7 @@ open class ReferenceTableAdminService @Inject constructor(
     }
 
     @Transactional(Transactional.TxType.REQUIRED)
-    open fun newReferenceTable(): ReferenceTable {
+    fun newReferenceTable(): ReferenceTable {
         val nieuw = ReferenceTable()
         nieuw.code = getUniqueCodeForReferenceTable(1, referenceTableService.listReferenceTables())
         nieuw.naam = "Nieuwe referentietabel"
@@ -37,16 +39,16 @@ open class ReferenceTableAdminService @Inject constructor(
     }
 
     @Transactional(Transactional.TxType.REQUIRED)
-    open fun createReferenceTable(referenceTable: ReferenceTable): ReferenceTable {
+    fun createReferenceTable(referenceTable: ReferenceTable): ReferenceTable {
         return updateReferenceTable(referenceTable)
     }
 
     @Transactional(Transactional.TxType.REQUIRED)
-    open fun updateReferenceTable(referenceTable: ReferenceTable): ReferenceTable {
+    fun updateReferenceTable(referenceTable: ReferenceTable): ReferenceTable {
         ValidationUtil.valideerObject(referenceTable)
         referenceTableService.findReferenceTable(referenceTable.code)
-            .ifPresent { existing: ReferenceTable ->
-                if (existing.id != referenceTable.id) {
+            .ifPresent {
+                if (it.id != referenceTable.id) {
                     throw FoutmeldingException(String.format(UNIQUE_CONSTRAINT, referenceTable.code))
                 }
             }
@@ -54,7 +56,7 @@ open class ReferenceTableAdminService @Inject constructor(
     }
 
     @Transactional(Transactional.TxType.REQUIRED)
-    open fun deleteReferenceTable(id: Long) {
+    fun deleteReferenceTable(id: Long) {
         val tabel = entityManager.find(ReferenceTable::class.java, id)
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(
