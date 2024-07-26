@@ -130,7 +130,7 @@ public class ReferenceTableRestService {
     public List<String> listEmailSenders() {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return RestReferenceValueConverter.convert(
-                referenceTableService.readReferenceTable(AFZENDER.name()).getWaarden()
+                referenceTableService.readReferenceTable(AFZENDER.name()).getValues()
         );
     }
 
@@ -140,7 +140,7 @@ public class ReferenceTableRestService {
             @PathParam("inclusiefEFormulier") final boolean inclusiefEFormulier
     ) {
         return RestReferenceValueConverter.convert(
-                referenceTableService.readReferenceTable(COMMUNICATIEKANAAL.name()).getWaarden()
+                referenceTableService.readReferenceTable(COMMUNICATIEKANAAL.name()).getValues()
         )
                 .stream()
                 .filter(communicatiekanaal -> inclusiefEFormulier || !communicatiekanaal.equals(COMMUNICATIEKANAAL_EFORMULIER))
@@ -152,7 +152,7 @@ public class ReferenceTableRestService {
     public List<String> listDomains() {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return RestReferenceValueConverter.convert(
-                referenceTableService.readReferenceTable(DOMEIN.name()).getWaarden()
+                referenceTableService.readReferenceTable(DOMEIN.name()).getValues()
         );
     }
 
@@ -160,7 +160,7 @@ public class ReferenceTableRestService {
     @Path("server-error-text")
     public List<String> listServerErrorPageTexts() {
         return RestReferenceValueConverter.convert(
-                referenceTableService.readReferenceTable(SERVER_ERROR_ERROR_PAGINA_TEKST.name()).getWaarden()
+                referenceTableService.readReferenceTable(SERVER_ERROR_ERROR_PAGINA_TEKST.name()).getValues()
         );
     }
 }

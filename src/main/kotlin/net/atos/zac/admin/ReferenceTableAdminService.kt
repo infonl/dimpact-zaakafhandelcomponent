@@ -14,7 +14,6 @@ import net.atos.zac.shared.exception.FoutmeldingException
 import net.atos.zac.util.ValidationUtil
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
-import java.util.stream.Collectors
 
 @ApplicationScoped
 @Transactional(Transactional.TxType.SUPPORTS)
@@ -24,70 +23,48 @@ class ReferenceTableAdminService @Inject constructor(
     private val entityManager: EntityManager,
     private val referenceTableService: ReferenceTableService
 ) {
-    companion object {
-        private const val UNIQUE_CONSTRAINT = "Er bestaat al een referentietabel met de code \"%s\"."
-        private const val FOREIGN_KEY_CONSTRAINT =
-            "Deze referentietabel wordt gebruikt (voor: %s) en kan niet verwijderd worden."
-    }
+    @Transactional(Transactional.TxType.REQUIRED)
+    fun newReferenceTable(): ReferenceTable =
+        ReferenceTable().apply {
+            this.code = "VUL SVP EEN UNIEKE TABEL CODE IN"
+            this.name = "Vul svp een unieke tabel naam in "
+        }
 
     @Transactional(Transactional.TxType.REQUIRED)
-    fun newReferenceTable(): ReferenceTable {
-        val nieuw = ReferenceTable()
-        nieuw.code = getUniqueCodeForReferenceTable(1, referenceTableService.listReferenceTables())
-        nieuw.naam = "Nieuwe referentietabel"
-        return nieuw
-    }
-
-    @Transactional(Transactional.TxType.REQUIRED)
-    fun createReferenceTable(referenceTable: ReferenceTable): ReferenceTable {
-        return updateReferenceTable(referenceTable)
-    }
+    fun createReferenceTable(referenceTable: ReferenceTable) =
+        updateReferenceTable(referenceTable)
 
     @Transactional(Transactional.TxType.REQUIRED)
     fun updateReferenceTable(referenceTable: ReferenceTable): ReferenceTable {
         ValidationUtil.valideerObject(referenceTable)
-        referenceTableService.findReferenceTable(referenceTable.code)
-            .ifPresent {
-                if (it.id != referenceTable.id) {
-                    throw FoutmeldingException(String.format(UNIQUE_CONSTRAINT, referenceTable.code))
-                }
+        referenceTableService.findReferenceTable(referenceTable.code)?.let {
+            if (it.id != referenceTable.id) {
+                throw FoutmeldingException("Er bestaat al een referentietabel met de code '${referenceTable.code}'")
             }
+        }
         return entityManager.merge(referenceTable)
     }
 
     @Transactional(Transactional.TxType.REQUIRED)
     fun deleteReferenceTable(id: Long) {
-        val tabel = entityManager.find(ReferenceTable::class.java, id)
-        val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(
-            HumanTaskReferentieTabel::class.java
-        )
-        val root = query.from(
-            HumanTaskReferentieTabel::class.java
-        )
-        query.select(root).where(builder.equal(root.get<Any>("tabel").get<Any>("id"), tabel.id))
-        val resultList = entityManager.createQuery(query).resultList
-        if (resultList.isNotEmpty()) {
-            throw FoutmeldingException(
-                String.format(
-                    FOREIGN_KEY_CONSTRAINT,
-                    resultList.stream()
-                        .map { obj: HumanTaskReferentieTabel -> obj.veld }
-                        .distinct()
-                        .collect(Collectors.joining(", "))
-                )
-            )
+        val table = entityManager.find(ReferenceTable::class.java, id)
+        entityManager.criteriaBuilder.let { criteriaBuilder ->
+            val query = criteriaBuilder.createQuery(HumanTaskReferentieTabel::class.java)
+            query.from(HumanTaskReferentieTabel::class.java).let {
+                query.select(it).where(criteriaBuilder.equal(it.get<Any>("tabel").get<Any>("id"), table.id))
+            }
+            entityManager.createQuery(query).resultList.run {
+                if (this.isNotEmpty()) {
+                    throw FoutmeldingException(
+                        "Deze referentietabel wordt gebruikt (voor: ${this
+                            .map { it.veld }
+                            .distinct()
+                            .joinToString()
+                        }) en kan niet verwijderd worden."
+                    )
+                }
+            }
+            entityManager.remove(table)
         }
-        entityManager.remove(tabel)
-    }
-
-    private fun getUniqueCodeForReferenceTable(i: Int, list: List<ReferenceTable>): String {
-        val code = "TABEL" + (if (1 < i) i else "")
-        if (list.stream()
-                .anyMatch { referentieTabel: ReferenceTable -> code == referentieTabel.code }
-        ) {
-            return getUniqueCodeForReferenceTable(i + 1, list)
-        }
-        return code
     }
 }

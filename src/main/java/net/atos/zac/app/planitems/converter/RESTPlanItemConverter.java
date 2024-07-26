@@ -84,8 +84,8 @@ public class RESTPlanItemConverter {
                     restPlanItem.actief = humanTaskParameters.isActief();
                     restPlanItem.formulierDefinitie = FormulierDefinitie.valueOf(humanTaskParameters.getFormulierDefinitieID());
                     humanTaskParameters.getReferentieTabellen().forEach(
-                            rt -> restPlanItem.tabellen.put(rt.getVeld(), rt.getTabel().getWaarden().stream()
-                                    .map(ReferenceTableValue::getNaam)
+                            rt -> restPlanItem.tabellen.put(rt.getVeld(), rt.getTabel().getValues().stream()
+                                    .map(ReferenceTableValue::getName)
                                     .toList()));
                     restPlanItem.groepId = humanTaskParameters.getGroepID();
                     if (humanTaskParameters.getDoorlooptijd() != null) {

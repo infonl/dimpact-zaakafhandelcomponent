@@ -16,13 +16,13 @@ public final class RestReferenceValueConverter {
     public static RestReferenceTableValue convert(final ReferenceTableValue referenceTableValue) {
         final RestReferenceTableValue restReferenceTableValue = new RestReferenceTableValue();
         restReferenceTableValue.id = referenceTableValue.getId();
-        restReferenceTableValue.naam = referenceTableValue.naam;
+        restReferenceTableValue.naam = referenceTableValue.name;
         return restReferenceTableValue;
     }
 
     public static List<String> convert(final List<ReferenceTableValue> referentieTabelWaarden) {
         return referentieTabelWaarden.stream()
-                .map(ReferenceTableValue::getNaam)
+                .map(ReferenceTableValue::getName)
                 .toList();
     }
 
@@ -32,8 +32,8 @@ public final class RestReferenceValueConverter {
     ) {
         final ReferenceTableValue referenceTableValue = new ReferenceTableValue();
         referenceTableValue.setId(restReferenceTableValue.id);
-        referenceTableValue.naam = restReferenceTableValue.naam;
-        referenceTableValue.setTabel(referenceTable);
+        referenceTableValue.name = restReferenceTableValue.naam;
+        referenceTableValue.setReferenceTable(referenceTable);
         return referenceTableValue;
     }
 }

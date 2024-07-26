@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.admin.model
@@ -35,11 +35,11 @@ class ReferenceTableValue {
 
     @ManyToOne
     @JoinColumn(name = "id_referentie_tabel", referencedColumnName = "id_referentie_tabel")
-    lateinit var tabel: @NotNull ReferenceTable
+    lateinit var referenceTable: @NotNull ReferenceTable
 
     @Column(name = "naam", nullable = false)
-    lateinit var naam: @NotBlank String
+    lateinit var name: @NotBlank String
 
     @Column(name = "volgorde", nullable = false)
-    var volgorde: Int = 0
+    var sortOrder: Int = 0
 }

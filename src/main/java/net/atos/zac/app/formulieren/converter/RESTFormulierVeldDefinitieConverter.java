@@ -47,10 +47,10 @@ public class RESTFormulierVeldDefinitieConverter {
             final String referentietabelCode = StringUtils.substringAfter(veldDefinitie.getMeerkeuzeOpties(), "REF:");
             if (StringUtils.isNotBlank(referentietabelCode)) {
                 final ReferenceTable referenceTable = referenceTableService.readReferenceTable(referentietabelCode);
-                restVeldDefinitie.meerkeuzeOpties = referenceTable.getWaarden()
+                restVeldDefinitie.meerkeuzeOpties = referenceTable.getValues()
                         .stream()
-                        .sorted(Comparator.comparingInt(ReferenceTableValue::getVolgorde))
-                        .map(ReferenceTableValue::getNaam)
+                        .sorted(Comparator.comparingInt(ReferenceTableValue::getSortOrder))
+                        .map(ReferenceTableValue::getName)
                         .collect(Collectors.joining(SEPARATOR));
             }
         }
