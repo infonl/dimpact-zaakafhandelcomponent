@@ -5,6 +5,8 @@
 
 package net.atos.zac.app.admin.converter;
 
+import static net.atos.zac.app.admin.converter.RestReferenceTableConverterKt.convertToRestReferenceTable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,8 +17,6 @@ import net.atos.zac.admin.ReferenceTableService;
 import net.atos.zac.admin.model.FormulierVeldDefinitie;
 import net.atos.zac.admin.model.HumanTaskReferentieTabel;
 import net.atos.zac.app.admin.model.RestHumanTaskReferenceTable;
-
-import static net.atos.zac.app.admin.converter.RestReferenceTableConverterKt.convertToRestReferenceTable;
 
 public class RestHumanTaskReferenceTableConverter {
 

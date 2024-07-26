@@ -14,6 +14,7 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
+import net.atos.zac.app.admin.model.RestReferenceTableValue
 import net.atos.zac.util.FlywayIntegrator
 import nl.lifely.zac.util.AllOpen
 
@@ -43,3 +44,9 @@ class ReferenceTableValue {
     @Column(name = "volgorde", nullable = false)
     var sortOrder: Int = 0
 }
+
+fun ReferenceTableValue.toRestReferenceTableValue() =
+    RestReferenceTableValue(
+        this.id!!,
+        this.name
+    )

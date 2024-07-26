@@ -5,15 +5,16 @@
 package net.atos.zac.app.admin.converter
 
 import net.atos.zac.admin.model.ReferenceTable
+import net.atos.zac.admin.model.toRestReferenceTableValue
 import net.atos.zac.app.admin.model.RestReferenceTable
 import net.atos.zac.app.admin.model.RestReferenceTableValue
-import java.util.Objects
+import net.atos.zac.app.admin.model.toReferenceTableValue
 
 fun convertToRestReferenceTable(referenceTable: ReferenceTable, inclusiefWaarden: Boolean): RestReferenceTable {
     var restReferenceTableValues: List<RestReferenceTableValue> = emptyList()
     if (inclusiefWaarden) {
         restReferenceTableValues = referenceTable.values.stream()
-            .map { convertToRestReferenceTableValue(it) }
+            .map { it.toRestReferenceTableValue() }
             .toList()
     }
     return RestReferenceTable(
@@ -35,10 +36,9 @@ fun convertToReferenceTable(
         this.code = restReferenceTable.code
         this.name = restReferenceTable.name
         this.values = restReferenceTable.values
-            .map { restReferenceTableValue ->
-                convertToReferenceTableValue(
-                    this,
-                    restReferenceTableValue
+            .map { referenceTableValue ->
+                referenceTableValue.toReferenceTableValue(
+                    this
                 )
             }
             .toMutableList()
