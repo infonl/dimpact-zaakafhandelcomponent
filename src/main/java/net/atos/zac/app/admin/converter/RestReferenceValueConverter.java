@@ -16,7 +16,7 @@ public final class RestReferenceValueConverter {
     public static RestReferenceTableValue convert(final ReferenceTableValue referenceTableValue) {
         final RestReferenceTableValue restReferenceTableValue = new RestReferenceTableValue();
         restReferenceTableValue.id = referenceTableValue.getId();
-        restReferenceTableValue.naam = referenceTableValue.name;
+        restReferenceTableValue.value = referenceTableValue.name;
         return restReferenceTableValue;
     }
 
@@ -32,7 +32,7 @@ public final class RestReferenceValueConverter {
     ) {
         final ReferenceTableValue referenceTableValue = new ReferenceTableValue();
         referenceTableValue.setId(restReferenceTableValue.id);
-        referenceTableValue.name = restReferenceTableValue.naam;
+        referenceTableValue.name = restReferenceTableValue.value;
         referenceTableValue.setReferenceTable(referenceTable);
         return referenceTableValue;
     }
