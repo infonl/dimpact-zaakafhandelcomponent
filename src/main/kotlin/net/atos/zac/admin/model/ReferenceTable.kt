@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.admin.model
@@ -19,7 +19,6 @@ import jakarta.validation.constraints.NotBlank
 import net.atos.zac.util.FlywayIntegrator
 import nl.lifely.zac.util.AllOpen
 import java.util.Arrays
-import java.util.function.Consumer
 
 @Entity
 @Table(schema = FlywayIntegrator.SCHEMA, name = "referentie_tabel")
@@ -55,33 +54,12 @@ class ReferenceTable {
         get() {
             if (field == null) {
                 field = Arrays.stream(Systeem.entries.toTypedArray())
-                    .anyMatch { value: Systeem -> value.name == code }
+                    .anyMatch { it.name == code }
             }
             return field
         }
         private set
 
     @OneToMany(mappedBy = "tabel", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
-    private val waarden: MutableList<ReferenceTableValue> = ArrayList()
-
-    fun getWaarden(): List<ReferenceTableValue> {
-        return waarden.stream()
-            .sorted(Comparator.comparingInt { obj: ReferenceTableValue -> obj.volgorde })
-            .toList()
-    }
-
-    fun setWaarden(waarden: List<ReferenceTableValue>) {
-        this.waarden.clear()
-        waarden.forEach(Consumer { waarde: ReferenceTableValue -> this.addWaarde(waarde) })
-    }
-
-    fun addWaarde(waarde: ReferenceTableValue) {
-        waarde.tabel = this
-        waarde.volgorde = waarden.size
-        waarden.add(waarde)
-    }
-
-    fun removeWaarde(waarde: ReferenceTableValue) {
-        waarden.remove(waarde)
-    }
+    var waarden: MutableList<ReferenceTableValue> = ArrayList()
 }

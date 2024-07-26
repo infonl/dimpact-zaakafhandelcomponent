@@ -6,11 +6,10 @@
 package net.atos.zac.app.admin.model;
 
 public class RestReferenceTableValue {
+    public RestReferenceTableValue() {
+    }
 
     public Long id;
 
     public String naam;
-
-    public RestReferenceTableValue() {
-    }
 }

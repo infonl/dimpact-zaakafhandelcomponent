@@ -33,9 +33,12 @@ public final class RestReferenceTableConverter {
     public static ReferenceTable convert(final RestReferenceTable restReferenceTable, final ReferenceTable referenceTable) {
         referenceTable.code = restReferenceTable.code;
         referenceTable.naam = restReferenceTable.naam;
-        referenceTable.setWaarden(restReferenceTable.waarden.stream()
-                .map(RestReferenceValueConverter::convert)
-                .toList());
+        referenceTable.setWaarden(
+                restReferenceTable.waarden
+                        .stream()
+                        .map(referenceTableValues -> RestReferenceValueConverter.convert(referenceTable, referenceTableValues))
+                        .toList()
+        );
         return referenceTable;
     }
 }
