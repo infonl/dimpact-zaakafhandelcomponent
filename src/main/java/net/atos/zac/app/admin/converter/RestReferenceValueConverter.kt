@@ -2,38 +2,28 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.admin.converter
 
-package net.atos.zac.app.admin.converter;
+import net.atos.zac.admin.model.ReferenceTable
+import net.atos.zac.admin.model.ReferenceTableValue
+import net.atos.zac.app.admin.model.RestReferenceTableValue
 
-import java.util.List;
+fun convertToRestReferenceTableValue(referenceTableValue: ReferenceTableValue) =
+    RestReferenceTableValue(
+        referenceTableValue.id!!,
+        referenceTableValue.name
+    )
 
-import net.atos.zac.admin.model.ReferenceTable;
-import net.atos.zac.admin.model.ReferenceTableValue;
-import net.atos.zac.app.admin.model.RestReferenceTableValue;
+fun getReferenceTableValueNames(referenceTableValues: List<ReferenceTableValue>) =
+    referenceTableValues
+        .map(ReferenceTableValue::name)
+        .toList()
 
-public final class RestReferenceValueConverter {
-
-    public static RestReferenceTableValue convert(final ReferenceTableValue referenceTableValue) {
-        return new RestReferenceTableValue(
-                referenceTableValue.getId(),
-                referenceTableValue.name
-        );
-    }
-
-    public static List<String> convert(final List<ReferenceTableValue> referentieTabelWaarden) {
-        return referentieTabelWaarden.stream()
-                .map(ReferenceTableValue::getName)
-                .toList();
-    }
-
-    public static ReferenceTableValue convert(
-            final ReferenceTable referenceTable,
-            final RestReferenceTableValue restReferenceTableValue
-    ) {
-        final ReferenceTableValue referenceTableValue = new ReferenceTableValue();
-        referenceTableValue.setId(restReferenceTableValue.getId());
-        referenceTableValue.name = restReferenceTableValue.getValue();
-        referenceTableValue.setReferenceTable(referenceTable);
-        return referenceTableValue;
-    }
+fun convertToReferenceTableValue(
+    referenceTable: ReferenceTable,
+    restReferenceTableValue: RestReferenceTableValue
+) = ReferenceTableValue().apply {
+    this.id = restReferenceTableValue.id
+    this.name = restReferenceTableValue.value
+    this.referenceTable = referenceTable
 }

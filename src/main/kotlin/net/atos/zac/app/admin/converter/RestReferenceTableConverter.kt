@@ -5,20 +5,15 @@
 package net.atos.zac.app.admin.converter
 
 import net.atos.zac.admin.model.ReferenceTable
-import net.atos.zac.admin.model.ReferenceTableValue
 import net.atos.zac.app.admin.model.RestReferenceTable
 import net.atos.zac.app.admin.model.RestReferenceTableValue
 import java.util.Objects
 
 fun convertToRestReferenceTable(referenceTable: ReferenceTable, inclusiefWaarden: Boolean): RestReferenceTable {
-    var values: List<RestReferenceTableValue>? = emptyList()
+    var restReferenceTableValues: List<RestReferenceTableValue> = emptyList()
     if (inclusiefWaarden) {
-        values = referenceTable.values.stream()
-            .map { referenceTableValue: ReferenceTableValue? ->
-                RestReferenceValueConverter.convert(
-                    referenceTableValue
-                )
-            }
+        restReferenceTableValues = referenceTable.values.stream()
+            .map { convertToRestReferenceTableValue(it) }
             .toList()
     }
     return RestReferenceTable(
@@ -27,25 +22,25 @@ fun convertToRestReferenceTable(referenceTable: ReferenceTable, inclusiefWaarden
         referenceTable.name,
         referenceTable.isSystemReferenceTable,
         referenceTable.values.size,
-        values!!
+        restReferenceTableValues
     )
 }
 
 fun convertToReferenceTable(
     restReferenceTable: RestReferenceTable,
-    referenceTable: ReferenceTable = ReferenceTable()
+    existingReferenceTable: ReferenceTable? = null
 ): ReferenceTable {
-    referenceTable.code = restReferenceTable.code
-    referenceTable.name = restReferenceTable.name
-    referenceTable.values = Objects.requireNonNull(restReferenceTable.values)
-        .stream()
-        .map { referenceTableValues: RestReferenceTableValue? ->
-            RestReferenceValueConverter.convert(
-                referenceTable,
-                referenceTableValues
-            )
-        }
-        .toList()
-
-    return referenceTable
+    val referenceTable = existingReferenceTable ?: ReferenceTable()
+    return referenceTable.apply {
+        this.code = restReferenceTable.code
+        this.name = restReferenceTable.name
+        this.values = restReferenceTable.values
+            .map { restReferenceTableValue ->
+                convertToReferenceTableValue(
+                    this,
+                    restReferenceTableValue
+                )
+            }
+            .toMutableList()
+    }
 }
