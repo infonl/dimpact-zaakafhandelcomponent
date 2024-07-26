@@ -53,6 +53,7 @@ class SignaleringServiceTest : BehaviorSpec({
     val query = mockk<Query>()
 
     val signaleringService = SignaleringService(
+        entityManager = entityManager,
         drcClientService = drcClientService,
         eventingService = eventingService,
         flowableTaskService = flowableTaskService,
@@ -62,7 +63,6 @@ class SignaleringServiceTest : BehaviorSpec({
         zrcClientService = zrcClientService,
         restZaakOverzichtConverter = restZaakOverzichtConverter
     )
-    signaleringService.setEntityManager(entityManager)
 
     beforeEach {
         checkUnnecessaryStub()
