@@ -22,6 +22,7 @@ import net.atos.zac.admin.model.ReferenceTableValue
 import net.atos.zac.admin.model.toRestReferenceTable
 import net.atos.zac.app.admin.model.RestReferenceTable
 import net.atos.zac.app.admin.model.toReferenceTable
+import net.atos.zac.app.admin.model.updateReferenceTableValues
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.policy.PolicyService
 import nl.lifely.zac.util.NoArgConstructor
@@ -80,12 +81,12 @@ class ReferenceTableRestService @Inject constructor(
         restReferenceTable: RestReferenceTable
     ): RestReferenceTable {
         PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
-        return restReferenceTable.toReferenceTable(
-            referenceTableService.readReferenceTable(id)
-        ).let {
-            referenceTableAdminService.updateReferenceTable(it).toRestReferenceTable(
-                true
-            )
+        return referenceTableService.readReferenceTable(id).let {
+            restReferenceTable.updateReferenceTableValues(it).let { updatedReferenceTable ->
+                referenceTableAdminService.updateReferenceTable(updatedReferenceTable).toRestReferenceTable(
+                    true
+                )
+            }
         }
     }
 

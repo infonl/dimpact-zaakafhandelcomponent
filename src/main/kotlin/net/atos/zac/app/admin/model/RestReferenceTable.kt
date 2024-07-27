@@ -27,14 +27,22 @@ class RestReferenceTable(
     var waarden: List<RestReferenceTableValue> = emptyList()
 )
 
-fun RestReferenceTable.toReferenceTable(
-    existingReferenceTable: ReferenceTable? = null
-): ReferenceTable {
-    val referenceTable = existingReferenceTable ?: ReferenceTable()
-    return referenceTable.apply {
+fun RestReferenceTable.toReferenceTable(): ReferenceTable {
+    return ReferenceTable().apply {
         code = this@toReferenceTable.code
         name = this@toReferenceTable.naam
         values = this@toReferenceTable.waarden
+            .map { referenceTableValue -> referenceTableValue.toReferenceTableValue(this) }
+            .toMutableList()
+    }
+}
+
+fun RestReferenceTable.updateReferenceTableValues(
+    existingReferenceTable: ReferenceTable
+): ReferenceTable {
+    val referenceTable = existingReferenceTable ?: ReferenceTable()
+    return referenceTable.apply {
+        values = this@updateReferenceTableValues.waarden
             .map { referenceTableValue -> referenceTableValue.toReferenceTableValue(this) }
             .toMutableList()
     }
