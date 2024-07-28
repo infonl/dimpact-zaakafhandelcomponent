@@ -23,12 +23,14 @@ import nl.lifely.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_SERVER_ERRO
 import nl.lifely.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
+import org.json.JSONObject
 
 @Suppress("MagicNumber")
 class ReferenceTableRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
-    var serverErrorTextErrorPageReferenceTableId: Int = 0
+    var communicationChannelPageReferenceTableId = 0
+    var serverErrorTextErrorPageReferenceTableId = 0
 
     Given("Default reference table data is provisioned on startup") {
         When("the reference tables are listed") {
@@ -78,6 +80,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                         shouldContainJsonKeyValue("aantalWaarden", 0)
                         shouldContainJsonKey("id")
                     }
+                    communicationChannelPageReferenceTableId = getJSONObject(2).getInt("id")
                     serverErrorTextErrorPageReferenceTableId = getJSONObject(4).getInt("id")
                 }
             }
@@ -95,7 +98,68 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 JSONArray(responseBody).length() shouldBe 0
             }
         }
-        When("the get communicatiekanalen endpoint is called with 'true' as parameter") {
+        When("the communication channels reference table is retrieved") {
+            val response = itestHttpClient.performGetRequest(
+                "$ZAC_API_URI/referentietabellen/$communicationChannelPageReferenceTableId"
+            )
+            Then(
+                """the provisioned default communicatiekanalen are returned including 'E-formulier'"""
+            ) {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+                with(JSONObject(responseBody).toString()) {
+                    shouldContainJsonKeyValue("code", REFERENCE_TABLE_COMMUNICATIEKANAAL_CODE)
+                    shouldContainJsonKeyValue("naam", REFERENCE_TABLE_COMMUNICATIEKANAAL_NAME)
+                    shouldContainJsonKeyValue("systeem", true)
+                    shouldContainJsonKeyValue("aantalWaarden", 8)
+                    shouldContainJsonKey("id")
+                    val referenceTableValues = JSONObject(responseBody).getJSONArray("waarden")
+                    referenceTableValues.length() shouldBe 8
+                    with(referenceTableValues[0].toString()) {
+                        shouldContainJsonKeyValue("naam", "Balie")
+                        shouldContainJsonKeyValue("systemValue", false)
+                        shouldContainJsonKey("id")
+                    }
+                    with(referenceTableValues[1].toString()) {
+                        shouldContainJsonKeyValue("naam", "E-formulier")
+                        shouldContainJsonKeyValue("systemValue", true)
+                        shouldContainJsonKey("id")
+                    }
+                    with(referenceTableValues[2].toString()) {
+                        shouldContainJsonKeyValue("naam", "E-mail")
+                        shouldContainJsonKeyValue("systemValue", false)
+                        shouldContainJsonKey("id")
+                    }
+                    with(referenceTableValues[3].toString()) {
+                        shouldContainJsonKeyValue("naam", "Intern")
+                        shouldContainJsonKeyValue("systemValue", false)
+                        shouldContainJsonKey("id")
+                    }
+                    with(referenceTableValues[4].toString()) {
+                        shouldContainJsonKeyValue("naam", "Internet")
+                        shouldContainJsonKeyValue("systemValue", false)
+                        shouldContainJsonKey("id")
+                    }
+                    with(referenceTableValues[5].toString()) {
+                        shouldContainJsonKeyValue("naam", "Medewerkersportaal")
+                        shouldContainJsonKeyValue("systemValue", false)
+                        shouldContainJsonKey("id")
+                    }
+                    with(referenceTableValues[6].toString()) {
+                        shouldContainJsonKeyValue("naam", "Post")
+                        shouldContainJsonKeyValue("systemValue", false)
+                        shouldContainJsonKey("id")
+                    }
+                    with(referenceTableValues[7].toString()) {
+                        shouldContainJsonKeyValue("naam", "Telefoon")
+                        shouldContainJsonKeyValue("systemValue", false)
+                        shouldContainJsonKey("id")
+                    }
+                }
+            }
+        }
+        When("the get communication channels endpoint is called with 'true' as parameter") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/referentietabellen/communicatiekanaal/true"
             )

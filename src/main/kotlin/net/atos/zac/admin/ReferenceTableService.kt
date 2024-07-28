@@ -33,7 +33,7 @@ class ReferenceTableService @Inject constructor(
         return resultList.firstOrNull()
     }
 
-    fun listReferenceTableWaardenSorted(referenceTable: ReferenceTable) =
+    fun listReferenceTableValuesSorted(referenceTable: ReferenceTable) =
         referenceTable.values
             .sortedBy { it.sortOrder }
             .toList()

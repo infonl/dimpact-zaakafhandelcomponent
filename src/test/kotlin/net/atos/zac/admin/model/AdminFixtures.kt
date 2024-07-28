@@ -10,12 +10,16 @@ import java.util.UUID
 fun createReferenceTable(
     id: Long = 1234L,
     code: String = "dummyCode",
-    naam: String = "dummyReferentieTabel"
+    naam: String = "dummyReferentieTabel",
+    isSystemReferenceTable: Boolean = false,
+    values: MutableList<ReferenceTableValue> = mutableListOf(createReferenceTableValue())
 ) =
     ReferenceTable().apply {
         this.id = id
         this.code = code
         this.name = naam
+        this.isSystemReferenceTable = isSystemReferenceTable
+        this.values = values
     }
 
 fun createReferenceTableValue(

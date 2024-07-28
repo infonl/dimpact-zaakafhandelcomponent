@@ -56,7 +56,7 @@ class ReferenceTable {
     lateinit var name: String
 
     @Column(name = "is_systeem_tabel", nullable = false)
-    val isSystemReferenceTable: Boolean = false
+    var isSystemReferenceTable: Boolean = false
 
     @OneToMany(mappedBy = "referenceTable", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
     var values: MutableList<ReferenceTableValue> = ArrayList()

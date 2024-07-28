@@ -14,6 +14,7 @@ import io.mockk.mockk
 import jakarta.persistence.EntityManager
 import net.atos.zac.admin.model.ReferenceTable
 import net.atos.zac.admin.model.createReferenceTable
+import net.atos.zac.admin.model.createReferenceTableValue
 
 class ReferenceTableServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>()
@@ -25,7 +26,13 @@ class ReferenceTableServiceTest : BehaviorSpec({
 
     Given("A reference table") {
         val referenceTableID = 1234L
-        val referenceTable = createReferenceTable()
+        val referenceTable = createReferenceTable(
+            values = mutableListOf(
+                createReferenceTableValue(id = 1, naam = "dummyValue1", volgorde = 1),
+                createReferenceTableValue(id = 2, naam = "dummyValue2", volgorde = 0),
+                createReferenceTableValue(id = 3, naam = "dummyValue2", volgorde = 2)
+            )
+        )
         every { entityManager.find(ReferenceTable::class.java, referenceTableID) } returns referenceTable
 
         When("the reference table is requested by id") {
@@ -35,8 +42,15 @@ class ReferenceTableServiceTest : BehaviorSpec({
                 returnedReferenceTable shouldBe referenceTable
             }
         }
-    }
 
+        When("the reference table values are requested") {
+            val referenceTableValues = referenceTableService.listReferenceTableValuesSorted(referenceTable)
+
+            Then("the reference table values are returned sorted by sort order") {
+                referenceTableValues shouldBe referenceTable.values.sortedBy { it.sortOrder }
+            }
+        }
+    }
     Given("No reference table for the given id") {
         val referenceTableID = 1234L
         every { entityManager.find(ReferenceTable::class.java, referenceTableID) } returns null
