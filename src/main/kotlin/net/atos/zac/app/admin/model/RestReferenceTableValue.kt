@@ -13,7 +13,8 @@ import nl.lifely.zac.util.NoArgConstructor
 @NoArgConstructor
 class RestReferenceTableValue(
     var id: Long,
-    var naam: String
+    var naam: String,
+    var isSystemValue: Boolean
 )
 
 fun RestReferenceTableValue.toReferenceTableValue(
@@ -21,5 +22,6 @@ fun RestReferenceTableValue.toReferenceTableValue(
 ): ReferenceTableValue = ReferenceTableValue().apply {
     id = this@toReferenceTableValue.id
     name = this@toReferenceTableValue.naam
+    isSystemValue = this@toReferenceTableValue.isSystemValue
     this.referenceTable = referenceTable
 }

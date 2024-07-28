@@ -43,10 +43,14 @@ class ReferenceTableValue {
 
     @Column(name = "volgorde", nullable = false)
     var sortOrder: Int = 0
+
+    @Column(name = "is_systeem_waarde", nullable = false)
+    var isSystemValue: Boolean = false
 }
 
 fun ReferenceTableValue.toRestReferenceTableValue() =
     RestReferenceTableValue(
-        this.id!!,
-        this.name
+        id = this.id!!,
+        naam = this.name,
+        isSystemValue = this.isSystemValue
     )
