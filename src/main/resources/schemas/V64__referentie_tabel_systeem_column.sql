@@ -3,10 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
--- add column is_systeem_waarde to referentie_tabel table to indicate if a referentie tabel should be considered a system value
--- and should be treated as read-only in the application
 ALTER TABLE ${schema}.referentie_tabel
 ADD COLUMN is_systeem_tabel BOOL default false;
+COMMENT ON COLUMN ${schema}.referentie_tabel.is_systeem_tabel IS 'Bepaalt of de referentietabel een systeemtabel is of niet. Systeemtabellen kunnen niet worden verwijderd door gebruikers.';
 
 UPDATE ${schema}.referentie_tabel
 SET is_systeem_tabel = TRUE
