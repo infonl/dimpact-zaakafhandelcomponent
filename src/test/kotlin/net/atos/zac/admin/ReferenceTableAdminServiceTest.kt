@@ -67,7 +67,7 @@ class ReferenceTableAdminServiceTest : BehaviorSpec({
         When("the reference table is deleted") {
             referenceTableAdminService.deleteReferenceTable(referenceTable.id!!)
 
-            Then("the reference table should be succesfully deleted") {
+            Then("the reference table should be successfully deleted") {
                 verify(exactly = 1) {
                     entityManager.remove(referenceTable)
                 }
