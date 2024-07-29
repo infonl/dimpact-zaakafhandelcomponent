@@ -18,13 +18,14 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.admin.ReferenceTableAdminService
 import net.atos.zac.admin.ReferenceTableService
+import net.atos.zac.admin.model.ReferenceTable
 import net.atos.zac.admin.model.ReferenceTable.Systeem
 import net.atos.zac.admin.model.ReferenceTableValue
 import net.atos.zac.admin.model.toRestReferenceTable
-import net.atos.zac.admin.model.updateExistingReferenceTable
 import net.atos.zac.app.admin.model.RestReferenceTable
 import net.atos.zac.app.admin.model.RestReferenceTableUpdate
 import net.atos.zac.app.admin.model.toReferenceTable
+import net.atos.zac.app.admin.model.toReferenceTableValue
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.policy.PolicyService
 import nl.lifely.zac.util.AllOpen
@@ -153,4 +154,13 @@ class ReferenceTableRestService @Inject constructor(
         referenceTableValues
             .map(ReferenceTableValue::name)
             .toList()
+
+    fun ReferenceTable.updateExistingReferenceTable(
+        restReferenceTableUpdate: RestReferenceTableUpdate
+    ) = this.apply {
+        name = restReferenceTableUpdate.naam
+        values = restReferenceTableUpdate.waarden
+            .map { it.toReferenceTableValue(this) }
+            .toMutableList()
+    }
 }

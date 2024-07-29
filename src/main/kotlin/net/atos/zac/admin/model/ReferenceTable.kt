@@ -80,12 +80,3 @@ fun ReferenceTable.toRestReferenceTable(inclusiefWaarden: Boolean): RestReferenc
         restReferenceTableValues
     )
 }
-
-fun ReferenceTable.updateExistingReferenceTable(
-    restReferenceTableUpdate: RestReferenceTableUpdate
-) = this.apply {
-    name = restReferenceTableUpdate.naam
-    values = restReferenceTableUpdate.waarden
-        .map { it.toReferenceTableValue(this) }
-        .toMutableList()
-}
