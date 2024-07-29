@@ -33,84 +33,84 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("Two communicatiekanalen including E-formulier") {
-        val referentieTabel = createReferenceTable(
+    Given("Two communication channels including E-formulier") {
+        val referenceTable = createReferenceTable(
             id = 1L,
-            code = "COMMUNICATIEKANAAL",
-            name = "Communicatiekanalen"
+            code = "dummyCode",
+            name = "dummyName"
         )
-        val referentieWaarde1 = "dummyWaarde1"
-        val referentieWaarde2 = "E-formulier"
-        val referentieTabelWaarde1 = createReferenceTableValue(
+        val referenceValue1 = "dummyValue1"
+        val referenceValue2 = "E-formulier"
+        val referenceTableValue1 = createReferenceTableValue(
             id = 1L,
-            name = referentieWaarde1,
+            name = referenceValue1,
             sortOrder = 1
         )
-        val referentieTabelWaarde2 = createReferenceTableValue(
+        val referenceTableValue2 = createReferenceTableValue(
             id = 2L,
-            name = referentieWaarde2,
+            name = referenceValue2,
             sortOrder = 2
         )
-        val referentieTabelWaarden = listOf(
-            referentieTabelWaarde1,
-            referentieTabelWaarde2
+        val referenceTableValues = listOf(
+            referenceTableValue1,
+            referenceTableValue2
         )
-        referentieTabel.values = referentieTabelWaarden.toMutableList()
-        every { referenceTableService.readReferenceTable("COMMUNICATIEKANAAL") } returns referentieTabel
+        referenceTable.values = referenceTableValues.toMutableList()
+        every { referenceTableService.readReferenceTable("COMMUNICATIEKANAAL") } returns referenceTable
 
-        When("the communicatiekanalen are retrieved including E-formulier") {
-            val communicatiekanalen = referenceTableRestService.listCommunicationChannels(true)
+        When("the communication channels are retrieved including E-formulier") {
+            val communicationChannels = referenceTableRestService.listCommunicationChannels(true)
 
-            Then("the communicatiekanalen are returned including E-formulier") {
-                communicatiekanalen.size shouldBe referentieTabelWaarden.size
-                communicatiekanalen[0] shouldBe referentieWaarde1
-                communicatiekanalen[1] shouldBe referentieWaarde2
+            Then("the communication channels are returned successfully including E-formulier") {
+                communicationChannels.size shouldBe referenceTableValues.size
+                communicationChannels[0] shouldBe referenceValue1
+                communicationChannels[1] shouldBe referenceValue2
             }
         }
 
-        When("the communicatiekanalen are retrieved excluding E-formulier") {
-            val communicatiekanalen = referenceTableRestService.listCommunicationChannels(false)
+        When("the communication channels are retrieved excluding E-formulier") {
+            val communicationChannels = referenceTableRestService.listCommunicationChannels(false)
 
-            Then("the communicatiekanalen are returned excluding E-formulier") {
-                communicatiekanalen.size shouldBe referentieTabelWaarden.size - 1
-                communicatiekanalen[0] shouldBe referentieWaarde1
+            Then("the communication channels are returned successfully excluding E-formulier") {
+                communicationChannels.size shouldBe referenceTableValues.size - 1
+                communicationChannels[0] shouldBe referenceValue1
             }
         }
     }
 
     Given("Two server error page texts") {
-        val referentieTabel = createReferenceTable(
+        val referenceTable = createReferenceTable(
             id = 1L,
-            code = "SERVER_ERROR_ERROR_PAGINA_TEKST",
-            name = "Server error page text"
+            code = "dummyCode",
+            name = "dummyName"
         )
-        val referentieWaarde1 = "dummyWaarde1"
-        val referentieWaarde2 = "dummyWaarde2"
-        val referentieTabelWaarde1 = createReferenceTableValue(
+        val referenceValue1 = "dummyValue1"
+        val referenceValue2 = "dummyValue2"
+        val referenceTableValue1 = createReferenceTableValue(
             id = 1L,
-            name = referentieWaarde1,
+            name = referenceValue1,
             sortOrder = 1
         )
-        val referentieTabelWaarde2 = createReferenceTableValue(
+        val referenceTableValue2 = createReferenceTableValue(
             id = 2L,
-            name = referentieWaarde2,
+            name = referenceValue2,
             sortOrder = 2
         )
-        val referentieTabelWaarden = listOf(
-            referentieTabelWaarde1,
-            referentieTabelWaarde2
+        val referenceTableValues = listOf(
+            referenceTableValue1,
+            referenceTableValue2
         )
-        referentieTabel.values = referentieTabelWaarden.toMutableList()
+        referenceTable.values = referenceTableValues.toMutableList()
 
-        every { referenceTableService.readReferenceTable("SERVER_ERROR_ERROR_PAGINA_TEKST") } returns referentieTabel
+        every { referenceTableService.readReferenceTable("SERVER_ERROR_ERROR_PAGINA_TEKST") } returns referenceTable
 
         When("the server error page texts are retrieved") {
             val serverErrorPageTexts = referenceTableRestService.listServerErrorPageTexts()
 
             Then("the server error page texts are returned") {
-                serverErrorPageTexts.size shouldBe referentieTabelWaarden.size
-                serverErrorPageTexts[0] shouldBe referentieWaarde1
-                serverErrorPageTexts[1] shouldBe referentieWaarde2
+                serverErrorPageTexts.size shouldBe referenceTableValues.size
+                serverErrorPageTexts[0] shouldBe referenceValue1
+                serverErrorPageTexts[1] shouldBe referenceValue2
             }
         }
     }
@@ -130,10 +130,10 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 naam = "dummyUpdatedName",
                 waarden = listOf(
                     createRestReferenceTableValue(
-                        name = "dummyWaarde100"
+                        name = "dummyValue1"
                     ),
                     createRestReferenceTableValue(
-                        name = "dummyWaarde101"
+                        name = "dummyValue2"
                     )
                 )
             )
@@ -143,7 +143,12 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 restReferenceTableUpdate
             )
 
-            Then("the reference table is updated successfully and only contains the two new values") {
+            Then(
+                """
+                    the reference table is updated successfully and only contains the two new values
+                    and the new name thereby completely replacing the existing value(s) and the existing name
+                """
+                    ) {
                 with(updatedRestReferenceTable) {
                     id shouldBe updatedReferenceTable.id
                     code shouldBe updatedReferenceTable.code
@@ -157,8 +162,8 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                     name shouldBe "dummyUpdatedName"
                     isSystemReferenceTable shouldBe referenceTable.isSystemReferenceTable
                     values.size shouldBe 2
-                    values[0].name shouldBe "dummyWaarde100"
-                    values[1].name shouldBe "dummyWaarde101"
+                    values[0].name shouldBe "dummyValue1"
+                    values[1].name shouldBe "dummyValue2"
                 }
             }
         }
@@ -168,11 +173,11 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         val referenceTable = createReferenceTable(
             values = mutableListOf(
                 createReferenceTableValue(
-                    name = "dummyWaarde100",
+                    name = "dummyValue1",
                     isSystemValue = true
                 ),
                 createReferenceTableValue(
-                    name = "dummyWaarde101",
+                    name = "dummyValue2",
                     isSystemValue = false
                 )
             )
@@ -185,11 +190,11 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 naam = "dummyUpdatedName",
                 waarden = listOf(
                     createRestReferenceTableValue(
-                        name = "dummyWaarde102",
+                        name = "dummyValue3",
                         isSystemValue = false
                     ),
                     createRestReferenceTableValue(
-                        name = "dummyWaarde103",
+                        name = "dummyValue4",
                         isSystemValue = false
                     )
                 )

@@ -125,12 +125,11 @@ class ReferenceTableRestService @Inject constructor(
     @GET
     @Path("communicatiekanaal/{inclusiefEFormulier}")
     fun listCommunicationChannels(
-        @PathParam("inclusiefEFormulier") inclusiefEFormulier: Boolean
-    ) =
-        getReferenceTableValueNames(
+        @PathParam("inclusiefEFormulier") includingEFormulier: Boolean
+    ) = getReferenceTableValueNames(
             referenceTableService.readReferenceTable(Systeem.COMMUNICATIEKANAAL.name).values
         )
-            .filter { communicatiekanaal -> inclusiefEFormulier || communicatiekanaal != ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER }
+            .filter { communicationChannel -> includingEFormulier || communicationChannel != ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER }
             .toList()
 
     @GET
