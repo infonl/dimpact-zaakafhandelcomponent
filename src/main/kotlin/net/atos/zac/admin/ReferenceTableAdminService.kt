@@ -38,11 +38,14 @@ class ReferenceTableAdminService @Inject constructor(
 
     @Transactional(Transactional.TxType.REQUIRED)
     fun deleteReferenceTable(id: Long) {
-        val table = entityManager.find(ReferenceTable::class.java, id)
+        val referenceTable = entityManager.find(ReferenceTable::class.java, id)
+        require(!referenceTable.isSystemReferenceTable) {
+            "Deze referentietabel is een systeemtabel en kan niet verwijderd worden."
+        }
         entityManager.criteriaBuilder.let { criteriaBuilder ->
             val query = criteriaBuilder.createQuery(HumanTaskReferentieTabel::class.java)
             query.from(HumanTaskReferentieTabel::class.java).let {
-                query.select(it).where(criteriaBuilder.equal(it.get<Any>("tabel").get<Any>("id"), table.id))
+                query.select(it).where(criteriaBuilder.equal(it.get<Any>("tabel").get<Any>("id"), referenceTable.id))
             }
             entityManager.createQuery(query).resultList.run {
                 if (this.isNotEmpty()) {
@@ -55,7 +58,7 @@ class ReferenceTableAdminService @Inject constructor(
                     )
                 }
             }
-            entityManager.remove(table)
+            entityManager.remove(referenceTable)
         }
     }
 }
