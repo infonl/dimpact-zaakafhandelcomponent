@@ -4,9 +4,9 @@
 #
 name: Clean up old ZAC Docker Images from the GitHub Packages Container Registry
 on:
+  workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"  # every night at midnight, utc
-  workflow_dispatch:
 
 permissions:
   packages: write
@@ -14,7 +14,7 @@ permissions:
 jobs:
   clean:
     runs-on: ubuntu-latest
-    name: Delete ZAC Docker Images older than 8 weeks
+    name: Delete ZAC Docker Images
     steps:
       - uses: snok/container-retention-policy@v3.0.0
         with:
