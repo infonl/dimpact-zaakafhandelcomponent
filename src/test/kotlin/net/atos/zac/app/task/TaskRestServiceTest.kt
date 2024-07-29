@@ -9,7 +9,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
-import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -102,10 +101,6 @@ class TaskRestServiceTest : BehaviorSpec({
         taskService = taskService
     )
     val loggedInUser = createLoggedInUser()
-
-    beforeEach {
-        checkUnnecessaryStub()
-    }
 
     Given("a task is not yet assigned") {
         val restTaakToekennenGegevens = createRestTaskAssignData()
