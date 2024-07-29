@@ -6,7 +6,6 @@ package net.atos.zac.app.admin.model
 
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
-import net.atos.zac.admin.model.ReferenceTable
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 
@@ -19,12 +18,3 @@ class RestReferenceTableUpdate(
     @field:Valid
     var waarden: List<RestReferenceTableValue> = emptyList()
 )
-
-fun RestReferenceTableUpdate.updateExistingReferenceTableWithNameAndValues(
-    existingReferenceTable: ReferenceTable
-) = existingReferenceTable.apply {
-    name = this@updateExistingReferenceTableWithNameAndValues.naam
-    values = this@updateExistingReferenceTableWithNameAndValues.waarden
-        .map { it.toReferenceTableValue(this) }
-        .toMutableList()
-}

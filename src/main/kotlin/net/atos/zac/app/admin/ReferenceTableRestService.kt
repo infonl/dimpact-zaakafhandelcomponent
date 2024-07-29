@@ -21,10 +21,10 @@ import net.atos.zac.admin.ReferenceTableService
 import net.atos.zac.admin.model.ReferenceTable.Systeem
 import net.atos.zac.admin.model.ReferenceTableValue
 import net.atos.zac.admin.model.toRestReferenceTable
+import net.atos.zac.admin.model.updateExistingReferenceTable
 import net.atos.zac.app.admin.model.RestReferenceTable
 import net.atos.zac.app.admin.model.RestReferenceTableUpdate
 import net.atos.zac.app.admin.model.toReferenceTable
-import net.atos.zac.app.admin.model.updateExistingReferenceTableWithNameAndValues
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.policy.PolicyService
 import nl.lifely.zac.util.AllOpen
@@ -88,11 +88,19 @@ class ReferenceTableRestService @Inject constructor(
         @Valid restReferenceTableUpdate: RestReferenceTableUpdate
     ): RestReferenceTable {
         PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
-        return referenceTableService.readReferenceTable(id).let {
-            restReferenceTableUpdate.updateExistingReferenceTableWithNameAndValues(it).let { updatedReferenceTable ->
-                referenceTableAdminService.updateReferenceTable(updatedReferenceTable).toRestReferenceTable(
-                    true
-                )
+        return referenceTableService.readReferenceTable(id).let { existingReferenceTable ->
+            val systemValueNames = existingReferenceTable.values.filter { it.isSystemValue }.map { it.name }
+            existingReferenceTable.updateExistingReferenceTable(
+                restReferenceTableUpdate
+            ).let { updatedReferenceTable ->
+                require(
+                    updatedReferenceTable.values
+                        .filter { it.isSystemValue }
+                        .map { it.name }
+                        .containsAll(systemValueNames)
+                ) { "Systeem referentietabel waarden kunnen niet worden aangepast" }
+                referenceTableAdminService.updateReferenceTable(updatedReferenceTable)
+                    .toRestReferenceTable(true)
             }
         }
     }

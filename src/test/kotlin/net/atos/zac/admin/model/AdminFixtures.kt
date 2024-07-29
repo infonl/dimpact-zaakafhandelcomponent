@@ -10,26 +10,27 @@ import java.util.UUID
 fun createReferenceTable(
     id: Long = 1234L,
     code: String = "dummyCode",
-    naam: String = "dummyReferentieTabel",
+    name: String = "dummyReferentieTabel",
     isSystemReferenceTable: Boolean = false,
     values: MutableList<ReferenceTableValue> = mutableListOf(createReferenceTableValue())
-) =
-    ReferenceTable().apply {
-        this.id = id
-        this.code = code
-        this.name = naam
-        this.isSystemReferenceTable = isSystemReferenceTable
-        this.values = values
-    }
+) = ReferenceTable().apply {
+    this.id = id
+    this.code = code
+    this.name = name
+    this.isSystemReferenceTable = isSystemReferenceTable
+    this.values = values
+}
 
 fun createReferenceTableValue(
     id: Long = 1234L,
-    naam: String = "dummyReferentieTabelWaarde",
-    volgorde: Int = 1
+    name: String = "dummyReferentieTabelWaarde",
+    sortOrder: Int = 1,
+    isSystemValue: Boolean = false
 ) = ReferenceTableValue().apply {
     this.id = id
-    this.name = naam
-    this.sortOrder = volgorde
+    this.name = name
+    this.sortOrder = sortOrder
+    this.isSystemValue = isSystemValue
 }
 
 fun createZaakafhandelParameters(

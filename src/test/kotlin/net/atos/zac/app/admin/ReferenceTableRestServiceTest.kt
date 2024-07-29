@@ -5,6 +5,7 @@
 
 package net.atos.zac.app.admin
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
@@ -36,19 +37,19 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         val referentieTabel = createReferenceTable(
             id = 1L,
             code = "COMMUNICATIEKANAAL",
-            naam = "Communicatiekanalen"
+            name = "Communicatiekanalen"
         )
         val referentieWaarde1 = "dummyWaarde1"
         val referentieWaarde2 = "E-formulier"
         val referentieTabelWaarde1 = createReferenceTableValue(
             id = 1L,
-            naam = referentieWaarde1,
-            volgorde = 1
+            name = referentieWaarde1,
+            sortOrder = 1
         )
         val referentieTabelWaarde2 = createReferenceTableValue(
             id = 2L,
-            naam = referentieWaarde2,
-            volgorde = 2
+            name = referentieWaarde2,
+            sortOrder = 2
         )
         val referentieTabelWaarden = listOf(
             referentieTabelWaarde1,
@@ -81,19 +82,19 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         val referentieTabel = createReferenceTable(
             id = 1L,
             code = "SERVER_ERROR_ERROR_PAGINA_TEKST",
-            naam = "Server error page text"
+            name = "Server error page text"
         )
         val referentieWaarde1 = "dummyWaarde1"
         val referentieWaarde2 = "dummyWaarde2"
         val referentieTabelWaarde1 = createReferenceTableValue(
             id = 1L,
-            naam = referentieWaarde1,
-            volgorde = 1
+            name = referentieWaarde1,
+            sortOrder = 1
         )
         val referentieTabelWaarde2 = createReferenceTableValue(
             id = 2L,
-            naam = referentieWaarde2,
-            volgorde = 2
+            name = referentieWaarde2,
+            sortOrder = 2
         )
         val referentieTabelWaarden = listOf(
             referentieTabelWaarde1,
@@ -159,6 +160,50 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                     values[0].name shouldBe "dummyWaarde100"
                     values[1].name shouldBe "dummyWaarde101"
                 }
+            }
+        }
+    }
+
+    Given("An existing reference table with two values of which one is a system value") {
+        val referenceTable = createReferenceTable(
+            values = mutableListOf(
+                createReferenceTableValue(
+                    name = "dummyWaarde100",
+                    isSystemValue = true
+                ),
+                createReferenceTableValue(
+                    name = "dummyWaarde101",
+                    isSystemValue = false
+                )
+            )
+        )
+        every { policyService.readOverigeRechten().beheren } returns true
+        every { referenceTableService.readReferenceTable(referenceTable.id!!) } returns referenceTable
+
+        When("the reference table is updated with two new values not including the existing system value") {
+            val restReferenceTableUpdate = createRestReferenceTableUpdate(
+                naam = "dummyUpdatedName",
+                waarden = listOf(
+                    createRestReferenceTableValue(
+                        name = "dummyWaarde102",
+                        isSystemValue = false
+                    ),
+                    createRestReferenceTableValue(
+                        name = "dummyWaarde103",
+                        isSystemValue = false
+                    )
+                )
+            )
+
+            val exception = shouldThrow<IllegalArgumentException> {
+                referenceTableRestService.updateReferenceTable(
+                    id = referenceTable.id!!,
+                    restReferenceTableUpdate
+                )
+            }
+
+            Then("an exception should be thrown indicating that system values cannot be updated") {
+                exception.message shouldBe "Systeem referentietabel waarden kunnen niet worden aangepast"
             }
         }
     }

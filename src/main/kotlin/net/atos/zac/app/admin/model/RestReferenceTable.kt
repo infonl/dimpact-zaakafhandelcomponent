@@ -38,4 +38,3 @@ fun RestReferenceTable.toReferenceTable(): ReferenceTable {
             .toMutableList()
     }
 }
-
