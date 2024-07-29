@@ -98,7 +98,7 @@ class ReferenceTableRestService @Inject constructor(
                         .filter { it.isSystemValue }
                         .map { it.name }
                         .containsAll(systemValueNames)
-                ) { "Systeem referentietabel waarden kunnen niet worden aangepast" }
+                ) { "Referentietabel systeemwaarden kunnen niet worden aangepast" }
                 referenceTableAdminService.updateReferenceTable(updatedReferenceTable)
                     .toRestReferenceTable(true)
             }
