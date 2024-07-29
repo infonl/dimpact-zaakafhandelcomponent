@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2023 Lifely
 # SPDX-License-Identifier: EUPL-1.2+
 #
-name: Clean up old ZAC Docker Images from the GitHub Packages Container Registry
+name: Delete old ZAC Docker Images from the GitHub Packages Container Registry
 on:
   schedule:
     - cron: "0 0 * * *"  # every night at midnight, utc
