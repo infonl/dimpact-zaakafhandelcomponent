@@ -10,8 +10,10 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import net.atos.zac.admin.ReferenceTableAdminService
 import net.atos.zac.admin.ReferenceTableService
+import net.atos.zac.admin.model.ReferenceTable
 import net.atos.zac.admin.model.createReferenceTable
 import net.atos.zac.admin.model.createReferenceTableValue
 import net.atos.zac.policy.PolicyService
@@ -74,6 +76,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("Two server error page texts") {
         val referentieTabel = createReferenceTable(
             id = 1L,
@@ -107,6 +110,55 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 serverErrorPageTexts.size shouldBe referentieTabelWaarden.size
                 serverErrorPageTexts[0] shouldBe referentieWaarde1
                 serverErrorPageTexts[1] shouldBe referentieWaarde2
+            }
+        }
+    }
+
+    Given("An existing reference table with one value") {
+        val referenceTable = createReferenceTable()
+        val updatedReferenceTable = createReferenceTable()
+        val updatedReferenceTableSlot = slot<ReferenceTable>()
+        every { policyService.readOverigeRechten().beheren } returns true
+        every { referenceTableService.readReferenceTable(referenceTable.id!!) } returns referenceTable
+        every {
+            referenceTableAdminService.updateReferenceTable(capture(updatedReferenceTableSlot))
+        } returns updatedReferenceTable
+
+        When("the reference table is updated with two new values and a new name") {
+            val restReferenceTableUpdate = createRestReferenceTableUpdate(
+                naam = "dummyUpdatedName",
+                waarden = listOf(
+                    createRestReferenceTableValue(
+                        name = "dummyWaarde100"
+                    ),
+                    createRestReferenceTableValue(
+                        name = "dummyWaarde101"
+                    )
+                )
+            )
+
+            val updatedRestReferenceTable = referenceTableRestService.updateReferenceTable(
+                id = referenceTable.id!!,
+                restReferenceTableUpdate
+            )
+
+            Then("the reference table is updated successfully and only contains the two new values") {
+                with(updatedRestReferenceTable) {
+                    id shouldBe updatedReferenceTable.id
+                    code shouldBe updatedReferenceTable.code
+                    naam shouldBe updatedReferenceTable.name
+                    systeem shouldBe updatedReferenceTable.isSystemReferenceTable
+                    aantalWaarden shouldBe updatedReferenceTable.values.size
+                    waarden.size shouldBe updatedReferenceTable.values.size
+                }
+                with(updatedReferenceTableSlot.captured) {
+                    code shouldBe referenceTable.code
+                    name shouldBe "dummyUpdatedName"
+                    isSystemReferenceTable shouldBe referenceTable.isSystemReferenceTable
+                    values.size shouldBe 2
+                    values[0].name shouldBe "dummyWaarde100"
+                    values[1].name shouldBe "dummyWaarde101"
+                }
             }
         }
     }

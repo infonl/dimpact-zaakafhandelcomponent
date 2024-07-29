@@ -4,6 +4,7 @@
  */
 package net.atos.zac.app.admin.model
 
+import jakarta.validation.constraints.NotBlank
 import net.atos.zac.admin.model.ReferenceTable
 import net.atos.zac.admin.model.ReferenceTableValue
 import nl.lifely.zac.util.AllOpen
@@ -13,7 +14,10 @@ import nl.lifely.zac.util.NoArgConstructor
 @NoArgConstructor
 class RestReferenceTableValue(
     var id: Long,
+
+    @field:NotBlank
     var naam: String,
+
     var isSystemValue: Boolean
 )
 

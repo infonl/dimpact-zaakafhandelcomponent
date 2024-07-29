@@ -11,7 +11,6 @@ import jakarta.transaction.Transactional
 import net.atos.zac.admin.model.HumanTaskReferentieTabel
 import net.atos.zac.admin.model.ReferenceTable
 import net.atos.zac.shared.exception.FoutmeldingException
-import net.atos.zac.util.ValidationUtil
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 
@@ -29,7 +28,6 @@ class ReferenceTableAdminService @Inject constructor(
 
     @Transactional(Transactional.TxType.REQUIRED)
     fun updateReferenceTable(referenceTable: ReferenceTable): ReferenceTable {
-        ValidationUtil.valideerObject(referenceTable)
         referenceTableService.findReferenceTable(referenceTable.code)?.let {
             if (it.id != referenceTable.id) {
                 throw FoutmeldingException("Er bestaat al een referentietabel met de code '${referenceTable.code}'")

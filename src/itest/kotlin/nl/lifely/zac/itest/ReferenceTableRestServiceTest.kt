@@ -191,11 +191,12 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 JSONArray(responseBody).length() shouldBe 0
             }
         }
-        When("a reference value is added to the server error texts reference table") {
+        When("a reference value is added to the server error texts reference table and the name is updated") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/referentietabellen/$serverErrorTextErrorPageReferenceTableId",
                 requestBodyAsString = """
                     {       
+                    "naam": "Updated server error error pagina tekst",
                     "waarden":[{"naam":"dummyServerErrorErrorPageText"}]
                     }
                 """.trimIndent()
@@ -204,6 +205,20 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
+                with(JSONObject(responseBody).toString()) {
+                    shouldEqualJsonIgnoringExtraneousFields(
+                        """
+                        {
+                            "code": "$REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_CODE",
+                            "naam": "Updated server error error pagina tekst",
+                            "systeem": true,
+                            "aantalWaarden": 1,
+                            "waarden": [{"naam": "dummyServerErrorErrorPageText", "systemValue": false}]
+                        }
+                        """.trimIndent()
+                    )
+                    shouldContainJsonKey("id")
+                }
             }
         }
         When("the get server error texts endpoint is called again") {

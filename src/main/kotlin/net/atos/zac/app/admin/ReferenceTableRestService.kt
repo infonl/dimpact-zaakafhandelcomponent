@@ -6,6 +6,7 @@ package net.atos.zac.app.admin
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.GET
@@ -21,10 +22,12 @@ import net.atos.zac.admin.model.ReferenceTable.Systeem
 import net.atos.zac.admin.model.ReferenceTableValue
 import net.atos.zac.admin.model.toRestReferenceTable
 import net.atos.zac.app.admin.model.RestReferenceTable
+import net.atos.zac.app.admin.model.RestReferenceTableUpdate
 import net.atos.zac.app.admin.model.toReferenceTable
-import net.atos.zac.app.admin.model.updateReferenceTableValues
+import net.atos.zac.app.admin.model.updateExistingReferenceTableWithNameAndValues
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.policy.PolicyService
+import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 
 @Singleton
@@ -33,6 +36,7 @@ import nl.lifely.zac.util.NoArgConstructor
 @Produces(MediaType.APPLICATION_JSON)
 @Suppress("TooManyFunctions")
 @NoArgConstructor
+@AllOpen // required because we use Jakarta Validation using @Valid annotation in some functions
 class ReferenceTableRestService @Inject constructor(
     private val referenceTableService: ReferenceTableService,
     private val referenceTableAdminService: ReferenceTableAdminService,
@@ -81,11 +85,11 @@ class ReferenceTableRestService @Inject constructor(
     @Path("{id}")
     fun updateReferenceTable(
         @PathParam("id") id: Long,
-        restReferenceTable: RestReferenceTable
+        @Valid restReferenceTableUpdate: RestReferenceTableUpdate
     ): RestReferenceTable {
         PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
         return referenceTableService.readReferenceTable(id).let {
-            restReferenceTable.updateReferenceTableValues(it).let { updatedReferenceTable ->
+            restReferenceTableUpdate.updateExistingReferenceTableWithNameAndValues(it).let { updatedReferenceTable ->
                 referenceTableAdminService.updateReferenceTable(updatedReferenceTable).toRestReferenceTable(
                     true
                 )

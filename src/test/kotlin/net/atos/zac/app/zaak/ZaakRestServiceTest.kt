@@ -351,7 +351,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Two open ZAAKs") {
+    Given("Two open zaken") {
         val zaak = createZaak()
         val teKoppelenZaak = createZaak()
         val restZakenVerdeelGegevens = createRESTZaakKoppelGegevens(
@@ -365,12 +365,16 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(restZakenVerdeelGegevens.teKoppelenZaakUuid) } returns teKoppelenZaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
         every { policyService.readZaakRechten(teKoppelenZaak) } returns createZaakRechten()
-        every { zrcClientService.patchZaak(any<UUID>(), any<Zaak>()) } returns zaak
+        every { zrcClientService.patchZaak(any(), any()) } returns zaak
 
-        When("we link them") {
+        When("the zaken are linked ") {
             zaakRestService.koppelZaak(restZakenVerdeelGegevens)
 
-            Then("no exception is thrown") {}
+            Then("the two zaken are succesfully linked") {
+                verify(exactly = 2) {
+                    zrcClientService.patchZaak(any(), any())
+                }
+            }
         }
     }
 
@@ -387,12 +391,12 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(restZakenVerdeelGegevens.zaakUuid) } returns zaak
         every { zrcClientService.readZaak(restZakenVerdeelGegevens.teKoppelenZaakUuid) } returns teKoppelenZaak
 
-        When("we link them") {
+        When("the zaken are linked") {
             val exception = shouldThrow<PolicyException> {
                 zaakRestService.koppelZaak(restZakenVerdeelGegevens)
             }
 
-            Then("policy exception is thrown") {
+            Then("a policy exception should be thrown") {
                 exception.message shouldBe null
             }
         }
