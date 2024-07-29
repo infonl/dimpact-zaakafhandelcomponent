@@ -6,7 +6,6 @@ package nl.lifely.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKey
-import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainInOrder
 import io.kotest.matchers.shouldBe
@@ -22,6 +21,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_CODE
 import nl.lifely.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.lifely.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -43,43 +43,45 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
+                with(responseBody) {
+                    shouldEqualJsonIgnoringExtraneousFields(
+                        """
+                        [
+                            {
+                                "code": "$REFERENCE_TABLE_ADVIES_CODE", 
+                                "naam": "$REFERENCE_TABLE_ADVIES_NAME", 
+                                "systeem": true, 
+                                "aantalWaarden": 5
+                            },
+                            {
+                                "code": "$REFERENCE_TABLE_AFZENDER_CODE", 
+                                "naam": "$REFERENCE_TABLE_AFZENDER_NAME", 
+                                "systeem": true, 
+                                "aantalWaarden": 0
+                            },
+                            {
+                                "code": "$REFERENCE_TABLE_COMMUNICATIEKANAAL_CODE", 
+                                "naam": "$REFERENCE_TABLE_COMMUNICATIEKANAAL_NAME", 
+                                "systeem": true, 
+                                "aantalWaarden": 8
+                            },
+                            {
+                                "code": "$REFERENCE_TABLE_DOMEIN_CODE", 
+                                "naam": "$REFERENCE_TABLE_DOMEIN_NAME", 
+                                "systeem": true, 
+                                "aantalWaarden": 1
+                            },
+                            {
+                                "code": "$REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_CODE", 
+                                "naam": "$REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_NAME", 
+                                "systeem": true, 
+                                "aantalWaarden": 0
+                            }
+                        ]
+                        """.trimIndent()
+                    )
+                }
                 with(JSONArray(responseBody)) {
-                    length() shouldBe 5
-                    with(getJSONObject(0).toString()) {
-                        shouldContainJsonKeyValue("code", REFERENCE_TABLE_ADVIES_CODE)
-                        shouldContainJsonKeyValue("naam", REFERENCE_TABLE_ADVIES_NAME)
-                        shouldContainJsonKeyValue("systeem", true)
-                        shouldContainJsonKeyValue("aantalWaarden", 5)
-                        shouldContainJsonKey("id")
-                    }
-                    with(getJSONObject(1).toString()) {
-                        shouldContainJsonKeyValue("code", REFERENCE_TABLE_AFZENDER_CODE)
-                        shouldContainJsonKeyValue("naam", REFERENCE_TABLE_AFZENDER_NAME)
-                        shouldContainJsonKeyValue("systeem", true)
-                        shouldContainJsonKeyValue("aantalWaarden", 0)
-                        shouldContainJsonKey("id")
-                    }
-                    with(getJSONObject(2).toString()) {
-                        shouldContainJsonKeyValue("code", REFERENCE_TABLE_COMMUNICATIEKANAAL_CODE)
-                        shouldContainJsonKeyValue("naam", REFERENCE_TABLE_COMMUNICATIEKANAAL_NAME)
-                        shouldContainJsonKeyValue("systeem", true)
-                        shouldContainJsonKeyValue("aantalWaarden", 8)
-                        shouldContainJsonKey("id")
-                    }
-                    with(getJSONObject(3).toString()) {
-                        shouldContainJsonKeyValue("code", REFERENCE_TABLE_DOMEIN_CODE)
-                        shouldContainJsonKeyValue("naam", REFERENCE_TABLE_DOMEIN_NAME)
-                        shouldContainJsonKeyValue("systeem", true)
-                        shouldContainJsonKeyValue("aantalWaarden", 1)
-                        shouldContainJsonKey("id")
-                    }
-                    with(getJSONObject(4).toString()) {
-                        shouldContainJsonKeyValue("code", REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_CODE)
-                        shouldContainJsonKeyValue("naam", REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_NAME)
-                        shouldContainJsonKeyValue("systeem", true)
-                        shouldContainJsonKeyValue("aantalWaarden", 0)
-                        shouldContainJsonKey("id")
-                    }
                     communicationChannelPageReferenceTableId = getJSONObject(2).getInt("id")
                     serverErrorTextErrorPageReferenceTableId = getJSONObject(4).getInt("id")
                 }
@@ -109,53 +111,27 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
                 with(JSONObject(responseBody).toString()) {
-                    shouldContainJsonKeyValue("code", REFERENCE_TABLE_COMMUNICATIEKANAAL_CODE)
-                    shouldContainJsonKeyValue("naam", REFERENCE_TABLE_COMMUNICATIEKANAAL_NAME)
-                    shouldContainJsonKeyValue("systeem", true)
-                    shouldContainJsonKeyValue("aantalWaarden", 8)
+                    shouldEqualJsonIgnoringExtraneousFields(
+                        """
+                        {
+                            "code": "$REFERENCE_TABLE_COMMUNICATIEKANAAL_CODE",
+                            "naam": "$REFERENCE_TABLE_COMMUNICATIEKANAAL_NAME",
+                            "systeem": true,
+                            "aantalWaarden": 8,
+                            "waarden": [
+                                {"naam": "Balie", "systemValue": false},
+                                {"naam": "E-formulier", "systemValue": true},
+                                {"naam": "E-mail", "systemValue": false},
+                                {"naam": "Intern", "systemValue": false},
+                                {"naam": "Internet", "systemValue": false},
+                                {"naam": "Medewerkersportaal", "systemValue": false},
+                                {"naam": "Post", "systemValue": false},
+                                {"naam": "Telefoon", "systemValue": false}
+                            ]
+                        }
+                        """.trimIndent()
+                    )
                     shouldContainJsonKey("id")
-                    val referenceTableValues = JSONObject(responseBody).getJSONArray("waarden")
-                    referenceTableValues.length() shouldBe 8
-                    with(referenceTableValues[0].toString()) {
-                        shouldContainJsonKeyValue("naam", "Balie")
-                        shouldContainJsonKeyValue("systemValue", false)
-                        shouldContainJsonKey("id")
-                    }
-                    with(referenceTableValues[1].toString()) {
-                        shouldContainJsonKeyValue("naam", "E-formulier")
-                        shouldContainJsonKeyValue("systemValue", true)
-                        shouldContainJsonKey("id")
-                    }
-                    with(referenceTableValues[2].toString()) {
-                        shouldContainJsonKeyValue("naam", "E-mail")
-                        shouldContainJsonKeyValue("systemValue", false)
-                        shouldContainJsonKey("id")
-                    }
-                    with(referenceTableValues[3].toString()) {
-                        shouldContainJsonKeyValue("naam", "Intern")
-                        shouldContainJsonKeyValue("systemValue", false)
-                        shouldContainJsonKey("id")
-                    }
-                    with(referenceTableValues[4].toString()) {
-                        shouldContainJsonKeyValue("naam", "Internet")
-                        shouldContainJsonKeyValue("systemValue", false)
-                        shouldContainJsonKey("id")
-                    }
-                    with(referenceTableValues[5].toString()) {
-                        shouldContainJsonKeyValue("naam", "Medewerkersportaal")
-                        shouldContainJsonKeyValue("systemValue", false)
-                        shouldContainJsonKey("id")
-                    }
-                    with(referenceTableValues[6].toString()) {
-                        shouldContainJsonKeyValue("naam", "Post")
-                        shouldContainJsonKeyValue("systemValue", false)
-                        shouldContainJsonKey("id")
-                    }
-                    with(referenceTableValues[7].toString()) {
-                        shouldContainJsonKeyValue("naam", "Telefoon")
-                        shouldContainJsonKeyValue("systemValue", false)
-                        shouldContainJsonKey("id")
-                    }
                 }
             }
         }
