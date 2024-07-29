@@ -46,14 +46,17 @@ class ReferenceTableRestService @Inject constructor(
             .toList()
     }
 
+    /**
+     * This endpoint should be removed and this logic should be moved to the frontend.
+     */
     @GET
     @Path("new")
-    fun newReferenceTable(): RestReferenceTable {
-        PolicyService.assertPolicy(policyService.readOverigeRechten().beheren)
-        return referenceTableAdminService.newReferenceTable().toRestReferenceTable(
-            true
+    fun newReferenceTable() =
+        RestReferenceTable(
+            code = "VUL SVP EEN UNIEKE TABEL CODE IN",
+            naam = "Nieuwe referentietabel",
+            systeem = false,
         )
-    }
 
     @POST
     fun createReferenceTable(restReferenceTable: RestReferenceTable): RestReferenceTable {
