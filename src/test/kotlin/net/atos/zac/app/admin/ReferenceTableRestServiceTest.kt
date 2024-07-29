@@ -203,7 +203,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             }
 
             Then("an exception should be thrown indicating that system values cannot be updated") {
-                exception.message shouldBe "Systeem referentietabel waarden kunnen niet worden aangepast"
+                exception.message shouldBe "Referentietabel systeemwaarden kunnen niet worden aangepast"
             }
         }
     }

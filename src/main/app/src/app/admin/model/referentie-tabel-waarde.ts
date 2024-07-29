@@ -6,4 +6,5 @@
 export class ReferentieTabelWaarde {
   id: number;
   naam: string;
+  systemValue: boolean;
 }
