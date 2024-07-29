@@ -27,7 +27,6 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.klanten.exception.KlantenRuntimeExceptionMapper;
-import net.atos.client.klanten.model.AuditTrail;
 import net.atos.client.klanten.model.Klant;
 import net.atos.client.klanten.model.KlantList200Response;
 import net.atos.client.klanten.model.KlantListParameters;
@@ -46,26 +45,6 @@ import net.atos.client.klanten.util.KlantenClientHeadersFactory;
 public interface KlantenClient {
     String X_NLX_LOGRECORD_ID_HEADER = "X-NLX-Logrecord-ID";
     String X_AUDIT_TOELICHTING_HEADER = "X-Audit-Toelichting";
-
-    /**
-     * Alle audit trail regels behorend bij de KLANT.
-     */
-    @GET
-    @Path("/{klant_uuid}/audittrail")
-    @Produces({"application/json", "application/problem+json"})
-    List<AuditTrail> audittrailList(@PathParam("klant_uuid") UUID klantUuid) throws ProcessingException;
-
-    /**
-     * Een specifieke audit trail regel opvragen.
-     */
-    @GET
-    @Path("/{klant_uuid}/audittrail/{uuid}")
-    @Produces({"application/json", "application/problem+json"})
-    AuditTrail audittrailRead(
-            @PathParam("klant_uuid") UUID klantUuid,
-            @PathParam("uuid") UUID uuid,
-            @HeaderParam("If-None-Match") String ifNoneMatch
-    ) throws ProcessingException;
 
     /**
      * Maak een KLANT aan.
