@@ -15,7 +15,6 @@ import net.atos.zac.admin.ReferenceTableService
 import net.atos.zac.admin.model.createReferenceTable
 import net.atos.zac.admin.model.createReferenceTableValue
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.policy.output.createOverigeRechten
 
 class ReferenceTableRestServiceTest : BehaviorSpec({
     val referenceTableService = mockk<ReferenceTableService>()
@@ -108,22 +107,6 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 serverErrorPageTexts.size shouldBe referentieTabelWaarden.size
                 serverErrorPageTexts[0] shouldBe referentieWaarde1
                 serverErrorPageTexts[1] shouldBe referentieWaarde2
-            }
-        }
-    }
-    Given("'beheren overige rechten' policy permissions") {
-        val referenceTable = createReferenceTable()
-        every { referenceTableAdminService.newReferenceTable() } returns referenceTable
-        every { policyService.readOverigeRechten() } returns createOverigeRechten()
-
-        When("a new reference table is created") {
-            val restReferenceTable = referenceTableRestService.newReferenceTable()
-
-            Then("the new reference table is created succesfully") {
-                with(restReferenceTable) {
-                    code shouldBe referenceTable.code
-                    naam shouldBe referenceTable.name
-                }
             }
         }
     }

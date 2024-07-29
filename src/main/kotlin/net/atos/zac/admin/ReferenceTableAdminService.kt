@@ -24,13 +24,6 @@ class ReferenceTableAdminService @Inject constructor(
     private val referenceTableService: ReferenceTableService
 ) {
     @Transactional(Transactional.TxType.REQUIRED)
-    fun newReferenceTable(): ReferenceTable =
-        ReferenceTable().apply {
-            this.code = "VUL SVP EEN UNIEKE TABEL CODE IN"
-            this.name = "Vul svp een unieke tabel naam in "
-        }
-
-    @Transactional(Transactional.TxType.REQUIRED)
     fun createReferenceTable(referenceTable: ReferenceTable) =
         updateReferenceTable(referenceTable)
 

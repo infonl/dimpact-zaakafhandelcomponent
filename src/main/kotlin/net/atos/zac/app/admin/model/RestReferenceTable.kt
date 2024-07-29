@@ -12,7 +12,7 @@ import nl.lifely.zac.util.NoArgConstructor
 @AllOpen
 @NoArgConstructor
 class RestReferenceTable(
-    var id: Long,
+    var id: Long? = null,
 
     @NotBlank
     var code: String,
