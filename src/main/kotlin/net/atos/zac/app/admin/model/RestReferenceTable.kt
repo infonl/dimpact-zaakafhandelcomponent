@@ -39,11 +39,8 @@ fun RestReferenceTable.toReferenceTable(): ReferenceTable {
 
 fun RestReferenceTable.updateReferenceTableValues(
     existingReferenceTable: ReferenceTable
-): ReferenceTable {
-    val referenceTable = existingReferenceTable ?: ReferenceTable()
-    return referenceTable.apply {
-        values = this@updateReferenceTableValues.waarden
-            .map { referenceTableValue -> referenceTableValue.toReferenceTableValue(this) }
-            .toMutableList()
-    }
+) = existingReferenceTable.apply {
+    values = this@updateReferenceTableValues.waarden
+        .map { it.toReferenceTableValue(this) }
+        .toMutableList()
 }
