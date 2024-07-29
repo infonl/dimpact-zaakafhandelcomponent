@@ -7,8 +7,6 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"  # every night at midnight, utc
-  # TODO: temporarily add push: here to test the workflow from the initial PR branch
-  push:
 
 permissions:
   packages: write
@@ -26,4 +24,4 @@ jobs:
           image-tags: "!latest"
           cut-off: 8weeks
           keep-n-most-recent: 10
-          dry-run: true
+          dry-run: false
