@@ -25,8 +25,8 @@ import org.wildfly.security.http.oidc.AccessToken;
 import org.wildfly.security.http.oidc.OidcPrincipal;
 import org.wildfly.security.http.oidc.OidcSecurityContext;
 
-import net.atos.zac.zaaksturing.ZaakafhandelParameterService;
-import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
+import net.atos.zac.admin.ZaakafhandelParameterService;
+import net.atos.zac.admin.model.ZaakafhandelParameters;
 
 @WebFilter(filterName = "UserPrincipalFilter")
 public class UserPrincipalFilter implements Filter {

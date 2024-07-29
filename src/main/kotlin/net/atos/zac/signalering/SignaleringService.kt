@@ -9,7 +9,6 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
@@ -49,6 +48,7 @@ import java.util.logging.Logger
 @NoArgConstructor
 @AllOpen
 class SignaleringService @Inject constructor(
+    private val entityManager: EntityManager,
     private val drcClientService: DrcClientService,
     private val eventingService: EventingService,
     private val flowableTaskService: FlowableTaskService,
@@ -61,9 +61,6 @@ class SignaleringService @Inject constructor(
     companion object {
         private val LOG = Logger.getLogger(SignaleringService::class.java.name)
     }
-
-    @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
-    private lateinit var entityManager: EntityManager
 
     /**
      * Factory method for constructing Signalering instances.
@@ -365,16 +362,6 @@ class SignaleringService @Inject constructor(
             LOG.fine { "Sending 'ZAKEN_SIGNALERINGEN' screen event with ID '$it'." }
             eventingService.send(ScreenEventType.ZAKEN_SIGNALERINGEN.updated(it, zakenSignaleringen))
         }
-    }
-
-    /**
-     * Sets the entity manager for this service.
-     * Only meant for testing purposes! In normal usage the entity manager is injected by the CDI container.
-     *
-     * @param entityManager the entity manager to set
-     */
-    fun setEntityManager(entityManager: EntityManager) {
-        this.entityManager = entityManager
     }
 
     private fun getDocument(documentUUID: String) =

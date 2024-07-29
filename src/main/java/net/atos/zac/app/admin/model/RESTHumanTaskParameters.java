@@ -22,5 +22,5 @@ public class RESTHumanTaskParameters {
 
     public String formulierDefinitieId;
 
-    public List<RESTHumanTaskReferentieTabel> referentieTabellen = new ArrayList<>();
+    public List<RestHumanTaskReferenceTable> referentieTabellen = new ArrayList<>();
 }

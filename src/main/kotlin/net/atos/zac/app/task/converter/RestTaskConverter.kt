@@ -5,6 +5,8 @@
 package net.atos.zac.app.task.converter
 
 import jakarta.inject.Inject
+import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.app.formulieren.converter.RESTFormulierDefinitieConverter
 import net.atos.zac.app.identity.converter.RESTGroupConverter
 import net.atos.zac.app.identity.converter.RESTUserConverter
@@ -21,8 +23,6 @@ import net.atos.zac.flowable.util.TaskUtil
 import net.atos.zac.formulieren.FormulierDefinitieService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.util.DateTimeConverterUtil
-import net.atos.zac.zaaksturing.ZaakafhandelParameterService
-import net.atos.zac.zaaksturing.model.HumanTaskParameters
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo

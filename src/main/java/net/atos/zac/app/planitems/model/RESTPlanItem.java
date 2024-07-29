@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import net.atos.zac.zaaksturing.model.FormulierDefinitie;
+import net.atos.zac.admin.model.FormulierDefinitie;
 
 public class RESTPlanItem {
 

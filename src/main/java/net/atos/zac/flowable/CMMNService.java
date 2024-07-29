@@ -48,8 +48,8 @@ import net.atos.client.or.object.ObjectsClientService;
 import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
+import net.atos.zac.admin.model.ZaakafhandelParameters;
 import net.atos.zac.authentication.LoggedInUser;
-import net.atos.zac.zaaksturing.model.ZaakafhandelParameters;
 
 @ApplicationScoped
 @Transactional

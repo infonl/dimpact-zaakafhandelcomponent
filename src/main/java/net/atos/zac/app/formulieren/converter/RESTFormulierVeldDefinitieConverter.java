@@ -14,16 +14,16 @@ import jakarta.inject.Inject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import net.atos.zac.admin.ReferenceTableService;
+import net.atos.zac.admin.model.ReferenceTable;
+import net.atos.zac.admin.model.ReferenceTableValue;
 import net.atos.zac.app.formulieren.model.RESTFormulierVeldDefinitie;
 import net.atos.zac.formulieren.model.FormulierVeldDefinitie;
-import net.atos.zac.zaaksturing.ReferentieTabelService;
-import net.atos.zac.zaaksturing.model.ReferentieTabel;
-import net.atos.zac.zaaksturing.model.ReferentieTabelWaarde;
 
 public class RESTFormulierVeldDefinitieConverter {
 
     @Inject
-    private ReferentieTabelService referentieTabelService;
+    private ReferenceTableService referenceTableService;
 
     private final String SEPARATOR = ";";
 
@@ -46,11 +46,11 @@ public class RESTFormulierVeldDefinitieConverter {
         if (runtime) {
             final String referentietabelCode = StringUtils.substringAfter(veldDefinitie.getMeerkeuzeOpties(), "REF:");
             if (StringUtils.isNotBlank(referentietabelCode)) {
-                final ReferentieTabel referentieTabel = referentieTabelService.readReferentieTabel(referentietabelCode);
-                restVeldDefinitie.meerkeuzeOpties = referentieTabel.getWaarden()
+                final ReferenceTable referenceTable = referenceTableService.readReferenceTable(referentietabelCode);
+                restVeldDefinitie.meerkeuzeOpties = referenceTable.getWaarden()
                         .stream()
-                        .sorted(Comparator.comparingInt(ReferentieTabelWaarde::getVolgorde))
-                        .map(ReferentieTabelWaarde::getNaam)
+                        .sorted(Comparator.comparingInt(ReferenceTableValue::getVolgorde))
+                        .map(ReferenceTableValue::getNaam)
                         .collect(Collectors.joining(SEPARATOR));
             }
         }

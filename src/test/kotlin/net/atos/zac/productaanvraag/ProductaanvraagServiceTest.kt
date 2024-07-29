@@ -29,6 +29,9 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import net.atos.zac.admin.ZaakafhandelParameterBeheerService
+import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.configuratie.ConfiguratieService.BRON_ORGANISATIE
 import net.atos.zac.documenten.InboxDocumentenService
@@ -37,9 +40,6 @@ import net.atos.zac.flowable.CMMNService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
 import net.atos.zac.productaanvraag.model.generated.Geometry
-import net.atos.zac.zaaksturing.ZaakafhandelParameterBeheerService
-import net.atos.zac.zaaksturing.ZaakafhandelParameterService
-import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
 import java.net.URI
 import java.util.Optional
 import java.util.UUID

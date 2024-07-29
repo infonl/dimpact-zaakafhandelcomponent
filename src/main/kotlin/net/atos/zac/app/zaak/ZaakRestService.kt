@@ -52,6 +52,11 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.BesluitType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.client.zgw.ztc.util.isNuGeldig
+import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.ZaakAfzender
+import net.atos.zac.admin.model.ZaakAfzender.Speciaal
+import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
 import net.atos.zac.app.admin.model.RESTZaakAfzender
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
@@ -120,11 +125,6 @@ import net.atos.zac.util.LocalDateUtil
 import net.atos.zac.util.UriUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zaak.ZaakService
-import net.atos.zac.zaaksturing.ZaakafhandelParameterService
-import net.atos.zac.zaaksturing.model.ZaakAfzender
-import net.atos.zac.zaaksturing.model.ZaakAfzender.Speciaal
-import net.atos.zac.zaaksturing.model.ZaakafhandelParameters
-import net.atos.zac.zaaksturing.model.ZaakbeeindigParameter
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import nl.lifely.zac.util.AllOpen

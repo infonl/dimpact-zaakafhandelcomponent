@@ -8,13 +8,13 @@ package net.atos.zac.smartdocuments.templates
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import net.atos.client.smartdocuments.model.createTemplatesResponse
+import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.smartdocuments.rest.createRESTMappedTemplate
 import net.atos.zac.smartdocuments.rest.createRESTMappedTemplateGroup
 import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toModel
 import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toREST
 import net.atos.zac.smartdocuments.templates.model.createSmartDocumentsTemplate
 import net.atos.zac.smartdocuments.templates.model.createSmartDocumentsTemplateGroup
-import net.atos.zac.zaaksturing.model.createZaakafhandelParameters
 import java.util.UUID
 
 class SmartDocumentsTemplateConverterTest : BehaviorSpec({
