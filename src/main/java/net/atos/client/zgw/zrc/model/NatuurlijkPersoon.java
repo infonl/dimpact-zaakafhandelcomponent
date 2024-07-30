@@ -1,12 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.zrc.model;
-
-import net.atos.client.klant.model.SubVerblijfBuitenland;
-import net.atos.client.klant.model.VerblijfsAdres;
 
 public class NatuurlijkPersoon {
 
@@ -62,16 +58,6 @@ public class NatuurlijkPersoon {
      * - maxLength: 18
      */
     private String geboortedatum;
-
-    /**
-     *
-     */
-    private VerblijfsAdres verblijfsadres;
-
-    /**
-     *
-     */
-    private SubVerblijfBuitenland subVerblijfBuitenland;
 
     public NatuurlijkPersoon() {
     }
@@ -150,21 +136,5 @@ public class NatuurlijkPersoon {
 
     public void setGeboortedatum(final String geboortedatum) {
         this.geboortedatum = geboortedatum;
-    }
-
-    public VerblijfsAdres getVerblijfsadres() {
-        return verblijfsadres;
-    }
-
-    public void setVerblijfsadres(final VerblijfsAdres verblijfsadres) {
-        this.verblijfsadres = verblijfsadres;
-    }
-
-    public SubVerblijfBuitenland getSubVerblijfBuitenland() {
-        return subVerblijfBuitenland;
-    }
-
-    public void setSubVerblijfBuitenland(final SubVerblijfBuitenland subVerblijfBuitenland) {
-        this.subVerblijfBuitenland = subVerblijfBuitenland;
     }
 }
