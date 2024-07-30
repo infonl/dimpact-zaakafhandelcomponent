@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional
 import net.atos.zac.admin.model.HumanTaskReferentieTabel
 import net.atos.zac.admin.model.ReferenceTable
 import net.atos.zac.app.util.exception.InputValidationFailedException
+import net.atos.zac.app.util.exception.RestExceptionMapper.Companion.ERROR_CODE_REFERENCE_TABLE_WITH_SAME_CODE_ALREADY_EXISTS
 import net.atos.zac.app.util.exception.RestExceptionMapper.Companion.ERROR_CODE_SYSTEM_REFERENCE_TABLE_CANNOT_BE_DELETED
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -26,9 +27,7 @@ class ReferenceTableAdminService @Inject constructor(
     @Transactional(Transactional.TxType.REQUIRED)
     fun createReferenceTable(referenceTable: ReferenceTable): ReferenceTable {
         referenceTableService.findReferenceTable(referenceTable.code)?.let {
-            throw InputValidationFailedException(
-                "A reference table with '${referenceTable.code}' already exists"
-            )
+            throw InputValidationFailedException(ERROR_CODE_REFERENCE_TABLE_WITH_SAME_CODE_ALREADY_EXISTS)
         }
         return entityManager.merge(referenceTable)
     }
