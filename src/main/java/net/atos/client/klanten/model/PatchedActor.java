@@ -1,6 +1,6 @@
 /**
  * klantinteracties
- *  Description WIP. 
+ * Description WIP.
  *
  * The version of the OpenAPI document: 0.0.3
  * Contact: standaarden.ondersteuning@vng.nl
@@ -12,191 +12,197 @@
 
 package net.atos.client.klanten.model;
 
-import jakarta.json.bind.annotation.JsonbCreator;
-import jakarta.json.bind.annotation.JsonbProperty;
-
 import java.net.URI;
 import java.util.UUID;
 
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
+
 /**
-  * Set gegevensgroepdata from validated nested data.  Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
-  */
+ * Set gegevensgroepdata from validated nested data. Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
+ */
 
-public class PatchedActor  {
-  
- /**
-  * Unieke (technische) identificatiecode van de actor.
-  */
-  @JsonbProperty("uuid")
-  private UUID uuid;
+public class PatchedActor {
 
- /**
-  * De unieke URL van deze actor binnen deze API.
-  */
-  @JsonbProperty("url")
-  private URI url;
+    /**
+     * Unieke (technische) identificatiecode van de actor.
+     */
+    @JsonbProperty("uuid")
+    private UUID uuid;
 
- /**
-  * Naam van de actor.
-  */
-  @JsonbProperty("naam")
-  private String naam;
+    /**
+     * De unieke URL van deze actor binnen deze API.
+     */
+    @JsonbProperty("url")
+    private URI url;
 
- /**
-  * Geeft aan van welke specifieke soort actor sprake is.
-  */
-  @JsonbProperty("soortActor")
-  private SoortActorEnum soortActor;
+    /**
+     * Naam van de actor.
+     */
+    @JsonbProperty("naam")
+    private String naam;
 
- /**
-  * Geeft aan of aan de actor nog betrokken mag worden bij nieuwe klantcontacten. Voor niet-actieve is dit niet toegestaan.
-  */
-  @JsonbProperty("indicatieActief")
-  private Boolean indicatieActief;
+    /**
+     * Geeft aan van welke specifieke soort actor sprake is.
+     */
+    @JsonbProperty("soortActor")
+    private SoortActorEnum soortActor;
 
- /**
-  * Gegevens die een actorwerpobject in een extern register uniek identificeren.
-  */
-  @JsonbProperty("actoridentificator")
-  private Actoridentificator actoridentificator;
+    /**
+     * Geeft aan of aan de actor nog betrokken mag worden bij nieuwe klantcontacten. Voor niet-actieve is dit niet toegestaan.
+     */
+    @JsonbProperty("indicatieActief")
+    private Boolean indicatieActief;
 
-  public PatchedActor() {
-  }
+    /**
+     * Gegevens die een actorwerpobject in een extern register uniek identificeren.
+     */
+    @JsonbProperty("actoridentificator")
+    private Actoridentificator actoridentificator;
 
- @JsonbCreator
-  public PatchedActor(
-    @JsonbProperty(value = "uuid", nillable = true) UUID uuid, 
-    @JsonbProperty(value = "url", nillable = true) URI url
-  ) {
-    this.uuid = uuid;
-    this.url = url;
-  }
-  
-  /**
-   * Unieke (technische) identificatiecode van de actor.
-   * @return uuid
-   **/
-  public UUID getUuid() {
-    return uuid;
-  }
-
-
-  /**
-   * De unieke URL van deze actor binnen deze API.
-   * @return url
-   **/
-  public URI getUrl() {
-    return url;
-  }
-
-
-  /**
-   * Naam van de actor.
-   * @return naam
-   **/
-  public String getNaam() {
-    return naam;
-  }
-
-  /**
-   * Set naam
-   */
-  public void setNaam(String naam) {
-    this.naam = naam;
-  }
-
-  public PatchedActor naam(String naam) {
-    this.naam = naam;
-    return this;
-  }
-
-  /**
-   * Geeft aan van welke specifieke soort actor sprake is.
-   * @return soortActor
-   **/
-  public SoortActorEnum getSoortActor() {
-    return soortActor;
-  }
-
-  /**
-   * Set soortActor
-   */
-  public void setSoortActor(SoortActorEnum soortActor) {
-    this.soortActor = soortActor;
-  }
-
-  public PatchedActor soortActor(SoortActorEnum soortActor) {
-    this.soortActor = soortActor;
-    return this;
-  }
-
-  /**
-   * Geeft aan of aan de actor nog betrokken mag worden bij nieuwe klantcontacten. Voor niet-actieve is dit niet toegestaan.
-   * @return indicatieActief
-   **/
-  public Boolean getIndicatieActief() {
-    return indicatieActief;
-  }
-
-  /**
-   * Set indicatieActief
-   */
-  public void setIndicatieActief(Boolean indicatieActief) {
-    this.indicatieActief = indicatieActief;
-  }
-
-  public PatchedActor indicatieActief(Boolean indicatieActief) {
-    this.indicatieActief = indicatieActief;
-    return this;
-  }
-
-  /**
-   * Gegevens die een actorwerpobject in een extern register uniek identificeren.
-   * @return actoridentificator
-   **/
-  public Actoridentificator getActoridentificator() {
-    return actoridentificator;
-  }
-
-  /**
-   * Set actoridentificator
-   */
-  public void setActoridentificator(Actoridentificator actoridentificator) {
-    this.actoridentificator = actoridentificator;
-  }
-
-  public PatchedActor actoridentificator(Actoridentificator actoridentificator) {
-    this.actoridentificator = actoridentificator;
-    return this;
-  }
-
-
-  /**
-   * Create a string representation of this pojo.
-   */
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class PatchedActor {\n");
-    
-    sb.append("    uuid: ").append(toIndentedString(uuid)).append("\n");
-    sb.append("    url: ").append(toIndentedString(url)).append("\n");
-    sb.append("    naam: ").append(toIndentedString(naam)).append("\n");
-    sb.append("    soortActor: ").append(toIndentedString(soortActor)).append("\n");
-    sb.append("    indicatieActief: ").append(toIndentedString(indicatieActief)).append("\n");
-    sb.append("    actoridentificator: ").append(toIndentedString(actoridentificator)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private static String toIndentedString(Object o) {
-    if (o == null) {
-      return "null";
+    public PatchedActor() {
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    @JsonbCreator
+    public PatchedActor(
+            @JsonbProperty(value = "uuid", nillable = true) UUID uuid,
+            @JsonbProperty(value = "url", nillable = true) URI url
+    ) {
+        this.uuid = uuid;
+        this.url = url;
+    }
+
+    /**
+     * Unieke (technische) identificatiecode van de actor.
+     * 
+     * @return uuid
+     **/
+    public UUID getUuid() {
+        return uuid;
+    }
+
+
+    /**
+     * De unieke URL van deze actor binnen deze API.
+     * 
+     * @return url
+     **/
+    public URI getUrl() {
+        return url;
+    }
+
+
+    /**
+     * Naam van de actor.
+     * 
+     * @return naam
+     **/
+    public String getNaam() {
+        return naam;
+    }
+
+    /**
+     * Set naam
+     */
+    public void setNaam(String naam) {
+        this.naam = naam;
+    }
+
+    public PatchedActor naam(String naam) {
+        this.naam = naam;
+        return this;
+    }
+
+    /**
+     * Geeft aan van welke specifieke soort actor sprake is.
+     * 
+     * @return soortActor
+     **/
+    public SoortActorEnum getSoortActor() {
+        return soortActor;
+    }
+
+    /**
+     * Set soortActor
+     */
+    public void setSoortActor(SoortActorEnum soortActor) {
+        this.soortActor = soortActor;
+    }
+
+    public PatchedActor soortActor(SoortActorEnum soortActor) {
+        this.soortActor = soortActor;
+        return this;
+    }
+
+    /**
+     * Geeft aan of aan de actor nog betrokken mag worden bij nieuwe klantcontacten. Voor niet-actieve is dit niet toegestaan.
+     * 
+     * @return indicatieActief
+     **/
+    public Boolean getIndicatieActief() {
+        return indicatieActief;
+    }
+
+    /**
+     * Set indicatieActief
+     */
+    public void setIndicatieActief(Boolean indicatieActief) {
+        this.indicatieActief = indicatieActief;
+    }
+
+    public PatchedActor indicatieActief(Boolean indicatieActief) {
+        this.indicatieActief = indicatieActief;
+        return this;
+    }
+
+    /**
+     * Gegevens die een actorwerpobject in een extern register uniek identificeren.
+     * 
+     * @return actoridentificator
+     **/
+    public Actoridentificator getActoridentificator() {
+        return actoridentificator;
+    }
+
+    /**
+     * Set actoridentificator
+     */
+    public void setActoridentificator(Actoridentificator actoridentificator) {
+        this.actoridentificator = actoridentificator;
+    }
+
+    public PatchedActor actoridentificator(Actoridentificator actoridentificator) {
+        this.actoridentificator = actoridentificator;
+        return this;
+    }
+
+
+    /**
+     * Create a string representation of this pojo.
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class PatchedActor {\n");
+
+        sb.append("    uuid: ").append(toIndentedString(uuid)).append("\n");
+        sb.append("    url: ").append(toIndentedString(url)).append("\n");
+        sb.append("    naam: ").append(toIndentedString(naam)).append("\n");
+        sb.append("    soortActor: ").append(toIndentedString(soortActor)).append("\n");
+        sb.append("    indicatieActief: ").append(toIndentedString(indicatieActief)).append("\n");
+        sb.append("    actoridentificator: ").append(toIndentedString(actoridentificator)).append("\n");
+        sb.append("}");
+        return sb.toString();
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private static String toIndentedString(Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
 }

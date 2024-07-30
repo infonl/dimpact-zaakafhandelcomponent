@@ -14,7 +14,7 @@ import jakarta.ws.rs.ext.ExceptionMapper
 import jakarta.ws.rs.ext.Provider
 import net.atos.client.bag.BagClientService
 import net.atos.client.brp.BRPClientService
-import net.atos.client.klanten.KlantenClientService
+import net.atos.client.klanten.KlantClientService
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.objecttype.ObjecttypesClientService
 import net.atos.client.zgw.brc.BrcClientService
@@ -128,7 +128,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             stackTrace.contains(ObjecttypesClientService::class.simpleName!!) -> {
                 generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_OBJECTTYPES_CLIENT)
             }
-            stackTrace.contains(KlantenClientService::class.simpleName!!) -> {
+            stackTrace.contains(KlantClientService::class.simpleName!!) -> {
                 generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_KLANTEN_CLIENT)
             }
             stackTrace.contains(ZRCClientService::class.simpleName!!) -> {

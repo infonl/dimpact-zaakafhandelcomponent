@@ -1,6 +1,6 @@
 /**
  * klantinteracties
- *  Description WIP. 
+ * Description WIP.
  *
  * The version of the OpenAPI document: 0.0.3
  * Contact: standaarden.ondersteuning@vng.nl
@@ -16,103 +16,105 @@ import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 
 /**
-  * Display details of the linked resources requested in the `expand` parameter
-  */
+ * Display details of the linked resources requested in the `expand` parameter
+ */
 
-public class ExpandPartijAllOfExpand  {
-  
- /**
-  * Digitaal adresen dat een partij verstrekte voor gebruik bij toekomstig contact met de gemeente.
-  */
-  @JsonbProperty("digitale_adressen")
-  private DigitaalAdres digitaleAdressen;
+public class ExpandPartijAllOfExpand {
 
- /**
-  * Betrokkene bij klantcontact die een partij was.
-  */
-  @JsonbProperty("betrokkenen")
-  private Betrokkene betrokkenen;
+    /**
+     * Digitaal adresen dat een partij verstrekte voor gebruik bij toekomstig contact met de gemeente.
+     */
+    @JsonbProperty("digitale_adressen")
+    private DigitaalAdres digitaleAdressen;
 
- /**
-  * De Categorie relaties van een partij: Let op: Dit attribuut is EXPERIMENTEEL.
-  */
-  @JsonbProperty("categorie_relaties")
-  private CategorieRelatie categorieRelaties;
+    /**
+     * Betrokkene bij klantcontact die een partij was.
+     */
+    @JsonbProperty("betrokkenen")
+    private Betrokkene betrokkenen;
 
-  public ExpandPartijAllOfExpand() {
-  }
+    /**
+     * De Categorie relaties van een partij: Let op: Dit attribuut is EXPERIMENTEEL.
+     */
+    @JsonbProperty("categorie_relaties")
+    private CategorieRelatie categorieRelaties;
 
- @JsonbCreator
-  public ExpandPartijAllOfExpand(
-    @JsonbProperty(value = "betrokkenen", nillable = true) Betrokkene betrokkenen,
-    @JsonbProperty(value = "categorie_relaties", nillable = true) CategorieRelatie categorieRelaties
-  ) {
-    this.betrokkenen = betrokkenen;
-    this.categorieRelaties = categorieRelaties;
-  }
-  
-  /**
-   * Digitaal adresen dat een partij verstrekte voor gebruik bij toekomstig contact met de gemeente.
-   * @return digitaleAdressen
-   **/
-  public DigitaalAdres getDigitaleAdressen() {
-    return digitaleAdressen;
-  }
-
-  /**
-   * Set digitaleAdressen
-   */
-  public void setDigitaleAdressen(DigitaalAdres digitaleAdressen) {
-    this.digitaleAdressen = digitaleAdressen;
-  }
-
-  public ExpandPartijAllOfExpand digitaleAdressen(DigitaalAdres digitaleAdressen) {
-    this.digitaleAdressen = digitaleAdressen;
-    return this;
-  }
-
-  /**
-   * Betrokkene bij klantcontact die een partij was.
-   * @return betrokkenen
-   **/
-  public Betrokkene getBetrokkenen() {
-    return betrokkenen;
-  }
-
-
-  /**
-   * De Categorie relaties van een partij: Let op: Dit attribuut is EXPERIMENTEEL.
-   * @return categorieRelaties
-   **/
-  public CategorieRelatie getCategorieRelaties() {
-    return categorieRelaties;
-  }
-
-
-
-  /**
-   * Create a string representation of this pojo.
-   */
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class ExpandPartijAllOfExpand {\n");
-    
-    sb.append("    digitaleAdressen: ").append(toIndentedString(digitaleAdressen)).append("\n");
-    sb.append("    betrokkenen: ").append(toIndentedString(betrokkenen)).append("\n");
-    sb.append("    categorieRelaties: ").append(toIndentedString(categorieRelaties)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private static String toIndentedString(Object o) {
-    if (o == null) {
-      return "null";
+    public ExpandPartijAllOfExpand() {
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    @JsonbCreator
+    public ExpandPartijAllOfExpand(
+            @JsonbProperty(value = "betrokkenen", nillable = true) Betrokkene betrokkenen,
+            @JsonbProperty(value = "categorie_relaties", nillable = true) CategorieRelatie categorieRelaties
+    ) {
+        this.betrokkenen = betrokkenen;
+        this.categorieRelaties = categorieRelaties;
+    }
+
+    /**
+     * Digitaal adresen dat een partij verstrekte voor gebruik bij toekomstig contact met de gemeente.
+     * 
+     * @return digitaleAdressen
+     **/
+    public DigitaalAdres getDigitaleAdressen() {
+        return digitaleAdressen;
+    }
+
+    /**
+     * Set digitaleAdressen
+     */
+    public void setDigitaleAdressen(DigitaalAdres digitaleAdressen) {
+        this.digitaleAdressen = digitaleAdressen;
+    }
+
+    public ExpandPartijAllOfExpand digitaleAdressen(DigitaalAdres digitaleAdressen) {
+        this.digitaleAdressen = digitaleAdressen;
+        return this;
+    }
+
+    /**
+     * Betrokkene bij klantcontact die een partij was.
+     * 
+     * @return betrokkenen
+     **/
+    public Betrokkene getBetrokkenen() {
+        return betrokkenen;
+    }
+
+
+    /**
+     * De Categorie relaties van een partij: Let op: Dit attribuut is EXPERIMENTEEL.
+     * 
+     * @return categorieRelaties
+     **/
+    public CategorieRelatie getCategorieRelaties() {
+        return categorieRelaties;
+    }
+
+
+    /**
+     * Create a string representation of this pojo.
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class ExpandPartijAllOfExpand {\n");
+
+        sb.append("    digitaleAdressen: ").append(toIndentedString(digitaleAdressen)).append("\n");
+        sb.append("    betrokkenen: ").append(toIndentedString(betrokkenen)).append("\n");
+        sb.append("    categorieRelaties: ").append(toIndentedString(categorieRelaties)).append("\n");
+        sb.append("}");
+        return sb.toString();
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private static String toIndentedString(Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
 }

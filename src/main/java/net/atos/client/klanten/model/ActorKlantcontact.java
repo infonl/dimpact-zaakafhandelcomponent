@@ -1,6 +1,6 @@
 /**
  * klantinteracties
- *  Description WIP. 
+ * Description WIP.
  *
  * The version of the OpenAPI document: 0.0.3
  * Contact: standaarden.ondersteuning@vng.nl
@@ -12,134 +12,138 @@
 
 package net.atos.client.klanten.model;
 
-import jakarta.json.bind.annotation.JsonbCreator;
-import jakarta.json.bind.annotation.JsonbProperty;
-
 import java.net.URI;
 import java.util.UUID;
 
-
-public class ActorKlantcontact  {
-  
- /**
-  * Unieke (technische) identificatiecode van de actor klantcontact.
-  */
-  @JsonbProperty("uuid")
-  private UUID uuid;
-
- /**
-  * De unieke URL van deze actor klantcontact binnen deze API.
-  */
-  @JsonbProperty("url")
-  private URI url;
-
- /**
-  * De gekoppelde 'Actor'.
-  */
-  @JsonbProperty("actor")
-  private ActorForeignKey actor;
-
- /**
-  * De gekoppelde 'Klantcontact'.
-  */
-  @JsonbProperty("klantcontact")
-  private KlantcontactForeignKey klantcontact;
-
-  public ActorKlantcontact() {
-  }
-
- @JsonbCreator
-  public ActorKlantcontact(
-    @JsonbProperty(value = "uuid") UUID uuid, 
-    @JsonbProperty(value = "url") URI url
-  ) {
-    this.uuid = uuid;
-    this.url = url;
-  }
-  
-  /**
-   * Unieke (technische) identificatiecode van de actor klantcontact.
-   * @return uuid
-   **/
-  public UUID getUuid() {
-    return uuid;
-  }
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 
-  /**
-   * De unieke URL van deze actor klantcontact binnen deze API.
-   * @return url
-   **/
-  public URI getUrl() {
-    return url;
-  }
+public class ActorKlantcontact {
 
+    /**
+     * Unieke (technische) identificatiecode van de actor klantcontact.
+     */
+    @JsonbProperty("uuid")
+    private UUID uuid;
 
-  /**
-   * De gekoppelde &#39;Actor&#39;.
-   * @return actor
-   **/
-  public ActorForeignKey getActor() {
-    return actor;
-  }
+    /**
+     * De unieke URL van deze actor klantcontact binnen deze API.
+     */
+    @JsonbProperty("url")
+    private URI url;
 
-  /**
-   * Set actor
-   */
-  public void setActor(ActorForeignKey actor) {
-    this.actor = actor;
-  }
+    /**
+     * De gekoppelde 'Actor'.
+     */
+    @JsonbProperty("actor")
+    private ActorForeignKey actor;
 
-  public ActorKlantcontact actor(ActorForeignKey actor) {
-    this.actor = actor;
-    return this;
-  }
+    /**
+     * De gekoppelde 'Klantcontact'.
+     */
+    @JsonbProperty("klantcontact")
+    private KlantcontactForeignKey klantcontact;
 
-  /**
-   * De gekoppelde &#39;Klantcontact&#39;.
-   * @return klantcontact
-   **/
-  public KlantcontactForeignKey getKlantcontact() {
-    return klantcontact;
-  }
-
-  /**
-   * Set klantcontact
-   */
-  public void setKlantcontact(KlantcontactForeignKey klantcontact) {
-    this.klantcontact = klantcontact;
-  }
-
-  public ActorKlantcontact klantcontact(KlantcontactForeignKey klantcontact) {
-    this.klantcontact = klantcontact;
-    return this;
-  }
-
-
-  /**
-   * Create a string representation of this pojo.
-   */
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class ActorKlantcontact {\n");
-    
-    sb.append("    uuid: ").append(toIndentedString(uuid)).append("\n");
-    sb.append("    url: ").append(toIndentedString(url)).append("\n");
-    sb.append("    actor: ").append(toIndentedString(actor)).append("\n");
-    sb.append("    klantcontact: ").append(toIndentedString(klantcontact)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private static String toIndentedString(Object o) {
-    if (o == null) {
-      return "null";
+    public ActorKlantcontact() {
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    @JsonbCreator
+    public ActorKlantcontact(
+            @JsonbProperty(value = "uuid") UUID uuid,
+            @JsonbProperty(value = "url") URI url
+    ) {
+        this.uuid = uuid;
+        this.url = url;
+    }
+
+    /**
+     * Unieke (technische) identificatiecode van de actor klantcontact.
+     * 
+     * @return uuid
+     **/
+    public UUID getUuid() {
+        return uuid;
+    }
+
+
+    /**
+     * De unieke URL van deze actor klantcontact binnen deze API.
+     * 
+     * @return url
+     **/
+    public URI getUrl() {
+        return url;
+    }
+
+
+    /**
+     * De gekoppelde &#39;Actor&#39;.
+     * 
+     * @return actor
+     **/
+    public ActorForeignKey getActor() {
+        return actor;
+    }
+
+    /**
+     * Set actor
+     */
+    public void setActor(ActorForeignKey actor) {
+        this.actor = actor;
+    }
+
+    public ActorKlantcontact actor(ActorForeignKey actor) {
+        this.actor = actor;
+        return this;
+    }
+
+    /**
+     * De gekoppelde &#39;Klantcontact&#39;.
+     * 
+     * @return klantcontact
+     **/
+    public KlantcontactForeignKey getKlantcontact() {
+        return klantcontact;
+    }
+
+    /**
+     * Set klantcontact
+     */
+    public void setKlantcontact(KlantcontactForeignKey klantcontact) {
+        this.klantcontact = klantcontact;
+    }
+
+    public ActorKlantcontact klantcontact(KlantcontactForeignKey klantcontact) {
+        this.klantcontact = klantcontact;
+        return this;
+    }
+
+
+    /**
+     * Create a string representation of this pojo.
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class ActorKlantcontact {\n");
+
+        sb.append("    uuid: ").append(toIndentedString(uuid)).append("\n");
+        sb.append("    url: ").append(toIndentedString(url)).append("\n");
+        sb.append("    actor: ").append(toIndentedString(actor)).append("\n");
+        sb.append("    klantcontact: ").append(toIndentedString(klantcontact)).append("\n");
+        sb.append("}");
+        return sb.toString();
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private static String toIndentedString(Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
 }

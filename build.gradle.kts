@@ -571,12 +571,6 @@ tasks {
         modelPackage.set("net.atos.client.klanten.model.generated")
     }
 
-    register<GenerateTask>("generateContactMomentenClient") {
-        inputSpec.set("$rootDir/src/main/resources/api-specs/contactmomenten/contactmomenten-openapi.yaml")
-        outputDir.set("$rootDir/src/generated/contactmomenten/java")
-        modelPackage.set("net.atos.client.contactmomenten.model.generated")
-    }
-
     register<GenerateTask>("generateZgwBrcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/brc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/brc/java")

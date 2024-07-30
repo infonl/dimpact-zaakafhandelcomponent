@@ -1,6 +1,6 @@
 /**
  * klantinteracties
- *  Description WIP. 
+ * Description WIP.
  *
  * The version of the OpenAPI document: 0.0.3
  * Contact: standaarden.ondersteuning@vng.nl
@@ -12,333 +12,351 @@
 
 package net.atos.client.klanten.model;
 
-import jakarta.json.bind.annotation.JsonbCreator;
-import jakarta.json.bind.annotation.JsonbProperty;
-
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
+
 /**
-  * Set gegevensgroepdata from validated nested data.  Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
-  */
+ * Set gegevensgroepdata from validated nested data. Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
+ */
 
-public class PatchedBetrokkene  {
-  
- /**
-  * Unieke (technische) identificatiecode van de betrokkene bij klantcontact.
-  */
-  @JsonbProperty("uuid")
-  private UUID uuid;
+public class PatchedBetrokkene {
 
- /**
-  * De unieke URL van deze betrokkene binnen deze API.
-  */
-  @JsonbProperty("url")
-  private URI url;
+    /**
+     * Unieke (technische) identificatiecode van de betrokkene bij klantcontact.
+     */
+    @JsonbProperty("uuid")
+    private UUID uuid;
 
- /**
-  * Betrokkene bij klantcontact die een partij was.
-  */
-  @JsonbProperty("wasPartij")
-  private PartijForeignKey wasPartij;
+    /**
+     * De unieke URL van deze betrokkene binnen deze API.
+     */
+    @JsonbProperty("url")
+    private URI url;
 
- /**
-  * Persoon of organisatie die betrokken was bij een klantcontact.
-  */
-  @JsonbProperty("hadKlantcontact")
-  private KlantcontactForeignKey hadKlantcontact;
+    /**
+     * Betrokkene bij klantcontact die een partij was.
+     */
+    @JsonbProperty("wasPartij")
+    private PartijForeignKey wasPartij;
 
- /**
-  * Digitale adressen van de betrokkene bij klantcontact.
-  */
-  @JsonbProperty("digitaleAdressen")
-  private List<DigitaalAdresForeignKey> digitaleAdressen = null;
+    /**
+     * Persoon of organisatie die betrokken was bij een klantcontact.
+     */
+    @JsonbProperty("hadKlantcontact")
+    private KlantcontactForeignKey hadKlantcontact;
 
- /**
-  * Adres waarop de betrokkene bij klantcontact in naar aanleiding van dat contact af te leggen bezoeken wil ontvangen. Dit mag afwijken van voor de verstrekker eventueel in een basisregistratie bekende adressen.
-  */
-  @JsonbProperty("bezoekadres")
-  private Bezoekadres bezoekadres;
+    /**
+     * Digitale adressen van de betrokkene bij klantcontact.
+     */
+    @JsonbProperty("digitaleAdressen")
+    private List<DigitaalAdresForeignKey> digitaleAdressen = null;
 
- /**
-  * Adres waarop de betrokkene bij klantcontact naar aanleiding van dat contact te versturen post wil ontvangen. Dit mag afwijken van voor de verstrekker eventueel in een basisregistratie bekende adressen.
-  */
-  @JsonbProperty("correspondentieadres")
-  private BetrokkeneCorrespondentieadres correspondentieadres;
+    /**
+     * Adres waarop de betrokkene bij klantcontact in naar aanleiding van dat contact af te leggen bezoeken wil ontvangen. Dit mag afwijken
+     * van voor de verstrekker eventueel in een basisregistratie bekende adressen.
+     */
+    @JsonbProperty("bezoekadres")
+    private Bezoekadres bezoekadres;
 
- /**
-  * Naam die de betrokkene bij klantcontact tijdens vervolghandelingen naar aanleiding van dat contact wil gebruiken. Deze mag afwijken van eventueel in de Basisregistratie Personen (BRP) bekende naam van de betrokkene.
-  */
-  @JsonbProperty("contactnaam")
-  private Contactnaam contactnaam;
+    /**
+     * Adres waarop de betrokkene bij klantcontact naar aanleiding van dat contact te versturen post wil ontvangen. Dit mag afwijken van
+     * voor de verstrekker eventueel in een basisregistratie bekende adressen.
+     */
+    @JsonbProperty("correspondentieadres")
+    private BetrokkeneCorrespondentieadres correspondentieadres;
 
- /**
-  * De voledige naam van de betrokkene.
-  */
-  @JsonbProperty("volledigeNaam")
-  private String volledigeNaam;
+    /**
+     * Naam die de betrokkene bij klantcontact tijdens vervolghandelingen naar aanleiding van dat contact wil gebruiken. Deze mag afwijken
+     * van eventueel in de Basisregistratie Personen (BRP) bekende naam van de betrokkene.
+     */
+    @JsonbProperty("contactnaam")
+    private Contactnaam contactnaam;
 
- /**
-  * Rol die de betrokkene bij klantcontact tijdens dat contact vervulde.
-  */
-  @JsonbProperty("rol")
-  private RolEnum rol;
+    /**
+     * De voledige naam van de betrokkene.
+     */
+    @JsonbProperty("volledigeNaam")
+    private String volledigeNaam;
 
- /**
-  * Naam van de organisatie waarmee de betrokkene bij klantcontact een relatie had.
-  */
-  @JsonbProperty("organisatienaam")
-  private String organisatienaam;
+    /**
+     * Rol die de betrokkene bij klantcontact tijdens dat contact vervulde.
+     */
+    @JsonbProperty("rol")
+    private RolEnum rol;
 
-  @JsonbProperty("initiator")
-  private Boolean initiator;
+    /**
+     * Naam van de organisatie waarmee de betrokkene bij klantcontact een relatie had.
+     */
+    @JsonbProperty("organisatienaam")
+    private String organisatienaam;
 
-  public PatchedBetrokkene() {
-  }
+    @JsonbProperty("initiator")
+    private Boolean initiator;
 
- @JsonbCreator
-  public PatchedBetrokkene(
-    @JsonbProperty(value = "uuid", nillable = true) UUID uuid, 
-    @JsonbProperty(value = "url", nillable = true) URI url, 
-    @JsonbProperty(value = "digitaleAdressen", nillable = true) List<DigitaalAdresForeignKey> digitaleAdressen,
-    @JsonbProperty(value = "volledigeNaam", nillable = true) String volledigeNaam
-  ) {
-    this.uuid = uuid;
-    this.url = url;
-    this.digitaleAdressen = digitaleAdressen;
-    this.volledigeNaam = volledigeNaam;
-  }
-  
-  /**
-   * Unieke (technische) identificatiecode van de betrokkene bij klantcontact.
-   * @return uuid
-   **/
-  public UUID getUuid() {
-    return uuid;
-  }
-
-
-  /**
-   * De unieke URL van deze betrokkene binnen deze API.
-   * @return url
-   **/
-  public URI getUrl() {
-    return url;
-  }
-
-
-  /**
-   * Betrokkene bij klantcontact die een partij was.
-   * @return wasPartij
-   **/
-  public PartijForeignKey getWasPartij() {
-    return wasPartij;
-  }
-
-  /**
-   * Set wasPartij
-   */
-  public void setWasPartij(PartijForeignKey wasPartij) {
-    this.wasPartij = wasPartij;
-  }
-
-  public PatchedBetrokkene wasPartij(PartijForeignKey wasPartij) {
-    this.wasPartij = wasPartij;
-    return this;
-  }
-
-  /**
-   * Persoon of organisatie die betrokken was bij een klantcontact.
-   * @return hadKlantcontact
-   **/
-  public KlantcontactForeignKey getHadKlantcontact() {
-    return hadKlantcontact;
-  }
-
-  /**
-   * Set hadKlantcontact
-   */
-  public void setHadKlantcontact(KlantcontactForeignKey hadKlantcontact) {
-    this.hadKlantcontact = hadKlantcontact;
-  }
-
-  public PatchedBetrokkene hadKlantcontact(KlantcontactForeignKey hadKlantcontact) {
-    this.hadKlantcontact = hadKlantcontact;
-    return this;
-  }
-
-  /**
-   * Digitale adressen van de betrokkene bij klantcontact.
-   * @return digitaleAdressen
-   **/
-  public List<DigitaalAdresForeignKey> getDigitaleAdressen() {
-    return digitaleAdressen;
-  }
-
-
-  /**
-   * Adres waarop de betrokkene bij klantcontact in naar aanleiding van dat contact af te leggen bezoeken wil ontvangen. Dit mag afwijken van voor de verstrekker eventueel in een basisregistratie bekende adressen.
-   * @return bezoekadres
-   **/
-  public Bezoekadres getBezoekadres() {
-    return bezoekadres;
-  }
-
-  /**
-   * Set bezoekadres
-   */
-  public void setBezoekadres(Bezoekadres bezoekadres) {
-    this.bezoekadres = bezoekadres;
-  }
-
-  public PatchedBetrokkene bezoekadres(Bezoekadres bezoekadres) {
-    this.bezoekadres = bezoekadres;
-    return this;
-  }
-
-  /**
-   * Adres waarop de betrokkene bij klantcontact naar aanleiding van dat contact te versturen post wil ontvangen. Dit mag afwijken van voor de verstrekker eventueel in een basisregistratie bekende adressen.
-   * @return correspondentieadres
-   **/
-  public BetrokkeneCorrespondentieadres getCorrespondentieadres() {
-    return correspondentieadres;
-  }
-
-  /**
-   * Set correspondentieadres
-   */
-  public void setCorrespondentieadres(BetrokkeneCorrespondentieadres correspondentieadres) {
-    this.correspondentieadres = correspondentieadres;
-  }
-
-  public PatchedBetrokkene correspondentieadres(BetrokkeneCorrespondentieadres correspondentieadres) {
-    this.correspondentieadres = correspondentieadres;
-    return this;
-  }
-
-  /**
-   * Naam die de betrokkene bij klantcontact tijdens vervolghandelingen naar aanleiding van dat contact wil gebruiken. Deze mag afwijken van eventueel in de Basisregistratie Personen (BRP) bekende naam van de betrokkene.
-   * @return contactnaam
-   **/
-  public Contactnaam getContactnaam() {
-    return contactnaam;
-  }
-
-  /**
-   * Set contactnaam
-   */
-  public void setContactnaam(Contactnaam contactnaam) {
-    this.contactnaam = contactnaam;
-  }
-
-  public PatchedBetrokkene contactnaam(Contactnaam contactnaam) {
-    this.contactnaam = contactnaam;
-    return this;
-  }
-
-  /**
-   * De voledige naam van de betrokkene.
-   * @return volledigeNaam
-   **/
-  public String getVolledigeNaam() {
-    return volledigeNaam;
-  }
-
-
-  /**
-   * Rol die de betrokkene bij klantcontact tijdens dat contact vervulde.
-   * @return rol
-   **/
-  public RolEnum getRol() {
-    return rol;
-  }
-
-  /**
-   * Set rol
-   */
-  public void setRol(RolEnum rol) {
-    this.rol = rol;
-  }
-
-  public PatchedBetrokkene rol(RolEnum rol) {
-    this.rol = rol;
-    return this;
-  }
-
-  /**
-   * Naam van de organisatie waarmee de betrokkene bij klantcontact een relatie had.
-   * @return organisatienaam
-   **/
-  public String getOrganisatienaam() {
-    return organisatienaam;
-  }
-
-  /**
-   * Set organisatienaam
-   */
-  public void setOrganisatienaam(String organisatienaam) {
-    this.organisatienaam = organisatienaam;
-  }
-
-  public PatchedBetrokkene organisatienaam(String organisatienaam) {
-    this.organisatienaam = organisatienaam;
-    return this;
-  }
-
-  /**
-   * Get initiator
-   * @return initiator
-   **/
-  public Boolean getInitiator() {
-    return initiator;
-  }
-
-  /**
-   * Set initiator
-   */
-  public void setInitiator(Boolean initiator) {
-    this.initiator = initiator;
-  }
-
-  public PatchedBetrokkene initiator(Boolean initiator) {
-    this.initiator = initiator;
-    return this;
-  }
-
-
-  /**
-   * Create a string representation of this pojo.
-   */
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class PatchedBetrokkene {\n");
-    
-    sb.append("    uuid: ").append(toIndentedString(uuid)).append("\n");
-    sb.append("    url: ").append(toIndentedString(url)).append("\n");
-    sb.append("    wasPartij: ").append(toIndentedString(wasPartij)).append("\n");
-    sb.append("    hadKlantcontact: ").append(toIndentedString(hadKlantcontact)).append("\n");
-    sb.append("    digitaleAdressen: ").append(toIndentedString(digitaleAdressen)).append("\n");
-    sb.append("    bezoekadres: ").append(toIndentedString(bezoekadres)).append("\n");
-    sb.append("    correspondentieadres: ").append(toIndentedString(correspondentieadres)).append("\n");
-    sb.append("    contactnaam: ").append(toIndentedString(contactnaam)).append("\n");
-    sb.append("    volledigeNaam: ").append(toIndentedString(volledigeNaam)).append("\n");
-    sb.append("    rol: ").append(toIndentedString(rol)).append("\n");
-    sb.append("    organisatienaam: ").append(toIndentedString(organisatienaam)).append("\n");
-    sb.append("    initiator: ").append(toIndentedString(initiator)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private static String toIndentedString(Object o) {
-    if (o == null) {
-      return "null";
+    public PatchedBetrokkene() {
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    @JsonbCreator
+    public PatchedBetrokkene(
+            @JsonbProperty(value = "uuid", nillable = true) UUID uuid,
+            @JsonbProperty(value = "url", nillable = true) URI url,
+            @JsonbProperty(value = "digitaleAdressen", nillable = true) List<DigitaalAdresForeignKey> digitaleAdressen,
+            @JsonbProperty(value = "volledigeNaam", nillable = true) String volledigeNaam
+    ) {
+        this.uuid = uuid;
+        this.url = url;
+        this.digitaleAdressen = digitaleAdressen;
+        this.volledigeNaam = volledigeNaam;
+    }
+
+    /**
+     * Unieke (technische) identificatiecode van de betrokkene bij klantcontact.
+     * 
+     * @return uuid
+     **/
+    public UUID getUuid() {
+        return uuid;
+    }
+
+
+    /**
+     * De unieke URL van deze betrokkene binnen deze API.
+     * 
+     * @return url
+     **/
+    public URI getUrl() {
+        return url;
+    }
+
+
+    /**
+     * Betrokkene bij klantcontact die een partij was.
+     * 
+     * @return wasPartij
+     **/
+    public PartijForeignKey getWasPartij() {
+        return wasPartij;
+    }
+
+    /**
+     * Set wasPartij
+     */
+    public void setWasPartij(PartijForeignKey wasPartij) {
+        this.wasPartij = wasPartij;
+    }
+
+    public PatchedBetrokkene wasPartij(PartijForeignKey wasPartij) {
+        this.wasPartij = wasPartij;
+        return this;
+    }
+
+    /**
+     * Persoon of organisatie die betrokken was bij een klantcontact.
+     * 
+     * @return hadKlantcontact
+     **/
+    public KlantcontactForeignKey getHadKlantcontact() {
+        return hadKlantcontact;
+    }
+
+    /**
+     * Set hadKlantcontact
+     */
+    public void setHadKlantcontact(KlantcontactForeignKey hadKlantcontact) {
+        this.hadKlantcontact = hadKlantcontact;
+    }
+
+    public PatchedBetrokkene hadKlantcontact(KlantcontactForeignKey hadKlantcontact) {
+        this.hadKlantcontact = hadKlantcontact;
+        return this;
+    }
+
+    /**
+     * Digitale adressen van de betrokkene bij klantcontact.
+     * 
+     * @return digitaleAdressen
+     **/
+    public List<DigitaalAdresForeignKey> getDigitaleAdressen() {
+        return digitaleAdressen;
+    }
+
+
+    /**
+     * Adres waarop de betrokkene bij klantcontact in naar aanleiding van dat contact af te leggen bezoeken wil ontvangen. Dit mag afwijken
+     * van voor de verstrekker eventueel in een basisregistratie bekende adressen.
+     * 
+     * @return bezoekadres
+     **/
+    public Bezoekadres getBezoekadres() {
+        return bezoekadres;
+    }
+
+    /**
+     * Set bezoekadres
+     */
+    public void setBezoekadres(Bezoekadres bezoekadres) {
+        this.bezoekadres = bezoekadres;
+    }
+
+    public PatchedBetrokkene bezoekadres(Bezoekadres bezoekadres) {
+        this.bezoekadres = bezoekadres;
+        return this;
+    }
+
+    /**
+     * Adres waarop de betrokkene bij klantcontact naar aanleiding van dat contact te versturen post wil ontvangen. Dit mag afwijken van
+     * voor de verstrekker eventueel in een basisregistratie bekende adressen.
+     * 
+     * @return correspondentieadres
+     **/
+    public BetrokkeneCorrespondentieadres getCorrespondentieadres() {
+        return correspondentieadres;
+    }
+
+    /**
+     * Set correspondentieadres
+     */
+    public void setCorrespondentieadres(BetrokkeneCorrespondentieadres correspondentieadres) {
+        this.correspondentieadres = correspondentieadres;
+    }
+
+    public PatchedBetrokkene correspondentieadres(BetrokkeneCorrespondentieadres correspondentieadres) {
+        this.correspondentieadres = correspondentieadres;
+        return this;
+    }
+
+    /**
+     * Naam die de betrokkene bij klantcontact tijdens vervolghandelingen naar aanleiding van dat contact wil gebruiken. Deze mag afwijken
+     * van eventueel in de Basisregistratie Personen (BRP) bekende naam van de betrokkene.
+     * 
+     * @return contactnaam
+     **/
+    public Contactnaam getContactnaam() {
+        return contactnaam;
+    }
+
+    /**
+     * Set contactnaam
+     */
+    public void setContactnaam(Contactnaam contactnaam) {
+        this.contactnaam = contactnaam;
+    }
+
+    public PatchedBetrokkene contactnaam(Contactnaam contactnaam) {
+        this.contactnaam = contactnaam;
+        return this;
+    }
+
+    /**
+     * De voledige naam van de betrokkene.
+     * 
+     * @return volledigeNaam
+     **/
+    public String getVolledigeNaam() {
+        return volledigeNaam;
+    }
+
+
+    /**
+     * Rol die de betrokkene bij klantcontact tijdens dat contact vervulde.
+     * 
+     * @return rol
+     **/
+    public RolEnum getRol() {
+        return rol;
+    }
+
+    /**
+     * Set rol
+     */
+    public void setRol(RolEnum rol) {
+        this.rol = rol;
+    }
+
+    public PatchedBetrokkene rol(RolEnum rol) {
+        this.rol = rol;
+        return this;
+    }
+
+    /**
+     * Naam van de organisatie waarmee de betrokkene bij klantcontact een relatie had.
+     * 
+     * @return organisatienaam
+     **/
+    public String getOrganisatienaam() {
+        return organisatienaam;
+    }
+
+    /**
+     * Set organisatienaam
+     */
+    public void setOrganisatienaam(String organisatienaam) {
+        this.organisatienaam = organisatienaam;
+    }
+
+    public PatchedBetrokkene organisatienaam(String organisatienaam) {
+        this.organisatienaam = organisatienaam;
+        return this;
+    }
+
+    /**
+     * Get initiator
+     * 
+     * @return initiator
+     **/
+    public Boolean getInitiator() {
+        return initiator;
+    }
+
+    /**
+     * Set initiator
+     */
+    public void setInitiator(Boolean initiator) {
+        this.initiator = initiator;
+    }
+
+    public PatchedBetrokkene initiator(Boolean initiator) {
+        this.initiator = initiator;
+        return this;
+    }
+
+
+    /**
+     * Create a string representation of this pojo.
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class PatchedBetrokkene {\n");
+
+        sb.append("    uuid: ").append(toIndentedString(uuid)).append("\n");
+        sb.append("    url: ").append(toIndentedString(url)).append("\n");
+        sb.append("    wasPartij: ").append(toIndentedString(wasPartij)).append("\n");
+        sb.append("    hadKlantcontact: ").append(toIndentedString(hadKlantcontact)).append("\n");
+        sb.append("    digitaleAdressen: ").append(toIndentedString(digitaleAdressen)).append("\n");
+        sb.append("    bezoekadres: ").append(toIndentedString(bezoekadres)).append("\n");
+        sb.append("    correspondentieadres: ").append(toIndentedString(correspondentieadres)).append("\n");
+        sb.append("    contactnaam: ").append(toIndentedString(contactnaam)).append("\n");
+        sb.append("    volledigeNaam: ").append(toIndentedString(volledigeNaam)).append("\n");
+        sb.append("    rol: ").append(toIndentedString(rol)).append("\n");
+        sb.append("    organisatienaam: ").append(toIndentedString(organisatienaam)).append("\n");
+        sb.append("    initiator: ").append(toIndentedString(initiator)).append("\n");
+        sb.append("}");
+        return sb.toString();
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private static String toIndentedString(Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
 }

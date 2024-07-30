@@ -1,6 +1,6 @@
 /**
  * klantinteracties
- *  Description WIP. 
+ * Description WIP.
  *
  * The version of the OpenAPI document: 0.0.3
  * Contact: standaarden.ondersteuning@vng.nl
@@ -12,89 +12,90 @@
 
 package net.atos.client.klanten.model;
 
-import jakarta.json.bind.annotation.JsonbCreator;
-import jakarta.json.bind.annotation.JsonbProperty;
-
 import java.net.URI;
 import java.util.UUID;
 
-
-public class RekeningnummerForeignKey  {
-  
- /**
-  * Unieke (technische) identificatiecode van de interne taak.
-  */
-  @JsonbProperty("uuid")
-  private UUID uuid;
-
- /**
-  * De unieke URL van deze rekeningnummer binnen deze API.
-  */
-  @JsonbProperty("url")
-  private URI url;
-
-  public RekeningnummerForeignKey() {
-  }
-
- @JsonbCreator
-  public RekeningnummerForeignKey(
-    @JsonbProperty(value = "url") URI url
-  ) {
-    this.url = url;
-  }
-  
-  /**
-   * Unieke (technische) identificatiecode van de interne taak.
-   * @return uuid
-   **/
-  public UUID getUuid() {
-    return uuid;
-  }
-
-  /**
-   * Set uuid
-   */
-  public void setUuid(UUID uuid) {
-    this.uuid = uuid;
-  }
-
-  public RekeningnummerForeignKey uuid(UUID uuid) {
-    this.uuid = uuid;
-    return this;
-  }
-
-  /**
-   * De unieke URL van deze rekeningnummer binnen deze API.
-   * @return url
-   **/
-  public URI getUrl() {
-    return url;
-  }
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 
+public class RekeningnummerForeignKey {
 
-  /**
-   * Create a string representation of this pojo.
-   */
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class RekeningnummerForeignKey {\n");
-    
-    sb.append("    uuid: ").append(toIndentedString(uuid)).append("\n");
-    sb.append("    url: ").append(toIndentedString(url)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
+    /**
+     * Unieke (technische) identificatiecode van de interne taak.
+     */
+    @JsonbProperty("uuid")
+    private UUID uuid;
 
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private static String toIndentedString(Object o) {
-    if (o == null) {
-      return "null";
+    /**
+     * De unieke URL van deze rekeningnummer binnen deze API.
+     */
+    @JsonbProperty("url")
+    private URI url;
+
+    public RekeningnummerForeignKey() {
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    @JsonbCreator
+    public RekeningnummerForeignKey(
+            @JsonbProperty(value = "url") URI url
+    ) {
+        this.url = url;
+    }
+
+    /**
+     * Unieke (technische) identificatiecode van de interne taak.
+     * 
+     * @return uuid
+     **/
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    /**
+     * Set uuid
+     */
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public RekeningnummerForeignKey uuid(UUID uuid) {
+        this.uuid = uuid;
+        return this;
+    }
+
+    /**
+     * De unieke URL van deze rekeningnummer binnen deze API.
+     * 
+     * @return url
+     **/
+    public URI getUrl() {
+        return url;
+    }
+
+
+    /**
+     * Create a string representation of this pojo.
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class RekeningnummerForeignKey {\n");
+
+        sb.append("    uuid: ").append(toIndentedString(uuid)).append("\n");
+        sb.append("    url: ").append(toIndentedString(url)).append("\n");
+        sb.append("}");
+        return sb.toString();
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private static String toIndentedString(Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
 }

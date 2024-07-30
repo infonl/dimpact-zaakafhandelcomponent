@@ -11,7 +11,7 @@ import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import net.atos.client.bag.BagClientService
-import net.atos.client.klanten.KlantenClientService
+import net.atos.client.klanten.KlantClientService
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.brc.exception.BrcRuntimeException
@@ -190,7 +190,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         val exception = ProcessingException(
             exceptionMessage,
             HttpHostConnectException(
-                IOException("Something terrible happened in the ${KlantenClientService::class.simpleName}!"),
+                IOException("Something terrible happened in the ${KlantClientService::class.simpleName}!"),
                 HttpHost("localhost", 8080)
             )
         )

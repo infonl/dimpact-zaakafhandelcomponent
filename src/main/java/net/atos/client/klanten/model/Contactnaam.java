@@ -1,6 +1,6 @@
 /**
  * klantinteracties
- *  Description WIP. 
+ * Description WIP.
  *
  * The version of the OpenAPI document: 0.0.3
  * Contact: standaarden.ondersteuning@vng.nl
@@ -15,140 +15,147 @@ package net.atos.client.klanten.model;
 import jakarta.json.bind.annotation.JsonbProperty;
 
 /**
-  * Generate a serializer out of a GegevensGroepType.  Usage::  >>> class VerlengingSerializer(GegevensGroepSerializer): ...     class Meta: ...         model = Zaak ...         gegevensgroep = 'verlenging' >>>  Where ``Zaak.verlenging`` is a :class:``GegevensGroepType``.
-  */
+ * Generate a serializer out of a GegevensGroepType. Usage:: >>> class VerlengingSerializer(GegevensGroepSerializer): ... class Meta: ...
+ * model = Zaak ... gegevensgroep = 'verlenging' >>> Where ``Zaak.verlenging`` is a :class:``GegevensGroepType``.
+ */
 
-public class Contactnaam  {
-  
- /**
-  * Een afkorting van de voornamen. Meestal de beginletter, maar in sommige gevallen de beginletter gecombineerd met de tweede letter van een voornaam.
-  */
-  @JsonbProperty("voorletters")
-  private String voorletters;
+public class Contactnaam {
 
- /**
-  * De voornaam die de persoon wil gebruiken tijdens communicatie met de gemeente.
-  */
-  @JsonbProperty("voornaam")
-  private String voornaam;
+    /**
+     * Een afkorting van de voornamen. Meestal de beginletter, maar in sommige gevallen de beginletter gecombineerd met de tweede letter van
+     * een voornaam.
+     */
+    @JsonbProperty("voorletters")
+    private String voorletters;
 
- /**
-  * Een eventueel voorvoegsel dat hoort bij de achternaam die de persoon wil gebruiken tijdens communicatie met de gemeente.
-  */
-  @JsonbProperty("voorvoegselAchternaam")
-  private String voorvoegselAchternaam;
+    /**
+     * De voornaam die de persoon wil gebruiken tijdens communicatie met de gemeente.
+     */
+    @JsonbProperty("voornaam")
+    private String voornaam;
 
- /**
-  * Een achternaam die de persoon wil gebruiken tijdens communicatie met de gemeente.
-  */
-  @JsonbProperty("achternaam")
-  private String achternaam;
+    /**
+     * Een eventueel voorvoegsel dat hoort bij de achternaam die de persoon wil gebruiken tijdens communicatie met de gemeente.
+     */
+    @JsonbProperty("voorvoegselAchternaam")
+    private String voorvoegselAchternaam;
 
-  /**
-   * Een afkorting van de voornamen. Meestal de beginletter, maar in sommige gevallen de beginletter gecombineerd met de tweede letter van een voornaam.
-   * @return voorletters
-   **/
-  public String getVoorletters() {
-    return voorletters;
-  }
+    /**
+     * Een achternaam die de persoon wil gebruiken tijdens communicatie met de gemeente.
+     */
+    @JsonbProperty("achternaam")
+    private String achternaam;
 
-  /**
-   * Set voorletters
-   */
-  public void setVoorletters(String voorletters) {
-    this.voorletters = voorletters;
-  }
-
-  public Contactnaam voorletters(String voorletters) {
-    this.voorletters = voorletters;
-    return this;
-  }
-
-  /**
-   * De voornaam die de persoon wil gebruiken tijdens communicatie met de gemeente.
-   * @return voornaam
-   **/
-  public String getVoornaam() {
-    return voornaam;
-  }
-
-  /**
-   * Set voornaam
-   */
-  public void setVoornaam(String voornaam) {
-    this.voornaam = voornaam;
-  }
-
-  public Contactnaam voornaam(String voornaam) {
-    this.voornaam = voornaam;
-    return this;
-  }
-
-  /**
-   * Een eventueel voorvoegsel dat hoort bij de achternaam die de persoon wil gebruiken tijdens communicatie met de gemeente.
-   * @return voorvoegselAchternaam
-   **/
-  public String getVoorvoegselAchternaam() {
-    return voorvoegselAchternaam;
-  }
-
-  /**
-   * Set voorvoegselAchternaam
-   */
-  public void setVoorvoegselAchternaam(String voorvoegselAchternaam) {
-    this.voorvoegselAchternaam = voorvoegselAchternaam;
-  }
-
-  public Contactnaam voorvoegselAchternaam(String voorvoegselAchternaam) {
-    this.voorvoegselAchternaam = voorvoegselAchternaam;
-    return this;
-  }
-
-  /**
-   * Een achternaam die de persoon wil gebruiken tijdens communicatie met de gemeente.
-   * @return achternaam
-   **/
-  public String getAchternaam() {
-    return achternaam;
-  }
-
-  /**
-   * Set achternaam
-   */
-  public void setAchternaam(String achternaam) {
-    this.achternaam = achternaam;
-  }
-
-  public Contactnaam achternaam(String achternaam) {
-    this.achternaam = achternaam;
-    return this;
-  }
-
-
-  /**
-   * Create a string representation of this pojo.
-   */
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class Contactnaam {\n");
-    
-    sb.append("    voorletters: ").append(toIndentedString(voorletters)).append("\n");
-    sb.append("    voornaam: ").append(toIndentedString(voornaam)).append("\n");
-    sb.append("    voorvoegselAchternaam: ").append(toIndentedString(voorvoegselAchternaam)).append("\n");
-    sb.append("    achternaam: ").append(toIndentedString(achternaam)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private static String toIndentedString(Object o) {
-    if (o == null) {
-      return "null";
+    /**
+     * Een afkorting van de voornamen. Meestal de beginletter, maar in sommige gevallen de beginletter gecombineerd met de tweede letter van
+     * een voornaam.
+     * 
+     * @return voorletters
+     **/
+    public String getVoorletters() {
+        return voorletters;
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    /**
+     * Set voorletters
+     */
+    public void setVoorletters(String voorletters) {
+        this.voorletters = voorletters;
+    }
+
+    public Contactnaam voorletters(String voorletters) {
+        this.voorletters = voorletters;
+        return this;
+    }
+
+    /**
+     * De voornaam die de persoon wil gebruiken tijdens communicatie met de gemeente.
+     * 
+     * @return voornaam
+     **/
+    public String getVoornaam() {
+        return voornaam;
+    }
+
+    /**
+     * Set voornaam
+     */
+    public void setVoornaam(String voornaam) {
+        this.voornaam = voornaam;
+    }
+
+    public Contactnaam voornaam(String voornaam) {
+        this.voornaam = voornaam;
+        return this;
+    }
+
+    /**
+     * Een eventueel voorvoegsel dat hoort bij de achternaam die de persoon wil gebruiken tijdens communicatie met de gemeente.
+     * 
+     * @return voorvoegselAchternaam
+     **/
+    public String getVoorvoegselAchternaam() {
+        return voorvoegselAchternaam;
+    }
+
+    /**
+     * Set voorvoegselAchternaam
+     */
+    public void setVoorvoegselAchternaam(String voorvoegselAchternaam) {
+        this.voorvoegselAchternaam = voorvoegselAchternaam;
+    }
+
+    public Contactnaam voorvoegselAchternaam(String voorvoegselAchternaam) {
+        this.voorvoegselAchternaam = voorvoegselAchternaam;
+        return this;
+    }
+
+    /**
+     * Een achternaam die de persoon wil gebruiken tijdens communicatie met de gemeente.
+     * 
+     * @return achternaam
+     **/
+    public String getAchternaam() {
+        return achternaam;
+    }
+
+    /**
+     * Set achternaam
+     */
+    public void setAchternaam(String achternaam) {
+        this.achternaam = achternaam;
+    }
+
+    public Contactnaam achternaam(String achternaam) {
+        this.achternaam = achternaam;
+        return this;
+    }
+
+
+    /**
+     * Create a string representation of this pojo.
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class Contactnaam {\n");
+
+        sb.append("    voorletters: ").append(toIndentedString(voorletters)).append("\n");
+        sb.append("    voornaam: ").append(toIndentedString(voornaam)).append("\n");
+        sb.append("    voorvoegselAchternaam: ").append(toIndentedString(voorvoegselAchternaam)).append("\n");
+        sb.append("    achternaam: ").append(toIndentedString(achternaam)).append("\n");
+        sb.append("}");
+        return sb.toString();
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private static String toIndentedString(Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
 }

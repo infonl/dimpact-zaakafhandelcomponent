@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.brp.BRPClientService
-import net.atos.client.klanten.KlantenClientService
+import net.atos.client.klanten.KlantClientService
 import net.atos.client.klanten.createKlant
 import net.atos.client.klanten.model.Klant
 import net.atos.client.kvk.KvkClientService
@@ -25,7 +25,7 @@ class KlantRestServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val restPersoonConverter = mockk<RestPersoonConverter>()
     val restVestigingsprofielConverter = mockk<RestVestigingsprofielConverter>()
-    val klantenClientService = mockk<KlantenClientService>()
+    val klantenClientService = mockk<KlantClientService>()
     val klantRestService = KlantRestService(
         brpClientService,
         kvkClientService,

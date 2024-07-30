@@ -1,6 +1,6 @@
 /**
  * klantinteracties
- *  Description WIP. 
+ * Description WIP.
  *
  * The version of the OpenAPI document: 0.0.3
  * Contact: standaarden.ondersteuning@vng.nl
@@ -12,6 +12,8 @@
 
 package net.atos.client.klanten.model;
 
+import java.lang.reflect.Type;
+
 import jakarta.json.bind.annotation.JsonbTypeDeserializer;
 import jakarta.json.bind.annotation.JsonbTypeSerializer;
 import jakarta.json.bind.serializer.DeserializationContext;
@@ -21,8 +23,6 @@ import jakarta.json.bind.serializer.SerializationContext;
 import jakarta.json.stream.JsonGenerator;
 import jakarta.json.stream.JsonParser;
 
-import java.lang.reflect.Type;
-
 
 /**
  * Gets or Sets SoortActorEnum
@@ -30,44 +30,44 @@ import java.lang.reflect.Type;
 @JsonbTypeSerializer(SoortActorEnum.Serializer.class)
 @JsonbTypeDeserializer(SoortActorEnum.Deserializer.class)
 public enum SoortActorEnum {
-  
-  MEDEWERKER("medewerker"),
-  
-  GEAUTOMATISEERDE_ACTOR("geautomatiseerde_actor"),
-  
-  ORGANISATORISCHE_EENHEID("organisatorische_eenheid");
 
-  private String value;
+    MEDEWERKER("medewerker"),
 
-  SoortActorEnum(String value) {
-    this.value = value;
-  }
+    GEAUTOMATISEERDE_ACTOR("geautomatiseerde_actor"),
 
-  @Override
-  public String toString() {
-    return String.valueOf(value);
-  }
+    ORGANISATORISCHE_EENHEID("organisatorische_eenheid");
 
-  public static final class Deserializer implements JsonbDeserializer<SoortActorEnum> {
+    private String value;
+
+    SoortActorEnum(String value) {
+        this.value = value;
+    }
+
     @Override
-    public SoortActorEnum deserialize(JsonParser parser, DeserializationContext ctx, Type rtType) {
-      return fromValue(parser.getString());
+    public String toString() {
+        return String.valueOf(value);
     }
-  }
 
-  public static final class Serializer implements JsonbSerializer<SoortActorEnum> {
-    @Override
-    public void serialize(SoortActorEnum obj, JsonGenerator generator, SerializationContext ctx) {
-      generator.write(obj.value);
+    public static final class Deserializer implements JsonbDeserializer<SoortActorEnum> {
+        @Override
+        public SoortActorEnum deserialize(JsonParser parser, DeserializationContext ctx, Type rtType) {
+            return fromValue(parser.getString());
+        }
     }
-  }
 
-  public static SoortActorEnum fromValue(String text) {
-    for (SoortActorEnum b : SoortActorEnum.values()) {
-      if (String.valueOf(b.value).equals(text)) {
-        return b;
-      }
+    public static final class Serializer implements JsonbSerializer<SoortActorEnum> {
+        @Override
+        public void serialize(SoortActorEnum obj, JsonGenerator generator, SerializationContext ctx) {
+            generator.write(obj.value);
+        }
     }
-    throw new IllegalArgumentException("Unexpected value '" + text + "'");
-  }
+
+    public static SoortActorEnum fromValue(String text) {
+        for (SoortActorEnum b : SoortActorEnum.values()) {
+            if (String.valueOf(b.value).equals(text)) {
+                return b;
+            }
+        }
+        throw new IllegalArgumentException("Unexpected value '" + text + "'");
+    }
 }

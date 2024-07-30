@@ -31,7 +31,7 @@ import net.atos.client.brp.BRPClientService;
 import net.atos.client.brp.model.generated.PersonenQuery;
 import net.atos.client.brp.model.generated.PersonenQueryResponse;
 import net.atos.client.brp.model.generated.Persoon;
-import net.atos.client.klanten.KlantenClientService;
+import net.atos.client.klanten.KlantClientService;
 import net.atos.client.klanten.model.Klant;
 import net.atos.client.kvk.KvkClientService;
 import net.atos.client.kvk.model.KvkZoekenParameters;
@@ -75,7 +75,7 @@ public class KlantRestService {
     private ZtcClientService ztcClientService;
     private RestPersoonConverter restPersoonConverter;
     private RestVestigingsprofielConverter restVestigingsprofielConverter;
-    private KlantenClientService klantenClientService;
+    private KlantClientService klantenClientService;
 
     /**
      * Default no-arg constructor, required by Weld.
@@ -90,7 +90,7 @@ public class KlantRestService {
             ZtcClientService ztcClientService,
             RestPersoonConverter restPersoonConverter,
             RestVestigingsprofielConverter restVestigingsprofielConverter,
-            KlantenClientService klantenClientService
+            KlantClientService klantenClientService
     ) {
         this.brpClientService = brpClientService;
         this.kvkClientService = kvkClientService;
@@ -104,7 +104,7 @@ public class KlantRestService {
     @Path("persoon/{bsn}")
     public RestPersoon readPersoon(@PathParam("bsn") final String bsn) throws ExecutionException, InterruptedException {
         return brpClientService.findPersoonAsync(bsn)
-                .thenCombine(klantenClientService.findPersoonAsync(bsn), this::convertToRESTPersoon)
+                .thenCombine(klantenClientService.findKlantcontactByNummer(bsn), this::convertToRESTPersoon)
                 .toCompletableFuture()
                 .get();
     }

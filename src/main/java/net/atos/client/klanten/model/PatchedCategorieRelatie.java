@@ -1,6 +1,6 @@
 /**
  * klantinteracties
- *  Description WIP. 
+ * Description WIP.
  *
  * The version of the OpenAPI document: 0.0.3
  * Contact: standaarden.ondersteuning@vng.nl
@@ -12,192 +12,202 @@
 
 package net.atos.client.klanten.model;
 
-import jakarta.json.bind.annotation.JsonbCreator;
-import jakarta.json.bind.annotation.JsonbProperty;
-
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
+
 /**
-  * Let op: Dit endpoint is EXPERIMENTEEL.
-  */
+ * Let op: Dit endpoint is EXPERIMENTEEL.
+ */
 
-public class PatchedCategorieRelatie  {
-  
- /**
-  * Unieke (technische) identificatiecode van de Categorie Relatie.
-  */
-  @JsonbProperty("uuid")
-  private UUID uuid;
+public class PatchedCategorieRelatie {
 
- /**
-  * De unieke URL van deze categorie binnen deze API.
-  */
-  @JsonbProperty("url")
-  private URI url;
+    /**
+     * Unieke (technische) identificatiecode van de Categorie Relatie.
+     */
+    @JsonbProperty("uuid")
+    private UUID uuid;
 
- /**
-  * De partij waar de categorie relatie aan gelinkt is.
-  */
-  @JsonbProperty("partij")
-  private PartijForeignkeyBase partij;
+    /**
+     * De unieke URL van deze categorie binnen deze API.
+     */
+    @JsonbProperty("url")
+    private URI url;
 
- /**
-  * De categorie waar de categorie relatie aan gelinkt is: Let op: Dit attribuut is EXPERIMENTEEL.
-  */
-  @JsonbProperty("categorie")
-  private CategorieForeignKey categorie;
+    /**
+     * De partij waar de categorie relatie aan gelinkt is.
+     */
+    @JsonbProperty("partij")
+    private PartijForeignkeyBase partij;
 
- /**
-  * Aanduiding van datum volgens de NEN-ISO 8601:2019-standaard. Een datum wordt genoteerd van het meest naar het minst significante onderdeel. Een voorbeeld: 2022-02-21
-  */
-  @JsonbProperty("beginDatum")
-  private LocalDate beginDatum;
+    /**
+     * De categorie waar de categorie relatie aan gelinkt is: Let op: Dit attribuut is EXPERIMENTEEL.
+     */
+    @JsonbProperty("categorie")
+    private CategorieForeignKey categorie;
 
- /**
-  * Aanduiding van datum volgens de NEN-ISO 8601:2019-standaard. Een datum wordt genoteerd van het meest naar het minst significante onderdeel. Een voorbeeld: 2022-02-21
-  */
-  @JsonbProperty("eindDatum")
-  private LocalDate eindDatum;
+    /**
+     * Aanduiding van datum volgens de NEN-ISO 8601:2019-standaard. Een datum wordt genoteerd van het meest naar het minst significante
+     * onderdeel. Een voorbeeld: 2022-02-21
+     */
+    @JsonbProperty("beginDatum")
+    private LocalDate beginDatum;
 
-  public PatchedCategorieRelatie() {
-  }
+    /**
+     * Aanduiding van datum volgens de NEN-ISO 8601:2019-standaard. Een datum wordt genoteerd van het meest naar het minst significante
+     * onderdeel. Een voorbeeld: 2022-02-21
+     */
+    @JsonbProperty("eindDatum")
+    private LocalDate eindDatum;
 
- @JsonbCreator
-  public PatchedCategorieRelatie(
-    @JsonbProperty(value = "uuid", nillable = true) UUID uuid, 
-    @JsonbProperty(value = "url", nillable = true) URI url
-  ) {
-    this.uuid = uuid;
-    this.url = url;
-  }
-  
-  /**
-   * Unieke (technische) identificatiecode van de Categorie Relatie.
-   * @return uuid
-   **/
-  public UUID getUuid() {
-    return uuid;
-  }
-
-
-  /**
-   * De unieke URL van deze categorie binnen deze API.
-   * @return url
-   **/
-  public URI getUrl() {
-    return url;
-  }
-
-
-  /**
-   * De partij waar de categorie relatie aan gelinkt is.
-   * @return partij
-   **/
-  public PartijForeignkeyBase getPartij() {
-    return partij;
-  }
-
-  /**
-   * Set partij
-   */
-  public void setPartij(PartijForeignkeyBase partij) {
-    this.partij = partij;
-  }
-
-  public PatchedCategorieRelatie partij(PartijForeignkeyBase partij) {
-    this.partij = partij;
-    return this;
-  }
-
-  /**
-   * De categorie waar de categorie relatie aan gelinkt is: Let op: Dit attribuut is EXPERIMENTEEL.
-   * @return categorie
-   **/
-  public CategorieForeignKey getCategorie() {
-    return categorie;
-  }
-
-  /**
-   * Set categorie
-   */
-  public void setCategorie(CategorieForeignKey categorie) {
-    this.categorie = categorie;
-  }
-
-  public PatchedCategorieRelatie categorie(CategorieForeignKey categorie) {
-    this.categorie = categorie;
-    return this;
-  }
-
-  /**
-   * Aanduiding van datum volgens de NEN-ISO 8601:2019-standaard. Een datum wordt genoteerd van het meest naar het minst significante onderdeel. Een voorbeeld: 2022-02-21
-   * @return beginDatum
-   **/
-  public LocalDate getBeginDatum() {
-    return beginDatum;
-  }
-
-  /**
-   * Set beginDatum
-   */
-  public void setBeginDatum(LocalDate beginDatum) {
-    this.beginDatum = beginDatum;
-  }
-
-  public PatchedCategorieRelatie beginDatum(LocalDate beginDatum) {
-    this.beginDatum = beginDatum;
-    return this;
-  }
-
-  /**
-   * Aanduiding van datum volgens de NEN-ISO 8601:2019-standaard. Een datum wordt genoteerd van het meest naar het minst significante onderdeel. Een voorbeeld: 2022-02-21
-   * @return eindDatum
-   **/
-  public LocalDate getEindDatum() {
-    return eindDatum;
-  }
-
-  /**
-   * Set eindDatum
-   */
-  public void setEindDatum(LocalDate eindDatum) {
-    this.eindDatum = eindDatum;
-  }
-
-  public PatchedCategorieRelatie eindDatum(LocalDate eindDatum) {
-    this.eindDatum = eindDatum;
-    return this;
-  }
-
-
-  /**
-   * Create a string representation of this pojo.
-   */
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class PatchedCategorieRelatie {\n");
-    
-    sb.append("    uuid: ").append(toIndentedString(uuid)).append("\n");
-    sb.append("    url: ").append(toIndentedString(url)).append("\n");
-    sb.append("    partij: ").append(toIndentedString(partij)).append("\n");
-    sb.append("    categorie: ").append(toIndentedString(categorie)).append("\n");
-    sb.append("    beginDatum: ").append(toIndentedString(beginDatum)).append("\n");
-    sb.append("    eindDatum: ").append(toIndentedString(eindDatum)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private static String toIndentedString(Object o) {
-    if (o == null) {
-      return "null";
+    public PatchedCategorieRelatie() {
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    @JsonbCreator
+    public PatchedCategorieRelatie(
+            @JsonbProperty(value = "uuid", nillable = true) UUID uuid,
+            @JsonbProperty(value = "url", nillable = true) URI url
+    ) {
+        this.uuid = uuid;
+        this.url = url;
+    }
+
+    /**
+     * Unieke (technische) identificatiecode van de Categorie Relatie.
+     * 
+     * @return uuid
+     **/
+    public UUID getUuid() {
+        return uuid;
+    }
+
+
+    /**
+     * De unieke URL van deze categorie binnen deze API.
+     * 
+     * @return url
+     **/
+    public URI getUrl() {
+        return url;
+    }
+
+
+    /**
+     * De partij waar de categorie relatie aan gelinkt is.
+     * 
+     * @return partij
+     **/
+    public PartijForeignkeyBase getPartij() {
+        return partij;
+    }
+
+    /**
+     * Set partij
+     */
+    public void setPartij(PartijForeignkeyBase partij) {
+        this.partij = partij;
+    }
+
+    public PatchedCategorieRelatie partij(PartijForeignkeyBase partij) {
+        this.partij = partij;
+        return this;
+    }
+
+    /**
+     * De categorie waar de categorie relatie aan gelinkt is: Let op: Dit attribuut is EXPERIMENTEEL.
+     * 
+     * @return categorie
+     **/
+    public CategorieForeignKey getCategorie() {
+        return categorie;
+    }
+
+    /**
+     * Set categorie
+     */
+    public void setCategorie(CategorieForeignKey categorie) {
+        this.categorie = categorie;
+    }
+
+    public PatchedCategorieRelatie categorie(CategorieForeignKey categorie) {
+        this.categorie = categorie;
+        return this;
+    }
+
+    /**
+     * Aanduiding van datum volgens de NEN-ISO 8601:2019-standaard. Een datum wordt genoteerd van het meest naar het minst significante
+     * onderdeel. Een voorbeeld: 2022-02-21
+     * 
+     * @return beginDatum
+     **/
+    public LocalDate getBeginDatum() {
+        return beginDatum;
+    }
+
+    /**
+     * Set beginDatum
+     */
+    public void setBeginDatum(LocalDate beginDatum) {
+        this.beginDatum = beginDatum;
+    }
+
+    public PatchedCategorieRelatie beginDatum(LocalDate beginDatum) {
+        this.beginDatum = beginDatum;
+        return this;
+    }
+
+    /**
+     * Aanduiding van datum volgens de NEN-ISO 8601:2019-standaard. Een datum wordt genoteerd van het meest naar het minst significante
+     * onderdeel. Een voorbeeld: 2022-02-21
+     * 
+     * @return eindDatum
+     **/
+    public LocalDate getEindDatum() {
+        return eindDatum;
+    }
+
+    /**
+     * Set eindDatum
+     */
+    public void setEindDatum(LocalDate eindDatum) {
+        this.eindDatum = eindDatum;
+    }
+
+    public PatchedCategorieRelatie eindDatum(LocalDate eindDatum) {
+        this.eindDatum = eindDatum;
+        return this;
+    }
+
+
+    /**
+     * Create a string representation of this pojo.
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class PatchedCategorieRelatie {\n");
+
+        sb.append("    uuid: ").append(toIndentedString(uuid)).append("\n");
+        sb.append("    url: ").append(toIndentedString(url)).append("\n");
+        sb.append("    partij: ").append(toIndentedString(partij)).append("\n");
+        sb.append("    categorie: ").append(toIndentedString(categorie)).append("\n");
+        sb.append("    beginDatum: ").append(toIndentedString(beginDatum)).append("\n");
+        sb.append("    eindDatum: ").append(toIndentedString(eindDatum)).append("\n");
+        sb.append("}");
+        return sb.toString();
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private static String toIndentedString(Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
 }

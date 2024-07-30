@@ -1,6 +1,6 @@
 /**
  * klantinteracties
- *  Description WIP. 
+ * Description WIP.
  *
  * The version of the OpenAPI document: 0.0.3
  * Contact: standaarden.ondersteuning@vng.nl
@@ -12,140 +12,144 @@
 
 package net.atos.client.klanten.model;
 
-import jakarta.json.bind.annotation.JsonbProperty;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.json.bind.annotation.JsonbProperty;
 
-public class PaginatedActorKlantcontactList  {
-  
-  @JsonbProperty("count")
-  private Integer count;
 
-  @JsonbProperty("next")
-  private URI next;
+public class PaginatedActorKlantcontactList {
 
-  @JsonbProperty("previous")
-  private URI previous;
+    @JsonbProperty("count")
+    private Integer count;
 
-  @JsonbProperty("results")
-  private List<ActorKlantcontact> results = new ArrayList<>();
+    @JsonbProperty("next")
+    private URI next;
 
-  /**
-   * Get count
-   * @return count
-   **/
-  public Integer getCount() {
-    return count;
-  }
+    @JsonbProperty("previous")
+    private URI previous;
 
-  /**
-   * Set count
-   */
-  public void setCount(Integer count) {
-    this.count = count;
-  }
+    @JsonbProperty("results")
+    private List<ActorKlantcontact> results = new ArrayList<>();
 
-  public PaginatedActorKlantcontactList count(Integer count) {
-    this.count = count;
-    return this;
-  }
-
-  /**
-   * Get next
-   * @return next
-   **/
-  public URI getNext() {
-    return next;
-  }
-
-  /**
-   * Set next
-   */
-  public void setNext(URI next) {
-    this.next = next;
-  }
-
-  public PaginatedActorKlantcontactList next(URI next) {
-    this.next = next;
-    return this;
-  }
-
-  /**
-   * Get previous
-   * @return previous
-   **/
-  public URI getPrevious() {
-    return previous;
-  }
-
-  /**
-   * Set previous
-   */
-  public void setPrevious(URI previous) {
-    this.previous = previous;
-  }
-
-  public PaginatedActorKlantcontactList previous(URI previous) {
-    this.previous = previous;
-    return this;
-  }
-
-  /**
-   * Get results
-   * @return results
-   **/
-  public List<ActorKlantcontact> getResults() {
-    return results;
-  }
-
-  /**
-   * Set results
-   */
-  public void setResults(List<ActorKlantcontact> results) {
-    this.results = results;
-  }
-
-  public PaginatedActorKlantcontactList results(List<ActorKlantcontact> results) {
-    this.results = results;
-    return this;
-  }
-
-  public PaginatedActorKlantcontactList addResultsItem(ActorKlantcontact resultsItem) {
-    if (this.results == null) {
-      this.results = new ArrayList<>();
+    /**
+     * Get count
+     * 
+     * @return count
+     **/
+    public Integer getCount() {
+        return count;
     }
-    this.results.add(resultsItem);
-    return this;
-  }
 
-
-  /**
-   * Create a string representation of this pojo.
-   */
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class PaginatedActorKlantcontactList {\n");
-    
-    sb.append("    count: ").append(toIndentedString(count)).append("\n");
-    sb.append("    next: ").append(toIndentedString(next)).append("\n");
-    sb.append("    previous: ").append(toIndentedString(previous)).append("\n");
-    sb.append("    results: ").append(toIndentedString(results)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private static String toIndentedString(Object o) {
-    if (o == null) {
-      return "null";
+    /**
+     * Set count
+     */
+    public void setCount(Integer count) {
+        this.count = count;
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    public PaginatedActorKlantcontactList count(Integer count) {
+        this.count = count;
+        return this;
+    }
+
+    /**
+     * Get next
+     * 
+     * @return next
+     **/
+    public URI getNext() {
+        return next;
+    }
+
+    /**
+     * Set next
+     */
+    public void setNext(URI next) {
+        this.next = next;
+    }
+
+    public PaginatedActorKlantcontactList next(URI next) {
+        this.next = next;
+        return this;
+    }
+
+    /**
+     * Get previous
+     * 
+     * @return previous
+     **/
+    public URI getPrevious() {
+        return previous;
+    }
+
+    /**
+     * Set previous
+     */
+    public void setPrevious(URI previous) {
+        this.previous = previous;
+    }
+
+    public PaginatedActorKlantcontactList previous(URI previous) {
+        this.previous = previous;
+        return this;
+    }
+
+    /**
+     * Get results
+     * 
+     * @return results
+     **/
+    public List<ActorKlantcontact> getResults() {
+        return results;
+    }
+
+    /**
+     * Set results
+     */
+    public void setResults(List<ActorKlantcontact> results) {
+        this.results = results;
+    }
+
+    public PaginatedActorKlantcontactList results(List<ActorKlantcontact> results) {
+        this.results = results;
+        return this;
+    }
+
+    public PaginatedActorKlantcontactList addResultsItem(ActorKlantcontact resultsItem) {
+        if (this.results == null) {
+            this.results = new ArrayList<>();
+        }
+        this.results.add(resultsItem);
+        return this;
+    }
+
+
+    /**
+     * Create a string representation of this pojo.
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class PaginatedActorKlantcontactList {\n");
+
+        sb.append("    count: ").append(toIndentedString(count)).append("\n");
+        sb.append("    next: ").append(toIndentedString(next)).append("\n");
+        sb.append("    previous: ").append(toIndentedString(previous)).append("\n");
+        sb.append("    results: ").append(toIndentedString(results)).append("\n");
+        sb.append("}");
+        return sb.toString();
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private static String toIndentedString(Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
 }

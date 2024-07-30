@@ -1,6 +1,6 @@
 /**
  * klantinteracties
- *  Description WIP. 
+ * Description WIP.
  *
  * The version of the OpenAPI document: 0.0.3
  * Contact: standaarden.ondersteuning@vng.nl
@@ -12,164 +12,169 @@
 
 package net.atos.client.klanten.model;
 
-import jakarta.json.bind.annotation.JsonbCreator;
-import jakarta.json.bind.annotation.JsonbProperty;
-
 import java.net.URI;
 import java.util.UUID;
 
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
+
 /**
-  * Set gegevensgroepdata from validated nested data.  Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
-  */
+ * Set gegevensgroepdata from validated nested data. Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
+ */
 
-public class PatchedOnderwerpobject  {
-  
- /**
-  * Unieke (technische) identificatiecode van het onderwerpdeel.
-  */
-  @JsonbProperty("uuid")
-  private UUID uuid;
+public class PatchedOnderwerpobject {
 
- /**
-  * De unieke URL van dit klantcontact binnen deze API.
-  */
-  @JsonbProperty("url")
-  private URI url;
+    /**
+     * Unieke (technische) identificatiecode van het onderwerpdeel.
+     */
+    @JsonbProperty("uuid")
+    private UUID uuid;
 
- /**
-  * 'Klantcontact' ging over 'Onderwerpobject'
-  */
-  @JsonbProperty("klantcontact")
-  private KlantcontactForeignKey klantcontact;
+    /**
+     * De unieke URL van dit klantcontact binnen deze API.
+     */
+    @JsonbProperty("url")
+    private URI url;
 
- /**
-  * 'Onderwerpobject' was 'Klantcontact'
-  */
-  @JsonbProperty("wasKlantcontact")
-  private KlantcontactForeignKey wasKlantcontact;
+    /**
+     * 'Klantcontact' ging over 'Onderwerpobject'
+     */
+    @JsonbProperty("klantcontact")
+    private KlantcontactForeignKey klantcontact;
 
- /**
-  * Gegevens die een onderwerpobject in een extern register uniek identificeren.
-  */
-  @JsonbProperty("onderwerpobjectidentificator")
-  private Onderwerpobjectidentificator onderwerpobjectidentificator;
+    /**
+     * 'Onderwerpobject' was 'Klantcontact'
+     */
+    @JsonbProperty("wasKlantcontact")
+    private KlantcontactForeignKey wasKlantcontact;
 
-  public PatchedOnderwerpobject() {
-  }
+    /**
+     * Gegevens die een onderwerpobject in een extern register uniek identificeren.
+     */
+    @JsonbProperty("onderwerpobjectidentificator")
+    private Onderwerpobjectidentificator onderwerpobjectidentificator;
 
- @JsonbCreator
-  public PatchedOnderwerpobject(
-    @JsonbProperty(value = "uuid", nillable = true) UUID uuid, 
-    @JsonbProperty(value = "url", nillable = true) URI url
-  ) {
-    this.uuid = uuid;
-    this.url = url;
-  }
-  
-  /**
-   * Unieke (technische) identificatiecode van het onderwerpdeel.
-   * @return uuid
-   **/
-  public UUID getUuid() {
-    return uuid;
-  }
-
-
-  /**
-   * De unieke URL van dit klantcontact binnen deze API.
-   * @return url
-   **/
-  public URI getUrl() {
-    return url;
-  }
-
-
-  /**
-   * &#39;Klantcontact&#39; ging over &#39;Onderwerpobject&#39;
-   * @return klantcontact
-   **/
-  public KlantcontactForeignKey getKlantcontact() {
-    return klantcontact;
-  }
-
-  /**
-   * Set klantcontact
-   */
-  public void setKlantcontact(KlantcontactForeignKey klantcontact) {
-    this.klantcontact = klantcontact;
-  }
-
-  public PatchedOnderwerpobject klantcontact(KlantcontactForeignKey klantcontact) {
-    this.klantcontact = klantcontact;
-    return this;
-  }
-
-  /**
-   * &#39;Onderwerpobject&#39; was &#39;Klantcontact&#39;
-   * @return wasKlantcontact
-   **/
-  public KlantcontactForeignKey getWasKlantcontact() {
-    return wasKlantcontact;
-  }
-
-  /**
-   * Set wasKlantcontact
-   */
-  public void setWasKlantcontact(KlantcontactForeignKey wasKlantcontact) {
-    this.wasKlantcontact = wasKlantcontact;
-  }
-
-  public PatchedOnderwerpobject wasKlantcontact(KlantcontactForeignKey wasKlantcontact) {
-    this.wasKlantcontact = wasKlantcontact;
-    return this;
-  }
-
-  /**
-   * Gegevens die een onderwerpobject in een extern register uniek identificeren.
-   * @return onderwerpobjectidentificator
-   **/
-  public Onderwerpobjectidentificator getOnderwerpobjectidentificator() {
-    return onderwerpobjectidentificator;
-  }
-
-  /**
-   * Set onderwerpobjectidentificator
-   */
-  public void setOnderwerpobjectidentificator(Onderwerpobjectidentificator onderwerpobjectidentificator) {
-    this.onderwerpobjectidentificator = onderwerpobjectidentificator;
-  }
-
-  public PatchedOnderwerpobject onderwerpobjectidentificator(Onderwerpobjectidentificator onderwerpobjectidentificator) {
-    this.onderwerpobjectidentificator = onderwerpobjectidentificator;
-    return this;
-  }
-
-
-  /**
-   * Create a string representation of this pojo.
-   */
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class PatchedOnderwerpobject {\n");
-    
-    sb.append("    uuid: ").append(toIndentedString(uuid)).append("\n");
-    sb.append("    url: ").append(toIndentedString(url)).append("\n");
-    sb.append("    klantcontact: ").append(toIndentedString(klantcontact)).append("\n");
-    sb.append("    wasKlantcontact: ").append(toIndentedString(wasKlantcontact)).append("\n");
-    sb.append("    onderwerpobjectidentificator: ").append(toIndentedString(onderwerpobjectidentificator)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private static String toIndentedString(Object o) {
-    if (o == null) {
-      return "null";
+    public PatchedOnderwerpobject() {
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    @JsonbCreator
+    public PatchedOnderwerpobject(
+            @JsonbProperty(value = "uuid", nillable = true) UUID uuid,
+            @JsonbProperty(value = "url", nillable = true) URI url
+    ) {
+        this.uuid = uuid;
+        this.url = url;
+    }
+
+    /**
+     * Unieke (technische) identificatiecode van het onderwerpdeel.
+     * 
+     * @return uuid
+     **/
+    public UUID getUuid() {
+        return uuid;
+    }
+
+
+    /**
+     * De unieke URL van dit klantcontact binnen deze API.
+     * 
+     * @return url
+     **/
+    public URI getUrl() {
+        return url;
+    }
+
+
+    /**
+     * &#39;Klantcontact&#39; ging over &#39;Onderwerpobject&#39;
+     * 
+     * @return klantcontact
+     **/
+    public KlantcontactForeignKey getKlantcontact() {
+        return klantcontact;
+    }
+
+    /**
+     * Set klantcontact
+     */
+    public void setKlantcontact(KlantcontactForeignKey klantcontact) {
+        this.klantcontact = klantcontact;
+    }
+
+    public PatchedOnderwerpobject klantcontact(KlantcontactForeignKey klantcontact) {
+        this.klantcontact = klantcontact;
+        return this;
+    }
+
+    /**
+     * &#39;Onderwerpobject&#39; was &#39;Klantcontact&#39;
+     * 
+     * @return wasKlantcontact
+     **/
+    public KlantcontactForeignKey getWasKlantcontact() {
+        return wasKlantcontact;
+    }
+
+    /**
+     * Set wasKlantcontact
+     */
+    public void setWasKlantcontact(KlantcontactForeignKey wasKlantcontact) {
+        this.wasKlantcontact = wasKlantcontact;
+    }
+
+    public PatchedOnderwerpobject wasKlantcontact(KlantcontactForeignKey wasKlantcontact) {
+        this.wasKlantcontact = wasKlantcontact;
+        return this;
+    }
+
+    /**
+     * Gegevens die een onderwerpobject in een extern register uniek identificeren.
+     * 
+     * @return onderwerpobjectidentificator
+     **/
+    public Onderwerpobjectidentificator getOnderwerpobjectidentificator() {
+        return onderwerpobjectidentificator;
+    }
+
+    /**
+     * Set onderwerpobjectidentificator
+     */
+    public void setOnderwerpobjectidentificator(Onderwerpobjectidentificator onderwerpobjectidentificator) {
+        this.onderwerpobjectidentificator = onderwerpobjectidentificator;
+    }
+
+    public PatchedOnderwerpobject onderwerpobjectidentificator(Onderwerpobjectidentificator onderwerpobjectidentificator) {
+        this.onderwerpobjectidentificator = onderwerpobjectidentificator;
+        return this;
+    }
+
+
+    /**
+     * Create a string representation of this pojo.
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class PatchedOnderwerpobject {\n");
+
+        sb.append("    uuid: ").append(toIndentedString(uuid)).append("\n");
+        sb.append("    url: ").append(toIndentedString(url)).append("\n");
+        sb.append("    klantcontact: ").append(toIndentedString(klantcontact)).append("\n");
+        sb.append("    wasKlantcontact: ").append(toIndentedString(wasKlantcontact)).append("\n");
+        sb.append("    onderwerpobjectidentificator: ").append(toIndentedString(onderwerpobjectidentificator)).append("\n");
+        sb.append("}");
+        return sb.toString();
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private static String toIndentedString(Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
 }

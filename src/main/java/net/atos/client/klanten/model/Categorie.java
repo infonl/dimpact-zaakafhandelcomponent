@@ -1,6 +1,6 @@
 /**
  * klantinteracties
- *  Description WIP. 
+ * Description WIP.
  *
  * The version of the OpenAPI document: 0.0.3
  * Contact: standaarden.ondersteuning@vng.nl
@@ -12,110 +12,113 @@
 
 package net.atos.client.klanten.model;
 
-import jakarta.json.bind.annotation.JsonbCreator;
-import jakarta.json.bind.annotation.JsonbProperty;
-
 import java.net.URI;
 import java.util.UUID;
 
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
+
 /**
-  * Let op: Dit endpoint is EXPERIMENTEEL.
-  */
+ * Let op: Dit endpoint is EXPERIMENTEEL.
+ */
 
-public class Categorie  {
-  
- /**
-  * Unieke (technische) identificatiecode van de Categorie.
-  */
-  @JsonbProperty("uuid")
-  private UUID uuid;
+public class Categorie {
 
- /**
-  * De unieke URL van deze categorie binnen deze API.
-  */
-  @JsonbProperty("url")
-  private URI url;
+    /**
+     * Unieke (technische) identificatiecode van de Categorie.
+     */
+    @JsonbProperty("uuid")
+    private UUID uuid;
 
- /**
-  * Naam van de categorie.
-  */
-  @JsonbProperty("naam")
-  private String naam;
+    /**
+     * De unieke URL van deze categorie binnen deze API.
+     */
+    @JsonbProperty("url")
+    private URI url;
 
-  public Categorie() {
-  }
+    /**
+     * Naam van de categorie.
+     */
+    @JsonbProperty("naam")
+    private String naam;
 
- @JsonbCreator
-  public Categorie(
-    @JsonbProperty(value = "uuid") UUID uuid, 
-    @JsonbProperty(value = "url") URI url
-  ) {
-    this.uuid = uuid;
-    this.url = url;
-  }
-  
-  /**
-   * Unieke (technische) identificatiecode van de Categorie.
-   * @return uuid
-   **/
-  public UUID getUuid() {
-    return uuid;
-  }
-
-
-  /**
-   * De unieke URL van deze categorie binnen deze API.
-   * @return url
-   **/
-  public URI getUrl() {
-    return url;
-  }
-
-
-  /**
-   * Naam van de categorie.
-   * @return naam
-   **/
-  public String getNaam() {
-    return naam;
-  }
-
-  /**
-   * Set naam
-   */
-  public void setNaam(String naam) {
-    this.naam = naam;
-  }
-
-  public Categorie naam(String naam) {
-    this.naam = naam;
-    return this;
-  }
-
-
-  /**
-   * Create a string representation of this pojo.
-   */
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class Categorie {\n");
-    
-    sb.append("    uuid: ").append(toIndentedString(uuid)).append("\n");
-    sb.append("    url: ").append(toIndentedString(url)).append("\n");
-    sb.append("    naam: ").append(toIndentedString(naam)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private static String toIndentedString(Object o) {
-    if (o == null) {
-      return "null";
+    public Categorie() {
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    @JsonbCreator
+    public Categorie(
+            @JsonbProperty(value = "uuid") UUID uuid,
+            @JsonbProperty(value = "url") URI url
+    ) {
+        this.uuid = uuid;
+        this.url = url;
+    }
+
+    /**
+     * Unieke (technische) identificatiecode van de Categorie.
+     * 
+     * @return uuid
+     **/
+    public UUID getUuid() {
+        return uuid;
+    }
+
+
+    /**
+     * De unieke URL van deze categorie binnen deze API.
+     * 
+     * @return url
+     **/
+    public URI getUrl() {
+        return url;
+    }
+
+
+    /**
+     * Naam van de categorie.
+     * 
+     * @return naam
+     **/
+    public String getNaam() {
+        return naam;
+    }
+
+    /**
+     * Set naam
+     */
+    public void setNaam(String naam) {
+        this.naam = naam;
+    }
+
+    public Categorie naam(String naam) {
+        this.naam = naam;
+        return this;
+    }
+
+
+    /**
+     * Create a string representation of this pojo.
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class Categorie {\n");
+
+        sb.append("    uuid: ").append(toIndentedString(uuid)).append("\n");
+        sb.append("    url: ").append(toIndentedString(url)).append("\n");
+        sb.append("    naam: ").append(toIndentedString(naam)).append("\n");
+        sb.append("}");
+        return sb.toString();
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private static String toIndentedString(Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
 }
