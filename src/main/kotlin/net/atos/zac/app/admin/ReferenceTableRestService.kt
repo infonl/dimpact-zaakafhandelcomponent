@@ -159,9 +159,11 @@ class ReferenceTableRestService @Inject constructor(
         restReferenceTableUpdate: RestReferenceTableUpdate
     ) = this.apply {
         if (!isSystemReferenceTable) {
-            // code can only be updated for non-system reference tables
-            // the data model only supports uppercase codes so convert it here to be sure
-            code = restReferenceTableUpdate.code.uppercase()
+            restReferenceTableUpdate.code?.let {
+                // code can only be updated for non-system reference tables
+                // the data model only supports uppercase codes so convert it here to be sure
+                code = it.uppercase()
+            }
         }
         name = restReferenceTableUpdate.naam
         values = restReferenceTableUpdate.waarden
