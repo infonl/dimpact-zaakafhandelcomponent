@@ -209,7 +209,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             }
 
             Then("an exception should be thrown indicating that system values cannot be updated") {
-                exception.message shouldBe "Validation failed, causes: msg.error.system.reference.table.system.values.cannot.be.changed"
+                exception.message shouldBe "msg.error.system.reference.table.system.values.cannot.be.changed"
             }
         }
     }
