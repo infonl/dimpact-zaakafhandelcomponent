@@ -52,6 +52,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         const val ERROR_CODE_SYSTEM_REFERENCE_TABLE_CANNOT_BE_DELETED = "msg.error.system.reference.table.cannot.be.deleted"
         const val ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNOT_BE_CHANGED =
             "msg.error.system.reference.table.system.values.cannot.be.changed"
+        const val ERROR_CODE_REFERENCE_TABLE_WITH_SAME_CODE_ALREADY_EXISTS = "msg.error.reference.table.with.same.code.already.exists"
     }
 
     /**
