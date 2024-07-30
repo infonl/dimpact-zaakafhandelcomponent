@@ -92,7 +92,7 @@ class ReferenceTableAdminServiceTest : BehaviorSpec({
                     to delete system reference tables
                     """
             ) {
-                exception.message shouldBe "Validation failed, causes: msg.error.system.reference.table.cannot.be.deleted"
+                exception.message shouldBe "msg.error.system.reference.table.cannot.be.deleted"
             }
         }
     }
