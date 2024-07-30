@@ -9,6 +9,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -16,6 +17,7 @@ import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
+import kotlinx.coroutines.test.runTest
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRequest
@@ -101,6 +103,10 @@ class TaskRestServiceTest : BehaviorSpec({
         taskService = taskService
     )
     val loggedInUser = createLoggedInUser()
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given("a task is not yet assigned") {
         val restTaakToekennenGegevens = createRestTaskAssignData()
@@ -330,7 +336,10 @@ class TaskRestServiceTest : BehaviorSpec({
                 policyService.readWerklijstRechten()
             } returns createWerklijstRechtenAllDeny(zakenTakenVerdelen = true)
 
-            taskRestService.distributeFromList(restTaakVerdelenGegevens)
+            runTest {
+                taskRestService.distributeFromList(restTaakVerdelenGegevens)
+                testScheduler.advanceUntilIdle()
+            }
 
             Then("the tasks are assigned to the group and user") {
                 verify(exactly = 1) {
@@ -366,7 +375,10 @@ class TaskRestServiceTest : BehaviorSpec({
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("the 'verdelen vanuit lijst' function is called") {
-            taskRestService.releaseFromList(restTaakVrijgevenGegevens)
+            runTest {
+                taskRestService.releaseFromList(restTaakVrijgevenGegevens)
+                testScheduler.advanceUntilIdle()
+            }
 
             Then("the tasks are assigned to the group and user") {
                 verify(exactly = 1) {

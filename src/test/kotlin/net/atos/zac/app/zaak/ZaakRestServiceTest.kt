@@ -334,7 +334,8 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         When("the assign zaken from a list function is called") {
             runTest {
-                zaakRestService.verdelenVanuitLijst(restZakenVerdeelGegevens)
+                zaakRestService.assignFromList(restZakenVerdeelGegevens)
+                testScheduler.advanceUntilIdle()
             }
 
             Then("the zaken are assigned to the group and user") {
