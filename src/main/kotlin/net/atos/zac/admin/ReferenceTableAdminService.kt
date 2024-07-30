@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional
 import net.atos.zac.admin.model.HumanTaskReferentieTabel
 import net.atos.zac.admin.model.ReferenceTable
 import net.atos.zac.app.util.exception.InputValidationFailedException
+import net.atos.zac.app.util.exception.RestExceptionMapper.Companion.ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKAFHANDELPARAMETERS
 import net.atos.zac.app.util.exception.RestExceptionMapper.Companion.ERROR_CODE_REFERENCE_TABLE_WITH_SAME_CODE_ALREADY_EXISTS
 import net.atos.zac.app.util.exception.RestExceptionMapper.Companion.ERROR_CODE_SYSTEM_REFERENCE_TABLE_CANNOT_BE_DELETED
 import nl.lifely.zac.util.AllOpen
@@ -52,12 +53,7 @@ class ReferenceTableAdminService @Inject constructor(
                 entityManager.createQuery(query).resultList.run {
                     if (this.isNotEmpty()) {
                         throw InputValidationFailedException(
-                            "This reference table is in use by one or more human task reference tables and cannot be deleted." +
-                                "Human task reference table fields: '${
-                                    this.map { it.veld }
-                                        .distinct()
-                                        .joinToString()
-                                }'"
+                            ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKAFHANDELPARAMETERS
                         )
                     }
                 }

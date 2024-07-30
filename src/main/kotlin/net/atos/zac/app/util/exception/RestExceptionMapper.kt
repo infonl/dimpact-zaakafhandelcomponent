@@ -53,6 +53,8 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         const val ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNOT_BE_CHANGED =
             "msg.error.system.reference.table.system.values.cannot.be.changed"
         const val ERROR_CODE_REFERENCE_TABLE_WITH_SAME_CODE_ALREADY_EXISTS = "msg.error.reference.table.with.same.code.already.exists"
+        const val ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKAFHANDELPARAMETERS =
+            "msg.error.reference.table.is.in.use.by.zaakafhandelparameters"
     }
 
     /**
