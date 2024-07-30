@@ -27,14 +27,22 @@ class ReferenceTableAdminService @Inject constructor(
 ) {
     @Transactional(Transactional.TxType.REQUIRED)
     fun createReferenceTable(referenceTable: ReferenceTable): ReferenceTable {
-        referenceTableService.findReferenceTable(referenceTable.code)?.let {
+        referenceTableService.findReferenceTable(referenceTable.code)?.run {
             throw InputValidationFailedException(ERROR_CODE_REFERENCE_TABLE_WITH_SAME_CODE_ALREADY_EXISTS)
         }
         return entityManager.merge(referenceTable)
     }
 
     @Transactional(Transactional.TxType.REQUIRED)
-    fun updateReferenceTable(referenceTable: ReferenceTable): ReferenceTable = entityManager.merge(referenceTable)
+    fun updateReferenceTable(referenceTable: ReferenceTable): ReferenceTable {
+        // check if there is already a different reference table, i.e. one with a different id, but with the same code
+        referenceTableService.findReferenceTable(referenceTable.code)?.run {
+            if (this.id != referenceTable.id) {
+                throw InputValidationFailedException(ERROR_CODE_REFERENCE_TABLE_WITH_SAME_CODE_ALREADY_EXISTS)
+            }
+        }
+        return entityManager.merge(referenceTable)
+    }
 
     @Transactional(Transactional.TxType.REQUIRED)
     @Suppress("NestedBlockDepth")
