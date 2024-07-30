@@ -51,11 +51,11 @@ class ReferenceTableService @Inject constructor(
 
     fun readReferenceTable(id: Long): ReferenceTable =
         entityManager.find(ReferenceTable::class.java, id) ?: run {
-            throw ReferenceTableNotFoundException("Reference table with id '$id' not found")
+            throw ReferenceTableNotFoundException(id)
         }
 
     fun readReferenceTable(code: String): ReferenceTable =
         findReferenceTable(code) ?: run {
-            throw ReferenceTableNotFoundException("Reference table with code '$code' not found")
+            throw ReferenceTableNotFoundException("No reference table found with code '$code'")
         }
 }

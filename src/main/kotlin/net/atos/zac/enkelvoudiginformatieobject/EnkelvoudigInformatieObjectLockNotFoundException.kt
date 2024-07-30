@@ -1,3 +1,5 @@
 package net.atos.zac.enkelvoudiginformatieobject
 
-class EnkelvoudigInformatieObjectLockNotFoundException(message: String) : RuntimeException(message)
+import jakarta.ws.rs.NotFoundException
+
+class EnkelvoudigInformatieObjectLockNotFoundException(message: String) : NotFoundException(message)

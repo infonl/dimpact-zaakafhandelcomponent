@@ -17,6 +17,7 @@ import net.atos.zac.admin.ReferenceTableService
 import net.atos.zac.admin.model.ReferenceTable
 import net.atos.zac.admin.model.createReferenceTable
 import net.atos.zac.admin.model.createReferenceTableValue
+import net.atos.zac.app.util.exception.InputValidationFailedException
 import net.atos.zac.policy.PolicyService
 
 class ReferenceTableRestServiceTest : BehaviorSpec({
@@ -148,7 +149,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                     the reference table is updated successfully and only contains the two new values
                     and the new name thereby completely replacing the existing value(s) and the existing name
                 """
-                    ) {
+            ) {
                 with(updatedRestReferenceTable) {
                     id shouldBe updatedReferenceTable.id
                     code shouldBe updatedReferenceTable.code
@@ -200,7 +201,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 )
             )
 
-            val exception = shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<InputValidationFailedException> {
                 referenceTableRestService.updateReferenceTable(
                     id = referenceTable.id!!,
                     restReferenceTableUpdate
@@ -208,7 +209,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             }
 
             Then("an exception should be thrown indicating that system values cannot be updated") {
-                exception.message shouldBe "Referentietabel systeemwaarden kunnen niet worden aangepast"
+                exception.message shouldBe "Validation failed, causes: msg.error.system.reference.table.system.values.cannot.be.changed"
             }
         }
     }
