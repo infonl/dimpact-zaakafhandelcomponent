@@ -21,17 +21,23 @@ import nl.lifely.zac.util.NoArgConstructor
 class ReferenceTableService @Inject constructor(
     val entityManager: EntityManager
 ) {
-    fun findReferenceTable(code: String): ReferenceTable? {
-        val resultList = entityManager.criteriaBuilder.let { criteriaBuilder ->
+    /**
+     * Finds a reference table by its code, where code is treated as uppercase only.
+     *
+     * @return the reference table or null if none could be found
+     */
+    @Suppress("NestedBlockDepth")
+    fun findReferenceTable(code: String): ReferenceTable? =
+        entityManager.criteriaBuilder.let { criteriaBuilder ->
             criteriaBuilder.createQuery(ReferenceTable::class.java).let { query ->
-                query.from(ReferenceTable::class.java).let {
-                    query.select(it).where(criteriaBuilder.equal(it.get<Any>("code"), code))
+                query.from(ReferenceTable::class.java).let { root ->
+                    criteriaBuilder.equal(root.get<Any>("code"), code.uppercase()).let { predicate ->
+                        query.select(root).where(predicate)
+                    }
                 }
                 entityManager.createQuery(query).resultList
             }
-        }
-        return resultList.firstOrNull()
-    }
+        }.firstOrNull()
 
     fun listReferenceTableValuesSorted(referenceTable: ReferenceTable) =
         referenceTable.values
