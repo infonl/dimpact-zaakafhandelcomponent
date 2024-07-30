@@ -26,6 +26,8 @@ import net.atos.zac.app.admin.model.RestReferenceTable
 import net.atos.zac.app.admin.model.RestReferenceTableUpdate
 import net.atos.zac.app.admin.model.toReferenceTable
 import net.atos.zac.app.admin.model.toReferenceTableValue
+import net.atos.zac.app.util.exception.InputValidationFailedException
+import net.atos.zac.app.util.exception.RestExceptionMapper.Companion.ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNOT_BE_CHANGED
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.policy.PolicyService
 import nl.lifely.zac.util.AllOpen
@@ -94,12 +96,11 @@ class ReferenceTableRestService @Inject constructor(
             existingReferenceTable.updateExistingReferenceTable(
                 restReferenceTableUpdate
             ).let { updatedReferenceTable ->
-                require(
-                    updatedReferenceTable.values
+                if (!updatedReferenceTable.values
                         .filter { it.isSystemValue }
                         .map { it.name }
                         .containsAll(systemValueNames)
-                ) { "Referentietabel systeemwaarden kunnen niet worden aangepast" }
+                ) { throw InputValidationFailedException(ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNOT_BE_CHANGED) }
                 referenceTableAdminService.updateReferenceTable(updatedReferenceTable)
                     .toRestReferenceTable(true)
             }
@@ -127,10 +128,10 @@ class ReferenceTableRestService @Inject constructor(
     fun listCommunicationChannels(
         @PathParam("inclusiefEFormulier") includingEFormulier: Boolean
     ) = getReferenceTableValueNames(
-            referenceTableService.readReferenceTable(Systeem.COMMUNICATIEKANAAL.name).values
-        )
-            .filter { communicationChannel -> includingEFormulier || communicationChannel != ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER }
-            .toList()
+        referenceTableService.readReferenceTable(Systeem.COMMUNICATIEKANAAL.name).values
+    )
+        .filter { communicationChannel -> includingEFormulier || communicationChannel != ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER }
+        .toList()
 
     @GET
     @Path("domein")

@@ -49,52 +49,50 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         const val ERROR_CODE_ZRC_CLIENT = "msg.error.zrc.client.exception"
         const val ERROR_CODE_ZTC_CLIENT = "msg.error.ztc.client.exception"
         const val ERROR_CODE_GENERIC_SERVER = "msg.error.server.generic"
+        const val ERROR_CODE_SYSTEM_REFERENCE_TABLE_CANNOT_BE_DELETED = "msg.error.system.reference.table.cannot.be.deleted"
+        const val ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNOT_BE_CHANGED =
+            "msg.error.system.reference.table.system.values.cannot.be.changed"
     }
 
     /**
-     * Converts an exception to a JAX-RS response.
+     * Converts an exception to a JAX-RS response depending on the exception type.
      */
     override fun toResponse(exception: Exception): Response =
-        // Handle JAX-RS web application exceptions which are not server errors (5xx)
-        // by passing on the exception response status and exception message.
-        // These are typically 4xx family errors which we do not want to log.
-        if (exception is WebApplicationException &&
-            Response.Status.Family.familyOf(exception.response.status) != Response.Status.Family.SERVER_ERROR
-        ) {
-            Response.status(exception.response.status)
-                .type(MediaType.APPLICATION_JSON)
-                .entity(getJSONMessage(errorMessage = exception.message ?: ERROR_CODE_GENERIC_SERVER))
-                .build()
-        } else if (exception is ZgwRuntimeException) {
-            handleZgwRuntimeException(exception)
-        } else if (exception is ProcessingException && exception.cause?.let {
-                it is ConnectException || it is UnknownHostException
-            } == true
-        ) {
-            handleProcessingException(exception)
-        } else {
-            generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
+        when {
+            exception is WebApplicationException &&
+                Response.Status.Family.familyOf(exception.response.status) != Response.Status.Family.SERVER_ERROR -> {
+                Response.status(exception.response.status)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(getJSONMessage(errorMessage = exception.message ?: ERROR_CODE_GENERIC_SERVER))
+                    .build()
+            }
+            exception is ZgwRuntimeException -> handleZgwRuntimeException(exception)
+            exception is ProcessingException && (exception.cause is ConnectException || exception.cause is UnknownHostException) -> {
+                handleProcessingException(exception)
+            }
+            else -> generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
         }
 
-    private fun handleZgwRuntimeException(exception: ZgwRuntimeException): Response {
-        return when (exception) {
-            is BrcRuntimeException -> {
-                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_BRC_CLIENT)
-            }
-            is DrcRuntimeException -> {
-                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_DRC_CLIENT)
-            }
-            is ZrcRuntimeException -> {
-                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZRC_CLIENT)
-            }
-            is ZtcRuntimeException -> {
-                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZTC_CLIENT)
-            }
-            else -> {
-                generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
-            }
+    private fun handleZgwRuntimeException(exception: ZgwRuntimeException): Response =
+        when (exception) {
+            is BrcRuntimeException -> generateServerErrorResponse(
+                exception = exception,
+                errorCode = ERROR_CODE_BRC_CLIENT
+            )
+            is DrcRuntimeException -> generateServerErrorResponse(
+                exception = exception,
+                errorCode = ERROR_CODE_DRC_CLIENT
+            )
+            is ZrcRuntimeException -> generateServerErrorResponse(
+                exception = exception,
+                errorCode = ERROR_CODE_ZRC_CLIENT
+            )
+            is ZtcRuntimeException -> generateServerErrorResponse(
+                exception = exception,
+                errorCode = ERROR_CODE_ZTC_CLIENT
+            )
+            else -> generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
         }
-    }
 
     /**
      * Handle JAX-RS processing exceptions which can be thrown by the various
@@ -107,41 +105,30 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
      * since that class is proxied by the Eclipse Microprofile framework and is therefore not
      * shown in the stacktrace.
      */
-    private fun handleProcessingException(exception: Exception): Response {
-        val stackTrace = exception.stackTraceToString()
-        return when {
-            stackTrace.contains(BagClientService::class.simpleName!!) -> {
-                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_BAG_CLIENT)
-            }
-            stackTrace.contains(BrcClientService::class.simpleName!!) -> {
-                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_BRC_CLIENT)
-            }
-            stackTrace.contains(BRPClientService::class.simpleName!!) -> {
-                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_BRP_CLIENT)
-            }
-            stackTrace.contains(DrcClientService::class.simpleName!!) -> {
-                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_DRC_CLIENT)
-            }
-            stackTrace.contains(ObjectsClientService::class.simpleName!!) -> {
-                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_OBJECTS_CLIENT)
-            }
-            stackTrace.contains(ObjecttypesClientService::class.simpleName!!) -> {
-                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_OBJECTTYPES_CLIENT)
-            }
-            stackTrace.contains(KlantClientService::class.simpleName!!) -> {
-                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_KLANTEN_CLIENT)
-            }
-            stackTrace.contains(ZRCClientService::class.simpleName!!) -> {
-                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZRC_CLIENT)
-            }
-            stackTrace.contains(ZtcClientService::class.simpleName!!) -> {
-                generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZTC_CLIENT)
-            }
-            else -> {
-                generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
+    private fun handleProcessingException(exception: Exception): Response =
+        exception.stackTraceToString().let {
+            when {
+                it.contains(BagClientService::class.simpleName!!) ->
+                    generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_BAG_CLIENT)
+                it.contains(BrcClientService::class.simpleName!!) ->
+                    generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_BRC_CLIENT)
+                it.contains(BRPClientService::class.simpleName!!) ->
+                    generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_BRP_CLIENT)
+                it.contains(DrcClientService::class.simpleName!!) ->
+                    generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_DRC_CLIENT)
+                it.contains(ObjectsClientService::class.simpleName!!) ->
+                    generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_OBJECTS_CLIENT)
+                it.contains(ObjecttypesClientService::class.simpleName!!) ->
+                    generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_OBJECTTYPES_CLIENT)
+                it.contains(KlantClientService::class.simpleName!!) ->
+                    generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_KLANTEN_CLIENT)
+                it.contains(ZRCClientService::class.simpleName!!) ->
+                    generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZRC_CLIENT)
+                it.contains(ZtcClientService::class.simpleName!!) ->
+                    generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZTC_CLIENT)
+                else -> generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
             }
         }
-    }
 
     private fun generateServerErrorResponse(
         exception: Exception,

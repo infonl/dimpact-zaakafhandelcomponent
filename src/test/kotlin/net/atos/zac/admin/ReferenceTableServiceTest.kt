@@ -61,7 +61,7 @@ class ReferenceTableServiceTest : BehaviorSpec({
             }
 
             Then("the reference table is returned") {
-                exception.message shouldBe "Reference table with id '$referenceTableID' not found"
+                exception.message shouldBe "No reference table found with id '$referenceTableID'"
             }
         }
     }

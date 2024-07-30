@@ -19,8 +19,8 @@ import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Root
 import net.atos.zac.admin.model.HumanTaskReferentieTabel
-import net.atos.zac.admin.model.ReferenceTable
 import net.atos.zac.admin.model.createReferenceTable
+import net.atos.zac.app.util.exception.InputValidationFailedException
 
 class ReferenceTableAdminServiceTest : BehaviorSpec({
     val criteriaBuilder = mockk<CriteriaBuilder>()
@@ -45,7 +45,7 @@ class ReferenceTableAdminServiceTest : BehaviorSpec({
         val referenceTable = createReferenceTable(
             isSystemReferenceTable = false
         )
-        every { entityManager.find(ReferenceTable::class.java, referenceTable.id) } returns referenceTable
+        every { referenceTableService.readReferenceTable(referenceTable.id!!) } returns referenceTable
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every {
             criteriaBuilder.createQuery(HumanTaskReferentieTabel::class.java)
@@ -79,15 +79,20 @@ class ReferenceTableAdminServiceTest : BehaviorSpec({
         val referenceTable = createReferenceTable(
             isSystemReferenceTable = true
         )
-        every { entityManager.find(ReferenceTable::class.java, referenceTable.id) } returns referenceTable
+        every { referenceTableService.readReferenceTable(referenceTable.id!!) } returns referenceTable
 
-        When("the reference table is deleted") {
-            val exception = shouldThrow<IllegalArgumentException> {
+        When("an attempt is made to delete the system reference table") {
+            val exception = shouldThrow<InputValidationFailedException> {
                 referenceTableAdminService.deleteReferenceTable(referenceTable.id!!)
             }
 
-            Then("an exception should be thrown and the reference table is not deleted") {
-                exception.message shouldBe "Deze referentietabel is een systeemtabel en kan niet verwijderd worden."
+            Then(
+                """
+                    an exception should be thrown and the reference table is not deleted since it is not allowed
+                    to delete system reference tables
+                    """
+            ) {
+                exception.message shouldBe "Validation failed, causes: msg.error.system.reference.table.cannot.be.deleted"
             }
         }
     }

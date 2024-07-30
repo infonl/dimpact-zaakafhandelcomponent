@@ -1,6 +1,8 @@
 package net.atos.zac.flowable.exception;
 
-public class TaskNotFoundException extends RuntimeException {
+import jakarta.ws.rs.NotFoundException;
+
+public class TaskNotFoundException extends NotFoundException {
     public TaskNotFoundException(final String message) {
         super(message);
     }
