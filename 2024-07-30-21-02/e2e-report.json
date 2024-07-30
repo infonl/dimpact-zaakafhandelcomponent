@@ -1,0 +1,1410 @@
+[
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "login;bob-wants-to-login-to-zac",
+        "keyword": "Scenario",
+        "line": 3,
+        "name": "Bob wants to login to ZAC",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 222929990
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 4,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 13103340594
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 5,
+            "name": "\"Bob\" logs in",
+            "match": {
+              "location": "step-definitions/authentication.ts:75"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 898473795
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 6,
+            "name": "\"Bob\" sees the text: \"Dashboard\"",
+            "match": {
+              "location": "step-definitions/common.ts:54"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1422540891
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 195087055
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "login;bob-wants-to-log-out-of-the-application-after-being-logged-in",
+        "keyword": "Scenario",
+        "line": 8,
+        "name": "Bob wants to log out of the application after being logged in",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 124803458
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 9,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1445404653
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 10,
+            "name": "\"Bob\" clicks on element with accessibility label: \"Gebruikers profiel\"",
+            "match": {
+              "location": "step-definitions/common.ts:64"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 557112915
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 11,
+            "name": "\"Bob\" clicks on element with text: \"Uitloggen\"",
+            "match": {
+              "location": "step-definitions/common.ts:78"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 630806124
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 12,
+            "name": "\"Bob\" sees the text: \"Sign in to your account\"",
+            "match": {
+              "location": "step-definitions/common.ts:54"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 21058610
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 133770251
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "login;bob-logs-back-in",
+        "keyword": "Scenario",
+        "line": 14,
+        "name": "Bob logs back in",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 162652417
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 15,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1405091695
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 16,
+            "name": "\"Bob\" sees the text: \"Sign in to your account\"",
+            "match": {
+              "location": "step-definitions/common.ts:54"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 26401847
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 17,
+            "name": "\"Bob\" logs in",
+            "match": {
+              "location": "step-definitions/authentication.ts:75"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 546983134
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 18,
+            "name": "\"Bob\" sees the text: \"Dashboard\"",
+            "match": {
+              "location": "step-definitions/common.ts:54"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1568294392
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 115821670
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "login;bob-wants-to-log-out-of-the-application-after-being-logged-in",
+        "keyword": "Scenario",
+        "line": 20,
+        "name": "Bob wants to log out of the application after being logged in",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 131029793
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 21,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1460142944
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 22,
+            "name": "\"Bob\" clicks on element with accessibility label: \"Gebruikers profiel\"",
+            "match": {
+              "location": "step-definitions/common.ts:64"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 473933368
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 23,
+            "name": "\"Bob\" clicks on element with text: \"Uitloggen\"",
+            "match": {
+              "location": "step-definitions/common.ts:78"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 525082524
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 24,
+            "name": "\"Bob\" sees the text: \"Sign in to your account\"",
+            "match": {
+              "location": "step-definitions/common.ts:54"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 20964626
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 113923986
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "login;bob-logs-back-in",
+        "keyword": "Scenario",
+        "line": 26,
+        "name": "Bob logs back in",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 132341383
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 27,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1393816079
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 28,
+            "name": "\"Bob\" sees the text: \"Sign in to your account\"",
+            "match": {
+              "location": "step-definitions/common.ts:54"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 26376846
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 29,
+            "name": "\"Bob\" logs in",
+            "match": {
+              "location": "step-definitions/authentication.ts:75"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 584561333
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 30,
+            "name": "\"Bob\" sees the text: \"Dashboard\"",
+            "match": {
+              "location": "step-definitions/common.ts:54"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1577203823
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 126565093
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "login",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Login",
+    "tags": [],
+    "uri": "features/1-authentication.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "zaak;bob-wants-to-create-a-new-zaak",
+        "keyword": "Scenario",
+        "line": 3,
+        "name": "Bob wants to create a new zaak",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 130240675
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 4,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:83"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2039696742
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 5,
+            "name": "\"Bob\" wants to create a new zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:118"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 13368423506
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 6,
+            "name": "\"Bob\" sees the created zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:232"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 7522956
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/zaken/werkvoorraad\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1342719467
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 8,
+            "name": "\"Bob\" sees the created zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:232"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1783186916
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 65999830
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "zaak",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Zaak",
+    "tags": [],
+    "uri": "features/2-zaken-toevoegen.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "resident-submits-form-in-open-forms;resident-fills-in-indienen-aansprakelijkheid-behandelen-open-forms-form",
+        "keyword": "Scenario",
+        "line": 4,
+        "name": "Resident fills in indienen-aansprakelijkheid-behandelen open-forms form",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 127043616
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 5,
+            "name": "Resident \"Alice\" fills in the indienen-aansprakelijkheid-behandelen open-forms form",
+            "match": {
+              "location": "step-definitions/open-forms.ts:11"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 20034263050
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 6,
+            "name": "Resident \"Alice\" submits the open-forms form",
+            "match": {
+              "location": "step-definitions/open-forms.ts:157"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 51043137
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 7,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:83"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1754409300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "Employee \"Bob\" navigates to \"/zaken/werkvoorraad\"",
+            "match": {
+              "location": "step-definitions/common.ts:23"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1015562458
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 9,
+            "name": "Employee \"Bob\" clicks on the first zaak in the zaak-werkvoorraad with delay",
+            "match": {
+              "location": "step-definitions/zaak.ts:276"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 18099321256
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 10,
+            "name": "Employee \"Bob\" sees the zaak that \"Alice\" created in open-forms",
+            "match": {
+              "location": "step-definitions/zaak.ts:286"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 4143814574
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 122379304
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@live-env-only",
+            "line": 3
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "resident-submits-form-in-open-forms",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Resident submits form in open-forms",
+    "tags": [],
+    "uri": "features/3-open-formulieren.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "external-systems;employee-wants-to-create-a-new-document-for-a-zaak",
+        "keyword": "Scenario",
+        "line": 3,
+        "name": "Employee wants to create a new document for a zaak",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 168486843
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 4,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:83"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2007760350
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 5,
+            "name": "Employee \"Bob\" is on the newly created zaak with status \"Intake\"",
+            "match": {
+              "location": "step-definitions/zaak.ts:48"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 4875123542
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 6,
+            "name": "Employee \"Bob\" clicks on Create Document for zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:245"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2535977082
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 7,
+            "name": "Employee \"Bob\" closes the SmartDocuments tab",
+            "match": {
+              "location": "step-definitions/zaak.ts:258"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 7677968
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 8,
+            "name": "Employee \"Bob\" should not get an error",
+            "match": {
+              "location": "step-definitions/zaak.ts:267"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 24772150
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 240732415
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "external-systems",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "External Systems",
+    "tags": [],
+    "uri": "features/4-external-systems.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "taken;employee-\"bob\"-does-not-have-enough-information-to-finish-intake-and-assigns-a-task-to-employee-\"oscar\"",
+        "keyword": "Scenario",
+        "line": 3,
+        "name": "Employee \"Bob\" does not have enough information to finish Intake and assigns a task to Employee \"Oscar\"",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 175719613
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 4,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:83"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1998643212
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 5,
+            "name": "Employee \"Bob\" is on the newly created zaak with status \"Intake\"",
+            "match": {
+              "location": "step-definitions/zaak.ts:48"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 4931880157
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 6,
+            "name": "Employee \"Bob\" does not have enough information to finish Intake and assigns a task to Employee \"Oscar\"",
+            "match": {
+              "location": "step-definitions/zaak.ts:71"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 8247178463
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 7,
+            "name": "Employee \"Bob\" logs out of zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:67"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 869170234
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "\"Oscar\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:83"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 3287973183
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 9,
+            "name": "Employee \"Oscar\" sees the task assigned to them by Employee \"Bob\" in my task list",
+            "match": {
+              "location": "step-definitions/zaak.ts:205"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1913541566
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 10,
+            "name": "Employee \"Oscar\" is on the newly created zaak with status \"Intake\"",
+            "match": {
+              "location": "step-definitions/zaak.ts:48"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 4924512515
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "Employee \"Oscar\" sees the task assigned to them by Employee \"Bob\" in the newly created zaak tasks list",
+            "match": {
+              "location": "step-definitions/zaak.ts:193"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 396104993
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 129928496
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "taken",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Taken",
+    "tags": [],
+    "uri": "features/5-taken-toevoegen.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "zaken-verdelen-/-vrijgeven;bob-distributes-zaken-to-a-group",
+        "keyword": "Scenario",
+        "line": 3,
+        "name": "Bob distributes zaken to a group",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 193146858
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 4,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:83"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 5162340496
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 5,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/zaken/werkvoorraad\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 893787862
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 6,
+            "name": "the page is done searching",
+            "match": {
+              "location": "step-definitions/common.ts:45"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2111264481
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 7,
+            "name": "there are at least 3 zaken",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:9"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 30370793
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 8,
+            "name": "\"Bob\" selects that number of zaken",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:20"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 307602436
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 9,
+            "name": "\"Bob\" distributes the zaken to the first group available",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 708749325
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 10,
+            "name": "\"Bob\" gets a message confirming that the distribution of zaken is starting",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:53"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 298018427
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "after a while the snackbar disappears",
+            "match": {
+              "location": "step-definitions/common.ts:85"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 4878608132
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 119006572
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "zaken-verdelen-/-vrijgeven;bob-releases-zaken",
+        "keyword": "Scenario",
+        "line": 13,
+        "name": "Bob releases zaken",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 171794773
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 14,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:83"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1983423794
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 15,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/zaken/werkvoorraad\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 886608200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 16,
+            "name": "the page is done searching",
+            "match": {
+              "location": "step-definitions/common.ts:45"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2098373820
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 17,
+            "name": "there are at least 3 zaken",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:9"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 29812339
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 18,
+            "name": "\"Bob\" selects that number of zaken",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:20"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 306999725
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 19,
+            "name": "\"Bob\" releases the zaken",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:44"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 358901010
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 20,
+            "name": "\"Bob\" gets a message confirming that the releasement of zaken is starting",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:63"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 291869306
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 21,
+            "name": "after a while the snackbar disappears",
+            "match": {
+              "location": "step-definitions/common.ts:85"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 396091358
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 115193280
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "zaken-verdelen-/-vrijgeven",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Zaken verdelen / vrijgeven",
+    "tags": [],
+    "uri": "features/6-zaken-verdelen.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "taken-verdelen-/-vrijgeven;bob-distributes-taken-to-a-group",
+        "keyword": "Scenario",
+        "line": 3,
+        "name": "Bob distributes taken to a group",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 171719496
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 4,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:83"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1939132368
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 5,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/taken/werkvoorraad\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 968204880
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 6,
+            "name": "the page is done searching",
+            "match": {
+              "location": "step-definitions/common.ts:45"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1721900152
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 7,
+            "name": "there are at least 3 taken",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 21072608
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 8,
+            "name": "\"Bob\" selects that number of taken",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:19"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 220141092
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 9,
+            "name": "\"Bob\" distributes the taken to the first group available",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:31"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 757258896
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 10,
+            "name": "\"Bob\" gets a message confirming that the distribution of taken is starting",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:52"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 238150489
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "after a while the snackbar disappears",
+            "match": {
+              "location": "step-definitions/common.ts:85"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1314755095
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 120533025
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "taken-verdelen-/-vrijgeven;bob-releases-taken",
+        "keyword": "Scenario",
+        "line": 13,
+        "name": "Bob releases taken",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 171169597
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 14,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:83"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2033786356
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 15,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/taken/werkvoorraad\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 777013589
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 16,
+            "name": "the page is done searching",
+            "match": {
+              "location": "step-definitions/common.ts:45"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1509490933
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 17,
+            "name": "there are at least 3 taken",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 21348817
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 18,
+            "name": "\"Bob\" selects that number of taken",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:19"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 218289438
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 19,
+            "name": "\"Bob\" releases the taken",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:43"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 426785026
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 20,
+            "name": "\"Bob\" gets a message confirming that the releasement of taken is starting",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:62"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 239135179
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 21,
+            "name": "after a while the snackbar disappears",
+            "match": {
+              "location": "step-definitions/common.ts:85"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1325792093
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 127125097
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "taken-verdelen-/-vrijgeven",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Taken verdelen / vrijgeven",
+    "tags": [],
+    "uri": "features/7-taken-verdelen.feature"
+  }
+]
