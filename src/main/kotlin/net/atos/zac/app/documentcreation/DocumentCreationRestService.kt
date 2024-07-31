@@ -17,6 +17,7 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationResponse
+import net.atos.zac.app.documentcreation.model.RestDocumentCreationUnattendedData
 import net.atos.zac.app.util.exception.InputValidationFailedException
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.SmartDocumentsService
@@ -42,9 +43,43 @@ class DocumentCreationRestService @Inject constructor(
     @POST
     @Path("/createdocumentattended")
     fun createDocumentAttended(
-        @Valid documentCreationAttendedData: RestDocumentCreationAttendedData
+        @Valid restDocumentCreationAttendedData: RestDocumentCreationAttendedData
     ): RestDocumentCreationResponse {
-        val zaak = zrcClientService.readZaak(documentCreationAttendedData.zaakUUID)
+        val zaak = zrcClientService.readZaak(restDocumentCreationAttendedData.zaakUUID).also {
+            assertPolicy(policyService.readZaakRechten(it).creeerenDocument)
+        }
+        // documents created by SmartDocuments are always of the type 'bijlage'
+        // the zaaktype of the specified zaak needs to be configured to be able to use this informatieObjectType
+        return ztcClientService.readInformatieobjecttypen(zaak.zaaktype)
+            .stream()
+            .filter { ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE == it.omschrijving }
+            .findAny()
+            .orElseThrow {
+                InputValidationFailedException(
+                    "No informatieobjecttype '${ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE}' found for " +
+                        "zaaktype '${zaak.zaaktype}'. Cannot create document."
+                )
+            }.let {
+                DocumentCreationData(
+                    zaak,
+                    restDocumentCreationAttendedData.taskId,
+                    it
+                ).let(smartDocumentsService::createDocumentAttended)
+                    .let { documentCreationResponse ->
+                        RestDocumentCreationResponse(
+                            documentCreationResponse.redirectUrl,
+                            documentCreationResponse.message
+                        )
+                    }
+            }
+    }
+
+    @POST
+    @Path("/createdocumentunattended")
+    fun createDocumentUnattended(
+        @Valid restDocumentCreationUnattendedData: RestDocumentCreationUnattendedData
+    ): RestDocumentCreationResponse {
+        val zaak = zrcClientService.readZaak(restDocumentCreationData.zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak).creeerenDocument)
 
         // documents created by SmartDocuments are always of the type 'bijlage'
@@ -61,7 +96,7 @@ class DocumentCreationRestService @Inject constructor(
             }.let {
                 DocumentCreationData(
                     zaak,
-                    documentCreationAttendedData.taskId,
+                    restDocumentCreationUnattendedData.taskId,
                     it
                 ).let(smartDocumentsService::createDocumentAttended)
                     .let { documentCreationResponse ->
