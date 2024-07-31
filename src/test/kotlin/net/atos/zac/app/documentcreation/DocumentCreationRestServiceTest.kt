@@ -16,7 +16,7 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
-import net.atos.zac.app.documentcreation.model.RestDocumentCreationData
+import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import net.atos.zac.documentcreation.SmartDocumentsService
 import net.atos.zac.documentcreation.model.DocumentCreationData
 import net.atos.zac.documentcreation.model.createDocumentCreationResponse
@@ -40,7 +40,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
     Given("document creation data is provided and zaaktype can use the 'bijlage' informatieobjecttype") {
         val zaak = createZaak()
-        val restDocumentCreationData = RestDocumentCreationData(
+        val restDocumentCreationUnattendedData = RestDocumentCreationAttendedData(
             zaakUUID = zaak.uuid,
             taskId = "dummyTaskId"
         )
@@ -61,7 +61,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             )
 
             val restDocumentCreationResponse = documentCreationRestService.createDocumentAttended(
-                restDocumentCreationData
+                restDocumentCreationUnattendedData
             )
 
             Then("the document creation service is called to create the document") {
@@ -69,7 +69,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 restDocumentCreationResponse.redirectURL shouldBe documentCreationResponse.redirectUrl
                 with(documentCreationData.captured) {
                     this.zaak shouldBe zaak
-                    this.taskId shouldBe restDocumentCreationData.taskId
+                    this.taskId shouldBe restDocumentCreationUnattendedData.taskId
                     this.informatieobjecttype.omschrijving shouldBe "bijlage"
                 }
             }
@@ -79,7 +79,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
 
             val exception = shouldThrow<PolicyException> {
-                documentCreationRestService.createDocumentAttended(restDocumentCreationData)
+                documentCreationRestService.createDocumentAttended(restDocumentCreationUnattendedData)
             }
 
             Then("it throws exception with no message") {
