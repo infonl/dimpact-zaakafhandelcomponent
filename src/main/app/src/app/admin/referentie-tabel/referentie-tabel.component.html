@@ -56,6 +56,7 @@
               <td mat-cell *matCellDef="let row">
                 <zac-edit-input
                   [formField]="waardeFormField[row.id]"
+                  [readonly]="row.systemValue"
                   (onSave)="editTabelWaarde($event, row)"
                 ></zac-edit-input>
               </td>
