@@ -723,7 +723,7 @@
   "msg.error.system.reference.table.cannot.be.deleted": "Een systeem referentietabel kan niet worden verwijderd",
   "msg.error.system.reference.table.system.values.cannot.be.changed": "De waarden van een systeem referentietabel kunnen niet worden gewijzigd",
   "msg.error.reference.table.is.in.use.by.zaakafhandelparameters": "De referentietabel is in gebruik door zaakafhandelparameters en kan niet worden verwijderd.",
-  "msg.error.reference.table.with.same.code.already.exists": "Een referentietabel met dezelfde code bestaat al. Gebruik s.vp. een unieke code.",
+  "msg.error.reference.table.with.same.code.already.exists": "Een referentietabel met deze code bestaat al. Gebruik s.v.p. een unieke code.",
   "msg.error.zrc.client.exception": "Er heeft zich helaas een technische fout voor gedaan. Er kunnen geen zaken worden opgehaald.",
   "msg.error.ztc.client.exception": "Er heeft zich helaas een technische fout voor gedaan. Er kunnen geen zaaktypes worden opgehaald.",
   "msg.email.verstuurd": "E-mail is verstuurd",
