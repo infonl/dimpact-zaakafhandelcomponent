@@ -2,24 +2,23 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.documentcreation.model
 
-package net.atos.zac.documentcreation.model;
+import jakarta.json.bind.annotation.JsonbProperty
 
-import jakarta.json.bind.annotation.JsonbProperty;
-
-public class Data {
+class Data {
     @JsonbProperty("startformulier")
-    public StartformulierData startformulierData;
+    var startformulierData: StartformulierData? = null
 
     @JsonbProperty("zaak")
-    public ZaakData zaakData;
+    var zaakData: ZaakData? = null
 
     @JsonbProperty("taak")
-    public TaakData taakData;
+    var taakData: TaakData? = null
 
     @JsonbProperty("gebruiker")
-    public GebruikerData gebruikerData;
+    var gebruikerData: GebruikerData? = null
 
     @JsonbProperty("aanvrager")
-    public AanvragerData aanvragerData;
+    var aanvragerData: AanvragerData? = null
 }

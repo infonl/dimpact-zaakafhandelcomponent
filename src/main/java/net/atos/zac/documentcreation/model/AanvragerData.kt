@@ -2,18 +2,16 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.documentcreation.model
 
-package net.atos.zac.documentcreation.model;
+class AanvragerData {
+    var naam: String? = null
 
-public class AanvragerData {
+    var straat: String? = null
 
-    public String naam;
+    var huisnummer: String? = null
 
-    public String straat;
+    var postcode: String? = null
 
-    public String huisnummer;
-
-    public String postcode;
-
-    public String woonplaats;
+    var woonplaats: String? = null
 }

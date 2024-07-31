@@ -1,30 +1,17 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.documentcreation.model
 
-package net.atos.zac.documentcreation.model;
+import jakarta.json.bind.annotation.JsonbProperty
+import net.atos.client.smartdocuments.model.wizard.SmartDocument
 
-import net.atos.client.smartdocuments.model.wizard.Deposit;
-import net.atos.client.smartdocuments.model.wizard.SmartDocument;
+data class WizardRequest(
+    @get:JsonbProperty("SmartDocument")
+    val smartDocument: SmartDocument,
 
-public class WizardRequest extends Deposit {
+    val registratie: Registratie,
 
-    public final Registratie registratie;
-
-    public final Data data;
-
-    public WizardRequest(final SmartDocument smartDocument, final Registratie registratie, final Data data) {
-        this.setSmartDocument(smartDocument);
-        this.registratie = registratie;
-        this.data = data;
-    }
-
-    public Registratie getRegistratie() {
-        return registratie;
-    }
-
-    public Data getData() {
-        return data;
-    }
-}
+    val data: Data
+)
