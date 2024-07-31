@@ -16,8 +16,8 @@ import net.atos.client.smartdocuments.exception.RuntimeExceptionMapper
 import net.atos.client.smartdocuments.model.templates.SmartDocumentsTemplatesResponse
 import net.atos.client.smartdocuments.model.wizard.Deposit
 import net.atos.client.smartdocuments.model.wizard.UnattendedResponse
+import net.atos.client.smartdocuments.model.wizard.WizardRequest
 import net.atos.client.smartdocuments.model.wizard.WizardResponse
-import net.atos.zac.documentcreation.model.WizardRequest
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 

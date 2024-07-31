@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.documentcreation.converter
@@ -59,73 +59,65 @@ class DocumentCreationDataConverter @Inject constructor(
     }
 
     fun createData(documentCreationData: DocumentCreationData, loggedInUser: LoggedInUser) =
-        Data().apply {
-            gebruikerData = createGebruikerData(loggedInUser)
-            zaakData = createZaakData(documentCreationData.zaak)
-            aanvragerData = createAanvragerData(documentCreationData.zaak)
-            startformulierData = createStartformulierData(documentCreationData.zaak.url)
+        Data(
+            gebruikerData = createGebruikerData(loggedInUser),
+            zaakData = createZaakData(documentCreationData.zaak),
+            aanvragerData = createAanvragerData(documentCreationData.zaak),
+            startformulierData = createStartformulierData(documentCreationData.zaak.url),
             taakData = documentCreationData.taskId?.let { createTaakData(it) }
-        }
+        )
 
     private fun createGebruikerData(loggedInUser: LoggedInUser) =
-        GebruikerData().apply {
-            id = loggedInUser.id
+        GebruikerData(
+            id = loggedInUser.id,
             naam = loggedInUser.fullName
-        }
+        )
 
-    private fun createZaakData(zaak: Zaak): ZaakData {
-        val zaakData = ZaakData().apply {
-            communicatiekanaal = zaak.communicatiekanaalNaam
-            identificatie = zaak.identificatie
-            einddatum = zaak.einddatum
-            einddatumGepland = zaak.einddatumGepland
-            omschrijving = zaak.omschrijving
-            registratiedatum = zaak.registratiedatum
-            startdatum = zaak.startdatum
-            toelichting = zaak.toelichting
-            zaaktype = ztcClientService.readZaaktype(zaak.zaaktype).omschrijving
-            uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening
-            zaak.status?.let {
-                zrcClientService.readStatus(it).let { status ->
-                    this.status = ztcClientService.readStatustype(status.statustype).omschrijving
-                }
-            }
-            zaak.resultaat?.let {
+    private fun createZaakData(zaak: Zaak) =
+        ZaakData(
+            behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+                .map { it.naam }
+                .orElse(null),
+            communicatiekanaal = zaak.communicatiekanaalNaam,
+            einddatum = zaak.einddatum,
+            einddatumGepland = zaak.einddatumGepland,
+            groep = zgwApiService.findGroepForZaak(zaak)
+                .map { it.naam }
+                .orElse(null),
+            identificatie = zaak.identificatie,
+            omschrijving = zaak.omschrijving,
+            opschortingReden = if (zaak.isOpgeschort) { zaak.opschorting.reden } else null,
+            registratiedatum = zaak.registratiedatum,
+            resultaat = zaak.resultaat?.let {
                 zrcClientService.readResultaat(it).let { resultaat ->
-                    this.resultaat = ztcClientService.readResultaattype(resultaat.resultaattype).omschrijving
+                    ztcClientService.readResultaattype(resultaat.resultaattype).omschrijving
                 }
-            }
-            if (zaak.isOpgeschort) {
-                opschortingReden = zaak.opschorting.reden
-            }
-            if (zaak.isVerlengd) {
-                verlengingReden = zaak.verlenging.reden
-            }
-            zaak.vertrouwelijkheidaanduiding?.let {
-                vertrouwelijkheidaanduiding = it.toString()
-            }
-        }
-        zgwApiService.findGroepForZaak(zaak)
-            .map { it.naam }
-            .ifPresent { zaakData.groep = it }
-        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
-            .map { it.naam }
-            .ifPresent { zaakData.behandelaar = it }
-        return zaakData
-    }
+            },
+            startdatum = zaak.startdatum,
+            status = zaak.status?.let { statusUri ->
+                zrcClientService.readStatus(statusUri).let {
+                    ztcClientService.readStatustype(it.statustype).omschrijving
+                }
+            },
+            toelichting = zaak.toelichting,
+            uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
+            verlengingReden = if (zaak.isVerlengd) { zaak.verlenging.reden } else null,
+            vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding?.toString(),
+            zaaktype = ztcClientService.readZaaktype(zaak.zaaktype).omschrijving
+        )
 
     private fun createAanvragerData(zaak: Zaak): AanvragerData? =
         zgwApiService.findInitiatorRoleForZaak(zaak)
             .map { convertToAanvragerData(it) }
             .orElse(null)
 
-    private fun convertToAanvragerData(initiator: Rol<*>): AanvragerData =
+    private fun convertToAanvragerData(initiator: Rol<*>): AanvragerData? =
         when (initiator.betrokkeneType) {
-            BetrokkeneType.NATUURLIJK_PERSOON -> createAanvragerDataNatuurlijkPersoon(initiator.identificatienummer)!!
-            BetrokkeneType.VESTIGING -> createAanvragerDataVestiging(initiator.identificatienummer)!!
+            BetrokkeneType.NATUURLIJK_PERSOON -> createAanvragerDataNatuurlijkPersoon(initiator.identificatienummer)
+            BetrokkeneType.VESTIGING -> createAanvragerDataVestiging(initiator.identificatienummer)
             BetrokkeneType.NIET_NATUURLIJK_PERSOON -> createAanvragerDataNietNatuurlijkPersoon(
                 initiator.identificatienummer
-            )!!
+            )
             else -> throw NotImplementedException(
                 "Initiator of type '${initiator.betrokkeneType.toValue()}' is not supported"
             )
@@ -137,15 +129,13 @@ class DocumentCreationDataConverter @Inject constructor(
             .orElse(null)
 
     private fun convertToAanvragerDataPersoon(persoon: Persoon) =
-        AanvragerData().apply {
-            persoon.naam?.let { naam = it.volledigeNaam }
-            (persoon.verblijfplaats as? Adres)?.verblijfadres?.let {
-                straat = it.officieleStraatnaam
-                huisnummer = convertToHuisnummer(it)
-                postcode = it.postcode
-                woonplaats = it.woonplaats
-            }
-        }
+        AanvragerData(
+            naam = persoon.naam?.volledigeNaam,
+            straat = persoon.verblijfplaats?.let { it as? Adres }?.verblijfadres?.officieleStraatnaam,
+            huisnummer = persoon.verblijfplaats?.let { it as? Adres }?.verblijfadres?.let { convertToHuisnummer(it) },
+            postcode = persoon.verblijfplaats?.let { it as? Adres }?.verblijfadres?.postcode,
+            woonplaats = persoon.verblijfplaats?.let { it as? Adres }?.verblijfadres?.woonplaats
+        )
 
     private fun convertToHuisnummer(verblijfadres: VerblijfadresBinnenland) =
         StringUtil.joinNonBlank(
@@ -166,13 +156,13 @@ class DocumentCreationDataConverter @Inject constructor(
 
     private fun convertToAanvragerDataBedrijf(resultaatItem: ResultaatItem) =
         resultaatItem.adres.binnenlandsAdres.let {
-            AanvragerData().apply {
-                naam = resultaatItem.naam
-                straat = it.straatnaam
-                huisnummer = convertToHuisnummer(resultaatItem)
-                postcode = it.postcode
+            AanvragerData(
+                naam = resultaatItem.naam,
+                straat = it.straatnaam,
+                huisnummer = convertToHuisnummer(resultaatItem),
+                postcode = it.postcode,
                 woonplaats = it.plaats
-            }
+            )
         }
 
     private fun convertToHuisnummer(resultaatItem: ResultaatItem) =
@@ -192,21 +182,20 @@ class DocumentCreationDataConverter @Inject constructor(
             .map { convertToStartformulierData(it) }
             .singleOrNull()
 
-    private fun convertToStartformulierData(zaakobject: Zaakobject): StartformulierData {
-        val productAaanvraagObject = objectsClientService.readObject(URIUtil.getUUID(zaakobject.getObject()))
-        val productAanvraag = productaanvraagService.getProductaanvraag(productAaanvraagObject)
-        return StartformulierData().apply {
-            productAanvraagtype = productAanvraag.type
-            data = productaanvraagService.getAanvraaggegevens(productAaanvraagObject)
+    private fun convertToStartformulierData(zaakobject: Zaakobject) =
+        objectsClientService.readObject(URIUtil.getUUID(zaakobject.getObject())).let { productAaanvraagObject ->
+            StartformulierData(
+                productAanvraagtype = productaanvraagService.getProductaanvraag(productAaanvraagObject).type,
+                data = productaanvraagService.getAanvraaggegevens(productAaanvraagObject)
+            )
         }
-    }
 
     private fun createTaakData(taskId: String): TaakData =
         flowableTaskService.readTask(taskId).let { taskInfo ->
-            TaakData().apply {
-                naam = taskInfo.name
-                taskInfo.assignee?.let { behandelaar = identityService.readUser(it).fullName }
+            TaakData(
+                naam = taskInfo.name,
+                behandelaar = taskInfo.assignee?.let { identityService.readUser(it).fullName },
                 data = TaakVariabelenService.readTaskData(taskInfo)
-            }
+            )
         }
 }

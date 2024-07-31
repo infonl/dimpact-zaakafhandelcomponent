@@ -1,52 +1,52 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.documentcreation.model
 
 import jakarta.json.bind.annotation.JsonbDateFormat
-import net.atos.zac.documentcreation.converter.DocumentCreationDataConverter
+import net.atos.zac.documentcreation.converter.DocumentCreationDataConverter.Companion.DATE_FORMAT
 import java.time.LocalDate
 
-class ZaakData {
-    var zaaktype: String? = null
+data class ZaakData(
+    val zaaktype: String? = null,
 
-    var identificatie: String? = null
+    val identificatie: String? = null,
 
-    var omschrijving: String? = null
+    val omschrijving: String? = null,
 
-    var toelichting: String? = null
+    val toelichting: String? = null,
 
-    @JsonbDateFormat(DocumentCreationDataConverter.Companion.DATE_FORMAT)
-    var registratiedatum: LocalDate? = null
+    @field:JsonbDateFormat(DATE_FORMAT)
+    val registratiedatum: LocalDate? = null,
 
-    @JsonbDateFormat(DocumentCreationDataConverter.Companion.DATE_FORMAT)
-    var startdatum: LocalDate? = null
+    @field:JsonbDateFormat(DATE_FORMAT)
+    val startdatum: LocalDate? = null,
 
-    @JsonbDateFormat(DocumentCreationDataConverter.Companion.DATE_FORMAT)
-    var einddatumGepland: LocalDate? = null
+    @field:JsonbDateFormat(DATE_FORMAT)
+    val einddatumGepland: LocalDate? = null,
 
-    @JsonbDateFormat(DocumentCreationDataConverter.Companion.DATE_FORMAT)
-    var uiterlijkeEinddatumAfdoening: LocalDate? = null
+    @field:JsonbDateFormat(DATE_FORMAT)
+    val uiterlijkeEinddatumAfdoening: LocalDate? = null,
 
-    @JsonbDateFormat(DocumentCreationDataConverter.Companion.DATE_FORMAT)
-    var einddatum: LocalDate? = null
+    @field:JsonbDateFormat(DATE_FORMAT)
+    val einddatum: LocalDate? = null,
 
-    var communicatiekanaal: String? = null
+    val communicatiekanaal: String? = null,
 
-    var vertrouwelijkheidaanduiding: String? = null
+    val vertrouwelijkheidaanduiding: String? = null,
 
-    var verlengingReden: String? = null
+    val verlengingReden: String? = null,
 
-    var opschortingReden: String? = null
+    val opschortingReden: String? = null,
 
-    var resultaat: String? = null
+    val resultaat: String? = null,
 
-    var status: String? = null
+    val status: String? = null,
 
-    var besluit: String? = null
+    val besluit: String? = null,
 
-    var groep: String? = null
+    val groep: String? = null,
 
-    var behandelaar: String? = null
-}
+    val behandelaar: String? = null
+)
