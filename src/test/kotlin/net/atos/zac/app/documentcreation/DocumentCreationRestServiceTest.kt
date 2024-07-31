@@ -16,7 +16,7 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
-import net.atos.zac.app.informatieobjecten.model.RestDocumentCreationData
+import net.atos.zac.app.documentcreation.model.RestDocumentCreationData
 import net.atos.zac.documentcreation.SmartDocumentsService
 import net.atos.zac.documentcreation.model.DocumentCreationData
 import net.atos.zac.documentcreation.model.createDocumentCreationResponse
@@ -40,11 +40,10 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
     Given("document creation data is provided and zaaktype can use the 'bijlage' informatieobjecttype") {
         val zaak = createZaak()
-        val restDocumentCreationData = RestDocumentCreationData()
-            .apply {
-                zaakUUID = zaak.uuid
-                taskId = "dummyTaskId"
-            }
+        val restDocumentCreationData = RestDocumentCreationData(
+            zaakUUID = zaak.uuid,
+            taskId = "dummyTaskId"
+        )
         val documentCreationResponse = createDocumentCreationResponse()
         val documentCreationData = slot<DocumentCreationData>()
 
