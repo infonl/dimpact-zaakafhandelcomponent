@@ -40,7 +40,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
     Given("document creation data is provided and zaaktype can use the 'bijlage' informatieobjecttype") {
         val zaak = createZaak()
-        val restDocumentCreationUnattendedData = RestDocumentCreationAttendedData(
+        val restDocumentCreationAttendedData = RestDocumentCreationAttendedData(
             zaakUUID = zaak.uuid,
             taskId = "dummyTaskId"
         )
@@ -61,7 +61,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             )
 
             val restDocumentCreationResponse = documentCreationRestService.createDocumentAttended(
-                restDocumentCreationUnattendedData
+                restDocumentCreationAttendedData
             )
 
             Then("the document creation service is called to create the document") {
@@ -69,7 +69,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 restDocumentCreationResponse.redirectURL shouldBe documentCreationResponse.redirectUrl
                 with(documentCreationData.captured) {
                     this.zaak shouldBe zaak
-                    this.taskId shouldBe restDocumentCreationUnattendedData.taskId
+                    this.taskId shouldBe restDocumentCreationAttendedData.taskId
                     this.informatieobjecttype.omschrijving shouldBe "bijlage"
                 }
             }
@@ -79,7 +79,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
 
             val exception = shouldThrow<PolicyException> {
-                documentCreationRestService.createDocumentAttended(restDocumentCreationUnattendedData)
+                documentCreationRestService.createDocumentAttended(restDocumentCreationAttendedData)
             }
 
             Then("it throws exception with no message") {

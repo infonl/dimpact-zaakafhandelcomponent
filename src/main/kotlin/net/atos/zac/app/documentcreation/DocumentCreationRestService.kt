@@ -15,7 +15,7 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.zac.app.documentcreation.model.RestDocumentCreationData
+import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationResponse
 import net.atos.zac.app.util.exception.InputValidationFailedException
 import net.atos.zac.configuratie.ConfiguratieService
@@ -42,9 +42,9 @@ class DocumentCreationRestService @Inject constructor(
     @POST
     @Path("/createdocumentattended")
     fun createDocumentAttended(
-        @Valid restDocumentCreationData: RestDocumentCreationData
+        @Valid documentCreationAttendedData: RestDocumentCreationAttendedData
     ): RestDocumentCreationResponse {
-        val zaak = zrcClientService.readZaak(restDocumentCreationData.zaakUUID)
+        val zaak = zrcClientService.readZaak(documentCreationAttendedData.zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak).creeerenDocument)
 
         // documents created by SmartDocuments are always of the type 'bijlage'
@@ -61,7 +61,7 @@ class DocumentCreationRestService @Inject constructor(
             }.let {
                 DocumentCreationData(
                     zaak,
-                    restDocumentCreationData.taskId,
+                    documentCreationAttendedData.taskId,
                     it
                 ).let(smartDocumentsService::createDocumentAttended)
                     .let { documentCreationResponse ->
