@@ -11,7 +11,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.client.zgw.zrc.ZRCClientService;
+import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.admin.ZaakafhandelParameterService;
 import net.atos.zac.admin.model.ZaakafhandelParameters;
@@ -34,7 +34,7 @@ public class MailtemplateRESTService {
     private ZaakafhandelParameterService zaakafhandelParameterService;
 
     @Inject
-    private ZRCClientService zrcClientService;
+    private ZrcClientService zrcClientService;
 
     @GET
     @Path("{mailtemplateEnum}/{zaakUUID}")

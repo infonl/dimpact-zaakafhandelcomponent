@@ -24,7 +24,7 @@ import org.flowable.task.api.TaskInfo;
 import net.atos.client.opa.model.RuleQuery;
 import net.atos.client.zgw.drc.DrcClientUtil;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.zrc.ZRCClientService;
+import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.StatusType;
@@ -58,7 +58,7 @@ public class PolicyService {
     private OPAEvaluationClient evaluationClient;
     private ZtcClientService ztcClientService;
     private EnkelvoudigInformatieObjectLockService lockService;
-    private ZRCClientService zrcClientService;
+    private ZrcClientService zrcClientService;
 
     /**
      * Default no-arg constructor, required by Weld.
@@ -72,7 +72,7 @@ public class PolicyService {
             final @RestClient OPAEvaluationClient evaluationClient,
             final ZtcClientService ztcClientService,
             final EnkelvoudigInformatieObjectLockService lockService,
-            final ZRCClientService zrcClientService
+            final ZrcClientService zrcClientService
     ) {
         this.loggedInUserInstance = loggedInUserInstance;
         this.evaluationClient = evaluationClient;

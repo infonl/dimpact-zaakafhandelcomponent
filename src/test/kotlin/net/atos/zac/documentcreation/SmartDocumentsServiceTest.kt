@@ -1,4 +1,4 @@
-package net.atos.zac.documentcreatie
+package net.atos.zac.documentcreation
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -8,35 +8,35 @@ import jakarta.enterprise.inject.Instance
 import net.atos.client.smartdocuments.SmartDocumentsClient
 import net.atos.client.smartdocuments.model.createTemplatesResponse
 import net.atos.client.smartdocuments.model.createWizardResponse
-import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
-import net.atos.zac.documentcreatie.converter.DocumentCreatieDataConverter
-import net.atos.zac.documentcreatie.model.createData
-import net.atos.zac.documentcreatie.model.createDocumentCreatieGegevens
+import net.atos.zac.documentcreation.converter.DocumentCreationDataConverter
+import net.atos.zac.documentcreation.model.createData
+import net.atos.zac.documentcreation.model.createDocumentCreationData
 import java.net.URI
 import java.util.Optional
 import java.util.UUID
 
-class DocumentCreatieServiceTest : BehaviorSpec({
+class SmartDocumentsServiceTest : BehaviorSpec({
     val smartDocumentsClient = mockk<SmartDocumentsClient>()
     val smartDocumentsURL = "http://example.com/dummySmartDocumentsURL"
     val authenticationToken = "dummyAuthenticationToken"
     val fixedUserName = Optional.of("dummyFixedUserName")
-    val documentCreatieDataConverter = mockk<DocumentCreatieDataConverter>()
+    val documentCreationDataConverter = mockk<DocumentCreationDataConverter>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val ztcClientService = mockk<ZtcClientService>()
-    val zrcClientService = mockk<ZRCClientService>()
+    val zrcClientService = mockk<ZrcClientService>()
 
-    val documentCreatieService = DocumentCreatieService(
+    val smartDocumentsService = SmartDocumentsService(
         smartDocumentsClient,
         smartDocumentsURL,
         authenticationToken,
         fixedUserName,
-        documentCreatieDataConverter,
+        documentCreationDataConverter,
         loggedInUserInstance,
         ztcClientService,
         zrcClientService
@@ -46,7 +46,7 @@ class DocumentCreatieServiceTest : BehaviorSpec({
         val zaakTypeUUID = UUID.randomUUID()
         val zaakTypeURI = URI("http://example.com/$zaakTypeUUID")
         val zaakType = createZaakType(uri = zaakTypeURI)
-        val documentCreatieGegevens = createDocumentCreatieGegevens(
+        val documentCreationData = createDocumentCreationData(
             zaak = createZaak(zaakTypeURI = zaakTypeURI),
         )
         val externalZaakUrl = URI("http://example.com/dummyExternalZaakUrl")
@@ -54,22 +54,22 @@ class DocumentCreatieServiceTest : BehaviorSpec({
         val data = createData()
         val wizardResponse = createWizardResponse()
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { zrcClientService.createUrlExternToZaak(documentCreatieGegevens.zaak.uuid) } returns externalZaakUrl
-        every { documentCreatieDataConverter.createData(documentCreatieGegevens, loggedInUser) } returns data
-        every { ztcClientService.readZaaktype(documentCreatieGegevens.zaak.zaaktype) } returns zaakType
+        every { zrcClientService.createUrlExternToZaak(documentCreationData.zaak.uuid) } returns externalZaakUrl
+        every { documentCreationDataConverter.createData(documentCreationData, loggedInUser) } returns data
+        every { ztcClientService.readZaaktype(documentCreationData.zaak.zaaktype) } returns zaakType
         every {
             smartDocumentsClient.wizardDeposit("Basic $authenticationToken", fixedUserName.get(), any())
         } returns wizardResponse
 
         When("the create attended document method is called") {
-            val documentCreatieResponse = documentCreatieService.creeerDocumentAttendedSD(documentCreatieGegevens)
+            val documentCreationResponse = smartDocumentsService.createDocumentAttended(documentCreationData)
 
             Then(
                 """
                 the attended SmartDocuments document creation wizard is started and a document creation response is returned
                 """
             ) {
-                with(documentCreatieResponse) {
+                with(documentCreationResponse) {
                     redirectUrl shouldBe URI("$smartDocumentsURL/smartdocuments/wizard?ticket=${wizardResponse.ticket}")
                     message shouldBe null
                 }
@@ -87,7 +87,7 @@ class DocumentCreatieServiceTest : BehaviorSpec({
         } returns templatesResponse
 
         When("list templates is called") {
-            val templatesList = documentCreatieService.listTemplates()
+            val templatesList = smartDocumentsService.listTemplates()
 
             Then("it should return a list of templates") {
                 with(templatesList.documentsStructure.templatesStructure.templateGroups) {

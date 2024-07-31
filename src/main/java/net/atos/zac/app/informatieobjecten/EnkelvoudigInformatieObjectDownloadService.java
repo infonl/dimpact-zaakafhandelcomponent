@@ -24,7 +24,7 @@ import jakarta.ws.rs.core.StreamingOutput;
 
 import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.zrc.ZRCClientService;
+import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 
 public class EnkelvoudigInformatieObjectDownloadService {
@@ -40,7 +40,7 @@ public class EnkelvoudigInformatieObjectDownloadService {
     private DrcClientService drcClientService;
 
     @Inject
-    private ZRCClientService zrcClientService;
+    private ZrcClientService zrcClientService;
 
     /**
      * Retourneer {@link StreamingOutput} zip-bestand met informatieobjecten en samenvatting

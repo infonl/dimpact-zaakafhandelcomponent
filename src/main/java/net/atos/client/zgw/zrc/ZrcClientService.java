@@ -58,7 +58,7 @@ import net.atos.zac.util.UriUtil;
  * Use Optional for caches that need to hold nulls (Infinispan does not cache nulls).
  */
 @ApplicationScoped
-public class ZRCClientService {
+public class ZrcClientService {
 
     @Inject
     @ConfigProperty(name = "ZGW_API_URL_EXTERN")
@@ -66,7 +66,7 @@ public class ZRCClientService {
 
     @Inject
     @RestClient
-    private ZRCClient zrcClient;
+    private ZrcClient zrcClient;
 
     @Inject
     private ZGWClientHeadersFactory zgwClientHeadersFactory;
@@ -463,7 +463,7 @@ public class ZRCClientService {
     }
 
     public URI createUrlExternToZaak(final UUID zaakUUID) {
-        return UriBuilder.fromUri(zgwApiUrlExtern).path(ZRCClient.class).path(ZRCClient.class, "zaakRead").build(zaakUUID);
+        return UriBuilder.fromUri(zgwApiUrlExtern).path(ZrcClient.class).path(ZrcClient.class, "zaakRead").build(zaakUUID);
     }
 
     public boolean heeftOpenDeelzaken(final Zaak zaak) {
@@ -521,7 +521,7 @@ public class ZRCClientService {
                 .register(JsonbConfiguration.class)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, zgwClientHeadersFactory.generateJWTToken())
-                .header(ZRCClient.ACCEPT_CRS, ZRCClient.ACCEPT_CRS_VALUE)
-                .header(ZRCClient.CONTENT_CRS, ZRCClient.ACCEPT_CRS_VALUE);
+                .header(ZrcClient.ACCEPT_CRS, ZrcClient.ACCEPT_CRS_VALUE)
+                .header(ZrcClient.CONTENT_CRS, ZrcClient.ACCEPT_CRS_VALUE);
     }
 }

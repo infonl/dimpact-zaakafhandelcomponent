@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.documentcreatie.model;
+package net.atos.zac.documentcreation.model;
 
 import java.net.URI;
 import java.time.LocalDate;

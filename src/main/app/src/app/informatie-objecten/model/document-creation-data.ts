@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-export class DocumentCreatieGegevens {
+export class DocumentCreationData {
   public zaakUUID: string;
   public taskId: string;
   public informatieobjecttypeUUID: string;

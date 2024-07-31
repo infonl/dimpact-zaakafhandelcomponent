@@ -13,7 +13,7 @@ import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.zaak.converter.RESTZaakOverzichtConverter
 import net.atos.zac.authentication.LoggedInUser
@@ -55,7 +55,7 @@ class SignaleringService @Inject constructor(
     private val mailService: MailService,
     private val signaleringenMailHelper: SignaleringMailHelper,
     private val signaleringPredicateHelper: SignaleringPredicateHelper,
-    private val zrcClientService: ZRCClientService,
+    private val zrcClientService: ZrcClientService,
     private val restZaakOverzichtConverter: RESTZaakOverzichtConverter
 ) {
     companion object {

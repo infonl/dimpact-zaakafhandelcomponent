@@ -19,7 +19,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.client.zgw.zrc.ZRCClientService;
+import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.StatusType;
@@ -38,7 +38,7 @@ public class MailRestService {
     private MailService mailService;
     private ZaakVariabelenService zaakVariabelenService;
     private PolicyService policyService;
-    private ZRCClientService zrcClientService;
+    private ZrcClientService zrcClientService;
     private ZtcClientService ztcClientService;
     private RESTMailGegevensConverter restMailGegevensConverter;
 
@@ -53,7 +53,7 @@ public class MailRestService {
             final MailService mailService,
             final ZaakVariabelenService zaakVariabelenService,
             final PolicyService policyService,
-            final ZRCClientService zrcClientService,
+            final ZrcClientService zrcClientService,
             final ZtcClientService ztcClientService,
             final RESTMailGegevensConverter restMailGegevensConverter
     ) {

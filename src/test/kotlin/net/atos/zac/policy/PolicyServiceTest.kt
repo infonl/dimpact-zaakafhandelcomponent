@@ -17,7 +17,7 @@ import net.atos.client.opa.model.RuleResponse
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.generated.Ondertekening
 import net.atos.client.zgw.drc.model.generated.SoortEnum
-import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createVerlenging
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakStatus
@@ -46,7 +46,7 @@ class PolicyServiceTest : BehaviorSpec({
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val opaEvaluationClient = mockk<OPAEvaluationClient>()
     val ztcClientService = mockk<ZtcClientService>()
-    val zrcClientService = mockk<ZRCClientService>()
+    val zrcClientService = mockk<ZrcClientService>()
     val loggedInUser = createLoggedInUser()
 
     val policyService = PolicyService(

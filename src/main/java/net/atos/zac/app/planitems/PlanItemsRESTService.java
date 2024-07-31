@@ -36,7 +36,7 @@ import org.flowable.cmmn.api.runtime.PlanItemInstance;
 
 import net.atos.client.zgw.brc.BrcClientService;
 import net.atos.client.zgw.shared.ZGWApiService;
-import net.atos.client.zgw.zrc.ZRCClientService;
+import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.generated.Resultaat;
 import net.atos.zac.admin.ZaakafhandelParameterService;
@@ -78,7 +78,7 @@ public class PlanItemsRESTService {
 
     private ZaakVariabelenService zaakVariabelenService;
     private CMMNService cmmnService;
-    private ZRCClientService zrcClientService;
+    private ZrcClientService zrcClientService;
     private BrcClientService brcClientService;
     private ZaakafhandelParameterService zaakafhandelParameterService;
     private RESTPlanItemConverter planItemConverter;
@@ -101,7 +101,7 @@ public class PlanItemsRESTService {
     public PlanItemsRESTService(
             ZaakVariabelenService zaakVariabelenService,
             CMMNService cmmnService,
-            ZRCClientService zrcClientService,
+            ZrcClientService zrcClientService,
             BrcClientService brcClientService,
             ZaakafhandelParameterService zaakafhandelParameterService,
             RESTPlanItemConverter planItemConverter,

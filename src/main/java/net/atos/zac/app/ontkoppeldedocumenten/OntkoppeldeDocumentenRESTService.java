@@ -28,7 +28,7 @@ import org.eclipse.jetty.http.HttpStatus;
 import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.exception.FoutException;
-import net.atos.client.zgw.zrc.ZRCClientService;
+import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.zac.app.identity.converter.RESTUserConverter;
 import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentConverter;
@@ -52,7 +52,7 @@ public class OntkoppeldeDocumentenRESTService {
 
     private OntkoppeldeDocumentenService ontkoppeldeDocumentenService;
     private DrcClientService drcClientService;
-    private ZRCClientService zrcClientService;
+    private ZrcClientService zrcClientService;
     private RESTOntkoppeldDocumentConverter ontkoppeldDocumentConverter;
     private RESTOntkoppeldDocumentListParametersConverter listParametersConverter;
     private RESTUserConverter userConverter;
@@ -68,7 +68,7 @@ public class OntkoppeldeDocumentenRESTService {
     public OntkoppeldeDocumentenRESTService(
             OntkoppeldeDocumentenService ontkoppeldeDocumentenService,
             DrcClientService drcClientService,
-            ZRCClientService zrcClientService,
+            ZrcClientService zrcClientService,
             RESTOntkoppeldDocumentConverter ontkoppeldDocumentConverter,
             RESTOntkoppeldDocumentListParametersConverter listParametersConverter,
             RESTUserConverter userConverter,

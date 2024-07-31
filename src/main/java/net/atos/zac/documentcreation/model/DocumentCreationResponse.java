@@ -3,22 +3,22 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.documentcreatie.model;
+package net.atos.zac.documentcreation.model;
 
 import java.net.URI;
 
-public class DocumentCreatieResponse {
+public class DocumentCreationResponse {
 
     private final URI redirectUrl;
 
     private final String message;
 
-    public DocumentCreatieResponse(final URI redirectUrl) {
+    public DocumentCreationResponse(final URI redirectUrl) {
         this.redirectUrl = redirectUrl;
         message = null;
     }
 
-    public DocumentCreatieResponse(final String message) {
+    public DocumentCreationResponse(final String message) {
         this.message = message;
         redirectUrl = null;
     }

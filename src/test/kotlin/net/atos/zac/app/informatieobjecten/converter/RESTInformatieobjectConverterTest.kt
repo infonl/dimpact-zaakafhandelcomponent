@@ -17,7 +17,7 @@ import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.exception.FoutException
 import net.atos.client.zgw.shared.model.Fout
-import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.zac.app.configuratie.converter.RESTTaalConverter
@@ -57,7 +57,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec({
     val restRechtenConverter = mockk<RESTRechtenConverter>()
     val restTaalConverter = mockk<RESTTaalConverter>()
     val restUserConverter = mockk<RESTUserConverter>()
-    val zrcClientService = mockk<ZRCClientService>()
+    val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
 
     val restInformatieobjectConverter = RESTInformatieobjectConverter(

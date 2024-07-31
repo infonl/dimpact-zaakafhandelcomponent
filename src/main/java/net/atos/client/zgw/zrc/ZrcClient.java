@@ -53,7 +53,7 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters;
 @RegisterProvider(JsonbConfiguration.class)
 @Path("zaken/api/v1")
 @Produces(APPLICATION_JSON)
-public interface ZRCClient {
+public interface ZrcClient {
 
     String ACCEPT_CRS = "Accept-Crs";
 

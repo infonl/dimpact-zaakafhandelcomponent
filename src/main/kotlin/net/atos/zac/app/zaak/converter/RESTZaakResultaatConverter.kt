@@ -5,13 +5,13 @@
 package net.atos.zac.app.zaak.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.app.zaak.model.RESTZaakResultaat
 import java.net.URI
 
 class RESTZaakResultaatConverter {
     @Inject
-    private lateinit var zrcClientService: ZRCClientService
+    private lateinit var zrcClientService: ZrcClientService
 
     @Inject
     private lateinit var restResultaattypeConverter: RESTResultaattypeConverter

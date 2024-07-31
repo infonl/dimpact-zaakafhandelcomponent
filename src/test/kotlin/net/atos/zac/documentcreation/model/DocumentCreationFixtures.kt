@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.documentcreatie.model
+package net.atos.zac.documentcreation.model
 
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createZaak
@@ -39,19 +39,19 @@ fun createData(
     this.aanvragerData = aanvragerData
 }
 
-fun createDocumentCreatieGegevens(
+fun createDocumentCreationData(
     zaak: Zaak = createZaak(),
     taskId: String = "dummyTaskId",
     informatieobjecttype: InformatieObjectType = createInformatieObjectType()
-) = DocumentCreatieGegevens(
+) = DocumentCreationData(
     zaak,
     taskId,
     informatieobjecttype
 )
 
-fun createDocumentCreatieResponse(
+fun createDocumentCreationResponse(
     redirectURI: URI = URI.create("http://example.com/dummyRedirectURI")
-) = DocumentCreatieResponse(
+) = DocumentCreationResponse(
     redirectURI
 )
 

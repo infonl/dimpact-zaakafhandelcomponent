@@ -8,7 +8,7 @@ import jakarta.inject.Inject
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Status
 import net.atos.client.zgw.zrc.model.Verlenging
@@ -46,7 +46,7 @@ class RESTZaakConverter {
     private lateinit var ztcClientService: ZtcClientService
 
     @Inject
-    private lateinit var zrcClientService: ZRCClientService
+    private lateinit var zrcClientService: ZrcClientService
 
     @Inject
     private lateinit var brcClientService: BrcClientService

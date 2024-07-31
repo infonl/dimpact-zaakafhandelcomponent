@@ -11,7 +11,7 @@ import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 
-import net.atos.client.zgw.zrc.ZRCClientService;
+import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.generated.Opschorting;
 import net.atos.zac.flowable.ZaakVariabelenService;
@@ -22,7 +22,7 @@ public class OpschortenZaakHelper {
     private static final String HERVATTING = "Hervatting";
 
     private PolicyService policyService;
-    private ZRCClientService zrcClientService;
+    private ZrcClientService zrcClientService;
     private ZaakVariabelenService zaakVariabelenService;
 
     /**
@@ -34,7 +34,7 @@ public class OpschortenZaakHelper {
     @Inject
     OpschortenZaakHelper(
             final PolicyService policyService,
-            final ZRCClientService zrcClientService,
+            final ZrcClientService zrcClientService,
             final ZaakVariabelenService zaakVariabelenService
     ) {
         this.policyService = policyService;
