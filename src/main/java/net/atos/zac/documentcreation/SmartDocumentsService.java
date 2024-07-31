@@ -80,8 +80,8 @@ public class SmartDocumentsService {
     /**
      * Create a document using the SmartDocuments wizard.
      *
-     * @param documentCreationData Gegevens op basis van welke het document wordt gecreeerd.
-     * @return De redirect URL naar de SmartDocuments Wizard
+     * @param documentCreationData data used to create the document
+     * @return the redirect URI to the SmartDocuments wizard
      */
     public DocumentCreationResponse createDocumentAttended(final DocumentCreationData documentCreationData) {
         final LoggedInUser loggedInUser = loggedInUserInstance.get();
