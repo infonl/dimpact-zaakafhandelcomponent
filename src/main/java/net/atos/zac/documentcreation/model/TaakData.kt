@@ -2,16 +2,12 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.documentcreation.model
 
-package net.atos.zac.documentcreation.model;
+class TaakData {
+    var naam: String? = null
 
-import java.util.Map;
+    var behandelaar: String? = null
 
-public class TaakData {
-
-    public String naam;
-
-    public String behandelaar;
-
-    public Map<String, String> data;
+    var data: Map<String, String>? = null
 }

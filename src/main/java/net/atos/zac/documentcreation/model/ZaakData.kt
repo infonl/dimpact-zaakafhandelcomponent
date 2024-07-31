@@ -2,55 +2,51 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.documentcreation.model
 
-package net.atos.zac.documentcreation.model;
+import jakarta.json.bind.annotation.JsonbDateFormat
+import net.atos.zac.documentcreation.converter.DocumentCreationDataConverter
+import java.time.LocalDate
 
-import static net.atos.zac.documentcreation.converter.DocumentCreationDataConverter.DATE_FORMAT;
+class ZaakData {
+    var zaaktype: String? = null
 
-import java.time.LocalDate;
+    var identificatie: String? = null
 
-import jakarta.json.bind.annotation.JsonbDateFormat;
+    var omschrijving: String? = null
 
-public class ZaakData {
+    var toelichting: String? = null
 
-    public String zaaktype;
+    @JsonbDateFormat(DocumentCreationDataConverter.Companion.DATE_FORMAT)
+    var registratiedatum: LocalDate? = null
 
-    public String identificatie;
+    @JsonbDateFormat(DocumentCreationDataConverter.Companion.DATE_FORMAT)
+    var startdatum: LocalDate? = null
 
-    public String omschrijving;
+    @JsonbDateFormat(DocumentCreationDataConverter.Companion.DATE_FORMAT)
+    var einddatumGepland: LocalDate? = null
 
-    public String toelichting;
+    @JsonbDateFormat(DocumentCreationDataConverter.Companion.DATE_FORMAT)
+    var uiterlijkeEinddatumAfdoening: LocalDate? = null
 
-    @JsonbDateFormat(DATE_FORMAT)
-    public LocalDate registratiedatum;
+    @JsonbDateFormat(DocumentCreationDataConverter.Companion.DATE_FORMAT)
+    var einddatum: LocalDate? = null
 
-    @JsonbDateFormat(DATE_FORMAT)
-    public LocalDate startdatum;
+    var communicatiekanaal: String? = null
 
-    @JsonbDateFormat(DATE_FORMAT)
-    public LocalDate einddatumGepland;
+    var vertrouwelijkheidaanduiding: String? = null
 
-    @JsonbDateFormat(DATE_FORMAT)
-    public LocalDate uiterlijkeEinddatumAfdoening;
+    var verlengingReden: String? = null
 
-    @JsonbDateFormat(DATE_FORMAT)
-    public LocalDate einddatum;
+    var opschortingReden: String? = null
 
-    public String communicatiekanaal;
+    var resultaat: String? = null
 
-    public String vertrouwelijkheidaanduiding;
+    var status: String? = null
 
-    public String verlengingReden;
+    var besluit: String? = null
 
-    public String opschortingReden;
+    var groep: String? = null
 
-    public String resultaat;
-
-    public String status;
-
-    public String besluit;
-
-    public String groep;
-
-    public String behandelaar;
+    var behandelaar: String? = null
 }

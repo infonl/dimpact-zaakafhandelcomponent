@@ -2,34 +2,29 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.documentcreation.model
 
-package net.atos.zac.documentcreation.model;
+import jakarta.json.bind.annotation.JsonbProperty
+import net.atos.client.zgw.drc.model.generated.StatusEnum
+import java.net.URI
+import java.time.LocalDate
 
-import java.net.URI;
-import java.time.LocalDate;
-
-import jakarta.json.bind.annotation.JsonbProperty;
-
-import net.atos.client.zgw.drc.model.generated.StatusEnum;
-
-
-public class Registratie {
-
+class Registratie {
     @JsonbProperty("zaak")
-    public URI zaak;
+    var zaak: URI? = null
 
     @JsonbProperty("informatieobjectStatus")
-    public StatusEnum informatieObjectStatus;
+    var informatieObjectStatus: StatusEnum? = null
 
     @JsonbProperty("informatieobjecttype")
-    public URI informatieObjectType;
+    var informatieObjectType: URI? = null
 
     @JsonbProperty("bronorganisatie")
-    public String bronOrganisatie;
+    var bronOrganisatie: String? = null
 
     @JsonbProperty("creatiedatum")
-    public LocalDate creatieDatum;
+    var creatieDatum: LocalDate? = null
 
     @JsonbProperty("auditToelichting")
-    public String auditToelichting;
+    var auditToelichting: String? = null
 }

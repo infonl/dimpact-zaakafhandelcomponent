@@ -17,6 +17,7 @@ import net.atos.client.smartdocuments.model.templates.SmartDocumentsTemplatesRes
 import net.atos.client.smartdocuments.model.wizard.Deposit
 import net.atos.client.smartdocuments.model.wizard.UnattendedResponse
 import net.atos.client.smartdocuments.model.wizard.WizardResponse
+import net.atos.zac.documentcreation.model.WizardRequest
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 
@@ -37,8 +38,8 @@ interface SmartDocumentsClient {
     @Path("wsxmldeposit/deposit/wizard")
     fun wizardDeposit(
         @HeaderParam("Authorization") authenticationToken: String,
-        @HeaderParam("Username") username: String,
-        deposit: Deposit
+        @HeaderParam("Username") userName: String,
+        wizardRequest: WizardRequest
     ): WizardResponse
 
     @GET

@@ -6,7 +6,7 @@ package net.atos.client.smartdocuments.model.wizard
 
 import jakarta.json.bind.annotation.JsonbProperty
 
-open class Deposit {
+class Deposit {
     @JsonbProperty("SmartDocument")
     lateinit var smartDocument: SmartDocument
 }
