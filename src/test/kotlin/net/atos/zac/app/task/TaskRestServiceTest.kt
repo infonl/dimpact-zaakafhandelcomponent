@@ -22,7 +22,7 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRequest
 import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.zac.app.identity.model.createRESTUser
@@ -75,7 +75,7 @@ class TaskRestServiceTest : BehaviorSpec({
     val taakVariabelenService = mockk<TaakVariabelenService>()
     val restTaskConverter = mockk<RestTaskConverter>()
     val flowableTaskService = mockk<FlowableTaskService>()
-    val zrcClientService = mockk<ZRCClientService>()
+    val zrcClientService = mockk<ZrcClientService>()
     val opschortenZaakHelper = mockk<OpschortenZaakHelper>()
     val restInformatieobjectConverter = mockk<RESTInformatieobjectConverter>()
     val signaleringService = mockk<SignaleringService>()

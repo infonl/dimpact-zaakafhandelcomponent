@@ -8,7 +8,7 @@ import io.mockk.mockkStatic
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.flowable.FlowableTaskService
@@ -40,7 +40,7 @@ class IndexeerServiceTest : BehaviorSpec({
     val converterInstancesIterator = mockk<MutableIterator<AbstractZoekObjectConverter<out ZoekObject?>>>()
     val drcClientService = mockk<DrcClientService>()
     val flowableTaskService = mockk<FlowableTaskService>()
-    val zrcClientService = mockk<ZRCClientService>()
+    val zrcClientService = mockk<ZrcClientService>()
 
     val indexeerService = IndexeerService(
         converterInstances,

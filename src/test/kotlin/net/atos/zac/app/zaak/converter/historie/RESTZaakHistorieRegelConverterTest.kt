@@ -7,7 +7,7 @@ import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.zgw.shared.model.Bron
 import net.atos.client.zgw.shared.model.audit.createZRCAuditTrailRegel
-import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.generated.Wijzigingen
 import net.atos.client.zgw.ztc.ZtcClientService
@@ -28,7 +28,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
     Given("Audit trail has resource zaak with action created") {
         val ztcClientService = mockk<ZtcClientService>()
-        val zrcClientService = mockk<ZRCClientService>()
+        val zrcClientService = mockk<ZrcClientService>()
 
         val zaakIdentificatie = "ZAAK-2024-0000000003"
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
@@ -73,7 +73,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
         val rolTypeUri = "https://example.com/roltype/$uuid"
         val rolType = createRolType()
         val ztcClientService = mockk<ZtcClientService>()
-        val zrcClientService = mockk<ZRCClientService>()
+        val zrcClientService = mockk<ZrcClientService>()
 
         every { ztcClientService.readRoltype(uuid) } returns rolType
 
@@ -130,7 +130,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
     Given("Audit trail has resource zaakinformatieobject with action destroy") {
         val ztcClientService = mockk<ZtcClientService>()
-        val zrcClientService = mockk<ZRCClientService>()
+        val zrcClientService = mockk<ZrcClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -171,7 +171,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
     Given("Audit trail has resource klantcontact with action create") {
         val ztcClientService = mockk<ZtcClientService>()
-        val zrcClientService = mockk<ZRCClientService>()
+        val zrcClientService = mockk<ZrcClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -212,7 +212,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
     Given("Audit trail has resource resultaat with action update") {
         val ztcClientService = mockk<ZtcClientService>()
-        val zrcClientService = mockk<ZRCClientService>()
+        val zrcClientService = mockk<ZrcClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -258,7 +258,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
     Given("Audit trail has resource status with action update") {
         val ztcClientService = mockk<ZtcClientService>()
-        val zrcClientService = mockk<ZRCClientService>()
+        val zrcClientService = mockk<ZrcClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -304,7 +304,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
     Given("Audit trail has resource zaakobject with action destroy") {
         val ztcClientService = mockk<ZtcClientService>()
-        val zrcClientService = mockk<ZRCClientService>()
+        val zrcClientService = mockk<ZrcClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -356,7 +356,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
     Given("Audit trail has resource zaakgeometrie with action partial_update") {
         val ztcClientService = mockk<ZtcClientService>()
-        val zrcClientService = mockk<ZRCClientService>()
+        val zrcClientService = mockk<ZrcClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -414,7 +414,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
     Given("Audit trail has resource communicatiekanaal with action partial_update") {
         val ztcClientService = mockk<ZtcClientService>()
-        val zrcClientService = mockk<ZRCClientService>()
+        val zrcClientService = mockk<ZrcClientService>()
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
             actie = "partial_update",
@@ -456,7 +456,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
     Given("A partial update with a list that has gotten smaller") {
         val ztcClientService = mockk<ZtcClientService>()
-        val zrcClientService = mockk<ZRCClientService>()
+        val zrcClientService = mockk<ZrcClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -489,7 +489,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
     Given("A partial update with a list that stays the same size but values change") {
         val ztcClientService = mockk<ZtcClientService>()
-        val zrcClientService = mockk<ZRCClientService>()
+        val zrcClientService = mockk<ZrcClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -522,7 +522,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
     Given("A partial update with a list that stays exactly the same") {
         val ztcClientService = mockk<ZtcClientService>()
-        val zrcClientService = mockk<ZRCClientService>()
+        val zrcClientService = mockk<ZrcClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -555,7 +555,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
     Given("A partial update with a map with a value that changes") {
         val ztcClientService = mockk<ZtcClientService>()
-        val zrcClientService = mockk<ZRCClientService>()
+        val zrcClientService = mockk<ZrcClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -588,7 +588,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
     Given("A retrieve action") {
         val ztcClientService = mockk<ZtcClientService>()
-        val zrcClientService = mockk<ZRCClientService>()
+        val zrcClientService = mockk<ZrcClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -618,7 +618,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
     Given("An unknown resource") {
         val ztcClientService = mockk<ZtcClientService>()
-        val zrcClientService = mockk<ZRCClientService>()
+        val zrcClientService = mockk<ZrcClientService>()
 
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -660,7 +660,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
     Given("Audit trail has resource hoofdzaak with action partial_update") {
         val ztcClientService = mockk<ZtcClientService>()
-        val zrcClientService = mockk<ZRCClientService>()
+        val zrcClientService = mockk<ZrcClientService>()
 
         val zaak1 = createZaak(identificatie = "identificatie1")
         val zaak2 = createZaak(identificatie = "identificatie2")
@@ -713,7 +713,7 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
 
     Given("Audit trail has resource relevanteAndereZaken with action partial_update") {
         val ztcClientService = mockk<ZtcClientService>()
-        val zrcClientService = mockk<ZRCClientService>()
+        val zrcClientService = mockk<ZrcClientService>()
 
         val zaak1 = createZaak(identificatie = "identificatie1")
         val zaak2 = createZaak(identificatie = "identificatie2")

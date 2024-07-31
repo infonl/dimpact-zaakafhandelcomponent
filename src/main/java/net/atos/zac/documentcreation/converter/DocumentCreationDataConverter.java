@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.documentcreatie.converter;
+package net.atos.zac.documentcreation.converter;
 
 import static net.atos.client.or.shared.util.URIUtil.getUUID;
 import static net.atos.client.zgw.zrc.model.Objecttype.OVERIGE;
@@ -27,7 +27,7 @@ import net.atos.client.kvk.zoeken.model.generated.BinnenlandsAdres;
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
 import net.atos.client.or.object.ObjectsClientService;
 import net.atos.client.zgw.shared.ZGWApiService;
-import net.atos.client.zgw.zrc.ZRCClientService;
+import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Rol;
 import net.atos.client.zgw.zrc.model.RolMedewerker;
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
@@ -37,22 +37,22 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag;
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.zac.authentication.LoggedInUser;
-import net.atos.zac.documentcreatie.model.AanvragerData;
-import net.atos.zac.documentcreatie.model.Data;
-import net.atos.zac.documentcreatie.model.DocumentCreatieGegevens;
-import net.atos.zac.documentcreatie.model.GebruikerData;
-import net.atos.zac.documentcreatie.model.StartformulierData;
-import net.atos.zac.documentcreatie.model.TaakData;
-import net.atos.zac.documentcreatie.model.ZaakData;
+import net.atos.zac.documentcreation.model.AanvragerData;
+import net.atos.zac.documentcreation.model.Data;
+import net.atos.zac.documentcreation.model.DocumentCreationData;
+import net.atos.zac.documentcreation.model.GebruikerData;
+import net.atos.zac.documentcreation.model.StartformulierData;
+import net.atos.zac.documentcreation.model.TaakData;
+import net.atos.zac.documentcreation.model.ZaakData;
 import net.atos.zac.flowable.FlowableTaskService;
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.productaanvraag.ProductaanvraagService;
 
-public class DocumentCreatieDataConverter {
+public class DocumentCreationDataConverter {
     public static final String DATE_FORMAT = "dd-MM-yyyy";
 
     private ZGWApiService zgwApiService;
-    private ZRCClientService zrcClientService;
+    private ZrcClientService zrcClientService;
     private ZtcClientService ztcClientService;
     private BRPClientService brpClientService;
     private KvkClientService kvkClientService;
@@ -62,9 +62,9 @@ public class DocumentCreatieDataConverter {
     private ProductaanvraagService productaanvraagService;
 
     @Inject
-    public DocumentCreatieDataConverter(
+    public DocumentCreationDataConverter(
             final ZGWApiService zgwApiService,
-            final ZRCClientService zrcClientService,
+            final ZrcClientService zrcClientService,
             final ZtcClientService ztcClientService,
             final BRPClientService brpClientService,
             final KvkClientService kvkClientService,
@@ -87,17 +87,17 @@ public class DocumentCreatieDataConverter {
     /**
      * Empty no-op constructor as required by Weld.
      */
-    public DocumentCreatieDataConverter() {
+    public DocumentCreationDataConverter() {
     }
 
-    public Data createData(final DocumentCreatieGegevens documentCreatieGegevens, final LoggedInUser loggedInUser) {
+    public Data createData(final DocumentCreationData documentCreationData, final LoggedInUser loggedInUser) {
         final Data data = new Data();
         data.gebruikerData = createGebruikerData(loggedInUser);
-        data.zaakData = createZaakData(documentCreatieGegevens.getZaak());
-        data.aanvragerData = createAanvragerData(documentCreatieGegevens.getZaak());
-        data.startformulierData = createStartformulierData(documentCreatieGegevens.getZaak().getUrl());
-        if (documentCreatieGegevens.getTaskId() != null) {
-            data.taakData = createTaakData(documentCreatieGegevens.getTaskId());
+        data.zaakData = createZaakData(documentCreationData.getZaak());
+        data.aanvragerData = createAanvragerData(documentCreationData.getZaak());
+        data.startformulierData = createStartformulierData(documentCreationData.getZaak().getUrl());
+        if (documentCreationData.getTaskId() != null) {
+            data.taakData = createTaakData(documentCreationData.getTaskId());
         }
         return data;
     }

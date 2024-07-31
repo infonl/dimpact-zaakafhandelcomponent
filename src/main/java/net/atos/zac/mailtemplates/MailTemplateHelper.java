@@ -55,7 +55,7 @@ import net.atos.client.kvk.zoeken.model.generated.BinnenlandsAdres;
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.ZGWApiService;
-import net.atos.client.zgw.zrc.ZRCClientService;
+import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.BetrokkeneType;
 import net.atos.client.zgw.zrc.model.Rol;
 import net.atos.client.zgw.zrc.model.RolMedewerker;
@@ -83,7 +83,7 @@ public class MailTemplateHelper {
     private IdentityService identityService;
     private KvkClientService kvkClientService;
     private ZGWApiService zgwApiService;
-    private ZRCClientService zrcClientService;
+    private ZrcClientService zrcClientService;
     private ZtcClientService ztcClientService;
 
     @Inject
@@ -93,7 +93,7 @@ public class MailTemplateHelper {
             IdentityService identityService,
             KvkClientService kvkClientService,
             ZGWApiService zgwApiService,
-            ZRCClientService zrcClientService,
+            ZrcClientService zrcClientService,
             ZtcClientService ztcClientService
     ) {
         this.brpClientService = brpClientService;

@@ -7,7 +7,7 @@ package net.atos.zac.app.informatieobjecten.model;
 
 import java.util.UUID;
 
-public class RESTDocumentCreatieGegevens {
+public class RestDocumentCreationData {
 
     public UUID zaakUUID;
 

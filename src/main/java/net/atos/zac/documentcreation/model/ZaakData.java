@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.documentcreatie.model;
+package net.atos.zac.documentcreation.model;
 
-import static net.atos.zac.documentcreatie.converter.DocumentCreatieDataConverter.DATE_FORMAT;
+import static net.atos.zac.documentcreation.converter.DocumentCreationDataConverter.DATE_FORMAT;
 
 import java.time.LocalDate;
 

@@ -14,7 +14,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.shared.model.Results;
-import net.atos.client.zgw.zrc.ZRCClientService;
+import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Geometry;
 import net.atos.client.zgw.zrc.model.Rol;
 import net.atos.client.zgw.zrc.model.Status;
@@ -36,7 +36,7 @@ import net.atos.zac.zoeken.model.index.ZoekObjectType;
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
 
 public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoekObject> {
-    private final ZRCClientService zrcClientService;
+    private final ZrcClientService zrcClientService;
     private final ZtcClientService ztcClientService;
     private final ZGWApiService zgwApiService;
     private final IdentityService identityService;
@@ -44,7 +44,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
 
     @Inject
     public ZaakZoekObjectConverter(
-            ZRCClientService zrcClientService,
+            ZrcClientService zrcClientService,
             ZtcClientService ztcClientService,
             ZGWApiService zgwApiService,
             IdentityService identityService,

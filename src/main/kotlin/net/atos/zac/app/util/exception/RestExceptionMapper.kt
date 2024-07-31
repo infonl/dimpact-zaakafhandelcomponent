@@ -22,7 +22,7 @@ import net.atos.client.zgw.brc.exception.BrcRuntimeException
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.exception.DrcRuntimeException
 import net.atos.client.zgw.shared.exception.ZgwRuntimeException
-import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
@@ -125,7 +125,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_OBJECTTYPES_CLIENT)
                 it.contains(KlantClientService::class.simpleName!!) ->
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_KLANTEN_CLIENT)
-                it.contains(ZRCClientService::class.simpleName!!) ->
+                it.contains(ZrcClientService::class.simpleName!!) ->
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZRC_CLIENT)
                 it.contains(ZtcClientService::class.simpleName!!) ->
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZTC_CLIENT)

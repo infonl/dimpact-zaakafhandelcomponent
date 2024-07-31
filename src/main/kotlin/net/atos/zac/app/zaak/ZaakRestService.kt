@@ -33,7 +33,7 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
 import net.atos.client.zgw.shared.util.URIUtil
-import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.HoofdzaakZaakPatch
@@ -154,7 +154,7 @@ class ZaakRestService @Inject constructor(
     private val brcClientService: BrcClientService,
     private val drcClientService: DrcClientService,
     private val ztcClientService: ZtcClientService,
-    private val zrcClientService: ZRCClientService,
+    private val zrcClientService: ZrcClientService,
     private val eventingService: EventingService,
     private val identityService: IdentityService,
     private val signaleringService: SignaleringService,

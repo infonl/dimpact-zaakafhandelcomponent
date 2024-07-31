@@ -21,7 +21,6 @@ import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
 import nl.lifely.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
-import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_SIZE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED
@@ -48,41 +47,10 @@ import java.time.format.DateTimeFormatter
  * This test assumes a zaak has been created, and a task has been started in a previously run test.
  */
 @Order(TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED)
-class InformatieobjectenTest : BehaviorSpec({
+class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given(
-        "ZAC and all related Docker containers are running and zaak exists"
-    ) {
-        When("the create document informatie objecten endpoint is called") {
-            val endpointUrl = "$ZAC_API_URI/informatieobjecten/documentcreatie"
-            logger.info { "Calling $endpointUrl endpoint" }
-
-            val response = itestHttpClient.performJSONPostRequest(
-                url = endpointUrl,
-                requestBodyAsString = JSONObject(
-                    mapOf(
-                        "zaakUUID" to zaakProductaanvraag1Uuid
-                    )
-                ).toString()
-            )
-            Then(
-                "the response should be OK and the response should contain a redirect URL to Smartdocuments"
-            ) {
-                val responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
-
-                with(responseBody) {
-                    shouldContainJsonKeyValue(
-                        "redirectURL",
-                        "$SMART_DOCUMENTS_MOCK_BASE_URI/smartdocuments/wizard?ticket=dummySmartdocumentsTicketID"
-                    )
-                }
-            }
-        }
-    }
     Given(
         "ZAC and all related Docker containers are running and zaak exists"
     ) {

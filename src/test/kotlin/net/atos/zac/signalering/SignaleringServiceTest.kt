@@ -17,7 +17,7 @@ import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.zac.app.zaak.converter.RESTZaakOverzichtConverter
 import net.atos.zac.event.EventingService
@@ -43,7 +43,7 @@ class SignaleringServiceTest : BehaviorSpec({
     val mailService = mockk<MailService>()
     val signaleringenMailHelper = mockk<SignaleringMailHelper>()
     val signaleringPredicateHelper = mockk<SignaleringPredicateHelper>()
-    val zrcClientService = mockk<ZRCClientService>()
+    val zrcClientService = mockk<ZrcClientService>()
     val restZaakOverzichtConverter = mockk<RESTZaakOverzichtConverter>()
     val entityManager = mockk<EntityManager>()
     val criteriaBuilder = mockk<CriteriaBuilder>()

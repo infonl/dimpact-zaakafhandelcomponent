@@ -12,7 +12,7 @@ import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
 import net.atos.zac.util.UriUtil
@@ -26,7 +26,7 @@ import java.util.UUID
 @NoArgConstructor
 class EnkelvoudigInformatieObjectLockService @Inject constructor(
     private val drcClientService: DrcClientService,
-    private val zrcClientService: ZRCClientService
+    private val zrcClientService: ZrcClientService
 ) {
     @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
     private lateinit var entityManager: EntityManager

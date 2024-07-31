@@ -14,7 +14,7 @@ import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
-import net.atos.zac.documentcreatie.DocumentCreatieService
+import net.atos.zac.documentcreation.SmartDocumentsService
 import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toModel
 import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toREST
@@ -29,7 +29,7 @@ import java.util.logging.Logger
 @NoArgConstructor
 @AllOpen
 class SmartDocumentsService @Inject constructor(
-    private val documentCreatieService: DocumentCreatieService,
+    private val smartDocumentsService: SmartDocumentsService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
 ) {
     companion object {
@@ -42,7 +42,7 @@ class SmartDocumentsService @Inject constructor(
     /**
      * Lists all SmartDocuments template available
      */
-    fun listTemplates() = documentCreatieService.listTemplates().toREST()
+    fun listTemplates() = smartDocumentsService.listTemplates().toREST()
 
     /**
      * Stores template mapping for zaakafhandelparameters

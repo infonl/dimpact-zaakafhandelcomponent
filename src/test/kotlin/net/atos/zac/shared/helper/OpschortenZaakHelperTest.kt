@@ -10,7 +10,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createOpschorting
 import net.atos.client.zgw.zrc.model.createZaak
@@ -23,7 +23,7 @@ import java.util.Optional
 
 class OpschortenZaakHelperTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
-    val zrcClientService = mockk<ZRCClientService>()
+    val zrcClientService = mockk<ZrcClientService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
 
     val opschortenZaakHelper = OpschortenZaakHelper(

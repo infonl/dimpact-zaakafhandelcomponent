@@ -7,13 +7,13 @@ package net.atos.zac.app.informatieobjecten.model;
 
 import java.net.URI;
 
-public class RESTDocumentCreatieResponse {
+public class RestDocumentCreationResponse {
 
     public final URI redirectURL;
 
     public final String message;
 
-    public RESTDocumentCreatieResponse(final URI redirectURL, final String message) {
+    public RestDocumentCreationResponse(final URI redirectURL, final String message) {
         this.redirectURL = redirectURL;
         this.message = message;
     }

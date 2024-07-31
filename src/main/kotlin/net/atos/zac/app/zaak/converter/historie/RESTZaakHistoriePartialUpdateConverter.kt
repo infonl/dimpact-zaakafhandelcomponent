@@ -2,7 +2,7 @@ package net.atos.zac.app.zaak.converter.historie
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel
-import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Geometry
 import net.atos.zac.app.audit.model.RESTHistorieActie
 import net.atos.zac.app.audit.model.RESTHistorieRegel
@@ -14,7 +14,7 @@ private const val HOOFDZAAK = "hoofdzaak"
 private const val RELEVANTE_ANDERE_ZAKEN = "relevanteAndereZaken"
 
 class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
-    private val zrcClientService: ZRCClientService
+    private val zrcClientService: ZrcClientService
 ) {
     fun convertPartialUpdate(
         auditTrail: ZRCAuditTrailRegel,

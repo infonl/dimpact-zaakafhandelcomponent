@@ -13,7 +13,7 @@ import io.mockk.verify
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.brc.model.generated.Besluit
 import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.zrc.ZRCClientService
+import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.generated.Resultaat
 import net.atos.zac.admin.ZaakafhandelParameterService
@@ -47,7 +47,7 @@ import java.util.UUID
 class PlanItemsRESTServiceTest : BehaviorSpec({
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val cmmnService = mockk<CMMNService>()
-    val zrcClientService = mockk<ZRCClientService>()
+    val zrcClientService = mockk<ZrcClientService>()
     val brcClientService = mockk<BrcClientService>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val planItemConverter = mockk<RESTPlanItemConverter>()

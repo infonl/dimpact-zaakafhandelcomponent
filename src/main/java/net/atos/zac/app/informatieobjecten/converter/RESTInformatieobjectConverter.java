@@ -29,7 +29,7 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLo
 import net.atos.client.zgw.drc.model.generated.StatusEnum;
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
 import net.atos.client.zgw.shared.exception.FoutException;
-import net.atos.client.zgw.zrc.ZRCClientService;
+import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.ztc.ZtcClientService;
@@ -65,7 +65,7 @@ public class RESTInformatieobjectConverter {
     private RESTRechtenConverter restRechtenConverter;
     private RESTTaalConverter restTaalConverter;
     private RESTUserConverter restUserConverter;
-    private ZRCClientService zrcClientService;
+    private ZrcClientService zrcClientService;
     private ZtcClientService ztcClientService;
 
     /**
@@ -87,7 +87,7 @@ public class RESTInformatieobjectConverter {
             RESTRechtenConverter restRechtenConverter,
             RESTTaalConverter restTaalConverter,
             RESTUserConverter restUserConverter,
-            ZRCClientService zrcClientService,
+            ZrcClientService zrcClientService,
             ZtcClientService ztcClientService
     ) {
         this.ztcClientService = ztcClientService;
