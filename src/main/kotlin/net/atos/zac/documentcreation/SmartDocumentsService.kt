@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.documentcreation
@@ -13,6 +13,8 @@ import net.atos.client.smartdocuments.exception.BadRequestException
 import net.atos.client.smartdocuments.model.templates.SmartDocumentsTemplatesResponse
 import net.atos.client.smartdocuments.model.wizard.Selection
 import net.atos.client.smartdocuments.model.wizard.SmartDocument
+import net.atos.client.smartdocuments.model.wizard.WizardRequest
+import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.authentication.LoggedInUser
@@ -21,7 +23,6 @@ import net.atos.zac.documentcreation.converter.DocumentCreationDataConverter
 import net.atos.zac.documentcreation.model.DocumentCreationData
 import net.atos.zac.documentcreation.model.DocumentCreationResponse
 import net.atos.zac.documentcreation.model.Registratie
-import net.atos.zac.documentcreation.model.WizardRequest
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -72,16 +73,17 @@ class SmartDocumentsService @Inject constructor(
             registratie = createRegistratie(documentCreationData),
             smartDocument = createSmartDocument(documentCreationData)
         )
-        val userName = fixedUserName.orElse(loggedInUserInstance.get().id)
         try {
-            LOG.fine("Starting Smart Documents wizard for user: '$userName'")
+            val userName = fixedUserName.orElse(loggedInUserInstance.get().id).also {
+                LOG.fine("Starting Smart Documents wizard for user: '$it'")
+            }
             val wizardResponse = smartDocumentsClient.wizardDeposit(
-                authenticationToken= "Basic $authenticationToken",
+                authenticationToken = "Basic $authenticationToken",
                 userName = userName,
                 wizardRequest = wizardRequest
             )
             return DocumentCreationResponse(
-                UriBuilder.fromUri(smartDocumentsURL)
+                redirectUrl = UriBuilder.fromUri(smartDocumentsURL)
                     .path("smartdocuments/wizard")
                     .queryParam("ticket", wizardResponse.ticket)
                     .build()
@@ -107,21 +109,19 @@ class SmartDocumentsService @Inject constructor(
         )
 
     private fun createSmartDocument(documentCreationData: DocumentCreationData) =
-        ztcClientService.readZaaktype(documentCreationData.zaak.zaaktype).let {
-            SmartDocument().apply {
-                selection = Selection().apply {
-                    templateGroup = it.omschrijving
-                }
-            }
-        }
+        SmartDocument(
+            selection = Selection(
+                templateGroup = ztcClientService.readZaaktype(documentCreationData.zaak.zaaktype).omschrijving
+            )
+        )
 
     private fun createRegistratie(documentCreationData: DocumentCreationData) =
-        Registratie().apply {
-            bronOrganisatie = ConfiguratieService.BRON_ORGANISATIE
-            zaak = zrcClientService.createUrlExternToZaak(documentCreationData.zaak.uuid)
-            informatieObjectStatus = documentCreationData.informatieobjectStatus
-            informatieObjectType = documentCreationData.informatieobjecttype.url
-            creatieDatum = LocalDate.now()
+        Registratie(
+            bronOrganisatie = ConfiguratieService.BRON_ORGANISATIE,
+            zaak = zrcClientService.createUrlExternToZaak(documentCreationData.zaak.uuid),
+            informatieObjectStatus = StatusEnum.TER_VASTSTELLING,
+            informatieObjectType = documentCreationData.informatieobjecttype.url,
+            creatieDatum = LocalDate.now(),
             auditToelichting = AUDIT_TOELICHTING
-        }
+        )
 }

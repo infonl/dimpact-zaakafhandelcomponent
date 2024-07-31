@@ -1,13 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.documentcreation.model
 
-class TaakData {
-    var naam: String? = null
-
-    var behandelaar: String? = null
-
-    var data: Map<String, String>? = null
-}
+data class TaakData(
+    val naam: String,
+    var behandelaar: String? = null,
+    val data: Map<String, String>
+)

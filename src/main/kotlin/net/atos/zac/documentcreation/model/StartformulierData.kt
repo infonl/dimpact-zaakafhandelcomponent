@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.documentcreation.model
 
-class StartformulierData {
-    var productAanvraagtype: String? = null
+data class StartformulierData(
+    val productAanvraagtype: String,
 
-    var data: Map<String, Any>? = null
-}
+    val data: Map<String, Any>
+)

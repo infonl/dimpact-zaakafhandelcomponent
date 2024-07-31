@@ -266,13 +266,16 @@ public class MailTemplateHelper {
             return switch (betrokkene) {
                 case NATUURLIJK_PERSOON -> replaceInitiatorVariabelenPersoon(
                         resolvedTekst,
-                        brpClientService.findPersoon(identificatie));
+                        brpClientService.findPersoon(identificatie)
+                );
                 case VESTIGING -> replaceInitiatorVariabelenResultaatItem(
                         resolvedTekst,
-                        kvkClientService.findVestiging(identificatie));
+                        kvkClientService.findVestiging(identificatie)
+                );
                 case NIET_NATUURLIJK_PERSOON -> replaceInitiatorVariabelenResultaatItem(
                         resolvedTekst,
-                        kvkClientService.findRechtspersoon(identificatie));
+                        kvkClientService.findRechtspersoon(identificatie)
+                );
                 default -> throw new IllegalStateException(String.format("unexpected betrokkenetype %s", betrokkene));
             };
         }
@@ -283,9 +286,11 @@ public class MailTemplateHelper {
             final String resolvedTekst,
             final Optional<Persoon> initiator
     ) {
-        return initiator
-                .map(persoon -> replaceInitiatorVariabelen(resolvedTekst, persoon.getNaam().getVolledigeNaam(),
-                        convertAdres(persoon)))
+        return initiator.map(persoon -> replaceInitiatorVariabelen(
+                resolvedTekst,
+                persoon.getNaam().getVolledigeNaam(),
+                convertAdres(persoon))
+        )
                 .orElseGet(() -> replaceInitiatorVariabelenOnbekend(resolvedTekst));
     }
 

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.documentcreation.model
@@ -9,22 +9,22 @@ import net.atos.client.zgw.drc.model.generated.StatusEnum
 import java.net.URI
 import java.time.LocalDate
 
-class Registratie {
-    @JsonbProperty("zaak")
-    var zaak: URI? = null
+data class Registratie(
+    @field:JsonbProperty("zaak")
+    val zaak: URI,
 
-    @JsonbProperty("informatieobjectStatus")
-    var informatieObjectStatus: StatusEnum? = null
+    @field:JsonbProperty("informatieobjectStatus")
+    val informatieObjectStatus: StatusEnum,
 
-    @JsonbProperty("informatieobjecttype")
-    var informatieObjectType: URI? = null
+    @field:JsonbProperty("informatieobjecttype")
+    val informatieObjectType: URI,
 
-    @JsonbProperty("bronorganisatie")
-    var bronOrganisatie: String? = null
+    @field:JsonbProperty("bronorganisatie")
+    val bronOrganisatie: String,
 
-    @JsonbProperty("creatiedatum")
-    var creatieDatum: LocalDate? = null
+    @field:JsonbProperty("creatiedatum")
+    val creatieDatum: LocalDate,
 
-    @JsonbProperty("auditToelichting")
-    var auditToelichting: String? = null
-}
+    @field:JsonbProperty("auditToelichting")
+    val auditToelichting: String
+)
