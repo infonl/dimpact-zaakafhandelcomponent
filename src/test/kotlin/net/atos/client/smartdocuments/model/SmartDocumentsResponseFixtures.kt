@@ -5,17 +5,17 @@
 
 package net.atos.client.smartdocuments.model
 
-import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseDocumentsStructure
-import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseGroupsAccess
-import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseHeadersStructure
-import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseTemplate
-import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseTemplateGroup
-import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseTemplatesStructure
-import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseUserGroup
-import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseUsersStructure
-import net.atos.client.smartdocuments.model.templates.SmartDocumentsTemplatesResponse
-import net.atos.client.smartdocuments.model.templates.User
-import net.atos.client.smartdocuments.model.wizard.WizardResponse
+import net.atos.client.smartdocuments.model.document.WizardResponse
+import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseDocumentsStructure
+import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseGroupsAccess
+import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseHeadersStructure
+import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseTemplate
+import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseTemplateGroup
+import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseTemplatesStructure
+import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseUserGroup
+import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseUsersStructure
+import net.atos.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
+import net.atos.client.smartdocuments.model.template.User
 import java.util.UUID
 
 fun createWizardResponse(
