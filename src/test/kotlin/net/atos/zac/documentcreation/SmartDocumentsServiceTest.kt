@@ -11,6 +11,7 @@ import net.atos.client.smartdocuments.model.createWizardResponse
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
@@ -42,12 +43,13 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         zrcClientService
     )
 
-    Given("document creation data") {
+    Given("Document creation data with an information object type") {
         val zaakTypeUUID = UUID.randomUUID()
         val zaakTypeURI = URI("http://example.com/$zaakTypeUUID")
         val zaakType = createZaakType(uri = zaakTypeURI)
         val documentCreationData = createDocumentCreationData(
             zaak = createZaak(zaakTypeURI = zaakTypeURI),
+            informatieobjecttype = createInformatieObjectType()
         )
         val externalZaakUrl = URI("http://example.com/dummyExternalZaakUrl")
         val loggedInUser = createLoggedInUser()
@@ -55,13 +57,19 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         val wizardResponse = createWizardResponse()
         every { loggedInUserInstance.get() } returns loggedInUser
         every { zrcClientService.createUrlExternToZaak(documentCreationData.zaak.uuid) } returns externalZaakUrl
-        every { documentCreationDataConverter.createData(documentCreationData, loggedInUser) } returns data
+        every {
+            documentCreationDataConverter.createData(
+                loggedInUser,
+                documentCreationData.zaak,
+                documentCreationData.taskId
+            )
+        } returns data
         every { ztcClientService.readZaaktype(documentCreationData.zaak.zaaktype) } returns zaakType
         every {
-            smartDocumentsClient.wizardDeposit("Basic $authenticationToken", fixedUserName.get(), any())
+            smartDocumentsClient.attendedDeposit("Basic $authenticationToken", fixedUserName.get(), any())
         } returns wizardResponse
 
-        When("the create attended document method is called") {
+        When("the 'create document attended' method is called") {
             val documentCreationResponse = smartDocumentsService.createDocumentAttended(documentCreationData)
 
             Then(

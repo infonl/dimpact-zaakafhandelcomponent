@@ -13,10 +13,10 @@ class RestDocumentCreationUnattendedData(
     var documentTitel: String? = null,
 
     @field:NotNull
-    var documentTemplateGroupUuid: UUID,
+    var documentTemplateGroupName: String,
 
     @field:NotNull
-    var documentTemplateUuid: UUID,
+    var documentTemplateName: String,
 
     @field:NotNull
     var zaakUuid: UUID,

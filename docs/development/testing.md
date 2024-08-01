@@ -138,7 +138,7 @@ This contains the details on how to run ACT tests.
 ### Using Postman
 
 Using [Postman](https://www.postman.com/) you can test ZAC by sending HTTP requests to the ZAC backend API.
-This way you can test a locally running ZAC or you can test ZAC running on e.g. the TEST environment. Be aware that by doing so you are depending on the requests you send, of course changing data and state in ZAC.
+This way you can test a locally running ZAC or you can test ZAC running on e.g. the TEST environment. Be aware that by doing so, depending on the requests you send, you can be changing data and state in ZAC.
 
 #### Set up Postman for ZAC
 
@@ -149,8 +149,8 @@ To use our shared Postman collection you need to be a member of our Zaakafhandel
 
 ##### Import ZAC OpenAPI spec
 
-1. Make sure your locally cloned ZAC Git repo is up-to-date and you have recently run a build (see [INSTALL.md](INSTALL.md) for instructions).
-2. In Postman click ‘import’ and select the generated OpenAPI YAML spec file in the ZAC Git project in the folder: `build/generated/openapi/META-INF/openapi/`
+1. Make sure your locally cloned ZAC Git repo is up-to-date, and you have recently run a build (see [INSTALL.md](INSTALL.md) for instructions).
+2. In Postman select ‘File - Import’ and select [the generated OpenAPI YAML spec file](../../build/generated/openapi/META-INF/openapi/openapi.yaml).
 3. Select to create a new Postman Collection.
 
 ##### Create environment(s)
