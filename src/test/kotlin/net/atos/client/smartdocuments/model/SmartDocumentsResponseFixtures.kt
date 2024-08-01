@@ -5,7 +5,7 @@
 
 package net.atos.client.smartdocuments.model
 
-import net.atos.client.smartdocuments.model.document.WizardResponse
+import net.atos.client.smartdocuments.model.document.AttendedResponse
 import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseDocumentsStructure
 import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseGroupsAccess
 import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseHeadersStructure
@@ -20,7 +20,7 @@ import java.util.UUID
 
 fun createWizardResponse(
     ticket: String = "dummyTicket",
-) = WizardResponse().apply {
+) = AttendedResponse().apply {
     this.ticket = ticket
 }
 

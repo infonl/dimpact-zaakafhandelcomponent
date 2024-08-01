@@ -39,7 +39,6 @@ class DocumentCreationRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zrcClientService: ZrcClientService
 ) {
-
     @POST
     @Path("/createdocumentattended")
     fun createDocumentAttended(
@@ -59,18 +58,13 @@ class DocumentCreationRestService @Inject constructor(
                     "No informatieobjecttype '${ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE}' found for " +
                         "zaaktype '${zaak.zaaktype}'. Cannot create document."
                 )
-            }.let {
+            }.let { informatieObjectType ->
                 DocumentCreationData(
                     zaak,
                     restDocumentCreationAttendedData.taskId,
-                    it
+                    informatieObjectType
                 ).let(smartDocumentsService::createDocumentAttended)
-                    .let { documentCreationResponse ->
-                        RestDocumentCreationResponse(
-                            documentCreationResponse.redirectUrl,
-                            documentCreationResponse.message
-                        )
-                    }
+                    .let { RestDocumentCreationResponse(it.redirectUrl, it.message) }
             }
     }
 
@@ -79,32 +73,14 @@ class DocumentCreationRestService @Inject constructor(
     fun createDocumentUnattended(
         @Valid restDocumentCreationUnattendedData: RestDocumentCreationUnattendedData
     ): RestDocumentCreationResponse {
-        val zaak = zrcClientService.readZaak(restDocumentCreationData.zaakUUID)
+        val zaak = zrcClientService.readZaak(restDocumentCreationUnattendedData.zaakUuid)
         assertPolicy(policyService.readZaakRechten(zaak).creeerenDocument)
-
-        // documents created by SmartDocuments are always of the type 'bijlage'
-        // the zaaktype of the current zaak needs to be configured to be able to use this informatieObjectType
-        return ztcClientService.readInformatieobjecttypen(zaak.zaaktype)
-            .stream()
-            .filter { ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE == it.omschrijving }
-            .findAny()
-            .orElseThrow {
-                InputValidationFailedException(
-                    "No informatieobjecttype '${ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE}' found for " +
-                        "zaaktype '${zaak.zaaktype}'. Cannot create document."
-                )
-            }.let {
-                DocumentCreationData(
-                    zaak,
-                    restDocumentCreationUnattendedData.taskId,
-                    it
-                ).let(smartDocumentsService::createDocumentAttended)
-                    .let { documentCreationResponse ->
-                        RestDocumentCreationResponse(
-                            documentCreationResponse.redirectUrl,
-                            documentCreationResponse.message
-                        )
-                    }
-            }
+        return DocumentCreationData(
+            zaak = zaak,
+            taskId = restDocumentCreationUnattendedData.taskId,
+            templateGroup = restDocumentCreationUnattendedData.documentTemplateGroupName,
+            template = restDocumentCreationUnattendedData.documentTemplateName,
+        ).let(smartDocumentsService::createDocumentUnattended)
+            .let { RestDocumentCreationResponse(message = it.message) }
     }
 }

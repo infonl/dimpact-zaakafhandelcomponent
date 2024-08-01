@@ -100,7 +100,7 @@ class SmartDocumentsService @Inject constructor(
     /**
      * Lists all template groups for a zaakafhandelparameters
      *
-     * @param zaakafhandelUUID UUID of a zaakafhandelparameters
+     * @param zaakafhandelParametersUUID UUID of a zaakafhandelparameters
      * @return a set of all RESTSmartDocumentsTemplateGroup for the zaakafhandelparameters
      */
     fun getTemplatesMapping(

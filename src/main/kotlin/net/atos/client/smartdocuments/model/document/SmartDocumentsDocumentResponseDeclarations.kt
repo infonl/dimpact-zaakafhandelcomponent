@@ -8,9 +8,15 @@ import jakarta.json.bind.annotation.JsonbProperty
 import nl.lifely.zac.util.NoArgConstructor
 
 @NoArgConstructor
-data class UnattendedResponse(
-    @field:JsonbProperty("file")
-    var files: List<File>? = null
+data class AttendedResponse(
+    @field:JsonbProperty("ticket")
+    var ticket: String? = null
+)
+
+@NoArgConstructor
+class Document(
+    @field:JsonbProperty("data")
+    var data: String? = null
 )
 
 @NoArgConstructor
@@ -26,13 +32,7 @@ data class File(
 )
 
 @NoArgConstructor
-class Document(
-    @field:JsonbProperty("data")
-    var data: String? = null
-)
-
-@NoArgConstructor
-data class WizardResponse(
-    @field:JsonbProperty("ticket")
-    var ticket: String? = null
+data class UnattendedResponse(
+    @field:JsonbProperty("file")
+    var files: List<File>? = null
 )

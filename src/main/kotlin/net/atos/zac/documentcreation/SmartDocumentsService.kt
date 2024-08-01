@@ -9,20 +9,23 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.UriBuilder
 import net.atos.client.smartdocuments.SmartDocumentsClient
-import net.atos.client.smartdocuments.exception.SmartDocumentsBadRequestException
+import net.atos.client.smartdocuments.exception.BadRequestException
+import net.atos.client.smartdocuments.model.document.Deposit
+import net.atos.client.smartdocuments.model.document.Registratie
 import net.atos.client.smartdocuments.model.document.Selection
 import net.atos.client.smartdocuments.model.document.SmartDocument
-import net.atos.client.smartdocuments.model.document.WizardRequest
 import net.atos.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
 import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.converter.DocumentCreationDataConverter
+import net.atos.zac.documentcreation.model.DocumentCreationAttendedResponse
 import net.atos.zac.documentcreation.model.DocumentCreationData
-import net.atos.zac.documentcreation.model.DocumentCreationResponse
-import net.atos.zac.documentcreation.model.Registratie
+import net.atos.zac.documentcreation.model.DocumentCreationUnattendedResponse
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -62,43 +65,98 @@ class SmartDocumentsService @Inject constructor(
     }
 
     /**
-     * Create a document using the SmartDocuments wizard.
+     * Sends a request to SmartDocuments to create a document using the Smart Documents wizard (= attended mode).
      *
      * @param documentCreationData data used to create the document
      * @return the redirect URI to the SmartDocuments wizard
      */
-    fun createDocumentAttended(documentCreationData: DocumentCreationData): DocumentCreationResponse {
-        val wizardRequest = WizardRequest(
-            data = documentCreationDataConverter.createData(documentCreationData, loggedInUserInstance.get()),
-            registratie = createRegistratie(documentCreationData),
-            smartDocument = createSmartDocument(documentCreationData)
+    fun createDocumentAttended(
+        documentCreationData: DocumentCreationData
+    ): DocumentCreationAttendedResponse {
+        val deposit = Deposit(
+            data = documentCreationDataConverter.createData(
+                loggedInUser = loggedInUserInstance.get(),
+                zaak = documentCreationData.zaak,
+                taskId = documentCreationData.taskId
+            ),
+            registratie = createRegistratie(
+                zaak = documentCreationData.zaak,
+                informatieObjectType = documentCreationData.informatieobjecttype
+            ),
+            smartDocument = createSmartDocumentForAttendedFlow(documentCreationData)
         )
         try {
             val userName = fixedUserName.orElse(loggedInUserInstance.get().id).also {
                 LOG.fine("Starting Smart Documents wizard for user: '$it'")
             }
-            val wizardResponse = smartDocumentsClient.wizardDeposit(
+            val wizardResponse = smartDocumentsClient.attendedDeposit(
                 authenticationToken = "Basic $authenticationToken",
                 userName = userName,
-                wizardRequest = wizardRequest
-            )
-            return DocumentCreationResponse(
+                deposit = deposit
+            ).also {
+                LOG.fine("SmartDocuments attended document creation response: $it")
+            }
+            return DocumentCreationAttendedResponse(
                 redirectUrl = UriBuilder.fromUri(smartDocumentsURL)
                     .path("smartdocuments/wizard")
                     .queryParam("ticket", wizardResponse.ticket)
                     .build()
             )
-        } catch (smartDocumentsBadRequestException: SmartDocumentsBadRequestException) {
-            return DocumentCreationResponse(
+        } catch (badRequestException: BadRequestException) {
+            return DocumentCreationAttendedResponse(
                 message = "Aanmaken van een document is helaas niet mogelijk. " +
                     "Ben je als user geregistreerd in SmartDocuments? " +
-                    "Details: '$smartDocumentsBadRequestException.message'"
+                    "Details: '$badRequestException.message'"
             )
         }
     }
 
     /**
-     * Lists all Smart Document templates groups and templates available for the current user.
+     * Sends a request to SmartDocuments to create a document using the Smart Documents unattended mode.
+     *
+     * @param documentCreationData data used to create the document
+     * @return the document creation response
+     */
+    fun createDocumentUnattended(
+        documentCreationData: DocumentCreationData
+    ): DocumentCreationUnattendedResponse {
+        val deposit = Deposit(
+            data = documentCreationDataConverter.createData(
+                loggedInUser = loggedInUserInstance.get(),
+                zaak = documentCreationData.zaak,
+                taskId = documentCreationData.taskId
+            ),
+            registratie = createRegistratie(
+                zaak = documentCreationData.zaak
+            ),
+            smartDocument = createSmartDocumentForUnttendedFlow(documentCreationData)
+        )
+        try {
+            val userName = fixedUserName.orElse(loggedInUserInstance.get().id).also {
+                LOG.fine("Starting SmartDocuments unattended document creation flow for user: '$it'")
+            }
+            val depositResponse = smartDocumentsClient.unattendedDeposit(
+                authenticationToken = "Basic $authenticationToken",
+                userName = userName,
+                deposit = deposit
+            ).also {
+                LOG.fine("SmartDocuments unattended document creation response: $it")
+            }
+            return DocumentCreationUnattendedResponse(
+                // TODO
+                message = "TODO"
+            )
+        } catch (badRequestException: BadRequestException) {
+            return DocumentCreationUnattendedResponse(
+                message = "Aanmaken van een document is helaas niet mogelijk. " +
+                    "Ben je als user geregistreerd in SmartDocuments? " +
+                    "Details: '$badRequestException.message'"
+            )
+        }
+    }
+
+    /**
+     * Lists all SmartDocuments templates groups and templates available for the current user.
      *
      * @return A structure describing templates and groups
      */
@@ -108,19 +166,32 @@ class SmartDocumentsService @Inject constructor(
             fixedUserName.orElse(loggedInUserInstance.get().id)
         )
 
-    private fun createSmartDocument(documentCreationData: DocumentCreationData) =
+    /**
+     * Creates a SmartDocument object for the attended flow.
+     * In this flow the description of the zaaktype of the zaak in the provided document creation data is used
+     * as the SmartDocuments template group.
+     */
+    private fun createSmartDocumentForAttendedFlow(documentCreationData: DocumentCreationData) =
         SmartDocument(
             selection = Selection(
                 templateGroup = ztcClientService.readZaaktype(documentCreationData.zaak.zaaktype).omschrijving
             )
         )
 
-    private fun createRegistratie(documentCreationData: DocumentCreationData) =
+    private fun createSmartDocumentForUnttendedFlow(documentCreationData: DocumentCreationData) =
+        SmartDocument(
+            selection = Selection(
+                templateGroup = documentCreationData.templateGroup,
+                template = documentCreationData.template
+            )
+        )
+
+    private fun createRegistratie(zaak: Zaak, informatieObjectType: InformatieObjectType? = null) =
         Registratie(
             bronOrganisatie = ConfiguratieService.BRON_ORGANISATIE,
-            zaak = zrcClientService.createUrlExternToZaak(documentCreationData.zaak.uuid),
+            zaak = zrcClientService.createUrlExternToZaak(zaak.uuid),
             informatieObjectStatus = StatusEnum.TER_VASTSTELLING,
-            informatieObjectType = documentCreationData.informatieobjecttype.url,
+            informatieObjectType = informatieObjectType?.url,
             creatieDatum = LocalDate.now(),
             auditToelichting = AUDIT_TOELICHTING
         )
