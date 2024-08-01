@@ -5,6 +5,12 @@
 
 package net.atos.zac.documentcreation.model
 
+import net.atos.client.smartdocuments.model.document.AanvragerData
+import net.atos.client.smartdocuments.model.document.Data
+import net.atos.client.smartdocuments.model.document.GebruikerData
+import net.atos.client.smartdocuments.model.document.StartformulierData
+import net.atos.client.smartdocuments.model.document.TaakData
+import net.atos.client.smartdocuments.model.document.ZaakData
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
@@ -51,7 +57,7 @@ fun createDocumentCreationData(
 
 fun createDocumentCreationResponse(
     redirectUri: URI = URI.create("http://example.com/dummyRedirectURI")
-) = DocumentCreationResponse(
+) = DocumentCreationAttendedResponse(
     redirectUrl = redirectUri
 )
 

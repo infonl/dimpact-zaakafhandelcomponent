@@ -13,6 +13,12 @@ import net.atos.client.kvk.KvkClientService
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.shared.util.URIUtil
+import net.atos.client.smartdocuments.model.document.AanvragerData
+import net.atos.client.smartdocuments.model.document.Data
+import net.atos.client.smartdocuments.model.document.GebruikerData
+import net.atos.client.smartdocuments.model.document.StartformulierData
+import net.atos.client.smartdocuments.model.document.TaakData
+import net.atos.client.smartdocuments.model.document.ZaakData
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
@@ -24,13 +30,6 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.authentication.LoggedInUser
-import net.atos.zac.documentcreation.model.AanvragerData
-import net.atos.zac.documentcreation.model.Data
-import net.atos.zac.documentcreation.model.DocumentCreationData
-import net.atos.zac.documentcreation.model.GebruikerData
-import net.atos.zac.documentcreation.model.StartformulierData
-import net.atos.zac.documentcreation.model.TaakData
-import net.atos.zac.documentcreation.model.ZaakData
 import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.flowable.TaakVariabelenService
 import net.atos.zac.identity.IdentityService
@@ -57,13 +56,13 @@ class DocumentCreationDataConverter @Inject constructor(
         const val DATE_FORMAT: String = "dd-MM-yyyy"
     }
 
-    fun createData(documentCreationData: DocumentCreationData, loggedInUser: LoggedInUser) =
+    fun createData(loggedInUser: LoggedInUser, zaak: Zaak, taskId: String? = null) =
         Data(
             gebruikerData = createGebruikerData(loggedInUser),
-            zaakData = createZaakData(documentCreationData.zaak),
-            aanvragerData = createAanvragerData(documentCreationData.zaak),
-            startformulierData = createStartformulierData(documentCreationData.zaak.url),
-            taakData = documentCreationData.taskId?.let { createTaakData(it) }
+            zaakData = createZaakData(zaak),
+            aanvragerData = createAanvragerData(zaak),
+            startformulierData = createStartformulierData(zaak.url),
+            taakData = taskId?.let { createTaakData(it) }
         )
 
     private fun createGebruikerData(loggedInUser: LoggedInUser) =
