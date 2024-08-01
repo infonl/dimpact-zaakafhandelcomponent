@@ -13,11 +13,11 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.smartdocuments.exception.BadRequestExceptionMapper
 import net.atos.client.smartdocuments.exception.RuntimeExceptionMapper
-import net.atos.client.smartdocuments.model.templates.SmartDocumentsTemplatesResponse
-import net.atos.client.smartdocuments.model.wizard.Deposit
-import net.atos.client.smartdocuments.model.wizard.UnattendedResponse
-import net.atos.client.smartdocuments.model.wizard.WizardRequest
-import net.atos.client.smartdocuments.model.wizard.WizardResponse
+import net.atos.client.smartdocuments.model.document.Deposit
+import net.atos.client.smartdocuments.model.document.UnattendedResponse
+import net.atos.client.smartdocuments.model.document.WizardRequest
+import net.atos.client.smartdocuments.model.document.WizardResponse
+import net.atos.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 

@@ -10,10 +10,10 @@ import jakarta.inject.Inject
 import jakarta.ws.rs.core.UriBuilder
 import net.atos.client.smartdocuments.SmartDocumentsClient
 import net.atos.client.smartdocuments.exception.BadRequestException
-import net.atos.client.smartdocuments.model.templates.SmartDocumentsTemplatesResponse
-import net.atos.client.smartdocuments.model.wizard.Selection
-import net.atos.client.smartdocuments.model.wizard.SmartDocument
-import net.atos.client.smartdocuments.model.wizard.WizardRequest
+import net.atos.client.smartdocuments.model.document.Selection
+import net.atos.client.smartdocuments.model.document.SmartDocument
+import net.atos.client.smartdocuments.model.document.WizardRequest
+import net.atos.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
 import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.ztc.ZtcClientService
