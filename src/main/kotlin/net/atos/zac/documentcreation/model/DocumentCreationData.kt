@@ -21,10 +21,10 @@ data class DocumentCreationData(
     /**
      * Nullable for now but once we no longer support the SmartDocuments attended flow we should make this required
      */
-    val templateGroup: String? = null,
+    val templateGroupName: String? = null,
 
     /**
      * Nullable for now but once we no longer support the SmartDocuments attended flow we should make this required
      */
-    val template: String? = null
+    val templateName: String? = null
 )

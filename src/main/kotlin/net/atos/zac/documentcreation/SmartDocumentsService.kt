@@ -135,7 +135,7 @@ class SmartDocumentsService @Inject constructor(
             val userName = fixedUserName.orElse(loggedInUserInstance.get().id).also {
                 LOG.fine("Starting SmartDocuments unattended document creation flow for user: '$it'")
             }
-            val depositResponse = smartDocumentsClient.unattendedDeposit(
+            smartDocumentsClient.unattendedDeposit(
                 authenticationToken = "Basic $authenticationToken",
                 userName = userName,
                 deposit = deposit
@@ -143,8 +143,7 @@ class SmartDocumentsService @Inject constructor(
                 LOG.fine("SmartDocuments unattended document creation response: $it")
             }
             return DocumentCreationUnattendedResponse(
-                // TODO
-                message = "TODO"
+                message = "Document was created succesfully but the document is not stored yet in the zaakregister."
             )
         } catch (badRequestException: BadRequestException) {
             return DocumentCreationUnattendedResponse(
@@ -181,8 +180,8 @@ class SmartDocumentsService @Inject constructor(
     private fun createSmartDocumentForUnttendedFlow(documentCreationData: DocumentCreationData) =
         SmartDocument(
             selection = Selection(
-                templateGroup = documentCreationData.templateGroup,
-                template = documentCreationData.template
+                templateGroup = documentCreationData.templateGroupName,
+                template = documentCreationData.templateName
             )
         )
 

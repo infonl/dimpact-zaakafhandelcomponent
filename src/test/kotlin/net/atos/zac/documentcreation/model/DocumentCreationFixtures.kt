@@ -13,7 +13,6 @@ import net.atos.client.smartdocuments.model.document.TaakData
 import net.atos.client.smartdocuments.model.document.ZaakData
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createZaak
-import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
 import java.net.URI
 
@@ -48,11 +47,15 @@ fun createData(
 fun createDocumentCreationData(
     zaak: Zaak = createZaak(),
     taskId: String = "dummyTaskId",
-    informatieobjecttype: InformatieObjectType = createInformatieObjectType()
+    informatieobjecttype: InformatieObjectType? = null,
+    templateGroupName: String? = null,
+    templateName: String? = null
 ) = DocumentCreationData(
     zaak = zaak,
     taskId = taskId,
-    informatieobjecttype = informatieobjecttype
+    informatieobjecttype = informatieobjecttype,
+    templateGroupName = templateGroupName,
+    templateName = templateName
 )
 
 fun createDocumentCreationResponse(
