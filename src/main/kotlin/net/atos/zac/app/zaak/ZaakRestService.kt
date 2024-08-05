@@ -27,7 +27,6 @@ import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.brc.model.generated.Besluit
 import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
-import net.atos.client.zgw.brc.model.generated.VervalredenEnum
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
@@ -62,6 +61,7 @@ import net.atos.zac.app.admin.model.RESTZaakAfzender
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.audit.model.RESTHistorieRegel
 import net.atos.zac.app.bag.converter.RESTBAGConverter
+import net.atos.zac.app.besluit.BesluitService
 import net.atos.zac.app.klant.KlantRestService
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
@@ -75,7 +75,7 @@ import net.atos.zac.app.zaak.converter.RestBesluitConverter
 import net.atos.zac.app.zaak.converter.convertToRESTZaakBetrokkenen
 import net.atos.zac.app.zaak.converter.historie.RESTZaakHistorieRegelConverter
 import net.atos.zac.app.zaak.model.RESTBesluit
-import net.atos.zac.app.zaak.model.RESTBesluitIntrekkenGegevens
+import net.atos.zac.app.zaak.model.RestBesluitIntrekkenGegevens
 import net.atos.zac.app.zaak.model.RESTBesluitVastleggenGegevens
 import net.atos.zac.app.zaak.model.RESTBesluitWijzigenGegevens
 import net.atos.zac.app.zaak.model.RESTBesluittype
@@ -151,6 +151,7 @@ import java.util.stream.Stream
 class ZaakRestService @Inject constructor(
     private val zgwApiService: ZGWApiService,
     private val productaanvraagService: ProductaanvraagService,
+    private val besluitService: BesluitService,
     private val brcClientService: BrcClientService,
     private val drcClientService: DrcClientService,
     private val ztcClientService: ZtcClientService,
@@ -833,11 +834,10 @@ class ZaakRestService @Inject constructor(
 
     @GET
     @Path("besluit/zaakUuid/{zaakUuid}")
-    fun listBesluitenForZaakUUID(@PathParam("zaakUuid") zaakUuid: UUID): List<RESTBesluit> {
-        return brcClientService.listBesluiten(zrcClientService.readZaak(zaakUuid))
-            .map { besluiten -> restBesluitConverter.convertToRESTBesluit(besluiten) }
-            .orElse(null)
-    }
+    fun listBesluitenForZaakUUID(@PathParam("zaakUuid") zaakUuid: UUID) =
+        brcClientService.listBesluiten(zrcClientService.readZaak(zaakUuid))
+            .map { restBesluitConverter.convertBesluitenToRESTBesluit(it) }
+            .orElse(emptyList())
 
     @POST
     @Path("besluit")
@@ -872,26 +872,26 @@ class ZaakRestService @Inject constructor(
     @PUT
     @Path("besluit")
     fun updateBesluit(
-        restBesluitWijzigenGegevens: RESTBesluitWijzigenGegevens
+        @Valid restBesluitWijzigenGegevens: RESTBesluitWijzigenGegevens
     ): RESTBesluit {
-        var besluit = brcClientService.readBesluit(restBesluitWijzigenGegevens.besluitUuid)
-        val zaak = zrcClientService.readZaak(besluit!!.zaak)
-        assertPolicy(policyService.readZaakRechten(zaak).vastleggenBesluit)
-
-        besluit = restBesluitConverter.convertToBesluit(besluit, restBesluitWijzigenGegevens)
-        besluit = brcClientService.updateBesluit(besluit, restBesluitWijzigenGegevens.reden)
-        if (zaak.resultaat != null) {
-            val zaakResultaat = zrcClientService.readResultaat(zaak.resultaat)
-            val resultaattype = ztcClientService.readResultaattype(
-                restBesluitWijzigenGegevens.resultaattypeUuid!!
-            )
-            if (!UriUtil.isEqual(zaakResultaat.resultaattype, resultaattype.url)) {
-                zrcClientService.deleteResultaat(zaakResultaat.uuid)
-                zgwApiService.createResultaatForZaak(
-                    zaak,
-                    restBesluitWijzigenGegevens.resultaattypeUuid,
-                    null
-                )
+        val besluit = brcClientService.readBesluit(restBesluitWijzigenGegevens.besluitUuid)
+        val zaak = zrcClientService.readZaak(besluit.zaak).also {
+            assertPolicy(policyService.readZaakRechten(it).vastleggenBesluit)
+        }
+        restBesluitConverter.updateBesluitWithBesluitWijzigenGegevens(besluit, restBesluitWijzigenGegevens).also {
+            brcClientService.updateBesluit(it, restBesluitWijzigenGegevens.reden)
+        }
+        zaak.resultaat?.let {
+            zrcClientService.readResultaat(it).let { zaakresultaat ->
+                val resultaattype = ztcClientService.readResultaattype(restBesluitWijzigenGegevens.resultaattypeUuid)
+                if (!UriUtil.isEqual(zaakresultaat.resultaattype, resultaattype.url)) {
+                    zrcClientService.deleteResultaat(zaakresultaat.uuid)
+                    zgwApiService.createResultaatForZaak(
+                        zaak,
+                        restBesluitWijzigenGegevens.resultaattypeUuid,
+                        null
+                    )
+                }
             }
         }
         updateBesluitInformatieobjecten(besluit, restBesluitWijzigenGegevens.informatieobjecten)
@@ -902,60 +902,45 @@ class ZaakRestService @Inject constructor(
     }
 
     private fun updateBesluitInformatieobjecten(
-        besluit: Besluit?,
-        nieuweDocumenten: List<UUID?>?
+        besluit: Besluit,
+        nieuweDocumenten: List<UUID>?
     ) {
-        val besluitInformatieobjecten = brcClientService.listBesluitInformatieobjecten(
-            besluit!!.url
-        )
+        val besluitInformatieobjecten = brcClientService.listBesluitInformatieobjecten(besluit.url)
         val huidigeDocumenten = besluitInformatieobjecten
-            .map { besluitInformatieobject ->
-                UriUtil.uuidFromURI(besluitInformatieobject.informatieobject)
-            }
+            .map { UriUtil.uuidFromURI(it.informatieobject) }
             .toList()
-
         val verwijderen = CollectionUtils.subtract(huidigeDocumenten, nieuweDocumenten)
         val toevoegen = CollectionUtils.subtract(nieuweDocumenten, huidigeDocumenten)
-
-        verwijderen.forEach(
-            Consumer { teVerwijderenInformatieobject ->
-                besluitInformatieobjecten
-                    .filter { besluitInformatieobject ->
-                        UriUtil.uuidFromURI(besluitInformatieobject.informatieobject) == teVerwijderenInformatieobject
+        verwijderen.forEach { teVerwijderenInformatieobject ->
+            besluitInformatieobjecten
+                .filter { UriUtil.uuidFromURI(it.informatieobject) == teVerwijderenInformatieobject }
+                .forEach { brcClientService.deleteBesluitinformatieobject(UriUtil.uuidFromURI(it.url)) }
+        }
+        toevoegen.forEach{ documentUri ->
+                drcClientService.readEnkelvoudigInformatieobject(documentUri).let { enkelvoudigInformatieObject ->
+                    BesluitInformatieObject().apply {
+                        this.informatieobject = enkelvoudigInformatieObject.url
+                        this.besluit = besluit.url
                     }
-                    .forEach { besluitInformatieobject ->
-                        brcClientService.deleteBesluitinformatieobject(UriUtil.uuidFromURI(besluitInformatieobject.url))
-                    }
+                }.let {
+                    brcClientService.createBesluitInformatieobject(
+                        it,
+                        WIJZIGEN_BESLUIT_TOELICHTING
+                    )
+                }
             }
-        )
-
-        toevoegen.forEach(
-            Consumer { documentUri ->
-                val informatieobject = drcClientService.readEnkelvoudigInformatieobject(documentUri)
-                val besluitInformatieobject = BesluitInformatieObject()
-                besluitInformatieobject.informatieobject = informatieobject.url
-                besluitInformatieobject.besluit = besluit.url
-                brcClientService.createBesluitInformatieobject(besluitInformatieobject, WIJZIGEN_BESLUIT_TOELICHTING)
-            }
-        )
     }
 
     @PUT
     @Path("besluit/intrekken")
     fun intrekkenBesluit(
-        @Valid restBesluitIntrekkenGegevens: RESTBesluitIntrekkenGegevens
+        @Valid restBesluitIntrekkenGegevens: RestBesluitIntrekkenGegevens
     ): RESTBesluit {
-        val besluit = brcClientService.readBesluit(restBesluitIntrekkenGegevens.besluitUuid).apply {
-            vervaldatum = restBesluitIntrekkenGegevens.vervaldatum
-            vervalreden = VervalredenEnum.fromValue(restBesluitIntrekkenGegevens.vervalreden.lowercase())
-        }
+        val besluit = besluitService.readBesluit(restBesluitIntrekkenGegevens)
         val zaak = zrcClientService.readZaak(besluit.zaak).also {
             assertPolicy(it.isOpen && policyService.readZaakRechten(it).behandelen)
         }
-        return brcClientService.updateBesluit(
-            besluit,
-            getIntrekToelichting(besluit.vervalreden)?.let { String.format(it, restBesluitIntrekkenGegevens.reden) }
-        ).also {
+        return besluitService.withdrawBesluit(besluit, restBesluitIntrekkenGegevens.reden).also {
             // This event should result from a ZAAKBESLUIT UPDATED notification on the ZAKEN channel
             // but open_zaak does not send that one, so emulate it here.
             eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))
@@ -1090,17 +1075,6 @@ class ZaakRestService @Inject constructor(
                 .types(SignaleringType.Type.ZAAK_OP_NAAM, SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD)
                 .subject(zaak)
         )
-    }
-
-    private fun getIntrekToelichting(vervalreden: VervalredenEnum): String? {
-        return when (vervalreden) {
-            VervalredenEnum.INGETROKKEN_OVERHEID -> "Overheid: %s"
-            VervalredenEnum.INGETROKKEN_BELANGHEBBENDE -> "Belanghebbende: %s"
-            else -> {
-                LOG.info("Unknown vervalreden: '$vervalreden'. Returning 'null'.")
-                null
-            }
-        }
     }
 
     private fun ingelogdeMedewerkerToekennenAanZaak(

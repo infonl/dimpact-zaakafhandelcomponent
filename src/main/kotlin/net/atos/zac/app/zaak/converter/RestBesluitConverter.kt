@@ -49,7 +49,7 @@ class RestBesluitConverter @Inject constructor(
         )
     )
 
-    fun convertToRESTBesluit(besluiten: List<Besluit>): List<RESTBesluit> = besluiten.stream()
+    fun convertBesluitenToRESTBesluit(besluiten: List<Besluit>) = besluiten
         .map { convertToRESTBesluit(it) }
         .toList()
 
@@ -68,12 +68,14 @@ class RestBesluitConverter @Inject constructor(
         return besluit
     }
 
-    fun convertToBesluit(besluit: Besluit, besluitWijzigenGegevens: RESTBesluitWijzigenGegevens): Besluit {
-        besluit.toelichting = besluitWijzigenGegevens.toelichting
-        besluit.ingangsdatum = besluitWijzigenGegevens.ingangsdatum
-        besluit.vervaldatum = besluitWijzigenGegevens.vervaldatum
-        besluit.vervaldatum?.apply {
-            besluit.vervalreden = VervalredenEnum.TIJDELIJK
+    fun updateBesluitWithBesluitWijzigenGegevens(besluit: Besluit, besluitWijzigenGegevens: RESTBesluitWijzigenGegevens): Besluit {
+        besluit.apply {
+            toelichting = besluitWijzigenGegevens.toelichting
+            ingangsdatum = besluitWijzigenGegevens.ingangsdatum
+            vervaldatum = besluitWijzigenGegevens.vervaldatum
+            vervaldatum?.apply {
+                vervalreden = VervalredenEnum.TIJDELIJK
+            }
         }
         return besluit
     }
