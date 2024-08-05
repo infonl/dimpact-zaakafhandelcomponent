@@ -10,7 +10,7 @@ import jakarta.enterprise.inject.spi.CDI;
 import jakarta.inject.Inject;
 
 import net.atos.client.zgw.shared.ZGWApiService;
-import net.atos.client.zgw.zrc.ZrcClientService;
+import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.zac.event.EventingService;
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.zoeken.IndexeerService;
@@ -31,7 +31,7 @@ public class FlowableHelper {
     private ZGWApiService zgwApiService;
 
     @Inject
-    private ZrcClientService zrcClientService;
+    private ZRCClientService zrcClientService;
 
     @Inject
     private EventingService eventingService;
@@ -50,7 +50,7 @@ public class FlowableHelper {
         return zgwApiService;
     }
 
-    public ZrcClientService getZrcClientService() {
+    public ZRCClientService getZrcClientService() {
         return zrcClientService;
     }
 

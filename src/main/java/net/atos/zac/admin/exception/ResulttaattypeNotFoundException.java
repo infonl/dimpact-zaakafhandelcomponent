@@ -5,9 +5,7 @@
 
 package net.atos.zac.admin.exception;
 
-import jakarta.ws.rs.NotFoundException;
-
-public class ResulttaattypeNotFoundException extends NotFoundException {
+public class ResulttaattypeNotFoundException extends RuntimeException {
     public ResulttaattypeNotFoundException(final String message) {
         super(message);
     }

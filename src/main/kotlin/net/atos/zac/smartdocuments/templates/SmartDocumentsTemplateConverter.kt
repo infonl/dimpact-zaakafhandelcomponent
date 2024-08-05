@@ -5,8 +5,8 @@
 
 package net.atos.zac.smartdocuments.templates
 
-import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseTemplateGroup
-import net.atos.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
+import net.atos.client.smartdocuments.model.templates.SmartDocumentsResponseTemplateGroup
+import net.atos.client.smartdocuments.model.templates.SmartDocumentsTemplatesResponse
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplate
 import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup

@@ -7,28 +7,6 @@ package net.atos.zac.admin.model
 
 import java.util.UUID
 
-fun createHumanTaskParameters(
-    id: Long = 1234L,
-    zaakafhandelParameters: ZaakafhandelParameters = createZaakafhandelParameters(),
-    isActief: Boolean = true
-) = HumanTaskParameters().apply {
-    this.id = id
-    this.zaakafhandelParameters = zaakafhandelParameters
-    this.isActief = isActief
-}
-
-fun createHumanTaskReferentieTabel(
-    id: Long = 1234L,
-    referenceTable: ReferenceTable = createReferenceTable(),
-    humanTaskParameters: HumanTaskParameters = createHumanTaskParameters(),
-    field: String = "dummyField",
-) = HumanTaskReferentieTabel().apply {
-    this.id = id
-    this.tabel = referenceTable
-    this.humantask = humanTaskParameters
-    this.veld = field
-}
-
 fun createReferenceTable(
     id: Long = 1234L,
     code: String = "dummyCode",

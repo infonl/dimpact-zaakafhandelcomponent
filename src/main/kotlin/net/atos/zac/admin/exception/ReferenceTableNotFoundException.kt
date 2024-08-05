@@ -5,8 +5,6 @@
 
 package net.atos.zac.admin.exception
 
-import jakarta.ws.rs.NotFoundException
+import java.lang.RuntimeException
 
-class ReferenceTableNotFoundException(message: String) : NotFoundException(message) {
-    constructor(id: Long) : this("No reference table found with id '$id'")
-}
+class ReferenceTableNotFoundException(message: String) : RuntimeException(message)

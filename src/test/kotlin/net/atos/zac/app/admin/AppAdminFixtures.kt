@@ -30,7 +30,6 @@ fun createRestReferenceTable(
 )
 
 fun createRestReferenceTableUpdate(
-    code: String? = null,
     naam: String = "dummyUpdatedName",
     waarden: List<RestReferenceTableValue> = listOf(
         createRestReferenceTableValue(),
@@ -38,7 +37,6 @@ fun createRestReferenceTableUpdate(
     )
 ) = RestReferenceTableUpdate(
     naam = naam,
-    code = code,
     waarden = waarden
 )
 

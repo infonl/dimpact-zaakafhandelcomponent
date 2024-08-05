@@ -43,7 +43,7 @@ import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.util.URIUtil;
-import net.atos.client.zgw.zrc.ZrcClientService;
+import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakListParameters;
 import net.atos.zac.app.task.model.TaakSortering;
@@ -63,7 +63,7 @@ public class IndexeerService {
     private static final int TAKEN_MAX_RESULTS = 50;
 
     private final Instance<AbstractZoekObjectConverter<? extends ZoekObject>> converterInstances;
-    private final ZrcClientService zrcClientService;
+    private final ZRCClientService zrcClientService;
     private final DrcClientService drcClientService;
     private final FlowableTaskService flowableTaskService;
     private final SolrClient solrClient;
@@ -72,7 +72,7 @@ public class IndexeerService {
     @Inject
     IndexeerService(
             @Any Instance<AbstractZoekObjectConverter<? extends ZoekObject>> converterInstances,
-            ZrcClientService zrcClientService,
+            ZRCClientService zrcClientService,
             DrcClientService drcClientService,
             FlowableTaskService flowableTaskService
     ) {

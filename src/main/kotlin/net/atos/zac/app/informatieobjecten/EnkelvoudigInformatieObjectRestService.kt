@@ -31,7 +31,7 @@ import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.util.URIUtil
-import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.ztc.ZtcClientService
@@ -41,6 +41,8 @@ import net.atos.zac.app.audit.model.RESTHistorieRegel
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjecttypeConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTZaakInformatieobjectConverter
+import net.atos.zac.app.informatieobjecten.model.RESTDocumentCreatieGegevens
+import net.atos.zac.app.informatieobjecten.model.RESTDocumentCreatieResponse
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerplaatsGegevens
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerwijderenGegevens
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerzendGegevens
@@ -54,6 +56,8 @@ import net.atos.zac.app.zaak.converter.RESTGerelateerdeZaakConverter
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
+import net.atos.zac.documentcreatie.DocumentCreatieService
+import net.atos.zac.documentcreatie.model.DocumentCreatieGegevens
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
@@ -85,7 +89,7 @@ import java.util.UUID
 class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val drcClientService: DrcClientService,
     private val ztcClientService: ZtcClientService,
-    private val zrcClientService: ZrcClientService,
+    private val zrcClientService: ZRCClientService,
     private val zgwApiService: ZGWApiService,
     private val flowableTaskService: FlowableTaskService,
     private val taakVariabelenService: TaakVariabelenService,
@@ -94,10 +98,11 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val enkelvoudigInformatieObjectLockService: EnkelvoudigInformatieObjectLockService,
     private val eventingService: EventingService,
     private val zaakInformatieobjectConverter: RESTZaakInformatieobjectConverter,
-    private val restInformatieobjectConverter: RESTInformatieobjectConverter,
-    private val restInformatieobjecttypeConverter: RESTInformatieobjecttypeConverter,
-    private val restHistorieRegelConverter: RESTHistorieRegelConverter,
-    private val restGerelateerdeZaakConverter: RESTGerelateerdeZaakConverter,
+    private val informatieobjectConverter: RESTInformatieobjectConverter,
+    private val informatieObjecttypeConverter: RESTInformatieobjecttypeConverter,
+    private val historieRegelConverter: RESTHistorieRegelConverter,
+    private val gerelateerdeZaakConverter: RESTGerelateerdeZaakConverter,
+    private val documentCreatieService: DocumentCreatieService,
     private val loggedInUserInstance: Instance<LoggedInUser>,
     private val webdavHelper: WebdavHelper,
     private val policyService: PolicyService,
@@ -120,8 +125,8 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             .let(drcClientService::readEnkelvoudigInformatieobject)
             .let { enkelvoudigInformatieObject ->
                 zaakUUID?.let(zrcClientService::readZaak).let {
-                    restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, it)
-                } ?: restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject)
+                    informatieobjectConverter.convertToREST(enkelvoudigInformatieObject, it)
+                } ?: informatieobjectConverter.convertToREST(enkelvoudigInformatieObject)
             }
 
     @GET
@@ -134,10 +139,10 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             .let(drcClientService::readEnkelvoudigInformatieobject)
             .let { currentVersion ->
                 return when {
-                    version < currentVersion.versie -> restInformatieobjectConverter.convertToREST(
+                    version < currentVersion.versie -> informatieobjectConverter.convertToREST(
                         drcClientService.readEnkelvoudigInformatieobjectVersie(uuid, version)
                     )
-                    else -> restInformatieobjectConverter.convertToREST(currentVersion)
+                    else -> informatieobjectConverter.convertToREST(currentVersion)
                 }
             }
 
@@ -148,7 +153,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     ): List<RESTEnkelvoudigInformatieobject> {
         val zaak = zoekParameters.zaakUUID?.let { zrcClientService.readZaak(it) }
         zoekParameters.informatieobjectUUIDs?.let {
-            return restInformatieobjectConverter.convertUUIDsToREST(it, zaak)
+            return informatieobjectConverter.convertUUIDsToREST(it, zaak)
         } ?: run {
             checkNotNull(zaak) { "Zoekparameters hebben geen waarde" }
             assertPolicy(policyService.readZaakRechten(zaak).lezen)
@@ -178,7 +183,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             .map { it.informatieobject }
             .map(drcClientService::readEnkelvoudigInformatieobject)
             .filter(::isVerzendenToegestaan)
-            .map { restInformatieobjectConverter.convertToREST(it, zaak) }
+            .map { informatieobjectConverter.convertToREST(it, zaak) }
             .toList()
     }
 
@@ -216,8 +221,8 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
         val enkelvoudigInformatieObjectCreateLockRequest = restEnkelvoudigInformatieobject.run(
             when {
-                isTaakObject -> restInformatieobjectConverter::convertTaakObject
-                else -> restInformatieobjectConverter::convertZaakObject
+                isTaakObject -> informatieobjectConverter::convertTaakObject
+                else -> informatieobjectConverter::convertZaakObject
             }
         )
         val zaakInformatieobject = zgwApiService.createZaakInformatieobjectForZaak(
@@ -231,7 +236,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         if (isTaakObject) {
             addZaakInformatieobjectToTaak(zaakInformatieobject, documentReferenceId)
         }
-        return restInformatieobjectConverter.convertToREST(zaakInformatieobject)
+        return informatieobjectConverter.convertToREST(zaakInformatieobject)
     }
 
     private fun addZaakInformatieobjectToTaak(
@@ -288,7 +293,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @Path("informatieobjecttypes/{zaakTypeUuid}")
     fun listInformatieobjecttypes(@PathParam("zaakTypeUuid") zaakTypeID: UUID): List<RESTInformatieobjecttype> =
         ztcClientService.readZaaktype(zaakTypeID).let {
-            restInformatieobjecttypeConverter.convertFromUris(it.informatieobjecttypen)
+            informatieObjecttypeConverter.convertFromUris(it.informatieobjecttypen)
         }
 
     @GET
@@ -299,7 +304,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             .map { ztcClientService.readInformatieobjecttype(it) }
             .filter { isNuGeldig(it) }
             .toList()
-            .let(restInformatieobjecttypeConverter::convert)
+            .let(informatieObjecttypeConverter::convert)
 
     @GET
     @Path("zaakinformatieobject/{uuid}/informatieobject")
@@ -308,7 +313,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     ): RESTEnkelvoudigInformatieobject =
         zrcClientService.readZaakinformatieobject(uuid).informatieobject
             .let(drcClientService::readEnkelvoudigInformatieobject)
-            .let(restInformatieobjectConverter::convertToREST)
+            .let(informatieobjectConverter::convertToREST)
 
     @GET
     @Path("informatieobject/{uuid}/zaakinformatieobjecten")
@@ -435,7 +440,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         uuid
     ).let {
         assertPolicy(policyService.readDocumentRechten(it).lezen)
-        return restInformatieobjectConverter.convertToRESTEnkelvoudigInformatieObjectVersieGegevens(it)
+        return informatieobjectConverter.convertToRESTEnkelvoudigInformatieObjectVersieGegevens(it)
     }
 
     @POST
@@ -453,7 +458,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 zrcClientService.readZaak(enkelvoudigInformatieObjectVersieGegevens.zaakUuid)
             ).toevoegenNieuweVersie
         )
-        val updatedDocument = restInformatieobjectConverter.convert(enkelvoudigInformatieObjectVersieGegevens)
+        val updatedDocument = informatieobjectConverter.convert(enkelvoudigInformatieObjectVersieGegevens)
         return updateEnkelvoudigInformatieobject(enkelvoudigInformatieObjectVersieGegevens, document, updatedDocument)
     }
 
@@ -467,7 +472,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             enkelvoudigInformatieObjectWithLockRequest,
             enkelvoudigInformatieObjectVersieGegevens.toelichting
         )
-            .let(restInformatieobjectConverter::convertToREST)
+            .let(informatieobjectConverter::convertToREST)
 
     @POST
     @Path("/informatieobject/{uuid}/lock")
@@ -509,7 +514,36 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             )
         }
         .let(drcClientService::listAuditTrail)
-        .let(restHistorieRegelConverter::convert)
+        .let(historieRegelConverter::convert)
+
+    @POST
+    @Path("/documentcreatie")
+    fun createDocument(restDocumentCreatieGegevens: RESTDocumentCreatieGegevens): RESTDocumentCreatieResponse {
+        val zaak = zrcClientService.readZaak(restDocumentCreatieGegevens.zaakUUID)
+        assertPolicy(policyService.readZaakRechten(zaak).creeerenDocument)
+
+        // documents created by SmartDocuments are always of the type 'bijlage'
+        // the zaaktype of the current zaak needs to be configured to be able to use this informatieObjectType
+        val informatieObjectType = ztcClientService.readInformatieobjecttypen(zaak.zaaktype)
+            .stream()
+            .filter { ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE == it.omschrijving }
+            .findAny()
+            .orElseThrow {
+                RuntimeException(
+                    "No informatieobjecttype with omschrijving " +
+                        "'${ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE}' found for " +
+                        "zaaktype '${zaak.zaaktype}'"
+                )
+            }
+
+        return DocumentCreatieGegevens(
+            zaak,
+            restDocumentCreatieGegevens.taskId,
+            informatieObjectType
+        )
+            .let(documentCreatieService::creeerDocumentAttendedSD)
+            .let { RESTDocumentCreatieResponse(it.redirectUrl, it.message) }
+    }
 
     @GET
     @Path("informatieobject/{informatieObjectUuid}/zaakidentificaties")
@@ -592,7 +626,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     private fun listEnkelvoudigInformatieobjectenVoorZaak(zaak: Zaak): MutableList<RESTEnkelvoudigInformatieobject> =
         zaak.let(zrcClientService::listZaakinformatieobjecten)
-            .map(restInformatieobjectConverter::convertToREST)
+            .map(informatieobjectConverter::convertToREST)
             .toMutableList()
 
     private fun listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(
@@ -602,7 +636,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         zaakURI.let(zrcClientService::readZaak)
             .let { zaak ->
                 zrcClientService.listZaakinformatieobjecten(zaak)
-                    .map { restInformatieobjectConverter.convertToREST(it, relatieType, zaak) }
+                    .map { informatieobjectConverter.convertToREST(it, relatieType, zaak) }
                     .toList()
             }
 
@@ -620,7 +654,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 addAll(
                     listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(
                         it.url,
-                        restGerelateerdeZaakConverter.convertToRelatieType(it.aardRelatie)
+                        gerelateerdeZaakConverter.convertToRelatieType(it.aardRelatie)
                     )
                 )
             }

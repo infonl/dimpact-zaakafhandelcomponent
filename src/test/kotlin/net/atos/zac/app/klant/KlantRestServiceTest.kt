@@ -6,12 +6,12 @@ import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.brp.BRPClientService
 import net.atos.client.klant.KlantClientService
-import net.atos.client.klant.createKlant
-import net.atos.client.klant.model.Klant
+import net.atos.client.klant.createDigitalAddresses
 import net.atos.client.kvk.KvkClientService
 import net.atos.client.kvk.zoeken.model.createAdresWithBinnenlandsAdres
 import net.atos.client.kvk.zoeken.model.createResultaatItem
 import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.zac.app.klant.converter.KlantcontactConverter
 import net.atos.zac.app.klant.converter.RestPersoonConverter
 import net.atos.zac.app.klant.converter.RestVestigingsprofielConverter
 import java.util.Optional
@@ -26,13 +26,15 @@ class KlantRestServiceTest : BehaviorSpec({
     val restPersoonConverter = mockk<RestPersoonConverter>()
     val restVestigingsprofielConverter = mockk<RestVestigingsprofielConverter>()
     val klantClientService = mockk<KlantClientService>()
+    val klantcontactConverter = KlantcontactConverter()
     val klantRestService = KlantRestService(
         brpClientService,
         kvkClientService,
         ztcClientService,
         restPersoonConverter,
         restVestigingsprofielConverter,
-        klantClientService
+        klantClientService,
+        klantcontactConverter
     )
 
     Given(
@@ -47,15 +49,13 @@ class KlantRestServiceTest : BehaviorSpec({
             type = "nevenvestiging",
             vestingsnummer = vestigingsnummer
         )
-        val klant = createKlant(
-            subjectType = Klant.SubjectTypeEnum.VESTIGING
-        )
+        val digitalAddressesList = createDigitalAddresses("+123-456-789", "email@server.xyz")
         every {
             kvkClientService.findVestigingAsync(vestigingsnummer)
         } returns CompletableFuture.completedFuture(Optional.of(kvkResultaatItem))
         every {
-            klantClientService.findVestigingAsync(vestigingsnummer)
-        } returns CompletableFuture.completedFuture(Optional.of(klant))
+            klantClientService.findDigitalAddressesByNumber(vestigingsnummer)
+        } returns digitalAddressesList
 
         When("a request is made to get all klanten") {
             val restBedrijf = klantRestService.readVestiging(vestigingsnummer)
@@ -65,13 +65,13 @@ class KlantRestServiceTest : BehaviorSpec({
                     this.adres shouldBe with(adres.binnenlandsAdres) {
                         "$straatnaam$NON_BREAKING_SPACE$huisnummer$NON_BREAKING_SPACE$huisletter, $postcode, $plaats"
                     }
-                    emailadres shouldBe klant.emailadres
+                    emailadres shouldBe "email@server.xyz"
                     naam shouldBe kvkResultaatItem.naam
                     kvkNummer shouldBe kvkResultaatItem.kvkNummer
                     postcode shouldBe kvkResultaatItem.adres.binnenlandsAdres.postcode
                     rsin shouldBe kvkResultaatItem.rsin
                     type shouldBe "NEVENVESTIGING"
-                    telefoonnummer shouldBe klant.telefoonnummer
+                    telefoonnummer shouldBe "+123-456-789"
                     this.vestigingsnummer shouldBe vestigingsnummer
                 }
             }

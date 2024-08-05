@@ -11,6 +11,7 @@ import static net.atos.zac.util.StringUtil.ONBEKEND;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -32,7 +33,9 @@ import net.atos.client.brp.model.generated.PersonenQuery;
 import net.atos.client.brp.model.generated.PersonenQueryResponse;
 import net.atos.client.brp.model.generated.Persoon;
 import net.atos.client.klant.KlantClientService;
-import net.atos.client.klant.model.Klant;
+import net.atos.client.klant.model.DigitaalAdres;
+import net.atos.client.klant.model.ExpandBetrokkene;
+import net.atos.client.klant.model.ExpandBetrokkeneAllOfExpand;
 import net.atos.client.kvk.KvkClientService;
 import net.atos.client.kvk.model.KvkZoekenParameters;
 import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging;
@@ -41,6 +44,7 @@ import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 import net.atos.client.zgw.ztc.model.generated.RolType;
+import net.atos.zac.app.klant.converter.KlantcontactConverter;
 import net.atos.zac.app.klant.converter.RestBedrijfConverter;
 import net.atos.zac.app.klant.converter.RestPersoonConverter;
 import net.atos.zac.app.klant.converter.RestRoltypeConverter;
@@ -48,6 +52,8 @@ import net.atos.zac.app.klant.converter.RestVestigingsprofielConverter;
 import net.atos.zac.app.klant.model.bedrijven.RestBedrijf;
 import net.atos.zac.app.klant.model.bedrijven.RestListBedrijvenParameters;
 import net.atos.zac.app.klant.model.bedrijven.RestVestigingsprofiel;
+import net.atos.zac.app.klant.model.contactmoment.RESTContactmoment;
+import net.atos.zac.app.klant.model.contactmoment.RESTListContactmomentenParameters;
 import net.atos.zac.app.klant.model.klant.IdentificatieType;
 import net.atos.zac.app.klant.model.klant.RestContactGegevens;
 import net.atos.zac.app.klant.model.klant.RestKlant;
@@ -56,6 +62,7 @@ import net.atos.zac.app.klant.model.personen.RestListPersonenParameters;
 import net.atos.zac.app.klant.model.personen.RestPersonenParameters;
 import net.atos.zac.app.klant.model.personen.RestPersoon;
 import net.atos.zac.app.shared.RESTResultaat;
+
 
 @Path("klanten")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -69,6 +76,8 @@ public class KlantRestService {
         betrokkenen.remove(OmschrijvingGeneriekEnum.INITIATOR);
         betrokkenen.remove(OmschrijvingGeneriekEnum.BEHANDELAAR);
     }
+    public static final String TELEFOON_SOORT_DIGITAAL_ADRES = "telefoon";
+    public static final String EMAIL_SOORT_DIGITAAL_ADRES = "email";
 
     private BRPClientService brpClientService;
     private KvkClientService kvkClientService;
@@ -76,6 +85,7 @@ public class KlantRestService {
     private RestPersoonConverter restPersoonConverter;
     private RestVestigingsprofielConverter restVestigingsprofielConverter;
     private KlantClientService klantClientService;
+    private KlantcontactConverter klantcontactConverter;
 
     /**
      * Default no-arg constructor, required by Weld.
@@ -90,7 +100,8 @@ public class KlantRestService {
             ZtcClientService ztcClientService,
             RestPersoonConverter restPersoonConverter,
             RestVestigingsprofielConverter restVestigingsprofielConverter,
-            KlantClientService klantClientService
+            KlantClientService klantClientService,
+            KlantcontactConverter klantcontactConverter
     ) {
         this.brpClientService = brpClientService;
         this.kvkClientService = kvkClientService;
@@ -98,31 +109,27 @@ public class KlantRestService {
         this.restPersoonConverter = restPersoonConverter;
         this.restVestigingsprofielConverter = restVestigingsprofielConverter;
         this.klantClientService = klantClientService;
+        this.klantcontactConverter = klantcontactConverter;
     }
 
     @GET
     @Path("persoon/{bsn}")
     public RestPersoon readPersoon(@PathParam("bsn") final String bsn) throws ExecutionException, InterruptedException {
-        return brpClientService.findPersoonAsync(bsn)
-                .thenCombine(klantClientService.findPersoonAsync(bsn), this::convertToRESTPersoon)
-                .toCompletableFuture()
-                .get();
+        return convertToRestPersoon(
+                brpClientService.findPersoonAsync(bsn).toCompletableFuture().get(),
+                convertToRestPersoon(klantClientService.findDigitalAddressesByNumber(bsn))
+        );
     }
 
     @GET
     @Path("vestiging/{vestigingsnummer}")
     public RestBedrijf readVestiging(
             @PathParam("vestigingsnummer") final String vestigingsnummer
-    )
-      throws ExecutionException,
-      InterruptedException {
-        return kvkClientService.findVestigingAsync(vestigingsnummer)
-                .thenCombine(
-                        klantClientService.findVestigingAsync(vestigingsnummer),
-                        this::convertToRESTBedrijf
-                )
-                .toCompletableFuture()
-                .get();
+    ) throws ExecutionException, InterruptedException {
+        return convertToRestBedrijf(
+                kvkClientService.findVestigingAsync(vestigingsnummer).toCompletableFuture().get(),
+                convertToRestPersoon(klantClientService.findDigitalAddressesByNumber(vestigingsnummer))
+        );
     }
 
     @GET
@@ -202,45 +209,67 @@ public class KlantRestService {
             return restContactGegevens;
         }
 
-        final Optional<Klant> klantOptional;
-        switch (identificatieType) {
-            case VN -> klantOptional = klantClientService.findVestiging(initiatorIdentificatie);
-            case BSN -> klantOptional = klantClientService.findPersoon(initiatorIdentificatie);
-            default -> klantOptional = Optional.empty();
-        }
-
-        klantOptional.ifPresent(klant -> {
-            restContactGegevens.telefoonnummer = klant.getTelefoonnummer();
-            restContactGegevens.emailadres = klant.getEmailadres();
-        });
+        var klantPersoon = convertToRestPersoon(
+                klantClientService.findDigitalAddressesByNumber(initiatorIdentificatie)
+        );
+        restContactGegevens.telefoonnummer = klantPersoon.telefoonnummer;
+        restContactGegevens.emailadres = klantPersoon.emailadres;
 
         return restContactGegevens;
     }
 
-    private RestKlant addKlantData(final RestKlant restKlant, final Optional<Klant> klantOptional) {
-        klantOptional.ifPresent(klant -> {
-            restKlant.telefoonnummer = klant.getTelefoonnummer();
-            restKlant.emailadres = klant.getEmailadres();
-        });
+    private RestKlant addKlantData(final RestKlant restKlant, final RestPersoon klantPerson) {
+        restKlant.telefoonnummer = klantPerson.telefoonnummer;
+        restKlant.emailadres = klantPerson.emailadres;
         return restKlant;
     }
 
-    private RestBedrijf convertToRESTBedrijf(final Optional<ResultaatItem> vestiging, final Optional<Klant> klant) {
+    private RestBedrijf convertToRestBedrijf(final Optional<ResultaatItem> vestiging, final RestPersoon klantPerson) {
         return vestiging
                 .map(RestBedrijfConverter::convert)
-                .map(restBedrijf -> (RestBedrijf) addKlantData(restBedrijf, klant))
+                .map(restBedrijf -> (RestBedrijf) addKlantData(restBedrijf, klantPerson))
                 .orElseGet(RestBedrijf::new);
     }
 
 
-    private RestPersoon convertToRESTPersoon(final Optional<Persoon> persoon, final Optional<Klant> klant) {
+    private RestPersoon convertToRestPersoon(final Optional<Persoon> persoon, RestPersoon klantPersoon) {
         return persoon
                 .map(restPersoonConverter::convertPersoon)
-                .map(restPersoon -> (RestPersoon) addKlantData(restPersoon, klant))
+                .map(restPersoon -> (RestPersoon) addKlantData(restPersoon, klantPersoon))
                 .orElse(ONBEKEND_PERSOON);
+    }
+
+    private RestPersoon convertToRestPersoon(List<DigitaalAdres> digitalAddresses) {
+        RestPersoon restPersoon = new RestPersoon();
+        for (DigitaalAdres digitalAdress : digitalAddresses) {
+            switch (digitalAdress.getSoortDigitaalAdres()) {
+                case TELEFOON_SOORT_DIGITAAL_ADRES -> restPersoon.telefoonnummer = digitalAdress.getAdres();
+                case EMAIL_SOORT_DIGITAAL_ADRES -> restPersoon.emailadres = digitalAdress.getAdres();
+            }
+        }
+        return restPersoon;
     }
 
     private static boolean isKoppelbaar(final ResultaatItem item) {
         return item.getVestigingsnummer() != null || item.getRsin() != null;
+    }
+
+    @PUT
+    @Path("contactmomenten")
+    public RESTResultaat<RESTContactmoment> listContactmomenten(final RESTListContactmomentenParameters parameters) {
+        var nummer = parameters.bsn != null ? parameters.bsn : parameters.vestigingsnummer;
+
+        var betrokkenenWithKlantcontactList = klantClientService.listBetrokkenenByNumber(nummer, parameters.page);
+
+        var contactToFullNameMap = klantcontactConverter.mapContactToInitiatorFullName(betrokkenenWithKlantcontactList);
+
+        var klantcontactListPage = betrokkenenWithKlantcontactList.stream()
+                .map(ExpandBetrokkene::getExpand)
+                .filter(Objects::nonNull)
+                .map(ExpandBetrokkeneAllOfExpand::getHadKlantcontact)
+                .map(klantcontact -> klantcontactConverter.convert(klantcontact, contactToFullNameMap))
+                .toList();
+
+        return new RESTResultaat<>(klantcontactListPage, klantcontactListPage.size());
     }
 }

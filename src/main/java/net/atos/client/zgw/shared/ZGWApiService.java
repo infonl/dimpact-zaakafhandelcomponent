@@ -27,7 +27,7 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest;
 import net.atos.client.zgw.drc.model.generated.Gebruiksrechten;
 import net.atos.client.zgw.shared.util.URIUtil;
-import net.atos.client.zgw.zrc.ZrcClientService;
+import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.BetrokkeneType;
 import net.atos.client.zgw.zrc.model.Rol;
 import net.atos.client.zgw.zrc.model.RolListParameters;
@@ -57,7 +57,7 @@ public class ZGWApiService {
     public static final int FIRST_PAGE_NUMBER_ZGW_APIS = 1;
 
     private ZtcClientService ztcClientService;
-    private ZrcClientService zrcClientService;
+    private ZRCClientService zrcClientService;
     private DrcClientService drcClientService;
 
     /**
@@ -69,7 +69,7 @@ public class ZGWApiService {
     @Inject
     public ZGWApiService(
             final ZtcClientService ztcClientService,
-            final ZrcClientService zrcClientService,
+            final ZRCClientService zrcClientService,
             final DrcClientService drcClientService
     ) {
         this.ztcClientService = ztcClientService;

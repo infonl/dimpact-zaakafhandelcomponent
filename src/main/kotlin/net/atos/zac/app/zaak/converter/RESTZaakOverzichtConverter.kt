@@ -6,7 +6,7 @@ package net.atos.zac.app.zaak.converter
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.identity.converter.RESTGroupConverter
@@ -42,7 +42,7 @@ class RESTZaakOverzichtConverter {
     private lateinit var policyService: PolicyService
 
     @Inject
-    private lateinit var zrcClientService: ZrcClientService
+    private lateinit var zrcClientService: ZRCClientService
 
     fun convert(zaak: Zaak, user: LoggedInUser? = null): RESTZaakOverzicht {
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)

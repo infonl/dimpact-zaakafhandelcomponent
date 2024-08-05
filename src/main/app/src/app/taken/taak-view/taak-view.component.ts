@@ -28,7 +28,7 @@ import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren
 import { IdentityService } from "../../identity/identity.service";
 import { User } from "../../identity/model/user";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { DocumentCreationData } from "../../informatie-objecten/model/document-creation-data";
+import { DocumentCreatieGegevens } from "../../informatie-objecten/model/document-creatie-gegevens";
 import { EnkelvoudigInformatieobject } from "../../informatie-objecten/model/enkelvoudig-informatieobject";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
 import { TextIcon } from "../../shared/edit/text-icon";
@@ -250,7 +250,7 @@ export class TaakViewComponent
         new ButtonMenuItem(
           "actie.document.maken",
           () => {
-            this.createDocumentAttended();
+            this.maakDocument();
           },
           "note_add",
         ),
@@ -268,12 +268,12 @@ export class TaakViewComponent
     }
   }
 
-  private createDocumentAttended(): void {
-    const documentCreationData = new DocumentCreationData();
-    documentCreationData.zaakUUID = this.taak.zaakUuid;
-    documentCreationData.taskId = this.taak.id;
+  private maakDocument(): void {
+    const documentCreatieGegeven = new DocumentCreatieGegevens();
+    documentCreatieGegeven.zaakUUID = this.taak.zaakUuid;
+    documentCreatieGegeven.taskId = this.taak.id;
     this.informatieObjectenService
-      .createDocumentAttended(documentCreationData)
+      .createDocument(documentCreatieGegeven)
       .subscribe((documentCreatieResponse) => {
         if (documentCreatieResponse.redirectURL) {
           window.open(documentCreatieResponse.redirectURL);

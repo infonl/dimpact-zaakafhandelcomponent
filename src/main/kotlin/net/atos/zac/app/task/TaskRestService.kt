@@ -28,7 +28,7 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.SoortEnum
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.util.URIUtil
-import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
@@ -97,7 +97,7 @@ class TaskRestService @Inject constructor(
     private val httpSession: Instance<HttpSession>,
     private val restInformatieobjectConverter: RESTInformatieobjectConverter,
     private val zgwApiService: ZGWApiService,
-    private val zrcClientService: ZrcClientService,
+    private val zrcClientService: ZRCClientService,
     private val drcClientService: DrcClientService,
     private val signaleringService: SignaleringService,
     private val taakHistorieConverter: RestTaskHistoryConverter,

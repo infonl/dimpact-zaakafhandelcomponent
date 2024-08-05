@@ -34,7 +34,7 @@ import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { LoggedInUser } from "../../identity/model/logged-in-user";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { DocumentCreationData } from "../../informatie-objecten/model/document-creation-data";
+import { DocumentCreatieGegevens } from "../../informatie-objecten/model/document-creatie-gegevens";
 import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { KlantenService } from "../../klanten/klanten.service";
 import { Klant } from "../../klanten/model/klanten/klant";
@@ -724,10 +724,10 @@ export class ZaakViewComponent
   }
 
   private maakDocument(): void {
-    const documentCreatieGegeven = new DocumentCreationData();
+    const documentCreatieGegeven = new DocumentCreatieGegevens();
     documentCreatieGegeven.zaakUUID = this.zaak.uuid;
     this.informatieObjectenService
-      .createDocumentAttended(documentCreatieGegeven)
+      .createDocument(documentCreatieGegeven)
       .subscribe((documentCreatieResponse) => {
         if (documentCreatieResponse.redirectURL) {
           window.open(documentCreatieResponse.redirectURL);

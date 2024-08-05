@@ -12,7 +12,7 @@ import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.ORObject
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.NatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
@@ -62,7 +62,7 @@ import java.util.logging.Logger
 class ProductaanvraagService @Inject constructor(
     private val objectsClientService: ObjectsClientService,
     private val zgwApiService: ZGWApiService,
-    private val zrcClientService: ZrcClientService,
+    private val zrcClientService: ZRCClientService,
     private val drcClientService: DrcClientService,
     private val ztcClientService: ZtcClientService,
     private val identityService: IdentityService,

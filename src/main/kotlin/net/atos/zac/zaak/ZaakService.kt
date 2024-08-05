@@ -7,7 +7,7 @@ package net.atos.zac.zaak
 import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.NatuurlijkPersoon
@@ -35,7 +35,7 @@ private val LOG = Logger.getLogger(ZaakService::class.java.name)
 
 @AllOpen
 class ZaakService @Inject constructor(
-    private val zrcClientService: ZrcClientService,
+    private val zrcClientService: ZRCClientService,
     private val ztcClientService: ZtcClientService,
     private var eventingService: EventingService,
 ) {

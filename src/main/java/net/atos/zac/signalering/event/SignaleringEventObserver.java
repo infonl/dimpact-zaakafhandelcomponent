@@ -18,7 +18,7 @@ import jakarta.inject.Named;
 
 import org.flowable.task.api.TaskInfo;
 
-import net.atos.client.zgw.zrc.ZrcClientService;
+import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.BetrokkeneType;
 import net.atos.client.zgw.zrc.model.Rol;
 import net.atos.client.zgw.zrc.model.RolListParameters;
@@ -48,7 +48,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
     private static final Logger LOG = Logger.getLogger(SignaleringEventObserver.class.getName());
 
     private ZtcClientService ztcClientService;
-    private ZrcClientService zrcClientService;
+    private ZRCClientService zrcClientService;
     private FlowableTaskService flowableTaskService;
     private IdentityService identityService;
     private SignaleringService signaleringService;
@@ -62,7 +62,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
     @Inject
     public SignaleringEventObserver(
             final ZtcClientService ztcClientService,
-            final ZrcClientService zrcClientService,
+            final ZRCClientService zrcClientService,
             final FlowableTaskService flowableTaskService,
             final IdentityService identityService,
             final SignaleringService signaleringService

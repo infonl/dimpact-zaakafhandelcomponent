@@ -45,7 +45,7 @@ import org.flowable.cmmn.model.UserEventListener;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 
 import net.atos.client.or.object.ObjectsClientService;
-import net.atos.client.zgw.zrc.ZrcClientService;
+import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.admin.model.ZaakafhandelParameters;
@@ -70,7 +70,7 @@ public class CMMNService {
     private Instance<LoggedInUser> loggedInUserInstance;
 
     @Inject
-    private ZrcClientService zrcClientService;
+    private ZRCClientService zrcClientService;
 
     @Inject
     private ObjectsClientService objectsClientService;

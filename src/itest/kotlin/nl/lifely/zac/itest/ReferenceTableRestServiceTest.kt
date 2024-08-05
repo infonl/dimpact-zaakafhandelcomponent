@@ -237,41 +237,5 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 }
             }
         }
-        When("a new reference table is added") {
-            val referenceTableCode = "dummyReferenceTableCode1"
-            val referenceTableName = "dummyReferenceTableName1"
-            val response = itestHttpClient.performJSONPostRequest(
-                url = "$ZAC_API_URI/referentietabellen",
-                requestBodyAsString = """
-                    {       
-                    "code": "$referenceTableCode",
-                    "naam": "$referenceTableName",
-                    "waarden":[{"naam":"dummyReferenceTableValue1"}, {"naam":"dummyReferenceTableValue2"}]
-                    }
-                """.trimIndent()
-            )
-            Then("the response should be 'ok' and should return the created reference table with code in uppercase") {
-                val responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
-                with(JSONObject(responseBody).toString()) {
-                    shouldEqualJsonIgnoringExtraneousFields(
-                        """
-                        {
-                            "code": "${referenceTableCode.uppercase()}",
-                            "naam": "$referenceTableName",
-                            "systeem": false,
-                            "aantalWaarden": 2,
-                            "waarden": [
-                                {"naam": "dummyReferenceTableValue1", "systemValue": false},
-                                {"naam": "dummyReferenceTableValue2", "systemValue": false}
-                            ]
-                        }
-                        """.trimIndent()
-                    )
-                    shouldContainJsonKey("id")
-                }
-            }
-        }
     }
 })

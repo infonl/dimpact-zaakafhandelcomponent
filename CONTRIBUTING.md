@@ -8,12 +8,6 @@ Please reach out to [us](https://github.com/infonl/dimpact-zaakafhandelcomponent
 
 Please follow our [Code of Conduct](./CODE_OF_CONDUCT.md) when contributing.
 
-## Coding conventions
-
-We use the following code and API conventions:
-- [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html)
-- [REST API URI Naming Conventions and Best Practices](https://restfulapi.net/resource-naming/)
-
 ## License
 
 The license information for this project can be found in [LICENSE.md](LICENSE.md).

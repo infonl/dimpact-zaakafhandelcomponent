@@ -11,8 +11,8 @@ import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { HistorieRegel } from "../shared/historie/model/historie-regel";
 import { createFormData } from "../shared/utils/form-data";
-import { DocumentCreationData } from "./model/document-creation-data";
-import { DocumentCreationResponse } from "./model/document-creation-response";
+import { DocumentCreatieGegevens } from "./model/document-creatie-gegevens";
+import { DocumentCreatieResponse } from "./model/document-creatie-response";
 import { DocumentVerplaatsGegevens } from "./model/document-verplaats-gegevens";
 import { DocumentVerwijderenGegevens } from "./model/document-verwijderen-gegevens";
 import { DocumentVerzendGegevens } from "./model/document-verzend-gegevens";
@@ -127,13 +127,13 @@ export class InformatieObjectenService {
       );
   }
 
-  createDocumentAttended(
-    documentCreationData: DocumentCreationData,
-  ): Observable<DocumentCreationResponse> {
+  createDocument(
+    documentCreatieGegevens: DocumentCreatieGegevens,
+  ): Observable<DocumentCreatieResponse> {
     return this.http
-      .post<DocumentCreationResponse>(
-        `rest/documentcreation/createdocumentattended`,
-        documentCreationData,
+      .post<DocumentCreatieResponse>(
+        `${this.basepath}/documentcreatie`,
+        documentCreatieGegevens,
       )
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
@@ -243,7 +243,7 @@ export class InformatieObjectenService {
 
   verzenden(gegevens: DocumentVerzendGegevens): Observable<void> {
     return this.http
-      .post<DocumentCreationResponse>(
+      .post<DocumentCreatieResponse>(
         `${this.basepath}/informatieobjecten/verzenden`,
         gegevens,
       )

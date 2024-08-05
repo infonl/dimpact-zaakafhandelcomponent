@@ -28,7 +28,7 @@ import jakarta.ws.rs.core.MediaType;
 import net.atos.client.bag.BagClientService;
 import net.atos.client.bag.model.BevraagAdressenParameters;
 import net.atos.client.zgw.shared.model.Results;
-import net.atos.client.zgw.zrc.ZrcClientService;
+import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Objecttype;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
@@ -53,7 +53,7 @@ import net.atos.zac.policy.PolicyService;
 @Singleton
 public class BAGRESTService {
     private BagClientService bagClientService;
-    private ZrcClientService zrcClientService;
+    private ZRCClientService zrcClientService;
     private RESTBAGConverter restbagConverter;
     private RESTAdresConverter restAdresConverter;
     private RESTNummeraanduidingConverter restNummeraanduidingConverter;
@@ -71,7 +71,7 @@ public class BAGRESTService {
     @Inject
     public BAGRESTService(
             BagClientService bagClientService,
-            ZrcClientService zrcClientService,
+            ZRCClientService zrcClientService,
             RESTBAGConverter restbagConverter,
             RESTAdresConverter restAdresConverter,
             RESTNummeraanduidingConverter restNummeraanduidingConverter,

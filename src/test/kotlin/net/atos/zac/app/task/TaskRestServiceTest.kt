@@ -9,7 +9,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
-import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -17,12 +16,11 @@ import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
-import kotlinx.coroutines.test.runTest
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRequest
 import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.zac.app.identity.model.createRESTUser
@@ -75,7 +73,7 @@ class TaskRestServiceTest : BehaviorSpec({
     val taakVariabelenService = mockk<TaakVariabelenService>()
     val restTaskConverter = mockk<RestTaskConverter>()
     val flowableTaskService = mockk<FlowableTaskService>()
-    val zrcClientService = mockk<ZrcClientService>()
+    val zrcClientService = mockk<ZRCClientService>()
     val opschortenZaakHelper = mockk<OpschortenZaakHelper>()
     val restInformatieobjectConverter = mockk<RESTInformatieobjectConverter>()
     val signaleringService = mockk<SignaleringService>()
@@ -103,10 +101,6 @@ class TaskRestServiceTest : BehaviorSpec({
         taskService = taskService
     )
     val loggedInUser = createLoggedInUser()
-
-    beforeEach {
-        checkUnnecessaryStub()
-    }
 
     Given("a task is not yet assigned") {
         val restTaakToekennenGegevens = createRestTaskAssignData()
@@ -336,10 +330,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 policyService.readWerklijstRechten()
             } returns createWerklijstRechtenAllDeny(zakenTakenVerdelen = true)
 
-            runTest {
-                taskRestService.distributeFromList(restTaakVerdelenGegevens)
-                testScheduler.advanceUntilIdle()
-            }
+            taskRestService.distributeFromList(restTaakVerdelenGegevens)
 
             Then("the tasks are assigned to the group and user") {
                 verify(exactly = 1) {
@@ -375,10 +366,7 @@ class TaskRestServiceTest : BehaviorSpec({
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("the 'verdelen vanuit lijst' function is called") {
-            runTest {
-                taskRestService.releaseFromList(restTaakVrijgevenGegevens)
-                testScheduler.advanceUntilIdle()
-            }
+            taskRestService.releaseFromList(restTaakVrijgevenGegevens)
 
             Then("the tasks are assigned to the group and user") {
                 verify(exactly = 1) {

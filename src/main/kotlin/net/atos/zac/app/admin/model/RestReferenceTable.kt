@@ -31,8 +31,7 @@ class RestReferenceTable(
 
 fun RestReferenceTable.toReferenceTable(): ReferenceTable {
     return ReferenceTable().apply {
-        // the data model only supports uppercase codes so convert it here to be sure
-        code = this@toReferenceTable.code.uppercase()
+        code = this@toReferenceTable.code
         name = this@toReferenceTable.naam
         values = this@toReferenceTable.waarden
             .map { referenceTableValue -> referenceTableValue.toReferenceTableValue(this) }

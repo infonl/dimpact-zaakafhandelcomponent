@@ -12,10 +12,6 @@ It is developed for Dimpact and used by Dutch municipalities.
 ZAC was initially [developed by Atos](https://github.com/NL-AMS-LOCGOV/zaakafhandelcomponent).
 Starting July 2023 the development of ZAC was taken over by Lifely and INFO, where INFO is a partner of Lifely.
 
-## Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
-
 ## Developer documentation
 
 Please see [development](docs/development/README.md).

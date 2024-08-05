@@ -21,23 +21,17 @@ import nl.lifely.zac.util.NoArgConstructor
 class ReferenceTableService @Inject constructor(
     val entityManager: EntityManager
 ) {
-    /**
-     * Finds a reference table by its code, where code is treated as uppercase only.
-     *
-     * @return the reference table or null if none could be found
-     */
-    @Suppress("NestedBlockDepth")
-    fun findReferenceTable(code: String): ReferenceTable? =
-        entityManager.criteriaBuilder.let { criteriaBuilder ->
+    fun findReferenceTable(code: String): ReferenceTable? {
+        val resultList = entityManager.criteriaBuilder.let { criteriaBuilder ->
             criteriaBuilder.createQuery(ReferenceTable::class.java).let { query ->
-                query.from(ReferenceTable::class.java).let { root ->
-                    criteriaBuilder.equal(root.get<Any>("code"), code.uppercase()).let { predicate ->
-                        query.select(root).where(predicate)
-                    }
+                query.from(ReferenceTable::class.java).let {
+                    query.select(it).where(criteriaBuilder.equal(it.get<Any>("code"), code))
                 }
                 entityManager.createQuery(query).resultList
             }
-        }.firstOrNull()
+        }
+        return resultList.firstOrNull()
+    }
 
     fun listReferenceTableValuesSorted(referenceTable: ReferenceTable) =
         referenceTable.values
@@ -57,11 +51,11 @@ class ReferenceTableService @Inject constructor(
 
     fun readReferenceTable(id: Long): ReferenceTable =
         entityManager.find(ReferenceTable::class.java, id) ?: run {
-            throw ReferenceTableNotFoundException(id)
+            throw ReferenceTableNotFoundException("Reference table with id '$id' not found")
         }
 
     fun readReferenceTable(code: String): ReferenceTable =
         findReferenceTable(code) ?: run {
-            throw ReferenceTableNotFoundException("No reference table found with code '$code'")
+            throw ReferenceTableNotFoundException("Reference table with code '$code' not found")
         }
 }

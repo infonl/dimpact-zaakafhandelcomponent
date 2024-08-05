@@ -9,7 +9,7 @@ import static net.atos.zac.app.zaak.converter.RESTZaakStatusConverterKt.convertT
 
 import jakarta.inject.Inject;
 
-import net.atos.client.zgw.zrc.ZrcClientService;
+import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Status;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
@@ -27,7 +27,7 @@ public class RESTZaakInformatieobjectConverter {
     private ZtcClientService ztcClientService;
 
     @Inject
-    private ZrcClientService zrcClientService;
+    private ZRCClientService zrcClientService;
 
     @Inject
     private RESTRechtenConverter rechtenConverter;

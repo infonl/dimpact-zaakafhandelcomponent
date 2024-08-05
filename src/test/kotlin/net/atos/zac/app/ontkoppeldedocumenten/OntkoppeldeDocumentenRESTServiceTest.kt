@@ -19,7 +19,7 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.exception.FoutException
 import net.atos.client.zgw.shared.model.Fout
-import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.app.identity.converter.RESTUserConverter
 import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentConverter
@@ -35,7 +35,7 @@ import java.util.UUID
 class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
     val ontkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
     val drcClientService = mockk<DrcClientService>()
-    val zrcClientService = mockk<ZrcClientService>()
+    val zrcClientService = mockk<ZRCClientService>()
     val ontkoppeldDocumentConverter = mockk<RESTOntkoppeldDocumentConverter>()
     val listParametersConverter = mockk<RESTOntkoppeldDocumentListParametersConverter>()
     val userConverter = mockk<RESTUserConverter>()

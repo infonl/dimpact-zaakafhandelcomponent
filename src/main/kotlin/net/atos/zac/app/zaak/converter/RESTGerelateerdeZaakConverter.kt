@@ -5,7 +5,7 @@
 package net.atos.zac.app.zaak.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.RelevanteZaak
 import net.atos.client.zgw.zrc.model.Zaak
@@ -17,7 +17,7 @@ import net.atos.zac.policy.PolicyService
 
 class RESTGerelateerdeZaakConverter {
     @Inject
-    private lateinit var zrcClientService: ZrcClientService
+    private lateinit var zrcClientService: ZRCClientService
 
     @Inject
     private lateinit var ztcClientService: ZtcClientService

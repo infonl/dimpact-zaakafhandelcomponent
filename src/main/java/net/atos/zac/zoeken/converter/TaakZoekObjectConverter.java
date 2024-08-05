@@ -17,7 +17,7 @@ import org.flowable.identitylink.api.IdentityLinkType;
 import org.flowable.task.api.TaskInfo;
 
 import net.atos.client.zgw.shared.util.URIUtil;
-import net.atos.client.zgw.zrc.ZrcClientService;
+import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
@@ -44,7 +44,7 @@ public class TaakZoekObjectConverter extends AbstractZoekObjectConverter<TaakZoe
     private ZtcClientService ztcClientService;
 
     @Inject
-    private ZrcClientService zrcClientService;
+    private ZRCClientService zrcClientService;
 
     @Override
     public TaakZoekObject convert(final String taskID) {

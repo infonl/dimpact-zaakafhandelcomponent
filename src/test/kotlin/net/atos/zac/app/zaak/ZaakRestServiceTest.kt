@@ -24,7 +24,7 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.shared.util.URIUtil
-import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.Rol
@@ -121,7 +121,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val zaakVariabelenService: ZaakVariabelenService = mockk<ZaakVariabelenService>()
     val zaakService: ZaakService = mockk<ZaakService>()
     val zgwApiService: ZGWApiService = mockk<ZGWApiService>()
-    val zrcClientService: ZrcClientService = mockk<ZrcClientService>()
+    val zrcClientService: ZRCClientService = mockk<ZRCClientService>()
     val ztcClientService: ZtcClientService = mockk<ZtcClientService>()
     val restZaakHistorieRegelConverter = mockk<RESTZaakHistorieRegelConverter>()
 
@@ -334,8 +334,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         When("the assign zaken from a list function is called") {
             runTest {
-                zaakRestService.assignFromList(restZakenVerdeelGegevens)
-                testScheduler.advanceUntilIdle()
+                zaakRestService.verdelenVanuitLijst(restZakenVerdeelGegevens)
             }
 
             Then("the zaken are assigned to the group and user") {

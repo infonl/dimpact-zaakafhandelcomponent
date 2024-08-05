@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.lifely.zac.itest
@@ -8,6 +8,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldBeJsonArray
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
+import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -80,15 +81,19 @@ class KlantRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                with(responseBody) {
-                    shouldContainJsonKeyValue("identificatie", TEST_PERSON_HENDRIKA_JANSE_BSN)
-                    shouldContainJsonKeyValue("naam", TEST_PERSON_HENDRIKA_JANSE_FULLNAME)
-                    shouldContainJsonKeyValue("emailadres", TEST_PERSON_HENDRIKA_JANSE_EMAIL)
-                    shouldContainJsonKeyValue("telefoonnummer", TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER)
-                    shouldContainJsonKeyValue("geboortedatum", TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE)
-                    shouldContainJsonKeyValue("geslacht", TEST_PERSON_HENDRIKA_JANSE_GENDER)
-                    shouldContainJsonKeyValue("verblijfplaats", TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE)
-                }
+                responseBody shouldEqualJson """
+                    {
+                      "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                      "emailadres": "$TEST_PERSON_HENDRIKA_JANSE_EMAIL",
+                      "geboortedatum": "$TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE",
+                      "geslacht": "$TEST_PERSON_HENDRIKA_JANSE_GENDER",
+                      "identificatie": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                      "identificatieType": "BSN",
+                      "naam": "$TEST_PERSON_HENDRIKA_JANSE_FULLNAME",
+                      "telefoonnummer": "$TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER",
+                      "verblijfplaats": "$TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE"
+                    }
+                """.trimIndent()
             }
         }
         When("a vestiging is requested which is present in the KVK test environment") {
@@ -99,19 +104,21 @@ class KlantRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                with(responseBody) {
-                    shouldContainJsonKeyValue("adres", "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1")
-                    shouldContainJsonKeyValue("identificatie", TEST_KVK_VESTIGINGSNUMMER_1)
-                    shouldContainJsonKeyValue("identificatieType", BETROKKENE_IDENTIFACTION_TYPE_VESTIGING)
-                    shouldContainJsonKeyValue("kvkNummer", TEST_KVK_NUMMER_1)
-                    shouldContainJsonKeyValue("naam", TEST_KVK_NAAM_1)
-                    shouldContainJsonKeyValue("type", VESTIGINGTYPE_NEVENVESTIGING)
-                    shouldContainJsonKeyValue("vestigingsnummer", TEST_KVK_VESTIGINGSNUMMER_1)
-                    // since there is customer contact data linked to this vestiging in our Open Klant container
-                    // the response should contain an email address and telephone number
-                    shouldContainJsonKeyValue("emailadres", TEST_PERSON_HENDRIKA_JANSE_EMAIL)
-                    shouldContainJsonKeyValue("telefoonnummer", TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER)
-                }
+                // since there is customer contact data linked to this vestiging in our Open Klant container
+                // the response should contain an email address and telephone number
+                responseBody shouldEqualJson """
+                    {
+                      "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                      "emailadres": "$TEST_PERSON_HENDRIKA_JANSE_EMAIL",
+                      "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
+                      "identificatieType": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                      "kvkNummer": "$TEST_KVK_NUMMER_1",
+                      "naam": "$TEST_KVK_NAAM_1",
+                      "type": "$VESTIGINGTYPE_NEVENVESTIGING",
+                      "telefoonnummer": "$TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER",
+                      "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_1"
+                    }
+                """.trimIndent()
             }
         }
         When("a vestigingsprofiel is requested which is present in the KVK test environment") {

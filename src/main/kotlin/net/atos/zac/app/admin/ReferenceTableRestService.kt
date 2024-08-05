@@ -18,16 +18,13 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.admin.ReferenceTableAdminService
 import net.atos.zac.admin.ReferenceTableService
-import net.atos.zac.admin.model.ReferenceTable
 import net.atos.zac.admin.model.ReferenceTable.Systeem
 import net.atos.zac.admin.model.ReferenceTableValue
 import net.atos.zac.admin.model.toRestReferenceTable
+import net.atos.zac.admin.model.updateExistingReferenceTable
 import net.atos.zac.app.admin.model.RestReferenceTable
 import net.atos.zac.app.admin.model.RestReferenceTableUpdate
 import net.atos.zac.app.admin.model.toReferenceTable
-import net.atos.zac.app.admin.model.toReferenceTableValue
-import net.atos.zac.app.util.exception.InputValidationFailedException
-import net.atos.zac.app.util.exception.RestExceptionMapper.Companion.ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNOT_BE_CHANGED
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.policy.PolicyService
 import nl.lifely.zac.util.AllOpen
@@ -96,11 +93,12 @@ class ReferenceTableRestService @Inject constructor(
             existingReferenceTable.updateExistingReferenceTable(
                 restReferenceTableUpdate
             ).let { updatedReferenceTable ->
-                if (!updatedReferenceTable.values
+                require(
+                    updatedReferenceTable.values
                         .filter { it.isSystemValue }
                         .map { it.name }
                         .containsAll(systemValueNames)
-                ) { throw InputValidationFailedException(ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNOT_BE_CHANGED) }
+                ) { "Referentietabel systeemwaarden kunnen niet worden aangepast" }
                 referenceTableAdminService.updateReferenceTable(updatedReferenceTable)
                     .toRestReferenceTable(true)
             }
@@ -126,12 +124,13 @@ class ReferenceTableRestService @Inject constructor(
     @GET
     @Path("communicatiekanaal/{inclusiefEFormulier}")
     fun listCommunicationChannels(
-        @PathParam("inclusiefEFormulier") includingEFormulier: Boolean
-    ) = getReferenceTableValueNames(
-        referenceTableService.readReferenceTable(Systeem.COMMUNICATIEKANAAL.name).values
-    )
-        .filter { communicationChannel -> includingEFormulier || communicationChannel != ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER }
-        .toList()
+        @PathParam("inclusiefEFormulier") inclusiefEFormulier: Boolean
+    ) =
+        getReferenceTableValueNames(
+            referenceTableService.readReferenceTable(Systeem.COMMUNICATIEKANAAL.name).values
+        )
+            .filter { communicatiekanaal -> inclusiefEFormulier || communicatiekanaal != ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER }
+            .toList()
 
     @GET
     @Path("domein")
@@ -154,20 +153,4 @@ class ReferenceTableRestService @Inject constructor(
         referenceTableValues
             .map(ReferenceTableValue::name)
             .toList()
-
-    fun ReferenceTable.updateExistingReferenceTable(
-        restReferenceTableUpdate: RestReferenceTableUpdate
-    ) = this.apply {
-        if (!isSystemReferenceTable) {
-            restReferenceTableUpdate.code?.let {
-                // code can only be updated for non-system reference tables
-                // the data model only supports uppercase codes so convert it here to be sure
-                code = it.uppercase()
-            }
-        }
-        name = restReferenceTableUpdate.naam
-        values = restReferenceTableUpdate.waarden
-            .map { it.toReferenceTableValue(this) }
-            .toMutableList()
-    }
 }

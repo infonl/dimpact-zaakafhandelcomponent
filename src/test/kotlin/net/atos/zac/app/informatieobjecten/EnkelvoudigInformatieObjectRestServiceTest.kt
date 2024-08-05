@@ -11,6 +11,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.client.officeconverter.OfficeConverterClientService
@@ -21,21 +22,26 @@ import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRe
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI
-import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.ZRCClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakInformatieobject
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createBesluitType
+import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjecttypeConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTZaakInformatieobjectConverter
+import net.atos.zac.app.informatieobjecten.model.RESTDocumentCreatieGegevens
 import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieObjectVersieGegevens
 import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
 import net.atos.zac.app.informatieobjecten.model.createRESTInformatieobjectZoekParameters
 import net.atos.zac.app.zaak.converter.RESTGerelateerdeZaakConverter
 import net.atos.zac.authentication.LoggedInUser
+import net.atos.zac.documentcreatie.DocumentCreatieService
+import net.atos.zac.documentcreatie.model.DocumentCreatieGegevens
+import net.atos.zac.documentcreatie.model.createDocumentCreatieResponse
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
@@ -53,6 +59,7 @@ import java.util.UUID
 
 class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
+    val documentCreatieService = mockk<DocumentCreatieService>()
     val enkelvoudigInformatieObjectDownloadService = mockk<EnkelvoudigInformatieObjectDownloadService>()
     val enkelvoudigInformatieObjectLockService = mockk<EnkelvoudigInformatieObjectLockService>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
@@ -71,33 +78,87 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val webdavHelper = mockk<WebdavHelper>()
     val zaakInformatieobjectConverter = mockk<RESTZaakInformatieobjectConverter>()
     val zgwApiService = mockk<ZGWApiService>()
-    val zrcClientService = mockk<ZrcClientService>()
+    val zrcClientService = mockk<ZRCClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val enkelvoudigInformatieObjectRestService = EnkelvoudigInformatieObjectRestService(
-        drcClientService = drcClientService,
-        ztcClientService = ztcClientService,
-        zrcClientService = zrcClientService,
-        zgwApiService = zgwApiService,
-        flowableTaskService = flowableTaskService,
-        taakVariabelenService = taakVariabelenService,
-        ontkoppeldeDocumentenService = ontkoppeldeDocumentenService,
-        inboxDocumentenService = inboxDocumentenService,
-        enkelvoudigInformatieObjectLockService = enkelvoudigInformatieObjectLockService,
-        eventingService = eventingService,
-        zaakInformatieobjectConverter = zaakInformatieobjectConverter,
-        restInformatieobjectConverter = restInformatieobjectConverter,
-        restInformatieobjecttypeConverter = restInformatieobjecttypeConverter,
-        restHistorieRegelConverter = restHistorieRegelConverter,
-        restGerelateerdeZaakConverter = restGerelateerdeZaakConverter,
-        loggedInUserInstance = loggedInUserInstance,
-        webdavHelper = webdavHelper,
-        policyService = policyService,
-        enkelvoudigInformatieObjectDownloadService = enkelvoudigInformatieObjectDownloadService,
-        enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService,
-        officeConverterClientService = officeConverterClientService
+        drcClientService,
+        ztcClientService,
+        zrcClientService,
+        zgwApiService,
+        flowableTaskService,
+        taakVariabelenService,
+        ontkoppeldeDocumentenService,
+        inboxDocumentenService,
+        enkelvoudigInformatieObjectLockService,
+        eventingService,
+        zaakInformatieobjectConverter,
+        restInformatieobjectConverter,
+        restInformatieobjecttypeConverter,
+        restHistorieRegelConverter,
+        restGerelateerdeZaakConverter,
+        documentCreatieService,
+        loggedInUserInstance,
+        webdavHelper,
+        policyService,
+        enkelvoudigInformatieObjectDownloadService,
+        enkelvoudigInformatieObjectUpdateService,
+        officeConverterClientService
     )
 
     isolationMode = IsolationMode.InstancePerTest
+
+    Given("document creation data is provided and zaaktype can use the 'bijlage' informatieobjecttype") {
+        val zaak = createZaak()
+        val restDocumentCreatieGegevens = RESTDocumentCreatieGegevens().apply {
+            zaakUUID = zaak.uuid
+            taskId = "dummyTaskId"
+        }
+        val documentCreatieResponse = createDocumentCreatieResponse()
+        val documentCreatieGegevens = slot<DocumentCreatieGegevens>()
+
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { ztcClientService.readInformatieobjecttypen(zaak.zaaktype) } returns listOf(
+            createInformatieObjectType(omschrijving = "bijlage")
+        )
+        every {
+            documentCreatieService.creeerDocumentAttendedSD(
+                capture(
+                    documentCreatieGegevens
+                )
+            )
+        } returns documentCreatieResponse
+
+        When("createDocument is called by a role that is allowed to change the zaak") {
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+                creeerenDocument = true
+            )
+
+            val restDocumentCreatieResponse =
+                enkelvoudigInformatieObjectRestService.createDocument(restDocumentCreatieGegevens)
+
+            Then("the document creation service is called to create the document") {
+                restDocumentCreatieResponse.message shouldBe null
+                restDocumentCreatieResponse.redirectURL shouldBe documentCreatieResponse.redirectUrl
+                with(documentCreatieGegevens.captured) {
+                    this.zaak shouldBe zaak
+                    this.taskId shouldBe restDocumentCreatieGegevens.taskId
+                    this.informatieobjecttype.omschrijving shouldBe "bijlage"
+                }
+            }
+        }
+
+        When("createDocument is called by a user that has no access") {
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
+
+            val exception = shouldThrow<PolicyException> {
+                enkelvoudigInformatieObjectRestService.createDocument(restDocumentCreatieGegevens)
+            }
+
+            Then("it throws exception with no message") {
+                exception.message shouldBe null
+            }
+        }
+    }
 
     Given("an enkelvoudig informatieobject has been uploaded, and the zaak is open") {
         val zaak = createZaak()

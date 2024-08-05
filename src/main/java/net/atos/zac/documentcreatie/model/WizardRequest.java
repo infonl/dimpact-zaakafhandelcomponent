@@ -1,0 +1,30 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+package net.atos.zac.documentcreatie.model;
+
+import net.atos.client.smartdocuments.model.wizard.Deposit;
+import net.atos.client.smartdocuments.model.wizard.SmartDocument;
+
+public class WizardRequest extends Deposit {
+
+    public final Registratie registratie;
+
+    public final Data data;
+
+    public WizardRequest(final SmartDocument smartDocument, final Registratie registratie, final Data data) {
+        this.setSmartDocument(smartDocument);
+        this.registratie = registratie;
+        this.data = data;
+    }
+
+    public Registratie getRegistratie() {
+        return registratie;
+    }
+
+    public Data getData() {
+        return data;
+    }
+}

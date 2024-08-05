@@ -55,7 +55,7 @@ import net.atos.client.kvk.zoeken.model.generated.BinnenlandsAdres;
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.ZGWApiService;
-import net.atos.client.zgw.zrc.ZrcClientService;
+import net.atos.client.zgw.zrc.ZRCClientService;
 import net.atos.client.zgw.zrc.model.BetrokkeneType;
 import net.atos.client.zgw.zrc.model.Rol;
 import net.atos.client.zgw.zrc.model.RolMedewerker;
@@ -83,7 +83,7 @@ public class MailTemplateHelper {
     private IdentityService identityService;
     private KvkClientService kvkClientService;
     private ZGWApiService zgwApiService;
-    private ZrcClientService zrcClientService;
+    private ZRCClientService zrcClientService;
     private ZtcClientService ztcClientService;
 
     @Inject
@@ -93,7 +93,7 @@ public class MailTemplateHelper {
             IdentityService identityService,
             KvkClientService kvkClientService,
             ZGWApiService zgwApiService,
-            ZrcClientService zrcClientService,
+            ZRCClientService zrcClientService,
             ZtcClientService ztcClientService
     ) {
         this.brpClientService = brpClientService;
@@ -266,16 +266,13 @@ public class MailTemplateHelper {
             return switch (betrokkene) {
                 case NATUURLIJK_PERSOON -> replaceInitiatorVariabelenPersoon(
                         resolvedTekst,
-                        brpClientService.findPersoon(identificatie)
-                );
+                        brpClientService.findPersoon(identificatie));
                 case VESTIGING -> replaceInitiatorVariabelenResultaatItem(
                         resolvedTekst,
-                        kvkClientService.findVestiging(identificatie)
-                );
+                        kvkClientService.findVestiging(identificatie));
                 case NIET_NATUURLIJK_PERSOON -> replaceInitiatorVariabelenResultaatItem(
                         resolvedTekst,
-                        kvkClientService.findRechtspersoon(identificatie)
-                );
+                        kvkClientService.findRechtspersoon(identificatie));
                 default -> throw new IllegalStateException(String.format("unexpected betrokkenetype %s", betrokkene));
             };
         }
@@ -286,11 +283,9 @@ public class MailTemplateHelper {
             final String resolvedTekst,
             final Optional<Persoon> initiator
     ) {
-        return initiator.map(persoon -> replaceInitiatorVariabelen(
-                resolvedTekst,
-                persoon.getNaam().getVolledigeNaam(),
-                convertAdres(persoon))
-        )
+        return initiator
+                .map(persoon -> replaceInitiatorVariabelen(resolvedTekst, persoon.getNaam().getVolledigeNaam(),
+                        convertAdres(persoon)))
                 .orElseGet(() -> replaceInitiatorVariabelenOnbekend(resolvedTekst));
     }
 

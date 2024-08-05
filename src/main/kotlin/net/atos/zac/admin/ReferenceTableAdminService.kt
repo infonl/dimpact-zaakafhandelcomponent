@@ -10,10 +10,7 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import net.atos.zac.admin.model.HumanTaskReferentieTabel
 import net.atos.zac.admin.model.ReferenceTable
-import net.atos.zac.app.util.exception.InputValidationFailedException
-import net.atos.zac.app.util.exception.RestExceptionMapper.Companion.ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKAFHANDELPARAMETERS
-import net.atos.zac.app.util.exception.RestExceptionMapper.Companion.ERROR_CODE_REFERENCE_TABLE_WITH_SAME_CODE_ALREADY_EXISTS
-import net.atos.zac.app.util.exception.RestExceptionMapper.Companion.ERROR_CODE_SYSTEM_REFERENCE_TABLE_CANNOT_BE_DELETED
+import net.atos.zac.shared.exception.FoutmeldingException
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 
@@ -26,44 +23,39 @@ class ReferenceTableAdminService @Inject constructor(
     private val referenceTableService: ReferenceTableService
 ) {
     @Transactional(Transactional.TxType.REQUIRED)
-    fun createReferenceTable(referenceTable: ReferenceTable): ReferenceTable {
-        referenceTableService.findReferenceTable(referenceTable.code)?.run {
-            throw InputValidationFailedException(ERROR_CODE_REFERENCE_TABLE_WITH_SAME_CODE_ALREADY_EXISTS)
-        }
-        return entityManager.merge(referenceTable)
-    }
+    fun createReferenceTable(referenceTable: ReferenceTable) =
+        updateReferenceTable(referenceTable)
 
     @Transactional(Transactional.TxType.REQUIRED)
     fun updateReferenceTable(referenceTable: ReferenceTable): ReferenceTable {
-        // check if there is already a different reference table, i.e. one with a different id, but with the same code
-        referenceTableService.findReferenceTable(referenceTable.code)?.run {
-            if (this.id != referenceTable.id) {
-                throw InputValidationFailedException(ERROR_CODE_REFERENCE_TABLE_WITH_SAME_CODE_ALREADY_EXISTS)
+        referenceTableService.findReferenceTable(referenceTable.code)?.let {
+            if (it.id != referenceTable.id) {
+                throw FoutmeldingException("Er bestaat al een referentietabel met de code '${referenceTable.code}'")
             }
         }
         return entityManager.merge(referenceTable)
     }
 
     @Transactional(Transactional.TxType.REQUIRED)
-    @Suppress("NestedBlockDepth")
     fun deleteReferenceTable(id: Long) {
-        val referenceTable = referenceTableService.readReferenceTable(id).also {
-            if (it.isSystemReferenceTable) {
-                throw InputValidationFailedException(ERROR_CODE_SYSTEM_REFERENCE_TABLE_CANNOT_BE_DELETED)
-            }
+        val referenceTable = entityManager.find(ReferenceTable::class.java, id)
+        require(!referenceTable.isSystemReferenceTable) {
+            "Deze referentietabel is een systeemtabel en kan niet verwijderd worden."
         }
         entityManager.criteriaBuilder.let { criteriaBuilder ->
-            criteriaBuilder.createQuery(HumanTaskReferentieTabel::class.java).let { query ->
-                query.from(HumanTaskReferentieTabel::class.java).let {
-                    query.select(it)
-                        .where(criteriaBuilder.equal(it.get<Any>("tabel").get<Any>("id"), referenceTable.id))
-                }
-                entityManager.createQuery(query).resultList.run {
-                    if (this.isNotEmpty()) {
-                        throw InputValidationFailedException(
-                            ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKAFHANDELPARAMETERS
-                        )
-                    }
+            val query = criteriaBuilder.createQuery(HumanTaskReferentieTabel::class.java)
+            query.from(HumanTaskReferentieTabel::class.java).let {
+                query.select(it).where(criteriaBuilder.equal(it.get<Any>("tabel").get<Any>("id"), referenceTable.id))
+            }
+            entityManager.createQuery(query).resultList.run {
+                if (this.isNotEmpty()) {
+                    throw FoutmeldingException(
+                        "Deze referentietabel wordt gebruikt (voor: ${this
+                            .map { it.veld }
+                            .distinct()
+                            .joinToString()
+                        }) en kan niet verwijderd worden."
+                    )
                 }
             }
             entityManager.remove(referenceTable)
