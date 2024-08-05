@@ -17,7 +17,5 @@ public enum ZaakIndicatie {
     HEROPEND,
     HOOFDZAAK,
     DEELZAAK,
-    VERLENGD,
-    INTAKE,
-    BESLOTEN;
+    VERLENGD
 }

@@ -660,6 +660,12 @@ test_vastleggen_besluit if {
         with input.zaak.besloten as true
 }
 
+test_vastleggen_besluit_no_intake_and_besloten_fails if {
+    not vastleggen_besluit
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
 test_vastleggen_besluit_zaak_closed_fails if {
     not vastleggen_besluit
         with input.user.rollen as [ "behandelaar" ]
