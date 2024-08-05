@@ -1,7 +1,6 @@
 package net.atos.zac.zoeken.converter;
 
 import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
-import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake;
 import static net.atos.zac.util.UriUtil.uuidFromURI;
 
 import java.util.Collections;
@@ -9,8 +8,6 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.inject.Inject;
-
-import org.apache.commons.collections.CollectionUtils;
 
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.shared.model.Results;
@@ -121,7 +118,6 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
         zaakZoekObject.setZaaktypeIdentificatie(zaaktype.getIdentificatie());
         zaakZoekObject.setZaaktypeOmschrijving(zaaktype.getOmschrijving());
         zaakZoekObject.setZaaktypeUuid(uuidFromURI(zaaktype.getUrl()).toString());
-        zaakZoekObject.setIndicatie(ZaakIndicatie.BESLOTEN, CollectionUtils.isNotEmpty(zaaktype.getBesluittypen()));
 
         if (zaak.getStatus() != null) {
             final Status status = zrcClientService.readStatus(zaak.getStatus());
@@ -131,7 +127,6 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
             zaakZoekObject.setStatustypeOmschrijving(statustype.getOmschrijving());
             zaakZoekObject.setStatusEindstatus(statustype.getIsEindstatus());
             zaakZoekObject.setIndicatie(ZaakIndicatie.HEROPEND, isHeropend(statustype));
-            zaakZoekObject.setIndicatie(ZaakIndicatie.INTAKE, isIntake(statustype));
         }
 
         zaakZoekObject.setAantalOpenstaandeTaken(flowableTaskService.countOpenTasksForZaak(zaak.getUuid()));

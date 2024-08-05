@@ -115,7 +115,6 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                         "zaak_betrokkene_${rolBelanghebbende.omschrijving}",
                         listOf(rolBelanghebbende.identificatienummer)
                     )
-                    zaakIndicaties shouldNotContain ZaakIndicatie.BESLOTEN
                     zaakIndicaties shouldNotContain ZaakIndicatie.HEROPEND
                 }
             }
@@ -194,7 +193,6 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                         "zaak_betrokkene_${rolBelanghebbende.omschrijving}",
                         listOf(rolBelanghebbende.identificatienummer)
                     )
-                    zaakIndicaties shouldContain ZaakIndicatie.BESLOTEN
                     zaakIndicaties shouldContain ZaakIndicatie.HEROPEND
                 }
             }
