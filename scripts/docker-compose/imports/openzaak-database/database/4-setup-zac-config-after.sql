@@ -19,6 +19,7 @@ ALTER SEQUENCE catalogi_zaaktype_id_seq RESTART WITH 100;
 ALTER SEQUENCE catalogi_resultaattype_id_seq RESTART WITH 100;
 ALTER SEQUENCE catalogi_roltype_id_seq RESTART WITH 100;
 ALTER SEQUENCE catalogi_statustype_id_seq RESTART WITH 100;
-
+ALTER SEQUENCE catalogi_besluittype_zaaktypen_id_seq RESTART WITH 100;
+ALTER SEQUENCE catalogi_zaaktypeinformatieobjecttype_id_seq RESTART WITH 100;
 
 
