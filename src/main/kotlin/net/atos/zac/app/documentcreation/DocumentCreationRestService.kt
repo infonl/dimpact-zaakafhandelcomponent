@@ -41,6 +41,7 @@ class DocumentCreationRestService @Inject constructor(
 ) {
     @POST
     @Path("/createdocumentattended")
+    @Deprecated("Use createDocumentUnattended instead")
     fun createDocumentAttended(
         @Valid restDocumentCreationAttendedData: RestDocumentCreationAttendedData
     ): RestDocumentCreationResponse {
@@ -78,8 +79,8 @@ class DocumentCreationRestService @Inject constructor(
         return DocumentCreationData(
             zaak = zaak,
             taskId = restDocumentCreationUnattendedData.taskId,
-            templateGroup = restDocumentCreationUnattendedData.documentTemplateGroupName,
-            template = restDocumentCreationUnattendedData.documentTemplateName,
+            templateGroup = restDocumentCreationUnattendedData.smartDocumentsTemplateGroupName,
+            template = restDocumentCreationUnattendedData.smartDdocumentsTemplateName,
         ).let(smartDocumentsService::createDocumentUnattended)
             .let { RestDocumentCreationResponse(message = it.message) }
     }
