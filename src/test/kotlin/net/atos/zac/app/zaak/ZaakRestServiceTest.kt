@@ -43,6 +43,7 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.bag.converter.RESTBAGConverter
+import net.atos.zac.app.besluit.BesluitService
 import net.atos.zac.app.zaak.converter.RESTBesluittypeConverter
 import net.atos.zac.app.zaak.converter.RESTGeometryConverter
 import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter
@@ -90,6 +91,7 @@ import java.util.UUID
 
 @Suppress("LongParameterList")
 class ZaakRestServiceTest : BehaviorSpec({
+    val besluitService: BesluitService = mockk<BesluitService>()
     val bpmnService: BPMNService = mockk<BPMNService>()
     val brcClientService: BrcClientService = mockk<BrcClientService>()
     val configuratieService: ConfiguratieService = mockk<ConfiguratieService>()
@@ -126,7 +128,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val restZaakHistorieRegelConverter = mockk<RESTZaakHistorieRegelConverter>()
 
     val zaakRestService = ZaakRestService(
-        zgwApiService = zgwApiService,
+        besluitService = besluitService,
         cmmnService = cmmnService,
         identityService = identityService,
         inboxProductaanvraagService = inboxProductaanvraagService,
@@ -159,7 +161,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         signaleringService = signaleringService,
         flowableTaskService = flowableTaskService,
         restZaaktypeConverter = restZaaktypeConverter,
-        restZaakHistorieRegelConverter = restZaakHistorieRegelConverter
+        restZaakHistorieRegelConverter = restZaakHistorieRegelConverter,
+        zgwApiService = zgwApiService
     )
 
     beforeEach {
