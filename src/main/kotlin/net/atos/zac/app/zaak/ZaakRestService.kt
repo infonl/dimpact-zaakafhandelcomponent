@@ -943,21 +943,25 @@ class ZaakRestService @Inject constructor(
     @PUT
     @Path("besluit/intrekken")
     fun intrekkenBesluit(
-        restBesluitIntrekkenGegevens: RESTBesluitIntrekkenGegevens
+        @Valid restBesluitIntrekkenGegevens: RESTBesluitIntrekkenGegevens
     ): RESTBesluit {
-        var besluit = brcClientService.readBesluit(restBesluitIntrekkenGegevens.besluitUuid)
-        val zaak = zrcClientService.readZaak(besluit!!.zaak)
-        assertPolicy(zaak.isOpen && policyService.readZaakRechten(zaak).behandelen)
-        besluit = restBesluitConverter.convertToBesluit(besluit, restBesluitIntrekkenGegevens)
-        val intrekToelichting = getIntrekToelichting(besluit.vervalreden)
-        besluit = brcClientService.updateBesluit(
+        val besluit = brcClientService.readBesluit(restBesluitIntrekkenGegevens.besluitUuid).apply {
+            vervaldatum = restBesluitIntrekkenGegevens.vervaldatum
+            vervalreden = VervalredenEnum.fromValue(restBesluitIntrekkenGegevens.vervalreden.lowercase())
+        }
+        val zaak = zrcClientService.readZaak(besluit.zaak).also {
+            assertPolicy(it.isOpen && policyService.readZaakRechten(it).behandelen)
+        }
+        return brcClientService.updateBesluit(
             besluit,
-            intrekToelichting?.let { String.format(it, restBesluitIntrekkenGegevens.reden) }
-        )
-        // This event should result from a ZAAKBESLUIT UPDATED notification on the ZAKEN channel
-        // but open_zaak does not send that one, so emulate it here.
-        eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))
-        return restBesluitConverter.convertToRESTBesluit(besluit)
+            getIntrekToelichting(besluit.vervalreden)?.let { String.format(it, restBesluitIntrekkenGegevens.reden) }
+        ).also {
+            // This event should result from a ZAAKBESLUIT UPDATED notification on the ZAKEN channel
+            // but open_zaak does not send that one, so emulate it here.
+            eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))
+        }.let {
+            restBesluitConverter.convertToRESTBesluit(it)
+        }
     }
 
     @GET
