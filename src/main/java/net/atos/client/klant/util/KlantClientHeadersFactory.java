@@ -13,7 +13,6 @@ import jakarta.ws.rs.core.MultivaluedMap;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
 
-import net.atos.client.util.JWTTokenGenerator;
 import net.atos.zac.authentication.LoggedInUser;
 
 public class KlantClientHeadersFactory implements ClientHeadersFactory {
@@ -22,20 +21,15 @@ public class KlantClientHeadersFactory implements ClientHeadersFactory {
     private Instance<LoggedInUser> loggedInUserInstance;
 
     @Inject
-    @ConfigProperty(name = "KLANTEN_API_CLIENTID")
-    private String clientId;
-
-    @Inject
-    @ConfigProperty(name = "KLANTEN_API_SECRET")
-    private String secret;
+    @ConfigProperty(name = "KLANTEN_API_TOKEN")
+    private String token;
 
     @Override
     public MultivaluedMap<String, String> update(
             final MultivaluedMap<String, String> incomingHeaders,
             final MultivaluedMap<String, String> outgoingHeaders
     ) {
-        outgoingHeaders.add(HttpHeaders.AUTHORIZATION, JWTTokenGenerator.generate(clientId, secret,
-                loggedInUserInstance.get()));
+        outgoingHeaders.add(HttpHeaders.AUTHORIZATION, "Token " + token);
         return outgoingHeaders;
     }
 }

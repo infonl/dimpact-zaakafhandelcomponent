@@ -120,7 +120,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  openklant:
+  openklant.local:
     # Linux workaround for host.docker.internal support
     # see: https://stackoverflow.com/a/67158212
     extra_hosts:

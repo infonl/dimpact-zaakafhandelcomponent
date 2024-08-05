@@ -5,18 +5,17 @@
 
 package net.atos.client.klant;
 
-import java.util.Optional;
-import java.util.concurrent.CompletionStage;
+import java.util.Collections;
+import java.util.List;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import net.atos.client.klant.model.Klant;
-import net.atos.client.klant.model.KlantList200Response;
-import net.atos.client.klant.model.KlantListParameters;
-import net.atos.zac.configuratie.ConfiguratieService;
+import net.atos.client.klant.model.DigitaalAdres;
+import net.atos.client.klant.model.ExpandBetrokkene;
+import net.atos.client.klant.model.ExpandPartij;
 
 @Singleton
 public class KlantClientService {
@@ -25,47 +24,43 @@ public class KlantClientService {
     @RestClient
     private KlantClient klantClient;
 
-    public Optional<Klant> findPersoon(final String bsn) {
-        return convertToSingleItem(klantClient.klantList(createFindPersoonListParameters(bsn)));
+    public List<DigitaalAdres> findDigitalAddressesByNumber(final String number) {
+        ExpandPartij party = convertToSingleItem(klantClient.partijenList(
+                null, null, null,
+                null, null, null, null,
+                null, null, null, null,
+                "digitaleAdressen",
+                null, null, null, 1, null,
+                null, null, number, null,
+                null, null).getResults());
+        if (party == null || party.getExpand() == null) {
+            return Collections.emptyList();
+        }
+
+        return party.getExpand().getDigitaleAdressen();
     }
 
-    public CompletionStage<Optional<Klant>> findPersoonAsync(final String bsn) {
-        return klantClient.klantListAsync(createFindPersoonListParameters(bsn))
-                .thenApply(this::convertToSingleItem);
+    public List<ExpandBetrokkene> listBetrokkenenByNumber(final String number, final Integer page) {
+        ExpandPartij party = convertToSingleItem(klantClient.partijenList(
+                null, null, null,
+                null, null, null, null,
+                null, null, null, null,
+                "betrokkenen,betrokkenen.hadKlantcontact",
+                null, null, null, page, null,
+                null, null, number, null,
+                null, null).getResults());
+        if (party == null || party.getExpand() == null) {
+            return Collections.emptyList();
+        }
+
+        return party.getExpand().getBetrokkenen();
     }
 
-    public Optional<Klant> findVestiging(final String vestigingsnummer) {
-        return convertToSingleItem(klantClient.klantList(createFindVestigingListParameters(vestigingsnummer)));
-    }
-
-    public CompletionStage<Optional<Klant>> findVestigingAsync(final String vestigingsnummer) {
-        return klantClient.klantListAsync(createFindVestigingListParameters(vestigingsnummer))
-                .thenApply(this::convertToSingleItem);
-    }
-
-    private KlantListParameters createFindPersoonListParameters(final String bsn) {
-        final KlantListParameters klantListParameters = createKlantListParameters();
-        klantListParameters.setSubjectNatuurlijkPersoonInpBsn(bsn);
-        return klantListParameters;
-    }
-
-    private KlantListParameters createFindVestigingListParameters(final String vestigingsnummer) {
-        final KlantListParameters klantListParameters = createKlantListParameters();
-        klantListParameters.setSubjectVestigingVestigingsNummer(vestigingsnummer);
-        return klantListParameters;
-    }
-
-    private KlantListParameters createKlantListParameters() {
-        final KlantListParameters klantListParameters = new KlantListParameters();
-        klantListParameters.setBronorganisatie(ConfiguratieService.BRON_ORGANISATIE);
-        return klantListParameters;
-    }
-
-    private Optional<Klant> convertToSingleItem(final KlantList200Response response) {
-        return switch (response.getResults().size()) {
-            case 0 -> Optional.empty();
-            case 1 -> Optional.of(response.getResults().getFirst());
-            default -> throw new IllegalStateException("Too many results: %d".formatted(response.getResults().size()));
+    private <T> T convertToSingleItem(final List<T> list) {
+        return switch (list.size()) {
+            case 0 -> null;
+            case 1 -> list.getFirst();
+            default -> throw new IllegalStateException("Too many results: %d".formatted(list.size()));
         };
     }
 }
