@@ -6,8 +6,9 @@ import io.mockk.every
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
 import net.atos.client.smartdocuments.SmartDocumentsClient
+import net.atos.client.smartdocuments.model.createAttendedResponse
 import net.atos.client.smartdocuments.model.createTemplatesResponse
-import net.atos.client.smartdocuments.model.createWizardResponse
+import net.atos.client.smartdocuments.model.createUnattendedResponseFromTemplateName
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZtcClientService
@@ -43,7 +44,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         zrcClientService
     )
 
-    Given("Document creation data with an information object type") {
+    Given("Document creation data with a zaak and an information object type") {
         val zaakTypeUUID = UUID.randomUUID()
         val zaakTypeURI = URI("http://example.com/$zaakTypeUUID")
         val zaakType = createZaakType(uri = zaakTypeURI)
@@ -54,7 +55,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         val externalZaakUrl = URI("http://example.com/dummyExternalZaakUrl")
         val loggedInUser = createLoggedInUser()
         val data = createData()
-        val wizardResponse = createWizardResponse()
+        val wizardResponse = createAttendedResponse()
         every { loggedInUserInstance.get() } returns loggedInUser
         every { zrcClientService.createUrlExternToZaak(documentCreationData.zaak.uuid) } returns externalZaakUrl
         every {
@@ -84,7 +85,49 @@ class SmartDocumentsServiceTest : BehaviorSpec({
             }
         }
     }
+    Given("Document creation data with a zaak, a template group name and a template name") {
+        val zaakTypeUUID = UUID.randomUUID()
+        val zaakTypeURI = URI("http://example.com/$zaakTypeUUID")
+        val zaakType = createZaakType(uri = zaakTypeURI)
+        val templateGroupName = "dummyTemplateGroupName"
+        val templateName = "dummyTemplateName"
+        val documentCreationData = createDocumentCreationData(
+            templateGroupName = templateGroupName,
+            templateName = templateName,
+            zaak = createZaak(zaakTypeURI = zaakTypeURI)
+        )
+        val externalZaakUrl = URI("http://example.com/dummyExternalZaakUrl")
+        val loggedInUser = createLoggedInUser()
+        val data = createData()
+        val unattendedResponse = createUnattendedResponseFromTemplateName(templateName)
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { zrcClientService.createUrlExternToZaak(documentCreationData.zaak.uuid) } returns externalZaakUrl
+        every {
+            documentCreationDataConverter.createData(
+                loggedInUser,
+                documentCreationData.zaak,
+                documentCreationData.taskId
+            )
+        } returns data
+        every { ztcClientService.readZaaktype(documentCreationData.zaak.zaaktype) } returns zaakType
+        every {
+            smartDocumentsClient.unattendedDeposit("Basic $authenticationToken", fixedUserName.get(), any())
+        } returns unattendedResponse
 
+        When("the 'create document unattended' method is called") {
+            val documentCreationResponse = smartDocumentsService.createDocumentUnattended(documentCreationData)
+
+            Then(
+                """
+                the create unattended SmartDocuments document method is called and a document creation response is returned
+                """
+            ) {
+                with(documentCreationResponse) {
+                    message shouldBe "Document was created succesfully but the document is not stored yet in the zaakregister."
+                }
+            }
+        }
+    }
     Given("SD contains templates") {
         val loggedInUser = createLoggedInUser()
         every { loggedInUserInstance.get() } returns loggedInUser

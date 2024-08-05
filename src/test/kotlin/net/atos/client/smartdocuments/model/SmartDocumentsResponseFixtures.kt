@@ -6,6 +6,9 @@
 package net.atos.client.smartdocuments.model
 
 import net.atos.client.smartdocuments.model.document.AttendedResponse
+import net.atos.client.smartdocuments.model.document.Document
+import net.atos.client.smartdocuments.model.document.File
+import net.atos.client.smartdocuments.model.document.UnattendedResponse
 import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseDocumentsStructure
 import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseGroupsAccess
 import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseHeadersStructure
@@ -18,11 +21,60 @@ import net.atos.client.smartdocuments.model.template.SmartDocumentsTemplatesResp
 import net.atos.client.smartdocuments.model.template.User
 import java.util.UUID
 
-fun createWizardResponse(
+fun createAttendedResponse(
     ticket: String = "dummyTicket",
 ) = AttendedResponse().apply {
     this.ticket = ticket
 }
+
+fun createUnattendedResponse(
+    files: List<File> = listOf(createFile())
+) = UnattendedResponse(
+    files = files
+)
+
+fun createUnattendedResponseFromTemplateName(
+    templateName: String
+) = UnattendedResponse(
+    files = listOf(
+        createFile(
+            fileName = "$templateName.docx",
+            createDocument(),
+            outputFormat = "DOCX"
+        ),
+        createFile(
+            fileName = "$templateName.html",
+            createDocument(),
+            outputFormat = "HTML"
+        ),
+        createFile(
+            fileName = "${templateName}_answer.xml",
+            createDocument(),
+            outputFormat = "XML"
+        ),
+        createFile(
+            fileName = "$templateName.pdf",
+            createDocument(),
+            outputFormat = "PDF"
+        )
+    )
+)
+
+fun createFile(
+    fileName: String = "dummyFileName",
+    document: Document = createDocument(),
+    outputFormat: String = "dummyOutputFormat",
+) = File(
+    fileName = fileName,
+    document = document,
+    outputFormat = outputFormat
+)
+
+fun createDocument(
+    data: String = "dummyDocumentData",
+) = Document(
+    data = data
+)
 
 fun createUserGroup(userGroupName: String) = SmartDocumentsResponseUserGroup(
     id = UUID.randomUUID().toString(),
