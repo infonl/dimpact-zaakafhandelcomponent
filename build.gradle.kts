@@ -231,7 +231,6 @@ java {
         .srcDir("$rootDir/src/generated/brp/java")
         .srcDir("$rootDir/src/generated/bag/java")
         .srcDir("$rootDir/src/generated/klanten/java")
-        .srcDir("$rootDir/src/generated/contactmomenten/java")
         .srcDir("$rootDir/src/generated/zgw/brc/java")
         .srcDir("$rootDir/src/generated/zgw/drc/java")
         .srcDir("$rootDir/src/generated/zgw/zrc/java")
@@ -571,12 +570,6 @@ tasks {
         modelPackage.set("net.atos.client.klanten.model.generated")
     }
 
-    register<GenerateTask>("generateContactMomentenClient") {
-        inputSpec.set("$rootDir/src/main/resources/api-specs/contactmomenten/contactmomenten-openapi.yaml")
-        outputDir.set("$rootDir/src/generated/contactmomenten/java")
-        modelPackage.set("net.atos.client.contactmomenten.model.generated")
-    }
-
     register<GenerateTask>("generateZgwBrcClient") {
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/brc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/brc/java")
@@ -627,7 +620,6 @@ tasks {
             "generateBrpClient",
             "generateBagClient",
             "generateKlantenClient",
-            "generateContactMomentenClient",
             "generateZgwBrcClient",
             "generateZgwDrcClient",
             "generateZgwZrcClient",
