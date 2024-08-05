@@ -12,6 +12,8 @@ import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_GROUP_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
@@ -28,7 +30,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     Given(
         "ZAC and all related Docker containers are running and zaak exists"
     ) {
-        When("the create document informatie objecten endpoint is called") {
+        When("the create document attended ('wizard') endpoint is called with a zaak UUID") {
             val endpointUrl = "$ZAC_API_URI/documentcreation/createdocumentattended"
             logger.info { "Calling $endpointUrl endpoint" }
             val response = itestHttpClient.performJSONPostRequest(
@@ -52,6 +54,28 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                         "$SMART_DOCUMENTS_MOCK_BASE_URI/smartdocuments/wizard?ticket=dummySmartdocumentsTicketID"
                     )
                 }
+            }
+        }
+        When("the create document unattended endpoint is called from with a zaak UUID") {
+            val endpointUrl = "$ZAC_API_URI/documentcreation/createdocumentunattended"
+            logger.info { "Calling $endpointUrl endpoint" }
+            val response = itestHttpClient.performJSONPostRequest(
+                url = endpointUrl,
+                requestBodyAsString = JSONObject(
+                    mapOf(
+                        "documentTitle" to "dummyDocumentTitle",
+                        "smartDocumentsTemplateGroupName" to SMART_DOCUMENTS_ROOT_GROUP_NAME,
+                        "smartDdocumentsTemplateName" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME,
+                        "zaakUuid" to zaakProductaanvraag1Uuid
+                    )
+                ).toString()
+            )
+            Then(
+                "the response should be OK and the response should contain a redirect URL to Smartdocuments"
+            ) {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_OK
             }
         }
     }

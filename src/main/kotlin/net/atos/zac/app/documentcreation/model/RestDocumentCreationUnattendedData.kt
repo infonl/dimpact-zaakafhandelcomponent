@@ -10,13 +10,13 @@ import java.util.UUID
 
 @NoArgConstructor
 class RestDocumentCreationUnattendedData(
-    var documentTitel: String? = null,
+    var documentTitle: String? = null,
 
     @field:NotNull
-    var documentTemplateGroupName: String,
+    var smartDocumentsTemplateGroupName: String,
 
     @field:NotNull
-    var documentTemplateName: String,
+    var smartDdocumentsTemplateName: String,
 
     @field:NotNull
     var zaakUuid: UUID,
