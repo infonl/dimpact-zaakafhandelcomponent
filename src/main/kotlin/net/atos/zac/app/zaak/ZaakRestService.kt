@@ -100,6 +100,7 @@ import net.atos.zac.app.zaak.model.RestBesluitVastleggenGegevens
 import net.atos.zac.app.zaak.model.RestBesluitWijzigenGegevens
 import net.atos.zac.app.zaak.model.RestBesluittype
 import net.atos.zac.app.zaak.model.toRestBesluittypes
+import net.atos.zac.app.zaak.model.updateBesluitWithBesluitWijzigenGegevens
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
@@ -849,7 +850,7 @@ class ZaakRestService @Inject constructor(
         } ?: run {
             zgwApiService.createResultaatForZaak(zaak, besluitToevoegenGegevens.resultaattypeUuid, null)
         }
-        val restBesluit = restBesluitConverter.convertToRestBesluit(brcClientService.createBesluit(besluit))
+        val restBesluit = brcClientService.createBesluit(besluit).let { restBesluitConverter.convertToRestBesluit(it) }
         besluitToevoegenGegevens.informatieobjecten?.forEach { informatieobjectUuid ->
             drcClientService.readEnkelvoudigInformatieobject(informatieobjectUuid).let { informatieobject ->
                 BesluitInformatieObject().apply {
@@ -879,7 +880,7 @@ class ZaakRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(besluit.zaak).also {
             assertPolicy(policyService.readZaakRechten(it).vastleggenBesluit)
         }
-        restBesluitConverter.updateBesluitWithBesluitWijzigenGegevens(besluit, restBesluitWijzigenGegevens).also {
+        besluit.updateBesluitWithBesluitWijzigenGegevens(restBesluitWijzigenGegevens).also {
             brcClientService.updateBesluit(it, restBesluitWijzigenGegevens.reden)
         }
         zaak.resultaat?.let {
