@@ -12,7 +12,7 @@ import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
-data class RESTBesluitWijzigenGegevens(
+data class RestBesluitWijzigenGegevens(
     @field:NotNull
     var besluitUuid: UUID,
 
