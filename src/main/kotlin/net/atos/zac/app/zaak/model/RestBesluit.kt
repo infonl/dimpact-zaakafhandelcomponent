@@ -41,22 +41,3 @@ data class RestBesluit(
 
     var informatieobjecten: List<RESTEnkelvoudigInformatieobject>? = null,
 )
-
-// fun Besluit.toRestBesluit() = RestBesluit(
-//    uuid = UriUtil.uuidFromURI(this.url),
-//    besluittype = restBesluittypeConverter.convertToRESTBesluittype(this.besluittype),
-//    datum = this.datum,
-//    identificatie = this.identificatie,
-//    url = this.url,
-//    toelichting = this.toelichting,
-//    ingangsdatum = this.ingangsdatum,
-//    vervaldatum = this.vervaldatum,
-//    vervalreden = this.vervalreden,
-//    isIngetrokken = this.vervaldatum != null && (
-//        this.vervalreden == VervalredenEnum.INGETROKKEN_BELANGHEBBENDE ||
-//            this.vervalreden == VervalredenEnum.INGETROKKEN_OVERHEID
-//        ),
-//    informatieobjecten = restInformatieobjectConverter.convertInformatieobjectenToREST(
-//        listBesluitInformatieobjecten(this)
-//    )
-// )
