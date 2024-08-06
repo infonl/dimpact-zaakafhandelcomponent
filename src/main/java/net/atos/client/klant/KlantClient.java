@@ -27,7 +27,7 @@ import net.atos.client.klant.util.KlantClientHeadersFactory;
  * Een API om zowel klanten te registreren als op te vragen.
  * Een klant is een natuurlijk persoon, niet-natuurlijk persoon (bedrijf) of vestiging waarbij het gaat om niet geverifieerde gegevens.
  */
-@RegisterRestClient(configKey = "Klanten-API-Client")
+@RegisterRestClient(configKey = "Klantinteracties-API-Client")
 @RegisterClientHeaders(KlantClientHeadersFactory.class)
 @RegisterProvider(KlantRuntimeExceptionMapper.class)
 @Path("/klantinteracties/api/v1")
