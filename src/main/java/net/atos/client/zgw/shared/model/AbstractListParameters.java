@@ -7,9 +7,6 @@ package net.atos.client.zgw.shared.model;
 
 import jakarta.ws.rs.QueryParam;
 
-/**
- *
- */
 public abstract class AbstractListParameters {
 
     /**
