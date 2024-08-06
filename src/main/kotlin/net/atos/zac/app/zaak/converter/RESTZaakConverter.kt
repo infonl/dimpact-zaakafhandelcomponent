@@ -100,8 +100,7 @@ class RESTZaakConverter {
             .map { groupConverter.convertGroupId(it.betrokkeneIdentificatie.identificatie) }
             .orElse(null)
         val besluiten = brcClientService.listBesluiten(zaak)
-            .map { besluitConverter.convertBesluitenToRESTBesluit(it) }
-            .orElse(null)
+            .map { besluitConverter.convertToRestBesluit(it) }
         val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
             .map { userConverter.convertUserId(it.betrokkeneIdentificatie.identificatie) }
             .orElse(null)

@@ -230,7 +230,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
         every { policyService.checkZaakAfsluitbaar(zaak) } just runs
-        every { brcClientService.listBesluiten(zaak) } returns Optional.of(listOf(Besluit()))
+        every { brcClientService.listBesluiten(zaak) } returns listOf(Besluit())
         every { zrcClientService.readResultaat(zaak.resultaat) } returns resultaat
         every { zrcClientService.updateResultaat(any<Resultaat>()) } returns resultaat
         every { mailService.sendMail(mailGegevens, any<Bronnen>()) } returns mailGegevens.body

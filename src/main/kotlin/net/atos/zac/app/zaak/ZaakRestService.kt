@@ -25,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.brc.BrcClientService
+import net.atos.client.zgw.brc.model.generated.Besluit
 import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
@@ -450,8 +451,8 @@ class ZaakRestService @Inject constructor(
     @Path("waarschuwing")
     fun listZaakWaarschuwingen(): List<RESTZaakOverzicht> {
         val vandaag = LocalDate.now()
-        val einddatumGeplandWaarschuwing: MutableMap<UUID, LocalDate> = HashMap()
-        val uiterlijkeEinddatumAfdoeningWaarschuwing: MutableMap<UUID, LocalDate> = HashMap()
+        val einddatumGeplandWaarschuwing = mutableMapOf<UUID, LocalDate>()
+        val uiterlijkeEinddatumAfdoeningWaarschuwing = mutableMapOf<UUID, LocalDate>()
         zaakafhandelParameterService.listZaakafhandelParameters().forEach(
             Consumer { parameters: ZaakafhandelParameters ->
                 if (parameters.einddatumGeplandWaarschuwing != null) {
@@ -828,9 +829,9 @@ class ZaakRestService @Inject constructor(
     @GET
     @Path("besluit/zaakUuid/{zaakUuid}")
     fun listBesluitenForZaakUUID(@PathParam("zaakUuid") zaakUuid: UUID): List<RestBesluit> =
-        brcClientService.listBesluiten(zrcClientService.readZaak(zaakUuid))
-            .map { restBesluitConverter.convertBesluitenToRESTBesluit(it) }
-            .orElse(emptyList())
+        zrcClientService.readZaak(zaakUuid)
+            .let { brcClientService.listBesluiten(it) }
+            .map { restBesluitConverter.convertToRestBesluit(it) }
 
     @POST
     @Path("besluit")

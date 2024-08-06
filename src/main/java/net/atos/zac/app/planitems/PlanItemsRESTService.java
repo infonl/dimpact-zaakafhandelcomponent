@@ -277,7 +277,7 @@ public class PlanItemsRESTService {
             }
             case ZAAK_AFHANDELEN -> {
                 policyService.checkZaakAfsluitbaar(zaak);
-                if (brcClientService.listBesluiten(zaak).isPresent()) {
+                if (!brcClientService.listBesluiten(zaak).isEmpty()) {
                     final Resultaat resultaat = zrcClientService.readResultaat(zaak.getResultaat());
                     resultaat.setToelichting(userEventListenerData.resultaatToelichting);
                     zrcClientService.updateResultaat(resultaat);
