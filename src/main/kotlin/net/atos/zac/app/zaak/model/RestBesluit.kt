@@ -32,7 +32,7 @@ data class RestBesluit(
 
     var vervalreden: VervalredenEnum? = null,
 
-    @field:JsonbProperty("isIngetrokken")
+    @get:JsonbProperty("isIngetrokken")
     var isIngetrokken: Boolean = false,
 
     var toelichting: String? = null,
