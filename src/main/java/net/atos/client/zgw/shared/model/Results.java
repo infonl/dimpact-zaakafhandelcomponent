@@ -15,9 +15,6 @@ import java.util.Optional;
 import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 
-/**
- *
- */
 public class Results<T> {
 
     // Aantal items wat Open Zaak terug geeft per pagina
@@ -25,7 +22,7 @@ public class Results<T> {
 
     private final int count;
 
-    private List<T> results;
+    private final List<T> results;
 
     private final URI next;
 

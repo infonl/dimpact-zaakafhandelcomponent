@@ -47,7 +47,7 @@ class RestBesluitConverter @Inject constructor(
         )
     )
 
-    fun convertBesluitenToRESTBesluit(besluiten: List<Besluit>) = besluiten
+    fun convertBesluitenToRestBesluit(besluiten: List<Besluit>): List<RestBesluit> = besluiten
         .map { convertToRestBesluit(it) }
 
     fun convertToBesluit(zaak: Zaak, besluitToevoegenGegevens: RestBesluitVastleggenGegevens) =

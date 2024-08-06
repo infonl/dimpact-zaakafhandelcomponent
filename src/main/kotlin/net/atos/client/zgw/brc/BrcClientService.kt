@@ -17,11 +17,10 @@ import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.net.URI
-import java.util.Optional
 import java.util.UUID
 
 /**
- * BRC Client Service
+ * Besluiten Client Service
  */
 @ApplicationScoped
 @AllOpen
@@ -31,15 +30,9 @@ class BrcClientService @Inject constructor(
     private val brcClient: BrcClient,
     private val zgwClientHeadersFactory: ZGWClientHeadersFactory
 ) {
-    fun listBesluiten(zaak: Zaak): Optional<List<Besluit>> {
-        val listParameters = BesluitenListParameters().apply { this.zaakUri = zaak.url }
-        val results = brcClient.besluitList(listParameters)
-        return if (results.count > 0) {
-            Optional.of(results.results)
-        } else {
-            Optional.empty()
-        }
-    }
+    fun listBesluiten(zaak: Zaak): List<Besluit> = BesluitenListParameters()
+        .apply { this.zaakUri = zaak.url }
+        .let { brcClient.besluitList(it).results }
 
     fun createBesluit(besluit: Besluit): Besluit = brcClient.besluitCreate(besluit)
 
