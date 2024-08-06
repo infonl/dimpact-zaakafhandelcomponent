@@ -43,7 +43,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         const val ERROR_CODE_BRC_CLIENT = "msg.error.brc.client.exception"
         const val ERROR_CODE_BRP_CLIENT = "msg.error.brp.client.exception"
         const val ERROR_CODE_DRC_CLIENT = "msg.error.drc.client.exception"
-        const val ERROR_CODE_KLANTEN_CLIENT = "msg.error.klanten.client.exception"
+        const val ERROR_CODE_KLANTINTERACTIES_CLIENT = "msg.error.klanten.client.exception"
         const val ERROR_CODE_OBJECTS_CLIENT = "msg.error.objects.client.exception"
         const val ERROR_CODE_OBJECTTYPES_CLIENT = "msg.error.objecttypes.client.exception"
         const val ERROR_CODE_ZRC_CLIENT = "msg.error.zrc.client.exception"
@@ -124,7 +124,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 it.contains(ObjecttypesClientService::class.simpleName!!) ->
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_OBJECTTYPES_CLIENT)
                 it.contains(KlantClientService::class.simpleName!!) ->
-                    generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_KLANTEN_CLIENT)
+                    generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_KLANTINTERACTIES_CLIENT)
                 it.contains(ZrcClientService::class.simpleName!!) ->
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZRC_CLIENT)
                 it.contains(ZtcClientService::class.simpleName!!) ->

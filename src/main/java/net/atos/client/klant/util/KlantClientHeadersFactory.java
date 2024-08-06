@@ -21,7 +21,7 @@ public class KlantClientHeadersFactory implements ClientHeadersFactory {
     private Instance<LoggedInUser> loggedInUserInstance;
 
     @Inject
-    @ConfigProperty(name = "KLANTEN_API_TOKEN")
+    @ConfigProperty(name = "KLANTINTERACTIES_API_TOKEN")
     private String token;
 
     @Override
