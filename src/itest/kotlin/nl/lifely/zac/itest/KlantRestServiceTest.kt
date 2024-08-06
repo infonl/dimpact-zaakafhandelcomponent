@@ -188,4 +188,44 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("Klantcontacten are present in the OpenKlant database for a test customer") {
+        When("the list contactmomenten endpoint is called with the BSN of this test customer") {
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/klanten/contactmomenten",
+                requestBodyAsString = """
+                    {
+                        "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                        "page": 0
+                    }
+                """.trimIndent()
+            )
+            Then("the response should be a 200 HTTP response with the customer contactmomenten") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_OK
+                responseBody shouldEqualJson """
+                    {
+                      "foutmelding": "",
+                      "resultaten": [
+                        {
+                          "initiatiefnemer": "First of Last",
+                          "kanaal": "email",
+                          "medewerker": "Actor Name",
+                          "registratiedatum": "2000-01-01T12:00:00Z",
+                          "tekst": "email contact"
+                        },
+                        {
+                          "initiatiefnemer": "Name in Family",
+                          "kanaal": "telefoon",
+                          "registratiedatum": "2010-01-01T12:00:00Z",
+                          "tekst": "phone contact"
+                        }
+                      ],
+                      "totaal": 2
+                    }
+                """.trimIndent()
+            }
+        }
+    }
 })

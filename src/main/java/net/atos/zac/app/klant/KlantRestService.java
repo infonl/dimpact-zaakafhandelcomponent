@@ -260,8 +260,10 @@ public class KlantRestService {
     @Path("contactmomenten")
     public RESTResultaat<RESTContactmoment> listContactmomenten(final RESTListContactmomentenParameters parameters) {
         var nummer = parameters.bsn != null ? parameters.bsn : parameters.vestigingsnummer;
+        // OpenKlant 2.1 pages start from 1 (not 0-based). Page 0 is considered invalid number
+        var pageNumber = parameters.page + 1;
 
-        var betrokkenenWithKlantcontactList = klantClientService.listBetrokkenenByNumber(nummer, parameters.page);
+        var betrokkenenWithKlantcontactList = klantClientService.listBetrokkenenByNumber(nummer, pageNumber);
 
         var contactToFullNameMap = klantcontactConverter.mapContactToInitiatorFullName(betrokkenenWithKlantcontactList);
 
