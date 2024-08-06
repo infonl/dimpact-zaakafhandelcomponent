@@ -23,7 +23,7 @@ data class RESTZaak(
     var archiefActiedatum: LocalDate?,
     var archiefNominatie: String?,
     var behandelaar: RESTUser?,
-    var besluiten: List<RESTBesluit>?,
+    var besluiten: List<RestBesluit>?,
     var bronorganisatie: String?,
     var communicatiekanaal: String?,
     var duurVerlenging: String?,

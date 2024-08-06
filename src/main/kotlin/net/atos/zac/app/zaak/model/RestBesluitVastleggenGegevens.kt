@@ -4,6 +4,8 @@
  */
 package net.atos.zac.app.zaak.model
 
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate
@@ -11,18 +13,22 @@ import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
-data class RESTBesluitVastleggenGegevens(
-    var zaakUuid: UUID? = null,
+data class RestBesluitVastleggenGegevens(
+    @field:NotNull
+    var zaakUuid: UUID,
 
-    var resultaattypeUuid: UUID? = null,
+    @field:NotNull
+    var resultaattypeUuid: UUID,
 
+    @field:NotNull
     var besluittypeUuid: UUID,
 
-    var toelichting: String? = null,
+    @field:NotBlank
+    var toelichting: String,
 
     var ingangsdatum: LocalDate? = null,
 
     var vervaldatum: LocalDate? = null,
 
-    var informatieobjecten: List<UUID?>? = null
+    var informatieobjecten: List<UUID>? = null
 )

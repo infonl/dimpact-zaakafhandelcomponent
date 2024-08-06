@@ -28,7 +28,7 @@ const val ZAAK_TYPE_2_OMSCHRIJVING = "zaaktype2"
 fun createRESTBesluit(
     url: URI = URI("http://localhost:8080/${UUID.randomUUID()}"),
     uuid: UUID = UUID.randomUUID()
-) = RESTBesluit(
+) = RestBesluit(
     url = url,
     uuid = uuid
 )
@@ -43,7 +43,7 @@ fun createRESTBesluitVastleggenGegevens(
     vervaldatum: LocalDate = LocalDate.of(2023, 10, 5),
     informatieobjecten: List<UUID> = listOf(UUID.randomUUID())
 ) =
-    RESTBesluitVastleggenGegevens(
+    RestBesluitVastleggenGegevens(
         besluittypeUuid = besluittypeUuid,
         informatieobjecten = informatieobjecten,
         ingangsdatum = ingangsdatum,

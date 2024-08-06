@@ -44,7 +44,6 @@ import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.besluit.BesluitService
-import net.atos.zac.app.zaak.converter.RESTBesluittypeConverter
 import net.atos.zac.app.zaak.converter.RESTGeometryConverter
 import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter
 import net.atos.zac.app.zaak.converter.RESTZaakConverter
@@ -110,7 +109,6 @@ class ZaakRestServiceTest : BehaviorSpec({
     val productaanvraagService: ProductaanvraagService = mockk<ProductaanvraagService>()
     val restBAGConverter: RESTBAGConverter = mockk<RESTBAGConverter>()
     val restBesluitConverter: RestBesluitConverter = mockk<RestBesluitConverter>()
-    val restBesluittypeConverter: RESTBesluittypeConverter = mockk<RESTBesluittypeConverter>()
     val restGeometryConverter: RESTGeometryConverter = mockk<RESTGeometryConverter>()
     val restResultaattypeConverter: RESTResultaattypeConverter = mockk<RESTResultaattypeConverter>()
     val restZaakConverter: RESTZaakConverter = mockk<RESTZaakConverter>()
@@ -154,7 +152,6 @@ class ZaakRestServiceTest : BehaviorSpec({
         healthCheckService = healthCheckService,
         ontkoppeldeDocumentenService = ontkoppeldeDocumentenService,
         opschortenZaakHelper = opschortenZaakHelper,
-        restBesluittypeConverter = restBesluittypeConverter,
         restGeometryConverter = restGeometryConverter,
         restResultaattypeConverter = restResultaattypeConverter,
         restZaakOverzichtConverter = restZaakOverzichtConverter,

@@ -18,13 +18,11 @@ class RestBesluitConverterTest : BehaviorSpec({
     val brcClientService = mockk<BrcClientService>()
     val drcClientService = mockk<DrcClientService>()
     val restInformatieobjectConverter = mockk<RESTInformatieobjectConverter>()
-    val restBesluittypeConverter = mockk<RESTBesluittypeConverter>()
     val ztcClientService = mockk<ZtcClientService>()
     val restBesluitConverter = RestBesluitConverter(
         brcClientService,
         drcClientService,
         restInformatieobjectConverter,
-        restBesluittypeConverter,
         ztcClientService
     )
 

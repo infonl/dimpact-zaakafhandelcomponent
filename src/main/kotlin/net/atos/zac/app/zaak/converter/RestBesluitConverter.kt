@@ -13,26 +13,25 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
-import net.atos.zac.app.zaak.model.RESTBesluit
-import net.atos.zac.app.zaak.model.RESTBesluitVastleggenGegevens
-import net.atos.zac.app.zaak.model.RESTBesluitWijzigenGegevens
+import net.atos.zac.app.zaak.model.RestBesluit
+import net.atos.zac.app.zaak.model.RestBesluitVastleggenGegevens
+import net.atos.zac.app.zaak.model.RestBesluitWijzigenGegevens
+import net.atos.zac.app.zaak.model.toRestBesluitType
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.util.UriUtil
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate
-import java.util.stream.Collectors
 
 @NoArgConstructor
 class RestBesluitConverter @Inject constructor(
     private val brcClientService: BrcClientService,
     private val drcClientService: DrcClientService,
     private val restInformatieobjectConverter: RESTInformatieobjectConverter,
-    private val restBesluittypeConverter: RESTBesluittypeConverter,
     private val ztcClientService: ZtcClientService
 ) {
-    fun convertToRESTBesluit(besluit: Besluit) = RESTBesluit(
+    fun convertToRestBesluit(besluit: Besluit) = RestBesluit(
         uuid = UriUtil.uuidFromURI(besluit.url),
-        besluittype = restBesluittypeConverter.convertToRESTBesluittype(besluit.besluittype),
+        besluittype = ztcClientService.readBesluittype(besluit.besluittype).toRestBesluitType(),
         datum = besluit.datum,
         identificatie = besluit.identificatie,
         url = besluit.url,
@@ -50,25 +49,23 @@ class RestBesluitConverter @Inject constructor(
     )
 
     fun convertBesluitenToRESTBesluit(besluiten: List<Besluit>) = besluiten
-        .map { convertToRESTBesluit(it) }
-        .toList()
+        .map { convertToRestBesluit(it) }
 
-    fun convertToBesluit(zaak: Zaak, besluitToevoegenGegevens: RESTBesluitVastleggenGegevens): Besluit {
-        val besluit = Besluit()
-        besluit.zaak = zaak.url
-        besluit.besluittype = ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid).url
-        besluit.datum = LocalDate.now()
-        besluit.ingangsdatum = besluitToevoegenGegevens.ingangsdatum
-        besluit.vervaldatum = besluitToevoegenGegevens.vervaldatum
-        besluitToevoegenGegevens.vervaldatum?.apply {
-            besluit.vervalreden = VervalredenEnum.TIJDELIJK
+    fun convertToBesluit(zaak: Zaak, besluitToevoegenGegevens: RestBesluitVastleggenGegevens) =
+        Besluit().apply {
+            this.zaak = zaak.url
+            besluittype = ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid).url
+            datum = LocalDate.now()
+            ingangsdatum = besluitToevoegenGegevens.ingangsdatum
+            vervaldatum = besluitToevoegenGegevens.vervaldatum
+            besluitToevoegenGegevens.vervaldatum?.apply {
+                vervalreden = VervalredenEnum.TIJDELIJK
+            }
+            verantwoordelijkeOrganisatie = ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE
+            toelichting = besluitToevoegenGegevens.toelichting
         }
-        besluit.verantwoordelijkeOrganisatie = ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE
-        besluit.toelichting = besluitToevoegenGegevens.toelichting
-        return besluit
-    }
 
-    fun updateBesluitWithBesluitWijzigenGegevens(besluit: Besluit, besluitWijzigenGegevens: RESTBesluitWijzigenGegevens): Besluit {
+    fun updateBesluitWithBesluitWijzigenGegevens(besluit: Besluit, besluitWijzigenGegevens: RestBesluitWijzigenGegevens) =
         besluit.apply {
             toelichting = besluitWijzigenGegevens.toelichting
             ingangsdatum = besluitWijzigenGegevens.ingangsdatum
@@ -77,14 +74,8 @@ class RestBesluitConverter @Inject constructor(
                 vervalreden = VervalredenEnum.TIJDELIJK
             }
         }
-        return besluit
-    }
 
-    private fun listBesluitInformatieobjecten(besluit: Besluit): List<EnkelvoudigInformatieObject> {
-        return brcClientService.listBesluitInformatieobjecten(besluit.url).stream()
-            .map {
-                drcClientService.readEnkelvoudigInformatieobject(it.informatieobject)
-            }
-            .collect(Collectors.toList())
-    }
+    private fun listBesluitInformatieobjecten(besluit: Besluit): List<EnkelvoudigInformatieObject> =
+        brcClientService.listBesluitInformatieobjecten(besluit.url)
+            .map { drcClientService.readEnkelvoudigInformatieobject(it.informatieobject) }
 }
