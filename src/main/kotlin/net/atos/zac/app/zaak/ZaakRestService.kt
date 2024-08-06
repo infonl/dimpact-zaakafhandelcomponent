@@ -29,7 +29,6 @@ import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
 import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.AardRelatie
@@ -136,7 +135,6 @@ import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.function.Consumer
-import java.util.logging.Logger
 import java.util.stream.Collectors
 import java.util.stream.Stream
 
@@ -189,8 +187,6 @@ class ZaakRestService @Inject constructor(
         private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
         private const val VERLENGING = "Verlenging"
         private const val AANMAKEN_BESLUIT_TOELICHTING = "Aanmaken besluit"
-
-        private val LOG = Logger.getLogger(ZaakRestService::class.java.name)
     }
 
     @GET
@@ -925,10 +921,10 @@ class ZaakRestService @Inject constructor(
 
     @GET
     @Path("besluit/{uuid}/historie")
-    fun listBesluitHistorie(@PathParam("uuid") uuid: UUID?): List<RESTHistorieRegel> {
-        val auditTrail: List<AuditTrailRegel> = brcClientService.listAuditTrail(uuid)
-        return restHistorieRegelConverter.convert(auditTrail)
-    }
+    fun listBesluitHistorie(@PathParam("uuid") uuid: UUID): List<RESTHistorieRegel> =
+        brcClientService.listAuditTrail(uuid).let {
+            restHistorieRegelConverter.convert(it)
+        }
 
     @GET
     @Path("besluittypes/{zaaktypeUUID}")
