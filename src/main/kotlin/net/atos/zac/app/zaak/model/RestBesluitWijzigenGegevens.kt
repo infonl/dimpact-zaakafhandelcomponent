@@ -5,6 +5,8 @@
 package net.atos.zac.app.zaak.model
 
 import jakarta.validation.constraints.NotNull
+import net.atos.client.zgw.brc.model.generated.Besluit
+import net.atos.client.zgw.brc.model.generated.VervalredenEnum
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate
@@ -29,3 +31,13 @@ data class RestBesluitWijzigenGegevens(
 
     var reden: String? = null
 )
+
+fun Besluit.updateBesluitWithBesluitWijzigenGegevens(besluitWijzigenGegevens: RestBesluitWijzigenGegevens) =
+    this.apply {
+        toelichting = besluitWijzigenGegevens.toelichting
+        ingangsdatum = besluitWijzigenGegevens.ingangsdatum
+        vervaldatum = besluitWijzigenGegevens.vervaldatum
+        vervaldatum?.apply {
+            vervalreden = VervalredenEnum.TIJDELIJK
+        }
+    }

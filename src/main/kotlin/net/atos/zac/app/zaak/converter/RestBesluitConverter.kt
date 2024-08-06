@@ -15,7 +15,6 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.zaak.model.RestBesluit
 import net.atos.zac.app.zaak.model.RestBesluitVastleggenGegevens
-import net.atos.zac.app.zaak.model.RestBesluitWijzigenGegevens
 import net.atos.zac.app.zaak.model.toRestBesluitType
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.util.UriUtil
@@ -63,16 +62,6 @@ class RestBesluitConverter @Inject constructor(
             }
             verantwoordelijkeOrganisatie = ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE
             toelichting = besluitToevoegenGegevens.toelichting
-        }
-
-    fun updateBesluitWithBesluitWijzigenGegevens(besluit: Besluit, besluitWijzigenGegevens: RestBesluitWijzigenGegevens) =
-        besluit.apply {
-            toelichting = besluitWijzigenGegevens.toelichting
-            ingangsdatum = besluitWijzigenGegevens.ingangsdatum
-            vervaldatum = besluitWijzigenGegevens.vervaldatum
-            vervaldatum?.apply {
-                vervalreden = VervalredenEnum.TIJDELIJK
-            }
         }
 
     private fun listBesluitInformatieobjecten(besluit: Besluit): List<EnkelvoudigInformatieObject> =
