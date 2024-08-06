@@ -119,8 +119,6 @@ public class PolicyService {
         zaakData.zaaktype = zaakZoekObject.getZaaktypeOmschrijving();
         zaakData.opgeschort = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.OPSCHORTING);
         zaakData.verlengd = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.VERLENGD);
-        zaakData.intake = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.INTAKE);
-        zaakData.besloten = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.BESLOTEN);
         zaakData.heropend = zaakZoekObject.getZaakIndicaties().contains(ZaakIndicatie.HEROPEND);
 
         return evaluationClient.readZaakRechten(new RuleQuery<>(new ZaakInput(loggedInUserInstance.get(), zaakData)))

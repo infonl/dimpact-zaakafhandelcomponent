@@ -14,7 +14,6 @@ import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.zaak.model.RESTBesluit
-import net.atos.zac.app.zaak.model.RESTBesluitIntrekkenGegevens
 import net.atos.zac.app.zaak.model.RESTBesluitVastleggenGegevens
 import net.atos.zac.app.zaak.model.RESTBesluitWijzigenGegevens
 import net.atos.zac.configuratie.ConfiguratieService
@@ -79,16 +78,7 @@ class RestBesluitConverter @Inject constructor(
         return besluit
     }
 
-    fun convertToBesluit(
-        besluit: Besluit,
-        besluitIntrekkenGegevens: RESTBesluitIntrekkenGegevens
-    ): Besluit {
-        besluit.vervaldatum = besluitIntrekkenGegevens.vervaldatum
-        besluit.vervalreden = VervalredenEnum.valueOf(besluitIntrekkenGegevens.vervalreden!!)
-        return besluit
-    }
-
-    fun listBesluitInformatieobjecten(besluit: Besluit): List<EnkelvoudigInformatieObject> {
+    private fun listBesluitInformatieobjecten(besluit: Besluit): List<EnkelvoudigInformatieObject> {
         return brcClientService.listBesluitInformatieobjecten(besluit.url).stream()
             .map {
                 drcClientService.readEnkelvoudigInformatieobject(it.informatieobject)

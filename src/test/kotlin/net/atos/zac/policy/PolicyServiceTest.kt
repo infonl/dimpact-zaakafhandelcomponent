@@ -209,8 +209,6 @@ class PolicyServiceTest : BehaviorSpec({
         val zaakZoekObject = createZaakZoekObject().apply {
             this.setIndicatie(ZaakIndicatie.OPSCHORTING, true)
             this.setIndicatie(ZaakIndicatie.VERLENGD, true)
-            this.setIndicatie(ZaakIndicatie.INTAKE, true)
-            this.setIndicatie(ZaakIndicatie.BESLOTEN, true)
             this.setIndicatie(ZaakIndicatie.HEROPEND, true)
         }
         val expectedZaakRechten = createZaakRechten()
@@ -231,9 +229,10 @@ class PolicyServiceTest : BehaviorSpec({
                     zaaktype shouldBe zaakZoekObject.zaaktypeOmschrijving
                     opgeschort shouldBe true
                     verlengd shouldBe true
-                    besloten shouldBe true
-                    intake shouldBe true
                     heropend shouldBe true
+                    // We don't set these two
+                    besloten shouldBe false
+                    intake shouldBe false
                 }
             }
         }

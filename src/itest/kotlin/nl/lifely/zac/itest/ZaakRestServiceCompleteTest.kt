@@ -32,7 +32,7 @@ const val ONE_SECOND_IN_MILLIS = 1000L
  * This test creates a zaak, adds a task to complete the intake phase, closes the zaak, then re-opens and again closes the zaak.
  */
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED)
-class ZakenRESTServiceCompleteTest : BehaviorSpec({
+class ZaakRestServiceCompleteTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
@@ -41,6 +41,7 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
         lateinit var zaakUUID: UUID
         lateinit var resultaatTypeUuid: UUID
         lateinit var besluitTypeUuid: UUID
+        lateinit var besluitUuid: UUID
         val intakeId: Int
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
@@ -92,8 +93,7 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
                 besluitTypeUuid = getString("id").let(UUID::fromString)
             }
         }
-
-        When("a besluit has been added to the zaak") {
+        When("a besluit is added to the zaak") {
             itestHttpClient.performJSONPostRequest(
                 "$ZAC_API_URI/zaken/besluit",
                 requestBodyAsString = """
@@ -132,6 +132,46 @@ class ZakenRESTServiceCompleteTest : BehaviorSpec({
                             getString("naam") shouldBe "Besluit na heroverweging"
                             getString("toelichting") shouldBe "Besluit na heroverweging"
                         }
+                    }
+                    besluitUuid = besluiten.getJSONObject(0).getString("uuid").run(UUID::fromString)
+                }
+            }
+        }
+
+        When("a besluit is withdrawn from the zaak") {
+            itestHttpClient.performPutRequest(
+                "$ZAC_API_URI/zaken/besluit/intrekken",
+                requestBodyAsString = """
+            {
+                "besluitUuid":"$besluitUuid",
+                "reden":"dummyReason",
+                "vervalreden":"ingetrokken_belanghebbende"
+            }
+                """.trimIndent()
+            ).use { response ->
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_OK
+                with(responseBody) {
+                    shouldContainJsonKeyValue("ingetrokken", true)
+                    shouldContainJsonKeyValue("toelichting", "dummyToelichting")
+                    shouldContainJsonKeyValue("vervalreden", "ingetrokken_belanghebbende")
+                }
+            }
+
+            Then("the besluit has been withdrawn successfully") {
+                itestHttpClient.performGetRequest(
+                    "$ZAC_API_URI/zaken/besluit/zaakUuid/$zaakUUID"
+                ).use { response ->
+                    val responseBody = response.body!!.string()
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_STATUS_OK
+                    val besluiten = JSONArray(responseBody)
+                    besluiten.shouldHaveSize(1)
+                    with(besluiten.getJSONObject(0).toString()) {
+                        shouldContainJsonKeyValue("ingetrokken", true)
+                        shouldContainJsonKeyValue("toelichting", "dummyToelichting")
+                        shouldContainJsonKeyValue("vervalreden", "ingetrokken_belanghebbende")
                     }
                 }
             }
