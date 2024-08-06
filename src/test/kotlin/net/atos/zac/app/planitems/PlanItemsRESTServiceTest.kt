@@ -41,7 +41,6 @@ import net.atos.zac.zoeken.IndexeerService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI
 import java.time.LocalDate
-import java.util.Optional
 import java.util.UUID
 
 class PlanItemsRESTServiceTest : BehaviorSpec({
