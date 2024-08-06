@@ -75,7 +75,6 @@ import net.atos.zac.app.zaak.converter.RestBesluitConverter
 import net.atos.zac.app.zaak.converter.convertToRESTZaakBetrokkenen
 import net.atos.zac.app.zaak.converter.historie.RESTZaakHistorieRegelConverter
 import net.atos.zac.app.zaak.model.RESTBesluit
-import net.atos.zac.app.zaak.model.RestBesluitIntrekkenGegevens
 import net.atos.zac.app.zaak.model.RESTBesluitVastleggenGegevens
 import net.atos.zac.app.zaak.model.RESTBesluitWijzigenGegevens
 import net.atos.zac.app.zaak.model.RESTBesluittype
@@ -102,6 +101,7 @@ import net.atos.zac.app.zaak.model.RESTZaaktype
 import net.atos.zac.app.zaak.model.RESTZakenVerdeelGegevens
 import net.atos.zac.app.zaak.model.RESTZakenVrijgevenGegevens
 import net.atos.zac.app.zaak.model.RelatieType
+import net.atos.zac.app.zaak.model.RestBesluitIntrekkenGegevens
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
@@ -894,7 +894,9 @@ class ZaakRestService @Inject constructor(
                 }
             }
         }
-        updateBesluitInformatieobjecten(besluit, restBesluitWijzigenGegevens.informatieobjecten)
+        restBesluitWijzigenGegevens.informatieobjecten?.let {
+            updateBesluitInformatieobjecten(besluit, it)
+        }
         // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
         // but open_zaak does not send that one, so emulate it here.
         eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))
@@ -903,7 +905,7 @@ class ZaakRestService @Inject constructor(
 
     private fun updateBesluitInformatieobjecten(
         besluit: Besluit,
-        nieuweDocumenten: List<UUID>?
+        nieuweDocumenten: List<UUID>
     ) {
         val besluitInformatieobjecten = brcClientService.listBesluitInformatieobjecten(besluit.url)
         val huidigeDocumenten = besluitInformatieobjecten
@@ -916,19 +918,19 @@ class ZaakRestService @Inject constructor(
                 .filter { UriUtil.uuidFromURI(it.informatieobject) == teVerwijderenInformatieobject }
                 .forEach { brcClientService.deleteBesluitinformatieobject(UriUtil.uuidFromURI(it.url)) }
         }
-        toevoegen.forEach{ documentUri ->
-                drcClientService.readEnkelvoudigInformatieobject(documentUri).let { enkelvoudigInformatieObject ->
-                    BesluitInformatieObject().apply {
-                        this.informatieobject = enkelvoudigInformatieObject.url
-                        this.besluit = besluit.url
-                    }
-                }.let {
-                    brcClientService.createBesluitInformatieobject(
-                        it,
-                        WIJZIGEN_BESLUIT_TOELICHTING
-                    )
+        toevoegen.forEach { documentUri ->
+            drcClientService.readEnkelvoudigInformatieobject(documentUri).let { enkelvoudigInformatieObject ->
+                BesluitInformatieObject().apply {
+                    this.informatieobject = enkelvoudigInformatieObject.url
+                    this.besluit = besluit.url
                 }
+            }.let {
+                brcClientService.createBesluitInformatieobject(
+                    it,
+                    WIJZIGEN_BESLUIT_TOELICHTING
+                )
             }
+        }
     }
 
     @PUT
