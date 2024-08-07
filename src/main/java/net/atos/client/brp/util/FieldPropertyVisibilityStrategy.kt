@@ -2,23 +2,18 @@
  * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.client.brp.util
 
-package net.atos.client.brp.util;
+import jakarta.json.bind.config.PropertyVisibilityStrategy
+import java.lang.reflect.Field
+import java.lang.reflect.Method
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
-import jakarta.json.bind.config.PropertyVisibilityStrategy;
-
-public class FieldPropertyVisibilityStrategy implements PropertyVisibilityStrategy {
-
-    @Override
-    public boolean isVisible(final Field field) {
-        return true;
+class FieldPropertyVisibilityStrategy : PropertyVisibilityStrategy {
+    override fun isVisible(field: Field): Boolean {
+        return true
     }
 
-    @Override
-    public boolean isVisible(final Method method) {
-        return false;
+    override fun isVisible(method: Method): Boolean {
+        return false
     }
 }

@@ -2,27 +2,24 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.client.brp.util
 
-package net.atos.client.brp.util;
+import jakarta.ws.rs.core.MultivaluedMap
+import org.eclipse.microprofile.config.ConfigProvider
+import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory
 
-import jakarta.ws.rs.core.MultivaluedMap;
+class BRPClientHeadersFactory : ClientHeadersFactory {
+    override fun update(
+        incomingHeaders: MultivaluedMap<String, String>,
+        clientOutgoingHeaders: MultivaluedMap<String, String>
+    ): MultivaluedMap<String, String> {
+        clientOutgoingHeaders.add(X_API_KEY, API_KEY)
+        return clientOutgoingHeaders
+    }
 
-import org.eclipse.microprofile.config.ConfigProvider;
-import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
+    companion object {
+        private const val X_API_KEY = "X-API-KEY"
 
-
-public class BRPClientHeadersFactory implements ClientHeadersFactory {
-
-    private static final String X_API_KEY = "X-API-KEY";
-
-    private static final String API_KEY = ConfigProvider.getConfig().getValue("brp.api.key", String.class);
-
-    @Override
-    public MultivaluedMap<String, String> update(
-            final MultivaluedMap<String, String> incomingHeaders,
-            final MultivaluedMap<String, String> clientOutgoingHeaders
-    ) {
-        clientOutgoingHeaders.add(X_API_KEY, API_KEY);
-        return clientOutgoingHeaders;
+        private val API_KEY: String = ConfigProvider.getConfig().getValue("brp.api.key", String::class.java)
     }
 }
