@@ -13,12 +13,10 @@ class JsonbConfiguration : ContextResolver<Jsonb> {
     private val jsonb: Jsonb
 
     init {
-        val jsonbConfig = JsonbConfig()
-            .withDeserializers(PersonenQueryResponseJsonbDeserializer())
-        jsonb = JsonbBuilder.create(jsonbConfig)
+        JsonbConfig().withDeserializers(PersonenQueryResponseJsonbDeserializer()).let {
+            jsonb = JsonbBuilder.create(it)
+        }
     }
 
-    override fun getContext(type: Class<*>?): Jsonb {
-        return jsonb
-    }
+    override fun getContext(type: Class<*>) :Jsonb = jsonb
 }

@@ -5,15 +5,15 @@
 
 package net.atos.client.brp;
 
-import static net.atos.client.brp.util.PersonenQueryResponseJsonbDeserializer.RAADPLEEG_MET_BURGERSERVICENUMMER;
-import static net.atos.client.brp.util.PersonenQueryResponseJsonbDeserializer.ZOEK_MET_GESLACHTSNAAM_EN_GEBOORTEDATUM;
-import static net.atos.client.brp.util.PersonenQueryResponseJsonbDeserializer.ZOEK_MET_NAAM_EN_GEMEENTE_VAN_INSCHRIJVING;
-import static net.atos.client.brp.util.PersonenQueryResponseJsonbDeserializer.ZOEK_MET_NUMMERAANDUIDING_IDENTIFICATIE;
-import static net.atos.client.brp.util.PersonenQueryResponseJsonbDeserializer.ZOEK_MET_POSTCODE_EN_HUISNUMMER;
-import static net.atos.client.brp.util.PersonenQueryResponseJsonbDeserializer.ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING;
+import net.atos.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.RAADPLEEG_MET_BURGERSERVICENUMMER
+import net.atos.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_GESLACHTSNAAM_EN_GEBOORTEDATUM
+import net.atos.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_NAAM_EN_GEMEENTE_VAN_INSCHRIJVING
+import net.atos.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_POSTCODE_EN_HUISNUMMER
+import net.atos.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import java.util.logging.Level
 
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.logging.Logger;
@@ -34,35 +34,27 @@ import net.atos.client.brp.model.generated.ZoekMetNaamEnGemeenteVanInschrijving;
 import net.atos.client.brp.model.generated.ZoekMetNummeraanduidingIdentificatie;
 import net.atos.client.brp.model.generated.ZoekMetPostcodeEnHuisnummer;
 import net.atos.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijving;
+import net.atos.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_NUMMERAANDUIDING_IDENTIFICATIE
 
 @ApplicationScoped
-public class BRPClientService {
-    private static final Logger LOG = Logger.getLogger(BRPClientService.class.getName());
-    private static final String BURGERSERVICENUMMER = "burgerservicenummer";
-    private static final String GESLACHT = "geslacht";
-    private static final String NAAM = "naam";
-    private static final String GEBOORTE = "geboorte";
-    private static final String VERBLIJFPLAATS = "verblijfplaats";
-    private static final String ADRESSERING = "adressering";
-    private static final List<String> FIELDS_PERSOON = List.of(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, VERBLIJFPLAATS);
-    private static final List<String> FIELDS_PERSOON_BEPERKT = List.of(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING);
+@AllOpen
+@NoArgConstructor
+ class BRPClientService @Inject constructor(
+    @RestClient val personenApi: PersonenApi
+ ) {
+     companion object {
+         private val  LOG = Logger.getLogger(BRPClientService::class.java.name)
+         private val  BURGERSERVICENUMMER = "burgerservicenummer"
+         private val  GESLACHT = "geslacht"
+         private val  NAAM = "naam"
+         private val GEBOORTE = "geboorte"
+         private val VERBLIJFPLAATS = "verblijfplaats"
+         private val ADRESSERING = "adressering"
+         private val FIELDS_PERSOON = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, VERBLIJFPLAATS)
+         private val FIELDS_PERSOON_BEPERKT = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING)
+     }
 
-    private PersonenApi personenApi;
-
-    @Inject
-    public BRPClientService(
-            @RestClient PersonenApi personenApi
-    ) {
-        this.personenApi = personenApi;
-    }
-
-    /**
-     * Default no-arg constructor, required by Weld.
-     */
-    public BRPClientService() {
-    }
-
-    public PersonenQueryResponse queryPersonen(final PersonenQuery personenQuery) {
+    fun queryPersonen(personenQuery: PersonenQuery): PersonenQueryResponse {
         complementQuery(personenQuery);
         return personenApi.personen(personenQuery);
     }
@@ -73,18 +65,18 @@ public class BRPClientService {
      * Raadpleeg een (overleden) persoon.
      * Gebruik de fields parameter als je alleen specifieke velden in het antwoord wil zien,
      */
-    public Optional<Persoon> findPersoon(final String burgerservicenummer) {
+     fun  findPersoon( burgerservicenummer:String) :Optional<Persoon>{
         try {
-            final var response = (RaadpleegMetBurgerservicenummerResponse) personenApi.personen(
+             val response = personenApi.personen(
                     createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer)
-            );
-            if (!CollectionUtils.isEmpty(response.getPersonen())) {
-                return Optional.of(response.getPersonen().getFirst());
+            ) as RaadpleegMetBurgerservicenummerResponse;
+            return if (!CollectionUtils.isEmpty(response.personen)) {
+                Optional.of(response.personen.first());
             } else {
-                return Optional.empty();
+                Optional.empty();
             }
-        } catch (final RuntimeException exception) {
-            LOG.warning(() -> "Error while calling findPersoon: %s".formatted(exception.getMessage()));
+        } catch ( exception: RuntimeException) {
+            LOG.log(Level.WARNING, "Error while calling findPersoon", exception);
             return Optional.empty();
         }
     }
@@ -95,62 +87,61 @@ public class BRPClientService {
      * Raadpleeg een (overleden) persoon.
      * Gebruik de fields parameter als je alleen specifieke velden in het antwoord wil zien,
      */
-    public CompletionStage<Optional<Persoon>> findPersoonAsync(final String burgerservicenummer) {
-        return personenApi.personenAsync(createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer))
-                .handle(
-                        (response, exception) -> handleFindPersoonAsync((RaadpleegMetBurgerservicenummerResponse) response, exception)
-                );
-    }
+    fun findPersoonAsync(burgerservicenummer: String): CompletionStage<Optional<Persoon>> =
+         personenApi.personenAsync(createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer))
+                .handle { response, exception ->
+                    handleFindPersoonAsync(response as RaadpleegMetBurgerservicenummerResponse, exception)
+                }
 
-    private Optional<Persoon> handleFindPersoonAsync(
-            final RaadpleegMetBurgerservicenummerResponse response,
-            final Throwable exception
-    ) {
-        if (!CollectionUtils.isEmpty(response.getPersonen())) {
-            return Optional.of(response.getPersonen().getFirst());
+    fun handleFindPersoonAsync(
+        response: RaadpleegMetBurgerservicenummerResponse,
+        exception: Throwable
+    ): Optional<Persoon> {
+        if (response.personen.isNotEmpty()) {
+            return Optional.of(response.personen.first());
         } else {
-            LOG.warning(() -> "Error while calling findPersoonAsync: %s".formatted(exception.getMessage()));
+            LOG.log(Level.WARNING, "Error while calling findPersoonAsync", exception);
             return Optional.empty();
         }
     }
 
-    private static RaadpleegMetBurgerservicenummer createRaadpleegMetBurgerservicenummerQuery(
-            final String burgerservicenummer
-    ) {
-        final var query = new RaadpleegMetBurgerservicenummer();
-        complementQuery(query);
-        query.addBurgerservicenummerItem(burgerservicenummer);
-        return query;
-    }
+    private fun createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer: String): RaadpleegMetBurgerservicenummer =
+         RaadpleegMetBurgerservicenummer().let {
+            it.type = RAADPLEEG_MET_BURGERSERVICENUMMER;
+            it.fields = FIELDS_PERSOON;
+            it.addBurgerservicenummerItem(burgerservicenummer);
+            it
+        }
 
-    private static void complementQuery(final PersonenQuery personenQuery) {
-        switch (personenQuery) {
-            case RaadpleegMetBurgerservicenummer query -> {
-                query.setType(RAADPLEEG_MET_BURGERSERVICENUMMER);
-                query.setFields(FIELDS_PERSOON);
+    private fun complementQuery( personenQuery: PersonenQuery) {
+        when (personenQuery) {
+            is RaadpleegMetBurgerservicenummer -> {
+                personenQuery.setType(RAADPLEEG_MET_BURGERSERVICENUMMER);
+                personenQuery.setFields(FIELDS_PERSOON);
             }
-            case ZoekMetGeslachtsnaamEnGeboortedatum query -> {
-                query.setType(ZOEK_MET_GESLACHTSNAAM_EN_GEBOORTEDATUM);
-                query.setFields(FIELDS_PERSOON_BEPERKT);
+            is ZoekMetGeslachtsnaamEnGeboortedatum -> {
+                personenQuery.setType(ZOEK_MET_GESLACHTSNAAM_EN_GEBOORTEDATUM);
+                personenQuery.setFields(FIELDS_PERSOON_BEPERKT);
             }
-            case ZoekMetNaamEnGemeenteVanInschrijving query -> {
-                query.setType(ZOEK_MET_NAAM_EN_GEMEENTE_VAN_INSCHRIJVING);
-                query.setFields(FIELDS_PERSOON_BEPERKT);
+            is ZoekMetNaamEnGemeenteVanInschrijving  -> {
+                personenQuery.setType(ZOEK_MET_NAAM_EN_GEMEENTE_VAN_INSCHRIJVING);
+                personenQuery.setFields(FIELDS_PERSOON_BEPERKT);
             }
-            case ZoekMetNummeraanduidingIdentificatie query -> {
-                query.setType(ZOEK_MET_NUMMERAANDUIDING_IDENTIFICATIE);
-                query.setFields(FIELDS_PERSOON_BEPERKT);
+            is ZoekMetNummeraanduidingIdentificatie -> {
+                personenQuery.setType(ZOEK_MET_NUMMERAANDUIDING_IDENTIFICATIE);
+                personenQuery.setFields(FIELDS_PERSOON_BEPERKT);
             }
-            case ZoekMetPostcodeEnHuisnummer query -> {
-                query.setType(ZOEK_MET_POSTCODE_EN_HUISNUMMER);
-                query.setFields(FIELDS_PERSOON_BEPERKT);
+            is ZoekMetPostcodeEnHuisnummer  -> {
+                personenQuery.setType(ZOEK_MET_POSTCODE_EN_HUISNUMMER);
+                personenQuery.setFields(FIELDS_PERSOON_BEPERKT);
             }
-            case ZoekMetStraatHuisnummerEnGemeenteVanInschrijving query -> {
-                query.setType(ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING);
-                query.setFields(FIELDS_PERSOON_BEPERKT);
+            is ZoekMetStraatHuisnummerEnGemeenteVanInschrijving  -> {
+                personenQuery.setType(ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING);
+                personenQuery.setFields(FIELDS_PERSOON_BEPERKT);
             }
-            case PersonenQuery ignored -> throw new IllegalStateException(
-                    "Must use one of the subclasses of '%s'".formatted(PersonenQuery.class.getSimpleName()));
+            else -> throw IllegalStateException(
+                "Must use one of the subclasses of '${PersonenQuery::class.java.simpleName}'"
+            )
         }
     }
 }

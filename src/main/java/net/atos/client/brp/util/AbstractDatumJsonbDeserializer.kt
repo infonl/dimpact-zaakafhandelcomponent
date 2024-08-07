@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.client.brp.util
@@ -17,23 +17,21 @@ import net.atos.client.brp.model.generated.JaarMaandDatum
 import net.atos.client.brp.model.generated.VolledigeDatum
 import java.lang.reflect.Type
 
-
 class AbstractDatumJsonbDeserializer : JsonbDeserializer<AbstractDatum> {
-    override fun deserialize(parser: JsonParser, ctx: DeserializationContext, rtType: Type): AbstractDatum {
-        val jsonObject = parser.getObject()
-        val type = jsonObject.getString("type")
-        return when (type) {
-            "Datum" -> JSONB.fromJson(jsonObject.toString(), VolledigeDatum::class.java)
-            "DatumOnbekend" -> JSONB.fromJson(jsonObject.toString(), DatumOnbekend::class.java)
-            "JaarDatum" -> JSONB.fromJson(jsonObject.toString(), JaarDatum::class.java)
-            "JaarMaandDatum" -> JSONB.fromJson(jsonObject.toString(), JaarMaandDatum::class.java)
-            else -> throw RuntimeException("Type '%s' wordt niet ondersteund".formatted(type))
-        }
-    }
-
     companion object {
         private val JSONB: Jsonb = JsonbBuilder.create(
             JsonbConfig().withPropertyVisibilityStrategy(FieldPropertyVisibilityStrategy())
         )
     }
+
+    override fun deserialize(parser: JsonParser, ctx: DeserializationContext, rtType: Type): AbstractDatum =
+        parser.getObject().let {
+            when (val type = it.getString("type")) {
+                "Datum" -> JSONB.fromJson(it.toString(), VolledigeDatum::class.java)
+                "DatumOnbekend" -> JSONB.fromJson(it.toString(), DatumOnbekend::class.java)
+                "JaarDatum" -> JSONB.fromJson(it.toString(), JaarDatum::class.java)
+                "JaarMaandDatum" -> JSONB.fromJson(it.toString(), JaarMaandDatum::class.java)
+                else -> throw RuntimeException("Type '$type' wordt niet ondersteund")
+            }
+        }
 }

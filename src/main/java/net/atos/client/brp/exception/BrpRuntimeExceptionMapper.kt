@@ -10,17 +10,9 @@ import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper
 
 
 class BrpRuntimeExceptionMapper : ResponseExceptionMapper<RuntimeException> {
-    override fun handles(status: Int, headers: MultivaluedMap<String, Any>): Boolean {
-        return status >= Response.Status.INTERNAL_SERVER_ERROR.statusCode
-    }
+    override fun handles(status: Int, headers: MultivaluedMap<String, Any>) =
+        status >= Response.Status.INTERNAL_SERVER_ERROR.statusCode
 
-    override fun toThrowable(response: Response): RuntimeException {
-        return RuntimeException(
-            String.format(
-                "Server response from BRP: %d (%s)",
-                response.status,
-                response.statusInfo
-            )
-        )
-    }
+    override fun toThrowable(response: Response) =
+         RuntimeException("Server response from BRP: ${response.status} (${ response.statusInfo})")
 }
