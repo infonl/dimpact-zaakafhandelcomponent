@@ -13,6 +13,7 @@ import static net.atos.client.brp.util.PersonenQueryResponseJsonbDeserializer.ZO
 import static net.atos.client.brp.util.PersonenQueryResponseJsonbDeserializer.ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.logging.Logger;
@@ -36,28 +37,30 @@ import net.atos.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanI
 
 @ApplicationScoped
 public class BRPClientService {
-
     private static final Logger LOG = Logger.getLogger(BRPClientService.class.getName());
-
     private static final String BURGERSERVICENUMMER = "burgerservicenummer";
-
     private static final String GESLACHT = "geslacht";
-
     private static final String NAAM = "naam";
-
     private static final String GEBOORTE = "geboorte";
-
     private static final String VERBLIJFPLAATS = "verblijfplaats";
-
     private static final String ADRESSERING = "adressering";
-
     private static final List<String> FIELDS_PERSOON = List.of(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, VERBLIJFPLAATS);
-
     private static final List<String> FIELDS_PERSOON_BEPERKT = List.of(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING);
 
-    @Inject
-    @RestClient
     private PersonenApi personenApi;
+
+    @Inject
+    public BRPClientService(
+            @RestClient PersonenApi personenApi
+    ) {
+        this.personenApi = personenApi;
+    }
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public BRPClientService() {
+    }
 
     public PersonenQueryResponse queryPersonen(final PersonenQuery personenQuery) {
         complementQuery(personenQuery);
@@ -73,7 +76,8 @@ public class BRPClientService {
     public Optional<Persoon> findPersoon(final String burgerservicenummer) {
         try {
             final var response = (RaadpleegMetBurgerservicenummerResponse) personenApi.personen(
-                    createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer));
+                    createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer)
+            );
             if (!CollectionUtils.isEmpty(response.getPersonen())) {
                 return Optional.of(response.getPersonen().getFirst());
             } else {
