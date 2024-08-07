@@ -21,7 +21,7 @@ export class ContactmomentenService {
     private foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
-  private basepath = "/rest/contactmomenten";
+  private basepath = "/rest/klanten/contactmomenten";
 
   listContactmomenten(
     listContactmomentenParameters: ListContactmomentenParameters,
