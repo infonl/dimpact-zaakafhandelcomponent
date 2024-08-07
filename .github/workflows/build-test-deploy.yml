@@ -141,7 +141,7 @@ jobs:
           key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Run unit tests
-        run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes test --info
+        run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes test --stacktrace --debug --warning-mode all
 
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@v2
