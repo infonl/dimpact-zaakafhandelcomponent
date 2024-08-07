@@ -59,8 +59,8 @@ interface PersonenApi {
      * Gebruik de fields parameter om alleen die gegevens op te vragen die je nodig hebt en waarvoor je geautoriseerd bent.
      */
     @POST
-    fun personen(personenQuery: PersonenQuery?): PersonenQueryResponse?
+    fun personen(personenQuery: PersonenQuery): PersonenQueryResponse
 
     @POST
-    fun personenAsync(personenQuery: PersonenQuery?): CompletionStage<PersonenQueryResponse?>?
+    fun personenAsync(personenQuery: PersonenQuery): CompletionStage<PersonenQueryResponse>
 }
