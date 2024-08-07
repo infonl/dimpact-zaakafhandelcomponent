@@ -9,11 +9,7 @@ import java.lang.reflect.Field
 import java.lang.reflect.Method
 
 class FieldPropertyVisibilityStrategy : PropertyVisibilityStrategy {
-    override fun isVisible(field: Field): Boolean {
-        return true
-    }
+    override fun isVisible(field: Field) = true
 
-    override fun isVisible(method: Method): Boolean {
-        return false
-    }
+    override fun isVisible(method: Method) = false
 }

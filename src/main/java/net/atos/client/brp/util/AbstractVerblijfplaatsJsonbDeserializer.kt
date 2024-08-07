@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.client.brp.util
@@ -18,25 +18,27 @@ import net.atos.client.brp.model.generated.VerblijfplaatsOnbekend
 import java.lang.reflect.Type
 
 class AbstractVerblijfplaatsJsonbDeserializer : JsonbDeserializer<AbstractVerblijfplaats> {
-    override fun deserialize(
-        parser: JsonParser,
-        ctx: DeserializationContext,
-        rtType: Type
-    ): AbstractVerblijfplaats {
-        val jsonObject = parser.getObject()
-        val type = jsonObject.getString("type")
-        return when (type) {
-            "VerblijfplaatsBuitenland" -> JSONB.fromJson(jsonObject.toString(), VerblijfplaatsBuitenland::class.java)
-            "Adres" -> JSONB.fromJson(jsonObject.toString(), Adres::class.java)
-            "VerblijfplaatsOnbekend" -> JSONB.fromJson(jsonObject.toString(), VerblijfplaatsOnbekend::class.java)
-            "Locatie" -> JSONB.fromJson(jsonObject.toString(), Locatie::class.java)
-            else -> throw RuntimeException("Type '%s' wordt niet ondersteund".formatted(type))
-        }
-    }
-
     companion object {
         private val JSONB: Jsonb = JsonbBuilder.create(
             JsonbConfig().withPropertyVisibilityStrategy(FieldPropertyVisibilityStrategy())
         )
     }
+
+    override fun deserialize(
+        parser: JsonParser,
+        ctx: DeserializationContext,
+        rtType: Type
+    ): AbstractVerblijfplaats =
+         parser.getObject().let {
+             when (val type = it.getString("type")) {
+                "VerblijfplaatsBuitenland" -> JSONB.fromJson(
+                    it.toString(),
+                    VerblijfplaatsBuitenland::class.java
+                )
+                "Adres" -> JSONB.fromJson(it.toString(), Adres::class.java)
+                "VerblijfplaatsOnbekend" -> JSONB.fromJson(it.toString(), VerblijfplaatsOnbekend::class.java)
+                "Locatie" -> JSONB.fromJson(it.toString(), Locatie::class.java)
+                else -> throw RuntimeException("Unsupported ${AbstractVerblijfplaats::class.java.simpleName} type: '$type'")
+            }
+        }
 }

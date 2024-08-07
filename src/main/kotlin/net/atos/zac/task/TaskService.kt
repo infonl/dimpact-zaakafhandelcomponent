@@ -22,8 +22,6 @@ import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
 
-private val LOG = Logger.getLogger(TaskService::class.java.name)
-
 @AllOpen
 class TaskService @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
@@ -31,6 +29,10 @@ class TaskService @Inject constructor(
     private val eventingService: EventingService,
     private val restTaskConverter: RestTaskConverter,
 ) {
+    companion object {
+        private val LOG = Logger.getLogger(TaskService::class.java.name)
+    }
+
     fun assignTask(
         restTaskAssignData: RestTaskAssignData,
         task: Task,
