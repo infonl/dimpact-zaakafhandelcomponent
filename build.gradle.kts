@@ -410,6 +410,15 @@ tasks {
         dependsOn("generateJavaClients")
     }
 
+    compileTestKotlin {
+        // make sure the Java and Koltin code is compiled before compiling the test Kotlin code
+        // in order to avoid the following compilation errors on GitHub introduced with Kotlin 2.0.10:
+        // "Execution failed for task ':compileTestKotlin'."
+        // "Error while evaluating property 'friendPathsSet$kotlin_gradle_plugin_common' of task ':compileTestKotlin'."
+        // "Querying the mapped value of provider(java.util.Set) before task ':compileKotlin' has completed is not supported"
+        dependsOn("compileKotlin", "compileJava")
+    }
+
     jacocoTestReport {
         dependsOn(test)
 
