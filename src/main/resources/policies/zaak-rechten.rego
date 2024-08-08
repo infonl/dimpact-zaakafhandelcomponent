@@ -272,5 +272,5 @@ verlengen_doorlooptijd {
     behandelaar.rol in user.rollen
     zaaktype_allowed == true
     zaak.open == true
-    zaak.opgeschort == false
+    zaak.opgeschort == true
 }
