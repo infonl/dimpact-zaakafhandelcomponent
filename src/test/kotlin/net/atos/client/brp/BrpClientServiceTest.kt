@@ -81,9 +81,6 @@ class BrpClientServiceTest : BehaviorSpec({
     }
     Given("No person for a given BSN for async") {
         val bsn = "123456789"
-        val person = createPersoon(
-            bsn = bsn
-        )
         val completionStage = mockk<CompletionStage<PersonenQueryResponse>>()
         every { personenApi.personenAsync(any()) } returns completionStage
         every {
