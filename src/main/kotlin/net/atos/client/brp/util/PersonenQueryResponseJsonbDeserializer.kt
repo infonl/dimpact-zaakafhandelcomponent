@@ -16,6 +16,7 @@ import net.atos.client.brp.model.generated.ZoekMetNaamEnGemeenteVanInschrijvingR
 import net.atos.client.brp.model.generated.ZoekMetNummeraanduidingIdentificatieResponse
 import net.atos.client.brp.model.generated.ZoekMetPostcodeEnHuisnummerResponse
 import net.atos.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse
+import net.atos.zac.app.util.exception.InputValidationFailedException
 import java.lang.reflect.Type
 
 class PersonenQueryResponseJsonbDeserializer : JsonbDeserializer<PersonenQueryResponse> {
@@ -69,7 +70,7 @@ class PersonenQueryResponseJsonbDeserializer : JsonbDeserializer<PersonenQueryRe
                     it.toString(),
                     ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse::class.java
                 )
-                else -> throw RuntimeException("Unsupported type: '$type'")
+                else -> throw InputValidationFailedException("Unsupported type: '$type'")
             }
         }
 }

@@ -37,7 +37,6 @@ import net.atos.zac.identity.IdentityService
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.util.StringUtil
 import nl.lifely.zac.util.NoArgConstructor
-import org.apache.commons.lang3.NotImplementedException
 import java.net.URI
 import java.util.Objects
 
@@ -118,7 +117,7 @@ class DocumentCreationDataConverter @Inject constructor(
             BetrokkeneType.NIET_NATUURLIJK_PERSOON -> createAanvragerDataNietNatuurlijkPersoon(
                 initiator.identificatienummer
             )
-            else -> throw NotImplementedException(
+            else -> error(
                 "Initiator of type '${initiator.betrokkeneType.toValue()}' is not supported"
             )
         }
