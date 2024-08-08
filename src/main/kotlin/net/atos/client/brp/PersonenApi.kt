@@ -8,7 +8,7 @@ import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
-import net.atos.client.brp.exception.BrpRuntimeExceptionMapper
+import net.atos.client.brp.exception.BrpResponseExceptionMapper
 import net.atos.client.brp.model.generated.PersonenQuery
 import net.atos.client.brp.model.generated.PersonenQueryResponse
 import net.atos.client.brp.util.BRPClientHeadersFactory
@@ -33,7 +33,7 @@ import java.util.concurrent.CompletionStage
  */
 @RegisterRestClient(configKey = "BRP-API-Client")
 @RegisterClientHeaders(BRPClientHeadersFactory::class)
-@RegisterProvider(BrpRuntimeExceptionMapper::class)
+@RegisterProvider(BrpResponseExceptionMapper::class)
 @RegisterProvider(JsonbConfiguration::class)
 @Path("/personen")
 @Consumes("application/json")

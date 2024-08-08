@@ -9,7 +9,7 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.UriBuilder
 import net.atos.client.smartdocuments.SmartDocumentsClient
-import net.atos.client.smartdocuments.exception.BadRequestException
+import net.atos.client.smartdocuments.exception.SmartDocumentsBadRequestException
 import net.atos.client.smartdocuments.model.document.Selection
 import net.atos.client.smartdocuments.model.document.SmartDocument
 import net.atos.client.smartdocuments.model.document.WizardRequest
@@ -88,11 +88,11 @@ class SmartDocumentsService @Inject constructor(
                     .queryParam("ticket", wizardResponse.ticket)
                     .build()
             )
-        } catch (badRequestException: BadRequestException) {
+        } catch (smartDocumentsBadRequestException: SmartDocumentsBadRequestException) {
             return DocumentCreationResponse(
                 message = "Aanmaken van een document is helaas niet mogelijk. " +
                     "Ben je als user geregistreerd in SmartDocuments? " +
-                    "Details: '$badRequestException.message'"
+                    "Details: '$smartDocumentsBadRequestException.message'"
             )
         }
     }

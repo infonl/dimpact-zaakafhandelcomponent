@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutionException;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.NotFoundException;
@@ -28,7 +29,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.client.brp.BRPClientService;
+import net.atos.client.brp.BrpClientService;
 import net.atos.client.brp.model.generated.PersonenQuery;
 import net.atos.client.brp.model.generated.PersonenQueryResponse;
 import net.atos.client.brp.model.generated.Persoon;
@@ -79,7 +80,7 @@ public class KlantRestService {
     public static final String TELEFOON_SOORT_DIGITAAL_ADRES = "telefoon";
     public static final String EMAIL_SOORT_DIGITAAL_ADRES = "email";
 
-    private BRPClientService brpClientService;
+    private BrpClientService brpClientService;
     private KvkClientService kvkClientService;
     private ZtcClientService ztcClientService;
     private RestPersoonConverter restPersoonConverter;
@@ -95,7 +96,7 @@ public class KlantRestService {
 
     @Inject
     public KlantRestService(
-            BRPClientService brpClientService,
+            BrpClientService brpClientService,
             KvkClientService kvkClientService,
             ZtcClientService ztcClientService,
             RestPersoonConverter restPersoonConverter,
@@ -114,7 +115,8 @@ public class KlantRestService {
 
     @GET
     @Path("persoon/{bsn}")
-    public RestPersoon readPersoon(@PathParam("bsn") final String bsn) throws ExecutionException, InterruptedException {
+    public RestPersoon readPersoon(@PathParam("bsn") @Size(min = 8, max = 9) final String bsn) throws ExecutionException,
+                                                                                               InterruptedException {
         return convertToRestPersoon(
                 brpClientService.findPersoonAsync(bsn).toCompletableFuture().get(),
                 convertToRestPersoon(klantClientService.findDigitalAddressesByNumber(bsn))
@@ -218,9 +220,9 @@ public class KlantRestService {
         return restContactGegevens;
     }
 
-    private RestKlant addKlantData(final RestKlant restKlant, final RestPersoon klantPerson) {
-        restKlant.telefoonnummer = klantPerson.telefoonnummer;
-        restKlant.emailadres = klantPerson.emailadres;
+    private RestKlant addKlantData(final RestKlant restKlant, final RestPersoon restPersoon) {
+        restKlant.telefoonnummer = restPersoon.telefoonnummer;
+        restKlant.emailadres = restPersoon.emailadres;
         return restKlant;
     }
 
@@ -231,12 +233,9 @@ public class KlantRestService {
                 .orElseGet(RestBedrijf::new);
     }
 
-
-    private RestPersoon convertToRestPersoon(final Optional<Persoon> persoon, RestPersoon klantPersoon) {
-        return persoon
-                .map(restPersoonConverter::convertPersoon)
-                .map(restPersoon -> (RestPersoon) addKlantData(restPersoon, klantPersoon))
-                .orElse(ONBEKEND_PERSOON);
+    private RestPersoon convertToRestPersoon(final Persoon persoon, RestPersoon klantPersoon) {
+        final RestPersoon restPersoon = restPersoonConverter.convertPersoon(persoon);
+        return (RestPersoon) addKlantData(restPersoon, klantPersoon);
     }
 
     private RestPersoon convertToRestPersoon(List<DigitaalAdres> digitalAddresses) {

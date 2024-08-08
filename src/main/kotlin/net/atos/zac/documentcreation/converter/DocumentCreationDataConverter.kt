@@ -5,7 +5,7 @@
 package net.atos.zac.documentcreation.converter
 
 import jakarta.inject.Inject
-import net.atos.client.brp.BRPClientService
+import net.atos.client.brp.BrpClientService
 import net.atos.client.brp.model.generated.Adres
 import net.atos.client.brp.model.generated.Persoon
 import net.atos.client.brp.model.generated.VerblijfadresBinnenland
@@ -47,7 +47,7 @@ class DocumentCreationDataConverter @Inject constructor(
     private val zgwApiService: ZGWApiService,
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
-    private val brpClientService: BRPClientService,
+    private val brpClientService: BrpClientService,
     private val kvkClientService: KvkClientService,
     private val objectsClientService: ObjectsClientService,
     private val flowableTaskService: FlowableTaskService,

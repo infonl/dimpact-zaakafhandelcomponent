@@ -13,7 +13,7 @@ import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.ext.ExceptionMapper
 import jakarta.ws.rs.ext.Provider
 import net.atos.client.bag.BagClientService
-import net.atos.client.brp.BRPClientService
+import net.atos.client.brp.BrpClientService
 import net.atos.client.klant.KlantClientService
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.objecttype.ObjecttypesClientService
@@ -28,6 +28,7 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
 import java.net.ConnectException
 import java.net.UnknownHostException
+import java.util.concurrent.ExecutionException
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -64,10 +65,16 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         when {
             exception is WebApplicationException &&
                 Response.Status.Family.familyOf(exception.response.status) != Response.Status.Family.SERVER_ERROR -> {
-                Response.status(exception.response.status)
-                    .type(MediaType.APPLICATION_JSON)
-                    .entity(getJSONMessage(errorMessage = exception.message ?: ERROR_CODE_GENERIC_SERVER))
-                    .build()
+                createResponse(exception)
+            }
+            // handle execution exceptions thrown from asynchronous Java concurrent methods
+            exception is ExecutionException && (exception.cause is WebApplicationException) &&
+                Response.Status.Family.familyOf(
+                    (
+                        exception.cause as WebApplicationException
+                        ).response.status
+                ) != Response.Status.Family.SERVER_ERROR -> {
+                createResponse(exception.cause as WebApplicationException)
             }
             exception is ZgwRuntimeException -> handleZgwRuntimeException(exception)
             exception is ProcessingException && (exception.cause is ConnectException || exception.cause is UnknownHostException) -> {
@@ -75,6 +82,12 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             }
             else -> generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
         }
+
+    private fun createResponse(exception: WebApplicationException) =
+        Response.status(exception.response.status)
+            .type(MediaType.APPLICATION_JSON)
+            .entity(getJSONMessage(errorMessage = exception.message ?: ERROR_CODE_GENERIC_SERVER))
+            .build()
 
     private fun handleZgwRuntimeException(exception: ZgwRuntimeException): Response =
         when (exception) {
@@ -115,7 +128,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_BAG_CLIENT)
                 it.contains(BrcClientService::class.simpleName!!) ->
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_BRC_CLIENT)
-                it.contains(BRPClientService::class.simpleName!!) ->
+                it.contains(BrpClientService::class.simpleName!!) ->
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_BRP_CLIENT)
                 it.contains(DrcClientService::class.simpleName!!) ->
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_DRC_CLIENT)

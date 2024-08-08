@@ -17,7 +17,7 @@ import net.atos.client.zgw.shared.model.ValidatieFout;
  * These responses are expected to have a JSON payload according to
  * <a href="https://datatracker.ietf.org/doc/html/rfc7807">the Problem Details Standard</a>.
  */
-public class ZgwValidatieFoutExceptionMapper implements ResponseExceptionMapper<ValidatieFoutException> {
+public class ZgwValidatieFoutResponseExceptionMapper implements ResponseExceptionMapper<ValidatieFoutException> {
 
     @Override
     public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {

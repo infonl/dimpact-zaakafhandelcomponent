@@ -18,5 +18,5 @@ class JsonbConfiguration : ContextResolver<Jsonb> {
         }
     }
 
-    override fun getContext(type: Class<*>) :Jsonb = jsonb
+    override fun getContext(type: Class<*>): Jsonb = jsonb
 }

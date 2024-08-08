@@ -1,16 +1,17 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.client.zgw.drc.exception;
+package net.atos.client.bag.exception;
 
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 
-public class DrcRuntimeExceptionMapper implements ResponseExceptionMapper<RuntimeException> {
+
+public class BagResponseExceptionMapper implements ResponseExceptionMapper<RuntimeException> {
 
     @Override
     public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {
@@ -19,9 +20,9 @@ public class DrcRuntimeExceptionMapper implements ResponseExceptionMapper<Runtim
 
     @Override
     public RuntimeException toThrowable(final Response response) {
-        return new DrcRuntimeException(
+        return new RuntimeException(
                 String.format(
-                        "Server response from the DRC API implementation: %d (%s)",
+                        "Server response from BAG: %d (%s)",
                         response.getStatus(),
                         response.getStatusInfo()
                 )

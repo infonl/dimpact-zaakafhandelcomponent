@@ -17,7 +17,7 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.klant.exception.KlantRuntimeExceptionMapper;
+import net.atos.client.klant.exception.KlantRuntimeResponseExceptionMapper;
 import net.atos.client.klant.model.PaginatedExpandPartijList;
 import net.atos.client.klant.util.KlantClientHeadersFactory;
 
@@ -29,7 +29,7 @@ import net.atos.client.klant.util.KlantClientHeadersFactory;
  */
 @RegisterRestClient(configKey = "Klantinteracties-API-Client")
 @RegisterClientHeaders(KlantClientHeadersFactory.class)
-@RegisterProvider(KlantRuntimeExceptionMapper.class)
+@RegisterProvider(KlantRuntimeResponseExceptionMapper.class)
 @Path("/klantinteracties/api/v1")
 public interface KlantClient {
     @GET

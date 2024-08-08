@@ -7,6 +7,8 @@ package net.atos.client.brp
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import net.atos.client.brp.exception.BrpPersonNotFoundException
+import net.atos.client.brp.exception.BrpRuntimeException
 import net.atos.client.brp.model.generated.PersonenQuery
 import net.atos.client.brp.model.generated.PersonenQueryResponse
 import net.atos.client.brp.model.generated.Persoon
@@ -26,26 +28,24 @@ import net.atos.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
-import java.util.Optional
 import java.util.concurrent.CompletionStage
-import java.util.logging.Level
 import java.util.logging.Logger
 
 @ApplicationScoped
 @AllOpen
 @NoArgConstructor
-class BRPClientService @Inject constructor(
+class BrpClientService @Inject constructor(
     @RestClient val personenApi: PersonenApi
 ) {
     companion object {
-        const val BURGERSERVICENUMMER = "burgerservicenummer"
-        const val GESLACHT = "geslacht"
-        const val NAAM = "naam"
-        const val GEBOORTE = "geboorte"
-        const val VERBLIJFPLAATS = "verblijfplaats"
-        const val ADRESSERING = "adressering"
+        private const val BURGERSERVICENUMMER = "burgerservicenummer"
+        private const val GESLACHT = "geslacht"
+        private const val NAAM = "naam"
+        private const val GEBOORTE = "geboorte"
+        private const val VERBLIJFPLAATS = "verblijfplaats"
+        private const val ADRESSERING = "adressering"
 
-        private val LOG = Logger.getLogger(BRPClientService::class.java.name)
+        private val LOG = Logger.getLogger(BrpClientService::class.java.name)
         private val FIELDS_PERSOON = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, VERBLIJFPLAATS)
         private val FIELDS_PERSOON_BEPERKT = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING)
     }
@@ -72,32 +72,24 @@ class BRPClientService @Inject constructor(
             }
         }
 
-    /**
-     * Vindt een persoon asynchroon
-     * <p>
-     * Raadpleeg een (overleden) persoon.
-     * Gebruik de fields parameter als je alleen specifieke velden in het antwoord wil zien,
-     */
-    fun findPersoonAsync(burgerservicenummer: String): CompletionStage<Optional<Persoon>> =
+    fun findPersoonAsync(burgerservicenummer: String): CompletionStage<Persoon> =
         createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer).let {
             personenApi.personenAsync(it)
                 .handle { response, exception ->
-                    handleFindPersoonAsync(response as RaadpleegMetBurgerservicenummerResponse?, exception)
+                    (response as RaadpleegMetBurgerservicenummerResponse?)?.personen?.let { persons ->
+                        if (persons.isNotEmpty()) {
+                            return@handle persons.first()
+                        } else {
+                            throw BrpPersonNotFoundException(
+                                "No person found for burgerservicenummer: $burgerservicenummer"
+                            )
+                        }
+                    }
+                    exception?.let { e ->
+                        throw BrpRuntimeException("Error occured while finding person in the BRP API", e)
+                    }
                 }
         }
-
-    fun handleFindPersoonAsync(
-        response: RaadpleegMetBurgerservicenummerResponse?,
-        exception: Throwable?
-    ): Optional<Persoon> {
-        response?.personen?.let {
-            if (it.isNotEmpty()) {
-                return Optional.of(it.first())
-            }
-        }
-        LOG.log(Level.WARNING, "Error while calling findPersoonAsync", exception)
-        return Optional.empty()
-    }
 
     private fun createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer: String) =
         RaadpleegMetBurgerservicenummer().apply {
