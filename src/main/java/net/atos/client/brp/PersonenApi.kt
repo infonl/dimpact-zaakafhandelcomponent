@@ -33,9 +33,7 @@ import java.util.concurrent.CompletionStage
  */
 @RegisterRestClient(configKey = "BRP-API-Client")
 @RegisterClientHeaders(BRPClientHeadersFactory::class)
-@RegisterProvider(
-    BrpRuntimeExceptionMapper::class
-)
+@RegisterProvider(BrpRuntimeExceptionMapper::class)
 @RegisterProvider(JsonbConfiguration::class)
 @Path("/personen")
 @Consumes("application/json")

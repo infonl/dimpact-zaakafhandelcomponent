@@ -36,6 +36,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
+
 import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
@@ -284,14 +286,17 @@ public class MailTemplateHelper {
 
     private static String replaceInitiatorVariabelenPersoon(
             final String resolvedTekst,
-            final Optional<Persoon> initiator
+            final @Nullable Persoon initiator
     ) {
-        return initiator.map(persoon -> replaceInitiatorVariabelen(
-                resolvedTekst,
-                persoon.getNaam().getVolledigeNaam(),
-                convertAdres(persoon))
-        )
-                .orElseGet(() -> replaceInitiatorVariabelenOnbekend(resolvedTekst));
+        if (initiator != null) {
+            return replaceInitiatorVariabelen(
+                    resolvedTekst,
+                    initiator.getNaam().getVolledigeNaam(),
+                    convertAdres(initiator)
+            );
+        } else {
+            return replaceInitiatorVariabelenOnbekend(resolvedTekst);
+        }
     }
 
     private static String replaceInitiatorVariabelenResultaatItem(
