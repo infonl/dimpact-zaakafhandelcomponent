@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -43,6 +44,7 @@ public class FlowableTaskService {
     public static final String USER_TASK_DESCRIPTION_CHANGED = "USER_TASK_DESCRIPTION_CHANGED";
     public static final String USER_TASK_ASSIGNEE_CHANGED_CUSTOM = "USER_TASK_ASSIGNEE_CHANGED_CUSTOM";
     public static final String USER_TASK_GROUP_CHANGED = "USER_TASK_GROUP_CHANGED";
+    public static final String USER_TASK_ADDITIONAL_INFORMATION_CHANGED = "USER_TASK_ADDITIONAL_INFORMATION_CHANGED";
 
     private TaskService taskService;
     private CmmnTaskService cmmnTaskService;
@@ -184,6 +186,11 @@ public class FlowableTaskService {
         taskService.saveTask(task);
         createHistoricTaskLogEntry(task, USER_TASK_DESCRIPTION_CHANGED, oldDescription, task.getDescription(), null);
         return readOpenTask(task.getId());
+    }
+
+    public void updateAdditionalInformationStatus(final Task task, String newValue) {
+        final String oldValue = ((Map<String, String>) task.getTaskLocalVariables().get("taakdata")).get("aanvullendeInformatie");
+        createHistoricTaskLogEntry(task, USER_TASK_ADDITIONAL_INFORMATION_CHANGED, oldValue, newValue, null);
     }
 
     private void createHistoricTaskLogEntry(

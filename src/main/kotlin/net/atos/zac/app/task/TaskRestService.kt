@@ -126,13 +126,19 @@ class TaskRestService @Inject constructor(
     fun updateTaskData(restTask: RestTask): RestTask {
         flowableTaskService.readOpenTask(restTask.id).let {
             assertPolicy(TaskUtil.isOpen(it) && policyService.readTaakRechten(it).wijzigen)
-            taakVariabelenService.setTaskData(it, restTask.taakdata)
-            taakVariabelenService.setTaskinformation(it, restTask.taakinformatie)
+            updateAdditionalInformationStatus(it, restTask)
             val updatedTask = updateDescriptionAndDueDate(restTask)
             eventingService.send(ScreenEventType.TAAK.updated(updatedTask))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
             return restTask
         }
+    }
+
+    private fun updateAdditionalInformationStatus(task: Task, restTask: RestTask) {
+        val newAdditionalInfoStatus = restTask.taakdata?.get("aanvullendeInformatie")
+        taakVariabelenService.setTaskData(task, restTask.taakdata)
+        taakVariabelenService.setTaskinformation(task, restTask.taakinformatie)
+        flowableTaskService.updateAdditionalInformationStatus(task, newAdditionalInfoStatus)
     }
 
     private fun updateDescriptionAndDueDate(restTask: RestTask): Task {

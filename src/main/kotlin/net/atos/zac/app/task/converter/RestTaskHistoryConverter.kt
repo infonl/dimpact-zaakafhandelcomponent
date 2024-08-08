@@ -28,6 +28,7 @@ class RestTaskHistoryConverter @Inject constructor(
         const val AANGEMAAKT_DOOR_ATTRIBUUT_LABEL = "aangemaaktDoor"
         const val FATALEDATUM_ATTRIBUUT_LABEL = "fataledatum"
         const val STATUS_ATTRIBUUT_LABEL = "taak.status"
+        const val ADDITIONAL_INFO_LABEL = "taak.additionalInfo"
     }
 
     fun convert(historicTaskLogEntries: List<HistoricTaskLogEntry>): List<RestTaskHistoryLine> =
@@ -49,6 +50,10 @@ class RestTaskHistoryConverter @Inject constructor(
             )
             FlowableTaskService.USER_TASK_GROUP_CHANGED -> convertValueChangeData(
                 GROEP_ATTRIBUUT_LABEL,
+                historicTaskLogEntry.data
+            )
+            FlowableTaskService.USER_TASK_ADDITIONAL_INFORMATION_CHANGED -> convertValueChangeData(
+                ADDITIONAL_INFO_LABEL,
                 historicTaskLogEntry.data
             )
             else -> historicTaskLogEntry.data?.let {
