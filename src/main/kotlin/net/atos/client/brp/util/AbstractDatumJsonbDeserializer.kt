@@ -15,6 +15,7 @@ import net.atos.client.brp.model.generated.DatumOnbekend
 import net.atos.client.brp.model.generated.JaarDatum
 import net.atos.client.brp.model.generated.JaarMaandDatum
 import net.atos.client.brp.model.generated.VolledigeDatum
+import net.atos.zac.app.util.exception.InputValidationFailedException
 import java.lang.reflect.Type
 
 class AbstractDatumJsonbDeserializer : JsonbDeserializer<AbstractDatum> {
@@ -31,7 +32,7 @@ class AbstractDatumJsonbDeserializer : JsonbDeserializer<AbstractDatum> {
                 "DatumOnbekend" -> JSONB.fromJson(it.toString(), DatumOnbekend::class.java)
                 "JaarDatum" -> JSONB.fromJson(it.toString(), JaarDatum::class.java)
                 "JaarMaandDatum" -> JSONB.fromJson(it.toString(), JaarMaandDatum::class.java)
-                else -> throw RuntimeException("Type '$type' wordt niet ondersteund")
+                else -> throw InputValidationFailedException("Type '$type' is not supported")
             }
         }
 }

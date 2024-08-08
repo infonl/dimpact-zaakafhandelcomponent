@@ -15,6 +15,7 @@ import net.atos.client.brp.model.generated.Adres
 import net.atos.client.brp.model.generated.Locatie
 import net.atos.client.brp.model.generated.VerblijfplaatsBuitenland
 import net.atos.client.brp.model.generated.VerblijfplaatsOnbekend
+import net.atos.zac.app.util.exception.InputValidationFailedException
 import java.lang.reflect.Type
 
 class AbstractVerblijfplaatsJsonbDeserializer : JsonbDeserializer<AbstractVerblijfplaats> {
@@ -38,7 +39,7 @@ class AbstractVerblijfplaatsJsonbDeserializer : JsonbDeserializer<AbstractVerbli
                 "Adres" -> JSONB.fromJson(it.toString(), Adres::class.java)
                 "VerblijfplaatsOnbekend" -> JSONB.fromJson(it.toString(), VerblijfplaatsOnbekend::class.java)
                 "Locatie" -> JSONB.fromJson(it.toString(), Locatie::class.java)
-                else -> throw RuntimeException(
+                else -> throw InputValidationFailedException(
                     "Unsupported ${AbstractVerblijfplaats::class.java.simpleName} type: '$type'"
                 )
             }
