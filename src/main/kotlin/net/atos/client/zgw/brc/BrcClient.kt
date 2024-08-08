@@ -16,12 +16,12 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.client.zgw.brc.exception.BrcRuntimeExceptionMapper
+import net.atos.client.zgw.brc.exception.BrcResponseExceptionMapper
 import net.atos.client.zgw.brc.model.BesluitenListParameters
 import net.atos.client.zgw.brc.model.generated.Besluit
 import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
 import net.atos.client.zgw.shared.exception.ZgwFoutExceptionMapper
-import net.atos.client.zgw.shared.exception.ZgwValidatieFoutExceptionMapper
+import net.atos.client.zgw.shared.exception.ZgwValidatieFoutResponseExceptionMapper
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
 import net.atos.client.zgw.shared.util.JsonbConfiguration
@@ -40,8 +40,8 @@ import java.util.UUID
 @RegisterRestClient(configKey = "ZGW-API-Client")
 @RegisterClientHeaders(ZGWClientHeadersFactory::class)
 @RegisterProvider(ZgwFoutExceptionMapper::class)
-@RegisterProvider(ZgwValidatieFoutExceptionMapper::class)
-@RegisterProvider(BrcRuntimeExceptionMapper::class)
+@RegisterProvider(ZgwValidatieFoutResponseExceptionMapper::class)
+@RegisterProvider(BrcResponseExceptionMapper::class)
 @RegisterProvider(JsonbConfiguration::class)
 @Path("besluiten/api/v1")
 @Produces(MediaType.APPLICATION_JSON)

@@ -29,12 +29,12 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import net.atos.client.util.JAXRSClientFactory;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.exception.ZgwFoutExceptionMapper;
-import net.atos.client.zgw.shared.exception.ZgwValidatieFoutExceptionMapper;
+import net.atos.client.zgw.shared.exception.ZgwValidatieFoutResponseExceptionMapper;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel;
 import net.atos.client.zgw.shared.util.JsonbConfiguration;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
-import net.atos.client.zgw.zrc.exception.ZrcRuntimeExceptionMapper;
+import net.atos.client.zgw.zrc.exception.ZrcResponseExceptionMapper;
 import net.atos.client.zgw.zrc.model.BetrokkeneType;
 import net.atos.client.zgw.zrc.model.Rol;
 import net.atos.client.zgw.zrc.model.RolListParameters;
@@ -516,8 +516,8 @@ public class ZrcClientService {
 
         return JAXRSClientFactory.getOrCreateClient().target(uri)
                 .register(ZgwFoutExceptionMapper.class)
-                .register(ZgwValidatieFoutExceptionMapper.class)
-                .register(ZrcRuntimeExceptionMapper.class)
+                .register(ZgwValidatieFoutResponseExceptionMapper.class)
+                .register(ZrcResponseExceptionMapper.class)
                 .register(JsonbConfiguration.class)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, zgwClientHeadersFactory.generateJWTToken())

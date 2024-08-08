@@ -8,7 +8,7 @@ import jakarta.ws.rs.core.MultivaluedMap
 import jakarta.ws.rs.core.Response
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper
 
-class BrcRuntimeExceptionMapper : ResponseExceptionMapper<RuntimeException> {
+class BrcResponseExceptionMapper : ResponseExceptionMapper<RuntimeException> {
     override fun handles(status: Int, headers: MultivaluedMap<String, Any>): Boolean {
         return status >= Response.Status.INTERNAL_SERVER_ERROR.statusCode
     }

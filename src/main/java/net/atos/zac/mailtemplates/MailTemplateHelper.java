@@ -46,7 +46,7 @@ import org.flowable.identitylink.api.IdentityLinkInfo;
 import org.flowable.identitylink.api.IdentityLinkType;
 import org.flowable.task.api.TaskInfo;
 
-import net.atos.client.brp.BRPClientService;
+import net.atos.client.brp.BrpClientService;
 import net.atos.client.brp.model.generated.Adres;
 import net.atos.client.brp.model.generated.Persoon;
 import net.atos.client.brp.model.generated.VerblijfadresBinnenland;
@@ -80,7 +80,7 @@ public class MailTemplateHelper {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-    private BRPClientService brpClientService;
+    private BrpClientService brpClientService;
     private ConfiguratieService configuratieService;
     private IdentityService identityService;
     private KvkClientService kvkClientService;
@@ -90,7 +90,7 @@ public class MailTemplateHelper {
 
     @Inject
     public MailTemplateHelper(
-            BRPClientService brpClientService,
+            BrpClientService brpClientService,
             ConfiguratieService configuratieService,
             IdentityService identityService,
             KvkClientService kvkClientService,

@@ -4,7 +4,6 @@
  */
 package net.atos.client.brp.util
 
-import jakarta.json.bind.Jsonb
 import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
 import jakarta.json.bind.serializer.DeserializationContext
@@ -44,8 +43,8 @@ class PersonenQueryResponseJsonbDeserializer : JsonbDeserializer<PersonenQueryRe
         ctx: DeserializationContext,
         rtType: Type
     ): PersonenQueryResponse =
-         parser.getObject().let {
-             when (val type = it.getString("type")) {
+        parser.getObject().let {
+            when (val type = it.getString("type")) {
                 RAADPLEEG_MET_BURGERSERVICENUMMER -> JSONB.fromJson(
                     it.toString(),
                     RaadpleegMetBurgerservicenummerResponse::class.java

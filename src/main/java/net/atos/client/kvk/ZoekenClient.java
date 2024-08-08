@@ -18,7 +18,7 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.kvk.exception.KvkClientNoResultExceptionMapper;
+import net.atos.client.kvk.exception.KvkClientNoResultResponseExceptionMapper;
 import net.atos.client.kvk.exception.KvkRuntimeExceptionMapper;
 import net.atos.client.kvk.model.KvkZoekenParameters;
 import net.atos.client.kvk.util.KvkClientHeadersFactory;
@@ -27,7 +27,7 @@ import net.atos.client.kvk.zoeken.model.generated.Resultaat;
 @RegisterRestClient(configKey = "KVK-API-Client")
 @RegisterClientHeaders(KvkClientHeadersFactory.class)
 @RegisterProvider(KvkRuntimeExceptionMapper.class)
-@RegisterProvider(KvkClientNoResultExceptionMapper.class)
+@RegisterProvider(KvkClientNoResultResponseExceptionMapper.class)
 @Produces({"application/hal+json"})
 @Path("api/v2/zoeken")
 @Timeout(unit = ChronoUnit.SECONDS, value = 5)

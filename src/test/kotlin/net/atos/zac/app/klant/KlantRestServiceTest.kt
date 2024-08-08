@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.brp.BRPClientService
+import net.atos.client.brp.BrpClientService
 import net.atos.client.klant.KlantClientService
 import net.atos.client.klant.createDigitalAddresses
 import net.atos.client.kvk.KvkClientService
@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture
 const val NON_BREAKING_SPACE = '\u00A0'.toString()
 
 class KlantRestServiceTest : BehaviorSpec({
-    val brpClientService = mockk<BRPClientService>()
+    val brpClientService = mockk<BrpClientService>()
     val kvkClientService = mockk<KvkClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val restPersoonConverter = mockk<RestPersoonConverter>()

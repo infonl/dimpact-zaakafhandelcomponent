@@ -29,8 +29,8 @@ class AbstractVerblijfplaatsJsonbDeserializer : JsonbDeserializer<AbstractVerbli
         ctx: DeserializationContext,
         rtType: Type
     ): AbstractVerblijfplaats =
-         parser.getObject().let {
-             when (val type = it.getString("type")) {
+        parser.getObject().let {
+            when (val type = it.getString("type")) {
                 "VerblijfplaatsBuitenland" -> JSONB.fromJson(
                     it.toString(),
                     VerblijfplaatsBuitenland::class.java
@@ -38,7 +38,9 @@ class AbstractVerblijfplaatsJsonbDeserializer : JsonbDeserializer<AbstractVerbli
                 "Adres" -> JSONB.fromJson(it.toString(), Adres::class.java)
                 "VerblijfplaatsOnbekend" -> JSONB.fromJson(it.toString(), VerblijfplaatsOnbekend::class.java)
                 "Locatie" -> JSONB.fromJson(it.toString(), Locatie::class.java)
-                else -> throw RuntimeException("Unsupported ${AbstractVerblijfplaats::class.java.simpleName} type: '$type'")
+                else -> throw RuntimeException(
+                    "Unsupported ${AbstractVerblijfplaats::class.java.simpleName} type: '$type'"
+                )
             }
         }
 }

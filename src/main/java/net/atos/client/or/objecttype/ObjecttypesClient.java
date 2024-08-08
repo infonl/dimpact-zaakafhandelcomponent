@@ -22,14 +22,14 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import net.atos.client.or.objecttype.model.Objecttype;
 import net.atos.client.or.objecttype.model.ObjecttypeVersion;
 import net.atos.client.or.shared.exception.FoutExceptionMapper;
-import net.atos.client.or.shared.exception.ORRuntimeExceptionMapper;
+import net.atos.client.or.shared.exception.ORRuntimeResponseExceptionMapper;
 import net.atos.client.or.shared.exception.ValidatieFoutExceptionMapper;
 
 @RegisterRestClient(configKey = "Objecttypes-API-Client")
 @RegisterClientHeaders(ObjecttypesClientHeadersFactory.class)
 @RegisterProvider(FoutExceptionMapper.class)
 @RegisterProvider(ValidatieFoutExceptionMapper.class)
-@RegisterProvider(ORRuntimeExceptionMapper.class)
+@RegisterProvider(ORRuntimeResponseExceptionMapper.class)
 
 @Produces(APPLICATION_JSON)
 @Path("api/v2")

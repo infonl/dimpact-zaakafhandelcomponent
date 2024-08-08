@@ -10,7 +10,7 @@ import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 
-public class KvkClientNoResultExceptionMapper implements ResponseExceptionMapper<KvkClientNoResultException> {
+public class KvkClientNoResultResponseExceptionMapper implements ResponseExceptionMapper<KvkClientNoResultException> {
 
     @Override
     public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {

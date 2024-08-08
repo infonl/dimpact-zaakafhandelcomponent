@@ -26,7 +26,7 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.zgw.drc.exception.DrcRuntimeExceptionMapper;
+import net.atos.client.zgw.drc.exception.DrcRuntimeResponseExceptionMapper;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters;
 import net.atos.client.zgw.drc.model.Lock;
 import net.atos.client.zgw.drc.model.ObjectInformatieobjectListParameters;
@@ -36,7 +36,7 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLo
 import net.atos.client.zgw.drc.model.generated.Gebruiksrechten;
 import net.atos.client.zgw.drc.model.generated.ObjectInformatieObject;
 import net.atos.client.zgw.shared.exception.ZgwFoutExceptionMapper;
-import net.atos.client.zgw.shared.exception.ZgwValidatieFoutExceptionMapper;
+import net.atos.client.zgw.shared.exception.ZgwValidatieFoutResponseExceptionMapper;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import net.atos.client.zgw.shared.util.JsonbConfiguration;
@@ -45,8 +45,8 @@ import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
 @RegisterRestClient(configKey = "ZGW-API-Client")
 @RegisterClientHeaders(ZGWClientHeadersFactory.class)
 @RegisterProvider(ZgwFoutExceptionMapper.class)
-@RegisterProvider(ZgwValidatieFoutExceptionMapper.class)
-@RegisterProvider(DrcRuntimeExceptionMapper.class)
+@RegisterProvider(ZgwValidatieFoutResponseExceptionMapper.class)
+@RegisterProvider(DrcRuntimeResponseExceptionMapper.class)
 @RegisterProvider(JsonbConfiguration.class)
 @Path("documenten/api/v1")
 @Produces(APPLICATION_JSON)
