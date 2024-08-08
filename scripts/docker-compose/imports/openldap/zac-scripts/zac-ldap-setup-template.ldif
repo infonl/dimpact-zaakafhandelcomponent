@@ -56,6 +56,15 @@ uniqueMember: cn=recordmanager1,ou=people,dc=example,dc=org
 description: Test group record managers
 email: ${GROUP_RECORD_MANAGERS_EMAIL_ADDRESS}
 
+dn: cn=test-group-domein-test-1,ou=people,dc=example,dc=org
+objectClass: extensibleObject
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: test-group-rm
+uniqueMember: cn=testuserdomeintest1,ou=people,dc=example,dc=org
+description: Test group which has access to domein_test_1 only
+email: ${GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS}
+
 dn: cn=recordmanager1,ou=people,dc=example,dc=org
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
@@ -102,3 +111,13 @@ givenName: Test
 mail: ${FUNCTIONAL_ADMIN1_EMAIL_ADDRESS}
 userPassword:: ZnVuY3Rpb25lZWxiZWhlZXJkZXIx
 
+dn: cn=testuserdomeintest1,ou=people,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: testuserdomeintest1
+sn: testuserdomeintest1
+givenName: Test
+mail: ${TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS}
+userPassword:: e1NTSEF9MnlHN0JFMm43eFJqQUV6R05sRGtjdEF6ODRmdVlzWitMV0pzcEE9PQ

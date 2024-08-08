@@ -460,16 +460,8 @@
           "attributes": {}
         },
         {
-          "id": "117a3ab0-784b-4312-abcf-059469828866",
-          "name": "domein_voorzieningen_verstrekken",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-          "attributes": {}
-        },
-        {
           "id": "b79f6cfd-e198-471d-b322-3a9b8a46d9fc",
-          "name": "domein_test",
+          "name": "domein_test_1",
           "composite": false,
           "clientRole": true,
           "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
@@ -540,6 +532,28 @@
       "clientRoles": {
         "zaakafhandelcomponent": [
           "domein_elk_zaaktype",
+          "behandelaar",
+          "coordinator",
+          "recordmanager",
+          "zaakafhandelcomponent_user"
+        ]
+      }
+    },
+    {
+      "id": "34613d00-56b6-4012-b287-b45674c269af",
+      "name": "test-group-domein-test-1",
+      "path": "/test-group-domein-test-1",
+      "attributes": {
+        "description": [
+          "Test group which has access to domein_test_1 only"
+        ],
+        "email": [
+          "${ZAC_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS}"
+        ]
+      },
+      "clientRoles": {
+        "zaakafhandelcomponent": [
+          "domein_test_1",
           "behandelaar",
           "coordinator",
           "recordmanager",
