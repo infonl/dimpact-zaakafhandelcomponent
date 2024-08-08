@@ -70,7 +70,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 with(documentCreationData.captured) {
                     this.zaak shouldBe zaak
                     this.taskId shouldBe restDocumentCreationAttendedData.taskId
-                    this.informatieobjecttype.omschrijving shouldBe "bijlage"
+                    this.informatieobjecttype?.omschrijving shouldBe "bijlage"
                 }
             }
         }

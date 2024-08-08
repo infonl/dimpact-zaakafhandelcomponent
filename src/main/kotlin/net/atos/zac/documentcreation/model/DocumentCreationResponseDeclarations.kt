@@ -6,7 +6,12 @@ package net.atos.zac.documentcreation.model
 
 import java.net.URI
 
-data class DocumentCreationResponse(
+data class DocumentCreationAttendedResponse(
     val redirectUrl: URI? = null,
     val message: String? = null
+)
+
+data class DocumentCreationUnattendedResponse(
+    val message: String? = null
+    // TODO
 )

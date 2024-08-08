@@ -51,26 +51,38 @@ class SmartDocumentsTest : BehaviorSpec({
                 response.isSuccessful shouldBe true
                 with(responseBody) {
                     shouldContainJsonKeyValue("$[0].id", SMART_DOCUMENTS_ROOT_GROUP_ID)
-                    shouldContainJsonKeyValue("$[0].name", "root")
+                    shouldContainJsonKeyValue("$[0].name", SMART_DOCUMENTS_ROOT_GROUP_NAME)
 
                     shouldContainJsonKeyValue("$[0].templates[0].id", SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID)
-                    shouldContainJsonKeyValue("$[0].templates[0].name", "root template 1")
+                    shouldContainJsonKeyValue("$[0].templates[0].name", SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME)
                     shouldContainJsonKeyValue("$[0].templates[1].id", SMART_DOCUMENTS_ROOT_TEMPLATE_2_ID)
-                    shouldContainJsonKeyValue("$[0].templates[1].name", "root template 2")
+                    shouldContainJsonKeyValue("$[0].templates[1].name", SMART_DOCUMENTS_ROOT_TEMPLATE_2_NAME)
 
                     shouldContainJsonKeyValue("$[0].groups[0].id", SMART_DOCUMENTS_GROUP_1_ID)
-                    shouldContainJsonKeyValue("$[0].groups[0].name", "group 1")
+                    shouldContainJsonKeyValue("$[0].groups[0].name", SMART_DOCUMENTS_GROUP_1_NAME)
                     shouldContainJsonKeyValue("$[0].groups[0].templates[0].id", SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_ID)
-                    shouldContainJsonKeyValue("$[0].groups[0].templates[0].name", "group 1 template 1")
+                    shouldContainJsonKeyValue(
+                        "$[0].groups[0].templates[0].name",
+                        SMART_DOCUMENTS_GROUP_1_TEMPLATE_1_NAME
+                    )
                     shouldContainJsonKeyValue("$[0].groups[0].templates[1].id", SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_ID)
-                    shouldContainJsonKeyValue("$[0].groups[0].templates[1].name", "group 1 template 2")
+                    shouldContainJsonKeyValue(
+                        "$[0].groups[0].templates[1].name",
+                        SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_NAME
+                    )
 
                     shouldContainJsonKeyValue("$[0].groups[1].id", SMART_DOCUMENTS_GROUP_2_ID)
-                    shouldContainJsonKeyValue("$[0].groups[1].name", "group 2")
+                    shouldContainJsonKeyValue("$[0].groups[1].name", SMART_DOCUMENTS_GROUP_2_NAME)
                     shouldContainJsonKeyValue("$[0].groups[1].templates[0].id", SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_ID)
-                    shouldContainJsonKeyValue("$[0].groups[1].templates[0].name", "group 2 template 1")
+                    shouldContainJsonKeyValue(
+                        "$[0].groups[1].templates[0].name",
+                        SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_NAME
+                    )
                     shouldContainJsonKeyValue("$[0].groups[1].templates[1].id", SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_ID)
-                    shouldContainJsonKeyValue("$[0].groups[1].templates[1].name", "group 2 template 2")
+                    shouldContainJsonKeyValue(
+                        "$[0].groups[1].templates[1].name",
+                        SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_NAME
+                    )
                 }
             }
         }
