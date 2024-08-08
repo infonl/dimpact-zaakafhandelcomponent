@@ -121,3 +121,4 @@ sn: testuserdomeintest1
 givenName: Test
 mail: ${TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS}
 userPassword:: e1NTSEF9MnlHN0JFMm43eFJqQUV6R05sRGtjdEF6ODRmdVlzWitMV0pzcEE9PQ
+ Q==
