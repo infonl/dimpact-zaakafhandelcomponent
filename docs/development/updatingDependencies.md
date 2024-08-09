@@ -38,7 +38,7 @@ of certain OpenZaak requests.
    ```shell
    ./gradlew clean generateJavaClients
    ```
-   This will generate the Java client code in the [src/generated/java](../../src/generated/java) folder.
+   This will generate the Java client code in the [src/generated](../../src/generated) subfolders.
 5. Check if ZAC still compiles and runs correctly and all automated tests succeed.
 6. Manually test the functionality that uses the updated API where automated test coverage is lacking.
 
@@ -64,13 +64,11 @@ ZAC runs in the WildFly Java application server. To upgrade the WildFly version,
 installed WildFly. To upgrade override the Galleon files in [the Galleon install folder](../../scripts/wildfly/galleon) with the new version. 
 5. Re-install your local WildFly version using the WildFly install script.
 6. If you have configured your IntelliJ IDE to run ZAC in WildFly update the IntelliJ WildFly run configuration using the instructions in [INSTALL.md](INSTALL.md).
-7. Update the WildFly installation directory in the [startupwithenv.sh](../../startupwithenv.sh) file (or [startupwithenv.bat](../../startupwithenv.bat) for windows).
-8. In the [Gradle Versions Catalog file](../../gradle/libs.versions.toml) manually upgrade all the 'dependencies provided by Wildfly' that are used in the [Gradle build file](../../build.gradle.kts).
+7. In the [Gradle Versions Catalog file](../../gradle/libs.versions.toml) manually upgrade all the 'dependencies provided by Wildfly' that are used in the [Gradle build file](../../build.gradle.kts).
 These need to be in sync with the ones provided by the used version of WildFly.
-9. Test ZAC thoroughly to make sure everything still works both by running ZAC locally (in IntelliJ and in Docker Compose)
-and performing manual testing as well as by running our automated tests.
-10. Once everything works tell all your co-developers to upgrade their local WildFly installations and
-Intellij WildFly configurations as well.
+8. Test ZAC thoroughly to make sure everything still works both by running ZAC locally (in IntelliJ and in Docker Compose)
+and performing manual testing as well as by running our automated tests. 
+9. Once everything works tell all your co-developers to upgrade their local WildFly installations and IntelliJ WildFly configurations as well.
 
 ## Upgrading Angular
 

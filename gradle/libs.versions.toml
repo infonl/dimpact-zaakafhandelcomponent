@@ -45,20 +45,22 @@ infinispan = "15.0.7.Final"
 apache-httpclient = "4.5.14"
 reactive-streams = "1.0.4"
 
-jakarta-jakartaee = "10.0.0"
 jakarta-mail = "2.1.3"
 
 caffeine = "3.1.8"
 
 jackson = "2.17.2"
 
+# versions of dependencies provided by Wildfly
 eclipse-microprofile-rest-client-api = "3.0.1"
 eclipse-microprofile-config-api = "3.1"
 eclipse-microprofile-health-api = "4.0.1"
 eclipse-microprofile-fault-tolerance-api = "4.0.2"
+hibernate-validator = "8.0.1.Final"
+jakarta-jakartaee = "10.0.0"
 jboss-resteasy-multipart-provider = "6.2.9.Final"
 wildfly-security-elytron-http-oidc = "2.4.2.Final"
-hibernate-validator = "8.0.1.Final"
+# ~versions of dependencies provided by Wildfly
 
 eclipse-yasson = "3.0.4"
 
@@ -131,15 +133,14 @@ glassfish-expressly = { group = "org.glassfish.expressly", name = "expressly", v
 # you can find most of these dependencies in the WildFly pom.xml file
 # of the WidFly version you are using on https://github.com/wildfly/wildfly
 # for others you need to check the 'modules' directory of your local WildFly installtion
-jakarta-jakartaee = { group = "jakarta.platform", name = "jakarta.jakartaee-api", version.ref = "jakarta-jakartaee" }
-
 eclipse-microprofile-rest-client-api = { group = "org.eclipse.microprofile.rest.client", name = "microprofile-rest-client-api", version.ref = "eclipse-microprofile-rest-client-api" }
 eclipse-microprofile-config-api = { group = "org.eclipse.microprofile.config", name = "microprofile-config-api", version.ref = "eclipse-microprofile-config-api" }
 eclipse-microprofile-health-api = { group = "org.eclipse.microprofile.health", name = "microprofile-health-api", version.ref = "eclipse-microprofile-health-api" }
 eclipse-microprofile-fault-tolerance-api = { group = "org.eclipse.microprofile.fault-tolerance", name = "microprofile-fault-tolerance-api", version.ref = "eclipse-microprofile-fault-tolerance-api" }
+hibernate-validator = { group = "org.hibernate.validator", name = "hibernate-validator", version.ref = "hibernate-validator" }
+jakarta-jakartaee = { group = "jakarta.platform", name = "jakarta.jakartaee-api", version.ref = "jakarta-jakartaee" }
 jboss-resteasy-multipart-provider = { group = "org.jboss.resteasy", name = "resteasy-multipart-provider", version.ref = "jboss-resteasy-multipart-provider" }
 wildfly-security-elytron-http-oidc = { group = "org.wildfly.security", name = "wildfly-elytron-http-oidc", version.ref = "wildfly-security-elytron-http-oidc" }
-hibernate-validator = { group = "org.hibernate.validator", name = "hibernate-validator", version.ref = "hibernate-validator" }
 # ~dependencies provided by Wildfly
 
 # yasson is required for using a JSONB context in our unit tests
