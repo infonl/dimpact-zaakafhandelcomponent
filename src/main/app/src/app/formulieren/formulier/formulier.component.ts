@@ -22,6 +22,12 @@ import { Zaak } from "../../zaken/model/zaak";
 })
 export class FormulierComponent implements OnInit {
   @Input() definitie: FormulierDefinitie;
+  @Input() readonly: boolean;
+  @Input() submitButtonLabel:
+    | "actie.starten"
+    | "actie.opslaan.afronden"
+    | "actie.opslaan" = "actie.starten";
+  @Input() toonAnnulerenButton = true;
   @Input() zaak: Zaak;
   @Output() submit = new EventEmitter<{}>();
 
@@ -52,6 +58,9 @@ export class FormulierComponent implements OnInit {
       this.groepen = g;
     });
     this.createForm();
+    if (this.readonly) {
+      this.formGroup.disable();
+    }
   }
 
   createForm() {
@@ -60,10 +69,26 @@ export class FormulierComponent implements OnInit {
       if (vd.veldtype === FormulierVeldtype.CHECKBOXES) {
         this.checked.set(vd.systeemnaam, new SelectionModel<string>(true));
       }
-      this.formGroup.addControl(
-        vd.systeemnaam,
-        FormulierVeldDefinitie.asControl(vd),
-      );
+      if (FormulierVeldDefinitie.isOpschorten(vd)) {
+        const control = FormulierVeldDefinitie.asControl(vd);
+        if (!this.isOpgeschortenMogelijk()) {
+          control.setValue(false);
+          control.disable();
+        }
+        this.formGroup.addControl(vd.systeemnaam, control);
+      } else if (FormulierVeldDefinitie.isHervatten(vd)) {
+        const control = FormulierVeldDefinitie.asControl(vd);
+        if (!this.isHervatenMogelijk()) {
+          control.setValue(false);
+          control.disable();
+        }
+        this.formGroup.addControl(vd.systeemnaam, control);
+      } else {
+        this.formGroup.addControl(
+          vd.systeemnaam,
+          FormulierVeldDefinitie.asControl(vd),
+        );
+      }
     });
   }
 
@@ -95,10 +120,29 @@ export class FormulierComponent implements OnInit {
   opslaan() {
     this.bezigMetOpslaan = true;
     this.submit.emit(this.formGroup.value);
+    this.formGroup.disable();
   }
 
   cancel() {
     this.bezigMetOpslaan = true;
     this.submit.emit(null);
+  }
+
+  isOpgeschortenMogelijk() {
+    return !this.zaak.isOpgeschort && this.zaak.isOpen && !this.zaak.isHeropend;
+  }
+
+  isHervatenMogelijk() {
+    return this.zaak.isOpgeschort;
+  }
+
+  toonVeld(veldDefinitie: FormulierVeldDefinitie): boolean {
+    if (FormulierVeldDefinitie.isOpschorten(veldDefinitie)) {
+      return this.isOpgeschortenMogelijk();
+    }
+    if (FormulierVeldDefinitie.isHervatten(veldDefinitie)) {
+      return this.isHervatenMogelijk();
+    }
+    return true;
   }
 }

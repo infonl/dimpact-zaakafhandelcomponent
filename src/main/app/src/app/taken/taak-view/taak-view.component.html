@@ -40,8 +40,12 @@
             ></mfb-form>
             <zac-formulier
               *ngIf="formulierDefinitie"
+              (submit)="onZacFormulierSubmit($event)"
               [definitie]="formulierDefinitie"
               [zaak]="zaak"
+              [readonly]="isReadonly()"
+              submitButtonLabel="actie.opslaan.afronden"
+              [toonAnnulerenButton]="false"
             ></zac-formulier>
             <mat-progress-bar
               *ngIf="!formulier && !formulierDefinitie"

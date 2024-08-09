@@ -70,7 +70,7 @@ export class FormulierDefinitiesComponent
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
           {
-            key: "msg.formulier.definitie.verwijderen.bevestigen",
+            key: "msg.formulierdefinitie.verwijderen.bevestigen",
             args: { naam: formulierDefinitie.systeemnaam },
           },
           this.service.delete(formulierDefinitie.id),
@@ -80,7 +80,7 @@ export class FormulierDefinitiesComponent
       .subscribe((result) => {
         if (result) {
           this.utilService.openSnackbar(
-            "msg.formulier.definitie.verwijderen.uitgevoerd",
+            "msg.formulierdefinitie.verwijderen.uitgevoerd",
             { naam: formulierDefinitie.systeemnaam },
           );
           this.ophalenFormulierDefinities();

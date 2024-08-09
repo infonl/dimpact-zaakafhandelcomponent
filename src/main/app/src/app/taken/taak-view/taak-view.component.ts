@@ -206,6 +206,12 @@ export class TaakViewComponent
     });
   }
 
+  isReadonly() {
+    return (
+      this.taak.status === TaakStatus.Afgerond || !this.taak.rechten.wijzigen
+    );
+  }
+
   private setEditableFormFields(): void {
     this.editFormFields.set(
       "medewerker-groep",
@@ -313,6 +319,17 @@ export class TaakViewComponent
           this.utilService.openSnackbar("msg.taak.afgerond");
           this.init(taak, false);
         });
+    }
+  }
+
+  onZacFormulierSubmit(formState: {}): void {
+    if (formState) {
+      this.taak.taakdata = formState;
+      this.websocketService.suspendListener(this.taakListener);
+      this.takenService.complete(this.taak).subscribe((taak) => {
+        this.utilService.openSnackbar("msg.taak.afgerond");
+        this.init(taak, true);
+      });
     }
   }
 
