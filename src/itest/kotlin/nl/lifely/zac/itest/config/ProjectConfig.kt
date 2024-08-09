@@ -187,7 +187,7 @@ class ProjectConfig : AbstractProjectConfig() {
             )
             .waitingFor(
                 "zac",
-                Wait.forLogMessage(".* WildFly Full .* started .*", 1)
+                Wait.forLogMessage(".* WildFly .* started .*", 1)
                     .withStartupTimeout(3.minutes.toJavaDuration())
             )
     }
