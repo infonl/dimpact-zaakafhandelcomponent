@@ -53,7 +53,6 @@ export class FormulierDefinitieEditComponent
   ];
   vorigeSysteemnaam: string;
   bezigMetOpslaan = false;
-
   referentieLijsten: string[] = [];
 
   dataSource: MatTableDataSource<AbstractControl>;
@@ -177,7 +176,6 @@ export class FormulierDefinitieEditComponent
     $event: MatSelectChange,
     veldDefinitieFormGroup: FormGroup,
   ): void {
-    console.log($event, veldDefinitieFormGroup);
     const veldtype: FormulierVeldtype = $event.value;
     if (FormulierVeldDefinitie.isMeerkeuzeVeld(veldtype)) {
       veldDefinitieFormGroup.get("meerkeuzeOpties").enable();
