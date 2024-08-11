@@ -33,14 +33,14 @@
             <mfb-form
               *ngIf="formulier"
               (formPartial)="onFormPartial($event)"
-              (formSubmit)="onFormSubmit($event)"
+              (formSubmit)="onHardCodedFormSubmit($event)"
               [formFields]="formulier.form"
               [config]="formConfig"
               [submitted]="posts"
             ></mfb-form>
             <zac-formulier
               *ngIf="formulierDefinitie"
-              (submit)="onZacFormulierSubmit($event)"
+              (submit)="onConfigurableFormSubmit($event)"
               [definitie]="formulierDefinitie"
               [zaak]="zaak"
               [readonly]="isReadonly()"

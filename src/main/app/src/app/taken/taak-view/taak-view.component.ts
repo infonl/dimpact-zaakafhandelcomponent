@@ -310,7 +310,7 @@ export class TaakViewComponent
       });
   }
 
-  onFormSubmit(formGroup: FormGroup): void {
+  onHardCodedFormSubmit(formGroup: FormGroup): void {
     if (formGroup) {
       this.websocketService.suspendListener(this.taakListener);
       this.takenService
@@ -322,7 +322,7 @@ export class TaakViewComponent
     }
   }
 
-  onZacFormulierSubmit(formState: {}): void {
+  onConfigurableFormSubmit(formState: {}): void {
     if (formState) {
       this.taak.taakdata = formState;
       this.websocketService.suspendListener(this.taakListener);
