@@ -54,6 +54,7 @@ import net.atos.zac.flowable.task.TaakVariabelenService.isZaakHervatten
 import net.atos.zac.flowable.task.TaakVariabelenService.readSignatures
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
 import net.atos.zac.flowable.util.TaskUtil
+import net.atos.zac.formulieren.FormulierRuntimeService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.shared.helper.OpschortenZaakHelper
@@ -103,7 +104,8 @@ class TaskRestService @Inject constructor(
     private val taakHistorieConverter: RestTaskHistoryConverter,
     private val policyService: PolicyService,
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
-    private val opschortenZaakHelper: OpschortenZaakHelper
+    private val opschortenZaakHelper: OpschortenZaakHelper,
+    private val formulierRuntimeService: FormulierRuntimeService
 ) {
     @GET
     @Path("zaak/{zaakUUID}")
@@ -114,12 +116,17 @@ class TaskRestService @Inject constructor(
 
     @GET
     @Path("{taskId}")
-    fun readTask(@PathParam("taskId") taskId: String): RestTask =
-        flowableTaskService.readTask(taskId).let {
-            assertPolicy(policyService.readTaakRechten(it).lezen)
-            deleteSignaleringen(it)
-            restTaskConverter.convert(it)
+    fun readTask(@PathParam("taskId") taskId: String): RestTask {
+        flowableTaskService.readTask(taskId).let { task ->
+            assertPolicy(policyService.readTaakRechten(task).lezen)
+            deleteSignaleringen(task)
+            val restTask = restTaskConverter.convert(task)
+            restTask.formulierDefinitie?.let {
+                formulierRuntimeService.render(restTask)
+            }
+            return restTask;
         }
+    }
 
     @PUT
     @Path("taakdata")
@@ -205,13 +212,28 @@ class TaskRestService @Inject constructor(
     @Path("complete")
     fun completeTask(restTask: RestTask): RestTask {
         val task = flowableTaskService.readOpenTask(restTask.id)
-        val zaak = zrcClientService.readZaak(restTask.zaakUuid)
         assertPolicy(TaskUtil.isOpen(task) && policyService.readTaakRechten(task).wijzigen)
 
         val loggedInUserId = loggedInUserInstance.get().id
         if (restTask.behandelaar == null || restTask.behandelaar!!.id != loggedInUserId) {
             flowableTaskService.assignTaskToUser(task.id, loggedInUserId, REDEN_TAAK_AFGESLOTEN)
         }
+
+        val zaak = zrcClientService.readZaak(restTask.zaakUuid)
+        val updatedTask = if (restTask.formulierDefinitie == null)
+            processHardCodedFormTask(restTask, zaak)
+        else
+            formulierRuntimeService.submit(restTask, task, zaak)
+
+        flowableTaskService.completeTask(updatedTask).let {
+            indexeerService.addOrUpdateZaak(restTask.zaakUuid, false)
+            eventingService.send(ScreenEventType.TAAK.updated(it))
+            eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
+            return restTaskConverter.convert(it)
+        }
+    }
+
+    private fun processHardCodedFormTask(restTask: RestTask, zaak: Zaak): Task {
         val updatedTask = updateDescriptionAndDueDate(restTask)
         createDocuments(restTask, zaak)
         if (isZaakHervatten(restTask.taakdata)) {
@@ -230,11 +252,7 @@ class TaskRestService @Inject constructor(
         }
         taakVariabelenService.setTaskData(updatedTask, restTask.taakdata)
         taakVariabelenService.setTaskinformation(updatedTask, restTask.taakinformatie)
-        return flowableTaskService.completeTask(updatedTask).also {
-            indexeerService.addOrUpdateZaak(restTask.zaakUuid, false)
-            eventingService.send(ScreenEventType.TAAK.updated(it))
-            eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
-        }.let(restTaskConverter::convert)
+        return updatedTask
     }
 
     @POST
@@ -328,12 +346,12 @@ class TaskRestService @Inject constructor(
                 .forEach { enkelvoudigInformatieobject ->
                     assertPolicy(
                         (
-                            // this extra check is because the API can return an empty ondertekening soort
-                            enkelvoudigInformatieobject.ondertekening == null ||
-                                // when no signature is present (even if this is not
-                                // permitted according to the original OpenAPI spec)
-                                enkelvoudigInformatieobject.ondertekening.soort == SoortEnum.EMPTY
-                            ) && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
+                                // this extra check is because the API can return an empty ondertekening soort
+                                enkelvoudigInformatieobject.ondertekening == null ||
+                                        // when no signature is present (even if this is not
+                                        // permitted according to the original OpenAPI spec)
+                                        enkelvoudigInformatieobject.ondertekening.soort == SoortEnum.EMPTY
+                                ) && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
                     )
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
                         URIUtil.parseUUIDFromResourceURI(enkelvoudigInformatieobject.url)
