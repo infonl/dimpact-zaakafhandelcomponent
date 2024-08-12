@@ -69,7 +69,7 @@ class BrpClientService @Inject constructor(
             ).personen?.let { persons ->
             return if (persons.isNotEmpty()) {
                 if (persons.size > 1) {
-                    LOG.info(
+                    LOG.warning(
                         "Multiple persons found for burgerservicenummer: '$burgerservicenummer'. " +
                             "Returning the first one."
                     )
@@ -94,7 +94,7 @@ class BrpClientService @Inject constructor(
                     (response as RaadpleegMetBurgerservicenummerResponse?)?.personen?.let { persons ->
                         if (persons.isNotEmpty()) {
                             if (persons.size > 1) {
-                                LOG.info(
+                                LOG.warning(
                                     "Multiple persons found for burgerservicenummer: '$burgerservicenummer'. " +
                                         "Returning the first one."
                                 )
