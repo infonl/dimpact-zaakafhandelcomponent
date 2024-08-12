@@ -124,7 +124,7 @@ class TaskRestService @Inject constructor(
             restTask.formulierDefinitie?.let {
                 formulierRuntimeService.render(restTask)
             }
-            return restTask;
+            return restTask
         }
     }
 
@@ -220,10 +220,11 @@ class TaskRestService @Inject constructor(
         }
 
         val zaak = zrcClientService.readZaak(restTask.zaakUuid)
-        val updatedTask = if (restTask.formulierDefinitie == null)
+        val updatedTask = if (restTask.formulierDefinitie == null) {
             processHardCodedFormTask(restTask, zaak)
-        else
+        } else {
             formulierRuntimeService.submit(restTask, task, zaak)
+        }
 
         flowableTaskService.completeTask(updatedTask).let {
             indexeerService.addOrUpdateZaak(restTask.zaakUuid, false)
@@ -346,12 +347,12 @@ class TaskRestService @Inject constructor(
                 .forEach { enkelvoudigInformatieobject ->
                     assertPolicy(
                         (
-                                // this extra check is because the API can return an empty ondertekening soort
-                                enkelvoudigInformatieobject.ondertekening == null ||
-                                        // when no signature is present (even if this is not
-                                        // permitted according to the original OpenAPI spec)
-                                        enkelvoudigInformatieobject.ondertekening.soort == SoortEnum.EMPTY
-                                ) && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
+                            // this extra check is because the API can return an empty ondertekening soort
+                            enkelvoudigInformatieobject.ondertekening == null ||
+                                // when no signature is present (even if this is not
+                                // permitted according to the original OpenAPI spec)
+                                enkelvoudigInformatieobject.ondertekening.soort == SoortEnum.EMPTY
+                            ) && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
                     )
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
                         URIUtil.parseUUIDFromResourceURI(enkelvoudigInformatieobject.url)

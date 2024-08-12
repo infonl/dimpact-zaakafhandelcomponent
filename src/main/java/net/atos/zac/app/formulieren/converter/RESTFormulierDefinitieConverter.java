@@ -5,12 +5,13 @@
 
 package net.atos.zac.app.formulieren.converter;
 
+import java.util.Comparator;
+
 import jakarta.inject.Inject;
+
 import net.atos.zac.app.formulieren.model.RESTFormulierDefinitie;
 import net.atos.zac.formulieren.model.FormulierDefinitie;
 import net.atos.zac.formulieren.model.FormulierVeldDefinitie;
-
-import java.util.Comparator;
 
 public class RESTFormulierDefinitieConverter {
 
