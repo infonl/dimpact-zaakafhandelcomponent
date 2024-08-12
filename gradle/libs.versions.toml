@@ -71,7 +71,7 @@ mockk = "1.13.12"
 testcontainers = "1.20.1"
 
 json-json = "20240303"
-slf4j-simple = "2.0.14"
+slf4j-simple = "2.0.16"
 
 github-kotlin-logging = "7.0.0"
 okhttp = "4.12.0"
