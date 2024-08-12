@@ -268,7 +268,7 @@ public class MailTemplateHelper {
             return switch (betrokkene) {
                 case NATUURLIJK_PERSOON -> replaceInitiatorVariabelenPersoon(
                         resolvedTekst,
-                        brpClientService.retreivePerson(identificatie)
+                        brpClientService.retrievePersoon(identificatie)
                 );
                 case VESTIGING -> replaceInitiatorVariabelenResultaatItem(
                         resolvedTekst,

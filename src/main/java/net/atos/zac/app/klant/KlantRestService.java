@@ -119,7 +119,11 @@ public class KlantRestService {
             @PathParam("bsn") @Size(min = 8, max = 9) final String bsn
     ) throws ExecutionException, InterruptedException {
         return convertToRestPersoon(
-                brpClientService.retreivePersoonAsync(bsn).toCompletableFuture().get(),
+                // note that we explicitly wait here for the asynchronous client invocation to complete
+                // thereby blocking the request thread
+                // we should either make the entire flow asynchronous (e.g. using websockets) or simply
+                // use a synchronous client invocation here
+                brpClientService.retrievePersoonAsync(bsn).toCompletableFuture().get(),
                 convertToRestPersoon(klantClientService.findDigitalAddressesByNumber(bsn))
         );
     }
@@ -130,6 +134,10 @@ public class KlantRestService {
             @PathParam("vestigingsnummer") final String vestigingsnummer
     ) throws ExecutionException, InterruptedException {
         return convertToRestBedrijf(
+                // note that we explicitly wait here for the asynchronous client invocation to complete
+                // thereby blocking the request thread
+                // we should either make the entire flow asynchronous (e.g. using websockets) or simply
+                // use a synchronous client invocation here
                 kvkClientService.findVestigingAsync(vestigingsnummer).toCompletableFuture().get(),
                 convertToRestPersoon(klantClientService.findDigitalAddressesByNumber(vestigingsnummer))
         );

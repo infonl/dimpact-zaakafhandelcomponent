@@ -61,18 +61,20 @@ class BrpClientService @Inject constructor(
      * @param burgerservicenummer the burgerservicenummer of the person to retrieve
      * @return the person if found, otherwise null
      */
-    fun retreivePerson(burgerservicenummer: String): Persoon? =
+    fun retrievePersoon(burgerservicenummer: String): Persoon? =
         (
             personenApi.personen(
                 createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer)
             ) as RaadpleegMetBurgerservicenummerResponse
-            ).let {
-            if (!it.personen.isNullOrEmpty()) {
-                LOG.fine(
-                    "Multiple persons found for burgerservicenummer: '$burgerservicenummer'. " +
-                        "Returning the first one."
-                )
-                it.personen.first()
+            ).personen?.let { persons ->
+            return if (persons.isNotEmpty()) {
+                if (persons.size > 1) {
+                    LOG.info(
+                        "Multiple persons found for burgerservicenummer: '$burgerservicenummer'. " +
+                            "Returning the first one."
+                    )
+                }
+                persons.first()
             } else {
                 null
             }
@@ -85,12 +87,18 @@ class BrpClientService @Inject constructor(
      * @return a CompletionStage with the person if found, otherwise throws an exception
      * @throws BrpPersonNotFoundException if no person is found for the given burgerservicenummer
      */
-    fun retreivePersoonAsync(burgerservicenummer: String): CompletionStage<Persoon> =
+    fun retrievePersoonAsync(burgerservicenummer: String): CompletionStage<Persoon> =
         createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer).let {
             personenApi.personenAsync(it)
                 .handle { response, exception ->
                     (response as RaadpleegMetBurgerservicenummerResponse?)?.personen?.let { persons ->
                         if (persons.isNotEmpty()) {
+                            if (persons.size > 1) {
+                                LOG.info(
+                                    "Multiple persons found for burgerservicenummer: '$burgerservicenummer'. " +
+                                        "Returning the first one."
+                                )
+                            }
                             return@handle persons.first()
                         } else {
                             throw BrpPersonNotFoundException(

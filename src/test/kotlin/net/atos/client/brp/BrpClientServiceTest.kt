@@ -39,7 +39,7 @@ class BrpClientServiceTest : BehaviorSpec({
         every { personenApi.personen(any()) } returns raadpleegMetBurgerservicenummerResponse
 
         When("find person is called with the BSN of the person") {
-            val personResponse = brpClientService.retreivePerson(bsn)
+            val personResponse = brpClientService.retrievePersoon(bsn)
 
             Then("it should return the person") {
                 personResponse shouldBe person
@@ -52,7 +52,7 @@ class BrpClientServiceTest : BehaviorSpec({
         )
 
         When("find person is called with the BSN of the person") {
-            val personResponse = brpClientService.retreivePerson("123456789")
+            val personResponse = brpClientService.retrievePersoon("123456789")
 
             Then("it should return null") {
                 personResponse shouldBe null
@@ -72,7 +72,7 @@ class BrpClientServiceTest : BehaviorSpec({
         } returns (completionStageResponse as CompletionStage<Any>)
 
         When("async find person is called with the BSN of the person") {
-            val personResponse = brpClientService.retreivePersoonAsync(bsn).toCompletableFuture().get()
+            val personResponse = brpClientService.retrievePersoonAsync(bsn).toCompletableFuture().get()
 
             Then("it should return the person") {
                 personResponse shouldBe person
@@ -89,7 +89,7 @@ class BrpClientServiceTest : BehaviorSpec({
 
         When("async find person is called with the BSN of the person") {
             val exception = shouldThrow<BrpPersonNotFoundException> {
-                brpClientService.retreivePersoonAsync(bsn).toCompletableFuture().get()
+                brpClientService.retrievePersoonAsync(bsn).toCompletableFuture().get()
             }
 
             Then("an exception should be thrown") {
