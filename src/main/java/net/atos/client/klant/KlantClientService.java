@@ -19,40 +19,84 @@ import net.atos.client.klant.model.ExpandPartij;
 
 @Singleton
 public class KlantClientService {
-
-    @Inject
-    @RestClient
     private KlantClient klantClient;
 
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public KlantClientService() {
+    }
+
+    @Inject
+    public KlantClientService(@RestClient KlantClient klantClient) {
+        this.klantClient = klantClient;
+    }
+
     public List<DigitaalAdres> findDigitalAddressesByNumber(final String number) {
-        ExpandPartij party = convertToSingleItem(klantClient.partijenList(
-                null, null, null,
-                null, null, null, null,
-                null, null, null, null,
-                "digitaleAdressen",
-                null, null, null, 1, null,
-                null, null, number, null,
-                null, null).getResults());
+        ExpandPartij party = convertToSingleItem(
+                klantClient.partijenList(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        "digitaleAdressen",
+                        null,
+                        null,
+                        null,
+                        1,
+                        null,
+                        null,
+                        null,
+                        number,
+                        null,
+                        null,
+                        null
+                ).getResults()
+        );
         if (party == null || party.getExpand() == null) {
             return Collections.emptyList();
         }
-
         return party.getExpand().getDigitaleAdressen();
     }
 
     public List<ExpandBetrokkene> listBetrokkenenByNumber(final String number, final Integer page) {
-        ExpandPartij party = convertToSingleItem(klantClient.partijenList(
-                null, null, null,
-                null, null, null, null,
-                null, null, null, null,
-                "betrokkenen,betrokkenen.hadKlantcontact",
-                null, null, null, page, null,
-                null, null, number, null,
-                null, null).getResults());
+        ExpandPartij party = convertToSingleItem(
+                klantClient.partijenList(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        "betrokkenen,betrokkenen.hadKlantcontact",
+                        null,
+                        null,
+                        null,
+                        page,
+                        null,
+                        null,
+                        null,
+                        number,
+                        null,
+                        null,
+                        null
+                ).getResults()
+        );
         if (party == null || party.getExpand() == null) {
             return Collections.emptyList();
         }
-
         return party.getExpand().getBetrokkenen();
     }
 

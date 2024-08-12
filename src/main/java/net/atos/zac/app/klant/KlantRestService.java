@@ -115,10 +115,11 @@ public class KlantRestService {
 
     @GET
     @Path("persoon/{bsn}")
-    public RestPersoon readPersoon(@PathParam("bsn") @Size(min = 8, max = 9) final String bsn) throws ExecutionException,
-                                                                                               InterruptedException {
+    public RestPersoon readPersoon(
+            @PathParam("bsn") @Size(min = 8, max = 9) final String bsn
+    ) throws ExecutionException, InterruptedException {
         return convertToRestPersoon(
-                brpClientService.findPersoonAsync(bsn).toCompletableFuture().get(),
+                brpClientService.retreivePersoonAsync(bsn).toCompletableFuture().get(),
                 convertToRestPersoon(klantClientService.findDigitalAddressesByNumber(bsn))
         );
     }
