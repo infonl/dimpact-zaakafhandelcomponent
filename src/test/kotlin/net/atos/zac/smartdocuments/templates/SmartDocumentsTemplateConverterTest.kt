@@ -7,12 +7,13 @@ package net.atos.zac.smartdocuments.templates
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import net.atos.client.smartdocuments.model.createTemplatesResponse
+import net.atos.client.smartdocuments.model.createsmartDocumentsTemplatesResponse
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.smartdocuments.rest.createRESTMappedTemplate
 import net.atos.zac.smartdocuments.rest.createRESTMappedTemplateGroup
-import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toModel
-import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toREST
+import net.atos.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroup
+import net.atos.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroupSet
+import net.atos.zac.smartdocuments.rest.toSmartDocumentsTemplateGroupSet
 import net.atos.zac.smartdocuments.templates.model.createSmartDocumentsTemplate
 import net.atos.zac.smartdocuments.templates.model.createSmartDocumentsTemplateGroup
 import java.util.UUID
@@ -20,10 +21,10 @@ import java.util.UUID
 class SmartDocumentsTemplateConverterTest : BehaviorSpec({
 
     Given("a template response from SmartDocuments") {
-        val templateResponse = createTemplatesResponse()
+        val templateResponse = createsmartDocumentsTemplatesResponse()
 
         When("convert to REST is called") {
-            val restTemplateGroup = templateResponse.toREST()
+            val restTemplateGroup = templateResponse.toRestSmartDocumentsTemplateGroupSet()
 
             Then("it produces the right rest model") {
                 restTemplateGroup.size shouldBe 1
@@ -104,7 +105,7 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
 
         When("convert to JPA model is called") {
             val zaakafhandelParametersFixture = createZaakafhandelParameters()
-            val jpaModel = restTemplateRequest.toModel(zaakafhandelParametersFixture)
+            val jpaModel = restTemplateRequest.toSmartDocumentsTemplateGroupSet(zaakafhandelParametersFixture)
 
             Then("it produces a correct jpa representation") {
                 jpaModel.size shouldBe 1
@@ -199,7 +200,7 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
         )
 
         When("a convert to REST model is called") {
-            val restModel = jpaModel.toREST()
+            val restModel = jpaModel.toRestSmartDocumentsTemplateGroup()
 
             Then("it produces a correct REST model") {
                 restModel.size shouldBe 1

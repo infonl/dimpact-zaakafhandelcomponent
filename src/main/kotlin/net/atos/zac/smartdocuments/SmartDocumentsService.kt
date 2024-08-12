@@ -73,7 +73,7 @@ class SmartDocumentsService @Inject constructor(
             ).also {
                 LOG.fine("SmartDocuments attended document creation response: $it")
             }.let {
-                 DocumentCreationAttendedResponse(
+                DocumentCreationAttendedResponse(
                     redirectUrl = UriBuilder.fromUri(smartDocumentsURL)
                         .path("smartdocuments/wizard")
                         .queryParam("ticket", it.ticket)

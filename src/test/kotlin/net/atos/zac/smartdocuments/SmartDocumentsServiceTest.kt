@@ -16,8 +16,8 @@ import net.atos.client.smartdocuments.SmartDocumentsClient
 import net.atos.client.smartdocuments.model.createAttendedResponse
 import net.atos.client.smartdocuments.model.createRegistratie
 import net.atos.client.smartdocuments.model.createSmartDocument
-import net.atos.client.smartdocuments.model.createTemplatesResponse
 import net.atos.client.smartdocuments.model.createUnattendedResponse
+import net.atos.client.smartdocuments.model.createsmartDocumentsTemplatesResponse
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.documentcreation.model.createData
@@ -100,7 +100,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         val loggedInUser = createLoggedInUser()
         every { loggedInUserInstance.get() } returns loggedInUser
 
-        val templatesResponse = createTemplatesResponse()
+        val templatesResponse = createsmartDocumentsTemplatesResponse()
         every {
             smartDocumentsClient.listTemplates(any(), any())
         } returns templatesResponse

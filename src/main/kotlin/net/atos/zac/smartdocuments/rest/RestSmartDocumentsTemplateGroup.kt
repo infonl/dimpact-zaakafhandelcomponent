@@ -5,6 +5,8 @@
 
 package net.atos.zac.smartdocuments.rest
 
+import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseTemplateGroup
+import net.atos.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 
@@ -33,3 +35,17 @@ private fun convertTemplateGroupToStringRepresentation(
             group.groups?.map { addAll(convertTemplateGroupToStringRepresentation(it, groupString)) }
         }
     }
+
+fun SmartDocumentsTemplatesResponse.toRestSmartDocumentsTemplateGroupSet(): Set<RestSmartDocumentsTemplateGroup> =
+    this.documentsStructure.templatesStructure.templateGroups
+        .mapTo(mutableSetOf()) { convertTemplateGroupResponseToRest(it) }
+
+private fun convertTemplateGroupResponseToRest(
+    group: SmartDocumentsResponseTemplateGroup
+): RestSmartDocumentsTemplateGroup =
+    RestSmartDocumentsTemplateGroup(
+        id = group.id,
+        name = group.name,
+        groups = group.templateGroups?.map { convertTemplateGroupResponseToRest(it) }?.ifEmpty { null }?.toSet(),
+        templates = group.templates?.map { RestSmartDocumentsTemplate(it.id, it.name) }?.ifEmpty { null }?.toSet()
+    )

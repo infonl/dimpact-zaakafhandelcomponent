@@ -44,30 +44,38 @@ class DocumentCreationService @Inject constructor(
     fun createDocumentAttended(
         documentCreationData: DocumentCreationData
     ): DocumentCreationAttendedResponse =
-        smartDocumentsService.createDocumentAttended(
-            data = documentCreationDataConverter.createData(
-                loggedInUser = loggedInUserInstance.get(),
-                zaak = documentCreationData.zaak,
-                taskId = documentCreationData.taskId
-            ),
-            registratie = createRegistratie(
-                zaak = documentCreationData.zaak,
-                informatieObjectType = documentCreationData.informatieobjecttype!!
-            ),
-            smartDocument = createSmartDocumentForAttendedFlow(documentCreationData)
-        )
+        documentCreationDataConverter.createData(
+            loggedInUser = loggedInUserInstance.get(),
+            zaak = documentCreationData.zaak,
+            taskId = documentCreationData.taskId
+        ).let { data ->
+            createSmartDocumentForAttendedFlow(documentCreationData).let { smartDocument ->
+                smartDocumentsService.createDocumentAttended(
+                    data = data,
+                    registratie = createRegistratie(
+                        zaak = documentCreationData.zaak,
+                        informatieObjectType = documentCreationData.informatieobjecttype!!
+                    ),
+                    smartDocument = smartDocument
+                )
+            }
+        }
 
     fun createDocumentUnattended(
         documentCreationData: DocumentCreationData
     ): DocumentCreationUnattendedResponse =
-        smartDocumentsService.createDocumentUnattended(
-            data = documentCreationDataConverter.createData(
-                loggedInUser = loggedInUserInstance.get(),
-                zaak = documentCreationData.zaak,
-                taskId = documentCreationData.taskId
-            ),
-            smartDocument = createSmartDocumentForUnttendedFlow(documentCreationData)
-        )
+        documentCreationDataConverter.createData(
+            loggedInUser = loggedInUserInstance.get(),
+            zaak = documentCreationData.zaak,
+            taskId = documentCreationData.taskId
+        ).let { data ->
+            createSmartDocumentForUnttendedFlow(documentCreationData).let { smartDocument ->
+                smartDocumentsService.createDocumentUnattended(
+                    data = data,
+                    smartDocument = smartDocument
+                )
+            }
+        }
 
     /**
      * Creates a SmartDocument object for the attended flow.
