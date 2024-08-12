@@ -14,7 +14,7 @@ data class AttendedResponse(
 )
 
 @NoArgConstructor
-class Document(
+data class Document(
     @field:JsonbProperty("data")
     var data: String? = null
 )

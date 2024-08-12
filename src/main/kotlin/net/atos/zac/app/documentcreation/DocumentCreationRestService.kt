@@ -16,11 +16,12 @@ import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
-import net.atos.zac.app.documentcreation.model.RestDocumentCreationResponse
+import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationUnattendedData
+import net.atos.zac.app.documentcreation.model.RestDocumentCreationUnattendedResponse
 import net.atos.zac.app.util.exception.InputValidationFailedException
 import net.atos.zac.configuratie.ConfiguratieService
-import net.atos.zac.documentcreation.SmartDocumentsService
+import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.documentcreation.model.DocumentCreationData
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
@@ -35,7 +36,7 @@ import nl.lifely.zac.util.NoArgConstructor
 @AllOpen
 class DocumentCreationRestService @Inject constructor(
     private val policyService: PolicyService,
-    private val smartDocumentsService: SmartDocumentsService,
+    private val documentCreationService: DocumentCreationService,
     private val ztcClientService: ZtcClientService,
     private val zrcClientService: ZrcClientService
 ) {
@@ -44,7 +45,7 @@ class DocumentCreationRestService @Inject constructor(
     @Deprecated("Use createDocumentUnattended instead")
     fun createDocumentAttended(
         @Valid restDocumentCreationAttendedData: RestDocumentCreationAttendedData
-    ): RestDocumentCreationResponse {
+    ): RestDocumentCreationAttendedResponse {
         val zaak = zrcClientService.readZaak(restDocumentCreationAttendedData.zaakUUID).also {
             assertPolicy(policyService.readZaakRechten(it).creeerenDocument)
         }
@@ -64,8 +65,8 @@ class DocumentCreationRestService @Inject constructor(
                     zaak,
                     restDocumentCreationAttendedData.taskId,
                     informatieObjectType
-                ).let(smartDocumentsService::createDocumentAttended)
-                    .let { RestDocumentCreationResponse(it.redirectUrl, it.message) }
+                ).let(documentCreationService::createDocumentAttended)
+                    .let { RestDocumentCreationAttendedResponse(it.redirectUrl, it.message) }
             }
     }
 
@@ -73,7 +74,7 @@ class DocumentCreationRestService @Inject constructor(
     @Path("/createdocumentunattended")
     fun createDocumentUnattended(
         @Valid restDocumentCreationUnattendedData: RestDocumentCreationUnattendedData
-    ): RestDocumentCreationResponse {
+    ): RestDocumentCreationUnattendedResponse {
         val zaak = zrcClientService.readZaak(restDocumentCreationUnattendedData.zaakUuid)
         assertPolicy(policyService.readZaakRechten(zaak).creeerenDocument)
         return DocumentCreationData(
@@ -81,7 +82,7 @@ class DocumentCreationRestService @Inject constructor(
             taskId = restDocumentCreationUnattendedData.taskId,
             templateGroupName = restDocumentCreationUnattendedData.smartDocumentsTemplateGroupName,
             templateName = restDocumentCreationUnattendedData.smartDdocumentsTemplateName,
-        ).let(smartDocumentsService::createDocumentUnattended)
-            .let { RestDocumentCreationResponse(message = it.message) }
+        ).let(documentCreationService::createDocumentUnattended)
+            .let { RestDocumentCreationUnattendedResponse(message = it.message) }
     }
 }

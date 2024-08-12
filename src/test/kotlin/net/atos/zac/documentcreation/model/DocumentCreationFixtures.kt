@@ -58,10 +58,16 @@ fun createDocumentCreationData(
     templateName = templateName
 )
 
-fun createDocumentCreationResponse(
+fun createDocumentCreationAttendedResponse(
     redirectUri: URI = URI.create("http://example.com/dummyRedirectURI")
 ) = DocumentCreationAttendedResponse(
     redirectUrl = redirectUri
+)
+
+fun createDocumentCreationUnattendedResponse(
+    message: String = "dummyMessage"
+) = DocumentCreationUnattendedResponse(
+    message = message
 )
 
 fun createGebruikerData(
