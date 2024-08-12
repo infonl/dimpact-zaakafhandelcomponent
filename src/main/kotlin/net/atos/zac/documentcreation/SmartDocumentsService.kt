@@ -7,9 +7,9 @@ package net.atos.zac.documentcreation
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
+import jakarta.ws.rs.BadRequestException
 import jakarta.ws.rs.core.UriBuilder
 import net.atos.client.smartdocuments.SmartDocumentsClient
-import net.atos.client.smartdocuments.exception.BadRequestException
 import net.atos.client.smartdocuments.model.document.Deposit
 import net.atos.client.smartdocuments.model.document.Registratie
 import net.atos.client.smartdocuments.model.document.Selection
