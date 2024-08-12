@@ -13,6 +13,8 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_FUNCTIONAL_ADMIN_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_DOMEIN_TEST_1_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_FUNCTIONAL_ADMINS_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_RECORD_MANAGERS_DESCRIPTION
@@ -23,6 +25,8 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_1_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_DOMEIN_TEST_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 
 class IdentityServiceTest : BehaviorSpec({
@@ -50,6 +54,10 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                     "id": "$TEST_GROUP_RECORD_MANAGERS_ID",
                                     "naam": "$TEST_GROUP_RECORD_MANAGERS_DESCRIPTION"
+                                },
+                                {
+                                    "id": "$TEST_GROUP_DOMEIN_TEST_1_ID",
+                                    "naam": "$TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION"
                                 }
                             ]
                 """.trimIndent()
@@ -80,6 +88,10 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                     "id": "$TEST_USER_2_ID",
                                     "naam": "$TEST_USER_2_NAME"
+                                },
+                                {
+                                    "id": "$TEST_USER_DOMEIN_TEST_1_ID",
+                                    "naam": "$TEST_USER_DOMEIN_TEST_1_NAME"
                                 }
                             ]
                 """.trimIndent()

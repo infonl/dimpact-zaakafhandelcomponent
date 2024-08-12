@@ -107,6 +107,8 @@ object ItestConfiguration {
     const val TEST_USER_1_NAME = "Test User1 Špëçîâl Characters"
     const val TEST_USER_2_ID = "testuser2"
     const val TEST_USER_2_NAME = "Test User2"
+    const val TEST_USER_DOMEIN_TEST_1_ID = "testuserdomeintest1"
+    const val TEST_USER_DOMEIN_TEST_1_NAME = "Test testuserdomeintest1"
     const val TEST_RECORD_MANAGER_1_USERNAME = "recordmanager1"
     const val TEST_RECORD_MANAGER_1_NAME = "Test Recordmanager1"
     const val TEST_FUNCTIONAL_ADMIN_1_ID = "functioneelbeheerder1"
@@ -115,6 +117,8 @@ object ItestConfiguration {
     const val TEST_GROUP_A_DESCRIPTION = "Test group A"
     const val TEST_GROUP_FUNCTIONAL_ADMINS_ID = "test-group-fb"
     const val TEST_GROUP_FUNCTIONAL_ADMINS_DESCRIPTION = "Test group functional admins"
+    const val TEST_GROUP_DOMEIN_TEST_1_ID = "test-group-domein-test-1"
+    const val TEST_GROUP_DOMEIN_TEST_1_DESCRIPTION = "Test group which has access to domein_test_1 only"
     const val TEST_GROUP_RECORD_MANAGERS_ID = "test-group-rm"
     const val TEST_GROUP_RECORD_MANAGERS_DESCRIPTION = "Test group record managers"
 

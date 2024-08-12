@@ -60,7 +60,7 @@ dn: cn=test-group-domein-test-1,ou=people,dc=example,dc=org
 objectClass: extensibleObject
 objectClass: groupOfUniqueNames
 objectClass: top
-cn: test-group-domein-test-1 
+cn: test-group-domein-test-1
 uniqueMember: cn=testuserdomeintest1,ou=people,dc=example,dc=org
 description: Test group which has access to domein_test_1 only
 email: ${GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS}
