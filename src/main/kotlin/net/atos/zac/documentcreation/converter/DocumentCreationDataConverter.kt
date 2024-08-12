@@ -123,7 +123,7 @@ class DocumentCreationDataConverter @Inject constructor(
         }
 
     private fun createAanvragerDataNatuurlijkPersoon(bsn: String): AanvragerData? =
-        brpClientService.retreivePerson(bsn)?.let { convertToAanvragerDataPersoon(it) }
+        brpClientService.retrievePersoon(bsn)?.let { convertToAanvragerDataPersoon(it) }
 
     private fun convertToAanvragerDataPersoon(persoon: Persoon) =
         AanvragerData(
