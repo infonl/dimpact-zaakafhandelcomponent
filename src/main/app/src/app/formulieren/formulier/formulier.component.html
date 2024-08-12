@@ -193,22 +193,22 @@
     <button
       mat-raised-button
       color="primary"
-      [disabled]="formGroup.invalid||bezigMetOpslaan"
+      [disabled]="bezigMetOpslaan"
       id="opslaan_button"
       (click)="opslaan()"
       type="submit"
     >
-      {{submitButtonLabel | translate}}
+      {{'actie.opslaan' | translate}}
     </button>
     <button
       mat-raised-button
-      [disabled]="bezigMetOpslaan"
-      id="annuleren_button"
-      *ngIf="toonAnnulerenButton"
-      type="button"
-      (click)="cancel()"
+      color="primary"
+      [disabled]="formGroup.invalid||bezigMetOpslaan"
+      id="opslaan_en_afronden_button"
+      (click)="opslaanEnAfronden()"
+      type="submit"
     >
-      {{'actie.annuleren' | translate}}
+      {{'actie.opslaan.afronden' | translate}}
     </button>
   </div>
 </form>

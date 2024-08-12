@@ -32,7 +32,7 @@
           <div class="form">
             <mfb-form
               *ngIf="formulier"
-              (formPartial)="onFormPartial($event)"
+              (formPartial)="onHardCodedFormPartial($event)"
               (formSubmit)="onHardCodedFormSubmit($event)"
               [formFields]="formulier.form"
               [config]="formConfig"
@@ -40,12 +40,11 @@
             ></mfb-form>
             <zac-formulier
               *ngIf="formulierDefinitie"
-              (submit)="onConfigurableFormSubmit($event)"
+              (formPartial)="onConfigurableFormPartial($event)"
+              (formSubmit)="onConfigurableFormSubmit($event)"
               [definitie]="formulierDefinitie"
               [zaak]="zaak"
               [readonly]="isReadonly()"
-              submitButtonLabel="actie.opslaan.afronden"
-              [toonAnnulerenButton]="false"
             ></zac-formulier>
             <mat-progress-bar
               *ngIf="!formulier && !formulierDefinitie"
