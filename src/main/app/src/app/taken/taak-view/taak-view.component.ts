@@ -299,7 +299,7 @@ export class TaakViewComponent
       });
   }
 
-  onFormPartial(formGroup: FormGroup): void {
+  onHardCodedFormPartial(formGroup: FormGroup): void {
     this.websocketService.suspendListener(this.taakListener);
     this.takenService
       .updateTaakdata(this.formulier.getTaak(formGroup))
@@ -319,6 +319,18 @@ export class TaakViewComponent
           this.utilService.openSnackbar("msg.taak.afgerond");
           this.init(taak, false);
         });
+    }
+  }
+
+  onConfigurableFormPartial(formState: {}): void {
+    if (formState) {
+      this.taak.taakdata = formState;
+      this.websocketService.suspendListener(this.taakListener);
+      this.takenService.updateTaakdata(this.taak).subscribe((taak) => {
+        this.utilService.openSnackbar("msg.taak.opgeslagen");
+        this.init(taak, false);
+        this.posts++;
+      });
     }
   }
 

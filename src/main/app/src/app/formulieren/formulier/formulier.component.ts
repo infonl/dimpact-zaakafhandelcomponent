@@ -23,13 +23,9 @@ import { Zaak } from "../../zaken/model/zaak";
 export class FormulierComponent implements OnInit {
   @Input() definitie: FormulierDefinitie;
   @Input() readonly: boolean;
-  @Input() submitButtonLabel:
-    | "actie.starten"
-    | "actie.opslaan.afronden"
-    | "actie.opslaan" = "actie.starten";
-  @Input() toonAnnulerenButton = true;
   @Input() zaak: Zaak;
-  @Output() submit = new EventEmitter<{}>();
+  @Output() formPartial = new EventEmitter<{}>();
+  @Output() formSubmit = new EventEmitter<{}>();
 
   formGroup: FormGroup;
   FormulierVeldtype = FormulierVeldtype;
@@ -119,13 +115,14 @@ export class FormulierComponent implements OnInit {
 
   opslaan() {
     this.bezigMetOpslaan = true;
-    this.submit.emit(this.formGroup.value);
-    this.formGroup.disable();
+    this.formPartial.emit(this.formGroup.value);
+    this.bezigMetOpslaan = false;
   }
 
-  cancel() {
+  opslaanEnAfronden() {
     this.bezigMetOpslaan = true;
-    this.submit.emit(null);
+    this.formSubmit.emit(this.formGroup.value);
+    this.formGroup.disable();
   }
 
   isOpgeschortenMogelijk() {

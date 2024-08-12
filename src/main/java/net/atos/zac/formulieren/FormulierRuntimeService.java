@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static net.atos.zac.flowable.TaakVariabelenService.readTaskData;
 import static net.atos.zac.util.DateTimeConverterUtil.convertToLocalDate;
 import static net.atos.zac.util.UriUtil.uuidFromURI;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
@@ -79,8 +80,9 @@ public class FormulierRuntimeService {
     public void render(final RestTask restTask) {
         final var zaak = zrcClientService.readZaak(restTask.getZaakUuid());
         final var zaakData = zaakVariabelenService.readProcessZaakdata(zaak.getUuid());
+        final var taakdata = readTaskData(flowableTaskService.readOpenTask(restTask.getId()));
         restTask.getFormulierDefinitie().veldDefinities.forEach(veldDefenitie -> {
-            resolveDefaultWaarde(veldDefenitie, zaak, restTask, zaakData);
+            resolveDefaultWaarde(veldDefenitie, zaak, restTask, zaakData, taakdata);
             resolveMeerkeuzeOpties(veldDefenitie);
         });
     }
@@ -107,7 +109,7 @@ public class FormulierRuntimeService {
         versturenDocumenten(formulierData);
         ondertekenDocumenten(formulierData);
 
-        final Map<String, String> taskData = taakVariabelenService.readTaskData(task);
+        final Map<String, String> taskData = readTaskData(task);
         if (taskData.isEmpty()) {
             taakVariabelenService.setTaskData(task, formulierData.formState);
         } else {
@@ -135,8 +137,12 @@ public class FormulierRuntimeService {
     }
 
     private void resolveDefaultWaarde(final RESTFormulierVeldDefinitie veldDefinitie, final Zaak zaak,
-                                      final RestTask restTask, final Map<String, Object> zaakData) {
-        if (isNotEmpty(veldDefinitie.defaultWaarde)) {
+                                      final RestTask restTask, final Map<String, Object> zaakData,
+                                      final Map<String, String> taakdata) {
+        final var bewaardeWaarde = taakdata.getOrDefault(veldDefinitie.systeemnaam, null);
+        if (bewaardeWaarde != null) {
+            veldDefinitie.defaultWaarde = bewaardeWaarde;
+        } else if (isNotEmpty(veldDefinitie.defaultWaarde)) {
             veldDefinitie.defaultWaarde = switch (veldDefinitie.defaultWaarde) {
                 case "TAAK:STARTDATUM" -> restTask.getCreatiedatumTijd().format(DATUM_FORMAAT);
                 case "TAAK:FATALE_DATUM" -> restTask.getFataledatum().format(DATUM_FORMAAT);
