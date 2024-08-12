@@ -2,128 +2,140 @@
  * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.smartdocuments
 
 import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
-import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
-import jakarta.transaction.Transactional
-import jakarta.transaction.Transactional.TxType.REQUIRED
-import jakarta.transaction.Transactional.TxType.SUPPORTS
-import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.model.ZaakafhandelParameters
-import net.atos.zac.documentcreation.SmartDocumentsService
-import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
-import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toModel
-import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toREST
-import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
+import jakarta.ws.rs.BadRequestException
+import jakarta.ws.rs.core.UriBuilder
+import net.atos.client.smartdocuments.SmartDocumentsClient
+import net.atos.client.smartdocuments.model.document.Data
+import net.atos.client.smartdocuments.model.document.Deposit
+import net.atos.client.smartdocuments.model.document.Registratie
+import net.atos.client.smartdocuments.model.document.SmartDocument
+import net.atos.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
+import net.atos.zac.authentication.LoggedInUser
+import net.atos.zac.documentcreation.model.DocumentCreationAttendedResponse
+import net.atos.zac.documentcreation.model.DocumentCreationUnattendedResponse
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
-import java.util.UUID
+import org.eclipse.microprofile.config.inject.ConfigProperty
+import org.eclipse.microprofile.rest.client.inject.RestClient
+import java.util.Optional
 import java.util.logging.Logger
 
-@ApplicationScoped
-@Transactional(SUPPORTS)
 @NoArgConstructor
+@ApplicationScoped
 @AllOpen
+@Suppress("LongParameterList")
 class SmartDocumentsService @Inject constructor(
-    private val smartDocumentsService: SmartDocumentsService,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService,
+    @RestClient
+    private val smartDocumentsClient: SmartDocumentsClient,
+
+    @ConfigProperty(name = "SD_CLIENT_MP_REST_URL")
+    private val smartDocumentsURL: String,
+
+    @ConfigProperty(name = "SD_AUTHENTICATION")
+    private val authenticationToken: String,
+
+    @ConfigProperty(name = "SD_FIXED_USER_NAME")
+    private val fixedUserName: Optional<String>,
+
+    private val loggedInUserInstance: Instance<LoggedInUser>,
+
 ) {
     companion object {
         private val LOG = Logger.getLogger(SmartDocumentsService::class.java.name)
     }
 
-    @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
-    private lateinit var entityManager: EntityManager
-
     /**
-     * Lists all SmartDocuments template available
+     * Sends a request to SmartDocuments to create a document using the Smart Documents wizard (= attended mode).
      */
-    fun listTemplates() = smartDocumentsService.listTemplates().toREST()
-
-    /**
-     * Stores template mapping for zaakafhandelparameters
-     *
-     * @param restTemplateGroups a set of RESTSmartDocumentsTemplateGroup objects to store
-     * @param zaakafhandelParametersUUID UUID of the zaakafhandelparameters
-     */
-    @Transactional(REQUIRED)
-    fun storeTemplatesMapping(
-        restTemplateGroups: Set<RestMappedSmartDocumentsTemplateGroup>,
-        zaakafhandelParametersUUID: UUID
-    ) {
-        LOG.info { "Storing template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID" }
-
-        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelParametersUUID)
-        val modelTemplateGroups = restTemplateGroups.toModel(zaakafhandelParameters)
-
-        deleteTemplateMapping(zaakafhandelParametersUUID)
-
-        modelTemplateGroups.forEach { templateGroup ->
-            entityManager.merge(templateGroup)
-        }
-    }
-
-    /**
-     * Deletes all template groups and templates for a zaakafhandelparameters
-     *
-     * @param zaakafhandelUUID UUID of the zaakafhandelparameters
-     * @return the number of entities deleted
-     */
-    @Transactional(REQUIRED)
-    fun deleteTemplateMapping(
-        zaakafhandelparametersUUID: UUID
-    ): Int {
-        LOG.info {
-            "Deleting template mapping for zaakafhandelParameters UUID $zaakafhandelparametersUUID"
-        }
-
-        val zaakafhandelParametersId =
-            zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelparametersUUID).id
-        val builder = entityManager.criteriaBuilder
-        val query = builder.createCriteriaDelete(SmartDocumentsTemplateGroup::class.java)
-        val root = query.from(SmartDocumentsTemplateGroup::class.java)
-        query.where(
-            builder.equal(
-                root.get<ZaakafhandelParameters>("zaakafhandelParameters").get<Long>("id"),
-                zaakafhandelParametersId
-            )
+    fun createDocumentAttended(
+        data: Data,
+        registratie: Registratie,
+        smartDocument: SmartDocument
+    ): DocumentCreationAttendedResponse {
+        val deposit = Deposit(
+            data = data,
+            registratie = registratie,
+            smartDocument = smartDocument
         )
-        val deletedCount = entityManager.createQuery(query).executeUpdate()
-        LOG.info { "Deleted $deletedCount template entities." }
-        return deletedCount
+        try {
+            val userName = fixedUserName.orElse(loggedInUserInstance.get().id).also {
+                LOG.fine("Starting Smart Documents wizard for user: '$it'")
+            }
+            val wizardResponse = smartDocumentsClient.attendedDeposit(
+                authenticationToken = "Basic $authenticationToken",
+                userName = userName,
+                deposit = deposit
+            ).also {
+                LOG.fine("SmartDocuments attended document creation response: $it")
+            }
+            return DocumentCreationAttendedResponse(
+                redirectUrl = UriBuilder.fromUri(smartDocumentsURL)
+                    .path("smartdocuments/wizard")
+                    .queryParam("ticket", wizardResponse.ticket)
+                    .build()
+            )
+        } catch (badRequestException: BadRequestException) {
+            return DocumentCreationAttendedResponse(
+                message = "Aanmaken van een document is helaas niet mogelijk. " +
+                    "Ben je als user geregistreerd in SmartDocuments? " +
+                    "Details: '$badRequestException.message'"
+            )
+        }
     }
 
     /**
-     * Lists all template groups for a zaakafhandelparameters
+     * Sends a request to SmartDocuments to create a document using the Smart Documents unattended mode.
      *
-     * @param zaakafhandelParametersUUID UUID of a zaakafhandelparameters
-     * @return a set of all RESTSmartDocumentsTemplateGroup for the zaakafhandelparameters
+     * @return the document creation response
      */
-    fun getTemplatesMapping(
-        zaakafhandelParametersUUID: UUID
-    ): Set<RestMappedSmartDocumentsTemplateGroup> {
-        LOG.info { "Fetching template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID" }
-
-        val zaakafhandelParametersId =
-            zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelParametersUUID).id
-        val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(SmartDocumentsTemplateGroup::class.java)
-        val root = query.from(SmartDocumentsTemplateGroup::class.java)
-        return entityManager.createQuery(
-            query.select(root)
-                .where(
-                    builder.and(
-                        builder.equal(
-                            root.get<ZaakafhandelParameters>("zaakafhandelParameters").get<Long>("id"),
-                            zaakafhandelParametersId
-                        ),
-                        builder.isNull(root.get<SmartDocumentsTemplateGroup>("parent"))
-                    )
+    fun createDocumentUnattended(
+        data: Data,
+        smartDocument: SmartDocument
+    ): DocumentCreationUnattendedResponse {
+        val deposit = Deposit(
+            data = data,
+            smartDocument = smartDocument
+        )
+        try {
+            val userName = fixedUserName.orElse(loggedInUserInstance.get().id).also {
+                LOG.fine("Starting SmartDocuments unattended document creation flow for user: '$it'")
+            }
+            return smartDocumentsClient.unattendedDeposit(
+                authenticationToken = "Basic $authenticationToken",
+                userName = userName,
+                deposit = deposit
+            ).also {
+                // for now log the response at INFO log level for testing
+                // later reduce this to FINE
+                LOG.info("SmartDocuments unattended document creation response: '$it'")
+            }.let {
+                DocumentCreationUnattendedResponse(
+                    message = "SmartDocuments document was created succesfully but the document is not stored yet in the zaakregister. " +
+                        "SmartDocument reponse details: '$it'"
                 )
-        ).resultList.toSet().toREST()
+            }
+        } catch (badRequestException: BadRequestException) {
+            return DocumentCreationUnattendedResponse(
+                message = "Aanmaken van een document is helaas niet mogelijk. " +
+                    "Ben je als user geregistreerd in SmartDocuments? " +
+                    "Details: '$badRequestException.message'"
+            )
+        }
     }
+
+    /**
+     * Lists all SmartDocuments templates groups and templates available for the current user.
+     *
+     * @return A structure describing templates and groups
+     */
+    fun listTemplates(): SmartDocumentsTemplatesResponse =
+        smartDocumentsClient.listTemplates(
+            "Basic $authenticationToken",
+            fixedUserName.orElse(loggedInUserInstance.get().id)
+        )
 }

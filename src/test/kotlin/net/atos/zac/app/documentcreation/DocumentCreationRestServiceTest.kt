@@ -17,15 +17,15 @@ import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
-import net.atos.zac.documentcreation.SmartDocumentsService
+import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.documentcreation.model.DocumentCreationData
-import net.atos.zac.documentcreation.model.createDocumentCreationResponse
+import net.atos.zac.documentcreation.model.createDocumentCreationAttendedResponse
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
 
 class DocumentCreationRestServiceTest : BehaviorSpec({
-    val smartDocumentsService = mockk<SmartDocumentsService>()
+    val documentCreationService = mockk<DocumentCreationService>()
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
@@ -33,7 +33,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         ztcClientService = ztcClientService,
         zrcClientService = zrcClientService,
         policyService = policyService,
-        smartDocumentsService = smartDocumentsService,
+        documentCreationService = documentCreationService,
     )
 
     isolationMode = IsolationMode.InstancePerTest
@@ -44,7 +44,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             zaakUUID = zaak.uuid,
             taskId = "dummyTaskId"
         )
-        val documentCreationResponse = createDocumentCreationResponse()
+        val documentCreationResponse = createDocumentCreationAttendedResponse()
         val documentCreationData = slot<DocumentCreationData>()
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
@@ -52,7 +52,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             createInformatieObjectType(omschrijving = "bijlage")
         )
         every {
-            smartDocumentsService.createDocumentAttended(capture(documentCreationData))
+            documentCreationService.createDocumentAttended(capture(documentCreationData))
         } returns documentCreationResponse
 
         When("createDocument is called by a role that is allowed to change the zaak") {

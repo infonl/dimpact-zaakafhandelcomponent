@@ -8,4 +8,7 @@ import nl.lifely.zac.util.NoArgConstructor
 import java.net.URI
 
 @NoArgConstructor
-data class RestDocumentCreationResponse(val redirectURL: URI? = null, val message: String? = null)
+data class RestDocumentCreationAttendedResponse(val redirectURL: URI? = null, val message: String? = null)
+
+@NoArgConstructor
+data class RestDocumentCreationUnattendedResponse(val message: String? = null)

@@ -38,7 +38,7 @@ import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.CMMNService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
-import net.atos.zac.smartdocuments.SmartDocumentsService
+import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.RestSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.isSubsetOf
@@ -65,7 +65,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     private val zaakafhandelParametersConverter: RESTZaakafhandelParametersConverter,
     private val caseDefinitionConverter: RESTCaseDefinitionConverter,
     private val resultaattypeConverter: RESTResultaattypeConverter,
-    private val smartDocumentsService: SmartDocumentsService,
+    private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
     private val policyService: PolicyService
 ) {
 
@@ -245,7 +245,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     @Path("documentTemplates")
     fun listTemplates(): Set<RestSmartDocumentsTemplateGroup> {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return smartDocumentsService.listTemplates()
+        return smartDocumentsTemplatesService.listTemplates()
     }
 
     @GET
@@ -254,7 +254,7 @@ class ZaakafhandelParametersRESTService @Inject constructor(
         @PathParam("zaakafhandelUUID") zaakafhandelUUID: UUID
     ): Set<RestMappedSmartDocumentsTemplateGroup> {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return smartDocumentsService.getTemplatesMapping(zaakafhandelUUID)
+        return smartDocumentsTemplatesService.getTemplatesMapping(zaakafhandelUUID)
     }
 
     @POST
@@ -265,9 +265,9 @@ class ZaakafhandelParametersRESTService @Inject constructor(
     ) {
         assertPolicy(policyService.readOverigeRechten().beheren)
 
-        val smartDocumentsTemplates = smartDocumentsService.listTemplates()
+        val smartDocumentsTemplates = smartDocumentsTemplatesService.listTemplates()
         restTemplateGroups isSubsetOf smartDocumentsTemplates
 
-        smartDocumentsService.storeTemplatesMapping(restTemplateGroups, zaakafhandelUUID)
+        smartDocumentsTemplatesService.storeTemplatesMapping(restTemplateGroups, zaakafhandelUUID)
     }
 }

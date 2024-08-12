@@ -40,7 +40,10 @@ data class Deposit(
     @field:JsonbProperty("SmartDocument")
     val smartDocument: SmartDocument,
 
-    // TODO: do we still need this in the unattended flow?
+    @Deprecated(
+        "Only required for the SmartDocuments attended flow. " +
+            "Will be removed in future once we no longer support the SmartDocuments attended flow."
+    )
     @field:JsonbProperty("registratie")
     val registratie: Registratie? = null,
 
@@ -53,6 +56,10 @@ data class GebruikerData(
     val naam: String
 )
 
+@Deprecated(
+    "Only required for the SmartDocuments attended flow. " +
+        "Will be removed in future once we no longer support the SmartDocuments attended flow."
+)
 data class Registratie(
     @field:JsonbProperty("zaak")
     val zaak: URI,
@@ -60,12 +67,8 @@ data class Registratie(
     @field:JsonbProperty("informatieobjectStatus")
     val informatieObjectStatus: StatusEnum,
 
-    @Deprecated(
-        "Only required for the SmartDocuments attended flow. " +
-            "Will be removed in future once we no longer support the SmartDocuments attended flow."
-    )
     @field:JsonbProperty("informatieobjecttype")
-    val informatieObjectType: URI? = null,
+    val informatieObjectType: URI,
 
     @field:JsonbProperty("bronorganisatie")
     val bronOrganisatie: String,
