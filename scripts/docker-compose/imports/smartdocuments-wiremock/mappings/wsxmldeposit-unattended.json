@@ -53,13 +53,6 @@
             "vertrouwelijkheidaanduiding": "openbaar",
             "zaaktype": "Melding evenement organiseren behandelen"
           }
-        },
-        "registratie": {
-          "auditToelichting": "Door SmartDocuments",
-          "bronorganisatie": "123443210",
-          "creatiedatum": "${json-unit.any-string}",
-          "informatieobjectStatus": "ter_vaststelling",
-          "zaak": "${json-unit.any-string}"
         }
       },
       "ignoreArrayOrder": true
