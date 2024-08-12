@@ -5,18 +5,19 @@
 
 package net.atos.zac.app.formulieren;
 
+import static net.atos.zac.policy.PolicyService.assertPolicy;
+
+import java.util.List;
+
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+
 import net.atos.zac.app.formulieren.converter.RESTFormulierDefinitieConverter;
 import net.atos.zac.app.formulieren.model.RESTFormulierDefinitie;
 import net.atos.zac.formulieren.FormulierDefinitieService;
 import net.atos.zac.policy.PolicyService;
-
-import java.util.List;
-
-import static net.atos.zac.policy.PolicyService.assertPolicy;
 
 @Singleton
 @Path("formulierDefinities")

@@ -1,6 +1,27 @@
 package net.atos.zac.formulieren;
 
+import static java.time.format.DateTimeFormatter.ofPattern;
+import static java.time.temporal.ChronoUnit.DAYS;
+import static net.atos.zac.flowable.TaakVariabelenService.readTaskData;
+import static net.atos.zac.util.DateTimeConverterUtil.convertToLocalDate;
+import static net.atos.zac.util.UriUtil.uuidFromURI;
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.*;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import jakarta.inject.Inject;
+
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.flowable.task.api.Task;
+
 import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZrcClientService;
@@ -17,25 +38,6 @@ import net.atos.zac.flowable.ZaakVariabelenService;
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.shared.helper.OpschortenZaakHelper;
 import net.atos.zac.util.DateTimeConverterUtil;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.flowable.task.api.Task;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static java.time.format.DateTimeFormatter.ofPattern;
-import static java.time.temporal.ChronoUnit.DAYS;
-import static net.atos.zac.flowable.TaakVariabelenService.readTaskData;
-import static net.atos.zac.util.DateTimeConverterUtil.convertToLocalDate;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
-import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
-import static org.apache.commons.lang3.StringUtils.*;
 
 public class FormulierRuntimeService {
 
@@ -120,7 +122,7 @@ public class FormulierRuntimeService {
         final Map<String, Object> zaakVariablen = zaakVariabelenService.readProcessZaakdata(zaak.getUuid());
         zaakVariablen.putAll(formulierData.dataElementen);
         zaakVariabelenService.setZaakdata(zaak.getUuid(), zaakVariablen);
-        
+
         return task;
     }
 
@@ -136,9 +138,13 @@ public class FormulierRuntimeService {
         }
     }
 
-    private void resolveDefaultWaarde(final RESTFormulierVeldDefinitie veldDefinitie, final Zaak zaak,
-                                      final RestTask restTask, final Map<String, Object> zaakData,
-                                      final Map<String, String> taakdata) {
+    private void resolveDefaultWaarde(
+            final RESTFormulierVeldDefinitie veldDefinitie,
+            final Zaak zaak,
+            final RestTask restTask,
+            final Map<String, Object> zaakData,
+            final Map<String, String> taakdata
+    ) {
         final var bewaardeWaarde = taakdata.getOrDefault(veldDefinitie.systeemnaam, null);
         if (bewaardeWaarde != null) {
             veldDefinitie.defaultWaarde = bewaardeWaarde;
@@ -172,8 +178,7 @@ public class FormulierRuntimeService {
 
     private String processDefaultWaarde(final RESTFormulierVeldDefinitie veldDefinitie, final Map<String, Object> zaakData) {
         if (veldDefinitie.defaultWaarde.startsWith(":")) {
-            veldDefinitie.defaultWaarde =
-                    zaakData.getOrDefault(veldDefinitie.defaultWaarde.substring(1), "").toString();
+            veldDefinitie.defaultWaarde = zaakData.getOrDefault(veldDefinitie.defaultWaarde.substring(1), "").toString();
         }
         return switch (veldDefinitie.veldtype) {
             case CHECKBOX -> processCheckboxDefaultWaarde(veldDefinitie.defaultWaarde);
@@ -185,8 +190,7 @@ public class FormulierRuntimeService {
     private String processCheckboxDefaultWaarde(final String defaultWaarde) {
         return (StringUtils.equalsIgnoreCase("ja", defaultWaarde) ||
                 StringUtils.equalsIgnoreCase("true", defaultWaarde) ||
-                StringUtils.equals("1", defaultWaarde))
-                ? BooleanUtils.TRUE : BooleanUtils.FALSE;
+                StringUtils.equals("1", defaultWaarde)) ? BooleanUtils.TRUE : BooleanUtils.FALSE;
     }
 
     private String processDatumDefaultwaarde(final String defaultWaarde) {
@@ -207,11 +211,10 @@ public class FormulierRuntimeService {
             Arrays.stream(formulierData.documentenVerzenden.split(DOCUMENT_SEPARATOR))
                     .map(UUID::fromString)
                     .map(drcClientService::readEnkelvoudigInformatieobject)
-                    .forEach(enkelvoudigInformatieObject ->
-                            enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
-                                    uuidFromURI(enkelvoudigInformatieObject.getUrl()),
-                                    formulierData.documentenVerzendenDatum,
-                                    formulierData.toelichting));
+                    .forEach(enkelvoudigInformatieObject -> enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
+                            uuidFromURI(enkelvoudigInformatieObject.getUrl()),
+                            formulierData.documentenVerzendenDatum,
+                            formulierData.toelichting));
         }
     }
 
@@ -221,9 +224,8 @@ public class FormulierRuntimeService {
                     .map(UUID::fromString)
                     .map(drcClientService::readEnkelvoudigInformatieobject)
                     .filter(enkelvoudigInformatieobject -> enkelvoudigInformatieobject.getOndertekening() == null)
-                    .forEach(enkelvoudigInformatieobject ->
-                            enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
-                                    uuidFromURI(enkelvoudigInformatieobject.getUrl())));
+                    .forEach(enkelvoudigInformatieobject -> enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
+                            uuidFromURI(enkelvoudigInformatieobject.getUrl())));
         }
     }
 }

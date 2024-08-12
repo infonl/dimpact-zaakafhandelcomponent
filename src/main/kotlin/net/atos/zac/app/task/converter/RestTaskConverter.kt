@@ -21,7 +21,6 @@ import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeUUID
 import net.atos.zac.flowable.util.TaskUtil
 import net.atos.zac.formulieren.FormulierDefinitieService
-import net.atos.zac.formulieren.FormulierRuntimeService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.util.DateTimeConverterUtil
 import org.flowable.identitylink.api.IdentityLinkInfo
@@ -38,7 +37,6 @@ class RestTaskConverter @Inject constructor(
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val formulierDefinitieConverter: RESTFormulierDefinitieConverter,
     private val formulierDefinitieService: FormulierDefinitieService,
-    private val formulierRuntimeService: FormulierRuntimeService
 ) {
     fun convert(tasks: List<TaskInfo>) = tasks
         .map { convert(it) }

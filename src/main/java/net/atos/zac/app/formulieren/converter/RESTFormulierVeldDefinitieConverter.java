@@ -5,12 +5,13 @@
 
 package net.atos.zac.app.formulieren.converter;
 
-import net.atos.zac.app.formulieren.model.RESTFormulierVeldDefinitie;
-import net.atos.zac.formulieren.model.FormulierVeldDefinitie;
+import java.util.List;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
+import net.atos.zac.app.formulieren.model.RESTFormulierVeldDefinitie;
+import net.atos.zac.formulieren.model.FormulierVeldDefinitie;
 
 public class RESTFormulierVeldDefinitieConverter {
 
