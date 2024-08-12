@@ -55,7 +55,7 @@ import java.util.UUID
 @AllOpen
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
-class ZaakafhandelParametersRESTService @Inject constructor(
+class ZaakafhandelParametersRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val configuratieService: ConfiguratieService,
     private val cmmnService: CMMNService,

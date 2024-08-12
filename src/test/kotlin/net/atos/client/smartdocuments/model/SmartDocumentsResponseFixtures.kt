@@ -145,7 +145,7 @@ fun createTemplateGroups() = listOf(
     )
 )
 
-fun createTemplatesResponse() = SmartDocumentsTemplatesResponse(
+fun createsmartDocumentsTemplatesResponse() = SmartDocumentsTemplatesResponse(
     documentsStructure = SmartDocumentsResponseDocumentsStructure(
         templatesStructure = SmartDocumentsResponseTemplatesStructure(
             templateGroups = listOf(
@@ -177,9 +177,9 @@ fun createTemplatesResponse() = SmartDocumentsTemplatesResponse(
 
 @Suppress("LongParameterList")
 fun createRegistratie(
-    zaak: URI = URI("http://example.com/dummyZaak"),
+    zaak: URI = URI("https://example.com/dummyZaak"),
     informatieObjectStatus: StatusEnum = StatusEnum.IN_BEWERKING,
-    informatieObjectType: URI = URI("http://example.com/dummyInformatieObjectType"),
+    informatieObjectType: URI = URI("https://example.com/dummyInformatieObjectType"),
     bronOrganisatie: String = "dummyBronOrganisatie",
     creatieDatum: LocalDate = LocalDate.now(),
     auditToelichting: String = "dummyAuditToelichting"

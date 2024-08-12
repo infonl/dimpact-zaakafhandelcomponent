@@ -15,8 +15,9 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
-import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toModel
-import net.atos.zac.smartdocuments.templates.SmartDocumentsTemplateConverter.toREST
+import net.atos.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroup
+import net.atos.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroupSet
+import net.atos.zac.smartdocuments.rest.toSmartDocumentsTemplateGroupSet
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -39,7 +40,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
     /**
      * Lists all SmartDocuments template available
      */
-    fun listTemplates() = smartDocumentsService.listTemplates().toREST()
+    fun listTemplates() = smartDocumentsService.listTemplates().toRestSmartDocumentsTemplateGroupSet()
 
     /**
      * Stores template mapping for zaakafhandelparameters
@@ -55,7 +56,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
         LOG.info { "Storing template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID" }
 
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelParametersUUID)
-        val modelTemplateGroups = restTemplateGroups.toModel(zaakafhandelParameters)
+        val modelTemplateGroups = restTemplateGroups.toSmartDocumentsTemplateGroupSet(zaakafhandelParameters)
 
         deleteTemplateMapping(zaakafhandelParametersUUID)
 
@@ -121,6 +122,6 @@ class SmartDocumentsTemplatesService @Inject constructor(
                         builder.isNull(root.get<SmartDocumentsTemplateGroup>("parent"))
                     )
                 )
-        ).resultList.toSet().toREST()
+        ).resultList.toSet().toRestSmartDocumentsTemplateGroup()
     }
 }
