@@ -55,7 +55,13 @@ class BrpClientService @Inject constructor(
             personenApi.personen(it)
         }
 
-    fun findPersoon(burgerservicenummer: String): Persoon? =
+    /**
+     * Retrieves a person by burgerservicenummer from the BRP Personen API.
+     *
+     * @param burgerservicenummer the burgerservicenummer of the person to retrieve
+     * @return the person if found, otherwise null
+     */
+    fun retreivePerson(burgerservicenummer: String): Persoon? =
         (
             personenApi.personen(
                 createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer)
@@ -72,7 +78,14 @@ class BrpClientService @Inject constructor(
             }
         }
 
-    fun findPersoonAsync(burgerservicenummer: String): CompletionStage<Persoon> =
+    /**
+     * Retrieves a person by burgerservicenummer from the BRP Personen API asynchronously.
+     *
+     * @param burgerservicenummer the burgerservicenummer of the person to retrieve
+     * @return a CompletionStage with the person if found, otherwise throws an exception
+     * @throws BrpPersonNotFoundException if no person is found for the given burgerservicenummer
+     */
+    fun retreivePersoonAsync(burgerservicenummer: String): CompletionStage<Persoon> =
         createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer).let {
             personenApi.personenAsync(it)
                 .handle { response, exception ->
