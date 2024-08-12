@@ -230,16 +230,26 @@ Then(
 );
 
 Then(
-  "{string} sees the created zaak",
-  { timeout: ONE_MINUTE_IN_MS },
-  async function (this: CustomWorld, user) {
-    const caseNumber = this.testStorage.get("caseNumber");
+    "{string} sees the created zaak",
+    { timeout: ONE_MINUTE_IN_MS },
+    async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+        const caseNumber = this.testStorage.get("caseNumber");
 
-    await this.page
-      .getByText(caseNumber)
-      .first()
-      .waitFor({ timeout: ONE_MINUTE_IN_MS });
-  },
+        await this.page
+            .getByText(caseNumber)
+            .first()
+            .waitFor({ timeout: ONE_MINUTE_IN_MS });
+    }
+);
+
+Then(
+    "{string} sees the zaak initiator",
+    { timeout: ONE_MINUTE_IN_MS },
+    async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+        await this.page.getByText("Héndrika Janse").click();
+        await this.expect(this.page.getByText(`999993896`)).toBeVisible();
+        await this.expect(this.page.getByText(`0612345678`)).toBeVisible();
+    }
 );
 
 When(

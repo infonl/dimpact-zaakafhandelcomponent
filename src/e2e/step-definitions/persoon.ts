@@ -3,12 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Given, Then, When } from "@cucumber/cucumber";
-import fs from "fs";
+import { Then } from "@cucumber/cucumber";
 import { z } from "zod";
-import { profiles } from "../support/worlds/userProfiles";
 import { CustomWorld } from "../support/worlds/world";
-import { worldUsers, zaakStatus } from "../utils/schemes";
+import { worldUsers } from "../utils/schemes";
 
 const ONE_MINUTE_IN_MS = 60_000;
 const FIFTEEN_SECONDS_IN_MS = 15_000;
