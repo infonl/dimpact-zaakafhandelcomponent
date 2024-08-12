@@ -41,12 +41,6 @@ class DocumentCreationService @Inject constructor(
         private const val AUDIT_TOELICHTING = "Door SmartDocuments"
     }
 
-    /**
-     * Sends a request to SmartDocuments to create a document using the Smart Documents wizard (= attended mode).
-     *
-     * @param documentCreationData data used to create the document
-     * @return the document creation response
-     */
     fun createDocumentAttended(
         documentCreationData: DocumentCreationData
     ): DocumentCreationAttendedResponse =
@@ -63,12 +57,6 @@ class DocumentCreationService @Inject constructor(
             smartDocument = createSmartDocumentForAttendedFlow(documentCreationData)
         )
 
-    /**
-     * Sends a request to SmartDocuments to create a document using the Smart Documents unattended mode.
-     *
-     * @param documentCreationData data used to create the document
-     * @return the document creation response
-     */
     fun createDocumentUnattended(
         documentCreationData: DocumentCreationData
     ): DocumentCreationUnattendedResponse =

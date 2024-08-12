@@ -66,19 +66,20 @@ class SmartDocumentsService @Inject constructor(
             val userName = fixedUserName.orElse(loggedInUserInstance.get().id).also {
                 LOG.fine("Starting Smart Documents wizard for user: '$it'")
             }
-            val wizardResponse = smartDocumentsClient.attendedDeposit(
+            return smartDocumentsClient.attendedDeposit(
                 authenticationToken = "Basic $authenticationToken",
                 userName = userName,
                 deposit = deposit
             ).also {
                 LOG.fine("SmartDocuments attended document creation response: $it")
+            }.let {
+                 DocumentCreationAttendedResponse(
+                    redirectUrl = UriBuilder.fromUri(smartDocumentsURL)
+                        .path("smartdocuments/wizard")
+                        .queryParam("ticket", it.ticket)
+                        .build()
+                )
             }
-            return DocumentCreationAttendedResponse(
-                redirectUrl = UriBuilder.fromUri(smartDocumentsURL)
-                    .path("smartdocuments/wizard")
-                    .queryParam("ticket", wizardResponse.ticket)
-                    .build()
-            )
         } catch (badRequestException: BadRequestException) {
             return DocumentCreationAttendedResponse(
                 message = "Aanmaken van een document is helaas niet mogelijk. " +
@@ -110,9 +111,7 @@ class SmartDocumentsService @Inject constructor(
                 userName = userName,
                 deposit = deposit
             ).also {
-                // for now log the response at INFO log level for testing
-                // later reduce this to FINE
-                LOG.info("SmartDocuments unattended document creation response: '$it'")
+                LOG.fine("SmartDocuments unattended document creation response: '$it'")
             }.let {
                 DocumentCreationUnattendedResponse(
                     message = "SmartDocuments document was created succesfully but the document is not stored yet in the zaakregister. " +
