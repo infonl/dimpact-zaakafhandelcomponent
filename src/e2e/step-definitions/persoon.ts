@@ -22,11 +22,11 @@ Then(
     await this.expect(this.page.getByText(`0612345678`)).toBeVisible();
 
     await this.expect(
-      this.page.getByText(`e2eTestFirstName of e2eTestLastName`)
+      this.page.getByText(`e2eTestFirstName of e2eTestLastName`),
     ).toBeVisible();
 
     await this.expect(
-      this.page.getByText(`e2eFirstName in e2eLastName`)
+      this.page.getByText(`e2eFirstName in e2eLastName`),
     ).toBeVisible();
-  }
+  },
 );
