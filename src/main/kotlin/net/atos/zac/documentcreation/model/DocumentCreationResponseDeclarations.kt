@@ -13,5 +13,5 @@ data class DocumentCreationAttendedResponse(
 
 data class DocumentCreationUnattendedResponse(
     val message: String
-    // will be extended with more fields in the future
+    // will be extended with additional fields in future
 )

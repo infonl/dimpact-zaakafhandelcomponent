@@ -4,4 +4,6 @@
  */
 package net.atos.client.smartdocuments.exception
 
-class SmartDocumentsBadRequestException(message: String) : RuntimeException(message)
+import jakarta.ws.rs.BadRequestException
+
+class SmartDocumentsBadRequestException(message: String) : BadRequestException(message)

@@ -7,7 +7,6 @@ package net.atos.zac.smartdocuments
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
-import jakarta.ws.rs.BadRequestException
 import jakarta.ws.rs.core.UriBuilder
 import net.atos.client.smartdocuments.SmartDocumentsClient
 import net.atos.client.smartdocuments.model.document.Data
@@ -49,6 +48,7 @@ class SmartDocumentsService @Inject constructor(
 ) {
     companion object {
         private val LOG = Logger.getLogger(SmartDocumentsService::class.java.name)
+        const val OUTPUTFORMAT_DOCX = "DOCX"
     }
 
     /**
@@ -64,29 +64,21 @@ class SmartDocumentsService @Inject constructor(
             registratie = registratie,
             smartDocument = smartDocument
         )
-        try {
-            val userName = fixedUserName.orElse(loggedInUserInstance.get().id).also {
-                LOG.fine("Starting Smart Documents wizard for user: '$it'")
-            }
-            return smartDocumentsClient.attendedDeposit(
-                authenticationToken = "Basic $authenticationToken",
-                userName = userName,
-                deposit = deposit
-            ).also {
-                LOG.fine("SmartDocuments attended document creation response: $it")
-            }.let {
-                DocumentCreationAttendedResponse(
-                    redirectUrl = UriBuilder.fromUri(smartDocumentsURL)
-                        .path("smartdocuments/wizard")
-                        .queryParam("ticket", it.ticket)
-                        .build()
-                )
-            }
-        } catch (badRequestException: BadRequestException) {
-            return DocumentCreationAttendedResponse(
-                message = "Aanmaken van een document is helaas niet mogelijk. " +
-                    "Ben je als user geregistreerd in SmartDocuments? " +
-                    "Details: '$badRequestException.message'"
+        val userName = fixedUserName.orElse(loggedInUserInstance.get().id).also {
+            LOG.fine("Starting Smart Documents wizard for user: '$it'")
+        }
+        return smartDocumentsClient.attendedDeposit(
+            authenticationToken = "Basic $authenticationToken",
+            userName = userName,
+            deposit = deposit
+        ).also {
+            LOG.fine("SmartDocuments attended document creation response: $it")
+        }.let {
+            DocumentCreationAttendedResponse(
+                redirectUrl = UriBuilder.fromUri(smartDocumentsURL)
+                    .path("smartdocuments/wizard")
+                    .queryParam("ticket", it.ticket)
+                    .build()
             )
         }
     }
@@ -104,25 +96,18 @@ class SmartDocumentsService @Inject constructor(
             data = data,
             smartDocument = smartDocument
         )
-        try {
-            val userName = fixedUserName.orElse(loggedInUserInstance.get().id).also {
-                LOG.fine("Starting SmartDocuments unattended document creation flow for user: '$it'")
-            }
-            return smartDocumentsClient.unattendedDeposit(
-                authenticationToken = "Basic $authenticationToken",
-                userName = userName,
-                deposit = deposit
-            ).also {
-                LOG.fine("SmartDocuments unattended document creation response: '$it'")
-            }.files?.let { files ->
-                generateDocumentCreationUnattendedResponse(files)
-            } ?: throw SmartDocumentsRuntimeException("SmartDocuments response does not contain a file")
-        } catch (badRequestException: BadRequestException) {
-            return DocumentCreationUnattendedResponse(
-                message = "Aanmaken van een document is helaas niet mogelijk. " +
-                    "Ben je als user geregistreerd in SmartDocuments? " +
-                    "Details: '$badRequestException.message'"
-            )
+        val userName = fixedUserName.orElse(loggedInUserInstance.get().id).also {
+            LOG.fine("Starting SmartDocuments unattended document creation flow for user: '$it'")
+        }
+        return smartDocumentsClient.unattendedDeposit(
+            authenticationToken = "Basic $authenticationToken",
+            userName = userName,
+            deposit = deposit
+        ).also {
+            LOG.fine("SmartDocuments unattended document creation response: '$it'")
+        }.files.let {
+            require(it != null) { "SmartDocuments response does not contain a file" }
+            generateDocumentCreationUnattendedResponse(it)
         }
     }
 
@@ -130,7 +115,7 @@ class SmartDocumentsService @Inject constructor(
     private fun generateDocumentCreationUnattendedResponse(files: List<File>): DocumentCreationUnattendedResponse {
         require(files.isNotEmpty()) { "SmartDocuments response contains an empty file list" }
 
-        val docxFiles = files.filter { it.outputFormat == "DOCX" }
+        val docxFiles = files.filter { it.outputFormat == OUTPUTFORMAT_DOCX }
         require(docxFiles.isNotEmpty()) { "SmartDocuments response does not contain a DOCX file" }
         require(docxFiles.size == 1) { "SmartDocuments response contains multiple DOCX files" }
 
