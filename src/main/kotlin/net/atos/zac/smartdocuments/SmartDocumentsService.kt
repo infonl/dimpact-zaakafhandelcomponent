@@ -12,12 +12,14 @@ import jakarta.ws.rs.core.UriBuilder
 import net.atos.client.smartdocuments.SmartDocumentsClient
 import net.atos.client.smartdocuments.model.document.Data
 import net.atos.client.smartdocuments.model.document.Deposit
+import net.atos.client.smartdocuments.model.document.File
 import net.atos.client.smartdocuments.model.document.Registratie
 import net.atos.client.smartdocuments.model.document.SmartDocument
 import net.atos.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.documentcreation.model.DocumentCreationAttendedResponse
 import net.atos.zac.documentcreation.model.DocumentCreationUnattendedResponse
+import net.atos.zac.smartdocuments.exception.SmartDocumentsRuntimeException
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -112,12 +114,9 @@ class SmartDocumentsService @Inject constructor(
                 deposit = deposit
             ).also {
                 LOG.fine("SmartDocuments unattended document creation response: '$it'")
-            }.let {
-                DocumentCreationUnattendedResponse(
-                    message = "SmartDocuments document was created succesfully but the document is not stored yet in the zaakregister. " +
-                        "SmartDocument reponse details: '$it'"
-                )
-            }
+            }.files?.let { files ->
+                generateDocumentCreationUnattendedResponse(files)
+            } ?: throw SmartDocumentsRuntimeException("SmartDocuments response does not contain a file")
         } catch (badRequestException: BadRequestException) {
             return DocumentCreationUnattendedResponse(
                 message = "Aanmaken van een document is helaas niet mogelijk. " +
@@ -125,6 +124,20 @@ class SmartDocumentsService @Inject constructor(
                     "Details: '$badRequestException.message'"
             )
         }
+    }
+
+    @Suppress("ThrowsCount")
+    private fun generateDocumentCreationUnattendedResponse(files: List<File>): DocumentCreationUnattendedResponse {
+        require(files.isNotEmpty()) { "SmartDocuments response contains an empty file list" }
+
+        val docxFiles = files.filter { it.outputFormat == "DOCX" }
+        require(docxFiles.isNotEmpty()) { "SmartDocuments response does not contain a DOCX file" }
+        require(docxFiles.size == 1) { "SmartDocuments response contains multiple DOCX files" }
+
+        return DocumentCreationUnattendedResponse(
+            message = "SmartDocuments document with filename: '${docxFiles[0].fileName}' " +
+                "was created successfully but the document is not stored yet in the zaakregister."
+        )
     }
 
     /**

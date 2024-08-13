@@ -7,9 +7,11 @@ package net.atos.zac.documentcreation
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
+import net.atos.client.smartdocuments.model.document.OutputFormat
 import net.atos.client.smartdocuments.model.document.Registratie
 import net.atos.client.smartdocuments.model.document.Selection
 import net.atos.client.smartdocuments.model.document.SmartDocument
+import net.atos.client.smartdocuments.model.document.Variables
 import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
@@ -89,11 +91,21 @@ class DocumentCreationService @Inject constructor(
             )
         )
 
+    /**
+     * Creates a SmartDocument object for the unattended flow.
+     * In this flow the SmartDocuments template group and template are provided in the document creation data.
+     * The output format is set to 'docx'
+     */
     private fun createSmartDocumentForUnttendedFlow(documentCreationData: DocumentCreationData) =
         SmartDocument(
             selection = Selection(
                 templateGroup = documentCreationData.templateGroupName,
                 template = documentCreationData.templateName
+            ),
+            variables = Variables(
+                outputFormats = listOf(
+                    OutputFormat("docx")
+                )
             )
         )
 

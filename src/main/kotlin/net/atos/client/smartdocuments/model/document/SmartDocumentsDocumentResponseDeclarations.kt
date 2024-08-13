@@ -22,13 +22,13 @@ data class Document(
 @NoArgConstructor
 data class File(
     @field:JsonbProperty("filename")
-    var fileName: String? = null,
+    var fileName: String,
 
     @field:JsonbProperty("document")
-    var document: Document? = null,
+    var document: Document,
 
     @field:JsonbProperty("outputFormat")
-    var outputFormat: String? = null
+    var outputFormat: String
 )
 
 @NoArgConstructor

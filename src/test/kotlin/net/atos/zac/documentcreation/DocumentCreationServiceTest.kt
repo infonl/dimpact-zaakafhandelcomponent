@@ -5,7 +5,10 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import jakarta.enterprise.inject.Instance
+import net.atos.client.smartdocuments.model.document.OutputFormat
+import net.atos.client.smartdocuments.model.document.SmartDocument
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZtcClientService
@@ -93,6 +96,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
         val data = createData()
         val message = "dummyMessage"
         val documentCreationUnattendedResponse = createDocumentCreationUnattendedResponse(message)
+        val smartDocumentSlot = slot<SmartDocument>()
         every { loggedInUserInstance.get() } returns loggedInUser
         every {
             documentCreationDataConverter.createData(
@@ -102,7 +106,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
             )
         } returns data
         every {
-            smartDocumentsService.createDocumentUnattended(any(), any())
+            smartDocumentsService.createDocumentUnattended(data, capture(smartDocumentSlot))
         } returns documentCreationUnattendedResponse
 
         When("the 'create document unattended' method is called") {
@@ -110,11 +114,17 @@ class DocumentCreationServiceTest : BehaviorSpec({
 
             Then(
                 """
-                the create unattended SmartDocuments document method is called and a document creation response is returned
+                the create unattended SmartDocuments document method is called with the template group and name and 
+                 outputformat 'docx' and a document creation response is returned
                 """
             ) {
                 with(documentCreationResponse) {
                     this.message shouldBe message
+                }
+                with(smartDocumentSlot.captured) {
+                    selection.templateGroup shouldBe templateGroupName
+                    selection.template shouldBe templateName
+                    variables!!.outputFormats shouldBe listOf(OutputFormat("docx"))
                 }
             }
         }

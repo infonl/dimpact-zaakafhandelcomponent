@@ -56,6 +56,11 @@ data class GebruikerData(
     val naam: String
 )
 
+data class OutputFormat(
+    @field:JsonbProperty("OutputFormat")
+    val outputFormat: String
+)
+
 @Deprecated(
     "Only required for the SmartDocuments attended flow. " +
         "Will be removed in future once we no longer support the SmartDocuments attended flow."
@@ -90,7 +95,10 @@ data class Selection(
 
 data class SmartDocument(
     @field:JsonbProperty("Selection")
-    val selection: Selection
+    val selection: Selection,
+
+    @field:JsonbProperty("Variables")
+    val variables: Variables? = null
 )
 
 data class StartformulierData(
@@ -103,6 +111,11 @@ data class TaakData(
     val naam: String,
     var behandelaar: String? = null,
     val data: Map<String, String>
+)
+
+data class Variables(
+    @field:JsonbProperty("OutputFormats")
+    val outputFormats: List<OutputFormat>
 )
 
 data class ZaakData(

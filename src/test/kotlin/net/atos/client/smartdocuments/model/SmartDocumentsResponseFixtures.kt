@@ -39,33 +39,6 @@ fun createUnattendedResponse(
     files = files
 )
 
-fun createUnattendedResponseFromTemplateName(
-    templateName: String
-) = UnattendedResponse(
-    files = listOf(
-        createFile(
-            fileName = "$templateName.docx",
-            createDocument(),
-            outputFormat = "DOCX"
-        ),
-        createFile(
-            fileName = "$templateName.html",
-            createDocument(),
-            outputFormat = "HTML"
-        ),
-        createFile(
-            fileName = "${templateName}_answer.xml",
-            createDocument(),
-            outputFormat = "XML"
-        ),
-        createFile(
-            fileName = "$templateName.pdf",
-            createDocument(),
-            outputFormat = "PDF"
-        )
-    )
-)
-
 fun createFile(
     fileName: String = "dummyFileName",
     document: Document = createDocument(),
