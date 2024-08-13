@@ -5,6 +5,7 @@
 
 package net.atos.zac.smartdocuments
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
@@ -99,6 +100,74 @@ class SmartDocumentsServiceTest : BehaviorSpec({
                     message shouldBe "SmartDocuments document with filename: '${file.fileName}' was created successfully " +
                         "but the document is not stored yet in the zaakregister."
                 }
+            }
+        }
+    }
+    Given(
+        """
+            Document creation data with a zaak, a template group name and a template name but a SmartDocuments unattended
+             response which does not contain a DOCX file
+            """
+    ) {
+        val loggedInUser = createLoggedInUser()
+        val data = createData()
+        val smartDocument = createSmartDocument()
+        val file = createFile(
+            fileName = "dummyTemplateName.docx",
+            outputFormat = "HTML"
+        )
+        val unattendedResponse = createUnattendedResponse(
+            files = listOf(file)
+        )
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { smartDocumentsClient.unattendedDeposit(any(), any(), any()) } returns unattendedResponse
+
+        When("the 'create document unattended' method is called") {
+            val exception = shouldThrow<IllegalArgumentException> {
+                smartDocumentsService.createDocumentUnattended(
+                    data = data,
+                    smartDocument = smartDocument
+                )
+            }
+
+            Then(
+                """
+                an exception is thrown
+                """
+            ) {
+                exception.message shouldBe "SmartDocuments response does not contain a DOCX file"
+            }
+        }
+    }
+    Given(
+        """
+            Document creation data with a zaak, a template group name and a template name but a SmartDocuments unattended
+             response contains an empty file list
+            """
+    ) {
+        val loggedInUser = createLoggedInUser()
+        val data = createData()
+        val smartDocument = createSmartDocument()
+        val unattendedResponse = createUnattendedResponse(
+            files = emptyList()
+        )
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { smartDocumentsClient.unattendedDeposit(any(), any(), any()) } returns unattendedResponse
+
+        When("the 'create document unattended' method is called") {
+            val exception = shouldThrow<IllegalArgumentException> {
+                smartDocumentsService.createDocumentUnattended(
+                    data = data,
+                    smartDocument = smartDocument
+                )
+            }
+
+            Then(
+                """
+                an exception is thrown
+                """
+            ) {
+                exception.message shouldBe "SmartDocuments response contains an empty file list"
             }
         }
     }
