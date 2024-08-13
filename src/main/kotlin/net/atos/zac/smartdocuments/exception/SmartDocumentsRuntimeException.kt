@@ -5,5 +5,4 @@
 
 package net.atos.zac.smartdocuments.exception
 
-class SmartDocumentsRuntimeException(message: String) : RuntimeException(message)
-
+class SmartDocumentsRuntimeException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
