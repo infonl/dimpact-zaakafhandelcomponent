@@ -7,13 +7,13 @@ package net.atos.zac.smartdocuments
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldStartWith
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
 import net.atos.client.smartdocuments.SmartDocumentsClient
 import net.atos.client.smartdocuments.model.createAttendedResponse
+import net.atos.client.smartdocuments.model.createFile
 import net.atos.client.smartdocuments.model.createRegistratie
 import net.atos.client.smartdocuments.model.createSmartDocument
 import net.atos.client.smartdocuments.model.createUnattendedResponse
@@ -74,7 +74,13 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         val loggedInUser = createLoggedInUser()
         val data = createData()
         val smartDocument = createSmartDocument()
-        val unattendedResponse = createUnattendedResponse()
+        val file = createFile(
+            fileName = "dummyTemplateName.docx",
+            outputFormat = "DOCX"
+        )
+        val unattendedResponse = createUnattendedResponse(
+            files = listOf(file)
+        )
         every { loggedInUserInstance.get() } returns loggedInUser
         every { smartDocumentsClient.unattendedDeposit(any(), any(), any()) } returns unattendedResponse
 
@@ -90,8 +96,8 @@ class SmartDocumentsServiceTest : BehaviorSpec({
                 """
             ) {
                 with(documentCreationResponse) {
-                    message shouldStartWith "SmartDocuments document was created succesfully but the document " +
-                        "is not stored yet in the zaakregister."
+                    message shouldBe "SmartDocuments document with filename: '${file.fileName}' was created successfully " +
+                        "but the document is not stored yet in the zaakregister."
                 }
             }
         }

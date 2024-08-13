@@ -71,11 +71,18 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 ).toString()
             )
             Then(
-                "the response should be OK and the response should contain a redirect URL to Smartdocuments"
+                "the response should be OK"
             ) {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK
+                with(responseBody) {
+                    shouldContainJsonKeyValue(
+                        "message",
+                        "SmartDocuments document with filename: '$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME.docx' was created successfully " +
+                            "but the document is not stored yet in the zaakregister."
+                    )
+                }
             }
         }
     }
