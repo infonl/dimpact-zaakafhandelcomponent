@@ -16,6 +16,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_GROUP_
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.task1ID
 import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import org.json.JSONObject
 
@@ -56,17 +57,44 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 }
             }
         }
-        When("the create document unattended endpoint is called from with a zaak UUID") {
+        When("the create document unattended endpoint is called with a zaak UUID") {
             val endpointUrl = "$ZAC_API_URI/documentcreation/createdocumentunattended"
             logger.info { "Calling $endpointUrl endpoint" }
-            val documentTitle = "dummyDocumentTitle"
             val response = itestHttpClient.performJSONPostRequest(
                 url = endpointUrl,
                 requestBodyAsString = JSONObject(
                     mapOf(
-                        "documentTitle" to documentTitle,
                         "smartDocumentsTemplateGroupName" to SMART_DOCUMENTS_ROOT_GROUP_NAME,
                         "smartDdocumentsTemplateName" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME,
+                        "zaakUuid" to zaakProductaanvraag1Uuid
+                    )
+                ).toString()
+            )
+            Then(
+                "the response should be OK"
+            ) {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_OK
+                with(responseBody) {
+                    shouldContainJsonKeyValue(
+                        "message",
+                        "SmartDocuments document with filename: '$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME.docx' was created successfully " +
+                            "but the document is not stored yet in the zaakregister."
+                    )
+                }
+            }
+        }
+        When("the create document unattended endpoint is called with a zaak UUID and a task ID") {
+            val endpointUrl = "$ZAC_API_URI/documentcreation/createdocumentunattended"
+            logger.info { "Calling $endpointUrl endpoint" }
+            val response = itestHttpClient.performJSONPostRequest(
+                url = endpointUrl,
+                requestBodyAsString = JSONObject(
+                    mapOf(
+                        "smartDocumentsTemplateGroupName" to SMART_DOCUMENTS_ROOT_GROUP_NAME,
+                        "smartDdocumentsTemplateName" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME,
+                        "taskId" to task1ID,
                         "zaakUuid" to zaakProductaanvraag1Uuid
                     )
                 ).toString()

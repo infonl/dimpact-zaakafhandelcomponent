@@ -243,7 +243,8 @@ object ItestConfiguration {
     val START_DATE: LocalDateTime = LocalDateTime.now()
 
     /**
-     * Global variable to store the id of a task that is created in the integration tests.
+     * Global variable to store the id of a task that is created in the integration tests as
+     * part of the zaak with UUID [zaakProductaanvraag1Uuid].
      */
     lateinit var task1ID: String
 

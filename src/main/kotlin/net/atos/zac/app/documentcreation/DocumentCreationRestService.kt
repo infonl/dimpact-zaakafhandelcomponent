@@ -78,12 +78,14 @@ class DocumentCreationRestService @Inject constructor(
     ): RestDocumentCreationUnattendedResponse {
         val zaak = zrcClientService.readZaak(restDocumentCreationUnattendedData.zaakUuid)
         assertPolicy(policyService.readZaakRechten(zaak).creeerenDocument)
-        return DocumentCreationDataUnattended(
-            zaak = zaak,
-            taskId = restDocumentCreationUnattendedData.taskId,
-            templateGroupName = restDocumentCreationUnattendedData.smartDocumentsTemplateGroupName,
-            templateName = restDocumentCreationUnattendedData.smartDdocumentsTemplateName,
-        ).let(documentCreationService::createDocumentUnattended)
-            .let { RestDocumentCreationUnattendedResponse(message = it.message) }
+        return restDocumentCreationUnattendedData.let {
+            DocumentCreationDataUnattended(
+                taskId = it.taskId,
+                templateGroupName = it.smartDocumentsTemplateGroupName,
+                templateName = it.smartDdocumentsTemplateName,
+                zaak = zaak
+            ).let(documentCreationService::createDocumentUnattended)
+                .let { RestDocumentCreationUnattendedResponse(message = it.message) }
+        }
     }
 }
