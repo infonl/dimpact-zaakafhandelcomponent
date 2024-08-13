@@ -18,7 +18,6 @@ import net.atos.client.smartdocuments.model.template.SmartDocumentsTemplatesResp
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.documentcreation.model.DocumentCreationAttendedResponse
 import net.atos.zac.documentcreation.model.DocumentCreationUnattendedResponse
-import net.atos.zac.smartdocuments.exception.SmartDocumentsRuntimeException
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
