@@ -22,24 +22,24 @@ Then(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await this.expect(
-      this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_BSN)
+      this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_BSN),
     ).toBeVisible({
       timeout: FIFTEEN_SECONDS_IN_MS,
     });
 
     await this.expect(
-      this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER)
+      this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER),
     ).toBeVisible();
     await this.expect(
-      this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_EMAIL)
+      this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_EMAIL),
     ).toBeVisible();
 
     await this.expect(
-      this.page.getByText(TEST_PERSON_CONTACT_MOMENT_FIRST)
+      this.page.getByText(TEST_PERSON_CONTACT_MOMENT_FIRST),
     ).toBeVisible();
 
     await this.expect(
-      this.page.getByText(TEST_PERSON_CONTACT_MOMENT_SECOND)
+      this.page.getByText(TEST_PERSON_CONTACT_MOMENT_SECOND),
     ).toBeVisible();
-  }
+  },
 );
