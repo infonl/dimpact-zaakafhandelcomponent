@@ -12,6 +12,6 @@ data class DocumentCreationAttendedResponse(
 )
 
 data class DocumentCreationUnattendedResponse(
-    val message: String? = null
-    // TODO
+    val message: String
+    // will be extended with more fields in the future
 )
