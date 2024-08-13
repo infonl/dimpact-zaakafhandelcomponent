@@ -57,8 +57,8 @@ fun createDocumentCreationDataAttended(
 fun createDocumentCreationDataUnattended(
     zaak: Zaak = createZaak(),
     taskId: String = "dummyTaskId",
-    templateGroupName: String? = null,
-    templateName: String? = null
+    templateGroupName: String = "dummyTemplateGroupName",
+    templateName: String = "dummyTemplateName"
 ) = DocumentCreationDataUnattended(
     zaak = zaak,
     taskId = taskId,
@@ -67,7 +67,7 @@ fun createDocumentCreationDataUnattended(
 )
 
 fun createDocumentCreationAttendedResponse(
-    redirectUri: URI = URI.create("http://example.com/dummyRedirectURI")
+    redirectUri: URI = URI.create("https://example.com/dummyRedirectURI")
 ) = DocumentCreationAttendedResponse(
     redirectUrl = redirectUri
 )
