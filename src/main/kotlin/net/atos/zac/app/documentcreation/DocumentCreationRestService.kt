@@ -22,7 +22,8 @@ import net.atos.zac.app.documentcreation.model.RestDocumentCreationUnattendedRes
 import net.atos.zac.app.util.exception.InputValidationFailedException
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.DocumentCreationService
-import net.atos.zac.documentcreation.model.DocumentCreationData
+import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
+import net.atos.zac.documentcreation.model.DocumentCreationDataUnattended
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import nl.lifely.zac.util.AllOpen
@@ -61,10 +62,10 @@ class DocumentCreationRestService @Inject constructor(
                         "zaaktype '${zaak.zaaktype}'. Cannot create document."
                 )
             }.let { informatieObjectType ->
-                DocumentCreationData(
-                    zaak,
-                    restDocumentCreationAttendedData.taskId,
-                    informatieObjectType
+                DocumentCreationDataAttended(
+                    zaak = zaak,
+                    taskId = restDocumentCreationAttendedData.taskId,
+                    informatieobjecttype = informatieObjectType
                 ).let(documentCreationService::createDocumentAttended)
                     .let { RestDocumentCreationAttendedResponse(it.redirectUrl, it.message) }
             }
@@ -77,7 +78,7 @@ class DocumentCreationRestService @Inject constructor(
     ): RestDocumentCreationUnattendedResponse {
         val zaak = zrcClientService.readZaak(restDocumentCreationUnattendedData.zaakUuid)
         assertPolicy(policyService.readZaakRechten(zaak).creeerenDocument)
-        return DocumentCreationData(
+        return DocumentCreationDataUnattended(
             zaak = zaak,
             taskId = restDocumentCreationUnattendedData.taskId,
             templateGroupName = restDocumentCreationUnattendedData.smartDocumentsTemplateGroupName,

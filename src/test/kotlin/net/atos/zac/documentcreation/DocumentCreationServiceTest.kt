@@ -19,7 +19,8 @@ import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.documentcreation.converter.DocumentCreationDataConverter
 import net.atos.zac.documentcreation.model.createData
 import net.atos.zac.documentcreation.model.createDocumentCreationAttendedResponse
-import net.atos.zac.documentcreation.model.createDocumentCreationData
+import net.atos.zac.documentcreation.model.createDocumentCreationDataAttended
+import net.atos.zac.documentcreation.model.createDocumentCreationDataUnattended
 import net.atos.zac.documentcreation.model.createDocumentCreationUnattendedResponse
 import net.atos.zac.smartdocuments.SmartDocumentsService
 import java.net.URI
@@ -47,7 +48,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
         val zaakTypeUUID = UUID.randomUUID()
         val zaakTypeURI = URI("https://example.com/$zaakTypeUUID")
         val zaakType = createZaakType(uri = zaakTypeURI)
-        val documentCreationData = createDocumentCreationData(
+        val documentCreationData = createDocumentCreationDataAttended(
             zaak = createZaak(zaakTypeURI = zaakTypeURI),
             informatieobjecttype = createInformatieObjectType()
         )
@@ -87,7 +88,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
     Given("Document creation data with a zaak, a template group name and a template name") {
         val templateGroupName = "dummyTemplateGroupName"
         val templateName = "dummyTemplateName"
-        val documentCreationData = createDocumentCreationData(
+        val documentCreationData = createDocumentCreationDataUnattended(
             templateGroupName = templateGroupName,
             templateName = templateName,
             zaak = createZaak()

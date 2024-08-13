@@ -59,11 +59,12 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         When("the create document unattended endpoint is called from with a zaak UUID") {
             val endpointUrl = "$ZAC_API_URI/documentcreation/createdocumentunattended"
             logger.info { "Calling $endpointUrl endpoint" }
+            val documentTitle = "dummyDocumentTitle"
             val response = itestHttpClient.performJSONPostRequest(
                 url = endpointUrl,
                 requestBodyAsString = JSONObject(
                     mapOf(
-                        "documentTitle" to "dummyDocumentTitle",
+                        "documentTitle" to documentTitle,
                         "smartDocumentsTemplateGroupName" to SMART_DOCUMENTS_ROOT_GROUP_NAME,
                         "smartDdocumentsTemplateName" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME,
                         "zaakUuid" to zaakProductaanvraag1Uuid
