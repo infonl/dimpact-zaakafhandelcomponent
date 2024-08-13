@@ -18,7 +18,7 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import net.atos.zac.documentcreation.DocumentCreationService
-import net.atos.zac.documentcreation.model.DocumentCreationData
+import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
 import net.atos.zac.documentcreation.model.createDocumentCreationAttendedResponse
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
@@ -45,14 +45,14 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             taskId = "dummyTaskId"
         )
         val documentCreationResponse = createDocumentCreationAttendedResponse()
-        val documentCreationData = slot<DocumentCreationData>()
+        val documentCreationDataAttended = slot<DocumentCreationDataAttended>()
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { ztcClientService.readInformatieobjecttypen(zaak.zaaktype) } returns listOf(
             createInformatieObjectType(omschrijving = "bijlage")
         )
         every {
-            documentCreationService.createDocumentAttended(capture(documentCreationData))
+            documentCreationService.createDocumentAttended(capture(documentCreationDataAttended))
         } returns documentCreationResponse
 
         When("createDocument is called by a role that is allowed to change the zaak") {
@@ -67,7 +67,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             Then("the document creation service is called to create the document") {
                 restDocumentCreationResponse.message shouldBe null
                 restDocumentCreationResponse.redirectURL shouldBe documentCreationResponse.redirectUrl
-                with(documentCreationData.captured) {
+                with(documentCreationDataAttended.captured) {
                     this.zaak shouldBe zaak
                     this.taskId shouldBe restDocumentCreationAttendedData.taskId
                     this.informatieobjecttype?.omschrijving shouldBe "bijlage"

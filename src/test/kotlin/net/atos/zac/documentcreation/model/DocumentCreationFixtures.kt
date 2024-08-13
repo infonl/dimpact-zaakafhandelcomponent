@@ -44,16 +44,24 @@ fun createData(
     aanvragerData = aanvragerData
 )
 
-fun createDocumentCreationData(
+fun createDocumentCreationDataAttended(
     zaak: Zaak = createZaak(),
     taskId: String = "dummyTaskId",
-    informatieobjecttype: InformatieObjectType? = null,
-    templateGroupName: String? = null,
-    templateName: String? = null
-) = DocumentCreationData(
+    informatieobjecttype: InformatieObjectType? = null
+) = DocumentCreationDataAttended(
     zaak = zaak,
     taskId = taskId,
-    informatieobjecttype = informatieobjecttype,
+    informatieobjecttype = informatieobjecttype
+)
+
+fun createDocumentCreationDataUnattended(
+    zaak: Zaak = createZaak(),
+    taskId: String = "dummyTaskId",
+    templateGroupName: String? = null,
+    templateName: String? = null
+) = DocumentCreationDataUnattended(
+    zaak = zaak,
+    taskId = taskId,
     templateGroupName = templateGroupName,
     templateName = templateName
 )

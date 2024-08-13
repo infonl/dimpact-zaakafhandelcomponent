@@ -21,7 +21,8 @@ import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.converter.DocumentCreationDataConverter
 import net.atos.zac.documentcreation.model.DocumentCreationAttendedResponse
-import net.atos.zac.documentcreation.model.DocumentCreationData
+import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
+import net.atos.zac.documentcreation.model.DocumentCreationDataUnattended
 import net.atos.zac.documentcreation.model.DocumentCreationUnattendedResponse
 import net.atos.zac.smartdocuments.SmartDocumentsService
 import nl.lifely.zac.util.AllOpen
@@ -44,19 +45,19 @@ class DocumentCreationService @Inject constructor(
     }
 
     fun createDocumentAttended(
-        documentCreationData: DocumentCreationData
+        documentCreationDataAttended: DocumentCreationDataAttended
     ): DocumentCreationAttendedResponse =
         documentCreationDataConverter.createData(
             loggedInUser = loggedInUserInstance.get(),
-            zaak = documentCreationData.zaak,
-            taskId = documentCreationData.taskId
+            zaak = documentCreationDataAttended.zaak,
+            taskId = documentCreationDataAttended.taskId
         ).let { data ->
-            createSmartDocumentForAttendedFlow(documentCreationData).let { smartDocument ->
+            createSmartDocumentForAttendedFlow(documentCreationDataAttended).let { smartDocument ->
                 smartDocumentsService.createDocumentAttended(
                     data = data,
                     registratie = createRegistratie(
-                        zaak = documentCreationData.zaak,
-                        informatieObjectType = documentCreationData.informatieobjecttype!!
+                        zaak = documentCreationDataAttended.zaak,
+                        informatieObjectType = documentCreationDataAttended.informatieobjecttype!!
                     ),
                     smartDocument = smartDocument
                 )
@@ -64,14 +65,14 @@ class DocumentCreationService @Inject constructor(
         }
 
     fun createDocumentUnattended(
-        documentCreationData: DocumentCreationData
+        documentCreationDataUnattended: DocumentCreationDataUnattended
     ): DocumentCreationUnattendedResponse =
         documentCreationDataConverter.createData(
             loggedInUser = loggedInUserInstance.get(),
-            zaak = documentCreationData.zaak,
-            taskId = documentCreationData.taskId
+            zaak = documentCreationDataUnattended.zaak,
+            taskId = documentCreationDataUnattended.taskId
         ).let { data ->
-            createSmartDocumentForUnttendedFlow(documentCreationData).let { smartDocument ->
+            createSmartDocumentForUnattendedFlow(documentCreationDataUnattended).let { smartDocument ->
                 smartDocumentsService.createDocumentUnattended(
                     data = data,
                     smartDocument = smartDocument
@@ -84,10 +85,10 @@ class DocumentCreationService @Inject constructor(
      * In this flow the description of the zaaktype of the zaak in the provided document creation data is used
      * as the SmartDocuments template group.
      */
-    private fun createSmartDocumentForAttendedFlow(documentCreationData: DocumentCreationData) =
+    private fun createSmartDocumentForAttendedFlow(creationDataUnattended: DocumentCreationDataAttended) =
         SmartDocument(
             selection = Selection(
-                templateGroup = ztcClientService.readZaaktype(documentCreationData.zaak.zaaktype).omschrijving
+                templateGroup = ztcClientService.readZaaktype(creationDataUnattended.zaak.zaaktype).omschrijving
             )
         )
 
@@ -96,11 +97,11 @@ class DocumentCreationService @Inject constructor(
      * In this flow the SmartDocuments template group and template are provided in the document creation data.
      * The output format is set to 'docx'
      */
-    private fun createSmartDocumentForUnttendedFlow(documentCreationData: DocumentCreationData) =
+    private fun createSmartDocumentForUnattendedFlow(documentCreationDataUnattended: DocumentCreationDataUnattended) =
         SmartDocument(
             selection = Selection(
-                templateGroup = documentCreationData.templateGroupName,
-                template = documentCreationData.templateName
+                templateGroup = documentCreationDataUnattended.templateGroupName,
+                template = documentCreationDataUnattended.templateName
             ),
             variables = Variables(
                 outputFormats = listOf(
