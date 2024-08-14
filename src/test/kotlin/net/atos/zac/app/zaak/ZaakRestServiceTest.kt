@@ -51,8 +51,10 @@ import net.atos.zac.app.zaak.converter.RESTZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RESTZaaktypeConverter
 import net.atos.zac.app.zaak.converter.RestBesluitConverter
 import net.atos.zac.app.zaak.converter.historie.RESTZaakHistorieRegelConverter
+import net.atos.zac.app.zaak.model.RESTZaaktype
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
+import net.atos.zac.app.zaak.model.createRESTGroup
 import net.atos.zac.app.zaak.model.createRESTZaak
 import net.atos.zac.app.zaak.model.createRESTZaakAanmaakGegevens
 import net.atos.zac.app.zaak.model.createRESTZaakKoppelGegevens
@@ -174,7 +176,18 @@ class ZaakRestServiceTest : BehaviorSpec({
         val restZaak = createRESTZaak()
         val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
         val zaakTypeUUID = URIUtil.parseUUIDFromResourceURI(zaakType.url)
-        val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(zaakTypeUUID = zaakTypeUUID)
+        val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
+            zaak = createRESTZaak(
+                restZaakType = RESTZaaktype(
+                    uuid = zaakTypeUUID
+                ),
+                restGroup = createRESTGroup(
+                    id = group.id
+                ),
+
+            ),
+            zaakTypeUUID = zaakTypeUUID
+        )
         val rolMedewerker = createRolMedewerker()
         val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid()
         val rolTypeInitiator = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
@@ -185,8 +198,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         val zaak = createZaak(zaakType.url)
 
         every { cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null) } just runs
-        every { identityService.readGroup(restZaakAanmaakGegevens.zaak.groep?.id) } returns group
-        every { identityService.readUser(restZaakAanmaakGegevens.zaak.behandelaar?.id) } returns user
+        every { identityService.readGroup(restZaakAanmaakGegevens.zaak.groep!!.id) } returns group
+        every { identityService.readUser(restZaakAanmaakGegevens.zaak.behandelaar!!.id) } returns user
         every {
             inboxProductaanvraagService.delete(restZaakAanmaakGegevens.inboxProductaanvraag?.id)
         } just runs
@@ -288,7 +301,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(restZaakToekennenGegevens.zaakUUID) } returns zaak
         every { zrcClientService.updateRol(zaak, capture(rolSlot), restZaakToekennenGegevens.reden) } just runs
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns Optional.empty()
-        every { identityService.readUser(restZaakToekennenGegevens.behandelaarGebruikersnaam) } returns user
+        every { identityService.readUser(restZaakToekennenGegevens.behandelaarGebruikersnaam!!) } returns user
         every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
         every { restZaakConverter.convert(zaak) } returns restZaak
         every { indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
@@ -330,7 +343,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
         every { zaakService.assignZaken(any(), any(), any(), any(), any()) } just runs
         every { identityService.readGroup(group.id) } returns group
-        every { identityService.readUser(restZakenVerdeelGegevens.behandelaarGebruikersnaam) } returns user
+        every { identityService.readUser(restZakenVerdeelGegevens.behandelaarGebruikersnaam!!) } returns user
 
         When("the assign zaken from a list function is called") {
             runTest {

@@ -6,6 +6,7 @@ import static net.atos.zac.flowable.TaakVariabelenService.readZaakIdentificatie;
 import static net.atos.zac.flowable.TaakVariabelenService.readZaakUUID;
 import static net.atos.zac.flowable.TaakVariabelenService.readZaaktypeUUID;
 import static net.atos.zac.flowable.util.TaskUtil.getTaakStatus;
+import static net.atos.zac.identity.model.UserKt.getFullNameResolved;
 
 import java.util.List;
 import java.util.UUID;
@@ -61,7 +62,7 @@ public class TaakZoekObjectConverter extends AbstractZoekObjectConverter<TaakZoe
 
         if (taskInfo.getAssignee() != null) {
             final User user = identityService.readUser(taskInfo.getAssignee());
-            taakZoekObject.setBehandelaarNaam(user.getFullName());
+            taakZoekObject.setBehandelaarNaam(getFullNameResolved(user));
             taakZoekObject.setBehandelaarGebruikersnaam(user.getId());
             taakZoekObject.setToegekend(true);
         }

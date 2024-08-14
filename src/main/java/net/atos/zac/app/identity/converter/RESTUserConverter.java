@@ -5,6 +5,8 @@
 
 package net.atos.zac.app.identity.converter;
 
+import static net.atos.zac.identity.model.UserKt.getFullNameResolved;
+
 import java.util.List;
 
 import jakarta.inject.Inject;
@@ -34,14 +36,14 @@ public class RESTUserConverter {
     public RESTUser convertUser(final User user) {
         final RESTUser restUser = new RESTUser();
         restUser.id = user.getId();
-        restUser.naam = user.getFullName();
+        restUser.naam = getFullNameResolved(user);
         return restUser;
     }
 
     public RESTLoggedInUser convertLoggedInUser(final LoggedInUser user) {
         final RESTLoggedInUser restUser = new RESTLoggedInUser();
         restUser.id = user.getId();
-        restUser.naam = user.getFullName();
+        restUser.naam = getFullNameResolved(user);
         restUser.groupIds = user.getGroupIds();
         return restUser;
     }

@@ -33,6 +33,7 @@ import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.flowable.TaakVariabelenService
 import net.atos.zac.identity.IdentityService
+import net.atos.zac.identity.model.getFullNameResolved
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.util.StringUtil
 import nl.lifely.zac.util.NoArgConstructor
@@ -68,7 +69,7 @@ class DocumentCreationDataConverter @Inject constructor(
     private fun createGebruikerData(loggedInUser: LoggedInUser) =
         GebruikerData(
             id = loggedInUser.id,
-            naam = loggedInUser.fullName
+            naam = loggedInUser.getFullNameResolved()
         )
 
     private fun createZaakData(zaak: Zaak) =
@@ -190,7 +191,7 @@ class DocumentCreationDataConverter @Inject constructor(
         flowableTaskService.readTask(taskId).let { taskInfo ->
             TaakData(
                 naam = taskInfo.name,
-                behandelaar = taskInfo.assignee?.let { identityService.readUser(it).fullName },
+                behandelaar = taskInfo.assignee?.let { identityService.readUser(it).getFullNameResolved() },
                 data = TaakVariabelenService.readTaskData(taskInfo)
             )
         }

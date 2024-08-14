@@ -7,6 +7,7 @@ package net.atos.zac.app.zaak.model
 
 import net.atos.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.zac.app.admin.model.RESTZaakafhandelParameters
+import net.atos.zac.app.bag.model.RESTBAGObject
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte
 import net.atos.zac.app.bag.model.RESTPand
 import net.atos.zac.app.identity.model.RESTGroup
@@ -61,7 +62,13 @@ fun createRESTGeometry(
     type = type
 )
 
-fun createRESTGroup() = RESTGroup()
+fun createRESTGroup(
+    id: String = "dummyId",
+    name: String = "dummyName",
+) = RESTGroup().apply {
+    this.id = id
+    this.naam = name
+}
 
 fun createRESTInboxProductaanvraag(
     id: Long = 1234L,
@@ -81,9 +88,17 @@ fun createRESTOpenbareRuimte() = RESTOpenbareRuimte()
 
 fun createRESTPand() = RESTPand()
 
-fun createRESTUser() = RESTUser()
+fun createRESTUser(
+    id: String = "dummyId",
+    name: String = "dummyName",
+) = RESTUser().apply {
+    this.id = id
+    this.naam = name
+}
 
 fun createRESTZaak(
+    behandelaar: RESTUser = createRESTUser(),
+    restGroup: RESTGroup = createRESTGroup(),
     indicaties: EnumSet<ZaakIndicatie> = EnumSet.noneOf(ZaakIndicatie::class.java),
     restZaakType: RESTZaaktype = createRESTZaaktype()
 ) = RestZaak(
@@ -113,8 +128,8 @@ fun createRESTZaak(
     isVerlengd = true,
     redenVerlenging = "Sample Reden Verlenging",
     duurVerlenging = "Sample Duur Verlenging",
-    groep = createRESTGroup(),
-    behandelaar = createRESTUser(),
+    groep = restGroup,
+    behandelaar = behandelaar,
     gerelateerdeZaken = listOf(createRESTGerelateerdeZaak()),
     kenmerken = listOf(createRESTZaakKenmerk()),
     zaakdata = createZaakData(),
@@ -133,16 +148,19 @@ fun createRESTZaak(
 )
 
 fun createRESTZaakAanmaakGegevens(
-    zaakTypeUUID: UUID = UUID.randomUUID()
-) = RESTZaakAanmaakGegevens(
-    zaak = createRESTZaak(
+    zaakTypeUUID: UUID = UUID.randomUUID(),
+    zaak: RestZaak = createRESTZaak(
         restZaakType = RESTZaaktype(
             // we only need a UUID for the zaaktype when creating a zaak
             uuid = zaakTypeUUID
         )
     ),
-    inboxProductaanvraag = createRESTInboxProductaanvraag(),
-    bagObjecten = listOf(createRESTPand(), createRESTOpenbareRuimte())
+    inboxProductaanvraag: RESTInboxProductaanvraag = createRESTInboxProductaanvraag(),
+    bagObjecten: List<RESTBAGObject> = listOf(createRESTPand(), createRESTOpenbareRuimte())
+) = RESTZaakAanmaakGegevens(
+    zaak = zaak,
+    inboxProductaanvraag = inboxProductaanvraag,
+    bagObjecten = bagObjecten
 )
 
 fun createRESTZaakKenmerk() = RESTZaakKenmerk("Sample kenmerk", "Sample bron")

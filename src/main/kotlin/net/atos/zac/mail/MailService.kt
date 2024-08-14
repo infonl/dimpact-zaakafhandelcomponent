@@ -34,6 +34,7 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
+import net.atos.zac.identity.model.getFullNameResolved
 import net.atos.zac.mail.model.Attachment
 import net.atos.zac.mail.model.Bronnen
 import net.atos.zac.mail.model.MailAdres
@@ -139,7 +140,7 @@ class MailService @Inject constructor(
             bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
             creatiedatum = LocalDate.now()
             titel = subject
-            auteur = loggedInUserInstance.get().fullName
+            auteur = loggedInUserInstance.get().getFullNameResolved()
             taal = ConfiguratieService.TAAL_NEDERLANDS
             informatieobjecttype = eMailObjectType.url
             inhoud = convertByteArrayToBase64String(pdfDocument)

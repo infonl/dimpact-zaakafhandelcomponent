@@ -1,243 +1,236 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.identity
 
-package net.atos.zac.identity;
+import com.unboundid.ldap.sdk.Filter
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.inject.Inject
+import net.atos.zac.identity.model.Group
+import net.atos.zac.identity.model.User
+import net.atos.zac.identity.model.getFullNameResolved
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import org.apache.commons.lang3.StringUtils
+import org.eclipse.microprofile.config.ConfigProvider
+import org.eclipse.microprofile.config.inject.ConfigProperty
+import java.util.Hashtable
+import java.util.LinkedList
+import java.util.Objects
+import java.util.stream.Stream
+import javax.naming.Context
+import javax.naming.NamingException
+import javax.naming.directory.Attributes
+import javax.naming.directory.DirContext
+import javax.naming.directory.InitialDirContext
+import javax.naming.directory.SearchControls
 
-import static org.apache.commons.lang3.StringUtils.substringBetween;
-import static org.eclipse.microprofile.config.ConfigProvider.getConfig;
-
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Stream;
-
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
-import com.unboundid.ldap.sdk.Filter;
-
-import net.atos.zac.identity.model.Group;
-import net.atos.zac.identity.model.User;
-
+@AllOpen
+@NoArgConstructor
 @ApplicationScoped
-public class IdentityService {
-
-    private static final String USER_ID_ATTRIBUTE = "cn";
-
-    private static final String USER_FIRST_NAME_ATTRIBUTE = "givenName";
-
-    private static final String USER_LAST_NAME_ATTRIBUTE = "sn";
-
-    private static final String USER_MAIL_ATTRIBUTE = "mail";
-
-    private static final String[] USER_ATTRIBUTES = {USER_ID_ATTRIBUTE, USER_FIRST_NAME_ATTRIBUTE, USER_LAST_NAME_ATTRIBUTE,
-                                                     USER_MAIL_ATTRIBUTE};
-
-    private static final String GROUP_ID_ATTRIBUTE = "cn";
-
-    private static final String GROUP_NAME_ATTRIBUTE = "description";
-
-    private static final String GROUP_MAIL_ATTRIBUTE = "email";
-
-    private static final String[] GROUP_ATTRIBUTES = {GROUP_ID_ATTRIBUTE, GROUP_NAME_ATTRIBUTE, GROUP_MAIL_ATTRIBUTE};
-
-    private static final String GROUP_MEMBER_ATTRIBUTE = "uniqueMember";
-
-    private static final String[] GROUP_MEMBERSHIP_ATTRIBUTES = {GROUP_MEMBER_ATTRIBUTE};
-
-    private static final String USER_OBJECT_CLASS = "inetOrgPerson";
-
-    private static final String GROUP_OBJECT_CLASS = "groupOfUniqueNames";
-
-    private static final String OBJECT_CLASS_ATTRIBUTE = "objectClass";
-
-    private final Map<String, String> environment;
-
-    @Inject
+@Suppress("TooManyFunctions")
+class IdentityService @Inject constructor(
     @ConfigProperty(name = "LDAP_DN")
-    private String usersDN;
+    private val usersDN: String,
 
-    @Inject
     @ConfigProperty(name = "LDAP_DN")
-    private String groupsDN;
+    private val groupsDN: String,
 
-    public IdentityService() {
-        environment = Map.of(
-                Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory",
-                Context.PROVIDER_URL, getConfig().getValue("LDAP_URL", String.class),
-                Context.SECURITY_AUTHENTICATION, "simple",
-                Context.SECURITY_PRINCIPAL, getConfig().getValue("LDAP_USER", String.class),
-                Context.SECURITY_CREDENTIALS, getConfig().getValue("LDAP_PASSWORD", String.class)
-        );
+    @ConfigProperty(name = "LDAP_URL")
+    private val ldapUrl: String,
+
+    @ConfigProperty(name = "LDAP_USER")
+    private val ldapUser: String,
+
+    @ConfigProperty(name = "LDAP_PASSWORD")
+    private val ldapPassword: String
+) {
+    companion object {
+        private const val USER_ID_ATTRIBUTE = "cn"
+        private const val USER_FIRST_NAME_ATTRIBUTE = "givenName"
+        private const val USER_LAST_NAME_ATTRIBUTE = "sn"
+        private const val USER_MAIL_ATTRIBUTE = "mail"
+        private val USER_ATTRIBUTES = arrayOf(
+            USER_ID_ATTRIBUTE,
+            USER_FIRST_NAME_ATTRIBUTE,
+            USER_LAST_NAME_ATTRIBUTE,
+            USER_MAIL_ATTRIBUTE
+        )
+        private const val GROUP_ID_ATTRIBUTE = "cn"
+        private const val GROUP_NAME_ATTRIBUTE = "description"
+        private const val GROUP_MAIL_ATTRIBUTE = "email"
+        private val GROUP_ATTRIBUTES = arrayOf(GROUP_ID_ATTRIBUTE, GROUP_NAME_ATTRIBUTE, GROUP_MAIL_ATTRIBUTE)
+        private const val GROUP_MEMBER_ATTRIBUTE = "uniqueMember"
+        private val GROUP_MEMBERSHIP_ATTRIBUTES = arrayOf(GROUP_MEMBER_ATTRIBUTE)
+        private const val USER_OBJECT_CLASS = "inetOrgPerson"
+        private const val GROUP_OBJECT_CLASS = "groupOfUniqueNames"
+        private const val OBJECT_CLASS_ATTRIBUTE = "objectClass"
     }
 
-    public List<User> listUsers() {
+    private val environment = mapOf(
+        Context.INITIAL_CONTEXT_FACTORY to "com.sun.jndi.ldap.LdapCtxFactory",
+        Context.PROVIDER_URL to ldapUrl,
+        Context.SECURITY_AUTHENTICATION to "simple",
+        Context.SECURITY_PRINCIPAL to ldapUser,
+        Context.SECURITY_CREDENTIALS to ldapPassword
+    )
+
+    fun listUsers(): List<User> {
         return search(
-                usersDN,
-                Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS)),
-                USER_ATTRIBUTES
+            usersDN,
+            Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS)),
+            USER_ATTRIBUTES
         ).stream()
-                .map(this::convertToUser)
-                .sorted(Comparator.comparing(User::getFullName))
-                .toList();
+            .map { attributes: Attributes -> this.convertToUser(attributes) }
+            .sorted(Comparator.comparing { it.getFullNameResolved() })
+            .toList()
     }
 
-    public List<Group> listGroups() {
+    fun listGroups(): List<Group> {
         return search(
-                groupsDN,
-                Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS)),
-                GROUP_ATTRIBUTES
+            groupsDN,
+            Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS)),
+            GROUP_ATTRIBUTES
         ).stream()
-                .map(this::convertToGroup)
-                .sorted(Comparator.comparing(Group::getName))
-                .toList();
+            .map { attributes: Attributes -> this.convertToGroup(attributes) }
+            .sorted(Comparator.comparing { it.name!! })
+            .toList()
     }
 
-    public User readUser(final String userId) {
+    fun readUser(userId: String): User {
         return search(
-                usersDN,
-                Filter.createANDFilter(
-                        Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS),
-                        Filter.createEqualityFilter(USER_ID_ATTRIBUTE, userId)
-                ),
-                USER_ATTRIBUTES
+            usersDN,
+            Filter.createANDFilter(
+                Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS),
+                Filter.createEqualityFilter(USER_ID_ATTRIBUTE, userId)
+            ),
+            USER_ATTRIBUTES
         ).stream()
-                .findAny()
-                .map(this::convertToUser)
-                .orElseGet(() -> new User(userId));
+            .findAny()
+            .map { attributes: Attributes -> this.convertToUser(attributes) }
+            .orElseGet { User(userId) }
     }
 
-    public Group readGroup(final String groupId) {
-        return search(
-                groupsDN,
-                Filter.createANDFilter(
-                        Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
-                        Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupId)
-                ),
-                GROUP_ATTRIBUTES
+    fun readGroup(groupId: String): Group =
+        search(
+            groupsDN,
+            Filter.createANDFilter(
+                Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
+                Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupId)
+            ),
+            GROUP_ATTRIBUTES
         ).stream()
-                .findAny()
-                .map(this::convertToGroup)
-                .orElseGet(() -> new Group(groupId));
+            .findAny()
+            .map { attributes: Attributes -> this.convertToGroup(attributes) }
+            .orElseGet { Group(groupId) }
 
-    }
-
-    public List<User> listUsersInGroup(final String groupId) {
+    fun listUsersInGroup(groupId: String): List<User> {
         return search(
-                groupsDN,
-                Filter.createANDFilter(
-                        Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
-                        Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupId)
-                ),
-                GROUP_MEMBERSHIP_ATTRIBUTES
+            groupsDN,
+            Filter.createANDFilter(
+                Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
+                Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupId)
+            ),
+            GROUP_MEMBERSHIP_ATTRIBUTES
         ).stream()
-                .map(this::convertToMembers)
-                .flatMap(this::readUsers)
-                .sorted(Comparator.comparing(User::getFullName))
-                .toList();
+            .map { this.convertToMembers(it) }
+            .flatMap { this.readUsers(it) }
+            .sorted(Comparator.comparing { it.getFullNameResolved() })
+            .toList()
     }
 
-    private Stream<User> readUsers(final Collection<String> userIds) {
+    private fun readUsers(userIds: Collection<String?>): Stream<User> {
         return search(
-                usersDN,
-                Filter.createANDFilter(
-                        Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS),
-                        Filter.createORFilter(
-                                userIds.stream()
-                                        .map(userId -> Filter.createEqualityFilter(USER_ID_ATTRIBUTE, userId))
-                                        .toList()
-                        )
-                ),
-                USER_ATTRIBUTES
-        ).stream().map(this::convertToUser);
+            usersDN,
+            Filter.createANDFilter(
+                Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS),
+                Filter.createORFilter(
+                    userIds.stream()
+                        .map { userId: String? -> Filter.createEqualityFilter(USER_ID_ATTRIBUTE, userId) }
+                        .toList()
+                )
+            ),
+            USER_ATTRIBUTES
+        ).stream().map { attributes: Attributes -> this.convertToUser(attributes) }
     }
 
-    private User convertToUser(final Attributes attributes) {
-        return new User(readAttributeToString(attributes, USER_ID_ATTRIBUTE),
-                readAttributeToString(attributes, USER_FIRST_NAME_ATTRIBUTE),
-                readAttributeToString(attributes, USER_LAST_NAME_ATTRIBUTE),
-                readAttributeToString(attributes, USER_MAIL_ATTRIBUTE));
+    private fun convertToUser(attributes: Attributes): User {
+        val userID = readAttributeToString(attributes, USER_ID_ATTRIBUTE)
+        require(userID != null) { "User ID is required" }
+        return User(
+            id = userID,
+            firstName = readAttributeToString(attributes, USER_FIRST_NAME_ATTRIBUTE),
+            lastName = readAttributeToString(attributes, USER_LAST_NAME_ATTRIBUTE),
+            email = readAttributeToString(attributes, USER_MAIL_ATTRIBUTE)
+        )
     }
 
-    private Group convertToGroup(final Attributes attributes) {
-        return new Group(readAttributeToString(attributes, GROUP_ID_ATTRIBUTE),
-                readAttributeToString(attributes, GROUP_NAME_ATTRIBUTE),
-                readAttributeToString(attributes, GROUP_MAIL_ATTRIBUTE));
+    private fun convertToGroup(attributes: Attributes): Group {
+        val groupID = readAttributeToString(attributes, GROUP_ID_ATTRIBUTE)
+        require(groupID != null) { "Group ID is required" }
+        return Group(
+            id = groupID,
+            name = readAttributeToString(attributes, GROUP_NAME_ATTRIBUTE),
+            email = readAttributeToString(attributes, GROUP_MAIL_ATTRIBUTE)
+        )
     }
 
-    private List<String> convertToMembers(final Attributes attributes) {
+    private fun convertToMembers(attributes: Attributes): List<String?> {
         return readAttributeToListOfStrings(attributes).stream()
-                .map(member -> substringBetween(member, "cn=", ","))
-                .filter(Objects::nonNull)
-                .toList();
+            .map { StringUtils.substringBetween(it, "cn=", ",") }
+            .filter { Objects.nonNull(it) }
+            .toList()
     }
 
-    private List<Attributes> search(
-            final String root,
-            final Filter filter,
-            final String[] attributesToReturn
-    ) {
-        final SearchControls searchControls = new SearchControls();
-        searchControls.setReturningAttributes(attributesToReturn);
-        searchControls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
+    private fun search(
+        root: String?,
+        filter: Filter,
+        attributesToReturn: Array<String>
+    ): List<Attributes> {
+        val searchControls = SearchControls()
+        searchControls.returningAttributes = attributesToReturn
+        searchControls.searchScope = SearchControls.ONELEVEL_SCOPE
         try {
-            final DirContext dirContext = new InitialDirContext(new Hashtable<>(environment));
-            final NamingEnumeration<SearchResult> namingEnumeration = dirContext.search(
-                    root,
-                    filter.toString(),
-                    searchControls
-            );
-            final List<Attributes> attributesList = new LinkedList<>();
+            val dirContext: DirContext = InitialDirContext(Hashtable(environment))
+            val namingEnumeration = dirContext.search(
+                root,
+                filter.toString(),
+                searchControls
+            )
+            val attributesList: MutableList<Attributes> = LinkedList()
             while (namingEnumeration.hasMore()) {
-                attributesList.add(namingEnumeration.next().getAttributes());
+                attributesList.add(namingEnumeration.next().attributes)
             }
-            dirContext.close();
-            return attributesList;
-        } catch (final NamingException e) {
-            throw new RuntimeException(e);
+            dirContext.close()
+            return attributesList
+        } catch (e: NamingException) {
+            throw RuntimeException(e)
         }
     }
 
-    private String readAttributeToString(final Attributes attributes, final String attributeName) {
+    private fun readAttributeToString(attributes: Attributes, attributeName: String): String? {
         try {
-            final Attribute attribute = attributes.get(attributeName);
-            return attribute != null ? attribute.get().toString() : null;
-        } catch (final NamingException e) {
-            throw new RuntimeException(e);
+            val attribute = attributes[attributeName]
+            return attribute?.get()?.toString()
+        } catch (e: NamingException) {
+            throw RuntimeException(e)
         }
     }
 
-    private List<String> readAttributeToListOfStrings(final Attributes attributes) {
+    private fun readAttributeToListOfStrings(attributes: Attributes): List<String> {
         try {
-            final List<String> strings = new LinkedList<>();
-            final Attribute attribute = attributes.get(IdentityService.GROUP_MEMBER_ATTRIBUTE);
+            val strings: MutableList<String> = LinkedList()
+            val attribute = attributes[GROUP_MEMBER_ATTRIBUTE]
             if (attribute != null) {
-                final NamingEnumeration<?> enumeration = attribute.getAll();
+                val enumeration = attribute.all
                 while (enumeration.hasMore()) {
-                    strings.add(enumeration.next().toString());
+                    strings.add(enumeration.next().toString())
                 }
             }
-            return strings;
-        } catch (final NamingException e) {
-            throw new RuntimeException(e);
+            return strings
+        } catch (e: NamingException) {
+            throw RuntimeException(e)
         }
     }
 }

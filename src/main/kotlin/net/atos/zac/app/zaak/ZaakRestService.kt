@@ -72,7 +72,6 @@ import net.atos.zac.app.zaak.converter.historie.RESTZaakHistorieRegelConverter
 import net.atos.zac.app.zaak.model.RESTDocumentOntkoppelGegevens
 import net.atos.zac.app.zaak.model.RESTReden
 import net.atos.zac.app.zaak.model.RESTResultaattype
-import net.atos.zac.app.zaak.model.RestZaak
 import net.atos.zac.app.zaak.model.RESTZaakAanmaakGegevens
 import net.atos.zac.app.zaak.model.RESTZaakAfbrekenGegevens
 import net.atos.zac.app.zaak.model.RESTZaakAfsluitenGegevens
@@ -96,6 +95,7 @@ import net.atos.zac.app.zaak.model.RestBesluitIntrekkenGegevens
 import net.atos.zac.app.zaak.model.RestBesluitVastleggenGegevens
 import net.atos.zac.app.zaak.model.RestBesluitWijzigenGegevens
 import net.atos.zac.app.zaak.model.RestBesluittype
+import net.atos.zac.app.zaak.model.RestZaak
 import net.atos.zac.app.zaak.model.RestZaakAssignmentData
 import net.atos.zac.app.zaak.model.toRestBesluittypes
 import net.atos.zac.app.zaak.model.updateBesluitWithBesluitWijzigenGegevens
@@ -528,7 +528,8 @@ class ZaakRestService @Inject constructor(
         }
         zgwApiService.findGroepForZaak(zaak).ifPresent {
             if (it.betrokkeneIdentificatie.identificatie != toekennenGegevens.groepId) {
-                val group = identityService.readGroup(toekennenGegevens.groepId)
+                // TODO: null check
+                val group = identityService.readGroup(toekennenGegevens.groepId!!)
                 val role = zaakService.bepaalRolGroep(group, zaak)
                 zrcClientService.updateRol(zaak, role, toekennenGegevens.reden)
                 isUpdated.set(true)
@@ -570,7 +571,7 @@ class ZaakRestService @Inject constructor(
                     )
                 },
                 user = restZakenVerdeelGegevens.behandelaarGebruikersnaam?.let {
-                    identityService.readUser(restZakenVerdeelGegevens.behandelaarGebruikersnaam)
+                    identityService.readUser(it)
                 },
                 screenEventResourceId = restZakenVerdeelGegevens.screenEventResourceId
             )
@@ -1168,12 +1169,11 @@ class ZaakRestService @Inject constructor(
         }.filter { afzender: RESTZaakAfzender -> afzender.mail != null }
     }
 
-    private fun resolveMail(speciaal: Speciaal): String {
-        return when (speciaal) {
+    private fun resolveMail(speciaal: Speciaal) =
+        when (speciaal) {
             Speciaal.GEMEENTE -> configuratieService.readGemeenteMail()
             Speciaal.MEDEWERKER -> loggedInUserInstance.get().email
         }
-    }
 
     private fun verlengOpenTaken(zaakUUID: UUID, duurDagen: Int): Int {
         val count = IntArray(1)
