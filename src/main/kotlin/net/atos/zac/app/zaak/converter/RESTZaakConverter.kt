@@ -22,7 +22,7 @@ import net.atos.zac.app.identity.converter.RESTUserConverter
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
 import net.atos.zac.app.zaak.model.RESTGerelateerdeZaak
-import net.atos.zac.app.zaak.model.RESTZaak
+import net.atos.zac.app.zaak.model.RestZaak
 import net.atos.zac.app.zaak.model.RESTZaakKenmerk
 import net.atos.zac.app.zaak.model.RESTZaakVerlengGegevens
 import net.atos.zac.app.zaak.model.RelatieType
@@ -87,14 +87,14 @@ class RESTZaakConverter {
     @Inject
     private lateinit var bpmnService: BPMNService
 
-    fun convert(zaak: Zaak): RESTZaak {
+    fun convert(zaak: Zaak): RestZaak {
         val status = if (zaak.status != null) zrcClientService.readStatus(zaak.status) else null
         val statustype = if (status != null) ztcClientService.readStatustype(status.statustype) else null
         return convert(zaak, status, statustype)
     }
 
     @Suppress("LongMethod", "CyclomaticComplexMethod")
-    fun convert(zaak: Zaak, status: Status?, statustype: StatusType?): RESTZaak {
+    fun convert(zaak: Zaak, status: Status?, statustype: StatusType?): RestZaak {
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val groep = zgwApiService.findGroepForZaak(zaak)
             .map { groupConverter.convertGroupId(it.betrokkeneIdentificatie.identificatie) }
@@ -105,7 +105,7 @@ class RESTZaakConverter {
             .map { userConverter.convertUserId(it.betrokkeneIdentificatie.identificatie) }
             .orElse(null)
         val initiator = zgwApiService.findInitiatorRoleForZaak(zaak)
-        return RESTZaak(
+        return RestZaak(
             identificatie = zaak.identificatie,
             uuid = zaak.uuid,
             besluiten = besluiten,
@@ -172,7 +172,7 @@ class RESTZaakConverter {
         )
     }
 
-    fun convert(restZaak: RESTZaak, zaaktype: ZaakType): Zaak {
+    fun convert(restZaak: RestZaak, zaaktype: ZaakType): Zaak {
         val zaak = Zaak(
             zaaktype.url,
             restZaak.startdatum,
@@ -191,7 +191,7 @@ class RESTZaakConverter {
         return zaak
     }
 
-    fun convertToPatch(restZaak: RESTZaak): Zaak {
+    fun convertToPatch(restZaak: RestZaak): Zaak {
         val zaak = Zaak()
         zaak.toelichting = restZaak.toelichting
         zaak.omschrijving = restZaak.omschrijving

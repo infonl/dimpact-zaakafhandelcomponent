@@ -10,7 +10,7 @@ import nl.lifely.zac.util.NoArgConstructor
 @NoArgConstructor
 @AllOpen
 data class RESTZaakEditMetRedenGegevens(
-    var zaak: RESTZaak,
+    var zaak: RestZaak,
 
     var reden: String
 )
