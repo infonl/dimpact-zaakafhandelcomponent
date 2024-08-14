@@ -527,9 +527,11 @@ class ZaakRestService @Inject constructor(
             isUpdated.set(true)
         }
         zgwApiService.findGroepForZaak(zaak).ifPresent {
-            if (it.betrokkeneIdentificatie.identificatie != toekennenGegevens.groepId) {
-                // TODO: null check
-                val group = identityService.readGroup(toekennenGegevens.groepId!!)
+            val groupId = toekennenGegevens.groepId
+            // better to not use RestZaakAssignmentData here but a separate class for this where group ID is non-nullable
+            require(groupId != null) { "Group ID is required" }
+            if (it.betrokkeneIdentificatie.identificatie != groupId) {
+                val group = identityService.readGroup(groupId)
                 val role = zaakService.bepaalRolGroep(group, zaak)
                 zrcClientService.updateRol(zaak, role, toekennenGegevens.reden)
                 isUpdated.set(true)
