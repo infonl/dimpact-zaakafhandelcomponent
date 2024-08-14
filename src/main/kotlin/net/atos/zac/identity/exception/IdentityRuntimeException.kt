@@ -5,6 +5,4 @@
 
 package net.atos.zac.identity.exception
 
-class IdentityRuntimeException(message: String, cause: Throwable? = null) : RuntimeException(message, cause) {
-    constructor(message: String) : this(message, null)
-}
+class IdentityRuntimeException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)

@@ -1,10 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.identity.model
 
 import jakarta.validation.constraints.Size
+import net.atos.zac.identity.model.Group
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 
@@ -27,3 +28,9 @@ data class RestGroup(
     @field:Size(max = 50)
     var naam: String
 )
+
+fun Group.toRestGroup(): RestGroup =
+    RestGroup(this.id, this.name)
+
+fun List<Group>.toRestGroups(): List<RestGroup> =
+    this.map { it.toRestGroup() }

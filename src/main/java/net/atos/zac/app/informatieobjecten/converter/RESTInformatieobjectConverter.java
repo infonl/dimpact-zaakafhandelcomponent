@@ -7,6 +7,7 @@ package net.atos.zac.app.informatieobjecten.converter;
 
 import static net.atos.client.zgw.drc.DrcClientUtil.convertByteArrayToBase64String;
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
+import static net.atos.zac.app.identity.model.RestUserKt.toRestUser;
 import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
 import static net.atos.zac.identity.model.UserKt.getFullNameResolved;
 
@@ -35,7 +36,6 @@ import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.zac.app.configuratie.converter.RESTTaalConverter;
-import net.atos.zac.app.identity.converter.RestUserConverter;
 import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieObjectVersieGegevens;
 import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject;
 import net.atos.zac.app.informatieobjecten.model.RESTFileUpload;
@@ -64,7 +64,6 @@ public class RESTInformatieobjectConverter {
     private PolicyService policyService;
     private RESTRechtenConverter restRechtenConverter;
     private RESTTaalConverter restTaalConverter;
-    private RestUserConverter restUserConverter;
     private ZrcClientService zrcClientService;
     private ZtcClientService ztcClientService;
 
@@ -85,7 +84,6 @@ public class RESTInformatieobjectConverter {
             PolicyService policyService,
             RESTRechtenConverter restRechtenConverter,
             RESTTaalConverter restTaalConverter,
-            RestUserConverter restUserConverter,
             ZrcClientService zrcClientService,
             ZtcClientService ztcClientService
     ) {
@@ -95,7 +93,6 @@ public class RESTInformatieobjectConverter {
         this.zrcClientService = zrcClientService;
         this.restTaalConverter = restTaalConverter;
         this.loggedInUserInstance = loggedInUserInstance;
-        this.restUserConverter = restUserConverter;
         this.enkelvoudigInformatieObjectLockService = enkelvoudigInformatieObjectLockService;
         this.identityService = identityService;
         this.restRechtenConverter = restRechtenConverter;
@@ -190,8 +187,7 @@ public class RESTInformatieobjectConverter {
         restEnkelvoudigInformatieobject.ontvangstdatum = enkelvoudigInformatieObject.getOntvangstdatum();
         restEnkelvoudigInformatieobject.verzenddatum = enkelvoudigInformatieObject.getVerzenddatum();
         if (lock != null) {
-            restEnkelvoudigInformatieobject.gelockedDoor = restUserConverter.convertUser(
-                    identityService.readUser(lock.getUserId()));
+            restEnkelvoudigInformatieobject.gelockedDoor = toRestUser(identityService.readUser(lock.getUserId()));
         }
         restEnkelvoudigInformatieobject.bestandsomvang = enkelvoudigInformatieObject.getBestandsomvang() != null ?
                 enkelvoudigInformatieObject.getBestandsomvang().longValue() : 0;

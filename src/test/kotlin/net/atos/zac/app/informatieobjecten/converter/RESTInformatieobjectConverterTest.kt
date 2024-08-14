@@ -21,7 +21,6 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.zac.app.configuratie.converter.RESTTaalConverter
-import net.atos.zac.app.identity.converter.RestUserConverter
 import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieObjectVersieGegevens
 import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
@@ -54,10 +53,8 @@ class RESTInformatieobjectConverterTest : BehaviorSpec({
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val loggedInUser = createLoggedInUser()
     val policyService = mockk<PolicyService>()
-    val restOndertekeningConverter = mockk<RESTOndertekeningConverter>()
     val restRechtenConverter = mockk<RESTRechtenConverter>()
     val restTaalConverter = mockk<RESTTaalConverter>()
-    val restUserConverter = mockk<RestUserConverter>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
 
@@ -69,10 +66,8 @@ class RESTInformatieobjectConverterTest : BehaviorSpec({
         identityService,
         loggedInUserInstance,
         policyService,
-        restOndertekeningConverter,
         restRechtenConverter,
         restTaalConverter,
-        restUserConverter,
         zrcClientService,
         ztcClientService
     )

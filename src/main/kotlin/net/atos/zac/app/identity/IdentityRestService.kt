@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.identity
@@ -13,11 +13,12 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.app.identity.converter.RestGroupConverter
-import net.atos.zac.app.identity.converter.RestUserConverter
 import net.atos.zac.app.identity.model.RestGroup
 import net.atos.zac.app.identity.model.RestLoggedInUser
 import net.atos.zac.app.identity.model.RestUser
+import net.atos.zac.app.identity.model.toRestGroups
+import net.atos.zac.app.identity.model.toRestLoggedInUser
+import net.atos.zac.app.identity.model.toRestUsers
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.identity.IdentityService
 import nl.lifely.zac.util.AllOpen
@@ -30,34 +31,23 @@ import nl.lifely.zac.util.NoArgConstructor
 @AllOpen
 @NoArgConstructor
 class IdentityRestService @Inject constructor(
-    private val groupConverter: RestGroupConverter,
-    private val userConverter: RestUserConverter,
     private val identityService: IdentityService,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     @GET
     @Path("groups")
-    fun listGroups(): List<RestGroup> =
-        identityService.listGroups().let {
-            groupConverter.convertGroups(it)
-        }
+    fun listGroups(): List<RestGroup> = identityService.listGroups().toRestGroups()
 
     @GET
     @Path("groups/{groupId}/users")
     fun listUsersInGroup(@PathParam("groupId") groupId: String): List<RestUser> =
-        identityService.listUsersInGroup(groupId).let {
-            userConverter.convertUsers(it)
-        }
+        identityService.listUsersInGroup(groupId).toRestUsers()
 
     @GET
     @Path("users")
-    fun listUsers(): List<RestUser> =
-        identityService.listUsers().let {
-            return userConverter.convertUsers(it)
-        }
+    fun listUsers(): List<RestUser> = identityService.listUsers().toRestUsers()
 
     @GET
     @Path("loggedInUser")
-    fun readLoggedInUser(): RestLoggedInUser =
-        userConverter.convertLoggedInUser(loggedInUserInstance.get())
+    fun readLoggedInUser(): RestLoggedInUser = loggedInUserInstance.get().toRestLoggedInUser()
 }
