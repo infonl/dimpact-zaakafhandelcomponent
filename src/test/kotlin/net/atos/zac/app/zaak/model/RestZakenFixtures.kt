@@ -10,8 +10,8 @@ import net.atos.zac.app.admin.model.RESTZaakafhandelParameters
 import net.atos.zac.app.bag.model.RESTBAGObject
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte
 import net.atos.zac.app.bag.model.RESTPand
-import net.atos.zac.app.identity.model.RESTGroup
-import net.atos.zac.app.identity.model.RESTUser
+import net.atos.zac.app.identity.model.RestGroup
+import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.policy.model.RESTZaakRechten
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
@@ -65,10 +65,10 @@ fun createRESTGeometry(
 fun createRESTGroup(
     id: String = "dummyId",
     name: String = "dummyName",
-) = RESTGroup().apply {
-    this.id = id
-    this.naam = name
-}
+) = RestGroup(
+    id = id,
+    naam = name
+)
 
 fun createRESTInboxProductaanvraag(
     id: Long = 1234L,
@@ -91,14 +91,14 @@ fun createRESTPand() = RESTPand()
 fun createRESTUser(
     id: String = "dummyId",
     name: String = "dummyName",
-) = RESTUser().apply {
-    this.id = id
-    this.naam = name
-}
+) = RestUser(
+    id = id,
+    naam = name
+)
 
 fun createRESTZaak(
-    behandelaar: RESTUser = createRESTUser(),
-    restGroup: RESTGroup = createRESTGroup(),
+    behandelaar: RestUser = createRESTUser(),
+    restGroup: RestGroup = createRESTGroup(),
     indicaties: EnumSet<ZaakIndicatie> = EnumSet.noneOf(ZaakIndicatie::class.java),
     restZaakType: RESTZaaktype = createRESTZaaktype()
 ) = RestZaak(

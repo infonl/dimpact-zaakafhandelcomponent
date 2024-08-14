@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.task.model
 
-import net.atos.zac.app.identity.model.RESTUser
+import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjecttype
 import net.atos.zac.app.informatieobjecten.model.createRESTInformatieobjecttype
 import net.atos.zac.app.zaak.model.createRESTUser
@@ -14,7 +14,7 @@ import java.util.UUID
 fun createRestTask(
     id: String = "dummyId",
     zaakUuid: UUID = UUID.randomUUID(),
-    behandelaar: RESTUser = createRESTUser(),
+    behandelaar: RestUser = createRESTUser(),
     taakData: MutableMap<String, String> = emptyMap<String, String>().toMutableMap(),
     tabellen: MutableMap<String, List<String>> = emptyMap<String, List<String>>().toMutableMap()
 ) = RestTask(

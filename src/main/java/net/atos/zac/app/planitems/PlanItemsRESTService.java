@@ -234,9 +234,9 @@ public class PlanItemsRESTService {
         }
         cmmnService.startHumanTaskPlanItem(
                 humanTaskData.planItemInstanceId,
-                humanTaskData.groep.id,
+                humanTaskData.groep.getId(),
                 humanTaskData.medewerker != null && !humanTaskData.medewerker.toString().isEmpty() ?
-                        humanTaskData.medewerker.id :
+                        humanTaskData.medewerker.getId() :
                         null,
                 DateTimeConverterUtil.convertToDate(fataleDatum),
                 humanTaskData.toelichting,

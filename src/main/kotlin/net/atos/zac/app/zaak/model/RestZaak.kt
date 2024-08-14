@@ -6,8 +6,8 @@ package net.atos.zac.app.zaak.model
 
 import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.validation.Valid
-import net.atos.zac.app.identity.model.RESTGroup
-import net.atos.zac.app.identity.model.RESTUser
+import net.atos.zac.app.identity.model.RestGroup
+import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.policy.model.RESTZaakRechten
 import net.atos.zac.zoeken.model.ZaakIndicatie
@@ -22,7 +22,7 @@ import java.util.UUID
 data class RestZaak(
     var archiefActiedatum: LocalDate?,
     var archiefNominatie: String?,
-    var behandelaar: RESTUser?,
+    var behandelaar: RestUser?,
     var besluiten: List<RestBesluit>?,
     var bronorganisatie: String?,
     var communicatiekanaal: String?,
@@ -31,7 +31,7 @@ data class RestZaak(
     var einddatum: LocalDate?,
     var gerelateerdeZaken: List<RESTGerelateerdeZaak>?,
     @field:Valid
-    var groep: RESTGroup?,
+    var groep: RestGroup?,
     var identificatie: String,
     var indicaties: EnumSet<ZaakIndicatie>,
     var initiatorIdentificatie: String?,

@@ -5,8 +5,8 @@
 package net.atos.zac.app.task.model
 
 import net.atos.zac.app.formulieren.model.RESTFormulierDefinitie
-import net.atos.zac.app.identity.model.RESTGroup
-import net.atos.zac.app.identity.model.RESTUser
+import net.atos.zac.app.identity.model.RestGroup
+import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.policy.model.RESTTaakRechten
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -30,9 +30,9 @@ data class RestTask(
 
     var fataledatum: LocalDate? = null,
 
-    var behandelaar: RESTUser? = null,
+    var behandelaar: RestUser? = null,
 
-    var groep: RESTGroup? = null,
+    var groep: RestGroup? = null,
 
     var zaakUuid: UUID? = null,
 

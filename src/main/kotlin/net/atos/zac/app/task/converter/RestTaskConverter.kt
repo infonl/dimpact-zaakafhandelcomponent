@@ -8,8 +8,8 @@ import jakarta.inject.Inject
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.app.formulieren.converter.RESTFormulierDefinitieConverter
-import net.atos.zac.app.identity.converter.RESTGroupConverter
-import net.atos.zac.app.identity.converter.RESTUserConverter
+import net.atos.zac.app.identity.converter.RestGroupConverter
+import net.atos.zac.app.identity.converter.RestUserConverter
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
 import net.atos.zac.app.task.model.RestTask
 import net.atos.zac.flowable.TaakVariabelenService.readTaskData
@@ -30,8 +30,8 @@ import java.util.UUID
 
 @Suppress("LongParameterList")
 class RestTaskConverter @Inject constructor(
-    private val groepConverter: RESTGroupConverter,
-    private val medewerkerConverter: RESTUserConverter,
+    private val groepConverter: RestGroupConverter,
+    private val medewerkerConverter: RestUserConverter,
     private val rechtenConverter: RESTRechtenConverter,
     private val policyService: PolicyService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
@@ -42,7 +42,7 @@ class RestTaskConverter @Inject constructor(
         .map { convert(it) }
         .toList()
 
-    @Suppress("LongMethod")
+    @Suppress("LongMethod", "ComplexMethod")
     fun convert(taskInfo: TaskInfo): RestTask {
         val zaaktypeOmschrijving = readZaaktypeOmschrijving(taskInfo)
         val restTaakRechten = policyService.readTaakRechten(taskInfo, zaaktypeOmschrijving).let {
@@ -72,11 +72,9 @@ class RestTaskConverter @Inject constructor(
             } else {
                 null
             },
-            behandelaar = if (restTaakRechten.lezen) medewerkerConverter.convertUserId(taskInfo.assignee) else null,
+            behandelaar = if (restTaakRechten.lezen) taskInfo.assignee?.let { medewerkerConverter.convertUserId(it) } else null,
             groep = if (restTaakRechten.lezen) {
-                groepConverter.convertGroupId(
-                    extractGroupId(taskInfo.identityLinks)
-                )
+                extractGroupId(taskInfo.identityLinks)?.let { groepConverter.convertGroupId(it) }
             } else {
                 null
             },

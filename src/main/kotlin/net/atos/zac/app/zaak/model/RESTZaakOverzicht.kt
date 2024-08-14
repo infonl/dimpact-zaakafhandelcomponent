@@ -5,8 +5,8 @@
 package net.atos.zac.app.zaak.model
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import net.atos.zac.app.identity.model.RESTGroup
-import net.atos.zac.app.identity.model.RESTUser
+import net.atos.zac.app.identity.model.RestGroup
+import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.policy.model.RESTZaakRechten
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -34,7 +34,7 @@ data class RESTZaakOverzicht(
 
     var status: String? = null,
 
-    var behandelaar: RESTUser? = null,
+    var behandelaar: RestUser? = null,
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     var einddatumGepland: LocalDate? = null,
@@ -42,7 +42,7 @@ data class RESTZaakOverzicht(
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     var uiterlijkeEinddatumAfdoening: LocalDate? = null,
 
-    var groep: RESTGroup? = null,
+    var groep: RestGroup? = null,
 
     var resultaat: RESTZaakResultaat? = null,
 

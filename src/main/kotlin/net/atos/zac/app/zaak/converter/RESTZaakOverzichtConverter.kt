@@ -9,8 +9,8 @@ import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.zac.app.identity.converter.RESTGroupConverter
-import net.atos.zac.app.identity.converter.RESTUserConverter
+import net.atos.zac.app.identity.converter.RestGroupConverter
+import net.atos.zac.app.identity.converter.RestUserConverter
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
 import net.atos.zac.app.zaak.model.RESTZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
@@ -27,10 +27,10 @@ class RESTZaakOverzichtConverter {
     private lateinit var zaakResultaatConverter: RESTZaakResultaatConverter
 
     @Inject
-    private lateinit var groupConverter: RESTGroupConverter
+    private lateinit var groupConverter: RestGroupConverter
 
     @Inject
-    private lateinit var userConverter: RESTUserConverter
+    private lateinit var userConverter: RestUserConverter
 
     @Inject
     private lateinit var openstaandeTakenConverter: RESTOpenstaandeTakenConverter

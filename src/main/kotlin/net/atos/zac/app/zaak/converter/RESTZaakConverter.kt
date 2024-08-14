@@ -17,8 +17,8 @@ import net.atos.client.zgw.zrc.util.StatusTypeUtil
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.StatusType
 import net.atos.client.zgw.ztc.model.generated.ZaakType
-import net.atos.zac.app.identity.converter.RESTGroupConverter
-import net.atos.zac.app.identity.converter.RESTUserConverter
+import net.atos.zac.app.identity.converter.RestGroupConverter
+import net.atos.zac.app.identity.converter.RestUserConverter
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
 import net.atos.zac.app.zaak.model.RESTGerelateerdeZaak
@@ -58,13 +58,13 @@ class RESTZaakConverter {
     private lateinit var zaakResultaatConverter: RESTZaakResultaatConverter
 
     @Inject
-    private lateinit var groupConverter: RESTGroupConverter
+    private lateinit var groupConverter: RestGroupConverter
 
     @Inject
     private lateinit var gerelateerdeZaakConverter: RESTGerelateerdeZaakConverter
 
     @Inject
-    private lateinit var userConverter: RESTUserConverter
+    private lateinit var userConverter: RestUserConverter
 
     @Inject
     private lateinit var besluitConverter: RestBesluitConverter

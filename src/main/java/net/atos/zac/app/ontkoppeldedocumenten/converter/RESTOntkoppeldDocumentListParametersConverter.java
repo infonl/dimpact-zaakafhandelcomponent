@@ -26,7 +26,7 @@ public class RESTOntkoppeldDocumentListParametersConverter extends
         }
 
         if (restListParameters.ontkoppeldDoor != null) {
-            listParameters.setOntkoppeldDoor(restListParameters.ontkoppeldDoor.id);
+            listParameters.setOntkoppeldDoor(restListParameters.ontkoppeldDoor.getId());
         }
 
         if (restListParameters.ontkoppeldOp != null && restListParameters.ontkoppeldOp.hasValue()) {
