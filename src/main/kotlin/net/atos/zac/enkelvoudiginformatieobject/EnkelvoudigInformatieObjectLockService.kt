@@ -32,10 +32,10 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
     private lateinit var entityManager: EntityManager
 
     @Transactional(REQUIRED)
-    fun createLock(informationObjectUUID: UUID, idUser: String): EnkelvoudigInformatieObjectLock =
+    fun createLock(informationObjectUUID: UUID, userID: String): EnkelvoudigInformatieObjectLock =
         EnkelvoudigInformatieObjectLock().apply {
             enkelvoudiginformatieobjectUUID = informationObjectUUID
-            userId = idUser
+            userId = userID
             lock = drcClientService.lockEnkelvoudigInformatieobject(informationObjectUUID)
             entityManager.persist(this)
         }

@@ -1,78 +1,41 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.identity.model
 
-package net.atos.zac.identity.model;
+import org.apache.commons.lang3.StringUtils
 
-import org.apache.commons.lang3.StringUtils;
-
-public class User {
-
-    private final String id;
-
-    private final String firstName;
-
-    private final String lastName;
-
-    private final String fullName;
-
-    private final String email;
-
+open class User(
+    val id: String,
+    val firstName: String? = null,
+    val lastName: String? = null,
+    val fullName: String? = null,
+    val email: String? = null
+) {
     /**
      * Constructor for creating an unknown User, a user with a given user id which is not known in the identity system.
      *
-     * @param id Id of the user who is unknown
+     * @param id ID of the user who is unknown
      */
-    public User(final String id) {
-        this.id = id;
-        this.firstName = null;
-        this.lastName = id;
-        this.fullName = id;
-        this.email = null;
-    }
+    constructor(id: String) : this(
+        id = id,
+        firstName = null,
+        lastName = id,
+        fullName = id,
+        email = null
+    )
+}
 
-    public User(final String id, final String firstName, final String lastName, final String email) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.fullName = null;
-        this.email = email;
-    }
-
-    protected User(final String id, final String firstName, final String lastName, final String fullName, final String email) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.fullName = fullName;
-        this.email = email;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getFullName() {
-        if (StringUtils.isNotBlank(fullName)) {
-            return fullName;
-        } else if (StringUtils.isNotBlank(firstName) && StringUtils.isNotBlank(lastName)) {
-            return String.format("%s %s", firstName, lastName);
-        } else if (StringUtils.isNotBlank(lastName)) {
-            return lastName;
-        } else {
-            return id;
-        }
+// TODO: what the heck is this.. get rid of this function?
+fun User.getFullNameResolved(): String {
+    return if (StringUtils.isNotBlank(fullName)) {
+        fullName!!
+    } else if (StringUtils.isNotBlank(firstName) && StringUtils.isNotBlank(lastName)) {
+        "$firstName $lastName"
+    } else if (StringUtils.isNotBlank(lastName)) {
+        lastName!!
+    } else {
+        id
     }
 }

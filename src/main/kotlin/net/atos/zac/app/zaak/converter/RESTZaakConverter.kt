@@ -22,10 +22,10 @@ import net.atos.zac.app.identity.converter.RESTUserConverter
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
 import net.atos.zac.app.zaak.model.RESTGerelateerdeZaak
-import net.atos.zac.app.zaak.model.RestZaak
 import net.atos.zac.app.zaak.model.RESTZaakKenmerk
 import net.atos.zac.app.zaak.model.RESTZaakVerlengGegevens
 import net.atos.zac.app.zaak.model.RelatieType
+import net.atos.zac.app.zaak.model.RestZaak
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.BPMNService
 import net.atos.zac.flowable.ZaakVariabelenService

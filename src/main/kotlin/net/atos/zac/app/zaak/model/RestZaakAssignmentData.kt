@@ -19,6 +19,7 @@ data class RestZaakAssignmentData(
      * [net.atos.client.zgw.zrc.model.OrganisatorischeEenheid]
      * we need to make sure it adheres to the same constraints.
      */
+    // TODO: non-nullable?
     @field:Size(max = 24)
     var groepId: String? = null,
 
