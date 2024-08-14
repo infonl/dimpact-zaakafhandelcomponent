@@ -72,7 +72,15 @@ class RestTaskConverter @Inject constructor(
             } else {
                 null
             },
-            behandelaar = if (restTaakRechten.lezen) taskInfo.assignee?.let { medewerkerConverter.convertUserId(it) } else null,
+            behandelaar = if (restTaakRechten.lezen) {
+                taskInfo.assignee?.let {
+                    medewerkerConverter.convertUserId(
+                        it
+                    )
+                }
+            } else {
+                null
+            },
             groep = if (restTaakRechten.lezen) {
                 extractGroupId(taskInfo.identityLinks)?.let { groepConverter.convertGroupId(it) }
             } else {
