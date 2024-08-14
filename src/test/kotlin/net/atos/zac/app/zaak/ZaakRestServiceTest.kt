@@ -297,7 +297,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         When("toekennen is called from user with access") {
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(toekennen = true)
 
-            val returnedRestZaak = zaakRestService.toekennen(restZaakToekennenGegevens)
+            val returnedRestZaak = zaakRestService.assign(restZaakToekennenGegevens)
 
             Then("the zaak is updated, and the zaken search index is updated") {
                 returnedRestZaak shouldBe restZaak

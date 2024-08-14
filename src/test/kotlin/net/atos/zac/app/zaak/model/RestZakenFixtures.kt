@@ -86,7 +86,7 @@ fun createRESTUser() = RESTUser()
 fun createRESTZaak(
     indicaties: EnumSet<ZaakIndicatie> = EnumSet.noneOf(ZaakIndicatie::class.java),
     restZaakType: RESTZaaktype = createRESTZaaktype()
-) = RESTZaak(
+) = RestZaak(
     uuid = UUID.randomUUID(),
     identificatie = "ZA2023001",
     omschrijving = "Sample Zaak",
@@ -152,7 +152,7 @@ fun createRESTZaakToekennenGegevens(
     groepId: String = "dummyGroupId",
     behandelaarGebruikersnaam: String = "dummyBehandelaarGebruikersnaam",
     reden: String = "dummyReden"
-) = RESTZaakToekennenGegevens(
+) = RestZaakAssignmentData(
     zaakUUID = zaakUUID,
     groepId = groepId,
     behandelaarGebruikersnaam = behandelaarGebruikersnaam,

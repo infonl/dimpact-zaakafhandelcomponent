@@ -19,7 +19,7 @@ import java.util.UUID
 
 @NoArgConstructor
 @AllOpen
-data class RESTZaak(
+data class RestZaak(
     var archiefActiedatum: LocalDate?,
     var archiefNominatie: String?,
     var behandelaar: RESTUser?,

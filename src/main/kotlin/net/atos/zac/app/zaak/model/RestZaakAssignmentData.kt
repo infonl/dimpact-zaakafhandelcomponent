@@ -11,7 +11,7 @@ import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
-data class RESTZaakToekennenGegevens(
+data class RestZaakAssignmentData(
     var zaakUUID: UUID,
 
     /**
