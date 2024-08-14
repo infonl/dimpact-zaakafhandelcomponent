@@ -35,7 +35,7 @@ import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.zac.app.configuratie.converter.RESTTaalConverter;
-import net.atos.zac.app.identity.converter.RESTUserConverter;
+import net.atos.zac.app.identity.converter.RestUserConverter;
 import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieObjectVersieGegevens;
 import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject;
 import net.atos.zac.app.informatieobjecten.model.RESTFileUpload;
@@ -62,10 +62,9 @@ public class RESTInformatieobjectConverter {
     private IdentityService identityService;
     private Instance<LoggedInUser> loggedInUserInstance;
     private PolicyService policyService;
-    private RESTOndertekeningConverter restOndertekeningConverter;
     private RESTRechtenConverter restRechtenConverter;
     private RESTTaalConverter restTaalConverter;
-    private RESTUserConverter restUserConverter;
+    private RestUserConverter restUserConverter;
     private ZrcClientService zrcClientService;
     private ZtcClientService ztcClientService;
 
@@ -84,10 +83,9 @@ public class RESTInformatieobjectConverter {
             IdentityService identityService,
             Instance<LoggedInUser> loggedInUserInstance,
             PolicyService policyService,
-            RESTOndertekeningConverter restOndertekeningConverter,
             RESTRechtenConverter restRechtenConverter,
             RESTTaalConverter restTaalConverter,
-            RESTUserConverter restUserConverter,
+            RestUserConverter restUserConverter,
             ZrcClientService zrcClientService,
             ZtcClientService ztcClientService
     ) {
@@ -98,7 +96,6 @@ public class RESTInformatieobjectConverter {
         this.restTaalConverter = restTaalConverter;
         this.loggedInUserInstance = loggedInUserInstance;
         this.restUserConverter = restUserConverter;
-        this.restOndertekeningConverter = restOndertekeningConverter;
         this.enkelvoudigInformatieObjectLockService = enkelvoudigInformatieObjectLockService;
         this.identityService = identityService;
         this.restRechtenConverter = restRechtenConverter;

@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.ontkoppeldedocumenten.model;
 
-import net.atos.zac.app.identity.model.RESTUser;
+import net.atos.zac.app.identity.model.RestUser;
 import net.atos.zac.app.shared.RESTListParameters;
 import net.atos.zac.app.zoeken.model.RESTDatumRange;
 
@@ -16,7 +16,7 @@ public class RESTOntkoppeldDocumentListParameters extends RESTListParameters {
 
     public RESTDatumRange creatiedatum;
 
-    public RESTUser ontkoppeldDoor;
+    public RestUser ontkoppeldDoor;
 
     public RESTDatumRange ontkoppeldOp;
 

@@ -9,12 +9,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.atos.zac.app.identity.model.RESTUser;
+import net.atos.zac.app.identity.model.RestUser;
 import net.atos.zac.app.shared.RESTResultaat;
 
 public class RESTOntkoppeldDocumentResultaat extends RESTResultaat<RESTOntkoppeldDocument> {
 
-    public List<RESTUser> filterOntkoppeldDoor = new ArrayList<>();
+    public List<RestUser> filterOntkoppeldDoor = new ArrayList<>();
 
     public RESTOntkoppeldDocumentResultaat(final Collection<RESTOntkoppeldDocument> resultaten, final long aantalTotaal) {
         super(resultaten, aantalTotaal);

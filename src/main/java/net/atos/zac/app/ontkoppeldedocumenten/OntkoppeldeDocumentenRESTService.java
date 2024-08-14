@@ -30,7 +30,7 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.exception.FoutException;
 import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
-import net.atos.zac.app.identity.converter.RESTUserConverter;
+import net.atos.zac.app.identity.converter.RestUserConverter;
 import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentConverter;
 import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentListParametersConverter;
 import net.atos.zac.app.ontkoppeldedocumenten.model.RESTOntkoppeldDocument;
@@ -55,7 +55,7 @@ public class OntkoppeldeDocumentenRESTService {
     private ZrcClientService zrcClientService;
     private RESTOntkoppeldDocumentConverter ontkoppeldDocumentConverter;
     private RESTOntkoppeldDocumentListParametersConverter listParametersConverter;
-    private RESTUserConverter userConverter;
+    private RestUserConverter userConverter;
     private PolicyService policyService;
 
     /**
@@ -71,7 +71,7 @@ public class OntkoppeldeDocumentenRESTService {
             ZrcClientService zrcClientService,
             RESTOntkoppeldDocumentConverter ontkoppeldDocumentConverter,
             RESTOntkoppeldDocumentListParametersConverter listParametersConverter,
-            RESTUserConverter userConverter,
+            RestUserConverter userConverter,
             PolicyService policyService
     ) {
         this.ontkoppeldeDocumentenService = ontkoppeldeDocumentenService;

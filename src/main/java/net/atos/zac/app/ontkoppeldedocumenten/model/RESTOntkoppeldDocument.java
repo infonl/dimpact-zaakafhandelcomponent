@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
-import net.atos.zac.app.identity.model.RESTUser;
+import net.atos.zac.app.identity.model.RestUser;
 
 public class RESTOntkoppeldDocument {
 
@@ -27,7 +27,7 @@ public class RESTOntkoppeldDocument {
 
     public String bestandsnaam;
 
-    public RESTUser ontkoppeldDoor;
+    public RestUser ontkoppeldDoor;
 
     public ZonedDateTime ontkoppeldOp;
 

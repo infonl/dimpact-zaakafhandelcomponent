@@ -1,7 +1,7 @@
 package net.atos.zac.app.planitems.model
 
-import net.atos.zac.app.identity.model.RESTGroup
-import net.atos.zac.app.identity.model.RESTUser
+import net.atos.zac.app.identity.model.RestGroup
+import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.mail.model.RESTMailGegevens
 import net.atos.zac.app.zaak.model.createRESTGroup
 import java.time.LocalDate
@@ -10,8 +10,8 @@ import java.util.UUID
 @Suppress("LongParameterList")
 fun createRESTHumanTaskData(
     planItemInstanceId: String = "dummyPlanItemInstanceId",
-    groep: RESTGroup = createRESTGroup(),
-    medewerker: RESTUser? = null,
+    groep: RestGroup = createRESTGroup(),
+    medewerker: RestUser? = null,
     fataledatum: LocalDate? = null,
     toelichting: String? = null,
     taakdata: Map<String, String>? = null,

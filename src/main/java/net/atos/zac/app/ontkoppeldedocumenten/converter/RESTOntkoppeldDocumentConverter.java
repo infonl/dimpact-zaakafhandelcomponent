@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 
-import net.atos.zac.app.identity.converter.RESTUserConverter;
+import net.atos.zac.app.identity.converter.RestUserConverter;
 import net.atos.zac.app.ontkoppeldedocumenten.model.RESTOntkoppeldDocument;
 import net.atos.zac.documenten.model.OntkoppeldDocument;
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
@@ -19,7 +19,7 @@ import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjec
 public class RESTOntkoppeldDocumentConverter {
 
     @Inject
-    private RESTUserConverter userConverter;
+    private RestUserConverter userConverter;
 
     @Inject
     private EnkelvoudigInformatieObjectLockService lockService;

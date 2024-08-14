@@ -11,17 +11,17 @@ import java.util.Map;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
-import net.atos.zac.app.identity.model.RESTGroup;
-import net.atos.zac.app.identity.model.RESTUser;
+import net.atos.zac.app.identity.model.RestGroup;
+import net.atos.zac.app.identity.model.RestUser;
 
 public class RESTHumanTaskData {
 
     public String planItemInstanceId;
 
-    public RESTGroup groep;
+    public RestGroup groep;
 
     @Valid
-    public RESTUser medewerker;
+    public RestUser medewerker;
 
     /**
      * The 'final due date' of a task.

@@ -14,7 +14,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.FormParam;
 
 import net.atos.client.zgw.drc.model.generated.StatusEnum;
-import net.atos.zac.app.identity.model.RESTUser;
+import net.atos.zac.app.identity.model.RestUser;
 import net.atos.zac.app.policy.model.RESTDocumentRechten;
 import net.atos.zac.zoeken.model.DocumentIndicatie;
 
@@ -110,7 +110,7 @@ public class RESTEnkelvoudigInformatieobject extends RESTEnkelvoudigInformatieFi
     }
 
     @FormParam("gelockedDoor")
-    public RESTUser gelockedDoor;
+    public RestUser gelockedDoor;
 
     @FormParam("isBesluitDocument")
     public boolean isBesluitDocument;
