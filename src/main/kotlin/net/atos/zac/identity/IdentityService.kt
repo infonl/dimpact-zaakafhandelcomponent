@@ -10,7 +10,7 @@ import jakarta.inject.Inject
 import net.atos.zac.identity.exception.IdentityRuntimeException
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
-import net.atos.zac.identity.model.getFullNameResolved
+import net.atos.zac.identity.model.getFullName
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
@@ -78,7 +78,7 @@ class IdentityService @Inject constructor(
             filter = Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS)),
             attributesToReturn = USER_ATTRIBUTES
         ).map { it.toUser() }
-            .sortedBy { it.getFullNameResolved() }
+            .sortedBy { it.getFullName() }
 
     fun listGroups(): List<Group> =
         search(

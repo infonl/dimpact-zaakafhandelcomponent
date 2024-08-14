@@ -1,7 +1,7 @@
 package net.atos.zac.zoeken.converter;
 
 import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
-import static net.atos.zac.identity.model.UserKt.getFullNameResolved;
+import static net.atos.zac.identity.model.UserKt.getFullName;
 import static net.atos.zac.util.UriUtil.uuidFromURI;
 
 import java.util.Collections;
@@ -91,7 +91,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
 
         final User behandelaar = findBehandelaar(zaak);
         if (behandelaar != null) {
-            zaakZoekObject.setBehandelaarNaam(getFullNameResolved(behandelaar));
+            zaakZoekObject.setBehandelaarNaam(getFullName(behandelaar));
             zaakZoekObject.setBehandelaarGebruikersnaam(behandelaar.getId());
             zaakZoekObject.setToegekend(true);
         }

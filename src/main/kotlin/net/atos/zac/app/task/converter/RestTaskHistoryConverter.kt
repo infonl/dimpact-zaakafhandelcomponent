@@ -10,7 +10,7 @@ import net.atos.zac.app.task.model.RestTaskHistoryLine
 import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.flowable.model.ValueChangeData
 import net.atos.zac.identity.IdentityService
-import net.atos.zac.identity.model.getFullNameResolved
+import net.atos.zac.identity.model.getFullName
 import net.atos.zac.util.DateTimeConverterUtil
 import net.atos.zac.util.JsonbUtil
 import org.flowable.task.api.history.HistoricTaskLogEntry
@@ -111,7 +111,7 @@ class RestTaskHistoryConverter @Inject constructor(
     }
 
     private fun getMedewerkerFullName(medewerkerId: String?): String? =
-        medewerkerId?.let { identityService.readUser(it).getFullNameResolved() }
+        medewerkerId?.let { identityService.readUser(it).getFullName() }
 
     class DuedateChangedData {
         @JsonbDateFormat(JsonbDateFormat.TIME_IN_MILLIS)

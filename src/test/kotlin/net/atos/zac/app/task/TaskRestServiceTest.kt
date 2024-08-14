@@ -44,7 +44,7 @@ import net.atos.zac.flowable.TaakVariabelenService
 import net.atos.zac.flowable.TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
 import net.atos.zac.flowable.TaakVariabelenService.TAAK_DATA_VERZENDDATUM
 import net.atos.zac.flowable.util.TaskUtil.getTaakStatus
-import net.atos.zac.identity.model.getFullNameResolved
+import net.atos.zac.identity.model.getFullName
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createDocumentRechtenAllDeny
@@ -159,7 +159,7 @@ class TaskRestServiceTest : BehaviorSpec({
         val historicTaskInstance = mockk<HistoricTaskInstance>()
         val restUser = createRESTUser(
             id = loggedInUser.id,
-            name = loggedInUser.getFullNameResolved()
+            name = loggedInUser.getFullName()
         )
         val documentUUID = UUID.randomUUID()
         val dateTime = ZonedDateTime.now()
@@ -229,7 +229,7 @@ class TaskRestServiceTest : BehaviorSpec({
         val task = mockk<Task>()
         val restUser = createRESTUser(
             id = loggedInUser.id,
-            name = loggedInUser.getFullNameResolved()
+            name = loggedInUser.getFullName()
         )
         val restTaakDataKey = "dummyKey"
         val restTaakDataValue = "dummyValue"

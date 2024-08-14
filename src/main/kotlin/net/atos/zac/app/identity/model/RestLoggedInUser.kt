@@ -5,7 +5,7 @@
 package net.atos.zac.app.identity.model
 
 import net.atos.zac.authentication.LoggedInUser
-import net.atos.zac.identity.model.getFullNameResolved
+import net.atos.zac.identity.model.getFullName
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 
@@ -20,6 +20,6 @@ class RestLoggedInUser(
 fun LoggedInUser.toRestLoggedInUser(): RestLoggedInUser =
     RestLoggedInUser(
         id = this.id,
-        naam = this.getFullNameResolved(),
+        naam = this.getFullName(),
         groupIds = this.groupIds
     )

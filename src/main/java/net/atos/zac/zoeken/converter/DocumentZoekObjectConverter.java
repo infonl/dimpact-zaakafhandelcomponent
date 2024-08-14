@@ -1,7 +1,7 @@
 package net.atos.zac.zoeken.converter;
 
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
-import static net.atos.zac.identity.model.UserKt.getFullNameResolved;
+import static net.atos.zac.identity.model.UserKt.getFullName;
 
 import java.util.List;
 import java.util.UUID;
@@ -118,7 +118,7 @@ public class DocumentZoekObjectConverter extends AbstractZoekObjectConverter<Doc
                     informatieobjectUUID
             );
             documentZoekObject.setVergrendeldDoorGebruikersnaam(lock.getUserId());
-            documentZoekObject.setVergrendeldDoorNaam(getFullNameResolved(identityService.readUser(lock.getUserId())));
+            documentZoekObject.setVergrendeldDoorNaam(getFullName(identityService.readUser(lock.getUserId())));
         }
         return documentZoekObject;
     }
