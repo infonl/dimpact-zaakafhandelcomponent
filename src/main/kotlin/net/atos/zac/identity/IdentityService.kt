@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.identity
@@ -7,22 +7,18 @@ package net.atos.zac.identity
 import com.unboundid.ldap.sdk.Filter
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import net.atos.zac.identity.exception.IdentityRuntimeException
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
 import net.atos.zac.identity.model.getFullNameResolved
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
-import org.eclipse.microprofile.config.ConfigProvider
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.util.Hashtable
-import java.util.LinkedList
-import java.util.Objects
-import java.util.stream.Stream
 import javax.naming.Context
 import javax.naming.NamingException
 import javax.naming.directory.Attributes
-import javax.naming.directory.DirContext
 import javax.naming.directory.InitialDirContext
 import javax.naming.directory.SearchControls
 
@@ -76,161 +72,129 @@ class IdentityService @Inject constructor(
         Context.SECURITY_CREDENTIALS to ldapPassword
     )
 
-    fun listUsers(): List<User> {
-        return search(
-            usersDN,
-            Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS)),
-            USER_ATTRIBUTES
-        ).stream()
-            .map { attributes: Attributes -> this.convertToUser(attributes) }
-            .sorted(Comparator.comparing { it.getFullNameResolved() })
-            .toList()
-    }
+    fun listUsers(): List<User> =
+        search(
+            root = usersDN,
+            filter = Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS)),
+            attributesToReturn = USER_ATTRIBUTES
+        ).map { it.toUser() }
+            .sortedBy { it.getFullNameResolved() }
 
-    fun listGroups(): List<Group> {
-        return search(
-            groupsDN,
-            Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS)),
-            GROUP_ATTRIBUTES
-        ).stream()
-            .map { attributes: Attributes -> this.convertToGroup(attributes) }
-            .sorted(Comparator.comparing { it.name!! })
-            .toList()
-    }
+    fun listGroups(): List<Group> =
+        search(
+            root = groupsDN,
+            filter = Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS)),
+            attributesToReturn = GROUP_ATTRIBUTES
+        ).map { it.toGroup() }
+            .sortedBy { it.name }
 
-    fun readUser(userId: String): User {
-        return search(
-            usersDN,
-            Filter.createANDFilter(
+    fun readUser(userId: String): User =
+        search(
+            root = usersDN,
+            filter = Filter.createANDFilter(
                 Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS),
                 Filter.createEqualityFilter(USER_ID_ATTRIBUTE, userId)
             ),
-            USER_ATTRIBUTES
-        ).stream()
-            .findAny()
-            .map { attributes: Attributes -> this.convertToUser(attributes) }
-            .orElseGet { User(userId) }
-    }
+            attributesToReturn = USER_ATTRIBUTES
+        ).map { it.toUser() }
+            .firstOrNull() ?: User(userId)
 
     fun readGroup(groupId: String): Group =
         search(
-            groupsDN,
-            Filter.createANDFilter(
+            root = groupsDN,
+            filter = Filter.createANDFilter(
                 Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
                 Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupId)
             ),
-            GROUP_ATTRIBUTES
-        ).stream()
-            .findAny()
-            .map { attributes: Attributes -> this.convertToGroup(attributes) }
-            .orElseGet { Group(groupId) }
+            attributesToReturn = GROUP_ATTRIBUTES
+        ).map { it.toGroup() }
+            .firstOrNull() ?: Group(groupId)
 
-    fun listUsersInGroup(groupId: String): List<User> {
-        return search(
-            groupsDN,
-            Filter.createANDFilter(
+    fun listUsersInGroup(groupId: String): List<User> =
+        search(
+            root = groupsDN,
+            filter = Filter.createANDFilter(
                 Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
                 Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupId)
             ),
-            GROUP_MEMBERSHIP_ATTRIBUTES
-        ).stream()
-            .map { this.convertToMembers(it) }
+            attributesToReturn = GROUP_MEMBERSHIP_ATTRIBUTES
+        ).map { this.convertToMembers(it) }
             .flatMap { this.readUsers(it) }
-            .sorted(Comparator.comparing { it.getFullNameResolved() })
-            .toList()
-    }
 
-    private fun readUsers(userIds: Collection<String?>): Stream<User> {
-        return search(
-            usersDN,
-            Filter.createANDFilter(
+    private fun readUsers(userIds: Collection<String>): List<User> =
+        search(
+            root = usersDN,
+            filter = Filter.createANDFilter(
                 Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS),
                 Filter.createORFilter(
-                    userIds.stream()
-                        .map { userId: String? -> Filter.createEqualityFilter(USER_ID_ATTRIBUTE, userId) }
-                        .toList()
+                    userIds.map { Filter.createEqualityFilter(USER_ID_ATTRIBUTE, it) }
                 )
             ),
-            USER_ATTRIBUTES
-        ).stream().map { attributes: Attributes -> this.convertToUser(attributes) }
-    }
+            attributesToReturn = USER_ATTRIBUTES
+        ).map { it.toUser() }
 
-    private fun convertToUser(attributes: Attributes): User {
-        val userID = readAttributeToString(attributes, USER_ID_ATTRIBUTE)
-        require(userID != null) { "User ID is required" }
-        return User(
-            id = userID,
-            firstName = readAttributeToString(attributes, USER_FIRST_NAME_ATTRIBUTE),
-            lastName = readAttributeToString(attributes, USER_LAST_NAME_ATTRIBUTE),
-            email = readAttributeToString(attributes, USER_MAIL_ATTRIBUTE)
-        )
-    }
-
-    private fun convertToGroup(attributes: Attributes): Group {
-        val groupID = readAttributeToString(attributes, GROUP_ID_ATTRIBUTE)
-        require(groupID != null) { "Group ID is required" }
-        return Group(
-            id = groupID,
-            name = readAttributeToString(attributes, GROUP_NAME_ATTRIBUTE),
-            email = readAttributeToString(attributes, GROUP_MAIL_ATTRIBUTE)
-        )
-    }
-
-    private fun convertToMembers(attributes: Attributes): List<String?> {
-        return readAttributeToListOfStrings(attributes).stream()
-            .map { StringUtils.substringBetween(it, "cn=", ",") }
-            .filter { Objects.nonNull(it) }
-            .toList()
-    }
+    private fun convertToMembers(attributes: Attributes): List<String> =
+        readAttributeToListOfStrings(attributes)
+            .mapNotNull { StringUtils.substringBetween(it, "cn=", ",") }
 
     private fun search(
-        root: String?,
+        root: String,
         filter: Filter,
         attributesToReturn: Array<String>
     ): List<Attributes> {
-        val searchControls = SearchControls()
-        searchControls.returningAttributes = attributesToReturn
-        searchControls.searchScope = SearchControls.ONELEVEL_SCOPE
+        val searchControls = SearchControls().apply {
+            returningAttributes = attributesToReturn
+            searchScope = SearchControls.ONELEVEL_SCOPE
+        }
         try {
-            val dirContext: DirContext = InitialDirContext(Hashtable(environment))
+            val dirContext = InitialDirContext(Hashtable(environment))
             val namingEnumeration = dirContext.search(
                 root,
                 filter.toString(),
                 searchControls
             )
-            val attributesList: MutableList<Attributes> = LinkedList()
+            val attributesList = mutableListOf<Attributes>()
             while (namingEnumeration.hasMore()) {
                 attributesList.add(namingEnumeration.next().attributes)
             }
             dirContext.close()
             return attributesList
-        } catch (e: NamingException) {
-            throw RuntimeException(e)
+        } catch (namingException: NamingException) {
+            throw IdentityRuntimeException(
+                "Failed to search for attributes in LDAP",
+                namingException
+            )
         }
     }
 
     private fun readAttributeToString(attributes: Attributes, attributeName: String): String? {
-        try {
-            val attribute = attributes[attributeName]
-            return attribute?.get()?.toString()
-        } catch (e: NamingException) {
-            throw RuntimeException(e)
-        }
+        val attribute = attributes[attributeName]
+        return attribute?.get()?.toString()
     }
 
-    private fun readAttributeToListOfStrings(attributes: Attributes): List<String> {
-        try {
-            val strings: MutableList<String> = LinkedList()
-            val attribute = attributes[GROUP_MEMBER_ATTRIBUTE]
-            if (attribute != null) {
-                val enumeration = attribute.all
-                while (enumeration.hasMore()) {
-                    strings.add(enumeration.next().toString())
-                }
-            }
-            return strings
-        } catch (e: NamingException) {
-            throw RuntimeException(e)
-        }
+    private fun readAttributeToListOfStrings(attributes: Attributes): List<String> =
+        attributes[GROUP_MEMBER_ATTRIBUTE]?.all?.toList()?.map {
+            it.toString()
+        } ?: emptyList()
+
+    private fun Attributes.toUser(): User {
+        val userID = readAttributeToString(this, USER_ID_ATTRIBUTE)
+        require(userID != null) { "User ID is required" }
+        return User(
+            id = userID,
+            firstName = readAttributeToString(this, USER_FIRST_NAME_ATTRIBUTE),
+            lastName = readAttributeToString(this, USER_LAST_NAME_ATTRIBUTE),
+            email = readAttributeToString(this, USER_MAIL_ATTRIBUTE)
+        )
+    }
+
+    private fun Attributes.toGroup(): Group {
+        val groupID = readAttributeToString(this, GROUP_ID_ATTRIBUTE)
+        require(groupID != null) { "Group ID is required" }
+        return Group(
+            id = groupID,
+            name = readAttributeToString(this, GROUP_NAME_ATTRIBUTE) ?: groupID,
+            email = readAttributeToString(this, GROUP_MAIL_ATTRIBUTE)
+        )
     }
 }
