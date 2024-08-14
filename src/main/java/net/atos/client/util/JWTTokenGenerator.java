@@ -5,7 +5,7 @@
 
 package net.atos.client.util;
 
-import static net.atos.zac.identity.model.UserKt.getFullNameResolved;
+import static net.atos.zac.identity.model.UserKt.getFullName;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -32,7 +32,7 @@ public final class JWTTokenGenerator {
                 .withClaim("client_id", clientId);
         if (loggedInUser != null) {
             jwtBuilder.withClaim("user_id", loggedInUser.getId());
-            jwtBuilder.withClaim("user_representation", getFullNameResolved(loggedInUser));
+            jwtBuilder.withClaim("user_representation", getFullName(loggedInUser));
         }
         String jwtToken = jwtBuilder.sign(Algorithm.HMAC256(secret));
         return "Bearer " + jwtToken;

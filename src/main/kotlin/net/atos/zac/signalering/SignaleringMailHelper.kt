@@ -6,7 +6,7 @@ package net.atos.zac.signalering
 
 import jakarta.inject.Inject
 import net.atos.zac.identity.IdentityService
-import net.atos.zac.identity.model.getFullNameResolved
+import net.atos.zac.identity.model.getFullName
 import net.atos.zac.mail.model.MailAdres
 import net.atos.zac.mailtemplates.MailTemplateService
 import net.atos.zac.mailtemplates.model.Mail
@@ -32,7 +32,7 @@ class SignaleringMailHelper @Inject constructor(
             SignaleringTarget.USER -> {
                 identityService.readUser(signalering.target).let { user ->
                     user.email?.let {
-                        SignaleringTarget.Mail(user.getFullNameResolved(), it)
+                        SignaleringTarget.Mail(user.getFullName(), it)
                     }
                 }
             }

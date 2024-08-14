@@ -4,8 +4,6 @@
  */
 package net.atos.zac.identity.model
 
-import org.apache.commons.lang3.StringUtils
-
 open class User(
     val id: String,
     val firstName: String? = null,
@@ -28,17 +26,14 @@ open class User(
 }
 
 /**
- * Get rid of this function by using the `fullName` property directly.
+ * Better to get rid of this extension function by using the `fullName` property directly.
  * Then we need to make sure the full name gets set correctly in the first place.
  */
-fun User.getFullNameResolved(): String {
-    return if (StringUtils.isNotBlank(fullName)) {
-        fullName!!
-    } else if (StringUtils.isNotBlank(firstName) && StringUtils.isNotBlank(lastName)) {
-        "$firstName $lastName"
-    } else if (StringUtils.isNotBlank(lastName)) {
-        lastName!!
-    } else {
-        id
+fun User.getFullName(): String {
+    return when {
+        !fullName.isNullOrBlank() -> fullName
+        !firstName.isNullOrBlank() && !lastName.isNullOrBlank() -> "$firstName $lastName"
+        !lastName.isNullOrBlank() -> lastName
+        else -> id
     }
 }

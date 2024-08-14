@@ -5,7 +5,7 @@
 package net.atos.zac.app.identity.model
 
 import net.atos.zac.identity.model.User
-import net.atos.zac.identity.model.getFullNameResolved
+import net.atos.zac.identity.model.getFullName
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 
@@ -20,7 +20,7 @@ data class RestUser(
 fun User.toRestUser() =
     RestUser(
         this.id,
-        this.getFullNameResolved()
+        this.getFullName()
     )
 
 fun List<User>.toRestUsers(): List<RestUser> =

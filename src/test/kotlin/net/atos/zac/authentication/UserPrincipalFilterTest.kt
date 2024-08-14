@@ -22,7 +22,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
-import net.atos.zac.identity.model.getFullNameResolved
+import net.atos.zac.identity.model.getFullName
 import org.wildfly.security.http.oidc.AccessToken
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
@@ -111,7 +111,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     this.id shouldBe userName
                     this.firstName shouldBe givenName
                     this.lastName shouldBe familyName
-                    this.getFullNameResolved() shouldBe fullName
+                    this.getFullName() shouldBe fullName
                     this.email shouldBe email
                     this.roles shouldContainAll roles
                     this.groupIds shouldContainAll groups

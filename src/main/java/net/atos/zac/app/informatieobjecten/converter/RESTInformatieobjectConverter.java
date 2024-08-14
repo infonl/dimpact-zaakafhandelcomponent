@@ -9,7 +9,7 @@ import static net.atos.client.zgw.drc.DrcClientUtil.convertByteArrayToBase64Stri
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 import static net.atos.zac.app.identity.model.RestUserKt.toRestUser;
 import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
-import static net.atos.zac.identity.model.UserKt.getFullNameResolved;
+import static net.atos.zac.identity.model.UserKt.getFullName;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -258,7 +258,7 @@ public class RESTInformatieobjectConverter {
         enkelvoudigInformatieObjectData.setBronorganisatie(ConfiguratieService.BRON_ORGANISATIE);
         enkelvoudigInformatieObjectData.setCreatiedatum(LocalDate.now());
         enkelvoudigInformatieObjectData.setTitel(restEnkelvoudigInformatieobject.titel);
-        enkelvoudigInformatieObjectData.setAuteur(getFullNameResolved(loggedInUserInstance.get()));
+        enkelvoudigInformatieObjectData.setAuteur(getFullName(loggedInUserInstance.get()));
         enkelvoudigInformatieObjectData.setTaal(ConfiguratieService.TAAL_NEDERLANDS);
         enkelvoudigInformatieObjectData.setInformatieobjecttype(
                 ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID).getUrl()
@@ -281,7 +281,7 @@ public class RESTInformatieobjectConverter {
         enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(ConfiguratieService.BRON_ORGANISATIE);
         enkelvoudigInformatieobjectWithInhoud.setCreatiedatum(LocalDate.now());
         enkelvoudigInformatieobjectWithInhoud.setTitel(documentData.getDocumentTitel());
-        enkelvoudigInformatieobjectWithInhoud.setAuteur(getFullNameResolved(loggedInUserInstance.get()));
+        enkelvoudigInformatieobjectWithInhoud.setAuteur(getFullName(loggedInUserInstance.get()));
         enkelvoudigInformatieobjectWithInhoud.setTaal(ConfiguratieService.TAAL_NEDERLANDS);
         enkelvoudigInformatieobjectWithInhoud.setInformatieobjecttype(
                 ztcClientService.readInformatieobjecttype(documentData.getDocumentType().uuid).getUrl()

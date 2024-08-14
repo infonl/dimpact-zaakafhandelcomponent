@@ -33,7 +33,7 @@ import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import net.atos.zac.identity.IdentityService
-import net.atos.zac.identity.model.getFullNameResolved
+import net.atos.zac.identity.model.getFullName
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.DocumentRechten
 import net.atos.zac.policy.output.createDocumentRechtenAllDeny
@@ -93,7 +93,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec({
                     bronorganisatie shouldBe "123443210"
                     creatiedatum shouldHaveSameDayAs LocalDate.now()
                     titel shouldBe restTaakDocumentData.documentTitel
-                    auteur shouldBe loggedInUser.getFullNameResolved()
+                    auteur shouldBe loggedInUser.getFullName()
                     // currently hardcoded
                     taal shouldBe "dut"
                     informatieobjecttype shouldBe providedInformatieObjectType.url
@@ -130,7 +130,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec({
                     bronorganisatie shouldBe "123443210"
                     creatiedatum shouldHaveSameDayAs LocalDate.now()
                     titel shouldBe restEnkelvoudigInformatieobject.titel
-                    auteur shouldBe loggedInUser.getFullNameResolved()
+                    auteur shouldBe loggedInUser.getFullName()
                     // currently hardcoded
                     taal shouldBe "dut"
                     informatieobjecttype shouldBe providedInformatieObjectType.url
