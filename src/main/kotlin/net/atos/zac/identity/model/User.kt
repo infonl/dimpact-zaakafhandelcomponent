@@ -27,7 +27,10 @@ open class User(
     )
 }
 
-// TODO: what the heck is this.. get rid of this function?
+/**
+ * Get rid of this function by using the `fullName` property directly.
+ * Then we need to make sure the full name gets set correctly in the first place.
+ */
 fun User.getFullNameResolved(): String {
     return if (StringUtils.isNotBlank(fullName)) {
         fullName!!
