@@ -79,7 +79,7 @@ export class InboxProductaanvragenListComponent
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
     public route: ActivatedRoute,
     private router: Router,
-    private sanitizer: DomSanitizer,
+    private sanitizer: DomSanitizer
   ) {
     super();
   }
@@ -89,7 +89,7 @@ export class InboxProductaanvragenListComponent
     this.utilService.setTitle("title.productaanvragen.inboxProductaanvragen");
     this.listParameters = SessionStorageUtil.getItem(
       Werklijst.INBOX_PRODUCTAANVRAGEN + "_ZOEKPARAMETERS",
-      this.createDefaultParameters(),
+      this.createDefaultParameters()
     );
   }
 
@@ -108,7 +108,7 @@ export class InboxProductaanvragenListComponent
           this.isLoadingResults = false;
           this.utilService.setLoading(false);
           return data;
-        }),
+        })
       )
       .subscribe((data) => {
         this.paginator.length = data.totaal;
@@ -124,7 +124,7 @@ export class InboxProductaanvragenListComponent
     this.listParameters.maxResults = this.paginator.pageSize;
     SessionStorageUtil.setItem(
       Werklijst.INBOX_PRODUCTAANVRAGEN + "_ZOEKPARAMETERS",
-      this.listParameters,
+      this.listParameters
     );
   }
 
@@ -141,7 +141,7 @@ export class InboxProductaanvragenListComponent
   resetSearch(): void {
     this.listParameters = SessionStorageUtil.setItem(
       Werklijst.INBOX_PRODUCTAANVRAGEN + "_ZOEKPARAMETERS",
-      this.createDefaultParameters(),
+      this.createDefaultParameters()
     );
     this.sort.active = this.listParameters.sort;
     this.sort.direction = this.listParameters.order;
@@ -179,8 +179,8 @@ export class InboxProductaanvragenListComponent
       this.expandedRow = selectedRow;
       this.previewSrc = this.sanitizer.bypassSecurityTrustResourceUrl(
         this.inboxProductaanvragenService.pdfPreview(
-          selectedRow.aanvraagdocumentUUID,
-        ),
+          selectedRow.aanvraagdocumentUUID
+        )
       );
     }
   }
@@ -192,23 +192,32 @@ export class InboxProductaanvragenListComponent
   }
 
   inboxProductaanvragenVerwijderen(
-    inboxProductaanvraag: InboxProductaanvraag,
+    inboxProductaanvraag: InboxProductaanvraag
   ): void {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
           "msg.inboxProductaanvraag.verwijderen.bevestigen",
-          this.inboxProductaanvragenService.delete(inboxProductaanvraag),
+          this.inboxProductaanvragenService.delete(inboxProductaanvraag)
         ),
       })
       .afterClosed()
       .subscribe((result) => {
         if (result) {
           this.utilService.openSnackbar(
-            "msg.inboxProductaanvraag.verwijderen.uitgevoerd",
+            "msg.inboxProductaanvraag.verwijderen.uitgevoerd"
           );
           this.filterChange.emit();
         }
       });
+  }
+
+  ngOnDestroy(): void {
+    // Make sure when returning to this comnponent, the very first page is loaded
+    this.listParameters.page = 0;
+    SessionStorageUtil.setItem(
+      Werklijst.INBOX_PRODUCTAANVRAGEN + "_ZOEKPARAMETERS",
+      this.listParameters
+    );
   }
 }
