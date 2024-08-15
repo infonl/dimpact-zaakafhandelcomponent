@@ -203,4 +203,13 @@ export class InboxDocumentenListComponent
   getWerklijst(): Werklijst {
     return Werklijst.INBOX_DOCUMENTEN;
   }
+
+  ngOnDestroy(): void {
+    // Make sure when returning to this comnponent, the very first page is loaded
+    this.listParameters.page = 0;
+    SessionStorageUtil.setItem(
+      Werklijst.INBOX_DOCUMENTEN + "_ZOEKPARAMETERS",
+      this.listParameters
+    );
+  }
 }

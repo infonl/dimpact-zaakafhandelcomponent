@@ -111,7 +111,7 @@ export class TakenMijnComponent
   }
 
   ngOnDestroy(): void {
-    // Make sure when returning to this comnponent, the very first page reloaded
+    // Make sure when returning to this comnponent, the very first page is loaded
     this.dataSource.zoekopdrachtResetToFirstPage();
   }
 }
