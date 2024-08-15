@@ -69,7 +69,7 @@ export class TakenWerkvoorraadComponent
     "report_problem",
     "warningVerlopen_icon",
     "msg.datum.overschreden",
-    "error",
+    "error"
   );
 
   takenLoading = signal(false);
@@ -84,12 +84,12 @@ export class TakenWerkvoorraadComponent
     private zoekenService: ZoekenService,
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
     private translateService: TranslateService,
-    private batchProcessService: BatchProcessService,
+    private batchProcessService: BatchProcessService
   ) {
     super();
     this.dataSource = new TakenWerkvoorraadDatasource(
       this.zoekenService,
-      this.utilService,
+      this.utilService
     );
   }
   ngOnInit(): void {
@@ -174,7 +174,7 @@ export class TakenWerkvoorraadComponent
     this.handleAssignOrReleaseWorkflow(
       TakenVerdelenDialogComponent,
       "msg.verdeeld.taak",
-      "msg.verdeeld.taken",
+      "msg.verdeeld.taken"
     );
   }
 
@@ -182,7 +182,7 @@ export class TakenWerkvoorraadComponent
     this.handleAssignOrReleaseWorkflow(
       TakenVrijgevenDialogComponent,
       "msg.vrijgegeven.taak",
-      "msg.vrijgegeven.taken",
+      "msg.vrijgegeven.taken"
     );
   }
 
@@ -237,7 +237,7 @@ export class TakenWerkvoorraadComponent
   private handleAssignOrReleaseWorkflow<T>(
     dialogComponent: ComponentType<T>,
     singleToken: string,
-    multipleToken: string,
+    multipleToken: string
   ) {
     const screenEventResourceId = uuidv4();
     const taken = this.selection.selected;
@@ -289,5 +289,10 @@ export class TakenWerkvoorraadComponent
         this.batchProcessService.stop();
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    // Make sure when returning to this comnponent, the very first page reloaded
+    this.dataSource.zoekopdrachtResetToFirstPage();
   }
 }
