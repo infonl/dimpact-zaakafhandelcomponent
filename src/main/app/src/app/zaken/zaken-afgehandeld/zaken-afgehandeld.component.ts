@@ -49,14 +49,14 @@ export class ZakenAfgehandeldComponent
     "report_problem",
     "warningVerlopen_icon",
     "msg.datum.overschreden",
-    "warning"
+    "warning",
   );
   uiterlijkeEinddatumAfdoeningIcon: TextIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
     "report_problem",
     "errorVerlopen_icon",
     "msg.datum.overschreden",
-    "error"
+    "error",
   );
 
   constructor(
@@ -64,12 +64,12 @@ export class ZakenAfgehandeldComponent
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
     public route: ActivatedRoute,
     private zoekenService: ZoekenService,
-    public utilService: UtilService
+    public utilService: UtilService,
   ) {
     super();
     this.dataSource = new ZakenAfgehandeldDatasource(
       this.zoekenService,
-      this.utilService
+      this.utilService,
     );
   }
 

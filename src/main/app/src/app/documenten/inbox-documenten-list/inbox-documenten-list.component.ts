@@ -71,7 +71,7 @@ export class InboxDocumentenListComponent
     private translate: TranslateService,
     private informatieObjectVerplaatsService: InformatieObjectVerplaatsService,
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    public route: ActivatedRoute
+    public route: ActivatedRoute,
   ) {
     super();
   }
@@ -80,7 +80,7 @@ export class InboxDocumentenListComponent
     super.ngOnInit();
     this.listParameters = SessionStorageUtil.getItem(
       Werklijst.INBOX_DOCUMENTEN + "_ZOEKPARAMETERS",
-      this.createDefaultParameters()
+      this.createDefaultParameters(),
     );
     this.utilService.setTitle("title.documenten.inboxDocumenten");
   }
@@ -100,7 +100,7 @@ export class InboxDocumentenListComponent
           this.isLoadingResults = false;
           this.utilService.setLoading(false);
           return data;
-        })
+        }),
       )
       .subscribe((data) => {
         this.paginator.length = data.totaal;
@@ -115,7 +115,7 @@ export class InboxDocumentenListComponent
     this.listParameters.maxResults = this.paginator.pageSize;
     SessionStorageUtil.setItem(
       Werklijst.INBOX_DOCUMENTEN + "_ZOEKPARAMETERS",
-      this.listParameters
+      this.listParameters,
     );
   }
 
@@ -130,7 +130,7 @@ export class InboxDocumentenListComponent
       .subscribe((i) => {
         this.informatieObjectVerplaatsService.addTeVerplaatsenDocument(
           i,
-          "inbox-documenten"
+          "inbox-documenten",
         );
       });
   }
@@ -143,7 +143,7 @@ export class InboxDocumentenListComponent
             key: "msg.document.verwijderen.bevestigen",
             args: { document: inboxDocument.titel },
           },
-          this.inboxDocumentenService.delete(inboxDocument)
+          this.inboxDocumentenService.delete(inboxDocument),
         ),
       })
       .afterClosed()
@@ -161,7 +161,7 @@ export class InboxDocumentenListComponent
     return (
       inboxDocument["disabled"] ||
       this.informatieObjectVerplaatsService.isReedsTeVerplaatsen(
-        inboxDocument.enkelvoudiginformatieobjectUUID
+        inboxDocument.enkelvoudiginformatieobjectUUID,
       )
     );
   }
@@ -174,7 +174,7 @@ export class InboxDocumentenListComponent
   resetSearch(): void {
     this.listParameters = SessionStorageUtil.setItem(
       Werklijst.INBOX_DOCUMENTEN + "_ZOEKPARAMETERS",
-      this.createDefaultParameters()
+      this.createDefaultParameters(),
     );
     this.sort.active = this.listParameters.sort;
     this.sort.direction = this.listParameters.order;
@@ -209,7 +209,7 @@ export class InboxDocumentenListComponent
     this.listParameters.page = 0;
     SessionStorageUtil.setItem(
       Werklijst.INBOX_DOCUMENTEN + "_ZOEKPARAMETERS",
-      this.listParameters
+      this.listParameters,
     );
   }
 }

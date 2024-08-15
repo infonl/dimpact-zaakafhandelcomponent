@@ -79,7 +79,7 @@ export class OntkoppeldeDocumentenListComponent
     private translate: TranslateService,
     private informatieObjectVerplaatsService: InformatieObjectVerplaatsService,
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    public route: ActivatedRoute
+    public route: ActivatedRoute,
   ) {
     super();
   }
@@ -89,7 +89,7 @@ export class OntkoppeldeDocumentenListComponent
     this.utilService.setTitle("title.documenten.ontkoppeldeDocumenten");
     this.listParameters = SessionStorageUtil.getItem(
       Werklijst.ONTKOPPELDE_DOCUMENTEN + "_ZOEKPARAMETERS",
-      this.createDefaultParameters()
+      this.createDefaultParameters(),
     );
   }
 
@@ -108,7 +108,7 @@ export class OntkoppeldeDocumentenListComponent
           this.isLoadingResults = false;
           this.utilService.setLoading(false);
           return data;
-        })
+        }),
       )
       .subscribe((data) => {
         this.paginator.length = data.totaal;
@@ -124,7 +124,7 @@ export class OntkoppeldeDocumentenListComponent
     this.listParameters.maxResults = this.paginator.pageSize;
     SessionStorageUtil.setItem(
       Werklijst.ONTKOPPELDE_DOCUMENTEN + "_ZOEKPARAMETERS",
-      this.listParameters
+      this.listParameters,
     );
   }
 
@@ -139,7 +139,7 @@ export class OntkoppeldeDocumentenListComponent
       .subscribe((i) => {
         this.informatieObjectVerplaatsService.addTeVerplaatsenDocument(
           i,
-          "ontkoppelde-documenten"
+          "ontkoppelde-documenten",
         );
       });
   }
@@ -152,7 +152,7 @@ export class OntkoppeldeDocumentenListComponent
             key: "msg.document.verwijderen.bevestigen",
             args: { document: od.titel },
           },
-          this.ontkoppeldeDocumentenService.delete(od)
+          this.ontkoppeldeDocumentenService.delete(od),
         ),
       })
       .afterClosed()
@@ -170,7 +170,7 @@ export class OntkoppeldeDocumentenListComponent
     return (
       od["disabled"] ||
       this.informatieObjectVerplaatsService.isReedsTeVerplaatsen(
-        od.documentUUID
+        od.documentUUID,
       )
     );
   }
@@ -184,7 +184,7 @@ export class OntkoppeldeDocumentenListComponent
   resetSearch(): void {
     this.listParameters = SessionStorageUtil.setItem(
       Werklijst.ONTKOPPELDE_DOCUMENTEN + "_ZOEKPARAMETERS",
-      this.createDefaultParameters()
+      this.createDefaultParameters(),
     );
     this.sort.active = this.listParameters.sort;
     this.sort.direction = this.listParameters.order;
@@ -223,7 +223,7 @@ export class OntkoppeldeDocumentenListComponent
     this.listParameters.page = 0;
     SessionStorageUtil.setItem(
       Werklijst.ONTKOPPELDE_DOCUMENTEN + "_ZOEKPARAMETERS",
-      this.listParameters
+      this.listParameters,
     );
   }
 }

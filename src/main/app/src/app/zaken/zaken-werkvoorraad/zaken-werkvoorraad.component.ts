@@ -73,14 +73,14 @@ export class ZakenWerkvoorraadComponent
     "report_problem",
     "warningVerlopen_icon",
     "msg.datum.overschreden",
-    "warning"
+    "warning",
   );
   uiterlijkeEinddatumAfdoeningIcon: TextIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
     "report_problem",
     "errorVerlopen_icon",
     "msg.datum.overschreden",
-    "error"
+    "error",
   );
 
   zakenLoading = signal(false);
@@ -96,12 +96,12 @@ export class ZakenWerkvoorraadComponent
     private identityService: IdentityService,
     private translateService: TranslateService,
     private indexService: IndexingService,
-    private batchProcessService: BatchProcessService
+    private batchProcessService: BatchProcessService,
   ) {
     super();
     this.dataSource = new ZakenWerkvoorraadDatasource(
       this.zoekenService,
-      this.utilService
+      this.utilService,
     );
   }
   ngOnInit(): void {
@@ -238,7 +238,7 @@ export class ZakenWerkvoorraadComponent
     this.handleAssigmentOrReleasementWorkflow(
       ZakenVerdelenDialogComponent,
       "msg.verdeeld.zaak",
-      "msg.verdeeld.zaken"
+      "msg.verdeeld.zaken",
     );
   }
 
@@ -246,14 +246,14 @@ export class ZakenWerkvoorraadComponent
     this.handleAssigmentOrReleasementWorkflow(
       ZakenVrijgevenDialogComponent,
       "msg.vrijgegeven.zaak",
-      "msg.vrijgegeven.zaken"
+      "msg.vrijgegeven.zaken",
     );
   }
 
   private handleAssigmentOrReleasementWorkflow<T>(
     dialogComponent: ComponentType<T>,
     singleToken: string,
-    multipleToken: string
+    multipleToken: string,
   ) {
     const zaken = this.selection.selected;
     this.batchProcessService.start({
@@ -273,7 +273,7 @@ export class ZakenWerkvoorraadComponent
       },
       finally: () =>
         firstValueFrom(
-          this.indexService.commitPendingChangesToSearchIndex()
+          this.indexService.commitPendingChangesToSearchIndex(),
         ).then(() => {
           this.selection.clear();
           this.dataSource.load();
@@ -299,7 +299,7 @@ export class ZakenWerkvoorraadComponent
             (x) =>
               (!this.toekenning.groep ||
                 this.toekenning.groep.id === x.groepId) &&
-              this.toekenning.medewerker?.id === x.behandelaarGebruikersnaam
+              this.toekenning.medewerker?.id === x.behandelaarGebruikersnaam,
           )
           .map(({ id }) => id);
         this.batchProcessService.update(notChanged);
