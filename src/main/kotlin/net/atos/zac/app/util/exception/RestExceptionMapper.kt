@@ -26,6 +26,7 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
+import net.atos.zac.policy.exception.PolicyException
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException
@@ -50,6 +51,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         const val ERROR_CODE_ZRC_CLIENT = "msg.error.zrc.client.exception"
         const val ERROR_CODE_ZTC_CLIENT = "msg.error.ztc.client.exception"
         const val ERROR_CODE_GENERIC_SERVER = "msg.error.server.generic"
+        const val ERROR_CODE_FORBIDDEN = "msg.error.server.forbidden"
         const val ERROR_CODE_SYSTEM_REFERENCE_TABLE_CANNOT_BE_DELETED = "msg.error.system.reference.table.cannot.be.deleted"
         const val ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNOT_BE_CHANGED =
             "msg.error.system.reference.table.system.values.cannot.be.changed"
@@ -80,6 +82,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             exception is ProcessingException && (exception.cause is ConnectException || exception.cause is UnknownHostException) -> {
                 handleProcessingException(exception)
             }
+            exception is PolicyException -> generateForbiddenResponse(exception = exception)
             else -> generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
         }
 
@@ -163,6 +166,26 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 LOG.log(
                     Level.SEVERE,
                     exceptionMessage ?: "Exception was thrown. Returning response with error code $errorCode.",
+                    exception
+                )
+            }
+
+    private fun generateForbiddenResponse(
+        exception: Exception,
+        exceptionMessage: String? = null
+    ): Response =
+        Response.status(Response.Status.FORBIDDEN)
+            .type(MediaType.APPLICATION_JSON)
+            .entity(
+                getJSONMessage(
+                    errorMessage = ERROR_CODE_FORBIDDEN,
+                    exceptionMessage = exceptionMessage
+                )
+            )
+            .build().also {
+                LOG.log(
+                    Level.FINE,
+                    exceptionMessage ?: "Exception was thrown. Returning response with error code $ERROR_CODE_FORBIDDEN.",
                     exception
                 )
             }
