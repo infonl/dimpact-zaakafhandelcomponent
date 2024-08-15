@@ -97,6 +97,7 @@ import net.atos.zac.app.zaak.model.RestBesluitWijzigenGegevens
 import net.atos.zac.app.zaak.model.RestBesluittype
 import net.atos.zac.app.zaak.model.RestZaak
 import net.atos.zac.app.zaak.model.RestZaakAssignmentData
+import net.atos.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
 import net.atos.zac.app.zaak.model.toRestBesluittypes
 import net.atos.zac.app.zaak.model.updateBesluitWithBesluitWijzigenGegevens
 import net.atos.zac.authentication.LoggedInUser
@@ -515,25 +516,23 @@ class ZaakRestService @Inject constructor(
             .map { it.betrokkeneIdentificatie.identificatie }
             .orElse(null)
         val isUpdated = AtomicBoolean(false)
-        if (behandelaar != toekennenGegevens.behandelaarGebruikersnaam) {
-            toekennenGegevens.behandelaarGebruikersnaam?.takeIf { it.isNotEmpty() }?.let {
+        if (behandelaar != toekennenGegevens.assigneeUserName) {
+            toekennenGegevens.assigneeUserName?.takeIf { it.isNotEmpty() }?.let {
                 val user = identityService.readUser(it)
-                // check if user is allowed to be assigned to the zaak
-                // acccording to their group and the (domein) role and the domein assigned to the zaaktype
-                zrcClientService.updateRol(zaak, zaakService.bepaalRolMedewerker(user, zaak), toekennenGegevens.reden)
+                zrcClientService.updateRol(zaak, zaakService.bepaalRolMedewerker(user, zaak), toekennenGegevens.reason)
             }
                 // no, or an empty behandelaarGebruikersnaam means the zaak should be unassigned
-                ?: zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER, toekennenGegevens.reden)
+                ?: zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER, toekennenGegevens.reason)
             isUpdated.set(true)
         }
         zgwApiService.findGroepForZaak(zaak).ifPresent {
-            val groupId = toekennenGegevens.groepId
+            val groupId = toekennenGegevens.groupId
             // better to not use RestZaakAssignmentData here but a separate class for this where group ID is non-nullable
             require(groupId != null) { "Group ID is required" }
             if (it.betrokkeneIdentificatie.identificatie != groupId) {
                 val group = identityService.readGroup(groupId)
                 val role = zaakService.bepaalRolGroep(group, zaak)
-                zrcClientService.updateRol(zaak, role, toekennenGegevens.reden)
+                zrcClientService.updateRol(zaak, role, toekennenGegevens.reason)
                 isUpdated.set(true)
             }
         }
@@ -546,10 +545,13 @@ class ZaakRestService @Inject constructor(
     @PUT
     @Path("lijst/toekennen/mij")
     fun assignToLoggedInUserFromList(
-        @Valid toekennenGegevens: RestZaakAssignmentData
+        @Valid restZaakAssignmentToLoggedInUserData: RestZaakAssignmentToLoggedInUserData
     ): RESTZaakOverzicht {
         assertPolicy(policyService.readWerklijstRechten().zakenTaken)
-        val zaak = ingelogdeMedewerkerToekennenAanZaak(toekennenGegevens)
+        val zaak = assignLoggedInUserToZaak(
+            zaakUUID = restZaakAssignmentToLoggedInUserData.zaakUUID,
+            reason = restZaakAssignmentToLoggedInUserData.reason,
+        )
         indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
         return restZaakOverzichtConverter.convert(zaak)
     }
@@ -729,11 +731,11 @@ class ZaakRestService @Inject constructor(
     @PUT
     @Path("toekennen/mij")
     fun toekennenAanIngelogdeMedewerker(
-        @Valid toekennenGegevens: RestZaakAssignmentData
-    ): RestZaak {
-        val zaak = ingelogdeMedewerkerToekennenAanZaak(toekennenGegevens)
-        return restZaakConverter.convert(zaak)
-    }
+        @Valid restZaakAssignmentToLoggedInUserData: RestZaakAssignmentToLoggedInUserData
+    ): RestZaak = assignLoggedInUserToZaak(
+        zaakUUID = restZaakAssignmentToLoggedInUserData.zaakUUID,
+        reason = restZaakAssignmentToLoggedInUserData.reason
+    ).let { restZaakConverter.convert(it) }
 
     @GET
     @Path("zaak/{uuid}/historie")
@@ -1024,17 +1026,19 @@ class ZaakRestService @Inject constructor(
         )
     }
 
-    private fun ingelogdeMedewerkerToekennenAanZaak(
-        @Valid toekennenGegevens: RestZaakAssignmentData
-    ): Zaak {
-        val zaak = zrcClientService.readZaak(toekennenGegevens.zaakUUID)
+    private fun assignLoggedInUserToZaak(
+        zaakUUID: UUID,
+        reason: String?
+    ): Zaak = zrcClientService.readZaak(zaakUUID).let { zaak ->
         assertPolicy(zaak.isOpen && policyService.readZaakRechten(zaak).toekennen)
-        zrcClientService.updateRol(
-            zaak,
-            zaakService.bepaalRolMedewerker(identityService.readUser(loggedInUserInstance.get().id), zaak),
-            toekennenGegevens.reden
-        )
-        return zaak
+        identityService.readUser(loggedInUserInstance.get().id).let { user ->
+            zrcClientService.updateRol(
+                zaak,
+                zaakService.bepaalRolMedewerker(user, zaak),
+                reason
+            )
+        }
+        zaak
     }
 
     private fun isWaarschuwing(

@@ -299,9 +299,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         val rolMedewerker = createRolMedewerker()
 
         every { zrcClientService.readZaak(restZaakToekennenGegevens.zaakUUID) } returns zaak
-        every { zrcClientService.updateRol(zaak, capture(rolSlot), restZaakToekennenGegevens.reden) } just runs
+        every { zrcClientService.updateRol(zaak, capture(rolSlot), restZaakToekennenGegevens.reason) } just runs
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns Optional.empty()
-        every { identityService.readUser(restZaakToekennenGegevens.behandelaarGebruikersnaam!!) } returns user
+        every { identityService.readUser(restZaakToekennenGegevens.assigneeUserName!!) } returns user
         every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
         every { restZaakConverter.convert(zaak) } returns restZaak
         every { indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
@@ -315,7 +315,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             Then("the zaak is updated, and the zaken search index is updated") {
                 returnedRestZaak shouldBe restZaak
                 verify(exactly = 1) {
-                    zrcClientService.updateRol(zaak, any(), restZaakToekennenGegevens.reden)
+                    zrcClientService.updateRol(zaak, any(), restZaakToekennenGegevens.reason)
                     indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                 }
                 with(rolSlot.captured) {

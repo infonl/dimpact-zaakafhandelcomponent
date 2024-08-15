@@ -172,9 +172,9 @@ fun createRESTZaakToekennenGegevens(
     reden: String = "dummyReden"
 ) = RestZaakAssignmentData(
     zaakUUID = zaakUUID,
-    groepId = groepId,
-    behandelaarGebruikersnaam = behandelaarGebruikersnaam,
-    reden = reden
+    groupId = groepId,
+    assigneeUserName = behandelaarGebruikersnaam,
+    reason = reden
 )
 
 fun createRESTZakenVerdeelGegevens(

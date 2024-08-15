@@ -4,6 +4,7 @@
  */
 package net.atos.zac.app.zaak.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.validation.constraints.Size
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -20,9 +21,12 @@ data class RestZaakAssignmentData(
      * we need to make sure it adheres to the same constraints.
      */
     @field:Size(max = 24)
-    var groepId: String? = null,
+    @field:JsonbProperty("groepId")
+    var groupId: String,
 
-    var behandelaarGebruikersnaam: String? = null,
+    @field:JsonbProperty("behandelaarGebruikersnaam")
+    var assigneeUserName: String? = null,
 
-    var reden: String? = null
+    @field:JsonbProperty("reden")
+    var reason: String? = null
 )
