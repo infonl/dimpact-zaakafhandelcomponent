@@ -24,7 +24,12 @@ export class CustomWorld extends World {
 
   constructor(attach: any) {
     const res = worldParametersScheme.parse(attach);
-    super({ attach: res.attach, parameters: res.parameters, log: res.log });
+    super({
+      link(text: string): void {},
+      attach: res.attach,
+      parameters: res.parameters,
+      log: res.log,
+    });
     this.worldParameters = res.parameters;
     this.testStorage = new TestStorageService();
   }
