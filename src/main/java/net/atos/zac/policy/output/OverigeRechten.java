@@ -10,9 +10,11 @@ import jakarta.json.bind.annotation.JsonbProperty;
 
 import net.atos.zac.util.SerializableByYasson;
 
-public record OverigeRechten(boolean startenZaak, boolean beheren,
-                             boolean zoeken) implements SerializableByYasson {
-
+public record OverigeRechten(
+                             boolean startenZaak,
+                             boolean beheren,
+                             boolean zoeken
+) implements SerializableByYasson {
     @JsonbCreator
     public OverigeRechten(
             @JsonbProperty("starten_zaak") final boolean startenZaak,

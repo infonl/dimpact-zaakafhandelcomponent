@@ -713,6 +713,7 @@
   "msg.error.group.invalid.id": "De identificatie van deze groep is te lang. Gelieve deze te wijzigen naar maximaal {{max}} tekens.",
   "msg.error.group.invalid.name": "De naam van deze groep is te lang. Gelieve deze te wijzigen naar maximaal {{max}} tekens.",
   "msg.error.server.generic": "Er heeft zich helaas een technische fout voor gedaan.",
+  "msg.error.server.forbidden": "U heeft helaas onvoldoende rechten om deze actie uit te voeren.",
   "msg.error.bag.client.exception": "Er heeft zich helaas een technische fout voor gedaan. Er kunnen geen BAG objecten worden opgehaald.",
   "msg.error.brc.client.exception": "Er heeft zich helaas een technische fout voor gedaan. Er kunnen geen besluiten worden opgehaald.",
   "msg.error.brp.client.exception": "Er heeft zich helaas een technische fout voor gedaan. Er kunnen geen personen worden opgehaald.",
