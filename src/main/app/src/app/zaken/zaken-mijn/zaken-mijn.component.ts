@@ -49,14 +49,14 @@ export class ZakenMijnComponent
     "report_problem",
     "warningVerlopen_icon",
     "msg.datum.overschreden",
-    "warning"
+    "warning",
   );
   uiterlijkeEinddatumAfdoeningIcon: TextIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
     "report_problem",
     "errorVerlopen_icon",
     "msg.datum.overschreden",
-    "error"
+    "error",
   );
 
   constructor(
@@ -64,7 +64,7 @@ export class ZakenMijnComponent
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
     public route: ActivatedRoute,
     private zoekenService: ZoekenService,
-    public utilService: UtilService
+    public utilService: UtilService,
   ) {
     super();
   }
@@ -73,7 +73,7 @@ export class ZakenMijnComponent
     super.ngOnInit();
     this.dataSource = new ZakenMijnDatasource(
       this.zoekenService,
-      this.utilService
+      this.utilService,
     );
     this.utilService.setTitle("title.zaken.mijn");
     this.dataSource.initColumns(this.defaultColumns());

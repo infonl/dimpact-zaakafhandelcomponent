@@ -48,12 +48,12 @@ export abstract class ZoekenDataSource<
   protected constructor(
     public werklijst: Werklijst,
     private zoekenService: ZoekenService,
-    private utilService: UtilService
+    private utilService: UtilService,
   ) {
     super();
     this.zoekParameters = SessionStorageUtil.getItem(
       werklijst + "_ZOEKPARAMETERS",
-      new ZoekParameters()
+      new ZoekParameters(),
     );
   }
 
@@ -70,20 +70,20 @@ export abstract class ZoekenDataSource<
 
     return SessionStorageUtil.setItem(
       this.werklijst + "_ZOEKPARAMETERS",
-      this.zoekParameters
+      this.zoekParameters,
     );
   }
 
   connect(
-    collectionViewer: CollectionViewer
+    collectionViewer: CollectionViewer,
   ): Observable<OBJECT[] | ReadonlyArray<OBJECT>> {
     this.subscriptions$.push(
-      this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0))
+      this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0)),
     );
     this.subscriptions$.push(
       merge(this.sort.sortChange, this.paginator.page)
         .pipe(tap(() => this.load()))
-        .subscribe()
+        .subscribe(),
     );
     return this.tableSubject.asObservable() as Observable<OBJECT[]>;
   }
@@ -123,12 +123,12 @@ export abstract class ZoekenDataSource<
     moveItemInArray(
       this.visibleColumns,
       event.previousIndex + extraIndex,
-      event.currentIndex + extraIndex
+      event.currentIndex + extraIndex,
     );
     moveItemInArray(
       this.filterColumns,
       event.previousIndex + extraIndex,
-      event.currentIndex + extraIndex
+      event.currentIndex + extraIndex,
     );
   }
 
@@ -151,7 +151,7 @@ export abstract class ZoekenDataSource<
   initColumns(defaultColumns: Map<ZoekenColumn, ColumnPickerValue>): void {
     const key = this.werklijst + "Columns";
     const sessionColumnsString = SessionStorageUtil.getItem<string | undefined>(
-      key
+      key,
     );
     const sessionColumns: Map<ZoekenColumn, ColumnPickerValue> | undefined =
       sessionColumnsString && new Map(JSON.parse(sessionColumnsString));
@@ -159,7 +159,7 @@ export abstract class ZoekenDataSource<
     // to support switching between users within the same session, the default columns must be leading.
     // we only map the ColumnPickerValues from session storage for columns that are in the default column list.
     const mergedEntries = [...defaultColumns.entries()].map(
-      ([k, v]) => [k, sessionColumns?.get(k) || v] as const
+      ([k, v]) => [k, sessionColumns?.get(k) || v] as const,
     );
     const columns = new Map(mergedEntries);
     this._defaultColumns = defaultColumns;
@@ -180,10 +180,10 @@ export abstract class ZoekenDataSource<
    */
   updateColumns(columns: Map<ZoekenColumn, ColumnPickerValue>): void {
     this._visibleColumns = [...columns.keys()].filter(
-      (key) => columns.get(key) !== ColumnPickerValue.HIDDEN
+      (key) => columns.get(key) !== ColumnPickerValue.HIDDEN,
     );
     this._detailExpandColumns = [...columns.keys()].filter(
-      (key) => columns.get(key) === ColumnPickerValue.HIDDEN
+      (key) => columns.get(key) === ColumnPickerValue.HIDDEN,
     );
     this._filterColumns = this.visibleColumns.map((c) => c + "_filter");
     this.storeColumns(columns);
@@ -192,7 +192,7 @@ export abstract class ZoekenDataSource<
   reset() {
     this.zoekParameters = SessionStorageUtil.setItem(
       this.werklijst + "_ZOEKPARAMETERS",
-      new ZoekParameters()
+      new ZoekParameters(),
     );
     this.sort.active = this.zoekParameters.sorteerVeld;
     this.sort.direction = this.zoekParameters.sorteerRichting;
@@ -255,12 +255,12 @@ export abstract class ZoekenDataSource<
     console.log(
       "this.zoekParameters reset:",
       this.werklijst,
-      this.zoekParameters
+      this.zoekParameters,
     );
 
     SessionStorageUtil.setItem(
       this.werklijst + "_ZOEKPARAMETERS",
-      this.zoekParameters
+      this.zoekParameters,
     );
   }
 }

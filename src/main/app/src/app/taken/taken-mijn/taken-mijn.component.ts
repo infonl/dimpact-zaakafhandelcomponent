@@ -49,7 +49,7 @@ export class TakenMijnComponent
     "report_problem",
     "errorVerlopen_icon",
     "msg.datum.overschreden",
-    "error"
+    "error",
   );
 
   constructor(
@@ -58,12 +58,12 @@ export class TakenMijnComponent
     public utilService: UtilService,
     private identityService: IdentityService,
     private zoekenService: ZoekenService,
-    public gebruikersvoorkeurenService: GebruikersvoorkeurenService
+    public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
   ) {
     super();
     this.dataSource = new TakenMijnDatasource(
       this.zoekenService,
-      this.utilService
+      this.utilService,
     );
   }
 

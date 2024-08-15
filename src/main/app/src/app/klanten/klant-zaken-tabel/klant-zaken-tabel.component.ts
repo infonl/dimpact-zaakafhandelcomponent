@@ -76,7 +76,7 @@ export class KlantZakenTabelComponent
   constructor(
     private utilService: UtilService,
     private zoekenService: ZoekenService,
-    private klantenService: KlantenService
+    private klantenService: KlantenService,
   ) {}
 
   ngOnInit(): void {
@@ -102,7 +102,7 @@ export class KlantZakenTabelComponent
       this.setZoekParameterBetrokkenheid(this.betrokkeneSelectControl.value);
     }
     this.actieveFilters = ZoekParameters.heeftActieveFilters(
-      this.zoekParameters
+      this.zoekParameters,
     ); // before default values
     if (!this.betrokkeneSelectControl.value) {
       this.setZoekParameterBetrokkenheid(ZoekVeld.ZAAK_BETROKKENEN);
@@ -138,7 +138,7 @@ export class KlantZakenTabelComponent
           this.isLoadingResults = false;
           this.utilService.setLoading(false);
           return zoekResultaat;
-        })
+        }),
       )
       .subscribe((zoekResultaat) => {
         this.zoekResultaat = zoekResultaat;
