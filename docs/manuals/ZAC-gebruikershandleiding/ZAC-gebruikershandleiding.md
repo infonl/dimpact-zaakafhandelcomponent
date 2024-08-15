@@ -30,6 +30,7 @@ Versiegeschiedenis:
 | 1.4 | Update format wijziging en redigeerwerk van 29-8-2023 |
 | 1.5 | Update nav sprints opgeleverd van 10-2023 tot 27-05-2024 |
 | 1.5.1 | Update zoekfunctie bedrijf en rechtspersoon |
+| 1.6.0 | Gebruikershandleiding geconverteerd naar Markdown |
 
 # Inhoud
 
