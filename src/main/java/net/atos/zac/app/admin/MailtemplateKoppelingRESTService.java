@@ -23,7 +23,7 @@ import jakarta.ws.rs.core.MediaType;
 import net.atos.zac.admin.MailTemplateKoppelingenService;
 import net.atos.zac.admin.model.MailtemplateKoppeling;
 import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter;
-import net.atos.zac.app.admin.converter.RESTZaakafhandelParametersConverter;
+import net.atos.zac.app.admin.converter.RestZaakafhandelParametersConverter;
 import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling;
 import net.atos.zac.policy.PolicyService;
 
@@ -37,7 +37,7 @@ public class MailtemplateKoppelingRESTService {
     private MailTemplateKoppelingenService mailTemplateKoppelingenService;
 
     @Inject
-    private RESTZaakafhandelParametersConverter restZaakafhandelParametersConverter;
+    private RestZaakafhandelParametersConverter restZaakafhandelParametersConverter;
 
     @Inject
     private PolicyService policyService;

@@ -16,13 +16,13 @@ import nl.lifely.zac.util.NoArgConstructor
 
 @AllOpen
 @NoArgConstructor
-class RESTZaakafhandelParametersConverter @Inject constructor(
-     val caseDefinitionConverter: RESTCaseDefinitionConverter,
-             val resultaattypeConverter: RESTResultaattypeConverter,
-             val zaakbeeindigParameterConverter: RESTZaakbeeindigParameterConverter,
-             val humanTaskParametersConverter: RESTHumanTaskParametersConverter,
-             val ztcClientService: ZtcClientService,
-             val zaakafhandelParameterService: ZaakafhandelParameterService
+class RestZaakafhandelParametersConverter @Inject constructor(
+    val caseDefinitionConverter: RESTCaseDefinitionConverter,
+    val resultaattypeConverter: RESTResultaattypeConverter,
+    val zaakbeeindigParameterConverter: RESTZaakbeeindigParameterConverter,
+    val humanTaskParametersConverter: RESTHumanTaskParametersConverter,
+    val ztcClientService: ZtcClientService,
+    val zaakafhandelParameterService: ZaakafhandelParameterService
 ) {
     fun convertZaakafhandelParameters(
         zaakafhandelParameters: ZaakafhandelParameters,
@@ -37,34 +37,36 @@ class RESTZaakafhandelParametersConverter @Inject constructor(
             defaultBehandelaarId = zaakafhandelParameters.gebruikersnaamMedewerker,
             einddatumGeplandWaarschuwing = zaakafhandelParameters.einddatumGeplandWaarschuwing,
             uiterlijkeEinddatumAfdoeningWaarschuwing = zaakafhandelParameters
-            .uiterlijkeEinddatumAfdoeningWaarschuwing,
+                .uiterlijkeEinddatumAfdoeningWaarschuwing,
             creatiedatum = zaakafhandelParameters.creatiedatum,
             valide = zaakafhandelParameters.isValide,
             caseDefinition = zaakafhandelParameters.caseDefinitionID?.let {
                 caseDefinitionConverter.convertToRESTCaseDefinition(it, inclusiefRelaties)
-            }
+            },
+            intakeMail = zaakafhandelParameters.intakeMail?.let { RESTZaakStatusmailOptie.valueOf(it) },
+            afrondenMail = zaakafhandelParameters.afrondenMail?.let { RESTZaakStatusmailOptie.valueOf(it) },
+            productaanvraagtype = zaakafhandelParameters.productaanvraagtype,
+            domein = zaakafhandelParameters.domein
         )
-        if (inclusiefRelaties && restZaakafhandelParameters.caseDefinition != null) {
-            if (zaakafhandelParameters.nietOntvankelijkResultaattype != null) {
-                restZaakafhandelParameters.zaakNietOntvankelijkResultaattype =
-                    resultaattypeConverter.convertResultaattype(
-                        ztcClientService.readResultaattype(zaakafhandelParameters.nietOntvankelijkResultaattype)
-                    )
+        restZaakafhandelParameters.caseDefinition?.takeIf { inclusiefRelaties }?.let { caseDefinition ->
+            zaakafhandelParameters.nietOntvankelijkResultaattype?.let {
+                ztcClientService.readResultaattype(it).let { resultaatType ->
+                    restZaakafhandelParameters.zaakNietOntvankelijkResultaattype =
+                        resultaattypeConverter.convertResultaattype(resultaatType)
+                }
             }
             restZaakafhandelParameters.humanTaskParameters =
                 humanTaskParametersConverter.convertHumanTaskParametersCollection(
                     zaakafhandelParameters.humanTaskParametersCollection,
-                    restZaakafhandelParameters.caseDefinition!!.humanTaskDefinitions
+                    caseDefinition.humanTaskDefinitions
                 )
             restZaakafhandelParameters.userEventListenerParameters = RESTUserEventListenerParametersConverter
                 .convertUserEventListenerParametersCollection(
                     zaakafhandelParameters.userEventListenerParametersCollection,
-                    restZaakafhandelParameters.caseDefinition!!.userEventListenerDefinitions
+                    caseDefinition.userEventListenerDefinitions
                 )
             restZaakafhandelParameters.zaakbeeindigParameters =
-                zaakbeeindigParameterConverter.convertZaakbeeindigParameters(
-                    zaakafhandelParameters.zaakbeeindigParameters
-                )
+                zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaakafhandelParameters.zaakbeeindigParameters)
             restZaakafhandelParameters.mailtemplateKoppelingen = RESTMailtemplateKoppelingConverter.convert(
                 zaakafhandelParameters.mailtemplateKoppelingen
             )
@@ -72,19 +74,6 @@ class RESTZaakafhandelParametersConverter @Inject constructor(
                 zaakafhandelParameters.zaakAfzenders
             )
         }
-        if (zaakafhandelParameters.intakeMail != null) {
-            restZaakafhandelParameters.intakeMail = RESTZaakStatusmailOptie.valueOf(
-                zaakafhandelParameters.intakeMail
-            )
-        }
-        if (zaakafhandelParameters.afrondenMail != null) {
-            restZaakafhandelParameters.afrondenMail = RESTZaakStatusmailOptie.valueOf(
-                zaakafhandelParameters.afrondenMail
-            )
-        }
-        restZaakafhandelParameters.productaanvraagtype = zaakafhandelParameters.productaanvraagtype
-        restZaakafhandelParameters.domein = zaakafhandelParameters.domein
-
         return restZaakafhandelParameters
     }
 
