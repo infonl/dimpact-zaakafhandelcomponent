@@ -7,7 +7,6 @@ package net.atos.zac.app.zaak.model
 
 import net.atos.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.zac.app.admin.createRestZaakAfhandelParameters
-import net.atos.zac.app.admin.model.RestZaakafhandelParameters
 import net.atos.zac.app.bag.model.RESTBAGObject
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte
 import net.atos.zac.app.bag.model.RESTPand
@@ -237,10 +236,10 @@ fun createRESTZaaktype() = RESTZaaktype(
 )
 
 private fun createZaakData() = mapOf(
-        "key1" to "value1",
-        "key2" to 123,
-        "key3" to LocalDate.of(2023, 9, 14)
-    )
+    "key1" to "value1",
+    "key2" to 123,
+    "key3" to LocalDate.of(2023, 9, 14)
+)
 
 fun createRESTZaakOverzicht(
     uuid: UUID = UUID.randomUUID()

@@ -1,12 +1,18 @@
 package net.atos.zac.app.admin
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
+import io.mockk.Runs
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.verify
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.admin.ReferenceTableService
 import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTZaakafhandelParametersConverter
 import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter
@@ -42,16 +48,54 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         policyService = policyService
     )
 
-    Given("ZaakafhandelParametersRestService") {
-        val restZaakafhandelParameters = createRestZaakAfhandelParameters()
-        every { policyService.readOverigeRechten().beheren } returns true
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
-        When("getZaakafhandelParameters") {
-            val updatedRestZaakafhandelParameters = zaakafhandelParametersRestService.updateZaakafhandelparameters(
+    Given("Zaakafhandelparameters with an ID (indicating existing zaakafhandelparameters)") {
+        val initialDomein = "initialDomein"
+        val updatedDomein = "updatedDomein"
+        val restZaakafhandelParameters = createRestZaakAfhandelParameters(domein = initialDomein)
+        val updatedRestZaakafhandelParameters = createRestZaakAfhandelParameters(domein = updatedDomein)
+        val zaakafhandelParameters = createZaakafhandelParameters(
+            id = 1234L,
+            domein = initialDomein
+        )
+        val updatedZaakafhandelParameters = createZaakafhandelParameters(
+            id = 1234L,
+            domein = updatedDomein
+        )
+        every { policyService.readOverigeRechten().beheren } returns true
+        every {
+            zaakafhandelParametersConverter.convertRESTZaakafhandelParameters(restZaakafhandelParameters)
+        } returns zaakafhandelParameters
+        every { zaakafhandelParameterBeheerService.updateZaakafhandelParameters(zaakafhandelParameters) } returns
+            updatedZaakafhandelParameters
+        every {
+            zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
+        } just Runs
+        every { zaakafhandelParameterService.clearListCache() } returns "cache cleared"
+        every {
+            zaakafhandelParametersConverter.convertZaakafhandelParameters(updatedZaakafhandelParameters, true)
+        } returns updatedRestZaakafhandelParameters
+
+        When("the zaakafhandelparameters are updated with a different domein") {
+            val returnedRestZaakafhandelParameters = zaakafhandelParametersRestService.updateZaakafhandelparameters(
                 restZaakafhandelParameters
             )
 
-            Then("should return a list of zaakafhandel parameters") {
+            Then(
+                """
+                the zaakafhandelparameters should be updated and both the zaakafhandelparameters read cache as well as the 
+                zaakafhandelparameters list cache should be updated
+                """
+            ) {
+                returnedRestZaakafhandelParameters shouldBe updatedRestZaakafhandelParameters
+                verify(exactly = 1) {
+                    zaakafhandelParameterBeheerService.updateZaakafhandelParameters(zaakafhandelParameters)
+                    zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
+                    zaakafhandelParameterService.clearListCache()
+                }
             }
         }
     }

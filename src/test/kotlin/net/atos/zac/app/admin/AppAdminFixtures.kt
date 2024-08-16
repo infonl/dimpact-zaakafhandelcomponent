@@ -67,6 +67,7 @@ fun createRestZaakAfhandelParameters(
     zaaktype = restZaaktypeOverzicht
 )
 
+@Suppress("LongParameterList")
 fun createRESTZaaktypeOverzicht(
     uuid: UUID = UUID.randomUUID(),
     identificatie: String = "dummyIdentificatie",
@@ -75,9 +76,9 @@ fun createRESTZaaktypeOverzicht(
     servicenorm: Boolean = false,
     versiedatum: LocalDate = LocalDate.now(),
     beginGeldigheid: LocalDate = LocalDate.now(),
-    eindeGeldigheid: LocalDate =  LocalDate.now().plusDays(1),
+    eindeGeldigheid: LocalDate = LocalDate.now().plusDays(1),
     vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
-     nuGeldig: Boolean = true
+    nuGeldig: Boolean = true
 ) = RESTZaaktypeOverzicht().apply {
     this.uuid = uuid
     this.identificatie = identificatie
