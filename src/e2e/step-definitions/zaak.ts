@@ -14,6 +14,10 @@ const ONE_MINUTE_IN_MS = 60_000;
 const TWO_MINUTES_IN_MS = 120_000;
 const FIFTEEN_SECONDS_IN_MS = 15_000;
 
+const TEST_PERSON_HENDRIKA_JANSE_BSN = "999993896";
+const TEST_PERSON_HENDRIKA_JANSE_NAME = "Héndrika Janse";
+const TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER = "0612345678";
+
 async function checkZaakAssignment(
   this: CustomWorld,
   zaakNumber: any,
@@ -129,7 +133,7 @@ When(
       .filter({ hasText: /^person$/ })
       .click();
     await this.page.getByLabel("BSN").click();
-    await this.page.getByLabel("BSN").fill("999993896");
+    await this.page.getByLabel("BSN").fill(TEST_PERSON_HENDRIKA_JANSE_BSN);
     await this.page
       .getByLabel("emoji_people Persoon")
       .getByRole("button", { name: "Zoeken" })
@@ -246,9 +250,13 @@ Then(
   "{string} sees the zaak initiator",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await this.page.getByText("Héndrika Janse").click();
-    await this.expect(this.page.getByText(`999993896`)).toBeVisible();
-    await this.expect(this.page.getByText(`0612345678`)).toBeVisible();
+    await this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_NAME).nth(0).click();
+    await this.expect(
+      this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_BSN),
+    ).toBeVisible();
+    await this.expect(
+      this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER),
+    ).toBeVisible();
   },
 );
 
