@@ -10,7 +10,7 @@ import jakarta.inject.Inject;
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.zac.admin.ZaakafhandelParameterService;
 import net.atos.zac.admin.model.ZaakafhandelParameters;
-import net.atos.zac.app.admin.model.RESTZaakafhandelParameters;
+import net.atos.zac.app.admin.model.RestZaakafhandelParameters;
 import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter;
 import net.atos.zac.app.zaak.model.RESTZaakStatusmailOptie;
 
@@ -34,11 +34,11 @@ public class RESTZaakafhandelParametersConverter {
     @Inject
     private ZaakafhandelParameterService zaakafhandelParameterService;
 
-    public RESTZaakafhandelParameters convertZaakafhandelParameters(
+    public RestZaakafhandelParameters convertZaakafhandelParameters(
             final ZaakafhandelParameters zaakafhandelParameters,
             final boolean inclusiefRelaties
     ) {
-        final RESTZaakafhandelParameters restZaakafhandelParameters = new RESTZaakafhandelParameters();
+        final RestZaakafhandelParameters restZaakafhandelParameters = new RestZaakafhandelParameters();
         restZaakafhandelParameters.id = zaakafhandelParameters.getId();
         restZaakafhandelParameters.zaaktype = RESTZaaktypeOverzichtConverter.convert(
                 ztcClientService.readZaaktype(zaakafhandelParameters.getZaakTypeUUID())
@@ -93,7 +93,7 @@ public class RESTZaakafhandelParametersConverter {
     }
 
     public ZaakafhandelParameters convertRESTZaakafhandelParameters(
-            final RESTZaakafhandelParameters restZaakafhandelParameters
+            final RestZaakafhandelParameters restZaakafhandelParameters
     ) {
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
                 restZaakafhandelParameters.zaaktype.uuid
