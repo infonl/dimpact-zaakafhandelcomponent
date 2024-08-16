@@ -26,10 +26,25 @@ data class RestZaakafhandelParameters(
     var afrondenMail: RESTZaakStatusmailOptie? = null,
     var productaanvraagtype: String? = null,
     var domein: String? = null,
-    var valide: Boolean,
-    var humanTaskParameters: List<RESTHumanTaskParameters>? = null,
-    var userEventListenerParameters: List<RESTUserEventListenerParameter>? = null,
-    var mailtemplateKoppelingen: List<RESTMailtemplateKoppeling>? = null,
-    var zaakbeeindigParameters: List<RESTZaakbeeindigParameter>? = null,
-    var zaakAfzenders: List<RESTZaakAfzender>? = null
+    var valide: Boolean = false,
+    /**
+     * The frontend currently requires this field to be non-null
+     */
+    var humanTaskParameters: List<RESTHumanTaskParameters> = emptyList(),
+    /**
+     * The frontend currently requires this field to be non-null
+     */
+    var userEventListenerParameters: List<RESTUserEventListenerParameter> = emptyList(),
+    /**
+     * The frontend currently requires this field to be non-null
+     */
+    var mailtemplateKoppelingen: List<RESTMailtemplateKoppeling> = emptyList(),
+    /**
+     * The frontend currently requires this field to be non-null
+     */
+    var zaakbeeindigParameters: List<RESTZaakbeeindigParameter> = emptyList(),
+    /**
+     * The frontend currently requires this field to be non-null
+     */
+    var zaakAfzenders: List<RESTZaakAfzender> = emptyList()
 )
