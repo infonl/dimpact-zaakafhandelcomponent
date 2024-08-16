@@ -5,9 +5,14 @@
 
 package net.atos.zac.app.admin
 
+import net.atos.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
+import net.atos.zac.app.admin.model.RESTZaaktypeOverzicht
 import net.atos.zac.app.admin.model.RestReferenceTable
 import net.atos.zac.app.admin.model.RestReferenceTableUpdate
 import net.atos.zac.app.admin.model.RestReferenceTableValue
+import net.atos.zac.app.admin.model.RestZaakafhandelParameters
+import java.time.LocalDate
+import java.util.UUID
 
 @Suppress("LongParameterList")
 fun createRestReferenceTable(
@@ -51,3 +56,37 @@ fun createRestReferenceTableValue(
     naam = name,
     isSystemValue = isSystemValue
 )
+
+fun createRestZaakAfhandelParameters(
+    id: Long = 1234L,
+    domein: String = "dummyDomein",
+    restZaaktypeOverzicht: RESTZaaktypeOverzicht = createRESTZaaktypeOverzicht()
+) = RestZaakafhandelParameters(
+    id = id,
+    domein = domein,
+    zaaktype = restZaaktypeOverzicht
+)
+
+fun createRESTZaaktypeOverzicht(
+    uuid: UUID = UUID.randomUUID(),
+    identificatie: String = "dummyIdentificatie",
+    doel: String = "dummyDoel",
+    omschrijving: String = "dummyOmschrijving",
+    servicenorm: Boolean = false,
+    versiedatum: LocalDate = LocalDate.now(),
+    beginGeldigheid: LocalDate = LocalDate.now(),
+    eindeGeldigheid: LocalDate =  LocalDate.now().plusDays(1),
+    vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
+     nuGeldig: Boolean = true
+) = RESTZaaktypeOverzicht().apply {
+    this.uuid = uuid
+    this.identificatie = identificatie
+    this.doel = doel
+    this.omschrijving = omschrijving
+    this.servicenorm = servicenorm
+    this.versiedatum = versiedatum
+    this.beginGeldigheid = beginGeldigheid
+    this.eindeGeldigheid = eindeGeldigheid
+    this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
+    this.nuGeldig = nuGeldig
+}

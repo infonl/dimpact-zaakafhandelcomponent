@@ -2,135 +2,139 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.admin.converter
 
-package net.atos.zac.app.admin.converter;
+import jakarta.inject.Inject
+import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.app.admin.model.RestZaakafhandelParameters
+import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter
+import net.atos.zac.app.zaak.model.RESTZaakStatusmailOptie
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 
-import jakarta.inject.Inject;
-
-import net.atos.client.zgw.ztc.ZtcClientService;
-import net.atos.zac.admin.ZaakafhandelParameterService;
-import net.atos.zac.admin.model.ZaakafhandelParameters;
-import net.atos.zac.app.admin.model.RestZaakafhandelParameters;
-import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter;
-import net.atos.zac.app.zaak.model.RESTZaakStatusmailOptie;
-
-public class RESTZaakafhandelParametersConverter {
-
-    @Inject
-    private RESTCaseDefinitionConverter caseDefinitionConverter;
-
-    @Inject
-    private RESTResultaattypeConverter resultaattypeConverter;
-
-    @Inject
-    private RESTZaakbeeindigParameterConverter zaakbeeindigParameterConverter;
-
-    @Inject
-    private RESTHumanTaskParametersConverter humanTaskParametersConverter;
-
-    @Inject
-    private ZtcClientService ztcClientService;
-
-    @Inject
-    private ZaakafhandelParameterService zaakafhandelParameterService;
-
-    public RestZaakafhandelParameters convertZaakafhandelParameters(
-            final ZaakafhandelParameters zaakafhandelParameters,
-            final boolean inclusiefRelaties
-    ) {
-        final RestZaakafhandelParameters restZaakafhandelParameters = new RestZaakafhandelParameters();
-        restZaakafhandelParameters.id = zaakafhandelParameters.getId();
-        restZaakafhandelParameters.zaaktype = RESTZaaktypeOverzichtConverter.convert(
-                ztcClientService.readZaaktype(zaakafhandelParameters.getZaakTypeUUID())
-        );
-        restZaakafhandelParameters.defaultGroepId = zaakafhandelParameters.getGroepID();
-        restZaakafhandelParameters.defaultBehandelaarId = zaakafhandelParameters.getGebruikersnaamMedewerker();
-        restZaakafhandelParameters.einddatumGeplandWaarschuwing = zaakafhandelParameters.getEinddatumGeplandWaarschuwing();
-        restZaakafhandelParameters.uiterlijkeEinddatumAfdoeningWaarschuwing = zaakafhandelParameters
-                .getUiterlijkeEinddatumAfdoeningWaarschuwing();
-        restZaakafhandelParameters.creatiedatum = zaakafhandelParameters.getCreatiedatum();
-        restZaakafhandelParameters.valide = zaakafhandelParameters.isValide();
-
-        if (zaakafhandelParameters.getCaseDefinitionID() != null) {
-            restZaakafhandelParameters.caseDefinition = caseDefinitionConverter.convertToRESTCaseDefinition(
-                    zaakafhandelParameters.getCaseDefinitionID(), inclusiefRelaties);
-        }
-        if (inclusiefRelaties && restZaakafhandelParameters.caseDefinition != null) {
-            if (zaakafhandelParameters.getNietOntvankelijkResultaattype() != null) {
-                restZaakafhandelParameters.zaakNietOntvankelijkResultaattype = resultaattypeConverter.convertResultaattype(
-                        ztcClientService.readResultaattype(zaakafhandelParameters.getNietOntvankelijkResultaattype()));
+@AllOpen
+@NoArgConstructor
+class RESTZaakafhandelParametersConverter @Inject constructor(
+     val caseDefinitionConverter: RESTCaseDefinitionConverter,
+             val resultaattypeConverter: RESTResultaattypeConverter,
+             val zaakbeeindigParameterConverter: RESTZaakbeeindigParameterConverter,
+             val humanTaskParametersConverter: RESTHumanTaskParametersConverter,
+             val ztcClientService: ZtcClientService,
+             val zaakafhandelParameterService: ZaakafhandelParameterService
+) {
+    fun convertZaakafhandelParameters(
+        zaakafhandelParameters: ZaakafhandelParameters,
+        inclusiefRelaties: Boolean
+    ): RestZaakafhandelParameters {
+        val restZaakafhandelParameters = RestZaakafhandelParameters(
+            id = zaakafhandelParameters.id,
+            zaaktype = ztcClientService.readZaaktype(zaakafhandelParameters.zaakTypeUUID).let {
+                RESTZaaktypeOverzichtConverter.convert(it)
+            },
+            defaultGroepId = zaakafhandelParameters.groepID,
+            defaultBehandelaarId = zaakafhandelParameters.gebruikersnaamMedewerker,
+            einddatumGeplandWaarschuwing = zaakafhandelParameters.einddatumGeplandWaarschuwing,
+            uiterlijkeEinddatumAfdoeningWaarschuwing = zaakafhandelParameters
+            .uiterlijkeEinddatumAfdoeningWaarschuwing,
+            creatiedatum = zaakafhandelParameters.creatiedatum,
+            valide = zaakafhandelParameters.isValide,
+            caseDefinition = zaakafhandelParameters.caseDefinitionID?.let {
+                caseDefinitionConverter.convertToRESTCaseDefinition(it, inclusiefRelaties)
             }
-            restZaakafhandelParameters.humanTaskParameters = humanTaskParametersConverter.convertHumanTaskParametersCollection(
-                    zaakafhandelParameters.getHumanTaskParametersCollection(),
-                    restZaakafhandelParameters.caseDefinition.humanTaskDefinitions);
+        )
+        if (inclusiefRelaties && restZaakafhandelParameters.caseDefinition != null) {
+            if (zaakafhandelParameters.nietOntvankelijkResultaattype != null) {
+                restZaakafhandelParameters.zaakNietOntvankelijkResultaattype =
+                    resultaattypeConverter.convertResultaattype(
+                        ztcClientService.readResultaattype(zaakafhandelParameters.nietOntvankelijkResultaattype)
+                    )
+            }
+            restZaakafhandelParameters.humanTaskParameters =
+                humanTaskParametersConverter.convertHumanTaskParametersCollection(
+                    zaakafhandelParameters.humanTaskParametersCollection,
+                    restZaakafhandelParameters.caseDefinition!!.humanTaskDefinitions
+                )
             restZaakafhandelParameters.userEventListenerParameters = RESTUserEventListenerParametersConverter
-                    .convertUserEventListenerParametersCollection(
-                            zaakafhandelParameters.getUserEventListenerParametersCollection(),
-                            restZaakafhandelParameters.caseDefinition.userEventListenerDefinitions
-                    );
-            restZaakafhandelParameters.zaakbeeindigParameters = zaakbeeindigParameterConverter.convertZaakbeeindigParameters(
-                    zaakafhandelParameters.getZaakbeeindigParameters()
-            );
+                .convertUserEventListenerParametersCollection(
+                    zaakafhandelParameters.userEventListenerParametersCollection,
+                    restZaakafhandelParameters.caseDefinition!!.userEventListenerDefinitions
+                )
+            restZaakafhandelParameters.zaakbeeindigParameters =
+                zaakbeeindigParameterConverter.convertZaakbeeindigParameters(
+                    zaakafhandelParameters.zaakbeeindigParameters
+                )
             restZaakafhandelParameters.mailtemplateKoppelingen = RESTMailtemplateKoppelingConverter.convert(
-                    zaakafhandelParameters.getMailtemplateKoppelingen()
-            );
+                zaakafhandelParameters.mailtemplateKoppelingen
+            )
             restZaakafhandelParameters.zaakAfzenders = RESTZaakAfzenderConverter.convertZaakAfzenders(
-                    zaakafhandelParameters.getZaakAfzenders()
-            );
+                zaakafhandelParameters.zaakAfzenders
+            )
         }
-        if (zaakafhandelParameters.getIntakeMail() != null) {
+        if (zaakafhandelParameters.intakeMail != null) {
             restZaakafhandelParameters.intakeMail = RESTZaakStatusmailOptie.valueOf(
-                    zaakafhandelParameters.getIntakeMail());
+                zaakafhandelParameters.intakeMail
+            )
         }
-        if (zaakafhandelParameters.getAfrondenMail() != null) {
+        if (zaakafhandelParameters.afrondenMail != null) {
             restZaakafhandelParameters.afrondenMail = RESTZaakStatusmailOptie.valueOf(
-                    zaakafhandelParameters.getAfrondenMail());
+                zaakafhandelParameters.afrondenMail
+            )
         }
-        restZaakafhandelParameters.productaanvraagtype = zaakafhandelParameters.getProductaanvraagtype();
-        restZaakafhandelParameters.domein = zaakafhandelParameters.getDomein();
+        restZaakafhandelParameters.productaanvraagtype = zaakafhandelParameters.productaanvraagtype
+        restZaakafhandelParameters.domein = zaakafhandelParameters.domein
 
-        return restZaakafhandelParameters;
+        return restZaakafhandelParameters
     }
 
-    public ZaakafhandelParameters convertRESTZaakafhandelParameters(
-            final RestZaakafhandelParameters restZaakafhandelParameters
-    ) {
-        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                restZaakafhandelParameters.zaaktype.uuid
-        );
-        zaakafhandelParameters.setId(restZaakafhandelParameters.id);
-        zaakafhandelParameters.setZaakTypeUUID(restZaakafhandelParameters.zaaktype.uuid);
-        zaakafhandelParameters.setZaaktypeOmschrijving(restZaakafhandelParameters.zaaktype.omschrijving);
-        zaakafhandelParameters.setCaseDefinitionID(restZaakafhandelParameters.caseDefinition.key);
-        zaakafhandelParameters.setGroepID(restZaakafhandelParameters.defaultGroepId);
-        zaakafhandelParameters.setUiterlijkeEinddatumAfdoeningWaarschuwing(
-                restZaakafhandelParameters.uiterlijkeEinddatumAfdoeningWaarschuwing);
-        zaakafhandelParameters.setNietOntvankelijkResultaattype(
-                restZaakafhandelParameters.zaakNietOntvankelijkResultaattype.getId());
-        zaakafhandelParameters.setIntakeMail(restZaakafhandelParameters.intakeMail.name());
-        zaakafhandelParameters.setAfrondenMail(restZaakafhandelParameters.afrondenMail.name());
-        zaakafhandelParameters.setProductaanvraagtype(restZaakafhandelParameters.productaanvraagtype);
-        zaakafhandelParameters.setDomein(restZaakafhandelParameters.domein);
-        zaakafhandelParameters.setGebruikersnaamMedewerker(restZaakafhandelParameters.defaultBehandelaarId);
+    fun convertRESTZaakafhandelParameters(
+        restZaakafhandelParameters: RestZaakafhandelParameters
+    ): ZaakafhandelParameters {
+        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
+            restZaakafhandelParameters.zaaktype.uuid
+        )
+        zaakafhandelParameters.id = restZaakafhandelParameters.id
+        zaakafhandelParameters.zaakTypeUUID = restZaakafhandelParameters.zaaktype.uuid
+        zaakafhandelParameters.zaaktypeOmschrijving = restZaakafhandelParameters.zaaktype.omschrijving
+        zaakafhandelParameters.caseDefinitionID = restZaakafhandelParameters.caseDefinition!!.key
+        zaakafhandelParameters.groepID = restZaakafhandelParameters.defaultGroepId
+        zaakafhandelParameters.uiterlijkeEinddatumAfdoeningWaarschuwing =
+            restZaakafhandelParameters.uiterlijkeEinddatumAfdoeningWaarschuwing
+        zaakafhandelParameters.nietOntvankelijkResultaattype =
+            restZaakafhandelParameters.zaakNietOntvankelijkResultaattype!!.id
+        zaakafhandelParameters.intakeMail = restZaakafhandelParameters.intakeMail!!.name
+        zaakafhandelParameters.afrondenMail = restZaakafhandelParameters.afrondenMail!!.name
+        zaakafhandelParameters.productaanvraagtype = restZaakafhandelParameters.productaanvraagtype
+        zaakafhandelParameters.domein = restZaakafhandelParameters.domein
+        zaakafhandelParameters.gebruikersnaamMedewerker = restZaakafhandelParameters.defaultBehandelaarId
         if (restZaakafhandelParameters.einddatumGeplandWaarschuwing != null) {
-            zaakafhandelParameters.setEinddatumGeplandWaarschuwing(
-                    restZaakafhandelParameters.einddatumGeplandWaarschuwing);
+            zaakafhandelParameters.einddatumGeplandWaarschuwing =
+                restZaakafhandelParameters.einddatumGeplandWaarschuwing
         }
         zaakafhandelParameters.setHumanTaskParametersCollection(
-                humanTaskParametersConverter.convertRESTHumanTaskParameters(
-                        restZaakafhandelParameters.humanTaskParameters));
+            humanTaskParametersConverter.convertRESTHumanTaskParameters(
+                restZaakafhandelParameters.humanTaskParameters
+            )
+        )
         zaakafhandelParameters.setUserEventListenerParametersCollection(
-                RESTUserEventListenerParametersConverter.convertRESTUserEventListenerParameters(
-                        restZaakafhandelParameters.userEventListenerParameters));
+            RESTUserEventListenerParametersConverter.convertRESTUserEventListenerParameters(
+                restZaakafhandelParameters.userEventListenerParameters
+            )
+        )
         zaakafhandelParameters.setZaakbeeindigParameters(
-                zaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters(
-                        restZaakafhandelParameters.zaakbeeindigParameters));
+            zaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters(
+                restZaakafhandelParameters.zaakbeeindigParameters
+            )
+        )
         zaakafhandelParameters.setMailtemplateKoppelingen(
-                RESTMailtemplateKoppelingConverter.convertRESTmailtemplateKoppelingen(
-                        restZaakafhandelParameters.mailtemplateKoppelingen));
+            RESTMailtemplateKoppelingConverter.convertRESTmailtemplateKoppelingen(
+                restZaakafhandelParameters.mailtemplateKoppelingen
+            )
+        )
         zaakafhandelParameters.setZaakAfzenders(
-                RESTZaakAfzenderConverter.convertRESTZaakAfzenders(restZaakafhandelParameters.zaakAfzenders)
-        );
-        return zaakafhandelParameters;
+            RESTZaakAfzenderConverter.convertRESTZaakAfzenders(restZaakafhandelParameters.zaakAfzenders)
+        )
+        return zaakafhandelParameters
     }
 }

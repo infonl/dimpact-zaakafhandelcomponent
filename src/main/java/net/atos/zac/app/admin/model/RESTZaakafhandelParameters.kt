@@ -2,56 +2,34 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.admin.model
 
-package net.atos.zac.app.admin.model;
+import net.atos.zac.app.zaak.model.RESTResultaattype
+import net.atos.zac.app.zaak.model.RESTZaakStatusmailOptie
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import java.time.ZonedDateTime
 
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
-import net.atos.zac.app.zaak.model.RESTResultaattype;
-import net.atos.zac.app.zaak.model.RESTZaakStatusmailOptie;
-
-public class RESTZaakafhandelParameters {
-
-    public Long id;
-
-    public RESTZaaktypeOverzicht zaaktype;
-
-    public RESTCaseDefinition caseDefinition;
-
-    public String defaultBehandelaarId;
-
-    public String defaultGroepId;
-
-    public Integer einddatumGeplandWaarschuwing;
-
-    public Integer uiterlijkeEinddatumAfdoeningWaarschuwing;
-
-    public ZonedDateTime creatiedatum;
-
-    public RESTResultaattype zaakNietOntvankelijkResultaattype;
-
-    public RESTZaakStatusmailOptie intakeMail;
-
-    public RESTZaakStatusmailOptie afrondenMail;
-
-    public String productaanvraagtype;
-
-    public String domein;
-
-    public boolean valide;
-
-    public List<RESTHumanTaskParameters> humanTaskParameters = new ArrayList<>();
-
-    public List<RESTUserEventListenerParameter> userEventListenerParameters = new ArrayList<>();
-
-    public List<RESTMailtemplateKoppeling> mailtemplateKoppelingen = new ArrayList<>();
-
-    public List<RESTZaakbeeindigParameter> zaakbeeindigParameters = new ArrayList<>();
-
-    public List<RESTZaakAfzender> zaakAfzenders = new ArrayList<>();
-
-    public RESTZaakafhandelParameters() {
-    }
-}
+@NoArgConstructor
+@AllOpen
+data class RestZaakafhandelParameters(
+    var id: Long? = null,
+    var zaaktype: RESTZaaktypeOverzicht,
+    var caseDefinition: RESTCaseDefinition? = null ,
+    var defaultBehandelaarId: String? = null ,
+    var defaultGroepId: String? = null ,
+    var einddatumGeplandWaarschuwing: Int? = null ,
+    var uiterlijkeEinddatumAfdoeningWaarschuwing: Int? = null ,
+    var creatiedatum: ZonedDateTime? = null ,
+    var zaakNietOntvankelijkResultaattype: RESTResultaattype? = null ,
+    var intakeMail: RESTZaakStatusmailOptie? = null ,
+    var afrondenMail: RESTZaakStatusmailOptie? = null ,
+    var productaanvraagtype: String? = null ,
+    var domein: String? = null ,
+    var valide: Boolean = false,
+    var humanTaskParameters: List<RESTHumanTaskParameters>? = null,
+    var userEventListenerParameters: List<RESTUserEventListenerParameter>? = null,
+    var mailtemplateKoppelingen: List<RESTMailtemplateKoppeling>? = null,
+    var zaakbeeindigParameters: List<RESTZaakbeeindigParameter>? = null,
+    var zaakAfzenders: List<RESTZaakAfzender>? = null
+)
