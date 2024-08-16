@@ -26,7 +26,7 @@ data class RestZaakafhandelParameters(
     var afrondenMail: RESTZaakStatusmailOptie? = null,
     var productaanvraagtype: String? = null,
     var domein: String? = null,
-    var valide: Boolean = false,
+    var valide: Boolean,
     var humanTaskParameters: List<RESTHumanTaskParameters>? = null,
     var userEventListenerParameters: List<RESTUserEventListenerParameter>? = null,
     var mailtemplateKoppelingen: List<RESTMailtemplateKoppeling>? = null,

@@ -120,7 +120,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
      */
     @GET
     @Path("{zaaktypeUUID}")
-    fun readZaakafhandelParameters(@PathParam("zaaktypeUUID") zaakTypeUUID: UUID?): RestZaakafhandelParameters {
+    fun readZaakafhandelParameters(@PathParam("zaaktypeUUID") zaakTypeUUID: UUID): RestZaakafhandelParameters {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID).let {
             zaakafhandelParametersConverter.convertZaakafhandelParameters(it, true)
