@@ -65,7 +65,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 requestBodyAsString = JSONObject(
                     mapOf(
                         "smartDocumentsTemplateGroupName" to SMART_DOCUMENTS_ROOT_GROUP_NAME,
-                        "smartDdocumentsTemplateName" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME,
+                        "smartDocumentsTemplateName" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME,
                         "zaakUuid" to zaakProductaanvraag1Uuid
                     )
                 ).toString()
@@ -79,8 +79,8 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 with(responseBody) {
                     shouldContainJsonKeyValue(
                         "message",
-                        "SmartDocuments document with filename: '$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME.docx' was created successfully " +
-                            "but the document is not stored yet in the zaakregister."
+                        "SmartDocuments document with filename: '$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME.docx' was" +
+                                " created and stored successfully in the zaakregister."
                     )
                 }
             }
@@ -93,7 +93,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 requestBodyAsString = JSONObject(
                     mapOf(
                         "smartDocumentsTemplateGroupName" to SMART_DOCUMENTS_ROOT_GROUP_NAME,
-                        "smartDdocumentsTemplateName" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME,
+                        "smartDocumentsTemplateName" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME,
                         "taskId" to task1ID,
                         "zaakUuid" to zaakProductaanvraag1Uuid
                     )
@@ -108,8 +108,8 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 with(responseBody) {
                     shouldContainJsonKeyValue(
                         "message",
-                        "SmartDocuments document with filename: '$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME.docx' was created successfully " +
-                            "but the document is not stored yet in the zaakregister."
+                        "SmartDocuments document with filename: '$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME.docx' was " +
+                                "created and stored successfully in the zaakregister."
                     )
                 }
             }

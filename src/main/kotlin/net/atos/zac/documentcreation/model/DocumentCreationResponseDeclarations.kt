@@ -12,6 +12,9 @@ data class DocumentCreationAttendedResponse(
 )
 
 data class DocumentCreationUnattendedResponse(
-    val message: String
-    // will be extended with additional fields in future
+    val message: String,
+    val termsAndConditionsUsageRights: String,
+    val fileName: String,
+    val fileType: String,
+    val fileContent: String?
 )

@@ -17,6 +17,7 @@ import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
+import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
 import net.atos.zac.documentcreation.model.createDocumentCreationAttendedResponse
@@ -29,11 +30,13 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
+    val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
     val documentCreationRestService = DocumentCreationRestService(
         ztcClientService = ztcClientService,
         zrcClientService = zrcClientService,
         policyService = policyService,
         documentCreationService = documentCreationService,
+        enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService
     )
 
     isolationMode = IsolationMode.InstancePerTest

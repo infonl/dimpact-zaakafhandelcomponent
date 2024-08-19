@@ -17,7 +17,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
-import jakarta.ws.rs.WebApplicationException
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
@@ -33,7 +32,6 @@ import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.util.InformatieObjectTypeUtil.isNuGeldig
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
@@ -53,18 +51,13 @@ import net.atos.zac.app.informatieobjecten.model.RESTZaakInformatieobject
 import net.atos.zac.app.zaak.converter.RESTGerelateerdeZaakConverter
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.authentication.LoggedInUser
-import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import net.atos.zac.event.EventingService
-import net.atos.zac.flowable.FlowableTaskService
-import net.atos.zac.flowable.TaakVariabelenService
-import net.atos.zac.flowable.TaakVariabelenService.readTaskDocuments
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.util.UriUtil
-import net.atos.zac.util.UriUtil.uuidFromURI
 import net.atos.zac.webdav.WebdavHelper
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.lifely.zac.util.AllOpen
@@ -87,8 +80,6 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zrcClientService: ZrcClientService,
     private val zgwApiService: ZGWApiService,
-    private val flowableTaskService: FlowableTaskService,
-    private val taakVariabelenService: TaakVariabelenService,
     private val ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
     private val inboxDocumentenService: InboxDocumentenService,
     private val enkelvoudigInformatieObjectLockService: EnkelvoudigInformatieObjectLockService,
@@ -220,36 +211,13 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 else -> restInformatieobjectConverter::convertZaakObject
             }
         )
-        val zaakInformatieobject = zgwApiService.createZaakInformatieobjectForZaak(
-            zaak,
-            enkelvoudigInformatieObjectCreateLockRequest,
-            enkelvoudigInformatieObjectCreateLockRequest.titel,
-            enkelvoudigInformatieObjectCreateLockRequest.beschrijving,
-            ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+        val zaakInformatieobject = enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
+            zaak = zaak,
+            enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
+            taskId = if (isTaakObject) documentReferenceId else null
         )
 
-        if (isTaakObject) {
-            addZaakInformatieobjectToTaak(zaakInformatieobject, documentReferenceId)
-        }
         return restInformatieobjectConverter.convertToREST(zaakInformatieobject)
-    }
-
-    private fun addZaakInformatieobjectToTaak(
-        zaakInformatieobject: ZaakInformatieobject,
-        documentReferentieId: String
-    ) {
-        val task = flowableTaskService.findOpenTask(documentReferentieId)
-            ?: throw WebApplicationException(
-                "No open task found with task id: '$documentReferentieId'",
-                Response.Status.CONFLICT
-            )
-        assertPolicy(policyService.readTaakRechten(task).toevoegenDocument)
-
-        mutableListOf<UUID>().let {
-            it.addAll(readTaskDocuments(task))
-            it.add(uuidFromURI(zaakInformatieobject.informatieobject))
-            taakVariabelenService.setTaakdocumenten(task, it)
-        }
     }
 
     @POST

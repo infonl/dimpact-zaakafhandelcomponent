@@ -12,30 +12,20 @@ import java.util.UUID
 @NoArgConstructor
 @Suppress("LongParameterList")
 class RestDocumentCreationUnattendedData(
-    /**
-     * Not used yet but will be used in future when storing the document in the zaakregister.
-     */
     var author: String? = null,
 
-    /**
-     * Not used yet but will be used in future when storing the document in the zaakregister.
-     */
     var creationDate: LocalDate? = null,
 
-    /**
-     * Not used yet but will be used in future when storing the document in the zaakregister.
-     */
     var documentTitle: String? = null,
 
     @field:NotNull
     var smartDocumentsTemplateGroupName: String,
 
     @field:NotNull
-    var smartDdocumentsTemplateName: String,
+    var smartDocumentsTemplateName: String,
 
     @field:NotNull
     var zaakUuid: UUID,
 
     var taskId: String? = null
-
 )
