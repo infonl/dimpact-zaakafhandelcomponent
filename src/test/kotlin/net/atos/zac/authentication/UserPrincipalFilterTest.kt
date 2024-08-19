@@ -7,6 +7,7 @@ package net.atos.zac.authentication
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -21,7 +22,7 @@ import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.identity.model.getFullName
 import org.wildfly.security.http.oidc.AccessToken
 import org.wildfly.security.http.oidc.OidcPrincipal
@@ -42,7 +43,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a logged-in user is present in the http session") {
+    Given("A logged-in user is present in the http session") {
         val userId = "dummyId"
         every { httpServletRequest.userPrincipal } returns oidcPrincipal
         every { httpServletRequest.getSession(true) } returns httpSession
@@ -61,23 +62,35 @@ class UserPrincipalFilterTest : BehaviorSpec({
             }
         }
     }
-    Given("no user is present in the http session") {
+    Given(
+        """
+            No logged-in user is present in the HTTP session and an OIDC security context is present with a token
+            that contains user information including a role for a domain which is also present in one of the zaakafhandelparameters
+            """
+    ) {
         val userName = "dummyUserName"
         val givenName = "dummyGivenName"
         val familyName = "dummyFamilyName"
         val fullName = "dummyFullName"
         val email = "dummy@example.com"
+        val domein1 = "dummyDomein1"
         val groups = arrayListOf(
             "dummyGroup1",
             "dummyGroup2"
         )
         val roles = arrayListOf(
             "dummyRole1",
-            "dummyRole2"
+            "dummyRole2",
+            domein1
         )
         val zaakafhandelParameters = listOf(
-            ZaakafhandelParameters(),
-            ZaakafhandelParameters()
+            createZaakafhandelParameters(
+                domein = domein1,
+                zaaktypeOmschrijving = "dummyZaaktypeOmschrijving1"
+            ),
+            createZaakafhandelParameters(
+                domein = "dummyDomein2"
+            )
         )
         val oidcSecurityContext = mockk<OidcSecurityContext>()
         val accessToken = mockk<AccessToken>()
@@ -102,7 +115,13 @@ class UserPrincipalFilterTest : BehaviorSpec({
         When("doFilter is called") {
             userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
-            Then("user is retrieved from security context and added to the http session") {
+            Then(
+                """
+                the user is retrieved from security context and is added to the HTTP session and the user should have 
+                access to only that zaaktype for which zaakafhandelparameters are defined with the same domain as
+                is present in the user's roles
+                """
+            ) {
                 verify(exactly = 1) {
                     filterChain.doFilter(httpServletRequest, servletResponse)
                     httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot))
@@ -115,6 +134,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     this.email shouldBe email
                     this.roles shouldContainAll roles
                     this.groupIds shouldContainAll groups
+                    this.geautoriseerdeZaaktypen shouldContainExactly listOf("dummyZaaktypeOmschrijving1")
                 }
             }
         }

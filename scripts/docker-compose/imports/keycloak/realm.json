@@ -436,14 +436,6 @@
           "attributes": {}
         },
         {
-          "id": "a8e24637-d5db-4545-a910-ce1a0a24da67",
-          "name": "domein_toestemming_verlenen",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "a4acb4ef-4e2c-462d-81f3-e20af8326952",
-          "attributes": {}
-        },
-        {
           "id": "02461c0b-0f77-4857-88dd-44ba165e83da",
           "name": "coordinator",
           "composite": false,
@@ -555,8 +547,6 @@
         "zaakafhandelcomponent": [
           "domein_test_1",
           "behandelaar",
-          "coordinator",
-          "recordmanager",
           "zaakafhandelcomponent_user"
         ]
       }

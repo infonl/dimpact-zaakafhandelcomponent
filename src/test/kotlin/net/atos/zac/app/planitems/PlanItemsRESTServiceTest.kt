@@ -80,7 +80,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
     val planItemInstance = mockk<PlanItemInstance>()
     val zaakTypeUUID = UUID.randomUUID()
     val zaakafhandelParameters = createZaakafhandelParameters(
-        zaakTypeUUID = zaakTypeUUID
+        zaaktypeUUID = zaakTypeUUID
     )
 
     beforeEach {

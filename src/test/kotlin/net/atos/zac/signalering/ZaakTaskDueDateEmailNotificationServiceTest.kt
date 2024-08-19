@@ -57,10 +57,10 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
             zaakType2
         )
         val zaakAfhandelParameters1 = createZaakafhandelParameters(
-            zaakTypeUUID = zaakTypeUUID1
+            zaaktypeUUID = zaakTypeUUID1
         )
         val zaakAfhandelParameters2 = createZaakafhandelParameters(
-            zaakTypeUUID = zaakTypeUUID2
+            zaaktypeUUID = zaakTypeUUID2
         )
         val assignee1 = "dummyAssignee1"
         val openTask = mockk<Task>()

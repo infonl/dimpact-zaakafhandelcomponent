@@ -58,10 +58,12 @@ fun createReferenceTableValue(
 fun createZaakafhandelParameters(
     id: Long = 1234L,
     domein: String = "dummyDomein",
-    zaakTypeUUID: UUID = UUID.randomUUID(),
+    zaaktypeUUID: UUID = UUID.randomUUID(),
+    zaaktypeOmschrijving: String = "dummyZaaktypeOmschrijving"
 ) =
     ZaakafhandelParameters().apply {
         this.id = id
         this.domein = domein
-        this.zaakTypeUUID = zaakTypeUUID
+        this.zaakTypeUUID = zaaktypeUUID
+        this.zaaktypeOmschrijving = zaaktypeOmschrijving
     }
