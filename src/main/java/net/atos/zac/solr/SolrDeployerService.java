@@ -63,8 +63,7 @@ public class SolrDeployerService {
 
     @Inject
     public SolrDeployerService(
-            @ConfigProperty(name = "SOLR_URL")
-            final String solrUrl,
+            @ConfigProperty(name = "SOLR_URL") final String solrUrl,
             final IndexeerService indexeerService
     ) {
         this.solrUrl = solrUrl;
