@@ -22,7 +22,6 @@ import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.identity.model.getFullName
 import org.wildfly.security.http.oidc.AccessToken
