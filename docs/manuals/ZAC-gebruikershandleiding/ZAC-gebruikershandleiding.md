@@ -9,8 +9,8 @@
 
 | --- | --- | --- |
 |     |     | Colofon |
-| Datum | :   | 29-8-2023 |
-| Versie | :   | 1.5.1 |
+| Datum | :   | 19-8-2024 |
+| Versie | :   | 1.6.0 |
 | Verandering | :   | Verduidelijking zoekfunctie |
 | Project referentie | :   | ZAC |
 | Toegangsrechten | :   | Alleen lezen |
