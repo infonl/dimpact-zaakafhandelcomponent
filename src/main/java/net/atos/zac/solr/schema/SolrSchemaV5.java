@@ -32,5 +32,4 @@ class SolrSchemaV5 implements SolrSchemaUpdate {
     public List<SchemaRequest.Update> getSchemaUpdates() {
         return List.of(addFieldMultiValued("zaak_bagObjecten", STRING, true, true));
     }
-
 }
