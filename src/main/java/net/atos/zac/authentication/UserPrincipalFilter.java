@@ -115,7 +115,7 @@ public class UserPrincipalFilter implements Filter {
             return zaakafhandelParameterService.listZaakafhandelParameters().stream()
                     .filter(
                             zaakafhandelParameters -> zaakafhandelParameters.getDomein() != null &&
-                                            roles.contains(zaakafhandelParameters.getDomein())
+                                                      roles.contains(zaakafhandelParameters.getDomein())
                     )
                     .map(ZaakafhandelParameters::getZaaktypeOmschrijving)
                     .collect(Collectors.toUnmodifiableSet());
