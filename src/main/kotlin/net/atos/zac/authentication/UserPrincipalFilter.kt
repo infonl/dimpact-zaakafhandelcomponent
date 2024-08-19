@@ -17,7 +17,6 @@ import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
-import java.security.Principal
 import java.util.logging.Logger
 
 @WebFilter(filterName = "UserPrincipalFilter")
@@ -47,30 +46,30 @@ class UserPrincipalFilter @Inject constructor(
                     )
                     httpSession.invalidate()
                     httpSession = servletRequest.getSession(true)
-                    addLoggedInUserToHttpSession(userPrincipal, httpSession)
+                    addLoggedInUserToHttpSession(userPrincipal as OidcPrincipal<*>, httpSession)
                 }
             } ?: run {
                 // no logged-in user in session
-                addLoggedInUserToHttpSession(userPrincipal, httpSession)
+                addLoggedInUserToHttpSession(userPrincipal as OidcPrincipal<*>, httpSession)
             }
         }
         filterChain.doFilter(servletRequest, servletResponse)
     }
 
-    private fun addLoggedInUserToHttpSession(userPrincipal: Principal, httpSession: HttpSession) {
-        val newUser = createLoggedInUser((userPrincipal as OidcPrincipal<*>).oidcSecurityContext)
-        setLoggedInUser(httpSession, newUser)
-        LOG.info(
-            "User logged in: '${newUser.id}' with roles: ${newUser.roles}, groups: ${newUser.groupIds} " +
-                "and zaaktypen: ${
-                    if (newUser.isAuthorisedForAllZaaktypen()) {
-                        "ELK-ZAAKTYPE"
-                    } else {
-                        newUser.geautoriseerdeZaaktypen.toString()
-                    }
-                }"
-        )
-    }
+    private fun addLoggedInUserToHttpSession(oidcPrincipal: OidcPrincipal<*>, httpSession: HttpSession) =
+        createLoggedInUser(oidcPrincipal.oidcSecurityContext).let { loggedInUser ->
+            setLoggedInUser(httpSession, loggedInUser)
+            LOG.info(
+                "User logged in: '${loggedInUser.id}' with roles: ${loggedInUser.roles}, " +
+                    "groups: ${loggedInUser.groupIds} and zaaktypen: ${
+                        if (loggedInUser.isAuthorisedForAllZaaktypen()) {
+                            "ELK-ZAAKTYPE"
+                        } else {
+                            loggedInUser.geautoriseerdeZaaktypen.toString()
+                        }
+                    }"
+            )
+        }
 
     private fun createLoggedInUser(oidcSecurityContext: OidcSecurityContext): LoggedInUser =
         oidcSecurityContext.token.let { accessToken ->
