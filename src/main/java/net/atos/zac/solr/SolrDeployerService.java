@@ -1,9 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.util;
+package net.atos.zac.solr;
 
 import static net.atos.zac.solr.FieldType.STRING;
 import static net.atos.zac.solr.SolrSchemaUpdateHelper.NAME;
@@ -38,34 +38,38 @@ import org.apache.solr.client.solrj.request.schema.SchemaRequest;
 import org.apache.solr.common.SolrException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import net.atos.zac.solr.SolrSchemaUpdate;
 import net.atos.zac.zoeken.IndexeerService;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
 
 @Singleton
-public class SolrDeployer {
-
-    private static final Logger LOG = Logger.getLogger(SolrDeployer.class.getName());
-
+public class SolrDeployerService {
+    private static final Logger LOG = Logger.getLogger(SolrDeployerService.class.getName());
     private static final String VERSION_FIELD_PREFIX = "schema_version_";
-
     private static final int SOLR_STATUS_OK = 0;
+    private static final int WAIT_FOR_SOLR_SECONDS = 1;
 
-    private static final int WAIT_FOR_SOLR_SECONDS = 10;
-
-    @Inject
-    @ConfigProperty(name = "SOLR_URL")
     private String solrUrl;
-
     @Resource
     private ManagedExecutorService managedExecutor;
+    private IndexeerService indexeerService;
+    private SolrClient solrClient;
+    private List<SolrSchemaUpdate> schemaUpdates;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public SolrDeployerService() {
+    }
 
     @Inject
-    private IndexeerService indexeerService;
-
-    private SolrClient solrClient;
-
-    private List<SolrSchemaUpdate> schemaUpdates;
+    public SolrDeployerService(
+            @ConfigProperty(name = "SOLR_URL")
+            final String solrUrl,
+            final IndexeerService indexeerService
+    ) {
+        this.solrUrl = solrUrl;
+        this.indexeerService = indexeerService;
+    }
 
     @Inject
     public void setSchemaUpdates(final Instance<SolrSchemaUpdate> schemaUpdates) {
@@ -80,7 +84,7 @@ public class SolrDeployer {
         try {
             final int currentVersion = getCurrentVersion();
             LOG.info("Current version of Solr core '%s': %d".formatted(SOLR_CORE, currentVersion));
-            if (currentVersion == schemaUpdates.get(schemaUpdates.size() - 1).getVersie()) {
+            if (currentVersion == schemaUpdates.getLast().getVersie()) {
                 LOG.info("Solr core '%s' is up to date. No Solr schema migration needed.".formatted(SOLR_CORE));
             } else {
                 schemaUpdates.stream()
@@ -92,7 +96,6 @@ public class SolrDeployer {
                         .flatMap(schemaUpdate -> schemaUpdate.getTeHerindexerenZoekObjectTypes().stream())
                         .collect(Collectors.toSet())
                         .forEach(this::startHerindexeren);
-
             }
         } catch (final SolrServerException | IOException e) {
             throw new RuntimeException(e);
@@ -106,18 +109,15 @@ public class SolrDeployer {
                     return;
                 }
             } catch (final SolrServerException | IOException | SolrException e) {
-                // nothing to report
                 LOG.info(() -> "Solr core is not available yet. Exception: %s".formatted(e.getMessage()));
             }
-            LOG.warning("Waiting for %d seconds for Solr core '%s' to become available...".formatted(
-                    WAIT_FOR_SOLR_SECONDS, SOLR_CORE));
+            LOG.info("Waiting for %d seconds for Solr core '%s' to become available...".formatted(WAIT_FOR_SOLR_SECONDS, SOLR_CORE));
             try {
                 Thread.sleep(Duration.ofSeconds(WAIT_FOR_SOLR_SECONDS).toMillis());
             } catch (InterruptedException e) {
                 LOG.log(
                         Level.WARNING,
-                        "Thread was interrupted while waiting for Solr core to become available. " +
-                                       "Re-interrupting thread.",
+                        "Thread was interrupted while waiting for Solr core to become available. Re-interrupting thread.",
                         e
                 );
                 Thread.currentThread().interrupt();
@@ -130,8 +130,7 @@ public class SolrDeployer {
                 .map(field -> field.get(NAME).toString())
                 .filter(fieldName -> fieldName.startsWith(VERSION_FIELD_PREFIX))
                 .findAny()
-                .map(versionFieldName -> Integer.valueOf(
-                        StringUtils.substringAfter(versionFieldName, VERSION_FIELD_PREFIX)))
+                .map(versionFieldName -> Integer.valueOf(StringUtils.substringAfter(versionFieldName, VERSION_FIELD_PREFIX)))
                 .orElse(0);
     }
 
