@@ -95,8 +95,9 @@ public class ZaakafhandelParameterBeheerService {
     public ZaakafhandelParameters updateZaakafhandelParameters(final ZaakafhandelParameters zaakafhandelParameters) {
         valideerObject(zaakafhandelParameters);
         zaakafhandelParameters.getHumanTaskParametersCollection().forEach(ValidationUtil::valideerObject);
-        zaakafhandelParameters.setCreatiedatum(entityManager.find(ZaakafhandelParameters.class, zaakafhandelParameters.getId())
-                .getCreatiedatum());
+        zaakafhandelParameters.setCreatiedatum(
+                entityManager.find(ZaakafhandelParameters.class, zaakafhandelParameters.getId()).getCreatiedatum()
+        );
         return entityManager.merge(zaakafhandelParameters);
     }
 
