@@ -12,6 +12,7 @@ import jakarta.ws.rs.core.MediaType
 import net.atos.zac.app.admin.model.RESTDeletedSignaleringenResponse
 import net.atos.zac.authentication.ActiveSession
 import net.atos.zac.authentication.SecurityUtil
+import net.atos.zac.authentication.setFunctioneelGebruiker
 import net.atos.zac.event.EventingService
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.util.event.JobEvent
@@ -37,7 +38,7 @@ class SignaleringAdminRestService @Inject constructor(
     @GET
     @Path("send-signaleringen")
     fun sendSignaleringen(): String {
-        SecurityUtil.setFunctioneelGebruiker(httpSession.get())
+        setFunctioneelGebruiker(httpSession.get())
         eventingService.send(JobEvent(JobId.SIGNALERINGEN_JOB))
         return "Started sending signaleringen using job: '${JobId.SIGNALERINGEN_JOB.getName()}'"
     }
@@ -45,7 +46,7 @@ class SignaleringAdminRestService @Inject constructor(
     @DELETE
     @Path("delete-old")
     fun deleteOldSignaleringen(): RESTDeletedSignaleringenResponse {
-        SecurityUtil.setFunctioneelGebruiker(httpSession.get())
+        setFunctioneelGebruiker(httpSession.get())
         signaleringService.deleteOldSignaleringen(deleteOlderThanDays).let {
             return RESTDeletedSignaleringenResponse(it)
         }

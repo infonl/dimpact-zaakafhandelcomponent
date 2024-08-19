@@ -1,6 +1,7 @@
 package net.atos.zac.webdav;
 
 import static net.atos.client.zgw.drc.DrcClientUtil.convertByteArrayToBase64String;
+import static net.atos.zac.authentication.SecurityUtilKt.setLoggedInUser;
 import static net.atos.zac.util.DateTimeConverterUtil.convertToDate;
 
 import java.io.File;
@@ -108,7 +109,7 @@ public class WebdavStore implements IWebdavStore {
         if (StringUtils.isNotEmpty(token)) {
             final WebdavHelper.Gegevens webdavGegevens = webdavHelper.readGegevens(token);
             try {
-                SecurityUtil.setLoggedInUser(
+                setLoggedInUser(
                         CDI.current().select(HttpSession.class).get(),
                         webdavGegevens.loggedInUser()
                 );

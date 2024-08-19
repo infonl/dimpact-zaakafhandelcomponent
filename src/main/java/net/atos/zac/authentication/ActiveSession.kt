@@ -1,22 +1,24 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.authentication
 
-package net.atos.zac.authentication;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import jakarta.inject.Qualifier;
+import jakarta.inject.Qualifier
 
 /**
- * Qualifier annotation for obtaining the active HTTP session {@link ServletRequestProducingListener#getActiveSession()}
+ * Qualifier annotation for obtaining the active HTTP session [ServletRequestProducingListener.activeSession]
  */
 @Qualifier
-@Target(value = {ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
-@Retention(value = RetentionPolicy.RUNTIME)
-public @interface ActiveSession {
-}
+@Target(
+    AnnotationTarget.CLASS,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.VALUE_PARAMETER
+)
+@Retention(
+    AnnotationRetention.RUNTIME
+)
+annotation class ActiveSession

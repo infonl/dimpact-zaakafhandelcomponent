@@ -6,6 +6,7 @@
 package net.atos.zac.notificaties;
 
 import static jakarta.ws.rs.core.Response.noContent;
+import static net.atos.zac.authentication.SecurityUtilKt.setFunctioneelGebruiker;
 import static net.atos.zac.notificaties.Action.CREATE;
 import static net.atos.zac.notificaties.Action.DELETE;
 import static net.atos.zac.notificaties.Action.UPDATE;
@@ -96,7 +97,7 @@ public class NotificatieReceiver {
 
     @POST
     public Response notificatieReceive(@Context HttpHeaders headers, final Notificatie notificatie) {
-        SecurityUtil.setFunctioneelGebruiker(httpSession.get());
+        setFunctioneelGebruiker(httpSession.get());
         if (isAuthenticated(headers)) {
             LOG.info(() -> "Notificatie ontvangen: %s"
                     .formatted(notificatie.toString()));

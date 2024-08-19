@@ -36,7 +36,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
     val servletResponse = mockk<ServletResponse>()
     val filterChain = mockk<FilterChain>()
     val httpSession = mockk<HttpSession>()
-    val loggedInUser = mockk<LoggedInUser>()
     val oidcPrincipal = mockkClass(OidcPrincipal::class)
 
     beforeEach {
@@ -45,11 +44,13 @@ class UserPrincipalFilterTest : BehaviorSpec({
 
     Given("A logged-in user is present in the http session") {
         val userId = "dummyId"
+        val loggedInUser = createLoggedInUser(
+            id = userId
+        )
         every { httpServletRequest.userPrincipal } returns oidcPrincipal
         every { httpServletRequest.getSession(true) } returns httpSession
+        every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
         every { filterChain.doFilter(any(), any()) } just runs
-        every { SecurityUtil.getLoggedInUser(httpSession) } returns loggedInUser
-        every { loggedInUser.id } returns userId
         every { oidcPrincipal.name } returns userId
 
         When("doFilter is called") {
@@ -98,8 +99,9 @@ class UserPrincipalFilterTest : BehaviorSpec({
 
         every { httpServletRequest.userPrincipal } returns oidcPrincipal
         every { httpServletRequest.getSession(true) } returns httpSession
+        // no logged-in user present in HTTP session
+        every { httpSession.getAttribute("logged-in-user") } returns null
         every { filterChain.doFilter(any(), any()) } just runs
-        every { SecurityUtil.getLoggedInUser(httpSession) } returns null
         every { oidcPrincipal.oidcSecurityContext } returns oidcSecurityContext
         every { oidcSecurityContext.token } returns accessToken
         every { accessToken.preferredUsername } returns userName
