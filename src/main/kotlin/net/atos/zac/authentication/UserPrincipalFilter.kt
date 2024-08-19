@@ -37,7 +37,7 @@ class UserPrincipalFilter @Inject constructor(
         filterChain: FilterChain
     ) {
         (servletRequest as? HttpServletRequest)?.userPrincipal?.let { userPrincipal ->
-            var httpSession = servletRequest.getSession(true)
+            val httpSession = servletRequest.getSession(true)
             getLoggedInUser(httpSession)?.let { loggedInUser ->
                 if (loggedInUser.id != userPrincipal.name) {
                     LOG.info(
@@ -45,8 +45,7 @@ class UserPrincipalFilter @Inject constructor(
                             "on context path '${servletRequest.servletContext.contextPath}'"
                     )
                     httpSession.invalidate()
-                    httpSession = servletRequest.getSession(true)
-                    addLoggedInUserToHttpSession(userPrincipal as OidcPrincipal<*>, httpSession)
+                    addLoggedInUserToHttpSession(userPrincipal as OidcPrincipal<*>, servletRequest.getSession(true))
                 }
             } ?: run {
                 // no logged-in user in session
