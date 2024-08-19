@@ -49,7 +49,6 @@ public class SolrDeployerService {
     private static final int WAIT_FOR_SOLR_SECONDS = 1;
 
     private String solrUrl;
-    @Resource
     private ManagedExecutorService managedExecutor;
     private IndexeerService indexeerService;
     private SolrClient solrClient;
@@ -75,6 +74,11 @@ public class SolrDeployerService {
         this.schemaUpdates = schemaUpdates.stream()
                 .sorted(Comparator.comparingInt(SolrSchemaUpdate::getVersie))
                 .toList();
+    }
+
+    @Resource
+    public void setManagedExecutorService(ManagedExecutorService managedExecutor) {
+        this.managedExecutor = managedExecutor;
     }
 
     public void onStartup(@Observes @Initialized(ApplicationScoped.class) Object event) {

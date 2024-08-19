@@ -23,7 +23,7 @@ import org.apache.solr.client.solrj.request.schema.SchemaRequest.MultiUpdate
 import java.util.concurrent.CompletableFuture
 
 class SolrDeployerServiceTest : BehaviorSpec({
-    val managedExecutor = mockk<ManagedExecutorService>()
+    val managedExecutorService = mockk<ManagedExecutorService>()
     val indexeerService = mockk<IndexeerService>()
     val solrUrl = "https://example.com/solr"
 
@@ -56,9 +56,10 @@ class SolrDeployerServiceTest : BehaviorSpec({
         mockkConstructor(MultiUpdate::class)
         every { anyConstructed<MultiUpdate>().process(any()) } returns null
         every { solrSchemaUpdate.teHerindexerenZoekObjectTypes } returns setOf(ZoekObjectType.ZAAK)
-        every { managedExecutor.submit(any()) } returns CompletableFuture.completedFuture(null)
+        every { managedExecutorService.submit(any()) } returns CompletableFuture.completedFuture(null)
 
-        // prepare the SolrDeployerService by setting the available schema updates
+        // prepare the SolrDeployerService by setting the executor service and the available schema updates
+        solrDeployerService.setManagedExecutorService(managedExecutorService)
         solrDeployerService.setSchemaUpdates(solrSchemaUpdateInstance)
 
         When("the ZAC Solr deployer service is started") {
@@ -67,7 +68,7 @@ class SolrDeployerServiceTest : BehaviorSpec({
             Then("the Solr schema should be updated to the available version and the zaken should be reindexed") {
                 verify(exactly = 1) {
                     anyConstructed<MultiUpdate>().process(any())
-                    managedExecutor.submit(any())
+                    managedExecutorService.submit(any())
                 }
             }
         }
