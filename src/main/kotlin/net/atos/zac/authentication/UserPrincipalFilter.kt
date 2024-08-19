@@ -63,8 +63,11 @@ class UserPrincipalFilter @Inject constructor(
         LOG.info(
             "User logged in: '${newUser.id}' with roles: ${newUser.roles}, groups: ${newUser.groupIds} " +
                 "and zaaktypen: ${
-                    if (newUser.isAuthorisedForAllZaaktypen()) "ELK-ZAAKTYPE" else
+                    if (newUser.isAuthorisedForAllZaaktypen()) {
+                        "ELK-ZAAKTYPE"
+                    } else {
                         newUser.geautoriseerdeZaaktypen.toString()
+                    }
                 }"
         )
     }

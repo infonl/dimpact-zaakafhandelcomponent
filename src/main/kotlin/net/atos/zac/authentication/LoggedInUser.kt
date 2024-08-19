@@ -6,6 +6,7 @@ package net.atos.zac.authentication
 
 import net.atos.zac.identity.model.User
 
+@Suppress("LongParameterList")
 class LoggedInUser(
     id: String,
     firstName: String?,
