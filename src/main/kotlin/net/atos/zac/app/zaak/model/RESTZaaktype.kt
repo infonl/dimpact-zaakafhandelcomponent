@@ -5,7 +5,7 @@
 package net.atos.zac.app.zaak.model
 
 import net.atos.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
-import net.atos.zac.app.admin.model.RESTZaakafhandelParameters
+import net.atos.zac.app.admin.model.RestZaakafhandelParameters
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate
@@ -46,5 +46,5 @@ data class RESTZaaktype(
 
     var informatieobjecttypes: List<UUID>? = null,
 
-    var zaakafhandelparameters: RESTZaakafhandelParameters? = null
+    var zaakafhandelparameters: RestZaakafhandelParameters? = null
 )

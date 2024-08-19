@@ -9,7 +9,7 @@ import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.client.zgw.ztc.util.isNuGeldig
 import net.atos.client.zgw.ztc.util.isServicenormBeschikbaar
 import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.app.admin.converter.RESTZaakafhandelParametersConverter
+import net.atos.zac.app.admin.converter.RestZaakafhandelParametersConverter
 import net.atos.zac.app.zaak.model.RESTZaaktype
 import net.atos.zac.app.zaak.model.RESTZaaktypeRelatie
 import net.atos.zac.app.zaak.model.RelatieType
@@ -19,7 +19,7 @@ import java.time.Period
 
 class RESTZaaktypeConverter {
     @Inject
-    private lateinit var zaakafhandelParametersConverter: RESTZaakafhandelParametersConverter
+    private lateinit var zaakafhandelParametersConverter: RestZaakafhandelParametersConverter
 
     @Inject
     private lateinit var zaakafhandelParameterService: ZaakafhandelParameterService

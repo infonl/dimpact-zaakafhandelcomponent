@@ -9,7 +9,7 @@ public class RESTMailtemplateKoppeling {
 
     public Long id;
 
-    public RESTZaakafhandelParameters zaakafhandelParameters;
+    public RestZaakafhandelParameters zaakafhandelParameters;
 
     public RESTMailtemplate mailtemplate;
 }
