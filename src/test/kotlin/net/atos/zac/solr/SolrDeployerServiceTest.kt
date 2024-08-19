@@ -7,12 +7,10 @@ package net.atos.zac.solr
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.ints.exactly
-import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkConstructor
-import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.concurrent.ManagedExecutorService
 import jakarta.enterprise.inject.Instance
