@@ -21,17 +21,16 @@ import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.FormulierDefinitie
 import net.atos.zac.admin.model.ReferenceTable
-import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTReplyToConverter
-import net.atos.zac.app.admin.converter.RESTZaakafhandelParametersConverter
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter
+import net.atos.zac.app.admin.converter.RestZaakafhandelParametersConverter
 import net.atos.zac.app.admin.model.RESTCaseDefinition
 import net.atos.zac.app.admin.model.RESTReplyTo
 import net.atos.zac.app.admin.model.RESTTaakFormulierDefinitie
 import net.atos.zac.app.admin.model.RESTTaakFormulierVeldDefinitie
-import net.atos.zac.app.admin.model.RESTZaakafhandelParameters
 import net.atos.zac.app.admin.model.RESTZaakbeeindigReden
+import net.atos.zac.app.admin.model.RestZaakafhandelParameters
 import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter
 import net.atos.zac.app.zaak.model.RESTResultaattype
 import net.atos.zac.configuratie.ConfiguratieService
@@ -62,7 +61,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val zaakafhandelParameterBeheerService: ZaakafhandelParameterBeheerService,
     private val referenceTableService: ReferenceTableService,
-    private val zaakafhandelParametersConverter: RESTZaakafhandelParametersConverter,
+    private val zaakafhandelParametersConverter: RestZaakafhandelParametersConverter,
     private val caseDefinitionConverter: RESTCaseDefinitionConverter,
     private val resultaattypeConverter: RESTResultaattypeConverter,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
@@ -106,17 +105,12 @@ class ZaakafhandelParametersRestService @Inject constructor(
      * @return LIST of ZAAKAFHANDELPARAMETERS
      */
     @GET
-    fun listZaakafhandelParameters(): List<RESTZaakafhandelParameters> {
+    fun listZaakafhandelParameters(): List<RestZaakafhandelParameters> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return listZaaktypes()
-            .map { zaaktype: ZaakType -> UriUtil.uuidFromURI(zaaktype.url) }
-            .map { zaaktypeUUID: UUID? -> zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID) }
-            .map { zaakafhandelParameters: ZaakafhandelParameters? ->
-                zaakafhandelParametersConverter.convertZaakafhandelParameters(
-                    zaakafhandelParameters,
-                    false
-                )
-            }
+            .map { UriUtil.uuidFromURI(it.url) }
+            .map { zaakafhandelParameterService.readZaakafhandelParameters(it) }
+            .map { zaakafhandelParametersConverter.convertZaakafhandelParameters(it, false) }
     }
 
     /**
@@ -126,7 +120,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
      */
     @GET
     @Path("{zaaktypeUUID}")
-    fun readZaakafhandelParameters(@PathParam("zaaktypeUUID") zaakTypeUUID: UUID?): RESTZaakafhandelParameters {
+    fun readZaakafhandelParameters(@PathParam("zaaktypeUUID") zaakTypeUUID: UUID): RestZaakafhandelParameters {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID).let {
             zaakafhandelParametersConverter.convertZaakafhandelParameters(it, true)
@@ -140,8 +134,8 @@ class ZaakafhandelParametersRestService @Inject constructor(
      */
     @PUT
     fun updateZaakafhandelparameters(
-        restZaakafhandelParameters: RESTZaakafhandelParameters
-    ): RESTZaakafhandelParameters {
+        restZaakafhandelParameters: RestZaakafhandelParameters
+    ): RestZaakafhandelParameters {
         assertPolicy(policyService.readOverigeRechten().beheren)
         var zaakafhandelParameters = zaakafhandelParametersConverter.convertRESTZaakafhandelParameters(
             restZaakafhandelParameters
@@ -151,6 +145,10 @@ class ZaakafhandelParametersRestService @Inject constructor(
         } else {
             zaakafhandelParameterBeheerService.updateZaakafhandelParameters(zaakafhandelParameters).also {
                 zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
+                // we also need to clear the zaakafhandelparameters list cache here to make sure that for example users
+                // who now no longer have access to this zaaktype due to this change are no longer
+                // able to see and open zaken that have this zaaktype
+                zaakafhandelParameterService.clearListCache()
             }
         }
         return zaakafhandelParametersConverter.convertZaakafhandelParameters(zaakafhandelParameters, true)
