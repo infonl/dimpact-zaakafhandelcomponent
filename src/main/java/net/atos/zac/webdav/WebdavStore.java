@@ -24,7 +24,6 @@ import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest;
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService;
-import net.atos.zac.authentication.SecurityUtil;
 import nl.info.webdav.ITransaction;
 import nl.info.webdav.IWebdavStore;
 import nl.info.webdav.StoredObject;

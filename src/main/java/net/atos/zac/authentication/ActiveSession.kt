@@ -7,7 +7,7 @@ package net.atos.zac.authentication
 import jakarta.inject.Qualifier
 
 /**
- * Qualifier annotation for obtaining the active HTTP session [ServletRequestProducingListener.activeSession]
+ * Qualifier annotation for obtaining the active HTTP session [ServletRequestProducingListener.getActiveSession]
  */
 @Qualifier
 @Target(

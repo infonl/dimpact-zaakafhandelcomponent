@@ -42,7 +42,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import net.atos.client.or.objecttype.ObjecttypesClientService;
 import net.atos.zac.admin.ZaakafhandelParameterBeheerService;
 import net.atos.zac.authentication.ActiveSession;
-import net.atos.zac.authentication.SecurityUtil;
 import net.atos.zac.documenten.InboxDocumentenService;
 import net.atos.zac.event.EventingService;
 import net.atos.zac.productaanvraag.ProductaanvraagService;

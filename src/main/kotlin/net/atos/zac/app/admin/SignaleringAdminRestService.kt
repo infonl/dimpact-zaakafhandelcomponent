@@ -11,7 +11,6 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.app.admin.model.RESTDeletedSignaleringenResponse
 import net.atos.zac.authentication.ActiveSession
-import net.atos.zac.authentication.SecurityUtil
 import net.atos.zac.authentication.setFunctioneelGebruiker
 import net.atos.zac.event.EventingService
 import net.atos.zac.signalering.SignaleringService

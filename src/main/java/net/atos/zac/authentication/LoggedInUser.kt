@@ -15,25 +15,12 @@ class LoggedInUser(
     val roles: Set<String>,
     val groupIds: Set<String>,
     /**
-     * Lijst van zaaktype.omschrijving waarvoor de ingelogde gebruiker geautoriseerd is.
-     * De waarde 'null' betekend dat de gebruiker geautoriseerd is voor elk zaaktype.
+     * List of zaaktypen for which the logged-in user is authorised, or 'null' if the user is authorised for all zaaktypen.
      */
     val geautoriseerdeZaaktypen: Set<String>? = null
 ) : User(id, firstName, lastName, displayName, email) {
-    val isGeautoriseerdVoorAlleZaaktypen: Boolean
-        get() = geautoriseerdeZaaktypen == null
+    fun isAuthorisedForAllZaaktypen(): Boolean = geautoriseerdeZaaktypen == null
 
-    // TODO
-//    fun getGeautoriseerdeZaaktypen(): Set<String> {
-//        if (geautoriseerdeZaaktypen != null) {
-//            return geautoriseerdeZaaktypen
-//        } else {
-//            throw IllegalStateException(
-//                "Ingelogde gebruiker is geautoriseerd voor alle zaaktypen. Deze kunnen echter niet worden opgevraagd."
-//            )
-//        }
-//    }
-
-    fun isGeautoriseerdZaaktype(zaaktypeOmschrijving: String): Boolean =
+    fun isAuthorisedForZaaktype(zaaktypeOmschrijving: String): Boolean =
         geautoriseerdeZaaktypen == null || geautoriseerdeZaaktypen.contains(zaaktypeOmschrijving)
 }

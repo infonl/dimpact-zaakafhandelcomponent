@@ -48,13 +48,17 @@ class SecurityUtil @Inject constructor(
     fun getLoggedInUser() = getLoggedInUser(httpSession.get())
 }
 
-fun getLoggedInUser(httpSession: HttpSession?): LoggedInUser? {
-    return if (httpSession != null) {
+/**
+ * If there is a logged-in user in the given [httpSession], return it.
+ * Otherwise, if there is an HTTP Session but if it does not contain a logged-in user attribute, return `null`.
+ * If the provided HTTP session is null, return `[FUNCTIONEEL_GEBRUIKER]`.
+ */
+fun getLoggedInUser(httpSession: HttpSession?): LoggedInUser? =
+    if (httpSession != null) {
         httpSession.getAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE)?.let { it as LoggedInUser }
     } else {
         FUNCTIONEEL_GEBRUIKER // No session in async context!
     }
-}
 
 fun setLoggedInUser(httpSession: HttpSession, loggedInUser: LoggedInUser?) {
     httpSession.setAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE, loggedInUser)
