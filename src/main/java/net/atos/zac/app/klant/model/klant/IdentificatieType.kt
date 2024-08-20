@@ -1,6 +1,6 @@
-package net.atos.zac.app.klant.model.klant;
+package net.atos.zac.app.klant.model.klant
 
-public enum IdentificatieType {
+enum class IdentificatieType {
     BSN,
     VN,
     RSIN

@@ -2,33 +2,24 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.klant.model.bedrijven
 
-package net.atos.zac.app.klant.model.bedrijven;
-
-public enum BedrijfType {
+enum class BedrijfType(@JvmField val type: String) {
     HOOFDVESTIGING("hoofdvestiging"),
     NEVENVESTIGING("nevenvestiging"),
     RECHTSPERSOON("rechtspersoon");
 
-    private final String type;
-
-    BedrijfType(final String type) {
-        this.type = type;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public static BedrijfType getType(final String type) {
-        if (type == null) {
-            return null;
-        }
-        for (final BedrijfType bedrijfType : BedrijfType.values()) {
-            if (bedrijfType.type.equals(type)) {
-                return bedrijfType;
+    companion object {
+        fun getType(type: String?): BedrijfType? {
+            if (type == null) {
+                return null
             }
+            for (bedrijfType in entries) {
+                if (bedrijfType.type == type) {
+                    return bedrijfType
+                }
+            }
+            throw IllegalStateException("BedrijfType: '$type' not found")
         }
-        throw new IllegalStateException(String.format("BedrijfType: '%s' not found", type));
     }
 }

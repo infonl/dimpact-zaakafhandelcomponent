@@ -2,47 +2,32 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.klant.model.personen
 
-package net.atos.zac.app.klant.model.personen;
+import net.atos.zac.app.klant.model.klant.IdentificatieType
+import net.atos.zac.app.klant.model.klant.RestKlant
 
-import static net.atos.zac.app.klant.model.klant.IdentificatieType.BSN;
+data class RestPersoon(
+    var bsn: String? = null,
+    var geslacht: String? = null,
+    var geboortedatum: String? = null,
+    var verblijfplaats: String? = null,
+    override var emailadres: String? = null,
+    override var naam: String? = null,
+    override var telefoonnummer: String? = null
+) : RestKlant() {
 
-import net.atos.zac.app.klant.model.klant.IdentificatieType;
-import net.atos.zac.app.klant.model.klant.RestKlant;
+//    constructor(naam: String?, geboortedatum: String?, verblijfplaats: String?) {
+//        this.naam = naam
+//        this.geboortedatum = geboortedatum
+//        this.verblijfplaats = verblijfplaats
+//    }
 
-public class RestPersoon extends RestKlant {
-
-    public String bsn;
-
-    public String geslacht;
-
-    public String naam;
-
-    public String geboortedatum;
-
-    public String verblijfplaats;
-
-    public RestPersoon() {
+    override fun getIdentificatieType(): IdentificatieType? {
+        return if (bsn != null) IdentificatieType.BSN else null
     }
 
-    public RestPersoon(final String naam, final String geboortedatum, final String verblijfplaats) {
-        this.naam = naam;
-        this.geboortedatum = geboortedatum;
-        this.verblijfplaats = verblijfplaats;
-    }
-
-    @Override
-    public IdentificatieType getIdentificatieType() {
-        return bsn != null ? BSN : null;
-    }
-
-    @Override
-    public String getIdentificatie() {
-        return bsn;
-    }
-
-    @Override
-    public String getNaam() {
-        return naam;
+    override fun getIdentificatie(): String? {
+        return bsn
     }
 }

@@ -2,28 +2,18 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.klant.model.personen
 
-package net.atos.zac.app.klant.model.personen;
+import java.time.LocalDate
 
-import java.time.LocalDate;
-
-public class RestListPersonenParameters {
-
-    public String bsn;
-
-    public String geslachtsnaam;
-
-    public String voornamen;
-
-    public String voorvoegsel;
-
-    public LocalDate geboortedatum;
-
-    public String gemeenteVanInschrijving;
-
-    public String postcode;
-
-    public Integer huisnummer;
-
-    public String straat;
-}
+data class RestListPersonenParameters(
+    var bsn: String? = null,
+    var geslachtsnaam: String? = null,
+    var voornamen: String? = null,
+    var voorvoegsel: String? = null,
+    var geboortedatum: LocalDate? = null,
+    var gemeenteVanInschrijving: String? = null,
+    var postcode: String? = null,
+    var huisnummer: Int? = null,
+    var straat: String? = null
+)

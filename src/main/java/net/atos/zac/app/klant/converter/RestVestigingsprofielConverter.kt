@@ -2,65 +2,70 @@
  * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.klant.converter
 
-package net.atos.zac.app.klant.converter;
+import net.atos.client.kvk.vestigingsprofiel.model.generated.Adres
+import net.atos.client.kvk.vestigingsprofiel.model.generated.SBIActiviteit
+import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging
+import net.atos.zac.app.klant.model.bedrijven.RestKlantenAdres
+import net.atos.zac.app.klant.model.bedrijven.RestVestigingsprofiel
+import org.apache.commons.collections4.CollectionUtils
+import java.util.Locale
 
-import org.apache.commons.collections4.CollectionUtils;
+object RestVestigingsprofielConverter {
+    private const val VESTIGINGTYPE_HOOFDVESTIGING = "HOOFDVESTIGING"
+    private const val VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING"
 
-import net.atos.client.kvk.vestigingsprofiel.model.generated.SBIActiviteit;
-import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging;
-import net.atos.zac.app.klant.model.bedrijven.RestKlantenAdres;
-import net.atos.zac.app.klant.model.bedrijven.RestVestigingsprofiel;
+    fun convert(vestiging: Vestiging): RestVestigingsprofiel {
+        val restVestigingsprofiel = RestVestigingsprofiel()
+        restVestigingsprofiel.kvkNummer = vestiging.kvkNummer
+        restVestigingsprofiel.vestigingsnummer = vestiging.vestigingsnummer
+        restVestigingsprofiel.eersteHandelsnaam = vestiging.eersteHandelsnaam
+        restVestigingsprofiel.rsin = vestiging.rsin
+        restVestigingsprofiel.totaalWerkzamePersonen = vestiging.totaalWerkzamePersonen
+        restVestigingsprofiel.deeltijdWerkzamePersonen = vestiging.deeltijdWerkzamePersonen
+        restVestigingsprofiel.voltijdWerkzamePersonen = vestiging.voltijdWerkzamePersonen
+        restVestigingsprofiel.commercieleVestiging = isIndicatie(vestiging.indCommercieleVestiging)
 
-public class RestVestigingsprofielConverter {
-    public static String VESTIGINGTYPE_HOOFDVESTIGING = "HOOFDVESTIGING";
-    public static String VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING";
+        restVestigingsprofiel.type =
+            if (isIndicatie(vestiging.indHoofdvestiging)) VESTIGINGTYPE_HOOFDVESTIGING else VESTIGINGTYPE_NEVENVESTIGING
+        restVestigingsprofiel.sbiHoofdActiviteit = vestiging.sbiActiviteiten
+            .stream()
+            .filter { a: SBIActiviteit -> isIndicatie(a.indHoofdactiviteit) }
+            .findAny()
+            .map { obj: SBIActiviteit -> obj.sbiOmschrijving }
+            .orElse(null)
 
-    public static RestVestigingsprofiel convert(final Vestiging vestiging) {
-        final RestVestigingsprofiel restVestigingsprofiel = new RestVestigingsprofiel();
-        restVestigingsprofiel.kvkNummer = vestiging.getKvkNummer();
-        restVestigingsprofiel.vestigingsnummer = vestiging.getVestigingsnummer();
-        restVestigingsprofiel.eersteHandelsnaam = vestiging.getEersteHandelsnaam();
-        restVestigingsprofiel.rsin = vestiging.getRsin();
-        restVestigingsprofiel.totaalWerkzamePersonen = vestiging.getTotaalWerkzamePersonen();
-        restVestigingsprofiel.deeltijdWerkzamePersonen = vestiging.getDeeltijdWerkzamePersonen();
-        restVestigingsprofiel.voltijdWerkzamePersonen = vestiging.getVoltijdWerkzamePersonen();
-        restVestigingsprofiel.commercieleVestiging = isIndicatie(vestiging.getIndCommercieleVestiging());
+        restVestigingsprofiel.sbiActiviteiten = vestiging.sbiActiviteiten
+            .stream()
+            .filter { a: SBIActiviteit -> !isIndicatie(a.indHoofdactiviteit) }
+            .map { obj: SBIActiviteit -> obj.sbiOmschrijving }
+            .toList()
 
-        restVestigingsprofiel.type = isIndicatie(vestiging.getIndHoofdvestiging()) ?
-                VESTIGINGTYPE_HOOFDVESTIGING : VESTIGINGTYPE_NEVENVESTIGING;
-        restVestigingsprofiel.sbiHoofdActiviteit = vestiging.getSbiActiviteiten()
-                .stream()
-                .filter(a -> isIndicatie(a.getIndHoofdactiviteit()))
-                .findAny()
-                .map(SBIActiviteit::getSbiOmschrijving)
-                .orElse(null);
+        restVestigingsprofiel.adressen = vestiging.adressen
+            .stream()
+            .map { adres: Adres ->
+                RestKlantenAdres(
+                    adres.type,
+                    isIndicatie(adres.indAfgeschermd),
+                    adres.volledigAdres
+                )
+            }
+            .toList()
 
-        restVestigingsprofiel.sbiActiviteiten = vestiging.getSbiActiviteiten()
-                .stream()
-                .filter(a -> !isIndicatie(a.getIndHoofdactiviteit()))
-                .map(SBIActiviteit::getSbiOmschrijving)
-                .toList();
-
-        restVestigingsprofiel.adressen = vestiging.getAdressen()
-                .stream()
-                .map(adres -> new RestKlantenAdres(adres.getType(),
-                        isIndicatie(adres.getIndAfgeschermd()),
-                        adres.getVolledigAdres()))
-                .toList();
-
-        restVestigingsprofiel.website = CollectionUtils.emptyIfNull(vestiging.getWebsites()).stream().findFirst().orElse(null);
-        return restVestigingsprofiel;
+        restVestigingsprofiel.website =
+            CollectionUtils.emptyIfNull(vestiging.websites).stream().findFirst().orElse(null)
+        return restVestigingsprofiel
     }
 
-    public static boolean isIndicatie(String stringIndicatie) {
+    private fun isIndicatie(stringIndicatie: String?): Boolean {
         if (stringIndicatie == null) {
-            return false;
+            return false
         }
-        return switch (stringIndicatie.toLowerCase()) {
-            case "ja" -> true;
-            case "nee" -> false;
-            default -> throw new IllegalStateException("Unexpected value: " + stringIndicatie);
-        };
+        return when (stringIndicatie.lowercase(Locale.getDefault())) {
+            "ja" -> true
+            "nee" -> false
+            else -> throw IllegalStateException("Unexpected value: $stringIndicatie")
+        }
     }
 }

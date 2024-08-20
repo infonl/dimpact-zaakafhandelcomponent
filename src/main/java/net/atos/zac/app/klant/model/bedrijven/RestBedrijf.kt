@@ -2,43 +2,27 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.klant.model.bedrijven
 
-package net.atos.zac.app.klant.model.bedrijven;
+import net.atos.zac.app.klant.model.klant.IdentificatieType
+import net.atos.zac.app.klant.model.klant.RestKlant
 
-import static net.atos.zac.app.klant.model.klant.IdentificatieType.RSIN;
-import static net.atos.zac.app.klant.model.klant.IdentificatieType.VN;
-
-import net.atos.zac.app.klant.model.klant.IdentificatieType;
-import net.atos.zac.app.klant.model.klant.RestKlant;
-
-public class RestBedrijf extends RestKlant {
-
-    public String vestigingsnummer;
-
-    public String kvkNummer;
-
-    public String naam;
-
-    public String rsin;
-
-    public String adres;
-
-    public String postcode;
-
-    public String type;
-
-    @Override
-    public IdentificatieType getIdentificatieType() {
-        return vestigingsnummer != null ? VN : rsin != null ? RSIN : null;
+data class RestBedrijf(
+    var vestigingsnummer: String? = null,
+    var kvkNummer: String? = null,
+    var rsin: String? = null,
+    var adres: String? = null,
+    var postcode: String? = null,
+    var type: String? = null,
+    override var emailadres: String? = null,
+    override var naam: String? = null,
+    override var telefoonnummer: String? = null
+) : RestKlant() {
+    override fun getIdentificatieType(): IdentificatieType? {
+        return if (vestigingsnummer != null) IdentificatieType.VN else (if (rsin != null) IdentificatieType.RSIN else null)
     }
 
-    @Override
-    public String getIdentificatie() {
-        return vestigingsnummer != null ? vestigingsnummer : rsin;
-    }
-
-    @Override
-    public String getNaam() {
-        return naam;
+    override fun getIdentificatie(): String? {
+        return if (vestigingsnummer != null) vestigingsnummer else rsin
     }
 }
