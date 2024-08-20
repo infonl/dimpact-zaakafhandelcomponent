@@ -94,7 +94,7 @@ class UserPrincipalFilter @Inject constructor(
             null
         } else {
             zaakafhandelParameterService.listZaakafhandelParameters()
-                // group by zaakttype omschrijving since this the unique identifier for a zaaktype
+                // group by zaakttype omschrijving since this is the unique identifier for a zaaktype
                 // (not the zaaktype uuid since that changes for every version of a zaaktype)
                 .groupBy { it.zaaktypeOmschrijving }
                 // get the zaakafhandelparameter with the latest creation date (= the active one)
