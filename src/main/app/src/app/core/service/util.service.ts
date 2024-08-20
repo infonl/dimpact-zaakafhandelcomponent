@@ -9,13 +9,13 @@ import { DOCUMENT } from "@angular/common";
 import { Inject, Injectable, Optional, Signal } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar, MatSnackBarConfig } from "@angular/material/snack-bar";
-import { ProgressSnackbar } from "src/app/shared/progress-snackbar/progress-snackbar.component";
-import { ProgressDialogComponent } from "src/app/shared/progress-dialog/progress-dialog.component";
 import { Title } from "@angular/platform-browser";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { BehaviorSubject, Observable, Subject, iif, of } from "rxjs";
 import { delay, map, shareReplay, switchMap } from "rxjs/operators";
+import { ProgressDialogComponent } from "src/app/shared/progress-dialog/progress-dialog.component";
+import { ProgressSnackbar } from "src/app/shared/progress-snackbar/progress-snackbar.component";
 import { OrderUtil } from "../../shared/order/order-util";
 import { ActionBarAction } from "../actionbar/model/action-bar-action";
 

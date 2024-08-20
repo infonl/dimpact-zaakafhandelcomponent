@@ -3,16 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject, computed, Signal, inject } from "@angular/core";
-import {
-  MatSnackBarRef,
-  MAT_SNACK_BAR_DATA,
-} from "@angular/material/snack-bar";
-import { MatSnackBarLabel } from "@angular/material/snack-bar";
+import { Component, Inject, Signal, computed, inject } from "@angular/core";
 import {
   MatProgressBar,
   ProgressBarMode,
 } from "@angular/material/progress-bar";
+import {
+  MAT_SNACK_BAR_DATA,
+  MatSnackBarLabel,
+  MatSnackBarRef,
+} from "@angular/material/snack-bar";
 
 @Component({
   standalone: true,
