@@ -41,10 +41,10 @@ import { ActionBarAction } from "../actionbar/model/action-bar-action";
 })
 export class UtilService {
   private headerTitle: BehaviorSubject<string> = new BehaviorSubject<string>(
-    "zaakafhandelcomponent",
+    "zaakafhandelcomponent"
   );
   private loading: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
-    false,
+    false
   );
 
   public headerTitle$: Observable<string> = this.headerTitle.asObservable();
@@ -53,22 +53,22 @@ export class UtilService {
 
   public loading$: Observable<boolean> = this.loading.pipe(
     switchMap((loading) =>
-      iif(() => loading, of(loading).pipe(delay(700)), of(loading)),
-    ),
+      iif(() => loading, of(loading).pipe(delay(700)), of(loading))
+    )
   );
 
   public isHandset$: Observable<boolean> = this.breakpointObserver
     .observe(Breakpoints.Handset)
     .pipe(
       map(({ matches }) => matches),
-      shareReplay(),
+      shareReplay()
     );
 
   public isTablet$: Observable<boolean> = this.breakpointObserver
     .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
     .pipe(
       map(({ matches }) => matches),
-      shareReplay(),
+      shareReplay()
     );
 
   constructor(
@@ -78,7 +78,7 @@ export class UtilService {
     private titleService: Title,
     private router: Router,
     private snackbar: MatSnackBar,
-    private dialog: MatDialog, // Inject MatDialog instead of MatSnackBar.
+    private dialog: MatDialog // Inject MatDialog instead of MatSnackBar.
   ) {}
 
   /**
@@ -89,7 +89,7 @@ export class UtilService {
       "mat-autocomplete-panel",
       "mat-select-panel",
       "mat-datepicker-popup",
-      "zac-is-invalid",
+      "zac-is-invalid"
     );
     return overlayElements.length > 0;
   }
@@ -105,7 +105,7 @@ export class UtilService {
   setTitle(title: string, params?: {}): void {
     const _title = this.translate.instant(title, params);
     this.titleService.setTitle(
-      this.translate.instant("title", { title: _title }),
+      this.translate.instant("title", { title: _title })
     );
     this.headerTitle.next(_title);
   }
@@ -116,7 +116,7 @@ export class UtilService {
 
   getEnumAsSelectList(
     prefix: string,
-    enumValue: any,
+    enumValue: any
   ): { label: string; value: string }[] {
     const list: { label: string; value: string }[] = [];
     Object.keys(enumValue).forEach((value) => {
@@ -132,15 +132,15 @@ export class UtilService {
   getEnumAsSelectListExceptFor(
     prefix: string,
     enum_: any,
-    exceptEnumValues: [string],
+    exceptEnumValues: [string]
   ): { label: string; value: string }[] {
     const list: { label: string; value: string }[] = [];
     Object.keys(enum_)
       .filter(
         (key) =>
           !exceptEnumValues.some(
-            (acceptEnumValue) => acceptEnumValue === enum_[key],
-          ),
+            (acceptEnumValue) => acceptEnumValue === enum_[key]
+          )
       )
       .forEach((key) => {
         this.translate.get(`${prefix}.${enum_[key]}`).subscribe((result) => {
@@ -166,7 +166,7 @@ export class UtilService {
     message: string,
     action: string,
     params?: {},
-    durationSeconden?: number,
+    durationSeconden?: number
   ): Observable<void> {
     return this.snackbar
       .open(
@@ -175,14 +175,14 @@ export class UtilService {
         {
           panelClass: ["mat-snackbar"],
           duration: durationSeconden != null ? durationSeconden * 1000 : null,
-        },
+        }
       )
       .onAction();
   }
 
   openProgressDialog(
     message: string,
-    progressPercentage?: () => number,
+    progressPercentage?: () => number
   ): Observable<void> {
     const dialogRef = this.dialog.open(ProgressDialogComponent, {
       data: {
@@ -193,16 +193,16 @@ export class UtilService {
       panelClass: "full-screen-dialog",
     });
 
-    return dialogRef.afterClosed(); // This returns an observable of the action (true if action taken)
+    return dialogRef.afterClosed();
   }
 
   closeProgressDialog() {
-    this.dialog.closeAll(); // Close the dialog when the operation is complete
+    this.dialog.closeAll();
   }
 
   openSnackbarFromComponent<T>(
     component: ComponentType<T>,
-    config?: MatSnackBarConfig<any>,
+    config?: MatSnackBarConfig<any>
   ) {
     return this.snackbar.openFromComponent(component, config);
   }
@@ -235,7 +235,7 @@ export class UtilService {
     source: any[],
     item: string,
     key: string,
-    sortKey?: string,
+    sortKey?: string
   ): any[] {
     return source
       .map((value) => value[item])
@@ -255,7 +255,7 @@ export class UtilService {
         bubbles: true,
         cancelable: true,
         view: window,
-      }),
+      })
     );
     link.remove();
     window.URL.revokeObjectURL(link.href);
@@ -292,6 +292,6 @@ class ProgressSnackbar {
 
   constructor(
     @Inject(MAT_SNACK_BAR_DATA)
-    public data: { progressPercentage: Signal<number>; message: string },
+    public data: { progressPercentage: Signal<number>; message: string }
   ) {}
 }
