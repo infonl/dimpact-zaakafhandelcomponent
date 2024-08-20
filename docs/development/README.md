@@ -11,6 +11,8 @@ The following ZAC developer documentation is available:
 - [Testing](testing.md) - Instructions on how to run and develop tests for ZAC.
 - [Updating dependencies](updatingDependencies.md) - Instructions on how to update various types of dependencies in ZAC
 and (OpenAPI) API specifications used by ZAC.
+- [Managing Solr](managingSolr.md) - Instructions on how to manage the Solr search engine in ZAC. 
+For example, how to reindex the Solr search index.
 
 ## Monitoring
 ZAC exposes two monitoring endpoints through WildFly by default:
