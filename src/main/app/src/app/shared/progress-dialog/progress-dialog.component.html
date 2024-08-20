@@ -1,0 +1,10 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2021 Atos
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<div class="progress-dialog">
+  <div>{{ data.message }}</div>
+  <mat-progress-bar [mode]="progressMode()" [value]="data.progressPercentage()">
+  </mat-progress-bar>
+</div>

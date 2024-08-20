@@ -15,11 +15,7 @@ import {
   computed,
   inject,
 } from "@angular/core";
-import {
-  MAT_DIALOG_DATA,
-  MatDialog,
-  MatDialogRef,
-} from "@angular/material/dialog";
+import { MatDialog } from "@angular/material/dialog";
 import {
   MatProgressBar,
   ProgressBarMode,
@@ -36,6 +32,7 @@ import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { BehaviorSubject, Observable, Subject, iif, of } from "rxjs";
 import { delay, map, shareReplay, switchMap } from "rxjs/operators";
+import { ProgressDialogComponent } from "src/app/shared/progress-dialog/progress-dialog.component";
 import { OrderUtil } from "../../shared/order/order-util";
 import { ActionBarAction } from "../actionbar/model/action-bar-action";
 
@@ -297,63 +294,4 @@ class ProgressSnackbar {
     @Inject(MAT_SNACK_BAR_DATA)
     public data: { progressPercentage: Signal<number>; message: string },
   ) {}
-}
-
-@Component({
-  standalone: true,
-  selector: "app-progress-dialog",
-  imports: [MatSnackBarLabel, MatProgressBar],
-  template: `
-    <div class="progress-dialog">
-      <div>{{ data.message }}</div>
-      <mat-progress-bar
-        [mode]="progressMode()"
-        [value]="data.progressPercentage()"
-      >
-      </mat-progress-bar>
-    </div>
-  `,
-  styles: [
-    `
-      .progress-dialog {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 32px;
-        background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
-        color: white;
-        text-align: center;
-      }
-
-      .mat-mdc-progress-bar {
-        --mdc-linear-progress-active-indicator-color: var(
-          --mat-snack-bar-button-color
-        );
-        --mdc-linear-progress-track-color: rgba(255, 64, 129, 0.25);
-        position: absolute;
-        bottom: 0;
-      }
-    `,
-  ],
-})
-export class ProgressDialogComponent {
-  constructor(
-    public dialogRef: MatDialogRef<ProgressDialogComponent>,
-    @Inject(MAT_DIALOG_DATA)
-    public data: {
-      message: string;
-      action?: string;
-      progressPercentage?: () => number;
-    },
-  ) {}
-
-  progressMode() {
-    const percentage = this.data.progressPercentage();
-    return percentage === 100 || percentage === 0 ? "query" : "determinate";
-  }
-
-  onAction(): void {
-    this.dialogRef.close(true); // Close with true to indicate action was taken
-  }
 }
