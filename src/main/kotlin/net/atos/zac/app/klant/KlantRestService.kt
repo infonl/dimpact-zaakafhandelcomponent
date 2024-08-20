@@ -6,7 +6,6 @@ package net.atos.zac.app.klant
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import jakarta.validation.constraints.Size
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.NotFoundException
@@ -48,7 +47,6 @@ import net.atos.zac.app.klant.model.personen.RestPersoon
 import net.atos.zac.app.shared.RESTResultaat
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
-import org.checkerframework.common.value.qual.MinLen
 import org.hibernate.validator.constraints.Length
 import java.util.EnumSet
 import java.util.Objects

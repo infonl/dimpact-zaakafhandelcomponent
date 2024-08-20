@@ -250,5 +250,78 @@ class KlantRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             }
         }
+        When(
+            """
+                the personen parameters endpoint is called
+                """
+        ) {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/klanten/personen/parameters",
+            )
+            Then("the response should be ok and the test company should be returned without contact data") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_OK
+                responseBody shouldEqualJson """
+                  [ 
+                    {
+                      "bsn" : "REQ",
+                      "geboortedatum" : "NON",
+                      "gemeenteVanInschrijving" : "NON",
+                      "geslachtsnaam" : "NON",
+                      "huisnummer" : "NON",
+                      "postcode" : "NON",
+                      "straat" : "NON",
+                      "voornamen" : "NON",
+                      "voorvoegsel" : "NON"
+                    }, 
+                    {
+                      "bsn" : "NON",
+                      "geboortedatum" : "REQ",
+                      "gemeenteVanInschrijving" : "NON",
+                      "geslachtsnaam" : "REQ",
+                      "huisnummer" : "NON",
+                      "postcode" : "NON",
+                      "straat" : "NON",
+                      "voornamen" : "OPT",
+                      "voorvoegsel" : "OPT"
+                    }, 
+                    {
+                      "bsn" : "NON",
+                      "geboortedatum" : "NON",
+                      "gemeenteVanInschrijving" : "REQ",
+                      "geslachtsnaam" : "REQ",
+                      "huisnummer" : "NON",
+                      "postcode" : "NON",
+                      "straat" : "NON",
+                      "voornamen" : "REQ",
+                      "voorvoegsel" : "OPT"
+                    }, 
+                    {
+                      "bsn" : "NON",
+                      "geboortedatum" : "NON",
+                      "gemeenteVanInschrijving" : "NON",
+                      "geslachtsnaam" : "NON",
+                      "huisnummer" : "REQ",
+                      "postcode" : "REQ",
+                      "straat" : "NON",
+                      "voornamen" : "NON",
+                      "voorvoegsel" : "NON"
+                    }, 
+                    {
+                      "bsn" : "NON",
+                      "geboortedatum" : "NON",
+                      "gemeenteVanInschrijving" : "REQ",
+                      "geslachtsnaam" : "NON",
+                      "huisnummer" : "REQ",
+                      "postcode" : "NON",
+                      "straat" : "REQ",
+                      "voornamen" : "NON",
+                      "voorvoegsel" : "NON"
+                    } 
+                  ]
+                """.trimIndent()
+            }
+        }
     }
 })
