@@ -23,6 +23,4 @@ class DrcClientUtilKtTest : BehaviorSpec({
             }
         }
     }
-
-
 })
