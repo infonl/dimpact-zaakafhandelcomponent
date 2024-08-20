@@ -5,8 +5,12 @@
 
 package net.atos.zac.app.klant;
 
+import static net.atos.zac.app.klant.converter.KlantcontactConverter.convert;
+import static net.atos.zac.app.klant.converter.KlantcontactConverter.mapContactToInitiatorFullName;
 import static net.atos.zac.app.klant.converter.RestPersoonConverter.VALID_PERSONEN_QUERIES;
-import static net.atos.zac.util.StringUtil.ONBEKEND;
+import static net.atos.zac.app.klant.converter.RestPersoonConverter.convertFromPersonenQueryResponse;
+import static net.atos.zac.app.klant.converter.RestPersoonConverter.convertPersoon;
+import static net.atos.zac.app.klant.converter.RestPersoonConverter.convertToPersonenQuery;
 
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -45,9 +49,7 @@ import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 import net.atos.client.zgw.ztc.model.generated.RolType;
-import net.atos.zac.app.klant.converter.KlantcontactConverter;
 import net.atos.zac.app.klant.converter.RestBedrijfConverter;
-import net.atos.zac.app.klant.converter.RestPersoonConverter;
 import net.atos.zac.app.klant.converter.RestRoltypeConverter;
 import net.atos.zac.app.klant.converter.RestVestigingsprofielConverter;
 import net.atos.zac.app.klant.model.bedrijven.RestBedrijf;
@@ -71,7 +73,6 @@ import net.atos.zac.app.shared.RESTResultaat;
 @Singleton
 public class KlantRestService {
     public static final Set<OmschrijvingGeneriekEnum> betrokkenen;
-    private static final RestPersoon ONBEKEND_PERSOON = new RestPersoon(ONBEKEND, ONBEKEND, ONBEKEND);
     static {
         betrokkenen = EnumSet.allOf(OmschrijvingGeneriekEnum.class);
         betrokkenen.remove(OmschrijvingGeneriekEnum.INITIATOR);
@@ -83,10 +84,7 @@ public class KlantRestService {
     private BrpClientService brpClientService;
     private KvkClientService kvkClientService;
     private ZtcClientService ztcClientService;
-    private RestPersoonConverter restPersoonConverter;
-    private RestVestigingsprofielConverter restVestigingsprofielConverter;
     private KlantClientService klantClientService;
-    private KlantcontactConverter klantcontactConverter;
 
     /**
      * Default no-arg constructor, required by Weld.
@@ -99,18 +97,12 @@ public class KlantRestService {
             BrpClientService brpClientService,
             KvkClientService kvkClientService,
             ZtcClientService ztcClientService,
-            RestPersoonConverter restPersoonConverter,
-            RestVestigingsprofielConverter restVestigingsprofielConverter,
-            KlantClientService klantClientService,
-            KlantcontactConverter klantcontactConverter
+            KlantClientService klantClientService
     ) {
         this.brpClientService = brpClientService;
         this.kvkClientService = kvkClientService;
         this.ztcClientService = ztcClientService;
-        this.restPersoonConverter = restPersoonConverter;
-        this.restVestigingsprofielConverter = restVestigingsprofielConverter;
         this.klantClientService = klantClientService;
-        this.klantcontactConverter = klantcontactConverter;
     }
 
     @GET
@@ -148,7 +140,7 @@ public class KlantRestService {
     public RestVestigingsprofiel readVestigingsprofiel(@PathParam("vestigingsnummer") final String vestigingsnummer) {
         Optional<Vestiging> vestiging = kvkClientService.findVestigingsprofiel(vestigingsnummer);
         if (vestiging.isPresent()) {
-            return restVestigingsprofielConverter.convert(vestiging.get());
+            return RestVestigingsprofielConverter.convert(vestiging.get());
         }
         throw new NotFoundException(
                 "Geen vestigingsprofiel gevonden voor vestiging met vestigingsnummer \"%s\"".formatted(vestigingsnummer)
@@ -172,9 +164,9 @@ public class KlantRestService {
     @PUT
     @Path("personen")
     public RESTResultaat<RestPersoon> listPersonen(final RestListPersonenParameters restListPersonenParameters) {
-        final PersonenQuery query = restPersoonConverter.convertToPersonenQuery(restListPersonenParameters);
+        final PersonenQuery query = convertToPersonenQuery(restListPersonenParameters);
         final PersonenQueryResponse response = brpClientService.queryPersonen(query);
-        return new RESTResultaat<>(restPersoonConverter.convertFromPersonenQueryResponse(response));
+        return new RESTResultaat<>(convertFromPersonenQueryResponse(response));
     }
 
     @PUT
@@ -243,7 +235,7 @@ public class KlantRestService {
     }
 
     private RestPersoon convertToRestPersoon(final Persoon persoon, RestPersoon klantPersoon) {
-        final RestPersoon restPersoon = restPersoonConverter.convertPersoon(persoon);
+        final RestPersoon restPersoon = convertPersoon(persoon);
         return (RestPersoon) addKlantData(restPersoon, klantPersoon);
     }
 
@@ -273,13 +265,13 @@ public class KlantRestService {
 
         var betrokkenenWithKlantcontactList = klantClientService.listBetrokkenenByNumber(nummer, pageNumber);
 
-        var contactToFullNameMap = klantcontactConverter.mapContactToInitiatorFullName(betrokkenenWithKlantcontactList);
+        var contactToFullNameMap = mapContactToInitiatorFullName(betrokkenenWithKlantcontactList);
 
         var klantcontactListPage = betrokkenenWithKlantcontactList.stream()
                 .map(ExpandBetrokkene::getExpand)
                 .filter(Objects::nonNull)
                 .map(ExpandBetrokkeneAllOfExpand::getHadKlantcontact)
-                .map(klantcontact -> klantcontactConverter.convert(klantcontact, contactToFullNameMap))
+                .map(klantcontact -> convert(klantcontact, contactToFullNameMap))
                 .toList();
 
         return new RESTResultaat<>(klantcontactListPage, klantcontactListPage.size());

@@ -18,8 +18,7 @@ import net.atos.client.klant.model.Klantcontact;
 import net.atos.zac.app.klant.model.contactmoment.RESTContactmoment;
 
 public class KlantcontactConverter {
-
-    public Map<UUID, String> mapContactToInitiatorFullName(List<ExpandBetrokkene> betrokkenenWithKlantcontactList) {
+    public static Map<UUID, String> mapContactToInitiatorFullName(List<ExpandBetrokkene> betrokkenenWithKlantcontactList) {
         return betrokkenenWithKlantcontactList.stream()
                 .filter(ExpandBetrokkene::getInitiator)
                 .collect(Collectors.toMap(
@@ -29,7 +28,7 @@ public class KlantcontactConverter {
                 ));
     }
 
-    public RESTContactmoment convert(
+    public static RESTContactmoment convert(
             final Klantcontact klantcontact,
             final Map<UUID, String> contactToFullNameMap
     ) {
@@ -46,7 +45,7 @@ public class KlantcontactConverter {
         return restContactmoment;
     }
 
-    private String convert(final List<Actor> actors) {
+    private static String convert(final List<Actor> actors) {
         if (actors.isEmpty()) {
             return null;
         }
