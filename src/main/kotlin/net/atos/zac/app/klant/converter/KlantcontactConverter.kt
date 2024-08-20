@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.klant.converter
@@ -34,7 +34,6 @@ private fun toRestRoltype(actors: List<Actor>): String? {
     if (actors.isEmpty()) {
         return null
     }
-
     val result = StringBuilder()
     for (actor in actors) {
         if (StringUtils.isNotBlank(result)) {

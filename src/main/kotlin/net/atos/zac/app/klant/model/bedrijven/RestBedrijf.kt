@@ -1,12 +1,16 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.klant.model.bedrijven
 
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.klant.model.klant.RestKlant
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 
+@AllOpen
+@NoArgConstructor
 data class RestBedrijf(
     var vestigingsnummer: String? = null,
     var kvkNummer: String? = null,

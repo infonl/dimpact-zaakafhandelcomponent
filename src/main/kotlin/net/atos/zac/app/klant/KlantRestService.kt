@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.klant
@@ -20,13 +20,11 @@ import net.atos.client.brp.model.generated.Persoon
 import net.atos.client.klant.KlantClientService
 import net.atos.client.klant.model.DigitaalAdres
 import net.atos.client.kvk.KvkClientService
-import net.atos.client.kvk.model.KvkZoekenParameters
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
-import net.atos.zac.app.klant.converter.RestVestigingsprofielConverter
-import net.atos.zac.app.klant.converter.RestVestigingsprofielConverter.convert
 import net.atos.zac.app.klant.converter.VALID_PERSONEN_QUERIES
+import net.atos.zac.app.klant.converter.convert
 import net.atos.zac.app.klant.converter.convertFromPersonenQueryResponse
 import net.atos.zac.app.klant.converter.convertPersoon
 import net.atos.zac.app.klant.converter.convertToPersonenQuery
@@ -82,11 +80,8 @@ class KlantRestService @Inject constructor(
 
     @GET
     @Path("persoon/{bsn}")
-    @Throws(ExecutionException::class, InterruptedException::class)
     fun readPersoon(
-        @PathParam("bsn") bsn:
-        @Size(min = 8, max = 9)
-        String
+        @PathParam("bsn") @Size(min = 8, max = 9) bsn: String
     ): RestPersoon = convertToRestPersoon(
         // note that we currently explicitly wait here for the asynchronous client invocation to complete
         // thereby blocking the request thread
@@ -96,7 +91,6 @@ class KlantRestService @Inject constructor(
 
     @GET
     @Path("vestiging/{vestigingsnummer}")
-    @Throws(ExecutionException::class, InterruptedException::class)
     fun readVestiging(
         @PathParam("vestigingsnummer") vestigingsnummer: String
     ): RestBedrijf = convertToRestBedrijf(
@@ -111,7 +105,7 @@ class KlantRestService @Inject constructor(
     fun readVestigingsprofiel(@PathParam("vestigingsnummer") vestigingsnummer: String): RestVestigingsprofiel {
         val vestiging = kvkClientService.findVestigingsprofiel(vestigingsnummer)
         if (vestiging.isPresent) {
-            return RestVestigingsprofielConverter.convert(vestiging.get())
+            return convert(vestiging.get())
         } else {
             throw NotFoundException(
                 "Geen vestigingsprofiel gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'"
@@ -132,11 +126,14 @@ class KlantRestService @Inject constructor(
 
     @PUT
     @Path("personen")
-    fun listPersonen(restListPersonenParameters: RestListPersonenParameters): RESTResultaat<RestPersoon> {
-        val query = convertToPersonenQuery(restListPersonenParameters)
-        val response = brpClientService.queryPersonen(query)
-        return RESTResultaat(convertFromPersonenQueryResponse(response))
-    }
+    fun listPersonen(restListPersonenParameters: RestListPersonenParameters): RESTResultaat<RestPersoon> =
+        RESTResultaat(
+            convertFromPersonenQueryResponse(
+                brpClientService.queryPersonen(
+                    convertToPersonenQuery(restListPersonenParameters)
+                )
+            )
+        )
 
     @PUT
     @Path("bedrijven")
@@ -167,15 +164,15 @@ class KlantRestService @Inject constructor(
     fun ophalenContactGegevens(
         @PathParam("identificatieType") identificatieType: IdentificatieType,
         @PathParam("initiatorIdentificatie") initiatorIdentificatie: String
-    ): RestContactGegevens {
-        val restContactGegevens = RestContactGegevens()
-        val klantPersoon = convertToRestPersoon(
+    ): RestContactGegevens =
+        convertToRestPersoon(
             klantClientService.findDigitalAddressesByNumber(initiatorIdentificatie)
-        )
-        restContactGegevens.telefoonnummer = klantPersoon.telefoonnummer
-        restContactGegevens.emailadres = klantPersoon.emailadres
-        return restContactGegevens
-    }
+        ).let {
+             RestContactGegevens(
+                telefoonnummer = it.telefoonnummer,
+                emailadres = it.emailadres
+            )
+        }
 
     @PUT
     @Path("contactmomenten")

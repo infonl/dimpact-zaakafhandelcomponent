@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+@file:Suppress("TooManyFunctions")
+
 package net.atos.zac.app.klant.converter
 
 import net.atos.client.brp.model.generated.AbstractDatum
@@ -44,39 +46,59 @@ import java.util.Objects
 // Moet overeenkomen met wat er in convertToPersonenQuery gebeurt.
 val VALID_PERSONEN_QUERIES = listOf(
     RestPersonenParameters(
-        Cardinaliteit.REQ,
-        Cardinaliteit.NON, Cardinaliteit.NON, Cardinaliteit.NON,
-        Cardinaliteit.NON,
-        Cardinaliteit.NON,
-        Cardinaliteit.NON, Cardinaliteit.NON, Cardinaliteit.NON
+        bsn = Cardinaliteit.REQ,
+        geslachtsnaam = Cardinaliteit.NON,
+        voornamen = Cardinaliteit.NON,
+        voorvoegsel = Cardinaliteit.NON,
+        geboortedatum = Cardinaliteit.NON,
+        gemeenteVanInschrijving = Cardinaliteit.NON,
+        postcode = Cardinaliteit.NON,
+        huisnummer = Cardinaliteit.NON,
+        straat = Cardinaliteit.NON
     ),
     RestPersonenParameters(
         Cardinaliteit.NON,
-        Cardinaliteit.REQ, Cardinaliteit.OPT, Cardinaliteit.OPT,
+        Cardinaliteit.REQ,
+        Cardinaliteit.OPT,
+        Cardinaliteit.OPT,
         Cardinaliteit.REQ,
         Cardinaliteit.NON,
-        Cardinaliteit.NON, Cardinaliteit.NON, Cardinaliteit.NON
+        Cardinaliteit.NON,
+        Cardinaliteit.NON,
+        Cardinaliteit.NON
     ),
     RestPersonenParameters(
         Cardinaliteit.NON,
-        Cardinaliteit.REQ, Cardinaliteit.REQ, Cardinaliteit.OPT,
+        Cardinaliteit.REQ,
+        Cardinaliteit.REQ,
+        Cardinaliteit.OPT,
         Cardinaliteit.NON,
         Cardinaliteit.REQ,
-        Cardinaliteit.NON, Cardinaliteit.NON, Cardinaliteit.NON
+        Cardinaliteit.NON,
+        Cardinaliteit.NON,
+        Cardinaliteit.NON
     ),
     RestPersonenParameters(
         Cardinaliteit.NON,
-        Cardinaliteit.NON, Cardinaliteit.NON, Cardinaliteit.NON,
         Cardinaliteit.NON,
         Cardinaliteit.NON,
-        Cardinaliteit.REQ, Cardinaliteit.REQ, Cardinaliteit.NON
+        Cardinaliteit.NON,
+        Cardinaliteit.NON,
+        Cardinaliteit.NON,
+        Cardinaliteit.REQ,
+        Cardinaliteit.REQ,
+        Cardinaliteit.NON
     ),
     RestPersonenParameters(
         Cardinaliteit.NON,
-        Cardinaliteit.NON, Cardinaliteit.NON, Cardinaliteit.NON,
+        Cardinaliteit.NON,
+        Cardinaliteit.NON,
+        Cardinaliteit.NON,
         Cardinaliteit.NON,
         Cardinaliteit.REQ,
-        Cardinaliteit.NON, Cardinaliteit.REQ, Cardinaliteit.REQ
+        Cardinaliteit.NON,
+        Cardinaliteit.REQ,
+        Cardinaliteit.REQ
     )
 )
 
