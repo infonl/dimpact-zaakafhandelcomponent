@@ -15,7 +15,6 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.zac.app.admin.ZaakafhandelParametersRestService
 import net.atos.zac.app.documentcreation.converter.RestDocumentCreationConverter
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
@@ -44,8 +43,7 @@ class DocumentCreationRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zrcClientService: ZrcClientService,
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
-    private val restUnattendedDataConverter: RestDocumentCreationConverter,
-    private val zaakafhandelParametersRestService: ZaakafhandelParametersRestService
+    private val restUnattendedDataConverter: RestDocumentCreationConverter
 ) {
     @POST
     @Path("/createdocumentattended")
@@ -93,7 +91,9 @@ class DocumentCreationRestService @Inject constructor(
             ).let(documentCreationService::createDocumentUnattended)
                 .let { unattendedResponse ->
                     restUnattendedDataConverter.toEnkelvoudigInformatieObjectCreateLockRequest(
-                        zaak, unattendedData, unattendedResponse
+                        zaak,
+                        unattendedData,
+                        unattendedResponse
                     ).let {
                         enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                             zaak = zaak,

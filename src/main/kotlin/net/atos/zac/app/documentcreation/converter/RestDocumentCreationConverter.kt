@@ -54,5 +54,4 @@ class RestDocumentCreationConverter @Inject constructor(
         inhoud = unattendedResponse.fileContent
         bestandsomvang = unattendedResponse.fileContent?.decodedBase64StringLength()
     }
-
 }
