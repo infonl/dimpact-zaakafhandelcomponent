@@ -20,10 +20,18 @@ updates:
         update-types:
           - "minor"
           - "patch"
+          # group all updates for ESLint including major, minor, and patch
+      eslint:
+        patterns:
+          - "@typescript-eslint*"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
     ignore:
       # ignore major Angular updates since they require manual steps
       - dependency-name: "@angular*"
-        update-types: [ "version-update:semver-major" ]
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "npm"
     directory: "/src/e2e/"
@@ -68,7 +76,7 @@ updates:
       time: "04:00"
       timezone: "Europe/Amsterdam"
     reviewers:
-    - "infonl/dimpact"
+      - "infonl/dimpact"
 
   - package-ecosystem: "docker"
     directory: "/"
@@ -77,4 +85,4 @@ updates:
       time: "04:00"
       timezone: "Europe/Amsterdam"
     reviewers:
-    - "infonl/dimpact"
+      - "infonl/dimpact"
