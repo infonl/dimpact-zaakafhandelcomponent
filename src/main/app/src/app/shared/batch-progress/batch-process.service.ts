@@ -80,10 +80,10 @@ export class BatchProcessService {
   }
 
   showProgress(message: string) {
-    this.snackBarRef = this.utilService.openProgressSnackbar({
-      progressPercentage: this.progress,
+    const dialogRef = this.utilService.openProgressDialog(
       message,
-    });
+      this.progress,
+    );
   }
 
   stop() {

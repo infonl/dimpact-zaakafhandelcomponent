@@ -16,6 +16,11 @@ import {
   inject,
 } from "@angular/core";
 import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogRef,
+} from "@angular/material/dialog";
+import {
   MatProgressBar,
   ProgressBarMode,
 } from "@angular/material/progress-bar";
@@ -76,6 +81,7 @@ export class UtilService {
     private titleService: Title,
     private router: Router,
     private snackbar: MatSnackBar,
+    private dialog: MatDialog, // Inject MatDialog instead of MatSnackBar.
   ) {}
 
   /**
@@ -177,6 +183,26 @@ export class UtilService {
       .onAction();
   }
 
+  openProgressDialog(
+    message: string,
+    progressPercentage?: () => number,
+  ): Observable<void> {
+    const dialogRef = this.dialog.open(ProgressDialogComponent, {
+      data: {
+        message: this.translate.instant(message),
+        progressPercentage,
+      },
+      disableClose: true,
+      panelClass: "full-screen-dialog",
+    });
+
+    return dialogRef.afterClosed(); // This returns an observable of the action (true if action taken)
+  }
+
+  closeProgressDialog() {
+    this.dialog.closeAll(); // Close the dialog when the operation is complete
+  }
+
   openSnackbarFromComponent<T>(
     component: ComponentType<T>,
     config?: MatSnackBarConfig<any>,
@@ -271,4 +297,63 @@ class ProgressSnackbar {
     @Inject(MAT_SNACK_BAR_DATA)
     public data: { progressPercentage: Signal<number>; message: string },
   ) {}
+}
+
+@Component({
+  standalone: true,
+  selector: "app-progress-dialog",
+  imports: [MatSnackBarLabel, MatProgressBar],
+  template: `
+    <div class="progress-dialog">
+      <div>{{ data.message }}</div>
+      <mat-progress-bar
+        [mode]="progressMode()"
+        [value]="data.progressPercentage()"
+      >
+      </mat-progress-bar>
+    </div>
+  `,
+  styles: [
+    `
+      .progress-dialog {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 32px;
+        background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
+        color: white;
+        text-align: center;
+      }
+
+      .mat-mdc-progress-bar {
+        --mdc-linear-progress-active-indicator-color: var(
+          --mat-snack-bar-button-color
+        );
+        --mdc-linear-progress-track-color: rgba(255, 64, 129, 0.25);
+        position: absolute;
+        bottom: 0;
+      }
+    `,
+  ],
+})
+export class ProgressDialogComponent {
+  constructor(
+    public dialogRef: MatDialogRef<ProgressDialogComponent>,
+    @Inject(MAT_DIALOG_DATA)
+    public data: {
+      message: string;
+      action?: string;
+      progressPercentage?: () => number;
+    },
+  ) {}
+
+  progressMode() {
+    const percentage = this.data.progressPercentage();
+    return percentage === 100 || percentage === 0 ? "query" : "determinate";
+  }
+
+  onAction(): void {
+    this.dialogRef.close(true); // Close with true to indicate action was taken
+  }
 }
