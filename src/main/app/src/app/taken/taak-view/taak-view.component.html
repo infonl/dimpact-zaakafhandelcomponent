@@ -43,11 +43,20 @@
               (formPartial)="onConfigurableFormPartial($event)"
               (formSubmit)="onConfigurableFormSubmit($event)"
               [definitie]="formulierDefinitie"
+              [waarden]="taak.taakdata"
               [zaak]="zaak"
               [readonly]="isReadonly()"
             ></zac-formulier>
+            <formio
+              *ngIf="formioFormulier"
+              [submission]="{ data: taak.taakdata}"
+              [form]="formioFormulier"
+              [readOnly]="isReadonly()"
+              [options]="{ disableAlerts: true}"
+              (submit)="onFormioFormSubmit($event)"
+            ></formio>
             <mat-progress-bar
-              *ngIf="!formulier && !formulierDefinitie"
+              *ngIf="!formulier && !formulierDefinitie && !formioFormulier"
               mode="query"
             ></mat-progress-bar>
           </div>

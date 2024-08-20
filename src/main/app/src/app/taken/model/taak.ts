@@ -26,6 +26,7 @@ export class Taak {
   status: TaakStatus;
   formulierDefinitieId: FormulierDefinitieID;
   formulierDefinitie: FormulierDefinitie;
+  formioFormulier: any;
   tabellen: { [key: string]: string[] };
   taakdata: {};
   taakinformatie: Taakinformatie;

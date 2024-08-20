@@ -4,6 +4,7 @@
  */
 package net.atos.zac.app.task.model
 
+import jakarta.json.JsonObject
 import net.atos.zac.app.formulieren.model.RESTFormulierDefinitie
 import net.atos.zac.app.identity.model.RESTGroup
 import net.atos.zac.app.identity.model.RESTUser
@@ -49,6 +50,8 @@ data class RestTask(
     // Definitie van een via de user interface gebouwd formulier.
     // Deze worden enkel gebruikt voor het afhandelen van taken welke automatische worden gestart vanuit een BPMN proces
     var formulierDefinitie: RESTFormulierDefinitie? = null,
+
+    var formioFormulier: JsonObject? = null,
 
     // needs to be mutable for now unfortunately because this data can be changed dynamically
     var tabellen: MutableMap<String, List<String>>,

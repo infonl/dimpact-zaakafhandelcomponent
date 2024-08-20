@@ -5,6 +5,8 @@
 package net.atos.zac.app.task.converter
 
 import jakarta.inject.Inject
+import jakarta.json.Json
+import jakarta.json.JsonObject
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.app.formulieren.converter.RESTFormulierDefinitieConverter
@@ -36,7 +38,7 @@ class RestTaskConverter @Inject constructor(
     private val policyService: PolicyService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val formulierDefinitieConverter: RESTFormulierDefinitieConverter,
-    private val formulierDefinitieService: FormulierDefinitieService,
+    private val formulierDefinitieService: FormulierDefinitieService
 ) {
     fun convert(tasks: List<TaskInfo>) = tasks
         .map { convert(it) }
@@ -98,11 +100,25 @@ class RestTaskConverter @Inject constructor(
                 taskInfo.taskDefinitionKey
             )
         } else {
-            formulierDefinitieService.readFormulierDefinitie(taskInfo.formKey).let {
-                restTask.formulierDefinitie = formulierDefinitieConverter.convert(it, true)
-            }
+            formulierDefinitieService.findFormulierDefinitie(taskInfo.formKey).ifPresentOrElse(
+                {
+                    restTask.formulierDefinitie = formulierDefinitieConverter.convert(it, true)
+                },
+                {
+                    restTask.formioFormulier = readFormioFormulier(taskInfo.formKey)
+                }
+            )
         }
         return restTask
+    }
+
+    private fun readFormioFormulier(formulierNaam: String): JsonObject {
+        return this::class.java.classLoader.getResourceAsStream("formulieren/%s.json".format(formulierNaam))
+            .bufferedReader().use {
+                Json.createReader(it).use {
+                    it.readObject()
+                }
+            }
     }
 
     fun extractGroupId(identityLinks: List<IdentityLinkInfo>): String? =

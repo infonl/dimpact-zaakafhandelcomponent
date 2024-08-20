@@ -1,0 +1,75 @@
+{
+  "title": "Taak 1",
+  "components": [
+    {
+      "label": "Omschrijving",
+      "applyMaskOn": "change",
+      "tableView": true,
+      "validateWhenHidden": false,
+      "key": "omschrijving",
+      "type": "textfield",
+      "input": true,
+      "defaultValue": ":omschrijving"
+    },
+    {
+      "label": "Kies taak 3 of 4",
+      "optionsLabelPosition": "right",
+      "inline": false,
+      "tableView": false,
+      "values": [
+        {
+          "label": "Taak 3",
+          "value": "taak3",
+          "shortcut": ""
+        },
+        {
+          "label": "Taak 4",
+          "value": "taak4",
+          "shortcut": ""
+        }
+      ],
+      "validate": {
+        "required": true
+      },
+      "validateWhenHidden": false,
+      "key": "taakkeuze34",
+      "type": "radio",
+      "input": true
+    },
+    {
+      "label": "Buttons",
+      "key": "buttons",
+      "type": "columns",
+      "input": false,
+      "tableView": false,
+      "columns": [
+        {
+          "components": [
+            {
+              "key": "save",
+              "label": "Opslaan",
+              "type": "button",
+              "action": "saveState",
+              "showValidations": false,
+              "input": true,
+              "tableView": false,
+              "state": "saved"
+            }
+          ]
+        },
+        {
+          "components": [
+            {
+              "key": "submit",
+              "label": "Opslaan & afronden",
+              "type": "button",
+              "disableOnInvalid": true,
+              "input": true,
+              "tableView": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

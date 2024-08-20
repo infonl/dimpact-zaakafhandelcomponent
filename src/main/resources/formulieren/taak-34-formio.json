@@ -1,0 +1,33 @@
+{
+  "title": "Taak 3 & 4",
+  "components": [
+    {
+      "label": "Omschrijving",
+      "applyMaskOn": "change",
+      "tableView": false,
+      "validateWhenHidden": false,
+      "key": "omschrijving",
+      "type": "textfield",
+      "input": true,
+      "defaultValue": ":omschrijving"
+    },
+    {
+      "key": "save",
+      "label": "Opslaan",
+      "type": "button",
+      "action": "saveState",
+      "showValidations": false,
+      "input": true,
+      "tableView": false,
+      "state": "saved"
+    },
+    {
+      "key": "submit",
+      "label": "Opslaan & afronden",
+      "type": "button",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

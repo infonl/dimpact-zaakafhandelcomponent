@@ -72,6 +72,7 @@ export class TaakViewComponent
   formulier: AbstractTaakFormulier;
   formConfig: FormConfig;
   formulierDefinitie: FormulierDefinitie;
+  formioFormulier: any;
 
   menu: MenuItem[] = [];
   readonly sideNavAction = SideNavAction;
@@ -169,8 +170,10 @@ export class TaakViewComponent
   private createTaakForm(taak: Taak, zaak: Zaak): void {
     if (taak.formulierDefinitieId) {
       this.createHardCodedTaakForm(taak, zaak);
-    } else {
+    } else if (taak.formulierDefinitie) {
       this.createConfigurableTaakForm(taak);
+    } else {
+      this.createFormioForm(taak);
     }
   }
 
@@ -203,6 +206,13 @@ export class TaakViewComponent
     this.formulierDefinitie = taak.formulierDefinitie;
     this.utilService.setTitle("title.taak", {
       taak: this.formulierDefinitie.naam,
+    });
+  }
+
+  private createFormioForm(taak: Taak): void {
+    this.formioFormulier = taak.formioFormulier;
+    this.utilService.setTitle("title.taak", {
+      taak: this.formioFormulier.title,
     });
   }
 
@@ -324,8 +334,8 @@ export class TaakViewComponent
 
   onConfigurableFormPartial(formState: {}): void {
     if (formState) {
-      this.taak.taakdata = formState;
       this.websocketService.suspendListener(this.taakListener);
+      this.taak.taakdata = formState;
       this.takenService.updateTaakdata(this.taak).subscribe((taak) => {
         this.utilService.openSnackbar("msg.taak.opgeslagen");
         this.init(taak, false);
@@ -336,11 +346,32 @@ export class TaakViewComponent
 
   onConfigurableFormSubmit(formState: {}): void {
     if (formState) {
-      this.taak.taakdata = formState;
       this.websocketService.suspendListener(this.taakListener);
+      this.taak.taakdata = formState;
       this.takenService.complete(this.taak).subscribe((taak) => {
         this.utilService.openSnackbar("msg.taak.afgerond");
         this.init(taak, true);
+      });
+    }
+  }
+
+  onFormioFormSubmit(submission: any) {
+    this.websocketService.suspendListener(this.taakListener);
+    for (const key in submission.data) {
+      if (key !== "submit" && key !== "save") {
+        this.taak.taakdata[key] = submission.data[key];
+      }
+    }
+    if (submission.state === "submitted") {
+      this.takenService.complete(this.taak).subscribe((taak) => {
+        this.utilService.openSnackbar("msg.taak.afgerond");
+        this.init(taak, true);
+      });
+    } else {
+      this.takenService.updateTaakdata(this.taak).subscribe((taak) => {
+        this.utilService.openSnackbar("msg.taak.opgeslagen");
+        this.init(taak, false);
+        this.posts++;
       });
     }
   }
