@@ -1,0 +1,43 @@
+{
+  "title": "Taak 2",
+  "components": [
+    {
+      "label": "Omschrijving",
+      "applyMaskOn": "change",
+      "tableView": true,
+      "validateWhenHidden": false,
+      "key": "omschrijving",
+      "type": "textfield",
+      "input": true,
+      "defaultValue": ":omschrijving"
+    },
+    {
+      "label": "Extra info",
+      "applyMaskOn": "change",
+      "autoExpand": false,
+      "tableView": true,
+      "validateWhenHidden": false,
+      "key": "extra-info",
+      "type": "textarea",
+      "input": true
+    },
+    {
+      "key": "save",
+      "label": "Opslaan",
+      "type": "button",
+      "action": "saveState",
+      "showValidations": false,
+      "input": true,
+      "tableView": false,
+      "state": "saved"
+    },
+    {
+      "key": "submit",
+      "label": "Opslaan & afronden",
+      "type": "button",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

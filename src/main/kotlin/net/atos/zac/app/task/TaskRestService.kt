@@ -121,8 +121,13 @@ class TaskRestService @Inject constructor(
             assertPolicy(policyService.readTaakRechten(task).lezen)
             deleteSignaleringen(task)
             val restTask = restTaskConverter.convert(task)
-            restTask.formulierDefinitie?.let {
-                formulierRuntimeService.render(restTask)
+            if (TaskUtil.isOpen(task)) {
+                restTask.formulierDefinitie?.let {
+                    formulierRuntimeService.renderFormulierDefinitie(restTask)
+                }
+                restTask.formioFormulier?.let {
+                    restTask.formioFormulier = formulierRuntimeService.renderFormioFormulier(restTask)
+                }
             }
             return restTask
         }
@@ -220,10 +225,10 @@ class TaskRestService @Inject constructor(
         }
 
         val zaak = zrcClientService.readZaak(restTask.zaakUuid)
-        val updatedTask = if (restTask.formulierDefinitie == null) {
-            processHardCodedFormTask(restTask, zaak)
-        } else {
+        val updatedTask = if (restTask.formulierDefinitie != null || restTask.formioFormulier != null) {
             formulierRuntimeService.submit(restTask, task, zaak)
+        } else {
+            processHardCodedFormTask(restTask, zaak)
         }
 
         flowableTaskService.completeTask(updatedTask).let {
