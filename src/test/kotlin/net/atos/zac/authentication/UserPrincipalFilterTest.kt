@@ -37,12 +37,14 @@ class UserPrincipalFilterTest : BehaviorSpec({
     val filterChain = mockk<FilterChain>()
     val httpSession = mockk<HttpSession>()
     val oidcPrincipal = mockkClass(OidcPrincipal::class)
+    val oidcSecurityContext = mockk<OidcSecurityContext>()
+    val accessToken = mockk<AccessToken>()
 
     beforeEach {
         checkUnnecessaryStub()
     }
 
-    Given("A logged-in user is present in the http session") {
+    Given("A logged-in user is present in the HTTP session") {
         val userId = "dummyId"
         val loggedInUser = createLoggedInUser(
             id = userId
@@ -53,12 +55,68 @@ class UserPrincipalFilterTest : BehaviorSpec({
         every { filterChain.doFilter(any(), any()) } just runs
         every { oidcPrincipal.name } returns userId
 
-        When("doFilter is called") {
+        When(
+            """
+                doFilter is called with a servlet request containg a user principal with the same
+                id as the logged-in user in the HTTP session
+                """
+        ) {
             userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
             Then("filterChain is invoked") {
                 verify(exactly = 1) {
                     filterChain.doFilter(httpServletRequest, servletResponse)
+                }
+            }
+        }
+    }
+    Given(
+        """
+                A logged-in user is present in the HTTP session and a servlet request containing 
+                a user principal with a different id as the logged-in user
+                """
+    ) {
+        val userId = "dummyId"
+        val loggedInUser = createLoggedInUser(
+            id = userId
+        )
+        val roles = arrayListOf(
+            "dummyRole1"
+        )
+        val zaakafhandelParameters = listOf(createZaakafhandelParameters())
+        val newHttpSession = mockk<HttpSession>()
+        every { httpServletRequest.userPrincipal } returns oidcPrincipal
+        every { httpServletRequest.getSession(true) } returns httpSession andThen newHttpSession
+        every { httpServletRequest.servletContext.contextPath } returns "dummyContextPath"
+        every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
+        every { httpSession.invalidate() } just runs
+        every { filterChain.doFilter(any(), any()) } just runs
+        every { oidcPrincipal.name } returns "aDifferentUserId"
+        every { oidcPrincipal.oidcSecurityContext } returns oidcSecurityContext
+        every { oidcSecurityContext.token } returns accessToken
+        every { accessToken.rolesClaim } returns roles
+        every { accessToken.rolesClaim } returns roles
+        every { accessToken.preferredUsername } returns "dummyUserName"
+        every { accessToken.givenName } returns "dummyGivenName"
+        every { accessToken.familyName } returns "dummyFamilyName"
+        every { accessToken.name } returns "dummyFullName"
+        every { accessToken.email } returns "dummyemail@example.com"
+        every { accessToken.getStringListClaimValue("group_membership") } returns emptyList()
+        every { zaakafhandelParameterService.listZaakafhandelParameters() } returns zaakafhandelParameters
+        every { newHttpSession.setAttribute(any(), any()) } just runs
+
+        When("doFilter is called") {
+            userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+
+            Then(
+                """
+                    the existing HTTP session is invalidated and the user is added to a new HTTP session
+                    """
+            ) {
+                verify(exactly = 1) {
+                    filterChain.doFilter(httpServletRequest, servletResponse)
+                    httpSession.invalidate()
+                    newHttpSession.setAttribute("logged-in-user", any())
                 }
             }
         }
@@ -93,8 +151,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 domein = "dummyDomein2"
             )
         )
-        val oidcSecurityContext = mockk<OidcSecurityContext>()
-        val accessToken = mockk<AccessToken>()
         val loggedInUserSlot = slot<LoggedInUser>()
 
         every { httpServletRequest.userPrincipal } returns oidcPrincipal
@@ -104,13 +160,13 @@ class UserPrincipalFilterTest : BehaviorSpec({
         every { filterChain.doFilter(any(), any()) } just runs
         every { oidcPrincipal.oidcSecurityContext } returns oidcSecurityContext
         every { oidcSecurityContext.token } returns accessToken
+        every { accessToken.rolesClaim } returns roles
         every { accessToken.preferredUsername } returns userName
         every { accessToken.givenName } returns givenName
         every { accessToken.familyName } returns familyName
         every { accessToken.name } returns fullName
         every { accessToken.email } returns email
         every { accessToken.getStringListClaimValue("group_membership") } returns groups
-        every { accessToken.rolesClaim } returns roles
         every { zaakafhandelParameterService.listZaakafhandelParameters() } returns zaakafhandelParameters
         every { httpSession.setAttribute(any(), any()) } just runs
 
