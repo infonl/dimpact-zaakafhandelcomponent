@@ -27,6 +27,7 @@ import net.atos.zac.identity.model.getFullName
 import org.wildfly.security.http.oidc.AccessToken
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
+import java.time.ZonedDateTime
 
 class UserPrincipalFilterTest : BehaviorSpec({
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
@@ -44,7 +45,12 @@ class UserPrincipalFilterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A logged-in user is present in the HTTP session") {
+    Given(
+        """
+            A logged-in user is present in the HTTP session and a servlet request containing 
+            a user principal with the same id as the logged-in user in the HTTP session
+            """
+    ) {
         val userId = "dummyId"
         val loggedInUser = createLoggedInUser(
             id = userId
@@ -57,8 +63,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
 
         When(
             """
-                doFilter is called with a servlet request containg a user principal with the same
-                id as the logged-in user in the HTTP session
+                doFilter is called
                 """
         ) {
             userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -124,7 +129,8 @@ class UserPrincipalFilterTest : BehaviorSpec({
     Given(
         """
             No logged-in user is present in the HTTP session and an OIDC security context is present with a token
-            that contains user information including a role for a domain which is also present in one of the zaakafhandelparameters
+            that contains user information including a role for a domain which is also present in one of 
+            the currently active zaakafhandelparameters
             """
     ) {
         val userName = "dummyUserName"
@@ -147,8 +153,17 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 domein = domein1,
                 zaaktypeOmschrijving = "dummyZaaktypeOmschrijving1"
             ),
+            // zaakafhandelparameters for an old version of zaaktype2
             createZaakafhandelParameters(
-                domein = "dummyDomein2"
+                creationDate = ZonedDateTime.now().minusDays(1),
+                domein = domein1,
+                zaaktypeOmschrijving = "dummyZaaktypeOmschrijving2"
+            ),
+            // zaakafhandelparameters for the current version of zaaktype2
+            createZaakafhandelParameters(
+                creationDate = ZonedDateTime.now(),
+                domein = "dummyDomein2",
+                zaaktypeOmschrijving = "dummyZaaktypeOmschrijving2"
             )
         )
         val loggedInUserSlot = slot<LoggedInUser>()
@@ -193,6 +208,63 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     this.roles shouldContainAll roles
                     this.groupIds shouldContainAll groups
                     this.geautoriseerdeZaaktypen shouldContainExactly listOf("dummyZaaktypeOmschrijving1")
+                }
+            }
+        }
+    }
+    Given(
+        """
+            No logged-in user is present in the HTTP session and an OIDC security context is present with a token
+            that contains user information including a role 'domein_elk_zaaktype'
+            """
+    ) {
+        val userName = "dummyUserName"
+        val givenName = "dummyGivenName"
+        val familyName = "dummyFamilyName"
+        val fullName = "dummyFullName"
+        val email = "dummy@example.com"
+        val groups = arrayListOf(
+            "dummyGroup1",
+        )
+        val roles = arrayListOf(
+            "dummyRole1",
+            "domein_elk_zaaktype"
+        )
+        val loggedInUserSlot = slot<LoggedInUser>()
+
+        every { httpServletRequest.userPrincipal } returns oidcPrincipal
+        every { httpServletRequest.getSession(true) } returns httpSession
+        // no logged-in user present in HTTP session
+        every { httpSession.getAttribute("logged-in-user") } returns null
+        every { filterChain.doFilter(any(), any()) } just runs
+        every { oidcPrincipal.oidcSecurityContext } returns oidcSecurityContext
+        every { oidcSecurityContext.token } returns accessToken
+        every { accessToken.rolesClaim } returns roles
+        every { accessToken.preferredUsername } returns userName
+        every { accessToken.givenName } returns givenName
+        every { accessToken.familyName } returns familyName
+        every { accessToken.name } returns fullName
+        every { accessToken.email } returns email
+        every { accessToken.getStringListClaimValue("group_membership") } returns groups
+        every { httpSession.setAttribute(any(), any()) } just runs
+
+        When("doFilter is called") {
+            userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+
+            Then(
+                """
+                the user is retrieved from security context and is added to the HTTP session and 
+                the user should have access to all zaakttypes
+                """
+            ) {
+                verify(exactly = 1) {
+                    filterChain.doFilter(httpServletRequest, servletResponse)
+                    httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot))
+                }
+                with(loggedInUserSlot.captured) {
+                    this.id shouldBe userName
+                    // null indicates that the user has access to all zaaktypen
+                    this.geautoriseerdeZaaktypen shouldBe null
                 }
             }
         }
