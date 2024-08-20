@@ -81,15 +81,15 @@ public class RestPersoonConverter {
                     NON, REQ, REQ)
     );
 
-    public List<RestPersoon> convertPersonen(final List<Persoon> personen) {
-        return personen.stream().map(this::convertPersoon).toList();
+    public static List<RestPersoon> convertPersonen(final List<Persoon> personen) {
+        return personen.stream().map(RestPersoonConverter::convertPersoon).toList();
     }
 
-    public List<RestPersoon> convertPersonenBeperkt(final List<PersoonBeperkt> personen) {
-        return personen.stream().map(this::convertPersoonBeperkt).toList();
+    public static List<RestPersoon> convertPersonenBeperkt(final List<PersoonBeperkt> personen) {
+        return personen.stream().map(RestPersoonConverter::convertPersoonBeperkt).toList();
     }
 
-    public RestPersoon convertPersoon(final Persoon persoon) {
+    public static RestPersoon convertPersoon(final Persoon persoon) {
         final RestPersoon restPersoon = new RestPersoon();
         restPersoon.bsn = persoon.getBurgerservicenummer();
         if (persoon.getGeslacht() != null) {
@@ -107,7 +107,7 @@ public class RestPersoonConverter {
         return restPersoon;
     }
 
-    public RestPersoon convertPersoonBeperkt(final PersoonBeperkt persoon) {
+    public static RestPersoon convertPersoonBeperkt(final PersoonBeperkt persoon) {
         final RestPersoon restPersoon = new RestPersoon();
         restPersoon.bsn = persoon.getBurgerservicenummer();
         if (persoon.getGeslacht() != null) {
@@ -129,7 +129,7 @@ public class RestPersoonConverter {
         return restPersoon;
     }
 
-    public PersonenQuery convertToPersonenQuery(final RestListPersonenParameters parameters) {
+    public static PersonenQuery convertToPersonenQuery(final RestListPersonenParameters parameters) {
         if (isNotBlank(parameters.bsn)) {
             final var query = new RaadpleegMetBurgerservicenummer();
             query.addBurgerservicenummerItem(parameters.bsn);
@@ -168,7 +168,7 @@ public class RestPersoonConverter {
         throw new IllegalArgumentException("Ongeldige combinatie van zoek parameters");
     }
 
-    public List<RestPersoon> convertFromPersonenQueryResponse(final PersonenQueryResponse personenQueryResponse) {
+    public static List<RestPersoon> convertFromPersonenQueryResponse(final PersonenQueryResponse personenQueryResponse) {
         return switch (personenQueryResponse) {
             case RaadpleegMetBurgerservicenummerResponse response -> convertPersonen(response.getPersonen());
             case ZoekMetGeslachtsnaamEnGeboortedatumResponse response -> convertPersonenBeperkt(response.getPersonen());
@@ -183,11 +183,11 @@ public class RestPersoonConverter {
         };
     }
 
-    private String convertGeslacht(final Waardetabel geslacht) {
+    private static String convertGeslacht(final Waardetabel geslacht) {
         return isNotBlank(geslacht.getOmschrijving()) ? geslacht.getOmschrijving() : geslacht.getCode();
     }
 
-    private String convertGeboortedatum(final AbstractDatum abstractDatum) {
+    private static String convertGeboortedatum(final AbstractDatum abstractDatum) {
         return switch (abstractDatum) {
             case VolledigeDatum volledigeDatum -> volledigeDatum.getDatum().toString();
             case JaarMaandDatum jaarMaandDatum -> "%d2-%d4".formatted(jaarMaandDatum.getMaand(),
@@ -198,7 +198,7 @@ public class RestPersoonConverter {
         };
     }
 
-    private String convertVerblijfplaats(final AbstractVerblijfplaats abstractVerblijfplaats) {
+    private static String convertVerblijfplaats(final AbstractVerblijfplaats abstractVerblijfplaats) {
         return switch (abstractVerblijfplaats) {
             case Adres adres when adres.getVerblijfadres() != null ->
                     convertVerblijfadresBinnenland(adres.getVerblijfadres());
@@ -209,7 +209,7 @@ public class RestPersoonConverter {
         };
     }
 
-    private String convertVerblijfadresBinnenland(final VerblijfadresBinnenland verblijfadresBinnenland) {
+    private static String convertVerblijfadresBinnenland(final VerblijfadresBinnenland verblijfadresBinnenland) {
         final String adres = replace(joinNonBlankWith(NON_BREAKING_SPACE,
                 verblijfadresBinnenland.getOfficieleStraatnaam(),
                 Objects.toString(verblijfadresBinnenland.getHuisnummer(), null),
@@ -221,7 +221,7 @@ public class RestPersoonConverter {
         return joinNonBlankWith(", ", adres, postcode, woonplaats);
     }
 
-    private String convertVerblijfadresBuitenland(VerblijfadresBuitenland verblijfadresBuitenland) {
+    private static String convertVerblijfadresBuitenland(VerblijfadresBuitenland verblijfadresBuitenland) {
         return joinNonBlankWith(", ", verblijfadresBuitenland.getRegel1(),
                 verblijfadresBuitenland.getRegel2(),
                 verblijfadresBuitenland.getRegel3());

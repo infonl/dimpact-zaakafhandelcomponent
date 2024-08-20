@@ -5,6 +5,7 @@
 
 package net.atos.zac.admin.model
 
+import java.time.ZonedDateTime
 import java.util.UUID
 
 fun createHumanTaskParameters(
@@ -57,11 +58,15 @@ fun createReferenceTableValue(
 
 fun createZaakafhandelParameters(
     id: Long = 1234L,
+    creationDate: ZonedDateTime = ZonedDateTime.now(),
     domein: String = "dummyDomein",
-    zaakTypeUUID: UUID = UUID.randomUUID(),
+    zaaktypeUUID: UUID = UUID.randomUUID(),
+    zaaktypeOmschrijving: String = "dummyZaaktypeOmschrijving"
 ) =
     ZaakafhandelParameters().apply {
         this.id = id
+        this.creatiedatum = creationDate
         this.domein = domein
-        this.zaakTypeUUID = zaakTypeUUID
+        this.zaakTypeUUID = zaaktypeUUID
+        this.zaaktypeOmschrijving = zaaktypeOmschrijving
     }

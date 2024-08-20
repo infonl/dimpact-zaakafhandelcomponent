@@ -21,7 +21,7 @@ public class UserInput {
                 "No logged in user found. Please ensure that user did not log out and its session is still active");
         userData.id = loggedInUser.getId();
         userData.rollen = loggedInUser.getRoles();
-        userData.zaaktypen = loggedInUser.isGeautoriseerdVoorAlleZaaktypen() ? null : loggedInUser.getGeautoriseerdeZaaktypen();
+        userData.zaaktypen = loggedInUser.isAuthorisedForAllZaaktypen() ? null : loggedInUser.getGeautoriseerdeZaaktypen();
     }
 
     public UserData getUser() {

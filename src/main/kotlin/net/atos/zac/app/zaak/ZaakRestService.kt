@@ -264,7 +264,7 @@ class ZaakRestService @Inject constructor(
         // authorisation on zaaktype
         assertPolicy(
             policyService.readOverigeRechten().startenZaak &&
-                loggedInUserInstance.get().isGeautoriseerdZaaktype(zaaktype.omschrijving)
+                loggedInUserInstance.get().isAuthorisedForZaaktype(zaaktype.omschrijving)
         )
 
         val zaak = zgwApiService.createZaak(restZaakConverter.convert(restZaak, zaaktype))
@@ -489,7 +489,7 @@ class ZaakRestService @Inject constructor(
     fun listZaaktypes(): List<RESTZaaktype> =
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .asSequence()
-            .filter { loggedInUserInstance.get().isGeautoriseerdZaaktype(it.omschrijving) }
+            .filter { loggedInUserInstance.get().isAuthorisedForZaaktype(it.omschrijving) }
             .filter { !it.concept }
             .filter { isNuGeldig(it) }
             .filter { healthCheckService.controleerZaaktype(it.url).isValide }

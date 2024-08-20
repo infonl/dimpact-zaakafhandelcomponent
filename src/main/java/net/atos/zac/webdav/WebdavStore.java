@@ -1,6 +1,7 @@
 package net.atos.zac.webdav;
 
 import static net.atos.client.zgw.drc.DrcClientUtilKt.toBase64String;
+import static net.atos.zac.authentication.SecurityUtilKt.setLoggedInUser;
 import static net.atos.zac.util.DateTimeConverterUtil.convertToDate;
 
 import java.io.File;
@@ -23,7 +24,6 @@ import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest;
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService;
-import net.atos.zac.authentication.SecurityUtil;
 import nl.info.webdav.ITransaction;
 import nl.info.webdav.IWebdavStore;
 import nl.info.webdav.StoredObject;
@@ -108,7 +108,7 @@ public class WebdavStore implements IWebdavStore {
         if (StringUtils.isNotEmpty(token)) {
             final WebdavHelper.Gegevens webdavGegevens = webdavHelper.readGegevens(token);
             try {
-                SecurityUtil.setLoggedInUser(
+                setLoggedInUser(
                         CDI.current().select(HttpSession.class).get(),
                         webdavGegevens.loggedInUser()
                 );

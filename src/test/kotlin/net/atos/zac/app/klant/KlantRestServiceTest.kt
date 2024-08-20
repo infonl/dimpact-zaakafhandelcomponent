@@ -11,9 +11,6 @@ import net.atos.client.kvk.KvkClientService
 import net.atos.client.kvk.zoeken.model.createAdresWithBinnenlandsAdres
 import net.atos.client.kvk.zoeken.model.createResultaatItem
 import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.zac.app.klant.converter.KlantcontactConverter
-import net.atos.zac.app.klant.converter.RestPersoonConverter
-import net.atos.zac.app.klant.converter.RestVestigingsprofielConverter
 import java.util.Optional
 import java.util.concurrent.CompletableFuture
 
@@ -23,18 +20,12 @@ class KlantRestServiceTest : BehaviorSpec({
     val brpClientService = mockk<BrpClientService>()
     val kvkClientService = mockk<KvkClientService>()
     val ztcClientService = mockk<ZtcClientService>()
-    val restPersoonConverter = mockk<RestPersoonConverter>()
-    val restVestigingsprofielConverter = mockk<RestVestigingsprofielConverter>()
     val klantClientService = mockk<KlantClientService>()
-    val klantcontactConverter = KlantcontactConverter()
     val klantRestService = KlantRestService(
         brpClientService,
         kvkClientService,
         ztcClientService,
-        restPersoonConverter,
-        restVestigingsprofielConverter,
-        klantClientService,
-        klantcontactConverter
+        klantClientService
     )
 
     Given(
