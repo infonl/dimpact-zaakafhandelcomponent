@@ -196,28 +196,6 @@ export class UtilService {
     });
   }
 
-  openSnackbarProgresss<T>(
-    componentOrData:
-      | ComponentType<T>
-      | { progressPercentage: Signal<number>; message: string },
-    config?: MatSnackBarConfig<any>,
-  ) {
-    if (
-      "progressPercentage" in componentOrData &&
-      "message" in componentOrData
-    ) {
-      return this.snackbar.openFromComponent(ProgressSnackbar, {
-        data: componentOrData,
-        ...config,
-      });
-    } else {
-      return this.snackbar.openFromComponent(
-        componentOrData as ComponentType<T>,
-        config,
-      );
-    }
-  }
-
   openProgressDialog(data: {
     progressPercentage: Signal<number>;
     message: string;
