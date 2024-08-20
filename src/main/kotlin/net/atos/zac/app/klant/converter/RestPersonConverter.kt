@@ -45,7 +45,7 @@ import java.util.Locale
 import java.util.Objects
 
 /**
- * Moet overeenkomen met wat er in convertToPersonenQuery gebeurt.
+ * Needs to correspond to the implementation [convertToPersonenQuery] function.
  */
 val VALID_PERSONEN_QUERIES = listOf(
     RestPersonenParameters(
@@ -60,48 +60,48 @@ val VALID_PERSONEN_QUERIES = listOf(
         straat = Cardinaliteit.NON
     ),
     RestPersonenParameters(
-        Cardinaliteit.NON,
-        Cardinaliteit.REQ,
-        Cardinaliteit.OPT,
-        Cardinaliteit.OPT,
-        Cardinaliteit.REQ,
-        Cardinaliteit.NON,
-        Cardinaliteit.NON,
-        Cardinaliteit.NON,
-        Cardinaliteit.NON
+        bsn = Cardinaliteit.NON,
+        geslachtsnaam = Cardinaliteit.REQ,
+        voornamen = Cardinaliteit.OPT,
+        voorvoegsel = Cardinaliteit.OPT,
+        geboortedatum = Cardinaliteit.REQ,
+        gemeenteVanInschrijving = Cardinaliteit.NON,
+        postcode = Cardinaliteit.NON,
+        huisnummer = Cardinaliteit.NON,
+        straat = Cardinaliteit.NON
     ),
     RestPersonenParameters(
-        Cardinaliteit.NON,
-        Cardinaliteit.REQ,
-        Cardinaliteit.REQ,
-        Cardinaliteit.OPT,
-        Cardinaliteit.NON,
-        Cardinaliteit.REQ,
-        Cardinaliteit.NON,
-        Cardinaliteit.NON,
-        Cardinaliteit.NON
+        bsn = Cardinaliteit.NON,
+        geslachtsnaam = Cardinaliteit.REQ,
+        voornamen = Cardinaliteit.REQ,
+        voorvoegsel = Cardinaliteit.OPT,
+        geboortedatum = Cardinaliteit.NON,
+        gemeenteVanInschrijving = Cardinaliteit.REQ,
+        postcode = Cardinaliteit.NON,
+        huisnummer = Cardinaliteit.NON,
+        straat = Cardinaliteit.NON
     ),
     RestPersonenParameters(
-        Cardinaliteit.NON,
-        Cardinaliteit.NON,
-        Cardinaliteit.NON,
-        Cardinaliteit.NON,
-        Cardinaliteit.NON,
-        Cardinaliteit.NON,
-        Cardinaliteit.REQ,
-        Cardinaliteit.REQ,
-        Cardinaliteit.NON
+        bsn = Cardinaliteit.NON,
+        geslachtsnaam = Cardinaliteit.NON,
+        voornamen = Cardinaliteit.NON,
+        voorvoegsel = Cardinaliteit.NON,
+        geboortedatum = Cardinaliteit.NON,
+        gemeenteVanInschrijving = Cardinaliteit.NON,
+        postcode = Cardinaliteit.REQ,
+        huisnummer = Cardinaliteit.REQ,
+        straat = Cardinaliteit.NON
     ),
     RestPersonenParameters(
-        Cardinaliteit.NON,
-        Cardinaliteit.NON,
-        Cardinaliteit.NON,
-        Cardinaliteit.NON,
-        Cardinaliteit.NON,
-        Cardinaliteit.REQ,
-        Cardinaliteit.NON,
-        Cardinaliteit.REQ,
-        Cardinaliteit.REQ
+        bsn = Cardinaliteit.NON,
+        geslachtsnaam = Cardinaliteit.NON,
+        voornamen = Cardinaliteit.NON,
+        voorvoegsel = Cardinaliteit.NON,
+        geboortedatum = Cardinaliteit.NON,
+        gemeenteVanInschrijving = Cardinaliteit.REQ,
+        postcode = Cardinaliteit.NON,
+        huisnummer = Cardinaliteit.REQ,
+        straat = Cardinaliteit.REQ
     )
 )
 

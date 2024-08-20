@@ -1,0 +1,25 @@
+{
+  "pagina": 1,
+  "resultatenPerPagina": 10,
+  "totaal": 1,
+  "resultaten": [
+    {
+      "kvkNummer": "12345678",
+      "rsin": "123456789",
+      "naam": "dummyNaam1",
+      "adres": {
+        "binnenlandsAdres": {
+          "type": "bezoekadres",
+          "straatnaam": "dummyStraatnaam1",
+          "plaats": "dummyPlaats1"
+        }
+      },
+      "type": "rechtspersoon",
+      "_links": {
+        "basisprofiel": {
+          "href": "http://kvk-wiremock:8080/api/v1/basisprofielen/12345678"
+        }
+      }
+    }
+  ]
+}

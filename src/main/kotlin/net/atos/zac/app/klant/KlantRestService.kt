@@ -48,6 +48,8 @@ import net.atos.zac.app.klant.model.personen.RestPersoon
 import net.atos.zac.app.shared.RESTResultaat
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
+import org.checkerframework.common.value.qual.MinLen
+import org.hibernate.validator.constraints.Length
 import java.util.EnumSet
 import java.util.Objects
 import java.util.Optional
@@ -80,7 +82,7 @@ class KlantRestService @Inject constructor(
     @GET
     @Path("persoon/{bsn}")
     fun readPersoon(
-        @PathParam("bsn") @Size(min = 8, max = 9) bsn: String
+        @PathParam("bsn") @Length(min = 8, max = 9) bsn: String
     ): RestPersoon = convertToRestPersoon(
         // note that we currently explicitly wait here for the asynchronous client invocation to complete
         // thereby blocking the request thread
@@ -114,7 +116,7 @@ class KlantRestService @Inject constructor(
 
     @GET
     @Path("rechtspersoon/{rsin}")
-    fun readRechtspersoon(@PathParam("rsin") rsin: String): RestBedrijf =
+    fun readRechtspersoon(@PathParam("rsin") @Length(min = 9, max = 9) rsin: String): RestBedrijf =
         kvkClientService.findRechtspersoon(rsin)
             .map { it.toRestBedrijf() }
             .orElseGet { RestBedrijf() }
