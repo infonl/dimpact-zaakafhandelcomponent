@@ -1,32 +1,33 @@
-package net.atos.client.zgw.drc;
+package net.atos.client.zgw.drc
 
-import java.util.Base64;
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import net.atos.client.zgw.drc.model.generated.SoortEnum
+import java.util.Base64
 
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.drc.model.generated.SoortEnum;
+private const val BASE64_PADDING_CHARACTER = "="
 
-public class DrcClientUtil {
+/**
+ * Converts a byte array to a base64 string as required by the ZGW DRC API.
+ *
+ * @return the bas64 converted byte array as string
+ */
+fun ByteArray.toBase64String(): String {
+    return Base64.getEncoder().encodeToString(this)
+}
 
-    /**
-     * Utility function to convert a byte array to a base64 string as
-     * required by the ZGW DRC API.
-     *
-     * @param byteArray the byte array
-     * @return the bas64 converted byte array as string
-     */
-    public static String convertByteArrayToBase64String(byte[] byteArray) {
-        return Base64.getEncoder().encodeToString(byteArray);
-    }
+/**
+ * Returns the length of the original (base64 decoded) string
+ */
+fun String.decodedBase64StringLength(): Int {
+    return substringBeforeLast(BASE64_PADDING_CHARACTER).length * 3 / 4
+}
 
-    public static boolean isOndertekend(EnkelvoudigInformatieObject enkelvoudigInformatieObject) {
-        return enkelvoudigInformatieObject.getOndertekening() != null &&
-               enkelvoudigInformatieObject.getOndertekening().getDatum() != null &&
-               enkelvoudigInformatieObject.getOndertekening().getSoort() != null &&
-               // this extra check is because the API can return an empty ondertekening soort
-               // when no signature is present (even if this is not permitted according to the
-               // original OpenAPI spec)
-               !enkelvoudigInformatieObject.getOndertekening().getSoort().equals(
-                       SoortEnum.EMPTY
-               );
-    }
+/**
+ * Check if EnkelvoudigInformatieObject is signed
+ */
+fun EnkelvoudigInformatieObject.isSigned(): Boolean {
+    return ondertekening != null
+            && ondertekening.datum != null
+            && ondertekening.soort != null
+            && ondertekening.soort != SoortEnum.EMPTY
 }

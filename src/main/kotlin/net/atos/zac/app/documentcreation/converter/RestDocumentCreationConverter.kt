@@ -3,6 +3,7 @@ package net.atos.zac.app.documentcreation.converter
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import net.atos.client.zgw.drc.decodedBase64StringLength
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
@@ -51,9 +52,7 @@ class RestDocumentCreationConverter @Inject constructor(
         bestandsnaam = unattendedResponse.fileName
         formaat = unattendedResponse.fileType
         inhoud = unattendedResponse.fileContent
-        if (unattendedResponse.fileContent != null) {
-            bestandsomvang = unattendedResponse.fileContent.substringBeforeLast("=").length * 3 / 4
-        }
+        bestandsomvang = unattendedResponse.fileContent?.decodedBase64StringLength()
     }
 
 }

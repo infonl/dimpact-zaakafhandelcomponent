@@ -24,10 +24,10 @@ import jakarta.mail.MessagingException
 import jakarta.mail.Session
 import jakarta.mail.Transport
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.drc.DrcClientUtil.convertByteArrayToBase64String
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
+import net.atos.client.zgw.drc.toBase64String
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
@@ -143,7 +143,7 @@ class MailService @Inject constructor(
             auteur = loggedInUserInstance.get().getFullName()
             taal = ConfiguratieService.TAAL_NEDERLANDS
             informatieobjecttype = eMailObjectType.url
-            inhoud = convertByteArrayToBase64String(pdfDocument)
+            inhoud = pdfDocument.toBase64String()
             vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
             formaat = MEDIA_TYPE_PDF
             bestandsnaam = "$subject.pdf"

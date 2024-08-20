@@ -23,11 +23,11 @@ import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.UriInfo
 import net.atos.client.officeconverter.OfficeConverterClientService
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.drc.DrcClientUtil.convertByteArrayToBase64String
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
 import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
+import net.atos.client.zgw.drc.toBase64String
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZrcClientService
@@ -534,7 +534,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             ).use { pdfInputStream ->
                 val pdf = EnkelvoudigInformatieObjectWithLockRequest()
                 val inhoud = pdfInputStream.readAllBytes()
-                pdf.inhoud = convertByteArrayToBase64String(inhoud)
+                pdf.inhoud = inhoud.toBase64String()
                 pdf.formaat = MEDIA_TYPE_PDF
                 pdf.bestandsnaam = StringUtils.substringBeforeLast(document.bestandsnaam, ".") + ".pdf"
                 pdf.bestandsomvang = inhoud.size
