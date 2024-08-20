@@ -13,8 +13,8 @@ data class DocumentCreationAttendedResponse(
 
 data class DocumentCreationUnattendedResponse(
     val message: String,
-    val termsAndConditionsUsageRights: String,
+    val termsAndConditionsUsageRights: String?,
     val fileName: String,
     val fileType: String,
-    val fileContent: String?
+    val fileContent: String?,
 )

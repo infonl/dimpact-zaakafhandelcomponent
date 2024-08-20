@@ -80,7 +80,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     shouldContainJsonKeyValue(
                         "message",
                         "SmartDocuments document with filename: '$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME.docx' was" +
-                                " created and stored successfully in the zaakregister."
+                            " created and stored successfully in the zaakregister."
                     )
                 }
             }
@@ -109,7 +109,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     shouldContainJsonKeyValue(
                         "message",
                         "SmartDocuments document with filename: '$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME.docx' was " +
-                                "created and stored successfully in the zaakregister."
+                            "created and stored successfully in the zaakregister."
                     )
                 }
             }

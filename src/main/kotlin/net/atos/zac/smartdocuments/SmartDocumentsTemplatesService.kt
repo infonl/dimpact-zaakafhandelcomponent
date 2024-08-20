@@ -18,6 +18,7 @@ import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroupSet
 import net.atos.zac.smartdocuments.rest.toSmartDocumentsTemplateGroupSet
+import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplate
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -123,5 +124,47 @@ class SmartDocumentsTemplatesService @Inject constructor(
                     )
                 )
         ).resultList.toSet().toRestSmartDocumentsTemplateGroup()
+    }
+
+    /**
+     * Get the information object type UUID for a pair of group-template in a zaakafhandelparameters
+     *
+     * @param zaakafhandelParametersUUID UUID of a zaakafhandelparameters
+     * @param templateGroupName name of a template group
+     * @param templateName name of a template under the group
+     * @return information object type UUID associated with this pair
+     */
+    fun getInformationObjectTypeUUID(
+        zaakafhandelParametersUUID: UUID,
+        templateGroupName: String,
+        templateName: String
+    ): UUID {
+        LOG.info { "Fetching information object type UUID mapping for zaakafhandelParameters UUID " +
+                "$zaakafhandelParametersUUID, template group $templateGroupName and template $templateName" }
+
+        val zaakafhandelParametersId =
+            zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelParametersUUID).id
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(SmartDocumentsTemplate::class.java)
+        val root = query.from(SmartDocumentsTemplate::class.java)
+        return entityManager.createQuery(
+                query.select(root)
+                    .where(
+                        builder.and(
+                            builder.equal(
+                                root.get<ZaakafhandelParameters>("zaakafhandelParameters").get<Long>("id"),
+                                zaakafhandelParametersId
+                            ),
+                            builder.equal(
+                                root.get<SmartDocumentsTemplateGroup>("templateGroup").get<String>("name"),
+                                templateGroupName
+                            ),
+                            builder.equal(
+                                root.get<SmartDocumentsTemplate>("name"),
+                                templateName
+                            )
+                        )
+                    )
+            ).singleResult.informatieObjectTypeUUID
     }
 }
