@@ -31,5 +31,7 @@ fun EnkelvoudigInformatieObject.isSigned(): Boolean {
     return ondertekening != null &&
         ondertekening.datum != null &&
         ondertekening.soort != null &&
+        // this extra check is because the API can return an empty ondertekening soort when no signature is present
+        // (even if this is not permitted according to the original OpenAPI spec)
         ondertekening.soort != SoortEnum.EMPTY
 }
