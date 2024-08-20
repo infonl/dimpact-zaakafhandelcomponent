@@ -16,7 +16,7 @@ public class RestVestigingsprofielConverter {
     public static String VESTIGINGTYPE_HOOFDVESTIGING = "HOOFDVESTIGING";
     public static String VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING";
 
-    public RestVestigingsprofiel convert(final Vestiging vestiging) {
+    public static RestVestigingsprofiel convert(final Vestiging vestiging) {
         final RestVestigingsprofiel restVestigingsprofiel = new RestVestigingsprofiel();
         restVestigingsprofiel.kvkNummer = vestiging.getKvkNummer();
         restVestigingsprofiel.vestigingsnummer = vestiging.getVestigingsnummer();
@@ -53,7 +53,7 @@ public class RestVestigingsprofielConverter {
         return restVestigingsprofiel;
     }
 
-    public boolean isIndicatie(String stringIndicatie) {
+    public static boolean isIndicatie(String stringIndicatie) {
         if (stringIndicatie == null) {
             return false;
         }
