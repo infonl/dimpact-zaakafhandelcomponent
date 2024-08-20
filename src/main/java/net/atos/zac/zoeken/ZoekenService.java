@@ -177,7 +177,7 @@ public class ZoekenService {
 
     private void applyAllowedZaaktypenPolicy(final SolrQuery query) {
         final LoggedInUser loggedInUser = loggedInUserInstance.get();
-        if (!loggedInUser.isGeautoriseerdVoorAlleZaaktypen()) {
+        if (!loggedInUser.isAuthorisedForAllZaaktypen()) {
             if (loggedInUser.getGeautoriseerdeZaaktypen().isEmpty()) {
                 query.addFilterQuery(format("%s:%s", ZAAKTYPE_OMSCHRIJVING_VELD, NON_EXISTING_ZAAKTYPE));
             } else {
