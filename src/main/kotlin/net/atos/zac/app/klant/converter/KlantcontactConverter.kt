@@ -11,31 +11,25 @@ import net.atos.zac.app.klant.model.contactmoment.RESTContactmoment
 import org.apache.commons.lang3.StringUtils
 import java.util.UUID
 
-fun mapContactToInitiatorFullName(betrokkenenWithKlantcontactList: List<ExpandBetrokkene>): Map<UUID, String> =
-    betrokkenenWithKlantcontactList
-        .filter { it.initiator }
+fun List<ExpandBetrokkene>.toInitiatorAsUuidStringMap(): Map<UUID, String> =
+    this.filter { it.initiator }
         .associate { it.expand.hadKlantcontact.uuid to it.volledigeNaam }
 
-fun Klantcontact.toRestContactMoment(contactToFullNameMap: Map<UUID, String>): RESTContactmoment {
-    val restContactmoment = RESTContactmoment()
-    if (this.plaatsgevondenOp != null) {
-        restContactmoment.registratiedatum = this.plaatsgevondenOp.toZonedDateTime()
-    }
-    restContactmoment.initiatiefnemer = contactToFullNameMap[this.uuid]
-    restContactmoment.kanaal = this.kanaal
-    restContactmoment.tekst = this.onderwerp
-    if (this.hadBetrokkenActoren != null) {
-        restContactmoment.medewerker = toRestRoltype(this.hadBetrokkenActoren)
-    }
-    return restContactmoment
-}
+fun Klantcontact.toRestContactMoment(contactToFullNameMap: Map<UUID, String>): RESTContactmoment =
+    RESTContactmoment(
+        registratiedatum = this.plaatsgevondenOp?.toZonedDateTime(),
+        initiatiefnemer = contactToFullNameMap[this.uuid],
+        kanaal = this.kanaal,
+        tekst = this.onderwerp,
+        medewerker = this.hadBetrokkenActoren?.toCommaSeparatedString()
+    )
 
-private fun toRestRoltype(actors: List<Actor>): String? {
-    if (actors.isEmpty()) {
+private fun List<Actor>.toCommaSeparatedString(): String? {
+    if (this.isEmpty()) {
         return null
     }
     val result = StringBuilder()
-    for (actor in actors) {
+    for (actor in this) {
         if (StringUtils.isNotBlank(result)) {
             result.append(",")
         }

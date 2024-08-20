@@ -41,9 +41,12 @@ import net.atos.zac.app.klant.model.personen.RestPersoon
 import net.atos.zac.util.StringUtil
 import net.atos.zac.util.StringUtil.ONBEKEND
 import org.apache.commons.lang3.StringUtils
+import java.util.Locale
 import java.util.Objects
 
-// Moet overeenkomen met wat er in convertToPersonenQuery gebeurt.
+/**
+ * Moet overeenkomen met wat er in convertToPersonenQuery gebeurt.
+ */
 val VALID_PERSONEN_QUERIES = listOf(
     RestPersonenParameters(
         bsn = Cardinaliteit.REQ,
@@ -102,17 +105,17 @@ val VALID_PERSONEN_QUERIES = listOf(
     )
 )
 
-fun convertPersonen(personen: List<Persoon>): List<RestPersoon> =
-    personen.map { convertPersoon(it) }.toList()
+fun List<Persoon>.toRestPersons(): List<RestPersoon> =
+    this.map { convertPersoon(it) }
 
 fun convertPersonenBeperkt(personen: List<PersoonBeperkt>): List<RestPersoon> =
-    personen.map { convertPersoonBeperkt(it) }.toList()
+    personen.map { it.toRestPerson() }
 
 fun convertPersoon(persoon: Persoon): RestPersoon {
     val restPersoon = RestPersoon()
     restPersoon.bsn = persoon.burgerservicenummer
     if (persoon.geslacht != null) {
-        restPersoon.geslacht = convertGeslacht(persoon.geslacht)
+        restPersoon.geslacht = persoon.geslacht.toDescription()
     }
     if (persoon.naam != null) {
         restPersoon.naam = persoon.naam.volledigeNaam
@@ -126,20 +129,20 @@ fun convertPersoon(persoon: Persoon): RestPersoon {
     return restPersoon
 }
 
-fun convertPersoonBeperkt(persoon: PersoonBeperkt): RestPersoon {
+fun PersoonBeperkt.toRestPerson(): RestPersoon {
     val restPersoon = RestPersoon()
-    restPersoon.bsn = persoon.burgerservicenummer
-    if (persoon.geslacht != null) {
-        restPersoon.geslacht = convertGeslacht(persoon.geslacht)
+    restPersoon.bsn = this.burgerservicenummer
+    if (this.geslacht != null) {
+        restPersoon.geslacht = this.geslacht.toDescription()
     }
-    if (persoon.naam != null) {
-        restPersoon.naam = persoon.naam.volledigeNaam
+    if (this.naam != null) {
+        restPersoon.naam = this.naam.volledigeNaam
     }
-    if (persoon.geboorte != null) {
-        restPersoon.geboortedatum = convertGeboortedatum(persoon.geboorte.datum)
+    if (this.geboorte != null) {
+        restPersoon.geboortedatum = convertGeboortedatum(this.geboorte.datum)
     }
-    if (persoon.adressering != null) {
-        val adressering = persoon.adressering
+    if (this.adressering != null) {
+        val adressering = this.adressering
         restPersoon.verblijfplaats = StringUtil.joinNonBlankWith(
             ", ",
             adressering.adresregel1,
@@ -150,129 +153,112 @@ fun convertPersoonBeperkt(persoon: PersoonBeperkt): RestPersoon {
     return restPersoon
 }
 
-@Suppress("ReturnCount")
-fun convertToPersonenQuery(parameters: RestListPersonenParameters): PersonenQuery {
-    if (StringUtils.isNotBlank(parameters.bsn)) {
-        val query = RaadpleegMetBurgerservicenummer()
-        query.addBurgerservicenummerItem(parameters.bsn)
-        return query
+@Suppress("ReturnCount", "CyclomaticComplexMethod")
+fun convertToPersonenQuery(parameters: RestListPersonenParameters): PersonenQuery =
+    when {
+        StringUtils.isNotBlank(parameters.bsn) -> RaadpleegMetBurgerservicenummer().apply {
+            addBurgerservicenummerItem(parameters.bsn)
+        }
+        StringUtils.isNotBlank(parameters.geslachtsnaam) && parameters.geboortedatum != null ->
+            ZoekMetGeslachtsnaamEnGeboortedatum().apply {
+                geslachtsnaam = parameters.geslachtsnaam
+                geboortedatum = parameters.geboortedatum
+                voornamen = parameters.voornamen
+                voorvoegsel = parameters.voorvoegsel
+            }
+        StringUtils.isNotBlank(parameters.geslachtsnaam) && StringUtils.isNotBlank(parameters.voornamen) &&
+            StringUtils.isNotBlank(parameters.gemeenteVanInschrijving) ->
+            ZoekMetNaamEnGemeenteVanInschrijving().apply {
+                geslachtsnaam = parameters.geslachtsnaam
+                voornamen = parameters.voornamen
+                gemeenteVanInschrijving = parameters.gemeenteVanInschrijving
+                voorvoegsel = parameters.voorvoegsel
+            }
+        StringUtils.isNotBlank(parameters.postcode) && parameters.huisnummer != null ->
+            ZoekMetPostcodeEnHuisnummer().apply {
+                postcode = parameters.postcode
+                huisnummer = parameters.huisnummer
+            }
+        StringUtils.isNotBlank(parameters.straat) && parameters.huisnummer != null &&
+            StringUtils.isNotBlank(parameters.gemeenteVanInschrijving) ->
+            ZoekMetStraatHuisnummerEnGemeenteVanInschrijving().apply {
+                straat = parameters.straat
+                huisnummer = parameters.huisnummer
+                gemeenteVanInschrijving = parameters.gemeenteVanInschrijving
+            }
+        else -> throw IllegalArgumentException("Ongeldige combinatie van zoek parameters")
     }
-    if (StringUtils.isNotBlank(parameters.geslachtsnaam) && parameters.geboortedatum != null) {
-        val query = ZoekMetGeslachtsnaamEnGeboortedatum()
-        query.geslachtsnaam = parameters.geslachtsnaam
-        query.geboortedatum = parameters.geboortedatum
-        query.voornamen = parameters.voornamen
-        query.voorvoegsel = parameters.voorvoegsel
-        return query
-    }
-    if (StringUtils.isNotBlank(parameters.geslachtsnaam) && StringUtils.isNotBlank(parameters.voornamen) &&
-        StringUtils.isNotBlank(parameters.gemeenteVanInschrijving)
-    ) {
-        val query = ZoekMetNaamEnGemeenteVanInschrijving()
-        query.geslachtsnaam = parameters.geslachtsnaam
-        query.voornamen = parameters.voornamen
-        query.gemeenteVanInschrijving = parameters.gemeenteVanInschrijving
-        query.voorvoegsel = parameters.voorvoegsel
-        return query
-    }
-    if (StringUtils.isNotBlank(parameters.postcode) && parameters.huisnummer != null) {
-        val query = ZoekMetPostcodeEnHuisnummer()
-        query.postcode = parameters.postcode
-        query.huisnummer = parameters.huisnummer
-        return query
-    }
-    if (
-        StringUtils.isNotBlank(parameters.straat) &&
-        parameters.huisnummer != null &&
-        StringUtils.isNotBlank(parameters.gemeenteVanInschrijving)
-    ) {
-        val query = ZoekMetStraatHuisnummerEnGemeenteVanInschrijving()
-        query.straat = parameters.straat
-        query.huisnummer = parameters.huisnummer
-        query.gemeenteVanInschrijving = parameters.gemeenteVanInschrijving
-        return query
-    }
-    throw IllegalArgumentException("Ongeldige combinatie van zoek parameters")
-}
 
-fun convertFromPersonenQueryResponse(personenQueryResponse: PersonenQueryResponse): List<RestPersoon> {
-    return when {
-        personenQueryResponse is RaadpleegMetBurgerservicenummerResponse -> convertPersonen(
+fun convertFromPersonenQueryResponse(personenQueryResponse: PersonenQueryResponse): List<RestPersoon> =
+    when (personenQueryResponse) {
+        is RaadpleegMetBurgerservicenummerResponse -> personenQueryResponse.personen.toRestPersons()
+        is ZoekMetGeslachtsnaamEnGeboortedatumResponse -> convertPersonenBeperkt(personenQueryResponse.personen)
+        is ZoekMetNaamEnGemeenteVanInschrijvingResponse -> convertPersonenBeperkt(personenQueryResponse.personen)
+        is ZoekMetNummeraanduidingIdentificatieResponse -> convertPersonenBeperkt(personenQueryResponse.personen)
+        is ZoekMetPostcodeEnHuisnummerResponse -> convertPersonenBeperkt(personenQueryResponse.personen)
+        is ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse -> convertPersonenBeperkt(
             personenQueryResponse.personen
         )
-        personenQueryResponse is ZoekMetGeslachtsnaamEnGeboortedatumResponse -> convertPersonenBeperkt(
-            personenQueryResponse.personen
-        )
-        personenQueryResponse is ZoekMetNaamEnGemeenteVanInschrijvingResponse ->
-            convertPersonenBeperkt(personenQueryResponse.personen)
-        personenQueryResponse is ZoekMetNummeraanduidingIdentificatieResponse ->
-            convertPersonenBeperkt(personenQueryResponse.personen)
-        personenQueryResponse is ZoekMetPostcodeEnHuisnummerResponse -> convertPersonenBeperkt(
-            personenQueryResponse.personen
-        )
-        personenQueryResponse is ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse ->
-            convertPersonenBeperkt(personenQueryResponse.personen)
         else -> emptyList()
     }
-}
 
-private fun convertGeslacht(geslacht: Waardetabel): String =
-    if (StringUtils.isNotBlank(geslacht.omschrijving)) geslacht.omschrijving else geslacht.code
+private fun Waardetabel.toDescription(): String =
+    if (StringUtils.isNotBlank(this.omschrijving)) this.omschrijving else this.code
 
-private fun convertGeboortedatum(abstractDatum: AbstractDatum): String? {
-    return when {
-        abstractDatum is VolledigeDatum -> abstractDatum.datum.toString()
-        abstractDatum is JaarMaandDatum -> String.format(
+private fun convertGeboortedatum(abstractDatum: AbstractDatum): String? =
+    when (abstractDatum) {
+        is VolledigeDatum -> abstractDatum.datum.toString()
+        is JaarMaandDatum -> String.format(
+            Locale.getDefault(),
             "%d2-%d4",
             abstractDatum.maand,
             abstractDatum.jaar
         )
-        abstractDatum is JaarDatum -> String.format(
+
+        is JaarDatum -> String.format(
+            Locale.getDefault(),
             "%d4",
             abstractDatum.jaar
         )
-        abstractDatum is DatumOnbekend -> ONBEKEND
+
+        is DatumOnbekend -> ONBEKEND
         else -> null
     }
-}
 
-private fun convertVerblijfplaats(abstractVerblijfplaats: AbstractVerblijfplaats): String? {
-    return when {
-        abstractVerblijfplaats is Adres -> abstractVerblijfplaats.verblijfadres?.let {
-            convertVerblijfadresBinnenland(it)
-        }
-        abstractVerblijfplaats is VerblijfplaatsBuitenland -> abstractVerblijfplaats.verblijfadres?.let {
-            convertVerblijfadresBuitenland(it)
-        }
-        abstractVerblijfplaats is VerblijfplaatsOnbekend -> ONBEKEND
+private fun convertVerblijfplaats(abstractVerblijfplaats: AbstractVerblijfplaats): String? =
+    when (abstractVerblijfplaats) {
+        is Adres -> abstractVerblijfplaats.verblijfadres?.toCommaSeparatedString()
+
+        is VerblijfplaatsBuitenland -> abstractVerblijfplaats.verblijfadres?.toCommaSeparatedString()
+
+        is VerblijfplaatsOnbekend -> ONBEKEND
         else -> null
     }
-}
 
-private fun convertVerblijfadresBinnenland(verblijfadresBinnenland: VerblijfadresBinnenland): String {
+private fun VerblijfadresBinnenland.toCommaSeparatedString(): String {
     val adres = StringUtils.replace(
         StringUtil.joinNonBlankWith(
             StringUtil.NON_BREAKING_SPACE,
-            verblijfadresBinnenland.officieleStraatnaam,
-            Objects.toString(verblijfadresBinnenland.huisnummer, null),
-            verblijfadresBinnenland.huisnummertoevoeging,
-            verblijfadresBinnenland.huisletter
+            this.officieleStraatnaam,
+            Objects.toString(this.huisnummer, null),
+            this.huisnummertoevoeging,
+            this.huisletter
         ),
         StringUtils.SPACE,
         StringUtil.NON_BREAKING_SPACE
     )
     val postcode =
-        StringUtils.replace(verblijfadresBinnenland.postcode, StringUtils.SPACE, StringUtil.NON_BREAKING_SPACE)
+        StringUtils.replace(this.postcode, StringUtils.SPACE, StringUtil.NON_BREAKING_SPACE)
     val woonplaats =
-        StringUtils.replace(verblijfadresBinnenland.woonplaats, StringUtils.SPACE, StringUtil.NON_BREAKING_SPACE)
+        StringUtils.replace(this.woonplaats, StringUtils.SPACE, StringUtil.NON_BREAKING_SPACE)
     return StringUtil.joinNonBlankWith(", ", adres, postcode, woonplaats)
 }
 
-private fun convertVerblijfadresBuitenland(verblijfadresBuitenland: VerblijfadresBuitenland): String {
+private fun VerblijfadresBuitenland.toCommaSeparatedString(): String {
     return StringUtil.joinNonBlankWith(
         ", ",
-        verblijfadresBuitenland.regel1,
-        verblijfadresBuitenland.regel2,
-        verblijfadresBuitenland.regel3
+        this.regel1,
+        this.regel2,
+        this.regel3
     )
 }

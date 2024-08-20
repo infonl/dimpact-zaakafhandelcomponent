@@ -28,7 +28,7 @@ import net.atos.zac.app.klant.converter.convert
 import net.atos.zac.app.klant.converter.convertFromPersonenQueryResponse
 import net.atos.zac.app.klant.converter.convertPersoon
 import net.atos.zac.app.klant.converter.convertToPersonenQuery
-import net.atos.zac.app.klant.converter.mapContactToInitiatorFullName
+import net.atos.zac.app.klant.converter.toInitiatorAsUuidStringMap
 import net.atos.zac.app.klant.converter.toKvkZoekenParameters
 import net.atos.zac.app.klant.converter.toRestBedrijf
 import net.atos.zac.app.klant.converter.toRestContactMoment
@@ -52,7 +52,6 @@ import java.util.EnumSet
 import java.util.Objects
 import java.util.Optional
 import java.util.UUID
-import java.util.concurrent.ExecutionException
 
 @Path("klanten")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -139,7 +138,7 @@ class KlantRestService @Inject constructor(
     @Path("bedrijven")
     fun listBedrijven(restParameters: RestListBedrijvenParameters): RESTResultaat<RestBedrijf> =
         RESTResultaat(
-            kvkClientService.list(toKvkZoekenParameters(restParameters)).resultaten
+            kvkClientService.list(restParameters.toKvkZoekenParameters()).resultaten
                 .filter { isKoppelbaar(it) }
                 .map { it.toRestBedrijf() }
                 .toList()
@@ -164,15 +163,16 @@ class KlantRestService @Inject constructor(
     fun ophalenContactGegevens(
         @PathParam("identificatieType") identificatieType: IdentificatieType,
         @PathParam("initiatorIdentificatie") initiatorIdentificatie: String
-    ): RestContactGegevens =
-        convertToRestPersoon(
+    ): RestContactGegevens {
+        return convertToRestPersoon(
             klantClientService.findDigitalAddressesByNumber(initiatorIdentificatie)
         ).let {
-             RestContactGegevens(
+            RestContactGegevens(
                 telefoonnummer = it.telefoonnummer,
                 emailadres = it.emailadres
             )
         }
+    }
 
     @PUT
     @Path("contactmomenten")
@@ -181,14 +181,14 @@ class KlantRestService @Inject constructor(
         // OpenKlant 2.1 pages start from 1 (not 0-based). Page 0 is considered invalid number
         val pageNumber = parameters.page!! + 1
         val betrokkenenWithKlantcontactList = klantClientService.listBetrokkenenByNumber(nummer, pageNumber)
-        val contactToFullNameMap = mapContactToInitiatorFullName(betrokkenenWithKlantcontactList)
-        val klantcontactListPage = betrokkenenWithKlantcontactList
-            .map { it.expand }
-            .filter { Objects.nonNull(it) }
-            .map { it.hadKlantcontact }
-            .map { it.toRestContactMoment(contactToFullNameMap) }
-            .toList()
-
+        val klantcontactListPage = betrokkenenWithKlantcontactList.toInitiatorAsUuidStringMap().let { map ->
+            betrokkenenWithKlantcontactList
+                .map { it.expand }
+                .filter { Objects.nonNull(it) }
+                .map { it.hadKlantcontact }
+                .map { it.toRestContactMoment(map) }
+                .toList()
+        }
         return RESTResultaat(klantcontactListPage, klantcontactListPage.size.toLong())
     }
 
@@ -223,7 +223,6 @@ class KlantRestService @Inject constructor(
         return restPersoon
     }
 
-    private fun isKoppelbaar(item: ResultaatItem): Boolean {
-        return item.vestigingsnummer != null || item.rsin != null
-    }
+    private fun isKoppelbaar(item: ResultaatItem): Boolean =
+        item.vestigingsnummer != null || item.rsin != null
 }

@@ -4,7 +4,6 @@
  */
 package net.atos.zac.app.klant.model.bedrijven
 
-
 data class RestListBedrijvenParameters(
     var kvkNummer: String? = null,
     var vestigingsnummer: String? = null,

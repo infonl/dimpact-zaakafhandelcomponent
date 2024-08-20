@@ -4,8 +4,6 @@
  */
 package net.atos.zac.app.klant.converter
 
-import net.atos.client.kvk.vestigingsprofiel.model.generated.Adres
-import net.atos.client.kvk.vestigingsprofiel.model.generated.SBIActiviteit
 import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging
 import net.atos.zac.app.klant.model.bedrijven.RestKlantenAdres
 import net.atos.zac.app.klant.model.bedrijven.RestVestigingsprofiel
@@ -23,30 +21,25 @@ fun convert(vestiging: Vestiging): RestVestigingsprofiel {
     restVestigingsprofiel.totaalWerkzamePersonen = vestiging.totaalWerkzamePersonen
     restVestigingsprofiel.deeltijdWerkzamePersonen = vestiging.deeltijdWerkzamePersonen
     restVestigingsprofiel.voltijdWerkzamePersonen = vestiging.voltijdWerkzamePersonen
-    restVestigingsprofiel.commercieleVestiging = isIndicatie(vestiging.indCommercieleVestiging)
+    restVestigingsprofiel.commercieleVestiging = vestiging.indCommercieleVestiging?.isIndicatie() ?: false
 
     restVestigingsprofiel.type =
-        if (isIndicatie(vestiging.indHoofdvestiging)) VESTIGINGTYPE_HOOFDVESTIGING else VESTIGINGTYPE_NEVENVESTIGING
+        if (vestiging.indHoofdvestiging?.isIndicatie() == true) VESTIGINGTYPE_HOOFDVESTIGING else VESTIGINGTYPE_NEVENVESTIGING
     restVestigingsprofiel.sbiHoofdActiviteit = vestiging.sbiActiviteiten
-        .stream()
-        .filter { a: SBIActiviteit -> isIndicatie(a.indHoofdactiviteit) }
-        .findAny()
-        .map { obj: SBIActiviteit -> obj.sbiOmschrijving }
-        .orElse(null)
+        .filter { it.indHoofdactiviteit?.isIndicatie() == true }
+        .map { it.sbiOmschrijving }
+        .firstOrNull()
 
     restVestigingsprofiel.sbiActiviteiten = vestiging.sbiActiviteiten
-        .stream()
-        .filter { a: SBIActiviteit -> !isIndicatie(a.indHoofdactiviteit) }
-        .map { obj: SBIActiviteit -> obj.sbiOmschrijving }
-        .toList()
+        .filter { it.indHoofdactiviteit?.isIndicatie() == false }
+        .map { it.sbiOmschrijving }
 
     restVestigingsprofiel.adressen = vestiging.adressen
-        .stream()
-        .map { adres: Adres ->
+        .map {
             RestKlantenAdres(
-                adres.type,
-                isIndicatie(adres.indAfgeschermd),
-                adres.volledigAdres
+                it.type,
+                it.indAfgeschermd?.isIndicatie() ?: false,
+                it.volledigAdres
             )
         }
         .toList()
@@ -55,13 +48,9 @@ fun convert(vestiging: Vestiging): RestVestigingsprofiel {
     return restVestigingsprofiel
 }
 
-private fun isIndicatie(stringIndicatie: String?): Boolean {
-    if (stringIndicatie == null) {
-        return false
-    }
-    return when (stringIndicatie.lowercase(Locale.getDefault())) {
+private fun String.isIndicatie(): Boolean =
+    when (this.lowercase(Locale.getDefault())) {
         "ja" -> true
         "nee" -> false
-        else -> throw IllegalStateException("Unexpected value: $stringIndicatie")
+        else -> error("Unexpected value: $this")
     }
-}
