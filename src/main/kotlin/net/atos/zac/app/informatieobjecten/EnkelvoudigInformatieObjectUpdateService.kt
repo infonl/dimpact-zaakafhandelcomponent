@@ -58,7 +58,7 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
     fun createZaakInformatieobjectForZaak(
         zaak: Zaak,
         enkelvoudigInformatieObjectCreateLockRequest: EnkelvoudigInformatieObjectCreateLockRequest,
-        taskId: String?
+        taskId: String? = null
     ) = zgwApiService.createZaakInformatieobjectForZaak(
         zaak,
         enkelvoudigInformatieObjectCreateLockRequest,

@@ -112,8 +112,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every {
             enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                 zaak,
-                enkelvoudigInformatieObjectData,
-                null
+                enkelvoudigInformatieObjectData
             )
         } returns zaakInformatieobject
 
@@ -137,8 +136,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                         zaak,
-                        enkelvoudigInformatieObjectData,
-                        null
+                        enkelvoudigInformatieObjectData
                     )
                 }
             }
@@ -153,8 +151,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             every {
                 enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                     zaak,
-                    enkelvoudigInformatieObjectData,
-                    null
+                    enkelvoudigInformatieObjectData
                 )
             } throws RuntimeException("dummy exception")
 
@@ -171,8 +168,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                         zaak,
-                        enkelvoudigInformatieObjectData,
-                        null
+                        enkelvoudigInformatieObjectData
                     )
                 }
             }
@@ -198,8 +194,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                         zaak,
-                        enkelvoudigInformatieObjectData,
-                        null
+                        enkelvoudigInformatieObjectData
                     )
                 }
             }
@@ -241,8 +236,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every {
             enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                 closedZaak,
-                enkelvoudigInformatieObjectData,
-                null
+                enkelvoudigInformatieObjectData
             )
         } returns zaakInformatieobject
         every {
@@ -269,8 +263,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                         closedZaak,
-                        enkelvoudigInformatieObjectData,
-                        null
+                        enkelvoudigInformatieObjectData
                     )
                 }
             }
