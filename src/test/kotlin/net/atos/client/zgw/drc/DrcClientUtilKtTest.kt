@@ -3,6 +3,7 @@ package net.atos.client.zgw.drc
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
+import net.atos.client.zgw.drc.util.decodedBase64StringLength
 import java.util.Base64
 
 class DrcClientUtilKtTest : BehaviorSpec({

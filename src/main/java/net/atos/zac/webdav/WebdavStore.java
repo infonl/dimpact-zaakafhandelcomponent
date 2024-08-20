@@ -1,6 +1,6 @@
 package net.atos.zac.webdav;
 
-import static net.atos.client.zgw.drc.DrcClientUtilKt.toBase64String;
+import static net.atos.client.zgw.drc.util.Base64ConvertersKt.toBase64String;
 import static net.atos.zac.authentication.SecurityUtilKt.setLoggedInUser;
 import static net.atos.zac.util.DateTimeConverterUtil.convertToDate;
 

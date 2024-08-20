@@ -11,7 +11,7 @@ import java.util.UUID
 
 @NoArgConstructor
 @Suppress("LongParameterList")
-class RestDocumentCreationUnattendedData(
+data class RestDocumentCreationUnattendedData(
     var author: String? = null,
 
     var creationDate: LocalDate? = null,

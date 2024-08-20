@@ -1,12 +1,13 @@
 package net.atos.zac.app.documentcreation.converter
 
+import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import net.atos.client.zgw.drc.decodedBase64StringLength
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
+import net.atos.client.zgw.drc.util.decodedBase64StringLength
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationUnattendedData

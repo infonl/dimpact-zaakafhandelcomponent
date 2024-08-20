@@ -27,7 +27,7 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
 import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
-import net.atos.client.zgw.drc.toBase64String
+import net.atos.client.zgw.drc.util.toBase64String
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZrcClientService

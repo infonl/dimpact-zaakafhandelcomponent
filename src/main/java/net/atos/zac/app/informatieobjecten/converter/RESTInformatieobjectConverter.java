@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
-import static net.atos.client.zgw.drc.DrcClientUtilKt.toBase64String;
+import static net.atos.client.zgw.drc.util.Base64ConvertersKt.toBase64String;
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 import static net.atos.zac.app.identity.model.RestUserKt.toRestUser;
 import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
