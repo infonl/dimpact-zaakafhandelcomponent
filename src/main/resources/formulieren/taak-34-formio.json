@@ -16,10 +16,9 @@
       "label": "Opslaan",
       "type": "button",
       "action": "saveState",
-      "showValidations": false,
+      "state": "draft",
       "input": true,
-      "tableView": false,
-      "state": "saved"
+      "tableView": false
     },
     {
       "key": "submit",
