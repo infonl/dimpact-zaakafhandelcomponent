@@ -1,5 +1,8 @@
 {
+  "name": "taak1",
   "title": "Taak 1",
+  "display": "form",
+  "type": "form",
   "components": [
     {
       "label": "Omschrijving",
@@ -42,6 +45,7 @@
       "type": "columns",
       "input": false,
       "tableView": false,
+      "autoAdjust": true,
       "columns": [
         {
           "components": [
@@ -50,10 +54,9 @@
               "label": "Opslaan",
               "type": "button",
               "action": "saveState",
-              "showValidations": false,
+              "state": "draft",
               "input": true,
-              "tableView": false,
-              "state": "saved"
+              "tableView": false
             }
           ]
         },

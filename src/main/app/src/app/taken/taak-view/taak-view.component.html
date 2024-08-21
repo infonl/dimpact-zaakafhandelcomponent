@@ -52,7 +52,22 @@
               [submission]="{ data: taak.taakdata}"
               [form]="formioFormulier"
               [readOnly]="isReadonly()"
-              [options]="{ disableAlerts: true}"
+              language="nl"
+              [options]="{
+                disableAlerts: true,
+                i18n: {
+                    en: {
+                        'next': 'Next',
+                        'previous': 'Previous',
+                        'submit': 'Submit'
+                    },
+                    nl: {
+                        'next': 'Volgende',
+                        'previous': 'Vorige',
+                        'submit': 'Indienen'
+                    }
+                }
+              }"
               (submit)="onFormioFormSubmit($event)"
             ></formio>
             <mat-progress-bar

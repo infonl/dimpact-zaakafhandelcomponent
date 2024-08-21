@@ -6,6 +6,7 @@
 import {
   AfterViewInit,
   Component,
+  EventEmitter,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -96,6 +97,7 @@ export class TaakViewComponent
   private taakListener: WebsocketListener;
   private ingelogdeMedewerker: User;
   readonly TaakStatusAfgerond = TaakStatus.Afgerond;
+  language = new EventEmitter<string>();
 
   constructor(
     private route: ActivatedRoute,
@@ -211,6 +213,7 @@ export class TaakViewComponent
 
   private createFormioForm(taak: Taak): void {
     this.formioFormulier = taak.formioFormulier;
+    this.language.emit("nl");
     this.utilService.setTitle("title.taak", {
       taak: this.formioFormulier.title,
     });
