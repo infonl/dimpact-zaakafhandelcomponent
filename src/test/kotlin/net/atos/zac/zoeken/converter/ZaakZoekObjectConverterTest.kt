@@ -5,8 +5,8 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.maps.shouldContain
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.model.createResultsOfZaakObjecten
@@ -32,7 +32,6 @@ import java.time.ZoneId
 import java.util.Date
 import java.util.Optional
 
-@MockKExtension.CheckUnnecessaryStub
 class ZaakZoekObjectConverterTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
@@ -47,6 +46,10 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         identityService,
         flowableTaskService
     )
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given("a zaak with betrokkenen, without open tasks, zaak objecten and communication channels") {
         val zaakType = createZaakType()
@@ -69,8 +72,6 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         val rolMedewerkerBehandelaar = createRolMedewerker()
         val userBehandelaar = createUser()
         val zaakObjectenList = emptyList<Zaakobject>()
-        val zaakStatus = createZaakStatus()
-        val zaakStatusType = createStatusType()
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns Optional.of(rolInitiator)
@@ -81,8 +82,6 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
             identityService.readUser(rolMedewerkerBehandelaar.betrokkeneIdentificatie.identificatie)
         } returns userBehandelaar
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
-        every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
-        every { ztcClientService.readStatustype(zaakStatus.statustype) } returns zaakStatusType
         every { flowableTaskService.countOpenTasksForZaak(zaak.uuid) } returns 0
         every { zrcClientService.listZaakobjecten(any()) } returns createResultsOfZaakObjecten(
             list = zaakObjectenList,
@@ -100,7 +99,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                     omschrijving shouldBe zaak.omschrijving
                     toelichting shouldBe zaak.toelichting
                     registratiedatum shouldBe Date.from(zaak.registratiedatum.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
-                    vertrouwelijkheidaanduiding shouldBe zaak.vertrouwelijkheidaanduiding.toString()
+                    vertrouwelijkheidaanduiding shouldBe zaak.vertrouwelijkheidaanduiding.name
                     isAfgehandeld shouldBe !zaak.isOpen
                     initiatorIdentificatie shouldBe rolInitiator.identificatienummer
                     // locatie conversion is not implemented (yet?)
@@ -178,7 +177,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                     omschrijving shouldBe zaak.omschrijving
                     toelichting shouldBe zaak.toelichting
                     registratiedatum shouldBe Date.from(zaak.registratiedatum.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
-                    vertrouwelijkheidaanduiding shouldBe zaak.vertrouwelijkheidaanduiding.toString()
+                    vertrouwelijkheidaanduiding shouldBe zaak.vertrouwelijkheidaanduiding.name
                     isAfgehandeld shouldBe !zaak.isOpen
                     initiatorIdentificatie shouldBe rolInitiator.identificatienummer
                     // locatie conversion is not implemented (yet?)
