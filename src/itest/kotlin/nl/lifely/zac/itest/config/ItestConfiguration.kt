@@ -19,6 +19,13 @@ object ItestConfiguration {
     private const val ZAC_CONTAINER_PORT = 8080
     private const val ZAC_MANAGEMENT_PORT = 9990
 
+    const val HTTP_STATUS_OK = 200
+    const val HTTP_STATUS_NO_CONTENT = 204
+    const val HTTP_STATUS_BAD_REQUEST = 400
+    const val HTTP_STATUS_FORBIDDEN = 403
+
+    const val HTTP_READ_TIMEOUT_SECONDS = 30L
+
     const val ACTIE_INTAKE_AFRONDEN = "INTAKE_AFRONDEN"
     const val ACTIE_ZAAK_AFHANDELEN = "ZAAK_AFHANDELEN"
     const val BETROKKENE_TYPE_NATUURLIJK_PERSOON = "NATUURLIJK_PERSOON"
@@ -27,10 +34,6 @@ object ItestConfiguration {
     const val BETROKKENE_ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
     const val COMMUNICATIEKANAAL_TEST_1 = "dummyCommunicatiekanaal1"
     const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
-    const val HTTP_STATUS_OK = 200
-    const val HTTP_STATUS_NO_CONTENT = 204
-    const val HTTP_STATUS_BAD_REQUEST = 400
-    const val HTTP_STATUS_FORBIDDEN = 403
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING = "bijlage"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
@@ -174,6 +177,8 @@ object ItestConfiguration {
     const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_NAME = "group 2 template 1"
     const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_ID = "273C2707E5A844699B653C87ACFD618E"
     const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_NAME = "group 2 template 2"
+
+    const val SMART_DOCUMENTS_FILE_EXTENSION = "docx"
 
     const val SMTP_SERVER_PORT = 25
 

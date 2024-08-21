@@ -11,26 +11,26 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
+import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_EXTENSION
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_GROUP_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.task1ID
 import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import org.json.JSONObject
 
 /**
- * This test assumes a zaak has been created, and a task has been started in a previously run test.
+ * This test assumes that a zaak has been created, a task has been started and a template mapping is created
+ * in previously run tests.
  */
-@Order(TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED)
+@Order(TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED)
 class DocumentCreationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given(
-        "ZAC and all related Docker containers are running and zaak exists"
-    ) {
+    Given("ZAC and all related Docker containers are running and zaak exists") {
         When("the create document attended ('wizard') endpoint is called with a zaak UUID") {
             val endpointUrl = "$ZAC_API_URI/documentcreation/createdocumentattended"
             logger.info { "Calling $endpointUrl endpoint" }
@@ -42,9 +42,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     )
                 ).toString()
             )
-            Then(
-                "the response should be OK and the response should contain a redirect URL to Smartdocuments"
-            ) {
+            Then("the response should be OK and the response should contain a redirect URL to Smartdocuments") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK
@@ -70,17 +68,15 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     )
                 ).toString()
             )
-            Then(
-                "the response should be OK"
-            ) {
+            Then("the response should be OK") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue(
                         "message",
-                        "SmartDocuments document with filename: '$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME.docx' was" +
-                            " created and stored successfully in the zaakregister."
+                        "SmartDocuments document with filename: '$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME" +
+                                ".$SMART_DOCUMENTS_FILE_EXTENSION' was created and stored successfully in the zaakregister."
                     )
                 }
             }
@@ -99,17 +95,15 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     )
                 ).toString()
             )
-            Then(
-                "the response should be OK"
-            ) {
+            Then("the response should be OK") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue(
                         "message",
-                        "SmartDocuments document with filename: '$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME.docx' was " +
-                            "created and stored successfully in the zaakregister."
+                        "SmartDocuments document with filename: '$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME" +
+                                ".$SMART_DOCUMENTS_FILE_EXTENSION' was created and stored successfully in the zaakregister."
                     )
                 }
             }

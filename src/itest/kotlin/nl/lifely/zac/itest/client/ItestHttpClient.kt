@@ -5,6 +5,7 @@
 package nl.lifely.zac.itest.client
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_READ_TIMEOUT_SECONDS
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_PORT
 import okhttp3.Headers
 import okhttp3.JavaNetCookieJar
@@ -19,6 +20,7 @@ import okhttp3.WebSocketListener
 import java.net.CookieManager
 import java.net.CookiePolicy
 import java.net.URI
+import java.util.concurrent.TimeUnit
 
 @Suppress("TooManyFunctions")
 class ItestHttpClient {
@@ -31,6 +33,7 @@ class ItestHttpClient {
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL)
         okHttpClient = OkHttpClient.Builder()
             .cookieJar(JavaNetCookieJar(cookieManager))
+            .readTimeout(HTTP_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .build()
     }
 

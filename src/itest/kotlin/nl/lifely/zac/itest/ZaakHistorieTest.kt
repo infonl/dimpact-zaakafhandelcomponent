@@ -11,6 +11,8 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_EXTENSION
+import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_2_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_3_BSN
@@ -40,60 +42,74 @@ class ZaakHistorieTest : BehaviorSpec({
                 response.isSuccessful shouldBe true
 
                 val expectedResponse = """[{
+                    "actie": "GEKOPPELD",
                     "attribuutLabel": "Behandelaar",
                     "door": "$TEST_USER_1_NAME",
                     "nieuweWaarde": "$TEST_USER_1_NAME",
-                    "toelichting": "",
-                    "actie": "GEKOPPELD"
+                    "toelichting": ""
                   },
                   {
+                    "actie": "GEKOPPELD",
+                    "attribuutLabel": "zaakinformatieobject",
+                    "door": "$TEST_USER_1_NAME",
+                    "nieuweWaarde": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME.$SMART_DOCUMENTS_FILE_EXTENSION",
+                    "toelichting": ""
+                  },
+                  {
+                    "actie": "GEKOPPELD",
+                    "attribuutLabel": "zaakinformatieobject",
+                    "door": "$TEST_USER_1_NAME",
+                    "nieuweWaarde": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME.$SMART_DOCUMENTS_FILE_EXTENSION",
+                    "toelichting": ""
+                  },
+                  {
+                    "actie": "GEKOPPELD",
                     "attribuutLabel": "zaakinformatieobject",
                     "door": "$TEST_USER_1_NAME",
                     "nieuweWaarde": "dummyTitel",
-                    "toelichting": "",
-                    "actie": "GEKOPPELD"
+                    "toelichting": ""
                   },
                   {
+                    "actie": "GEKOPPELD",
                     "attribuutLabel": "zaakinformatieobject",
                     "door": "$TEST_USER_1_NAME",
                     "nieuweWaarde": "dummyTitel",
-                    "toelichting": "",
-                    "actie": "GEKOPPELD"
+                    "toelichting": ""
                   },
                   {
+                    "actie": "ONTKOPPELD",
                     "attribuutLabel": "Behandelaar",
                     "door": "Functionele gebruiker",
                     "oudeWaarde": "$TEST_USER_1_NAME",
-                    "toelichting": "dummyLijstVrijgevenReason",
-                    "actie": "ONTKOPPELD"
+                    "toelichting": "dummyLijstVrijgevenReason"
                   },
                   {
+                    "actie": "GEKOPPELD",
                     "attribuutLabel": "Behandelaar",
                     "door": "$TEST_USER_1_NAME",
                     "nieuweWaarde": "$TEST_USER_1_NAME",
-                    "toelichting": "dummyAssignToMeFromListReason",
-                    "actie": "GEKOPPELD"
+                    "toelichting": "dummyAssignToMeFromListReason"
                   },
                   {
+                    "actie": "ONTKOPPELD",
                     "attribuutLabel": "Behandelaar",
                     "door": "$TEST_USER_1_NAME",
                     "oudeWaarde": "$TEST_USER_2_NAME",
-                    "toelichting": "dummyAssignToMeFromListReason",
-                    "actie": "ONTKOPPELD"
+                    "toelichting": "dummyAssignToMeFromListReason"
                   },
                   {
+                    "actie": "GEKOPPELD",
                     "attribuutLabel": "Behandelaar",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "$TEST_USER_2_NAME",
-                    "toelichting": "dummyLijstVerdelenReason",
-                    "actie": "GEKOPPELD"
+                    "toelichting": "dummyLijstVerdelenReason"
                   },
                   {
+                    "actie": "GEWIJZIGD",
                     "attribuutLabel": "status",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "Intake",
-                    "toelichting": "Status gewijzigd vanuit Case",
-                    "actie": "GEWIJZIGD"
+                    "toelichting": "Status gewijzigd vanuit Case"
                   },
                   {
                     "actie": "GEKOPPELD",
@@ -110,39 +126,39 @@ class ZaakHistorieTest : BehaviorSpec({
                     "toelichting": ""
                   },
                   {
+                    "actie": "GEKOPPELD",
                     "attribuutLabel": "Medeaanvrager",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "$TEST_PERSON_2_BSN",
-                    "toelichting": "",
-                    "actie": "GEKOPPELD"
+                    "toelichting": ""
                   },
                   {
+                    "actie": "GEKOPPELD",
                     "attribuutLabel": "Melder",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
-                    "toelichting": "",
-                    "actie": "GEKOPPELD"
+                    "toelichting": ""
                   },
                   {
+                    "actie": "GEKOPPELD",
                     "attribuutLabel": "zaakinformatieobject",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "Aanvraag PDF",
-                    "toelichting": "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag",
-                    "actie": "GEKOPPELD"
+                    "toelichting": "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
                   },
                   {
+                    "actie": "GEKOPPELD",
                     "attribuutLabel": "Behandelaar",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "$TEST_GROUP_A_DESCRIPTION",
-                    "toelichting": "",
-                    "actie": "GEKOPPELD"
+                    "toelichting": ""
                   },
                   {
+                    "actie": "AANGEMAAKT",
                     "attribuutLabel": "zaak",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
-                    "toelichting": "",
-                    "actie": "AANGEMAAKT"
+                    "toelichting": ""
                   }]
                 """.trimIndent()
 
