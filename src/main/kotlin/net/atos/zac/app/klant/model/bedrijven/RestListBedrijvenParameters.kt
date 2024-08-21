@@ -5,7 +5,6 @@
 package net.atos.zac.app.klant.model.bedrijven
 
 import net.atos.client.kvk.model.KvkZoekenParameters
-import org.apache.commons.lang3.StringUtils
 
 data class RestListBedrijvenParameters(
     var kvkNummer: String? = null,
@@ -17,24 +16,12 @@ data class RestListBedrijvenParameters(
     var type: BedrijfType? = null,
 )
 
-fun RestListBedrijvenParameters.toKvkZoekenParameters(): KvkZoekenParameters {
-    val zoekenParameters = KvkZoekenParameters()
-    if (StringUtils.isNotBlank(this.kvkNummer)) {
-        zoekenParameters.kvkNummer = this.kvkNummer
-    }
-    if (StringUtils.isNotBlank(this.vestigingsnummer)) {
-        zoekenParameters.vestigingsnummer = this.vestigingsnummer
-    }
-    if (StringUtils.isNotBlank(this.rsin)) {
-        zoekenParameters.rsin = this.rsin
-    }
-    if (StringUtils.isNotBlank(this.naam)) {
-        zoekenParameters.naam = this.naam
-    }
-    zoekenParameters.type = this.type?.type
-    if (StringUtils.isNotBlank(this.postcode)) {
-        zoekenParameters.postcode = this.postcode
-    }
-    zoekenParameters.huisnummer = this.huisnummer?.toString()
-    return zoekenParameters
+fun RestListBedrijvenParameters.toKvkZoekenParameters() = KvkZoekenParameters().apply {
+    kvkNummer = this@toKvkZoekenParameters.kvkNummer
+    vestigingsnummer = this@toKvkZoekenParameters.vestigingsnummer
+    rsin = this@toKvkZoekenParameters.rsin
+    naam = this@toKvkZoekenParameters.naam
+    type = this@toKvkZoekenParameters.type?.type
+    postcode = this@toKvkZoekenParameters.postcode
+    huisnummer = this@toKvkZoekenParameters.huisnummer?.toString()
 }
