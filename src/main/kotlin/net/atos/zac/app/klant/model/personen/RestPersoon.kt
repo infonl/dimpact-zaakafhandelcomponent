@@ -1,7 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
+@file:Suppress("TooManyFunctions")
+
 package net.atos.zac.app.klant.model.personen
 
 import net.atos.client.brp.model.generated.AbstractDatum
@@ -168,4 +171,3 @@ private fun VerblijfadresBuitenland.toStringRepresentation(): String {
         this.regel3
     )
 }
-
