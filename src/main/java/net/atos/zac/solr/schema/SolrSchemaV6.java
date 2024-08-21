@@ -5,16 +5,15 @@
 
 package net.atos.zac.solr.schema;
 
-import net.atos.zac.solr.SolrSchemaUpdate;
-import net.atos.zac.zoeken.model.index.ZoekObjectType;
-import org.apache.solr.client.solrj.request.schema.SchemaRequest;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static net.atos.zac.solr.FieldType.STRING;
-import static net.atos.zac.solr.SolrSchemaUpdateHelper.addFieldMultiValued;
+import org.apache.solr.client.solrj.request.schema.SchemaRequest;
+
+import net.atos.zac.solr.SolrSchemaUpdate;
+import net.atos.zac.zoeken.model.index.ZoekObjectType;
+
 
 class SolrSchemaV6 implements SolrSchemaUpdate {
 
