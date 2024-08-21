@@ -63,11 +63,10 @@ class BrpClientService @Inject constructor(
      */
     fun retrievePersoon(burgerservicenummer: String): Persoon? =
         (
-            personenApi.personen(
-                createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer)
-            ) as RaadpleegMetBurgerservicenummerResponse
-            ).personen?.let { persons ->
-            return if (persons.isNotEmpty()) {
+            personenApi.personen(personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer))
+                    as RaadpleegMetBurgerservicenummerResponse
+                ).personen?.let { persons ->
+            if (persons.isNotEmpty()) {
                 if (persons.size > 1) {
                     LOG.warning(
                         "Multiple persons found for burgerservicenummer: '$burgerservicenummer'. " +
@@ -76,6 +75,7 @@ class BrpClientService @Inject constructor(
                 }
                 persons.first()
             } else {
+                LOG.info("No person found for burgerservicenummer: $burgerservicenummer")
                 null
             }
         }
