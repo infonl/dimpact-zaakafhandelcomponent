@@ -26,14 +26,13 @@ open class User(
 }
 
 /**
- * Better to get rid of this extension function by using the `fullName` property directly.
+ * Maybe better to get rid of this extension function by using the `fullName` property directly.
  * Then we need to make sure the full name gets set correctly in the first place.
  */
-fun User.getFullName(): String {
-    return when {
+fun User.getFullName(): String =
+    when {
         !fullName.isNullOrBlank() -> fullName
         !firstName.isNullOrBlank() && !lastName.isNullOrBlank() -> "$firstName $lastName"
         !lastName.isNullOrBlank() -> lastName
         else -> id
     }
-}
