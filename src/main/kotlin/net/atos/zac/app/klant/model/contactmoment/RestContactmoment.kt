@@ -2,21 +2,28 @@
  * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.klant.converter
+package net.atos.zac.app.klant.model.contactmoment
 
 import net.atos.client.klant.model.Actor
-import net.atos.client.klant.model.ExpandBetrokkene
 import net.atos.client.klant.model.Klantcontact
-import net.atos.zac.app.klant.model.contactmoment.RESTContactmoment
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
+import java.time.ZonedDateTime
 import java.util.UUID
 
-fun List<ExpandBetrokkene>.toInitiatorAsUuidStringMap(): Map<UUID, String> =
-    this.filter { it.initiator }
-        .associate { it.expand.hadKlantcontact.uuid to it.volledigeNaam }
+@AllOpen
+@NoArgConstructor
+data class RestContactmoment(
+    var registratiedatum: ZonedDateTime? = null,
+    var kanaal: String? = null,
+    var tekst: String? = null,
+    var initiatiefnemer: String? = null,
+    var medewerker: String? = null
+)
 
-fun Klantcontact.toRestContactMoment(contactToFullNameMap: Map<UUID, String>): RESTContactmoment =
-    RESTContactmoment(
+fun Klantcontact.toRestContactMoment(contactToFullNameMap: Map<UUID, String>): RestContactmoment =
+    RestContactmoment(
         registratiedatum = this.plaatsgevondenOp?.toZonedDateTime(),
         initiatiefnemer = contactToFullNameMap[this.uuid],
         kanaal = this.kanaal,

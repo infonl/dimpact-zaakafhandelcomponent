@@ -4,7 +4,7 @@
  */
 package net.atos.zac.app.klant.model.contactmoment
 
-data class RESTListContactmomentenParameters(
+data class RestListContactmomentenParameters(
     var bsn: String? = null,
     var vestigingsnummer: String? = null,
     var page: Int? = null

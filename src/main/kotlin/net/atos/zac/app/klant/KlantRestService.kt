@@ -18,32 +18,31 @@ import net.atos.client.brp.BrpClientService
 import net.atos.client.brp.model.generated.Persoon
 import net.atos.client.klant.KlantClientService
 import net.atos.client.klant.model.DigitaalAdres
+import net.atos.client.klant.model.ExpandBetrokkene
 import net.atos.client.kvk.KvkClientService
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
-import net.atos.zac.app.klant.converter.VALID_PERSONEN_QUERIES
-import net.atos.zac.app.klant.converter.convert
-import net.atos.zac.app.klant.converter.convertFromPersonenQueryResponse
-import net.atos.zac.app.klant.converter.convertPersoon
-import net.atos.zac.app.klant.converter.convertToPersonenQuery
-import net.atos.zac.app.klant.converter.toInitiatorAsUuidStringMap
-import net.atos.zac.app.klant.converter.toKvkZoekenParameters
-import net.atos.zac.app.klant.converter.toRestBedrijf
-import net.atos.zac.app.klant.converter.toRestContactMoment
-import net.atos.zac.app.klant.converter.toRestRoltypes
 import net.atos.zac.app.klant.model.bedrijven.RestBedrijf
 import net.atos.zac.app.klant.model.bedrijven.RestListBedrijvenParameters
 import net.atos.zac.app.klant.model.bedrijven.RestVestigingsprofiel
-import net.atos.zac.app.klant.model.contactmoment.RESTContactmoment
-import net.atos.zac.app.klant.model.contactmoment.RESTListContactmomentenParameters
-import net.atos.zac.app.klant.model.klant.IdentificatieType
+import net.atos.zac.app.klant.model.bedrijven.toKvkZoekenParameters
+import net.atos.zac.app.klant.model.bedrijven.toRestBedrijf
+import net.atos.zac.app.klant.model.bedrijven.toRestVestigingsProfiel
+import net.atos.zac.app.klant.model.contactmoment.RestContactmoment
+import net.atos.zac.app.klant.model.contactmoment.RestListContactmomentenParameters
+import net.atos.zac.app.klant.model.contactmoment.toRestContactMoment
 import net.atos.zac.app.klant.model.klant.RestContactGegevens
 import net.atos.zac.app.klant.model.klant.RestKlant
 import net.atos.zac.app.klant.model.klant.RestRoltype
+import net.atos.zac.app.klant.model.klant.toRestRoltypes
 import net.atos.zac.app.klant.model.personen.RestListPersonenParameters
 import net.atos.zac.app.klant.model.personen.RestPersonenParameters
 import net.atos.zac.app.klant.model.personen.RestPersoon
+import net.atos.zac.app.klant.model.personen.VALID_PERSONEN_QUERIES
+import net.atos.zac.app.klant.model.personen.toPersonenQuery
+import net.atos.zac.app.klant.model.personen.toRechtsPersonen
+import net.atos.zac.app.klant.model.personen.toRestPersoon
 import net.atos.zac.app.shared.RESTResultaat
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -104,7 +103,7 @@ class KlantRestService @Inject constructor(
     fun readVestigingsprofiel(@PathParam("vestigingsnummer") vestigingsnummer: String): RestVestigingsprofiel {
         val vestiging = kvkClientService.findVestigingsprofiel(vestigingsnummer)
         if (vestiging.isPresent) {
-            return convert(vestiging.get())
+            return vestiging.get().toRestVestigingsProfiel()
         } else {
             throw NotFoundException(
                 "Geen vestigingsprofiel gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'"
@@ -127,11 +126,7 @@ class KlantRestService @Inject constructor(
     @Path("personen")
     fun listPersonen(restListPersonenParameters: RestListPersonenParameters): RESTResultaat<RestPersoon> =
         RESTResultaat(
-            convertFromPersonenQueryResponse(
-                brpClientService.queryPersonen(
-                    convertToPersonenQuery(restListPersonenParameters)
-                )
-            )
+            brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery()).toRechtsPersonen()
         )
 
     @PUT
@@ -147,37 +142,31 @@ class KlantRestService @Inject constructor(
     @GET
     @Path("roltype/{zaaktypeUuid}/betrokkene")
     fun listBetrokkeneRoltypen(@PathParam("zaaktypeUuid") zaaktype: UUID): List<RestRoltype> =
-        toRestRoltypes(
-            ztcClientService.listRoltypen(ztcClientService.readZaaktype(zaaktype).url)
-                .filter { betrokkenen.contains(it.omschrijvingGeneriek) }
-                .sortedBy { it.omschrijving }
-        )
+        ztcClientService.listRoltypen(ztcClientService.readZaaktype(zaaktype).url)
+            .filter { betrokkenen.contains(it.omschrijvingGeneriek) }
+            .sortedBy { it.omschrijving }
+            .toRestRoltypes()
 
     @GET
     @Path("roltype")
-    fun listRoltypen(): List<RestRoltype> =
-        toRestRoltypes(ztcClientService.listRoltypen().sortedBy { it.omschrijving })
+    fun listRoltypen(): List<RestRoltype> = ztcClientService.listRoltypen().sortedBy { it.omschrijving }.toRestRoltypes()
 
     @GET
-    @Path("contactgegevens/{identificatieType}/{initiatorIdentificatie}")
+    @Path("contactgegevens/{initiatorIdentificatie}")
     fun ophalenContactGegevens(
-        @PathParam("identificatieType") identificatieType: IdentificatieType,
         @PathParam("initiatorIdentificatie") initiatorIdentificatie: String
-    ): RestContactGegevens {
-        // TODO: use identificatieType or remove it
-        return convertToRestPersoon(
-            klantClientService.findDigitalAddressesByNumber(initiatorIdentificatie)
-        ).let {
-            RestContactGegevens(
-                telefoonnummer = it.telefoonnummer,
-                emailadres = it.emailadres
-            )
-        }
+    ): RestContactGegevens = convertToRestPersoon(
+        klantClientService.findDigitalAddressesByNumber(initiatorIdentificatie)
+    ).let {
+        RestContactGegevens(
+            telefoonnummer = it.telefoonnummer,
+            emailadres = it.emailadres
+        )
     }
 
     @PUT
     @Path("contactmomenten")
-    fun listContactmomenten(parameters: RESTListContactmomentenParameters): RESTResultaat<RESTContactmoment> {
+    fun listContactmomenten(parameters: RestListContactmomentenParameters): RESTResultaat<RestContactmoment> {
         val nummer = if (parameters.bsn != null) parameters.bsn else parameters.vestigingsnummer
         // OpenKlant 2.1 pages start from 1 (not 0-based). Page 0 is considered invalid number
         val pageNumber = parameters.page!! + 1
@@ -206,10 +195,8 @@ class KlantRestService @Inject constructor(
             .orElseGet { RestBedrijf() }
     }
 
-    private fun convertToRestPersoon(persoon: Persoon, klantPersoon: RestPersoon): RestPersoon {
-        val restPersoon = convertPersoon(persoon)
-        return addKlantData(restPersoon, klantPersoon) as RestPersoon
-    }
+    private fun convertToRestPersoon(persoon: Persoon, klantPersoon: RestPersoon): RestPersoon =
+        addKlantData(persoon.toRestPersoon(), klantPersoon) as RestPersoon
 
     private fun convertToRestPersoon(digitalAddresses: List<DigitaalAdres>?): RestPersoon {
         val restPersoon = RestPersoon()
@@ -226,4 +213,8 @@ class KlantRestService @Inject constructor(
 
     private fun isKoppelbaar(item: ResultaatItem): Boolean =
         item.vestigingsnummer != null || item.rsin != null
+
+    fun List<ExpandBetrokkene>.toInitiatorAsUuidStringMap(): Map<UUID, String> =
+        this.filter { it.initiator }
+            .associate { it.expand.hadKlantcontact.uuid to it.volledigeNaam }
 }

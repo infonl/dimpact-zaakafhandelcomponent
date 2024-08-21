@@ -89,10 +89,7 @@ export class IntakeAfrondenDialogComponent implements OnInit, OnDestroy {
       this.data.zaak.initiatorIdentificatie
     ) {
       this.klantenService
-        .ophalenContactGegevens(
-          this.data.zaak.initiatorIdentificatieType,
-          this.data.zaak.initiatorIdentificatie,
-        )
+        .ophalenContactGegevens(this.data.zaak.initiatorIdentificatie)
         .subscribe((gegevens) => {
           if (gegevens.emailadres) {
             this.initiatorEmail = gegevens.emailadres;

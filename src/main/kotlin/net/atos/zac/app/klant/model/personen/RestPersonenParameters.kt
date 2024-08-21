@@ -4,6 +4,8 @@
  */
 package net.atos.zac.app.klant.model.personen
 
+import net.atos.zac.app.klant.model.personen.RestPersonenParameters.Cardinaliteit
+
 data class RestPersonenParameters(
     var bsn: Cardinaliteit,
     var geslachtsnaam: Cardinaliteit,
@@ -21,3 +23,64 @@ data class RestPersonenParameters(
         REQ // verplicht
     }
 }
+
+/**
+ * Needs to correspond to the implementation [toPersonenQuery] function.
+ */
+val VALID_PERSONEN_QUERIES = listOf(
+    RestPersonenParameters(
+        bsn = Cardinaliteit.REQ,
+        geslachtsnaam = Cardinaliteit.NON,
+        voornamen = Cardinaliteit.NON,
+        voorvoegsel = Cardinaliteit.NON,
+        geboortedatum = Cardinaliteit.NON,
+        gemeenteVanInschrijving = Cardinaliteit.NON,
+        postcode = Cardinaliteit.NON,
+        huisnummer = Cardinaliteit.NON,
+        straat = Cardinaliteit.NON
+    ),
+    RestPersonenParameters(
+        bsn = Cardinaliteit.NON,
+        geslachtsnaam = Cardinaliteit.REQ,
+        voornamen = Cardinaliteit.OPT,
+        voorvoegsel = Cardinaliteit.OPT,
+        geboortedatum = Cardinaliteit.REQ,
+        gemeenteVanInschrijving = Cardinaliteit.NON,
+        postcode = Cardinaliteit.NON,
+        huisnummer = Cardinaliteit.NON,
+        straat = Cardinaliteit.NON
+    ),
+    RestPersonenParameters(
+        bsn = Cardinaliteit.NON,
+        geslachtsnaam = Cardinaliteit.REQ,
+        voornamen = Cardinaliteit.REQ,
+        voorvoegsel = Cardinaliteit.OPT,
+        geboortedatum = Cardinaliteit.NON,
+        gemeenteVanInschrijving = Cardinaliteit.REQ,
+        postcode = Cardinaliteit.NON,
+        huisnummer = Cardinaliteit.NON,
+        straat = Cardinaliteit.NON
+    ),
+    RestPersonenParameters(
+        bsn = Cardinaliteit.NON,
+        geslachtsnaam = Cardinaliteit.NON,
+        voornamen = Cardinaliteit.NON,
+        voorvoegsel = Cardinaliteit.NON,
+        geboortedatum = Cardinaliteit.NON,
+        gemeenteVanInschrijving = Cardinaliteit.NON,
+        postcode = Cardinaliteit.REQ,
+        huisnummer = Cardinaliteit.REQ,
+        straat = Cardinaliteit.NON
+    ),
+    RestPersonenParameters(
+        bsn = Cardinaliteit.NON,
+        geslachtsnaam = Cardinaliteit.NON,
+        voornamen = Cardinaliteit.NON,
+        voorvoegsel = Cardinaliteit.NON,
+        geboortedatum = Cardinaliteit.NON,
+        gemeenteVanInschrijving = Cardinaliteit.REQ,
+        postcode = Cardinaliteit.NON,
+        huisnummer = Cardinaliteit.REQ,
+        straat = Cardinaliteit.REQ
+    )
+)
