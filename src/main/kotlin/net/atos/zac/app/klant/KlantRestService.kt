@@ -164,6 +164,7 @@ class KlantRestService @Inject constructor(
         @PathParam("identificatieType") identificatieType: IdentificatieType,
         @PathParam("initiatorIdentificatie") initiatorIdentificatie: String
     ): RestContactGegevens {
+        // TODO: use identificatieType or remove it
         return convertToRestPersoon(
             klantClientService.findDigitalAddressesByNumber(initiatorIdentificatie)
         ).let {

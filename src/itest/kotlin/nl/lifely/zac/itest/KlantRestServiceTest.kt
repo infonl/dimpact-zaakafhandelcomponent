@@ -39,6 +39,13 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.lifely.zac.itest.config.ItestConfiguration.VESTIGINGTYPE_NEVENVESTIGING
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BELANGHEBBENDE
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BEWINDVOERDER
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_CONTACTPERSOON
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_GEMACHTIGDE
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_MEDEAANVRAGER
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_PLAATSVERVANGER
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
 import org.json.JSONObject
@@ -321,6 +328,55 @@ class KlantRestServiceTest : BehaviorSpec({
                     } 
                   ]
                 """.trimIndent()
+            }
+        }
+        When(
+            """
+                the betrokkenen are retrieved for the zaaktype 'indienen aansprakelijkstelling door derden behandelen'
+                """
+        ) {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/klanten/roltype/$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID/betrokkene",
+            )
+            Then("the response should be ok and the test company should be returned without contact data") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_OK
+                responseBody shouldEqualJson
+                    """
+                    [
+                      {
+                        "naam": "Belanghebbende",
+                        "omschrijvingGeneriekEnum": "belanghebbende",
+                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BELANGHEBBENDE"
+                      },
+                      {
+                        "naam": "Bewindvoerder",
+                        "omschrijvingGeneriekEnum": "belanghebbende",
+                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BEWINDVOERDER"
+                      },
+                      {
+                        "naam": "Contactpersoon",
+                        "omschrijvingGeneriekEnum": "belanghebbende",
+                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_CONTACTPERSOON"
+                      },
+                      {
+                        "naam": "Gemachtigde",
+                        "omschrijvingGeneriekEnum": "belanghebbende",
+                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_GEMACHTIGDE"
+                      },
+                      {
+                        "naam": "Medeaanvrager",
+                        "omschrijvingGeneriekEnum": "mede_initiator",
+                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_MEDEAANVRAGER"
+                      },
+                      {
+                        "naam": "Plaatsvervanger",
+                        "omschrijvingGeneriekEnum": "belanghebbende",
+                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_PLAATSVERVANGER"
+                      }
+                    ]
+                    """.trimIndent()
             }
         }
     }
