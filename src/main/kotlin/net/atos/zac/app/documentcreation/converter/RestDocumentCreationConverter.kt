@@ -1,6 +1,5 @@
 package net.atos.zac.app.documentcreation.converter
 
-import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
