@@ -11,7 +11,6 @@ import net.atos.zac.app.shared.RESTResultaat
 import net.atos.zac.util.StringUtil
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
-import org.apache.commons.lang3.StringUtils
 import java.util.Locale
 import java.util.Objects
 
@@ -50,21 +49,21 @@ fun ResultaatItem.toRestBedrijf() = RestBedrijf(
 fun List<RestBedrijf>.toRestResultaat() = RESTResultaat(this)
 
 private fun ResultaatItem.toName(): String =
-    StringUtils.replace(this.naam, StringUtils.SPACE, StringUtil.NON_BREAKING_SPACE)
+    this.naam.replace(" ", StringUtil.NON_BREAKING_SPACE)
 
-private fun ResultaatItem.toAddress(): String {
-    val binnenlandsAdres = this.adres.binnenlandsAdres
-    val adres = StringUtils.replace(
+private fun ResultaatItem.toAddress(): String =
+    this.adres.binnenlandsAdres.let { binnenlandsAdres ->
         StringUtil.joinNonBlankWith(
             StringUtil.NON_BREAKING_SPACE,
             binnenlandsAdres.straatnaam,
             Objects.toString(binnenlandsAdres.huisnummer, null),
             binnenlandsAdres.huisletter
-        ),
-        StringUtils.SPACE,
-        StringUtil.NON_BREAKING_SPACE
-    )
-    val postcode = StringUtils.replace(binnenlandsAdres.postcode, StringUtils.SPACE, StringUtil.NON_BREAKING_SPACE)
-    val woonplaats = StringUtils.replace(binnenlandsAdres.plaats, StringUtils.SPACE, StringUtil.NON_BREAKING_SPACE)
-    return StringUtil.joinNonBlankWith(", ", adres, postcode, woonplaats)
-}
+        ).replace(" ", StringUtil.NON_BREAKING_SPACE).let { adres ->
+            StringUtil.joinNonBlankWith(
+                ", ",
+                adres,
+                binnenlandsAdres.postcode?.replace(" ", StringUtil.NON_BREAKING_SPACE),
+                binnenlandsAdres.plaats?.replace(" ", StringUtil.NON_BREAKING_SPACE)
+            )
+        }
+    }

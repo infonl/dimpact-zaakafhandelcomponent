@@ -64,8 +64,8 @@ class BrpClientService @Inject constructor(
     fun retrievePersoon(burgerservicenummer: String): Persoon? =
         (
             personenApi.personen(personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer))
-                    as RaadpleegMetBurgerservicenummerResponse
-                ).personen?.let { persons ->
+                as RaadpleegMetBurgerservicenummerResponse
+            ).personen?.let { persons ->
             if (persons.isNotEmpty()) {
                 if (persons.size > 1) {
                     LOG.warning(

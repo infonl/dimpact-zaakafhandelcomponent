@@ -4,7 +4,7 @@
  */
 package net.atos.zac.app.klant.model.bedrijven
 
-class RestKlantenAdres(
+data class RestKlantenAdres(
     /**
      * Correspondentieadres en/of bezoekadres
      */
