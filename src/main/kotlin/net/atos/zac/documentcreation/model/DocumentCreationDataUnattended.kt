@@ -9,9 +9,9 @@ import net.atos.client.zgw.zrc.model.Zaak
 data class DocumentCreationDataUnattended(
     val taskId: String? = null,
 
-    val templateGroupName: String,
+    val templateGroupId: String,
 
-    val templateName: String,
+    val templateId: String,
 
     val zaak: Zaak
 )

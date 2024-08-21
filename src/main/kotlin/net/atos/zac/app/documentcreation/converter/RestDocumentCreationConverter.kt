@@ -42,10 +42,11 @@ class RestDocumentCreationConverter @Inject constructor(
         beschrijving = ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT
         status = StatusEnum.DEFINITIEF
         vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
+        zaak.zaaktype
         informatieobjecttype = smartDocumentsTemplatesService.getInformationObjectTypeUUID(
             zaakafhandelParametersUUID = uuidFromURI(zaak.zaaktype),
-            templateGroupName = unattendedData.smartDocumentsTemplateGroupName,
-            templateName = unattendedData.smartDocumentsTemplateName
+            templateGroupId = unattendedData.smartDocumentsTemplateGroupId,
+            templateId = unattendedData.smartDocumentsTemplateId
         ).let {
             ztcClientService.readInformatieobjecttype(it).url
         }

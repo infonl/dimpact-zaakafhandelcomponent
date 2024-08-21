@@ -136,12 +136,12 @@ class SmartDocumentsTemplatesService @Inject constructor(
      */
     fun getInformationObjectTypeUUID(
         zaakafhandelParametersUUID: UUID,
-        templateGroupName: String,
-        templateName: String
+        templateGroupId: String,
+        templateId: String
     ): UUID {
         LOG.info {
             "Fetching information object type UUID mapping for zaakafhandelParameters UUID " +
-                "$zaakafhandelParametersUUID, template group $templateGroupName and template $templateName"
+                "$zaakafhandelParametersUUID, template group id $templateGroupId and template id $templateId"
         }
 
         val zaakafhandelParametersId =
@@ -158,15 +158,61 @@ class SmartDocumentsTemplatesService @Inject constructor(
                             zaakafhandelParametersId
                         ),
                         builder.equal(
-                            root.get<SmartDocumentsTemplateGroup>("templateGroup").get<String>("name"),
-                            templateGroupName
+                            root.get<SmartDocumentsTemplateGroup>("templateGroup").get<String>("smartDocumentsId"),
+                            templateGroupId
                         ),
                         builder.equal(
-                            root.get<SmartDocumentsTemplate>("name"),
-                            templateName
+                            root.get<SmartDocumentsTemplate>("smartDocumentsId"),
+                            templateId
                         )
                     )
                 )
         ).singleResult.informatieObjectTypeUUID
+    }
+
+    /**
+     * Get the template group name
+     *
+     * @param templateGroupId SmartDocuments' id of a template group
+     * @return template group name
+     */
+    fun getTemplateGroupName(templateGroupId: String): String {
+        LOG.info { "Fetching template group name for id $templateGroupId" }
+
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(SmartDocumentsTemplateGroup::class.java)
+        val root = query.from(SmartDocumentsTemplateGroup::class.java)
+        return entityManager.createQuery(
+            query.select(root)
+                .where(
+                    builder.equal(
+                        root.get<String>("smartDocumentsId"),
+                        templateGroupId
+                    )
+                )
+        ).singleResult.name
+    }
+
+    /**
+     * Get the template name
+     *
+     * @param templateId SmartDocuments' id of a template
+     * @return template name
+     */
+    fun getTemplateName(templateGroupId: String): String {
+        LOG.info { "Fetching template group name for id $templateGroupId" }
+
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(SmartDocumentsTemplate::class.java)
+        val root = query.from(SmartDocumentsTemplate::class.java)
+        return entityManager.createQuery(
+            query.select(root)
+                .where(
+                    builder.equal(
+                        root.get<String>("smartDocumentsId"),
+                        templateGroupId
+                    )
+                )
+        ).singleResult.name
     }
 }

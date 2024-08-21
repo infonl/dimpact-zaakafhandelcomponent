@@ -19,10 +19,10 @@ data class RestDocumentCreationUnattendedData(
     var documentTitle: String? = null,
 
     @field:NotNull
-    var smartDocumentsTemplateGroupName: String,
+    var smartDocumentsTemplateGroupId: String,
 
     @field:NotNull
-    var smartDocumentsTemplateName: String,
+    var smartDocumentsTemplateId: String,
 
     @field:NotNull
     var zaakUuid: UUID,

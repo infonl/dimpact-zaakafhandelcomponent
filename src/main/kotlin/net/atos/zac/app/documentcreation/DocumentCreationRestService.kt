@@ -85,8 +85,8 @@ class DocumentCreationRestService @Inject constructor(
         return restDocumentCreationUnattendedData.let { unattendedData ->
             DocumentCreationDataUnattended(
                 taskId = unattendedData.taskId,
-                templateGroupName = unattendedData.smartDocumentsTemplateGroupName,
-                templateName = unattendedData.smartDocumentsTemplateName,
+                templateGroupId = unattendedData.smartDocumentsTemplateGroupId,
+                templateId = unattendedData.smartDocumentsTemplateId,
                 zaak = zaak
             ).let(documentCreationService::createDocumentUnattended)
                 .let { unattendedResponse ->

@@ -57,13 +57,13 @@ fun createDocumentCreationDataAttended(
 fun createDocumentCreationDataUnattended(
     zaak: Zaak = createZaak(),
     taskId: String = "dummyTaskId",
-    templateGroupName: String = "dummyTemplateGroupName",
-    templateName: String = "dummyTemplateName"
+    templateGroupId: String = "1",
+    templateId: String = "2"
 ) = DocumentCreationDataUnattended(
     zaak = zaak,
     taskId = taskId,
-    templateGroupName = templateGroupName,
-    templateName = templateName
+    templateGroupId = templateGroupId,
+    templateId = templateId
 )
 
 fun createDocumentCreationAttendedResponse(

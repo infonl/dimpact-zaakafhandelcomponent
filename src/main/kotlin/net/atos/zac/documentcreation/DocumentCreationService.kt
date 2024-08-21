@@ -25,6 +25,7 @@ import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
 import net.atos.zac.documentcreation.model.DocumentCreationDataUnattended
 import net.atos.zac.documentcreation.model.DocumentCreationUnattendedResponse
 import net.atos.zac.smartdocuments.SmartDocumentsService
+import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate
@@ -35,10 +36,11 @@ import java.time.LocalDate
 @Suppress("LongParameterList")
 class DocumentCreationService @Inject constructor(
     private val smartDocumentsService: SmartDocumentsService,
+    private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
     private val documentCreationDataConverter: DocumentCreationDataConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>,
     private val ztcClientService: ZtcClientService,
-    private val zrcClientService: ZrcClientService
+    private val zrcClientService: ZrcClientService,
 ) {
     companion object {
         private const val AUDIT_TOELICHTING = "Door SmartDocuments"
@@ -72,7 +74,10 @@ class DocumentCreationService @Inject constructor(
             zaak = documentCreationDataUnattended.zaak,
             taskId = documentCreationDataUnattended.taskId
         ).let { data ->
-            createSmartDocumentForUnattendedFlow(documentCreationDataUnattended).let { smartDocument ->
+            createSmartDocumentForUnattendedFlow(
+                smartDocumentsTemplatesService.getTemplateGroupName(documentCreationDataUnattended.templateGroupId),
+                smartDocumentsTemplatesService.getTemplateName(documentCreationDataUnattended.templateId),
+            ).let { smartDocument ->
                 smartDocumentsService.createDocumentUnattended(
                     data = data,
                     smartDocument = smartDocument
@@ -97,12 +102,9 @@ class DocumentCreationService @Inject constructor(
      * In this flow the SmartDocuments template group and template are provided in the document creation data.
      * The output format is set to 'docx'
      */
-    private fun createSmartDocumentForUnattendedFlow(documentCreationDataUnattended: DocumentCreationDataUnattended) =
+    private fun createSmartDocumentForUnattendedFlow(templateGroupName: String, templateName: String) =
         SmartDocument(
-            selection = Selection(
-                templateGroup = documentCreationDataUnattended.templateGroupName,
-                template = documentCreationDataUnattended.templateName
-            ),
+            selection = Selection(templateGroupName, templateName),
             variables = Variables(
                 outputFormats = listOf(
                     OutputFormat("docx")
