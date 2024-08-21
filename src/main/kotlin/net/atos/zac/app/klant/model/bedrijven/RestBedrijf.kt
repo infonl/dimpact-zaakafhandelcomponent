@@ -7,6 +7,7 @@ package net.atos.zac.app.klant.model.bedrijven
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.klant.model.klant.RestKlant
+import net.atos.zac.app.shared.RESTResultaat
 import net.atos.zac.util.StringUtil
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -45,6 +46,8 @@ fun ResultaatItem.toRestBedrijf() = RestBedrijf(
     type = this.type.uppercase(Locale.getDefault()),
     adres = this.toAddress()
 )
+
+fun List<RestBedrijf>.toRestResultaat() = RESTResultaat(this)
 
 private fun ResultaatItem.toName(): String =
     StringUtils.replace(this.naam, StringUtils.SPACE, StringUtil.NON_BREAKING_SPACE)

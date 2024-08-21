@@ -25,8 +25,12 @@ import net.atos.client.brp.model.generated.ZoekMetNaamEnGemeenteVanInschrijvingR
 import net.atos.client.brp.model.generated.ZoekMetNummeraanduidingIdentificatieResponse
 import net.atos.client.brp.model.generated.ZoekMetPostcodeEnHuisnummerResponse
 import net.atos.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse
+import net.atos.client.klant.model.DigitaalAdres
+import net.atos.zac.app.klant.KlantRestService.Companion.EMAIL_SOORT_DIGITAAL_ADRES
+import net.atos.zac.app.klant.KlantRestService.Companion.TELEFOON_SOORT_DIGITAAL_ADRES
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.klant.model.klant.RestKlant
+import net.atos.zac.app.shared.RESTResultaat
 import net.atos.zac.util.StringUtil
 import net.atos.zac.util.StringUtil.ONBEKEND
 import nl.lifely.zac.util.AllOpen
@@ -82,6 +86,17 @@ fun PersoonBeperkt.toRestPerson() = RestPersoon(
     }
 )
 
+fun List<DigitaalAdres>.toRestPersoon(): RestPersoon {
+    val restPersoon = RestPersoon()
+    for (digitalAdress in this) {
+        when (digitalAdress.soortDigitaalAdres) {
+            TELEFOON_SOORT_DIGITAAL_ADRES -> restPersoon.telefoonnummer = digitalAdress.adres
+            EMAIL_SOORT_DIGITAAL_ADRES -> restPersoon.emailadres = digitalAdress.adres
+        }
+    }
+    return restPersoon
+}
+
 fun PersonenQueryResponse.toRechtsPersonen(): List<RestPersoon> =
     when (this) {
         is RaadpleegMetBurgerservicenummerResponse -> this.personen.toRestPersons()
@@ -92,6 +107,8 @@ fun PersonenQueryResponse.toRechtsPersonen(): List<RestPersoon> =
         is ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse -> this.personen.toRestPersonen()
         else -> emptyList()
     }
+
+fun List<RestPersoon>.toRestResultaat() = RESTResultaat(this)
 
 private fun Waardetabel.toDescription(): String =
     if (StringUtils.isNotBlank(this.omschrijving)) this.omschrijving else this.code
@@ -151,3 +168,4 @@ private fun VerblijfadresBuitenland.toStringRepresentation(): String {
         this.regel3
     )
 }
+

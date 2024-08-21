@@ -8,32 +8,31 @@ import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
-import jakarta.ws.rs.NotFoundException
 import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.brp.BrpClientService
-import net.atos.client.brp.model.generated.Persoon
 import net.atos.client.klant.KlantClientService
-import net.atos.client.klant.model.DigitaalAdres
 import net.atos.client.klant.model.ExpandBetrokkene
 import net.atos.client.kvk.KvkClientService
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import net.atos.zac.app.klant.exception.RechtspersoonNotFoundException
+import net.atos.zac.app.klant.exception.VestigingNotFoundException
 import net.atos.zac.app.klant.model.bedrijven.RestBedrijf
 import net.atos.zac.app.klant.model.bedrijven.RestListBedrijvenParameters
 import net.atos.zac.app.klant.model.bedrijven.RestVestigingsprofiel
 import net.atos.zac.app.klant.model.bedrijven.toKvkZoekenParameters
 import net.atos.zac.app.klant.model.bedrijven.toRestBedrijf
+import net.atos.zac.app.klant.model.bedrijven.toRestResultaat
 import net.atos.zac.app.klant.model.bedrijven.toRestVestigingsProfiel
 import net.atos.zac.app.klant.model.contactmoment.RestContactmoment
 import net.atos.zac.app.klant.model.contactmoment.RestListContactmomentenParameters
 import net.atos.zac.app.klant.model.contactmoment.toRestContactMoment
 import net.atos.zac.app.klant.model.klant.RestContactGegevens
-import net.atos.zac.app.klant.model.klant.RestKlant
 import net.atos.zac.app.klant.model.klant.RestRoltype
 import net.atos.zac.app.klant.model.klant.toRestRoltypes
 import net.atos.zac.app.klant.model.personen.RestListPersonenParameters
@@ -43,13 +42,13 @@ import net.atos.zac.app.klant.model.personen.VALID_PERSONEN_QUERIES
 import net.atos.zac.app.klant.model.personen.toPersonenQuery
 import net.atos.zac.app.klant.model.personen.toRechtsPersonen
 import net.atos.zac.app.klant.model.personen.toRestPersoon
+import net.atos.zac.app.klant.model.personen.toRestResultaat
 import net.atos.zac.app.shared.RESTResultaat
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.hibernate.validator.constraints.Length
 import java.util.EnumSet
 import java.util.Objects
-import java.util.Optional
 import java.util.UUID
 
 @Path("klanten")
@@ -80,43 +79,57 @@ class KlantRestService @Inject constructor(
     @Path("persoon/{bsn}")
     fun readPersoon(
         @PathParam("bsn") @Length(min = 8, max = 9) bsn: String
-    ): RestPersoon = convertToRestPersoon(
-        // note that we currently explicitly wait here for the asynchronous client invocation to complete
-        // thereby blocking the request thread
-        brpClientService.retrievePersoonAsync(bsn).toCompletableFuture().get(),
-        convertToRestPersoon(klantClientService.findDigitalAddressesByNumber(bsn))
-    )
+    ): RestPersoon =
+        klantClientService.findDigitalAddressesByNumber(bsn).toRestPersoon().let {
+            // note that we currently explicitly wait here for the asynchronous client invocation to complete
+            // thereby blocking the request thread
+            brpClientService.retrievePersoonAsync(bsn).toCompletableFuture().get().toRestPersoon().apply {
+                telefoonnummer = it.telefoonnummer
+                emailadres = it.emailadres
+            }
+        }
 
     @GET
     @Path("vestiging/{vestigingsnummer}")
     fun readVestiging(
         @PathParam("vestigingsnummer") vestigingsnummer: String
-    ): RestBedrijf = convertToRestBedrijf(
-        // note that we currently explicitly wait here for the asynchronous client invocation to complete
-        // thereby blocking the request thread
-        kvkClientService.findVestigingAsync(vestigingsnummer).toCompletableFuture().get(),
-        convertToRestPersoon(klantClientService.findDigitalAddressesByNumber(vestigingsnummer))
-    )
+    ): RestBedrijf =
+        klantClientService.findDigitalAddressesByNumber(vestigingsnummer)
+            .toRestPersoon().let { klantRestPersoon ->
+                // note that we currently explicitly wait here for the asynchronous client invocation to complete
+                // thereby blocking the request thread
+                kvkClientService.findVestigingAsync(vestigingsnummer).toCompletableFuture().get()
+                    .map {
+                        it.toRestBedrijf().apply {
+                            emailadres = klantRestPersoon.emailadres
+                            telefoonnummer = klantRestPersoon.telefoonnummer
+                        }
+                    }.orElseThrow {
+                        VestigingNotFoundException(
+                            "Geen vestiging gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'"
+                        )
+                    }
+            }
 
     @GET
     @Path("vestigingsprofiel/{vestigingsnummer}")
-    fun readVestigingsprofiel(@PathParam("vestigingsnummer") vestigingsnummer: String): RestVestigingsprofiel {
-        val vestiging = kvkClientService.findVestigingsprofiel(vestigingsnummer)
-        if (vestiging.isPresent) {
-            return vestiging.get().toRestVestigingsProfiel()
-        } else {
-            throw NotFoundException(
-                "Geen vestigingsprofiel gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'"
-            )
+    fun readVestigingsprofiel(@PathParam("vestigingsnummer") vestigingsnummer: String): RestVestigingsprofiel =
+        kvkClientService.findVestigingsprofiel(vestigingsnummer).let {
+            if (it.isPresent) {
+                it.get().toRestVestigingsProfiel()
+            } else {
+                throw VestigingNotFoundException(
+                    "Geen vestigingsprofiel gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'"
+                )
+            }
         }
-    }
 
     @GET
     @Path("rechtspersoon/{rsin}")
     fun readRechtspersoon(@PathParam("rsin") @Length(min = 9, max = 9) rsin: String): RestBedrijf =
         kvkClientService.findRechtspersoon(rsin)
             .map { it.toRestBedrijf() }
-            .orElseGet { RestBedrijf() }
+            .orElseThrow { RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor RSIN '$rsin'") }
 
     @GET
     @Path("personen/parameters")
@@ -125,19 +138,17 @@ class KlantRestService @Inject constructor(
     @PUT
     @Path("personen")
     fun listPersonen(restListPersonenParameters: RestListPersonenParameters): RESTResultaat<RestPersoon> =
-        RESTResultaat(
-            brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery()).toRechtsPersonen()
-        )
+        brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery())
+            .toRechtsPersonen()
+            .toRestResultaat()
 
     @PUT
     @Path("bedrijven")
     fun listBedrijven(restParameters: RestListBedrijvenParameters): RESTResultaat<RestBedrijf> =
-        RESTResultaat(
-            kvkClientService.list(restParameters.toKvkZoekenParameters()).resultaten
-                .filter { isKoppelbaar(it) }
-                .map { it.toRestBedrijf() }
-                .toList()
-        )
+        kvkClientService.list(restParameters.toKvkZoekenParameters()).resultaten
+            .filter { it.isKoppelbaar() }
+            .map { it.toRestBedrijf() }
+            .toRestResultaat()
 
     @GET
     @Path("roltype/{zaaktypeUuid}/betrokkene")
@@ -155,14 +166,13 @@ class KlantRestService @Inject constructor(
     @Path("contactgegevens/{initiatorIdentificatie}")
     fun ophalenContactGegevens(
         @PathParam("initiatorIdentificatie") initiatorIdentificatie: String
-    ): RestContactGegevens = convertToRestPersoon(
-        klantClientService.findDigitalAddressesByNumber(initiatorIdentificatie)
-    ).let {
-        RestContactGegevens(
-            telefoonnummer = it.telefoonnummer,
-            emailadres = it.emailadres
-        )
-    }
+    ): RestContactGegevens =
+        klantClientService.findDigitalAddressesByNumber(initiatorIdentificatie).toRestPersoon().let {
+            RestContactGegevens(
+                telefoonnummer = it.telefoonnummer,
+                emailadres = it.emailadres
+            )
+        }
 
     @PUT
     @Path("contactmomenten")
@@ -182,39 +192,9 @@ class KlantRestService @Inject constructor(
         return RESTResultaat(klantcontactListPage, klantcontactListPage.size.toLong())
     }
 
-    private fun addKlantData(restKlant: RestKlant, restPersoon: RestPersoon): RestKlant {
-        restKlant.telefoonnummer = restPersoon.telefoonnummer
-        restKlant.emailadres = restPersoon.emailadres
-        return restKlant
-    }
+    private fun ResultaatItem.isKoppelbaar() = this.vestigingsnummer != null || this.rsin != null
 
-    private fun convertToRestBedrijf(vestiging: Optional<ResultaatItem>, klantPerson: RestPersoon): RestBedrijf {
-        return vestiging
-            .map { it.toRestBedrijf() }
-            .map { addKlantData(it, klantPerson) as RestBedrijf }
-            .orElseGet { RestBedrijf() }
-    }
-
-    private fun convertToRestPersoon(persoon: Persoon, klantPersoon: RestPersoon): RestPersoon =
-        addKlantData(persoon.toRestPersoon(), klantPersoon) as RestPersoon
-
-    private fun convertToRestPersoon(digitalAddresses: List<DigitaalAdres>?): RestPersoon {
-        val restPersoon = RestPersoon()
-        if (digitalAddresses != null) {
-            for (digitalAdress in digitalAddresses) {
-                when (digitalAdress.soortDigitaalAdres) {
-                    TELEFOON_SOORT_DIGITAAL_ADRES -> restPersoon.telefoonnummer = digitalAdress.adres
-                    EMAIL_SOORT_DIGITAAL_ADRES -> restPersoon.emailadres = digitalAdress.adres
-                }
-            }
-        }
-        return restPersoon
-    }
-
-    private fun isKoppelbaar(item: ResultaatItem): Boolean =
-        item.vestigingsnummer != null || item.rsin != null
-
-    fun List<ExpandBetrokkene>.toInitiatorAsUuidStringMap(): Map<UUID, String> =
+    private fun List<ExpandBetrokkene>.toInitiatorAsUuidStringMap(): Map<UUID, String> =
         this.filter { it.initiator }
             .associate { it.expand.hadKlantcontact.uuid to it.volledigeNaam }
 }
