@@ -13,6 +13,7 @@ The architecture is documented in more detail on the following pages:
 - [Solr Architecture](solrArchitecture.md) - The architecture of the Solr search engine in ZAC.
 - [Access Control Policies](accessControlPolicies.md) - The [Open Policy Agent (OPA)](https://www.openpolicyagent.org/) access control policies used by ZAC.
 - [Observability Architecture](observabilityArchitecture.md) - The observability setup used for the ZAC environment.
+- [Process Automation Architecture](processAutomationArchitecture.md) - The process automation architecture of ZAC based on CMMN and BPMN.
 
 ## Main characteristics
 
