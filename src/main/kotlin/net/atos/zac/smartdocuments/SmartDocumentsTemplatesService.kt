@@ -18,6 +18,7 @@ import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroupSet
 import net.atos.zac.smartdocuments.rest.toSmartDocumentsTemplateGroupSet
+import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplate
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -53,17 +54,20 @@ class SmartDocumentsTemplatesService @Inject constructor(
         restTemplateGroups: Set<RestMappedSmartDocumentsTemplateGroup>,
         zaakafhandelParametersUUID: UUID
     ) {
-        LOG.info { "Storing template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID" }
+        LOG.fine { "Storing template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID" }
 
-        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelParametersUUID)
-        val modelTemplateGroups = restTemplateGroups.toSmartDocumentsTemplateGroupSet(zaakafhandelParameters)
-
-        deleteTemplateMapping(zaakafhandelParametersUUID)
-
-        modelTemplateGroups.forEach { templateGroup ->
-            entityManager.merge(templateGroup)
+        zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelParametersUUID).let {
+            restTemplateGroups.toSmartDocumentsTemplateGroupSet(it).let { modelTemplateGroups ->
+                deleteTemplateMapping(zaakafhandelParametersUUID)
+                modelTemplateGroups.forEach { templateGroup ->
+                    entityManager.merge(templateGroup)
+                }
+            }
         }
     }
+
+    private fun getZaakafhandelParametersId(zaakafhandelParametersUUID: UUID) =
+        zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelParametersUUID).id
 
     /**
      * Deletes all template groups and templates for a zaakafhandelparameters
@@ -73,26 +77,26 @@ class SmartDocumentsTemplatesService @Inject constructor(
      */
     @Transactional(REQUIRED)
     fun deleteTemplateMapping(
-        zaakafhandelparametersUUID: UUID
+        zaakafhandelParametersUUID: UUID
     ): Int {
-        LOG.info {
-            "Deleting template mapping for zaakafhandelParameters UUID $zaakafhandelparametersUUID"
-        }
+        LOG.fine { "Deleting template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID" }
 
-        val zaakafhandelParametersId =
-            zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelparametersUUID).id
-        val builder = entityManager.criteriaBuilder
-        val query = builder.createCriteriaDelete(SmartDocumentsTemplateGroup::class.java)
-        val root = query.from(SmartDocumentsTemplateGroup::class.java)
-        query.where(
-            builder.equal(
-                root.get<ZaakafhandelParameters>("zaakafhandelParameters").get<Long>("id"),
-                zaakafhandelParametersId
-            )
-        )
-        val deletedCount = entityManager.createQuery(query).executeUpdate()
-        LOG.info { "Deleted $deletedCount template entities." }
-        return deletedCount
+        entityManager.criteriaBuilder.let { builder ->
+            builder.createCriteriaDelete(SmartDocumentsTemplateGroup::class.java).let { query ->
+                query.from(SmartDocumentsTemplateGroup::class.java).let { root ->
+                    query.where(
+                        builder.equal(
+                            root.get<ZaakafhandelParameters>(SmartDocumentsTemplate::zaakafhandelParameters.name)
+                                .get<Long>("id"),
+                            getZaakafhandelParametersId(zaakafhandelParametersUUID)
+                        )
+                    )
+                    return entityManager.createQuery(query).executeUpdate().also {
+                        LOG.info { "Deleted $it template entities." }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -104,24 +108,131 @@ class SmartDocumentsTemplatesService @Inject constructor(
     fun getTemplatesMapping(
         zaakafhandelParametersUUID: UUID
     ): Set<RestMappedSmartDocumentsTemplateGroup> {
-        LOG.info { "Fetching template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID" }
+        LOG.fine { "Fetching template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID" }
 
-        val zaakafhandelParametersId =
-            zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelParametersUUID).id
-        val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(SmartDocumentsTemplateGroup::class.java)
-        val root = query.from(SmartDocumentsTemplateGroup::class.java)
-        return entityManager.createQuery(
-            query.select(root)
-                .where(
-                    builder.and(
-                        builder.equal(
-                            root.get<ZaakafhandelParameters>("zaakafhandelParameters").get<Long>("id"),
-                            zaakafhandelParametersId
-                        ),
-                        builder.isNull(root.get<SmartDocumentsTemplateGroup>("parent"))
-                    )
-                )
-        ).resultList.toSet().toRestSmartDocumentsTemplateGroup()
+        entityManager.criteriaBuilder.let { builder ->
+            builder.createQuery(SmartDocumentsTemplateGroup::class.java).let { query ->
+                query.from(SmartDocumentsTemplateGroup::class.java).let { root ->
+                    return entityManager.createQuery(
+                        query.select(root)
+                            .where(
+                                builder.and(
+                                    builder.equal(
+                                        root.get<ZaakafhandelParameters>(
+                                            SmartDocumentsTemplate::zaakafhandelParameters.name
+                                        )
+                                            .get<Long>("id"),
+                                        getZaakafhandelParametersId(zaakafhandelParametersUUID)
+                                    ),
+                                    builder.isNull(root.get<SmartDocumentsTemplateGroup>("parent"))
+                                )
+                            )
+                    ).resultList.toSet().toRestSmartDocumentsTemplateGroup()
+                }
+            }
+        }
+    }
+
+    /**
+     * Get the information object type UUID for a pair of group-template in a zaakafhandelparameters
+     *
+     * @param zaakafhandelParametersUUID UUID of a zaakafhandelparameters
+     * @param templateGroupName name of a template group
+     * @param templateName name of a template under the group
+     * @return information object type UUID associated with this pair
+     */
+    fun getInformationObjectTypeUUID(
+        zaakafhandelParametersUUID: UUID,
+        templateGroupId: String,
+        templateId: String
+    ): UUID {
+        LOG.fine {
+            "Fetching information object type UUID mapping for zaakafhandelParameters UUID " +
+                "$zaakafhandelParametersUUID, template group id $templateGroupId and template id $templateId"
+        }
+
+        entityManager.criteriaBuilder.let { builder ->
+            builder.createQuery(SmartDocumentsTemplate::class.java).let { query ->
+                query.from(SmartDocumentsTemplate::class.java).let { root ->
+                    return entityManager.createQuery(
+                        query.select(root)
+                            .where(
+                                builder.and(
+                                    builder.equal(
+                                        root.get<ZaakafhandelParameters>(
+                                            SmartDocumentsTemplate::zaakafhandelParameters.name
+                                        )
+                                            .get<Long>("id"),
+                                        getZaakafhandelParametersId(zaakafhandelParametersUUID)
+                                    ),
+                                    builder.equal(
+                                        root.get<SmartDocumentsTemplateGroup>(
+                                            SmartDocumentsTemplate::templateGroup.name
+                                        )
+                                            .get<String>(SmartDocumentsTemplate::smartDocumentsId.name),
+                                        templateGroupId
+                                    ),
+                                    builder.equal(
+                                        root.get<SmartDocumentsTemplate>(SmartDocumentsTemplate::smartDocumentsId.name),
+                                        templateId
+                                    )
+                                )
+                            )
+                    ).singleResult.informatieObjectTypeUUID
+                }
+            }
+        }
+    }
+
+    /**
+     * Get the template group name
+     *
+     * @param templateGroupId SmartDocuments' id of a template group
+     * @return template group name
+     */
+    fun getTemplateGroupName(templateGroupId: String): String {
+        LOG.fine { "Fetching template group name for id $templateGroupId" }
+
+        entityManager.criteriaBuilder.let { builder ->
+            builder.createQuery(SmartDocumentsTemplateGroup::class.java).let { query ->
+                query.from(SmartDocumentsTemplateGroup::class.java).let { root ->
+                    return entityManager.createQuery(
+                        query.select(root)
+                            .where(
+                                builder.equal(
+                                    root.get<String>(SmartDocumentsTemplateGroup::smartDocumentsId.name),
+                                    templateGroupId
+                                )
+                            )
+                    ).singleResult.name
+                }
+            }
+        }
+    }
+
+    /**
+     * Get the template name
+     *
+     * @param templateId SmartDocuments' id of a template
+     * @return template name
+     */
+    fun getTemplateName(templateGroupId: String): String {
+        LOG.fine { "Fetching template group name for id $templateGroupId" }
+
+        entityManager.criteriaBuilder.let { builder ->
+            builder.createQuery(SmartDocumentsTemplate::class.java).let { query ->
+                query.from(SmartDocumentsTemplate::class.java).let { root ->
+                    return entityManager.createQuery(
+                        query.select(root)
+                            .where(
+                                builder.equal(
+                                    root.get<String>(SmartDocumentsTemplate::smartDocumentsId.name),
+                                    templateGroupId
+                                )
+                            )
+                    ).singleResult.name
+                }
+            }
+        }
     }
 }

@@ -57,13 +57,13 @@ fun createDocumentCreationDataAttended(
 fun createDocumentCreationDataUnattended(
     zaak: Zaak = createZaak(),
     taskId: String = "dummyTaskId",
-    templateGroupName: String = "dummyTemplateGroupName",
-    templateName: String = "dummyTemplateName"
+    templateGroupId: String = "1",
+    templateId: String = "2"
 ) = DocumentCreationDataUnattended(
     zaak = zaak,
     taskId = taskId,
-    templateGroupName = templateGroupName,
-    templateName = templateName
+    templateGroupId = templateGroupId,
+    templateId = templateId
 )
 
 fun createDocumentCreationAttendedResponse(
@@ -73,9 +73,15 @@ fun createDocumentCreationAttendedResponse(
 )
 
 fun createDocumentCreationUnattendedResponse(
-    message: String = "dummyMessage"
+    message: String = "dummyMessage",
+    fileName: String = "file.docx",
+    fileType: String = "Word Document",
+    fileContent: String = "content"
 ) = DocumentCreationUnattendedResponse(
-    message = message
+    message = message,
+    fileName = fileName,
+    fileType = fileType,
+    fileContent = fileContent
 )
 
 fun createGebruikerData(

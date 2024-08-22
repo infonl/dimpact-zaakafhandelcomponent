@@ -40,8 +40,6 @@ import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import net.atos.zac.event.EventingService
-import net.atos.zac.flowable.FlowableTaskService
-import net.atos.zac.flowable.TaakVariabelenService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createDocumentRechtenAllDeny
@@ -57,7 +55,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val enkelvoudigInformatieObjectLockService = mockk<EnkelvoudigInformatieObjectLockService>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
     val eventingService = mockk<EventingService>()
-    val flowableTaskService = mockk<FlowableTaskService>()
     val inboxDocumentenService = mockk<InboxDocumentenService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val officeConverterClientService = mockk<OfficeConverterClientService>()
@@ -67,7 +64,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val restHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
     val restInformatieobjectConverter = mockk<RESTInformatieobjectConverter>()
     val restInformatieobjecttypeConverter = mockk<RESTInformatieobjecttypeConverter>()
-    val taakVariabelenService = mockk<TaakVariabelenService>()
     val webdavHelper = mockk<WebdavHelper>()
     val zaakInformatieobjectConverter = mockk<RESTZaakInformatieobjectConverter>()
     val zgwApiService = mockk<ZGWApiService>()
@@ -78,8 +74,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         ztcClientService = ztcClientService,
         zrcClientService = zrcClientService,
         zgwApiService = zgwApiService,
-        flowableTaskService = flowableTaskService,
-        taakVariabelenService = taakVariabelenService,
         ontkoppeldeDocumentenService = ontkoppeldeDocumentenService,
         inboxDocumentenService = inboxDocumentenService,
         enkelvoudigInformatieObjectLockService = enkelvoudigInformatieObjectLockService,
@@ -116,12 +110,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             restInformatieobjectConverter.convertToREST(zaakInformatieobject)
         } returns responseRestEnkelvoudigInformatieobject
         every {
-            zgwApiService.createZaakInformatieobjectForZaak(
+            enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                 zaak,
-                enkelvoudigInformatieObjectData,
-                enkelvoudigInformatieObjectData.titel,
-                enkelvoudigInformatieObjectData.beschrijving,
-                "geen"
+                enkelvoudigInformatieObjectData
             )
         } returns zaakInformatieobject
 
@@ -143,12 +134,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             Then("the enkelvoudig informatieobject is added to the zaak") {
                 returnedRESTEnkelvoudigInformatieobject shouldBe responseRestEnkelvoudigInformatieobject
                 verify(exactly = 1) {
-                    zgwApiService.createZaakInformatieobjectForZaak(
+                    enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                         zaak,
-                        enkelvoudigInformatieObjectData,
-                        enkelvoudigInformatieObjectData.titel,
-                        enkelvoudigInformatieObjectData.beschrijving,
-                        "geen"
+                        enkelvoudigInformatieObjectData
                     )
                 }
             }
@@ -161,12 +149,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 toevoegenDocument = true
             )
             every {
-                zgwApiService.createZaakInformatieobjectForZaak(
+                enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                     zaak,
-                    enkelvoudigInformatieObjectData,
-                    enkelvoudigInformatieObjectData.titel,
-                    enkelvoudigInformatieObjectData.beschrijving,
-                    "geen"
+                    enkelvoudigInformatieObjectData
                 )
             } throws RuntimeException("dummy exception")
 
@@ -181,12 +166,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             Then("the enkelvoudig informatieobject is not added to the zaak but is removed from the HTTP session") {
                 verify(exactly = 1) {
-                    zgwApiService.createZaakInformatieobjectForZaak(
+                    enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                         zaak,
-                        enkelvoudigInformatieObjectData,
-                        enkelvoudigInformatieObjectData.titel,
-                        enkelvoudigInformatieObjectData.beschrijving,
-                        "geen"
+                        enkelvoudigInformatieObjectData
                     )
                 }
             }
@@ -210,12 +192,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             Then("the enkelvoudig informatieobject is added to the zaak") {
                 returnedRESTEnkelvoudigInformatieobject shouldBe responseRestEnkelvoudigInformatieobject
                 verify(exactly = 1) {
-                    zgwApiService.createZaakInformatieobjectForZaak(
+                    enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                         zaak,
-                        enkelvoudigInformatieObjectData,
-                        enkelvoudigInformatieObjectData.titel,
-                        enkelvoudigInformatieObjectData.beschrijving,
-                        "geen"
+                        enkelvoudigInformatieObjectData
                     )
                 }
             }
@@ -255,12 +234,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             restInformatieobjectConverter.convertZaakObject(restEnkelvoudigInformatieobject)
         } returns enkelvoudigInformatieObjectData
         every {
-            zgwApiService.createZaakInformatieobjectForZaak(
+            enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                 closedZaak,
-                enkelvoudigInformatieObjectData,
-                enkelvoudigInformatieObjectData.titel,
-                enkelvoudigInformatieObjectData.beschrijving,
-                "geen"
+                enkelvoudigInformatieObjectData
             )
         } returns zaakInformatieobject
         every {
@@ -285,12 +261,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             Then("the enkelvoudig informatieobject is added to the zaak") {
                 returnedRESTEnkelvoudigInformatieobject shouldBe responseRestEnkelvoudigInformatieobject
                 verify(exactly = 1) {
-                    zgwApiService.createZaakInformatieobjectForZaak(
+                    enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                         closedZaak,
-                        enkelvoudigInformatieObjectData,
-                        enkelvoudigInformatieObjectData.titel,
-                        enkelvoudigInformatieObjectData.beschrijving,
-                        "geen"
+                        enkelvoudigInformatieObjectData
                     )
                 }
             }

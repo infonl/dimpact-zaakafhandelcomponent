@@ -23,17 +23,20 @@ import net.atos.zac.documentcreation.model.createDocumentCreationDataAttended
 import net.atos.zac.documentcreation.model.createDocumentCreationDataUnattended
 import net.atos.zac.documentcreation.model.createDocumentCreationUnattendedResponse
 import net.atos.zac.smartdocuments.SmartDocumentsService
+import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import java.net.URI
 import java.util.UUID
 
 class DocumentCreationServiceTest : BehaviorSpec({
     val smartDocumentsService = mockk<SmartDocumentsService>()
+    val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val documentCreationDataConverter = mockk<DocumentCreationDataConverter>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val ztcClientService = mockk<ZtcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
     val documentCreationService = DocumentCreationService(
         smartDocumentsService = smartDocumentsService,
+        smartDocumentsTemplatesService = smartDocumentsTemplatesService,
         documentCreationDataConverter = documentCreationDataConverter,
         loggedInUserInstance = loggedInUserInstance,
         ztcClientService = ztcClientService,
@@ -86,11 +89,13 @@ class DocumentCreationServiceTest : BehaviorSpec({
         }
     }
     Given("Document creation data with a zaak, a template group name and a template name") {
+        val templateGroupId = "1"
+        val templateId = "2"
         val templateGroupName = "dummyTemplateGroupName"
         val templateName = "dummyTemplateName"
         val documentCreationData = createDocumentCreationDataUnattended(
-            templateGroupName = templateGroupName,
-            templateName = templateName,
+            templateGroupId = templateGroupId,
+            templateId = templateId,
             zaak = createZaak()
         )
         val loggedInUser = createLoggedInUser()
@@ -106,6 +111,8 @@ class DocumentCreationServiceTest : BehaviorSpec({
                 documentCreationData.taskId
             )
         } returns data
+        every { smartDocumentsTemplatesService.getTemplateGroupName(templateGroupId) } returns templateGroupName
+        every { smartDocumentsTemplatesService.getTemplateName(templateId) } returns templateName
         every {
             smartDocumentsService.createDocumentUnattended(data, capture(smartDocumentSlot))
         } returns documentCreationUnattendedResponse

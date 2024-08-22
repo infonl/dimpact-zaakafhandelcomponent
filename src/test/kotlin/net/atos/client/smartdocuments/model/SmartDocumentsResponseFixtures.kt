@@ -50,7 +50,7 @@ fun createFile(
 )
 
 fun createDocument(
-    data: String = "dummyDocumentData",
+    data: String = "dummyDocumentData"
 ) = Document(
     data = data
 )

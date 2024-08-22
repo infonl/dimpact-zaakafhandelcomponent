@@ -118,9 +118,14 @@ class SmartDocumentsService @Inject constructor(
         require(docxFiles.isNotEmpty()) { "SmartDocuments response does not contain a DOCX file" }
         require(docxFiles.size == 1) { "SmartDocuments response contains multiple DOCX files" }
 
+        val generatedDocxFile = docxFiles[0]
+
         return DocumentCreationUnattendedResponse(
-            message = "SmartDocuments document with filename: '${docxFiles[0].fileName}' " +
-                "was created successfully but the document is not stored yet in the zaakregister."
+            message = "SmartDocuments document with filename: '${generatedDocxFile.fileName}' " +
+                "was created and stored successfully in the zaakregister.",
+            fileName = generatedDocxFile.fileName,
+            fileType = OUTPUTFORMAT_DOCX,
+            fileContent = generatedDocxFile.document.data
         )
     }
 

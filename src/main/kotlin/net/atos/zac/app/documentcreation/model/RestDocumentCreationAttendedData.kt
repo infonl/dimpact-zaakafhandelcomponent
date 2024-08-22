@@ -9,7 +9,7 @@ import nl.lifely.zac.util.NoArgConstructor
 import java.util.UUID
 
 @NoArgConstructor
-class RestDocumentCreationAttendedData(
+data class RestDocumentCreationAttendedData(
     @field:NotNull
     var zaakUUID: UUID,
 

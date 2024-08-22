@@ -15,10 +15,12 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.zac.app.documentcreation.converter.RestDocumentCreationConverter
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationUnattendedData
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationUnattendedResponse
+import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import net.atos.zac.app.util.exception.InputValidationFailedException
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.DocumentCreationService
@@ -39,7 +41,9 @@ class DocumentCreationRestService @Inject constructor(
     private val policyService: PolicyService,
     private val documentCreationService: DocumentCreationService,
     private val ztcClientService: ZtcClientService,
-    private val zrcClientService: ZrcClientService
+    private val zrcClientService: ZrcClientService,
+    private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
+    private val restUnattendedDataConverter: RestDocumentCreationConverter
 ) {
     @POST
     @Path("/createdocumentattended")
@@ -78,14 +82,27 @@ class DocumentCreationRestService @Inject constructor(
     ): RestDocumentCreationUnattendedResponse {
         val zaak = zrcClientService.readZaak(restDocumentCreationUnattendedData.zaakUuid)
         assertPolicy(policyService.readZaakRechten(zaak).creeerenDocument)
-        return restDocumentCreationUnattendedData.let {
+        return restDocumentCreationUnattendedData.let { unattendedData ->
             DocumentCreationDataUnattended(
-                taskId = it.taskId,
-                templateGroupName = it.smartDocumentsTemplateGroupName,
-                templateName = it.smartDdocumentsTemplateName,
+                taskId = unattendedData.taskId,
+                templateGroupId = unattendedData.smartDocumentsTemplateGroupId,
+                templateId = unattendedData.smartDocumentsTemplateId,
                 zaak = zaak
             ).let(documentCreationService::createDocumentUnattended)
-                .let { RestDocumentCreationUnattendedResponse(message = it.message) }
+                .let { unattendedResponse ->
+                    restUnattendedDataConverter.toEnkelvoudigInformatieObjectCreateLockRequest(
+                        zaak,
+                        unattendedData,
+                        unattendedResponse
+                    ).let {
+                        enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
+                            zaak = zaak,
+                            enkelvoudigInformatieObjectCreateLockRequest = it,
+                            taskId = unattendedData.taskId
+                        )
+                    }
+                    RestDocumentCreationUnattendedResponse(message = unattendedResponse.message)
+                }
         }
     }
 }

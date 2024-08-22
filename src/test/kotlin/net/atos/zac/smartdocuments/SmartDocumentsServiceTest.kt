@@ -97,8 +97,8 @@ class SmartDocumentsServiceTest : BehaviorSpec({
                 """
             ) {
                 with(documentCreationResponse) {
-                    message shouldBe "SmartDocuments document with filename: '${file.fileName}' was created successfully " +
-                        "but the document is not stored yet in the zaakregister."
+                    message shouldBe "SmartDocuments document with filename: '${file.fileName}' " +
+                        "was created and stored successfully in the zaakregister."
                 }
             }
         }
