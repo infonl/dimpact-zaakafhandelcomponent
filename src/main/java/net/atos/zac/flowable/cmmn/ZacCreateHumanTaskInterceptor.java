@@ -19,8 +19,9 @@ import net.atos.zac.signalering.event.SignaleringEventUtil;
 import net.atos.zac.signalering.model.SignaleringType;
 import net.atos.zac.websocket.event.ScreenEvent;
 import net.atos.zac.websocket.event.ScreenEventType;
+import org.flowable.cmmn.engine.interceptor.CreateHumanTaskInterceptor;
 
-public class CreateHumanTaskInterceptor implements org.flowable.cmmn.engine.interceptor.CreateHumanTaskInterceptor {
+public class ZacCreateHumanTaskInterceptor implements CreateHumanTaskInterceptor {
     public static final String VAR_TRANSIENT_TAAKDATA = "taakdata";
     public static final String VAR_TRANSIENT_ZAAK_UUID = "zaakUUID";
     public static final String VAR_TRANSIENT_DUE_DATE = "dueDate";

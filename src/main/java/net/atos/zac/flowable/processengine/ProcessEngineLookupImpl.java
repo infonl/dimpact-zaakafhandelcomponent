@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -23,7 +23,7 @@ import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.impl.cfg.StandaloneProcessEngineConfiguration;
 
 import net.atos.zac.flowable.cmmn.CompleteTaskInterceptor;
-import net.atos.zac.flowable.cmmn.CreateHumanTaskInterceptor;
+import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor;
 import net.atos.zac.flowable.cmmn.EndCaseLifecycleListener;
 import net.atos.zac.flowable.task.CreateUserTaskInterceptor;
 
@@ -96,7 +96,7 @@ public class ProcessEngineLookupImpl implements ProcessEngineLookup {
                 endState -> cmmnEngineConfiguration.addCaseInstanceLifeCycleListener(
                         new EndCaseLifecycleListener(CaseInstanceState.ACTIVE, endState))
         );
-        cmmnEngineConfiguration.setCreateHumanTaskInterceptor(new CreateHumanTaskInterceptor());
+        cmmnEngineConfiguration.setCreateHumanTaskInterceptor(new ZacCreateHumanTaskInterceptor());
         cmmnEngineConfiguration.setIdentityLinkInterceptor(new CompleteTaskInterceptor(cmmnEngineConfiguration));
         cmmnEngineConfiguration.setDisableIdmEngine(true);
         return cmmnEngineConfiguration;
