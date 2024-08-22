@@ -203,16 +203,16 @@ class ZaakRestService @Inject constructor(
     @Path("zaak/id/{identificatie}")
     fun readZaakById(@PathParam("identificatie") identificatie: String): RestZaak {
         val zaak = zrcClientService.readZaakByID(identificatie)
-        val restZaak = restZaakConverter.convert(zaak)
-        assertPolicy(restZaak.rechten.lezen)
-        deleteSignaleringen(zaak)
-        return restZaak
+        return restZaakConverter.convert(zaak).also {
+            assertPolicy(it.rechten.lezen)
+            deleteSignaleringen(zaak)
+        }
     }
 
     @PUT
     @Path("initiator")
     fun updateInitiator(gegevens: RESTZaakBetrokkeneGegevens): RestZaak {
-        val zaak: Zaak = zrcClientService.readZaak(gegevens.zaakUUID)
+        val zaak = zrcClientService.readZaak(gegevens.zaakUUID)
         zgwApiService.findInitiatorRoleForZaak(zaak)
             .ifPresent { removeInitiator(zaak, it, ROL_VERWIJDER_REDEN) }
         addInitiator(gegevens.betrokkeneIdentificatieType, gegevens.betrokkeneIdentificatie, zaak)
