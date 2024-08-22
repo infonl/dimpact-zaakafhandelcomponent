@@ -1,4 +1,4 @@
-package net.atos.client.zgw.drc
+package nl.lifely.zac.test.util
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -6,7 +6,7 @@ import io.mockk.checkUnnecessaryStub
 import nl.lifely.zac.util.decodedBase64StringLength
 import java.util.Base64
 
-class DrcClientUtilKtTest : BehaviorSpec({
+class Base64ConvertersTest : BehaviorSpec({
 
     beforeEach {
         checkUnnecessaryStub()
