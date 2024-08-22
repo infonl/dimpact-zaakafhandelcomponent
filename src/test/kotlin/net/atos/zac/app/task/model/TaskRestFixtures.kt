@@ -22,6 +22,7 @@ fun createRestTask(
     zaakUuid = zaakUuid,
     behandelaar = behandelaar,
     taakdata = taakData,
+    formioSubmissionData = null,
     tabellen = tabellen
 )
 

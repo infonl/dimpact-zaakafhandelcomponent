@@ -18,22 +18,19 @@ import net.atos.zac.formulieren.model.FormulierVeldtype;
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.shared.helper.OpschortenZaakHelper;
 import net.atos.zac.util.DateTimeConverterUtil;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.task.api.Task;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static jakarta.json.JsonValue.ValueType.STRING;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static net.atos.zac.flowable.TaakVariabelenService.readTaskData;
 import static net.atos.zac.util.DateTimeConverterUtil.convertToLocalDate;
 import static net.atos.zac.util.UriUtil.uuidFromURI;
 import static org.apache.commons.lang3.StringUtils.*;
@@ -100,7 +97,15 @@ public class FormulierRuntimeService {
     }
 
     public Task submit(final RestTask restTask, Task task, final Zaak zaak) {
-        final FormulierData formulierData = new FormulierData(restTask.getTaakdata());
+        taakVariabelenService.setTaskinformation(task, restTask.getTaakinformatie());
+        taakVariabelenService.setTaskData(task, restTask.getTaakdata());
+        taakVariabelenService.setFormioSubmissionData(task, restTask.getFormioSubmissionData());
+
+        final var formulierData = new FormulierData(
+                MapUtils.isNotEmpty(restTask.getFormioSubmissionData()) ?
+                        restTask.getFormioSubmissionData() :
+                        Collections.unmodifiableMap(restTask.getTaakdata()));
+
         if (formulierData.toelichting != null || formulierData.taakFataleDatum != null) {
             if (formulierData.toelichting != null) {
                 task.setDescription(formulierData.toelichting);
@@ -124,16 +129,8 @@ public class FormulierRuntimeService {
         versturenDocumenten(formulierData);
         ondertekenDocumenten(formulierData);
 
-        final Map<String, String> taskData = readTaskData(task);
-        if (taskData.isEmpty()) {
-            taakVariabelenService.setTaskData(task, formulierData.formState);
-        } else {
-            taskData.putAll(formulierData.formState);
-            taakVariabelenService.setTaskData(task, taskData);
-        }
-
         final Map<String, Object> zaakVariablen = zaakVariabelenService.readProcessZaakdata(zaak.getUuid());
-        zaakVariablen.putAll(formulierData.dataElementen);
+        zaakVariablen.putAll(formulierData.zaakVariabelen);
         zaakVariabelenService.setZaakdata(zaak.getUuid(), zaakVariablen);
 
         return task;

@@ -49,7 +49,7 @@
             ></zac-formulier>
             <formio
               *ngIf="formioFormulier"
-              [submission]="{ data: taak.taakdata}"
+              [submission]="{ data: taak.formioSubmissionData }"
               [form]="formioFormulier"
               [readOnly]="isReadonly()"
               language="nl"

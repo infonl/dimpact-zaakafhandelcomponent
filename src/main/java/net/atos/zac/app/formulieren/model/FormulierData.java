@@ -1,14 +1,13 @@
 package net.atos.zac.app.formulieren.model;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import net.atos.zac.util.LocalDateAdapter;
+import org.apache.commons.lang3.BooleanUtils;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.BooleanUtils;
-
-import net.atos.zac.util.LocalDateAdapter;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class FormulierData {
 
@@ -52,65 +51,61 @@ public class FormulierData {
 
     public String documentenOndertekenen;
 
-    public Map<String, String> dataElementen;
+    public final Map<String, Object> zaakVariabelen;
 
-    public Map<String, String> formState;
-
-    public FormulierData(final Map<String, String> dataElementen) {
-        this.formState = new HashMap<>(dataElementen);
-        if (dataElementen.containsKey(ZAAK_OPSCHORTEN)) {
-            if (BooleanUtils.TRUE.equals(dataElementen.get(ZAAK_OPSCHORTEN))) {
+    public FormulierData(final Map<String, Object> taakData) {
+        this.zaakVariabelen = new HashMap<>(taakData);
+        if (taakData.containsKey(ZAAK_OPSCHORTEN)) {
+            if (BooleanUtils.TRUE.equals(taakData.get(ZAAK_OPSCHORTEN))) {
                 this.zaakOpschorten = true;
             }
-            dataElementen.remove(ZAAK_OPSCHORTEN);
+            zaakVariabelen.remove(ZAAK_OPSCHORTEN);
         }
-        if (dataElementen.containsKey(ZAAK_HERVATTEN)) {
-            if (BooleanUtils.TRUE.equals(dataElementen.get(ZAAK_HERVATTEN))) {
+        if (taakData.containsKey(ZAAK_HERVATTEN)) {
+            if (BooleanUtils.TRUE.equals(taakData.get(ZAAK_HERVATTEN))) {
                 this.zaakHervatten = true;
             }
-            dataElementen.remove(ZAAK_HERVATTEN);
+            zaakVariabelen.remove(ZAAK_HERVATTEN);
         }
-        if (dataElementen.containsKey(TAAK_FATALE_DATUM)) {
-            this.taakFataleDatum = new LocalDateAdapter().adaptFromJson(dataElementen.get(TAAK_FATALE_DATUM));
-            dataElementen.remove(TAAK_FATALE_DATUM);
+        if (taakData.containsKey(TAAK_FATALE_DATUM)) {
+            this.taakFataleDatum = new LocalDateAdapter().adaptFromJson(taakData.get(TAAK_FATALE_DATUM).toString());
+            zaakVariabelen.remove(TAAK_FATALE_DATUM);
         }
-        if (dataElementen.containsKey(TOELICHTING)) {
-            this.toelichting = dataElementen.get(TOELICHTING);
-            dataElementen.remove(TOELICHTING);
+        if (taakData.containsKey(TOELICHTING)) {
+            this.toelichting = taakData.get(TOELICHTING).toString();
+            zaakVariabelen.remove(TOELICHTING);
         }
-        if (dataElementen.containsKey(TAAK_TOEKENNEN_GROEP)) {
-            this.taakToekennenGroep = dataElementen.get(TAAK_TOEKENNEN_GROEP);
-            dataElementen.remove(TAAK_TOEKENNEN_GROEP);
+        if (taakData.containsKey(TAAK_TOEKENNEN_GROEP)) {
+            this.taakToekennenGroep = taakData.get(TAAK_TOEKENNEN_GROEP).toString();
+            zaakVariabelen.remove(TAAK_TOEKENNEN_GROEP);
         }
-        if (dataElementen.containsKey(TAAK_TOEKENNEN_MEDEWERKER)) {
-            this.taakToekennenMedewerker = dataElementen.get(TAAK_TOEKENNEN_MEDEWERKER);
-            dataElementen.remove(TAAK_TOEKENNEN_MEDEWERKER);
+        if (taakData.containsKey(TAAK_TOEKENNEN_MEDEWERKER)) {
+            this.taakToekennenMedewerker = taakData.get(TAAK_TOEKENNEN_MEDEWERKER).toString();
+            zaakVariabelen.remove(TAAK_TOEKENNEN_MEDEWERKER);
         }
-        if (dataElementen.containsKey(MAIL_BIJLAGEN)) {
-            if (isNotBlank(dataElementen.get(MAIL_BIJLAGEN))) {
-                this.mailBijlagen = dataElementen.get(MAIL_BIJLAGEN);
+        if (taakData.containsKey(MAIL_BIJLAGEN)) {
+            if (isNotBlank(taakData.get(MAIL_BIJLAGEN).toString())) {
+                this.mailBijlagen = taakData.get(MAIL_BIJLAGEN).toString();
             }
-            dataElementen.remove(MAIL_BIJLAGEN);
+            zaakVariabelen.remove(MAIL_BIJLAGEN);
         }
-        if (dataElementen.containsKey(DOCUMENTEN_VERZENDEN)) {
-            if (isNotBlank(dataElementen.get(DOCUMENTEN_VERZENDEN))) {
-                this.documentenVerzenden = dataElementen.get(DOCUMENTEN_VERZENDEN);
+        if (taakData.containsKey(DOCUMENTEN_VERZENDEN)) {
+            if (isNotBlank(taakData.get(DOCUMENTEN_VERZENDEN).toString())) {
+                this.documentenVerzenden = taakData.get(DOCUMENTEN_VERZENDEN).toString();
             }
-            dataElementen.remove(DOCUMENTEN_VERZENDEN);
+            zaakVariabelen.remove(DOCUMENTEN_VERZENDEN);
         }
-        if (dataElementen.containsKey(DOCUMENTEN_VERZENDEN_DATUM)) {
-            this.documentenVerzendenDatum = new LocalDateAdapter().adaptFromJson(
-                    dataElementen.get(DOCUMENTEN_VERZENDEN_DATUM));
-            dataElementen.remove(DOCUMENTEN_VERZENDEN_DATUM);
+        if (taakData.containsKey(DOCUMENTEN_VERZENDEN_DATUM)) {
+            this.documentenVerzendenDatum = new LocalDateAdapter().adaptFromJson(taakData.get(DOCUMENTEN_VERZENDEN_DATUM).toString());
+            zaakVariabelen.remove(DOCUMENTEN_VERZENDEN_DATUM);
         } else {
             this.documentenVerzendenDatum = LocalDate.now();
         }
-        if (dataElementen.containsKey(DOCUMENTEN_ONDERTEKENEN)) {
-            if (isNotBlank(dataElementen.get(DOCUMENTEN_ONDERTEKENEN))) {
-                this.documentenOndertekenen = dataElementen.get(DOCUMENTEN_ONDERTEKENEN);
+        if (taakData.containsKey(DOCUMENTEN_ONDERTEKENEN)) {
+            if (isNotBlank(taakData.get(DOCUMENTEN_ONDERTEKENEN).toString())) {
+                this.documentenOndertekenen = taakData.get(DOCUMENTEN_ONDERTEKENEN).toString();
             }
-            dataElementen.remove(DOCUMENTEN_ONDERTEKENEN);
+            zaakVariabelen.remove(DOCUMENTEN_ONDERTEKENEN);
         }
-        this.dataElementen = dataElementen;
     }
 }

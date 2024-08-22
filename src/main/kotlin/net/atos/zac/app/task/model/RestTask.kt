@@ -53,6 +53,8 @@ data class RestTask(
 
     var formioFormulier: JsonObject? = null,
 
+    var formioSubmissionData: MutableMap<String, Any>?,
+
     // needs to be mutable for now unfortunately because this data can be changed dynamically
     var tabellen: MutableMap<String, List<String>>,
 

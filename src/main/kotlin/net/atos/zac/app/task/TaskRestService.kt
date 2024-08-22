@@ -140,6 +140,7 @@ class TaskRestService @Inject constructor(
             assertPolicy(TaskUtil.isOpen(it) && policyService.readTaakRechten(it).wijzigen)
             taakVariabelenService.setTaskData(it, restTask.taakdata)
             taakVariabelenService.setTaskinformation(it, restTask.taakinformatie)
+            taakVariabelenService.setFormioSubmissionData(it, restTask.formioSubmissionData)
             val updatedTask = updateDescriptionAndDueDate(restTask)
             eventingService.send(ScreenEventType.TAAK.updated(updatedTask))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
@@ -352,12 +353,12 @@ class TaskRestService @Inject constructor(
                 .forEach { enkelvoudigInformatieobject ->
                     assertPolicy(
                         (
-                            // this extra check is because the API can return an empty ondertekening soort
-                            enkelvoudigInformatieobject.ondertekening == null ||
-                                // when no signature is present (even if this is not
-                                // permitted according to the original OpenAPI spec)
-                                enkelvoudigInformatieobject.ondertekening.soort == SoortEnum.EMPTY
-                            ) && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
+                                // this extra check is because the API can return an empty ondertekening soort
+                                enkelvoudigInformatieobject.ondertekening == null ||
+                                        // when no signature is present (even if this is not
+                                        // permitted according to the original OpenAPI spec)
+                                        enkelvoudigInformatieobject.ondertekening.soort == SoortEnum.EMPTY
+                                ) && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
                     )
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
                         URIUtil.parseUUIDFromResourceURI(enkelvoudigInformatieobject.url)
