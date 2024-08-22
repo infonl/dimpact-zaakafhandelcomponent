@@ -85,6 +85,7 @@ export class BatchProcessService {
   }
 
   stop() {
+    this.clearSubscriptions();
     this.utilService.closeProgressDialog();
   }
 
