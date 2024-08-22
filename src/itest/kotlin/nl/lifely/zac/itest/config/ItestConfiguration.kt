@@ -32,6 +32,7 @@ object ItestConfiguration {
     const val BETROKKENE_IDENTIFICATION_TYPE_BSN = "BSN"
     const val BETROKKENE_IDENTIFACTION_TYPE_VESTIGING = "VN"
     const val BETROKKENE_ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
+    const val BRON_ORGANISATIE = "123443210"
     const val COMMUNICATIEKANAAL_TEST_1 = "dummyCommunicatiekanaal1"
     const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
@@ -80,6 +81,9 @@ object ItestConfiguration {
     const val SCREEN_EVENT_TYPE_ZAKEN_VRIJGEVEN = "ZAKEN_VRIJGEVEN"
 
     const val TEST_GEMEENTE_EMAIL_ADDRESS = "gemeente-zac-test@example.com"
+
+    const val TEST_INFORMATIE_OBJECT_TYPE_1_UUID = "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
+    const val TEST_INFORMATIE_OBJECT_TYPE_2_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
 
     /**
      * Test person that exists in both the BRP and the Klanten API databases
@@ -182,7 +186,7 @@ object ItestConfiguration {
     const val SMART_DOCUMENTS_FILE_EXTENSION = "docx"
 
     const val SMTP_SERVER_PORT = 25
-
+    const val VERANTWOORDELIJKE_ORGANISATIE = "316245124"
     const val VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING"
 
     /**
@@ -231,6 +235,7 @@ object ItestConfiguration {
     const val ZAC_HEALTH_READY_URL = "$ZAC_MANAGEMENT_URI/health/ready"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE = "melding-evenement-organiseren-behandelen"
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION = "Melding evenement organiseren behandelen"
+    const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_REFERENTIEPROCES = "melding klein evenement"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_IDENTIFICATIE =
         "indienen-aansprakelijkstelling-door-derden-behandelen"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION =
@@ -247,8 +252,16 @@ object ItestConfiguration {
         .atStartOfDay(TimeZone.getDefault().toZoneId())
 
     @Suppress("MagicNumber")
-    val DATE_TIME_2020_01_01: ZonedDateTime = LocalDate.of(2020, Month.JANUARY, 1)
-        .atStartOfDay(TimeZone.getDefault().toZoneId())
+    val DATE_2020_01_01: LocalDate = LocalDate.of(2020, Month.JANUARY, 1)
+
+    @Suppress("MagicNumber")
+    val DATE_2020_01_15: LocalDate = LocalDate.of(2020, Month.JANUARY, 15)
+
+    @Suppress("MagicNumber")
+    val DATE_2023_09_21: LocalDate = LocalDate.of(2023, Month.SEPTEMBER, 21)
+
+    @Suppress("MagicNumber")
+    val DATE_TIME_2020_01_01: ZonedDateTime = DATE_2020_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
     val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
     val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID: UUID =
         UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")

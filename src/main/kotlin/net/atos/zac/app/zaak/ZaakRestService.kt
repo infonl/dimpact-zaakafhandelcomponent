@@ -191,28 +191,28 @@ class ZaakRestService @Inject constructor(
 
     @GET
     @Path("zaak/{uuid}")
-    fun readZaak(@PathParam("uuid") zaakUUID: UUID): RestZaak {
-        val zaak = zrcClientService.readZaak(zaakUUID)
-        val restZaak = restZaakConverter.convert(zaak)
-        assertPolicy(restZaak.rechten.lezen)
-        deleteSignaleringen(zaak)
-        return restZaak
-    }
+    fun readZaak(@PathParam("uuid") zaakUUID: UUID): RestZaak =
+        zrcClientService.readZaak(zaakUUID).let { zaak ->
+            restZaakConverter.convert(zaak).also {
+                assertPolicy(it.rechten.lezen)
+                deleteSignaleringen(zaak)
+            }
+        }
 
     @GET
     @Path("zaak/id/{identificatie}")
-    fun readZaakById(@PathParam("identificatie") identificatie: String): RestZaak {
-        val zaak = zrcClientService.readZaakByID(identificatie)
-        val restZaak = restZaakConverter.convert(zaak)
-        assertPolicy(restZaak.rechten.lezen)
-        deleteSignaleringen(zaak)
-        return restZaak
-    }
+    fun readZaakById(@PathParam("identificatie") identificatie: String): RestZaak =
+        zrcClientService.readZaakByID(identificatie).let { zaak ->
+            restZaakConverter.convert(zaak).also {
+                assertPolicy(it.rechten.lezen)
+                deleteSignaleringen(zaak)
+            }
+        }
 
     @PUT
     @Path("initiator")
     fun updateInitiator(gegevens: RESTZaakBetrokkeneGegevens): RestZaak {
-        val zaak: Zaak = zrcClientService.readZaak(gegevens.zaakUUID)
+        val zaak = zrcClientService.readZaak(gegevens.zaakUUID)
         zgwApiService.findInitiatorRoleForZaak(zaak)
             .ifPresent { removeInitiator(zaak, it, ROL_VERWIJDER_REDEN) }
         addInitiator(gegevens.betrokkeneIdentificatieType, gegevens.betrokkeneIdentificatie, zaak)
@@ -527,8 +527,6 @@ class ZaakRestService @Inject constructor(
         }
         zgwApiService.findGroepForZaak(zaak).ifPresent {
             val groupId = toekennenGegevens.groupId
-            // better to not use RestZaakAssignmentData here but a separate class for this where group ID is non-nullable
-            require(groupId != null) { "Group ID is required" }
             if (it.betrokkeneIdentificatie.identificatie != groupId) {
                 val group = identityService.readGroup(groupId)
                 val role = zaakService.bepaalRolGroep(group, zaak)

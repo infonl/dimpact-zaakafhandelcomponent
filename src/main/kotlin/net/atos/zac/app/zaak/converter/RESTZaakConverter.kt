@@ -139,7 +139,8 @@ class RESTZaakConverter {
                 RESTZaakKenmerk(it.kenmerk, it.bron)
             }?.collect(Collectors.toList()),
             communicatiekanaal = zaak.communicatiekanaalNaam,
-            vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.toString(),
+            // use the name because the frontend expects this value to be in uppercase
+            vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name,
             groep = groep,
             behandelaar = behandelaar,
             initiatorIdentificatie = initiator.getOrNull()?.identificatienummer,
