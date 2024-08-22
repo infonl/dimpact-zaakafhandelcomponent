@@ -4,7 +4,7 @@ The process automation architecture of ZAC is based on the [CMMN](https://www.om
 [BPMN](https://www.omg.org/spec/BPMN/2.0/) standards and makes use of the open source [Flowable](https://www.flowable.com/open-source) 
 process automation engine which is embedded within the ZAC application.
 
-ZAC currently focuses mosly on CMMN and supports one generic CMMN model for the zaak workflow.
+ZAC currently focuses mostly on CMMN and supports one generic CMMN model for the zaak workflow.
 However, ZAC also supports BPMN processes for custom process flows.
 
 ## Generic ZAC CMMN model
