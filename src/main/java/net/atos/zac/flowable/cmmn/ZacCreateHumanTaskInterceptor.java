@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import org.flowable.cmmn.engine.interceptor.CreateHumanTaskAfterContext;
 import org.flowable.cmmn.engine.interceptor.CreateHumanTaskBeforeContext;
+import org.flowable.cmmn.engine.interceptor.CreateHumanTaskInterceptor;
 
 import net.atos.zac.flowable.FlowableHelper;
 import net.atos.zac.signalering.event.SignaleringEvent;
@@ -19,7 +20,6 @@ import net.atos.zac.signalering.event.SignaleringEventUtil;
 import net.atos.zac.signalering.model.SignaleringType;
 import net.atos.zac.websocket.event.ScreenEvent;
 import net.atos.zac.websocket.event.ScreenEventType;
-import org.flowable.cmmn.engine.interceptor.CreateHumanTaskInterceptor;
 
 public class ZacCreateHumanTaskInterceptor implements CreateHumanTaskInterceptor {
     public static final String VAR_TRANSIENT_TAAKDATA = "taakdata";

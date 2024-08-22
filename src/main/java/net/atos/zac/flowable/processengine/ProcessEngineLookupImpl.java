@@ -23,8 +23,8 @@ import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.impl.cfg.StandaloneProcessEngineConfiguration;
 
 import net.atos.zac.flowable.cmmn.CompleteTaskInterceptor;
-import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor;
 import net.atos.zac.flowable.cmmn.EndCaseLifecycleListener;
+import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor;
 import net.atos.zac.flowable.task.CreateUserTaskInterceptor;
 
 /**
