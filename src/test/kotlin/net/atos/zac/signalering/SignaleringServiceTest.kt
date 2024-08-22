@@ -21,8 +21,8 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.zac.app.zaak.converter.RESTZaakOverzichtConverter
 import net.atos.zac.event.EventingService
-import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.flowable.createTestTask
+import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.identity.model.createUser
 import net.atos.zac.mail.MailService
 import net.atos.zac.mail.model.createMailAdres

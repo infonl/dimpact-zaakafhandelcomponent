@@ -26,8 +26,8 @@ import net.atos.zac.app.planitems.model.createRESTHumanTaskData
 import net.atos.zac.app.planitems.model.createRESTUserEventListenerData
 import net.atos.zac.app.util.exception.InputValidationFailedException
 import net.atos.zac.configuratie.ConfiguratieService
-import net.atos.zac.flowable.CMMNService
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.mail.MailService
 import net.atos.zac.mail.model.Bronnen
 import net.atos.zac.mailtemplates.MailTemplateService

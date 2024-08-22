@@ -33,8 +33,8 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documenten.InboxDocumentenService
-import net.atos.zac.flowable.BPMNService
-import net.atos.zac.flowable.CMMNService
+import net.atos.zac.flowable.bpmn.BPMNService
+import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
 import net.atos.zac.productaanvraag.model.generated.Betrokkene

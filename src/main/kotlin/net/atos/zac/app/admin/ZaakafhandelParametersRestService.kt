@@ -34,7 +34,7 @@ import net.atos.zac.app.admin.model.RestZaakafhandelParameters
 import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter
 import net.atos.zac.app.zaak.model.RESTResultaattype
 import net.atos.zac.configuratie.ConfiguratieService
-import net.atos.zac.flowable.CMMNService
+import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService

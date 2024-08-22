@@ -5,13 +5,13 @@
 
 package net.atos.zac.app.planitems;
 
-import static net.atos.zac.flowable.TaakVariabelenService.isZaakOpschorten;
-import static net.atos.zac.flowable.TaakVariabelenService.readMailAttachments;
-import static net.atos.zac.flowable.TaakVariabelenService.readMailBody;
-import static net.atos.zac.flowable.TaakVariabelenService.readMailFrom;
-import static net.atos.zac.flowable.TaakVariabelenService.readMailReplyTo;
-import static net.atos.zac.flowable.TaakVariabelenService.readMailTo;
-import static net.atos.zac.flowable.TaakVariabelenService.setMailBody;
+import static net.atos.zac.flowable.task.TaakVariabelenService.isZaakOpschorten;
+import static net.atos.zac.flowable.task.TaakVariabelenService.readMailAttachments;
+import static net.atos.zac.flowable.task.TaakVariabelenService.readMailBody;
+import static net.atos.zac.flowable.task.TaakVariabelenService.readMailFrom;
+import static net.atos.zac.flowable.task.TaakVariabelenService.readMailReplyTo;
+import static net.atos.zac.flowable.task.TaakVariabelenService.readMailTo;
+import static net.atos.zac.flowable.task.TaakVariabelenService.setMailBody;
 import static net.atos.zac.policy.PolicyService.assertPolicy;
 
 import java.time.LocalDate;
@@ -51,8 +51,8 @@ import net.atos.zac.app.planitems.model.RESTProcessTaskData;
 import net.atos.zac.app.planitems.model.RESTUserEventListenerData;
 import net.atos.zac.app.util.exception.InputValidationFailedException;
 import net.atos.zac.configuratie.ConfiguratieService;
-import net.atos.zac.flowable.CMMNService;
 import net.atos.zac.flowable.ZaakVariabelenService;
+import net.atos.zac.flowable.cmmn.CMMNService;
 import net.atos.zac.mail.MailService;
 import net.atos.zac.mail.model.BronnenKt;
 import net.atos.zac.mail.model.MailAdres;

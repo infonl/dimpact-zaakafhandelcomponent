@@ -25,7 +25,7 @@ import net.atos.zac.app.signalering.converter.toRestSignaleringTaakSummary
 import net.atos.zac.app.signalering.model.RESTSignaleringInstellingen
 import net.atos.zac.app.signalering.model.RestSignaleringTaskSummary
 import net.atos.zac.authentication.LoggedInUser
-import net.atos.zac.flowable.FlowableTaskService
+import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters

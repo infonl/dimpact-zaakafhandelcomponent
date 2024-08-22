@@ -1,11 +1,16 @@
-package net.atos.zac.flowable
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+package net.atos.zac.flowable.task
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.flowable.exception.TaskNotFoundException
+import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import org.flowable.cmmn.api.CmmnTaskService
 import org.flowable.engine.HistoryService
 import org.flowable.engine.TaskService

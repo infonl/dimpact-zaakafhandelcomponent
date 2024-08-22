@@ -1,10 +1,10 @@
 package net.atos.zac.zoeken.converter;
 
-import static net.atos.zac.flowable.TaakVariabelenService.readTaskData;
-import static net.atos.zac.flowable.TaakVariabelenService.readTaskInformation;
-import static net.atos.zac.flowable.TaakVariabelenService.readZaakIdentificatie;
-import static net.atos.zac.flowable.TaakVariabelenService.readZaakUUID;
-import static net.atos.zac.flowable.TaakVariabelenService.readZaaktypeUUID;
+import static net.atos.zac.flowable.task.TaakVariabelenService.readTaskData;
+import static net.atos.zac.flowable.task.TaakVariabelenService.readTaskInformation;
+import static net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie;
+import static net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID;
+import static net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeUUID;
 import static net.atos.zac.flowable.util.TaskUtil.getTaakStatus;
 import static net.atos.zac.identity.model.UserKt.getFullName;
 
@@ -22,8 +22,8 @@ import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
-import net.atos.zac.flowable.FlowableTaskService;
-import net.atos.zac.flowable.TaakVariabelenService;
+import net.atos.zac.flowable.task.FlowableTaskService;
+import net.atos.zac.flowable.task.TaakVariabelenService;
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.identity.model.Group;
 import net.atos.zac.identity.model.User;

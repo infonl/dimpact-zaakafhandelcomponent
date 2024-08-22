@@ -30,7 +30,7 @@ import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.zac.event.AbstractEventObserver;
-import net.atos.zac.flowable.FlowableTaskService;
+import net.atos.zac.flowable.task.FlowableTaskService;
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.identity.model.User;
 import net.atos.zac.signalering.SignaleringService;

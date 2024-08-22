@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import org.flowable.cmmn.engine.interceptor.CreateHumanTaskAfterContext;
 import org.flowable.cmmn.engine.interceptor.CreateHumanTaskBeforeContext;
+import org.flowable.cmmn.engine.interceptor.CreateHumanTaskInterceptor;
 
 import net.atos.zac.flowable.FlowableHelper;
 import net.atos.zac.signalering.event.SignaleringEvent;
@@ -20,23 +21,18 @@ import net.atos.zac.signalering.model.SignaleringType;
 import net.atos.zac.websocket.event.ScreenEvent;
 import net.atos.zac.websocket.event.ScreenEventType;
 
-public class CreateHumanTaskInterceptor implements org.flowable.cmmn.engine.interceptor.CreateHumanTaskInterceptor {
-
+public class ZacCreateHumanTaskInterceptor implements CreateHumanTaskInterceptor {
     public static final String VAR_TRANSIENT_TAAKDATA = "taakdata";
-
     public static final String VAR_TRANSIENT_ZAAK_UUID = "zaakUUID";
-
     public static final String VAR_TRANSIENT_DUE_DATE = "dueDate";
-
     public static final String VAR_TRANSIENT_DESCRIPTION = "description";
-
     public static final String VAR_TRANSIENT_CANDIDATE_GROUP = "candidateGroupId";
-
     public static final String VAR_TRANSIENT_ASSIGNEE = "assignee";
-
     public static final String VAR_TRANSIENT_OWNER = "owner";
 
-    // This must be lower than the DEFAULT_SUSPENSION_TIMEOUT defined in websockets.service.ts
+    /**
+     * This must be lower than the DEFAULT_SUSPENSION_TIMEOUT defined in `websockets.service.ts`
+     */
     public static final int SECONDS_TO_DELAY = 3;
 
     @Override

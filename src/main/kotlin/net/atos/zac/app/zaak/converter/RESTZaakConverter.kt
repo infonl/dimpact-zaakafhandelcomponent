@@ -27,8 +27,8 @@ import net.atos.zac.app.zaak.model.RESTZaakVerlengGegevens
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestZaak
 import net.atos.zac.configuratie.ConfiguratieService
-import net.atos.zac.flowable.BPMNService
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.bpmn.BPMNService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.util.PeriodUtil
 import net.atos.zac.zoeken.model.ZaakIndicatie

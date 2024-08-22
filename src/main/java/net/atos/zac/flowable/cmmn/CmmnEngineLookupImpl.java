@@ -8,7 +8,7 @@ package net.atos.zac.flowable.cmmn;
 import org.flowable.cdi.spi.CmmnEngineLookup;
 import org.flowable.cmmn.engine.CmmnEngine;
 
-import net.atos.zac.flowable.bpmn.ProcessEngineLookupImpl;
+import net.atos.zac.flowable.processengine.ProcessEngineLookupImpl;
 
 public class CmmnEngineLookupImpl implements CmmnEngineLookup {
 

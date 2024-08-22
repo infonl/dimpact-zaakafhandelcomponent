@@ -11,7 +11,7 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.model.createZaakType
-import net.atos.zac.flowable.FlowableTaskService
+import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.zoeken.converter.AbstractZoekObjectConverter
 import net.atos.zac.zoeken.converter.ZaakZoekObjectConverter
 import net.atos.zac.zoeken.model.ZoekObject

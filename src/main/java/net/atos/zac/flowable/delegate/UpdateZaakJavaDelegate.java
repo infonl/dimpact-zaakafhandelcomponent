@@ -8,15 +8,19 @@ import org.flowable.engine.impl.el.FixedValue;
 import net.atos.zac.flowable.FlowableHelper;
 
 public class UpdateZaakJavaDelegate extends AbstractDelegate {
-
     private static final Logger LOG = Logger.getLogger(UpdateZaakJavaDelegate.class.getName());
-
     private static final String TOELICHTING = "Aangepast vanuit proces";
 
-    @SuppressWarnings("UnusedDeclaration") //wordt gezet vanuit Flowable runtime
+    /**
+     * Is set by the Flowable runtime
+     */
+    @SuppressWarnings("UnusedDeclaration")
     private FixedValue statustypeOmschrijving;
 
-    @SuppressWarnings("UnusedDeclaration") //wordt gezet vanuit Flowable runtime
+    /**
+     * Is set by the Flowable runtime
+     */
+    @SuppressWarnings("UnusedDeclaration")
     private FixedValue resultaattypeOmschrijving;
 
     @Override

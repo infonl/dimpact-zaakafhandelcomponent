@@ -24,9 +24,9 @@ import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
-import net.atos.zac.flowable.FlowableTaskService
-import net.atos.zac.flowable.TaakVariabelenService
-import net.atos.zac.flowable.TaakVariabelenService.readTaskDocuments
+import net.atos.zac.flowable.task.FlowableTaskService
+import net.atos.zac.flowable.task.TaakVariabelenService
+import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.util.UriUtil.uuidFromURI

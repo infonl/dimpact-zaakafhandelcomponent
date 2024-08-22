@@ -18,14 +18,10 @@ import org.flowable.common.engine.api.delegate.Expression;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.flowable.FlowableHelper;
 
-/**
- *
- */
+
 public class UpdateZaakLifecycleListener implements PlanItemInstanceLifecycleListener {
-
     private static final Logger LOG = Logger.getLogger(UpdateZaakLifecycleListener.class.getName());
-
-    private static final String STATUS_TOELICHTING = "Status gewijzigd vanuit Case";
+    private static final String STATUS_TOELICHTING = "Status gewijzigd";
 
     private Expression statusExpression;
 

@@ -17,7 +17,7 @@ import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RestZaakafhandelParametersConverter
 import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter
 import net.atos.zac.configuratie.ConfiguratieService
-import net.atos.zac.flowable.CMMNService
+import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 

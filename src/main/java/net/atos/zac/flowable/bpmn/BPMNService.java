@@ -1,4 +1,9 @@
-package net.atos.zac.flowable;
+/*
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+package net.atos.zac.flowable.bpmn;
 
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING;

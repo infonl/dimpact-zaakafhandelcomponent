@@ -1,9 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.flowable.bpmn;
+package net.atos.zac.flowable.processengine;
 
 import static org.flowable.common.engine.impl.AbstractEngineConfiguration.DATABASE_TYPE_POSTGRES;
 import static org.flowable.common.engine.impl.AbstractEngineConfiguration.DB_SCHEMA_UPDATE_TRUE;
@@ -23,16 +23,15 @@ import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.impl.cfg.StandaloneProcessEngineConfiguration;
 
 import net.atos.zac.flowable.cmmn.CompleteTaskInterceptor;
-import net.atos.zac.flowable.cmmn.CreateHumanTaskInterceptor;
 import net.atos.zac.flowable.cmmn.EndCaseLifecycleListener;
+import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor;
+import net.atos.zac.flowable.task.CreateUserTaskInterceptor;
 
 /**
- *
+ * Looks up the ZAC Flowable process engine.
  */
 public class ProcessEngineLookupImpl implements ProcessEngineLookup {
-
     public static final String DATABASE_SCHEMA = "flowable";
-
     public static final String DATA_SOURCE_JNDI_NAME = "java:comp/env/jdbc/FlowableDS";
 
     private static ProcessEngine sharedProcessEngine = null;
@@ -49,7 +48,7 @@ public class ProcessEngineLookupImpl implements ProcessEngineLookup {
 
     @Override
     public void ungetProcessEngine() {
-        // Geen actie nodig.
+        // no action needed.
     }
 
     public static CmmnEngineConfiguration getCmmnEngineConfiguration() {
@@ -95,8 +94,9 @@ public class ProcessEngineLookupImpl implements ProcessEngineLookup {
         cmmnEngineConfiguration.setEnableHistoricTaskLogging(true);
         CaseInstanceState.END_STATES.forEach(
                 endState -> cmmnEngineConfiguration.addCaseInstanceLifeCycleListener(
-                        new EndCaseLifecycleListener(CaseInstanceState.ACTIVE, endState)));
-        cmmnEngineConfiguration.setCreateHumanTaskInterceptor(new CreateHumanTaskInterceptor());
+                        new EndCaseLifecycleListener(CaseInstanceState.ACTIVE, endState))
+        );
+        cmmnEngineConfiguration.setCreateHumanTaskInterceptor(new ZacCreateHumanTaskInterceptor());
         cmmnEngineConfiguration.setIdentityLinkInterceptor(new CompleteTaskInterceptor(cmmnEngineConfiguration));
         cmmnEngineConfiguration.setDisableIdmEngine(true);
         return cmmnEngineConfiguration;
