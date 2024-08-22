@@ -193,7 +193,7 @@ class ZaakRestService @Inject constructor(
     @Path("zaak/{uuid}")
     fun readZaak(@PathParam("uuid") zaakUUID: UUID): RestZaak =
         zrcClientService.readZaak(zaakUUID).let { zaak ->
-             restZaakConverter.convert(zaak).also {
+            restZaakConverter.convert(zaak).also {
                 assertPolicy(it.rechten.lezen)
                 deleteSignaleringen(zaak)
             }
@@ -206,8 +206,8 @@ class ZaakRestService @Inject constructor(
             restZaakConverter.convert(zaak).also {
                 assertPolicy(it.rechten.lezen)
                 deleteSignaleringen(zaak)
+            }
         }
-    }
 
     @PUT
     @Path("initiator")
