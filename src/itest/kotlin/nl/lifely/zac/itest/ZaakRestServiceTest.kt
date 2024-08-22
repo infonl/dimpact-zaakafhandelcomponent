@@ -18,7 +18,11 @@ import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_ROL_TOEVOEGEN_REDEN
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_TYPE_NATUURLIJK_PERSOON
+import nl.lifely.zac.itest.config.ItestConfiguration.BRON_ORGANISATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
+import nl.lifely.zac.itest.config.ItestConfiguration.DATE_2020_01_01
+import nl.lifely.zac.itest.config.ItestConfiguration.DATE_2020_01_15
+import nl.lifely.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.lifely.zac.itest.config.ItestConfiguration.DATE_TIME_2020_01_01
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
@@ -28,17 +32,23 @@ import nl.lifely.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_VER
 import nl.lifely.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_VRIJGEVEN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_INFORMATIE_OBJECT_TYPE_1_UUID
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_INFORMATIE_OBJECT_TYPE_2_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.VERANTWOORDELIJKE_ORGANISATIE
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_REFERENTIEPROCES
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.lifely.zac.itest.util.WebSocketTestListener
+import nl.lifely.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
@@ -50,6 +60,7 @@ import kotlin.time.Duration.Companion.seconds
  * This test assumes a zaak has been created in a previously run test.
  */
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
+@Suppress("LargeClass")
 class ZaakRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
@@ -70,15 +81,257 @@ class ZaakRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                JSONObject(responseBody).apply {
-                    getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
-                    getString("communicatiekanaal") shouldBe COMMUNICATIEKANAAL_TEST_1
-                    getJSONObject("zaakdata").apply {
-                        getString("zaakUUID") shouldNotBe null
-                        getString("zaakIdentificatie") shouldBe ZAAK_MANUAL_1_IDENTIFICATION
-                        zaak2UUID = getString("zaakUUID").let(UUID::fromString)
+                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                    {
+                      "besluiten": [],
+                      "bronorganisatie": "$BRON_ORGANISATIE",
+                      "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_1",
+                      "gerelateerdeZaken": [],
+                      "groep": {
+                        "id": "$TEST_GROUP_A_ID",
+                        "naam": "$TEST_GROUP_A_DESCRIPTION"
+                      },
+                      "identificatie": "$ZAAK_MANUAL_1_IDENTIFICATION",
+                      "indicaties": [],
+                      "isBesluittypeAanwezig": false,
+                      "isDeelzaak": false,
+                      "isHeropend": false,
+                      "isHoofdzaak": false,
+                      "isInIntakeFase": false,
+                      "isOntvangstbevestigingVerstuurd": false,
+                      "isOpen": true,
+                      "isOpgeschort": false,
+                      "isProcesGestuurd": false,
+                      "isVerlengd": false,
+                      "kenmerken": [],
+                      "omschrijving": "dummyOmschrijving",
+                      "rechten": {
+                        "afbreken": true,
+                        "behandelen": true,
+                        "bekijkenZaakdata": true,
+                        "creeerenDocument": true,
+                        "heropenen": true,
+                        "lezen": true,
+                        "toekennen": true,
+                        "toevoegenBagObject": true,
+                        "toevoegenBetrokkeneBedrijf": true,
+                        "toevoegenBetrokkenePersoon": true,
+                        "toevoegenInitiatorBedrijf": true,
+                        "toevoegenInitiatorPersoon": true,
+                        "versturenEmail": true,
+                        "versturenOntvangstbevestiging": true,
+                        "verwijderenBetrokkene": true,
+                        "verwijderenInitiator": true,
+                        "wijzigen": true,
+                        "wijzigenDoorlooptijd": true
+                      },
+                      "registratiedatum": "${LocalDate.now()}",
+                      "startdatum": "$DATE_2020_01_01",
+                      "toelichting": "",
+                      "uiterlijkeEinddatumAfdoening": "$DATE_2020_01_15",
+                      "verantwoordelijkeOrganisatie": "$VERANTWOORDELIJKE_ORGANISATIE",
+                      "vertrouwelijkheidaanduiding": "OPENBAAR",
+                      "zaakdata": {
+                        "zaakIdentificatie": "$ZAAK_MANUAL_1_IDENTIFICATION",
+                        "initiator": null,
+                        "zaaktypeUUID": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
+                        "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                      },
+                      "zaaktype": {
+                        "beginGeldigheid": "$DATE_2023_09_21",
+                        "doel": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE",
+                        "informatieobjecttypes": [
+                          "$TEST_INFORMATIE_OBJECT_TYPE_1_UUID",
+                          "$TEST_INFORMATIE_OBJECT_TYPE_2_UUID"
+                        ],
+                        "nuGeldig": true,
+                        "omschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
+                        "opschortingMogelijk": false,
+                        "referentieproces": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_REFERENTIEPROCES",
+                        "servicenorm": false,
+                        "uuid": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
+                        "verlengingMogelijk": false,
+                        "versiedatum": "$DATE_2023_09_21",
+                        "vertrouwelijkheidaanduiding": "openbaar",
+                        "zaakafhandelparameters": {
+                          "afrondenMail": "BESCHIKBAAR_UIT",
+                          "caseDefinition": {
+                            "humanTaskDefinitions": [
+                              {
+                                "defaultFormulierDefinitie": "AANVULLENDE_INFORMATIE",
+                                "id": "AANVULLENDE_INFORMATIE",
+                                "naam": "Aanvullende informatie",
+                                "type": "HUMAN_TASK"
+                              },
+                              {
+                                "defaultFormulierDefinitie": "GOEDKEUREN",
+                                "id": "GOEDKEUREN",
+                                "naam": "Goedkeuren",
+                                "type": "HUMAN_TASK"
+                              },
+                              {
+                                "defaultFormulierDefinitie": "ADVIES",
+                                "id": "ADVIES_INTERN",
+                                "naam": "Advies intern",
+                                "type": "HUMAN_TASK"
+                              },
+                              {
+                                "defaultFormulierDefinitie": "EXTERN_ADVIES_VASTLEGGEN",
+                                "id": "ADVIES_EXTERN",
+                                "naam": "Advies extern",
+                                "type": "HUMAN_TASK"
+                              },
+                              {
+                                "defaultFormulierDefinitie": "DOCUMENT_VERZENDEN_POST",
+                                "id": "DOCUMENT_VERZENDEN_POST",
+                                "naam": "Document verzenden",
+                                "type": "HUMAN_TASK"
+                              }
+                            ],
+                            "key": "generiek-zaakafhandelmodel",
+                            "naam": "Generiek zaakafhandelmodel",
+                            "userEventListenerDefinitions": [
+                              {
+                                "defaultFormulierDefinitie": "DEFAULT_TAAKFORMULIER",
+                                "id": "INTAKE_AFRONDEN",
+                                "naam": "Intake afronden",
+                                "type": "USER_EVENT_LISTENER"
+                              },
+                              {
+                                "defaultFormulierDefinitie": "DEFAULT_TAAKFORMULIER",
+                                "id": "ZAAK_AFHANDELEN",
+                                "naam": "Zaak afhandelen",
+                                "type": "USER_EVENT_LISTENER"
+                              }
+                            ]
+                          },
+                          "defaultGroepId": "$TEST_GROUP_A_ID",
+                          "humanTaskParameters": [
+                            {
+                              "actief": true,
+                              "formulierDefinitieId": "AANVULLENDE_INFORMATIE",
+                              "planItemDefinition": {
+                                "defaultFormulierDefinitie": "AANVULLENDE_INFORMATIE",
+                                "id": "AANVULLENDE_INFORMATIE",
+                                "naam": "Aanvullende informatie",
+                                "type": "HUMAN_TASK"
+                              },
+                              "referentieTabellen": []
+                            },
+                            {
+                              "actief": true,
+                              "formulierDefinitieId": "GOEDKEUREN",
+                              "planItemDefinition": {
+                                "defaultFormulierDefinitie": "GOEDKEUREN",
+                                "id": "GOEDKEUREN",
+                                "naam": "Goedkeuren",
+                                "type": "HUMAN_TASK"
+                              },
+                              "referentieTabellen": []
+                            },
+                            {
+                              "actief": true,
+                              "formulierDefinitieId": "ADVIES",
+                              "planItemDefinition": {
+                                "defaultFormulierDefinitie": "ADVIES",
+                                "id": "ADVIES_INTERN",
+                                "naam": "Advies intern",
+                                "type": "HUMAN_TASK"
+                              },
+                              "referentieTabellen": [
+                                {
+                                  "id": 1,
+                                  "tabel": {
+                                    "aantalWaarden": 5,
+                                    "code": "ADVIES",
+                                    "id": 1,
+                                    "naam": "Advies",
+                                    "systeem": true,
+                                    "waarden": []
+                                  },
+                                  "veld": "ADVIES"
+                                }
+                              ]
+                            },
+                            {
+                              "actief": true,
+                              "formulierDefinitieId": "EXTERN_ADVIES_VASTLEGGEN",
+                              "planItemDefinition": {
+                                "defaultFormulierDefinitie": "EXTERN_ADVIES_VASTLEGGEN",
+                                "id": "ADVIES_EXTERN",
+                                "naam": "Advies extern",
+                                "type": "HUMAN_TASK"
+                              },
+                              "referentieTabellen": []
+                            },
+                            {
+                              "actief": true,
+                              "formulierDefinitieId": "DOCUMENT_VERZENDEN_POST",                       
+                              "planItemDefinition": {
+                                "defaultFormulierDefinitie": "DOCUMENT_VERZENDEN_POST",
+                                "id": "DOCUMENT_VERZENDEN_POST",
+                                "naam": "Document verzenden",
+                                "type": "HUMAN_TASK"
+                              },
+                              "referentieTabellen": []
+                            }
+                          ],
+                          "id": 1,
+                          "intakeMail": "BESCHIKBAAR_UIT",
+                          "mailtemplateKoppelingen": [],
+                          "productaanvraagtype": "productaanvraag-type-1",
+                          "userEventListenerParameters": [
+                            {
+                              "id": "INTAKE_AFRONDEN",
+                              "naam": "Intake afronden"
+                            },
+                            {
+                              "id": "ZAAK_AFHANDELEN",
+                              "naam": "Zaak afhandelen"
+                            }
+                          ],
+                          "valide": true,
+                          "zaakAfzenders": [
+                            {
+                              "defaultMail": false,
+                              "mail": "GEMEENTE",
+                              "speciaal": true
+                            },
+                            {
+                              "defaultMail": false,
+                              "mail": "MEDEWERKER",
+                              "speciaal": true
+                            }
+                          ],
+                          "zaakNietOntvankelijkResultaattype": {
+                            "archiefNominatie": "VERNIETIGEN",
+                            "archiefTermijn": "5 jaren",
+                            "besluitVerplicht": false,
+                            "id": "dd2bcd87-ed7e-4b23-a8e3-ea7fe7ef00c6",
+                            "naam": "Geweigerd",
+                            "naamGeneriek": "Geweigerd",
+                            "toelichting": "Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen",
+                            "vervaldatumBesluitVerplicht": false
+                          },
+                          "zaakbeeindigParameters": [],
+                          "zaaktype": {
+                            "beginGeldigheid": "$DATE_2023_09_21",
+                            "doel": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
+                            "identificatie": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE",
+                            "nuGeldig": true,
+                            "omschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
+                            "servicenorm": false,
+                            "uuid": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
+                            "versiedatum": "$DATE_2023_09_21",
+                            "vertrouwelijkheidaanduiding": "openbaar"
+                          }
+                        },
+                        "zaaktypeRelaties": []
+                      }
                     }
-                }
+                """.trimIndent()
+                zaak2UUID = JSONObject(responseBody).getString("uuid").let(UUID::fromString)
             }
         }
     }

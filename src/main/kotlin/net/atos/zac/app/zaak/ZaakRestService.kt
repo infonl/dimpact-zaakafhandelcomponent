@@ -191,21 +191,21 @@ class ZaakRestService @Inject constructor(
 
     @GET
     @Path("zaak/{uuid}")
-    fun readZaak(@PathParam("uuid") zaakUUID: UUID): RestZaak {
-        val zaak = zrcClientService.readZaak(zaakUUID)
-        val restZaak = restZaakConverter.convert(zaak)
-        assertPolicy(restZaak.rechten.lezen)
-        deleteSignaleringen(zaak)
-        return restZaak
-    }
+    fun readZaak(@PathParam("uuid") zaakUUID: UUID): RestZaak =
+        zrcClientService.readZaak(zaakUUID).let { zaak ->
+             restZaakConverter.convert(zaak).also {
+                assertPolicy(it.rechten.lezen)
+                deleteSignaleringen(zaak)
+            }
+        }
 
     @GET
     @Path("zaak/id/{identificatie}")
-    fun readZaakById(@PathParam("identificatie") identificatie: String): RestZaak {
-        val zaak = zrcClientService.readZaakByID(identificatie)
-        return restZaakConverter.convert(zaak).also {
-            assertPolicy(it.rechten.lezen)
-            deleteSignaleringen(zaak)
+    fun readZaakById(@PathParam("identificatie") identificatie: String): RestZaak =
+        zrcClientService.readZaakByID(identificatie).let { zaak ->
+            restZaakConverter.convert(zaak).also {
+                assertPolicy(it.rechten.lezen)
+                deleteSignaleringen(zaak)
         }
     }
 
@@ -527,8 +527,6 @@ class ZaakRestService @Inject constructor(
         }
         zgwApiService.findGroepForZaak(zaak).ifPresent {
             val groupId = toekennenGegevens.groupId
-            // better to not use RestZaakAssignmentData here but a separate class for this where group ID is non-nullable
-            require(groupId != null) { "Group ID is required" }
             if (it.betrokkeneIdentificatie.identificatie != groupId) {
                 val group = identityService.readGroup(groupId)
                 val role = zaakService.bepaalRolGroep(group, zaak)
