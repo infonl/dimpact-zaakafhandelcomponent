@@ -14,7 +14,13 @@ import net.atos.zac.app.identity.converter.RESTGroupConverter
 import net.atos.zac.app.identity.converter.RESTUserConverter
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
 import net.atos.zac.app.task.model.RestTask
-import net.atos.zac.flowable.TaakVariabelenService.*
+import net.atos.zac.flowable.TaakVariabelenService.readTaskData
+import net.atos.zac.flowable.TaakVariabelenService.readTaskDocuments
+import net.atos.zac.flowable.TaakVariabelenService.readTaskInformation
+import net.atos.zac.flowable.TaakVariabelenService.readZaakIdentificatie
+import net.atos.zac.flowable.TaakVariabelenService.readZaakUUID
+import net.atos.zac.flowable.TaakVariabelenService.readZaaktypeOmschrijving
+import net.atos.zac.flowable.TaakVariabelenService.readZaaktypeUUID
 import net.atos.zac.flowable.util.TaskUtil
 import net.atos.zac.formulieren.FormulierDefinitieService
 import net.atos.zac.policy.PolicyService
@@ -78,7 +84,6 @@ class RestTaskConverter @Inject constructor(
             },
             taakinformatie = if (restTaakRechten.lezen) readTaskInformation(taskInfo) else null,
             taakdata = if (restTaakRechten.lezen) readTaskData(taskInfo).toMutableMap() else null,
-            formioSubmissionData = if (restTaakRechten.lezen) readFormioSubmissionData(taskInfo).toMutableMap() else null,
             taakdocumenten = if (restTaakRechten.lezen) {
                 readTaskDocuments(
                     taskInfo

@@ -359,7 +359,7 @@ export class TaakViewComponent
     this.websocketService.suspendListener(this.taakListener);
     for (const key in submission.data) {
       if (key !== "submit" && key !== "save") {
-        this.taak.formioSubmissionData[key] = submission.data[key];
+        this.taak.taakdata[key] = submission.data[key];
       }
     }
     if (submission.state === "submitted") {
