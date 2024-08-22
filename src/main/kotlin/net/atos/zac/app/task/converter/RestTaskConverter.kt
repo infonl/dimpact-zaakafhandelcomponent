@@ -90,6 +90,7 @@ class RestTaskConverter @Inject constructor(
             },
             taakinformatie = if (restTaakRechten.lezen) readTaskInformation(taskInfo) else null,
             taakdata = if (restTaakRechten.lezen) readTaskData(taskInfo).toMutableMap() else null,
+            formioSubmissionData = if (restTaakRechten.lezen) readFormioSubmissionData(taskInfo).toMutableMap() else null,
             taakdocumenten = if (restTaakRechten.lezen) {
                 readTaskDocuments(
                     taskInfo

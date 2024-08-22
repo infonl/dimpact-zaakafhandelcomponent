@@ -5,27 +5,19 @@
 
 package net.atos.zac.flowable.task;
 
-import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING;
-import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_UUUID;
-import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE;
-import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID;
-import static net.atos.zac.flowable.util.TaskUtil.isCmmnTask;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.engine.TaskService;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskInfo;
+
+import java.util.*;
+
+import static net.atos.zac.flowable.ZaakVariabelenService.*;
+import static net.atos.zac.flowable.util.TaskUtil.isCmmnTask;
 
 @ApplicationScoped
 @Transactional
@@ -46,6 +38,7 @@ public class TaakVariabelenService {
     private static final String VAR_TASK_TAAKDATA = "taakdata";
     private static final String VAR_TASK_TAAKDOCUMENTEN = "taakdocumenten";
     private static final String VAR_TASK_TAAKINFORMATIE = "taakinformatie";
+    private static final String VAR_TASK_FORMIO_SUBMISSION_DATA = "formioSubmissionData";
 
     @Inject
     private TaskService taskService;
@@ -76,6 +69,10 @@ public class TaakVariabelenService {
 
     public static Optional<String> readMailBody(Map<String, String> taakData) {
         return findTaskDataElement(taakData, TAAK_DATA_MAIL_BODY);
+    }
+
+    public static Map<String, Object> readFormioSubmissionData(final TaskInfo taskInfo) {
+        return (Map<String, Object>) findTaskVariable(taskInfo, VAR_TASK_FORMIO_SUBMISSION_DATA).orElse(Collections.emptyMap());
     }
 
     public static void setMailBody(Map<String, String> taakData, final String body) {
@@ -126,6 +123,10 @@ public class TaakVariabelenService {
 
     public void setTaakdocumenten(final Task task, final List<UUID> taakdocumenten) {
         setTaskVariable(task, VAR_TASK_TAAKDOCUMENTEN, taakdocumenten);
+    }
+
+    public void setFormioSubmissionData(final Task task, final Map<String, Object> formioSubmissionData) {
+        setTaskVariable(task, VAR_TASK_FORMIO_SUBMISSION_DATA, formioSubmissionData);
     }
 
     private static Map<String, Object> getVariables(final TaskInfo taskInfo) {
