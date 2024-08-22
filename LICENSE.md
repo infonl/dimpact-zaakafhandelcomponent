@@ -1,7 +1,7 @@
 # Licence
 
 Original work Copyright @ Atos, 2021 - 2022
-Modified and new work Copyright 2024 Lifely
+Modified and new work, starting in 2023, Copyright Lifely
 
 Licensed under the EUPL-1.2-or-later
 
