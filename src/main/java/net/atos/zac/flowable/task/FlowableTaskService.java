@@ -1,9 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.flowable;
+package net.atos.zac.flowable.task;
 
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID;
 import static net.atos.zac.flowable.util.TaskUtil.isCmmnTask;
@@ -33,8 +33,8 @@ import org.flowable.task.api.history.HistoricTaskInstance;
 import org.flowable.task.api.history.HistoricTaskLogEntry;
 
 import net.atos.zac.app.task.model.TaakSortering;
-import net.atos.zac.flowable.exception.TaskNotFoundException;
-import net.atos.zac.flowable.model.ValueChangeData;
+import net.atos.zac.flowable.task.exception.TaskNotFoundException;
+import net.atos.zac.flowable.task.model.ValueChangeData;
 import net.atos.zac.shared.model.SorteerRichting;
 
 @ApplicationScoped

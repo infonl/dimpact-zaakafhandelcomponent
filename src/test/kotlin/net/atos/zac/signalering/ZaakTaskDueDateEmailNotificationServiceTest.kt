@@ -11,7 +11,7 @@ import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.configuratie.ConfiguratieService
-import net.atos.zac.flowable.FlowableTaskService
+import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringTarget
 import net.atos.zac.signalering.model.SignaleringType

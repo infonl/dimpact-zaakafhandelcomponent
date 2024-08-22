@@ -18,8 +18,8 @@ import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.zaak.converter.RESTZaakOverzichtConverter
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
-import net.atos.zac.flowable.FlowableTaskService
-import net.atos.zac.flowable.TaakVariabelenService.readZaakUUID
+import net.atos.zac.flowable.task.FlowableTaskService
+import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
 import net.atos.zac.mail.MailService
 import net.atos.zac.mail.model.Bronnen
 import net.atos.zac.mailtemplates.model.MailGegevens

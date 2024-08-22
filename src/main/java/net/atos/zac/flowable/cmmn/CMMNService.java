@@ -1,16 +1,15 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.flowable;
+package net.atos.zac.flowable.cmmn;
 
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING;
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_UUUID;
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE;
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID;
-import static net.atos.zac.flowable.bpmn.CreateUserTaskInterceptor.VAR_PROCESS_OWNER;
 import static net.atos.zac.flowable.cmmn.CreateHumanTaskInterceptor.VAR_TRANSIENT_ASSIGNEE;
 import static net.atos.zac.flowable.cmmn.CreateHumanTaskInterceptor.VAR_TRANSIENT_CANDIDATE_GROUP;
 import static net.atos.zac.flowable.cmmn.CreateHumanTaskInterceptor.VAR_TRANSIENT_DESCRIPTION;
@@ -18,6 +17,7 @@ import static net.atos.zac.flowable.cmmn.CreateHumanTaskInterceptor.VAR_TRANSIEN
 import static net.atos.zac.flowable.cmmn.CreateHumanTaskInterceptor.VAR_TRANSIENT_OWNER;
 import static net.atos.zac.flowable.cmmn.CreateHumanTaskInterceptor.VAR_TRANSIENT_TAAKDATA;
 import static net.atos.zac.flowable.cmmn.CreateHumanTaskInterceptor.VAR_TRANSIENT_ZAAK_UUID;
+import static net.atos.zac.flowable.task.CreateUserTaskInterceptor.VAR_PROCESS_OWNER;
 import static org.flowable.cmmn.api.runtime.PlanItemDefinitionType.HUMAN_TASK;
 import static org.flowable.cmmn.api.runtime.PlanItemDefinitionType.PROCESS_TASK;
 import static org.flowable.cmmn.api.runtime.PlanItemDefinitionType.USER_EVENT_LISTENER;

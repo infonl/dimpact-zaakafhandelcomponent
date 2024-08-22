@@ -13,7 +13,7 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.configuratie.ConfiguratieService
-import net.atos.zac.flowable.FlowableTaskService
+import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
 import net.atos.zac.signalering.model.Signalering
 import net.atos.zac.signalering.model.SignaleringDetail

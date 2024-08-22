@@ -1,9 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.flowable.bpmn;
+package net.atos.zac.flowable.task;
 
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID;
 import static net.atos.zac.flowable.cmmn.CreateHumanTaskInterceptor.SECONDS_TO_DELAY;

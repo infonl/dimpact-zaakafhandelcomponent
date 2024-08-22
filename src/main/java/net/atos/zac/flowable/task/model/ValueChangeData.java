@@ -1,4 +1,9 @@
-package net.atos.zac.flowable.model;
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+package net.atos.zac.flowable.task.model;
 
 public class ValueChangeData {
     public String oldValue;

@@ -104,10 +104,10 @@ import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
-import net.atos.zac.flowable.BPMNService
-import net.atos.zac.flowable.CMMNService
-import net.atos.zac.flowable.FlowableTaskService
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.bpmn.BPMNService
+import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.healthcheck.HealthCheckService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.policy.PolicyService
