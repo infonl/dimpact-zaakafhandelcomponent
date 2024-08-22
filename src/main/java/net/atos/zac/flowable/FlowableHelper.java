@@ -12,6 +12,7 @@ import jakarta.inject.Inject;
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.zac.event.EventingService;
+import net.atos.zac.flowable.task.TaakVariabelenService;
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.zoeken.IndexeerService;
 

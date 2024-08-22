@@ -15,14 +15,12 @@ import org.flowable.cmmn.api.runtime.CaseInstance;
 
 import net.atos.zac.flowable.FlowableHelper;
 
-/**
- *
- */
+
 public class EndCaseLifecycleListener implements CaseInstanceLifecycleListener {
 
     private static final Logger LOG = Logger.getLogger(EndCaseLifecycleListener.class.getName());
 
-    private static final String EINDSTATUS_TOELICHTING = "Zaak beeindigd vanuit Case";
+    private static final String EINDSTATUS_TOELICHTING = "Zaak beeindigd";
 
     private final String sourceState;
 

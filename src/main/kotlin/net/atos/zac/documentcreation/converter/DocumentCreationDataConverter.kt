@@ -30,8 +30,8 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.authentication.LoggedInUser
-import net.atos.zac.flowable.FlowableTaskService
-import net.atos.zac.flowable.TaakVariabelenService
+import net.atos.zac.flowable.task.FlowableTaskService
+import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.getFullName
 import net.atos.zac.productaanvraag.ProductaanvraagService

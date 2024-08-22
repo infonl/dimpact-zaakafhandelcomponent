@@ -27,8 +27,8 @@ import net.atos.zac.app.zaak.model.RESTZaakVerlengGegevens
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestZaak
 import net.atos.zac.configuratie.ConfiguratieService
-import net.atos.zac.flowable.BPMNService
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.bpmn.BPMNService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.util.PeriodUtil
 import net.atos.zac.zoeken.model.ZaakIndicatie
@@ -139,7 +139,8 @@ class RESTZaakConverter {
                 RESTZaakKenmerk(it.kenmerk, it.bron)
             }?.collect(Collectors.toList()),
             communicatiekanaal = zaak.communicatiekanaalNaam,
-            vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.toString(),
+            // use the name because the frontend expects this value to be in uppercase
+            vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name,
             groep = groep,
             behandelaar = behandelaar,
             initiatorIdentificatie = initiator.getOrNull()?.identificatienummer,

@@ -1,4 +1,9 @@
-package net.atos.zac.flowable
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+package net.atos.zac.flowable.task
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -7,8 +12,9 @@ import io.kotest.matchers.should
 import io.kotest.matchers.string.contain
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.flowable.TaakVariabelenService.readZaakUUID
-import net.atos.zac.flowable.TaakVariabelenService.readZaaktypeUUID
+import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
+import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeUUID
 import org.flowable.common.engine.api.scope.ScopeTypes
 import org.flowable.task.api.TaskInfo
 import java.io.File

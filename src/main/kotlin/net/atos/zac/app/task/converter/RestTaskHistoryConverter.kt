@@ -7,8 +7,8 @@ package net.atos.zac.app.task.converter
 import jakarta.inject.Inject
 import jakarta.json.bind.annotation.JsonbDateFormat
 import net.atos.zac.app.task.model.RestTaskHistoryLine
-import net.atos.zac.flowable.FlowableTaskService
-import net.atos.zac.flowable.model.ValueChangeData
+import net.atos.zac.flowable.task.FlowableTaskService
+import net.atos.zac.flowable.task.model.ValueChangeData
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.getFullName
 import net.atos.zac.util.DateTimeConverterUtil

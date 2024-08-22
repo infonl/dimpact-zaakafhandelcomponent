@@ -9,14 +9,14 @@ export class VertrouwelijkaanduidingToTranslationKeyPipe
   implements PipeTransform
 {
   public expectedKeys = [
-    "openbaar",
-    "beperkt_openbaar",
-    "intern",
-    "zaakvertrouwelijk",
-    "vertrouwelijk",
-    "confidentieel",
-    "geheim",
-    "zeer_geheim",
+    "OPENBAAR",
+    "BEPERKT_OPENBAAR",
+    "INTERN",
+    "ZAAKVERTROUWELIJK",
+    "VERTROUWELIJK",
+    "CONFIDENTIEEL",
+    "GEHEIM",
+    "ZEER_GEHEIM",
   ] as const;
 
   transform(
@@ -26,9 +26,7 @@ export class VertrouwelijkaanduidingToTranslationKeyPipe
       throw new Error(`Unexpected vertrouwelijkheidaanduiding: ${value}`);
     }
     const expectedKey = value as (typeof this.expectedKeys)[number];
-    const newValue = this.toUpperCase(expectedKey);
-
-    return `vertrouwelijkheidaanduiding.${newValue}`;
+    return `vertrouwelijkheidaanduiding.${expectedKey}`;
   }
 
   toUpperCase<T extends string>(v: T): Uppercase<T> {

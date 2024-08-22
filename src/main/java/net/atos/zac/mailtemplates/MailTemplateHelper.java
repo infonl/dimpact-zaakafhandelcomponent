@@ -1,8 +1,8 @@
 package net.atos.zac.mailtemplates;
 
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
-import static net.atos.zac.flowable.TaakVariabelenService.readZaakIdentificatie;
-import static net.atos.zac.flowable.TaakVariabelenService.readZaaktypeOmschrijving;
+import static net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie;
+import static net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving;
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.DOCUMENT_LINK;
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.DOCUMENT_TITEL;
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.DOCUMENT_URL;

@@ -15,9 +15,7 @@ import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.json.bind.annotation.JsonbProperty;
 
-/**
- *
- */
+
 public class Status {
 
     private static final int STATUSTOELICHTING_MAX_LENGTH = 1000;
