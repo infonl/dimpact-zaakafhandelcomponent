@@ -140,7 +140,6 @@ class TaskRestService @Inject constructor(
             assertPolicy(TaskUtil.isOpen(it) && policyService.readTaakRechten(it).wijzigen)
             taakVariabelenService.setTaskData(it, restTask.taakdata)
             taakVariabelenService.setTaskinformation(it, restTask.taakinformatie)
-            taakVariabelenService.setFormioSubmissionData(it, restTask.formioSubmissionData)
             val updatedTask = updateDescriptionAndDueDate(restTask)
             eventingService.send(ScreenEventType.TAAK.updated(updatedTask))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
@@ -249,10 +248,10 @@ class TaskRestService @Inject constructor(
         restTask.taakdata?.let { taakdata ->
             taakdata[TAAK_DATA_DOCUMENTEN_VERZENDEN_POST]?.let {
                 updateVerzenddatumEnkelvoudigInformatieObjecten(
-                    documenten = it,
+                    documenten = it.toString(),
                     // implicitly assume that the verzenddatum key is present in taakdata
-                    verzenddatumString = taakdata[TAAK_DATA_VERZENDDATUM]!!,
-                    toelichting = taakdata[TAAK_DATA_TOELICHTING]
+                    verzenddatumString = taakdata[TAAK_DATA_VERZENDDATUM]!!.toString(),
+                    toelichting = taakdata[TAAK_DATA_TOELICHTING]?.toString()
                 )
             }
             ondertekenEnkelvoudigInformatieObjecten(taakdata, zaak)
@@ -308,7 +307,7 @@ class TaskRestService @Inject constructor(
                     taakdata[key]?.let { jsonDocumentData ->
                         try {
                             val restTaskDocumentData = ObjectMapper().readValue(
-                                jsonDocumentData,
+                                jsonDocumentData as String,
                                 RestTaskDocumentData::class.java
                             )
                             val enkelvoudigInformatieObjectCreateLockRequest = restInformatieobjectConverter.convert(
@@ -341,7 +340,7 @@ class TaskRestService @Inject constructor(
         }
     }
 
-    private fun ondertekenEnkelvoudigInformatieObjecten(taakdata: Map<String, String>, zaak: Zaak) {
+    private fun ondertekenEnkelvoudigInformatieObjecten(taakdata: Map<String, Any>, zaak: Zaak) {
         val signatures = readSignatures(taakdata)
         signatures.ifPresent { signature ->
             signature.split(
@@ -353,12 +352,12 @@ class TaskRestService @Inject constructor(
                 .forEach { enkelvoudigInformatieobject ->
                     assertPolicy(
                         (
-                                // this extra check is because the API can return an empty ondertekening soort
-                                enkelvoudigInformatieobject.ondertekening == null ||
-                                        // when no signature is present (even if this is not
-                                        // permitted according to the original OpenAPI spec)
-                                        enkelvoudigInformatieobject.ondertekening.soort == SoortEnum.EMPTY
-                                ) && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
+                            // this extra check is because the API can return an empty ondertekening soort
+                            enkelvoudigInformatieobject.ondertekening == null ||
+                                // when no signature is present (even if this is not
+                                // permitted according to the original OpenAPI spec)
+                                enkelvoudigInformatieobject.ondertekening.soort == SoortEnum.EMPTY
+                            ) && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
                     )
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
                         URIUtil.parseUUIDFromResourceURI(enkelvoudigInformatieobject.url)

@@ -1,7 +1,24 @@
 package net.atos.zac.formulieren;
 
+import static jakarta.json.JsonValue.ValueType.STRING;
+import static java.time.format.DateTimeFormatter.ofPattern;
+import static java.time.temporal.ChronoUnit.DAYS;
+import static net.atos.zac.util.DateTimeConverterUtil.convertToLocalDate;
+import static net.atos.zac.util.UriUtil.uuidFromURI;
+import static org.apache.commons.lang3.StringUtils.*;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import jakarta.inject.Inject;
 import jakarta.json.*;
+
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.flowable.task.api.Task;
+
 import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZrcClientService;
@@ -18,22 +35,6 @@ import net.atos.zac.formulieren.model.FormulierVeldtype;
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.shared.helper.OpschortenZaakHelper;
 import net.atos.zac.util.DateTimeConverterUtil;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.flowable.task.api.Task;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static jakarta.json.JsonValue.ValueType.STRING;
-import static java.time.format.DateTimeFormatter.ofPattern;
-import static java.time.temporal.ChronoUnit.DAYS;
-import static net.atos.zac.util.DateTimeConverterUtil.convertToLocalDate;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
-import static org.apache.commons.lang3.StringUtils.*;
 
 public class FormulierRuntimeService {
 
@@ -99,12 +100,8 @@ public class FormulierRuntimeService {
     public Task submit(final RestTask restTask, Task task, final Zaak zaak) {
         taakVariabelenService.setTaskinformation(task, restTask.getTaakinformatie());
         taakVariabelenService.setTaskData(task, restTask.getTaakdata());
-        taakVariabelenService.setFormioSubmissionData(task, restTask.getFormioSubmissionData());
 
-        final var formulierData = new FormulierData(
-                MapUtils.isNotEmpty(restTask.getFormioSubmissionData()) ?
-                        restTask.getFormioSubmissionData() :
-                        Collections.unmodifiableMap(restTask.getTaakdata()));
+        final var formulierData = new FormulierData(restTask.getTaakdata());
 
         if (formulierData.toelichting != null || formulierData.taakFataleDatum != null) {
             if (formulierData.toelichting != null) {

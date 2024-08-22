@@ -1,13 +1,14 @@
 package net.atos.zac.app.formulieren.model;
 
-import net.atos.zac.util.LocalDateAdapter;
-import org.apache.commons.lang3.BooleanUtils;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import org.apache.commons.lang3.BooleanUtils;
+
+import net.atos.zac.util.LocalDateAdapter;
 
 public class FormulierData {
 
