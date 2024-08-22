@@ -13,7 +13,6 @@ import { Bedrijf } from "./model/bedrijven/bedrijf";
 import { ListBedrijvenParameters } from "./model/bedrijven/list-bedrijven-parameters";
 import { Vestigingsprofiel } from "./model/bedrijven/vestigingsprofiel";
 import { ContactGegevens } from "./model/klanten/contact-gegevens";
-import { IdentificatieType } from "./model/klanten/identificatieType";
 import { Roltype } from "./model/klanten/roltype";
 import { ListPersonenParameters } from "./model/personen/list-personen-parameters";
 import { PersonenParameters } from "./model/personen/personen-parameters";
@@ -121,12 +120,11 @@ export class KlantenService {
   }
 
   ophalenContactGegevens(
-    identificatieType: IdentificatieType,
     initiatorIdentificatie: string,
   ): Observable<ContactGegevens> {
     return this.http
       .get<ContactGegevens>(
-        `${this.basepath}/contactgegevens/${identificatieType}/${initiatorIdentificatie}`,
+        `${this.basepath}/contactgegevens/${initiatorIdentificatie}`,
       )
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),

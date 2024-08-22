@@ -22,6 +22,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_EERSTE_HANDELSNAAM
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_NAAM_1
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_PLAATS_1
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_RSIN_1
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_HOOFDACTIVITEIT
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_NEVENACTIVITEIT1
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_NEVENACTIVITEIT2
@@ -38,6 +39,13 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.lifely.zac.itest.config.ItestConfiguration.VESTIGINGTYPE_NEVENVESTIGING
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BELANGHEBBENDE
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BEWINDVOERDER
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_CONTACTPERSOON
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_GEMACHTIGDE
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_MEDEAANVRAGER
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_PLAATSVERVANGER
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
 import org.json.JSONObject
@@ -50,7 +58,7 @@ class KlantRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
 
-    Given("ZAC Docker container is running") {
+    Given("Klanten en bedrijven data is present in the BRP Mock and the Klanten API database") {
         When("the list roltypen endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/klanten/roltype"
@@ -187,9 +195,6 @@ class KlantRestServiceTest : BehaviorSpec({
                 }
             }
         }
-    }
-
-    Given("Klantcontacten are present in the OpenKlant database for a test customer") {
         When("the list contactmomenten endpoint is called with the BSN of this test customer") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/klanten/contactmomenten",
@@ -225,6 +230,153 @@ class KlantRestServiceTest : BehaviorSpec({
                       "totaal": 2
                     }
                 """.trimIndent()
+            }
+        }
+        When(
+            """
+                the read rechtspersoon endpoint is called with the RSIN of a test company available in the KVK mock
+                """
+        ) {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/klanten/rechtspersoon/$TEST_KVK_RSIN_1",
+            )
+            Then("the response should be ok and the test company should be returned without contact data") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_OK
+                responseBody shouldEqualJson """
+                    {
+                      "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                      "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
+                      "identificatieType": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                      "kvkNummer": "$TEST_KVK_NUMMER_1",
+                      "naam": "$TEST_KVK_NAAM_1",
+                      "type": "$VESTIGINGTYPE_NEVENVESTIGING",
+                      "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_1"
+                    }
+                """.trimIndent()
+            }
+        }
+        When(
+            """
+                the personen parameters endpoint is called
+                """
+        ) {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/klanten/personen/parameters",
+            )
+            Then("the response should be ok and the test company should be returned without contact data") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_OK
+                responseBody shouldEqualJson """
+                  [ 
+                    {
+                      "bsn" : "REQ",
+                      "geboortedatum" : "NON",
+                      "gemeenteVanInschrijving" : "NON",
+                      "geslachtsnaam" : "NON",
+                      "huisnummer" : "NON",
+                      "postcode" : "NON",
+                      "straat" : "NON",
+                      "voornamen" : "NON",
+                      "voorvoegsel" : "NON"
+                    }, 
+                    {
+                      "bsn" : "NON",
+                      "geboortedatum" : "REQ",
+                      "gemeenteVanInschrijving" : "NON",
+                      "geslachtsnaam" : "REQ",
+                      "huisnummer" : "NON",
+                      "postcode" : "NON",
+                      "straat" : "NON",
+                      "voornamen" : "OPT",
+                      "voorvoegsel" : "OPT"
+                    }, 
+                    {
+                      "bsn" : "NON",
+                      "geboortedatum" : "NON",
+                      "gemeenteVanInschrijving" : "REQ",
+                      "geslachtsnaam" : "REQ",
+                      "huisnummer" : "NON",
+                      "postcode" : "NON",
+                      "straat" : "NON",
+                      "voornamen" : "REQ",
+                      "voorvoegsel" : "OPT"
+                    }, 
+                    {
+                      "bsn" : "NON",
+                      "geboortedatum" : "NON",
+                      "gemeenteVanInschrijving" : "NON",
+                      "geslachtsnaam" : "NON",
+                      "huisnummer" : "REQ",
+                      "postcode" : "REQ",
+                      "straat" : "NON",
+                      "voornamen" : "NON",
+                      "voorvoegsel" : "NON"
+                    }, 
+                    {
+                      "bsn" : "NON",
+                      "geboortedatum" : "NON",
+                      "gemeenteVanInschrijving" : "REQ",
+                      "geslachtsnaam" : "NON",
+                      "huisnummer" : "REQ",
+                      "postcode" : "NON",
+                      "straat" : "REQ",
+                      "voornamen" : "NON",
+                      "voorvoegsel" : "NON"
+                    } 
+                  ]
+                """.trimIndent()
+            }
+        }
+        When(
+            """
+                the betrokkenen are retrieved for the zaaktype 'indienen aansprakelijkstelling door derden behandelen'
+                """
+        ) {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/klanten/roltype/$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID/betrokkene",
+            )
+            Then("the response should be ok and the test company should be returned without contact data") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_OK
+                responseBody shouldEqualJson
+                    """
+                    [
+                      {
+                        "naam": "Belanghebbende",
+                        "omschrijvingGeneriekEnum": "belanghebbende",
+                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BELANGHEBBENDE"
+                      },
+                      {
+                        "naam": "Bewindvoerder",
+                        "omschrijvingGeneriekEnum": "belanghebbende",
+                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BEWINDVOERDER"
+                      },
+                      {
+                        "naam": "Contactpersoon",
+                        "omschrijvingGeneriekEnum": "belanghebbende",
+                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_CONTACTPERSOON"
+                      },
+                      {
+                        "naam": "Gemachtigde",
+                        "omschrijvingGeneriekEnum": "belanghebbende",
+                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_GEMACHTIGDE"
+                      },
+                      {
+                        "naam": "Medeaanvrager",
+                        "omschrijvingGeneriekEnum": "mede_initiator",
+                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_MEDEAANVRAGER"
+                      },
+                      {
+                        "naam": "Plaatsvervanger",
+                        "omschrijvingGeneriekEnum": "belanghebbende",
+                        "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_PLAATSVERVANGER"
+                      }
+                    ]
+                    """.trimIndent()
             }
         }
     }

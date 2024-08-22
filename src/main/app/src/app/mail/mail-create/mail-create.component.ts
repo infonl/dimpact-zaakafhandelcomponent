@@ -139,10 +139,7 @@ export class MailCreateComponent implements OnInit {
       this.zaak.initiatorIdentificatie
     ) {
       this.klantenService
-        .ophalenContactGegevens(
-          this.zaak.initiatorIdentificatieType,
-          this.zaak.initiatorIdentificatie,
-        )
+        .ophalenContactGegevens(this.zaak.initiatorIdentificatie)
         .subscribe((gegevens) => {
           if (gegevens.emailadres) {
             const initiatorToevoegenIcon = new ActionIcon(

@@ -87,13 +87,19 @@ class UserPrincipalFilter @Inject constructor(
         }
 
     /**
-     * Returns the zaaktypen for which the user is authorised, or `null` if the user is authorised for all zaaktypen.
+     * Returns the active zaaktypen for which the user is authorised, or `null` if the user is authorised for all zaaktypen.
      */
     private fun getAuthorisedZaaktypen(roles: Set<String>): Set<String>? =
         if (roles.contains(ROL_DOMEIN_ELK_ZAAKTYPE)) {
             null
         } else {
             zaakafhandelParameterService.listZaakafhandelParameters()
+                // group by zaakttype omschrijving since this is the unique identifier for a zaaktype
+                // (not the zaaktype uuid since that changes for every version of a zaaktype)
+                .groupBy { it.zaaktypeOmschrijving }
+                // get the zaakafhandelparameter with the latest creation date (= the active one)
+                .map { it.value.maxBy { value -> value.creatiedatum } }
+                // filter out the zaakafhandelparameters that have a domain that is equal to one of the user's (domain) roles
                 .filter { it.domein != null && roles.contains(it.domein) }
                 .map { it.zaaktypeOmschrijving }
                 .toSet()
