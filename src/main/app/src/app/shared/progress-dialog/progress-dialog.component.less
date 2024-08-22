@@ -1,0 +1,27 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+.progress-dialog {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 32px;
+  background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
+  color: white;
+  text-align: center;
+}
+
+::ng-deep .cdk-overlay-backdrop {
+  cursor: not-allowed;
+}
+
+.mat-mdc-progress-bar {
+  --mdc-linear-progress-active-indicator-color: var(
+    --mat-snack-bar-button-color
+  );
+  --mdc-linear-progress-track-color: rgba(255, 64, 129, 0.25);
+  position: absolute;
+  bottom: 0;
+}

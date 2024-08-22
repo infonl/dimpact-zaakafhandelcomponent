@@ -1,36 +1,21 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
 import { ComponentType } from "@angular/cdk/portal";
 import { DOCUMENT } from "@angular/common";
-import {
-  Component,
-  Inject,
-  Injectable,
-  Optional,
-  Signal,
-  computed,
-  inject,
-} from "@angular/core";
-import {
-  MatProgressBar,
-  ProgressBarMode,
-} from "@angular/material/progress-bar";
-import {
-  MAT_SNACK_BAR_DATA,
-  MatSnackBar,
-  MatSnackBarConfig,
-  MatSnackBarLabel,
-  MatSnackBarRef,
-} from "@angular/material/snack-bar";
+import { Inject, Injectable, Optional, Signal } from "@angular/core";
+import { MatDialog } from "@angular/material/dialog";
+import { MatSnackBar, MatSnackBarConfig } from "@angular/material/snack-bar";
 import { Title } from "@angular/platform-browser";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { BehaviorSubject, Observable, Subject, iif, of } from "rxjs";
 import { delay, map, shareReplay, switchMap } from "rxjs/operators";
+import { ProgressDialogComponent } from "src/app/shared/progress-dialog/progress-dialog.component";
+import { ProgressSnackbar } from "src/app/shared/progress-snackbar/progress-snackbar.component";
 import { OrderUtil } from "../../shared/order/order-util";
 import { ActionBarAction } from "../actionbar/model/action-bar-action";
 
@@ -76,6 +61,7 @@ export class UtilService {
     private titleService: Title,
     private router: Router,
     private snackbar: MatSnackBar,
+    private dialog: MatDialog,
   ) {}
 
   /**
@@ -193,6 +179,26 @@ export class UtilService {
     });
   }
 
+  openProgressDialog(data: {
+    progressPercentage: Signal<number>;
+    message: string;
+  }): Observable<void> {
+    const dialogRef = this.dialog.open(ProgressDialogComponent, {
+      data: {
+        message: this.translate.instant(data.message),
+        progressPercentage: data.progressPercentage,
+      },
+      disableClose: true,
+      panelClass: "full-screen-dialog",
+    });
+
+    return dialogRef.afterClosed();
+  }
+
+  closeProgressDialog() {
+    this.dialog.closeAll();
+  }
+
   addAction(action: ActionBarAction) {
     this.addAction$.next(action);
   }
@@ -237,38 +243,4 @@ export class UtilService {
     link.remove();
     window.URL.revokeObjectURL(link.href);
   }
-}
-
-@Component({
-  standalone: true,
-  imports: [MatSnackBarLabel, MatProgressBar],
-  template: `
-    <div matSnackBarLabel>{{ data.message }}</div>
-    <mat-progress-bar
-      [mode]="progressMode()"
-      [value]="data.progressPercentage()"
-    ></mat-progress-bar>
-  `,
-  styles: `
-    .mat-mdc-progress-bar {
-      --mdc-linear-progress-active-indicator-color: var(
-        --mat-snack-bar-button-color
-      );
-      --mdc-linear-progress-track-color: rgba(255, 64, 129, 0.25);
-      position: absolute;
-      bottom: 0;
-    }
-  `,
-})
-class ProgressSnackbar {
-  snackBarRef = inject(MatSnackBarRef);
-  progressMode = computed<ProgressBarMode>(() => {
-    const percentage = this.data.progressPercentage();
-    return percentage === 100 || percentage === 0 ? "query" : "determinate";
-  });
-
-  constructor(
-    @Inject(MAT_SNACK_BAR_DATA)
-    public data: { progressPercentage: Signal<number>; message: string },
-  ) {}
 }
