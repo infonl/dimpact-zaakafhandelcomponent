@@ -125,7 +125,7 @@ class KlantRestService @Inject constructor(
         }
 
     @GET
-    @Path("rechtspersoon/{rsin}")
+    @Path("rechtspersoon/{rsin}/kvknummer/{kvkNumber}")
     fun readRechtspersoon(@PathParam("rsin") @Length(min = 9, max = 9) rsin: String): RestBedrijf =
         kvkClientService.findRechtspersoon(rsin)
             .map { it.toRestBedrijf() }
