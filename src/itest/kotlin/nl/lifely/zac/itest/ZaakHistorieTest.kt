@@ -109,7 +109,7 @@ class ZaakHistorieTest : BehaviorSpec({
                     "attribuutLabel": "status",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "Intake",
-                    "toelichting": "Status gewijzigd vanuit Case"
+                    "toelichting": "Status gewijzigd"
                   },
                   {
                     "actie": "GEKOPPELD",
