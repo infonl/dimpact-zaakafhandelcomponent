@@ -1,5 +1,4 @@
 import { Injectable, computed, effect, signal } from "@angular/core";
-import { MatSnackBarRef } from "@angular/material/snack-bar";
 import { UtilService } from "src/app/core/service/util.service";
 import { ObjectType } from "src/app/core/websocket/model/object-type";
 import { Opcode } from "src/app/core/websocket/model/opcode";
@@ -33,7 +32,6 @@ export class BatchProcessService {
       : undefined;
   });
   private subscriptions: WebsocketListener[] = [];
-  private snackBarRef: MatSnackBarRef<unknown>;
   private options: Options;
 
   constructor(
@@ -80,14 +78,14 @@ export class BatchProcessService {
   }
 
   showProgress(message: string) {
-    const dialogRef = this.utilService.openProgressDialog({
+    this.utilService.openProgressDialog({
       progressPercentage: this.progress,
       message,
     });
   }
 
   stop() {
-    this.snackBarRef?.dismiss();
+    this.utilService.closeProgressDialog();
     this.clearSubscriptions();
   }
 
