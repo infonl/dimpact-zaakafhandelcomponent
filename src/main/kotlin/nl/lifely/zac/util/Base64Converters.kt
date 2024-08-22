@@ -1,4 +1,8 @@
-package net.atos.client.zgw.drc.util
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package nl.lifely.zac.util
 
 import java.util.Base64
 

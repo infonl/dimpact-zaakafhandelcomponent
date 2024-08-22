@@ -123,7 +123,6 @@ class SmartDocumentsService @Inject constructor(
         return DocumentCreationUnattendedResponse(
             message = "SmartDocuments document with filename: '${generatedDocxFile.fileName}' " +
                 "was created and stored successfully in the zaakregister.",
-            termsAndConditionsUsageRights = "",
             fileName = generatedDocxFile.fileName,
             fileType = OUTPUTFORMAT_DOCX,
             fileContent = generatedDocxFile.document.data

@@ -1,8 +1,8 @@
 package net.atos.zac.webdav;
 
-import static net.atos.client.zgw.drc.util.Base64ConvertersKt.toBase64String;
 import static net.atos.zac.authentication.SecurityUtilKt.setLoggedInUser;
 import static net.atos.zac.util.DateTimeConverterUtil.convertToDate;
+import static nl.lifely.zac.util.Base64ConvertersKt.toBase64String;
 
 import java.io.File;
 import java.io.IOException;

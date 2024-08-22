@@ -6,7 +6,6 @@ import jakarta.inject.Singleton
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
-import net.atos.client.zgw.drc.util.decodedBase64StringLength
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationUnattendedData
@@ -18,6 +17,7 @@ import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.util.UriUtil.uuidFromURI
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
+import nl.lifely.zac.util.decodedBase64StringLength
 import java.time.LocalDate
 
 @Singleton

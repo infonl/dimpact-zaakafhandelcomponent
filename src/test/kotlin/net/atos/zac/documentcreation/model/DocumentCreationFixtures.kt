@@ -74,13 +74,11 @@ fun createDocumentCreationAttendedResponse(
 
 fun createDocumentCreationUnattendedResponse(
     message: String = "dummyMessage",
-    termsAndConditionsUsageRights: String = "none",
     fileName: String = "file.docx",
     fileType: String = "Word Document",
     fileContent: String = "content"
 ) = DocumentCreationUnattendedResponse(
     message = message,
-    termsAndConditionsUsageRights = termsAndConditionsUsageRights,
     fileName = fileName,
     fileType = fileType,
     fileContent = fileContent
