@@ -277,7 +277,6 @@ export class ZakenWerkvoorraadComponent
         ).then(() => {
           this.selection.clear();
           this.dataSource.load();
-          this.zakenLoading.set(false);
         }),
     });
     const dialogRef = this.dialog.open(dialogComponent, {
@@ -286,7 +285,6 @@ export class ZakenWerkvoorraadComponent
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.toekenning = result;
-        this.zakenLoading.set(true);
         const message =
           zaken.length === 1
             ? this.translateService.instant(singleToken)
