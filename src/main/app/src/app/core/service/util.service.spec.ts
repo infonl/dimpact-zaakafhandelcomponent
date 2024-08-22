@@ -4,23 +4,42 @@
  */
 
 import { TestBed } from "@angular/core/testing";
-import { of } from "rxjs";
+import { Observable, of } from "rxjs";
 
-import { MatSnackBar } from "@angular/material/snack-bar";
+import { Signal } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
+import { MatSnackBar } from "@angular/material/snack-bar";
 import { Title } from "@angular/platform-browser";
-import { UtilService } from "./util.service";
 import { TranslateService } from "@ngx-translate/core";
+import { ProgressDialogComponent } from "src/app/shared/progress-dialog/progress-dialog.component";
+import { UtilService } from "./util.service";
+
+// Mock MatSnackBarRef type
+class MatSnackBarRefMock<T> {
+  onAction = jest.fn().mockReturnValue(of(void 0)); // Mock onAction to return an observable
+}
 
 describe("UtilService", () => {
   let service: UtilService;
   let titleService: Title;
+  let snackbar: MatSnackBar;
   let dialog: MatDialog;
   let translateService: TranslateService;
 
   beforeEach(() => {
     const titleServiceMock = {
       setTitle: jest.fn(),
+    };
+
+    const snackbarMock = {
+      open: jest
+        .fn()
+        .mockImplementation(
+          (message: string, action?: string, config?: any) => {
+            // Return a mock MatSnackBarRef instance
+            return new MatSnackBarRefMock();
+          },
+        ),
     };
 
     const dialogMock = {
@@ -34,7 +53,7 @@ describe("UtilService", () => {
 
     TestBed.configureTestingModule({
       providers: [
-        MatSnackBar,
+        { provide: MatSnackBar, useValue: snackbarMock },
         { provide: MatDialog, useValue: dialogMock },
         { provide: TranslateService, useValue: translateServiceMock },
         { provide: Title, useValue: titleServiceMock },
@@ -44,6 +63,7 @@ describe("UtilService", () => {
 
     service = TestBed.inject(UtilService);
     titleService = TestBed.inject(Title);
+    snackbar = TestBed.inject(MatSnackBar);
     dialog = TestBed.inject(MatDialog);
     translateService = TestBed.inject(TranslateService);
   });
@@ -181,5 +201,77 @@ describe("UtilService", () => {
     expect(
       service.getEnumKeyByValue(enumValue, "NON_EXISTENT"),
     ).toBeUndefined();
+  });
+
+  it("should open snackbar with correct message and action and return onAction observable", () => {
+    // Arrange
+    const message = "test.message";
+    const action = "test.action";
+    const params = { key: "value" };
+    const duration = 5;
+
+    // Mock the translation results
+    (translateService.instant as jest.Mock).mockImplementation(
+      (key: string) => key,
+    );
+
+    // Act
+    const result = service.openSnackbarAction(
+      message,
+      action,
+      params,
+      duration,
+    );
+
+    // Assert
+    expect(snackbar.open).toHaveBeenCalledWith("test.message", "test.action", {
+      panelClass: ["mat-snackbar"],
+      duration: duration * 1000,
+    });
+
+    // Ensure the result is an instance of Observable
+    expect(result).toBeInstanceOf(Observable);
+
+    // Verify the onAction method was called
+    result.subscribe({
+      complete: () => {
+        const snackbarRef = snackbar.open("test.message", "test.action", {
+          panelClass: ["mat-snackbar"],
+          duration: duration * 1000,
+        });
+        expect(snackbarRef.onAction).toHaveBeenCalled();
+      },
+    });
+  });
+
+  it("should open the progress dialog with correct data and return afterClosed observable", () => {
+    // Arrange
+    const progressPercentage: Signal<number> = jest.fn(
+      () => 50,
+    ) as unknown as Signal<number>; // Mock Signal<number>
+    const dialogRefMock = {
+      afterClosed: jest.fn().mockReturnValue(of(void 0)), // Mocking afterClosed() observable
+    };
+    (dialog.open as jest.Mock).mockReturnValue(dialogRefMock);
+
+    const data = {
+      progressPercentage,
+      message: "Loading...",
+    };
+
+    // Act
+    const result = service.openProgressDialog(data);
+
+    // Assert
+    expect(dialog.open).toHaveBeenCalledWith(ProgressDialogComponent, {
+      data: {
+        message: "Loading...", // Assuming no translation
+        progressPercentage: data.progressPercentage,
+      },
+      disableClose: true,
+      panelClass: "full-screen-dialog",
+    });
+
+    expect(result).toBe(dialogRefMock.afterClosed());
   });
 });
