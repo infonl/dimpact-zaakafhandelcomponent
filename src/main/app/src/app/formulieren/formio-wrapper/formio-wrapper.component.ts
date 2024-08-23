@@ -15,6 +15,7 @@ import { FormioOptions } from "@formio/angular";
 @Component({
   selector: "zac-formio-wrapper",
   templateUrl: "./formio-wrapper.component.html",
+  styleUrl: "./formio-wrapper.component.less",
   encapsulation: ViewEncapsulation.ShadowDom,
 })
 export class FormioWrapperComponent {
