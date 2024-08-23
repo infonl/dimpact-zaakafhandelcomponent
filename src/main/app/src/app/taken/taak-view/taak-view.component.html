@@ -47,29 +47,13 @@
               [zaak]="zaak"
               [readonly]="isReadonly()"
             ></zac-formulier>
-            <formio
+            <zac-formio-wrapper
               *ngIf="formioFormulier"
               [submission]="{ data: taak.taakdata }"
               [form]="formioFormulier"
               [readOnly]="isReadonly()"
-              language="nl"
-              [options]="{
-                disableAlerts: true,
-                i18n: {
-                    en: {
-                        'next': 'Next',
-                        'previous': 'Previous',
-                        'submit': 'Submit'
-                    },
-                    nl: {
-                        'next': 'Volgende',
-                        'previous': 'Vorige',
-                        'submit': 'Indienen'
-                    }
-                }
-              }"
               (submit)="onFormioFormSubmit($event)"
-            ></formio>
+            ></zac-formio-wrapper>
             <mat-progress-bar
               *ngIf="!formulier && !formulierDefinitie && !formioFormulier"
               mode="query"
