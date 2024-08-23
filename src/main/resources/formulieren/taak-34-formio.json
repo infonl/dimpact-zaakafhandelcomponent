@@ -12,21 +12,45 @@
       "defaultValue": ":omschrijving"
     },
     {
-      "key": "save",
-      "label": "Opslaan",
-      "type": "button",
-      "action": "saveState",
-      "state": "draft",
-      "input": true,
-      "tableView": false
-    },
-    {
-      "key": "submit",
-      "label": "Opslaan & afronden",
-      "type": "button",
-      "disableOnInvalid": true,
-      "input": true,
-      "tableView": false
+      "label": "Buttons",
+      "key": "buttons",
+      "type": "container",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "type": "columns",
+          "columns": [
+            {
+              "width": "auto",
+              "components": [
+                {
+                  "key": "save",
+                  "label": "Opslaan",
+                  "type": "button",
+                  "action": "saveState",
+                  "state": "draft",
+                  "input": true,
+                  "tableView": false
+                }
+              ]
+            },
+            {
+              "width": "auto",
+              "components": [
+                {
+                  "key": "submit",
+                  "label": "Opslaan & afronden",
+                  "type": "button",
+                  "disableOnInvalid": true,
+                  "input": true,
+                  "tableView": false
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }

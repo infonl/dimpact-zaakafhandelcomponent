@@ -42,33 +42,39 @@
     {
       "label": "Buttons",
       "key": "buttons",
-      "type": "columns",
+      "type": "container",
       "input": false,
       "tableView": false,
-      "autoAdjust": true,
-      "columns": [
+      "components": [
         {
-          "components": [
+          "type": "columns",
+          "columns": [
             {
-              "key": "save",
-              "label": "Opslaan",
-              "type": "button",
-              "action": "saveState",
-              "state": "draft",
-              "input": true,
-              "tableView": false
-            }
-          ]
-        },
-        {
-          "components": [
+              "width": "auto",
+              "components": [
+                {
+                  "key": "save",
+                  "label": "Opslaan",
+                  "type": "button",
+                  "action": "saveState",
+                  "state": "draft",
+                  "input": true,
+                  "tableView": false
+                }
+              ]
+            },
             {
-              "key": "submit",
-              "label": "Opslaan & afronden",
-              "type": "button",
-              "disableOnInvalid": true,
-              "input": true,
-              "tableView": false
+              "width": "auto",
+              "components": [
+                {
+                  "key": "submit",
+                  "label": "Opslaan & afronden",
+                  "type": "button",
+                  "disableOnInvalid": true,
+                  "input": true,
+                  "tableView": false
+                }
+              ]
             }
           ]
         }

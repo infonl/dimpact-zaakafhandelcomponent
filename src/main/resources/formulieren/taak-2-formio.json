@@ -201,23 +201,6 @@
           }
         }
       ]
-    },
-    {
-      "key": "save",
-      "label": "Opslaan",
-      "type": "button",
-      "action": "saveState",
-      "state": "draft",
-      "input": true,
-      "tableView": false
-    },
-    {
-      "key": "submit",
-      "label": "Opslaan & afronden",
-      "type": "button",
-      "disableOnInvalid": true,
-      "input": true,
-      "tableView": false
     }
   ]
 }
