@@ -10,6 +10,7 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_BAD_REQUEST
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_EXTENSION
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
@@ -56,6 +57,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 }
             }
         }
+
         When("the create document unattended endpoint is called with a zaak UUID") {
             val endpointUrl = "$ZAC_API_URI/documentcreation/createdocumentunattended"
             logger.info { "Calling $endpointUrl endpoint" }
@@ -82,6 +84,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 }
             }
         }
+
         When("the create document unattended endpoint is called with a zaak UUID and a task ID") {
             val endpointUrl = "$ZAC_API_URI/documentcreation/createdocumentunattended"
             logger.info { "Calling $endpointUrl endpoint" }
@@ -107,6 +110,27 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                             ".$SMART_DOCUMENTS_FILE_EXTENSION' was created and stored successfully in the zaakregister."
                     )
                 }
+            }
+        }
+
+        When("the create document unattended endpoint is called with non-existent mapping") {
+            val endpointUrl = "$ZAC_API_URI/documentcreation/createdocumentunattended"
+            logger.info { "Calling $endpointUrl endpoint" }
+            val response = itestHttpClient.performJSONPostRequest(
+                url = endpointUrl,
+                requestBodyAsString = JSONObject(
+                    mapOf(
+                        "smartDocumentsTemplateGroupId" to "unknown",
+                        "smartDocumentsTemplateId" to "missing",
+                        "zaakUuid" to zaakProductaanvraag1Uuid
+                    )
+                ).toString()
+            )
+            Then("the response should be bad request") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_BAD_REQUEST
+                responseBody shouldBe "No information object type mapped for template group id unknown"
             }
         }
     }

@@ -8,6 +8,7 @@ package net.atos.zac.smartdocuments
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
+import jakarta.persistence.NoResultException
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
@@ -23,6 +24,7 @@ import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.util.UUID
+import java.util.logging.Level
 import java.util.logging.Logger
 
 @ApplicationScoped
@@ -35,6 +37,8 @@ class SmartDocumentsTemplatesService @Inject constructor(
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
 ) {
     companion object {
+        private const val EXCEPTION_PREFIX = "No information object type mapped for template"
+
         private val LOG = Logger.getLogger(DocumentCreationService::class.java.name)
     }
 
@@ -72,7 +76,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
     /**
      * Deletes all template groups and templates for a zaakafhandelparameters
      *
-     * @param zaakafhandelparametersUUID UUID of the zaakafhandelparameters
+     * @param zaakafhandelParametersUUID UUID of the zaakafhandelparameters
      * @return the number of entities deleted
      */
     @Transactional(REQUIRED)
@@ -137,10 +141,11 @@ class SmartDocumentsTemplatesService @Inject constructor(
      * Get the information object type UUID for a pair of group-template in a zaakafhandelparameters
      *
      * @param zaakafhandelParametersUUID UUID of a zaakafhandelparameters
-     * @param templateGroupName name of a template group
-     * @param templateName name of a template under the group
+     * @param templateGroupId name of a template group
+     * @param templateId name of a template under the group
      * @return information object type UUID associated with this pair
      */
+    @Suppress("NestedBlockDepth")
     fun getInformationObjectTypeUUID(
         zaakafhandelParametersUUID: UUID,
         templateGroupId: String,
@@ -154,31 +159,40 @@ class SmartDocumentsTemplatesService @Inject constructor(
         entityManager.criteriaBuilder.let { builder ->
             builder.createQuery(SmartDocumentsTemplate::class.java).let { query ->
                 query.from(SmartDocumentsTemplate::class.java).let { root ->
-                    return entityManager.createQuery(
-                        query.select(root)
-                            .where(
-                                builder.and(
-                                    builder.equal(
-                                        root.get<ZaakafhandelParameters>(
-                                            SmartDocumentsTemplate::zaakafhandelParameters.name
+                    try {
+                        return entityManager.createQuery(
+                            query.select(root)
+                                .where(
+                                    builder.and(
+                                        builder.equal(
+                                            root.get<ZaakafhandelParameters>(
+                                                SmartDocumentsTemplate::zaakafhandelParameters.name
+                                            )
+                                                .get<Long>("id"),
+                                            getZaakafhandelParametersId(zaakafhandelParametersUUID)
+                                        ),
+                                        builder.equal(
+                                            root.get<SmartDocumentsTemplateGroup>(
+                                                SmartDocumentsTemplate::templateGroup.name
+                                            )
+                                                .get<String>(SmartDocumentsTemplate::smartDocumentsId.name),
+                                            templateGroupId
+                                        ),
+                                        builder.equal(
+                                            root.get<SmartDocumentsTemplate>(
+                                                SmartDocumentsTemplate::smartDocumentsId.name
+                                            ),
+                                            templateId
                                         )
-                                            .get<Long>("id"),
-                                        getZaakafhandelParametersId(zaakafhandelParametersUUID)
-                                    ),
-                                    builder.equal(
-                                        root.get<SmartDocumentsTemplateGroup>(
-                                            SmartDocumentsTemplate::templateGroup.name
-                                        )
-                                            .get<String>(SmartDocumentsTemplate::smartDocumentsId.name),
-                                        templateGroupId
-                                    ),
-                                    builder.equal(
-                                        root.get<SmartDocumentsTemplate>(SmartDocumentsTemplate::smartDocumentsId.name),
-                                        templateId
                                     )
                                 )
-                            )
-                    ).singleResult.informatieObjectTypeUUID
+                        ).singleResult.informatieObjectTypeUUID
+                    } catch (noResultException: NoResultException) {
+                        "$EXCEPTION_PREFIX group id $templateGroupId and template id $templateId".let { message ->
+                            LOG.log(Level.FINE, message, noResultException)
+                            throw SmartDocumentsException(message)
+                        }
+                    }
                 }
             }
         }
@@ -190,21 +204,29 @@ class SmartDocumentsTemplatesService @Inject constructor(
      * @param templateGroupId SmartDocuments' id of a template group
      * @return template group name
      */
+    @Suppress("NestedBlockDepth")
     fun getTemplateGroupName(templateGroupId: String): String {
         LOG.fine { "Fetching template group name for id $templateGroupId" }
 
         entityManager.criteriaBuilder.let { builder ->
             builder.createQuery(SmartDocumentsTemplateGroup::class.java).let { query ->
                 query.from(SmartDocumentsTemplateGroup::class.java).let { root ->
-                    return entityManager.createQuery(
-                        query.select(root)
-                            .where(
-                                builder.equal(
-                                    root.get<String>(SmartDocumentsTemplateGroup::smartDocumentsId.name),
-                                    templateGroupId
+                    try {
+                        return entityManager.createQuery(
+                            query.select(root)
+                                .where(
+                                    builder.equal(
+                                        root.get<String>(SmartDocumentsTemplateGroup::smartDocumentsId.name),
+                                        templateGroupId
+                                    )
                                 )
-                            )
-                    ).singleResult.name
+                        ).singleResult.name
+                    } catch (noResultException: NoResultException) {
+                        "$EXCEPTION_PREFIX group id $templateGroupId".let { message ->
+                            LOG.log(Level.FINE, message, noResultException)
+                            throw SmartDocumentsException(message)
+                        }
+                    }
                 }
             }
         }
@@ -216,21 +238,29 @@ class SmartDocumentsTemplatesService @Inject constructor(
      * @param templateId SmartDocuments' id of a template
      * @return template name
      */
-    fun getTemplateName(templateGroupId: String): String {
-        LOG.fine { "Fetching template group name for id $templateGroupId" }
+    @Suppress("NestedBlockDepth")
+    fun getTemplateName(templateId: String): String {
+        LOG.fine { "Fetching template group name for id $templateId" }
 
         entityManager.criteriaBuilder.let { builder ->
             builder.createQuery(SmartDocumentsTemplate::class.java).let { query ->
                 query.from(SmartDocumentsTemplate::class.java).let { root ->
-                    return entityManager.createQuery(
-                        query.select(root)
-                            .where(
-                                builder.equal(
-                                    root.get<String>(SmartDocumentsTemplate::smartDocumentsId.name),
-                                    templateGroupId
+                    try {
+                        return entityManager.createQuery(
+                            query.select(root)
+                                .where(
+                                    builder.equal(
+                                        root.get<String>(SmartDocumentsTemplate::smartDocumentsId.name),
+                                        templateId
+                                    )
                                 )
-                            )
-                    ).singleResult.name
+                        ).singleResult.name
+                    } catch (noResultException: NoResultException) {
+                        "$EXCEPTION_PREFIX id $templateId".let { message ->
+                            LOG.log(Level.FINE, message, noResultException)
+                            throw SmartDocumentsException(message)
+                        }
+                    }
                 }
             }
         }
