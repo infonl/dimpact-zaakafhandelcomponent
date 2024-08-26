@@ -228,8 +228,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaak
             )
         } returns zaakObjectOpenbareRuimte
-        every { restZaakConverter.convert(zaak) } returns restZaak
-        every { restZaakConverter.convert(restZaakAanmaakGegevens.zaak, zaakType) } returns zaak
+        every { restZaakConverter.toRestZaak(zaak) } returns restZaak
+        every { restZaakConverter.toZaak(restZaakAanmaakGegevens.zaak, zaakType) } returns zaak
         every {
             zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
         } returns zaakAfhandelParameters
@@ -300,7 +300,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns Optional.empty()
         every { identityService.readUser(restZaakToekennenGegevens.assigneeUserName!!) } returns user
         every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
-        every { restZaakConverter.convert(zaak) } returns restZaak
+        every { restZaakConverter.toRestZaak(zaak) } returns restZaak
         every { indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
         every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
 

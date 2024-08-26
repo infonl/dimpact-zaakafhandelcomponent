@@ -27,9 +27,11 @@ const val ZAAK_TYPE_1_OMSCHRIJVING = "zaaktype1"
 const val ZAAK_TYPE_2_OMSCHRIJVING = "zaaktype2"
 
 fun createRESTBesluit(
+    identificatie: String = "dummyIdentificatie",
     url: URI = URI("http://localhost:8080/${UUID.randomUUID()}"),
     uuid: UUID = UUID.randomUUID()
 ) = RestBesluit(
+    identificatie = identificatie,
     url = url,
     uuid = uuid
 )
@@ -54,7 +56,7 @@ fun createRESTBesluitVastleggenGegevens(
         zaakUuid = zaakUuid
     )
 
-fun createRESTGerelateerdeZaak() = RESTGerelateerdeZaak()
+fun createRESTGerelateerdeZaak() = RestGerelateerdeZaak()
 
 fun createRESTGeometry(
     type: String = "dummyType",

@@ -192,7 +192,7 @@ class ZaakRestService @Inject constructor(
     @Path("zaak/{uuid}")
     fun readZaak(@PathParam("uuid") zaakUUID: UUID): RestZaak =
         zrcClientService.readZaak(zaakUUID).let { zaak ->
-            restZaakConverter.convert(zaak).also {
+            restZaakConverter.toRestZaak(zaak).also {
                 assertPolicy(it.rechten.lezen)
                 deleteSignaleringen(zaak)
             }
@@ -202,7 +202,7 @@ class ZaakRestService @Inject constructor(
     @Path("zaak/id/{identificatie}")
     fun readZaakById(@PathParam("identificatie") identificatie: String): RestZaak =
         zrcClientService.readZaakByID(identificatie).let { zaak ->
-            restZaakConverter.convert(zaak).also {
+            restZaakConverter.toRestZaak(zaak).also {
                 assertPolicy(it.rechten.lezen)
                 deleteSignaleringen(zaak)
             }
@@ -215,7 +215,7 @@ class ZaakRestService @Inject constructor(
         zgwApiService.findInitiatorRoleForZaak(zaak)
             .ifPresent { removeInitiator(zaak, it, ROL_VERWIJDER_REDEN) }
         addInitiator(gegevens.betrokkeneIdentificatieType, gegevens.betrokkeneIdentificatie, zaak)
-        return restZaakConverter.convert(zaak)
+        return restZaakConverter.toRestZaak(zaak)
     }
 
     @DELETE
@@ -224,7 +224,7 @@ class ZaakRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUUID)
         zgwApiService.findInitiatorRoleForZaak(zaak)
             .ifPresent { removeInitiator(zaak, it, reden.reden) }
-        return restZaakConverter.convert(zaak)
+        return restZaakConverter.toRestZaak(zaak)
     }
 
     @POST
@@ -238,7 +238,7 @@ class ZaakRestService @Inject constructor(
             toelichting = gegevens.roltoelichting?.ifEmpty { ROL_TOEVOEGEN_REDEN } ?: ROL_TOEVOEGEN_REDEN,
             zaak
         )
-        return restZaakConverter.convert(zaak)
+        return restZaakConverter.toRestZaak(zaak)
     }
 
     @DELETE
@@ -250,7 +250,7 @@ class ZaakRestService @Inject constructor(
         val betrokkene = zrcClientService.readRol(betrokkeneUUID)
         val zaak = zrcClientService.readZaak(betrokkene.zaak)
         removeBetrokkene(zaak, betrokkene, reden.reden)
-        return restZaakConverter.convert(zaak)
+        return restZaakConverter.toRestZaak(zaak)
     }
 
     @POST
@@ -266,7 +266,7 @@ class ZaakRestService @Inject constructor(
                 loggedInUserInstance.get().isAuthorisedForZaaktype(zaaktype.omschrijving)
         )
 
-        val zaak = zgwApiService.createZaak(restZaakConverter.convert(restZaak, zaaktype))
+        val zaak = zgwApiService.createZaak(restZaakConverter.toZaak(restZaak, zaaktype))
         if (StringUtils.isNotEmpty(restZaak.initiatorIdentificatie)) {
             addInitiator(
                 restZaak.initiatorIdentificatieType!!,
@@ -302,7 +302,7 @@ class ZaakRestService @Inject constructor(
             }
         }
 
-        return restZaakConverter.convert(zaak)
+        return restZaakConverter.toRestZaak(zaak)
     }
 
     @PATCH
@@ -317,7 +317,7 @@ class ZaakRestService @Inject constructor(
             restZaakConverter.convertToPatch(restZaakEditMetRedenGegevens.zaak),
             restZaakEditMetRedenGegevens.reden
         )
-        return restZaakConverter.convert(updatedZaak)
+        return restZaakConverter.toRestZaak(updatedZaak)
     }
 
     @PATCH
@@ -337,7 +337,7 @@ class ZaakRestService @Inject constructor(
             locatieZaakPatch,
             locatieGegevens.reden
         )
-        return restZaakConverter.convert(updatedZaak)
+        return restZaakConverter.toRestZaak(updatedZaak)
     }
 
     @PATCH
@@ -348,7 +348,7 @@ class ZaakRestService @Inject constructor(
     ): RestZaak {
         val zaak = zrcClientService.readZaak(zaakUUID)
         return if (opschortGegevens.indicatieOpschorting) {
-            restZaakConverter.convert(
+            restZaakConverter.toRestZaak(
                 opschortenZaakHelper.opschortenZaak(
                     zaak,
                     opschortGegevens.duurDagen,
@@ -356,7 +356,7 @@ class ZaakRestService @Inject constructor(
                 )
             )
         } else {
-            restZaakConverter.convert(
+            restZaakConverter.toRestZaak(
                 opschortenZaakHelper.hervattenZaak(zaak, opschortGegevens.redenOpschorting)
             )
         }
@@ -407,7 +407,7 @@ class ZaakRestService @Inject constructor(
         } else {
             null
         }
-        return restZaakConverter.convert(updatedZaak, status, statustype)
+        return restZaakConverter.toRestZaak(updatedZaak, status, statustype)
     }
 
     @PUT
@@ -536,7 +536,7 @@ class ZaakRestService @Inject constructor(
         if (isUpdated.get()) {
             indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
         }
-        return restZaakConverter.convert(zaak)
+        return restZaakConverter.toRestZaak(zaak)
     }
 
     @PUT
@@ -732,7 +732,7 @@ class ZaakRestService @Inject constructor(
     ): RestZaak = assignLoggedInUserToZaak(
         zaakUUID = restZaakAssignmentToLoggedInUserData.zaakUUID,
         reason = restZaakAssignmentToLoggedInUserData.reason
-    ).let { restZaakConverter.convert(it) }
+    ).let { restZaakConverter.toRestZaak(it) }
 
     @GET
     @Path("zaak/{uuid}/historie")

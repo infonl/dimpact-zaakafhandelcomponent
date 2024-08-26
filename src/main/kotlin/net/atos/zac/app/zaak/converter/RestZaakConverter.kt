@@ -21,10 +21,10 @@ import net.atos.zac.app.identity.converter.RestGroupConverter
 import net.atos.zac.app.identity.converter.RestUserConverter
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
-import net.atos.zac.app.zaak.model.RESTGerelateerdeZaak
 import net.atos.zac.app.zaak.model.RESTZaakKenmerk
 import net.atos.zac.app.zaak.model.RESTZaakVerlengGegevens
 import net.atos.zac.app.zaak.model.RelatieType
+import net.atos.zac.app.zaak.model.RestGerelateerdeZaak
 import net.atos.zac.app.zaak.model.RestZaak
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -33,7 +33,6 @@ import net.atos.zac.policy.PolicyService
 import net.atos.zac.util.PeriodUtil
 import net.atos.zac.zoeken.model.ZaakIndicatie
 import org.apache.commons.collections4.CollectionUtils
-import org.apache.commons.lang3.StringUtils
 import java.time.LocalDate
 import java.time.Period
 import java.util.EnumSet
@@ -48,13 +47,13 @@ class RestZaakConverter @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val brcClientService: BrcClientService,
     private val zgwApiService: ZGWApiService,
-    private val zaakResultaatConverter: RestZaakResultaatConverter,
-    private val groupConverter: RestGroupConverter,
-    private val gerelateerdeZaakConverter: RESTGerelateerdeZaakConverter,
-    private val userConverter: RestUserConverter,
-    private val besluitConverter: RestBesluitConverter,
-    private val zaaktypeConverter: RestZaaktypeConverter,
-    private val rechtenConverter: RESTRechtenConverter,
+    private val restZaakResultaatConverter: RestZaakResultaatConverter,
+    private val restGroupConverter: RestGroupConverter,
+    private val restGerelateerdeZaakConverter: RESTGerelateerdeZaakConverter,
+    private val restUserConverter: RestUserConverter,
+    private val restBesluitConverter: RestBesluitConverter,
+    private val restZaaktypeConverter: RestZaaktypeConverter,
+    private val restRechtenConverter: RESTRechtenConverter,
     private val restGeometryConverter: RESTGeometryConverter,
     private val policyService: PolicyService,
     private val zaakVariabelenService: ZaakVariabelenService,
@@ -64,22 +63,22 @@ class RestZaakConverter @Inject constructor(
         private val LOG = Logger.getLogger(RestZaakConverter::class.java.name)
     }
 
-    fun convert(zaak: Zaak): RestZaak {
+    fun toRestZaak(zaak: Zaak): RestZaak {
         val status = if (zaak.status != null) zrcClientService.readStatus(zaak.status) else null
         val statustype = if (status != null) ztcClientService.readStatustype(status.statustype) else null
-        return convert(zaak, status, statustype)
+        return toRestZaak(zaak, status, statustype)
     }
 
     @Suppress("LongMethod", "CyclomaticComplexMethod")
-    fun convert(zaak: Zaak, status: Status?, statustype: StatusType?): RestZaak {
+    fun toRestZaak(zaak: Zaak, status: Status?, statustype: StatusType?): RestZaak {
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val groep = zgwApiService.findGroepForZaak(zaak)
-            .map { groupConverter.convertGroupId(it.betrokkeneIdentificatie.identificatie) }
+            .map { restGroupConverter.convertGroupId(it.betrokkeneIdentificatie.identificatie) }
             .orElse(null)
         val besluiten = brcClientService.listBesluiten(zaak)
-            .map { besluitConverter.convertToRestBesluit(it) }
+            .map { restBesluitConverter.convertToRestBesluit(it) }
         val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
-            .map { userConverter.convertUserId(it.betrokkeneIdentificatie.identificatie) }
+            .map { restUserConverter.convertUserId(it.betrokkeneIdentificatie.identificatie) }
             .orElse(null)
         val initiator = zgwApiService.findInitiatorRoleForZaak(zaak)
         return RestZaak(
@@ -98,19 +97,15 @@ class RestZaakConverter @Inject constructor(
             archiefActiedatum = zaak.archiefactiedatum,
             omschrijving = zaak.omschrijving,
             toelichting = zaak.toelichting,
-            zaaktype = zaaktypeConverter.convert(zaaktype),
+            zaaktype = restZaaktypeConverter.convert(zaaktype),
             status = status?.let { convertToRESTZaakStatus(it, statustype!!) },
-            resultaat = zaak.resultaat?.let { zaakResultaatConverter.convert(it) },
+            resultaat = zaak.resultaat?.let { restZaakResultaatConverter.convert(it) },
             isOpgeschort = zaak.isOpgeschort,
-            redenOpschorting = if (zaak.isOpgeschort || StringUtils.isNotEmpty(zaak.opschorting.reden)) {
-                zaak.opschorting.reden
-            } else {
-                null
-            },
+            redenOpschorting = zaak.opschorting?.reden.takeIf { zaak.isOpgeschort },
             isVerlengd = zaak.isVerlengd,
             duurVerlenging = if (zaak.isVerlengd) PeriodUtil.format(zaak.verlenging.duur) else null,
             redenVerlenging = if (zaak.isVerlengd) zaak.verlenging.reden else null,
-            gerelateerdeZaken = convertGerelateerdeZaken(zaak),
+            gerelateerdeZaken = toRestGerelateerdeZaken(zaak),
             zaakgeometrie = zaak.zaakgeometrie?.let { restGeometryConverter.convert(zaak.zaakgeometrie) },
             kenmerken = zaak.kenmerken?.stream()?.map {
                 RESTZaakKenmerk(it.kenmerk, it.bron)
@@ -121,12 +116,12 @@ class RestZaakConverter @Inject constructor(
             groep = groep,
             behandelaar = behandelaar,
             initiatorIdentificatie = initiator.getOrNull()?.identificatienummer,
-            initiatorIdentificatieType = when (initiator.getOrNull()?.betrokkeneType) {
+            initiatorIdentificatieType = when (val betrokkeneType = initiator.getOrNull()?.betrokkeneType) {
                 BetrokkeneType.NATUURLIJK_PERSOON -> IdentificatieType.BSN
                 BetrokkeneType.VESTIGING -> IdentificatieType.VN
                 else -> {
                     LOG.warning(
-                        "Initiator identificatie type: '$this' is not supported for zaak with UUID: '${zaak.uuid}'"
+                        "Initiator identificatie type: '$betrokkeneType' is not supported for zaak with UUID: '${zaak.uuid}'"
                     )
                     null
                 }
@@ -141,7 +136,7 @@ class RestZaakConverter @Inject constructor(
             ).orElse(false),
             isBesluittypeAanwezig = CollectionUtils.isNotEmpty(zaaktype.besluittypen),
             isProcesGestuurd = bpmnService.isProcesGestuurd(zaak.uuid),
-            rechten = rechtenConverter.convert(policyService.readZaakRechten(zaak, zaaktype)),
+            rechten = restRechtenConverter.convert(policyService.readZaakRechten(zaak, zaaktype)),
             zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid),
             indicaties = when {
                 zaak.is_Hoofdzaak -> EnumSet.of(ZaakIndicatie.HOOFDZAAK)
@@ -154,23 +149,20 @@ class RestZaakConverter @Inject constructor(
         )
     }
 
-    fun convert(restZaak: RestZaak, zaaktype: ZaakType): Zaak {
-        val zaak = Zaak(
-            zaaktype.url,
-            restZaak.startdatum,
-            ConfiguratieService.BRON_ORGANISATIE,
-            ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE
-        )
-        // aanvullen
-        zaak.omschrijving = restZaak.omschrijving
-        zaak.toelichting = restZaak.toelichting
-        zaak.registratiedatum = LocalDate.now()
-        zaak.communicatiekanaalNaam = restZaak.communicatiekanaal
-        zaak.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
+    fun toZaak(restZaak: RestZaak, zaaktype: ZaakType) = Zaak(
+        zaaktype.url,
+        restZaak.startdatum,
+        ConfiguratieService.BRON_ORGANISATIE,
+        ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE
+    ).apply {
+        this.communicatiekanaalNaam = restZaak.communicatiekanaal
+        this.omschrijving = restZaak.omschrijving
+        this.toelichting = restZaak.toelichting
+        this.registratiedatum = LocalDate.now()
+        this.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
             VertrouwelijkheidaanduidingEnum.fromValue(it)
         }
-        zaak.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometryConverter.convert(it) }
-        return zaak
+        this.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometryConverter.convert(it) }
     }
 
     fun convertToPatch(restZaak: RestZaak): Zaak {
@@ -207,23 +199,21 @@ class RestZaakConverter @Inject constructor(
         return zaak
     }
 
-    private fun convertGerelateerdeZaken(zaak: Zaak): List<RESTGerelateerdeZaak> {
-        val gerelateerdeZaken: MutableList<RESTGerelateerdeZaak> = ArrayList()
+    private fun toRestGerelateerdeZaken(zaak: Zaak): List<RestGerelateerdeZaak> {
+        val gerelateerdeZaken = mutableListOf<RestGerelateerdeZaak>()
         zaak.hoofdzaak?.let {
             gerelateerdeZaken.add(
-                gerelateerdeZaakConverter.convert(
+                restGerelateerdeZaakConverter.convert(
                     zrcClientService.readZaak(it),
                     RelatieType.HOOFDZAAK
                 )
             )
         }
-        zaak.deelzaken.stream()
-            .map { zrcClientService.readZaak(it) }
-            .map { gerelateerdeZaakConverter.convert(it, RelatieType.DEELZAAK) }
-            .forEach { gerelateerdeZaken.add(it) }
-        zaak.relevanteAndereZaken.stream()
-            .map { gerelateerdeZaakConverter.convert(it) }
-            .forEach { gerelateerdeZaken.add(it) }
+        zaak.deelzaken?.map { zrcClientService.readZaak(it) }
+            ?.map { restGerelateerdeZaakConverter.convert(it, RelatieType.DEELZAAK) }
+            ?.forEach { gerelateerdeZaken.add(it) }
+        zaak.relevanteAndereZaken?.map { restGerelateerdeZaakConverter.convert(it) }
+            ?.forEach { gerelateerdeZaken.add(it) }
         return gerelateerdeZaken
     }
 }

@@ -59,6 +59,11 @@ fun createOrganisatorischeEenheid(
     this.naam = naam
 }
 
+fun createRelevanteZaak(
+    aardRelatie: AardRelatie = AardRelatie.VERVOLG,
+    url: URI = URI("https://example.com/${UUID.randomUUID()}")
+) = RelevanteZaak(url, aardRelatie)
+
 fun createResultaat(
     url: URI = URI("http://example.com/${UUID.randomUUID()}"),
     uuid: UUID = UUID.randomUUID()
@@ -111,16 +116,17 @@ fun createZaak(
     verantwoordelijkeOrganisatie: String = "dummyVerantwoordelijkeOrganisatie",
     // an archiefnominatie which is not null means that the zaak is closed
     archiefnominatie: Archiefnominatie? = null,
+    deelzaken: Set<URI>? = null,
     opschorting: Opschorting? = null,
     einddatumGepland: LocalDate? = null,
     identificatie: String = "dummyIdentificatie",
+    relevanteAndereZaken: MutableList<RelevanteZaak>? = null,
     registratiedatum: LocalDate = LocalDate.now(),
     resultaat: URI? = null,
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.now().plusDays(1),
     vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
     status: URI? = null,
     verlenging: Verlenging? = null,
-    deelzaken: Set<URI>? = null,
     uuid: UUID = UUID.randomUUID()
 ) = Zaak(
     zaakTypeURI,
@@ -134,6 +140,7 @@ fun createZaak(
     this.opschorting = opschorting
     this.einddatumGepland = einddatumGepland
     this.identificatie = identificatie
+    this.relevanteAndereZaken = relevanteAndereZaken
     this.registratiedatum = registratiedatum
     this.resultaat = resultaat
     this.uiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening
@@ -181,13 +188,17 @@ fun createZaakobjectPand(
         objectPand
     )
 
+@Suppress("LongParameterList")
 fun createZaakStatus(
     uuid: UUID = UUID.randomUUID(),
     uri: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
     zaak: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
     statustype: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
-    datumStatusGezet: ZonedDateTime = ZonedDateTime.now()
-) = Status(uri, uuid, zaak, statustype, datumStatusGezet)
+    datumStatusGezet: ZonedDateTime = ZonedDateTime.now(),
+    toelichting: String = "dummyToelichting"
+) = Status(uri, uuid, zaak, statustype, datumStatusGezet).apply {
+    this.statustoelichting = toelichting
+}
 
 fun createVerlenging(
     reden: String = "dummyReden",
