@@ -313,7 +313,7 @@ Als de Zaken-werkvoorraad of Taken-werkvoorraad geopend is dan kan de verdeelfun
 5 Vul eventueel een reden in, deze wordt als toelichting gebruikt in de historie van de zaak
 
 6 Klik op ‘Verdelen’ om de actie uit te voeren
-> Let op! <br>Als eenmaal 'Verdelen' is gekozen, is dit niet meer te onderbreken.
+> Let op! <br>Als eenmaal 'Verdelen' is gestart, is dit niet meer te onderbreken.
 
 ## Werk vrijgeven
 
@@ -328,7 +328,7 @@ Met de 'Vrijgeven' knop kan een item van de behandelaar afgehaald worden. Deze f
 3 Vul een reden in, deze wordt als toelichting gebruikt in de historie van de zaak
 
 4 Klik op ‘Vrijgeven’ om de actie uit te voeren
-> Let op! <br>Als eenmaal 'Vrijgeven' is gekozen, is dit niet meer te onderbreken.
+> Let op! <br>Als eenmaal 'Vrijgeven' is gestart, is dit niet meer te onderbreken.
 
 <div style="page-break-after: always"></div>
 
