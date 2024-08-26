@@ -39,6 +39,7 @@ import data.net.atos.zac.zaak.verlengen_doorlooptijd
 ##################
 # zaaktype_allowed
 ##################
+##################
 test_zaaktype_allowed if {
     zaaktype_allowed
         with input.zaak.zaaktype as "type"
@@ -390,11 +391,10 @@ test_koppelen_missing_role_fails if {
 test_versturen_email if {
     versturen_email
         with input.user.rollen as [ "behandelaar" ]
-        with input.zaak.open as true
 }
 
-test_versturen_email_zaak_closed_fails if {
-    not versturen_email
+test_versturen_email_zaak_closed_succeeds if {
+    versturen_email
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as false
 }
