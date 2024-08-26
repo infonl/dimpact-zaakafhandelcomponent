@@ -48,7 +48,7 @@ class RestZaakConverter @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val brcClientService: BrcClientService,
     private val zgwApiService: ZGWApiService,
-    private val zaakResultaatConverter: RESTZaakResultaatConverter,
+    private val zaakResultaatConverter: RestZaakResultaatConverter,
     private val groupConverter: RestGroupConverter,
     private val gerelateerdeZaakConverter: RESTGerelateerdeZaakConverter,
     private val userConverter: RestUserConverter,

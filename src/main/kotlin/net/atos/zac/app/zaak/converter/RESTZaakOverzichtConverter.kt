@@ -24,7 +24,7 @@ class RESTZaakOverzichtConverter {
     private lateinit var zgwApiService: ZGWApiService
 
     @Inject
-    private lateinit var zaakResultaatConverter: RESTZaakResultaatConverter
+    private lateinit var zaakResultaatConverter: RestZaakResultaatConverter
 
     @Inject
     private lateinit var groupConverter: RestGroupConverter
