@@ -20,6 +20,6 @@ export class BedrijfResolverService {
     state: RouterStateSnapshot,
   ): Observable<Bedrijf> {
     const id: string = route.paramMap.get("vesOrRSIN");
-    return this.klantenService.readBedrijf(id);
+    return this.klantenService.readVestiging(id);
   }
 }

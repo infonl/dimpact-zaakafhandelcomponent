@@ -133,7 +133,7 @@
       <zac-bedrijfsgegevens
         class="w100 flex-1"
         *ngIf="zaak.initiatorIdentificatieType==='VN' || zaak.initiatorIdentificatieType==='RSIN'"
-        [rsinOfVestigingsnummer]="zaak.initiatorIdentificatie"
+        [vestigingsnummer]="zaak.initiatorIdentificatie"
         [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
         (edit)="addOrEditZaakInitiator()"
         [isWijzigbaar]="zaak.rechten.toevoegenInitiatorBedrijf"
