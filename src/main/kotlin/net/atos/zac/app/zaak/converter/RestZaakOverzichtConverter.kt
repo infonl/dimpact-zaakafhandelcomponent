@@ -16,7 +16,7 @@ import net.atos.zac.app.zaak.model.RESTZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.policy.PolicyService
 
-class RESTZaakOverzichtConverter {
+class RestZaakOverzichtConverter {
     @Inject
     private lateinit var ztcClientService: ZtcClientService
 

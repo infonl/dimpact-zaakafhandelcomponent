@@ -45,10 +45,10 @@ import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.besluit.BesluitService
 import net.atos.zac.app.zaak.converter.RESTGeometryConverter
-import net.atos.zac.app.zaak.converter.RESTZaakOverzichtConverter
-import net.atos.zac.app.zaak.converter.RESTZaaktypeConverter
 import net.atos.zac.app.zaak.converter.RestBesluitConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
+import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
+import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
 import net.atos.zac.app.zaak.converter.historie.RESTZaakHistorieRegelConverter
 import net.atos.zac.app.zaak.model.RESTZaaktype
 import net.atos.zac.app.zaak.model.RelatieType
@@ -112,8 +112,8 @@ class ZaakRestServiceTest : BehaviorSpec({
     val restBesluitConverter = mockk<RestBesluitConverter>()
     val restGeometryConverter = mockk<RESTGeometryConverter>()
     val restZaakConverter = mockk<RestZaakConverter>()
-    val restZaakOverzichtConverter = mockk<RESTZaakOverzichtConverter>()
-    val restZaaktypeConverter = mockk<RESTZaaktypeConverter>()
+    val restZaakOverzichtConverter = mockk<RestZaakOverzichtConverter>()
+    val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
     val restHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
     val signaleringService = mockk<SignaleringService>()
     val flowableTaskService = mockk<FlowableTaskService>()

@@ -62,11 +62,10 @@ import net.atos.zac.app.klant.KlantRestService
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import net.atos.zac.app.zaak.converter.RESTGeometryConverter
-import net.atos.zac.app.zaak.converter.RESTZaakOverzichtConverter
-import net.atos.zac.app.zaak.converter.RESTZaaktypeConverter
 import net.atos.zac.app.zaak.converter.RestBesluitConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
-import net.atos.zac.app.zaak.converter.convertToRESTZaakBetrokkenen
+import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
+import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
 import net.atos.zac.app.zaak.converter.historie.RESTZaakHistorieRegelConverter
 import net.atos.zac.app.zaak.model.RESTDocumentOntkoppelGegevens
 import net.atos.zac.app.zaak.model.RESTReden
@@ -74,7 +73,6 @@ import net.atos.zac.app.zaak.model.RESTResultaattype
 import net.atos.zac.app.zaak.model.RESTZaakAanmaakGegevens
 import net.atos.zac.app.zaak.model.RESTZaakAfbrekenGegevens
 import net.atos.zac.app.zaak.model.RESTZaakAfsluitenGegevens
-import net.atos.zac.app.zaak.model.RESTZaakBetrokkene
 import net.atos.zac.app.zaak.model.RESTZaakBetrokkeneGegevens
 import net.atos.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import net.atos.zac.app.zaak.model.RESTZaakHeropenenGegevens
@@ -97,8 +95,10 @@ import net.atos.zac.app.zaak.model.RestBesluittype
 import net.atos.zac.app.zaak.model.RestZaak
 import net.atos.zac.app.zaak.model.RestZaakAssignmentData
 import net.atos.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
+import net.atos.zac.app.zaak.model.RestZaakBetrokkene
 import net.atos.zac.app.zaak.model.toRestBesluittypes
 import net.atos.zac.app.zaak.model.toRestResultaatTypes
+import net.atos.zac.app.zaak.model.toRestZaakBetrokkenen
 import net.atos.zac.app.zaak.model.updateBesluitWithBesluitWijzigenGegevens
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
@@ -168,9 +168,9 @@ class ZaakRestService @Inject constructor(
     private val configuratieService: ConfiguratieService,
     private val loggedInUserInstance: Instance<LoggedInUser>,
     private val restZaakConverter: RestZaakConverter,
-    private val restZaaktypeConverter: RESTZaaktypeConverter,
+    private val restZaaktypeConverter: RestZaaktypeConverter,
     private val restBesluitConverter: RestBesluitConverter,
-    private val restZaakOverzichtConverter: RESTZaakOverzichtConverter,
+    private val restZaakOverzichtConverter: RestZaakOverzichtConverter,
     private val restBAGConverter: RESTBAGConverter,
     private val restHistorieRegelConverter: RESTHistorieRegelConverter,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
@@ -746,19 +746,18 @@ class ZaakRestService @Inject constructor(
 
     @GET
     @Path("zaak/{uuid}/betrokkene")
-    fun listBetrokkenenVoorZaak(@PathParam("uuid") zaakUUID: UUID): List<RESTZaakBetrokkene> {
+    fun listBetrokkenenVoorZaak(@PathParam("uuid") zaakUUID: UUID): List<RestZaakBetrokkene> {
         val zaak = zrcClientService.readZaak(zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak).lezen)
-        return convertToRESTZaakBetrokkenen(
-            zrcClientService.listRollen(zaak)
-                .filter { rol ->
-                    KlantRestService.betrokkenen.contains(
-                        OmschrijvingGeneriekEnum.valueOf(
-                            rol.omschrijvingGeneriek.uppercase(Locale.getDefault())
-                        )
+        return zrcClientService.listRollen(zaak)
+            .filter { rol ->
+                KlantRestService.betrokkenen.contains(
+                    OmschrijvingGeneriekEnum.valueOf(
+                        rol.omschrijvingGeneriek.uppercase(Locale.getDefault())
                     )
-                }.stream()
-        )
+                )
+            }
+            .toRestZaakBetrokkenen()
     }
 
     /**

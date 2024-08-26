@@ -17,13 +17,10 @@ import net.atos.zac.util.PeriodUtil
 import net.atos.zac.util.UriUtil
 import java.time.Period
 
-class RESTZaaktypeConverter {
-    @Inject
-    private lateinit var zaakafhandelParametersConverter: RestZaakafhandelParametersConverter
-
-    @Inject
-    private lateinit var zaakafhandelParameterService: ZaakafhandelParameterService
-
+class RestZaaktypeConverter @Inject constructor(
+    private val zaakafhandelParametersConverter: RestZaakafhandelParametersConverter,
+    private val zaakafhandelParameterService: ZaakafhandelParameterService
+) {
     fun convert(zaaktype: ZaakType): RESTZaaktype {
         val zaaktypeRelaties = ArrayList<RESTZaaktypeRelatie>()
         zaaktype.deelzaaktypen?.let { deelzaakType ->
