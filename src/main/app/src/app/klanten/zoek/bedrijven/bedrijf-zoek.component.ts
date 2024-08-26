@@ -41,7 +41,6 @@ export class BedrijfZoekComponent implements OnInit {
 
   kvkFormField: AbstractFormControlField;
   vestigingsnummerFormField: AbstractFormControlField;
-  rsinFormField: AbstractFormControlField;
   naamFormField: AbstractFormControlField;
   typeFormField: AbstractFormControlField;
   postcodeFormField: AbstractFormControlField;
@@ -74,12 +73,6 @@ export class BedrijfZoekComponent implements OnInit {
       .validators(CustomValidators.vestigingsnummer)
       .maxlength(12)
       .build();
-    this.rsinFormField = new InputFormFieldBuilder()
-      .id("rsin")
-      .label("rsin")
-      .validators(CustomValidators.rsin)
-      .maxlength(9)
-      .build();
     this.postcodeFormField = new InputFormFieldBuilder()
       .id("postcode")
       .label("postcode")
@@ -110,7 +103,6 @@ export class BedrijfZoekComponent implements OnInit {
       kvkNummer: this.kvkFormField.formControl,
       naam: this.naamFormField.formControl,
       vestigingsnummer: this.vestigingsnummerFormField.formControl,
-      rsin: this.rsinFormField.formControl,
       postcode: this.postcodeFormField.formControl,
       huisnummer: this.huisnummerFormField.formControl,
       plaats: this.plaatsFormField.formControl,
@@ -125,16 +117,11 @@ export class BedrijfZoekComponent implements OnInit {
     const kvkNummer = this.kvkFormField.formControl.value;
     const bedrijfsnaam = this.naamFormField.formControl.value;
     const vestigingsnummer = this.vestigingsnummerFormField.formControl.value;
-    const rsin = this.rsinFormField.formControl.value;
     const postcode = this.postcodeFormField.formControl.value;
     const huisnummer = this.huisnummerFormField.formControl.value;
 
     return (
-      kvkNummer ||
-      bedrijfsnaam ||
-      vestigingsnummer ||
-      rsin ||
-      (postcode && huisnummer)
+      kvkNummer || bedrijfsnaam || vestigingsnummer || (postcode && huisnummer)
     );
   }
 
@@ -163,7 +150,7 @@ export class BedrijfZoekComponent implements OnInit {
   }
 
   typeChanged(type: any): void {
-    this.rsinFormField.required = type === "RECHTSPERSOON";
+    // nothing to do
   }
 
   openBedrijfPagina(bedrijf: Bedrijf): void {

@@ -82,18 +82,6 @@ public class KvkClientService {
         return listAsync(zoekParameters).thenApply(this::convertToSingleItem);
     }
 
-    /**
-     * Finds a rechtspersoon by RSIN and KVK number.
-     * Note that the RSIN alone does not always uniquely identify a rechtspersoon.
-     */
-    public Optional<ResultaatItem> findRechtspersoon(final String rsin, final String kvkNumber) {
-        final KvkZoekenParameters zoekParameters = new KvkZoekenParameters();
-        zoekParameters.setType("rechtspersoon");
-        zoekParameters.setRsin(rsin);
-        zoekParameters.setKvkNummer(kvkNumber);
-        return convertToSingleItem(list(zoekParameters));
-    }
-
     private Optional<ResultaatItem> convertToSingleItem(final Resultaat resultaat) {
         return switch (resultaat.getTotaal()) {
             case 0 -> Optional.empty();

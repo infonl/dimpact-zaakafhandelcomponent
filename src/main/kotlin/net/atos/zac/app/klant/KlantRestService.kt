@@ -20,7 +20,6 @@ import net.atos.client.kvk.KvkClientService
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
-import net.atos.zac.app.klant.exception.RechtspersoonNotFoundException
 import net.atos.zac.app.klant.exception.VestigingNotFoundException
 import net.atos.zac.app.klant.model.bedrijven.RestBedrijf
 import net.atos.zac.app.klant.model.bedrijven.RestListBedrijvenParameters
@@ -123,13 +122,6 @@ class KlantRestService @Inject constructor(
                 )
             }
         }
-
-    @GET
-    @Path("rechtspersoon/{rsin}/kvknummer/{kvkNumber}")
-    fun readRechtspersoon(@PathParam("rsin") @Length(min = 9, max = 9) rsin: String): RestBedrijf =
-        kvkClientService.findRechtspersoon(rsin)
-            .map { it.toRestBedrijf() }
-            .orElseThrow { RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor RSIN '$rsin'") }
 
     @GET
     @Path("personen/parameters")

@@ -22,7 +22,7 @@ import { Vestigingsprofiel } from "../model/bedrijven/vestigingsprofiel";
 export class BedrijfsgegevensComponent implements OnChanges {
   @Input() isVerwijderbaar: boolean;
   @Input() isWijzigbaar: boolean;
-  @Input() rsinOfVestigingsnummer: string;
+  @Input() vestigingsnummer: string;
   @Output() delete = new EventEmitter<Bedrijf>();
   @Output() edit = new EventEmitter<Bedrijf>();
 
@@ -36,9 +36,9 @@ export class BedrijfsgegevensComponent implements OnChanges {
   ngOnChanges(): void {
     this.bedrijf = null;
     this.vestigingsprofiel = null;
-    if (this.rsinOfVestigingsnummer) {
+    if (this.vestigingsnummer) {
       this.klantenService
-        .readBedrijf(this.rsinOfVestigingsnummer)
+        .readVestiging(this.vestigingsnummer)
         .subscribe((bedrijf) => {
           this.bedrijf = bedrijf;
           this.klantExpanded = true;
