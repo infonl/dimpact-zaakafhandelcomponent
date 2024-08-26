@@ -37,12 +37,6 @@ export class KlantenService {
       );
   }
 
-  readBedrijf(rsinOfVestigingsnummer: string): Observable<Bedrijf> {
-    return rsinOfVestigingsnummer.length === 9
-      ? this.readRechtspersoon(rsinOfVestigingsnummer)
-      : this.readVestiging(rsinOfVestigingsnummer);
-  }
-
   readVestiging(vestigingsnummer: string): Observable<Bedrijf> {
     return this.http
       .get<Bedrijf>(`${this.basepath}/vestiging/${vestigingsnummer}`)
@@ -58,14 +52,6 @@ export class KlantenService {
       .get<Vestigingsprofiel>(
         `${this.basepath}/vestigingsprofiel/${vestigingsnummer}`,
       )
-      .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
-  }
-
-  readRechtspersoon(rsin: string): Observable<Bedrijf> {
-    return this.http
-      .get<Bedrijf>(`${this.basepath}/rechtspersoon/${rsin}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

@@ -5,8 +5,8 @@
 
 ***
 > **Colofon** <br>
-> Datum : 19-8-2024 <br>
-> Versie :   1.6.0 <br>
+> Datum : 26-8-2024 <br>
+> Versie :   1.6.1 <br>
 > Verandering : vertaling naar Markdown <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
@@ -28,6 +28,7 @@ Versiegeschiedenis:
 | 1.5   | Update nav sprints opgeleverd van 10-2023 tot 27-05-2024                                                                                   |
 | 1.5.1 | Update zoekfunctie bedrijf en rechtspersoon                                                                                                |
 | 1.6.0 | Gebruikershandleiding geconverteerd naar Markdown                                                                                          |
+| 1.6.1 | Zoeken naar rechtspersoon op basis van RSIN verwijderd omdat dit niet goed geïmplementeerd was en voor issues zorgde                       |
 
 <div style="page-break-after: always"></div>
 
@@ -416,11 +417,10 @@ Een persoon kan gezocht worden op een aantal velden, dit zijn:
 - postcode en huisnummer
 - gemeentecode, huisnummer en straat
 
-Een bedrijf of rechtspersoon kan gezocht worden op de volgende velden:
+Een bedrijf kan gezocht worden op de volgende velden:
 
 - KvK-nummer
 - vestigingsnummer
-- RSIN (rechtspersoon)
 - handelsnaam
 - postcode en huisnummer
 
@@ -724,10 +724,9 @@ Een persoon kan gezocht worden op een aantal velden, dit zijn:
 - postcode en huisnummer
 - gemeentecode, huisnummer en straat
 
-Een bedrijf of rechtspersoon kan gezocht worden op de volgende velden:
+Een bedrijf kan gezocht worden op de volgende velden:
 - KvK-nummer
 - vestigingsnummer
-- RSIN (rechtspersoon)
 - handelsnaam
 - postcode en huisnummer
 
@@ -767,11 +766,10 @@ Een persoon kan gezocht worden op een aantal velden, dit zijn:
 - postcode en huisnummer
 - gemeentecode, huisnummer en straat
 
-Een bedrijf of rechtspersoon kan gezocht worden op de volgende velden:
+Een bedrijf kan gezocht worden op de volgende velden:
 
 - KvK-nummer
 - vestigingsnummer
-- RSIN (rechtspersoon)
 - handelsnaam
 - postcode en huisnummer
 
@@ -784,7 +782,7 @@ Betrokkenen zijn nadat ze zijn toegevoegd te vinden onder de tab ‘Betrokkenen�
 Vanuit het overzicht is het via het oog icoon mogelijk om naar de persoons- of bedrijfsgegevenspagina te gaan. Daarnaast kan een betrokkene ontkoppeld worden door op het ontkoppel icoon te klikken (een reden is verplicht).
 ![Betrokkene gegevens en ontkoppelen](./images/betrokkene-gegevens-en-ontkoppelen.png)
 
->De letter achter de identificatie geeft aan of het een persoon, vestiging of rechtspersoon betreft!
+>De letter achter de identificatie geeft aan of het om een persoon of vestiging betreft!
 >Klik op de drie puntjes om de naam van de betrokkene op te halen en te tonen!
 
 ### BAG-object toevoegen
@@ -1426,7 +1424,7 @@ Het is tevens mogelijk om deze kenmerken juist uit te sluiten van de zoekresulta
 
 Door bij de zoekopdracht een keuze te maken bij ‘Zoeken in’ wordt alleen binnen dat specifieke kenmerk gezocht en worden andere zoekresultaten ook uitgesloten. Het ‘Zoeken in’ keuzeveld bevindt zich voor het ‘Zoeken’ veld
 
-Bij de filteropties zit ook de mogelijkheid om te filteren op zaakinitiator. Dit kan door een bsn, vestigingsnummer of RSIN in te vullen of door een persoon of bedrijf te zoeken op een ander kenmerk door op het poppetje icoon te klikken.
+Bij de filteropties zit ook de mogelijkheid om te filteren op zaakinitiator. Dit kan door een bsn of vestigingsnummer in te vullen of door een persoon of bedrijf te zoeken op een ander kenmerk door op het poppetje icoon te klikken.
 
 Tot slot kan er gefilterd worden op datumkenmerken door een bereik in te vullen.
 
@@ -1452,7 +1450,7 @@ Door in de lijst van zoekresultaten op het poppetje icoon te klikken opent de pe
 
 Een bedrijf zoeken werkt op dezelfde manier als een persoon zoeken en lijkt dus sterk op het toekennen van een initiator.
 
-Een zoekopdracht begint met het invullen van de zoektermen. Een vestiging van een bedrijf kan gezocht worden op kvk-nummer, vestigingsnummer of handelsnaam. Een rechtspersoon kan alleen gezocht worden op RSIN.
+Een zoekopdracht begint met het invullen van de zoektermen. Een vestiging van een bedrijf kan gezocht worden op kvk-nummer, vestigingsnummer of handelsnaam.
 
 Door in de lijst van zoekresultaten op het gebouw icoon te klikken opent de bedrijfspagina. In het overzicht van zaken kan, net als in de werklijsten, gefilterd en gesorteerd worden. Door te klikken op het oog icoon kan een item geopend worden, Ctrl + oog icoon opent het item in een nieuw tabblad.
 

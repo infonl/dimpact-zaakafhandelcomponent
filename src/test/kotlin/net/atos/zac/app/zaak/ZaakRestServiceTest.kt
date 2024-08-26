@@ -45,11 +45,10 @@ import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.besluit.BesluitService
 import net.atos.zac.app.zaak.converter.RESTGeometryConverter
-import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter
-import net.atos.zac.app.zaak.converter.RESTZaakConverter
-import net.atos.zac.app.zaak.converter.RESTZaakOverzichtConverter
-import net.atos.zac.app.zaak.converter.RESTZaaktypeConverter
 import net.atos.zac.app.zaak.converter.RestBesluitConverter
+import net.atos.zac.app.zaak.converter.RestZaakConverter
+import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
+import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
 import net.atos.zac.app.zaak.converter.historie.RESTZaakHistorieRegelConverter
 import net.atos.zac.app.zaak.model.RESTZaaktype
 import net.atos.zac.app.zaak.model.RelatieType
@@ -92,39 +91,38 @@ import java.util.UUID
 
 @Suppress("LongParameterList")
 class ZaakRestServiceTest : BehaviorSpec({
-    val besluitService: BesluitService = mockk<BesluitService>()
-    val bpmnService: BPMNService = mockk<BPMNService>()
-    val brcClientService: BrcClientService = mockk<BrcClientService>()
-    val configuratieService: ConfiguratieService = mockk<ConfiguratieService>()
-    val cmmnService: CMMNService = mockk<CMMNService>()
-    val drcClientService: DrcClientService = mockk<DrcClientService>()
-    val eventingService: EventingService = mockk<EventingService>()
-    val healthCheckService: HealthCheckService = mockk<HealthCheckService>()
-    val identityService: IdentityService = mockk<IdentityService>()
-    val inboxProductaanvraagService: InboxProductaanvraagService = mockk<InboxProductaanvraagService>()
-    val indexeerService: IndexeerService = mockk<IndexeerService>()
-    val loggedInUserInstance: Instance<LoggedInUser> = mockk<Instance<LoggedInUser>>()
-    val objectsClientService: ObjectsClientService = mockk<ObjectsClientService>()
-    val ontkoppeldeDocumentenService: OntkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
-    val opschortenZaakHelper: OpschortenZaakHelper = mockk<OpschortenZaakHelper>()
-    val policyService: PolicyService = mockk<PolicyService>()
-    val productaanvraagService: ProductaanvraagService = mockk<ProductaanvraagService>()
-    val restBAGConverter: RESTBAGConverter = mockk<RESTBAGConverter>()
-    val restBesluitConverter: RestBesluitConverter = mockk<RestBesluitConverter>()
-    val restGeometryConverter: RESTGeometryConverter = mockk<RESTGeometryConverter>()
-    val restResultaattypeConverter: RESTResultaattypeConverter = mockk<RESTResultaattypeConverter>()
-    val restZaakConverter: RESTZaakConverter = mockk<RESTZaakConverter>()
-    val restZaakOverzichtConverter: RESTZaakOverzichtConverter = mockk<RESTZaakOverzichtConverter>()
-    val restZaaktypeConverter: RESTZaaktypeConverter = mockk<RESTZaaktypeConverter>()
-    val restHistorieRegelConverter: RESTHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
-    val signaleringService: SignaleringService = mockk<SignaleringService>()
-    val flowableTaskService: FlowableTaskService = mockk<FlowableTaskService>()
-    val zaakafhandelParameterService: ZaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
-    val zaakVariabelenService: ZaakVariabelenService = mockk<ZaakVariabelenService>()
-    val zaakService: ZaakService = mockk<ZaakService>()
-    val zgwApiService: ZGWApiService = mockk<ZGWApiService>()
-    val zrcClientService: ZrcClientService = mockk<ZrcClientService>()
-    val ztcClientService: ZtcClientService = mockk<ZtcClientService>()
+    val besluitService = mockk<BesluitService>()
+    val bpmnService = mockk<BPMNService>()
+    val brcClientService = mockk<BrcClientService>()
+    val configuratieService = mockk<ConfiguratieService>()
+    val cmmnService = mockk<CMMNService>()
+    val drcClientService = mockk<DrcClientService>()
+    val eventingService = mockk<EventingService>()
+    val healthCheckService = mockk<HealthCheckService>()
+    val identityService = mockk<IdentityService>()
+    val inboxProductaanvraagService = mockk<InboxProductaanvraagService>()
+    val indexeerService = mockk<IndexeerService>()
+    val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+    val objectsClientService = mockk<ObjectsClientService>()
+    val ontkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
+    val opschortenZaakHelper = mockk<OpschortenZaakHelper>()
+    val policyService = mockk<PolicyService>()
+    val productaanvraagService = mockk<ProductaanvraagService>()
+    val restBAGConverter = mockk<RESTBAGConverter>()
+    val restBesluitConverter = mockk<RestBesluitConverter>()
+    val restGeometryConverter = mockk<RESTGeometryConverter>()
+    val restZaakConverter = mockk<RestZaakConverter>()
+    val restZaakOverzichtConverter = mockk<RestZaakOverzichtConverter>()
+    val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
+    val restHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
+    val signaleringService = mockk<SignaleringService>()
+    val flowableTaskService = mockk<FlowableTaskService>()
+    val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
+    val zaakVariabelenService = mockk<ZaakVariabelenService>()
+    val zaakService = mockk<ZaakService>()
+    val zgwApiService = mockk<ZGWApiService>()
+    val zrcClientService = mockk<ZrcClientService>()
+    val ztcClientService = mockk<ZtcClientService>()
     val restZaakHistorieRegelConverter = mockk<RESTZaakHistorieRegelConverter>()
 
     val zaakRestService = ZaakRestService(
@@ -155,7 +153,6 @@ class ZaakRestServiceTest : BehaviorSpec({
         ontkoppeldeDocumentenService = ontkoppeldeDocumentenService,
         opschortenZaakHelper = opschortenZaakHelper,
         restGeometryConverter = restGeometryConverter,
-        restResultaattypeConverter = restResultaattypeConverter,
         restZaakOverzichtConverter = restZaakOverzichtConverter,
         signaleringService = signaleringService,
         flowableTaskService = flowableTaskService,
@@ -231,8 +228,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaak
             )
         } returns zaakObjectOpenbareRuimte
-        every { restZaakConverter.convert(zaak) } returns restZaak
-        every { restZaakConverter.convert(restZaakAanmaakGegevens.zaak, zaakType) } returns zaak
+        every { restZaakConverter.toRestZaak(zaak) } returns restZaak
+        every { restZaakConverter.toZaak(restZaakAanmaakGegevens.zaak, zaakType) } returns zaak
         every {
             zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
         } returns zaakAfhandelParameters
@@ -303,7 +300,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns Optional.empty()
         every { identityService.readUser(restZaakToekennenGegevens.assigneeUserName!!) } returns user
         every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
-        every { restZaakConverter.convert(zaak) } returns restZaak
+        every { restZaakConverter.toRestZaak(zaak) } returns restZaak
         every { indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
         every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
 

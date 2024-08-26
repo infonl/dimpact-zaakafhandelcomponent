@@ -29,7 +29,7 @@ data class RestZaak(
     var duurVerlenging: String?,
     var einddatumGepland: LocalDate?,
     var einddatum: LocalDate?,
-    var gerelateerdeZaken: List<RESTGerelateerdeZaak>?,
+    var gerelateerdeZaken: List<RestGerelateerdeZaak>?,
     @field:Valid
     var groep: RestGroup?,
     var identificatie: String,
@@ -68,7 +68,7 @@ data class RestZaak(
     var isVerlengd: Boolean,
 
     var kenmerken: List<RESTZaakKenmerk>?,
-    var omschrijving: String,
+    var omschrijving: String?,
     var publicatiedatum: LocalDate?,
     var rechten: RESTZaakRechten,
     var redenOpschorting: String?,

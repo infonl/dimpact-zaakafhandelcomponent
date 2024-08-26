@@ -114,9 +114,6 @@ class DocumentCreationDataConverter @Inject constructor(
         when (initiator.betrokkeneType) {
             BetrokkeneType.NATUURLIJK_PERSOON -> createAanvragerDataNatuurlijkPersoon(initiator.identificatienummer)
             BetrokkeneType.VESTIGING -> createAanvragerDataVestiging(initiator.identificatienummer)
-            BetrokkeneType.NIET_NATUURLIJK_PERSOON -> createAanvragerDataNietNatuurlijkPersoon(
-                initiator.identificatienummer
-            )
             else -> error(
                 "Initiator of type '${initiator.betrokkeneType.toValue()}' is not supported"
             )
@@ -143,11 +140,6 @@ class DocumentCreationDataConverter @Inject constructor(
 
     private fun createAanvragerDataVestiging(vestigingsnummer: String): AanvragerData? =
         kvkClientService.findVestiging(vestigingsnummer)
-            .map { this.convertToAanvragerDataBedrijf(it) }
-            .orElse(null)
-
-    private fun createAanvragerDataNietNatuurlijkPersoon(rsin: String): AanvragerData? =
-        kvkClientService.findRechtspersoon(rsin)
             .map { this.convertToAanvragerDataBedrijf(it) }
             .orElse(null)
 

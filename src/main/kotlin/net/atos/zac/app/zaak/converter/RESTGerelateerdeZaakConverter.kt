@@ -11,8 +11,8 @@ import net.atos.client.zgw.zrc.model.RelevanteZaak
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
-import net.atos.zac.app.zaak.model.RESTGerelateerdeZaak
 import net.atos.zac.app.zaak.model.RelatieType
+import net.atos.zac.app.zaak.model.RestGerelateerdeZaak
 import net.atos.zac.policy.PolicyService
 
 class RESTGerelateerdeZaakConverter {
@@ -28,10 +28,10 @@ class RESTGerelateerdeZaakConverter {
     @Inject
     private lateinit var policyService: PolicyService
 
-    fun convert(zaak: Zaak, relatieType: RelatieType?): RESTGerelateerdeZaak {
+    fun convert(zaak: Zaak, relatieType: RelatieType?): RestGerelateerdeZaak {
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val zaakrechten = policyService.readZaakRechten(zaak, zaaktype)
-        val restGerelateerdeZaak = RESTGerelateerdeZaak()
+        val restGerelateerdeZaak = RestGerelateerdeZaak()
         restGerelateerdeZaak.identificatie = zaak.identificatie
         restGerelateerdeZaak.relatieType = relatieType
         restGerelateerdeZaak.rechten = rechtenConverter.convert(zaakrechten)
@@ -47,7 +47,7 @@ class RESTGerelateerdeZaakConverter {
         return restGerelateerdeZaak
     }
 
-    fun convert(relevanteZaak: RelevanteZaak): RESTGerelateerdeZaak {
+    fun convert(relevanteZaak: RelevanteZaak): RestGerelateerdeZaak {
         val zaak = zrcClientService.readZaak(relevanteZaak.url)
         return convert(zaak, convertToRelatieType(relevanteZaak.aardRelatie))
     }

@@ -82,13 +82,6 @@ public class KvkClientService {
         return listAsync(zoekParameters).thenApply(this::convertToSingleItem);
     }
 
-    public Optional<ResultaatItem> findRechtspersoon(final String rsin) {
-        final KvkZoekenParameters zoekParameters = new KvkZoekenParameters();
-        zoekParameters.setType("rechtspersoon");
-        zoekParameters.setRsin(rsin);
-        return convertToSingleItem(list(zoekParameters));
-    }
-
     private Optional<ResultaatItem> convertToSingleItem(final Resultaat resultaat) {
         return switch (resultaat.getTotaal()) {
             case 0 -> Optional.empty();

@@ -16,7 +16,7 @@ import net.atos.zac.app.zaak.model.RESTZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.policy.PolicyService
 
-class RESTZaakOverzichtConverter {
+class RestZaakOverzichtConverter {
     @Inject
     private lateinit var ztcClientService: ZtcClientService
 
@@ -24,7 +24,7 @@ class RESTZaakOverzichtConverter {
     private lateinit var zgwApiService: ZGWApiService
 
     @Inject
-    private lateinit var zaakResultaatConverter: RESTZaakResultaatConverter
+    private lateinit var zaakResultaatConverter: RestZaakResultaatConverter
 
     @Inject
     private lateinit var groupConverter: RestGroupConverter

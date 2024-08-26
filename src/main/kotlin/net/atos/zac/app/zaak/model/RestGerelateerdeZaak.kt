@@ -11,7 +11,7 @@ import java.time.LocalDate
 
 @AllOpen
 @NoArgConstructor
-data class RESTGerelateerdeZaak(
+data class RestGerelateerdeZaak(
     var relatieType: RelatieType? = null,
 
     var identificatie: String? = null,

@@ -15,7 +15,7 @@ import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.zac.app.zaak.converter.RESTZaakOverzichtConverter
+import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -56,7 +56,7 @@ class SignaleringService @Inject constructor(
     private val signaleringenMailHelper: SignaleringMailHelper,
     private val signaleringPredicateHelper: SignaleringPredicateHelper,
     private val zrcClientService: ZrcClientService,
-    private val restZaakOverzichtConverter: RESTZaakOverzichtConverter
+    private val restZaakOverzichtConverter: RestZaakOverzichtConverter
 ) {
     companion object {
         private val LOG = Logger.getLogger(SignaleringService::class.java.name)
