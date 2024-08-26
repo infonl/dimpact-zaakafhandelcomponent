@@ -48,7 +48,7 @@ class ZaakServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A list of zaken") {
+    Given("A list of zaken and a group and a user") {
         val screenEventSlot = slot<ScreenEvent>()
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
@@ -92,7 +92,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("A list of zaken") {
+    Given("A list of zaken and a screen event resource id") {
         val screenEventSlot = slot<ScreenEvent>()
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
