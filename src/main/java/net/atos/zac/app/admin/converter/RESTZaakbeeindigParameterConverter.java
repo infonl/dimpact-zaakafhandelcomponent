@@ -5,6 +5,8 @@
 
 package net.atos.zac.app.admin.converter;
 
+import static net.atos.zac.app.zaak.model.RESTResultaattypeKt.toRestResultaatType;
+
 import java.util.List;
 import java.util.Set;
 
@@ -41,7 +43,7 @@ public class RESTZaakbeeindigParameterConverter {
         restZaakbeeindigParameter.zaakbeeindigReden = RESTZaakbeeindigRedenConverter.convertZaakbeeindigReden(zaakbeeindigParameter
                 .getZaakbeeindigReden()
         );
-        restZaakbeeindigParameter.resultaattype = restResultaattypeConverter.convertResultaattype(
+        restZaakbeeindigParameter.resultaattype = toRestResultaatType(
                 ztcClientService.readResultaattype(zaakbeeindigParameter.getResultaattype())
         );
         return restZaakbeeindigParameter;

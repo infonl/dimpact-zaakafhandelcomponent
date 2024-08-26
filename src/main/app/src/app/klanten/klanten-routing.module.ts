@@ -25,7 +25,7 @@ const routes: Routes = [
     path: "bedrijf",
     children: [
       {
-        path: ":vesOrRSIN",
+        path: ":vestigingsnummer",
         component: BedrijfViewComponent,
         resolve: { bedrijf: BedrijfResolverService },
       },

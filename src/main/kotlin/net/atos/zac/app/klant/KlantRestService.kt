@@ -91,7 +91,7 @@ class KlantRestService @Inject constructor(
     @GET
     @Path("vestiging/{vestigingsnummer}")
     fun readVestiging(
-        @PathParam("vestigingsnummer") vestigingsnummer: String
+        @PathParam("vestigingsnummer") @Length(min = 12, max = 12) vestigingsnummer: String
     ): RestBedrijf =
         klantClientService.findDigitalAddressesByNumber(vestigingsnummer)
             .toRestPersoon().let { klantRestPersoon ->

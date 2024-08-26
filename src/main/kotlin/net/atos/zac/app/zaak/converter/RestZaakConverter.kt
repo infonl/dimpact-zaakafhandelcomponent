@@ -38,54 +38,31 @@ import java.time.LocalDate
 import java.time.Period
 import java.util.EnumSet
 import java.util.UUID
+import java.util.logging.Logger
 import java.util.stream.Collectors
 import kotlin.jvm.optionals.getOrNull
 
-class RESTZaakConverter {
-    @Inject
-    private lateinit var ztcClientService: ZtcClientService
-
-    @Inject
-    private lateinit var zrcClientService: ZrcClientService
-
-    @Inject
-    private lateinit var brcClientService: BrcClientService
-
-    @Inject
-    private lateinit var zgwApiService: ZGWApiService
-
-    @Inject
-    private lateinit var zaakResultaatConverter: RESTZaakResultaatConverter
-
-    @Inject
-    private lateinit var groupConverter: RestGroupConverter
-
-    @Inject
-    private lateinit var gerelateerdeZaakConverter: RESTGerelateerdeZaakConverter
-
-    @Inject
-    private lateinit var userConverter: RestUserConverter
-
-    @Inject
-    private lateinit var besluitConverter: RestBesluitConverter
-
-    @Inject
-    private lateinit var zaaktypeConverter: RESTZaaktypeConverter
-
-    @Inject
-    private lateinit var rechtenConverter: RESTRechtenConverter
-
-    @Inject
-    private lateinit var restGeometryConverter: RESTGeometryConverter
-
-    @Inject
-    private lateinit var policyService: PolicyService
-
-    @Inject
-    private lateinit var zaakVariabelenService: ZaakVariabelenService
-
-    @Inject
-    private lateinit var bpmnService: BPMNService
+@Suppress("LongParameterList")
+class RestZaakConverter @Inject constructor(
+    private val ztcClientService: ZtcClientService,
+    private val zrcClientService: ZrcClientService,
+    private val brcClientService: BrcClientService,
+    private val zgwApiService: ZGWApiService,
+    private val zaakResultaatConverter: RESTZaakResultaatConverter,
+    private val groupConverter: RestGroupConverter,
+    private val gerelateerdeZaakConverter: RESTGerelateerdeZaakConverter,
+    private val userConverter: RestUserConverter,
+    private val besluitConverter: RestBesluitConverter,
+    private val zaaktypeConverter: RESTZaaktypeConverter,
+    private val rechtenConverter: RESTRechtenConverter,
+    private val restGeometryConverter: RESTGeometryConverter,
+    private val policyService: PolicyService,
+    private val zaakVariabelenService: ZaakVariabelenService,
+    private val bpmnService: BPMNService,
+) {
+    companion object {
+        private val LOG = Logger.getLogger(RestZaakConverter::class.java.name)
+    }
 
     fun convert(zaak: Zaak): RestZaak {
         val status = if (zaak.status != null) zrcClientService.readStatus(zaak.status) else null
@@ -147,8 +124,12 @@ class RESTZaakConverter {
             initiatorIdentificatieType = when (initiator.getOrNull()?.betrokkeneType) {
                 BetrokkeneType.NATUURLIJK_PERSOON -> IdentificatieType.BSN
                 BetrokkeneType.VESTIGING -> IdentificatieType.VN
-                BetrokkeneType.NIET_NATUURLIJK_PERSOON -> IdentificatieType.RSIN
-                else -> null
+                else -> {
+                    LOG.warning(
+                        "Initiator identificatie type: '$this' is not supported for zaak with UUID: '${zaak.uuid}'"
+                    )
+                    null
+                }
             },
             isHoofdzaak = zaak.is_Hoofdzaak,
             isDeelzaak = zaak.isDeelzaak,

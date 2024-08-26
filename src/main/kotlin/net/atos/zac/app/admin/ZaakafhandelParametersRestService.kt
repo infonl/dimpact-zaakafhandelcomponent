@@ -31,8 +31,8 @@ import net.atos.zac.app.admin.model.RESTTaakFormulierDefinitie
 import net.atos.zac.app.admin.model.RESTTaakFormulierVeldDefinitie
 import net.atos.zac.app.admin.model.RESTZaakbeeindigReden
 import net.atos.zac.app.admin.model.RestZaakafhandelParameters
-import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter
 import net.atos.zac.app.zaak.model.RESTResultaattype
+import net.atos.zac.app.zaak.model.toRestResultaatTypes
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.policy.PolicyService
@@ -63,7 +63,6 @@ class ZaakafhandelParametersRestService @Inject constructor(
     private val referenceTableService: ReferenceTableService,
     private val zaakafhandelParametersConverter: RestZaakafhandelParametersConverter,
     private val caseDefinitionConverter: RESTCaseDefinitionConverter,
-    private val resultaattypeConverter: RESTResultaattypeConverter,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
     private val policyService: PolicyService
 ) {
@@ -194,9 +193,9 @@ class ZaakafhandelParametersRestService @Inject constructor(
     @Path("resultaattypes/{zaaktypeUUID}")
     fun listResultaattypes(@PathParam("zaaktypeUUID") zaaktypeUUID: UUID?): List<RESTResultaattype> {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return resultaattypeConverter.convertResultaattypes(
-            ztcClientService.readResultaattypen(ztcClientService.readZaaktype(zaaktypeUUID!!).url)
-        )
+        return ztcClientService.readResultaattypen(
+            ztcClientService.readZaaktype(zaaktypeUUID!!).url
+        ).toRestResultaatTypes()
     }
 
     private fun listZaaktypes(): List<ZaakType> =

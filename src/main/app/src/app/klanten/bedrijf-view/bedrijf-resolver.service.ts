@@ -19,7 +19,7 @@ export class BedrijfResolverService {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot,
   ): Observable<Bedrijf> {
-    const id: string = route.paramMap.get("vesOrRSIN");
+    const id: string = route.paramMap.get("vestigingsnummer");
     return this.klantenService.readVestiging(id);
   }
 }

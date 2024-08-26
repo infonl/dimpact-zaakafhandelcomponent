@@ -11,6 +11,7 @@ import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.app.admin.model.RestZaakafhandelParameters
 import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter
 import net.atos.zac.app.zaak.model.RESTZaakStatusmailOptie
+import net.atos.zac.app.zaak.model.toRestResultaatType
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 
@@ -51,8 +52,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
         restZaakafhandelParameters.caseDefinition?.takeIf { inclusiefRelaties }?.let { caseDefinition ->
             zaakafhandelParameters.nietOntvankelijkResultaattype?.let {
                 ztcClientService.readResultaattype(it).let { resultaatType ->
-                    restZaakafhandelParameters.zaakNietOntvankelijkResultaattype =
-                        resultaattypeConverter.convertResultaattype(resultaatType)
+                    restZaakafhandelParameters.zaakNietOntvankelijkResultaattype = resultaatType.toRestResultaatType()
                 }
             }
             restZaakafhandelParameters.humanTaskParameters =

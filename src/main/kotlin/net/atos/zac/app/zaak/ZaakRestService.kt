@@ -62,11 +62,10 @@ import net.atos.zac.app.klant.KlantRestService
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import net.atos.zac.app.zaak.converter.RESTGeometryConverter
-import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter
-import net.atos.zac.app.zaak.converter.RESTZaakConverter
 import net.atos.zac.app.zaak.converter.RESTZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RESTZaaktypeConverter
 import net.atos.zac.app.zaak.converter.RestBesluitConverter
+import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.convertToRESTZaakBetrokkenen
 import net.atos.zac.app.zaak.converter.historie.RESTZaakHistorieRegelConverter
 import net.atos.zac.app.zaak.model.RESTDocumentOntkoppelGegevens
@@ -99,6 +98,7 @@ import net.atos.zac.app.zaak.model.RestZaak
 import net.atos.zac.app.zaak.model.RestZaakAssignmentData
 import net.atos.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
 import net.atos.zac.app.zaak.model.toRestBesluittypes
+import net.atos.zac.app.zaak.model.toRestResultaatTypes
 import net.atos.zac.app.zaak.model.updateBesluitWithBesluitWijzigenGegevens
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
@@ -167,10 +167,9 @@ class ZaakRestService @Inject constructor(
     private val zaakVariabelenService: ZaakVariabelenService,
     private val configuratieService: ConfiguratieService,
     private val loggedInUserInstance: Instance<LoggedInUser>,
-    private val restZaakConverter: RESTZaakConverter,
+    private val restZaakConverter: RestZaakConverter,
     private val restZaaktypeConverter: RESTZaaktypeConverter,
     private val restBesluitConverter: RestBesluitConverter,
-    private val restResultaattypeConverter: RESTResultaattypeConverter,
     private val restZaakOverzichtConverter: RESTZaakOverzichtConverter,
     private val restBAGConverter: RESTBAGConverter,
     private val restHistorieRegelConverter: RESTHistorieRegelConverter,
@@ -923,9 +922,9 @@ class ZaakRestService @Inject constructor(
         @PathParam("zaaktypeUUID") zaaktypeUUID: UUID
     ): List<RESTResultaattype> {
         assertPolicy(policyService.readWerklijstRechten().zakenTaken)
-        return restResultaattypeConverter.convertResultaattypes(
-            ztcClientService.readResultaattypen(ztcClientService.readZaaktype(zaaktypeUUID).url)
-        )
+        return ztcClientService.readResultaattypen(
+            ztcClientService.readZaaktype(zaaktypeUUID).url
+        ).toRestResultaatTypes()
     }
 
     @GET

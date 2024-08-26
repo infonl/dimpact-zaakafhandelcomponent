@@ -37,7 +37,7 @@ export class BedrijfZoekComponent implements OnInit {
     "acties",
   ];
   loading = false;
-  types = ["HOOFDVESTIGING", "NEVENVESTIGING", "RECHTSPERSOON"];
+  types = ["HOOFDVESTIGING", "NEVENVESTIGING"];
 
   kvkFormField: AbstractFormControlField;
   vestigingsnummerFormField: AbstractFormControlField;
