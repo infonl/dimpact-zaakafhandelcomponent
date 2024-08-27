@@ -69,8 +69,6 @@
     "jest-junit-reporter": "^1.1.0",
     "jest-preset-angular": "^14.2.2",
     "openapi-typescript": "^7.3.0",
-    "prettier": "3.2.5",
-    "prettier-plugin-organize-imports": "3.2.4",
     "protractor": "~7.0.0",
     "ts-node": "~10.9.2",
     "typescript": "^5.4.5",
