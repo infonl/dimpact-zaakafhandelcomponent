@@ -18,6 +18,7 @@ import java.util.UUID
 object ItestConfiguration {
     private const val ZAC_CONTAINER_PORT = 8080
     private const val ZAC_MANAGEMENT_PORT = 9990
+    private const val GREENMAIL_API_PORT = 8888
 
     const val HTTP_STATUS_OK = 200
     const val HTTP_STATUS_NO_CONTENT = 204
@@ -228,6 +229,11 @@ object ItestConfiguration {
     const val ZAC_WEBSOCKET_BASE_URI = "ws://localhost:$ZAC_CONTAINER_PORT/websocket"
 
     /**
+     * GreenMail API base URI for testing sent mail
+     */
+    const val GREENMAIL_API_URI = "http://localhost:$GREENMAIL_API_PORT/api"
+
+    /**
      * The ZAC management URI from outside the Docker network.
      */
     const val ZAC_MANAGEMENT_URI = "http://localhost:$ZAC_MANAGEMENT_PORT"
@@ -276,6 +282,11 @@ object ItestConfiguration {
      * Second 'manually' created zaak using the ZAC API.
      */
     lateinit var zaakManual2Identification: String
+
+    /**
+     * Global variable to store the UUID of a zaak that is closed in the integration tests
+     */
+    lateinit var zaakClosedUuid: UUID
 
     /**
      * Global variable to store the UUID of a zaak that is created in the integration tests

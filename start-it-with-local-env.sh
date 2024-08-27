@@ -5,9 +5,9 @@ set -e
 help() {
    echo "Starts the integration tests with a local ZAC Docker Image."
    echo
-   echo "Syntax: $0 [-l|d|v|u|h]"
+   echo "Syntax: $0 [-b|d|v|u|h]"
    echo "options:"
-   echo "-l     Build a local ZAC Docker image"
+   echo "-b     Build a local ZAC Docker image"
    echo "-d     Delete local Docker volume data before starting Docker Compose"
    echo "-v     Keep local Docker Compose volume data after test execution"
    echo "-u     Turn on debug logs"
@@ -27,9 +27,9 @@ args="--rerun-tasks"
 [ -f fix-permissions.sh ] && ./fix-permissions.sh
 
 build=false
-while getopts ':ldvuh' OPTION; do
+while getopts ':bdvuh' OPTION; do
   case "$OPTION" in
-    l)
+    b)
       build=true
       ;;
     d)

@@ -559,7 +559,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             )
             Then(
                 """the response should be a 204 HTTP response and eventually a screen event of type 'zaken verdelen'
-                    should be received by the websocker listener and the two zaken should be assigned correctly"""
+                    should be received by the websocket listener and the two zaken should be assigned correctly"""
             ) {
                 val lijstVerdelenResponseBody = lijstVerdelenResponse.body!!.string()
                 logger.info { "Response: $lijstVerdelenResponseBody" }

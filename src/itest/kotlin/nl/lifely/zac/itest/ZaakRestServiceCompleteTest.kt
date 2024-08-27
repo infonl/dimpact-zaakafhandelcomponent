@@ -19,6 +19,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.zaakClosedUuid
 import nl.lifely.zac.itest.util.sleep
 import org.json.JSONArray
 import org.json.JSONObject
@@ -179,6 +180,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                         shouldContainJsonKeyValue("isOpen", false)
                         shouldContainJsonKey("resultaat")
                     }
+                    zaakClosedUuid = zaakUUID
                 }
             }
         }

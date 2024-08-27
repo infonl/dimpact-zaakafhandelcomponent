@@ -11,11 +11,13 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
+import nl.lifely.zac.itest.config.ItestConfiguration.zaakClosedUuid
 import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import okhttp3.Headers
 import org.json.JSONArray
@@ -28,11 +30,11 @@ class MailRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given("A zaak exists and SMTP server is configured") {
-        When("A mail is sent") {
-            val receiverMail = "receiver@example.com"
-            val body = "<p><b>bold</b>paragraph<i>italic</i></p>"
+    val receiverMail = "receiver@example.com"
+    val body = "<p><b>bold</b>paragraph<i>italic</i></p>"
 
+    Given("An open zaak exists and SMTP server is configured") {
+        When("A mail is sent") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/mail/send/$zaakProductaanvraag1Uuid",
                 headers = Headers.headersOf(
@@ -60,7 +62,7 @@ class MailRestServiceTest : BehaviorSpec({
 
             And("the received mail should contain the right details") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
-                    url = "http://localhost:8888/api/user/$receiverMail/messages/"
+                    url = "$GREENMAIL_API_URI/user/$receiverMail/messages/"
                 )
                 receivedMailsResponse.code shouldBe HTTP_STATUS_OK
 
@@ -75,6 +77,49 @@ class MailRestServiceTest : BehaviorSpec({
                             shouldContain("Content-Type: application/text; name=testTextDocument.txt")
                             shouldContain("Content-Disposition: attachment; filename=testTextDocument.txt")
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    Given("A closed zaak exists and SMTP server is configured") {
+        When("A mail is sent") {
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/mail/send/$zaakClosedUuid",
+                headers = Headers.headersOf(
+                    "Content-Type",
+                    "application/json"
+                ),
+                requestBodyAsString = """{
+                    "verzender": "sender@example.com",
+                    "ontvanger": "$receiverMail",
+                    "replyTo": "replyTo@example.com",
+                    "onderwerp": "closed zaak subject",
+                    "body": "$body",
+                    "createDocumentFromMail": false
+                }
+                """.trimIndent(),
+                addAuthorizationHeader = true
+            )
+
+            Then("the response should be 'no-content'") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_NO_CONTENT
+            }
+
+            And("the received mail should contain the right details") {
+                val receivedMailsResponse = itestHttpClient.performGetRequest(
+                    url = "$GREENMAIL_API_URI/user/$receiverMail/messages/"
+                )
+                receivedMailsResponse.code shouldBe HTTP_STATUS_OK
+
+                val receivedMails = JSONArray(receivedMailsResponse.body!!.string())
+                with(receivedMails) {
+                    length() shouldBe 2
+                    with(getJSONObject(1)) {
+                        getString("subject") shouldBe "closed zaak subject"
                     }
                 }
             }
