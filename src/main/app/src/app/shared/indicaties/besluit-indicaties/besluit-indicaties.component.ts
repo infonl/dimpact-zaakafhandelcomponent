@@ -37,7 +37,11 @@ export class BesluitIndicatiesComponent
     this.indicaties = [];
     if (this.besluit.isIngetrokken) {
       this.indicaties.push(
-          new Indicatie(BesluitIndicatie.INGETROKKEN, "stop", this.getIntrekToelichting()),
+        new Indicatie(
+          BesluitIndicatie.INGETROKKEN,
+          "stop",
+          this.getIntrekToelichting(),
+        ),
       );
     }
   }
