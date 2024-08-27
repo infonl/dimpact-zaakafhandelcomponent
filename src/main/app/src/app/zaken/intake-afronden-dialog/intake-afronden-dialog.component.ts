@@ -163,25 +163,25 @@ export class IntakeAfrondenDialogComponent implements OnInit, OnDestroy {
     );
     userEventListenerData.zaakOntvankelijk = values.ontvankelijk;
     userEventListenerData.resultaatToelichting = values.reden;
+
+    const mailtemplate = values.ontvankelijk
+      ? this.zaakOntvankelijkMail
+      : this.zaakNietOntvankelijkMail;
+    if (values.sendMail && mailtemplate) {
+      const restMailGegevens: MailGegevens = new MailGegevens();
+      restMailGegevens.verzender = values.verzender.mail;
+      restMailGegevens.replyTo = values.verzender.replyTo;
+      restMailGegevens.ontvanger = values.ontvanger;
+      restMailGegevens.onderwerp = mailtemplate.onderwerp;
+      restMailGegevens.body = mailtemplate.body;
+      restMailGegevens.createDocumentFromMail = true;
+      Object.assign(userEventListenerData, { restMailGegevens });
+    }
+
     this.planItemsService
       .doUserEventListenerPlanItem(userEventListenerData)
       .subscribe({
         next: () => {
-          const mailtemplate = values.ontvankelijk
-            ? this.zaakOntvankelijkMail
-            : this.zaakNietOntvankelijkMail;
-          if (values.sendMail && mailtemplate) {
-            const mailObject: MailGegevens = new MailGegevens();
-            mailObject.verzender = values.verzender.mail;
-            mailObject.replyTo = values.verzender.replyTo;
-            mailObject.ontvanger = values.ontvanger;
-            mailObject.onderwerp = mailtemplate.onderwerp;
-            mailObject.body = mailtemplate.body;
-            mailObject.createDocumentFromMail = true;
-            this.mailService
-              .sendMail(this.data.zaak.uuid, mailObject)
-              .subscribe(() => {});
-          }
           this.dialogRef.close(true);
         },
         error: () => this.dialogRef.close(false),

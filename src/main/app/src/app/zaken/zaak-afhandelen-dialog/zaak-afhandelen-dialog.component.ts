@@ -167,6 +167,7 @@ export class ZaakAfhandelenDialogComponent implements OnInit, OnDestroy {
       ? this.zaak.resultaat.resultaattype.id
       : values.resultaattype.id;
     userEventListenerData.resultaatToelichting = values.toelichting;
+
     if (values.sendMail && this.mailtemplate) {
       const restMailGegevens: MailGegevens = new MailGegevens();
       restMailGegevens.verzender = values.verzender.mail;
@@ -177,6 +178,7 @@ export class ZaakAfhandelenDialogComponent implements OnInit, OnDestroy {
       restMailGegevens.createDocumentFromMail = true;
       Object.assign(userEventListenerData, { restMailGegevens });
     }
+
     this.planItemsService
       .doUserEventListenerPlanItem(userEventListenerData)
       .subscribe({
