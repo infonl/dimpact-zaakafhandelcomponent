@@ -39,7 +39,6 @@ import data.net.atos.zac.zaak.verlengen_doorlooptijd
 ##################
 # zaaktype_allowed
 ##################
-##################
 test_zaaktype_allowed if {
     zaaktype_allowed
         with input.zaak.zaaktype as "type"
