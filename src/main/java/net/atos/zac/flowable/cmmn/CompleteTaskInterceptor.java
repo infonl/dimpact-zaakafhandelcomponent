@@ -5,19 +5,19 @@
 
 package net.atos.zac.flowable.cmmn;
 
-import net.atos.client.zgw.zrc.model.Zaak;
+import static java.lang.String.format;
+import static net.atos.zac.configuratie.ConfiguratieService.STATUSTYPE_OMSCHRIJVING_INTAKE;
+
+import java.util.UUID;
+import java.util.logging.Logger;
+
 import org.flowable.cmmn.api.runtime.PlanItemInstance;
 import org.flowable.cmmn.engine.CmmnEngineConfiguration;
 import org.flowable.cmmn.engine.impl.interceptor.DefaultCmmnIdentityLinkInterceptor;
 import org.flowable.task.service.impl.persistence.entity.TaskEntity;
 
+import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.flowable.FlowableHelper;
-
-import java.util.UUID;
-import java.util.logging.Logger;
-
-import static java.lang.String.format;
-import static net.atos.zac.configuratie.ConfiguratieService.STATUSTYPE_OMSCHRIJVING_INTAKE;
 
 public class CompleteTaskInterceptor extends DefaultCmmnIdentityLinkInterceptor {
     private static final Logger LOG = Logger.getLogger(CompleteTaskInterceptor.class.getName());
@@ -33,8 +33,17 @@ public class CompleteTaskInterceptor extends DefaultCmmnIdentityLinkInterceptor 
         super.handleCompleteTask(task);
         FlowableHelper.getInstance().getIndexeerService().removeTaak(task.getId());
 
-        if (task.getTaskDefinitionKey().equals(TASK_AANVULLENDE_INFORMATIE_ID)) {
-            // TODO: check if there are no other tasks with the same key still open
+        // if this concerns a 'aanvullende informatie' task and there are, besides this one,
+        // no other 'aanvullende informatie' plan item instances currently active
+        // within the current case, then change the ZGW status of the zaak back to `intake`
+        // otherwise, do nothing
+        if (task.getTaskDefinitionKey().equals(TASK_AANVULLENDE_INFORMATIE_ID) && cmmnEngineConfiguration.getCmmnRuntimeService()
+                .createPlanItemInstanceQuery()
+                .caseInstanceId(task.getScopeId())
+                .planItemDefinitionId(TASK_AANVULLENDE_INFORMATIE_ID)
+                .planItemInstanceState("active")
+                .list().size() == 1
+        ) {
             PlanItemInstance planItemInstance = cmmnEngineConfiguration.getCmmnRuntimeService()
                     .createPlanItemInstanceQuery()
                     .planItemInstanceId(task.getSubScopeId())
