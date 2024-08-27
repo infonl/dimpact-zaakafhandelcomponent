@@ -53,8 +53,7 @@ public class UpdateZaakLifecycleListener implements PlanItemInstanceLifecycleLis
     private void updateZaak(final PlanItemInstance planItemInstance, final String statustypeOmschrijving) {
         final UUID zaakUUID = FlowableHelper.getInstance().getZaakVariabelenService().readZaakUUID(planItemInstance);
         final Zaak zaak = FlowableHelper.getInstance().getZrcClientService().readZaak(zaakUUID);
-        LOG.info(format("Zaak %s: Change Status to '%s'", zaakUUID, statustypeOmschrijving));
-        FlowableHelper.getInstance().getZgwApiService()
-                .createStatusForZaak(zaak, statustypeOmschrijving, STATUS_TOELICHTING);
+        LOG.info(format("Zaak with UUID '%s': changing status to '%s'", zaakUUID, statustypeOmschrijving));
+        FlowableHelper.getInstance().getZgwApiService().createStatusForZaak(zaak, statustypeOmschrijving, STATUS_TOELICHTING);
     }
 }
