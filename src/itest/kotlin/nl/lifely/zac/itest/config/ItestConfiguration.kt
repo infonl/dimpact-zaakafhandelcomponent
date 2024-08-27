@@ -284,11 +284,6 @@ object ItestConfiguration {
     lateinit var zaakManual2Identification: String
 
     /**
-     * Global variable to store the UUID of a zaak that is closed in the integration tests
-     */
-    lateinit var zaakClosedUuid: UUID
-
-    /**
      * Global variable to store the UUID of a zaak that is created in the integration tests
      * from a productaanvraag.
      */

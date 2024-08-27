@@ -7,11 +7,14 @@ import io.kotest.assertions.json.shouldNotContainJsonKey
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldStartWith
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.lifely.zac.itest.config.ItestConfiguration.ACTIE_ZAAK_AFHANDELEN
 import nl.lifely.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
+import nl.lifely.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
@@ -19,7 +22,6 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.lifely.zac.itest.config.ItestConfiguration.zaakClosedUuid
 import nl.lifely.zac.itest.util.sleep
 import org.json.JSONArray
 import org.json.JSONObject
@@ -44,7 +46,9 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             groupName = TEST_GROUP_A_DESCRIPTION,
             startDate = DATE_TIME_2000_01_01
         ).run {
-            JSONObject(body!!.string()).run {
+            val responseBody = body!!.string()
+            logger.info { "Response: $responseBody" }
+            JSONObject(responseBody).run {
                 getJSONObject("zaakdata").run {
                     zaakUUID = getString("zaakUUID").run(UUID::fromString)
                 }
@@ -53,7 +57,9 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
         itestHttpClient.performGetRequest(
             "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems"
         ).run {
-            JSONArray(body!!.string()).getJSONObject(0).run {
+            val responseBody = body!!.string()
+            logger.info { "Response: $responseBody" }
+            JSONArray(responseBody).getJSONObject(0).run {
                 intakeId = getString("id").toInt()
             }
         }
@@ -77,13 +83,14 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             }
             """.trimIndent()
         ).run {
-            logger.info { "Response: ${body!!.string()}" }
             code shouldBe HTTP_STATUS_NO_CONTENT
         }
         itestHttpClient.performGetRequest(
             "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID"
         ).run {
-            JSONArray(body!!.string()).getJSONObject(0).run {
+            val responseBody = body!!.string()
+            logger.info { "Response: $responseBody" }
+            JSONArray(responseBody).getJSONObject(0).run {
                 // we do not care about the specific result type, so we just take the first one
                 resultaatTypeUuid = getString("id").let(UUID::fromString)
             }
@@ -94,24 +101,24 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems"
             ).run {
-                JSONArray(body!!.string()).getJSONObject(0).run {
+                val responseBody = body!!.string()
+                logger.info { "Response: $responseBody" }
+                JSONArray(responseBody).getJSONObject(0).run {
                     afhandelenId = getString("id").toInt()
                 }
             }
             sleep(1)
             itestHttpClient.performJSONPostRequest(
                 "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
-                requestBodyAsString = """
-            {
-                "zaakUuid":"$zaakUUID",
-                "planItemInstanceId":"$afhandelenId",
-                "actie":"$ACTIE_ZAAK_AFHANDELEN",
-                "resultaattypeUuid": "$resultaatTypeUuid",
-                "resultaatToelichting":"afronden"
-            }
+                requestBodyAsString = """{
+                    "zaakUuid":"$zaakUUID",
+                    "planItemInstanceId":"$afhandelenId",
+                    "actie":"$ACTIE_ZAAK_AFHANDELEN",
+                    "resultaattypeUuid": "$resultaatTypeUuid",
+                    "resultaatToelichting":"afronden"
+                }
                 """.trimIndent()
             ).run {
-                logger.info { "Response: ${body!!.string()}" }
                 code shouldBe HTTP_STATUS_NO_CONTENT
             }
 
@@ -136,7 +143,6 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                     {"reden":"dummyReason"}
                 """.trimIndent()
             ).run {
-                logger.info { "Response: ${body!!.string()}" }
                 code shouldBe HTTP_STATUS_NO_CONTENT
             }
 
@@ -167,7 +173,6 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                     }
                 """.trimIndent()
             ).run {
-                logger.info { "Response: ${body!!.string()}" }
                 code shouldBe HTTP_STATUS_NO_CONTENT
             }
 
@@ -180,7 +185,106 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                         shouldContainJsonKeyValue("isOpen", false)
                         shouldContainJsonKey("resultaat")
                     }
-                    zaakClosedUuid = zaakUUID
+                }
+            }
+        }
+    }
+
+    Given("A zaak has been created that has not finished the intake phase") {
+        lateinit var zaakUUID: UUID
+        lateinit var resultaatTypeUuid: UUID
+        val afhandelenId: Int
+
+        zacClient.createZaak(
+            zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
+            groupId = TEST_GROUP_A_ID,
+            groupName = TEST_GROUP_A_DESCRIPTION,
+            startDate = DATE_TIME_2000_01_01
+        ).run {
+            val responseBody = body!!.string()
+            logger.info { "Response: $responseBody" }
+            JSONObject(responseBody).run {
+                getJSONObject("zaakdata").run {
+                    zaakUUID = getString("zaakUUID").run(UUID::fromString)
+                }
+            }
+        }
+        itestHttpClient.performGetRequest(
+            "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID"
+        ).run {
+            val responseBody = body!!.string()
+            logger.info { "Response: $responseBody" }
+            JSONArray(responseBody).getJSONObject(0).run {
+                // we do not care about the specific result type, so we just take the first one
+                resultaatTypeUuid = getString("id").let(UUID::fromString)
+            }
+        }
+        itestHttpClient.performGetRequest(
+            "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems"
+        ).run {
+            val responseBody = body!!.string()
+            logger.info { "Response: $responseBody" }
+            JSONArray(responseBody).getJSONObject(0).run {
+                afhandelenId = getString("id").toInt()
+            }
+        }
+
+        When("the zaak is completed as 'not-admissible'") {
+            val receiverMail = "receiverZaakComplete@example.com"
+            val senderMail = "sender@example.com"
+            val mailBody = "<p><b>bold</b>paragraph<i>italic</i></p>"
+
+            // Wait before setting the status of a zaak (implicitly)
+            // because OpenZaak does not allow setting multiple statuses for one zaak
+            // within the same timeframe of one second.
+            // If we do not wait in these cases we get a 400 response from OpenZaak with:
+            // "rest_framework.exceptions.ValidationError: {'non_field_errors':
+            // [ErrorDetail(string='De velden zaak, datum_status_gezet moeten een unieke set zijn.', code='unique')]}"
+            //
+            // Related OpenZaak issue: https://github.com/open-zaak/open-zaak/issues/1639
+            sleep(1)
+            itestHttpClient.performJSONPostRequest(
+                "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
+                requestBodyAsString = """{
+                    "zaakUuid":"$zaakUUID",
+                    "planItemInstanceId":"$afhandelenId",
+                    "actie":"$ACTIE_ZAAK_AFHANDELEN",
+                    "resultaattypeUuid": "$resultaatTypeUuid",
+                    "resultaatToelichting":"afronden",
+                    "zaakOntvankelijk": false,
+                    "restMailGegevens": {
+                        "verzender": "$senderMail",
+                        "ontvanger": "$receiverMail",
+                        "replyTo": "replyTo@example.com",
+                        "onderwerp": "closed zaak subject",
+                        "body": "$mailBody",
+                        "createDocumentFromMail": false
+                    }
+                }
+                """.trimIndent()
+            ).run {
+                code shouldBe HTTP_STATUS_NO_CONTENT
+            }
+
+            Then("email should be sent with correct details") {
+                val receivedMailsResponse = itestHttpClient.performGetRequest(
+                    url = "$GREENMAIL_API_URI/user/$receiverMail/messages/"
+                )
+                receivedMailsResponse.code shouldBe HTTP_STATUS_OK
+
+                val responseBody = receivedMailsResponse.body!!.string()
+                logger.info { "Response: $responseBody" }
+                with(JSONArray(responseBody)) {
+                    length() shouldBe 1
+                    with(getJSONObject(0)) {
+                        getString("subject") shouldBe "closed zaak subject"
+                        getString("contentType") shouldStartWith "multipart/mixed"
+                        with(getString("mimeMessage")) {
+                            shouldContain(senderMail)
+                            shouldContain(receiverMail)
+                            shouldContain(mailBody)
+                        }
+                    }
                 }
             }
         }

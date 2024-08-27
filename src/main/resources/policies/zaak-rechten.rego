@@ -164,6 +164,7 @@ default versturen_email := false
 versturen_email {
     behandelaar.rol in user.rollen
     zaaktype_allowed == true
+    zaak.open == true
 }
 
 default versturen_ontvangstbevestiging := false

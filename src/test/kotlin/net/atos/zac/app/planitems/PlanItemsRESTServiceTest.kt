@@ -227,7 +227,10 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         val resultaat = Resultaat()
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+            startenTaak = true,
+            versturenEmail = true
+        )
         every { policyService.checkZaakAfsluitbaar(zaak) } just runs
         every { brcClientService.listBesluiten(zaak) } returns listOf(Besluit())
         every { zrcClientService.readResultaat(zaak.resultaat) } returns resultaat
