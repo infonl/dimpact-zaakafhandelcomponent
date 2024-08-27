@@ -66,6 +66,12 @@
                     <extensionElements>
                         <modeler:flowable-idm-initiator xmlns:modeler="http://flowable.org/modeler">
                             <![CDATA[true]]></modeler:flowable-idm-initiator>
+                        <flowable:planItemLifecycleListener sourceState="enabled" targetState="active"
+                                                            class="net.atos.zac.flowable.cmmn.UpdateZaakLifecycleListener">
+                            <flowable:field name="status">
+                                <flowable:string><![CDATA[Aanvullende informatie vereist]]></flowable:string>
+                            </flowable:field>
+                        </flowable:planItemLifecycleListener>
                     </extensionElements>
                 </humanTask>
                 <userEventListener id="INTAKE_AFRONDEN" name="Intake afronden"
