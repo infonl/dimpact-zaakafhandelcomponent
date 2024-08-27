@@ -20,5 +20,4 @@ export class Besluit {
   besluittype: Besluittype;
   isIngetrokken: boolean;
   informatieobjecten: EnkelvoudigInformatieobject[];
-  indicaties: BesluitIndicatie[];
 }

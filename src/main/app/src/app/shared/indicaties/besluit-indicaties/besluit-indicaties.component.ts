@@ -35,16 +35,11 @@ export class BesluitIndicatiesComponent
 
   private loadIndicaties(): void {
     this.indicaties = [];
-    const indicaties = this.besluit.indicaties;
-    indicaties.forEach((indicatie) => {
-      switch (indicatie) {
-        case BesluitIndicatie.INGETROKKEN:
-          this.indicaties.push(
-            new Indicatie(indicatie, "stop", this.getIntrekToelichting()),
-          );
-          break;
-      }
-    });
+    if (this.besluit.isIngetrokken) {
+      this.indicaties.push(
+          new Indicatie(BesluitIndicatie.INGETROKKEN, "stop", this.getIntrekToelichting()),
+      );
+    }
   }
 
   private getIntrekToelichting(): string {
