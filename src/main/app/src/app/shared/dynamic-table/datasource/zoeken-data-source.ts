@@ -66,8 +66,6 @@ export abstract class ZoekenDataSource<
     this.zoekParameters.sorteerRichting = this.sort.direction;
     this.zoekParameters.sorteerVeld = SorteerVeld[this.sort.active];
 
-    console.log("this.zoekParameters", this.zoekParameters);
-
     return SessionStorageUtil.setItem(
       this.werklijst + "_ZOEKPARAMETERS",
       this.zoekParameters,
@@ -251,12 +249,6 @@ export abstract class ZoekenDataSource<
 
   zoekopdrachtResetToFirstPage(): void {
     this.zoekParameters.page = 0;
-
-    console.log(
-      "this.zoekParameters reset:",
-      this.werklijst,
-      this.zoekParameters,
-    );
 
     SessionStorageUtil.setItem(
       this.werklijst + "_ZOEKPARAMETERS",
