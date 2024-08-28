@@ -50,6 +50,7 @@ import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
 import net.atos.zac.app.zaak.converter.historie.RESTZaakHistorieRegelConverter
+import net.atos.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import net.atos.zac.app.zaak.model.RESTZaaktype
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
@@ -83,9 +84,14 @@ import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.productaanvraag.createProductaanvraagDimpact
 import net.atos.zac.shared.helper.OpschortenZaakHelper
 import net.atos.zac.signalering.SignaleringService
+import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexeerService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
+import org.flowable.task.api.Task
+import java.time.LocalDate
+import java.time.ZoneId
+import java.util.Date
 import java.util.Optional
 import java.util.UUID
 
@@ -409,6 +415,54 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             Then("a policy exception should be thrown") {
                 exception.message shouldBe null
+            }
+        }
+    }
+
+    fun LocalDate.toDate(): Date = Date.from(this.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
+
+    Given("a zaak with tasks exists and zaak and tasks have final date set") {
+        val changeDescription = "change description"
+
+        val zaak = createZaak()
+        val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.plusDays(10)
+
+        val restZaak = createRESTZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate)
+        val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaak, changeDescription)
+        val patchedZaak = createZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate)
+        val task = mockk<Task>()
+
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
+        every { restZaakConverter.convertToPatch(restZaak) } returns patchedZaak
+        every { zrcClientService.patchZaak(zaak.uuid, patchedZaak, changeDescription) } returns patchedZaak
+        every { flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns listOf(task, task)
+        every { task.dueDate } returns zaak.uiterlijkeEinddatumAfdoening.toDate()
+        every { task.dueDate = newZaakFinalDate.toDate() } just runs
+        every { flowableTaskService.updateTask(task) } returns task
+        every { task.id } returns "id"
+        every { eventingService.send(any<ScreenEvent>()) } just runs
+        every { restZaakConverter.toRestZaak(patchedZaak) } returns restZaak
+
+        When("zaak final date is set to a later date") {
+            val updatedRestZaak = zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+
+            Then("zaak is updated with the new data") {
+                with(updatedRestZaak) {
+                    uiterlijkeEinddatumAfdoening shouldBe newZaakFinalDate
+                }
+            }
+
+            And("tasks final date are shifted accordingly") {
+                verify(exactly = 2) {
+                    task.dueDate = newZaakFinalDate.toDate()
+                }
+            }
+
+            And("screen event signals are sent") {
+                verify(exactly = 3) {
+                    eventingService.send(any<ScreenEvent>())
+                }
             }
         }
     }

@@ -131,6 +131,7 @@ import org.apache.commons.collections4.CollectionUtils
 import org.apache.commons.lang3.StringUtils
 import java.net.URI
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
@@ -311,12 +312,25 @@ class ZaakRestService @Inject constructor(
         @PathParam("uuid") zaakUUID: UUID,
         restZaakEditMetRedenGegevens: RESTZaakEditMetRedenGegevens
     ): RestZaak {
-        assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).wijzigen)
+        val zaak = zrcClientService.readZaak(zaakUUID)
+        assertPolicy(policyService.readZaakRechten(zaak).wijzigen)
+
+        val oldFinalDate = zaak.uiterlijkeEinddatumAfdoening
+        val newFinalDate = restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening
+        val durationDays = if (newFinalDate != null) ChronoUnit.DAYS.between(oldFinalDate, newFinalDate) else null
+
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID,
             restZaakConverter.convertToPatch(restZaakEditMetRedenGegevens.zaak),
             restZaakEditMetRedenGegevens.reden
         )
+
+        if (durationDays != null) {
+            if (verlengOpenTaken(zaakUUID, durationDays) > 0) {
+                eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak))
+            }
+        }
+
         return restZaakConverter.toRestZaak(updatedZaak)
     }
 
@@ -392,7 +406,7 @@ class ZaakRestService @Inject constructor(
             toelichting
         )
         if (restZaakVerlengGegevens.takenVerlengen) {
-            val aantalTakenVerlengd = verlengOpenTaken(zaakUUID, restZaakVerlengGegevens.duurDagen)
+            val aantalTakenVerlengd = verlengOpenTaken(zaakUUID, restZaakVerlengGegevens.duurDagen.toLong())
             if (aantalTakenVerlengd > 0) {
                 eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak))
             }
@@ -1177,20 +1191,19 @@ class ZaakRestService @Inject constructor(
             Speciaal.MEDEWERKER -> loggedInUserInstance.get().email
         }
 
-    private fun verlengOpenTaken(zaakUUID: UUID, duurDagen: Int): Int {
-        val count = IntArray(1)
+    private fun verlengOpenTaken(zaakUUID: UUID, duurDagen: Long): Int =
         flowableTaskService.listOpenTasksForZaak(zaakUUID)
             .filter { task -> task.dueDate != null }
-            .forEach { task ->
-                task.dueDate = DateTimeConverterUtil.convertToDate(
-                    DateTimeConverterUtil.convertToLocalDate(task.dueDate).plusDays(duurDagen.toLong())
-                )
-                flowableTaskService.updateTask(task)
-                eventingService.send(ScreenEventType.TAAK.updated(task))
-                count[0]++
+            .run {
+                forEach { task ->
+                    task.dueDate = DateTimeConverterUtil.convertToDate(
+                        DateTimeConverterUtil.convertToLocalDate(task.dueDate).plusDays(duurDagen)
+                    )
+                    flowableTaskService.updateTask(task)
+                    eventingService.send(ScreenEventType.TAAK.updated(task))
+                }
+                count()
             }
-        return count[0]
-    }
 
     private fun removeRelevanteZaak(
         relevanteZaken: MutableList<RelevanteZaak>?,

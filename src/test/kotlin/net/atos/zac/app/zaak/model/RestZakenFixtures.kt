@@ -102,7 +102,8 @@ fun createRESTZaak(
     behandelaar: RestUser = createRESTUser(),
     restGroup: RestGroup = createRESTGroup(),
     indicaties: EnumSet<ZaakIndicatie> = EnumSet.noneOf(ZaakIndicatie::class.java),
-    restZaakType: RESTZaaktype = createRESTZaaktype()
+    restZaakType: RESTZaaktype = createRESTZaaktype(),
+    uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.of(2023, 10, 10)
 ) = RestZaak(
     uuid = UUID.randomUUID(),
     identificatie = "ZA2023001",
@@ -118,7 +119,7 @@ fun createRESTZaak(
     startdatum = LocalDate.of(2023, 9, 15),
     einddatumGepland = LocalDate.of(2023, 10, 1),
     einddatum = LocalDate.of(2023, 10, 5),
-    uiterlijkeEinddatumAfdoening = LocalDate.of(2023, 10, 10),
+    uiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening,
     publicatiedatum = LocalDate.of(2023, 9, 16),
     archiefActiedatum = LocalDate.of(2023, 10, 15),
     archiefNominatie = "Sample Archief Nominatie",
