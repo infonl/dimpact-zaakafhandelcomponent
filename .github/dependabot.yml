@@ -20,12 +20,19 @@ updates:
         update-types:
           - "minor"
           - "patch"
-          # group all updates for ESLint including major, minor, and patch
+      # group all updates for ESLint including major, minor, and patch
       eslint:
         patterns:
           - "@typescript-eslint*"
         update-types:
           - "major"
+          - "minor"
+          - "patch"
+      # Only update minor & patch versions. We want to use LTS version
+      types_node:
+        patterns:
+          - "@types/node"
+        update-types:
           - "minor"
           - "patch"
     ignore:
