@@ -11,6 +11,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
@@ -30,7 +31,7 @@ class MailRestServiceTest : BehaviorSpec({
 
     Given("A zaak exists and SMTP server is configured") {
         When("A mail is sent") {
-            val receiverMail = "receiver@example.com"
+            val receiverMail = "receiverMailTest@example.com"
             val body = "<p><b>bold</b>paragraph<i>italic</i></p>"
 
             val response = itestHttpClient.performJSONPostRequest(
@@ -60,7 +61,7 @@ class MailRestServiceTest : BehaviorSpec({
 
             And("the received mail should contain the right details") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
-                    url = "http://localhost:8888/api/user/$receiverMail/messages/"
+                    url = "$GREENMAIL_API_URI/user/$receiverMail/messages/"
                 )
                 receivedMailsResponse.code shouldBe HTTP_STATUS_OK
 

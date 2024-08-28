@@ -256,7 +256,11 @@ public class PlanItemsRESTService {
     @Path("doUserEventListenerPlanItem")
     public void doUserEventListenerPlanItem(final RESTUserEventListenerData userEventListenerData) {
         final Zaak zaak = zrcClientService.readZaak(userEventListenerData.zaakUuid);
-        assertPolicy(policyService.readZaakRechten(zaak).startenTaak());
+        final var zaakRechten = policyService.readZaakRechten(zaak);
+        assertPolicy(zaakRechten.startenTaak());
+        if (userEventListenerData.restMailGegevens != null) {
+            assertPolicy(zaakRechten.versturenEmail());
+        }
         switch (userEventListenerData.actie) {
             case INTAKE_AFRONDEN -> {
                 final PlanItemInstance planItemInstance = cmmnService.readOpenPlanItem(

@@ -14,6 +14,7 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.client.ZacClient
+import nl.lifely.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_EMAIL_ADDRESS
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
@@ -120,7 +121,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                 lateinit var receivedMails: JSONArray
                 eventually(5.seconds) {
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
-                        url = "http://localhost:8888/api/user/$TEST_USER_1_EMAIL/messages/"
+                        url = "$GREENMAIL_API_URI/user/$TEST_USER_1_EMAIL/messages/"
                     )
                     receivedMailsResponse.code shouldBe HTTP_STATUS_OK
                     receivedMails = JSONArray(receivedMailsResponse.body!!.string())
