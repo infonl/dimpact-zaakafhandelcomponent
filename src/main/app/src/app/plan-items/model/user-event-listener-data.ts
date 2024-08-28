@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { MailGegevens } from "src/app/mail/model/mail-gegevens";
 import { UserEventListenerActie } from "./user-event-listener-actie-enum";
 
 export class UserEventListenerData {
@@ -12,6 +13,7 @@ export class UserEventListenerData {
   zaakOntvankelijk: boolean;
   resultaatToelichting: string;
   resultaattypeUuid: string;
+  restMailGegevens: MailGegevens;
 
   constructor(
     actie: UserEventListenerActie,
