@@ -46,7 +46,7 @@ data class RESTZaakOverzicht(
 
     var resultaat: RESTZaakResultaat? = null,
 
-    var openstaandeTaken: RESTOpenstaandeTaken? = null,
+    var openstaandeTaken: RestOpenstaandeTaken? = null,
 
     var rechten: RESTZaakRechten? = null
 )

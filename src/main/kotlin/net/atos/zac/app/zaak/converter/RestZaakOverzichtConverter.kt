@@ -33,7 +33,7 @@ class RestZaakOverzichtConverter {
     private lateinit var userConverter: RestUserConverter
 
     @Inject
-    private lateinit var openstaandeTakenConverter: RESTOpenstaandeTakenConverter
+    private lateinit var openstaandeTakenConverter: RestOpenstaandeTakenConverter
 
     @Inject
     private lateinit var rechtenConverter: RESTRechtenConverter
