@@ -15,7 +15,7 @@ import java.util.UUID
 
 @NoArgConstructor
 @AllOpen
-data class RESTZaakOverzicht(
+data class RestZaakOverzicht(
     var identificatie: String? = null,
 
     var toelichting: String? = null,

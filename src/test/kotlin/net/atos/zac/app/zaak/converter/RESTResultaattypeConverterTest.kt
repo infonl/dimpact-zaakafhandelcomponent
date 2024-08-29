@@ -16,7 +16,7 @@ import java.util.UUID
 
 class RESTResultaattypeConverterTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
-    val restResultaattypeConverter = RESTResultaattypeConverter(ztcClientService)
+    val restResultaattypeConverter = RestResultaattypeConverter(ztcClientService)
 
     Given("A resultaattype without archiefactietermijn") {
         val resultaattypeUUID = UUID.randomUUID()

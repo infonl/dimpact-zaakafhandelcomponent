@@ -244,6 +244,6 @@ private fun createZaakData() = mapOf(
 
 fun createRESTZaakOverzicht(
     uuid: UUID = UUID.randomUUID()
-) = RESTZaakOverzicht().apply {
+) = RestZaakOverzicht().apply {
     this.uuid = uuid
 }
