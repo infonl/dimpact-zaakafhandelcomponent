@@ -26,6 +26,7 @@ import net.atos.zac.app.zaak.model.RESTZaakVerlengGegevens
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestGerelateerdeZaak
 import net.atos.zac.app.zaak.model.RestZaak
+import net.atos.zac.app.zaak.model.toRestZaakStatus
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.bpmn.BPMNService
@@ -99,7 +100,7 @@ class RestZaakConverter @Inject constructor(
             omschrijving = zaak.omschrijving,
             toelichting = zaak.toelichting,
             zaaktype = restZaaktypeConverter.convert(zaaktype),
-            status = status?.let { convertToRESTZaakStatus(it, statustype!!) },
+            status = status?.let { toRestZaakStatus(it, statustype!!) },
             resultaat = zaak.resultaat?.let { restZaakResultaatConverter.convert(it) },
             isOpgeschort = zaak.isOpgeschort,
             redenOpschorting = if (zaak.isOpgeschort || StringUtils.isNotEmpty(zaak.opschorting.reden)) {

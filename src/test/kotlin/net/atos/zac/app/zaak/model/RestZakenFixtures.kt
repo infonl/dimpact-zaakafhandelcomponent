@@ -211,7 +211,7 @@ fun createRESTZaakResultaat() = RESTZaakResultaat()
 fun createRESTZaakStatus(
     naam: String = "dummyName",
     toelichting: String = "dummyToelichting"
-) = RESTZaakStatus(
+) = RestZaakStatus(
     naam = naam,
     toelichting = toelichting
 )
