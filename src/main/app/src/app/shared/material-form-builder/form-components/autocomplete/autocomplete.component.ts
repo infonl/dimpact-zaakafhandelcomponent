@@ -52,8 +52,8 @@ export class AutocompleteComponent
           typeof value === "string"
             ? value
             : value
-            ? value[this.data.optionLabel]
-            : null,
+              ? value[this.data.optionLabel]
+              : null,
         ),
         map((name) => (name ? this._filter(name) : this.options.slice())),
       );
