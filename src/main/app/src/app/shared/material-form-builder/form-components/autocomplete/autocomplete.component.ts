@@ -73,7 +73,6 @@ export class AutocompleteComponent
   }
 
   isSearching(): boolean {
-    console.log("Searching...");
     return this.data.formControl.value;
   }
 
