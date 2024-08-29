@@ -44,6 +44,7 @@ import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.besluit.BesluitService
+import net.atos.zac.app.zaak.ZaakRestService.Companion.AANVULLENDE_INFORMATIE_TASK_NAME
 import net.atos.zac.app.zaak.converter.RESTGeometryConverter
 import net.atos.zac.app.zaak.converter.RestBesluitConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
@@ -436,8 +437,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
         every { restZaakConverter.convertToPatch(restZaak) } returns patchedZaak
         every { zrcClientService.patchZaak(zaak.uuid, patchedZaak, changeDescription) } returns patchedZaak
-        every { flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns listOf(task, task)
+        every { flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns listOf(task, task, task)
         every { task.dueDate } returns zaak.uiterlijkeEinddatumAfdoening.toDate()
+        every { task.name } returnsMany listOf("dummyTask", AANVULLENDE_INFORMATIE_TASK_NAME, "another task")
         every { task.dueDate = newZaakFinalDate.toDate() } just runs
         every { flowableTaskService.updateTask(task) } returns task
         every { task.id } returns "id"

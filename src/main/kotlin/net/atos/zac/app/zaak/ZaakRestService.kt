@@ -187,6 +187,7 @@ class ZaakRestService @Inject constructor(
         private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
         private const val VERLENGING = "Verlenging"
         private const val AANMAKEN_BESLUIT_TOELICHTING = "Aanmaken besluit"
+        const val AANVULLENDE_INFORMATIE_TASK_NAME = "Aanvullende informatie"
     }
 
     @GET
@@ -326,7 +327,7 @@ class ZaakRestService @Inject constructor(
         )
 
         if (durationDays != null) {
-            if (verlengOpenTaken(zaakUUID, durationDays) > 0) {
+            if (verlengOpenTaken(zaakUUID, durationDays, AANVULLENDE_INFORMATIE_TASK_NAME) > 0) {
                 eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak))
             }
         }
@@ -1191,9 +1192,10 @@ class ZaakRestService @Inject constructor(
             Speciaal.MEDEWERKER -> loggedInUserInstance.get().email
         }
 
-    private fun verlengOpenTaken(zaakUUID: UUID, duurDagen: Long): Int =
+    private fun verlengOpenTaken(zaakUUID: UUID, duurDagen: Long, excludeTaskName: String? = null): Int =
         flowableTaskService.listOpenTasksForZaak(zaakUUID)
             .filter { task -> task.dueDate != null }
+            .filter { task -> if (task.name != null) task.name != excludeTaskName else true }
             .run {
                 forEach { task ->
                     task.dueDate = DateTimeConverterUtil.convertToDate(
