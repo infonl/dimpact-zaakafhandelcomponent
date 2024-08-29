@@ -193,7 +193,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         }
     }
 
-    Given("REST human task data with a user-set fatal date that after the fatal date of the related zaak") {
+    Given("REST human task data with a user-set fatal date that comes after the fatal date of the related zaak") {
         val restHumanTaskData = createRESTHumanTaskData(
             planItemInstanceId = planItemInstanceId,
             taakdata = mapOf(
@@ -223,7 +223,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         }
     }
 
-    Given("REST human task data with a calculated fatal date after the fatal date of the related zaal") {
+    Given("REST human task data with a calculated fatal date after the fatal date of the related zaak") {
         val restHumanTaskData = createRESTHumanTaskData(
             planItemInstanceId = planItemInstanceId,
             taakdata = mapOf(
