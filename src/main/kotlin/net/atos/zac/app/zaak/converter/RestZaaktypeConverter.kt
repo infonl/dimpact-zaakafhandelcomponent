@@ -10,9 +10,9 @@ import net.atos.client.zgw.ztc.util.isNuGeldig
 import net.atos.client.zgw.ztc.util.isServicenormBeschikbaar
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.app.admin.converter.RestZaakafhandelParametersConverter
+import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestZaaktype
 import net.atos.zac.app.zaak.model.RestZaaktypeRelatie
-import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.toRestZaaktypeRelatie
 import net.atos.zac.util.PeriodUtil
 import net.atos.zac.util.UriUtil
