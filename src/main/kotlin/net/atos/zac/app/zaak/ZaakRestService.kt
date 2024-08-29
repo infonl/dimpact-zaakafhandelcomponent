@@ -131,7 +131,6 @@ import org.apache.commons.collections4.CollectionUtils
 import org.apache.commons.lang3.StringUtils
 import java.net.URI
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
 import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
@@ -316,18 +315,15 @@ class ZaakRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak).wijzigen)
 
-        val oldFinalDate = zaak.uiterlijkeEinddatumAfdoening
-        val newFinalDate = restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening
-        val durationDays = if (newFinalDate != null) ChronoUnit.DAYS.between(oldFinalDate, newFinalDate) else null
-
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID,
             restZaakConverter.convertToPatch(restZaakEditMetRedenGegevens.zaak),
             restZaakEditMetRedenGegevens.reden
         )
 
-        if (durationDays != null) {
-            if (verlengOpenTaken(zaakUUID, durationDays, AANVULLENDE_INFORMATIE_TASK_NAME) > 0) {
+        val oldFinalDate = zaak.uiterlijkeEinddatumAfdoening
+        restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening?.let { newFinalDate ->
+            if (newFinalDate.isBefore(oldFinalDate) && adjustFinalDateForOpenTasks(zaakUUID, newFinalDate) > 0) {
                 eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak))
             }
         }
@@ -1192,15 +1188,28 @@ class ZaakRestService @Inject constructor(
             Speciaal.MEDEWERKER -> loggedInUserInstance.get().email
         }
 
-    private fun verlengOpenTaken(zaakUUID: UUID, duurDagen: Long, excludeTaskName: String? = null): Int =
+    private fun verlengOpenTaken(zaakUUID: UUID, durationDays: Long): Int =
         flowableTaskService.listOpenTasksForZaak(zaakUUID)
             .filter { task -> task.dueDate != null }
-            .filter { task -> if (task.name != null) task.name != excludeTaskName else true }
             .run {
                 forEach { task ->
                     task.dueDate = DateTimeConverterUtil.convertToDate(
-                        DateTimeConverterUtil.convertToLocalDate(task.dueDate).plusDays(duurDagen)
+                        DateTimeConverterUtil.convertToLocalDate(task.dueDate).plusDays(durationDays)
                     )
+                    flowableTaskService.updateTask(task)
+                    eventingService.send(ScreenEventType.TAAK.updated(task))
+                }
+                count()
+            }
+
+    private fun adjustFinalDateForOpenTasks(zaakUUID: UUID, zaakFatalDate: LocalDate): Int =
+        flowableTaskService.listOpenTasksForZaak(zaakUUID)
+            .filter { task -> if (task.name != null) task.name != AANVULLENDE_INFORMATIE_TASK_NAME else true }
+            .filter { task -> task.dueDate != null }
+            .filter { task -> DateTimeConverterUtil.convertToLocalDate(task.dueDate).isAfter(zaakFatalDate) }
+            .run {
+                forEach { task ->
+                    task.dueDate = DateTimeConverterUtil.convertToDate(zaakFatalDate)
                     flowableTaskService.updateTask(task)
                     eventingService.send(ScreenEventType.TAAK.updated(task))
                 }
