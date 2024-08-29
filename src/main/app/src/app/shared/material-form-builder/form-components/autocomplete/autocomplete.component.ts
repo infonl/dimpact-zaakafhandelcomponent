@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -52,16 +52,12 @@ export class AutocompleteComponent
           typeof value === "string"
             ? value
             : value
-              ? value[this.data.optionLabel]
-              : null,
+            ? value[this.data.optionLabel]
+            : null,
         ),
         map((name) => (name ? this._filter(name) : this.options.slice())),
       );
     });
-  }
-
-  isSearching(): boolean {
-    return typeof this.data.formControl.value === "string";
   }
 
   displayFn = (obj: any): string => {
@@ -74,6 +70,15 @@ export class AutocompleteComponent
     return this.options.filter((option) =>
       option[this.data.optionLabel].toLowerCase().includes(filterValue),
     );
+  }
+
+  isSearching(): boolean {
+    console.log("Searching...");
+    return this.data.formControl.value;
+  }
+
+  clear() {
+    this.data.formControl.setValue(null);
   }
 
   ngOnDestroy(): void {

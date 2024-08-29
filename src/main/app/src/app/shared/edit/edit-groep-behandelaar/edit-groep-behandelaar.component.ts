@@ -72,7 +72,7 @@ export class EditGroepBehandelaarComponent
   get showAssignToMe(): boolean {
     return (
       this.loggedInUser.id !== this.formField.medewerker.value?.id &&
-      this.loggedInUser.groupIds.indexOf(this.formField.groep.value.id) >= 0
+      this.loggedInUser.groupIds.indexOf(this.formField.groep.value?.id) >= 0
     );
   }
 
