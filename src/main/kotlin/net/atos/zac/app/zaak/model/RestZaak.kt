@@ -84,5 +84,5 @@ data class RestZaak(
     var vertrouwelijkheidaanduiding: String?,
     var zaakdata: Map<String, Any>?,
     var zaakgeometrie: RestGeometry?,
-    var zaaktype: RESTZaaktype
+    var zaaktype: RestZaaktype
 )

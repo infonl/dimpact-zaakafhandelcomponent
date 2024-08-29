@@ -82,7 +82,7 @@ import net.atos.zac.app.zaak.model.RESTZaakOpschortGegevens
 import net.atos.zac.app.zaak.model.RESTZaakOpschorting
 import net.atos.zac.app.zaak.model.RestZaakOverzicht
 import net.atos.zac.app.zaak.model.RESTZaakVerlengGegevens
-import net.atos.zac.app.zaak.model.RESTZaaktype
+import net.atos.zac.app.zaak.model.RestZaaktype
 import net.atos.zac.app.zaak.model.RESTZakenVerdeelGegevens
 import net.atos.zac.app.zaak.model.RESTZakenVrijgevenGegevens
 import net.atos.zac.app.zaak.model.RelatieType
@@ -500,7 +500,7 @@ class ZaakRestService @Inject constructor(
 
     @GET
     @Path("zaaktypes")
-    fun listZaaktypes(): List<RESTZaaktype> =
+    fun listZaaktypes(): List<RestZaaktype> =
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .asSequence()
             .filter { loggedInUserInstance.get().isAuthorisedForZaaktype(it.omschrijving) }
