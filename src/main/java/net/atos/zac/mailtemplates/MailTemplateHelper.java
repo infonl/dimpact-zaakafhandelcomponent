@@ -274,7 +274,11 @@ public class MailTemplateHelper {
                         resolvedTekst,
                         kvkClientService.findVestiging(identificatie)
                 );
-                default -> throw new IllegalStateException(String.format("Unsupported initiator betrokkene type '%s'", betrokkene));
+                case NIET_NATUURLIJK_PERSOON -> replaceInitiatorVariabelenResultaatItem(
+                        resolvedTekst,
+                        kvkClientService.findRechtspersoon(identificatie)
+                );
+                default -> throw new IllegalStateException(String.format("unexpected betrokkenetype %s", betrokkene));
             };
         }
         return replaceInitiatorVariabelen(resolvedTekst, null, null);

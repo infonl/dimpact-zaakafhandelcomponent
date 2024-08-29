@@ -6,6 +6,7 @@
 export class ListBedrijvenParameters {
   vestigingsnummer: string;
   kvkNummer: string;
+  rsin: string;
   naam: string;
   straatnaam: string;
   huisnummer: string;

@@ -15,6 +15,7 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RestZaakafhandelParametersConverter
+import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.policy.PolicyService
@@ -29,6 +30,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
     val referenceTableService = mockk<ReferenceTableService>()
     val zaakafhandelParametersConverter = mockk<RestZaakafhandelParametersConverter>()
     val caseDefinitionConverter = mockk<RESTCaseDefinitionConverter>()
+    val resultaattypeConverter = mockk<RESTResultaattypeConverter>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val policyService = mockk<PolicyService>()
 
@@ -41,6 +43,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         referenceTableService = referenceTableService,
         zaakafhandelParametersConverter = zaakafhandelParametersConverter,
         caseDefinitionConverter = caseDefinitionConverter,
+        resultaattypeConverter = resultaattypeConverter,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
         policyService = policyService
     )

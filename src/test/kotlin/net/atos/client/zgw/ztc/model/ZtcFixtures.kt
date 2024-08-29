@@ -137,7 +137,7 @@ fun createStatusType(
     zaakobjecttypen: List<URI> = listOf(URI("http://example.com/catalogus/${UUID.randomUUID()}")),
     beginObject: LocalDate = LocalDate.now(),
     eindeObject: LocalDate = LocalDate.now(),
-    omschrijving: String = "dummyOmschrijving"
+    omschrijving: String? = null
 ) = StatusType(
     uri,
     zaaktypeIdentificatie,

@@ -4,8 +4,8 @@
  */
 package net.atos.zac.app.admin.model
 
-import net.atos.zac.app.zaak.model.RESTResultaattype
 import net.atos.zac.app.zaak.model.RESTZaakStatusmailOptie
+import net.atos.zac.app.zaak.model.RestResultaattype
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
@@ -21,7 +21,7 @@ data class RestZaakafhandelParameters(
     var einddatumGeplandWaarschuwing: Int? = null,
     var uiterlijkeEinddatumAfdoeningWaarschuwing: Int? = null,
     var creatiedatum: ZonedDateTime? = null,
-    var zaakNietOntvankelijkResultaattype: RESTResultaattype? = null,
+    var zaakNietOntvankelijkResultaattype: RestResultaattype? = null,
     var intakeMail: RESTZaakStatusmailOptie? = null,
     var afrondenMail: RESTZaakStatusmailOptie? = null,
     var productaanvraagtype: String? = null,
