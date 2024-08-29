@@ -34,7 +34,7 @@ import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatie
 import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
 import net.atos.zac.app.informatieobjecten.model.createRESTInformatieobjectZoekParameters
-import net.atos.zac.app.zaak.converter.RESTGerelateerdeZaakConverter
+import net.atos.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
@@ -60,7 +60,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val officeConverterClientService = mockk<OfficeConverterClientService>()
     val ontkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
     val policyService = mockk<PolicyService>()
-    val restGerelateerdeZaakConverter = mockk<RESTGerelateerdeZaakConverter>()
+    val restGerelateerdeZaakConverter = mockk<RestGerelateerdeZaakConverter>()
     val restHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
     val restInformatieobjectConverter = mockk<RESTInformatieobjectConverter>()
     val restInformatieobjecttypeConverter = mockk<RESTInformatieobjecttypeConverter>()

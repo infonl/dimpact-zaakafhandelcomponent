@@ -7,10 +7,14 @@ package net.atos.zac.app.zaak.model
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 
-@NoArgConstructor
 @AllOpen
-data class RESTCoordinates(
-    var latitude: Double = 0.0,
+@NoArgConstructor
+data class RestGeometry(
+    var type: String,
 
-    var longitude: Double = 0.0
+    var point: RestCoordinates? = null,
+
+    var polygon: List<List<RestCoordinates>>? = null,
+
+    var geometrycollection: List<RestGeometry>? = null
 )

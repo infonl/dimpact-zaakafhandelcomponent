@@ -13,7 +13,7 @@ import java.util.UUID
 
 @NoArgConstructor
 @AllOpen
-data class RESTZaaktype(
+data class RestZaaktype(
     var uuid: UUID,
 
     var identificatie: String? = null,
@@ -42,7 +42,7 @@ data class RESTZaaktype(
 
     var verlengingstermijn: Int? = null,
 
-    var zaaktypeRelaties: List<RESTZaaktypeRelatie>? = null,
+    var zaaktypeRelaties: List<RestZaaktypeRelatie>? = null,
 
     var informatieobjecttypes: List<UUID>? = null,
 

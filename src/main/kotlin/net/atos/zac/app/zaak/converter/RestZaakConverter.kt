@@ -26,6 +26,7 @@ import net.atos.zac.app.zaak.model.RESTZaakVerlengGegevens
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestGerelateerdeZaak
 import net.atos.zac.app.zaak.model.RestZaak
+import net.atos.zac.app.zaak.model.toRestZaakStatus
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.bpmn.BPMNService
@@ -50,12 +51,12 @@ class RestZaakConverter @Inject constructor(
     private val zgwApiService: ZGWApiService,
     private val restZaakResultaatConverter: RestZaakResultaatConverter,
     private val restGroupConverter: RestGroupConverter,
-    private val restGerelateerdeZaakConverter: RESTGerelateerdeZaakConverter,
+    private val restGerelateerdeZaakConverter: RestGerelateerdeZaakConverter,
     private val restUserConverter: RestUserConverter,
     private val restBesluitConverter: RestBesluitConverter,
     private val restZaaktypeConverter: RestZaaktypeConverter,
     private val restRechtenConverter: RESTRechtenConverter,
-    private val restGeometryConverter: RESTGeometryConverter,
+    private val restGeometryConverter: RestGeometryConverter,
     private val policyService: PolicyService,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val bpmnService: BPMNService,
@@ -99,7 +100,7 @@ class RestZaakConverter @Inject constructor(
             omschrijving = zaak.omschrijving,
             toelichting = zaak.toelichting,
             zaaktype = restZaaktypeConverter.convert(zaaktype),
-            status = status?.let { convertToRESTZaakStatus(it, statustype!!) },
+            status = status?.let { toRestZaakStatus(it, statustype!!) },
             resultaat = zaak.resultaat?.let { restZaakResultaatConverter.convert(it) },
             isOpgeschort = zaak.isOpgeschort,
             redenOpschorting = if (zaak.isOpgeschort || StringUtils.isNotEmpty(zaak.opschorting.reden)) {

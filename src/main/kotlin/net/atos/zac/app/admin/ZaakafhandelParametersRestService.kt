@@ -31,7 +31,7 @@ import net.atos.zac.app.admin.model.RESTTaakFormulierDefinitie
 import net.atos.zac.app.admin.model.RESTTaakFormulierVeldDefinitie
 import net.atos.zac.app.admin.model.RESTZaakbeeindigReden
 import net.atos.zac.app.admin.model.RestZaakafhandelParameters
-import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter
+import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.app.zaak.model.RestResultaattype
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -63,7 +63,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
     private val referenceTableService: ReferenceTableService,
     private val zaakafhandelParametersConverter: RestZaakafhandelParametersConverter,
     private val caseDefinitionConverter: RESTCaseDefinitionConverter,
-    private val resultaattypeConverter: RESTResultaattypeConverter,
+    private val resultaattypeConverter: RestResultaattypeConverter,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
     private val policyService: PolicyService
 ) {

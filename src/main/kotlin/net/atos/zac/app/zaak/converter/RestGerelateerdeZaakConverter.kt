@@ -15,36 +15,29 @@ import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestGerelateerdeZaak
 import net.atos.zac.policy.PolicyService
 
-class RESTGerelateerdeZaakConverter {
-    @Inject
-    private lateinit var zrcClientService: ZrcClientService
-
-    @Inject
-    private lateinit var ztcClientService: ZtcClientService
-
-    @Inject
-    private lateinit var rechtenConverter: RESTRechtenConverter
-
-    @Inject
-    private lateinit var policyService: PolicyService
-
+class RestGerelateerdeZaakConverter @Inject constructor(
+    private val zrcClientService: ZrcClientService,
+    private val ztcClientService: ZtcClientService,
+    private val rechtenConverter: RESTRechtenConverter,
+    private val policyService: PolicyService
+) {
     fun convert(zaak: Zaak, relatieType: RelatieType?): RestGerelateerdeZaak {
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val zaakrechten = policyService.readZaakRechten(zaak, zaaktype)
-        val restGerelateerdeZaak = RestGerelateerdeZaak()
-        restGerelateerdeZaak.identificatie = zaak.identificatie
-        restGerelateerdeZaak.relatieType = relatieType
-        restGerelateerdeZaak.rechten = rechtenConverter.convert(zaakrechten)
-        if (zaakrechten.lezen) {
-            restGerelateerdeZaak.zaaktypeOmschrijving = zaaktype.omschrijving
-            restGerelateerdeZaak.startdatum = zaak.startdatum
-            if (zaak.status != null) {
-                restGerelateerdeZaak.statustypeOmschrijving = ztcClientService.readStatustype(
-                    zrcClientService.readStatus(zaak.status).statustype
-                ).omschrijving
+        return RestGerelateerdeZaak(
+            identificatie = zaak.identificatie,
+            relatieType = relatieType,
+            rechten = rechtenConverter.convert(zaakrechten),
+            zaaktypeOmschrijving = takeIf { zaakrechten.lezen }?.let { zaaktype.omschrijving },
+            startdatum = takeIf { zaakrechten.lezen }?.let { zaak.startdatum },
+            statustypeOmschrijving = takeIf { zaakrechten.lezen }?.let {
+                zaak.status?.let {
+                    zrcClientService.readStatus(it).let { zaakstatus ->
+                        ztcClientService.readStatustype(zaakstatus.statustype).omschrijving
+                    }
+                }
             }
-        }
-        return restGerelateerdeZaak
+        )
     }
 
     fun convert(relevanteZaak: RelevanteZaak): RestGerelateerdeZaak {

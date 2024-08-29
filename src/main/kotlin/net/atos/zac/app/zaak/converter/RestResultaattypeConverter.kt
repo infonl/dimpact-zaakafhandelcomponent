@@ -15,7 +15,7 @@ import java.net.URI
 import java.time.Period
 import java.util.Locale
 
-class RESTResultaattypeConverter @Inject constructor(
+class RestResultaattypeConverter @Inject constructor(
     private val ztcClientService: ZtcClientService
 ) {
     fun convertResultaattype(resultaattype: ResultaatType) =
@@ -43,7 +43,5 @@ class RESTResultaattypeConverter @Inject constructor(
         convertResultaattype(ztcClientService.readResultaattype(resultaattypeURI))
 
     fun convertResultaattypes(resultaattypes: List<ResultaatType>): List<RestResultaattype> =
-        resultaattypes.stream()
-            .map { this.convertResultaattype(it) }
-            .toList()
+        resultaattypes.map { this.convertResultaattype(it) }
 }

@@ -61,8 +61,8 @@ import net.atos.zac.app.besluit.BesluitService
 import net.atos.zac.app.klant.KlantRestService
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
-import net.atos.zac.app.zaak.converter.RESTGeometryConverter
 import net.atos.zac.app.zaak.converter.RestBesluitConverter
+import net.atos.zac.app.zaak.converter.RestGeometryConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
@@ -80,9 +80,7 @@ import net.atos.zac.app.zaak.model.RESTZaakLocatieGegevens
 import net.atos.zac.app.zaak.model.RESTZaakOntkoppelGegevens
 import net.atos.zac.app.zaak.model.RESTZaakOpschortGegevens
 import net.atos.zac.app.zaak.model.RESTZaakOpschorting
-import net.atos.zac.app.zaak.model.RESTZaakOverzicht
 import net.atos.zac.app.zaak.model.RESTZaakVerlengGegevens
-import net.atos.zac.app.zaak.model.RESTZaaktype
 import net.atos.zac.app.zaak.model.RESTZakenVerdeelGegevens
 import net.atos.zac.app.zaak.model.RESTZakenVrijgevenGegevens
 import net.atos.zac.app.zaak.model.RelatieType
@@ -96,6 +94,8 @@ import net.atos.zac.app.zaak.model.RestZaak
 import net.atos.zac.app.zaak.model.RestZaakAssignmentData
 import net.atos.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
 import net.atos.zac.app.zaak.model.RestZaakBetrokkene
+import net.atos.zac.app.zaak.model.RestZaakOverzicht
+import net.atos.zac.app.zaak.model.RestZaaktype
 import net.atos.zac.app.zaak.model.toRestBesluittypes
 import net.atos.zac.app.zaak.model.toRestResultaatTypes
 import net.atos.zac.app.zaak.model.toRestZaakBetrokkenen
@@ -175,7 +175,7 @@ class ZaakRestService @Inject constructor(
     private val restBAGConverter: RESTBAGConverter,
     private val restHistorieRegelConverter: RESTHistorieRegelConverter,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
-    private val restGeometryConverter: RESTGeometryConverter,
+    private val restGeometryConverter: RestGeometryConverter,
     private val healthCheckService: HealthCheckService,
     private val opschortenZaakHelper: OpschortenZaakHelper,
     private val zaakService: ZaakService,
@@ -462,7 +462,7 @@ class ZaakRestService @Inject constructor(
 
     @GET
     @Path("waarschuwing")
-    fun listZaakWaarschuwingen(): List<RESTZaakOverzicht> {
+    fun listZaakWaarschuwingen(): List<RestZaakOverzicht> {
         val vandaag = LocalDate.now()
         val einddatumGeplandWaarschuwing = mutableMapOf<UUID, LocalDate>()
         val uiterlijkeEinddatumAfdoeningWaarschuwing = mutableMapOf<UUID, LocalDate>()
@@ -500,7 +500,7 @@ class ZaakRestService @Inject constructor(
 
     @GET
     @Path("zaaktypes")
-    fun listZaaktypes(): List<RESTZaaktype> =
+    fun listZaaktypes(): List<RestZaaktype> =
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .asSequence()
             .filter { loggedInUserInstance.get().isAuthorisedForZaaktype(it.omschrijving) }
@@ -558,7 +558,7 @@ class ZaakRestService @Inject constructor(
     @Path("lijst/toekennen/mij")
     fun assignToLoggedInUserFromList(
         @Valid restZaakAssignmentToLoggedInUserData: RestZaakAssignmentToLoggedInUserData
-    ): RESTZaakOverzicht {
+    ): RestZaakOverzicht {
         assertPolicy(policyService.readWerklijstRechten().zakenTaken)
         val zaak = assignLoggedInUserToZaak(
             zaakUUID = restZaakAssignmentToLoggedInUserData.zaakUUID,

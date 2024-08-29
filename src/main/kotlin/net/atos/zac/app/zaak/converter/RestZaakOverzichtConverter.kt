@@ -12,67 +12,59 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.identity.converter.RestGroupConverter
 import net.atos.zac.app.identity.converter.RestUserConverter
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
-import net.atos.zac.app.zaak.model.RESTZaakOverzicht
+import net.atos.zac.app.zaak.model.RestZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.policy.PolicyService
 
-class RestZaakOverzichtConverter {
-    @Inject
-    private lateinit var ztcClientService: ZtcClientService
-
-    @Inject
-    private lateinit var zgwApiService: ZGWApiService
-
-    @Inject
-    private lateinit var zaakResultaatConverter: RestZaakResultaatConverter
-
-    @Inject
-    private lateinit var groupConverter: RestGroupConverter
-
-    @Inject
-    private lateinit var userConverter: RestUserConverter
-
-    @Inject
-    private lateinit var openstaandeTakenConverter: RESTOpenstaandeTakenConverter
-
-    @Inject
-    private lateinit var rechtenConverter: RESTRechtenConverter
-
-    @Inject
-    private lateinit var policyService: PolicyService
-
-    @Inject
-    private lateinit var zrcClientService: ZrcClientService
-
-    fun convert(zaak: Zaak, user: LoggedInUser? = null): RESTZaakOverzicht {
+@Suppress("LongParameterList")
+class RestZaakOverzichtConverter @Inject constructor(
+    private val ztcClientService: ZtcClientService,
+    private val zgwApiService: ZGWApiService,
+    private val zaakResultaatConverter: RestZaakResultaatConverter,
+    private val groupConverter: RestGroupConverter,
+    private val userConverter: RestUserConverter,
+    private val openstaandeTakenConverter: RestOpenstaandeTakenConverter,
+    private val rechtenConverter: RESTRechtenConverter,
+    private val policyService: PolicyService,
+    private val zrcClientService: ZrcClientService,
+) {
+    fun convert(zaak: Zaak, user: LoggedInUser? = null): RestZaakOverzicht {
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val zaakrechten = policyService.readZaakRechten(zaak, zaaktype, user)
-        val restZaakOverzicht = RESTZaakOverzicht()
-        restZaakOverzicht.uuid = zaak.uuid
-        restZaakOverzicht.identificatie = zaak.identificatie
-        restZaakOverzicht.rechten = rechtenConverter.convert(zaakrechten)
-        if (zaakrechten.lezen) {
-            restZaakOverzicht.startdatum = zaak.startdatum
-            restZaakOverzicht.einddatum = zaak.einddatum
-            restZaakOverzicht.einddatumGepland = zaak.einddatumGepland
-            restZaakOverzicht.uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening
-            restZaakOverzicht.toelichting = zaak.toelichting
-            restZaakOverzicht.omschrijving = zaak.omschrijving
-            restZaakOverzicht.zaaktype = zaaktype.omschrijving
-            restZaakOverzicht.openstaandeTaken = openstaandeTakenConverter.convert(zaak.uuid)
-            restZaakOverzicht.resultaat = zaak.resultaat?.let { zaakResultaatConverter.convert(it) }
-            zaak.status?.let {
-                restZaakOverzicht.status = ztcClientService.readStatustype(
-                    zrcClientService.readStatus(it).statustype
-                ).omschrijving
+        return RestZaakOverzicht(
+            uuid = zaak.uuid,
+            identificatie = zaak.identificatie,
+            rechten = rechtenConverter.convert(zaakrechten),
+            startdatum = takeIf { zaakrechten.lezen }?.let { zaak.startdatum },
+            einddatum = takeIf { zaakrechten.lezen }?.let { zaak.einddatum },
+            einddatumGepland = takeIf { zaakrechten.lezen }?.let { zaak.einddatumGepland },
+            uiterlijkeEinddatumAfdoening = takeIf { zaakrechten.lezen }?.let { zaak.uiterlijkeEinddatumAfdoening },
+            toelichting = takeIf { zaakrechten.lezen }?.let { zaak.toelichting },
+            omschrijving = takeIf { zaakrechten.lezen }?.let { zaak.omschrijving },
+            zaaktype = takeIf { zaakrechten.lezen }?.let { zaaktype.omschrijving },
+            openstaandeTaken = openstaandeTakenConverter.convert(zaak.uuid),
+            resultaat = takeIf { zaakrechten.lezen }?.let {
+                zaak.resultaat?.let {
+                    zaakResultaatConverter.convert(
+                        it
+                    )
+                }
+            },
+            status = takeIf { zaakrechten.lezen }?.let {
+                zaak.status?.let {
+                    ztcClientService.readStatustype(zrcClientService.readStatus(it).statustype).omschrijving
+                }
+            },
+            behandelaar = takeIf { zaakrechten.lezen }?.let {
+                zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+                    .map { userConverter.convertUserId(it.betrokkeneIdentificatie.identificatie) }
+                    .orElse(null)
+            },
+            groep = takeIf { zaakrechten.lezen }?.let {
+                zgwApiService.findGroepForZaak(zaak)
+                    .map { groupConverter.convertGroupId(it.betrokkeneIdentificatie.identificatie) }
+                    .orElse(null)
             }
-            zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
-                .map { userConverter.convertUserId(it.betrokkeneIdentificatie.identificatie) }
-                .ifPresent { restZaakOverzicht.behandelaar = it }
-            zgwApiService.findGroepForZaak(zaak)
-                .map { groupConverter.convertGroupId(it.betrokkeneIdentificatie.identificatie) }
-                .ifPresent { restZaakOverzicht.groep = it }
-        }
-        return restZaakOverzicht
+        )
     }
 }

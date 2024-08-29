@@ -58,7 +58,7 @@ fun createRESTGerelateerdeZaak() = RestGerelateerdeZaak()
 
 fun createRESTGeometry(
     type: String = "dummyType",
-) = RESTGeometry(
+) = RestGeometry(
     type = type
 )
 
@@ -100,7 +100,7 @@ fun createRESTZaak(
     behandelaar: RestUser = createRESTUser(),
     restGroup: RestGroup = createRESTGroup(),
     indicaties: EnumSet<ZaakIndicatie> = EnumSet.noneOf(ZaakIndicatie::class.java),
-    restZaakType: RESTZaaktype = createRESTZaaktype(),
+    restZaakType: RestZaaktype = createRESTZaaktype(),
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.of(2023, 10, 10)
 ) = RestZaak(
     uuid = UUID.randomUUID(),
@@ -151,7 +151,7 @@ fun createRESTZaak(
 fun createRESTZaakAanmaakGegevens(
     zaakTypeUUID: UUID = UUID.randomUUID(),
     zaak: RestZaak = createRESTZaak(
-        restZaakType = RESTZaaktype(
+        restZaakType = RestZaaktype(
             // we only need a UUID for the zaaktype when creating a zaak
             uuid = zaakTypeUUID
         )
@@ -211,12 +211,12 @@ fun createRESTZaakResultaat() = RESTZaakResultaat()
 fun createRESTZaakStatus(
     naam: String = "dummyName",
     toelichting: String = "dummyToelichting"
-) = RESTZaakStatus(
+) = RestZaakStatus(
     naam = naam,
     toelichting = toelichting
 )
 
-fun createRESTZaaktype() = RESTZaaktype(
+fun createRESTZaaktype() = RestZaaktype(
     uuid = UUID.randomUUID(),
     identificatie = "dummyIdentificatie",
     doel = "Sample Doel",
@@ -244,6 +244,6 @@ private fun createZaakData() = mapOf(
 
 fun createRESTZaakOverzicht(
     uuid: UUID = UUID.randomUUID()
-) = RESTZaakOverzicht().apply {
+) = RestZaakOverzicht().apply {
     this.uuid = uuid
 }

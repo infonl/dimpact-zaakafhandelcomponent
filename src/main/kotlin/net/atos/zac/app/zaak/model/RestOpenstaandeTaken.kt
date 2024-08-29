@@ -9,7 +9,7 @@ import nl.lifely.zac.util.NoArgConstructor
 
 @AllOpen
 @NoArgConstructor
-data class RESTOpenstaandeTaken(
+data class RestOpenstaandeTaken(
     var taakNamen: List<String>? = null,
 
     var aantalOpenstaandeTaken: Int = 0
