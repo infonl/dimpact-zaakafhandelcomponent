@@ -69,7 +69,6 @@ import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
 import net.atos.zac.app.zaak.converter.historie.RESTZaakHistorieRegelConverter
 import net.atos.zac.app.zaak.model.RESTDocumentOntkoppelGegevens
 import net.atos.zac.app.zaak.model.RESTReden
-import net.atos.zac.app.zaak.model.RESTResultaattype
 import net.atos.zac.app.zaak.model.RESTZaakAanmaakGegevens
 import net.atos.zac.app.zaak.model.RESTZaakAfbrekenGegevens
 import net.atos.zac.app.zaak.model.RESTZaakAfsluitenGegevens
@@ -92,6 +91,7 @@ import net.atos.zac.app.zaak.model.RestBesluitIntrekkenGegevens
 import net.atos.zac.app.zaak.model.RestBesluitVastleggenGegevens
 import net.atos.zac.app.zaak.model.RestBesluitWijzigenGegevens
 import net.atos.zac.app.zaak.model.RestBesluittype
+import net.atos.zac.app.zaak.model.RestResultaattype
 import net.atos.zac.app.zaak.model.RestZaak
 import net.atos.zac.app.zaak.model.RestZaakAssignmentData
 import net.atos.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
@@ -933,7 +933,7 @@ class ZaakRestService @Inject constructor(
     @Path("resultaattypes/{zaaktypeUUID}")
     fun listResultaattypes(
         @PathParam("zaaktypeUUID") zaaktypeUUID: UUID
-    ): List<RESTResultaattype> {
+    ): List<RestResultaattype> {
         assertPolicy(policyService.readWerklijstRechten().zakenTaken)
         return ztcClientService.readResultaattypen(
             ztcClientService.readZaaktype(zaaktypeUUID).url

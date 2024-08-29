@@ -9,6 +9,7 @@ import { Klant } from "../klanten/klant";
 export class Bedrijf implements Klant {
   vestigingsnummer: string;
   kvkNummer: string;
+  rsin: string;
   adres: string;
   postcode: string;
   type: string;

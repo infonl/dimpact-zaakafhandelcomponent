@@ -33,6 +33,7 @@ import net.atos.zac.policy.PolicyService
 import net.atos.zac.util.PeriodUtil
 import net.atos.zac.zoeken.model.ZaakIndicatie
 import org.apache.commons.collections4.CollectionUtils
+import org.apache.commons.lang3.StringUtils
 import java.time.LocalDate
 import java.time.Period
 import java.util.EnumSet
@@ -101,7 +102,11 @@ class RestZaakConverter @Inject constructor(
             status = status?.let { convertToRESTZaakStatus(it, statustype!!) },
             resultaat = zaak.resultaat?.let { restZaakResultaatConverter.convert(it) },
             isOpgeschort = zaak.isOpgeschort,
-            redenOpschorting = zaak.opschorting?.reden.takeIf { zaak.isOpgeschort },
+            redenOpschorting = if (zaak.isOpgeschort || StringUtils.isNotEmpty(zaak.opschorting.reden)) {
+                zaak.opschorting.reden
+            } else {
+                null
+            },
             isVerlengd = zaak.isVerlengd,
             duurVerlenging = if (zaak.isVerlengd) PeriodUtil.format(zaak.verlenging.duur) else null,
             redenVerlenging = if (zaak.isVerlengd) zaak.verlenging.reden else null,
@@ -119,6 +124,7 @@ class RestZaakConverter @Inject constructor(
             initiatorIdentificatieType = when (val betrokkeneType = initiator.getOrNull()?.betrokkeneType) {
                 BetrokkeneType.NATUURLIJK_PERSOON -> IdentificatieType.BSN
                 BetrokkeneType.VESTIGING -> IdentificatieType.VN
+                BetrokkeneType.NIET_NATUURLIJK_PERSOON -> IdentificatieType.RSIN
                 else -> {
                     LOG.warning(
                         "Initiator identificatie type: '$betrokkeneType' is not supported for zaak with UUID: '${zaak.uuid}'"

@@ -68,7 +68,7 @@ data class RestZaak(
     var isVerlengd: Boolean,
 
     var kenmerken: List<RESTZaakKenmerk>?,
-    var omschrijving: String?,
+    var omschrijving: String,
     var publicatiedatum: LocalDate?,
     var rechten: RESTZaakRechten,
     var redenOpschorting: String?,

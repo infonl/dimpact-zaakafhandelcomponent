@@ -12,5 +12,5 @@ import nl.lifely.zac.util.NoArgConstructor
 data class RESTZaakResultaat(
     var toelichting: String? = null,
 
-    var resultaattype: RESTResultaattype? = null
+    var resultaattype: RestResultaattype? = null
 )

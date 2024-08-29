@@ -18,9 +18,13 @@ import nl.lifely.zac.util.NoArgConstructor
 @NoArgConstructor
 data class RestZaakBetrokkene(
     var rolid: String,
+
     var roltype: String,
+
     var roltoelichting: String?,
+
     var type: String,
+
     var identificatie: String
 )
 

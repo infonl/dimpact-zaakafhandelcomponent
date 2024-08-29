@@ -61,6 +61,11 @@
       [value]="bedrijf.vestigingsnummer"
     ></zac-static-text>
     <zac-static-text
+      *ngIf="bedrijf.rsin"
+      [label]="'rsin' | translate"
+      [value]="bedrijf.rsin"
+    ></zac-static-text>
+    <zac-static-text
       [label]="'type' | translate"
       [value]="bedrijf.type | translate"
     ></zac-static-text>

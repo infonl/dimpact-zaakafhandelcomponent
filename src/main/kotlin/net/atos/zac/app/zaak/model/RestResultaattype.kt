@@ -16,7 +16,7 @@ import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
-data class RESTResultaattype(
+data class RestResultaattype(
     var id: UUID,
 
     var naam: String? = null,
@@ -36,7 +36,7 @@ data class RESTResultaattype(
     var selectielijst: String? = null,
 )
 
-fun ResultaatType.toRestResultaatType() = RESTResultaattype(
+fun ResultaatType.toRestResultaatType() = RestResultaattype(
     id = UriUtil.uuidFromURI(this.url),
     naam = this.omschrijving,
     toelichting = this.toelichting,
@@ -56,4 +56,4 @@ fun ResultaatType.toRestResultaatType() = RESTResultaattype(
     } ?: false
 )
 
-fun List<ResultaatType>.toRestResultaatTypes(): List<RESTResultaattype> = this.map { it.toRestResultaatType() }
+fun List<ResultaatType>.toRestResultaatTypes(): List<RestResultaattype> = this.map { it.toRestResultaatType() }
