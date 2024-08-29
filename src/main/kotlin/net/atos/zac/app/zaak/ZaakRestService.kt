@@ -61,7 +61,7 @@ import net.atos.zac.app.besluit.BesluitService
 import net.atos.zac.app.klant.KlantRestService
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
-import net.atos.zac.app.zaak.converter.RESTGeometryConverter
+import net.atos.zac.app.zaak.converter.RestGeometryConverter
 import net.atos.zac.app.zaak.converter.RestBesluitConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
@@ -175,7 +175,7 @@ class ZaakRestService @Inject constructor(
     private val restBAGConverter: RESTBAGConverter,
     private val restHistorieRegelConverter: RESTHistorieRegelConverter,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
-    private val restGeometryConverter: RESTGeometryConverter,
+    private val restGeometryConverter: RestGeometryConverter,
     private val healthCheckService: HealthCheckService,
     private val opschortenZaakHelper: OpschortenZaakHelper,
     private val zaakService: ZaakService,

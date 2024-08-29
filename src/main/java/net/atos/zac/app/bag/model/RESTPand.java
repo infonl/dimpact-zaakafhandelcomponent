@@ -6,7 +6,7 @@
 package net.atos.zac.app.bag.model;
 
 import net.atos.client.bag.model.generated.StatusPand;
-import net.atos.zac.app.zaak.model.RESTGeometry;
+import net.atos.zac.app.zaak.model.RestGeometry;
 
 public class RESTPand extends RESTBAGObject {
 
@@ -16,7 +16,7 @@ public class RESTPand extends RESTBAGObject {
 
     public String statusWeergave;
 
-    public RESTGeometry geometry;
+    public RestGeometry geometry;
 
     public RESTPand() {
     }

@@ -55,7 +55,7 @@ class RestZaakConverter @Inject constructor(
     private val restBesluitConverter: RestBesluitConverter,
     private val restZaaktypeConverter: RestZaaktypeConverter,
     private val restRechtenConverter: RESTRechtenConverter,
-    private val restGeometryConverter: RESTGeometryConverter,
+    private val restGeometryConverter: RestGeometryConverter,
     private val policyService: PolicyService,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val bpmnService: BPMNService,

@@ -58,7 +58,7 @@ fun createRESTGerelateerdeZaak() = RestGerelateerdeZaak()
 
 fun createRESTGeometry(
     type: String = "dummyType",
-) = RESTGeometry(
+) = RestGeometry(
     type = type
 )
 
