@@ -323,10 +323,8 @@ class ZaakRestService @Inject constructor(
 
         val oldFinalDate = zaak.uiterlijkeEinddatumAfdoening
         restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening?.let { newFinalDate ->
-            if (newFinalDate.isBefore(oldFinalDate)) {
-                if (adjustFinalDateForOpenTasks(zaakUUID, newFinalDate) > 0) {
-                    eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak))
-                }
+            if (newFinalDate.isBefore(oldFinalDate) && adjustFinalDateForOpenTasks(zaakUUID, newFinalDate) > 0) {
+                eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak))
             }
         }
 
