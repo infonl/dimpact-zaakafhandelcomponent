@@ -426,7 +426,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         val changeDescription = "change description"
 
         val zaak = createZaak()
-        val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.plusDays(10)
+        val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.minusDays(10)
 
         val restZaak = createRESTZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate)
         val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaak, changeDescription)
