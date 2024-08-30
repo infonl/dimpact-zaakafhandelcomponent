@@ -89,33 +89,45 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         return entityManager.merge(zaakafhandelParameters)
     }
 
+    /**
+     * get the unique combination of zaaktype omschrijving and zaaktype UUID
+     * for the most recent zaakafhandelparameters (= currently active) for a specific productaanvraag type
+     */
+    @Suppress("UNCHECKED_CAST")
     fun findActiveZaaktypeUuidByProductaanvraagType(productaanvraagType: String): UUID? {
-        val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(UUID::class.java)
-        val root = query.from(ZaakafhandelParameters::class.java)
-        query.select(root.get(ZaakafhandelParameters.ZAAKTYPE_UUID))
-            .where(builder.equal(root.get<Any>(ZaakafhandelParameters.PRODUCTAANVRAAGTYPE), productaanvraagType))
-        query.orderBy(builder.desc(root.get<Any>(ZaakafhandelParameters.CREATIEDATUM)))
-        entityManager.createQuery(query).resultList.let { resultList ->
-            if (resultList.isEmpty()) {
+        val query = entityManager.createNativeQuery(
+            " SELECT * FROM zaakafhandelcomponent.zaakafhandelparameters z " +
+                "INNER JOIN ( " +
+                "    SELECT z_inner.zaaktype_omschrijving AS inner_zaaktype_omschrijving, MAX(z_inner.creatiedatum) AS max_creatiedatum " +
+                "  FROM " +
+                "    zaakafhandelcomponent.zaakafhandelparameters z_inner " +
+                "  WHERE " +
+                "    z_inner.productaanvraagtype = :productaanvraagtype " +
+                "  GROUP BY inner_zaaktype_omschrijving " +
+                ") recent_zaaktypes " +
+                "ON " +
+                "z.zaaktype_omschrijving = recent_zaaktypes.inner_zaaktype_omschrijving " +
+                "AND z.creatiedatum = recent_zaaktypes.max_creatiedatum " +
+                "WHERE " +
+                "z.productaanvraagtype = :productaanvraagtype ",
+            ZaakafhandelParameters::class.java
+        )
+        query.setParameter("productaanvraagtype", productaanvraagType)
+        query.resultList.let { resultList ->
+            val zaakafhandelParameters = resultList as List<ZaakafhandelParameters>
+            if (zaakafhandelParameters.isEmpty()) {
                 return null
             }
-            if (resultList.size > 1) {
-                // since we sort on creation date, the first result is by definition the currently active zaakafhandelparameters
-                // for a specific zaaktype; all other results (if any) are older inactive versions
-                // but it's a different story when we have multiple results for different zaak types (zaak type descriptions)
-                // that could happen when the same productaanvraag type is used for multiple zaak types
-                // we need to handle that differently
-                LOG.fine(
-                    String.format(
-                        "Multiple zaakafhandelparameters have been found for productaanvraag type: '%s'. " +
-                            "Returning the first result with the most recent creation date, with zaaktype UUID: '%s'.",
-                        productaanvraagType,
-                        resultList.first()
-                    )
+            if (zaakafhandelParameters.size > 1) {
+                // this should never happen when the following business rule is properly enforced elsewhere:
+                // "There can only be at most one active zaakafhandelparameters for a specific productaanvraagtype"
+                LOG.warning(
+                    "Multiple active zaakafhandelparameters have been found for productaanvraag type: '$productaanvraagType'. " +
+                        "Returning the first result with the most recent creation date, with zaaktypeomschrijving: " +
+                        "'${zaakafhandelParameters.first().zaaktypeOmschrijving}' and zaaktype UUID: '${resultList.first().zaakTypeUUID}'."
                 )
             }
-            return resultList.first()
+            return resultList.first().zaakTypeUUID
         }
     }
 
