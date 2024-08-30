@@ -23,7 +23,6 @@ import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.net.URI
 import java.time.ZonedDateTime
-import java.util.Optional
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -41,8 +40,13 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         private val LOG = Logger.getLogger(ZaakafhandelParameterBeheerService::class.java.name)
     }
 
+    /**
+     * Retrieves the zaakafhandelparameters for a given zaaktype UUID.
+     * Note that a zaaktype UUID uniquely identifies a _version_ of a zaaktype, and therefore also
+     * a specific version of the corresponding zaakafhandelparameters.
+     */
     fun readZaakafhandelParameters(zaaktypeUUID: UUID): ZaakafhandelParameters {
-        ztcClientService.readCacheTime()
+        ztcClientService.resetCacheTimeToNow()
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(ZaakafhandelParameters::class.java)
         val root = query.from(ZaakafhandelParameters::class.java)
@@ -85,15 +89,17 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         return entityManager.merge(zaakafhandelParameters)
     }
 
-    fun findActiveZaaktypeUuidByProductaanvraagType(productaanvraagType: String?): Optional<UUID> {
+    fun findActiveZaaktypeUuidByProductaanvraagType(productaanvraagType: String): UUID? {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(UUID::class.java)
         val root = query.from(ZaakafhandelParameters::class.java)
         query.select(root.get(ZaakafhandelParameters.ZAAKTYPE_UUID))
             .where(builder.equal(root.get<Any>(ZaakafhandelParameters.PRODUCTAANVRAAGTYPE), productaanvraagType))
         query.orderBy(builder.desc(root.get<Any>(ZaakafhandelParameters.CREATIEDATUM)))
-        val resultList = entityManager.createQuery(query).resultList
-        if (resultList.isNotEmpty()) {
+        entityManager.createQuery(query).resultList.let { resultList ->
+            if (resultList.isEmpty()) {
+                return null
+            }
             if (resultList.size > 1) {
                 // since we sort on creation date, the first result is by definition the currently active zaakafhandelparameters
                 // for a specific zaaktype; all other results (if any) are older inactive versions
@@ -109,9 +115,8 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
                     )
                 )
             }
-            return Optional.of<UUID>(resultList.first())
+            return resultList.first()
         }
-        return Optional.empty()
     }
 
     fun listZaakbeeindigRedenen(): List<ZaakbeeindigReden> {

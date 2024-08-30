@@ -37,7 +37,7 @@ class ZTCClientServiceTest : BehaviorSpec({
     Given("ZTC client service") {
 
         When("reading cache time for the first time") {
-            initialDateTime = ztcClientService.readCacheTime()
+            initialDateTime = ztcClientService.resetCacheTimeToNow()
 
             Then("it should return time after test was started") {
                 initialDateTime shouldBeAfter testStartDateTime
@@ -52,7 +52,7 @@ class ZTCClientServiceTest : BehaviorSpec({
         }
 
         When("reading cache time for the second time") {
-            val dateTime = ztcClientService.readCacheTime()
+            val dateTime = ztcClientService.resetCacheTimeToNow()
 
             Then("it should cached the same time") {
                 dateTime shouldBeEqual initialDateTime
@@ -107,7 +107,7 @@ class ZTCClientServiceTest : BehaviorSpec({
         ztcClientService.clearCacheTime()
 
         When("reading the cache time") {
-            val cacheDateTime = ztcClientService.readCacheTime()
+            val cacheDateTime = ztcClientService.resetCacheTimeToNow()
 
             Then("time should be updated") {
                 cacheDateTime shouldBeAfter initialDateTime

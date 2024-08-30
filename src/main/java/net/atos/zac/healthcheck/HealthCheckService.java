@@ -78,7 +78,7 @@ public class HealthCheckService {
     }
 
     public ZaaktypeInrichtingscheck controleerZaaktype(final URI zaaktypeUrl) {
-        ztcClientService.readCacheTime();
+        ztcClientService.resetCacheTimeToNow();
         final ZaakType zaaktype = ztcClientService.readZaaktype(zaaktypeUrl);
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterBeheerService.readZaakafhandelParameters(
                 URIUtil.parseUUIDFromResourceURI(zaaktype.getUrl())

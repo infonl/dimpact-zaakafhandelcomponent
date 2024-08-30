@@ -362,19 +362,15 @@ class ProductaanvraagService @Inject constructor(
     private fun handleProductaanvraagDimpact(productaanvraagObject: ORObject) {
         LOG.fine { "Start handling productaanvraag with object URL: ${productaanvraagObject.url}" }
         val productaanvraag = getProductaanvraag(productaanvraagObject)
-        val zaaktypeUUID = zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(
-            productaanvraag.type
-        )
-        if (zaaktypeUUID.isPresent) {
+        zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(productaanvraag.type)?.let {
+                zaaktypeUUID ->
             try {
-                zaaktypeUUID.get().let {
-                    LOG.fine { "Creating a zaak using a CMMN case with zaaktype: $it" }
-                    startZaakWithCmmnProcess(it, productaanvraag, productaanvraagObject)
-                }
+                LOG.fine { "Creating a zaak using a CMMN case with zaaktype UUID: '$zaaktypeUUID'" }
+                startZaakWithCmmnProcess(zaaktypeUUID, productaanvraag, productaanvraagObject)
             } catch (exception: RuntimeException) {
                 logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
             }
-        } else {
+        } ?: run {
             findZaaktypeByIdentificatie(productaanvraag.type)?.let {
                 try {
                     LOG.fine { "Creating a zaak using a BPMN proces with zaaktype: $it" }

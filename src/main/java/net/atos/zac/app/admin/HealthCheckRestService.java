@@ -65,13 +65,13 @@ public class HealthCheckRestService {
         ztcClientService.clearBesluittypeCache();
         ztcClientService.clearRoltypeCache();
         ztcClientService.clearCacheTime();
-        return ztcClientService.readCacheTime();
+        return ztcClientService.resetCacheTimeToNow();
     }
 
     @GET
     @Path("ztc-cache")
     public ZonedDateTime readZTCCacheTime() {
-        return ztcClientService.readCacheTime();
+        return ztcClientService.resetCacheTimeToNow();
     }
 
     @GET
