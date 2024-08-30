@@ -33,9 +33,7 @@ class RESTSignaleringInstellingenConverter @Inject constructor(
     }
 
     fun convert(instellingen: Collection<SignaleringInstellingen>): List<RESTSignaleringInstellingen> =
-        instellingen.stream()
-            .map { this.convert(it) }
-            .collect(Collectors.toList())
+        instellingen.map { this.convert(it) }
 
     fun convert(restInstellingen: RESTSignaleringInstellingen, group: Group): SignaleringInstellingen =
         signaleringService.readInstellingenGroup(restInstellingen.type, group.id).let {

@@ -213,9 +213,8 @@ class ZtcClientService @Inject constructor(
      */
     fun readInformatieobjecttypen(zaaktypeURI: URI): List<InformatieObjectType> =
         uriToInformatieObjectTypeListCache.get(zaaktypeURI) {
-            readZaaktypeInformatieobjecttypen(zaaktypeURI).stream()
+            readZaaktypeInformatieobjecttypen(zaaktypeURI)
                 .map { readInformatieobjecttype(it.informatieobjecttype) }
-                .toList()
         }
 
     /**

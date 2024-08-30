@@ -63,11 +63,10 @@ class ReferenceTable {
 }
 
 fun ReferenceTable.toRestReferenceTable(inclusiefWaarden: Boolean): RestReferenceTable {
-    var restReferenceTableValues: List<RestReferenceTableValue> = emptyList()
-    if (inclusiefWaarden) {
-        restReferenceTableValues = this.values.stream()
-            .map { it.toRestReferenceTableValue() }
-            .toList()
+    val restReferenceTableValues = if (inclusiefWaarden) {
+        this.values.map { it.toRestReferenceTableValue() }
+    } else {
+        emptyList()
     }
     return RestReferenceTable(
         this.id!!,
