@@ -67,7 +67,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         )
         every { policyService.readOverigeRechten().beheren } returns true
         every {
-            zaakafhandelParametersConverter.convertRESTZaakafhandelParameters(restZaakafhandelParameters)
+            zaakafhandelParametersConverter.toZaakafhandelParameters(restZaakafhandelParameters)
         } returns zaakafhandelParameters
         every { zaakafhandelParameterBeheerService.updateZaakafhandelParameters(zaakafhandelParameters) } returns
             updatedZaakafhandelParameters
@@ -76,7 +76,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         } just Runs
         every { zaakafhandelParameterService.clearListCache() } returns "cache cleared"
         every {
-            zaakafhandelParametersConverter.convertZaakafhandelParameters(updatedZaakafhandelParameters, true)
+            zaakafhandelParametersConverter.toRestZaakafhandelParameters(updatedZaakafhandelParameters, true)
         } returns updatedRestZaakafhandelParameters
 
         When("the zaakafhandelparameters are updated with a different domein") {

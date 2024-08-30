@@ -63,7 +63,7 @@ public class MailtemplateKoppelingRESTService {
         return mailtemplateKoppelingList.stream().map(mailtemplateKoppeling -> {
             final RESTMailtemplateKoppeling restMailtemplateKoppeling = RESTMailtemplateKoppelingConverter.convert(mailtemplateKoppeling);
             restMailtemplateKoppeling.zaakafhandelParameters = restZaakafhandelParametersConverter
-                    .convertZaakafhandelParameters(mailtemplateKoppeling.getZaakafhandelParameters(), false);
+                    .toRestZaakafhandelParameters(mailtemplateKoppeling.getZaakafhandelParameters(), false);
             return restMailtemplateKoppeling;
         }).toList();
     }

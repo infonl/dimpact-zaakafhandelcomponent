@@ -31,6 +31,7 @@ import net.atos.zac.app.admin.model.RESTTaakFormulierDefinitie
 import net.atos.zac.app.admin.model.RESTTaakFormulierVeldDefinitie
 import net.atos.zac.app.admin.model.RESTZaakbeeindigReden
 import net.atos.zac.app.admin.model.RestZaakafhandelParameters
+import net.atos.zac.app.util.exception.InputValidationFailedException
 import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.app.zaak.model.RestResultaattype
 import net.atos.zac.configuratie.ConfiguratieService
@@ -110,7 +111,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
         return listZaaktypes()
             .map { UriUtil.uuidFromURI(it.url) }
             .map { zaakafhandelParameterService.readZaakafhandelParameters(it) }
-            .map { zaakafhandelParametersConverter.convertZaakafhandelParameters(it, false) }
+            .map { zaakafhandelParametersConverter.toRestZaakafhandelParameters(it, false) }
     }
 
     /**
@@ -123,35 +124,39 @@ class ZaakafhandelParametersRestService @Inject constructor(
     fun readZaakafhandelParameters(@PathParam("zaaktypeUUID") zaakTypeUUID: UUID): RestZaakafhandelParameters {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID).let {
-            zaakafhandelParametersConverter.convertZaakafhandelParameters(it, true)
+            zaakafhandelParametersConverter.toRestZaakafhandelParameters(it, true)
         }
     }
 
     /**
-     * Saves the ZAAKAFHANDELPARAMETERS
+     * Save or updates zaakafhandelparameters.
      *
-     * @param restZaakafhandelParameters ZAAKAFHANDELPARAMETERS
+     * @param restZaakafhandelParameters the zaakafhandelparameters to save or update;
+     * if the `id` field is null, a new zaakafhandelparameters will be created,
+     * otherwise the existing zaakafhandelparameters will be updated
      */
     @PUT
     fun updateZaakafhandelparameters(
         restZaakafhandelParameters: RestZaakafhandelParameters
     ): RestZaakafhandelParameters {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        var zaakafhandelParameters = zaakafhandelParametersConverter.convertRESTZaakafhandelParameters(
-            restZaakafhandelParameters
-        )
-        zaakafhandelParameters = if (zaakafhandelParameters.id == null) {
-            zaakafhandelParameterBeheerService.createZaakafhandelParameters(zaakafhandelParameters)
-        } else {
-            zaakafhandelParameterBeheerService.updateZaakafhandelParameters(zaakafhandelParameters).also {
-                zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
-                // we also need to clear the zaakafhandelparameters list cache here to make sure that for example users
-                // who now no longer have access to this zaaktype due to this change are no longer
-                // able to see and open zaken that have this zaaktype
-                zaakafhandelParameterService.clearListCache()
+        restZaakafhandelParameters.productaanvraagtype?.let { productaanvraagtype ->
+            // TODO: not correct: when saving a new version of zaps, the old version is still seen as active..
+            zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(productaanvraagtype)?.let {
+                throw InputValidationFailedException(
+                    // TODO: use error code and translate in frontend
+                    "Productaanvraagtype '$productaanvraagtype' is already in use by another active zaaktype with UUID: '$it'"
+                )
             }
         }
-        return zaakafhandelParametersConverter.convertZaakafhandelParameters(zaakafhandelParameters, true)
+        val zaakafhandelParameters = zaakafhandelParametersConverter.toZaakafhandelParameters(restZaakafhandelParameters)
+        val updatedZaakafhandelParameters = zaakafhandelParameters.id?.let {
+            zaakafhandelParameterBeheerService.updateZaakafhandelParameters(zaakafhandelParameters).also {
+                zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
+                zaakafhandelParameterService.clearListCache()
+            }
+        } ?: zaakafhandelParameterBeheerService.createZaakafhandelParameters(zaakafhandelParameters)
+        return zaakafhandelParametersConverter.toRestZaakafhandelParameters(updatedZaakafhandelParameters, true)
     }
 
     /**
