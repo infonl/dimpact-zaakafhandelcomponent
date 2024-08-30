@@ -11,6 +11,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.persistence.EntityManager
+import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Order
@@ -28,6 +29,7 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val criteriaBuilder = mockk<CriteriaBuilder>()
     val zaakafhandelparametersCriteriaQuery = mockk<CriteriaQuery<ZaakafhandelParameters>>()
+    val zaakafhandelparametersTypedQuery = mockk<TypedQuery<ZaakafhandelParameters>>()
     val zaakafhandelparametersRoot = mockk<Root<ZaakafhandelParameters>>()
     val path = mockk<Path<Any>>()
     val predicate = mockk<Predicate>()
@@ -110,19 +112,16 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
     Given("A zaakafhandelparameters in the database for a specific zaaktype UUID and a productaanvraagType") {
         val productaanvraagType = "dummyProductaanvraagType"
         val zaaktypeUUID = UUID.randomUUID()
-        val uuidCriteriaQuery = mockk<CriteriaQuery<UUID>>()
-
-        every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(UUID::class.java) } returns uuidCriteriaQuery
-        every { uuidCriteriaQuery.from(ZaakafhandelParameters::class.java) } returns zaakafhandelparametersRoot
-        every { uuidCriteriaQuery.select(zaakafhandelparametersRoot.get("zaakTypeUUID")) } returns uuidCriteriaQuery
-        every { zaakafhandelparametersRoot.get<Any>("productaanvraagtype") } returns path
-        every { criteriaBuilder.equal(path, productaanvraagType) } returns predicate
-        every { uuidCriteriaQuery.where(predicate) } returns uuidCriteriaQuery
-        every { zaakafhandelparametersRoot.get<Any>("creatiedatum") } returns path
-        every { criteriaBuilder.desc(path) } returns order
-        every { uuidCriteriaQuery.orderBy(order) } returns uuidCriteriaQuery
-        every { entityManager.createQuery(uuidCriteriaQuery).resultList } returns listOf(zaaktypeUUID)
+        val zaakafhandelparameters = createZaakafhandelParameters(
+            zaaktypeUUID = zaaktypeUUID,
+        )
+        every {
+            entityManager.createNamedQuery(any(), ZaakafhandelParameters::class.java)
+        } returns zaakafhandelparametersTypedQuery
+        every {
+            zaakafhandelparametersTypedQuery.setParameter("productaanvraagtype", productaanvraagType)
+        } returns zaakafhandelparametersTypedQuery
+        every { zaakafhandelparametersTypedQuery.resultList } returns listOf(zaakafhandelparameters)
 
         When(
             """
@@ -145,19 +144,18 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
     ) {
         val productaanvraagType = "dummyProductaanvraagType"
         val zaaktypeUUIDs = listOf(UUID.randomUUID(), UUID.randomUUID())
-        val uuidCriteriaQuery = mockk<CriteriaQuery<UUID>>()
 
-        every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(UUID::class.java) } returns uuidCriteriaQuery
-        every { uuidCriteriaQuery.from(ZaakafhandelParameters::class.java) } returns zaakafhandelparametersRoot
-        every { uuidCriteriaQuery.select(zaakafhandelparametersRoot.get("zaakTypeUUID")) } returns uuidCriteriaQuery
-        every { zaakafhandelparametersRoot.get<Any>("productaanvraagtype") } returns path
-        every { criteriaBuilder.equal(path, productaanvraagType) } returns predicate
-        every { uuidCriteriaQuery.where(predicate) } returns uuidCriteriaQuery
-        every { zaakafhandelparametersRoot.get<Any>("creatiedatum") } returns path
-        every { criteriaBuilder.desc(path) } returns order
-        every { uuidCriteriaQuery.orderBy(order) } returns uuidCriteriaQuery
-        every { entityManager.createQuery(uuidCriteriaQuery).resultList } returns zaaktypeUUIDs
+        val zaakafhandelparametersList = listOf(
+            createZaakafhandelParameters(zaaktypeUUID = zaaktypeUUIDs[0]),
+            createZaakafhandelParameters(zaaktypeUUID = zaaktypeUUIDs[1])
+        )
+        every {
+            entityManager.createNamedQuery(any(), ZaakafhandelParameters::class.java)
+        } returns zaakafhandelparametersTypedQuery
+        every {
+            zaakafhandelparametersTypedQuery.setParameter("productaanvraagtype", productaanvraagType)
+        } returns zaakafhandelparametersTypedQuery
+        every { zaakafhandelparametersTypedQuery.resultList } returns zaakafhandelparametersList
 
         When(
             """
@@ -173,39 +171,4 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
             }
         }
     }
-//    Given(
-//        """
-//        Two zaakafhandelparameters with different zaaktype UUIDs but both with the same productaanvraagType
-//        """
-//    ) {
-//        val productaanvraagType = "dummyProductaanvraagType"
-//        val zaaktypeUUIDs = listOf(UUID.randomUUID(), UUID.randomUUID())
-//        val uuidCriteriaQuery = mockk<CriteriaQuery<UUID>>()
-//
-//        every { entityManager.criteriaBuilder } returns criteriaBuilder
-//        every { criteriaBuilder.createQuery(UUID::class.java) } returns uuidCriteriaQuery
-//        every { uuidCriteriaQuery.from(ZaakafhandelParameters::class.java) } returns zaakafhandelparametersRoot
-//        every { uuidCriteriaQuery.select(zaakafhandelparametersRoot.get("zaakTypeUUID")) } returns uuidCriteriaQuery
-//        every { zaakafhandelparametersRoot.get<Any>("productaanvraagtype") } returns path
-//        every { criteriaBuilder.equal(path, productaanvraagType) } returns predicate
-//        every { uuidCriteriaQuery.where(predicate) } returns uuidCriteriaQuery
-//        every { zaakafhandelparametersRoot.get<Any>("creatiedatum") } returns path
-//        every { criteriaBuilder.desc(path) } returns order
-//        every { uuidCriteriaQuery.orderBy(order) } returns uuidCriteriaQuery
-//        every { entityManager.createQuery(uuidCriteriaQuery).resultList } returns zaaktypeUUIDs
-//
-//        When(
-//            """
-//                the active zaaktype UUID is retrieved from the set of zaakafhandelparameters based on the productaanvraagType
-//                """
-//        ) {
-//            val returnedZaaktypeUUID = zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(
-//                productaanvraagType
-//            )
-//
-//            Then("the first zaaktype UUID for the given zaakafhandelparameters should be returned") {
-//                returnedZaaktypeUUID shouldBe zaaktypeUUIDs.first()
-//            }
-//        }
-//    }
 })
