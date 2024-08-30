@@ -93,6 +93,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
 
     /**
      * Finds the zaaktype UUID for the active zaakafhandelparameters with the specified productaanvraag type.
+     * If multiple active zaakafhandelparameters are found, the first result with the most recent creation date is returned.
      *
      * @return the zaaktype UUID; null if no results were found
      */
@@ -100,23 +101,20 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         val query = entityManager.createNamedQuery(
             FIND_ACTIVE_ZAAKAFHANDELPARAMETERS_FOR_PRODUCTAANVRAAGTYPE_QUERY,
             ZaakafhandelParameters::class.java
-        )
-        query.setParameter(PRODUCTAANVRAAGTYPE_DATABASE_NAME, productaanvraagType)
-        query.resultList.let { resultList ->
-            val zaakafhandelParameters = resultList as List<ZaakafhandelParameters>
-            if (zaakafhandelParameters.isEmpty()) {
+        ).setParameter(PRODUCTAANVRAAGTYPE_DATABASE_NAME, productaanvraagType)
+        (query.resultList as List<ZaakafhandelParameters>).let {
+            if (it.isEmpty()) {
                 return null
             }
-            if (zaakafhandelParameters.size > 1) {
-                // this should never happen when the following business rule is properly enforced by the application:
-                // "There can only be at most one active zaakafhandelparameters for a specific productaanvraagtype"
+            if (it.size > 1) {
                 LOG.warning(
-                    "Multiple active zaakafhandelparameters have been found for productaanvraag type: '$productaanvraagType'. " +
+                    "Multiple active zaakafhandelparameters have been found for productaanvraagtype: '$productaanvraagType'. " +
                         "Returning the first result with the most recent creation date, with zaaktypeomschrijving: " +
-                        "'${zaakafhandelParameters.first().zaaktypeOmschrijving}' and zaaktype UUID: '${resultList.first().zaakTypeUUID}'."
+                        "'${it.first().zaaktypeOmschrijving}' and zaaktype UUID: " +
+                        "'${it.first().zaakTypeUUID}'."
                 )
             }
-            return resultList.first().zaakTypeUUID
+            return it.first().zaakTypeUUID
         }
     }
 
