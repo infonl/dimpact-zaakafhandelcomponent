@@ -34,7 +34,25 @@ import org.apache.commons.lang3.StringUtils;
 @Entity
 @Table(schema = SCHEMA, name = "zaakafhandelparameters")
 @SequenceGenerator(schema = SCHEMA, name = "sq_zaakafhandelparameters", sequenceName = "sq_zaakafhandelparameters", allocationSize = 1)
+@NamedNativeQuery(
+        name = ZaakafhandelParameters.FIND_ACTIVE_ZAAKAFHANDELPARAMETERS_FOR_PRODUCTAANVRAAGTYPE_QUERY, query = " SELECT * FROM zaakafhandelcomponent.zaakafhandelparameters z " +
+                                                                                                                "INNER JOIN ( " +
+                                                                                                                "    SELECT z_inner.zaaktype_omschrijving AS inner_zaaktype_omschrijving, MAX(z_inner.creatiedatum) AS max_creatiedatum " +
+                                                                                                                "  FROM " +
+                                                                                                                "    zaakafhandelcomponent.zaakafhandelparameters z_inner " +
+                                                                                                                "  WHERE " +
+                                                                                                                "    z_inner.productaanvraagtype = :productaanvraagtype " +
+                                                                                                                "  GROUP BY inner_zaaktype_omschrijving " +
+                                                                                                                ") recent_zaaktypes " +
+                                                                                                                "ON " +
+                                                                                                                "z.zaaktype_omschrijving = recent_zaaktypes.inner_zaaktype_omschrijving " +
+                                                                                                                "AND z.creatiedatum = recent_zaaktypes.max_creatiedatum " +
+                                                                                                                "WHERE " +
+                                                                                                                "z.productaanvraagtype = :productaanvraagtype ", resultClass = ZaakafhandelParameters.class
+)
 public class ZaakafhandelParameters {
+
+    public static final String FIND_ACTIVE_ZAAKAFHANDELPARAMETERS_FOR_PRODUCTAANVRAAGTYPE_QUERY = "findActiveZaakafhandelParametersForProductaanvraagtype";
 
     /** Naam van property: {@link ZaakafhandelParameters#zaakTypeUUID} */
     public static final String ZAAKTYPE_UUID = "zaakTypeUUID";
@@ -45,8 +63,7 @@ public class ZaakafhandelParameters {
     /** Naam van property: {@link ZaakafhandelParameters#creatiedatum} */
     public static final String CREATIEDATUM = "creatiedatum";
 
-    /** Naam van property: {@link ZaakafhandelParameters#productaanvraagtype} */
-    public static final String PRODUCTAANVRAAGTYPE = "productaanvraagtype";
+    public static final String PRODUCTAANVRAAGTYPE_DATABASE_NAME = "productaanvraagtype";
 
     @Id
     @GeneratedValue(generator = "sq_zaakafhandelparameters", strategy = GenerationType.SEQUENCE)

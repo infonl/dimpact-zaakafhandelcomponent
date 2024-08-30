@@ -15,6 +15,8 @@ import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.admin.model.MailtemplateKoppeling
 import net.atos.zac.admin.model.UserEventListenerParameters
 import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.admin.model.ZaakafhandelParameters.FIND_ACTIVE_ZAAKAFHANDELPARAMETERS_FOR_PRODUCTAANVRAAGTYPE_QUERY
+import net.atos.zac.admin.model.ZaakafhandelParameters.PRODUCTAANVRAAGTYPE_DATABASE_NAME
 import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.admin.model.ZaakbeeindigReden
 import net.atos.zac.util.UriUtil
@@ -90,36 +92,23 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
     }
 
     /**
-     * get the unique combination of zaaktype omschrijving and zaaktype UUID
-     * for the most recent zaakafhandelparameters (= currently active) for a specific productaanvraag type
+     * Finds the zaaktype UUID for the active zaakafhandelparameters with the specified productaanvraag type.
+     *
+     * @return the zaaktype UUID; null if no results were found
      */
-    @Suppress("UNCHECKED_CAST")
     fun findActiveZaaktypeUuidByProductaanvraagType(productaanvraagType: String): UUID? {
-        val query = entityManager.createNativeQuery(
-            " SELECT * FROM zaakafhandelcomponent.zaakafhandelparameters z " +
-                "INNER JOIN ( " +
-                "    SELECT z_inner.zaaktype_omschrijving AS inner_zaaktype_omschrijving, MAX(z_inner.creatiedatum) AS max_creatiedatum " +
-                "  FROM " +
-                "    zaakafhandelcomponent.zaakafhandelparameters z_inner " +
-                "  WHERE " +
-                "    z_inner.productaanvraagtype = :productaanvraagtype " +
-                "  GROUP BY inner_zaaktype_omschrijving " +
-                ") recent_zaaktypes " +
-                "ON " +
-                "z.zaaktype_omschrijving = recent_zaaktypes.inner_zaaktype_omschrijving " +
-                "AND z.creatiedatum = recent_zaaktypes.max_creatiedatum " +
-                "WHERE " +
-                "z.productaanvraagtype = :productaanvraagtype ",
+        val query = entityManager.createNamedQuery(
+            FIND_ACTIVE_ZAAKAFHANDELPARAMETERS_FOR_PRODUCTAANVRAAGTYPE_QUERY,
             ZaakafhandelParameters::class.java
         )
-        query.setParameter("productaanvraagtype", productaanvraagType)
+        query.setParameter(PRODUCTAANVRAAGTYPE_DATABASE_NAME, productaanvraagType)
         query.resultList.let { resultList ->
             val zaakafhandelParameters = resultList as List<ZaakafhandelParameters>
             if (zaakafhandelParameters.isEmpty()) {
                 return null
             }
             if (zaakafhandelParameters.size > 1) {
-                // this should never happen when the following business rule is properly enforced elsewhere:
+                // this should never happen when the following business rule is properly enforced by the application:
                 // "There can only be at most one active zaakafhandelparameters for a specific productaanvraagtype"
                 LOG.warning(
                     "Multiple active zaakafhandelparameters have been found for productaanvraag type: '$productaanvraagType'. " +
