@@ -7,7 +7,6 @@ package net.atos.zac.admin
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
 import jakarta.transaction.Transactional
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.ResultaatType
@@ -33,25 +32,20 @@ import java.util.logging.Logger
 @AllOpen
 @NoArgConstructor
 @Suppress("TooManyFunctions")
-open class ZaakafhandelParameterBeheerService @Inject constructor(
-    @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
+class ZaakafhandelParameterBeheerService @Inject constructor(
     private val entityManager: EntityManager,
     private val ztcClientService: ZtcClientService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService
 ) {
     companion object {
-        private val LOG: Logger = Logger.getLogger(ZaakafhandelParameterBeheerService::class.java.name)
+        private val LOG = Logger.getLogger(ZaakafhandelParameterBeheerService::class.java.name)
     }
 
     fun readZaakafhandelParameters(zaaktypeUUID: UUID): ZaakafhandelParameters {
         ztcClientService.readCacheTime()
         val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(
-            ZaakafhandelParameters::class.java
-        )
-        val root = query.from(
-            ZaakafhandelParameters::class.java
-        )
+        val query = builder.createQuery(ZaakafhandelParameters::class.java)
+        val root = query.from(ZaakafhandelParameters::class.java)
         query.select(root).where(builder.equal(root.get<Any>(ZaakafhandelParameters.ZAAKTYPE_UUID), zaaktypeUUID))
         val resultList = entityManager.createQuery(query).resultList
         return if (resultList.isNotEmpty()) {
