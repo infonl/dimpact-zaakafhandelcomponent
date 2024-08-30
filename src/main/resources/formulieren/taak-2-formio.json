@@ -108,7 +108,6 @@
           "label": "Checkboxes",
           "optionsLabelPosition": "right",
           "tableView": false,
-          "persistent": false,
           "values": [
             {
               "label": "Waarde 1",

@@ -53,6 +53,7 @@ import net.atos.zac.flowable.TaakVariabelenService.TAAK_DATA_VERZENDDATUM
 import net.atos.zac.flowable.TaakVariabelenService.isZaakHervatten
 import net.atos.zac.flowable.TaakVariabelenService.readSignatures
 import net.atos.zac.flowable.TaakVariabelenService.readZaakUUID
+import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.util.TaskUtil
 import net.atos.zac.formulieren.FormulierRuntimeService
 import net.atos.zac.policy.PolicyService
@@ -105,7 +106,8 @@ class TaskRestService @Inject constructor(
     private val policyService: PolicyService,
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
     private val opschortenZaakHelper: OpschortenZaakHelper,
-    private val formulierRuntimeService: FormulierRuntimeService
+    private val formulierRuntimeService: FormulierRuntimeService,
+    private val zaakVariabelenService: ZaakVariabelenService
 ) {
     @GET
     @Path("zaak/{zaakUUID}")
@@ -127,6 +129,13 @@ class TaskRestService @Inject constructor(
                 }
                 restTask.formioFormulier?.let {
                     restTask.formioFormulier = formulierRuntimeService.renderFormioFormulier(restTask)
+                    restTask.taakdata!!.putAll(
+                        zaakVariabelenService.readProcessZaakdata(restTask.zaakUuid)
+                            .filterNot {
+                                it.key.equals(ZaakVariabelenService.VAR_ZAAK_UUID) ||
+                                        it.key.equals(ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
+                                )
+                            })
                 }
             }
             return restTask
@@ -352,12 +361,12 @@ class TaskRestService @Inject constructor(
                 .forEach { enkelvoudigInformatieobject ->
                     assertPolicy(
                         (
-                            // this extra check is because the API can return an empty ondertekening soort
-                            enkelvoudigInformatieobject.ondertekening == null ||
-                                // when no signature is present (even if this is not
-                                // permitted according to the original OpenAPI spec)
-                                enkelvoudigInformatieobject.ondertekening.soort == SoortEnum.EMPTY
-                            ) && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
+                                // this extra check is because the API can return an empty ondertekening soort
+                                enkelvoudigInformatieobject.ondertekening == null ||
+                                        // when no signature is present (even if this is not
+                                        // permitted according to the original OpenAPI spec)
+                                        enkelvoudigInformatieobject.ondertekening.soort == SoortEnum.EMPTY
+                                ) && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
                     )
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
                         URIUtil.parseUUIDFromResourceURI(enkelvoudigInformatieobject.url)

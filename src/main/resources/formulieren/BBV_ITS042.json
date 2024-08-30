@@ -1,0 +1,87 @@
+{
+  "naam": "BBV_ITS042",
+  "title": "Uitbrengen advies Bureau Collegezaken",
+  "display": "form",
+  "type": "form",
+  "components": [
+    {
+      "label": "Documenten",
+      "type": "content",
+      "key": "DT_ITS042_SN001",
+      "html": "<p>Documenten tonen</p>",
+      "refreshOnChange": false,
+      "input": false
+    },
+    {
+      "label": "Het voorstel is akkoord",
+      "type": "select",
+      "key": "CO_AkkoordCollegeOndersteuning",
+      "widget": "html5",
+      "input": true,
+      "validate": {
+        "required": true
+      },
+      "data": {
+        "values": [
+          {
+            "label": "Ja",
+            "value": "Ja"
+          },
+          {
+            "label": "Nee",
+            "value": "Nee"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Opmerkingen",
+      "type": "textarea",
+      "key": "TA_OpmerkingenCollegeOndersteuning",
+      "applyMaskOn": "change",
+      "autoExpand": false,
+      "input": true
+    },
+    {
+      "label": "Buttons",
+      "key": "buttons",
+      "type": "container",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "type": "columns",
+          "columns": [
+            {
+              "width": "auto",
+              "components": [
+                {
+                  "key": "save",
+                  "label": "Opslaan",
+                  "type": "button",
+                  "action": "saveState",
+                  "state": "draft",
+                  "input": true,
+                  "tableView": false
+                }
+              ]
+            },
+            {
+              "width": "auto",
+              "components": [
+                {
+                  "key": "submit",
+                  "label": "Opslaan & afronden",
+                  "type": "button",
+                  "disableOnInvalid": true,
+                  "input": true,
+                  "tableView": false
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
