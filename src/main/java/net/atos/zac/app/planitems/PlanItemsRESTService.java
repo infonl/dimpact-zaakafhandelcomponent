@@ -189,20 +189,11 @@ public class PlanItemsRESTService {
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
                 UriUtil.uuidFromURI(zaak.getZaaktype())
         );
-        final Optional<HumanTaskParameters> humanTaskParameters = zaakafhandelParameters
-                .findHumanTaskParameter(planItem.getPlanItemDefinitionId());
 
-        final LocalDate fataleDatum;
-        if (humanTaskData.fataledatum != null) {
-            validateFatalDate(humanTaskData.fataledatum, zaak.getUiterlijkeEinddatumAfdoening());
-            fataleDatum = humanTaskData.fataledatum;
-        } else {
-            fataleDatum = humanTaskParameters.isPresent() && humanTaskParameters.get().getDoorlooptijd() != null ?
-                    LocalDate.now().plusDays(humanTaskParameters.get().getDoorlooptijd()) : null;
-        }
-        if (fataleDatum != null && isZaakOpschorten(taakdata)) {
-            final long aantalDagen = ChronoUnit.DAYS.between(LocalDate.now(), fataleDatum);
-            opschortenZaakHelper.opschortenZaak(zaak, aantalDagen, REDEN_OPSCHORTING);
+        final LocalDate fatalDate = calculateFatalDate(humanTaskData, zaakafhandelParameters, planItem, zaak);
+        if (fatalDate != null && isZaakOpschorten(taakdata)) {
+            final long numberOfDays = ChronoUnit.DAYS.between(LocalDate.now(), fatalDate);
+            opschortenZaakHelper.opschortenZaak(zaak, numberOfDays, REDEN_OPSCHORTING);
         }
 
         if (humanTaskData.taakStuurGegevens.sendMail) {
@@ -238,7 +229,7 @@ public class PlanItemsRESTService {
                 humanTaskData.medewerker != null && !humanTaskData.medewerker.toString().isEmpty() ?
                         humanTaskData.medewerker.getId() :
                         null,
-                DateTimeConverterUtil.convertToDate(fataleDatum),
+                DateTimeConverterUtil.convertToDate(fatalDate),
                 humanTaskData.toelichting,
                 taakdata,
                 zaakUUID
@@ -301,6 +292,32 @@ public class PlanItemsRESTService {
                     BronnenKt.getBronnenFromZaak(zaak)
             );
         }
+    }
+
+    private LocalDate calculateFatalDate(
+            RESTHumanTaskData humanTaskData,
+            ZaakafhandelParameters zaakafhandelParameters,
+            PlanItemInstance planItem,
+            Zaak zaak
+    ) {
+        final Optional<HumanTaskParameters> humanTaskParameters = zaakafhandelParameters.findHumanTaskParameter(planItem
+                .getPlanItemDefinitionId());
+        final LocalDate zaakFatalDate = zaak.getUiterlijkeEinddatumAfdoening();
+
+        if (humanTaskData.fataledatum != null) {
+            validateFatalDate(humanTaskData.fataledatum, zaakFatalDate);
+            return humanTaskData.fataledatum;
+        } else {
+            if (humanTaskParameters.isPresent() && humanTaskParameters.get().getDoorlooptijd() != null) {
+                LocalDate calculatedFinalDate = LocalDate.now().plusDays(humanTaskParameters.get().getDoorlooptijd());
+                if (calculatedFinalDate.isAfter(zaakFatalDate)) {
+                    calculatedFinalDate = zaakFatalDate;
+                }
+                return calculatedFinalDate;
+            }
+        }
+
+        return null;
     }
 
     private static void validateFatalDate(LocalDate taskFatalDate, LocalDate zaakFatalDate) {
