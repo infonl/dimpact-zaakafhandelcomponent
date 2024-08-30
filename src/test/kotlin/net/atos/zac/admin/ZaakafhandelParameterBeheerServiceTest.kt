@@ -46,7 +46,7 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
     Given("One zaakafhandelparameters for a given zaaktype UUID") {
         val zaakafhandelparameters = createZaakafhandelParameters()
         val now = ZonedDateTime.now()
-        every { ztcClientService.readCacheTime() } returns now
+        every { ztcClientService.resetCacheTimeToNow() } returns now
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every { criteriaBuilder.createQuery(ZaakafhandelParameters::class.java) } returns criteriaQuery
         every { criteriaQuery.from(ZaakafhandelParameters::class.java) } returns root

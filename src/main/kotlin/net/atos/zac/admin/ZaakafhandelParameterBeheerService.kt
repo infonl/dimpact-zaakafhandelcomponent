@@ -15,8 +15,6 @@ import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.admin.model.MailtemplateKoppeling
 import net.atos.zac.admin.model.UserEventListenerParameters
 import net.atos.zac.admin.model.ZaakafhandelParameters
-import net.atos.zac.admin.model.ZaakafhandelParameters.FIND_ACTIVE_ZAAKAFHANDELPARAMETERS_FOR_PRODUCTAANVRAAGTYPE_QUERY
-import net.atos.zac.admin.model.ZaakafhandelParameters.PRODUCTAANVRAAGTYPE_DATABASE_NAME
 import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.admin.model.ZaakbeeindigReden
 import net.atos.zac.util.UriUtil
@@ -91,32 +89,33 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         return entityManager.merge(zaakafhandelParameters)
     }
 
-    /**
-     * Finds the zaaktype UUID for the active zaakafhandelparameters with the specified productaanvraag type.
-     * If multiple active zaakafhandelparameters are found, the first result with the most recent creation date is returned.
-     *
-     * @return the zaaktype UUID; null if no results were found
-     */
     fun findActiveZaaktypeUuidByProductaanvraagType(productaanvraagType: String): UUID? {
-        val query = entityManager.createNamedQuery(
-            FIND_ACTIVE_ZAAKAFHANDELPARAMETERS_FOR_PRODUCTAANVRAAGTYPE_QUERY,
-            ZaakafhandelParameters::class.java
-        ).setParameter(PRODUCTAANVRAAGTYPE_DATABASE_NAME, productaanvraagType)
-        (query.resultList as List<ZaakafhandelParameters>).let {
-            if (it.isEmpty()) {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(UUID::class.java)
+        val root = query.from(ZaakafhandelParameters::class.java)
+        query.select(root.get(ZaakafhandelParameters.ZAAKTYPE_UUID))
+            .where(builder.equal(root.get<Any>(ZaakafhandelParameters.PRODUCTAANVRAAGTYPE), productaanvraagType))
+        query.orderBy(builder.desc(root.get<Any>(ZaakafhandelParameters.CREATIEDATUM)))
+        entityManager.createQuery(query).resultList.let { resultList ->
+            if (resultList.isEmpty()) {
                 return null
             }
-            if (it.size > 1) {
-                LOG.warning(
-                    "Multiple active zaakafhandelparameters have been found for productaanvraagtype: '$productaanvraagType'. " +
-                        "This indicates that the zaakafhandelparameters are not configured correctly. " +
-                        "There should be at most only one active zaakafhandelparameters for each productaanvraagtype. " +
-                        "Returning the first result with the most recent creation date, with zaaktypeomschrijving: " +
-                        "'${it.first().zaaktypeOmschrijving}' and zaaktype UUID: " +
-                        "'${it.first().zaakTypeUUID}'."
+            if (resultList.size > 1) {
+                // since we sort on creation date, the first result is by definition the currently active zaakafhandelparameters
+                // for a specific zaaktype; all other results (if any) are older inactive versions
+                // but it's a different story when we have multiple results for different zaak types (zaak type descriptions)
+                // that could happen when the same productaanvraag type is used for multiple zaak types
+                // we need to handle that differently
+                LOG.fine(
+                    String.format(
+                        "Multiple zaakafhandelparameters have been found for productaanvraag type: '%s'. " +
+                            "Returning the first result with the most recent creation date, with zaaktype UUID: '%s'.",
+                        productaanvraagType,
+                        resultList.first()
+                    )
                 )
             }
-            return it.first().zaakTypeUUID
+            return resultList.first()
         }
     }
 
@@ -125,7 +124,8 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         val query = builder.createQuery(ZaakbeeindigReden::class.java)
         val root = query.from(ZaakbeeindigReden::class.java)
         query.orderBy(builder.asc(root.get<Any>("naam")))
-        return entityManager.createQuery(query).resultList
+        val emQuery = entityManager.createQuery(query)
+        return emQuery.resultList
     }
 
     /**
