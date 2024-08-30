@@ -43,6 +43,11 @@ import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
 import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_VERZENDDATUM
+import net.atos.zac.flowable.FlowableTaskService
+import net.atos.zac.flowable.TaakVariabelenService
+import net.atos.zac.flowable.TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
+import net.atos.zac.flowable.TaakVariabelenService.TAAK_DATA_VERZENDDATUM
+import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.util.TaskUtil.getTaakStatus
 import net.atos.zac.formulieren.FormulierRuntimeService
 import net.atos.zac.identity.model.getFullName
@@ -85,6 +90,7 @@ class TaskRestServiceTest : BehaviorSpec({
     val zgwApiService = mockk<ZGWApiService>()
     val taskService = mockk<TaskService>()
     val formulierRuntimeService = mockk<FormulierRuntimeService>()
+    val zaakVariabelenService = mockk<ZaakVariabelenService>()
 
     val taskRestService = TaskRestService(
         drcClientService = drcClientService,
@@ -104,7 +110,8 @@ class TaskRestServiceTest : BehaviorSpec({
         taakHistorieConverter = taakHistorieConverter,
         zgwApiService = zgwApiService,
         taskService = taskService,
-        formulierRuntimeService = formulierRuntimeService
+        formulierRuntimeService = formulierRuntimeService,
+        zaakVariabelenService = zaakVariabelenService
     )
     val loggedInUser = createLoggedInUser()
 
