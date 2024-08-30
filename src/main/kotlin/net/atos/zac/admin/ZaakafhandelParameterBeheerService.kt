@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.admin
@@ -54,10 +54,10 @@ open class ZaakafhandelParameterBeheerService @Inject constructor(
         )
         query.select(root).where(builder.equal(root.get<Any>(ZaakafhandelParameters.ZAAKTYPE_UUID), zaaktypeUUID))
         val resultList = entityManager.createQuery(query).resultList
-        if (resultList.isNotEmpty()) {
-            return resultList.first()
+        return if (resultList.isNotEmpty()) {
+            resultList.first()
         } else {
-            return ZaakafhandelParameters().apply {
+            ZaakafhandelParameters().apply {
                 zaakTypeUUID = zaaktypeUUID
             }
         }
