@@ -12,7 +12,7 @@ import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringTarget
 
-class RESTSignaleringInstellingenConverter @Inject constructor(
+class RestSignaleringInstellingenConverter @Inject constructor(
     private var signaleringService: SignaleringService
 ) {
     fun convert(instellingen: SignaleringInstellingen): RestSignaleringInstellingen {
@@ -32,19 +32,17 @@ class RESTSignaleringInstellingenConverter @Inject constructor(
     }
 
     fun convert(instellingen: Collection<SignaleringInstellingen>): List<RestSignaleringInstellingen> =
-        instellingen.map { this.convert(it) }
+        instellingen.map(this::convert)
 
     fun convert(restInstellingen: RestSignaleringInstellingen, group: Group): SignaleringInstellingen =
-        signaleringService.readInstellingenGroup(restInstellingen.type, group.id).let {
-            it.isDashboard = false
-            it.isMail = it.type.type.isMail && restInstellingen.mail!!
-            return it
+        signaleringService.readInstellingenGroup(restInstellingen.type, group.id).apply {
+            isDashboard = false
+            isMail = this.type.type.isMail && restInstellingen.mail == true
         }
 
     fun convert(restInstellingen: RestSignaleringInstellingen, user: User): SignaleringInstellingen =
-        signaleringService.readInstellingenUser(restInstellingen.type, user.id).let {
-            it.isDashboard = it.type.type.isDashboard && restInstellingen.dashboard!!
-            it.isMail = it.type.type.isMail && restInstellingen.mail!!
-            return it
+        signaleringService.readInstellingenUser(restInstellingen.type, user.id).apply {
+            isDashboard = this.type.type.isDashboard && restInstellingen.dashboard!!
+            isMail = this.type.type.isMail && restInstellingen.mail == true
         }
 }

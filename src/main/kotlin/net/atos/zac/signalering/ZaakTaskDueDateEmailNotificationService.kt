@@ -181,21 +181,16 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     private fun zaakEinddatumGeplandOnterechtVerzondenVerwijderen(
         zaaktype: ZaakType,
         venster: Int
-    ) {
-        zoekenService.zoek(
-            getZaakSignaleringLaterTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster)
-        )
-            .items.stream()
-            .map { it as ZaakZoekObject }
-            .map {
-                getZaakSignaleringVerzondenParameters(
-                    it.behandelaarGebruikersnaam,
-                    it.uuid,
-                    SignaleringDetail.STREEFDATUM
-                )
-            }
-            .forEach { signaleringService.deleteSignaleringVerzonden(it) }
-    }
+    ) = zoekenService.zoek(
+        getZaakSignaleringLaterTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster)
+    ).items.map { it as ZaakZoekObject }
+        .map {
+            getZaakSignaleringVerzondenParameters(
+                it.behandelaarGebruikersnaam,
+                it.uuid,
+                SignaleringDetail.STREEFDATUM
+            )
+        }.forEach(signaleringService::deleteSignaleringVerzonden)
 
     /**
      * Make sure already sent E-Mail warnings will get send again
@@ -204,21 +199,17 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     private fun zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(
         zaaktype: ZaakType,
         venster: Int
-    ) {
-        zoekenService.zoek(
-            getZaakSignaleringLaterTeVerzendenZoekParameters(DatumVeld.ZAAK_FATALE_DATUM, zaaktype, venster)
-        )
-            .items.stream()
-            .map { it as ZaakZoekObject }
-            .map {
-                getZaakSignaleringVerzondenParameters(
-                    it.behandelaarGebruikersnaam,
-                    it.uuid,
-                    SignaleringDetail.FATALE_DATUM
-                )
-            }
-            .forEach { signaleringService.deleteSignaleringVerzonden(it) }
-    }
+    ) = zoekenService.zoek(
+        getZaakSignaleringLaterTeVerzendenZoekParameters(DatumVeld.ZAAK_FATALE_DATUM, zaaktype, venster)
+    ).items.map { it as ZaakZoekObject }
+        .map {
+            getZaakSignaleringVerzondenParameters(
+                it.behandelaarGebruikersnaam,
+                it.uuid,
+                SignaleringDetail.FATALE_DATUM
+            )
+        }
+        .forEach(signaleringService::deleteSignaleringVerzonden)
 
     private fun getZaakSignaleringTeVerzendenZoekParameters(
         veld: DatumVeld,
@@ -255,18 +246,16 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
         target: String,
         zaakUUID: String,
         detail: SignaleringDetail
-    ): SignaleringVerzondenZoekParameters {
-        return SignaleringVerzondenZoekParameters(SignaleringTarget.USER, target)
-            .types(SignaleringType.Type.ZAAK_VERLOPEND)
-            .subjectZaak(UUID.fromString(zaakUUID))
-            .detail(detail)
-    }
+    ) = SignaleringVerzondenZoekParameters(SignaleringTarget.USER, target)
+        .types(SignaleringType.Type.ZAAK_VERLOPEND)
+        .subjectZaak(UUID.fromString(zaakUUID))
+        .detail(detail)
 
     private fun sendTaskDueDateNotifications(): Int =
         flowableTaskService.listOpenTasksDueNow()
-            .filter { hasTaskSignaleringTarget(it) }
+            .filter(::hasTaskSignaleringTarget)
             .map { buildTaskSignalering(it.assignee, it) }
-            .sumOf { sendTaskSignalering(it) }
+            .sumOf(::sendTaskSignalering)
 
     private fun hasTaskSignaleringTarget(task: Task): Boolean =
         signaleringService.readInstellingenUser(
@@ -298,17 +287,16 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
      * by deleting the corresponding 'signalering verzonden' record from the database.
      */
     private fun deleteUnjustlySentTaskDueSignaleringen() {
-        flowableTaskService.listOpenTasksDueLater().stream()
+        flowableTaskService.listOpenTasksDueLater()
             .map { getTaskSignaleringSentParameters(it.assignee, it.id) }
-            .forEach { signaleringService.deleteSignaleringVerzonden(it) }
+            .forEach(signaleringService::deleteSignaleringVerzonden)
     }
 
     private fun getTaskSignaleringSentParameters(
         target: String,
         taskId: String
-    ): SignaleringVerzondenZoekParameters =
-        SignaleringVerzondenZoekParameters(SignaleringTarget.USER, target)
-            .types(SignaleringType.Type.TAAK_VERLOPEN)
-            .subjectTaak(taskId)
-            .detail(SignaleringDetail.STREEFDATUM)
+    ) = SignaleringVerzondenZoekParameters(SignaleringTarget.USER, target)
+        .types(SignaleringType.Type.TAAK_VERLOPEN)
+        .subjectTaak(taskId)
+        .detail(SignaleringDetail.STREEFDATUM)
 }

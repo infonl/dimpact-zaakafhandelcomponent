@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject
-import net.atos.zac.app.signalering.converter.RESTSignaleringInstellingenConverter
+import net.atos.zac.app.signalering.converter.RestSignaleringInstellingenConverter
 import net.atos.zac.app.signalering.converter.toRestSignaleringTaakSummary
 import net.atos.zac.app.signalering.model.RestSignaleringInstellingen
 import net.atos.zac.app.signalering.model.RestSignaleringTaskSummary
@@ -48,7 +48,7 @@ class SignaleringRestService @Inject constructor(
     private val drcClientService: DrcClientService,
     private val identityService: IdentityService,
     private val restInformatieobjectConverter: RESTInformatieobjectConverter,
-    private val restSignaleringInstellingenConverter: RESTSignaleringInstellingenConverter,
+    private val restSignaleringInstellingenConverter: RestSignaleringInstellingenConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     private fun Instance<LoggedInUser>.getSignaleringZoekParameters() = SignaleringZoekParameters(get())
