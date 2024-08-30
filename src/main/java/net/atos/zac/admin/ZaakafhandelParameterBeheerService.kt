@@ -2,192 +2,178 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.admin
 
-package net.atos.zac.admin;
-
-import static net.atos.zac.admin.model.ZaakafhandelParameters.CREATIEDATUM;
-import static net.atos.zac.admin.model.ZaakafhandelParameters.PRODUCTAANVRAAGTYPE;
-import static net.atos.zac.admin.model.ZaakafhandelParameters.ZAAKTYPE_OMSCHRIJVING;
-import static net.atos.zac.admin.model.ZaakafhandelParameters.ZAAKTYPE_UUID;
-import static net.atos.zac.util.ValidationUtil.valideerObject;
-
-import java.net.URI;
-import java.time.ZonedDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.logging.Logger;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
-import jakarta.transaction.Transactional;
-
-import net.atos.client.zgw.ztc.ZtcClientService;
-import net.atos.client.zgw.ztc.model.generated.ResultaatType;
-import net.atos.client.zgw.ztc.model.generated.ZaakType;
-import net.atos.zac.admin.model.HumanTaskParameters;
-import net.atos.zac.admin.model.MailtemplateKoppeling;
-import net.atos.zac.admin.model.UserEventListenerParameters;
-import net.atos.zac.admin.model.ZaakafhandelParameters;
-import net.atos.zac.admin.model.ZaakbeeindigParameter;
-import net.atos.zac.admin.model.ZaakbeeindigReden;
-import net.atos.zac.util.UriUtil;
-import net.atos.zac.util.ValidationUtil;
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.inject.Inject
+import jakarta.persistence.EntityManager
+import jakarta.persistence.PersistenceContext
+import jakarta.transaction.Transactional
+import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.client.zgw.ztc.model.generated.ResultaatType
+import net.atos.client.zgw.ztc.model.generated.ZaakType
+import net.atos.zac.admin.model.HumanTaskParameters
+import net.atos.zac.admin.model.MailtemplateKoppeling
+import net.atos.zac.admin.model.UserEventListenerParameters
+import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.admin.model.ZaakbeeindigParameter
+import net.atos.zac.admin.model.ZaakbeeindigReden
+import net.atos.zac.util.UriUtil
+import net.atos.zac.util.ValidationUtil
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import java.net.URI
+import java.time.ZonedDateTime
+import java.util.Optional
+import java.util.UUID
+import java.util.logging.Logger
 
 @ApplicationScoped
 @Transactional
-public class ZaakafhandelParameterBeheerService {
-
-    private static final Logger LOG = Logger.getLogger(ZaakafhandelParameterBeheerService.class.getName());
-
+@AllOpen
+@NoArgConstructor
+@Suppress("TooManyFunctions")
+open class ZaakafhandelParameterBeheerService @Inject constructor(
     @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
-    private EntityManager entityManager;
+    private val entityManager: EntityManager,
+    private val ztcClientService: ZtcClientService,
+    private val zaakafhandelParameterService: ZaakafhandelParameterService
+) {
+    companion object {
+        private val LOG: Logger = Logger.getLogger(ZaakafhandelParameterBeheerService::class.java.name)
+    }
 
-    @Inject
-    private ZtcClientService ztcClientService;
-
-    @Inject
-    private ZaakafhandelParameterService zaakafhandelParameterService;
-
-    ZaakafhandelParameters readZaakafhandelParameters(final UUID zaaktypeUUID) {
-        ztcClientService.readCacheTime();
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<ZaakafhandelParameters> query = builder.createQuery(ZaakafhandelParameters.class);
-        final Root<ZaakafhandelParameters> root = query.from(ZaakafhandelParameters.class);
-        query.select(root).where(builder.equal(root.get(ZAAKTYPE_UUID), zaaktypeUUID));
-        final List<ZaakafhandelParameters> resultList = entityManager.createQuery(query).getResultList();
-        if (!resultList.isEmpty()) {
-            return resultList.getFirst();
+    fun readZaakafhandelParameters(zaaktypeUUID: UUID): ZaakafhandelParameters {
+        ztcClientService.readCacheTime()
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(
+            ZaakafhandelParameters::class.java
+        )
+        val root = query.from(
+            ZaakafhandelParameters::class.java
+        )
+        query.select(root).where(builder.equal(root.get<Any>(ZaakafhandelParameters.ZAAKTYPE_UUID), zaaktypeUUID))
+        val resultList = entityManager.createQuery(query).resultList
+        if (resultList.isNotEmpty()) {
+            return resultList.first()
         } else {
-            final ZaakafhandelParameters zaakafhandelParameters = new ZaakafhandelParameters();
-            zaakafhandelParameters.setZaakTypeUUID(zaaktypeUUID);
-            return zaakafhandelParameters;
+            return ZaakafhandelParameters().apply {
+                zaakTypeUUID = zaaktypeUUID
+            }
         }
     }
 
-    List<ZaakafhandelParameters> listZaakafhandelParameters() {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<ZaakafhandelParameters> query = builder.createQuery(ZaakafhandelParameters.class);
-        final Root<ZaakafhandelParameters> root = query.from(ZaakafhandelParameters.class);
-        query.orderBy(builder.desc(root.get("id")));
-        query.select(root);
-        return entityManager.createQuery(query).getResultList();
+    fun listZaakafhandelParameters(): List<ZaakafhandelParameters> {
+        val query = entityManager.criteriaBuilder.createQuery(ZaakafhandelParameters::class.java)
+        val root = query.from(ZaakafhandelParameters::class.java)
+        query.select(root).orderBy(entityManager.criteriaBuilder.desc(root.get<Any>("id")))
+        return entityManager.createQuery(query).resultList
     }
 
-    public ZaakafhandelParameters createZaakafhandelParameters(final ZaakafhandelParameters zaakafhandelParameters) {
-        zaakafhandelParameterService.clearListCache();
-        valideerObject(zaakafhandelParameters);
-        zaakafhandelParameters.getHumanTaskParametersCollection().forEach(ValidationUtil::valideerObject);
-        zaakafhandelParameters.getUserEventListenerParametersCollection().forEach(ValidationUtil::valideerObject);
-        zaakafhandelParameters.getMailtemplateKoppelingen().forEach(ValidationUtil::valideerObject);
-        zaakafhandelParameters.setCreatiedatum(ZonedDateTime.now());
-        entityManager.persist(zaakafhandelParameters);
-        return zaakafhandelParameters;
+    fun createZaakafhandelParameters(zaakafhandelParameters: ZaakafhandelParameters): ZaakafhandelParameters {
+        zaakafhandelParameterService.clearListCache()
+        ValidationUtil.valideerObject(zaakafhandelParameters)
+        zaakafhandelParameters.humanTaskParametersCollection.forEach { ValidationUtil.valideerObject(it) }
+        zaakafhandelParameters.userEventListenerParametersCollection.forEach { ValidationUtil.valideerObject(it) }
+        zaakafhandelParameters.mailtemplateKoppelingen.forEach { ValidationUtil.valideerObject(it) }
+        zaakafhandelParameters.creatiedatum = ZonedDateTime.now()
+        entityManager.persist(zaakafhandelParameters)
+        return zaakafhandelParameters
     }
 
-    public ZaakafhandelParameters updateZaakafhandelParameters(final ZaakafhandelParameters zaakafhandelParameters) {
-        valideerObject(zaakafhandelParameters);
-        zaakafhandelParameters.getHumanTaskParametersCollection().forEach(ValidationUtil::valideerObject);
-        zaakafhandelParameters.setCreatiedatum(
-                entityManager.find(ZaakafhandelParameters.class, zaakafhandelParameters.getId()).getCreatiedatum()
-        );
-        return entityManager.merge(zaakafhandelParameters);
+    fun updateZaakafhandelParameters(zaakafhandelParameters: ZaakafhandelParameters): ZaakafhandelParameters {
+        ValidationUtil.valideerObject(zaakafhandelParameters)
+        zaakafhandelParameters.humanTaskParametersCollection.forEach { ValidationUtil.valideerObject(it) }
+        zaakafhandelParameters.creatiedatum =
+            entityManager.find(ZaakafhandelParameters::class.java, zaakafhandelParameters.id).creatiedatum
+        return entityManager.merge(zaakafhandelParameters)
     }
 
-    public Optional<UUID> findActiveZaaktypeUuidByProductaanvraagType(final String productaanvraagType) {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<UUID> query = builder.createQuery(UUID.class);
-        final Root<ZaakafhandelParameters> root = query.from(ZaakafhandelParameters.class);
-        query.select(root.get(ZAAKTYPE_UUID)).where(builder.equal(root.get(PRODUCTAANVRAAGTYPE), productaanvraagType));
-        query.orderBy(builder.desc(root.get(CREATIEDATUM)));
-        final List<UUID> resultList = entityManager.createQuery(query).getResultList();
-        if (!resultList.isEmpty()) {
-            if (resultList.size() > 1) {
+    fun findActiveZaaktypeUuidByProductaanvraagType(productaanvraagType: String?): Optional<UUID> {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(UUID::class.java)
+        val root = query.from(ZaakafhandelParameters::class.java)
+        query.select(root.get(ZaakafhandelParameters.ZAAKTYPE_UUID))
+            .where(builder.equal(root.get<Any>(ZaakafhandelParameters.PRODUCTAANVRAAGTYPE), productaanvraagType))
+        query.orderBy(builder.desc(root.get<Any>(ZaakafhandelParameters.CREATIEDATUM)))
+        val resultList = entityManager.createQuery(query).resultList
+        if (resultList.isNotEmpty()) {
+            if (resultList.size > 1) {
                 // since we sort on creation date, the first result is by definition the currently active zaakafhandelparameters
                 // for a specific zaaktype; all other results (if any) are older inactive versions
-                // TODO: but what about when we have multiple results for different zaak types (zaak type descriptions)?
+                // but it's a different story when we have multiple results for different zaak types (zaak type descriptions)
                 // that could happen when the same productaanvraag type is used for multiple zaak types
-                // should maybe also be a check in the inrichtingscheck?
+                // we need to handle that differently
                 LOG.fine(
-                        String.format(
-                                "Multiple zaakafhandelparameters have been found for productaanvraag type: '%s'. " +
-                                      "Returning the first result with the most recent creation date, with zaaktype UUID: '%s'.",
-                                productaanvraagType,
-                                resultList.getFirst()
-                        )
-                );
+                    String.format(
+                        "Multiple zaakafhandelparameters have been found for productaanvraag type: '%s'. " +
+                            "Returning the first result with the most recent creation date, with zaaktype UUID: '%s'.",
+                        productaanvraagType,
+                        resultList.first()
+                    )
+                )
             }
-            return Optional.of(resultList.getFirst());
+            return Optional.of<UUID>(resultList.first())
         }
-        return Optional.empty();
+        return Optional.empty()
     }
 
-    public List<ZaakbeeindigReden> listZaakbeeindigRedenen() {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<ZaakbeeindigReden> query = builder.createQuery(ZaakbeeindigReden.class);
-        final Root<ZaakbeeindigReden> root = query.from(ZaakbeeindigReden.class);
-        query.orderBy(builder.asc(root.get("naam")));
-        final TypedQuery<ZaakbeeindigReden> emQuery = entityManager.createQuery(query);
-        return emQuery.getResultList();
+    fun listZaakbeeindigRedenen(): List<ZaakbeeindigReden> {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(ZaakbeeindigReden::class.java)
+        val root = query.from(ZaakbeeindigReden::class.java)
+        query.orderBy(builder.asc(root.get<Any>("naam")))
+        val emQuery = entityManager.createQuery(query)
+        return emQuery.resultList
     }
-
 
     /**
      * Zaaktype is aangepast, indien geen concept, dan de zaakafhandelparameters van de vorige versie zoveel mogelijk overnemen
      *
      * @param zaaktypeUri uri van het nieuwe zaaktype
      */
-    public void zaaktypeAangepast(final URI zaaktypeUri) {
-        zaakafhandelParameterService.clearListCache();
-        ztcClientService.clearZaaktypeCache();
-        final ZaakType zaaktype = ztcClientService.readZaaktype(zaaktypeUri);
-        if (!zaaktype.getConcept()) {
-            final String omschrijving = zaaktype.getOmschrijving();
-            final ZaakafhandelParameters vorigeZaakafhandelparameters = readRecentsteZaakafhandelParameters(omschrijving);
-            final ZaakafhandelParameters nieuweZaakafhandelParameters = new ZaakafhandelParameters();
-            nieuweZaakafhandelParameters.setZaakTypeUUID(UriUtil.uuidFromURI(zaaktype.getUrl()));
-            nieuweZaakafhandelParameters.setZaaktypeOmschrijving(zaaktype.getOmschrijving());
-            nieuweZaakafhandelParameters.setCaseDefinitionID(vorigeZaakafhandelparameters.getCaseDefinitionID());
-            nieuweZaakafhandelParameters.setGroepID(vorigeZaakafhandelparameters.getGroepID());
-            nieuweZaakafhandelParameters.setGebruikersnaamMedewerker(vorigeZaakafhandelparameters.getGebruikersnaamMedewerker());
-            if (zaaktype.getServicenorm() != null) {
-                nieuweZaakafhandelParameters.setEinddatumGeplandWaarschuwing(vorigeZaakafhandelparameters
-                        .getEinddatumGeplandWaarschuwing());
+    fun zaaktypeAangepast(zaaktypeUri: URI) {
+        zaakafhandelParameterService.clearListCache()
+        ztcClientService.clearZaaktypeCache()
+        val zaaktype = ztcClientService.readZaaktype(zaaktypeUri)
+        if (!zaaktype.concept) {
+            val omschrijving = zaaktype.omschrijving
+            val vorigeZaakafhandelparameters = readRecentsteZaakafhandelParameters(omschrijving)
+            val nieuweZaakafhandelParameters = ZaakafhandelParameters().apply {
+                zaakTypeUUID = UriUtil.uuidFromURI(zaaktype.url)
+                zaaktypeOmschrijving = zaaktype.omschrijving
+                caseDefinitionID = vorigeZaakafhandelparameters.caseDefinitionID
+                groepID = vorigeZaakafhandelparameters.groepID
+                gebruikersnaamMedewerker = vorigeZaakafhandelparameters.gebruikersnaamMedewerker
+                einddatumGeplandWaarschuwing = zaaktype.servicenorm?.let {
+                    vorigeZaakafhandelparameters.einddatumGeplandWaarschuwing
+                }
+                uiterlijkeEinddatumAfdoeningWaarschuwing = vorigeZaakafhandelparameters.uiterlijkeEinddatumAfdoeningWaarschuwing
+                intakeMail = vorigeZaakafhandelparameters.intakeMail
+                afrondenMail = vorigeZaakafhandelparameters.afrondenMail
+                productaanvraagtype = vorigeZaakafhandelparameters.productaanvraagtype
+                domein = vorigeZaakafhandelparameters.domein
             }
-            nieuweZaakafhandelParameters.setUiterlijkeEinddatumAfdoeningWaarschuwing(
-                    vorigeZaakafhandelparameters.getUiterlijkeEinddatumAfdoeningWaarschuwing());
-            nieuweZaakafhandelParameters.setIntakeMail(vorigeZaakafhandelparameters.getIntakeMail());
-            nieuweZaakafhandelParameters.setAfrondenMail(vorigeZaakafhandelparameters.getAfrondenMail());
-            nieuweZaakafhandelParameters.setProductaanvraagtype(vorigeZaakafhandelparameters.getProductaanvraagtype());
-            nieuweZaakafhandelParameters.setDomein(vorigeZaakafhandelparameters.getDomein());
-
-            mapHumanTaskParameters(vorigeZaakafhandelparameters, nieuweZaakafhandelParameters);
-            mapUserEventListenerParameters(vorigeZaakafhandelparameters, nieuweZaakafhandelParameters);
-            mapZaakbeeindigGegevens(vorigeZaakafhandelparameters, nieuweZaakafhandelParameters, zaaktype);
-            mapMailtemplateKoppelingen(vorigeZaakafhandelparameters, nieuweZaakafhandelParameters);
-
-            createZaakafhandelParameters(nieuweZaakafhandelParameters);
+            mapHumanTaskParameters(vorigeZaakafhandelparameters, nieuweZaakafhandelParameters)
+            mapUserEventListenerParameters(vorigeZaakafhandelparameters, nieuweZaakafhandelParameters)
+            mapZaakbeeindigGegevens(vorigeZaakafhandelparameters, nieuweZaakafhandelParameters, zaaktype)
+            mapMailtemplateKoppelingen(vorigeZaakafhandelparameters, nieuweZaakafhandelParameters)
+            createZaakafhandelParameters(nieuweZaakafhandelParameters)
         }
     }
 
-    private ZaakafhandelParameters readRecentsteZaakafhandelParameters(final String zaaktypeOmschrijving) {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<ZaakafhandelParameters> query = builder.createQuery(ZaakafhandelParameters.class);
-        final Root<ZaakafhandelParameters> root = query.from(ZaakafhandelParameters.class);
-        query.select(root).where(builder.equal(root.get(ZAAKTYPE_OMSCHRIJVING), zaaktypeOmschrijving));
-        query.orderBy(builder.desc(root.get(CREATIEDATUM)));
-        final List<ZaakafhandelParameters> resultList = entityManager.createQuery(query).setMaxResults(1).getResultList();
-        if (!resultList.isEmpty()) {
-            return resultList.getFirst();
+    private fun readRecentsteZaakafhandelParameters(zaaktypeOmschrijving: String): ZaakafhandelParameters {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(ZaakafhandelParameters::class.java)
+        val root = query.from(ZaakafhandelParameters::class.java)
+        query.select(root)
+            .where(builder.equal(root.get<Any>(ZaakafhandelParameters.ZAAKTYPE_OMSCHRIJVING), zaaktypeOmschrijving))
+        query.orderBy(builder.desc(root.get<Any>(ZaakafhandelParameters.CREATIEDATUM)))
+        val resultList = entityManager.createQuery(query).setMaxResults(1).resultList
+        return if (resultList.isNotEmpty()) {
+            resultList.first()
         } else {
-            return new ZaakafhandelParameters();
+            ZaakafhandelParameters()
         }
     }
 
@@ -197,24 +183,20 @@ public class ZaakafhandelParameterBeheerService {
      * @param vorigeZaakafhandelparameters bron
      * @param nieuweZaakafhandelParameters bestemming
      */
-    private void mapHumanTaskParameters(
-            final ZaakafhandelParameters vorigeZaakafhandelparameters,
-            final ZaakafhandelParameters nieuweZaakafhandelParameters
-    ) {
-        final HashSet<HumanTaskParameters> humanTaskParametersCollection = new HashSet<>();
-        vorigeZaakafhandelparameters.getHumanTaskParametersCollection().forEach(humanTaskParameters -> {
-            final HumanTaskParameters nieuweHumanTaskParameters = new HumanTaskParameters();
-            nieuweHumanTaskParameters.setDoorlooptijd(humanTaskParameters.getDoorlooptijd());
-            nieuweHumanTaskParameters.setActief(humanTaskParameters.isActief());
-            nieuweHumanTaskParameters.setFormulierDefinitieID(humanTaskParameters.getFormulierDefinitieID());
-            nieuweHumanTaskParameters.setPlanItemDefinitionID(humanTaskParameters.getPlanItemDefinitionID());
-            nieuweHumanTaskParameters.setGroepID(humanTaskParameters.getGroepID());
-            nieuweHumanTaskParameters.setReferentieTabellen(humanTaskParameters.getReferentieTabellen());
-            nieuweHumanTaskParameters.setFormulierDefinitieID(humanTaskParameters.getFormulierDefinitieID());
-            humanTaskParametersCollection.add(nieuweHumanTaskParameters);
-        });
-        nieuweZaakafhandelParameters.setHumanTaskParametersCollection(humanTaskParametersCollection);
-    }
+    private fun mapHumanTaskParameters(
+        vorigeZaakafhandelparameters: ZaakafhandelParameters,
+        nieuweZaakafhandelParameters: ZaakafhandelParameters
+    ) = vorigeZaakafhandelparameters.humanTaskParametersCollection.map {
+        HumanTaskParameters().apply {
+            doorlooptijd = it.doorlooptijd
+            isActief = it.isActief
+            formulierDefinitieID = it.formulierDefinitieID
+            planItemDefinitionID = it.planItemDefinitionID
+            groepID = it.groepID
+            referentieTabellen = it.referentieTabellen
+            formulierDefinitieID = it.formulierDefinitieID
+        }
+    }.toSet().let(nieuweZaakafhandelParameters::setHumanTaskParametersCollection)
 
     /**
      * Kopieren van de UserEventListenerParameters van de oude ZaakafhandelParameters naar de nieuw ZaakafhandelParameters
@@ -222,19 +204,15 @@ public class ZaakafhandelParameterBeheerService {
      * @param vorigeZaakafhandelparameters bron
      * @param nieuweZaakafhandelParameters bestemming
      */
-    private void mapUserEventListenerParameters(
-            final ZaakafhandelParameters vorigeZaakafhandelparameters,
-            final ZaakafhandelParameters nieuweZaakafhandelParameters
-    ) {
-        final HashSet<UserEventListenerParameters> userEventListenerParametersCollection = new HashSet<>();
-        vorigeZaakafhandelparameters.getUserEventListenerParametersCollection().forEach(userEventListenerParameters -> {
-            final UserEventListenerParameters nieuweUserEventListenerParameters = new UserEventListenerParameters();
-            nieuweUserEventListenerParameters.setPlanItemDefinitionID(userEventListenerParameters.getPlanItemDefinitionID());
-            nieuweUserEventListenerParameters.setToelichting(userEventListenerParameters.getToelichting());
-            userEventListenerParametersCollection.add(nieuweUserEventListenerParameters);
-        });
-        nieuweZaakafhandelParameters.setUserEventListenerParametersCollection(userEventListenerParametersCollection);
-    }
+    private fun mapUserEventListenerParameters(
+        vorigeZaakafhandelparameters: ZaakafhandelParameters,
+        nieuweZaakafhandelParameters: ZaakafhandelParameters
+    ) = vorigeZaakafhandelparameters.userEventListenerParametersCollection.map {
+        UserEventListenerParameters().apply {
+            planItemDefinitionID = it.planItemDefinitionID
+            toelichting = it.toelichting
+        }
+    }.toSet().let(nieuweZaakafhandelParameters::setUserEventListenerParametersCollection)
 
     /**
      * Kopieren van de ZaakbeeindigGegevens van de oude ZaakafhandelParameters naar de nieuw ZaakafhandelParameters
@@ -243,56 +221,47 @@ public class ZaakafhandelParameterBeheerService {
      * @param nieuweZaakafhandelParameters bestemming
      * @param nieuwZaaktype                het nieuwe zaaktype om de resultaten van te lezen
      */
-    private void mapZaakbeeindigGegevens(
-            final ZaakafhandelParameters vorigeZaakafhandelparameters,
-            final ZaakafhandelParameters nieuweZaakafhandelParameters,
-            final ZaakType nieuwZaaktype
+    private fun mapZaakbeeindigGegevens(
+        vorigeZaakafhandelparameters: ZaakafhandelParameters,
+        nieuweZaakafhandelParameters: ZaakafhandelParameters,
+        nieuwZaaktype: ZaakType
     ) {
-
-        final List<ResultaatType> nieuweResultaattypen = nieuwZaaktype.getResultaattypen().stream().map(rt -> ztcClientService
-                .readResultaattype(rt)).toList();
-        nieuweZaakafhandelParameters.setNietOntvankelijkResultaattype(
-                mapVorigResultaattypeOpNieuwResultaattype(nieuweResultaattypen, vorigeZaakafhandelparameters
-                        .getNietOntvankelijkResultaattype()));
-
-        final HashSet<ZaakbeeindigParameter> zaakbeeindigParametersCollection = new HashSet<>();
-        vorigeZaakafhandelparameters.getZaakbeeindigParameters().forEach(vorigeZaakbeeindigParameter -> {
-            final UUID nieuwResultaattypeUUID = mapVorigResultaattypeOpNieuwResultaattype(nieuweResultaattypen,
-                    vorigeZaakbeeindigParameter.getResultaattype());
-            if (nieuwResultaattypeUUID != null) {
-                final ZaakbeeindigParameter nieuweZaakbeeindigParameters = new ZaakbeeindigParameter();
-                nieuweZaakbeeindigParameters.setZaakbeeindigReden(vorigeZaakbeeindigParameter.getZaakbeeindigReden());
-                nieuweZaakbeeindigParameters.setResultaattype(nieuwResultaattypeUUID);
-                zaakbeeindigParametersCollection.add(nieuweZaakbeeindigParameters);
+        val nieuweResultaattypen = nieuwZaaktype.resultaattypen.map { ztcClientService.readResultaattype(it) }
+        nieuweZaakafhandelParameters.nietOntvankelijkResultaattype =
+            vorigeZaakafhandelparameters.nietOntvankelijkResultaattype?.let {
+                mapVorigResultaattypeOpNieuwResultaattype(nieuweResultaattypen, it)
             }
-        });
-        nieuweZaakafhandelParameters.setZaakbeeindigParameters(zaakbeeindigParametersCollection);
+        val zaakbeeindigParametersCollection = vorigeZaakafhandelparameters.zaakbeeindigParameters.mapNotNull {
+                zaakbeeindigParameter ->
+            zaakbeeindigParameter.resultaattype
+                ?.let { mapVorigResultaattypeOpNieuwResultaattype(nieuweResultaattypen, it) }
+                ?.let {
+                    ZaakbeeindigParameter().apply {
+                        zaakbeeindigReden = zaakbeeindigParameter.zaakbeeindigReden
+                        resultaattype = it
+                    }
+                }
+        }.toMutableSet()
+        nieuweZaakafhandelParameters.setZaakbeeindigParameters(zaakbeeindigParametersCollection)
     }
 
-    private void mapMailtemplateKoppelingen(
-            final ZaakafhandelParameters vorigeZaakafhandelparameters,
-            final ZaakafhandelParameters nieuweZaakafhandelParameters
-    ) {
-        final HashSet<MailtemplateKoppeling> mailtemplateKoppelingen = new HashSet<>();
-        vorigeZaakafhandelparameters.getMailtemplateKoppelingen().forEach(mailtemplateKoppeling -> {
-            final MailtemplateKoppeling nieuweMailtemplateKoppeling = new MailtemplateKoppeling();
-            nieuweMailtemplateKoppeling.setMailTemplate(mailtemplateKoppeling.getMailTemplate());
-            nieuweMailtemplateKoppeling.setZaakafhandelParameters(nieuweZaakafhandelParameters);
-            mailtemplateKoppelingen.add(nieuweMailtemplateKoppeling);
-        });
-        nieuweZaakafhandelParameters.setMailtemplateKoppelingen(mailtemplateKoppelingen);
-    }
-
-    private UUID mapVorigResultaattypeOpNieuwResultaattype(
-            final List<ResultaatType> nieuweResultaattypen,
-            final UUID vorigResultaattypeUUID
-    ) {
-        if (vorigResultaattypeUUID == null) {
-            return null;
+    private fun mapMailtemplateKoppelingen(
+        vorigeZaakafhandelparameters: ZaakafhandelParameters,
+        nieuweZaakafhandelParameters: ZaakafhandelParameters
+    ) = vorigeZaakafhandelparameters.mailtemplateKoppelingen.map {
+        MailtemplateKoppeling().apply {
+            mailTemplate = it.mailTemplate
+            zaakafhandelParameters = nieuweZaakafhandelParameters
         }
-        final ResultaatType vorigResultaattype = ztcClientService.readResultaattype(vorigResultaattypeUUID);
-        return nieuweResultaattypen.stream()
-                .filter(resultaattype -> resultaattype.getOmschrijving().equals(vorigResultaattype.getOmschrijving())).findAny()
-                .map(resultaattype -> UriUtil.uuidFromURI(resultaattype.getUrl())).orElse(null);
-    }
+    }.toSet().let(nieuweZaakafhandelParameters::setMailtemplateKoppelingen)
+
+    private fun mapVorigResultaattypeOpNieuwResultaattype(
+        nieuweResultaattypen: List<ResultaatType>,
+        vorigResultaattypeUUID: UUID
+    ): UUID? =
+        ztcClientService.readResultaattype(vorigResultaattypeUUID).let { resultaattype ->
+            nieuweResultaattypen
+                .firstOrNull { it.omschrijving == resultaattype.omschrijving }
+                ?.let { UriUtil.uuidFromURI(it.url) }
+        }
 }
