@@ -101,7 +101,7 @@ public class ZaakafhandelParameterBeheerService {
         return entityManager.merge(zaakafhandelParameters);
     }
 
-    public Optional<UUID> findZaaktypeUUIDByProductaanvraagType(final String productaanvraagType) {
+    public Optional<UUID> findActiveZaaktypeUuidByProductaanvraagType(final String productaanvraagType) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<UUID> query = builder.createQuery(UUID.class);
         final Root<ZaakafhandelParameters> root = query.from(ZaakafhandelParameters.class);
@@ -110,15 +110,15 @@ public class ZaakafhandelParameterBeheerService {
         final List<UUID> resultList = entityManager.createQuery(query).getResultList();
         if (!resultList.isEmpty()) {
             if (resultList.size() > 1) {
-                // note that we currently do not check if the zaaktype (version) for a zaakafhandelparameter record
-                // is currently active or not
-                // we get away with this to some degree because we are sorting by creation date,
-                // so the most recent one should be the active one normally
-                // should be improved in the future
-                LOG.warning(
+                // since we sort on creation date, the first result is by definition the currently active zaakafhandelparameters
+                // for a specific zaaktype; all other results (if any) are older inactive versions
+                // TODO: but what about when we have multiple results for different zaak types (zaak type descriptions)?
+                // that could happen when the same productaanvraag type is used for multiple zaak types
+                // should maybe also be a check in the inrichtingscheck?
+                LOG.fine(
                         String.format(
-                                "Multiple zaaktypes have been found for productaanvraag type: '%s'. " +
-                                      "Using the first one, with zaaktype UUID: '%s'.",
+                                "Multiple zaakafhandelparameters have been found for productaanvraag type: '%s'. " +
+                                      "Returning the first result with the most recent creation date, with zaaktype UUID: '%s'.",
                                 productaanvraagType,
                                 resultList.getFirst()
                         )

@@ -102,11 +102,11 @@ class ProductaanvraagService @Inject constructor(
                     handleProductaanvraagDimpact(it)
                 }
             }
-        } catch (exception: RuntimeException) {
+        } catch (runtimeException: RuntimeException) {
             LOG.log(
                 Level.WARNING,
                 "Failed to handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID",
-                exception
+                runtimeException
             )
         }
     }
@@ -120,27 +120,21 @@ class ProductaanvraagService @Inject constructor(
 
     @Suppress("TooGenericExceptionCaught", "TooGenericExceptionThrown")
     fun getProductaanvraag(productaanvraagObject: ORObject): ProductaanvraagDimpact =
-        try {
-            JsonbBuilder.create(
-                JsonbConfig()
-                    // register our custom enum JSON adapters because by default enums are deserialized using the enum's name
-                    // instead of the value and this fails because in the generated model classes the enum names are
-                    // capitalized and the values are not
-                    .withAdapters(
-                        IndicatieMachtigingEnumJsonAdapter(),
-                        RolOmschrijvingGeneriekEnumJsonAdapter(),
-                        BetalingStatusEnumJsonAdapter(),
-                        GeometryTypeEnumJsonAdapter()
-                    )
-            ).use {
-                it.fromJson(
-                    JsonbUtil.JSONB.toJson(productaanvraagObject.record.data),
-                    ProductaanvraagDimpact::class.java
+        JsonbBuilder.create(
+            JsonbConfig()
+                // register our custom enum JSON adapters because by default enums are deserialized using the enum's name
+                // instead of the value and this fails because in the generated model classes the enum names are
+                // capitalized and the values are not
+                .withAdapters(
+                    IndicatieMachtigingEnumJsonAdapter(),
+                    RolOmschrijvingGeneriekEnumJsonAdapter(),
+                    BetalingStatusEnumJsonAdapter(),
+                    GeometryTypeEnumJsonAdapter()
                 )
-            }
-        } catch (exception: Exception) {
-            throw RuntimeException(exception)
-        }
+        ).fromJson(
+            JsonbUtil.JSONB.toJson(productaanvraagObject.record.data),
+            ProductaanvraagDimpact::class.java
+        )
 
     fun pairProductaanvraagWithZaak(productaanvraag: ORObject, zaakUrl: URI) {
         ZaakobjectProductaanvraag(zaakUrl, productaanvraag.url)
@@ -154,7 +148,7 @@ class ProductaanvraagService @Inject constructor(
             titel = AANVRAAG_PDF_TITEL
             beschrijving = AANVRAAG_PDF_BESCHRIJVING
         }.let {
-            LOG.fine("Creating zaak informatieobject: $it")
+            LOG.fine("Creating zaakinformatieobject: $it")
             zrcClientService.createZaakInformatieobject(it, ZAAK_INFORMATIEOBJECT_REDEN)
         }
     }
@@ -368,7 +362,7 @@ class ProductaanvraagService @Inject constructor(
     private fun handleProductaanvraagDimpact(productaanvraagObject: ORObject) {
         LOG.fine { "Start handling productaanvraag with object URL: ${productaanvraagObject.url}" }
         val productaanvraag = getProductaanvraag(productaanvraagObject)
-        val zaaktypeUUID = zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(
+        val zaaktypeUUID = zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(
             productaanvraag.type
         )
         if (zaaktypeUUID.isPresent) {
