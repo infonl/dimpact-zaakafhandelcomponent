@@ -16,7 +16,6 @@ import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
 import net.atos.zac.app.admin.model.RestReferenceTable
-import net.atos.zac.app.admin.model.RestReferenceTableValue
 import net.atos.zac.util.FlywayIntegrator
 import nl.lifely.zac.util.AllOpen
 

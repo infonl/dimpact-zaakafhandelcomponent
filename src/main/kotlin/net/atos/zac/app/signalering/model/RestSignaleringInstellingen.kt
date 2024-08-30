@@ -11,7 +11,7 @@ import nl.lifely.zac.util.NoArgConstructor
 
 @AllOpen
 @NoArgConstructor
-data class RESTSignaleringInstellingen(
+data class RestSignaleringInstellingen(
     var id: Long? = null,
 
     var type: SignaleringType.Type,

@@ -57,22 +57,20 @@ class DocumentCreationRestService @Inject constructor(
         // documents created by SmartDocuments are always of the type 'bijlage'
         // the zaaktype of the specified zaak needs to be configured to be able to use this informatieObjectType
         return ztcClientService.readInformatieobjecttypen(zaak.zaaktype)
-            .stream()
-            .filter { ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE == it.omschrijving }
-            .findAny()
-            .orElseThrow {
-                InputValidationFailedException(
-                    "No informatieobjecttype '${ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE}' found for " +
-                        "zaaktype '${zaak.zaaktype}'. Cannot create document."
-                )
-            }.let { informatieObjectType ->
+            .firstOrNull { ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE == it.omschrijving }?.let {
+                    informatieObjectType ->
                 DocumentCreationDataAttended(
                     zaak = zaak,
                     taskId = restDocumentCreationAttendedData.taskId,
                     informatieobjecttype = informatieObjectType
                 ).let(documentCreationService::createDocumentAttended)
                     .let { RestDocumentCreationAttendedResponse(it.redirectUrl, it.message) }
-            }
+            } ?: run {
+            throw InputValidationFailedException(
+                "No informatieobjecttype '${ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE}' found for " +
+                    "zaaktype '${zaak.zaaktype}'. Cannot create document."
+            )
+        }
     }
 
     @POST

@@ -11,11 +11,9 @@ import net.atos.zac.signalering.model.Signalering
 import net.atos.zac.signalering.model.SignaleringInstellingen
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
 import net.atos.zac.signalering.model.SignaleringTarget
-import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringVerzonden
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
-import java.util.stream.Collectors
 
 class SignaleringPredicateHelper {
     fun getSignaleringWhere(
@@ -23,7 +21,7 @@ class SignaleringPredicateHelper {
         builder: CriteriaBuilder,
         root: Root<Signalering>
     ): Predicate {
-        val where: MutableList<Predicate> = ArrayList()
+        val where = mutableListOf<Predicate>()
         where.add(builder.equal(root.get<Any>("targettype"), parameters.targettype))
         parameters.target?.let {
             where.add(builder.equal(root.get<Any>("target"), it))
@@ -31,18 +29,12 @@ class SignaleringPredicateHelper {
         if (parameters.types.isNotEmpty()) {
             where.add(
                 root.get<Any>("type").get<Any>("id")
-                    .`in`(
-                        parameters.types.stream()
-                            .map { it.toString() }
-                            .collect(Collectors.toList())
-                    )
+                    .`in`(parameters.types.map { it.toString() })
             )
         }
         parameters.subjecttype?.let { subjecttype ->
             where.add(builder.equal(root.get<Any>("type").get<Any>("subjecttype"), subjecttype))
-            parameters.subject?.let { subject ->
-                where.add(builder.equal(root.get<Any>("subject"), subject))
-            }
+            parameters.subject?.let { where.add(builder.equal(root.get<Any>("subject"), it)) }
         }
         @Suppress("SpreadOperator")
         return builder.and(*where.toTypedArray<Predicate>())
@@ -91,17 +83,12 @@ class SignaleringPredicateHelper {
         if (parameters.types.isNotEmpty()) {
             where.add(
                 root.get<Any>("type").get<Any>("id")
-                    .`in`(
-                        parameters.types.stream().map { obj: SignaleringType.Type -> obj.toString() }
-                            .collect(Collectors.toList())
-                    )
+                    .`in`(parameters.types.map { it.toString() })
             )
         }
         parameters.subjecttype?.let { subjecttype ->
             where.add(builder.equal(root.get<Any>("type").get<Any>("subjecttype"), subjecttype))
-            parameters.subject?.let { subject ->
-                where.add(builder.equal(root.get<Any>("subject"), subject))
-            }
+            parameters.subject?.let { where.add(builder.equal(root.get<Any>("subject"), it)) }
         }
         parameters.detail?.let {
             where.add(builder.equal(root.get<Any>("detail"), it.toString()))

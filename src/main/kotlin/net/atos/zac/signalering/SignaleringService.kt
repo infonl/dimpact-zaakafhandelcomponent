@@ -37,7 +37,6 @@ import net.atos.zac.websocket.event.ScreenEventType
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
-import java.util.Arrays
 import java.util.Optional
 import java.util.UUID
 import java.util.logging.Logger
@@ -290,20 +289,15 @@ class SignaleringService @Inject constructor(
         parameters: SignaleringInstellingenZoekParameters
     ): List<SignaleringInstellingen> {
         val map = listInstellingen(parameters).associateBy { it.type.type }.toMutableMap()
-        Arrays.stream(SignaleringType.Type.entries.toTypedArray())
-            .filter { it.isTarget(parameters.ownertype) }
-            .filter { !map.containsKey(it) }
+        SignaleringType.Type.entries
+            .filter { it.isTarget(parameters.ownertype) && !map.containsKey(it) }
             .forEach {
                 map[it] = signaleringInstellingenInstance(it, parameters.ownertype, parameters.owner)
             }
-        return map.values.stream()
-            .sorted(Comparator.comparing { it.type })
-            .toList()
+        return map.values.sortedBy { it.type }
     }
 
-    fun count(): Int {
-        return SignaleringType.Type.entries.size
-    }
+    fun count(): Int = SignaleringType.Type.entries.size
 
     @Transactional(REQUIRED)
     fun createSignaleringVerzonden(signalering: Signalering): SignaleringVerzonden {
