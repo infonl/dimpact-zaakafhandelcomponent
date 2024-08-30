@@ -132,9 +132,11 @@ class TaskRestService @Inject constructor(
                         zaakVariabelenService.readProcessZaakdata(restTask.zaakUuid)
                             .filterNot {
                                 it.key.equals(ZaakVariabelenService.VAR_ZAAK_UUID) ||
-                                        it.key.equals(ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
-                                )
-                            })
+                                    it.key.equals(
+                                        ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
+                                    )
+                            }
+                    )
                 }
             }
             return restTask
@@ -360,12 +362,12 @@ class TaskRestService @Inject constructor(
                 .forEach { enkelvoudigInformatieobject ->
                     assertPolicy(
                         (
-                                // this extra check is because the API can return an empty ondertekening soort
-                                enkelvoudigInformatieobject.ondertekening == null ||
-                                        // when no signature is present (even if this is not
-                                        // permitted according to the original OpenAPI spec)
-                                        enkelvoudigInformatieobject.ondertekening.soort == SoortEnum.EMPTY
-                                ) && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
+                            // this extra check is because the API can return an empty ondertekening soort
+                            enkelvoudigInformatieobject.ondertekening == null ||
+                                // when no signature is present (even if this is not
+                                // permitted according to the original OpenAPI spec)
+                                enkelvoudigInformatieobject.ondertekening.soort == SoortEnum.EMPTY
+                            ) && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
                     )
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
                         URIUtil.parseUUIDFromResourceURI(enkelvoudigInformatieobject.url)
