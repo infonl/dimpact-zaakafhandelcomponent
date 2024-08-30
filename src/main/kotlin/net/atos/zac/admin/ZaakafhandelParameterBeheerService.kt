@@ -109,8 +109,8 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             if (it.size > 1) {
                 LOG.warning(
                     "Multiple active zaakafhandelparameters have been found for productaanvraagtype: '$productaanvraagType'. " +
-                            "This indicates that the zaakafhandelparameters are not configured correctly. " +
-                            "There should be at most only one active zaakafhandelparameters for each productaanvraagtype. " +
+                        "This indicates that the zaakafhandelparameters are not configured correctly. " +
+                        "There should be at most only one active zaakafhandelparameters for each productaanvraagtype. " +
                         "Returning the first result with the most recent creation date, with zaaktypeomschrijving: " +
                         "'${it.first().zaaktypeOmschrijving}' and zaaktype UUID: " +
                         "'${it.first().zaakTypeUUID}'."
@@ -125,8 +125,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         val query = builder.createQuery(ZaakbeeindigReden::class.java)
         val root = query.from(ZaakbeeindigReden::class.java)
         query.orderBy(builder.asc(root.get<Any>("naam")))
-        val emQuery = entityManager.createQuery(query)
-        return emQuery.resultList
+        return entityManager.createQuery(query).resultList
     }
 
     /**
