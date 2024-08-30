@@ -173,4 +173,39 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
             }
         }
     }
+//    Given(
+//        """
+//        Two zaakafhandelparameters with different zaaktype UUIDs but both with the same productaanvraagType
+//        """
+//    ) {
+//        val productaanvraagType = "dummyProductaanvraagType"
+//        val zaaktypeUUIDs = listOf(UUID.randomUUID(), UUID.randomUUID())
+//        val uuidCriteriaQuery = mockk<CriteriaQuery<UUID>>()
+//
+//        every { entityManager.criteriaBuilder } returns criteriaBuilder
+//        every { criteriaBuilder.createQuery(UUID::class.java) } returns uuidCriteriaQuery
+//        every { uuidCriteriaQuery.from(ZaakafhandelParameters::class.java) } returns zaakafhandelparametersRoot
+//        every { uuidCriteriaQuery.select(zaakafhandelparametersRoot.get("zaakTypeUUID")) } returns uuidCriteriaQuery
+//        every { zaakafhandelparametersRoot.get<Any>("productaanvraagtype") } returns path
+//        every { criteriaBuilder.equal(path, productaanvraagType) } returns predicate
+//        every { uuidCriteriaQuery.where(predicate) } returns uuidCriteriaQuery
+//        every { zaakafhandelparametersRoot.get<Any>("creatiedatum") } returns path
+//        every { criteriaBuilder.desc(path) } returns order
+//        every { uuidCriteriaQuery.orderBy(order) } returns uuidCriteriaQuery
+//        every { entityManager.createQuery(uuidCriteriaQuery).resultList } returns zaaktypeUUIDs
+//
+//        When(
+//            """
+//                the active zaaktype UUID is retrieved from the set of zaakafhandelparameters based on the productaanvraagType
+//                """
+//        ) {
+//            val returnedZaaktypeUUID = zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(
+//                productaanvraagType
+//            )
+//
+//            Then("the first zaaktype UUID for the given zaakafhandelparameters should be returned") {
+//                returnedZaaktypeUUID shouldBe zaaktypeUUIDs.first()
+//            }
+//        }
+//    }
 })
