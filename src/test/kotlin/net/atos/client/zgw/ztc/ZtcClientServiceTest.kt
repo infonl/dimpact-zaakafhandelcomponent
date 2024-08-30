@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package net.atos.client.zgw.ztc
 
 import io.kotest.assertions.nondeterministic.eventually
@@ -16,7 +20,7 @@ import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
-class ZTCClientServiceTest : BehaviorSpec({
+class ZtcClientServiceTest : BehaviorSpec({
     val ztcClient = mockk<ZtcClient>()
     val zgwClientHeadersFactory = mockk<ZGWClientHeadersFactory>()
     val configuratieService = mockk<ConfiguratieService>()
