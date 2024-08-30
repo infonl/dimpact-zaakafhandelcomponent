@@ -73,10 +73,12 @@ open class ZaakafhandelParameterBeheerService @Inject constructor(
     fun createZaakafhandelParameters(zaakafhandelParameters: ZaakafhandelParameters): ZaakafhandelParameters {
         zaakafhandelParameterService.clearListCache()
         ValidationUtil.valideerObject(zaakafhandelParameters)
-        zaakafhandelParameters.humanTaskParametersCollection.forEach { ValidationUtil.valideerObject(it) }
-        zaakafhandelParameters.userEventListenerParametersCollection.forEach { ValidationUtil.valideerObject(it) }
-        zaakafhandelParameters.mailtemplateKoppelingen.forEach { ValidationUtil.valideerObject(it) }
-        zaakafhandelParameters.creatiedatum = ZonedDateTime.now()
+        zaakafhandelParameters.apply {
+            humanTaskParametersCollection.forEach { ValidationUtil.valideerObject(it) }
+            userEventListenerParametersCollection.forEach { ValidationUtil.valideerObject(it) }
+            mailtemplateKoppelingen.forEach { ValidationUtil.valideerObject(it) }
+            creatiedatum = ZonedDateTime.now()
+        }
         entityManager.persist(zaakafhandelParameters)
         return zaakafhandelParameters
     }
