@@ -53,7 +53,6 @@ class SignaleringService @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
     private val mailService: MailService,
     private val signaleringenMailHelper: SignaleringMailHelper,
-    private val signaleringPredicateHelper: SignaleringPredicateHelper,
     private val zrcClientService: ZrcClientService,
     private val restZaakOverzichtConverter: RestZaakOverzichtConverter
 ) {
@@ -171,7 +170,7 @@ class SignaleringService @Inject constructor(
         val root = query.from(Signalering::class.java)
         return entityManager.createQuery(
             query.select(root)
-                .where(signaleringPredicateHelper.getSignaleringWhere(parameters, builder, root))
+                .where(getSignaleringWhere(parameters, builder, root))
                 .orderBy(builder.desc(root.get<Any>("tijdstip")))
         )
             .resultList
@@ -185,7 +184,7 @@ class SignaleringService @Inject constructor(
         val root = query.from(Signalering::class.java)
 
         query.select(root.get("tijdstip"))
-            .where(signaleringPredicateHelper.getSignaleringWhere(parameters, builder, root))
+            .where(getSignaleringWhere(parameters, builder, root))
             .orderBy(builder.desc(root.get<Any>("tijdstip")))
 
         val resultList = entityManager.createQuery(query).resultList
@@ -279,8 +278,7 @@ class SignaleringService @Inject constructor(
             SignaleringInstellingen::class.java
         )
         return entityManager.createQuery(
-            query.select(root)
-                .where(signaleringPredicateHelper.getSignaleringInstellingenWhere(parameters, builder, root))
+            query.select(root).where(getSignaleringInstellingenWhere(parameters, builder, root))
         )
             .resultList
     }
@@ -315,17 +313,11 @@ class SignaleringService @Inject constructor(
         parameters: SignaleringVerzondenZoekParameters
     ): Optional<SignaleringVerzonden> {
         val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(
-            SignaleringVerzonden::class.java
-        )
-        val root = query.from(
-            SignaleringVerzonden::class.java
-        )
+        val query = builder.createQuery(SignaleringVerzonden::class.java)
+        val root = query.from(SignaleringVerzonden::class.java)
         val result = entityManager.createQuery(
-            query.select(root)
-                .where(signaleringPredicateHelper.getSignaleringVerzondenWhere(parameters, builder, root))
-        )
-            .resultList
+            query.select(root).where(getSignaleringVerzondenWhere(parameters, builder, root))
+        ).resultList
         return if (result.isEmpty()) { Optional.empty() } else { Optional.of(result[0]) }
     }
 

@@ -15,85 +15,83 @@ import net.atos.zac.signalering.model.SignaleringVerzonden
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 
-class SignaleringPredicateHelper {
-    fun getSignaleringWhere(
-        parameters: SignaleringZoekParameters,
-        builder: CriteriaBuilder,
-        root: Root<Signalering>
-    ): Predicate {
-        val where = mutableListOf<Predicate>()
-        where.add(builder.equal(root.get<Any>("targettype"), parameters.targettype))
-        parameters.target?.let {
-            where.add(builder.equal(root.get<Any>("target"), it))
-        }
-        if (parameters.types.isNotEmpty()) {
-            where.add(
-                root.get<Any>("type").get<Any>("id")
-                    .`in`(parameters.types.map { it.toString() })
-            )
-        }
-        parameters.subjecttype?.let { subjecttype ->
-            where.add(builder.equal(root.get<Any>("type").get<Any>("subjecttype"), subjecttype))
-            parameters.subject?.let { where.add(builder.equal(root.get<Any>("subject"), it)) }
-        }
-        @Suppress("SpreadOperator")
-        return builder.and(*where.toTypedArray<Predicate>())
+fun getSignaleringWhere(
+    parameters: SignaleringZoekParameters,
+    builder: CriteriaBuilder,
+    root: Root<Signalering>
+): Predicate {
+    val where = mutableListOf<Predicate>()
+    where.add(builder.equal(root.get<Any>("targettype"), parameters.targettype))
+    parameters.target?.let {
+        where.add(builder.equal(root.get<Any>("target"), it))
     }
+    if (parameters.types.isNotEmpty()) {
+        where.add(
+            root.get<Any>("type").get<Any>("id")
+                .`in`(parameters.types.map { it.toString() })
+        )
+    }
+    parameters.subjecttype?.let { subjecttype ->
+        where.add(builder.equal(root.get<Any>("type").get<Any>("subjecttype"), subjecttype))
+        parameters.subject?.let { where.add(builder.equal(root.get<Any>("subject"), it)) }
+    }
+    @Suppress("SpreadOperator")
+    return builder.and(*where.toTypedArray<Predicate>())
+}
 
-    fun getSignaleringInstellingenWhere(
-        parameters: SignaleringInstellingenZoekParameters,
-        builder: CriteriaBuilder,
-        root: Root<SignaleringInstellingen>
-    ): Predicate {
-        val where: MutableList<Predicate> = ArrayList()
-        parameters.owner?.let {
-            when (parameters.ownertype) {
-                SignaleringTarget.GROUP -> {
-                    where.add(builder.equal(root.get<Any>("groep"), it))
-                }
-                SignaleringTarget.USER -> {
-                    where.add(builder.equal(root.get<Any>("medewerker"), it))
-                }
-                else -> null
+fun getSignaleringInstellingenWhere(
+    parameters: SignaleringInstellingenZoekParameters,
+    builder: CriteriaBuilder,
+    root: Root<SignaleringInstellingen>
+): Predicate {
+    val where: MutableList<Predicate> = ArrayList()
+    parameters.owner?.let {
+        when (parameters.ownertype) {
+            SignaleringTarget.GROUP -> {
+                where.add(builder.equal(root.get<Any>("groep"), it))
             }
+            SignaleringTarget.USER -> {
+                where.add(builder.equal(root.get<Any>("medewerker"), it))
+            }
+            else -> null
         }
-        parameters.type?.let {
-            where.add(builder.equal(root.get<Any>("type").get<Any>("id"), it.toString()))
-        }
-        if (parameters.dashboard) {
-            where.add(builder.isTrue(root.get("dashboard")))
-        }
-        if (parameters.mail) {
-            where.add(builder.isTrue(root.get("mail")))
-        }
-        @Suppress("SpreadOperator")
-        return builder.and(*where.toTypedArray<Predicate>())
     }
+    parameters.type?.let {
+        where.add(builder.equal(root.get<Any>("type").get<Any>("id"), it.toString()))
+    }
+    if (parameters.dashboard) {
+        where.add(builder.isTrue(root.get("dashboard")))
+    }
+    if (parameters.mail) {
+        where.add(builder.isTrue(root.get("mail")))
+    }
+    @Suppress("SpreadOperator")
+    return builder.and(*where.toTypedArray<Predicate>())
+}
 
-    fun getSignaleringVerzondenWhere(
-        parameters: SignaleringVerzondenZoekParameters,
-        builder: CriteriaBuilder,
-        root: Root<SignaleringVerzonden>
-    ): Predicate {
-        val where: MutableList<Predicate> = ArrayList()
-        where.add(builder.equal(root.get<Any>("targettype"), parameters.targettype))
-        parameters.target?.let {
-            where.add(builder.equal(root.get<Any>("target"), it))
-        }
-        if (parameters.types.isNotEmpty()) {
-            where.add(
-                root.get<Any>("type").get<Any>("id")
-                    .`in`(parameters.types.map { it.toString() })
-            )
-        }
-        parameters.subjecttype?.let { subjecttype ->
-            where.add(builder.equal(root.get<Any>("type").get<Any>("subjecttype"), subjecttype))
-            parameters.subject?.let { where.add(builder.equal(root.get<Any>("subject"), it)) }
-        }
-        parameters.detail?.let {
-            where.add(builder.equal(root.get<Any>("detail"), it.toString()))
-        }
-        @Suppress("SpreadOperator")
-        return builder.and(*where.toTypedArray<Predicate>())
+fun getSignaleringVerzondenWhere(
+    parameters: SignaleringVerzondenZoekParameters,
+    builder: CriteriaBuilder,
+    root: Root<SignaleringVerzonden>
+): Predicate {
+    val where: MutableList<Predicate> = ArrayList()
+    where.add(builder.equal(root.get<Any>("targettype"), parameters.targettype))
+    parameters.target?.let {
+        where.add(builder.equal(root.get<Any>("target"), it))
     }
+    if (parameters.types.isNotEmpty()) {
+        where.add(
+            root.get<Any>("type").get<Any>("id")
+                .`in`(parameters.types.map { it.toString() })
+        )
+    }
+    parameters.subjecttype?.let { subjecttype ->
+        where.add(builder.equal(root.get<Any>("type").get<Any>("subjecttype"), subjecttype))
+        parameters.subject?.let { where.add(builder.equal(root.get<Any>("subject"), it)) }
+    }
+    parameters.detail?.let {
+        where.add(builder.equal(root.get<Any>("detail"), it.toString()))
+    }
+    @Suppress("SpreadOperator")
+    return builder.and(*where.toTypedArray<Predicate>())
 }
