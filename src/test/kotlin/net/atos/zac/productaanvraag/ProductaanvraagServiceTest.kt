@@ -232,7 +232,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val roleToBeCreated = slot<Rol<*>>()
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
-            zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(productAanvraagType)
+            zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(productAanvraagType)
         } returns Optional.of(zaakTypeUUID)
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
         every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
@@ -324,7 +324,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val roleToBeCreated = slot<Rol<*>>()
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
-            zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(productAanvraagType)
+            zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(productAanvraagType)
         } returns Optional.of(zaakTypeUUID)
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
         every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
@@ -404,7 +404,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakToBeCreated = slot<Zaak>()
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
-            zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(productAanvraagType)
+            zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(productAanvraagType)
         } returns Optional.of(zaakTypeUUID)
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
         every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
@@ -473,7 +473,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakToBeCreated = slot<Zaak>()
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
-            zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(productAanvraagType)
+            zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(productAanvraagType)
         } returns Optional.of(zaakTypeUUID)
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
         every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
@@ -613,7 +613,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         val zaakToBeCreated = slot<Zaak>()
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
-            zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(productAanvraagType)
+            zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(productAanvraagType)
         } returns Optional.of(zaakTypeUUID)
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
         // here we simulate the case that no role types have been defined for the adviseur role
@@ -773,7 +773,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         // no zaakafhandelparameters are configured for the zaaktype
         every {
-            zaakafhandelParameterBeheerService.findZaaktypeUUIDByProductaanvraagType(productAanvraagType)
+            zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(productAanvraagType)
         } returns Optional.empty()
         every { configuratieService.readDefaultCatalogusURI() } returns catalogusURI
         every { ztcClientService.listZaaktypen(catalogusURI) } returns listOf(zaakType)
