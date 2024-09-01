@@ -5,6 +5,7 @@
 package net.atos.zac.admin
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -21,7 +22,6 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import java.time.ZonedDateTime
-import java.util.UUID
 
 class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>()
@@ -108,45 +108,41 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("A zaakafhandelparameters in the database for a specific zaaktype UUID and a productaanvraagType") {
+    Given("One active zaakafhandelparameters in the database for a productaanvraagtype") {
         val productaanvraagType = "dummyProductaanvraagType"
-        val zaaktypeUUID = UUID.randomUUID()
-        val zaakafhandelparameters = createZaakafhandelParameters(
-            zaaktypeUUID = zaaktypeUUID,
-        )
+        val zaakafhandelparameters = listOf(createZaakafhandelParameters())
         every {
             entityManager.createNamedQuery(any(), ZaakafhandelParameters::class.java)
         } returns zaakafhandelparametersTypedQuery
         every {
             zaakafhandelparametersTypedQuery.setParameter("productaanvraagtype", productaanvraagType)
         } returns zaakafhandelparametersTypedQuery
-        every { zaakafhandelparametersTypedQuery.resultList } returns listOf(zaakafhandelparameters)
+        every { zaakafhandelparametersTypedQuery.resultList } returns zaakafhandelparameters
 
         When(
             """
-                the active zaaktype UUID is retrieved based on the productaanvraagType
+                the zaakafhandelparameters are retrieved based on the productaanvraagType
                 """
         ) {
-            val returnedZaaktypeUUID = zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(
+            val returnedZaakafhandelparameters = zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagType(
                 productaanvraagType
             )
 
             Then("the zaaktype UUID for the given zaakafhandelparameters should be returned") {
-                returnedZaaktypeUUID shouldBe zaaktypeUUID
+                returnedZaakafhandelparameters.size shouldBe 1
+                returnedZaakafhandelparameters shouldBe zaakafhandelparameters
             }
         }
     }
     Given(
         """
-        Two zaakafhandelparameters for a specific zaaktype UUID and a productaanvraagType
+        Two active zaakafhandelparameters with the same productaanvraagType
         """
     ) {
         val productaanvraagType = "dummyProductaanvraagType"
-        val zaaktypeUUIDs = listOf(UUID.randomUUID(), UUID.randomUUID())
-
         val zaakafhandelparametersList = listOf(
-            createZaakafhandelParameters(zaaktypeUUID = zaaktypeUUIDs[0]),
-            createZaakafhandelParameters(zaaktypeUUID = zaaktypeUUIDs[1])
+            createZaakafhandelParameters(),
+            createZaakafhandelParameters()
         )
         every {
             entityManager.createNamedQuery(any(), ZaakafhandelParameters::class.java)
@@ -158,15 +154,16 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
 
         When(
             """
-                the active zaaktype UUID is retrieved from the set of zaakafhandelparameters based on the productaanvraagType
+                the active zaakafhandelparameters are retrieved for the given productaanvraagType
                 """
         ) {
-            val returnedZaaktypeUUID = zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(
+            val returnedZaakafhandelParameters = zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagType(
                 productaanvraagType
             )
 
-            Then("the first zaaktype UUID for the given zaakafhandelparameters should be returned") {
-                returnedZaaktypeUUID shouldBe zaaktypeUUIDs.first()
+            Then("two zaakafhandelparameters should be returned") {
+                returnedZaakafhandelParameters.size shouldBe 2
+                returnedZaakafhandelParameters.map { productaanvraagType } shouldContainOnly listOf(productaanvraagType)
             }
         }
     }

@@ -141,15 +141,31 @@ class ZaakafhandelParametersRestService @Inject constructor(
     ): RestZaakafhandelParameters {
         assertPolicy(policyService.readOverigeRechten().beheren)
         restZaakafhandelParameters.productaanvraagtype?.let { productaanvraagtype ->
-            // TODO: not correct: when saving a new version of zaps, the old version is still seen as active..
-            zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(productaanvraagtype)?.let {
+            val zaakafhandelparameters = zaakafhandelParameterBeheerService
+                .findActiveZaakafhandelparametersByProductaanvraagType(productaanvraagtype)
+            if (zaakafhandelparameters.size > 1) {
                 throw InputValidationFailedException(
-                    // TODO: use error code and translate in frontend
-                    "Productaanvraagtype '$productaanvraagtype' is already in use by another active zaaktype with UUID: '$it'"
+                    "Productaanvraagtype '$productaanvraagtype' is already in use by multiple active zaaktypes: '" +
+                        zaakafhandelparameters.joinToString(", ") { it.toString() } + "'. " +
+                        "Please fix the settings of the zaakafhandelparameters. " +
+                        "There should be at most only one active zaakafhandelparameters for each productaanvraagtype."
+                )
+            }
+            if (
+                zaakafhandelparameters.size == 1 &&
+                zaakafhandelparameters.first().zaaktypeOmschrijving != restZaakafhandelParameters.zaaktype.omschrijving
+            ) {
+                throw InputValidationFailedException(
+                    "Productaanvraagtype '$productaanvraagtype' is already in use by another active zaaktype " +
+                        "with  zaaktype omschrijving: '${zaakafhandelparameters.first().zaaktypeOmschrijving}' " +
+                        "and zaaktype UUID: '${zaakafhandelparameters.first().zaakTypeUUID}'. " +
+                        "Please use a unique productaanvraagtype per active zaakafhandelparameters."
                 )
             }
         }
-        val zaakafhandelParameters = zaakafhandelParametersConverter.toZaakafhandelParameters(restZaakafhandelParameters)
+        val zaakafhandelParameters = zaakafhandelParametersConverter.toZaakafhandelParameters(
+            restZaakafhandelParameters
+        )
         val updatedZaakafhandelParameters = zaakafhandelParameters.id?.let {
             zaakafhandelParameterBeheerService.updateZaakafhandelParameters(zaakafhandelParameters).also {
                 zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)

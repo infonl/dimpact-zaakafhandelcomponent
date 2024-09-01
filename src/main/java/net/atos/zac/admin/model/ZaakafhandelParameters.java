@@ -40,8 +40,6 @@ import org.apache.commons.lang3.StringUtils;
                                                                                                                 "    SELECT z_inner.zaaktype_omschrijving AS inner_zaaktype_omschrijving, MAX(z_inner.creatiedatum) AS max_creatiedatum " +
                                                                                                                 "  FROM " +
                                                                                                                 "    zaakafhandelcomponent.zaakafhandelparameters z_inner " +
-                                                                                                                "  WHERE " +
-                                                                                                                "    z_inner.productaanvraagtype = :productaanvraagtype " +
                                                                                                                 "  GROUP BY inner_zaaktype_omschrijving " +
                                                                                                                 ") recent_zaaktypes " +
                                                                                                                 "ON " +
