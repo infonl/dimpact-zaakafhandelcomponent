@@ -38,7 +38,6 @@ import java.util.UUID
 import java.util.logging.Logger
 
 @Singleton
-@Transactional
 @AllOpen
 @Suppress("TooManyFunctions")
 class IndexingService @Inject constructor(
@@ -48,12 +47,12 @@ class IndexingService @Inject constructor(
     private val flowableTaskService: FlowableTaskService
 ) {
     companion object {
-        const val SOLR_CORE: String = "zac"
+        const val SOLR_CORE = "zac"
 
         private const val SOLR_MAX_RESULT = 100
         private const val TAKEN_MAX_RESULTS = 50
 
-        private val LOG: Logger = Logger.getLogger(IndexingService::class.java.name)
+        private val LOG = Logger.getLogger(IndexingService::class.java.name)
 
         private val reindexingViewfinder: MutableSet<ZoekObjectType> = HashSet()
     }
@@ -241,40 +240,36 @@ class IndexingService @Inject constructor(
     }
 
     private fun reindexAllZaken() {
-        val listParameters = ZaakListParameters()
-        listParameters.ordering = "-identificatie"
-        listParameters.page = ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS
-        var hasMore: Boolean
-        do {
-            hasMore = reindexZaken(listParameters)
-            listParameters.page += 1
-        } while (hasMore)
+        val listParameters = ZaakListParameters().apply {
+            ordering = "-identificatie"
+            page = ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS
+        }
+        while (reindexZaken(listParameters)) {
+            listParameters.page++
+        }
     }
 
     private fun reindexAllInformatieobjecten() {
-        val listParameters = EnkelvoudigInformatieobjectListParameters()
-        listParameters.page = ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS
-        var hasMore: Boolean
-        do {
-            hasMore = reindexInformatieobjecten(listParameters)
-            listParameters.page += 1
-        } while (hasMore)
+        val listParameters = EnkelvoudigInformatieobjectListParameters().apply {
+            page = ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS
+        }
+        while (reindexInformatieobjecten(listParameters)) {
+            listParameters.page++
+        }
     }
 
     private fun reindexAllTaken() {
         val numberOfTasks = flowableTaskService.countOpenTasks()
         var page = 0
-        var hasMore: Boolean
-        do {
-            hasMore = reindexTaken(page, numberOfTasks)
+        while (reindexTaken(page, numberOfTasks)) {
             page++
-        } while (hasMore)
+        }
     }
 
     private fun reindexZaken(listParameters: ZaakListParameters): Boolean {
-        val results = zrcClientService.listZaken(listParameters)
+        val zaakResults = zrcClientService.listZaken(listParameters)
         indexeerDirect(
-            results.results
+            zaakResults.results
                 .map { obj: Zaak -> obj.uuid }
                 .map { obj: UUID -> obj.toString() },
             ZoekObjectType.ZAAK,
@@ -283,33 +278,30 @@ class IndexingService @Inject constructor(
         logProgress(
             ZoekObjectType.ZAAK,
             (listParameters.page - ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE +
-                results.results.size,
-            results.count.toLong()
+                zaakResults.results.size,
+            zaakResults.count.toLong()
         )
-        return results.next != null
+        return zaakResults.next != null
     }
 
     private fun reindexInformatieobjecten(
         listParameters: EnkelvoudigInformatieobjectListParameters
     ): Boolean {
-        val results = drcClientService.listEnkelvoudigInformatieObjecten(listParameters)
+        val enkelvoudigInformatieObjectenResults = drcClientService.listEnkelvoudigInformatieObjecten(listParameters)
         indexeerDirect(
-            results.results
-                .map {
-                        enkelvoudigInformatieObject ->
-                    URIUtil.parseUUIDFromResourceURI(enkelvoudigInformatieObject.url)
-                }
-                .map { obj: UUID -> obj.toString() },
+            enkelvoudigInformatieObjectenResults.results
+                .map { URIUtil.parseUUIDFromResourceURI(it.url) }
+                .map { it.toString() },
             ZoekObjectType.DOCUMENT,
             false
         )
         logProgress(
             ZoekObjectType.DOCUMENT,
             (listParameters.page - ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE +
-                results.results.size,
-            results.count.toLong()
+                enkelvoudigInformatieObjectenResults.results.size,
+            enkelvoudigInformatieObjectenResults.count.toLong()
         )
-        return results.next != null
+        return enkelvoudigInformatieObjectenResults.next != null
     }
 
     private fun reindexTaken(page: Int, numberOfTasks: Long): Boolean {
@@ -320,7 +312,7 @@ class IndexingService @Inject constructor(
             firstResult,
             TAKEN_MAX_RESULTS
         )
-        indexeerDirect(tasks.map { obj: Task -> obj.id }, ZoekObjectType.TAAK, false)
+        indexeerDirect(tasks.map { it.id }, ZoekObjectType.TAAK, false)
         if (tasks.isNotEmpty()) {
             logProgress(ZoekObjectType.TAAK, firstResult.toLong() + tasks.size, numberOfTasks)
             return tasks.size == TAKEN_MAX_RESULTS
