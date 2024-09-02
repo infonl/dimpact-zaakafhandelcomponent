@@ -34,7 +34,6 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
     val dateSubquery = mockk<Subquery<Date>>()
     val zaakafhandelparametersTypedQuery = mockk<TypedQuery<ZaakafhandelParameters>>()
     val zaakafhandelparametersRoot = mockk<Root<ZaakafhandelParameters>>()
-    val zaakafhandelparametersSubqueryRoot = mockk<Root<ZaakafhandelParameters>>()
     val path = mockk<Path<Any>>()
     val pathString = mockk<Path<String>>()
     val predicate = mockk<Predicate>()
