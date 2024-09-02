@@ -2,96 +2,63 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.zoeken
 
-package net.atos.zac.zoeken;
-
-import static net.atos.client.zgw.shared.ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS;
-import static net.atos.client.zgw.shared.model.Results.NUM_ITEMS_PER_PAGE;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
-import static net.atos.zac.zoeken.model.index.ZoekObjectType.DOCUMENT;
-import static net.atos.zac.zoeken.model.index.ZoekObjectType.TAAK;
-import static net.atos.zac.zoeken.model.index.ZoekObjectType.ZAAK;
-
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
-
-import jakarta.enterprise.inject.Any;
-import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-import jakarta.transaction.Transactional;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.Http2SolrClient;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.params.CursorMarkParams;
-import org.eclipse.microprofile.config.ConfigProvider;
-import org.flowable.task.api.Task;
-import org.flowable.task.api.TaskInfo;
-
-import net.atos.client.zgw.drc.DrcClientService;
-import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.shared.model.Results;
-import net.atos.client.zgw.shared.util.URIUtil;
-import net.atos.client.zgw.zrc.ZrcClientService;
-import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.zrc.model.ZaakListParameters;
-import net.atos.zac.app.task.model.TaakSortering;
-import net.atos.zac.flowable.task.FlowableTaskService;
-import net.atos.zac.shared.model.SorteerRichting;
-import net.atos.zac.zoeken.converter.AbstractZoekObjectConverter;
-import net.atos.zac.zoeken.model.ZoekObject;
-import net.atos.zac.zoeken.model.index.ZoekObjectType;
+import jakarta.enterprise.inject.Instance
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
+import jakarta.transaction.Transactional
+import net.atos.client.zgw.drc.DrcClientService
+import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import net.atos.client.zgw.shared.ZGWApiService
+import net.atos.client.zgw.shared.model.Results
+import net.atos.client.zgw.shared.util.URIUtil
+import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.client.zgw.zrc.model.ZaakListParameters
+import net.atos.zac.app.task.model.TaakSortering
+import net.atos.zac.flowable.task.FlowableTaskService
+import net.atos.zac.shared.model.SorteerRichting
+import net.atos.zac.util.UriUtil
+import net.atos.zac.zoeken.converter.AbstractZoekObjectConverter
+import net.atos.zac.zoeken.model.ZoekObject
+import net.atos.zac.zoeken.model.index.ZoekObjectType
+import org.apache.commons.collections4.CollectionUtils
+import org.apache.solr.client.solrj.SolrClient
+import org.apache.solr.client.solrj.SolrQuery
+import org.apache.solr.client.solrj.SolrServerException
+import org.apache.solr.client.solrj.impl.Http2SolrClient
+import org.apache.solr.client.solrj.response.QueryResponse
+import org.apache.solr.common.SolrDocument
+import org.apache.solr.common.params.CursorMarkParams
+import org.eclipse.microprofile.config.ConfigProvider
+import org.flowable.task.api.Task
+import java.io.IOException
+import java.util.Objects
+import java.util.UUID
+import java.util.logging.Logger
+import java.util.stream.Stream
 
 @Singleton
 @Transactional
-public class IndexeerService {
-    public static final String SOLR_CORE = "zac";
+class IndexeerService @Inject internal constructor(
+    @param:jakarta.enterprise.inject.Any private val converterInstances: Instance<AbstractZoekObjectConverter<out ZoekObject>>,
+    private val zrcClientService: ZrcClientService,
+    private val drcClientService: DrcClientService,
+    private val flowableTaskService: FlowableTaskService
+) {
+    private val solrClient: SolrClient
+    private val herindexerenBezig: MutableSet<ZoekObjectType> = HashSet()
 
-    private static final Logger LOG = Logger.getLogger(IndexeerService.class.getName());
-    private static final int SOLR_MAX_RESULT = 100;
-    private static final int TAKEN_MAX_RESULTS = 50;
-
-    private final Instance<AbstractZoekObjectConverter<? extends ZoekObject>> converterInstances;
-    private final ZrcClientService zrcClientService;
-    private final DrcClientService drcClientService;
-    private final FlowableTaskService flowableTaskService;
-    private final SolrClient solrClient;
-    private final Set<ZoekObjectType> herindexerenBezig = new HashSet<>();
-
-    @Inject
-    IndexeerService(
-            @Any Instance<AbstractZoekObjectConverter<? extends ZoekObject>> converterInstances,
-            ZrcClientService zrcClientService,
-            DrcClientService drcClientService,
-            FlowableTaskService flowableTaskService
-    ) {
-        this.converterInstances = converterInstances;
-        this.zrcClientService = zrcClientService;
-        this.drcClientService = drcClientService;
-        this.flowableTaskService = flowableTaskService;
-
+    init {
         solrClient = createSolrClient(
-                String.format(
-                        "%s/solr/%s",
-                        ConfigProvider.getConfig().getValue("solr.url", String.class),
-                        SOLR_CORE
-                )
-        );
-    }
-
-    public static SolrClient createSolrClient(final String baseSolrUrl) {
-        return new Http2SolrClient.Builder(baseSolrUrl).build();
+            String.format(
+                "%s/solr/%s",
+                ConfigProvider.getConfig().getValue("solr.url", String::class.java),
+                SOLR_CORE
+            )
+        )
     }
 
     /**
@@ -103,8 +70,8 @@ public class IndexeerService {
      * @param objectType    the object type
      * @param performCommit whether to perform a hard Solr commit
      */
-    public void indexeerDirect(final String objectId, final ZoekObjectType objectType, final boolean performCommit) {
-        addToSolrIndex(Stream.of(getConverter(objectType).convert(objectId)), performCommit);
+    fun indexeerDirect(objectId: String?, objectType: ZoekObjectType, performCommit: Boolean) {
+        addToSolrIndex(Stream.of(getConverter(objectType).convert(objectId)), performCommit)
     }
 
     /**
@@ -116,239 +83,268 @@ public class IndexeerService {
      * @param objectType    the object type
      * @param performCommit whether to perform a hard Solr commit
      */
-    public void indexeerDirect(final Stream<String> objectIds, final ZoekObjectType objectType, final boolean performCommit) {
-        addToSolrIndex(objectIds.map(objectId -> getConverter(objectType).convert(objectId)), performCommit);
+    fun indexeerDirect(objectIds: Stream<String?>, objectType: ZoekObjectType, performCommit: Boolean) {
+        addToSolrIndex(objectIds.map { objectId: String? -> getConverter(objectType).convert(objectId) }, performCommit)
     }
 
     @Transactional(Transactional.TxType.NEVER)
-    public void herindexeren(final ZoekObjectType objectType) {
+    fun herindexeren(objectType: ZoekObjectType) {
         if (herindexerenBezig.contains(objectType)) {
-            log(objectType, "Herindexeren niet gestart, is nog bezig");
-            return;
+            log(objectType, "Herindexeren niet gestart, is nog bezig")
+            return
         }
-        herindexerenBezig.add(objectType);
+        herindexerenBezig.add(objectType)
         try {
-            log(objectType, "Herindexeren gestart...");
-            removeEntitiesFromSolrIndex(objectType);
-            switch (objectType) {
-                case ZAAK -> reindexAllZaken();
-                case DOCUMENT -> reindexAllInformatieobjecten();
-                case TAAK -> reindexAllTaken();
+            log(objectType, "Herindexeren gestart...")
+            removeEntitiesFromSolrIndex(objectType)
+            when (objectType) {
+                ZoekObjectType.ZAAK -> reindexAllZaken()
+                ZoekObjectType.DOCUMENT -> reindexAllInformatieobjecten()
+                ZoekObjectType.TAAK -> reindexAllTaken()
             }
-            log(objectType, "Herindexeren gestopt");
+            log(objectType, "Herindexeren gestopt")
         } finally {
-            herindexerenBezig.remove(objectType);
+            herindexerenBezig.remove(objectType)
         }
     }
 
-    public void addOrUpdateZaak(final UUID zaakUUID, boolean inclusiefTaken) {
-        indexeerDirect(zaakUUID.toString(), ZAAK, false);
+    fun addOrUpdateZaak(zaakUUID: UUID, inclusiefTaken: Boolean) {
+        indexeerDirect(zaakUUID.toString(), ZoekObjectType.ZAAK, false)
         if (inclusiefTaken) {
             flowableTaskService.listOpenTasksForZaak(zaakUUID).stream()
-                    .map(TaskInfo::getId)
-                    .forEach(this::addOrUpdateTaak);
+                .map { obj: Task -> obj.id }
+                .forEach { taskID: String? -> this.addOrUpdateTaak(taskID) }
         }
     }
 
-    public void addOrUpdateInformatieobject(final UUID informatieobjectUUID) {
-        indexeerDirect(informatieobjectUUID.toString(), DOCUMENT, false);
+    fun addOrUpdateInformatieobject(informatieobjectUUID: UUID) {
+        indexeerDirect(informatieobjectUUID.toString(), ZoekObjectType.DOCUMENT, false)
     }
 
-    public void addOrUpdateInformatieobjectByZaakinformatieobject(final UUID zaakinformatieobjectUUID) {
-        addOrUpdateInformatieobject(uuidFromURI(
-                zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID).getInformatieobject()));
+    fun addOrUpdateInformatieobjectByZaakinformatieobject(zaakinformatieobjectUUID: UUID?) {
+        addOrUpdateInformatieobject(
+            UriUtil.uuidFromURI(
+                zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID).informatieobject
+            )
+        )
     }
 
-    public void addOrUpdateTaak(final String taskID) {
-        indexeerDirect(taskID, TAAK, false);
+    fun addOrUpdateTaak(taskID: String?) {
+        indexeerDirect(taskID, ZoekObjectType.TAAK, false)
     }
 
-    public void removeZaak(final UUID zaakUUID) {
-        removeFromSolrIndex(zaakUUID.toString());
+    fun removeZaak(zaakUUID: UUID) {
+        removeFromSolrIndex(zaakUUID.toString())
     }
 
-    public void removeInformatieobject(final UUID informatieobjectUUID) {
-        removeFromSolrIndex(informatieobjectUUID.toString());
+    fun removeInformatieobject(informatieobjectUUID: UUID) {
+        removeFromSolrIndex(informatieobjectUUID.toString())
     }
 
-    public void removeTaak(final String taskID) {
-        removeFromSolrIndex(taskID.toString());
+    fun removeTaak(taskID: String) {
+        removeFromSolrIndex(taskID.toString())
     }
 
-    public void commit() {
+    fun commit() {
         try {
             // this overload waits until the solr searcher is done, which is what we want
-            solrClient.commit(null, true, true);
-        } catch (SolrServerException | IOException exception) {
-            throw new RuntimeException(exception);
+            solrClient.commit(null, true, true)
+        } catch (exception: SolrServerException) {
+            throw RuntimeException(exception)
+        } catch (exception: IOException) {
+            throw RuntimeException(exception)
         }
     }
 
-    private void log(final ZoekObjectType objectType, final String message) {
-        LOG.info("[%s] %s".formatted(objectType.toString(), message));
+    private fun log(objectType: ZoekObjectType, message: String) {
+        LOG.info("[%s] %s".formatted(objectType.toString(), message))
     }
 
-    private AbstractZoekObjectConverter<? extends ZoekObject> getConverter(ZoekObjectType objectType) {
-        for (AbstractZoekObjectConverter<? extends ZoekObject> converter : converterInstances) {
+    private fun getConverter(objectType: ZoekObjectType): AbstractZoekObjectConverter<out ZoekObject> {
+        for (converter in converterInstances) {
             if (converter.supports(objectType)) {
-                return converter;
+                return converter
             }
         }
-        throw new RuntimeException("[%s] No converter found".formatted(objectType.toString()));
+        throw RuntimeException("[%s] No converter found".formatted(objectType.toString()))
     }
 
-    private void addToSolrIndex(final Stream<ZoekObject> zoekObjecten, final boolean performCommit) {
-        final List<ZoekObject> beansToBeAdded = zoekObjecten
-                .filter(Objects::nonNull)
-                .toList();
+    private fun addToSolrIndex(zoekObjecten: Stream<ZoekObject?>, performCommit: Boolean) {
+        val beansToBeAdded = zoekObjecten
+            .filter { obj: ZoekObject? -> Objects.nonNull(obj) }
+            .toList()
         if (CollectionUtils.isNotEmpty(beansToBeAdded)) {
             try {
-                solrClient.addBeans(beansToBeAdded);
+                solrClient.addBeans(beansToBeAdded)
                 if (performCommit) {
-                    commit();
+                    commit()
                 }
-            } catch (final IOException | SolrServerException e) {
-                throw new RuntimeException(e);
+            } catch (e: IOException) {
+                throw RuntimeException(e)
+            } catch (e: SolrServerException) {
+                throw RuntimeException(e)
             }
         }
     }
 
-    private void removeFromSolrIndex(final Stream<String> ids) {
-        final List<String> idsToBeDeleted = ids.toList();
+    private fun removeFromSolrIndex(ids: Stream<String?>) {
+        val idsToBeDeleted = ids.toList()
         if (CollectionUtils.isNotEmpty(idsToBeDeleted)) {
             try {
-                solrClient.deleteById(idsToBeDeleted);
-            } catch (final IOException | SolrServerException e) {
-                throw new RuntimeException(e);
+                solrClient.deleteById(idsToBeDeleted)
+            } catch (e: IOException) {
+                throw RuntimeException(e)
+            } catch (e: SolrServerException) {
+                throw RuntimeException(e)
             }
         }
     }
 
-    private void removeFromSolrIndex(String id) {
+    private fun removeFromSolrIndex(id: String) {
         try {
-            solrClient.deleteById(id);
-        } catch (final IOException | SolrServerException e) {
-            throw new RuntimeException(e);
+            solrClient.deleteById(id)
+        } catch (e: IOException) {
+            throw RuntimeException(e)
+        } catch (e: SolrServerException) {
+            throw RuntimeException(e)
         }
     }
 
-    private void logProgress(final ZoekObjectType objectType, final long voortgang, final long grootte) {
-        log(objectType, "reindexed: %d / %d".formatted(voortgang, grootte));
+    private fun logProgress(objectType: ZoekObjectType, voortgang: Long, grootte: Long) {
+        log(objectType, "reindexed: %d / %d".formatted(voortgang, grootte))
     }
 
-    private void removeEntitiesFromSolrIndex(final ZoekObjectType objectType) {
-        final SolrQuery query = new SolrQuery("*:*");
-        query.setFields("id");
-        query.addFilterQuery("type:%s".formatted(objectType.toString()));
-        query.addSort("id", SolrQuery.ORDER.asc);
-        query.setRows(SOLR_MAX_RESULT);
-        String cursorMark = CursorMarkParams.CURSOR_MARK_START;
-        boolean done = false;
+    private fun removeEntitiesFromSolrIndex(objectType: ZoekObjectType) {
+        val query = SolrQuery("*:*")
+        query.setFields("id")
+        query.addFilterQuery("type:%s".formatted(objectType.toString()))
+        query.addSort("id", SolrQuery.ORDER.asc)
+        query.setRows(SOLR_MAX_RESULT)
+        var cursorMark = CursorMarkParams.CURSOR_MARK_START
+        var done = false
         while (!done) {
-            query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark);
-            final QueryResponse response;
+            query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark)
+            val response: QueryResponse
             try {
-                response = solrClient.query(query);
-            } catch (final SolrServerException | IOException e) {
-                throw new RuntimeException(e);
+                response = solrClient.query(query)
+            } catch (e: SolrServerException) {
+                throw RuntimeException(e)
+            } catch (e: IOException) {
+                throw RuntimeException(e)
             }
             removeFromSolrIndex(
-                    response.getResults()
-                            .stream()
-                            .map(document -> document.get("id"))
-                            .filter(Objects::nonNull)
-                            .map(Object::toString)
-            );
-            final String nextCursorMark = response.getNextCursorMark();
-            if (cursorMark.equals(nextCursorMark)) {
-                done = true;
+                response.results
+                    .stream()
+                    .map { document: SolrDocument -> document["id"] }
+                    .filter { obj: Any? -> Objects.nonNull(obj) }
+                    .map { obj: Any? -> obj.toString() }
+            )
+            val nextCursorMark = response.nextCursorMark
+            if (cursorMark == nextCursorMark) {
+                done = true
             } else {
-                cursorMark = nextCursorMark;
+                cursorMark = nextCursorMark
             }
         }
     }
 
-    private void reindexAllZaken() {
-        final ZaakListParameters listParameters = new ZaakListParameters();
-        listParameters.setOrdering("-identificatie");
-        listParameters.setPage(FIRST_PAGE_NUMBER_ZGW_APIS);
-        boolean hasMore;
+    private fun reindexAllZaken() {
+        val listParameters = ZaakListParameters()
+        listParameters.ordering = "-identificatie"
+        listParameters.page = ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS
+        var hasMore: Boolean
         do {
-            hasMore = reindexZaken(listParameters);
-            listParameters.setPage(listParameters.getPage() + 1);
-        } while (hasMore);
+            hasMore = reindexZaken(listParameters)
+            listParameters.page = listParameters.page + 1
+        } while (hasMore)
     }
 
-    private void reindexAllInformatieobjecten() {
-        final EnkelvoudigInformatieobjectListParameters listParameters = new EnkelvoudigInformatieobjectListParameters();
-        listParameters.setPage(FIRST_PAGE_NUMBER_ZGW_APIS);
-        boolean hasMore;
+    private fun reindexAllInformatieobjecten() {
+        val listParameters = EnkelvoudigInformatieobjectListParameters()
+        listParameters.page = ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS
+        var hasMore: Boolean
         do {
-            hasMore = reindexInformatieobjecten(listParameters);
-            listParameters.setPage(listParameters.getPage() + 1);
-        } while (hasMore);
+            hasMore = reindexInformatieobjecten(listParameters)
+            listParameters.page = listParameters.page + 1
+        } while (hasMore)
     }
 
-    private void reindexAllTaken() {
-        final long numberOfTasks = flowableTaskService.countOpenTasks();
-        int page = 0;
-        boolean hasMore;
+    private fun reindexAllTaken() {
+        val numberOfTasks = flowableTaskService.countOpenTasks()
+        var page = 0
+        var hasMore: Boolean
         do {
-            hasMore = reindexTaken(page, numberOfTasks);
-            page++;
-        } while (hasMore);
+            hasMore = reindexTaken(page, numberOfTasks)
+            page++
+        } while (hasMore)
     }
 
-    private boolean reindexZaken(final ZaakListParameters listParameters) {
-        final Results<Zaak> results = zrcClientService.listZaken(listParameters);
+    private fun reindexZaken(listParameters: ZaakListParameters): Boolean {
+        val results = zrcClientService.listZaken(listParameters)
         indexeerDirect(
-                results.getResults()
-                        .stream()
-                        .map(Zaak::getUuid)
-                        .map(UUID::toString),
-                ZAAK,
-                false
-        );
+            results.results
+                .stream()
+                .map { obj: Zaak -> obj.uuid }
+                .map { obj: UUID -> obj.toString() },
+            ZoekObjectType.ZAAK,
+            false
+        )
         logProgress(
-                ZAAK,
-                (listParameters.getPage() - FIRST_PAGE_NUMBER_ZGW_APIS) * NUM_ITEMS_PER_PAGE + results.getResults().size(),
-                results.getCount()
-        );
-        return results.getNext() != null;
+            ZoekObjectType.ZAAK,
+            (listParameters.page - ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE + results.results.size,
+            results.count.toLong()
+        )
+        return results.next != null
     }
 
-    private boolean reindexInformatieobjecten(
-            final EnkelvoudigInformatieobjectListParameters listParameters
-    ) {
-        final Results<EnkelvoudigInformatieObject> results = drcClientService.listEnkelvoudigInformatieObjecten(listParameters);
+    private fun reindexInformatieobjecten(
+        listParameters: EnkelvoudigInformatieobjectListParameters
+    ): Boolean {
+        val results = drcClientService.listEnkelvoudigInformatieObjecten(listParameters)
         indexeerDirect(
-                results.getResults()
-                        .stream()
-                        .map(enkelvoudigInformatieObject -> URIUtil.parseUUIDFromResourceURI(enkelvoudigInformatieObject.getUrl()))
-                        .map(UUID::toString),
-                DOCUMENT,
-                false
-        );
+            results.results
+                .stream()
+                .map { enkelvoudigInformatieObject: EnkelvoudigInformatieObject ->
+                    URIUtil.parseUUIDFromResourceURI(
+                        enkelvoudigInformatieObject.url
+                    )
+                }
+                .map { obj: UUID -> obj.toString() },
+            ZoekObjectType.DOCUMENT,
+            false
+        )
         logProgress(
-                DOCUMENT,
-                (listParameters.getPage() - FIRST_PAGE_NUMBER_ZGW_APIS) * NUM_ITEMS_PER_PAGE + results.getResults().size(),
-                results.getCount()
-        );
-        return results.getNext() != null;
+            ZoekObjectType.DOCUMENT,
+            (listParameters.page - ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE + results.results.size,
+            results.count.toLong()
+        )
+        return results.next != null
     }
 
-    private boolean reindexTaken(final int page, final long numberOfTasks) {
-        final int firstResult = page * TAKEN_MAX_RESULTS;
-        final List<Task> tasks = flowableTaskService.listOpenTasks(
-                TaakSortering.CREATIEDATUM,
-                SorteerRichting.DESCENDING,
-                firstResult, TAKEN_MAX_RESULTS
-        );
-        indexeerDirect(tasks.stream().map(TaskInfo::getId), TAAK, false);
+    private fun reindexTaken(page: Int, numberOfTasks: Long): Boolean {
+        val firstResult = page * TAKEN_MAX_RESULTS
+        val tasks = flowableTaskService.listOpenTasks(
+            TaakSortering.CREATIEDATUM,
+            SorteerRichting.DESCENDING,
+            firstResult, TAKEN_MAX_RESULTS
+        )
+        indexeerDirect(tasks.stream().map { obj: Task -> obj.id }, ZoekObjectType.TAAK, false)
         if (!tasks.isEmpty()) {
-            logProgress(TAAK, (long) firstResult + tasks.size(), numberOfTasks);
-            return tasks.size() == TAKEN_MAX_RESULTS;
+            logProgress(ZoekObjectType.TAAK, firstResult.toLong() + tasks.size, numberOfTasks)
+            return tasks.size == TAKEN_MAX_RESULTS
         }
-        return false;
+        return false
+    }
+
+    companion object {
+        const val SOLR_CORE: String = "zac"
+
+        private val LOG: Logger = Logger.getLogger(IndexeerService::class.java.name)
+        private const val SOLR_MAX_RESULT = 100
+        private const val TAKEN_MAX_RESULTS = 50
+
+        fun createSolrClient(baseSolrUrl: String?): SolrClient {
+            return Http2SolrClient.Builder(baseSolrUrl).build()
+        }
     }
 }
