@@ -20,6 +20,7 @@ import net.atos.client.zgw.shared.exception.ZgwRuntimeException
 import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
+import net.atos.zac.app.exception.RestExceptionMapper
 import org.apache.http.HttpHost
 import org.apache.http.HttpStatus
 import org.apache.http.conn.HttpHostConnectException

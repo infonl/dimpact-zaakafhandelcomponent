@@ -362,7 +362,7 @@ class ProductaanvraagService @Inject constructor(
     private fun handleProductaanvraagDimpact(productaanvraagObject: ORObject) {
         LOG.fine { "Start handling productaanvraag with object URL: ${productaanvraagObject.url}" }
         val productaanvraag = getProductaanvraag(productaanvraagObject)
-        zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagType(
+        zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
             productaanvraag.type
         ).let { zaakafhandelparameters ->
             if (zaakafhandelparameters.isNotEmpty()) {

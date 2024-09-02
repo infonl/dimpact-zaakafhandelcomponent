@@ -15,7 +15,6 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.zac.admin.ReferenceTableService
 import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.admin.ZaakafhandelParameterService
@@ -31,7 +30,8 @@ import net.atos.zac.app.admin.model.RESTTaakFormulierDefinitie
 import net.atos.zac.app.admin.model.RESTTaakFormulierVeldDefinitie
 import net.atos.zac.app.admin.model.RESTZaakbeeindigReden
 import net.atos.zac.app.admin.model.RestZaakafhandelParameters
-import net.atos.zac.app.util.exception.InputValidationFailedException
+import net.atos.zac.app.exception.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
+import net.atos.zac.app.exception.InputValidationFailedException
 import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.app.zaak.model.RestResultaattype
 import net.atos.zac.configuratie.ConfiguratieService
@@ -47,6 +47,7 @@ import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.repository.CaseDefinition
 import java.util.UUID
+import java.util.logging.Logger
 
 @Singleton
 @Path("zaakafhandelParameters")
@@ -68,6 +69,9 @@ class ZaakafhandelParametersRestService @Inject constructor(
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
     private val policyService: PolicyService
 ) {
+    companion object {
+        private val LOG = Logger.getLogger(ZaakafhandelParametersRestService::class.java.name)
+    }
 
     /**
      * Retrieve all CASE_DEFINITIONs that can be linked to a ZAAKTYPE
@@ -108,9 +112,9 @@ class ZaakafhandelParametersRestService @Inject constructor(
     @GET
     fun listZaakafhandelParameters(): List<RestZaakafhandelParameters> {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return listZaaktypes()
+        return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .map { UriUtil.uuidFromURI(it.url) }
-            .map { zaakafhandelParameterService.readZaakafhandelParameters(it) }
+            .map(zaakafhandelParameterService::readZaakafhandelParameters)
             .map { zaakafhandelParametersConverter.toRestZaakafhandelParameters(it, false) }
     }
 
@@ -134,45 +138,30 @@ class ZaakafhandelParametersRestService @Inject constructor(
      * @param restZaakafhandelParameters the zaakafhandelparameters to save or update;
      * if the `id` field is null, a new zaakafhandelparameters will be created,
      * otherwise the existing zaakafhandelparameters will be updated
+     * @throws InputValidationFailedException if the productaanvraagtype is already in use by another active zaaktype
      */
     @PUT
     fun updateZaakafhandelparameters(
         restZaakafhandelParameters: RestZaakafhandelParameters
     ): RestZaakafhandelParameters {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        restZaakafhandelParameters.productaanvraagtype?.let { productaanvraagtype ->
-            val zaakafhandelparameters = zaakafhandelParameterBeheerService
-                .findActiveZaakafhandelparametersByProductaanvraagType(productaanvraagtype)
-            if (zaakafhandelparameters.size > 1) {
-                throw InputValidationFailedException(
-                    "Productaanvraagtype '$productaanvraagtype' is already in use by multiple active zaaktypes: '" +
-                        zaakafhandelparameters.joinToString(", ") { it.toString() } + "'. " +
-                        "Please fix the settings of the zaakafhandelparameters. " +
-                        "There should be at most only one active zaakafhandelparameters for each productaanvraagtype."
-                )
-            }
-            if (
-                zaakafhandelparameters.size == 1 &&
-                zaakafhandelparameters.first().zaaktypeOmschrijving != restZaakafhandelParameters.zaaktype.omschrijving
-            ) {
-                throw InputValidationFailedException(
-                    "Productaanvraagtype '$productaanvraagtype' is already in use by another active zaaktype " +
-                        "with  zaaktype omschrijving: '${zaakafhandelparameters.first().zaaktypeOmschrijving}' " +
-                        "and zaaktype UUID: '${zaakafhandelparameters.first().zaakTypeUUID}'. " +
-                        "Please use a unique productaanvraagtype per active zaakafhandelparameters."
-                )
-            }
+        restZaakafhandelParameters.productaanvraagtype?.also {
+            checkIfProductaanvraagtypeIsNotAlreadyInUse(it, restZaakafhandelParameters.zaaktype.omschrijving)
         }
-        val zaakafhandelParameters = zaakafhandelParametersConverter.toZaakafhandelParameters(
+        return zaakafhandelParametersConverter.toZaakafhandelParameters(
             restZaakafhandelParameters
-        )
-        val updatedZaakafhandelParameters = zaakafhandelParameters.id?.let {
-            zaakafhandelParameterBeheerService.updateZaakafhandelParameters(zaakafhandelParameters).also {
-                zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
-                zaakafhandelParameterService.clearListCache()
-            }
-        } ?: zaakafhandelParameterBeheerService.createZaakafhandelParameters(zaakafhandelParameters)
-        return zaakafhandelParametersConverter.toRestZaakafhandelParameters(updatedZaakafhandelParameters, true)
+        ).let { zaakafhandelParameters ->
+            val updatedZaakafhandelParameters = zaakafhandelParameters.id?.let {
+                zaakafhandelParameterBeheerService.updateZaakafhandelParameters(zaakafhandelParameters).also {
+                    zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
+                    zaakafhandelParameterService.clearListCache()
+                }
+            } ?: zaakafhandelParameterBeheerService.createZaakafhandelParameters(zaakafhandelParameters)
+            zaakafhandelParametersConverter.toRestZaakafhandelParameters(
+                updatedZaakafhandelParameters,
+                true
+            )
+        }
     }
 
     /**
@@ -219,9 +208,6 @@ class ZaakafhandelParametersRestService @Inject constructor(
             ztcClientService.readResultaattypen(ztcClientService.readZaaktype(zaaktypeUUID!!).url)
         )
     }
-
-    private fun listZaaktypes(): List<ZaakType> =
-        ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
 
     /**
      * Retrieve all FORMULIER_DEFINITIEs that can be linked to a HUMAN_TASK_PLAN_ITEM
@@ -288,5 +274,33 @@ class ZaakafhandelParametersRestService @Inject constructor(
         restTemplateGroups isSubsetOf smartDocumentsTemplates
 
         smartDocumentsTemplatesService.storeTemplatesMapping(restTemplateGroups, zaakafhandelUUID)
+    }
+
+    private fun checkIfProductaanvraagtypeIsNotAlreadyInUse(
+        productaanvraagtype: String,
+        zaaktypeOmschrijving: String
+    ) {
+        val activeZaakafhandelparametersForProductaanvraagtype = zaakafhandelParameterBeheerService
+            .findActiveZaakafhandelparametersByProductaanvraagtype(productaanvraagtype)
+        if (activeZaakafhandelparametersForProductaanvraagtype.size > 1) {
+            LOG.warning(
+                "Productaanvraagtype '$productaanvraagtype' is already in use by multiple active zaaktypes: '" +
+                    activeZaakafhandelparametersForProductaanvraagtype.joinToString(", ") { it.toString() } + "'. " +
+                    "This indicates a configuration error in the zaakafhandelparameters. " +
+                    "There should be at most only one active zaakafhandelparameters for each productaanvraagtype."
+            )
+            throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
+        }
+        if (activeZaakafhandelparametersForProductaanvraagtype.size == 1 &&
+            activeZaakafhandelparametersForProductaanvraagtype.first().zaaktypeOmschrijving != zaaktypeOmschrijving
+        ) {
+            LOG.info(
+                "Productaanvraagtype '$productaanvraagtype' is already in use by another active zaaktype " +
+                    "with zaaktype omschrijving: '${activeZaakafhandelparametersForProductaanvraagtype.first().zaaktypeOmschrijving}' " +
+                    "and zaaktype UUID: '${activeZaakafhandelparametersForProductaanvraagtype.first().zaakTypeUUID}'. " +
+                    "Please use a unique productaanvraagtype per active zaakafhandelparameters."
+            )
+            throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
+        }
     }
 }

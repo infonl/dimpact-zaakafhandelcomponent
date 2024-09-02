@@ -124,7 +124,7 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
                 the zaakafhandelparameters are retrieved based on the productaanvraagType
                 """
         ) {
-            val returnedZaakafhandelparameters = zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagType(
+            val returnedZaakafhandelparameters = zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
                 productaanvraagType
             )
 
@@ -157,7 +157,7 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
                 the active zaakafhandelparameters are retrieved for the given productaanvraagType
                 """
         ) {
-            val returnedZaakafhandelParameters = zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagType(
+            val returnedZaakafhandelParameters = zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
                 productaanvraagType
             )
 

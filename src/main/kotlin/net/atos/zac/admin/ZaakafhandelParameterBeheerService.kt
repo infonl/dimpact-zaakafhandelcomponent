@@ -94,7 +94,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
      *
      * @return the list of found zaakafhandelparameters
      */
-    fun findActiveZaakafhandelparametersByProductaanvraagType(
+    fun findActiveZaakafhandelparametersByProductaanvraagtype(
         productaanvraagType: String
     ): List<ZaakafhandelParameters> =
         entityManager.createNamedQuery(
