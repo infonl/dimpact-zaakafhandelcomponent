@@ -15,8 +15,9 @@ import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.admin.model.MailtemplateKoppeling
 import net.atos.zac.admin.model.UserEventListenerParameters
 import net.atos.zac.admin.model.ZaakafhandelParameters
-import net.atos.zac.admin.model.ZaakafhandelParameters.FIND_ACTIVE_ZAAKAFHANDELPARAMETERS_FOR_PRODUCTAANVRAAGTYPE_QUERY
-import net.atos.zac.admin.model.ZaakafhandelParameters.PRODUCTAANVRAAGTYPE_DATABASE_NAME
+import net.atos.zac.admin.model.ZaakafhandelParameters.CREATIEDATUM
+import net.atos.zac.admin.model.ZaakafhandelParameters.PRODUCTAANVRAAGTYYPE
+import net.atos.zac.admin.model.ZaakafhandelParameters.ZAAKTYPE_OMSCHRIJVING
 import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.admin.model.ZaakbeeindigReden
 import net.atos.zac.util.UriUtil
@@ -25,6 +26,7 @@ import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.net.URI
 import java.time.ZonedDateTime
+import java.util.Date
 import java.util.UUID
 
 @ApplicationScoped
@@ -96,11 +98,24 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
      */
     fun findActiveZaakafhandelparametersByProductaanvraagtype(
         productaanvraagType: String
-    ): List<ZaakafhandelParameters> =
-        entityManager.createNamedQuery(
-            FIND_ACTIVE_ZAAKAFHANDELPARAMETERS_FOR_PRODUCTAANVRAAGTYPE_QUERY,
-            ZaakafhandelParameters::class.java
-        ).setParameter(PRODUCTAANVRAAGTYPE_DATABASE_NAME, productaanvraagType).resultList
+    ): List<ZaakafhandelParameters> {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(ZaakafhandelParameters::class.java)
+        val root = query.from(ZaakafhandelParameters::class.java)
+        val subquery = query.subquery(Date::class.java)
+        val subqueryRoot = subquery.from(ZaakafhandelParameters::class.java)
+        subquery.select(builder.greatest(subqueryRoot.get(CREATIEDATUM)))
+            .where(
+                builder.equal(subqueryRoot.get<String>(ZAAKTYPE_OMSCHRIJVING), root.get<String>(ZAAKTYPE_OMSCHRIJVING))
+            )
+        query.select(root).where(
+            builder.and(
+                builder.equal(root.get<String>(PRODUCTAANVRAAGTYYPE), productaanvraagType),
+                builder.equal(root.get<String>(CREATIEDATUM), subquery)
+            )
+        )
+        return entityManager.createQuery(query).resultList
+    }
 
     fun listZaakbeeindigRedenen(): List<ZaakbeeindigReden> {
         val builder = entityManager.criteriaBuilder

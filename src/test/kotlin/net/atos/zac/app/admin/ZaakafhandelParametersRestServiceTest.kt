@@ -183,7 +183,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         every {
             zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(productaanvraagtype)
         } returns
-                listOf(activeZaakafhandelParametersForThisProductaanvraagtype)
+            listOf(activeZaakafhandelParametersForThisProductaanvraagtype)
 
         When("the zaakafhandelparameters are created") {
             val exception = shouldThrow<InputValidationFailedException> {
