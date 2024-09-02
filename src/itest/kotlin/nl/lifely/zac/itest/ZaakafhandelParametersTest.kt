@@ -18,7 +18,7 @@ class ZaakafhandelParametersTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
     Given("ZAC Docker container is running and zaakafhandelparameters have been created") {
-        When("the list zaakafhandelparameterts endpoint is called for our zaaktype under test") {
+        When("the list zaakafhandelparameters endpoint is called for our zaaktype under test") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaakafhandelParameters/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
             )

@@ -20,13 +20,13 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.createHumanTaskParameters
 import net.atos.zac.admin.model.createZaakafhandelParameters
+import net.atos.zac.app.exception.InputValidationFailedException
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
 import net.atos.zac.app.mail.model.createRESTMailGegevens
 import net.atos.zac.app.planitems.converter.RESTPlanItemConverter
 import net.atos.zac.app.planitems.model.UserEventListenerActie
 import net.atos.zac.app.planitems.model.createRESTHumanTaskData
 import net.atos.zac.app.planitems.model.createRESTUserEventListenerData
-import net.atos.zac.app.util.exception.InputValidationFailedException
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService

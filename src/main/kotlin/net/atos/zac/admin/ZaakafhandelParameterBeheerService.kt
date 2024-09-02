@@ -15,8 +15,9 @@ import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.admin.model.MailtemplateKoppeling
 import net.atos.zac.admin.model.UserEventListenerParameters
 import net.atos.zac.admin.model.ZaakafhandelParameters
-import net.atos.zac.admin.model.ZaakafhandelParameters.FIND_ACTIVE_ZAAKAFHANDELPARAMETERS_FOR_PRODUCTAANVRAAGTYPE_QUERY
-import net.atos.zac.admin.model.ZaakafhandelParameters.PRODUCTAANVRAAGTYPE_DATABASE_NAME
+import net.atos.zac.admin.model.ZaakafhandelParameters.CREATIEDATUM
+import net.atos.zac.admin.model.ZaakafhandelParameters.PRODUCTAANVRAAGTYYPE
+import net.atos.zac.admin.model.ZaakafhandelParameters.ZAAKTYPE_OMSCHRIJVING
 import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.admin.model.ZaakbeeindigReden
 import net.atos.zac.util.UriUtil
@@ -25,8 +26,8 @@ import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.net.URI
 import java.time.ZonedDateTime
+import java.util.Date
 import java.util.UUID
-import java.util.logging.Logger
 
 @ApplicationScoped
 @Transactional
@@ -38,10 +39,6 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService
 ) {
-    companion object {
-        private val LOG = Logger.getLogger(ZaakafhandelParameterBeheerService::class.java.name)
-    }
-
     /**
      * Retrieves the zaakafhandelparameters for a given zaaktype UUID.
      * Note that a zaaktype UUID uniquely identifies a _version_ of a zaaktype, and therefore also
@@ -85,39 +82,39 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
 
     fun updateZaakafhandelParameters(zaakafhandelParameters: ZaakafhandelParameters): ZaakafhandelParameters {
         ValidationUtil.valideerObject(zaakafhandelParameters)
-        zaakafhandelParameters.humanTaskParametersCollection.forEach { ValidationUtil.valideerObject(it) }
+        zaakafhandelParameters.humanTaskParametersCollection.forEach(ValidationUtil::valideerObject)
         zaakafhandelParameters.creatiedatum =
             entityManager.find(ZaakafhandelParameters::class.java, zaakafhandelParameters.id).creatiedatum
         return entityManager.merge(zaakafhandelParameters)
     }
 
     /**
-     * Finds the zaaktype UUID for the active zaakafhandelparameters with the specified productaanvraag type.
-     * If multiple active zaakafhandelparameters are found, the first result with the most recent creation date is returned.
+     * Finds the active zaakafhandelparameters for the specified productaanvraag type.
+     * If multiple active zaakafhandelparameters are found, this indicates an
+     * error in the configuration of zaakafhandelparameters.
+     * There should be at most only one active zaakafhandelparameters for each productaanvraagtype.
      *
-     * @return the zaaktype UUID; null if no results were found
+     * @return the list of found zaakafhandelparameters
      */
-    fun findActiveZaaktypeUuidByProductaanvraagType(productaanvraagType: String): UUID? {
-        val query = entityManager.createNamedQuery(
-            FIND_ACTIVE_ZAAKAFHANDELPARAMETERS_FOR_PRODUCTAANVRAAGTYPE_QUERY,
-            ZaakafhandelParameters::class.java
-        ).setParameter(PRODUCTAANVRAAGTYPE_DATABASE_NAME, productaanvraagType)
-        (query.resultList as List<ZaakafhandelParameters>).let {
-            if (it.isEmpty()) {
-                return null
-            }
-            if (it.size > 1) {
-                LOG.warning(
-                    "Multiple active zaakafhandelparameters have been found for productaanvraagtype: '$productaanvraagType'. " +
-                        "This indicates that the zaakafhandelparameters are not configured correctly. " +
-                        "There should be at most only one active zaakafhandelparameters for each productaanvraagtype. " +
-                        "Returning the first result with the most recent creation date, with zaaktypeomschrijving: " +
-                        "'${it.first().zaaktypeOmschrijving}' and zaaktype UUID: " +
-                        "'${it.first().zaakTypeUUID}'."
-                )
-            }
-            return it.first().zaakTypeUUID
-        }
+    fun findActiveZaakafhandelparametersByProductaanvraagtype(
+        productaanvraagType: String
+    ): List<ZaakafhandelParameters> {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(ZaakafhandelParameters::class.java)
+        val root = query.from(ZaakafhandelParameters::class.java)
+        val subquery = query.subquery(Date::class.java)
+        val subqueryRoot = subquery.from(ZaakafhandelParameters::class.java)
+        subquery.select(builder.greatest(subqueryRoot.get(CREATIEDATUM)))
+            .where(
+                builder.equal(subqueryRoot.get<String>(ZAAKTYPE_OMSCHRIJVING), root.get<String>(ZAAKTYPE_OMSCHRIJVING))
+            )
+        query.select(root).where(
+            builder.and(
+                builder.equal(root.get<String>(PRODUCTAANVRAAGTYYPE), productaanvraagType),
+                builder.equal(root.get<String>(CREATIEDATUM), subquery)
+            )
+        )
+        return entityManager.createQuery(query).resultList
     }
 
     fun listZaakbeeindigRedenen(): List<ZaakbeeindigReden> {

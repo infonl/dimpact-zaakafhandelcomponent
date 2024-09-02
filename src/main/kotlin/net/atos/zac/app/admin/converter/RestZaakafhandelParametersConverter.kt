@@ -24,7 +24,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
     val ztcClientService: ZtcClientService,
     val zaakafhandelParameterService: ZaakafhandelParameterService
 ) {
-    fun convertZaakafhandelParameters(
+    fun toRestZaakafhandelParameters(
         zaakafhandelParameters: ZaakafhandelParameters,
         inclusiefRelaties: Boolean
     ): RestZaakafhandelParameters {
@@ -77,7 +77,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
         return restZaakafhandelParameters
     }
 
-    fun convertRESTZaakafhandelParameters(
+    fun toZaakafhandelParameters(
         restZaakafhandelParameters: RestZaakafhandelParameters
     ): ZaakafhandelParameters =
         zaakafhandelParameterService.readZaakafhandelParameters(
@@ -92,6 +92,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             nietOntvankelijkResultaattype = restZaakafhandelParameters.zaakNietOntvankelijkResultaattype!!.id
             intakeMail = restZaakafhandelParameters.intakeMail?.name
             afrondenMail = restZaakafhandelParameters.afrondenMail?.name
+            // trim to make sure accidentally added whitespace is removed
             productaanvraagtype = restZaakafhandelParameters.productaanvraagtype?.trim()
             domein = restZaakafhandelParameters.domein
             gebruikersnaamMedewerker = restZaakafhandelParameters.defaultBehandelaarId

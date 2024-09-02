@@ -5,6 +5,7 @@
 package net.atos.zac.admin
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -13,26 +14,31 @@ import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.CriteriaQuery
+import jakarta.persistence.criteria.Expression
 import jakarta.persistence.criteria.Order
 import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
+import jakarta.persistence.criteria.Subquery
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import java.time.ZonedDateTime
-import java.util.UUID
+import java.util.Date
 
 class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>()
     val ztcClientService = mockk<ZtcClientService>()
     val criteriaBuilder = mockk<CriteriaBuilder>()
     val zaakafhandelparametersCriteriaQuery = mockk<CriteriaQuery<ZaakafhandelParameters>>()
+    val dateSubquery = mockk<Subquery<Date>>()
     val zaakafhandelparametersTypedQuery = mockk<TypedQuery<ZaakafhandelParameters>>()
     val zaakafhandelparametersRoot = mockk<Root<ZaakafhandelParameters>>()
     val path = mockk<Path<Any>>()
+    val pathString = mockk<Path<String>>()
     val predicate = mockk<Predicate>()
     val order = mockk<Order>()
+    val expressionString = mockk<Expression<String>>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
 
     val zaakafhandelParameterBeheerService = ZaakafhandelParameterBeheerService(
@@ -108,65 +114,61 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("A zaakafhandelparameters in the database for a specific zaaktype UUID and a productaanvraagType") {
-        val productaanvraagType = "dummyProductaanvraagType"
-        val zaaktypeUUID = UUID.randomUUID()
-        val zaakafhandelparameters = createZaakafhandelParameters(
-            zaaktypeUUID = zaaktypeUUID,
-        )
-        every {
-            entityManager.createNamedQuery(any(), ZaakafhandelParameters::class.java)
-        } returns zaakafhandelparametersTypedQuery
-        every {
-            zaakafhandelparametersTypedQuery.setParameter("productaanvraagtype", productaanvraagType)
-        } returns zaakafhandelparametersTypedQuery
-        every { zaakafhandelparametersTypedQuery.resultList } returns listOf(zaakafhandelparameters)
-
-        When(
-            """
-                the active zaaktype UUID is retrieved based on the productaanvraagType
-                """
-        ) {
-            val returnedZaaktypeUUID = zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(
-                productaanvraagType
-            )
-
-            Then("the zaaktype UUID for the given zaakafhandelparameters should be returned") {
-                returnedZaaktypeUUID shouldBe zaaktypeUUID
-            }
-        }
-    }
     Given(
         """
-        Two zaakafhandelparameters for a specific zaaktype UUID and a productaanvraagType
+        Two active zaakafhandelparameters for a given productaanvraagType
         """
     ) {
         val productaanvraagType = "dummyProductaanvraagType"
-        val zaaktypeUUIDs = listOf(UUID.randomUUID(), UUID.randomUUID())
-
         val zaakafhandelparametersList = listOf(
-            createZaakafhandelParameters(zaaktypeUUID = zaaktypeUUIDs[0]),
-            createZaakafhandelParameters(zaaktypeUUID = zaaktypeUUIDs[1])
+            createZaakafhandelParameters(),
+            createZaakafhandelParameters()
         )
-        every {
-            entityManager.createNamedQuery(any(), ZaakafhandelParameters::class.java)
-        } returns zaakafhandelparametersTypedQuery
-        every {
-            zaakafhandelparametersTypedQuery.setParameter("productaanvraagtype", productaanvraagType)
-        } returns zaakafhandelparametersTypedQuery
+        with(entityManager) {
+            every { createQuery(zaakafhandelparametersCriteriaQuery) } returns zaakafhandelparametersTypedQuery
+            every { getCriteriaBuilder() } returns criteriaBuilder
+        }
+        with(criteriaBuilder) {
+            every { createQuery(ZaakafhandelParameters::class.java) } returns zaakafhandelparametersCriteriaQuery
+            every { greatest<String>(any()) } returns expressionString
+            every { equal(pathString, pathString) } returns predicate
+            every { equal(pathString, productaanvraagType) } returns predicate
+            every { equal(pathString, dateSubquery) } returns predicate
+        }
+        every { criteriaBuilder.and(predicate, predicate) } returns predicate
+        with(zaakafhandelparametersCriteriaQuery) {
+            every { from(ZaakafhandelParameters::class.java) } returns zaakafhandelparametersRoot
+            every { subquery(Date::class.java) } returns dateSubquery
+            every { select(zaakafhandelparametersRoot) } returns zaakafhandelparametersCriteriaQuery
+            every { where(predicate) } returns zaakafhandelparametersCriteriaQuery
+        }
+        with(dateSubquery) {
+            every { from(ZaakafhandelParameters::class.java) } returns mockk {
+                every { get<String>("creatiedatum") } returns pathString
+                every { get<String>("zaaktypeOmschrijving") } returns pathString
+            }
+            every { select(any()) } returns dateSubquery
+            every { where(predicate) } returns dateSubquery
+        }
+        with(zaakafhandelparametersRoot) {
+            every { get<String>("zaaktypeOmschrijving") } returns pathString
+            every { zaakafhandelparametersRoot.get<String>("productaanvraagtype") } returns pathString
+            every { zaakafhandelparametersRoot.get<String>("creatiedatum") } returns pathString
+        }
         every { zaakafhandelparametersTypedQuery.resultList } returns zaakafhandelparametersList
 
         When(
             """
-                the active zaaktype UUID is retrieved from the set of zaakafhandelparameters based on the productaanvraagType
+                the active zaakafhandelparameters are retrieved for the given productaanvraagType
                 """
         ) {
-            val returnedZaaktypeUUID = zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(
+            val returnedZaakafhandelParameters = zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
                 productaanvraagType
             )
 
-            Then("the first zaaktype UUID for the given zaakafhandelparameters should be returned") {
-                returnedZaaktypeUUID shouldBe zaaktypeUUIDs.first()
+            Then("two zaakafhandelparameters should be returned") {
+                returnedZaakafhandelParameters.size shouldBe 2
+                returnedZaakafhandelParameters.map { productaanvraagType } shouldContainOnly listOf(productaanvraagType)
             }
         }
     }

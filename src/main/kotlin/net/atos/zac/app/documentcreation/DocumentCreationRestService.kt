@@ -20,8 +20,8 @@ import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationUnattendedData
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationUnattendedResponse
+import net.atos.zac.app.exception.InputValidationFailedException
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
-import net.atos.zac.app.util.exception.InputValidationFailedException
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.documentcreation.model.DocumentCreationDataAttended

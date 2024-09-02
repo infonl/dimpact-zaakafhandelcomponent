@@ -362,25 +362,42 @@ class ProductaanvraagService @Inject constructor(
     private fun handleProductaanvraagDimpact(productaanvraagObject: ORObject) {
         LOG.fine { "Start handling productaanvraag with object URL: ${productaanvraagObject.url}" }
         val productaanvraag = getProductaanvraag(productaanvraagObject)
-        zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(productaanvraag.type)?.let {
-                zaaktypeUUID ->
-            try {
-                LOG.fine { "Creating a zaak using a CMMN case with zaaktype UUID: '$zaaktypeUUID'" }
-                startZaakWithCmmnProcess(zaaktypeUUID, productaanvraag, productaanvraagObject)
-            } catch (exception: RuntimeException) {
-                logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
-            }
-        } ?: run {
-            findZaaktypeByIdentificatie(productaanvraag.type)?.let {
+        zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+            productaanvraag.type
+        ).let { zaakafhandelparameters ->
+            if (zaakafhandelparameters.isNotEmpty()) {
                 try {
-                    LOG.fine { "Creating a zaak using a BPMN proces with zaaktype: $it" }
-                    startZaakWithBpmnProcess(it, productaanvraag, productaanvraagObject)
+                    if (zaakafhandelparameters.size > 1) {
+                        LOG.warning(
+                            "Multiple zaakafhandelparameters found for productaanvraag type '${productaanvraag.type}'. " +
+                                "This indicates that the zaakafhandelparameters are not configured correctly. " +
+                                "There should be at most only one active zaakafhandelparameters for each productaanvraagtype. " +
+                                "Using the first one with zaakttpe UUID: '${zaakafhandelparameters.first().zaakTypeUUID}' " +
+                                "and zaaktype omschrijving: '${zaakafhandelparameters.first().zaaktypeOmschrijving}'."
+                        )
+                    }
+                    val firstZaakafhandelparameters = zaakafhandelparameters.first()
+                    LOG.fine { "Creating a zaak using a CMMN case with zaaktype UUID: '$firstZaakafhandelparameters'" }
+                    startZaakWithCmmnProcess(
+                        firstZaakafhandelparameters.zaakTypeUUID,
+                        productaanvraag,
+                        productaanvraagObject
+                    )
                 } catch (exception: RuntimeException) {
-                    logZaakCouldNotBeCreatedWarning("BPMN", productaanvraag, exception)
+                    logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
                 }
-            } ?: run {
-                LOG.info("No zaaktype found for productaanvraag-Dimpact type '${productaanvraag.type}'. No zaak was created.")
-                registreerInbox(productaanvraag, productaanvraagObject)
+            } else {
+                findZaaktypeByIdentificatie(productaanvraag.type)?.let {
+                    try {
+                        LOG.fine { "Creating a zaak using a BPMN proces with zaaktype: $it" }
+                        startZaakWithBpmnProcess(it, productaanvraag, productaanvraagObject)
+                    } catch (exception: RuntimeException) {
+                        logZaakCouldNotBeCreatedWarning("BPMN", productaanvraag, exception)
+                    }
+                } ?: run {
+                    LOG.info("No zaaktype found for productaanvraag-Dimpact type '${productaanvraag.type}'. No zaak was created.")
+                    registreerInbox(productaanvraag, productaanvraagObject)
+                }
             }
         }
     }
