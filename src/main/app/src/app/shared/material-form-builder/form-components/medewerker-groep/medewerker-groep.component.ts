@@ -210,7 +210,7 @@ export class MedewerkerGroepComponent
         max: this.data.maxGroupNameLength,
       });
     }
-    return "This field has an error";
+    return this.translate.instant("msg.error.field.generic");
   }
 
   clearField(formControl: FormControl) {
