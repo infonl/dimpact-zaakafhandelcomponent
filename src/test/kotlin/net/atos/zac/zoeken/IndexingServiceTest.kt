@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkConstructor
 import io.mockk.mockkStatic
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
@@ -17,12 +18,12 @@ import net.atos.zac.zoeken.converter.ZaakZoekObjectConverter
 import net.atos.zac.zoeken.model.ZoekObject
 import net.atos.zac.zoeken.model.createZaakZoekObject
 import net.atos.zac.zoeken.model.index.ZoekObjectType
-import org.apache.solr.client.solrj.SolrClient
+import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.client.solrj.response.UpdateResponse
 import org.eclipse.microprofile.config.ConfigProvider
 import java.net.URI
 
-class IndexeerServiceTest : BehaviorSpec({
+class IndexingServiceTest : BehaviorSpec({
     // add static mocking for config provider because the IndexeerService class
     // references the config provider statically
     val solrUrl = "http://localhost/dummySolrUrl"
@@ -31,9 +32,9 @@ class IndexeerServiceTest : BehaviorSpec({
         ConfigProvider.getConfig().getValue("solr.url", String::class.java)
     } returns solrUrl
 
-    val solrClient = mockk<SolrClient>()
-    mockkStatic(IndexeerService::class)
-    every { IndexeerService.createSolrClient("$solrUrl/solr/zac") } returns solrClient
+    val solrClient = mockk<Http2SolrClient>()
+    mockkConstructor(Http2SolrClient.Builder::class)
+    every { anyConstructed<Http2SolrClient.Builder>().build() } returns solrClient
 
     val zaakZoekObjectConverter = mockk<ZaakZoekObjectConverter>()
     val converterInstances = mockk<Instance<AbstractZoekObjectConverter<out ZoekObject?>>>()
@@ -42,7 +43,7 @@ class IndexeerServiceTest : BehaviorSpec({
     val flowableTaskService = mockk<FlowableTaskService>()
     val zrcClientService = mockk<ZrcClientService>()
 
-    val indexeerService = IndexeerService(
+    val indexingService = IndexingService(
         converterInstances,
         zrcClientService,
         drcClientService,
@@ -78,7 +79,7 @@ class IndexeerServiceTest : BehaviorSpec({
         When(
             """The indexeer direct method is called to index the two zaken"""
         ) {
-            indexeerService.indexeerDirect(zaken.map { it.uuid.toString() }.stream(), ZoekObjectType.ZAAK, false)
+            indexingService.indexeerDirect(zaken.map { it.uuid.toString() }, ZoekObjectType.ZAAK, false)
 
             Then(
                 """

@@ -14,26 +14,26 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.zac.zoeken.IndexeerService;
+import net.atos.zac.zoeken.IndexingService;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
 
 @Path("indexeren")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class IndexerenRESTService {
+public class IndexingRESTService {
 
     @Inject
-    private IndexeerService indexeerService;
+    private IndexingService indexingService;
 
     @GET
     @Path("herindexeren/{type}")
-    public void herindexeren(@PathParam("type") ZoekObjectType type) {
-        indexeerService.herindexeren(type);
+    public void reindex(@PathParam("type") ZoekObjectType type) {
+        indexingService.reindex(type);
     }
 
     @POST
     @Path("commit-pending-changes-to-search-index")
     public void commit() {
-        indexeerService.commit();
+        indexingService.commit();
     }
 }
