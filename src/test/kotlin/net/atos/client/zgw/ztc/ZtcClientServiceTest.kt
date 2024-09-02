@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package net.atos.client.zgw.ztc
 
 import io.kotest.assertions.nondeterministic.eventually
@@ -16,7 +20,7 @@ import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
-class ZTCClientServiceTest : BehaviorSpec({
+class ZtcClientServiceTest : BehaviorSpec({
     val ztcClient = mockk<ZtcClient>()
     val zgwClientHeadersFactory = mockk<ZGWClientHeadersFactory>()
     val configuratieService = mockk<ConfiguratieService>()
@@ -37,7 +41,7 @@ class ZTCClientServiceTest : BehaviorSpec({
     Given("ZTC client service") {
 
         When("reading cache time for the first time") {
-            initialDateTime = ztcClientService.readCacheTime()
+            initialDateTime = ztcClientService.resetCacheTimeToNow()
 
             Then("it should return time after test was started") {
                 initialDateTime shouldBeAfter testStartDateTime
@@ -52,7 +56,7 @@ class ZTCClientServiceTest : BehaviorSpec({
         }
 
         When("reading cache time for the second time") {
-            val dateTime = ztcClientService.readCacheTime()
+            val dateTime = ztcClientService.resetCacheTimeToNow()
 
             Then("it should cached the same time") {
                 dateTime shouldBeEqual initialDateTime
@@ -107,7 +111,7 @@ class ZTCClientServiceTest : BehaviorSpec({
         ztcClientService.clearCacheTime()
 
         When("reading the cache time") {
-            val cacheDateTime = ztcClientService.readCacheTime()
+            val cacheDateTime = ztcClientService.resetCacheTimeToNow()
 
             Then("time should be updated") {
                 cacheDateTime shouldBeAfter initialDateTime

@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package net.atos.zac.productaanvraag
 
 import io.kotest.core.spec.style.BehaviorSpec
@@ -41,7 +45,6 @@ import net.atos.zac.identity.IdentityService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
 import net.atos.zac.productaanvraag.model.generated.Geometry
 import java.net.URI
-import java.util.Optional
 import java.util.UUID
 
 @Suppress("LargeClass")
@@ -233,7 +236,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
             zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(productAanvraagType)
-        } returns Optional.of(zaakTypeUUID)
+        } returns zaakTypeUUID
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
         every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
         every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
@@ -325,7 +328,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
             zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(productAanvraagType)
-        } returns Optional.of(zaakTypeUUID)
+        } returns zaakTypeUUID
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
         every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
         every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
@@ -405,7 +408,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
             zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(productAanvraagType)
-        } returns Optional.of(zaakTypeUUID)
+        } returns zaakTypeUUID
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
         every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
         every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
@@ -474,7 +477,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
             zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(productAanvraagType)
-        } returns Optional.of(zaakTypeUUID)
+        } returns zaakTypeUUID
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
         every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
         every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
@@ -614,7 +617,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
         every {
             zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(productAanvraagType)
-        } returns Optional.of(zaakTypeUUID)
+        } returns zaakTypeUUID
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
         // here we simulate the case that no role types have been defined for the adviseur role
         every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.ADVISEUR) } returns emptyList()
@@ -774,7 +777,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         // no zaakafhandelparameters are configured for the zaaktype
         every {
             zaakafhandelParameterBeheerService.findActiveZaaktypeUuidByProductaanvraagType(productAanvraagType)
-        } returns Optional.empty()
+        } returns null
         every { configuratieService.readDefaultCatalogusURI() } returns catalogusURI
         every { ztcClientService.listZaaktypen(catalogusURI) } returns listOf(zaakType)
         every { inboxProductaanvraagService.create(capture(inboxProductaanvraagSlot)) } just runs

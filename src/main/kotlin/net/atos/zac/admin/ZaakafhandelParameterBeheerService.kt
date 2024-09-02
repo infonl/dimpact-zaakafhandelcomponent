@@ -7,7 +7,6 @@ package net.atos.zac.admin
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
 import jakarta.transaction.Transactional
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.ResultaatType
@@ -16,6 +15,8 @@ import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.admin.model.MailtemplateKoppeling
 import net.atos.zac.admin.model.UserEventListenerParameters
 import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.admin.model.ZaakafhandelParameters.FIND_ACTIVE_ZAAKAFHANDELPARAMETERS_FOR_PRODUCTAANVRAAGTYPE_QUERY
+import net.atos.zac.admin.model.ZaakafhandelParameters.PRODUCTAANVRAAGTYPE_DATABASE_NAME
 import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.admin.model.ZaakbeeindigReden
 import net.atos.zac.util.UriUtil
@@ -24,7 +25,6 @@ import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.net.URI
 import java.time.ZonedDateTime
-import java.util.Optional
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -33,31 +33,31 @@ import java.util.logging.Logger
 @AllOpen
 @NoArgConstructor
 @Suppress("TooManyFunctions")
-open class ZaakafhandelParameterBeheerService @Inject constructor(
-    @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
+class ZaakafhandelParameterBeheerService @Inject constructor(
     private val entityManager: EntityManager,
     private val ztcClientService: ZtcClientService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService
 ) {
     companion object {
-        private val LOG: Logger = Logger.getLogger(ZaakafhandelParameterBeheerService::class.java.name)
+        private val LOG = Logger.getLogger(ZaakafhandelParameterBeheerService::class.java.name)
     }
 
+    /**
+     * Retrieves the zaakafhandelparameters for a given zaaktype UUID.
+     * Note that a zaaktype UUID uniquely identifies a _version_ of a zaaktype, and therefore also
+     * a specific version of the corresponding zaakafhandelparameters.
+     */
     fun readZaakafhandelParameters(zaaktypeUUID: UUID): ZaakafhandelParameters {
-        ztcClientService.readCacheTime()
+        ztcClientService.resetCacheTimeToNow()
         val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(
-            ZaakafhandelParameters::class.java
-        )
-        val root = query.from(
-            ZaakafhandelParameters::class.java
-        )
+        val query = builder.createQuery(ZaakafhandelParameters::class.java)
+        val root = query.from(ZaakafhandelParameters::class.java)
         query.select(root).where(builder.equal(root.get<Any>(ZaakafhandelParameters.ZAAKTYPE_UUID), zaaktypeUUID))
         val resultList = entityManager.createQuery(query).resultList
-        if (resultList.isNotEmpty()) {
-            return resultList.first()
+        return if (resultList.isNotEmpty()) {
+            resultList.first()
         } else {
-            return ZaakafhandelParameters().apply {
+            ZaakafhandelParameters().apply {
                 zaakTypeUUID = zaaktypeUUID
             }
         }
@@ -73,10 +73,12 @@ open class ZaakafhandelParameterBeheerService @Inject constructor(
     fun createZaakafhandelParameters(zaakafhandelParameters: ZaakafhandelParameters): ZaakafhandelParameters {
         zaakafhandelParameterService.clearListCache()
         ValidationUtil.valideerObject(zaakafhandelParameters)
-        zaakafhandelParameters.humanTaskParametersCollection.forEach { ValidationUtil.valideerObject(it) }
-        zaakafhandelParameters.userEventListenerParametersCollection.forEach { ValidationUtil.valideerObject(it) }
-        zaakafhandelParameters.mailtemplateKoppelingen.forEach { ValidationUtil.valideerObject(it) }
-        zaakafhandelParameters.creatiedatum = ZonedDateTime.now()
+        zaakafhandelParameters.apply {
+            humanTaskParametersCollection.forEach { ValidationUtil.valideerObject(it) }
+            userEventListenerParametersCollection.forEach { ValidationUtil.valideerObject(it) }
+            mailtemplateKoppelingen.forEach { ValidationUtil.valideerObject(it) }
+            creatiedatum = ZonedDateTime.now()
+        }
         entityManager.persist(zaakafhandelParameters)
         return zaakafhandelParameters
     }
@@ -89,33 +91,33 @@ open class ZaakafhandelParameterBeheerService @Inject constructor(
         return entityManager.merge(zaakafhandelParameters)
     }
 
-    fun findActiveZaaktypeUuidByProductaanvraagType(productaanvraagType: String?): Optional<UUID> {
-        val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(UUID::class.java)
-        val root = query.from(ZaakafhandelParameters::class.java)
-        query.select(root.get(ZaakafhandelParameters.ZAAKTYPE_UUID))
-            .where(builder.equal(root.get<Any>(ZaakafhandelParameters.PRODUCTAANVRAAGTYPE), productaanvraagType))
-        query.orderBy(builder.desc(root.get<Any>(ZaakafhandelParameters.CREATIEDATUM)))
-        val resultList = entityManager.createQuery(query).resultList
-        if (resultList.isNotEmpty()) {
-            if (resultList.size > 1) {
-                // since we sort on creation date, the first result is by definition the currently active zaakafhandelparameters
-                // for a specific zaaktype; all other results (if any) are older inactive versions
-                // but it's a different story when we have multiple results for different zaak types (zaak type descriptions)
-                // that could happen when the same productaanvraag type is used for multiple zaak types
-                // we need to handle that differently
-                LOG.fine(
-                    String.format(
-                        "Multiple zaakafhandelparameters have been found for productaanvraag type: '%s'. " +
-                            "Returning the first result with the most recent creation date, with zaaktype UUID: '%s'.",
-                        productaanvraagType,
-                        resultList.first()
-                    )
+    /**
+     * Finds the zaaktype UUID for the active zaakafhandelparameters with the specified productaanvraag type.
+     * If multiple active zaakafhandelparameters are found, the first result with the most recent creation date is returned.
+     *
+     * @return the zaaktype UUID; null if no results were found
+     */
+    fun findActiveZaaktypeUuidByProductaanvraagType(productaanvraagType: String): UUID? {
+        val query = entityManager.createNamedQuery(
+            FIND_ACTIVE_ZAAKAFHANDELPARAMETERS_FOR_PRODUCTAANVRAAGTYPE_QUERY,
+            ZaakafhandelParameters::class.java
+        ).setParameter(PRODUCTAANVRAAGTYPE_DATABASE_NAME, productaanvraagType)
+        (query.resultList as List<ZaakafhandelParameters>).let {
+            if (it.isEmpty()) {
+                return null
+            }
+            if (it.size > 1) {
+                LOG.warning(
+                    "Multiple active zaakafhandelparameters have been found for productaanvraagtype: '$productaanvraagType'. " +
+                        "This indicates that the zaakafhandelparameters are not configured correctly. " +
+                        "There should be at most only one active zaakafhandelparameters for each productaanvraagtype. " +
+                        "Returning the first result with the most recent creation date, with zaaktypeomschrijving: " +
+                        "'${it.first().zaaktypeOmschrijving}' and zaaktype UUID: " +
+                        "'${it.first().zaakTypeUUID}'."
                 )
             }
-            return Optional.of<UUID>(resultList.first())
+            return it.first().zaakTypeUUID
         }
-        return Optional.empty()
     }
 
     fun listZaakbeeindigRedenen(): List<ZaakbeeindigReden> {
@@ -123,8 +125,7 @@ open class ZaakafhandelParameterBeheerService @Inject constructor(
         val query = builder.createQuery(ZaakbeeindigReden::class.java)
         val root = query.from(ZaakbeeindigReden::class.java)
         query.orderBy(builder.asc(root.get<Any>("naam")))
-        val emQuery = entityManager.createQuery(query)
-        return emQuery.resultList
+        return entityManager.createQuery(query).resultList
     }
 
     /**
