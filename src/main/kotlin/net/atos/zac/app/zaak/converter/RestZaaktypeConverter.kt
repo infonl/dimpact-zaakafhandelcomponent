@@ -56,13 +56,13 @@ class RestZaaktypeConverter @Inject constructor(
                 null
             },
             zaaktypeRelaties = zaaktypeRelaties,
-            informatieobjecttypes = zaaktype.informatieobjecttypen.stream().map { uri ->
-                UriUtil.uuidFromURI(uri)
-            }.toList(),
+            informatieobjecttypes = zaaktype.informatieobjecttypen.map(UriUtil::uuidFromURI),
             referentieproces = zaaktype.referentieproces?.naam,
             zaakafhandelparameters = zaakafhandelParametersConverter.convertZaakafhandelParameters(
-                zaakafhandelParameterService.readZaakafhandelParameters(UriUtil.uuidFromURI(zaaktype.url)),
-                true
+                zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
+                    UriUtil.uuidFromURI(zaaktype.url)
+                ),
+                inclusiefRelaties = true
             )
         )
     }

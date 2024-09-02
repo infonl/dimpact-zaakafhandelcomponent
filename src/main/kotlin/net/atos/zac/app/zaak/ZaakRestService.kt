@@ -805,10 +805,10 @@ class ZaakRestService @Inject constructor(
         return resolveZaakAfzenderMail(
             zaakafhandelParameterService.readZaakafhandelParameters(
                 UriUtil.uuidFromURI(zaak.zaaktype)
-            )
-                .zaakAfzenders.stream()
+            ).zaakAfzenders
                 .filter { it.isDefault }
-                .map { zaakAfzender -> RESTZaakAfzenderConverter.convertZaakAfzender(zaakAfzender) }
+                .map(RESTZaakAfzenderConverter::convertZaakAfzender)
+                .stream()
         )
             .findAny()
             .orElse(null)
@@ -1011,19 +1011,12 @@ class ZaakRestService @Inject constructor(
         aardRelatie: AardRelatie
     ): List<RelevanteZaak> {
         val relevanteZaak = RelevanteZaak(andereZaak, aardRelatie)
-        if (relevanteZaken != null) {
-            if (relevanteZaken.stream().noneMatch { zaak -> zaak.`is`(andereZaak, aardRelatie) }) {
-                relevanteZaken.add(relevanteZaak)
-            }
-            return relevanteZaken
-        } else {
-            return listOf(relevanteZaak)
-        }
+        return relevanteZaken?.apply {
+            if (none { it.`is`(andereZaak, aardRelatie) }) add(relevanteZaak)
+        } ?: listOf(relevanteZaak)
     }
 
-    private fun datumWaarschuwing(vandaag: LocalDate, dagen: Int): LocalDate {
-        return vandaag.plusDays(dagen + 1L)
-    }
+    private fun datumWaarschuwing(vandaag: LocalDate, dagen: Int): LocalDate = vandaag.plusDays(dagen + 1L)
 
     private fun deleteSignaleringen(zaak: Zaak) {
         signaleringService.deleteSignaleringen(
@@ -1169,17 +1162,14 @@ class ZaakRestService @Inject constructor(
         afzenders: Stream<RESTZaakAfzender>
     ): Stream<RESTZaakAfzender> {
         return afzenders.peek { afzender ->
-            val speciaal = speciaalMail(afzender.mail)
-            if (speciaal != null) {
+            speciaalMail(afzender.mail)?.let { speciaal ->
                 afzender.suffix = "gegevens.mail.afzender.$speciaal"
                 afzender.mail = resolveMail(speciaal)
             }
-            afzender.replyTo = afzender.replyTo?.let {
-                speciaalMail(afzender.replyTo)?.let { speciaalReplyTo ->
-                    resolveMail(speciaalReplyTo)
-                } ?: afzender.replyTo
+            afzender.replyTo = afzender.replyTo?.let { replyTo ->
+                speciaalMail(replyTo)?.let { resolveMail(it) } ?: replyTo
             }
-        }.filter { afzender: RESTZaakAfzender -> afzender.mail != null }
+        }.filter { it.mail != null }
     }
 
     private fun resolveMail(speciaal: Speciaal) =
@@ -1190,7 +1180,7 @@ class ZaakRestService @Inject constructor(
 
     private fun verlengOpenTaken(zaakUUID: UUID, durationDays: Long): Int =
         flowableTaskService.listOpenTasksForZaak(zaakUUID)
-            .filter { task -> task.dueDate != null }
+            .filter { it.dueDate != null }
             .run {
                 forEach { task ->
                     task.dueDate = DateTimeConverterUtil.convertToDate(
@@ -1204,9 +1194,9 @@ class ZaakRestService @Inject constructor(
 
     private fun adjustFinalDateForOpenTasks(zaakUUID: UUID, zaakFatalDate: LocalDate): Int =
         flowableTaskService.listOpenTasksForZaak(zaakUUID)
-            .filter { task -> if (task.name != null) task.name != AANVULLENDE_INFORMATIE_TASK_NAME else true }
-            .filter { task -> task.dueDate != null }
-            .filter { task -> DateTimeConverterUtil.convertToLocalDate(task.dueDate).isAfter(zaakFatalDate) }
+            .filter { if (it.name != null) it.name != AANVULLENDE_INFORMATIE_TASK_NAME else true }
+            .filter { it.dueDate != null }
+            .filter { DateTimeConverterUtil.convertToLocalDate(it.dueDate).isAfter(zaakFatalDate) }
             .run {
                 forEach { task ->
                     task.dueDate = DateTimeConverterUtil.convertToDate(zaakFatalDate)
@@ -1222,9 +1212,7 @@ class ZaakRestService @Inject constructor(
         aardRelatie: AardRelatie
     ): List<RelevanteZaak>? {
         relevanteZaken?.removeAll(
-            relevanteZaken
-                .filter { it.`is`(andereZaak, aardRelatie) }
-                .toList()
+            relevanteZaken.filter { it.`is`(andereZaak, aardRelatie) }
         )
         return relevanteZaken
     }

@@ -55,10 +55,12 @@ fun createRESTZoekParameters(
 
 fun createZaakZoekObject(
     uuid: UUID = UUID.randomUUID(),
-    type: ZoekObjectType = ZoekObjectType.ZAAK
+    type: ZoekObjectType = ZoekObjectType.ZAAK,
+    behandelaarGebruikersnaam: String = "dummyBehandelaarGebruikersnaam"
 ) = ZaakZoekObject().apply {
     this.uuid = uuid.toString()
     this.type = type
+    this.behandelaarGebruikersnaam = behandelaarGebruikersnaam
 }
 
 @Suppress("LongParameterList")

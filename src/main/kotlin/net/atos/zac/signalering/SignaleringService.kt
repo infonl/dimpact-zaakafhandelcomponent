@@ -37,7 +37,6 @@ import net.atos.zac.websocket.event.ScreenEventType
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
-import java.util.Arrays
 import java.util.Optional
 import java.util.UUID
 import java.util.logging.Logger
@@ -54,7 +53,6 @@ class SignaleringService @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
     private val mailService: MailService,
     private val signaleringenMailHelper: SignaleringMailHelper,
-    private val signaleringPredicateHelper: SignaleringPredicateHelper,
     private val zrcClientService: ZrcClientService,
     private val restZaakOverzichtConverter: RestZaakOverzichtConverter
 ) {
@@ -172,7 +170,7 @@ class SignaleringService @Inject constructor(
         val root = query.from(Signalering::class.java)
         return entityManager.createQuery(
             query.select(root)
-                .where(signaleringPredicateHelper.getSignaleringWhere(parameters, builder, root))
+                .where(getSignaleringWhere(parameters, builder, root))
                 .orderBy(builder.desc(root.get<Any>("tijdstip")))
         )
             .resultList
@@ -186,7 +184,7 @@ class SignaleringService @Inject constructor(
         val root = query.from(Signalering::class.java)
 
         query.select(root.get("tijdstip"))
-            .where(signaleringPredicateHelper.getSignaleringWhere(parameters, builder, root))
+            .where(getSignaleringWhere(parameters, builder, root))
             .orderBy(builder.desc(root.get<Any>("tijdstip")))
 
         val resultList = entityManager.createQuery(query).resultList
@@ -280,8 +278,7 @@ class SignaleringService @Inject constructor(
             SignaleringInstellingen::class.java
         )
         return entityManager.createQuery(
-            query.select(root)
-                .where(signaleringPredicateHelper.getSignaleringInstellingenWhere(parameters, builder, root))
+            query.select(root).where(getSignaleringInstellingenWhere(parameters, builder, root))
         )
             .resultList
     }
@@ -290,20 +287,15 @@ class SignaleringService @Inject constructor(
         parameters: SignaleringInstellingenZoekParameters
     ): List<SignaleringInstellingen> {
         val map = listInstellingen(parameters).associateBy { it.type.type }.toMutableMap()
-        Arrays.stream(SignaleringType.Type.entries.toTypedArray())
-            .filter { it.isTarget(parameters.ownertype) }
-            .filter { !map.containsKey(it) }
+        SignaleringType.Type.entries
+            .filter { it.isTarget(parameters.ownertype) && !map.containsKey(it) }
             .forEach {
                 map[it] = signaleringInstellingenInstance(it, parameters.ownertype, parameters.owner)
             }
-        return map.values.stream()
-            .sorted(Comparator.comparing { it.type })
-            .toList()
+        return map.values.sortedBy { it.type }
     }
 
-    fun count(): Int {
-        return SignaleringType.Type.entries.size
-    }
+    fun count(): Int = SignaleringType.Type.entries.size
 
     @Transactional(REQUIRED)
     fun createSignaleringVerzonden(signalering: Signalering): SignaleringVerzonden {
@@ -321,17 +313,11 @@ class SignaleringService @Inject constructor(
         parameters: SignaleringVerzondenZoekParameters
     ): Optional<SignaleringVerzonden> {
         val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(
-            SignaleringVerzonden::class.java
-        )
-        val root = query.from(
-            SignaleringVerzonden::class.java
-        )
+        val query = builder.createQuery(SignaleringVerzonden::class.java)
+        val root = query.from(SignaleringVerzonden::class.java)
         val result = entityManager.createQuery(
-            query.select(root)
-                .where(signaleringPredicateHelper.getSignaleringVerzondenWhere(parameters, builder, root))
-        )
-            .resultList
+            query.select(root).where(getSignaleringVerzondenWhere(parameters, builder, root))
+        ).resultList
         return if (result.isEmpty()) { Optional.empty() } else { Optional.of(result[0]) }
     }
 
