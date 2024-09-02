@@ -45,7 +45,6 @@ import net.atos.zac.smartdocuments.rest.isSubsetOf
 import net.atos.zac.util.UriUtil
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
-import org.flowable.cmmn.api.repository.CaseDefinition
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -83,12 +82,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
     fun listCaseDefinitions(): List<RESTCaseDefinition> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return cmmnService.listCaseDefinitions()
-            .map { caseDefinition: CaseDefinition? ->
-                caseDefinitionConverter.convertToRESTCaseDefinition(
-                    caseDefinition,
-                    true
-                )
-            }
+            .map { caseDefinitionConverter.convertToRESTCaseDefinition(it, true) }
     }
 
     /**
@@ -133,7 +127,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
     }
 
     /**
-     * Save or updates zaakafhandelparameters.
+     * Creates or updates zaakafhandelparameters.
      *
      * @param restZaakafhandelParameters the zaakafhandelparameters to save or update;
      * if the `id` field is null, a new zaakafhandelparameters will be created,
@@ -141,7 +135,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
      * @throws InputValidationFailedException if the productaanvraagtype is already in use by another active zaaktype
      */
     @PUT
-    fun updateZaakafhandelparameters(
+    fun createOrUpdateZaakafhandelparameters(
         restZaakafhandelParameters: RestZaakafhandelParameters
     ): RestZaakafhandelParameters {
         assertPolicy(policyService.readOverigeRechten().beheren)

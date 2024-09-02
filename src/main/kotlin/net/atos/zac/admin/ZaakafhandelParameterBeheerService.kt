@@ -80,7 +80,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
 
     fun updateZaakafhandelParameters(zaakafhandelParameters: ZaakafhandelParameters): ZaakafhandelParameters {
         ValidationUtil.valideerObject(zaakafhandelParameters)
-        zaakafhandelParameters.humanTaskParametersCollection.forEach { ValidationUtil.valideerObject(it) }
+        zaakafhandelParameters.humanTaskParametersCollection.forEach(ValidationUtil::valideerObject)
         zaakafhandelParameters.creatiedatum =
             entityManager.find(ZaakafhandelParameters::class.java, zaakafhandelParameters.id).creatiedatum
         return entityManager.merge(zaakafhandelParameters)
