@@ -118,30 +118,37 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
     Given("One active zaakafhandelparameters in the database for a productaanvraagtype") {
         val productaanvraagType = "dummyProductaanvraagType"
         val zaakafhandelparameters = listOf(createZaakafhandelParameters())
-        every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(ZaakafhandelParameters::class.java) } returns zaakafhandelparametersCriteriaQuery
-        every {
-            zaakafhandelparametersCriteriaQuery.from(ZaakafhandelParameters::class.java)
-        } returns zaakafhandelparametersRoot
-        every { zaakafhandelparametersCriteriaQuery.subquery(Date::class.java) } returns dateSubquery
-        every { dateSubquery.from(ZaakafhandelParameters::class.java) } returns zaakafhandelparametersSubqueryRoot
-        every { zaakafhandelparametersSubqueryRoot.get<String>("creatiedatum") } returns pathString
-        every { criteriaBuilder.greatest<String>(any()) } returns expressionString
-        every { dateSubquery.select(any()) } returns dateSubquery
-        every { zaakafhandelparametersSubqueryRoot.get<String>("zaaktypeOmschrijving") } returns pathString
-        every { zaakafhandelparametersRoot.get<String>("zaaktypeOmschrijving") } returns pathString
-        every { criteriaBuilder.equal(pathString, pathString) } returns predicate
-        every { dateSubquery.where(predicate) } returns dateSubquery
-        every {
-            zaakafhandelparametersCriteriaQuery.select(zaakafhandelparametersRoot)
-        } returns zaakafhandelparametersCriteriaQuery
-        every { zaakafhandelparametersRoot.get<String>("productaanvraagtype") } returns pathString
-        every { criteriaBuilder.equal(pathString, productaanvraagType) } returns predicate
-        every { zaakafhandelparametersRoot.get<String>("creatiedatum") } returns pathString
-        every { criteriaBuilder.equal(pathString, dateSubquery) } returns predicate
+        with(entityManager) {
+            every { createQuery(zaakafhandelparametersCriteriaQuery) } returns zaakafhandelparametersTypedQuery
+            every { getCriteriaBuilder() } returns criteriaBuilder
+        }
+        with(criteriaBuilder) {
+            every { createQuery(ZaakafhandelParameters::class.java) } returns zaakafhandelparametersCriteriaQuery
+            every { greatest<String>(any()) } returns expressionString
+            every { equal(pathString, pathString) } returns predicate
+            every { equal(pathString, productaanvraagType) } returns predicate
+            every { equal(pathString, dateSubquery) } returns predicate
+        }
         every { criteriaBuilder.and(predicate, predicate) } returns predicate
-        every { zaakafhandelparametersCriteriaQuery.where(predicate) } returns zaakafhandelparametersCriteriaQuery
-        every { entityManager.createQuery(zaakafhandelparametersCriteriaQuery) } returns zaakafhandelparametersTypedQuery
+        with(zaakafhandelparametersCriteriaQuery) {
+            every { from(ZaakafhandelParameters::class.java) } returns zaakafhandelparametersRoot
+            every { subquery(Date::class.java) } returns dateSubquery
+            every { select(zaakafhandelparametersRoot) } returns zaakafhandelparametersCriteriaQuery
+            every { where(predicate) } returns zaakafhandelparametersCriteriaQuery
+        }
+        with(dateSubquery) {
+            every { from(ZaakafhandelParameters::class.java) } returns mockk {
+                every { get<String>("creatiedatum") } returns pathString
+                every { get<String>("zaaktypeOmschrijving") } returns pathString
+            }
+            every { select(any()) } returns dateSubquery
+            every { where(predicate) } returns dateSubquery
+        }
+        with(zaakafhandelparametersRoot) {
+            every { get<String>("zaaktypeOmschrijving") } returns pathString
+            every { zaakafhandelparametersRoot.get<String>("productaanvraagtype") } returns pathString
+            every { zaakafhandelparametersRoot.get<String>("creatiedatum") } returns pathString
+        }
         every { zaakafhandelparametersTypedQuery.resultList } returns zaakafhandelparameters
 
         When(
@@ -169,30 +176,37 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
             createZaakafhandelParameters(),
             createZaakafhandelParameters()
         )
-        every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(ZaakafhandelParameters::class.java) } returns zaakafhandelparametersCriteriaQuery
-        every {
-            zaakafhandelparametersCriteriaQuery.from(ZaakafhandelParameters::class.java)
-        } returns zaakafhandelparametersRoot
-        every { zaakafhandelparametersCriteriaQuery.subquery(Date::class.java) } returns dateSubquery
-        every { dateSubquery.from(ZaakafhandelParameters::class.java) } returns zaakafhandelparametersSubqueryRoot
-        every { zaakafhandelparametersSubqueryRoot.get<String>("creatiedatum") } returns pathString
-        every { criteriaBuilder.greatest<String>(any()) } returns expressionString
-        every { dateSubquery.select(any()) } returns dateSubquery
-        every { zaakafhandelparametersSubqueryRoot.get<String>("zaaktypeOmschrijving") } returns pathString
-        every { zaakafhandelparametersRoot.get<String>("zaaktypeOmschrijving") } returns pathString
-        every { criteriaBuilder.equal(pathString, pathString) } returns predicate
-        every { dateSubquery.where(predicate) } returns dateSubquery
-        every {
-            zaakafhandelparametersCriteriaQuery.select(zaakafhandelparametersRoot)
-        } returns zaakafhandelparametersCriteriaQuery
-        every { zaakafhandelparametersRoot.get<String>("productaanvraagtype") } returns pathString
-        every { criteriaBuilder.equal(pathString, productaanvraagType) } returns predicate
-        every { zaakafhandelparametersRoot.get<String>("creatiedatum") } returns pathString
-        every { criteriaBuilder.equal(pathString, dateSubquery) } returns predicate
+        with(entityManager) {
+            every { createQuery(zaakafhandelparametersCriteriaQuery) } returns zaakafhandelparametersTypedQuery
+            every { getCriteriaBuilder() } returns criteriaBuilder
+        }
+        with(criteriaBuilder) {
+            every { createQuery(ZaakafhandelParameters::class.java) } returns zaakafhandelparametersCriteriaQuery
+            every { greatest<String>(any()) } returns expressionString
+            every { equal(pathString, pathString) } returns predicate
+            every { equal(pathString, productaanvraagType) } returns predicate
+            every { equal(pathString, dateSubquery) } returns predicate
+        }
         every { criteriaBuilder.and(predicate, predicate) } returns predicate
-        every { zaakafhandelparametersCriteriaQuery.where(predicate) } returns zaakafhandelparametersCriteriaQuery
-        every { entityManager.createQuery(zaakafhandelparametersCriteriaQuery) } returns zaakafhandelparametersTypedQuery
+        with(zaakafhandelparametersCriteriaQuery) {
+            every { from(ZaakafhandelParameters::class.java) } returns zaakafhandelparametersRoot
+            every { subquery(Date::class.java) } returns dateSubquery
+            every { select(zaakafhandelparametersRoot) } returns zaakafhandelparametersCriteriaQuery
+            every { where(predicate) } returns zaakafhandelparametersCriteriaQuery
+        }
+        with(dateSubquery) {
+            every { from(ZaakafhandelParameters::class.java) } returns mockk {
+                every { get<String>("creatiedatum") } returns pathString
+                every { get<String>("zaaktypeOmschrijving") } returns pathString
+            }
+            every { select(any()) } returns dateSubquery
+            every { where(predicate) } returns dateSubquery
+        }
+        with(zaakafhandelparametersRoot) {
+            every { get<String>("zaaktypeOmschrijving") } returns pathString
+            every { zaakafhandelparametersRoot.get<String>("productaanvraagtype") } returns pathString
+            every { zaakafhandelparametersRoot.get<String>("creatiedatum") } returns pathString
+        }
         every { zaakafhandelparametersTypedQuery.resultList } returns zaakafhandelparametersList
 
         When(
