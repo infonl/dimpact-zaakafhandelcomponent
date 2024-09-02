@@ -24,7 +24,7 @@ import nl.lifely.zac.util.NoArgConstructor
 @Produces(MediaType.APPLICATION_JSON)
 @NoArgConstructor
 @AllOpen
-class IndexingRESTService @Inject constructor(
+class IndexingRestService @Inject constructor(
     private val indexingService: IndexingService
 ) {
     @GET
