@@ -64,7 +64,7 @@ import net.atos.zac.task.TaskService
 import net.atos.zac.util.DateTimeConverterUtil
 import net.atos.zac.util.UriUtil
 import net.atos.zac.websocket.event.ScreenEventType
-import net.atos.zac.zoeken.IndexeerService
+import net.atos.zac.zoeken.IndexingService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -89,7 +89,7 @@ class TaskRestService @Inject constructor(
     private val taskService: TaskService,
     private val flowableTaskService: FlowableTaskService,
     private val taakVariabelenService: TaakVariabelenService,
-    private val indexeerService: IndexeerService,
+    private val indexingService: IndexingService,
     private val restTaskConverter: RestTaskConverter,
     private val eventingService: EventingService,
     private val loggedInUserInstance: Instance<LoggedInUser>,
@@ -231,7 +231,7 @@ class TaskRestService @Inject constructor(
         taakVariabelenService.setTaskData(updatedTask, restTask.taakdata)
         taakVariabelenService.setTaskinformation(updatedTask, restTask.taakinformatie)
         return flowableTaskService.completeTask(updatedTask).also {
-            indexeerService.addOrUpdateZaak(restTask.zaakUuid, false)
+            indexingService.addOrUpdateZaak(restTask.zaakUuid, false)
             eventingService.send(ScreenEventType.TAAK.updated(it))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
         }.let(restTaskConverter::convert)
@@ -268,7 +268,7 @@ class TaskRestService @Inject constructor(
             explanation = restTaskAssignData.reden
         ).let {
             taskService.sendScreenEventsOnTaskChange(it, restTaskAssignData.zaakUuid)
-            indexeerService.indexeerDirect(restTaskAssignData.taakId, ZoekObjectType.TAAK, true)
+            indexingService.indexeerDirect(restTaskAssignData.taakId, ZoekObjectType.TAAK, true)
             return it
         }
     }

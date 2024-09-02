@@ -32,8 +32,8 @@ class IndexeerServiceTest : BehaviorSpec({
     } returns solrUrl
 
     val solrClient = mockk<SolrClient>()
-    mockkStatic(IndexeerService::class)
-    every { IndexeerService.createSolrClient("$solrUrl/solr/zac") } returns solrClient
+    mockkStatic(IndexingService::class)
+    every { IndexingService.createSolrClient("$solrUrl/solr/zac") } returns solrClient
 
     val zaakZoekObjectConverter = mockk<ZaakZoekObjectConverter>()
     val converterInstances = mockk<Instance<AbstractZoekObjectConverter<out ZoekObject?>>>()
@@ -42,7 +42,7 @@ class IndexeerServiceTest : BehaviorSpec({
     val flowableTaskService = mockk<FlowableTaskService>()
     val zrcClientService = mockk<ZrcClientService>()
 
-    val indexeerService = IndexeerService(
+    val indexingService = IndexingService(
         converterInstances,
         zrcClientService,
         drcClientService,
@@ -78,7 +78,7 @@ class IndexeerServiceTest : BehaviorSpec({
         When(
             """The indexeer direct method is called to index the two zaken"""
         ) {
-            indexeerService.indexeerDirect(zaken.map { it.uuid.toString() }.stream(), ZoekObjectType.ZAAK, false)
+            indexingService.indexeerDirect(zaken.map { it.uuid.toString() }.stream(), ZoekObjectType.ZAAK, false)
 
             Then(
                 """

@@ -14,7 +14,7 @@ import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.websocket.event.ScreenEventType
-import net.atos.zac.zoeken.IndexeerService
+import net.atos.zac.zoeken.IndexingService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import nl.lifely.zac.util.AllOpen
 import org.flowable.task.api.Task
@@ -25,7 +25,7 @@ import java.util.logging.Logger
 @AllOpen
 class TaskService @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
-    private val indexeerService: IndexeerService,
+    private val indexingService: IndexingService,
     private val eventingService: EventingService,
     private val restTaskConverter: RestTaskConverter,
 ) {
@@ -62,7 +62,7 @@ class TaskService @Inject constructor(
         }
         if (changed) {
             sendScreenEventsOnTaskChange(updatedTask, restTaskAssignData.zaakUuid)
-            indexeerService.indexeerDirect(
+            indexingService.indexeerDirect(
                 restTaskAssignData.taakId,
                 ZoekObjectType.TAAK,
                 true
@@ -92,7 +92,7 @@ class TaskService @Inject constructor(
             assignTasks(restTaskDistributeData, loggedInUser, succesfullyAssignedTaskIds)
         } finally {
             // always update the search index and send the screen event, also if exceptions were thrown
-            indexeerService.commit()
+            indexingService.commit()
             LOG.fine { "Successfully assigned ${succesfullyAssignedTaskIds.size} tasks." }
 
             // if a screen event resource ID was specified, send a screen event
@@ -143,7 +143,7 @@ class TaskService @Inject constructor(
         try {
             releaseTasks(restTaskReleaseData, loggedInUser, taskIds)
         } finally {
-            indexeerService.commit()
+            indexingService.commit()
             LOG.fine { "Successfully released ${taskIds.size} tasks." }
 
             // if a screen event resource ID was specified, send a screen event
@@ -172,7 +172,7 @@ class TaskService @Inject constructor(
                     assignTaskAndOptionallyReleaseFromAssignee(task, restTaskDistributeData, loggedInUser)
                     sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
                 }
-                indexeerService.indexeerDirect(restTaakVerdelenTaak.taakId, ZoekObjectType.TAAK, false)
+                indexingService.indexeerDirect(restTaakVerdelenTaak.taakId, ZoekObjectType.TAAK, false)
                 succesfullyAssignedTaskIds.add(restTaakVerdelenTaak.taakId)
             } catch (taskNotFoundException: TaskNotFoundException) {
                 // continue assigning remaining tasks if particular open task could not be found
@@ -228,7 +228,7 @@ class TaskService @Inject constructor(
                         loggedInUser = loggedInUser,
                         reden = restTaskReleaseData.reden
                     )
-                    indexeerService.indexeerDirect(task.id, ZoekObjectType.TAAK, false)
+                    indexingService.indexeerDirect(task.id, ZoekObjectType.TAAK, false)
                     sendScreenEventsOnTaskChange(task, it.zaakUuid)
                     taskIds.add(task.id)
                 }

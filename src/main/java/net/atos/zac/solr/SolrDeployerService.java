@@ -9,7 +9,7 @@ import static net.atos.zac.solr.FieldType.STRING;
 import static net.atos.zac.solr.SolrSchemaUpdateHelper.NAME;
 import static net.atos.zac.solr.SolrSchemaUpdateHelper.addField;
 import static net.atos.zac.solr.SolrSchemaUpdateHelper.deleteField;
-import static net.atos.zac.zoeken.IndexeerService.SOLR_CORE;
+import static net.atos.zac.zoeken.IndexingService.SOLR_CORE;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -38,7 +38,7 @@ import org.apache.solr.client.solrj.request.schema.SchemaRequest;
 import org.apache.solr.common.SolrException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import net.atos.zac.zoeken.IndexeerService;
+import net.atos.zac.zoeken.IndexingService;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
 
 @Singleton
@@ -50,7 +50,7 @@ public class SolrDeployerService {
 
     private String solrUrl;
     private ManagedExecutorService managedExecutor;
-    private IndexeerService indexeerService;
+    private IndexingService indexingService;
     private SolrClient solrClient;
     private List<SolrSchemaUpdate> schemaUpdates;
 
@@ -63,10 +63,10 @@ public class SolrDeployerService {
     @Inject
     public SolrDeployerService(
             @ConfigProperty(name = "SOLR_URL") final String solrUrl,
-            final IndexeerService indexeerService
+            final IndexingService indexingService
     ) {
         this.solrUrl = solrUrl;
-        this.indexeerService = indexeerService;
+        this.indexingService = indexingService;
     }
 
     @Inject
@@ -159,6 +159,6 @@ public class SolrDeployerService {
     }
 
     private void startHerindexeren(final ZoekObjectType type) {
-        managedExecutor.submit(() -> indexeerService.herindexeren(type));
+        managedExecutor.submit(() -> indexingService.herindexeren(type));
     }
 }

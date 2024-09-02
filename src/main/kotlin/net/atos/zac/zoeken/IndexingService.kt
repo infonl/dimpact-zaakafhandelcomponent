@@ -4,13 +4,13 @@
  */
 package net.atos.zac.zoeken
 
+import jakarta.enterprise.inject.Any
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.shared.util.URIUtil
@@ -24,7 +24,7 @@ import net.atos.zac.util.UriUtil
 import net.atos.zac.zoeken.converter.AbstractZoekObjectConverter
 import net.atos.zac.zoeken.model.ZoekObject
 import net.atos.zac.zoeken.model.index.ZoekObjectType
-import org.apache.commons.collections4.CollectionUtils
+import nl.lifely.zac.util.AllOpen
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.SolrServerException
@@ -35,74 +35,78 @@ import org.apache.solr.common.params.CursorMarkParams
 import org.eclipse.microprofile.config.ConfigProvider
 import org.flowable.task.api.Task
 import java.io.IOException
-import java.util.Objects
 import java.util.UUID
 import java.util.logging.Logger
-import java.util.stream.Stream
 
 @Singleton
 @Transactional
-class IndexeerService @Inject internal constructor(
-    @param:jakarta.enterprise.inject.Any private val converterInstances: Instance<AbstractZoekObjectConverter<out ZoekObject>>,
+@AllOpen
+@Suppress("TooManyFunctions")
+class IndexingService @Inject internal constructor(
+    @param:Any private val converterInstances: Instance<AbstractZoekObjectConverter<out ZoekObject>>,
     private val zrcClientService: ZrcClientService,
     private val drcClientService: DrcClientService,
     private val flowableTaskService: FlowableTaskService
 ) {
-    private val solrClient: SolrClient
-    private val herindexerenBezig: MutableSet<ZoekObjectType> = HashSet()
+    companion object {
+        const val SOLR_CORE: String = "zac"
 
-    init {
-        solrClient = createSolrClient(
-            String.format(
-                "%s/solr/%s",
-                ConfigProvider.getConfig().getValue("solr.url", String::class.java),
-                SOLR_CORE
-            )
+        private val LOG: Logger = Logger.getLogger(IndexingService::class.java.name)
+        private const val SOLR_MAX_RESULT = 100
+        private const val TAKEN_MAX_RESULTS = 50
+
+        private val solrClient: SolrClient = createSolrClient(
+            "${ConfigProvider.getConfig().getValue("solr.url", String::class.java)}/solr/$SOLR_CORE"
         )
+        private val herindexerenBezig: MutableSet<ZoekObjectType> = HashSet()
+
+        fun createSolrClient(baseSolrUrl: String?): SolrClient =
+            Http2SolrClient.Builder(baseSolrUrl).build()
+
+        private fun logTypeMessage(objectType: ZoekObjectType, message: String) =
+            LOG.info("[$objectType] $message")
     }
 
     /**
      * Adds objectId to the Solr index and optionally performs a (hard) Solr commit so
      * that the Solr index is updated immediately.
-     * Beware that hard Solr commits are relavitely expensive operations.
+     * Beware that hard Solr commits are relatively expensive operations.
      *
      * @param objectId      the object id to be indexed
      * @param objectType    the object type
      * @param performCommit whether to perform a hard Solr commit
      */
-    fun indexeerDirect(objectId: String?, objectType: ZoekObjectType, performCommit: Boolean) {
-        addToSolrIndex(Stream.of(getConverter(objectType).convert(objectId)), performCommit)
-    }
+    fun indexeerDirect(objectId: String, objectType: ZoekObjectType, performCommit: Boolean) =
+        addToSolrIndex(listOf(getConverter(objectType).convert(objectId)), performCommit)
 
     /**
      * Add a list of objectIds to the Solr index and optionally performs a (hard) Solr commit so
      * that the Solr index is updated immediately.
-     * Beware that hard Solr commits are relavitely expensive operations.
+     * Beware that hard Solr commits are relatively expensive operations.
      *
      * @param objectIds     the list of object ids to be indexed
      * @param objectType    the object type
      * @param performCommit whether to perform a hard Solr commit
      */
-    fun indexeerDirect(objectIds: Stream<String?>, objectType: ZoekObjectType, performCommit: Boolean) {
-        addToSolrIndex(objectIds.map { objectId: String? -> getConverter(objectType).convert(objectId) }, performCommit)
-    }
+    fun indexeerDirect(objectIds: List<String>, objectType: ZoekObjectType, performCommit: Boolean) =
+        addToSolrIndex(objectIds.map { objectId: String -> getConverter(objectType).convert(objectId) }, performCommit)
 
     @Transactional(Transactional.TxType.NEVER)
     fun herindexeren(objectType: ZoekObjectType) {
         if (herindexerenBezig.contains(objectType)) {
-            log(objectType, "Herindexeren niet gestart, is nog bezig")
+            logTypeMessage(objectType, "Herindexeren niet gestart, is nog bezig")
             return
         }
         herindexerenBezig.add(objectType)
         try {
-            log(objectType, "Herindexeren gestart...")
+            logTypeMessage(objectType, "Herindexeren gestart...")
             removeEntitiesFromSolrIndex(objectType)
             when (objectType) {
                 ZoekObjectType.ZAAK -> reindexAllZaken()
                 ZoekObjectType.DOCUMENT -> reindexAllInformatieobjecten()
                 ZoekObjectType.TAAK -> reindexAllTaken()
             }
-            log(objectType, "Herindexeren gestopt")
+            logTypeMessage(objectType, "Herindexeren gestopt")
         } finally {
             herindexerenBezig.remove(objectType)
         }
@@ -113,7 +117,7 @@ class IndexeerService @Inject internal constructor(
         if (inclusiefTaken) {
             flowableTaskService.listOpenTasksForZaak(zaakUUID).stream()
                 .map { obj: Task -> obj.id }
-                .forEach { taskID: String? -> this.addOrUpdateTaak(taskID) }
+                .forEach { taskID: String -> this.addOrUpdateTaak(taskID) }
         }
     }
 
@@ -121,7 +125,7 @@ class IndexeerService @Inject internal constructor(
         indexeerDirect(informatieobjectUUID.toString(), ZoekObjectType.DOCUMENT, false)
     }
 
-    fun addOrUpdateInformatieobjectByZaakinformatieobject(zaakinformatieobjectUUID: UUID?) {
+    fun addOrUpdateInformatieobjectByZaakinformatieobject(zaakinformatieobjectUUID: UUID) {
         addOrUpdateInformatieobject(
             UriUtil.uuidFromURI(
                 zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID).informatieobject
@@ -129,7 +133,7 @@ class IndexeerService @Inject internal constructor(
         )
     }
 
-    fun addOrUpdateTaak(taskID: String?) {
+    fun addOrUpdateTaak(taskID: String) {
         indexeerDirect(taskID, ZoekObjectType.TAAK, false)
     }
 
@@ -149,15 +153,11 @@ class IndexeerService @Inject internal constructor(
         try {
             // this overload waits until the solr searcher is done, which is what we want
             solrClient.commit(null, true, true)
-        } catch (exception: SolrServerException) {
-            throw RuntimeException(exception)
-        } catch (exception: IOException) {
-            throw RuntimeException(exception)
+        } catch (solrServerException: SolrServerException) {
+            throw IndexingException(solrServerException)
+        } catch (ioException: IOException) {
+            throw IndexingException(ioException)
         }
-    }
-
-    private fun log(objectType: ZoekObjectType, message: String) {
-        LOG.info("[%s] %s".formatted(objectType.toString(), message))
     }
 
     private fun getConverter(objectType: ZoekObjectType): AbstractZoekObjectConverter<out ZoekObject> {
@@ -166,58 +166,57 @@ class IndexeerService @Inject internal constructor(
                 return converter
             }
         }
-        throw RuntimeException("[%s] No converter found".formatted(objectType.toString()))
+        throw IndexingException("[$objectType] No converter found")
     }
 
-    private fun addToSolrIndex(zoekObjecten: Stream<ZoekObject?>, performCommit: Boolean) {
-        val beansToBeAdded = zoekObjecten
-            .filter { obj: ZoekObject? -> Objects.nonNull(obj) }
-            .toList()
-        if (CollectionUtils.isNotEmpty(beansToBeAdded)) {
-            try {
-                solrClient.addBeans(beansToBeAdded)
-                if (performCommit) {
-                    commit()
-                }
-            } catch (e: IOException) {
-                throw RuntimeException(e)
-            } catch (e: SolrServerException) {
-                throw RuntimeException(e)
+    private fun addToSolrIndex(zoekObjecten: List<ZoekObject?>, performCommit: Boolean) {
+        val beansToBeAdded = zoekObjecten.filterNotNull()
+        if (beansToBeAdded.isEmpty()) {
+            return
+        }
+        try {
+            solrClient.addBeans(beansToBeAdded)
+            if (performCommit) {
+                commit()
             }
+        } catch (solrServerException: SolrServerException) {
+            throw IndexingException(solrServerException)
+        } catch (ioException: IOException) {
+            throw IndexingException(ioException)
         }
     }
 
-    private fun removeFromSolrIndex(ids: Stream<String?>) {
-        val idsToBeDeleted = ids.toList()
-        if (CollectionUtils.isNotEmpty(idsToBeDeleted)) {
-            try {
-                solrClient.deleteById(idsToBeDeleted)
-            } catch (e: IOException) {
-                throw RuntimeException(e)
-            } catch (e: SolrServerException) {
-                throw RuntimeException(e)
-            }
+    private fun removeFromSolrIndex(idsToBeDeleted: List<String>) {
+        if (idsToBeDeleted.isEmpty()) {
+            return
+        }
+        try {
+            solrClient.deleteById(idsToBeDeleted)
+        } catch (solrServerException: SolrServerException) {
+            throw IndexingException(solrServerException)
+        } catch (ioException: IOException) {
+            throw IndexingException(ioException)
         }
     }
 
     private fun removeFromSolrIndex(id: String) {
         try {
             solrClient.deleteById(id)
-        } catch (e: IOException) {
-            throw RuntimeException(e)
-        } catch (e: SolrServerException) {
-            throw RuntimeException(e)
+        } catch (solrServerException: SolrServerException) {
+            throw IndexingException(solrServerException)
+        } catch (ioException: IOException) {
+            throw IndexingException(ioException)
         }
     }
 
     private fun logProgress(objectType: ZoekObjectType, voortgang: Long, grootte: Long) {
-        log(objectType, "reindexed: %d / %d".formatted(voortgang, grootte))
+        logTypeMessage(objectType, "reindexed: $voortgang / $grootte")
     }
 
     private fun removeEntitiesFromSolrIndex(objectType: ZoekObjectType) {
         val query = SolrQuery("*:*")
         query.setFields("id")
-        query.addFilterQuery("type:%s".formatted(objectType.toString()))
+        query.addFilterQuery("type:$objectType")
         query.addSort("id", SolrQuery.ORDER.asc)
         query.setRows(SOLR_MAX_RESULT)
         var cursorMark = CursorMarkParams.CURSOR_MARK_START
@@ -227,17 +226,15 @@ class IndexeerService @Inject internal constructor(
             val response: QueryResponse
             try {
                 response = solrClient.query(query)
-            } catch (e: SolrServerException) {
-                throw RuntimeException(e)
-            } catch (e: IOException) {
-                throw RuntimeException(e)
+            } catch (solrServerException: SolrServerException) {
+                throw IndexingException(solrServerException)
+            } catch (ioException: IOException) {
+                throw IndexingException(ioException)
             }
             removeFromSolrIndex(
                 response.results
-                    .stream()
-                    .map { document: SolrDocument -> document["id"] }
-                    .filter { obj: Any? -> Objects.nonNull(obj) }
-                    .map { obj: Any? -> obj.toString() }
+                    .mapNotNull { document: SolrDocument -> document["id"] }
+                    .map { obj: kotlin.Any -> obj.toString() }
             )
             val nextCursorMark = response.nextCursorMark
             if (cursorMark == nextCursorMark) {
@@ -255,7 +252,7 @@ class IndexeerService @Inject internal constructor(
         var hasMore: Boolean
         do {
             hasMore = reindexZaken(listParameters)
-            listParameters.page = listParameters.page + 1
+            listParameters.page += 1
         } while (hasMore)
     }
 
@@ -265,7 +262,7 @@ class IndexeerService @Inject internal constructor(
         var hasMore: Boolean
         do {
             hasMore = reindexInformatieobjecten(listParameters)
-            listParameters.page = listParameters.page + 1
+            listParameters.page += 1
         } while (hasMore)
     }
 
@@ -283,7 +280,6 @@ class IndexeerService @Inject internal constructor(
         val results = zrcClientService.listZaken(listParameters)
         indexeerDirect(
             results.results
-                .stream()
                 .map { obj: Zaak -> obj.uuid }
                 .map { obj: UUID -> obj.toString() },
             ZoekObjectType.ZAAK,
@@ -291,7 +287,8 @@ class IndexeerService @Inject internal constructor(
         )
         logProgress(
             ZoekObjectType.ZAAK,
-            (listParameters.page - ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE + results.results.size,
+            (listParameters.page - ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE +
+                results.results.size,
             results.count.toLong()
         )
         return results.next != null
@@ -303,11 +300,9 @@ class IndexeerService @Inject internal constructor(
         val results = drcClientService.listEnkelvoudigInformatieObjecten(listParameters)
         indexeerDirect(
             results.results
-                .stream()
-                .map { enkelvoudigInformatieObject: EnkelvoudigInformatieObject ->
-                    URIUtil.parseUUIDFromResourceURI(
-                        enkelvoudigInformatieObject.url
-                    )
+                .map {
+                        enkelvoudigInformatieObject ->
+                    URIUtil.parseUUIDFromResourceURI(enkelvoudigInformatieObject.url)
                 }
                 .map { obj: UUID -> obj.toString() },
             ZoekObjectType.DOCUMENT,
@@ -315,7 +310,8 @@ class IndexeerService @Inject internal constructor(
         )
         logProgress(
             ZoekObjectType.DOCUMENT,
-            (listParameters.page - ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE + results.results.size,
+            (listParameters.page - ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE +
+                results.results.size,
             results.count.toLong()
         )
         return results.next != null
@@ -326,25 +322,14 @@ class IndexeerService @Inject internal constructor(
         val tasks = flowableTaskService.listOpenTasks(
             TaakSortering.CREATIEDATUM,
             SorteerRichting.DESCENDING,
-            firstResult, TAKEN_MAX_RESULTS
+            firstResult,
+            TAKEN_MAX_RESULTS
         )
-        indexeerDirect(tasks.stream().map { obj: Task -> obj.id }, ZoekObjectType.TAAK, false)
-        if (!tasks.isEmpty()) {
+        indexeerDirect(tasks.map { obj: Task -> obj.id }, ZoekObjectType.TAAK, false)
+        if (tasks.isNotEmpty()) {
             logProgress(ZoekObjectType.TAAK, firstResult.toLong() + tasks.size, numberOfTasks)
             return tasks.size == TAKEN_MAX_RESULTS
         }
         return false
-    }
-
-    companion object {
-        const val SOLR_CORE: String = "zac"
-
-        private val LOG: Logger = Logger.getLogger(IndexeerService::class.java.name)
-        private const val SOLR_MAX_RESULT = 100
-        private const val TAKEN_MAX_RESULTS = 50
-
-        fun createSolrClient(baseSolrUrl: String?): SolrClient {
-            return Http2SolrClient.Builder(baseSolrUrl).build()
-        }
     }
 }

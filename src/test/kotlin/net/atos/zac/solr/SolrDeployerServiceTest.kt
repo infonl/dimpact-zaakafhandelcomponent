@@ -6,7 +6,6 @@
 package net.atos.zac.solr
 
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.ints.exactly
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -14,7 +13,7 @@ import io.mockk.mockkConstructor
 import io.mockk.verify
 import jakarta.enterprise.concurrent.ManagedExecutorService
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.zoeken.IndexeerService
+import net.atos.zac.zoeken.IndexingService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import org.apache.solr.client.solrj.request.SolrPing
 import org.apache.solr.client.solrj.request.schema.SchemaRequest
@@ -24,12 +23,12 @@ import java.util.concurrent.CompletableFuture
 
 class SolrDeployerServiceTest : BehaviorSpec({
     val managedExecutorService = mockk<ManagedExecutorService>()
-    val indexeerService = mockk<IndexeerService>()
+    val indexingService = mockk<IndexingService>()
     val solrUrl = "https://example.com/solr"
 
     val solrDeployerService = SolrDeployerService(
         solrUrl,
-        indexeerService,
+        indexingService,
     )
 
     beforeEach {
