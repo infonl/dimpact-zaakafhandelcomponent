@@ -617,6 +617,7 @@
   "actie.verzenden": "Send",
   "actie.verwijderen": "Delete",
   "actie.wissen": "Clear",
+  "actie.wissen.aria-label": "Clear input",
   "actie.vrijgeven": "Release",
   "actie.zaak.aanmaken": "Create case",
   "actie.zaak.afbreken": "Abort case",

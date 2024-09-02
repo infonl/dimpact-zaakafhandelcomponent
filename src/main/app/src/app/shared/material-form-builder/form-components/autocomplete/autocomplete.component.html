@@ -14,7 +14,7 @@
     [maxlength]="data.maxlength"
   />
   <mat-icon
-    *ngIf="!isSearching"
+    *ngIf="!isEditing"
     [ngClass]="{
       error:
         data.formControl.invalid &&
@@ -24,11 +24,11 @@
     >search</mat-icon
   >
   <button
-    *ngIf="isSearching"
+    *ngIf="isEditing"
     type="button"
     mat-icon-button
     matSuffix
-    aria-label="Maak veld leeg"
+    [attr.aria-label]="'actie.wissen.aria-label' | translate"
     (click)="clear()"
   >
     <mat-icon
@@ -51,10 +51,10 @@
       </div>
     </mat-option>
   </mat-autocomplete>
-  <mat-hint *ngIf="data.hint" [align]="data.hint.align"
-    >{{ data.hint.label | translate }}</mat-hint
-  >
-  <mat-error appEnhanceMatError *ngIf="data.formControl.invalid"
-    >{{ getErrorMessage() }}</mat-error
-  >
+  <mat-hint *ngIf="data.hint" [align]="data.hint.align">{{
+    data.hint.label | translate
+  }}</mat-hint>
+  <mat-error appEnhanceMatError *ngIf="data.formControl.invalid">{{
+    getErrorMessage()
+  }}</mat-error>
 </mat-form-field>

@@ -33,7 +33,7 @@
       type="button"
       mat-icon-button
       matSuffix
-      aria-label="Maak veld leeg"
+      [attr.aria-label]="'actie.wissen.aria-label' | translate"
       (click)="clearField(data.groep)"
     >
       <mat-icon
@@ -46,13 +46,15 @@
       >
     </button>
     <mat-autocomplete #groepAC="matAutocomplete" [displayWith]="displayFn">
-      <mat-option *ngFor="let groep of filteredGroepen | async" [value]="groep"
+      <mat-option
+        *ngFor="let groep of filteredGroepen | async"
+        [value]="groep"
         >{{ groep.naam }}</mat-option
       >
     </mat-autocomplete>
-    <mat-error appEnhanceMatError *ngIf="data.groep.invalid"
-      >{{ getMessage(data.groep, "Groep") }}</mat-error
-    >
+    <mat-error appEnhanceMatError *ngIf="data.groep.invalid">{{
+      getMessage(data.groep, "Groep")
+    }}</mat-error>
   </mat-form-field>
   <mat-form-field appearance="fill" class="full-width" floatLabel="always">
     <mat-label>{{ data.medewerkerLabel | translate }}</mat-label>
@@ -80,7 +82,7 @@
       type="button"
       mat-icon-button
       matSuffix
-      aria-label="Maak veld leeg"
+      [attr.aria-label]="'actie.wissen.aria-label' | translate"
       (click)="clearField(data.medewerker)"
     >
       <mat-icon
@@ -99,8 +101,8 @@
         >{{ medewerker.naam }}</mat-option
       >
     </mat-autocomplete>
-    <mat-error appEnhanceMatError *ngIf="data.medewerker.invalid"
-      >{{ getMessage(data.medewerker, "Medewerker") }}</mat-error
-    >
+    <mat-error appEnhanceMatError *ngIf="data.medewerker.invalid">{{
+      getMessage(data.medewerker, "Medewerker")
+    }}</mat-error>
   </mat-form-field>
 </fieldset>

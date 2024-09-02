@@ -72,7 +72,7 @@ export class AutocompleteComponent
     );
   }
 
-  isSearching(): boolean {
+  isEditing(): boolean {
     return this.data.formControl.value;
   }
 

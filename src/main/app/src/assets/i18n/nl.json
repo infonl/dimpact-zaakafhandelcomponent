@@ -617,6 +617,7 @@
   "actie.verzenden": "Verzenden",
   "actie.verwijderen": "Verwijderen",
   "actie.wissen": "Wissen",
+  "actie.wissen.aria-label": "Invoerveld wissen",
   "actie.vrijgeven": "Vrijgeven",
   "actie.zaak.aanmaken": "Zaak aanmaken",
   "actie.zaak.afbreken": "Zaak afbreken",
