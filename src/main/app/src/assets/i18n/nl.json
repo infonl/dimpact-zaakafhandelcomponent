@@ -721,7 +721,7 @@
   "msg.error.klanten.client.exception": "Er heeft zich helaas een technische fout voor gedaan. Er kan geen klantinformatie worden opgehaald.",
   "msg.error.objects.client.exception": "Er heeft zich helaas een technische fout voor gedaan. Er kunnen geen objecten worden opgehaald.",
   "msg.error.objecttypes.client.exception": "Er heeft zich helaas een technische fout voor gedaan. Er kunnen geen objecttypes worden opgehaald.",
-  "msg.error.productaanvraagtype.already.in.use": "Ingevoerde productaanvraagtype is al gekoppeld aan een ander zaaktype en kan daarom niet gebruikt worden.",
+  "msg.error.productaanvraagtype.already.in.use": "Dit productaanvraagtype is al gekoppeld aan een ander zaaktype en kan daarom niet gebruikt worden.",
   "msg.error.system.reference.table.cannot.be.deleted": "Een systeem referentietabel kan niet worden verwijderd",
   "msg.error.system.reference.table.system.values.cannot.be.changed": "De waarden van een systeem referentietabel kunnen niet worden gewijzigd",
   "msg.error.reference.table.is.in.use.by.zaakafhandelparameters": "De referentietabel is in gebruik door zaakafhandelparameters en kan niet worden verwijderd.",
