@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -14,7 +14,6 @@ import { catchError, filter, takeUntil } from "rxjs/operators";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { BAGObject } from "../../bag/model/bagobject";
 import { UtilService } from "../../core/service/util.service";
-import { IdentityService } from "../../identity/identity.service";
 import { Group } from "../../identity/model/group";
 import { User } from "../../identity/model/user";
 import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
@@ -85,7 +84,6 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
 
   constructor(
     private zakenService: ZakenService,
-    private identityService: IdentityService,
     private router: Router,
     private navigation: NavigationService,
     private klantenService: KlantenService,
@@ -243,24 +241,36 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
     if (formGroup) {
       const zaak: Zaak = new Zaak();
       Object.keys(formGroup.controls).forEach((key) => {
-        if (key === "vertrouwelijkheidaanduiding") {
-          zaak[key] = formGroup.controls[key].value?.value;
-        } else if (key === "initiatorIdentificatie" && this.initiator != null) {
-          zaak["initiatorIdentificatieType"] = this.initiator.identificatieType;
-          zaak[key] = this.initiator.identificatie;
-        } else if (key === "bagObjecten") {
-          // skip
-        } else if (key === "toekenning") {
-          if (this.medewerkerGroepFormField.formControl.value.medewerker) {
-            zaak.behandelaar =
-              this.medewerkerGroepFormField.formControl.value.medewerker;
+        Object.keys(formGroup.controls).forEach((key) => {
+          switch (key) {
+            case "vertrouwelijkheidaanduiding":
+              zaak[key] = formGroup.controls[key].value?.value;
+              break;
+            case "initiatorIdentificatie":
+              if (this.initiator != null) {
+                zaak["initiatorIdentificatieType"] =
+                  this.initiator.identificatieType;
+                zaak[key] = this.initiator.identificatie;
+              }
+              break;
+            case "bagObjecten":
+              // skip
+              break;
+            case "toekenning":
+              if (this.medewerkerGroepFormField.formControl.value.medewerker) {
+                zaak.behandelaar =
+                  this.medewerkerGroepFormField.formControl.value.medewerker;
+              }
+              if (this.medewerkerGroepFormField.formControl.value.groep) {
+                zaak.groep =
+                  this.medewerkerGroepFormField.formControl.value.groep;
+              }
+              break;
+            default:
+              zaak[key] = formGroup.controls[key].value;
+              break;
           }
-          if (this.medewerkerGroepFormField.formControl.value.groep) {
-            zaak.groep = this.medewerkerGroepFormField.formControl.value.groep;
-          }
-        } else {
-          zaak[key] = formGroup.controls[key].value;
-        }
+        });
       });
       this.zakenService
         .createZaak(
