@@ -10,7 +10,7 @@ import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.RelevanteZaak
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.zac.app.policy.converter.RESTRechtenConverter
+import net.atos.zac.app.policy.converter.RestRechtenConverter
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestGerelateerdeZaak
 import net.atos.zac.policy.PolicyService
@@ -18,7 +18,7 @@ import net.atos.zac.policy.PolicyService
 class RestGerelateerdeZaakConverter @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
-    private val rechtenConverter: RESTRechtenConverter,
+    private val rechtenConverter: RestRechtenConverter,
     private val policyService: PolicyService
 ) {
     fun convert(zaak: Zaak, relatieType: RelatieType?): RestGerelateerdeZaak {

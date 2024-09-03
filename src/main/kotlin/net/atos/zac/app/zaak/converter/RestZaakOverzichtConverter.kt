@@ -11,7 +11,7 @@ import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.identity.converter.RestGroupConverter
 import net.atos.zac.app.identity.converter.RestUserConverter
-import net.atos.zac.app.policy.converter.RESTRechtenConverter
+import net.atos.zac.app.policy.converter.RestRechtenConverter
 import net.atos.zac.app.zaak.model.RestZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.policy.PolicyService
@@ -24,7 +24,7 @@ class RestZaakOverzichtConverter @Inject constructor(
     private val groupConverter: RestGroupConverter,
     private val userConverter: RestUserConverter,
     private val openstaandeTakenConverter: RestOpenstaandeTakenConverter,
-    private val rechtenConverter: RESTRechtenConverter,
+    private val rechtenConverter: RestRechtenConverter,
     private val policyService: PolicyService,
     private val zrcClientService: ZrcClientService,
 ) {

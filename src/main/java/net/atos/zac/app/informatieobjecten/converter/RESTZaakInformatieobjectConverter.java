@@ -17,7 +17,7 @@ import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.app.informatieobjecten.model.RESTZaakInformatieobject;
-import net.atos.zac.app.policy.converter.RESTRechtenConverter;
+import net.atos.zac.app.policy.converter.RestRechtenConverter;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.policy.output.ZaakRechten;
 
@@ -30,7 +30,7 @@ public class RESTZaakInformatieobjectConverter {
     private ZrcClientService zrcClientService;
 
     @Inject
-    private RESTRechtenConverter rechtenConverter;
+    private RestRechtenConverter rechtenConverter;
 
     @Inject
     private PolicyService policyService;

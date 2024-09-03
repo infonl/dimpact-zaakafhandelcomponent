@@ -16,7 +16,7 @@ import net.atos.zac.policy.output.TaakRechten;
 import net.atos.zac.policy.output.WerklijstRechten;
 import net.atos.zac.policy.output.ZaakRechten;
 
-public class RESTRechtenConverter {
+public class RestRechtenConverter {
 
     public RestDocumentRechten convert(final DocumentRechten documentRechten) {
         final RestDocumentRechten restDocumentRechten = new RestDocumentRechten();

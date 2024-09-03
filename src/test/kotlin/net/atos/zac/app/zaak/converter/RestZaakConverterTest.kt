@@ -23,7 +23,7 @@ import net.atos.client.zgw.ztc.model.createStatusType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.app.identity.converter.RestGroupConverter
 import net.atos.zac.app.identity.converter.RestUserConverter
-import net.atos.zac.app.policy.converter.RESTRechtenConverter
+import net.atos.zac.app.policy.converter.RestRechtenConverter
 import net.atos.zac.app.zaak.model.createRestBesluit
 import net.atos.zac.app.zaak.model.createRestGroup
 import net.atos.zac.app.zaak.model.createRestUser
@@ -46,7 +46,7 @@ class RestZaakConverterTest : BehaviorSpec({
     val restUserConverter = mockk<RestUserConverter>()
     val restBesluitConverter = mockk<RestBesluitConverter>()
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
-    val restRechtenConverter = mockk<RESTRechtenConverter>()
+    val restRechtenConverter = mockk<RestRechtenConverter>()
     val restGeometryConverter = mockk<RestGeometryConverter>()
     val policyService = mockk<PolicyService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
