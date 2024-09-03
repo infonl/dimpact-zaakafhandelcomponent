@@ -14,8 +14,8 @@ import net.atos.client.kvk.KvkClientService
 import net.atos.client.kvk.zoeken.model.createAdresWithBinnenlandsAdres
 import net.atos.client.kvk.zoeken.model.createResultaatItem
 import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.zac.app.klant.exception.VestigingNotFoundException
 import java.util.Optional
-import java.util.concurrent.CompletableFuture
 
 const val NON_BREAKING_SPACE = '\u00A0'.toString()
 
@@ -45,29 +45,83 @@ class KlantRestServiceTest : BehaviorSpec({
         )
         val digitalAddressesList = createDigitalAddresses("+123-456-789", "dummy@example.com")
         every {
-            kvkClientService.findVestigingAsync(vestigingsnummer)
-        } returns CompletableFuture.completedFuture(Optional.of(kvkResultaatItem))
+            kvkClientService.findVestiging(vestigingsnummer)
+        } returns Optional.of(kvkResultaatItem)
         every {
             klantClientService.findDigitalAddressesByNumber(vestigingsnummer)
         } returns digitalAddressesList
 
-        When("a request is made to get all klanten") {
+        When("a request is made to get the vestiging") {
             val restBedrijf = klantRestService.readVestiging(vestigingsnummer)
 
-            Then("it should return all klanten") {
+            Then("it should return the vestiging including contact details") {
                 with(restBedrijf) {
+                    this.vestigingsnummer shouldBe vestigingsnummer
                     this.adres shouldBe with(adres.binnenlandsAdres) {
                         "$straatnaam$NON_BREAKING_SPACE$huisnummer$NON_BREAKING_SPACE$huisletter, $postcode, $plaats"
                     }
-                    emailadres shouldBe "dummy@example.com"
                     naam shouldBe kvkResultaatItem.naam
                     kvkNummer shouldBe kvkResultaatItem.kvkNummer
                     postcode shouldBe kvkResultaatItem.adres.binnenlandsAdres.postcode
                     rsin shouldBe kvkResultaatItem.rsin
                     type shouldBe "NEVENVESTIGING"
                     telefoonnummer shouldBe "+123-456-789"
-                    this.vestigingsnummer shouldBe vestigingsnummer
+                    emailadres shouldBe "dummy@example.com"
                 }
+            }
+        }
+    }
+    Given(
+        """
+        a vestiging for which a company exists in the KVK client but for which no customer exists in the klanten client
+        """
+    ) {
+        val vestigingsnummer = "dummyVestigingsnummer"
+        val adres = createAdresWithBinnenlandsAdres()
+        val kvkResultaatItem = createResultaatItem(
+            adres = adres,
+            type = "nevenvestiging",
+            vestingsnummer = vestigingsnummer
+        )
+        every {
+            kvkClientService.findVestiging(vestigingsnummer)
+        } returns Optional.of(kvkResultaatItem)
+        every {
+            klantClientService.findDigitalAddressesByNumber(vestigingsnummer)
+        } returns emptyList()
+
+        When("a request is made to get the vestiging") {
+            val restBedrijf = klantRestService.readVestiging(vestigingsnummer)
+
+            Then("it should return the vestiging without contact details") {
+                with(restBedrijf) {
+                    this.vestigingsnummer shouldBe vestigingsnummer
+                    naam shouldBe kvkResultaatItem.naam
+                    kvkNummer shouldBe kvkResultaatItem.kvkNummer
+                    telefoonnummer shouldBe null
+                    emailadres shouldBe null
+                }
+            }
+        }
+    }
+    Given(
+        """
+        a vestiging which does not exist in the KVK client nor in in the klanten client
+        """
+    ) {
+        val vestigingsnummer = "dummyVestigingsnummer"
+        every {
+            kvkClientService.findVestiging(vestigingsnummer)
+        } returns Optional.empty()
+        every {
+            klantClientService.findDigitalAddressesByNumber(vestigingsnummer)
+        } returns emptyList()
+
+        When("a request is made to get the vestiging") {
+            val exception = shouldThrow<VestigingNotFoundException> { klantRestService.readVestiging(vestigingsnummer) }
+
+            Then("it should throw an exception") {
+                exception.message shouldBe "Geen vestiging gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'"
             }
         }
     }

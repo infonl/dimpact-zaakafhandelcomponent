@@ -55,6 +55,7 @@ import org.hibernate.validator.constraints.Length
 import java.util.EnumSet
 import java.util.Objects
 import java.util.UUID
+import kotlin.jvm.optionals.getOrNull
 
 @Path("klanten")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -89,11 +90,11 @@ class KlantRestService @Inject constructor(
     fun readPersoon(
         @PathParam("bsn") @Length(min = 8, max = 9) bsn: String
     ) = runBlocking {
+        // run the two client calls concurrently in a coroutine scope so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
-            // run the two client calls concurrently in a coroutine scope so we do not need to wait for the first call to complete
-            val digitalAddresses = async { klantClientService.findDigitalAddressesByNumber(bsn) }
+            val klantPersoonDigitalAddresses = async { klantClientService.findDigitalAddressesByNumber(bsn) }
             val brpPersoon = async { brpClientService.retrievePersoon(bsn) }
-            digitalAddresses.await().toRestPersoon().let { klantPersoon ->
+            klantPersoonDigitalAddresses.await().toRestPersoon().let { klantPersoon ->
                 brpPersoon.await()?.toRestPersoon()?.apply {
                     telefoonnummer = klantPersoon.telefoonnummer
                     emailadres = klantPersoon.emailadres
@@ -106,22 +107,22 @@ class KlantRestService @Inject constructor(
     @Path("vestiging/{vestigingsnummer}")
     fun readVestiging(
         @PathParam("vestigingsnummer") vestigingsnummer: String
-    ): RestBedrijf = klantClientService.findDigitalAddressesByNumber(vestigingsnummer)
-        .toRestPersoon().let { klantRestPersoon ->
-            // note that we currently explicitly wait here for the asynchronous client invocation to complete
-            // thereby blocking the request thread
-            kvkClientService.findVestigingAsync(vestigingsnummer).toCompletableFuture().get()
-                .map {
-                    it.toRestBedrijf().apply {
-                        emailadres = klantRestPersoon.emailadres
-                        telefoonnummer = klantRestPersoon.telefoonnummer
-                    }
-                }.orElseThrow {
-                    VestigingNotFoundException(
-                        "Geen vestiging gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'"
-                    )
-                }
+    ) = runBlocking {
+        // run the two client calls concurrently in a coroutine scope so we do not need to wait for the first call to complete
+        withContext(Dispatchers.IO) {
+            val klantVestigingDigitalAddresses =
+                async { klantClientService.findDigitalAddressesByNumber(vestigingsnummer) }
+            val vestiging = async { kvkClientService.findVestiging(vestigingsnummer) }
+            klantVestigingDigitalAddresses.await().toRestPersoon().let { klantVestigingRestPersoon ->
+                vestiging.await().getOrNull()?.toRestBedrijf()?.apply {
+                    emailadres = klantVestigingRestPersoon.emailadres
+                    telefoonnummer = klantVestigingRestPersoon.telefoonnummer
+                } ?: throw VestigingNotFoundException(
+                    "Geen vestiging gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'"
+                )
+            }
         }
+    }
 
     @GET
     @Path("vestigingsprofiel/{vestigingsnummer}")

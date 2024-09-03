@@ -7,7 +7,6 @@ package net.atos.client.kvk;
 
 import java.util.Collections;
 import java.util.Optional;
-import java.util.concurrent.CompletionStage;
 import java.util.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -54,11 +53,6 @@ public class KvkClientService {
         return createEmptyResultaat();
     }
 
-    public CompletionStage<Resultaat> listAsync(final KvkZoekenParameters parameters) {
-        return zoekenClient.getResultsAsync(parameters)
-                .handle(this::handleListAsync);
-    }
-
     public Optional<Vestiging> findVestigingsprofiel(final String vestigingsnummer) {
         return Optional.of(vestigingsprofielClient.getVestigingByVestigingsnummer(vestigingsnummer, false));
     }
@@ -74,12 +68,6 @@ public class KvkClientService {
         final KvkZoekenParameters zoekParameters = new KvkZoekenParameters();
         zoekParameters.setVestigingsnummer(vestigingsnummer);
         return convertToSingleItem(list(zoekParameters));
-    }
-
-    public CompletionStage<Optional<ResultaatItem>> findVestigingAsync(final String vestigingsnummer) {
-        final KvkZoekenParameters zoekParameters = new KvkZoekenParameters();
-        zoekParameters.setVestigingsnummer(vestigingsnummer);
-        return listAsync(zoekParameters).thenApply(this::convertToSingleItem);
     }
 
     public Optional<ResultaatItem> findRechtspersoon(final String rsin) {
