@@ -55,12 +55,12 @@ import net.atos.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestZaaktype
 import net.atos.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
-import net.atos.zac.app.zaak.model.createRESTGroup
-import net.atos.zac.app.zaak.model.createRESTZaak
 import net.atos.zac.app.zaak.model.createRESTZaakAanmaakGegevens
 import net.atos.zac.app.zaak.model.createRESTZaakKoppelGegevens
 import net.atos.zac.app.zaak.model.createRESTZaakToekennenGegevens
 import net.atos.zac.app.zaak.model.createRESTZakenVerdeelGegevens
+import net.atos.zac.app.zaak.model.createRestGroup
+import net.atos.zac.app.zaak.model.createRestZaak
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
@@ -177,15 +177,15 @@ class ZaakRestServiceTest : BehaviorSpec({
         val formulierData = mapOf(Pair("dummyKey", "dummyValue"))
         val objectRegistratieObject = createORObject()
         val productaanvraagDimpact = createProductaanvraagDimpact()
-        val restZaak = createRESTZaak()
+        val restZaak = createRestZaak()
         val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
         val zaakTypeUUID = URIUtil.parseUUIDFromResourceURI(zaakType.url)
         val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
-            zaak = createRESTZaak(
+            zaak = createRestZaak(
                 restZaakType = RestZaaktype(
                     uuid = zaakTypeUUID
                 ),
-                restGroup = createRESTGroup(
+                restGroup = createRestGroup(
                     id = group.id
                 ),
 
@@ -298,7 +298,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         val zaak = createZaak()
         val user = createLoggedInUser()
         val rolSlot = slot<Rol<*>>()
-        val restZaak = createRESTZaak()
+        val restZaak = createRestZaak()
         val rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
         val rolMedewerker = createRolMedewerker()
 
@@ -424,11 +424,9 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     Given("a zaak with tasks exists and zaak and tasks have final date set") {
         val changeDescription = "change description"
-
         val zaak = createZaak()
         val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.minusDays(10)
-
-        val restZaak = createRESTZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate)
+        val restZaak = createRestZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate)
         val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaak, changeDescription)
         val patchedZaak = createZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate)
         val task = mockk<Task>()

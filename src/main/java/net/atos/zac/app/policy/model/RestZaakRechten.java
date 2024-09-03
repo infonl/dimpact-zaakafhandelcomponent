@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.policy.model;
 
-public class RESTZaakRechten {
+public class RestZaakRechten {
 
     public boolean lezen;
 

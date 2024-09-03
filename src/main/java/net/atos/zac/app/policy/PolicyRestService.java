@@ -13,32 +13,32 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.zac.app.policy.converter.RESTRechtenConverter;
-import net.atos.zac.app.policy.model.RESTOverigeRechten;
-import net.atos.zac.app.policy.model.RESTWerklijstRechten;
+import net.atos.zac.app.policy.converter.RestRechtenConverter;
+import net.atos.zac.app.policy.model.RestOverigeRechten;
+import net.atos.zac.app.policy.model.RestWerklijstRechten;
 import net.atos.zac.policy.PolicyService;
 
 @Path("policy")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
-public class PolicyRESTService {
+public class PolicyRestService {
 
     @Inject
     private PolicyService policyService;
 
     @Inject
-    private RESTRechtenConverter rechtenConverter;
+    private RestRechtenConverter rechtenConverter;
 
     @GET
     @Path("werklijstRechten")
-    public RESTWerklijstRechten readWerklijstRechten() {
+    public RestWerklijstRechten readWerklijstRechten() {
         return rechtenConverter.convert(policyService.readWerklijstRechten());
     }
 
     @GET
     @Path("overigeRechten")
-    public RESTOverigeRechten readOverigeRechten() {
+    public RestOverigeRechten readOverigeRechten() {
         return rechtenConverter.convert(policyService.readOverigeRechten());
     }
 }

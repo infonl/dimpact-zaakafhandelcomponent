@@ -40,7 +40,7 @@ import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieObject
 import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject;
 import net.atos.zac.app.informatieobjecten.model.RESTFileUpload;
 import net.atos.zac.app.informatieobjecten.model.RESTGekoppeldeZaakEnkelvoudigInformatieObject;
-import net.atos.zac.app.policy.converter.RESTRechtenConverter;
+import net.atos.zac.app.policy.converter.RestRechtenConverter;
 import net.atos.zac.app.task.model.RestTaskDocumentData;
 import net.atos.zac.app.zaak.model.RelatieType;
 import net.atos.zac.authentication.LoggedInUser;
@@ -62,7 +62,7 @@ public class RESTInformatieobjectConverter {
     private IdentityService identityService;
     private Instance<LoggedInUser> loggedInUserInstance;
     private PolicyService policyService;
-    private RESTRechtenConverter restRechtenConverter;
+    private RestRechtenConverter restRechtenConverter;
     private RESTTaalConverter restTaalConverter;
     private ZrcClientService zrcClientService;
     private ZtcClientService ztcClientService;
@@ -82,7 +82,7 @@ public class RESTInformatieobjectConverter {
             IdentityService identityService,
             Instance<LoggedInUser> loggedInUserInstance,
             PolicyService policyService,
-            RESTRechtenConverter restRechtenConverter,
+            RestRechtenConverter restRechtenConverter,
             RESTTaalConverter restTaalConverter,
             ZrcClientService zrcClientService,
             ZtcClientService ztcClientService

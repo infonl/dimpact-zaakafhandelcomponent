@@ -7,7 +7,7 @@ package net.atos.zac.app.zoeken.converter;
 
 import jakarta.inject.Inject;
 
-import net.atos.zac.app.policy.converter.RESTRechtenConverter;
+import net.atos.zac.app.policy.converter.RestRechtenConverter;
 import net.atos.zac.app.zoeken.model.RESTTaakZoekObject;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.util.DateTimeConverterUtil;
@@ -19,7 +19,7 @@ public class RESTTaakZoekObjectConverter {
     private PolicyService policyService;
 
     @Inject
-    private RESTRechtenConverter restRechtenConverter;
+    private RestRechtenConverter restRechtenConverter;
 
     public RESTTaakZoekObject convert(final TaakZoekObject taakZoekObject) {
         final RESTTaakZoekObject restTaakZoekObject = new RESTTaakZoekObject();

@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.policy.model;
 
-public class RESTWerklijstRechten {
+public class RestWerklijstRechten {
     public boolean inbox;
 
     public boolean ontkoppeldeDocumentenVerwijderen;

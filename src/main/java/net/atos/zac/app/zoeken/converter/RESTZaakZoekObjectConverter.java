@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 import jakarta.inject.Inject;
 
-import net.atos.zac.app.policy.converter.RESTRechtenConverter;
+import net.atos.zac.app.policy.converter.RestRechtenConverter;
 import net.atos.zac.app.zoeken.model.RESTZaakZoekObject;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.util.DateTimeConverterUtil;
@@ -22,7 +22,7 @@ public class RESTZaakZoekObjectConverter {
     private PolicyService policyService;
 
     @Inject
-    private RESTRechtenConverter restRechtenConverter;
+    private RestRechtenConverter restRechtenConverter;
 
     public RESTZaakZoekObject convert(final ZaakZoekObject zoekItem) {
         final RESTZaakZoekObject restZoekItem = new RESTZaakZoekObject();

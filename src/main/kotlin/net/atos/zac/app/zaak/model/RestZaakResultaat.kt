@@ -9,7 +9,7 @@ import nl.lifely.zac.util.NoArgConstructor
 
 @NoArgConstructor
 @AllOpen
-data class RESTZaakResultaat(
+data class RestZaakResultaat(
     var toelichting: String? = null,
 
     var resultaattype: RestResultaattype? = null
