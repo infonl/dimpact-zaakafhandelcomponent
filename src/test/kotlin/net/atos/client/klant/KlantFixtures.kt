@@ -8,12 +8,24 @@ fun createDigitalAddresses(
     phone: String,
     email: String
 ) = listOf(
-    DigitaalAdres(UUID.randomUUID(), URI("dummyUri1")).apply {
+    createDigitalAddress(
+        uri = URI("https://example.com/dummyUr"),
+        address = phone,
         soortDigitaalAdres = "telefoon"
-        adres = phone
-    },
-    DigitaalAdres(UUID.randomUUID(), URI("dummyUri2")).apply {
+    ),
+    createDigitalAddress(
+        uri = URI("https://example.com/dummyUri2"),
+        address = email,
         soortDigitaalAdres = "email"
-        adres = email
-    }
+    )
 )
+
+fun createDigitalAddress(
+    uuid: UUID = UUID.randomUUID(),
+    uri: URI = URI("https://example.com/dummyUri"),
+    address: String = "dummyAddress",
+    soortDigitaalAdres: String = "telefoon"
+) = DigitaalAdres(uuid, uri).apply {
+    this.soortDigitaalAdres = soortDigitaalAdres
+    this.adres = address
+}

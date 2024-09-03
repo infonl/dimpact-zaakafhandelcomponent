@@ -7,7 +7,6 @@ package net.atos.client.brp
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.client.brp.exception.BrpPersonNotFoundException
 import net.atos.client.brp.exception.BrpRuntimeException
 import net.atos.client.brp.model.generated.PersonenQuery
 import net.atos.client.brp.model.generated.PersonenQueryResponse
@@ -84,10 +83,9 @@ class BrpClientService @Inject constructor(
      * Retrieves a person by burgerservicenummer from the BRP Personen API asynchronously.
      *
      * @param burgerservicenummer the burgerservicenummer of the person to retrieve
-     * @return a CompletionStage with the person if found, otherwise throws an exception
-     * @throws BrpPersonNotFoundException if no person is found for the given burgerservicenummer
+     * @return a CompletionStage with the person if found, otherwise null
      */
-    fun retrievePersoonAsync(burgerservicenummer: String): CompletionStage<Persoon> =
+    fun retrievePersoonAsync(burgerservicenummer: String): CompletionStage<Persoon?> =
         createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer).let {
             personenApi.personenAsync(it)
                 .handle { response, exception ->
@@ -101,9 +99,8 @@ class BrpClientService @Inject constructor(
                             }
                             return@handle persons.first()
                         } else {
-                            throw BrpPersonNotFoundException(
-                                "No person found for burgerservicenummer: $burgerservicenummer"
-                            )
+                            LOG.info("No person found for burgerservicenummer: $burgerservicenummer")
+                            null
                         }
                     }
                     exception?.let { e ->
