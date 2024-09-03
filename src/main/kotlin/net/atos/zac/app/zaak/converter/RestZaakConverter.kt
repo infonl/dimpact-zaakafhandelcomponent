@@ -5,7 +5,6 @@
 package net.atos.zac.app.zaak.converter
 
 import jakarta.inject.Inject
-import jakarta.ws.rs.core.Response
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.ZGWApiService
