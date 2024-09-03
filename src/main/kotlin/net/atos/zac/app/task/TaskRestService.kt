@@ -45,6 +45,7 @@ import net.atos.zac.authentication.ActiveSession
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.event.EventingService
+import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
@@ -241,12 +242,11 @@ class TaskRestService @Inject constructor(
             processHardCodedFormTask(restTask, zaak)
         }
 
-        flowableTaskService.completeTask(updatedTask).let {
+        return flowableTaskService.completeTask(updatedTask).also {
             indexeerService.addOrUpdateZaak(restTask.zaakUuid, false)
             eventingService.send(ScreenEventType.TAAK.updated(it))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
-            return restTaskConverter.convert(it)
-        }
+        }.let(restTaskConverter::convert)
     }
 
     private fun processHardCodedFormTask(restTask: RestTask, zaak: Zaak): Task {

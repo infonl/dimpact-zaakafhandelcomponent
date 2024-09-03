@@ -9,7 +9,10 @@ import static org.apache.commons.lang3.StringUtils.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
@@ -28,9 +31,9 @@ import net.atos.zac.admin.model.ReferenceTableValue;
 import net.atos.zac.app.formulieren.model.FormulierData;
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService;
 import net.atos.zac.app.task.model.RestTask;
-import net.atos.zac.flowable.FlowableTaskService;
-import net.atos.zac.flowable.TaakVariabelenService;
 import net.atos.zac.flowable.ZaakVariabelenService;
+import net.atos.zac.flowable.task.FlowableTaskService;
+import net.atos.zac.flowable.task.TaakVariabelenService;
 import net.atos.zac.formulieren.model.FormulierVeldtype;
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.shared.helper.OpschortenZaakHelper;
@@ -178,8 +181,8 @@ public class FormulierRuntimeService {
         return switch (defaultValue) {
             case "TAAK:STARTDATUM" -> context.getTask().getCreatiedatumTijd().format(DATUM_FORMAAT);
             case "TAAK:FATALE_DATUM" -> context.getTask().getFataledatum().format(DATUM_FORMAAT);
-            case "TAAK:GROEP" -> context.getTask().getGroep() != null ? context.getTask().getGroep().naam : null;
-            case "TAAK:BEHANDELAAR" -> context.getTask().getBehandelaar() != null ? context.getTask().getBehandelaar().naam : null;
+            case "TAAK:GROEP" -> context.getTask().getGroep() != null ? context.getTask().getGroep().getNaam() : null;
+            case "TAAK:BEHANDELAAR" -> context.getTask().getBehandelaar() != null ? context.getTask().getBehandelaar().getNaam() : null;
             case "ZAAK:STARTDATUM" -> context.getZaak().getStartdatum().format(DATUM_FORMAAT);
             case "ZAAK:FATALE_DATUM" -> context.getZaak().getUiterlijkeEinddatumAfdoening().format(DATUM_FORMAAT);
             case "ZAAK:STREEFDATUM" -> context.getZaak().getEinddatumGepland().format(DATUM_FORMAAT);
