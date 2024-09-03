@@ -7,14 +7,12 @@ package net.atos.zac.zoeken
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import jakarta.transaction.Transactional
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.app.task.model.TaakSortering
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -29,10 +27,8 @@ import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.client.solrj.response.QueryResponse
-import org.apache.solr.common.SolrDocument
 import org.apache.solr.common.params.CursorMarkParams
 import org.eclipse.microprofile.config.ConfigProvider
-import org.flowable.task.api.Task
 import java.io.IOException
 import java.util.UUID
 import java.util.logging.Logger
@@ -53,13 +49,16 @@ class IndexingService @Inject constructor(
         private const val TAKEN_MAX_RESULTS = 50
 
         private val LOG = Logger.getLogger(IndexingService::class.java.name)
+        private val reindexingViewfinder = mutableSetOf<ZoekObjectType>()
 
-        private val reindexingViewfinder: MutableSet<ZoekObjectType> = HashSet()
+        private lateinit var solrClient: SolrClient
     }
 
-    private val solrClient: SolrClient = Http2SolrClient.Builder(
-        "${ConfigProvider.getConfig().getValue("solr.url", String::class.java)}/solr/$SOLR_CORE"
-    ).build()
+    init {
+        solrClient = Http2SolrClient.Builder(
+            "${ConfigProvider.getConfig().getValue("solr.url", String::class.java)}/solr/$SOLR_CORE"
+        ).build()
+    }
 
     /**
      * Adds objectId to the Solr index and optionally performs a (hard) Solr commit so
@@ -83,24 +82,23 @@ class IndexingService @Inject constructor(
      * @param performCommit whether to perform a hard Solr commit
      */
     fun indexeerDirect(objectIds: List<String>, objectType: ZoekObjectType, performCommit: Boolean) =
-        addToSolrIndex(objectIds.map { objectId: String -> getConverter(objectType).convert(objectId) }, performCommit)
+        addToSolrIndex(objectIds.map { getConverter(objectType).convert(it) }, performCommit)
 
-    @Transactional(Transactional.TxType.NEVER)
     fun reindex(objectType: ZoekObjectType) {
         if (reindexingViewfinder.contains(objectType)) {
-            logTypeMessage(objectType, "Herindexeren niet gestart, is nog bezig")
+            logTypeMessage(objectType, "Reindexing not started, still in progress")
             return
         }
         reindexingViewfinder.add(objectType)
         try {
-            logTypeMessage(objectType, "Herindexeren gestart...")
+            logTypeMessage(objectType, "Reindexing started ...")
             removeEntitiesFromSolrIndex(objectType)
             when (objectType) {
                 ZoekObjectType.ZAAK -> reindexAllZaken()
                 ZoekObjectType.DOCUMENT -> reindexAllInformatieobjecten()
                 ZoekObjectType.TAAK -> reindexAllTaken()
             }
-            logTypeMessage(objectType, "Herindexeren gestopt")
+            logTypeMessage(objectType, "Reindexing finished successfully")
         } finally {
             reindexingViewfinder.remove(objectType)
         }
@@ -109,39 +107,33 @@ class IndexingService @Inject constructor(
     fun addOrUpdateZaak(zaakUUID: UUID?, inclusiefTaken: Boolean) {
         indexeerDirect(zaakUUID.toString(), ZoekObjectType.ZAAK, false)
         if (inclusiefTaken) {
-            flowableTaskService.listOpenTasksForZaak(zaakUUID).stream()
-                .map { obj: Task -> obj.id }
-                .forEach { taskID: String -> this.addOrUpdateTaak(taskID) }
+            flowableTaskService.listOpenTasksForZaak(zaakUUID)
+                .map { it.id }
+                .forEach { id -> this.addOrUpdateTaak(id) }
         }
     }
 
-    fun addOrUpdateInformatieobject(informatieobjectUUID: UUID) {
+    fun addOrUpdateInformatieobject(informatieobjectUUID: UUID) =
         indexeerDirect(informatieobjectUUID.toString(), ZoekObjectType.DOCUMENT, false)
-    }
 
-    fun addOrUpdateInformatieobjectByZaakinformatieobject(zaakinformatieobjectUUID: UUID) {
+    fun addOrUpdateInformatieobjectByZaakinformatieobject(zaakinformatieobjectUUID: UUID) =
         addOrUpdateInformatieobject(
             UriUtil.uuidFromURI(
                 zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID).informatieobject
             )
         )
-    }
 
-    fun addOrUpdateTaak(taskID: String) {
+    fun addOrUpdateTaak(taskID: String) =
         indexeerDirect(taskID, ZoekObjectType.TAAK, false)
-    }
 
-    fun removeZaak(zaakUUID: UUID) {
+    fun removeZaak(zaakUUID: UUID) =
         removeFromSolrIndex(zaakUUID.toString())
-    }
 
-    fun removeInformatieobject(informatieobjectUUID: UUID) {
+    fun removeInformatieobject(informatieobjectUUID: UUID) =
         removeFromSolrIndex(informatieobjectUUID.toString())
-    }
 
-    fun removeTaak(taskID: String) {
+    fun removeTaak(taskID: String) =
         removeFromSolrIndex(taskID.toString())
-    }
 
     fun commit() {
         try {
@@ -154,14 +146,11 @@ class IndexingService @Inject constructor(
         }
     }
 
-    private fun getConverter(objectType: ZoekObjectType): AbstractZoekObjectConverter<out ZoekObject> {
-        for (converter in converterInstances) {
-            if (converter.supports(objectType)) {
-                return converter
-            }
-        }
-        throw IndexingException("[$objectType] No converter found")
-    }
+    private fun getConverter(objectType: ZoekObjectType): AbstractZoekObjectConverter<out ZoekObject> =
+        converterInstances
+            .find { it.supports(objectType) }
+            .takeIf { it != null }
+            ?: throw IndexingException("[$objectType] No converter found")
 
     private fun addToSolrIndex(zoekObjecten: List<ZoekObject?>, performCommit: Boolean) {
         val beansToBeAdded = zoekObjecten.filterNotNull()
@@ -203,16 +192,16 @@ class IndexingService @Inject constructor(
         }
     }
 
-    private fun logProgress(objectType: ZoekObjectType, voortgang: Long, grootte: Long) {
+    private fun logProgress(objectType: ZoekObjectType, voortgang: Long, grootte: Long) =
         logTypeMessage(objectType, "reindexed: $voortgang / $grootte")
-    }
 
     private fun removeEntitiesFromSolrIndex(objectType: ZoekObjectType) {
-        val query = SolrQuery("*:*")
-        query.setFields("id")
-        query.addFilterQuery("type:$objectType")
-        query.addSort("id", SolrQuery.ORDER.asc)
-        query.setRows(SOLR_MAX_RESULT)
+        val query = SolrQuery("*:*").apply {
+            setFields("id")
+            addFilterQuery("type:$objectType")
+            addSort("id", SolrQuery.ORDER.asc)
+            rows = SOLR_MAX_RESULT
+        }
         var cursorMark = CursorMarkParams.CURSOR_MARK_START
         var done = false
         while (!done) {
@@ -227,8 +216,8 @@ class IndexingService @Inject constructor(
             }
             removeFromSolrIndex(
                 response.results
-                    .mapNotNull { document: SolrDocument -> document["id"] }
-                    .map { obj: kotlin.Any -> obj.toString() }
+                    .mapNotNull { document -> document["id"] }
+                    .map { it.toString() }
             )
             val nextCursorMark = response.nextCursorMark
             if (cursorMark == nextCursorMark) {
@@ -269,11 +258,9 @@ class IndexingService @Inject constructor(
     private fun reindexZaken(listParameters: ZaakListParameters): Boolean {
         val zaakResults = zrcClientService.listZaken(listParameters)
         indexeerDirect(
-            zaakResults.results
-                .map { obj: Zaak -> obj.uuid }
-                .map { obj: UUID -> obj.toString() },
+            zaakResults.results.map { it.uuid.toString() },
             ZoekObjectType.ZAAK,
-            false
+            performCommit = false
         )
         logProgress(
             ZoekObjectType.ZAAK,
@@ -289,11 +276,9 @@ class IndexingService @Inject constructor(
     ): Boolean {
         val enkelvoudigInformatieObjectenResults = drcClientService.listEnkelvoudigInformatieObjecten(listParameters)
         indexeerDirect(
-            enkelvoudigInformatieObjectenResults.results
-                .map { URIUtil.parseUUIDFromResourceURI(it.url) }
-                .map { it.toString() },
+            enkelvoudigInformatieObjectenResults.results.map { URIUtil.parseUUIDFromResourceURI(it.url).toString() },
             ZoekObjectType.DOCUMENT,
-            false
+            performCommit = false
         )
         logProgress(
             ZoekObjectType.DOCUMENT,
@@ -312,7 +297,11 @@ class IndexingService @Inject constructor(
             firstResult,
             TAKEN_MAX_RESULTS
         )
-        indexeerDirect(tasks.map { it.id }, ZoekObjectType.TAAK, false)
+        indexeerDirect(
+            tasks.map { it.id },
+            ZoekObjectType.TAAK,
+            performCommit = false
+        )
         if (tasks.isNotEmpty()) {
             logProgress(ZoekObjectType.TAAK, firstResult.toLong() + tasks.size, numberOfTasks)
             return tasks.size == TAKEN_MAX_RESULTS
