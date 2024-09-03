@@ -1,9 +1,8 @@
 package net.atos.zac.zoeken
 
-import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkConstructor
@@ -127,13 +126,18 @@ class IndexingServiceTest : BehaviorSpec({
         )
 
         beforeContainer {
+            clearMocks(solrClient)
+
             every { queryResponse.results } returns documentList
             every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
 
             every { solrClient.query(any()) } returns queryResponse
             every { solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
 
-            every { zrcClientService.listZaken(any<ZaakListParameters>()) } returns Results(zaken, 2)
+            every { zrcClientService.listZaken(any<ZaakListParameters>()) } returnsMany listOf(
+                Results(zaken, 2),
+                Results(emptyList(), 0)
+            )
 
             every { zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
             every { converterInstances.iterator() } returns converterInstancesIterator
@@ -161,12 +165,13 @@ class IndexingServiceTest : BehaviorSpec({
             val solrException = SolrServerException("Solr exception")
             every { solrClient.addBeans(any<Collection<*>>()) } throws solrException
 
-            val exception = shouldThrowExactly<IndexingException> {
-                indexingService.reindex(ZoekObjectType.ZAAK)
-            }
+            indexingService.reindex(ZoekObjectType.ZAAK)
 
-            Then("it re-throws the exception") {
-                exception.cause shouldBe solrException
+            Then("ignores errors") {
+                verify(exactly = 1) {
+                    solrClient.deleteById(any<List<String>>())
+                    solrClient.addBeans(any<Collection<*>>())
+                }
             }
         }
     }

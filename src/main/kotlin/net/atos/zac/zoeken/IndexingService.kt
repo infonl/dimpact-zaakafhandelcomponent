@@ -26,12 +26,12 @@ import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.impl.Http2SolrClient
-import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.common.params.CursorMarkParams
 import org.eclipse.microprofile.config.ConfigProvider
 import java.io.IOException
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import java.util.logging.Level
 import java.util.logging.Logger
 
 @Singleton
@@ -137,7 +137,7 @@ class IndexingService @Inject constructor(
         removeFromSolrIndex(taskID.toString())
 
     fun commit() {
-        wrapInIndexingException<Any> {
+        runTranslatingToIndexingException {
             // this overload waits until the solr searcher is done, which is what we want
             solrClient.commit(null, true, true)
         }
@@ -153,7 +153,7 @@ class IndexingService @Inject constructor(
         if (beansToBeAdded.isEmpty()) {
             return
         }
-        wrapInIndexingException<Any> {
+        runTranslatingToIndexingException {
             solrClient.addBeans(beansToBeAdded)
             if (performCommit) {
                 commit()
@@ -165,13 +165,13 @@ class IndexingService @Inject constructor(
         if (idsToBeDeleted.isEmpty()) {
             return
         }
-        wrapInIndexingException<Any> {
+        runTranslatingToIndexingException {
             solrClient.deleteById(idsToBeDeleted)
         }
     }
 
     private fun removeFromSolrIndex(id: String) {
-        wrapInIndexingException<Any> {
+        runTranslatingToIndexingException {
             solrClient.deleteById(id)
         }
     }
@@ -184,23 +184,16 @@ class IndexingService @Inject constructor(
             rows = SOLR_MAX_RESULTS
         }
         var cursorMark = CursorMarkParams.CURSOR_MARK_START
-        var done = false
-        while (!done) {
+        while (true) {
             query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark)
-            val response = wrapInIndexingException<QueryResponse> {
-                solrClient.query(query)
+            val response = runTranslatingToIndexingException { solrClient.query(query) }
+            runIgnoringExceptions(objectType) {
+                removeFromSolrIndex(response.results.mapNotNull { it["id"].toString() })
             }
-            removeFromSolrIndex(
-                response.results
-                    .mapNotNull { document -> document["id"] }
-                    .map { it.toString() }
-            )
-            val nextCursorMark = response.nextCursorMark
-            if (cursorMark == nextCursorMark) {
-                done = true
-            } else {
-                cursorMark = nextCursorMark
+            if (cursorMark == response.nextCursorMark) {
+                break
             }
+            cursorMark = response.nextCursorMark
         }
     }
 
@@ -209,7 +202,7 @@ class IndexingService @Inject constructor(
             ordering = "-identificatie"
             page = ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS
         }
-        while (reindexZaken(listParameters)) {
+        while (runIgnoringExceptions(ZoekObjectType.ZAAK) { reindexZaken(listParameters) } != false) {
             listParameters.page++
         }
     }
@@ -218,7 +211,7 @@ class IndexingService @Inject constructor(
         val listParameters = EnkelvoudigInformatieobjectListParameters().apply {
             page = ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS
         }
-        while (reindexInformatieobjecten(listParameters)) {
+        while (runIgnoringExceptions(ZoekObjectType.DOCUMENT) { reindexInformatieobjecten(listParameters) } != false) {
             listParameters.page++
         }
     }
@@ -226,7 +219,7 @@ class IndexingService @Inject constructor(
     private fun reindexAllTaken() {
         val numberOfTasks = flowableTaskService.countOpenTasks()
         var page = 0
-        while (reindexTaken(page, numberOfTasks)) {
+        while (runIgnoringExceptions(ZoekObjectType.TAAK) { reindexTaken(page, numberOfTasks) } != false) {
             page++
         }
     }
@@ -288,10 +281,13 @@ class IndexingService @Inject constructor(
     private fun logTypeMessage(objectType: ZoekObjectType, message: String) =
         LOG.info("[$objectType] $message")
 
+    private fun logTypeError(objectType: ZoekObjectType, error: Throwable) =
+        LOG.log(Level.WARNING, "[$objectType] Error during indexing", error)
+
     private fun logProgress(objectType: ZoekObjectType, voortgang: Long, grootte: Long) =
         logTypeMessage(objectType, "reindexed: $voortgang / $grootte")
 
-    private fun <T> wrapInIndexingException(fn: () -> T): T {
+    private fun <T> runTranslatingToIndexingException(fn: () -> T): T {
         try {
             return fn()
         } catch (solrServerException: SolrServerException) {
@@ -299,5 +295,15 @@ class IndexingService @Inject constructor(
         } catch (ioException: IOException) {
             throw IndexingException(ioException)
         }
+    }
+
+    private fun <T> runIgnoringExceptions(objectType: ZoekObjectType, fn: () -> T): T? {
+        try {
+            return runTranslatingToIndexingException { fn() }
+        } catch (indexingException: IndexingException) {
+            logTypeError(objectType, indexingException)
+        }
+
+        return null
     }
 }
