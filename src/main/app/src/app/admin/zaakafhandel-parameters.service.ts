@@ -5,7 +5,7 @@
 
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { Observable, throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { Resultaattype } from "../zaken/model/resultaattype";
@@ -94,7 +94,10 @@ export class ZaakafhandelParametersService {
     return this.http
       .put<ZaakafhandelParameters>(`${this.basepath}`, zaakafhandelparameters)
       .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+        catchError((err) => {
+          this.foutAfhandelingService.foutAfhandelen(err);
+          return throwError(() => err);
+        }),
       );
   }
 
