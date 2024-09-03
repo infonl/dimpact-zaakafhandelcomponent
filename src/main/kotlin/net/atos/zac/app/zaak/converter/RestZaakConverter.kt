@@ -34,7 +34,6 @@ import net.atos.zac.policy.PolicyService
 import net.atos.zac.util.PeriodUtil
 import net.atos.zac.zoeken.model.ZaakIndicatie
 import org.apache.commons.collections4.CollectionUtils
-import org.apache.commons.lang3.StringUtils
 import java.time.LocalDate
 import java.time.Period
 import java.util.EnumSet
@@ -102,11 +101,7 @@ class RestZaakConverter @Inject constructor(
             status = status?.let { toRestZaakStatus(it, statustype!!) },
             resultaat = zaak.resultaat?.let(restZaakResultaatConverter::convert),
             isOpgeschort = zaak.isOpgeschort,
-            redenOpschorting = if (zaak.isOpgeschort || StringUtils.isNotEmpty(zaak.opschorting.reden)) {
-                zaak.opschorting.reden
-            } else {
-                null
-            },
+            redenOpschorting = takeIf { zaak.isOpgeschort }?.let { zaak.opschorting?.reden },
             isVerlengd = zaak.isVerlengd,
             duurVerlenging = if (zaak.isVerlengd) PeriodUtil.format(zaak.verlenging.duur) else null,
             redenVerlenging = if (zaak.isVerlengd) zaak.verlenging.reden else null,
@@ -123,6 +118,8 @@ class RestZaakConverter @Inject constructor(
                 BetrokkeneType.NATUURLIJK_PERSOON -> IdentificatieType.BSN
                 BetrokkeneType.VESTIGING -> IdentificatieType.VN
                 BetrokkeneType.NIET_NATUURLIJK_PERSOON -> IdentificatieType.RSIN
+                // betrokkeneType may be null
+                null -> null
                 else -> {
                     LOG.warning(
                         "Initiator identificatie type: '$betrokkeneType' is not supported for zaak with UUID: '${zaak.uuid}'"
@@ -140,7 +137,7 @@ class RestZaakConverter @Inject constructor(
             ).orElse(false),
             isBesluittypeAanwezig = CollectionUtils.isNotEmpty(zaaktype.besluittypen),
             isProcesGestuurd = bpmnService.isProcesGestuurd(zaak.uuid),
-            rechten = restRechtenConverter.convert(policyService.readZaakRechten(zaak, zaaktype)),
+            rechten = policyService.readZaakRechten(zaak, zaaktype).let(restRechtenConverter::convert),
             zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid),
             indicaties = when {
                 zaak.is_Hoofdzaak -> EnumSet.of(ZaakIndicatie.HOOFDZAAK)

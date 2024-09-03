@@ -7,7 +7,7 @@ package net.atos.zac.app.gebruikersvoorkeuren.model;
 
 import java.util.List;
 
-import net.atos.zac.app.policy.model.RESTWerklijstRechten;
+import net.atos.zac.app.policy.model.RestWerklijstRechten;
 
 public class RESTTabelGegevens {
 
@@ -15,7 +15,7 @@ public class RESTTabelGegevens {
 
     public List<Integer> pageSizeOptions;
 
-    public RESTWerklijstRechten werklijstRechten;
+    public RestWerklijstRechten werklijstRechten;
 
 
 }

@@ -7,7 +7,7 @@ package net.atos.zac.app.zaak.model
 import com.fasterxml.jackson.annotation.JsonFormat
 import net.atos.zac.app.identity.model.RestGroup
 import net.atos.zac.app.identity.model.RestUser
-import net.atos.zac.app.policy.model.RESTZaakRechten
+import net.atos.zac.app.policy.model.RestZaakRechten
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate
@@ -44,9 +44,9 @@ data class RestZaakOverzicht(
 
     var groep: RestGroup? = null,
 
-    var resultaat: RESTZaakResultaat? = null,
+    var resultaat: RestZaakResultaat? = null,
 
     var openstaandeTaken: RestOpenstaandeTaken? = null,
 
-    var rechten: RESTZaakRechten? = null
+    var rechten: RestZaakRechten? = null
 )

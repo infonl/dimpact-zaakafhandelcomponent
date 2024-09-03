@@ -5,11 +5,11 @@
 
 package net.atos.zac.app.policy.converter;
 
-import net.atos.zac.app.policy.model.RESTDocumentRechten;
-import net.atos.zac.app.policy.model.RESTOverigeRechten;
-import net.atos.zac.app.policy.model.RESTTaakRechten;
-import net.atos.zac.app.policy.model.RESTWerklijstRechten;
-import net.atos.zac.app.policy.model.RESTZaakRechten;
+import net.atos.zac.app.policy.model.RestDocumentRechten;
+import net.atos.zac.app.policy.model.RestOverigeRechten;
+import net.atos.zac.app.policy.model.RestTaakRechten;
+import net.atos.zac.app.policy.model.RestWerklijstRechten;
+import net.atos.zac.app.policy.model.RestZaakRechten;
 import net.atos.zac.policy.output.DocumentRechten;
 import net.atos.zac.policy.output.OverigeRechten;
 import net.atos.zac.policy.output.TaakRechten;
@@ -18,8 +18,8 @@ import net.atos.zac.policy.output.ZaakRechten;
 
 public class RESTRechtenConverter {
 
-    public RESTDocumentRechten convert(final DocumentRechten documentRechten) {
-        final RESTDocumentRechten restDocumentRechten = new RESTDocumentRechten();
+    public RestDocumentRechten convert(final DocumentRechten documentRechten) {
+        final RestDocumentRechten restDocumentRechten = new RestDocumentRechten();
         restDocumentRechten.lezen = documentRechten.lezen();
         restDocumentRechten.wijzigen = documentRechten.wijzigen();
         restDocumentRechten.ontgrendelen = documentRechten.ontgrendelen();
@@ -30,8 +30,8 @@ public class RESTRechtenConverter {
         return restDocumentRechten;
     }
 
-    public RESTTaakRechten convert(final TaakRechten taakRechten) {
-        final RESTTaakRechten restTaakRechten = new RESTTaakRechten();
+    public RestTaakRechten convert(final TaakRechten taakRechten) {
+        final RestTaakRechten restTaakRechten = new RestTaakRechten();
         restTaakRechten.lezen = taakRechten.lezen();
         restTaakRechten.wijzigen = taakRechten.wijzigen();
         restTaakRechten.toekennen = taakRechten.toekennen();
@@ -39,8 +39,8 @@ public class RESTRechtenConverter {
         return restTaakRechten;
     }
 
-    public RESTZaakRechten convert(final ZaakRechten zaakRechten) {
-        final RESTZaakRechten restZaakRechten = new RESTZaakRechten();
+    public RestZaakRechten convert(final ZaakRechten zaakRechten) {
+        final RestZaakRechten restZaakRechten = new RestZaakRechten();
         restZaakRechten.lezen = zaakRechten.lezen();
         restZaakRechten.wijzigen = zaakRechten.wijzigen();
         restZaakRechten.toekennen = zaakRechten.toekennen();
@@ -62,8 +62,8 @@ public class RESTRechtenConverter {
         return restZaakRechten;
     }
 
-    public RESTWerklijstRechten convert(final WerklijstRechten werklijstrechten) {
-        final RESTWerklijstRechten restWerklijstRechten = new RESTWerklijstRechten();
+    public RestWerklijstRechten convert(final WerklijstRechten werklijstrechten) {
+        final RestWerklijstRechten restWerklijstRechten = new RestWerklijstRechten();
         restWerklijstRechten.inbox = werklijstrechten.inbox();
         restWerklijstRechten.ontkoppeldeDocumentenVerwijderen = werklijstrechten.ontkoppeldeDocumentenVerwijderen();
         restWerklijstRechten.inboxProductaanvragenVerwijderen = werklijstrechten.inboxProductaanvragenVerwijderen();
@@ -73,8 +73,8 @@ public class RESTRechtenConverter {
         return restWerklijstRechten;
     }
 
-    public RESTOverigeRechten convert(final OverigeRechten overigeRechten) {
-        final RESTOverigeRechten restOverigeRechten = new RESTOverigeRechten();
+    public RestOverigeRechten convert(final OverigeRechten overigeRechten) {
+        final RestOverigeRechten restOverigeRechten = new RestOverigeRechten();
         restOverigeRechten.startenZaak = overigeRechten.startenZaak();
         restOverigeRechten.beheren = overigeRechten.beheren();
         restOverigeRechten.zoeken = overigeRechten.zoeken();

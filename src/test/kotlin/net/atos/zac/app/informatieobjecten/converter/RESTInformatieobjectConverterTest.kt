@@ -25,7 +25,7 @@ import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatie
 import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
 import net.atos.zac.app.policy.converter.RESTRechtenConverter
-import net.atos.zac.app.policy.model.RESTDocumentRechten
+import net.atos.zac.app.policy.model.RestDocumentRechten
 import net.atos.zac.app.policy.model.createRESTDocumentRechten
 import net.atos.zac.app.task.model.createRestTaskDocumentData
 import net.atos.zac.authentication.LoggedInUser
@@ -247,7 +247,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec({
         } returns rechten
         every {
             restRechtenConverter.convert(rechten)
-        } returns RESTDocumentRechten()
+        } returns RestDocumentRechten()
         every {
             brcClientService.isInformatieObjectGekoppeldAanBesluit(document.url)
         } returns false

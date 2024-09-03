@@ -15,7 +15,7 @@ import jakarta.ws.rs.FormParam;
 
 import net.atos.client.zgw.drc.model.generated.StatusEnum;
 import net.atos.zac.app.identity.model.RestUser;
-import net.atos.zac.app.policy.model.RESTDocumentRechten;
+import net.atos.zac.app.policy.model.RestDocumentRechten;
 import net.atos.zac.zoeken.model.DocumentIndicatie;
 
 /**
@@ -116,5 +116,5 @@ public class RESTEnkelvoudigInformatieobject extends RESTEnkelvoudigInformatieFi
     public boolean isBesluitDocument;
 
     @FormParam("rechten")
-    public RESTDocumentRechten rechten;
+    public RestDocumentRechten rechten;
 }

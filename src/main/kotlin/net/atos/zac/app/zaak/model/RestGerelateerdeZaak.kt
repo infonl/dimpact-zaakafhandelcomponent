@@ -4,7 +4,7 @@
  */
 package net.atos.zac.app.zaak.model
 
-import net.atos.zac.app.policy.model.RESTZaakRechten
+import net.atos.zac.app.policy.model.RestZaakRechten
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate
@@ -22,5 +22,5 @@ data class RestGerelateerdeZaak(
 
     var startdatum: LocalDate? = null,
 
-    var rechten: RESTZaakRechten? = null,
+    var rechten: RestZaakRechten? = null,
 )
