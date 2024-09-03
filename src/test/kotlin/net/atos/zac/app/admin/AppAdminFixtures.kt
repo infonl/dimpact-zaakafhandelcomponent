@@ -58,13 +58,15 @@ fun createRestReferenceTableValue(
 )
 
 fun createRestZaakAfhandelParameters(
-    id: Long = 1234L,
+    id: Long? = 1234L,
     domein: String = "dummyDomein",
-    restZaaktypeOverzicht: RESTZaaktypeOverzicht = createRESTZaaktypeOverzicht()
+    restZaaktypeOverzicht: RESTZaaktypeOverzicht = createRESTZaaktypeOverzicht(),
+    productaanvraagtype: String? = null
 ) = RestZaakafhandelParameters(
     id = id,
     domein = domein,
-    zaaktype = restZaaktypeOverzicht
+    zaaktype = restZaaktypeOverzicht,
+    productaanvraagtype = productaanvraagtype
 )
 
 @Suppress("LongParameterList")

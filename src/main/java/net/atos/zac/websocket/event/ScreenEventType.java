@@ -27,7 +27,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import net.atos.client.zgw.brc.model.generated.Besluit;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.zac.app.zaak.model.RESTZaakOverzicht;
+import net.atos.zac.app.zaak.model.RestZaakOverzicht;
 import net.atos.zac.event.Opcode;
 import net.atos.zac.notificaties.Channel;
 import net.atos.zac.notificaties.Notificatie;
@@ -129,7 +129,7 @@ public enum ScreenEventType {
         public ScreenEvent event(
                 final Opcode opcode,
                 final String eventResourceId,
-                List<RESTZaakOverzicht> restZaakOverzichtList
+                List<RestZaakOverzicht> restZaakOverzichtList
         ) throws JsonProcessingException {
             return instance(opcode, this, eventResourceId, restZaakOverzichtList);
         }
@@ -215,7 +215,7 @@ public enum ScreenEventType {
             final Opcode opcode,
             final ScreenEventType type,
             final String eventResourceId,
-            final List<RESTZaakOverzicht> restZaakOverzichtList
+            final List<RestZaakOverzicht> restZaakOverzichtList
     ) throws JsonProcessingException {
         String details = OBJECT_WRITER.writeValueAsString(restZaakOverzichtList);
         return instance(opcode, type, eventResourceId, details);
@@ -270,7 +270,7 @@ public enum ScreenEventType {
     public ScreenEvent event(
             final Opcode opcode,
             final String signaleringResourceId,
-            final List<RESTZaakOverzicht> restZaakOverzichtList
+            final List<RestZaakOverzicht> restZaakOverzichtList
     ) throws JsonProcessingException {
         throw new IllegalArgumentException(); // Not allowed except for object types where this method has an override
     }
@@ -363,7 +363,7 @@ public enum ScreenEventType {
 
     public final ScreenEvent updated(
             final String eventResourceId,
-            final List<RESTZaakOverzicht> restZaakOverzichtList
+            final List<RestZaakOverzicht> restZaakOverzichtList
     ) throws JsonProcessingException {
         return event(UPDATED, eventResourceId, restZaakOverzichtList);
     }

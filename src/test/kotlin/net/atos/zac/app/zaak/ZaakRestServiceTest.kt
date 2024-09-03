@@ -45,15 +45,15 @@ import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.besluit.BesluitService
 import net.atos.zac.app.zaak.ZaakRestService.Companion.AANVULLENDE_INFORMATIE_TASK_NAME
-import net.atos.zac.app.zaak.converter.RESTGeometryConverter
 import net.atos.zac.app.zaak.converter.RestBesluitConverter
+import net.atos.zac.app.zaak.converter.RestGeometryConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
 import net.atos.zac.app.zaak.converter.historie.RESTZaakHistorieRegelConverter
 import net.atos.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
-import net.atos.zac.app.zaak.model.RESTZaaktype
 import net.atos.zac.app.zaak.model.RelatieType
+import net.atos.zac.app.zaak.model.RestZaaktype
 import net.atos.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
 import net.atos.zac.app.zaak.model.createRESTGroup
 import net.atos.zac.app.zaak.model.createRESTZaak
@@ -117,7 +117,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val productaanvraagService = mockk<ProductaanvraagService>()
     val restBAGConverter = mockk<RESTBAGConverter>()
     val restBesluitConverter = mockk<RestBesluitConverter>()
-    val restGeometryConverter = mockk<RESTGeometryConverter>()
+    val restGeometryConverter = mockk<RestGeometryConverter>()
     val restZaakConverter = mockk<RestZaakConverter>()
     val restZaakOverzichtConverter = mockk<RestZaakOverzichtConverter>()
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
@@ -182,7 +182,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         val zaakTypeUUID = URIUtil.parseUUIDFromResourceURI(zaakType.url)
         val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
             zaak = createRESTZaak(
-                restZaakType = RESTZaaktype(
+                restZaakType = RestZaaktype(
                     uuid = zaakTypeUUID
                 ),
                 restGroup = createRESTGroup(
@@ -426,7 +426,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         val changeDescription = "change description"
 
         val zaak = createZaak()
-        val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.plusDays(10)
+        val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.minusDays(10)
 
         val restZaak = createRESTZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate)
         val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaak, changeDescription)

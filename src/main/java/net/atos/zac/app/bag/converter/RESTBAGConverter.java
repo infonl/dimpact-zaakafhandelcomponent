@@ -30,8 +30,8 @@ import net.atos.zac.app.bag.model.RESTNummeraanduiding;
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte;
 import net.atos.zac.app.bag.model.RESTPand;
 import net.atos.zac.app.bag.model.RESTWoonplaats;
-import net.atos.zac.app.zaak.model.RESTCoordinates;
-import net.atos.zac.app.zaak.model.RESTGeometry;
+import net.atos.zac.app.zaak.model.RestCoordinates;
+import net.atos.zac.app.zaak.model.RestGeometry;
 import net.atos.zac.util.UriUtil;
 
 public class RESTBAGConverter {
@@ -94,8 +94,8 @@ public class RESTBAGConverter {
         return volledigHuisnummer.toString().trim();
     }
 
-    public static RESTGeometry convertVlak(final Surface surface) {
-        return new RESTGeometry(
+    public static RestGeometry convertVlak(final Surface surface) {
+        return new RestGeometry(
                 surface.getType().value(),
                 null,
                 surface.getCoordinates()
@@ -108,15 +108,15 @@ public class RESTBAGConverter {
         );
     }
 
-    public static RESTGeometry convertPunt(PointGeoJSON punt) {
-        return new RESTGeometry(
+    public static RestGeometry convertPunt(PointGeoJSON punt) {
+        return new RestGeometry(
                 punt.getType().value(),
                 convertCoordinates(punt.getCoordinates()),
                 null,
                 null);
     }
 
-    public static RESTGeometry convertPuntOrVlak(PuntOfVlak puntOfVlak) {
+    public static RestGeometry convertPuntOrVlak(PuntOfVlak puntOfVlak) {
         if (puntOfVlak.getPunt() != null) {
             return convertPunt(puntOfVlak.getPunt());
         } else if (puntOfVlak.getVlak() != null) {
@@ -125,7 +125,7 @@ public class RESTBAGConverter {
         return null;
     }
 
-    public static RESTCoordinates convertCoordinates(List<BigDecimal> coordinates) {
-        return new RESTCoordinates(coordinates.get(1).doubleValue(), coordinates.get(0).doubleValue());
+    public static RestCoordinates convertCoordinates(List<BigDecimal> coordinates) {
+        return new RestCoordinates(coordinates.get(1).doubleValue(), coordinates.get(0).doubleValue());
     }
 }

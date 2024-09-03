@@ -21,7 +21,7 @@ import jakarta.persistence.criteria.Root
 import net.atos.zac.admin.model.HumanTaskReferentieTabel
 import net.atos.zac.admin.model.createHumanTaskReferentieTabel
 import net.atos.zac.admin.model.createReferenceTable
-import net.atos.zac.app.util.exception.InputValidationFailedException
+import net.atos.zac.app.exception.InputValidationFailedException
 
 class ReferenceTableAdminServiceTest : BehaviorSpec({
     val criteriaBuilder = mockk<CriteriaBuilder>()

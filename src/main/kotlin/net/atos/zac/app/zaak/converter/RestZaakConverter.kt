@@ -26,6 +26,7 @@ import net.atos.zac.app.zaak.model.RESTZaakVerlengGegevens
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestGerelateerdeZaak
 import net.atos.zac.app.zaak.model.RestZaak
+import net.atos.zac.app.zaak.model.toRestZaakStatus
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.bpmn.BPMNService
@@ -39,7 +40,6 @@ import java.time.Period
 import java.util.EnumSet
 import java.util.UUID
 import java.util.logging.Logger
-import java.util.stream.Collectors
 import kotlin.jvm.optionals.getOrNull
 
 @Suppress("LongParameterList")
@@ -50,12 +50,12 @@ class RestZaakConverter @Inject constructor(
     private val zgwApiService: ZGWApiService,
     private val restZaakResultaatConverter: RestZaakResultaatConverter,
     private val restGroupConverter: RestGroupConverter,
-    private val restGerelateerdeZaakConverter: RESTGerelateerdeZaakConverter,
+    private val restGerelateerdeZaakConverter: RestGerelateerdeZaakConverter,
     private val restUserConverter: RestUserConverter,
     private val restBesluitConverter: RestBesluitConverter,
     private val restZaaktypeConverter: RestZaaktypeConverter,
     private val restRechtenConverter: RESTRechtenConverter,
-    private val restGeometryConverter: RESTGeometryConverter,
+    private val restGeometryConverter: RestGeometryConverter,
     private val policyService: PolicyService,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val bpmnService: BPMNService,
@@ -65,8 +65,8 @@ class RestZaakConverter @Inject constructor(
     }
 
     fun toRestZaak(zaak: Zaak): RestZaak {
-        val status = if (zaak.status != null) zrcClientService.readStatus(zaak.status) else null
-        val statustype = if (status != null) ztcClientService.readStatustype(status.statustype) else null
+        val status = zaak.status?.let { zrcClientService.readStatus(it) }
+        val statustype = status?.let { ztcClientService.readStatustype(it.statustype) }
         return toRestZaak(zaak, status, statustype)
     }
 
@@ -99,8 +99,8 @@ class RestZaakConverter @Inject constructor(
             omschrijving = zaak.omschrijving,
             toelichting = zaak.toelichting,
             zaaktype = restZaaktypeConverter.convert(zaaktype),
-            status = status?.let { convertToRESTZaakStatus(it, statustype!!) },
-            resultaat = zaak.resultaat?.let { restZaakResultaatConverter.convert(it) },
+            status = status?.let { toRestZaakStatus(it, statustype!!) },
+            resultaat = zaak.resultaat?.let(restZaakResultaatConverter::convert),
             isOpgeschort = zaak.isOpgeschort,
             redenOpschorting = if (zaak.isOpgeschort || StringUtils.isNotEmpty(zaak.opschorting.reden)) {
                 zaak.opschorting.reden
@@ -112,9 +112,7 @@ class RestZaakConverter @Inject constructor(
             redenVerlenging = if (zaak.isVerlengd) zaak.verlenging.reden else null,
             gerelateerdeZaken = toRestGerelateerdeZaken(zaak),
             zaakgeometrie = zaak.zaakgeometrie?.let { restGeometryConverter.convert(zaak.zaakgeometrie) },
-            kenmerken = zaak.kenmerken?.stream()?.map {
-                RESTZaakKenmerk(it.kenmerk, it.bron)
-            }?.collect(Collectors.toList()),
+            kenmerken = zaak.kenmerken?.map { RESTZaakKenmerk(it.kenmerk, it.bron) },
             communicatiekanaal = zaak.communicatiekanaalNaam,
             // use the name because the frontend expects this value to be in uppercase
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name,

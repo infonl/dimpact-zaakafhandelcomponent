@@ -723,6 +723,7 @@
   "msg.error.klanten.client.exception": "Unfortunately a technical error has occurred. No customer data could be retrieved.",
   "msg.error.objects.client.exception": "Unfortunately a technical error has occurred. No objects could be retrieved.",
   "msg.error.objecttypes.client.exception": "Unfortunately a technical error has occurred. No object types could be retrieved.",
+  "msg.error.productaanvraagtype.already.in.use": "This productaanvraagtype is already linked to another zaaktype and therefore cannot be used.",
   "msg.error.system.reference.table.cannot.be.deleted": "A system reference table cannot be deleted",
   "msg.error.system.reference.table.system.values.cannot.be.changed": "The system values of a system reference table cannot be changed",
   "msg.error.reference.table.is.in.use.by.zaakafhandelparameters": "The reference table is in use by one or more case handling parameters and cannot be deleted",

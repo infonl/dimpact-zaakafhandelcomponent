@@ -28,19 +28,12 @@ updates:
           - "major"
           - "minor"
           - "patch"
-      # Only update minor & patch versions. We want to use LTS version
-      types_node:
-        patterns:
-          - "@types/node*"
-        update-types:
-          - "minor"
-          - "patch"
     ignore:
       # ignore major Angular updates since they require manual steps
       - dependency-name: "@angular*"
         update-types: ["version-update:semver-major"]
       # ignore major Node.js updates. We want to use LTS version
-      - dependency-name: "@types/node*"
+      - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "npm"
@@ -51,6 +44,10 @@ updates:
       timezone: "Europe/Amsterdam"
     reviewers:
       - "infonl/dimpact"
+    ignore:
+      # ignore major Node.js updates. We want to use LTS version
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "gradle"
     directory: "/"

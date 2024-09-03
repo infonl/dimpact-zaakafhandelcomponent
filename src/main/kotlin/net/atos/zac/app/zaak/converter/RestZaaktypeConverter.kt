@@ -10,9 +10,10 @@ import net.atos.client.zgw.ztc.util.isNuGeldig
 import net.atos.client.zgw.ztc.util.isServicenormBeschikbaar
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.app.admin.converter.RestZaakafhandelParametersConverter
-import net.atos.zac.app.zaak.model.RESTZaaktype
-import net.atos.zac.app.zaak.model.RESTZaaktypeRelatie
 import net.atos.zac.app.zaak.model.RelatieType
+import net.atos.zac.app.zaak.model.RestZaaktype
+import net.atos.zac.app.zaak.model.RestZaaktypeRelatie
+import net.atos.zac.app.zaak.model.toRestZaaktypeRelatie
 import net.atos.zac.util.PeriodUtil
 import net.atos.zac.util.UriUtil
 import java.time.Period
@@ -21,25 +22,20 @@ class RestZaaktypeConverter @Inject constructor(
     private val zaakafhandelParametersConverter: RestZaakafhandelParametersConverter,
     private val zaakafhandelParameterService: ZaakafhandelParameterService
 ) {
-    fun convert(zaaktype: ZaakType): RESTZaaktype {
-        val zaaktypeRelaties = ArrayList<RESTZaaktypeRelatie>()
+    fun convert(zaaktype: ZaakType): RestZaaktype {
+        val zaaktypeRelaties = ArrayList<RestZaaktypeRelatie>()
         zaaktype.deelzaaktypen?.let { deelzaakType ->
-            deelzaakType.stream()
-                .map { deelzaaktype ->
-                    convertToRESTZaaktypeRelatie(
-                        deelzaaktype,
-                        RelatieType.DEELZAAK
-                    )
-                }
+            deelzaakType
+                .map { RelatieType.DEELZAAK.toRestZaaktypeRelatie(it) }
                 .forEach { zaaktypeRelaties.add(it) }
         }
         zaaktype.gerelateerdeZaaktypen?.let { gerelateerdeZaaktypen ->
-            gerelateerdeZaaktypen.stream()
-                .map { convertToRESTZaaktypeRelatie(it) }
+            gerelateerdeZaaktypen
+                .map { it.toRestZaaktypeRelatie() }
                 .forEach { zaaktypeRelaties.add(it) }
         }
 
-        return RESTZaaktype(
+        return RestZaaktype(
             uuid = UriUtil.uuidFromURI(zaaktype.url),
             identificatie = zaaktype.identificatie,
             doel = zaaktype.doel,
@@ -64,7 +60,7 @@ class RestZaaktypeConverter @Inject constructor(
                 UriUtil.uuidFromURI(uri)
             }.toList(),
             referentieproces = zaaktype.referentieproces?.naam,
-            zaakafhandelparameters = zaakafhandelParametersConverter.convertZaakafhandelParameters(
+            zaakafhandelparameters = zaakafhandelParametersConverter.toRestZaakafhandelParameters(
                 zaakafhandelParameterService.readZaakafhandelParameters(UriUtil.uuidFromURI(zaaktype.url)),
                 true
             )

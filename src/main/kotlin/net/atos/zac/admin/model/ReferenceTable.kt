@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.admin.model
@@ -16,7 +16,6 @@ import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
 import net.atos.zac.app.admin.model.RestReferenceTable
-import net.atos.zac.app.admin.model.RestReferenceTableValue
 import net.atos.zac.util.FlywayIntegrator
 import nl.lifely.zac.util.AllOpen
 
@@ -63,11 +62,10 @@ class ReferenceTable {
 }
 
 fun ReferenceTable.toRestReferenceTable(inclusiefWaarden: Boolean): RestReferenceTable {
-    var restReferenceTableValues: List<RestReferenceTableValue> = emptyList()
-    if (inclusiefWaarden) {
-        restReferenceTableValues = this.values.stream()
-            .map { it.toRestReferenceTableValue() }
-            .toList()
+    val restReferenceTableValues = if (inclusiefWaarden) {
+        this.values.map { it.toRestReferenceTableValue() }
+    } else {
+        emptyList()
     }
     return RestReferenceTable(
         this.id!!,

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -20,8 +20,8 @@ import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationUnattendedData
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationUnattendedResponse
+import net.atos.zac.app.exception.InputValidationFailedException
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
-import net.atos.zac.app.util.exception.InputValidationFailedException
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
@@ -57,22 +57,20 @@ class DocumentCreationRestService @Inject constructor(
         // documents created by SmartDocuments are always of the type 'bijlage'
         // the zaaktype of the specified zaak needs to be configured to be able to use this informatieObjectType
         return ztcClientService.readInformatieobjecttypen(zaak.zaaktype)
-            .stream()
-            .filter { ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE == it.omschrijving }
-            .findAny()
-            .orElseThrow {
-                InputValidationFailedException(
-                    "No informatieobjecttype '${ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE}' found for " +
-                        "zaaktype '${zaak.zaaktype}'. Cannot create document."
-                )
-            }.let { informatieObjectType ->
+            .firstOrNull { ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE == it.omschrijving }?.let {
+                    informatieObjectType ->
                 DocumentCreationDataAttended(
                     zaak = zaak,
                     taskId = restDocumentCreationAttendedData.taskId,
                     informatieobjecttype = informatieObjectType
                 ).let(documentCreationService::createDocumentAttended)
                     .let { RestDocumentCreationAttendedResponse(it.redirectUrl, it.message) }
-            }
+            } ?: run {
+            throw InputValidationFailedException(
+                "No informatieobjecttype '${ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE}' found for " +
+                    "zaaktype '${zaak.zaaktype}'. Cannot create document."
+            )
+        }
     }
 
     @POST

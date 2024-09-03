@@ -10,7 +10,7 @@ import nl.lifely.zac.util.NoArgConstructor
 @AllOpen
 @NoArgConstructor
 data class RESTZaakLocatieGegevens(
-    var geometrie: RESTGeometry?,
+    var geometrie: RestGeometry?,
 
     var reden: String
 )

@@ -26,8 +26,8 @@ import net.atos.zac.app.admin.model.RestReferenceTable
 import net.atos.zac.app.admin.model.RestReferenceTableUpdate
 import net.atos.zac.app.admin.model.toReferenceTable
 import net.atos.zac.app.admin.model.toReferenceTableValue
-import net.atos.zac.app.util.exception.InputValidationFailedException
-import net.atos.zac.app.util.exception.RestExceptionMapper.Companion.ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNOT_BE_CHANGED
+import net.atos.zac.app.exception.ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNOT_BE_CHANGED
+import net.atos.zac.app.exception.InputValidationFailedException
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.policy.PolicyService
 import nl.lifely.zac.util.AllOpen

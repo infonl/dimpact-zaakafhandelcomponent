@@ -230,12 +230,11 @@ class TaskRestService @Inject constructor(
         }
         taakVariabelenService.setTaskData(updatedTask, restTask.taakdata)
         taakVariabelenService.setTaskinformation(updatedTask, restTask.taakinformatie)
-        flowableTaskService.completeTask(updatedTask).let {
+        return flowableTaskService.completeTask(updatedTask).also {
             indexeerService.addOrUpdateZaak(restTask.zaakUuid, false)
             eventingService.send(ScreenEventType.TAAK.updated(it))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
-            return restTaskConverter.convert(it)
-        }
+        }.let(restTaskConverter::convert)
     }
 
     @POST

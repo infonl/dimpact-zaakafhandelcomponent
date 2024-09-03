@@ -61,8 +61,8 @@ import net.atos.zac.app.besluit.BesluitService
 import net.atos.zac.app.klant.KlantRestService
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
-import net.atos.zac.app.zaak.converter.RESTGeometryConverter
 import net.atos.zac.app.zaak.converter.RestBesluitConverter
+import net.atos.zac.app.zaak.converter.RestGeometryConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
@@ -80,9 +80,7 @@ import net.atos.zac.app.zaak.model.RESTZaakLocatieGegevens
 import net.atos.zac.app.zaak.model.RESTZaakOntkoppelGegevens
 import net.atos.zac.app.zaak.model.RESTZaakOpschortGegevens
 import net.atos.zac.app.zaak.model.RESTZaakOpschorting
-import net.atos.zac.app.zaak.model.RESTZaakOverzicht
 import net.atos.zac.app.zaak.model.RESTZaakVerlengGegevens
-import net.atos.zac.app.zaak.model.RESTZaaktype
 import net.atos.zac.app.zaak.model.RESTZakenVerdeelGegevens
 import net.atos.zac.app.zaak.model.RESTZakenVrijgevenGegevens
 import net.atos.zac.app.zaak.model.RelatieType
@@ -96,6 +94,8 @@ import net.atos.zac.app.zaak.model.RestZaak
 import net.atos.zac.app.zaak.model.RestZaakAssignmentData
 import net.atos.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
 import net.atos.zac.app.zaak.model.RestZaakBetrokkene
+import net.atos.zac.app.zaak.model.RestZaakOverzicht
+import net.atos.zac.app.zaak.model.RestZaaktype
 import net.atos.zac.app.zaak.model.toRestBesluittypes
 import net.atos.zac.app.zaak.model.toRestResultaatTypes
 import net.atos.zac.app.zaak.model.toRestZaakBetrokkenen
@@ -131,7 +131,6 @@ import org.apache.commons.collections4.CollectionUtils
 import org.apache.commons.lang3.StringUtils
 import java.net.URI
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
 import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
@@ -175,7 +174,7 @@ class ZaakRestService @Inject constructor(
     private val restBAGConverter: RESTBAGConverter,
     private val restHistorieRegelConverter: RESTHistorieRegelConverter,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
-    private val restGeometryConverter: RESTGeometryConverter,
+    private val restGeometryConverter: RestGeometryConverter,
     private val healthCheckService: HealthCheckService,
     private val opschortenZaakHelper: OpschortenZaakHelper,
     private val zaakService: ZaakService,
@@ -316,18 +315,15 @@ class ZaakRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak).wijzigen)
 
-        val oldFinalDate = zaak.uiterlijkeEinddatumAfdoening
-        val newFinalDate = restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening
-        val durationDays = if (newFinalDate != null) ChronoUnit.DAYS.between(oldFinalDate, newFinalDate) else null
-
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID,
             restZaakConverter.convertToPatch(restZaakEditMetRedenGegevens.zaak),
             restZaakEditMetRedenGegevens.reden
         )
 
-        if (durationDays != null) {
-            if (verlengOpenTaken(zaakUUID, durationDays, AANVULLENDE_INFORMATIE_TASK_NAME) > 0) {
+        val oldFinalDate = zaak.uiterlijkeEinddatumAfdoening
+        restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening?.let { newFinalDate ->
+            if (newFinalDate.isBefore(oldFinalDate) && adjustFinalDateForOpenTasks(zaakUUID, newFinalDate) > 0) {
                 eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak))
             }
         }
@@ -462,7 +458,7 @@ class ZaakRestService @Inject constructor(
 
     @GET
     @Path("waarschuwing")
-    fun listZaakWaarschuwingen(): List<RESTZaakOverzicht> {
+    fun listZaakWaarschuwingen(): List<RestZaakOverzicht> {
         val vandaag = LocalDate.now()
         val einddatumGeplandWaarschuwing = mutableMapOf<UUID, LocalDate>()
         val uiterlijkeEinddatumAfdoeningWaarschuwing = mutableMapOf<UUID, LocalDate>()
@@ -500,7 +496,7 @@ class ZaakRestService @Inject constructor(
 
     @GET
     @Path("zaaktypes")
-    fun listZaaktypes(): List<RESTZaaktype> =
+    fun listZaaktypes(): List<RestZaaktype> =
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .asSequence()
             .filter { loggedInUserInstance.get().isAuthorisedForZaaktype(it.omschrijving) }
@@ -558,7 +554,7 @@ class ZaakRestService @Inject constructor(
     @Path("lijst/toekennen/mij")
     fun assignToLoggedInUserFromList(
         @Valid restZaakAssignmentToLoggedInUserData: RestZaakAssignmentToLoggedInUserData
-    ): RESTZaakOverzicht {
+    ): RestZaakOverzicht {
         assertPolicy(policyService.readWerklijstRechten().zakenTaken)
         val zaak = assignLoggedInUserToZaak(
             zaakUUID = restZaakAssignmentToLoggedInUserData.zaakUUID,
@@ -809,10 +805,10 @@ class ZaakRestService @Inject constructor(
         return resolveZaakAfzenderMail(
             zaakafhandelParameterService.readZaakafhandelParameters(
                 UriUtil.uuidFromURI(zaak.zaaktype)
-            )
-                .zaakAfzenders.stream()
+            ).zaakAfzenders
                 .filter { it.isDefault }
-                .map { zaakAfzender -> RESTZaakAfzenderConverter.convertZaakAfzender(zaakAfzender) }
+                .map(RESTZaakAfzenderConverter::convertZaakAfzender)
+                .stream()
         )
             .findAny()
             .orElse(null)
@@ -1015,19 +1011,12 @@ class ZaakRestService @Inject constructor(
         aardRelatie: AardRelatie
     ): List<RelevanteZaak> {
         val relevanteZaak = RelevanteZaak(andereZaak, aardRelatie)
-        if (relevanteZaken != null) {
-            if (relevanteZaken.stream().noneMatch { zaak -> zaak.`is`(andereZaak, aardRelatie) }) {
-                relevanteZaken.add(relevanteZaak)
-            }
-            return relevanteZaken
-        } else {
-            return listOf(relevanteZaak)
-        }
+        return relevanteZaken?.apply {
+            if (none { it.`is`(andereZaak, aardRelatie) }) add(relevanteZaak)
+        } ?: listOf(relevanteZaak)
     }
 
-    private fun datumWaarschuwing(vandaag: LocalDate, dagen: Int): LocalDate {
-        return vandaag.plusDays(dagen + 1L)
-    }
+    private fun datumWaarschuwing(vandaag: LocalDate, dagen: Int): LocalDate = vandaag.plusDays(dagen + 1L)
 
     private fun deleteSignaleringen(zaak: Zaak) {
         signaleringService.deleteSignaleringen(
@@ -1173,17 +1162,14 @@ class ZaakRestService @Inject constructor(
         afzenders: Stream<RESTZaakAfzender>
     ): Stream<RESTZaakAfzender> {
         return afzenders.peek { afzender ->
-            val speciaal = speciaalMail(afzender.mail)
-            if (speciaal != null) {
+            speciaalMail(afzender.mail)?.let { speciaal ->
                 afzender.suffix = "gegevens.mail.afzender.$speciaal"
                 afzender.mail = resolveMail(speciaal)
             }
-            afzender.replyTo = afzender.replyTo?.let {
-                speciaalMail(afzender.replyTo)?.let { speciaalReplyTo ->
-                    resolveMail(speciaalReplyTo)
-                } ?: afzender.replyTo
+            afzender.replyTo = afzender.replyTo?.let { replyTo ->
+                speciaalMail(replyTo)?.let { resolveMail(it) } ?: replyTo
             }
-        }.filter { afzender: RESTZaakAfzender -> afzender.mail != null }
+        }.filter { it.mail != null }
     }
 
     private fun resolveMail(speciaal: Speciaal) =
@@ -1192,15 +1178,28 @@ class ZaakRestService @Inject constructor(
             Speciaal.MEDEWERKER -> loggedInUserInstance.get().email
         }
 
-    private fun verlengOpenTaken(zaakUUID: UUID, duurDagen: Long, excludeTaskName: String? = null): Int =
+    private fun verlengOpenTaken(zaakUUID: UUID, durationDays: Long): Int =
         flowableTaskService.listOpenTasksForZaak(zaakUUID)
-            .filter { task -> task.dueDate != null }
-            .filter { task -> if (task.name != null) task.name != excludeTaskName else true }
+            .filter { it.dueDate != null }
             .run {
                 forEach { task ->
                     task.dueDate = DateTimeConverterUtil.convertToDate(
-                        DateTimeConverterUtil.convertToLocalDate(task.dueDate).plusDays(duurDagen)
+                        DateTimeConverterUtil.convertToLocalDate(task.dueDate).plusDays(durationDays)
                     )
+                    flowableTaskService.updateTask(task)
+                    eventingService.send(ScreenEventType.TAAK.updated(task))
+                }
+                count()
+            }
+
+    private fun adjustFinalDateForOpenTasks(zaakUUID: UUID, zaakFatalDate: LocalDate): Int =
+        flowableTaskService.listOpenTasksForZaak(zaakUUID)
+            .filter { if (it.name != null) it.name != AANVULLENDE_INFORMATIE_TASK_NAME else true }
+            .filter { it.dueDate != null }
+            .filter { DateTimeConverterUtil.convertToLocalDate(it.dueDate).isAfter(zaakFatalDate) }
+            .run {
+                forEach { task ->
+                    task.dueDate = DateTimeConverterUtil.convertToDate(zaakFatalDate)
                     flowableTaskService.updateTask(task)
                     eventingService.send(ScreenEventType.TAAK.updated(task))
                 }
@@ -1213,9 +1212,7 @@ class ZaakRestService @Inject constructor(
         aardRelatie: AardRelatie
     ): List<RelevanteZaak>? {
         relevanteZaken?.removeAll(
-            relevanteZaken
-                .filter { it.`is`(andereZaak, aardRelatie) }
-                .toList()
+            relevanteZaken.filter { it.`is`(andereZaak, aardRelatie) }
         )
         return relevanteZaken
     }

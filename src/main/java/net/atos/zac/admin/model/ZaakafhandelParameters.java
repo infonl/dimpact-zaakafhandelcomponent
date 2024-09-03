@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -45,7 +45,7 @@ public class ZaakafhandelParameters {
     public static final String CREATIEDATUM = "creatiedatum";
 
     /** Naam van property: {@link ZaakafhandelParameters#productaanvraagtype} */
-    public static final String PRODUCTAANVRAAGTYPE = "productaanvraagtype";
+    public static final String PRODUCTAANVRAAGTYYPE = "productaanvraagtype";
 
     @Id
     @GeneratedValue(generator = "sq_zaakafhandelparameters", strategy = GenerationType.SEQUENCE)

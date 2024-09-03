@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.admin;
 
 import java.time.ZonedDateTime;
@@ -65,13 +64,13 @@ public class HealthCheckRestService {
         ztcClientService.clearBesluittypeCache();
         ztcClientService.clearRoltypeCache();
         ztcClientService.clearCacheTime();
-        return ztcClientService.readCacheTime();
+        return ztcClientService.resetCacheTimeToNow();
     }
 
     @GET
     @Path("ztc-cache")
     public ZonedDateTime readZTCCacheTime() {
-        return ztcClientService.readCacheTime();
+        return ztcClientService.resetCacheTimeToNow();
     }
 
     @GET

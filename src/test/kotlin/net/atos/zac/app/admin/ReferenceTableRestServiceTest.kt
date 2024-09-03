@@ -17,7 +17,7 @@ import net.atos.zac.admin.ReferenceTableService
 import net.atos.zac.admin.model.ReferenceTable
 import net.atos.zac.admin.model.createReferenceTable
 import net.atos.zac.admin.model.createReferenceTableValue
-import net.atos.zac.app.util.exception.InputValidationFailedException
+import net.atos.zac.app.exception.InputValidationFailedException
 import net.atos.zac.policy.PolicyService
 
 class ReferenceTableRestServiceTest : BehaviorSpec({

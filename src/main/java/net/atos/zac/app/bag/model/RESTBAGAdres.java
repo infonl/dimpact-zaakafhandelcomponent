@@ -8,7 +8,7 @@ package net.atos.zac.app.bag.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.atos.zac.app.zaak.model.RESTGeometry;
+import net.atos.zac.app.zaak.model.RestGeometry;
 
 public class RESTBAGAdres extends RESTBAGObject {
 
@@ -49,15 +49,15 @@ public class RESTBAGAdres extends RESTBAGObject {
         return "%s %s, %s %s".formatted(openbareRuimteNaam, huisnummerWeergave, postcode, woonplaatsNaam);
     }
 
-    public RESTGeometry getGeometry() {
-        List<RESTGeometry> restGeometries = new ArrayList<>();
+    public RestGeometry getGeometry() {
+        List<RestGeometry> restGeometries = new ArrayList<>();
         if (adresseerbaarObject != null && adresseerbaarObject.geometry != null) {
             restGeometries.add(adresseerbaarObject.geometry);
         }
         if (panden != null && !panden.isEmpty() && panden.getFirst().geometry != null) {
             restGeometries.add(panden.getFirst().geometry);
         }
-        RESTGeometry restGeometry = new RESTGeometry(
+        RestGeometry restGeometry = new RestGeometry(
                 "GeometryCollection",
                 null,
                 null,

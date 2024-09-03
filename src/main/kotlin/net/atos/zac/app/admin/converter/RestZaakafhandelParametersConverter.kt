@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.admin.converter
@@ -9,7 +9,7 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.app.admin.model.RestZaakafhandelParameters
-import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter
+import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.app.zaak.model.RESTZaakStatusmailOptie
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -18,13 +18,13 @@ import nl.lifely.zac.util.NoArgConstructor
 @NoArgConstructor
 class RestZaakafhandelParametersConverter @Inject constructor(
     val caseDefinitionConverter: RESTCaseDefinitionConverter,
-    val resultaattypeConverter: RESTResultaattypeConverter,
+    val resultaattypeConverter: RestResultaattypeConverter,
     val zaakbeeindigParameterConverter: RESTZaakbeeindigParameterConverter,
     val humanTaskParametersConverter: RESTHumanTaskParametersConverter,
     val ztcClientService: ZtcClientService,
     val zaakafhandelParameterService: ZaakafhandelParameterService
 ) {
-    fun convertZaakafhandelParameters(
+    fun toRestZaakafhandelParameters(
         zaakafhandelParameters: ZaakafhandelParameters,
         inclusiefRelaties: Boolean
     ): RestZaakafhandelParameters {
@@ -77,53 +77,49 @@ class RestZaakafhandelParametersConverter @Inject constructor(
         return restZaakafhandelParameters
     }
 
-    fun convertRESTZaakafhandelParameters(
+    fun toZaakafhandelParameters(
         restZaakafhandelParameters: RestZaakafhandelParameters
-    ): ZaakafhandelParameters {
-        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
+    ): ZaakafhandelParameters =
+        zaakafhandelParameterService.readZaakafhandelParameters(
             restZaakafhandelParameters.zaaktype.uuid
-        )
-        zaakafhandelParameters.id = restZaakafhandelParameters.id
-        zaakafhandelParameters.zaakTypeUUID = restZaakafhandelParameters.zaaktype.uuid
-        zaakafhandelParameters.zaaktypeOmschrijving = restZaakafhandelParameters.zaaktype.omschrijving
-        zaakafhandelParameters.caseDefinitionID = restZaakafhandelParameters.caseDefinition!!.key
-        zaakafhandelParameters.groepID = restZaakafhandelParameters.defaultGroepId
-        zaakafhandelParameters.uiterlijkeEinddatumAfdoeningWaarschuwing =
-            restZaakafhandelParameters.uiterlijkeEinddatumAfdoeningWaarschuwing
-        zaakafhandelParameters.nietOntvankelijkResultaattype =
-            restZaakafhandelParameters.zaakNietOntvankelijkResultaattype!!.id
-        zaakafhandelParameters.intakeMail = restZaakafhandelParameters.intakeMail!!.name
-        zaakafhandelParameters.afrondenMail = restZaakafhandelParameters.afrondenMail!!.name
-        zaakafhandelParameters.productaanvraagtype = restZaakafhandelParameters.productaanvraagtype
-        zaakafhandelParameters.domein = restZaakafhandelParameters.domein
-        zaakafhandelParameters.gebruikersnaamMedewerker = restZaakafhandelParameters.defaultBehandelaarId
-        if (restZaakafhandelParameters.einddatumGeplandWaarschuwing != null) {
-            zaakafhandelParameters.einddatumGeplandWaarschuwing =
-                restZaakafhandelParameters.einddatumGeplandWaarschuwing
+        ).apply {
+            id = restZaakafhandelParameters.id
+            zaakTypeUUID = restZaakafhandelParameters.zaaktype.uuid
+            zaaktypeOmschrijving = restZaakafhandelParameters.zaaktype.omschrijving
+            caseDefinitionID = restZaakafhandelParameters.caseDefinition!!.key
+            groepID = restZaakafhandelParameters.defaultGroepId
+            uiterlijkeEinddatumAfdoeningWaarschuwing = restZaakafhandelParameters.uiterlijkeEinddatumAfdoeningWaarschuwing
+            nietOntvankelijkResultaattype = restZaakafhandelParameters.zaakNietOntvankelijkResultaattype!!.id
+            intakeMail = restZaakafhandelParameters.intakeMail?.name
+            afrondenMail = restZaakafhandelParameters.afrondenMail?.name
+            // trim to make sure accidentally added whitespace is removed
+            productaanvraagtype = restZaakafhandelParameters.productaanvraagtype?.trim()
+            domein = restZaakafhandelParameters.domein
+            gebruikersnaamMedewerker = restZaakafhandelParameters.defaultBehandelaarId
+            einddatumGeplandWaarschuwing = restZaakafhandelParameters.einddatumGeplandWaarschuwing
+        }.also {
+            it.setHumanTaskParametersCollection(
+                humanTaskParametersConverter.convertRESTHumanTaskParameters(
+                    restZaakafhandelParameters.humanTaskParameters
+                )
+            )
+            it.setUserEventListenerParametersCollection(
+                RESTUserEventListenerParametersConverter.convertRESTUserEventListenerParameters(
+                    restZaakafhandelParameters.userEventListenerParameters
+                )
+            )
+            it.setZaakbeeindigParameters(
+                zaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters(
+                    restZaakafhandelParameters.zaakbeeindigParameters
+                )
+            )
+            it.setMailtemplateKoppelingen(
+                RESTMailtemplateKoppelingConverter.convertRESTmailtemplateKoppelingen(
+                    restZaakafhandelParameters.mailtemplateKoppelingen
+                )
+            )
+            it.setZaakAfzenders(
+                RESTZaakAfzenderConverter.convertRESTZaakAfzenders(restZaakafhandelParameters.zaakAfzenders)
+            )
         }
-        zaakafhandelParameters.setHumanTaskParametersCollection(
-            humanTaskParametersConverter.convertRESTHumanTaskParameters(
-                restZaakafhandelParameters.humanTaskParameters
-            )
-        )
-        zaakafhandelParameters.setUserEventListenerParametersCollection(
-            RESTUserEventListenerParametersConverter.convertRESTUserEventListenerParameters(
-                restZaakafhandelParameters.userEventListenerParameters
-            )
-        )
-        zaakafhandelParameters.setZaakbeeindigParameters(
-            zaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters(
-                restZaakafhandelParameters.zaakbeeindigParameters
-            )
-        )
-        zaakafhandelParameters.setMailtemplateKoppelingen(
-            RESTMailtemplateKoppelingConverter.convertRESTmailtemplateKoppelingen(
-                restZaakafhandelParameters.mailtemplateKoppelingen
-            )
-        )
-        zaakafhandelParameters.setZaakAfzenders(
-            RESTZaakAfzenderConverter.convertRESTZaakAfzenders(restZaakafhandelParameters.zaakAfzenders)
-        )
-        return zaakafhandelParameters
-    }
 }

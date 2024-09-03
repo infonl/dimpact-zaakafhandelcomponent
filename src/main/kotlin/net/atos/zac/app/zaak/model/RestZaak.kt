@@ -76,13 +76,13 @@ data class RestZaak(
     var registratiedatum: LocalDate?,
     var resultaat: RESTZaakResultaat?,
     var startdatum: LocalDate?,
-    var status: RESTZaakStatus?,
+    var status: RestZaakStatus?,
     var toelichting: String?,
     var uiterlijkeEinddatumAfdoening: LocalDate?,
     var uuid: UUID,
     var verantwoordelijkeOrganisatie: String?,
     var vertrouwelijkheidaanduiding: String?,
     var zaakdata: Map<String, Any>?,
-    var zaakgeometrie: RESTGeometry?,
-    var zaaktype: RESTZaaktype
+    var zaakgeometrie: RestGeometry?,
+    var zaaktype: RestZaaktype
 )

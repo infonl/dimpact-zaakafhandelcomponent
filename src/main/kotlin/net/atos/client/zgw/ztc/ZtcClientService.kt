@@ -127,7 +127,7 @@ class ZtcClientService @Inject constructor(
                 )
             }
 
-    fun readCacheTime(): ZonedDateTime = ztcTimeCache.get(Caching.ZTC_CACHE_TIME) { ZonedDateTime.now() }
+    fun resetCacheTimeToNow(): ZonedDateTime = ztcTimeCache.get(Caching.ZTC_CACHE_TIME) { ZonedDateTime.now() }
 
     /**
      * Read [ZaakType] via URI.
@@ -213,9 +213,8 @@ class ZtcClientService @Inject constructor(
      */
     fun readInformatieobjecttypen(zaaktypeURI: URI): List<InformatieObjectType> =
         uriToInformatieObjectTypeListCache.get(zaaktypeURI) {
-            readZaaktypeInformatieobjecttypen(zaaktypeURI).stream()
+            readZaaktypeInformatieobjecttypen(zaaktypeURI)
                 .map { readInformatieobjecttype(it.informatieobjecttype) }
-                .toList()
         }
 
     /**

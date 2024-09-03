@@ -25,7 +25,12 @@ object ItestConfiguration {
     const val HTTP_STATUS_BAD_REQUEST = 400
     const val HTTP_STATUS_FORBIDDEN = 403
 
-    const val HTTP_READ_TIMEOUT_SECONDS = 30L
+    /**
+     * Temporarily increase the HTTP read timeout to 60 seconds to allow for
+     * the slow 'documentcreation/createdocumentunattended' endpoint to complete on slower computers.
+     * In the long run we should change this endpoint to be asynchronous.
+     */
+    const val HTTP_READ_TIMEOUT_SECONDS = 60L
 
     const val ACTIE_INTAKE_AFRONDEN = "INTAKE_AFRONDEN"
     const val ACTIE_ZAAK_AFHANDELEN = "ZAAK_AFHANDELEN"

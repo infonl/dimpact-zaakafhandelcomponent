@@ -42,7 +42,6 @@ class SignaleringServiceTest : BehaviorSpec({
     val flowableTaskService = mockk<FlowableTaskService>()
     val mailService = mockk<MailService>()
     val signaleringenMailHelper = mockk<SignaleringMailHelper>()
-    val signaleringPredicateHelper = mockk<SignaleringPredicateHelper>()
     val zrcClientService = mockk<ZrcClientService>()
     val restZaakOverzichtConverter = mockk<RestZaakOverzichtConverter>()
     val entityManager = mockk<EntityManager>()
@@ -59,7 +58,6 @@ class SignaleringServiceTest : BehaviorSpec({
         flowableTaskService = flowableTaskService,
         mailService = mailService,
         signaleringenMailHelper = signaleringenMailHelper,
-        signaleringPredicateHelper = signaleringPredicateHelper,
         zrcClientService = zrcClientService,
         restZaakOverzichtConverter = restZaakOverzichtConverter
     )

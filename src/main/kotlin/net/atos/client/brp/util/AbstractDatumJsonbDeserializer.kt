@@ -15,7 +15,7 @@ import net.atos.client.brp.model.generated.DatumOnbekend
 import net.atos.client.brp.model.generated.JaarDatum
 import net.atos.client.brp.model.generated.JaarMaandDatum
 import net.atos.client.brp.model.generated.VolledigeDatum
-import net.atos.zac.app.util.exception.InputValidationFailedException
+import net.atos.zac.app.exception.InputValidationFailedException
 import java.lang.reflect.Type
 
 class AbstractDatumJsonbDeserializer : JsonbDeserializer<AbstractDatum> {

@@ -56,12 +56,15 @@ fun createReferenceTableValue(
     this.isSystemValue = isSystemValue
 }
 
+@Suppress("LongParameterList")
 fun createZaakafhandelParameters(
-    id: Long = 1234L,
+    id: Long? = 1234L,
     creationDate: ZonedDateTime = ZonedDateTime.now(),
     domein: String = "dummyDomein",
     zaaktypeUUID: UUID = UUID.randomUUID(),
-    zaaktypeOmschrijving: String = "dummyZaaktypeOmschrijving"
+    zaaktypeOmschrijving: String = "dummyZaaktypeOmschrijving",
+    einddatumGeplandWaarschuwing: Int? = null,
+    productaanvraagtype: String? = null
 ) =
     ZaakafhandelParameters().apply {
         this.id = id
@@ -69,4 +72,6 @@ fun createZaakafhandelParameters(
         this.domein = domein
         this.zaakTypeUUID = zaaktypeUUID
         this.zaaktypeOmschrijving = zaaktypeOmschrijving
+        this.einddatumGeplandWaarschuwing = einddatumGeplandWaarschuwing
+        this.productaanvraagtype = productaanvraagtype
     }

@@ -1,5 +1,6 @@
 package net.atos.zac.app.admin
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
@@ -15,7 +16,8 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RestZaakafhandelParametersConverter
-import net.atos.zac.app.zaak.converter.RESTResultaattypeConverter
+import net.atos.zac.app.exception.InputValidationFailedException
+import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.policy.PolicyService
@@ -30,7 +32,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
     val referenceTableService = mockk<ReferenceTableService>()
     val zaakafhandelParametersConverter = mockk<RestZaakafhandelParametersConverter>()
     val caseDefinitionConverter = mockk<RESTCaseDefinitionConverter>()
-    val resultaattypeConverter = mockk<RESTResultaattypeConverter>()
+    val resultaattypeConverter = mockk<RestResultaattypeConverter>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val policyService = mockk<PolicyService>()
 
@@ -52,7 +54,12 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("Zaakafhandelparameters with an ID (indicating existing zaakafhandelparameters)") {
+    Given(
+        """
+            Zaakafhandelparameters with an ID (indicating existing zaakafhandelparameters) 
+            and without a productaanvraagtype
+            """
+    ) {
         val initialDomein = "initialDomein"
         val updatedDomein = "updatedDomein"
         val restZaakafhandelParameters = createRestZaakAfhandelParameters(domein = initialDomein)
@@ -67,7 +74,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         )
         every { policyService.readOverigeRechten().beheren } returns true
         every {
-            zaakafhandelParametersConverter.convertRESTZaakafhandelParameters(restZaakafhandelParameters)
+            zaakafhandelParametersConverter.toZaakafhandelParameters(restZaakafhandelParameters)
         } returns zaakafhandelParameters
         every { zaakafhandelParameterBeheerService.updateZaakafhandelParameters(zaakafhandelParameters) } returns
             updatedZaakafhandelParameters
@@ -76,11 +83,11 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         } just Runs
         every { zaakafhandelParameterService.clearListCache() } returns "cache cleared"
         every {
-            zaakafhandelParametersConverter.convertZaakafhandelParameters(updatedZaakafhandelParameters, true)
+            zaakafhandelParametersConverter.toRestZaakafhandelParameters(updatedZaakafhandelParameters, true)
         } returns updatedRestZaakafhandelParameters
 
         When("the zaakafhandelparameters are updated with a different domein") {
-            val returnedRestZaakafhandelParameters = zaakafhandelParametersRestService.updateZaakafhandelparameters(
+            val returnedRestZaakafhandelParameters = zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
                 restZaakafhandelParameters
             )
 
@@ -95,6 +102,104 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
                     zaakafhandelParameterBeheerService.updateZaakafhandelParameters(zaakafhandelParameters)
                     zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
                     zaakafhandelParameterService.clearListCache()
+                }
+            }
+        }
+    }
+    Given(
+        """
+            Zaakafhandelparameters without an ID (indicating new zaakafhandelparameters) 
+            and with a productaanvraagtype that is not already in use by another zaaktype
+            """
+    ) {
+        val productaanvraagtype = "dummyProductaanvraagtype"
+        val restZaakafhandelParameters = createRestZaakAfhandelParameters(
+            id = null,
+            productaanvraagtype = productaanvraagtype
+        )
+        val zaakafhandelParameters = createZaakafhandelParameters(
+            id = null
+        )
+        val createdZaakafhandelParameters = createZaakafhandelParameters(
+            id = 1234L
+        )
+        val updatedRestZaakafhandelParameters = createRestZaakAfhandelParameters(
+            id = 1234L,
+            productaanvraagtype = productaanvraagtype
+        )
+        every { policyService.readOverigeRechten().beheren } returns true
+        every {
+            zaakafhandelParametersConverter.toZaakafhandelParameters(restZaakafhandelParameters)
+        } returns zaakafhandelParameters
+        every {
+            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(productaanvraagtype)
+        } returns
+            emptyList()
+        every {
+            zaakafhandelParameterBeheerService.createZaakafhandelParameters(zaakafhandelParameters)
+        } returns createdZaakafhandelParameters
+        every {
+            zaakafhandelParametersConverter.toRestZaakafhandelParameters(createdZaakafhandelParameters, true)
+        } returns updatedRestZaakafhandelParameters
+
+        When("the zaakafhandelparameters are created") {
+            val returnedRestZaakafhandelParameters = zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
+                restZaakafhandelParameters
+            )
+
+            Then(
+                """
+                the zaakafhandelparameters should be created
+                """
+            ) {
+                returnedRestZaakafhandelParameters shouldBe updatedRestZaakafhandelParameters
+                verify(exactly = 1) {
+                    zaakafhandelParameterBeheerService.createZaakafhandelParameters(zaakafhandelParameters)
+                }
+            }
+        }
+    }
+    Given(
+        """
+            Zaakafhandelparameters without an ID (indicating new zaakafhandelparameters) 
+            and with a productaanvraagtype that is already in use by another zaaktype
+            """
+    ) {
+        val productaanvraagtype = "dummyProductaanvraagtype"
+        val restZaakafhandelParameters = createRestZaakAfhandelParameters(
+            id = null,
+            productaanvraagtype = productaanvraagtype,
+            restZaaktypeOverzicht = createRESTZaaktypeOverzicht(omschrijving = "dummyZaaktypeOmschrijving2")
+        )
+        val zaakafhandelParameters = createZaakafhandelParameters(
+            id = null
+        )
+        val activeZaakafhandelParametersForThisProductaanvraagtype = createZaakafhandelParameters(
+            id = 1234L,
+            productaanvraagtype = productaanvraagtype,
+            zaaktypeOmschrijving = "dummyZaaktypeOmschrijving1"
+        )
+        every { policyService.readOverigeRechten().beheren } returns true
+        every {
+            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(productaanvraagtype)
+        } returns
+            listOf(activeZaakafhandelParametersForThisProductaanvraagtype)
+
+        When("the zaakafhandelparameters are created") {
+            val exception = shouldThrow<InputValidationFailedException> {
+                zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
+                    restZaakafhandelParameters
+                )
+            }
+
+            Then(
+                """
+                an exception should be thrown indicating that the provided productaanvraagtype is already in use
+                """
+            ) {
+                exception.message shouldBe "msg.error.productaanvraagtype.already.in.use"
+                verify(exactly = 0) {
+                    zaakafhandelParameterBeheerService.createZaakafhandelParameters(zaakafhandelParameters)
                 }
             }
         }

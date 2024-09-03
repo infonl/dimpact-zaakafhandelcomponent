@@ -47,7 +47,7 @@ import net.atos.zac.app.informatieobjecten.model.RESTGekoppeldeZaakEnkelvoudigIn
 import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjectZoekParameters
 import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjecttype
 import net.atos.zac.app.informatieobjecten.model.RESTZaakInformatieobject
-import net.atos.zac.app.zaak.converter.RESTGerelateerdeZaakConverter
+import net.atos.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.documenten.InboxDocumentenService
@@ -88,7 +88,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val restInformatieobjectConverter: RESTInformatieobjectConverter,
     private val restInformatieobjecttypeConverter: RESTInformatieobjecttypeConverter,
     private val restHistorieRegelConverter: RESTHistorieRegelConverter,
-    private val restGerelateerdeZaakConverter: RESTGerelateerdeZaakConverter,
+    private val restGerelateerdeZaakConverter: RestGerelateerdeZaakConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>,
     private val webdavHelper: WebdavHelper,
     private val policyService: PolicyService,

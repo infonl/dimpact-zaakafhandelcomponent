@@ -17,14 +17,16 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.generated.Resultaat
 import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.admin.model.createHumanTaskParameters
 import net.atos.zac.admin.model.createZaakafhandelParameters
+import net.atos.zac.app.exception.InputValidationFailedException
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
 import net.atos.zac.app.mail.model.createRESTMailGegevens
 import net.atos.zac.app.planitems.converter.RESTPlanItemConverter
 import net.atos.zac.app.planitems.model.UserEventListenerActie
 import net.atos.zac.app.planitems.model.createRESTHumanTaskData
 import net.atos.zac.app.planitems.model.createRESTUserEventListenerData
-import net.atos.zac.app.util.exception.InputValidationFailedException
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -41,6 +43,7 @@ import net.atos.zac.zoeken.IndexeerService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI
 import java.time.LocalDate
+import java.util.Optional
 import java.util.UUID
 
 class PlanItemsRESTServiceTest : BehaviorSpec({
@@ -190,7 +193,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         }
     }
 
-    Given("REST human task data with a fatal date that comes after the fatal date of the related zaal") {
+    Given("REST human task data with a user-set fatal date that comes after the fatal date of the related zaak") {
         val restHumanTaskData = createRESTHumanTaskData(
             planItemInstanceId = planItemInstanceId,
             taakdata = mapOf(
@@ -213,6 +216,58 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
             shouldThrow<InputValidationFailedException> { planItemsRESTService.doHumanTaskplanItem(restHumanTaskData) }
             Then("An exception is thrown and the human task item is not started and the zaak is not indexed") {
                 verify(exactly = 0) {
+                    cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
+                    indexeerService.addOrUpdateZaak(any(), any())
+                }
+            }
+        }
+    }
+
+    Given("REST human task data with a calculated fatal date after the fatal date of the related zaak") {
+        val restHumanTaskData = createRESTHumanTaskData(
+            planItemInstanceId = planItemInstanceId,
+            taakdata = mapOf(
+                "dummyKey" to "dummyValue"
+            )
+        )
+        val zaak = createZaak(
+            zaakTypeURI = URI("http://example.com/$zaakTypeUUID")
+        )
+        val zaakafhandelParametersMock = mockk<ZaakafhandelParameters>()
+
+        every { cmmnService.readOpenPlanItem(planItemInstanceId) } returns planItemInstance
+        every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+        every {
+            zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
+        } returns zaakafhandelParametersMock
+        every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
+        every {
+            zaakafhandelParametersMock.findHumanTaskParameter(planItemInstanceId)
+        } returns Optional.of(
+            createHumanTaskParameters().apply {
+                doorlooptijd = 10
+            }
+        )
+        every {
+            cmmnService.startHumanTaskPlanItem(
+                planItemInstanceId,
+                restHumanTaskData.groep.id,
+                null,
+                DateTimeConverterUtil.convertToDate(zaak.uiterlijkeEinddatumAfdoening),
+                restHumanTaskData.toelichting,
+                any(),
+                zaak.uuid
+            )
+        } just runs
+        every { indexeerService.addOrUpdateZaak(zaak.uuid, false) } just runs
+
+        When("A human task plan item is started") {
+            planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
+
+            Then("The task is created with the zaak fatal date") {
+                verify(exactly = 1) {
                     cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
                     indexeerService.addOrUpdateZaak(any(), any())
                 }

@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
-import static net.atos.zac.app.zaak.converter.RESTZaakStatusConverterKt.convertToRESTZaakStatus;
+import static net.atos.zac.app.zaak.model.RestZaakStatusKt.toRestZaakStatus;
 
 import jakarta.inject.Inject;
 
@@ -49,7 +49,7 @@ public class RESTZaakInformatieobjectConverter {
             if (zaak.getStatus() != null) {
                 final Status status = zrcClientService.readStatus(zaak.getStatus());
                 final StatusType statustype = ztcClientService.readStatustype(status.getStatustype());
-                restZaakInformatieobject.zaakStatus = convertToRESTZaakStatus(status, statustype);
+                restZaakInformatieobject.zaakStatus = toRestZaakStatus(status, statustype);
             }
         }
         return restZaakInformatieobject;

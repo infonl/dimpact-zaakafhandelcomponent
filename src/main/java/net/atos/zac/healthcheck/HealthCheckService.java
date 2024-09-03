@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package net.atos.zac.healthcheck;
 
 import static java.nio.file.Files.readAllLines;
@@ -78,7 +82,7 @@ public class HealthCheckService {
     }
 
     public ZaaktypeInrichtingscheck controleerZaaktype(final URI zaaktypeUrl) {
-        ztcClientService.readCacheTime();
+        ztcClientService.resetCacheTimeToNow();
         final ZaakType zaaktype = ztcClientService.readZaaktype(zaaktypeUrl);
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterBeheerService.readZaakafhandelParameters(
                 URIUtil.parseUUIDFromResourceURI(zaaktype.getUrl())

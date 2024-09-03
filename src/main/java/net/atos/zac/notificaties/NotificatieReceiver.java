@@ -96,20 +96,18 @@ public class NotificatieReceiver {
 
     @POST
     public Response notificatieReceive(@Context HttpHeaders headers, final Notificatie notificatie) {
-        setFunctioneelGebruiker(httpSession.get());
-        if (isAuthenticated(headers)) {
-            LOG.info(() -> "Notificatie ontvangen: %s"
-                    .formatted(notificatie.toString()));
-            handleSignaleringen(notificatie);
-            handleProductaanvraag(notificatie);
-            handleIndexering(notificatie);
-            handleInboxDocumenten(notificatie);
-            handleZaaktype(notificatie);
-            handleWebsockets(notificatie);
-            return noContent().build();
-        } else {
+        if (!isAuthenticated(headers)) {
             return noContent().status(Response.Status.FORBIDDEN).build();
         }
+        setFunctioneelGebruiker(httpSession.get());
+        LOG.info(() -> "Notificatie ontvangen: %s".formatted(notificatie.toString()));
+        handleSignaleringen(notificatie);
+        handleProductaanvraag(notificatie);
+        handleIndexering(notificatie);
+        handleInboxDocumenten(notificatie);
+        handleZaaktype(notificatie);
+        handleWebsockets(notificatie);
+        return noContent().build();
     }
 
     private boolean isAuthenticated(final HttpHeaders headers) {
