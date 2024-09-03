@@ -134,7 +134,7 @@ class RestZaakConverter @Inject constructor(
             isOntvangstbevestigingVerstuurd = zaakVariabelenService.findOntvangstbevestigingVerstuurd(
                 zaak.uuid
             ).orElse(false),
-            isBesluittypeAanwezig = zaaktype.besluittypen.isNotEmpty(),
+            isBesluittypeAanwezig = zaaktype.besluittypen?.isNotEmpty() ?: false,
             isProcesGestuurd = bpmnService.isProcesGestuurd(zaak.uuid),
             rechten = policyService.readZaakRechten(zaak, zaaktype).let(restRechtenConverter::convert),
             zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid),
