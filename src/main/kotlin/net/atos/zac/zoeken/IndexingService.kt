@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.zoeken
@@ -31,6 +31,7 @@ import org.apache.solr.common.params.CursorMarkParams
 import org.eclipse.microprofile.config.ConfigProvider
 import java.io.IOException
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Logger
 
 @Singleton
@@ -45,11 +46,11 @@ class IndexingService @Inject constructor(
     companion object {
         const val SOLR_CORE = "zac"
 
-        private const val SOLR_MAX_RESULT = 100
+        private const val SOLR_MAX_RESULTS = 100
         private const val TAKEN_MAX_RESULTS = 50
 
         private val LOG = Logger.getLogger(IndexingService::class.java.name)
-        private val reindexingViewfinder = mutableSetOf<ZoekObjectType>()
+        private val reindexingViewfinder = ConcurrentHashMap.newKeySet<ZoekObjectType>()
 
         private lateinit var solrClient: SolrClient
     }
@@ -109,7 +110,7 @@ class IndexingService @Inject constructor(
         if (inclusiefTaken) {
             flowableTaskService.listOpenTasksForZaak(zaakUUID)
                 .map { it.id }
-                .forEach { id -> this.addOrUpdateTaak(id) }
+                .forEach(this::addOrUpdateTaak)
         }
     }
 
@@ -144,8 +145,7 @@ class IndexingService @Inject constructor(
 
     private fun getConverter(objectType: ZoekObjectType): AbstractZoekObjectConverter<out ZoekObject> =
         converterInstances
-            .find { it.supports(objectType) }
-            .takeIf { it != null }
+            .firstOrNull { it.supports(objectType) }
             ?: throw IndexingException("[$objectType] No converter found")
 
     private fun addToSolrIndex(zoekObjecten: List<ZoekObject?>, performCommit: Boolean) {
@@ -181,7 +181,7 @@ class IndexingService @Inject constructor(
             setFields("id")
             addFilterQuery("type:$objectType")
             addSort("id", SolrQuery.ORDER.asc)
-            rows = SOLR_MAX_RESULT
+            rows = SOLR_MAX_RESULTS
         }
         var cursorMark = CursorMarkParams.CURSOR_MARK_START
         var done = false

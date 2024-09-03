@@ -29,13 +29,11 @@ class IndexingRestService @Inject constructor(
 ) {
     @GET
     @Path("herindexeren/{type}")
-    fun reindex(@PathParam("type") type: ZoekObjectType) {
+    fun reindex(@PathParam("type") type: ZoekObjectType) =
         indexingService.reindex(type)
-    }
 
     @POST
     @Path("commit-pending-changes-to-search-index")
-    fun commit() {
+    fun commit() =
         indexingService.commit()
-    }
 }
