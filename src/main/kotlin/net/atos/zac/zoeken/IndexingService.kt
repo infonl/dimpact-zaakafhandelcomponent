@@ -136,13 +136,9 @@ class IndexingService @Inject constructor(
         removeFromSolrIndex(taskID.toString())
 
     fun commit() {
-        try {
+        wrapInIndexingException<Any> {
             // this overload waits until the solr searcher is done, which is what we want
             solrClient.commit(null, true, true)
-        } catch (solrServerException: SolrServerException) {
-            throw IndexingException(solrServerException)
-        } catch (ioException: IOException) {
-            throw IndexingException(ioException)
         }
     }
 
@@ -157,15 +153,11 @@ class IndexingService @Inject constructor(
         if (beansToBeAdded.isEmpty()) {
             return
         }
-        try {
+        wrapInIndexingException<Any> {
             solrClient.addBeans(beansToBeAdded)
             if (performCommit) {
                 commit()
             }
-        } catch (solrServerException: SolrServerException) {
-            throw IndexingException(solrServerException)
-        } catch (ioException: IOException) {
-            throw IndexingException(ioException)
         }
     }
 
@@ -173,27 +165,16 @@ class IndexingService @Inject constructor(
         if (idsToBeDeleted.isEmpty()) {
             return
         }
-        try {
+        wrapInIndexingException<Any> {
             solrClient.deleteById(idsToBeDeleted)
-        } catch (solrServerException: SolrServerException) {
-            throw IndexingException(solrServerException)
-        } catch (ioException: IOException) {
-            throw IndexingException(ioException)
         }
     }
 
     private fun removeFromSolrIndex(id: String) {
-        try {
+        wrapInIndexingException<Any> {
             solrClient.deleteById(id)
-        } catch (solrServerException: SolrServerException) {
-            throw IndexingException(solrServerException)
-        } catch (ioException: IOException) {
-            throw IndexingException(ioException)
         }
     }
-
-    private fun logProgress(objectType: ZoekObjectType, voortgang: Long, grootte: Long) =
-        logTypeMessage(objectType, "reindexed: $voortgang / $grootte")
 
     private fun removeEntitiesFromSolrIndex(objectType: ZoekObjectType) {
         val query = SolrQuery("*:*").apply {
@@ -206,13 +187,8 @@ class IndexingService @Inject constructor(
         var done = false
         while (!done) {
             query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark)
-            val response: QueryResponse
-            try {
-                response = solrClient.query(query)
-            } catch (solrServerException: SolrServerException) {
-                throw IndexingException(solrServerException)
-            } catch (ioException: IOException) {
-                throw IndexingException(ioException)
+            val response = wrapInIndexingException<QueryResponse> {
+                solrClient.query(query)
             }
             removeFromSolrIndex(
                 response.results
@@ -311,4 +287,17 @@ class IndexingService @Inject constructor(
 
     private fun logTypeMessage(objectType: ZoekObjectType, message: String) =
         LOG.info("[$objectType] $message")
+
+    private fun logProgress(objectType: ZoekObjectType, voortgang: Long, grootte: Long) =
+        logTypeMessage(objectType, "reindexed: $voortgang / $grootte")
+
+    private fun <T> wrapInIndexingException(fn: () -> T): T {
+        try {
+            return fn()
+        } catch (solrServerException: SolrServerException) {
+            throw IndexingException(solrServerException)
+        } catch (ioException: IOException) {
+            throw IndexingException(ioException)
+        }
+    }
 }
