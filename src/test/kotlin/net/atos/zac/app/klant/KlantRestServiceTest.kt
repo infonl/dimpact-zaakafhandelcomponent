@@ -80,19 +80,37 @@ class KlantRestServiceTest : BehaviorSpec({
             email = emailAddress
         )
         val persoon = createPersoon(bsn = bsn)
-
         every { klantClientService.findDigitalAddressesByNumber(bsn) } returns digitaalAdresses
-        every { brpClientService.retrievePersoonAsync(bsn) } returns CompletableFuture.completedFuture(persoon)
+        every { brpClientService.retrievePersoon(bsn) } returns persoon
 
         When("when the person is retrieved") {
             val restPersoon = klantRestService.readPersoon(bsn)
 
-            Then("the person should be returned") {
+            Then("the person should be returned and should have contact details") {
                 with(restPersoon) {
                     this.bsn shouldBe bsn
                     this.geslacht shouldBe persoon.geslacht
                     this.emailadres shouldBe emailAddress
                     this.telefoonnummer shouldBe telephoneNumber
+                }
+            }
+        }
+    }
+    Given("A person with a BSN which does not exist in the klanten client but does exist in the BRP client") {
+        val bsn = "123456789"
+        val persoon = createPersoon(bsn = bsn)
+        every { klantClientService.findDigitalAddressesByNumber(bsn) } returns emptyList()
+        every { brpClientService.retrievePersoon(bsn) } returns persoon
+
+        When("when the person is retrieved") {
+            val restPersoon = klantRestService.readPersoon(bsn)
+
+            Then("the person should be returned and should not have contact details") {
+                with(restPersoon) {
+                    this.bsn shouldBe bsn
+                    this.geslacht shouldBe persoon.geslacht
+                    this.emailadres shouldBe null
+                    this.telefoonnummer shouldBe null
                 }
             }
         }
@@ -105,14 +123,26 @@ class KlantRestServiceTest : BehaviorSpec({
             phone = telephoneNumber,
             email = emailAddress
         )
-
         every { klantClientService.findDigitalAddressesByNumber(bsn) } returns digitaalAdresses
-        every { brpClientService.retrievePersoonAsync(bsn) } returns CompletableFuture.completedFuture(null)
+        every { brpClientService.retrievePersoon(bsn) } returns null
 
         When("when the person is retrieved") {
             val exception = shouldThrow<BrpPersonNotFoundException> { klantRestService.readPersoon(bsn) }
 
-            Then("the person should be returned") {
+            Then("an exception should be thrown") {
+                exception.message shouldBe "Geen persoon gevonden voor BSN '$bsn'"
+            }
+        }
+    }
+    Given("A person with a BSN which does not exist in the klanten client nor in the BRP client") {
+        val bsn = "123456789"
+        every { klantClientService.findDigitalAddressesByNumber(bsn) } returns emptyList()
+        every { brpClientService.retrievePersoon(bsn) } returns null
+
+        When("when the person is retrieved") {
+            val exception = shouldThrow<BrpPersonNotFoundException> { klantRestService.readPersoon(bsn) }
+
+            Then("an exception should be thrown") {
                 exception.message shouldBe "Geen persoon gevonden voor BSN '$bsn'"
             }
         }
