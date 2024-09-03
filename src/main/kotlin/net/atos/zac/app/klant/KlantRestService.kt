@@ -13,6 +13,11 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import net.atos.client.brp.BrpClientService
 import net.atos.client.brp.exception.BrpPersonNotFoundException
 import net.atos.client.klant.KlantClientService
@@ -84,15 +89,18 @@ class KlantRestService @Inject constructor(
     @Path("persoon/{bsn}")
     fun readPersoon(
         @PathParam("bsn") @Length(min = 8, max = 9) bsn: String
-    ): RestPersoon = klantClientService.findDigitalAddressesByNumber(bsn).toRestPersoon().let { klantPersoon ->
-        // note that we currently explicitly wait here for the asynchronous client invocation to complete
-        // thereby blocking the request thread
-        brpClientService.retrievePersoonAsync(bsn).toCompletableFuture().get()?.let { brpPersoon ->
-            brpPersoon.toRestPersoon().apply {
-                telefoonnummer = klantPersoon.telefoonnummer
-                emailadres = klantPersoon.emailadres
+    ) = runBlocking {
+        withContext(Dispatchers.IO) {
+            // run the two client calls concurrently in a coroutine scope so we do not need to wait for the first call to complete
+            val digitalAddresses = async { klantClientService.findDigitalAddressesByNumber(bsn) }
+            val brpPersoon = async { brpClientService.retrievePersoon(bsn) }
+            digitalAddresses.await().toRestPersoon().let { klantPersoon ->
+                brpPersoon.await()?.toRestPersoon()?.apply {
+                    telefoonnummer = klantPersoon.telefoonnummer
+                    emailadres = klantPersoon.emailadres
+                } ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor BSN '$bsn'")
             }
-        } ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor BSN '$bsn'")
+        }
     }
 
     @GET
