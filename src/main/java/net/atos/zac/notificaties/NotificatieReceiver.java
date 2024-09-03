@@ -47,7 +47,7 @@ import net.atos.zac.event.EventingService;
 import net.atos.zac.productaanvraag.ProductaanvraagService;
 import net.atos.zac.signalering.event.SignaleringEventUtil;
 import net.atos.zac.websocket.event.ScreenEventType;
-import net.atos.zac.zoeken.IndexeerService;
+import net.atos.zac.zoeken.IndexingService;
 
 /**
  * Provides REST endpoints for receiving notifications about events that ZAC needs to know about
@@ -62,7 +62,7 @@ public class NotificatieReceiver {
 
     private EventingService eventingService;
     private ProductaanvraagService productaanvraagService;
-    private IndexeerService indexeerService;
+    private IndexingService indexingService;
     private InboxDocumentenService inboxDocumentenService;
     private ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService;
     private String secret;
@@ -78,7 +78,7 @@ public class NotificatieReceiver {
     public NotificatieReceiver(
             EventingService eventingService,
             ProductaanvraagService productaanvraagService,
-            IndexeerService indexeerService,
+            IndexingService indexingService,
             InboxDocumentenService inboxDocumentenService,
             ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService,
             ObjecttypesClientService objecttypesClientService,
@@ -87,7 +87,7 @@ public class NotificatieReceiver {
     ) {
         this.eventingService = eventingService;
         this.productaanvraagService = productaanvraagService;
-        this.indexeerService = indexeerService;
+        this.indexingService = indexingService;
         this.inboxDocumentenService = inboxDocumentenService;
         this.zaakafhandelParameterBeheerService = zaakafhandelParameterBeheerService;
         this.secret = secret;
@@ -157,25 +157,25 @@ public class NotificatieReceiver {
                 if (notificatie.getResource() == ZAAK) {
                     if (notificatie.getAction() == CREATE || notificatie.getAction() == UPDATE) {
                         // Updaten van taak is nodig bij afsluiten zaak
-                        indexeerService.addOrUpdateZaak(uuidFromURI(notificatie.getResourceUrl()),
+                        indexingService.addOrUpdateZaak(uuidFromURI(notificatie.getResourceUrl()),
                                 notificatie.getAction() == UPDATE);
                     } else if (notificatie.getAction() == DELETE) {
-                        indexeerService.removeZaak(uuidFromURI(notificatie.getResourceUrl()));
+                        indexingService.removeZaak(uuidFromURI(notificatie.getResourceUrl()));
                     }
                 } else if (notificatie.getResource() == STATUS || notificatie.getResource() == RESULTAAT ||
                            notificatie.getResource() == ROL || notificatie.getResource() == ZAAKOBJECT) {
-                    indexeerService.addOrUpdateZaak(uuidFromURI(notificatie.getMainResourceUrl()), false);
+                    indexingService.addOrUpdateZaak(uuidFromURI(notificatie.getMainResourceUrl()), false);
                 } else if (notificatie.getResource() == ZAAKINFORMATIEOBJECT && notificatie.getAction() == CREATE) {
-                    indexeerService.addOrUpdateInformatieobjectByZaakinformatieobject(
+                    indexingService.addOrUpdateInformatieobjectByZaakinformatieobject(
                             uuidFromURI(notificatie.getResourceUrl()));
                 }
             }
             if (notificatie.getChannel() == Channel.INFORMATIEOBJECTEN) {
                 if (notificatie.getResource() == INFORMATIEOBJECT) {
                     if (notificatie.getAction() == CREATE || notificatie.getAction() == UPDATE) {
-                        indexeerService.addOrUpdateInformatieobject(uuidFromURI(notificatie.getResourceUrl()));
+                        indexingService.addOrUpdateInformatieobject(uuidFromURI(notificatie.getResourceUrl()));
                     } else if (notificatie.getAction() == DELETE) {
-                        indexeerService.removeInformatieobject(uuidFromURI(notificatie.getResourceUrl()));
+                        indexingService.removeInformatieobject(uuidFromURI(notificatie.getResourceUrl()));
                     }
                 }
             }

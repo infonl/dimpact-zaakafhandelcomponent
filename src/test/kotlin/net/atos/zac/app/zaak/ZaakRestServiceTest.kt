@@ -87,7 +87,7 @@ import net.atos.zac.shared.helper.OpschortenZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.zaak.ZaakService
-import net.atos.zac.zoeken.IndexeerService
+import net.atos.zac.zoeken.IndexingService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import org.flowable.task.api.Task
 import java.time.LocalDate
@@ -108,7 +108,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val healthCheckService = mockk<HealthCheckService>()
     val identityService = mockk<IdentityService>()
     val inboxProductaanvraagService = mockk<InboxProductaanvraagService>()
-    val indexeerService = mockk<IndexeerService>()
+    val indexingService = mockk<IndexingService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val objectsClientService = mockk<ObjectsClientService>()
     val ontkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
@@ -148,7 +148,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
         zaakService = zaakService,
-        indexeerService = indexeerService,
+        indexingService = indexingService,
         restHistorieRegelConverter = restHistorieRegelConverter,
         restBesluitConverter = restBesluitConverter,
         bpmnService = bpmnService,
@@ -308,7 +308,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { identityService.readUser(restZaakToekennenGegevens.assigneeUserName!!) } returns user
         every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
         every { restZaakConverter.toRestZaak(zaak) } returns restZaak
-        every { indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
+        every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
         every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
 
         When("toekennen is called from user with access") {
@@ -320,7 +320,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 returnedRestZaak shouldBe restZaak
                 verify(exactly = 1) {
                     zrcClientService.updateRol(zaak, any(), restZaakToekennenGegevens.reason)
-                    indexeerService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
+                    indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                 }
                 with(rolSlot.captured) {
                     betrokkeneType shouldBe BetrokkeneType.MEDEWERKER

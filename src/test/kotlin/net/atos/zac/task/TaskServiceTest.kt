@@ -25,14 +25,14 @@ import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.signalering.event.SignaleringEvent
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
-import net.atos.zac.zoeken.IndexeerService
+import net.atos.zac.zoeken.IndexingService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.task.api.Task
 
 class TaskServiceTest : BehaviorSpec({
     val flowableTaskService = mockk<FlowableTaskService>()
-    val indexeerService = mockk<IndexeerService>()
+    val indexingService = mockk<IndexingService>()
     val eventingService = mockk<EventingService>()
     val restTaskConverter = mockk<RestTaskConverter>()
     val loggedInUser = mockk<LoggedInUser>()
@@ -40,7 +40,7 @@ class TaskServiceTest : BehaviorSpec({
     val task2 = mockk<Task>()
     val taskService = TaskService(
         flowableTaskService = flowableTaskService,
-        indexeerService = indexeerService,
+        indexingService = indexingService,
         eventingService = eventingService,
         restTaskConverter = restTaskConverter,
     )
@@ -84,7 +84,7 @@ class TaskServiceTest : BehaviorSpec({
         } returns updatedTaskAfterAssigningUser
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
-        every { indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, true) } just runs
+        every { indexingService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, true) } just runs
 
         When("the 'assign task' function is called with REST taak toekennen gegevens with a group and WITHOUT a user") {
             taskService.assignTask(
@@ -100,7 +100,7 @@ class TaskServiceTest : BehaviorSpec({
                         restTaakToekennenGegevens.reden
                     )
                     flowableTaskService.assignTaskToUser(any(), any(), any())
-                    indexeerService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, true)
+                    indexingService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, true)
                 }
                 screenEventSlot.size shouldBe 2
                 screenEventSlot.map { it.objectType } shouldContainExactlyInAnyOrder listOf(
@@ -148,10 +148,10 @@ class TaskServiceTest : BehaviorSpec({
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every {
-            indexeerService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
+            indexingService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
         } just runs
         every {
-            indexeerService.commit()
+            indexingService.commit()
         } just runs
 
         When("the 'assign tasks' function is called with REST taak verdelen gegevens") {
@@ -168,7 +168,7 @@ class TaskServiceTest : BehaviorSpec({
                     flowableTaskService.assignTaskToUser(any(), any(), any())
                 }
                 verify(exactly = 2) {
-                    indexeerService.indexeerDirect(
+                    indexingService.indexeerDirect(
                         any<String>(),
                         ZoekObjectType.TAAK,
                         false
@@ -219,10 +219,10 @@ class TaskServiceTest : BehaviorSpec({
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every {
-            indexeerService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
+            indexingService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
         } just runs
         every {
-            indexeerService.commit()
+            indexingService.commit()
         } just runs
 
         When(
@@ -239,7 +239,7 @@ class TaskServiceTest : BehaviorSpec({
                     flowableTaskService.releaseTask(any<Task>(), any())
                 }
                 verify(exactly = 2) {
-                    indexeerService.indexeerDirect(
+                    indexingService.indexeerDirect(
                         any<String>(),
                         ZoekObjectType.TAAK,
                         false
@@ -285,10 +285,10 @@ class TaskServiceTest : BehaviorSpec({
         } returns task1 andThen task2
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every {
-            indexeerService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
+            indexingService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
         } just runs
         every {
-            indexeerService.commit()
+            indexingService.commit()
         } just runs
 
         When(
@@ -345,10 +345,10 @@ class TaskServiceTest : BehaviorSpec({
         } returns task2
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every {
-            indexeerService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
+            indexingService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
         } just runs
         every {
-            indexeerService.commit()
+            indexingService.commit()
         } just runs
 
         When("the 'assign tasks' function is called with REST taak verdelen gegevens") {
@@ -405,10 +405,10 @@ class TaskServiceTest : BehaviorSpec({
         every { flowableTaskService.releaseTask(task1, restTaakVerdelenGegevens.reden) } returns releasedTask1
         every { flowableTaskService.releaseTask(task2, restTaakVerdelenGegevens.reden) } returns releasedTask2
         every {
-            indexeerService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
+            indexingService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
         } just runs
         every {
-            indexeerService.commit()
+            indexingService.commit()
         } just runs
 
         When(
@@ -467,10 +467,10 @@ class TaskServiceTest : BehaviorSpec({
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { flowableTaskService.releaseTask(task1, restTaakVerdelenGegevens.reden) } returns releasedTask1
         every {
-            indexeerService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
+            indexingService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
         } just runs
         every {
-            indexeerService.commit()
+            indexingService.commit()
         } just runs
 
         When(
@@ -492,7 +492,7 @@ class TaskServiceTest : BehaviorSpec({
             ) {
                 exception.message shouldBe "dummyError"
                 verify(exactly = 1) {
-                    indexeerService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
+                    indexingService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
                     flowableTaskService.assignTaskToGroup(any(), any(), any())
                 }
                 // we expect two screen events, one for the one succesfully assigned task
@@ -537,10 +537,10 @@ class TaskServiceTest : BehaviorSpec({
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every {
-            indexeerService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
+            indexingService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
         } just runs
         every {
-            indexeerService.commit()
+            indexingService.commit()
         } just runs
 
         When("the 'release tasks' function is called with REST taak vrijgeven gegevens") {
@@ -592,10 +592,10 @@ class TaskServiceTest : BehaviorSpec({
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { flowableTaskService.releaseTask(task1, restTaakVerdelenGegevens.reden) } returns releasedTask1
         every {
-            indexeerService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
+            indexingService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
         } just runs
         every {
-            indexeerService.commit()
+            indexingService.commit()
         } just runs
 
         When(
@@ -617,7 +617,7 @@ class TaskServiceTest : BehaviorSpec({
             ) {
                 exception.message shouldBe "dummyError"
                 verify(exactly = 1) {
-                    indexeerService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
+                    indexingService.indexeerDirect(any<String>(), ZoekObjectType.TAAK, false)
                     flowableTaskService.releaseTask(any(), any())
                 }
                 // we expect two screen events, one for the one succesfully released task
