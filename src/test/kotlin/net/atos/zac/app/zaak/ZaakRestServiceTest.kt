@@ -443,7 +443,6 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { task.id } returns "id"
         every { eventingService.send(any<ScreenEvent>()) } just runs
         every { restZaakConverter.toRestZaak(patchedZaak) } returns restZaak
-        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns Optional.empty()
 
         When("zaak final date is set to a later date") {
             val updatedRestZaak = zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
