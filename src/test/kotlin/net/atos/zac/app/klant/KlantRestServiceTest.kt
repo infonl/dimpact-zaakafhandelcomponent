@@ -1,10 +1,13 @@
 package net.atos.zac.app.klant
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.brp.BrpClientService
+import net.atos.client.brp.exception.BrpPersonNotFoundException
+import net.atos.client.brp.model.createPersoon
 import net.atos.client.klant.KlantClientService
 import net.atos.client.klant.createDigitalAddresses
 import net.atos.client.kvk.KvkClientService
@@ -40,7 +43,7 @@ class KlantRestServiceTest : BehaviorSpec({
             type = "nevenvestiging",
             vestingsnummer = vestigingsnummer
         )
-        val digitalAddressesList = createDigitalAddresses("+123-456-789", "email@server.xyz")
+        val digitalAddressesList = createDigitalAddresses("+123-456-789", "dummy@example.com")
         every {
             kvkClientService.findVestigingAsync(vestigingsnummer)
         } returns CompletableFuture.completedFuture(Optional.of(kvkResultaatItem))
@@ -56,7 +59,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     this.adres shouldBe with(adres.binnenlandsAdres) {
                         "$straatnaam$NON_BREAKING_SPACE$huisnummer$NON_BREAKING_SPACE$huisletter, $postcode, $plaats"
                     }
-                    emailadres shouldBe "email@server.xyz"
+                    emailadres shouldBe "dummy@example.com"
                     naam shouldBe kvkResultaatItem.naam
                     kvkNummer shouldBe kvkResultaatItem.kvkNummer
                     postcode shouldBe kvkResultaatItem.adres.binnenlandsAdres.postcode
@@ -65,6 +68,52 @@ class KlantRestServiceTest : BehaviorSpec({
                     telefoonnummer shouldBe "+123-456-789"
                     this.vestigingsnummer shouldBe vestigingsnummer
                 }
+            }
+        }
+    }
+    Given("A person with a BSN which exists in the klanten client and in the BRP client") {
+        val bsn = "123456789"
+        val telephoneNumber = "0612345678"
+        val emailAddress = "test@example.com"
+        val digitaalAdresses = createDigitalAddresses(
+            phone = telephoneNumber,
+            email = emailAddress
+        )
+        val persoon = createPersoon(bsn = bsn)
+
+        every { klantClientService.findDigitalAddressesByNumber(bsn) } returns digitaalAdresses
+        every { brpClientService.retrievePersoonAsync(bsn) } returns CompletableFuture.completedFuture(persoon)
+
+        When("when the person is retrieved") {
+            val restPersoon = klantRestService.readPersoon(bsn)
+
+            Then("the person should be returned") {
+                with(restPersoon) {
+                    this.bsn shouldBe bsn
+                    this.geslacht shouldBe persoon.geslacht
+                    this.emailadres shouldBe emailAddress
+                    this.telefoonnummer shouldBe telephoneNumber
+                }
+            }
+        }
+    }
+    Given("A person with a BSN which exists in the klanten client but not in the BRP client") {
+        val bsn = "123456789"
+        val telephoneNumber = "0612345678"
+        val emailAddress = "test@example.com"
+        val digitaalAdresses = createDigitalAddresses(
+            phone = telephoneNumber,
+            email = emailAddress
+        )
+
+        every { klantClientService.findDigitalAddressesByNumber(bsn) } returns digitaalAdresses
+        every { brpClientService.retrievePersoonAsync(bsn) } returns CompletableFuture.completedFuture(null)
+
+        When("when the person is retrieved") {
+            val exception = shouldThrow<BrpPersonNotFoundException> { klantRestService.readPersoon(bsn) }
+
+            Then("the person should be returned") {
+                exception.message shouldBe "Geen persoon gevonden voor BSN '$bsn'"
             }
         }
     }
