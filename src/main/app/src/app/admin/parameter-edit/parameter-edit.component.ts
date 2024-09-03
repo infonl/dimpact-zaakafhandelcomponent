@@ -622,7 +622,6 @@ export class ParameterEditComponent
 
     this.adminService.updateZaakafhandelparameters(this.parameters).subscribe(
       (data) => {
-        // Success handler
         this.loading = false;
         this.utilService.openSnackbar("msg.zaakafhandelparameters.opgeslagen");
         this.parameters = data;
