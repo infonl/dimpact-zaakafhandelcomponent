@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -37,6 +37,9 @@ export class MedewerkerGroepComponent
   filteredMedewerkers: Observable<User[]>;
   subscriptions$: Subscription[] = [];
 
+  hasGroep: boolean = false;
+  hasMedewerker: boolean = false;
+
   constructor(
     public translate: TranslateService,
     public identityService: IdentityService,
@@ -67,6 +70,14 @@ export class MedewerkerGroepComponent
     } else {
       this.getMedewerkers();
     }
+
+    this.data.groep.valueChanges.subscribe((value) => {
+      this.hasGroep = !!value;
+    });
+
+    this.data.medewerker.valueChanges.subscribe((value) => {
+      this.hasMedewerker = !!value;
+    });
   }
 
   ngOnDestroy() {
@@ -199,6 +210,12 @@ export class MedewerkerGroepComponent
         max: this.data.maxGroupNameLength,
       });
     }
-    return "This field has a error";
+    return this.translate.instant("msg.error.field.generic");
+  }
+
+  clearField(formControl: FormControl) {
+    if (formControl) {
+      formControl.setValue(null);
+    }
   }
 }

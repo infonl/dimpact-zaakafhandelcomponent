@@ -1,4 +1,33 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
+button {
+  mat-icon {
+    color: var(--mat-form-field-enabled-select-arrow-color);
+
+    &.error {
+      color: var(--mat-form-field-error-text-color);
+    }
+
+    &:hover {
+      color: inherit;
+    }
+  }
+
+  &.mat-mdc-button-disabled {
+    mat-icon {
+      color: var(--mat-form-field-disabled-select-arrow-color);
+    }
+  }
+}
+
+mat-icon {
+  margin-right: 4px;
+  color: var(--mat-form-field-enabled-select-arrow-color);
+
+  &.error {
+    color: var(--mat-form-field-error-text-color);
+  }
+}
