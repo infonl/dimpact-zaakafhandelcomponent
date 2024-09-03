@@ -15,7 +15,6 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import net.atos.client.brp.BrpClientService
