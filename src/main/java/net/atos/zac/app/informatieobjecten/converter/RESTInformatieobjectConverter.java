@@ -164,8 +164,9 @@ public class RESTInformatieobjectConverter {
         }
         restEnkelvoudigInformatieobject.creatiedatum = enkelvoudigInformatieObject.getCreatiedatum();
         if (enkelvoudigInformatieObject.getVertrouwelijkheidaanduiding() != null) {
+            // use the name because the frontend expects this value to be in uppercase
             restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding = enkelvoudigInformatieObject.getVertrouwelijkheidaanduiding()
-                    .toString();
+                    .name();
         }
         restEnkelvoudigInformatieobject.auteur = enkelvoudigInformatieObject.getAuteur();
         if (enkelvoudigInformatieObject.getStatus() != null) {

@@ -9,6 +9,7 @@ import net.atos.client.zgw.drc.model.generated.BestandsDeel
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
+import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import java.net.URI
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -23,7 +24,8 @@ fun createEnkelvoudigInformatieObject(
     inhoud: URI = URI("http://example.com/${UUID.randomUUID()}"),
     locked: Boolean = false,
     bestandsdelen: List<BestandsDeel> = emptyList(),
-    indicatieGebruiksrecht: Boolean? = null
+    indicatieGebruiksrecht: Boolean? = null,
+    vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum? = VertrouwelijkheidaanduidingEnum.CONFIDENTIEEL
 ) = EnkelvoudigInformatieObject(
     url,
     versie,
@@ -33,6 +35,7 @@ fun createEnkelvoudigInformatieObject(
 ).apply {
     this.indicatieGebruiksrecht = indicatieGebruiksrecht
     this.inhoud(inhoud)
+    this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
 }
 
 fun createEnkelvoudigInformatieObjectCreateLockRequest(
