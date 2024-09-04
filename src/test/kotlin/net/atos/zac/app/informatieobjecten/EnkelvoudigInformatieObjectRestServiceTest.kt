@@ -27,13 +27,13 @@ import net.atos.client.zgw.zrc.model.createZaakInformatieobject
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createBesluitType
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
-import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjecttypeConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTZaakInformatieobjectConverter
-import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieObjectVersieGegevens
-import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieobject
+import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
 import net.atos.zac.app.informatieobjecten.model.createRESTInformatieobjectZoekParameters
+import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
+import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
 import net.atos.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.documenten.InboxDocumentenService
@@ -42,6 +42,7 @@ import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockS
 import net.atos.zac.event.EventingService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
+import net.atos.zac.policy.output.createDocumentRechten
 import net.atos.zac.policy.output.createDocumentRechtenAllDeny
 import net.atos.zac.policy.output.createZaakRechten
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
@@ -62,7 +63,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val restGerelateerdeZaakConverter = mockk<RestGerelateerdeZaakConverter>()
     val restHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
-    val restInformatieobjectConverter = mockk<RESTInformatieobjectConverter>()
+    val restInformatieobjectConverter = mockk<RestInformatieobjectConverter>()
     val restInformatieobjecttypeConverter = mockk<RESTInformatieobjecttypeConverter>()
     val webdavHelper = mockk<WebdavHelper>()
     val zaakInformatieobjectConverter = mockk<RESTZaakInformatieobjectConverter>()
@@ -96,8 +97,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     Given("an enkelvoudig informatieobject has been uploaded, and the zaak is open") {
         val zaak = createZaak()
         val documentReferentieId = "dummyDocumentReferentieId"
-        val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
-        val responseRestEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
+        val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
+        val responseRestEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
         val restFileUpload = createRESTFileUpload()
         val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectCreateLockRequest()
         val zaakInformatieobject = createZaakInformatieobject()
@@ -223,9 +224,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             archiefnominatie = Archiefnominatie.VERNIETIGEN
         )
         val documentReferentieId = "dummyDocumentReferentieId"
-        val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
+        val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
         val responseRestEnkelvoudigInformatieobject =
-            createRESTEnkelvoudigInformatieobject()
+            createRestEnkelvoudigInformatieobject()
         val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectCreateLockRequest()
         val zaakInformatieobject = createZaakInformatieobject()
 
@@ -272,10 +273,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
     Given("enkelvoudig informatieobject has been uploaded, and the zaak is open") {
         val zaak = createZaak()
-        val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
+        val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
         val enkelvoudigInformatieObjectWithLockData = createEnkelvoudigInformatieObjectWithLockRequest()
         val restEnkelvoudigInformatieObjectVersieGegevens =
-            createRESTEnkelvoudigInformatieObjectVersieGegevens(zaakUuid = zaak.uuid)
+            createRestEnkelvoudigInformatieObjectVersieGegevens(zaakUuid = zaak.uuid)
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
 
         every {
@@ -352,8 +353,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         )
         val zaak = createZaak()
         val restEnkelvoudigInformatieobjecten = listOf(
-            createRESTEnkelvoudigInformatieobject(),
-            createRESTEnkelvoudigInformatieobject()
+            createRestEnkelvoudigInformatieobject(),
+            createRestEnkelvoudigInformatieobject()
         )
 
         every { zrcClientService.readZaak(zaakUuid) } returns zaak
@@ -397,7 +398,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             deelzaken = setOf(deelzaak.url)
         )
         val restEnkelvoudigInformatieobjecten = listOf(
-            createRESTEnkelvoudigInformatieobject(
+            createRestEnkelvoudigInformatieobject(
                 informatieobjectTypeUUID = informatieobjectUUID
             )
         )
@@ -434,6 +435,28 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     size shouldBe 1
                     this[0] shouldBe restEnkelvoudigInformatieobjecten[0]
                 }
+            }
+        }
+    }
+    Given("An enkelvoudig informatieobject") {
+        val informatieobjectUUID = UUID.randomUUID()
+        val enkelvoudiginformatieobject = createEnkelvoudigInformatieObject()
+        val restEnkelvoudigInformatieObjectVersieGegevens =
+            createRestEnkelvoudigInformatieObjectVersieGegevens(uuid = informatieobjectUUID)
+        every {
+            drcClientService.readEnkelvoudigInformatieobject(informatieobjectUUID)
+        } returns enkelvoudiginformatieobject
+        every { policyService.readDocumentRechten(enkelvoudiginformatieobject) } returns createDocumentRechten()
+        every {
+            restInformatieobjectConverter.convertToRestEnkelvoudigInformatieObjectVersieGegevens(enkelvoudiginformatieobject)
+        } returns restEnkelvoudigInformatieObjectVersieGegevens
+
+        When("the current version of the enkelvoudig informatieobject is requested") {
+            val returnedEnkelvoudigInformatieObjectVersieGegevens =
+                enkelvoudigInformatieObjectRestService.readHuidigeVersieInformatieObject(informatieobjectUUID)
+
+            Then("the current version of the enkelvoudig informatieobject is returned") {
+                returnedEnkelvoudigInformatieObjectVersieGegevens shouldBe restEnkelvoudigInformatieObjectVersieGegevens
             }
         }
     }

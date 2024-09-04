@@ -21,7 +21,7 @@ import net.atos.zac.zoeken.model.DocumentIndicatie;
 /**
  * Representation of an 'enkelvoudig informatieobject' (e.g. a document) in the ZAC REST API.
  */
-public class RESTEnkelvoudigInformatieobject extends RESTEnkelvoudigInformatieFileUpload {
+public class RestEnkelvoudigInformatieobject extends RestEnkelvoudigInformatieFileUpload {
 
     public UUID uuid;
 

@@ -2,7 +2,7 @@ package net.atos.zac.app.informatieobjecten.model.validation
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject
+import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 
 class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : BehaviorSpec({
 
@@ -10,9 +10,10 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
         ValidRestEnkelvoudigInformatieFileUploadFormValidator()
 
     Given("REST enkelvoudig informatie object") {
-        val restEnkelvoudigInformatieobject = RESTEnkelvoudigInformatieobject().apply {
-            bestandsnaam = "dummyFileName.txt"
-        }
+        val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
+            .apply {
+                bestandsnaam = "dummyFileName.txt"
+            }
 
         When("no file content provided") {
 

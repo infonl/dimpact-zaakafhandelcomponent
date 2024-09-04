@@ -10,14 +10,14 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createBesluitType
-import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
+import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.zaak.model.createRESTBesluitVastleggenGegevens
 import java.time.LocalDate
 
 class RestBesluitConverterTest : BehaviorSpec({
     val brcClientService = mockk<BrcClientService>()
     val drcClientService = mockk<DrcClientService>()
-    val restInformatieobjectConverter = mockk<RESTInformatieobjectConverter>()
+    val restInformatieobjectConverter = mockk<RestInformatieobjectConverter>()
     val ztcClientService = mockk<ZtcClientService>()
     val restBesluitConverter = RestBesluitConverter(
         brcClientService,

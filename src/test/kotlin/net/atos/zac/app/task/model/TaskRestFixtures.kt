@@ -6,8 +6,8 @@
 package net.atos.zac.app.task.model
 
 import net.atos.zac.app.identity.model.RestUser
-import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjecttype
-import net.atos.zac.app.informatieobjecten.model.createRESTInformatieobjecttype
+import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype
+import net.atos.zac.app.informatieobjecten.model.createRestInformatieobjecttype
 import net.atos.zac.app.zaak.model.createRestUser
 import java.util.UUID
 
@@ -28,7 +28,7 @@ fun createRestTask(
 fun createRestTaskDocumentData(
     bestandsnaam: String = "dummyBestandsNaam",
     documentTitel: String = "dummyDocumentTitel",
-    documentType: RESTInformatieobjecttype = createRESTInformatieobjecttype()
+    documentType: RestInformatieobjecttype = createRestInformatieobjecttype()
 ) = RestTaskDocumentData(
     bestandsnaam = bestandsnaam,
     documentTitel = documentTitel,

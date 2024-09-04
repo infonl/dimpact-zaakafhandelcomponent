@@ -36,10 +36,10 @@ import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.zac.app.configuratie.converter.RESTTaalConverter;
-import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieObjectVersieGegevens;
-import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject;
 import net.atos.zac.app.informatieobjecten.model.RESTFileUpload;
-import net.atos.zac.app.informatieobjecten.model.RESTGekoppeldeZaakEnkelvoudigInformatieObject;
+import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens;
+import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject;
+import net.atos.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject;
 import net.atos.zac.app.policy.converter.RestRechtenConverter;
 import net.atos.zac.app.task.model.RestTaskDocumentData;
 import net.atos.zac.app.zaak.model.RelatieType;
@@ -52,8 +52,8 @@ import net.atos.zac.policy.PolicyService;
 import net.atos.zac.policy.output.DocumentRechten;
 import net.atos.zac.util.UriUtil;
 
-public class RESTInformatieobjectConverter {
-    private static final Logger LOG = Logger.getLogger(RESTInformatieobjectConverter.class.getName());
+public class RestInformatieobjectConverter {
+    private static final Logger LOG = Logger.getLogger(RestInformatieobjectConverter.class.getName());
 
     private BrcClientService brcClientService;
     private ConfiguratieService configuratieService;
@@ -70,11 +70,11 @@ public class RESTInformatieobjectConverter {
     /**
      * Default no-arg constructor, required by Weld.
      */
-    public RESTInformatieobjectConverter() {
+    public RestInformatieobjectConverter() {
     }
 
     @Inject
-    public RESTInformatieobjectConverter(
+    public RestInformatieobjectConverter(
             BrcClientService brcClientService,
             ConfiguratieService configuratieService,
             DrcClientService drcClientService,
@@ -100,13 +100,13 @@ public class RESTInformatieobjectConverter {
         this.configuratieService = configuratieService;
     }
 
-    public List<RESTEnkelvoudigInformatieobject> convertToREST(
+    public List<RestEnkelvoudigInformatieobject> convertToREST(
             final List<ZaakInformatieobject> zaakInformatieobjecten
     ) {
         return zaakInformatieobjecten.stream().map(this::convertToREST).toList();
     }
 
-    public RESTEnkelvoudigInformatieobject convertToREST(final ZaakInformatieobject zaakInformatieObject) {
+    public RestEnkelvoudigInformatieobject convertToREST(final ZaakInformatieobject zaakInformatieObject) {
         final EnkelvoudigInformatieObject enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
                 zaakInformatieObject.getInformatieobject()
         );
@@ -114,13 +114,13 @@ public class RESTInformatieobjectConverter {
         return convertToREST(enkelvoudigInformatieObject, zaak);
     }
 
-    public RESTEnkelvoudigInformatieobject convertToREST(
+    public RestEnkelvoudigInformatieobject convertToREST(
             final EnkelvoudigInformatieObject enkelvoudigInformatieObject
     ) {
         return convertToREST(enkelvoudigInformatieObject, null);
     }
 
-    public RESTEnkelvoudigInformatieobject convertToREST(
+    public RestEnkelvoudigInformatieobject convertToREST(
             final EnkelvoudigInformatieObject enkelvoudigInformatieObject,
             final Zaak zaak
     ) {
@@ -128,7 +128,7 @@ public class RESTInformatieobjectConverter {
         final EnkelvoudigInformatieObjectLock lock = enkelvoudigInformatieObject.getLocked() ?
                 enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID) : null;
         final DocumentRechten rechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak);
-        final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject = new RESTEnkelvoudigInformatieobject();
+        final RestEnkelvoudigInformatieobject restEnkelvoudigInformatieobject = new RestEnkelvoudigInformatieobject();
         restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID;
         restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.getIdentificatie();
         restEnkelvoudigInformatieobject.rechten = restRechtenConverter.convert(rechten);
@@ -155,7 +155,7 @@ public class RESTInformatieobjectConverter {
     private void convertEnkelvoudigInformatieObject(
             EnkelvoudigInformatieObject enkelvoudigInformatieObject,
             EnkelvoudigInformatieObjectLock lock,
-            RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
+            RestEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
     ) {
         restEnkelvoudigInformatieobject.titel = enkelvoudigInformatieObject.getTitel();
         if (enkelvoudigInformatieObject.getBronorganisatie() != null) {
@@ -199,7 +199,7 @@ public class RESTInformatieobjectConverter {
     }
 
     public EnkelvoudigInformatieObjectCreateLockRequest convertZaakObject(
-            final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
+            final RestEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
     ) {
         final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieObjectCreateLockRequest = buildEnkelvoudigInformatieObjectData(
                 restEnkelvoudigInformatieobject
@@ -212,7 +212,7 @@ public class RESTInformatieobjectConverter {
 
     @NotNull
     private EnkelvoudigInformatieObjectCreateLockRequest buildEnkelvoudigInformatieObjectData(
-            RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
+            RestEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
     ) {
         final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieObjectCreateLockRequest();
         enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(ConfiguratieService.BRON_ORGANISATIE);
@@ -239,7 +239,7 @@ public class RESTInformatieobjectConverter {
     }
 
     public EnkelvoudigInformatieObjectCreateLockRequest convertTaakObject(
-            final RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
+            final RestEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
     ) {
         final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieObjectCreateLockRequest = buildTaakEnkelvoudigInformatieObjectData(
                 restEnkelvoudigInformatieobject
@@ -253,7 +253,7 @@ public class RESTInformatieobjectConverter {
 
     @NotNull
     private EnkelvoudigInformatieObjectCreateLockRequest buildTaakEnkelvoudigInformatieObjectData(
-            RESTEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
+            RestEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
     ) {
         final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieObjectData = new EnkelvoudigInformatieObjectCreateLockRequest();
         enkelvoudigInformatieObjectData.setBronorganisatie(ConfiguratieService.BRON_ORGANISATIE);
@@ -298,10 +298,10 @@ public class RESTInformatieobjectConverter {
     }
 
 
-    public RESTEnkelvoudigInformatieObjectVersieGegevens convertToRESTEnkelvoudigInformatieObjectVersieGegevens(
+    public RestEnkelvoudigInformatieObjectVersieGegevens convertToRestEnkelvoudigInformatieObjectVersieGegevens(
             final EnkelvoudigInformatieObject informatieobject
     ) {
-        final RESTEnkelvoudigInformatieObjectVersieGegevens restEnkelvoudigInformatieObjectVersieGegevens = new RESTEnkelvoudigInformatieObjectVersieGegevens();
+        final RestEnkelvoudigInformatieObjectVersieGegevens restEnkelvoudigInformatieObjectVersieGegevens = new RestEnkelvoudigInformatieObjectVersieGegevens();
 
         restEnkelvoudigInformatieObjectVersieGegevens.uuid = UriUtil.uuidFromURI(informatieobject.getUrl());
 
@@ -309,8 +309,9 @@ public class RESTInformatieobjectConverter {
             restEnkelvoudigInformatieObjectVersieGegevens.status = informatieobject.getStatus();
         }
         if (informatieobject.getVertrouwelijkheidaanduiding() != null) {
+            // use the name because the frontend expects this value to be in uppercase
             restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding = informatieobject.getVertrouwelijkheidaanduiding()
-                    .name().toLowerCase();
+                    .name();
         }
 
         restEnkelvoudigInformatieObjectVersieGegevens.beschrijving = informatieobject.getBeschrijving();
@@ -329,7 +330,7 @@ public class RESTInformatieobjectConverter {
     }
 
     public EnkelvoudigInformatieObjectWithLockRequest convert(
-            final RESTEnkelvoudigInformatieObjectVersieGegevens restEnkelvoudigInformatieObjectVersieGegevens
+            final RestEnkelvoudigInformatieObjectVersieGegevens restEnkelvoudigInformatieObjectVersieGegevens
     ) {
         final EnkelvoudigInformatieObjectWithLockRequest enkelvoudigInformatieObjectWithLockRequest = createEnkelvoudigInformatieObjectWithLockData(
                 restEnkelvoudigInformatieObjectVersieGegevens);
@@ -353,7 +354,7 @@ public class RESTInformatieobjectConverter {
     }
 
     private static EnkelvoudigInformatieObjectWithLockRequest createEnkelvoudigInformatieObjectWithLockData(
-            RESTEnkelvoudigInformatieObjectVersieGegevens restEnkelvoudigInformatieObjectVersieGegevens
+            RestEnkelvoudigInformatieObjectVersieGegevens restEnkelvoudigInformatieObjectVersieGegevens
     ) {
         final EnkelvoudigInformatieObjectWithLockRequest enkelvoudigInformatieObjectWithLockData = new EnkelvoudigInformatieObjectWithLockRequest();
 
@@ -389,7 +390,7 @@ public class RESTInformatieobjectConverter {
         return enkelvoudigInformatieObjectWithLockData;
     }
 
-    public List<RESTEnkelvoudigInformatieobject> convertUUIDsToREST(
+    public List<RestEnkelvoudigInformatieobject> convertUUIDsToREST(
             final List<UUID> enkelvoudigInformatieobjectUUIDs,
             final Zaak zaak
     ) {
@@ -412,7 +413,7 @@ public class RESTInformatieobjectConverter {
                 .toList();
     }
 
-    public RESTGekoppeldeZaakEnkelvoudigInformatieObject convertToREST(
+    public RestGekoppeldeZaakEnkelvoudigInformatieObject convertToREST(
             final ZaakInformatieobject zaakInformatieObject,
             final RelatieType relatieType,
             final Zaak zaak
@@ -423,7 +424,7 @@ public class RESTInformatieobjectConverter {
         final EnkelvoudigInformatieObjectLock lock = enkelvoudigInformatieObject.getLocked() ?
                 enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID) : null;
         final DocumentRechten rechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak);
-        final RESTGekoppeldeZaakEnkelvoudigInformatieObject restEnkelvoudigInformatieobject = new RESTGekoppeldeZaakEnkelvoudigInformatieObject();
+        final RestGekoppeldeZaakEnkelvoudigInformatieObject restEnkelvoudigInformatieobject = new RestGekoppeldeZaakEnkelvoudigInformatieObject();
         restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID;
         restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.getIdentificatie();
         restEnkelvoudigInformatieobject.rechten = restRechtenConverter.convert(rechten);
@@ -438,7 +439,7 @@ public class RESTInformatieobjectConverter {
         return restEnkelvoudigInformatieobject;
     }
 
-    public List<RESTEnkelvoudigInformatieobject> convertInformatieobjectenToREST(
+    public List<RestEnkelvoudigInformatieobject> convertInformatieobjectenToREST(
             final List<EnkelvoudigInformatieObject> informatieobjecten
     ) {
         return informatieobjecten.stream().map(this::convertToREST).toList();

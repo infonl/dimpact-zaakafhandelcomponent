@@ -21,9 +21,9 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.zac.app.configuratie.converter.RESTTaalConverter
-import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieObjectVersieGegevens
-import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
+import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
+import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
 import net.atos.zac.app.policy.converter.RestRechtenConverter
 import net.atos.zac.app.policy.model.RestDocumentRechten
 import net.atos.zac.app.policy.model.createRESTDocumentRechten
@@ -44,7 +44,7 @@ import java.util.Base64
 import java.util.Optional
 import java.util.UUID
 
-class RESTInformatieobjectConverterTest : BehaviorSpec({
+class RestInformatieobjectConverterTest : BehaviorSpec({
     val brcClientService = mockk<BrcClientService>()
     val configuratieService = mockk<ConfiguratieService>()
     val drcClientService = mockk<DrcClientService>()
@@ -58,19 +58,20 @@ class RESTInformatieobjectConverterTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
 
-    val restInformatieobjectConverter = RESTInformatieobjectConverter(
-        brcClientService,
-        configuratieService,
-        drcClientService,
-        enkelvoudigInformatieObjectLockService,
-        identityService,
-        loggedInUserInstance,
-        policyService,
-        restRechtenConverter,
-        restTaalConverter,
-        zrcClientService,
-        ztcClientService
-    )
+    val restInformatieobjectConverter =
+        RestInformatieobjectConverter(
+            brcClientService,
+            configuratieService,
+            drcClientService,
+            enkelvoudigInformatieObjectLockService,
+            identityService,
+            loggedInUserInstance,
+            policyService,
+            restRechtenConverter,
+            restTaalConverter,
+            zrcClientService,
+            ztcClientService
+        )
 
     Given("REST taak document data and REST file upload are provided") {
         val restTaakDocumentData = createRestTaskDocumentData()
@@ -112,7 +113,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec({
 
     Given("REST enkelvoudig informatie object data and REST file upload are provided for a taak") {
         val restFileUpload = createRESTFileUpload()
-        val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
+        val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
         val providedInformatieObjectType = createInformatieObjectType()
 
         every { loggedInUserInstance.get() } returns loggedInUser
@@ -149,7 +150,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec({
     Given("REST enkelvoudig informatie object data and REST file upload are provided for a zaak") {
         // when converting a zaak more fields in the RESTEnkelvoudigInformatieobject are used in the
         // conversion compared to when converting a taak
-        val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject(
+        val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject(
             vertrouwelijkheidaanduiding = "vertrouwelijk",
             creatieDatum = LocalDate.now(),
             auteur = "dummyAuteur",
@@ -297,7 +298,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec({
 
     Given("A 'REST enkelvoudiginformatieobject versie gegevens' object containing a file, bestandsnaam and formaat") {
         val informatieobjectType = createInformatieObjectType()
-        val restEnkelvoudigInformatieobjectVersieGegevens = createRESTEnkelvoudigInformatieObjectVersieGegevens(
+        val restEnkelvoudigInformatieobjectVersieGegevens = createRestEnkelvoudigInformatieObjectVersieGegevens(
             vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR.name.lowercase()
         )
 
