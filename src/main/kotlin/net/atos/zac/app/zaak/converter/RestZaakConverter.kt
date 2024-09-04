@@ -6,7 +6,6 @@ package net.atos.zac.app.zaak.converter
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.brc.BrcClientService
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZrcClientService
@@ -56,8 +55,7 @@ class RestZaakConverter @Inject constructor(
     private val restGeometryConverter: RestGeometryConverter,
     private val policyService: PolicyService,
     private val zaakVariabelenService: ZaakVariabelenService,
-    private val bpmnService: BPMNService,
-    private val drcClientService: DrcClientService,
+    private val bpmnService: BPMNService
 ) {
     companion object {
         private val LOG = Logger.getLogger(RestZaakConverter::class.java.name)
@@ -183,40 +181,35 @@ class RestZaakConverter @Inject constructor(
         return zaak
     }
 
-    fun convertToPatch(zaakUUID: UUID?, verlengGegevens: RESTZaakVerlengGegevens): Zaak {
-        val zaak = Zaak()
-        zaak.einddatumGepland = verlengGegevens.einddatumGepland
-        zaak.uiterlijkeEinddatumAfdoening = verlengGegevens.uiterlijkeEinddatumAfdoening
-        val verlenging = zrcClientService.readZaak(zaakUUID).verlenging
-        zaak.verlenging = if (verlenging != null && verlenging.duur != null) {
-            Verlenging(
-                verlengGegevens.redenVerlenging,
-                verlenging.duur.plusDays(verlengGegevens.duurDagen.toLong())
-            )
-        } else {
-            Verlenging(
-                verlengGegevens.redenVerlenging,
-                Period.ofDays(verlengGegevens.duurDagen)
-            )
+    fun convertToPatch(zaakUUID: UUID, verlengGegevens: RESTZaakVerlengGegevens) =
+        zrcClientService.readZaak(zaakUUID).let { zaak ->
+            Zaak().apply {
+                einddatumGepland = verlengGegevens.einddatumGepland
+                uiterlijkeEinddatumAfdoening = verlengGegevens.uiterlijkeEinddatumAfdoening
+                verlenging = Verlenging(
+                    verlengGegevens.redenVerlenging,
+                    zaak.verlenging?.duur?.plusDays(verlengGegevens.duurDagen.toLong()) ?: Period.ofDays(verlengGegevens.duurDagen)
+                )
+            }
         }
-        return zaak
-    }
 
     private fun toRestGerelateerdeZaken(zaak: Zaak): List<RestGerelateerdeZaak> {
         val gerelateerdeZaken = mutableListOf<RestGerelateerdeZaak>()
         zaak.hoofdzaak?.let {
             gerelateerdeZaken.add(
                 restGerelateerdeZaakConverter.convert(
-                    zrcClientService.readZaak(it),
-                    RelatieType.HOOFDZAAK
+                    zaak = zrcClientService.readZaak(it),
+                    relatieType = RelatieType.HOOFDZAAK
                 )
             )
         }
-        zaak.deelzaken?.map { zrcClientService.readZaak(it) }
+        zaak.deelzaken
+            ?.map(zrcClientService::readZaak)
             ?.map { restGerelateerdeZaakConverter.convert(it, RelatieType.DEELZAAK) }
-            ?.forEach { gerelateerdeZaken.add(it) }
-        zaak.relevanteAndereZaken?.map { restGerelateerdeZaakConverter.convert(it) }
-            ?.forEach { gerelateerdeZaken.add(it) }
+            ?.forEach(gerelateerdeZaken::add)
+        zaak.relevanteAndereZaken
+            ?.map(restGerelateerdeZaakConverter::convert)
+            ?.forEach(gerelateerdeZaken::add)
         return gerelateerdeZaken
     }
 }
