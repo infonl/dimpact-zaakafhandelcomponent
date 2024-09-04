@@ -360,7 +360,8 @@ public class RestInformatieobjectConverter {
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding != null) {
             enkelvoudigInformatieObjectWithLockData.setVertrouwelijkheidaanduiding(
-                    VertrouwelijkheidaanduidingEnum.fromValue(restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding)
+                    // we use the name of this enum in the ZAC API
+                    VertrouwelijkheidaanduidingEnum.valueOf(restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding)
             );
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.beschrijving != null) {
