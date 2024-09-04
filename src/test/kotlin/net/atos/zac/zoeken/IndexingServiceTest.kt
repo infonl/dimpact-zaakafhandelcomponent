@@ -16,7 +16,6 @@ import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.zoeken.IndexingService.Companion.MAX_SEQUENTIAL_ERRORS
 import net.atos.zac.zoeken.converter.AbstractZoekObjectConverter
 import net.atos.zac.zoeken.converter.ZaakZoekObjectConverter
 import net.atos.zac.zoeken.model.ZoekObject
@@ -64,9 +63,7 @@ class IndexingServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given(
-        """Two zaken"""
-    ) {
+    Given("Two zaken") {
         val zaakType = createZaakType()
         val zaaktypeURI = URI("http://example.com/${zaakType.url}")
         val zaken = listOf(
@@ -138,6 +135,7 @@ class IndexingServiceTest : BehaviorSpec({
 
             every { zrcClientService.listZaken(any<ZaakListParameters>()) } returnsMany listOf(
                 Results(zaken, 2),
+                Results(zaken, 2),
                 Results(emptyList(), 0)
             )
 
@@ -178,7 +176,7 @@ class IndexingServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Solr indexing exists and zaak information cannot be obtained") {
+    Given("Solr indexing exists and zaak count cannot be obtained") {
         val queryResponse = mockk<QueryResponse>()
         val documentList = SolrDocumentList().apply {
             addAll(
@@ -196,11 +194,60 @@ class IndexingServiceTest : BehaviorSpec({
         val ioException = IOException("IO exception")
         every { zrcClientService.listZaken(any<ZaakListParameters>()) } throws ioException
 
-        When("reading zaak details throws an error") {
+        When("reading zaak count throws an error") {
             indexingService.reindex(ZoekObjectType.ZAAK)
 
-            Then("aborts after max sequential errors") {
-                verify(exactly = MAX_SEQUENTIAL_ERRORS) {
+            Then("aborts and does not try to list zaken") {
+                verify(exactly = 1) {
+                    zrcClientService.listZaken(any<ZaakListParameters>())
+                }
+            }
+        }
+    }
+
+    Given("Solr indexing exists and zaak count is available") {
+        val queryResponse = mockk<QueryResponse>()
+        val documentList = SolrDocumentList().apply {
+            addAll(
+                listOf(
+                    SolrDocument(mapOf("id" to 1)),
+                    SolrDocument(mapOf("id" to 2))
+                )
+            )
+        }
+        val zaakType = createZaakType()
+        val zaaktypeURI = URI("http://example.com/${zaakType.url}")
+        val zaken = listOf(
+            createZaak(zaakTypeURI = zaaktypeURI),
+            createZaak(zaakTypeURI = zaaktypeURI)
+        )
+        val zaakZoekObjecten = listOf(
+            createZaakZoekObject(),
+            createZaakZoekObject()
+        )
+
+        every { queryResponse.results } returns documentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { solrClient.query(any()) } returns queryResponse
+        every { solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
+        every { solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
+
+        every { zrcClientService.listZaken(match<ZaakListParameters> { it.page == 1 }) } returns Results(zaken, 102)
+        every { zrcClientService.listZaken(match<ZaakListParameters> { it.page == 2 }) } throws IOException("exception")
+
+        every { zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
+        every { converterInstances.iterator() } returns converterInstancesIterator
+        every { converterInstancesIterator.hasNext() } returns true andThen true andThen false
+        every { converterInstancesIterator.next() } returns zaakZoekObjectConverter andThen zaakZoekObjectConverter
+        zaken.forEachIndexed { index, zaak ->
+            every { zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
+        }
+
+        When("reading zaak list throws an error") {
+            indexingService.reindex(ZoekObjectType.ZAAK)
+
+            Then("continues without exception") {
+                verify(exactly = 3) {
                     zrcClientService.listZaken(any<ZaakListParameters>())
                 }
             }
