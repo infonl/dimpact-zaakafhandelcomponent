@@ -18,7 +18,7 @@ import net.atos.zac.policy.output.ZaakRechten;
 
 public class RestRechtenConverter {
 
-    public RestDocumentRechten convert(final DocumentRechten documentRechten) {
+    public static RestDocumentRechten convert(final DocumentRechten documentRechten) {
         final RestDocumentRechten restDocumentRechten = new RestDocumentRechten();
         restDocumentRechten.lezen = documentRechten.lezen();
         restDocumentRechten.wijzigen = documentRechten.wijzigen();
@@ -30,7 +30,7 @@ public class RestRechtenConverter {
         return restDocumentRechten;
     }
 
-    public RestTaakRechten convert(final TaakRechten taakRechten) {
+    public static RestTaakRechten convert(final TaakRechten taakRechten) {
         final RestTaakRechten restTaakRechten = new RestTaakRechten();
         restTaakRechten.lezen = taakRechten.lezen();
         restTaakRechten.wijzigen = taakRechten.wijzigen();
@@ -39,7 +39,7 @@ public class RestRechtenConverter {
         return restTaakRechten;
     }
 
-    public RestZaakRechten convert(final ZaakRechten zaakRechten) {
+    public static RestZaakRechten convert(final ZaakRechten zaakRechten) {
         final RestZaakRechten restZaakRechten = new RestZaakRechten();
         restZaakRechten.lezen = zaakRechten.lezen();
         restZaakRechten.wijzigen = zaakRechten.wijzigen();
@@ -62,7 +62,7 @@ public class RestRechtenConverter {
         return restZaakRechten;
     }
 
-    public RestWerklijstRechten convert(final WerklijstRechten werklijstrechten) {
+    public static RestWerklijstRechten convert(final WerklijstRechten werklijstrechten) {
         final RestWerklijstRechten restWerklijstRechten = new RestWerklijstRechten();
         restWerklijstRechten.inbox = werklijstrechten.inbox();
         restWerklijstRechten.ontkoppeldeDocumentenVerwijderen = werklijstrechten.ontkoppeldeDocumentenVerwijderen();
@@ -73,7 +73,7 @@ public class RestRechtenConverter {
         return restWerklijstRechten;
     }
 
-    public RestOverigeRechten convert(final OverigeRechten overigeRechten) {
+    public static RestOverigeRechten convert(final OverigeRechten overigeRechten) {
         final RestOverigeRechten restOverigeRechten = new RestOverigeRechten();
         restOverigeRechten.startenZaak = overigeRechten.startenZaak();
         restOverigeRechten.beheren = overigeRechten.beheren();

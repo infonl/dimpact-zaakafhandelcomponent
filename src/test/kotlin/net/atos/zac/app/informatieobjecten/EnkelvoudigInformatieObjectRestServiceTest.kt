@@ -26,14 +26,16 @@ import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakInformatieobject
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createBesluitType
+import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
-import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjecttypeConverter
-import net.atos.zac.app.informatieobjecten.converter.RESTZaakInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
+import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
+import net.atos.zac.app.informatieobjecten.converter.RestZaakInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
 import net.atos.zac.app.informatieobjecten.model.createRESTInformatieobjectZoekParameters
 import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
 import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
+import net.atos.zac.app.informatieobjecten.model.createRestInformatieobjecttype
 import net.atos.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.documenten.InboxDocumentenService
@@ -64,9 +66,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val restGerelateerdeZaakConverter = mockk<RestGerelateerdeZaakConverter>()
     val restHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
     val restInformatieobjectConverter = mockk<RestInformatieobjectConverter>()
-    val restInformatieobjecttypeConverter = mockk<RESTInformatieobjecttypeConverter>()
+    val restInformatieobjecttypeConverter = mockk<RestInformatieobjecttypeConverter>()
     val webdavHelper = mockk<WebdavHelper>()
-    val zaakInformatieobjectConverter = mockk<RESTZaakInformatieobjectConverter>()
+    val zaakInformatieobjectConverter = mockk<RestZaakInformatieobjectConverter>()
     val zgwApiService = mockk<ZGWApiService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
@@ -457,6 +459,29 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             Then("the current version of the enkelvoudig informatieobject is returned") {
                 returnedEnkelvoudigInformatieObjectVersieGegevens shouldBe restEnkelvoudigInformatieObjectVersieGegevens
+            }
+        }
+    }
+    Given("A zaak with two informatieobjecttypes") {
+        val zaak = createZaak()
+        val informatieObjectTypes = listOf(createInformatieObjectType(), createInformatieObjectType())
+        val restInformatieobjecttypes = listOf(createRestInformatieobjecttype(), createRestInformatieobjecttype())
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        with(ztcClientService) {
+            every { readZaaktype(zaak.zaaktype).informatieobjecttypen } returns informatieObjectTypes.map { it.url }
+            informatieObjectTypes.forEachIndexed { index, informatieObjectType, ->
+                every { readInformatieobjecttype(informatieObjectType.url) } returns informatieObjectTypes[index]
+            }
+        }
+        every { restInformatieobjecttypeConverter.convert(informatieObjectTypes) } returns restInformatieobjecttypes
+
+        When("the informatieobjecttypes for the zaak are requested") {
+            val returnedRestInformatieobjecttypes = enkelvoudigInformatieObjectRestService.listInformatieobjecttypesForZaak(
+                zaak.uuid
+            )
+
+            Then("the information object types are returned") {
+                returnedRestInformatieobjecttypes shouldBe restInformatieobjecttypes
             }
         }
     }

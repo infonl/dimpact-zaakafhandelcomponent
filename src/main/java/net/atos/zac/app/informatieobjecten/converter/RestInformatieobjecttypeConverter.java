@@ -16,7 +16,7 @@ import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType;
 import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype;
 
-public class RESTInformatieobjecttypeConverter {
+public class RestInformatieobjecttypeConverter {
 
     @Inject
     private ZtcClientService ztcClientService;
@@ -26,7 +26,8 @@ public class RESTInformatieobjecttypeConverter {
         restType.uuid = URIUtil.parseUUIDFromResourceURI(type.getUrl());
         restType.concept = type.getConcept();
         restType.omschrijving = type.getOmschrijving();
-        restType.vertrouwelijkheidaanduiding = type.getVertrouwelijkheidaanduiding().toString();
+        // we use the uppercase version of this enum in the ZAC backend API
+        restType.vertrouwelijkheidaanduiding = type.getVertrouwelijkheidaanduiding().name();
         return restType;
     }
 

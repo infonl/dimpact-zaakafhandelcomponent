@@ -45,8 +45,8 @@ import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.util.StatusTypeUtil
 import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.client.zgw.ztc.model.extensions.isNuGeldig
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
-import net.atos.client.zgw.ztc.util.isNuGeldig
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakAfzender
 import net.atos.zac.admin.model.ZaakAfzender.Speciaal
@@ -496,7 +496,7 @@ class ZaakRestService @Inject constructor(
             .asSequence()
             .filter { loggedInUserInstance.get().isAuthorisedForZaaktype(it.omschrijving) }
             .filter { !it.concept }
-            .filter { isNuGeldig(it) }
+            .filter { it.isNuGeldig() }
             .filter { healthCheckService.controleerZaaktype(it.url).isValide }
             .map { restZaaktypeConverter.convert(it) }
             .toList()

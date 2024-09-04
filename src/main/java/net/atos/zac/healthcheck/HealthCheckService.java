@@ -5,7 +5,7 @@
 package net.atos.zac.healthcheck;
 
 import static java.nio.file.Files.readAllLines;
-import static net.atos.client.zgw.ztc.util.InformatieObjectTypeUtil.isNuGeldig;
+import static net.atos.client.zgw.ztc.model.extensions.InformatieObjectTypeExtensionsKt.isNuGeldig;
 import static net.atos.zac.admin.model.ReferenceTable.Systeem.COMMUNICATIEKANAAL;
 import static net.atos.zac.util.DateTimeConverterUtil.convertToLocalDateTime;
 
@@ -197,8 +197,8 @@ public class HealthCheckService {
         final List<InformatieObjectType> informatieobjecttypes = ztcClientService.readInformatieobjecttypen(
                 zaaktypeInrichtingscheck.getZaaktype().getUrl());
         informatieobjecttypes.forEach(informatieobjecttype -> {
-            if (isNuGeldig(informatieobjecttype) && ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL.equals(
-                    informatieobjecttype.getOmschrijving())) {
+            if (isNuGeldig(informatieobjecttype) && ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL.equals(informatieobjecttype
+                    .getOmschrijving())) {
                 zaaktypeInrichtingscheck.setInformatieobjecttypeEmailAanwezig(true);
             }
         });

@@ -24,7 +24,6 @@ class RestZaakOverzichtConverter @Inject constructor(
     private val groupConverter: RestGroupConverter,
     private val userConverter: RestUserConverter,
     private val openstaandeTakenConverter: RestOpenstaandeTakenConverter,
-    private val rechtenConverter: RestRechtenConverter,
     private val policyService: PolicyService,
     private val zrcClientService: ZrcClientService,
 ) {
@@ -34,7 +33,7 @@ class RestZaakOverzichtConverter @Inject constructor(
         return RestZaakOverzicht(
             uuid = zaak.uuid,
             identificatie = zaak.identificatie,
-            rechten = rechtenConverter.convert(zaakrechten),
+            rechten = RestRechtenConverter.convert(zaakrechten),
             startdatum = takeIf { zaakrechten.lezen }?.let { zaak.startdatum },
             einddatum = takeIf { zaakrechten.lezen }?.let { zaak.einddatum },
             einddatumGepland = takeIf { zaakrechten.lezen }?.let { zaak.einddatumGepland },

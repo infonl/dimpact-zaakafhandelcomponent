@@ -23,11 +23,9 @@ import net.atos.client.zgw.ztc.model.createStatusType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.app.identity.converter.RestGroupConverter
 import net.atos.zac.app.identity.converter.RestUserConverter
-import net.atos.zac.app.policy.converter.RestRechtenConverter
 import net.atos.zac.app.zaak.model.createRestBesluit
 import net.atos.zac.app.zaak.model.createRestGroup
 import net.atos.zac.app.zaak.model.createRestUser
-import net.atos.zac.app.zaak.model.createRestZaakRechten
 import net.atos.zac.app.zaak.model.createRestZaaktype
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.bpmn.BPMNService
@@ -46,7 +44,6 @@ class RestZaakConverterTest : BehaviorSpec({
     val restUserConverter = mockk<RestUserConverter>()
     val restBesluitConverter = mockk<RestBesluitConverter>()
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
-    val restRechtenConverter = mockk<RestRechtenConverter>()
     val restGeometryConverter = mockk<RestGeometryConverter>()
     val policyService = mockk<PolicyService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
@@ -63,7 +60,6 @@ class RestZaakConverterTest : BehaviorSpec({
         restUserConverter = restUserConverter,
         restBesluitConverter = restBesluitConverter,
         restZaaktypeConverter = restZaaktypeConverter,
-        restRechtenConverter = restRechtenConverter,
         restGeometryConverter = restGeometryConverter,
         policyService = policyService,
         zaakVariabelenService = zaakVariabelenService,
@@ -84,7 +80,6 @@ class RestZaakConverterTest : BehaviorSpec({
         val rol = createRolNatuurlijkPersoon()
         val restZaakType = createRestZaaktype()
         val zaakrechten = createZaakRechten()
-        val restZaakrechten = createRestZaakRechten()
         val zaakdata = mapOf("dummyKey" to "dummyValue")
 
         every { zrcClientService.readStatus(zaak.status) } returns status
@@ -108,7 +103,6 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isProcesGestuurd(zaak.uuid) } returns false
         every { policyService.readZaakRechten(zaak, zaakType) } returns zaakrechten
-        every { restRechtenConverter.convert(zaakrechten) } returns restZaakrechten
 
         When("converting a zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak)

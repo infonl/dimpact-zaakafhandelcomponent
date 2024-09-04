@@ -62,7 +62,6 @@ public class RestInformatieobjectConverter {
     private IdentityService identityService;
     private Instance<LoggedInUser> loggedInUserInstance;
     private PolicyService policyService;
-    private RestRechtenConverter restRechtenConverter;
     private RESTTaalConverter restTaalConverter;
     private ZrcClientService zrcClientService;
     private ZtcClientService ztcClientService;
@@ -82,7 +81,6 @@ public class RestInformatieobjectConverter {
             IdentityService identityService,
             Instance<LoggedInUser> loggedInUserInstance,
             PolicyService policyService,
-            RestRechtenConverter restRechtenConverter,
             RESTTaalConverter restTaalConverter,
             ZrcClientService zrcClientService,
             ZtcClientService ztcClientService
@@ -95,7 +93,6 @@ public class RestInformatieobjectConverter {
         this.loggedInUserInstance = loggedInUserInstance;
         this.enkelvoudigInformatieObjectLockService = enkelvoudigInformatieObjectLockService;
         this.identityService = identityService;
-        this.restRechtenConverter = restRechtenConverter;
         this.policyService = policyService;
         this.configuratieService = configuratieService;
     }
@@ -131,7 +128,7 @@ public class RestInformatieobjectConverter {
         final RestEnkelvoudigInformatieobject restEnkelvoudigInformatieobject = new RestEnkelvoudigInformatieobject();
         restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID;
         restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.getIdentificatie();
-        restEnkelvoudigInformatieobject.rechten = restRechtenConverter.convert(rechten);
+        restEnkelvoudigInformatieobject.rechten = RestRechtenConverter.convert(rechten);
         restEnkelvoudigInformatieobject.isBesluitDocument = brcClientService.isInformatieObjectGekoppeldAanBesluit(
                 enkelvoudigInformatieObject.getUrl()
         );
@@ -142,7 +139,7 @@ public class RestInformatieobjectConverter {
                 enkelvoudigInformatieObject.getOndertekening().getSoort() != null &&
                 enkelvoudigInformatieObject.getOndertekening().getDatum() != null
             ) {
-                restEnkelvoudigInformatieobject.ondertekening = RESTOndertekeningConverter.convert(
+                restEnkelvoudigInformatieobject.ondertekening = RestOndertekeningConverter.convert(
                         enkelvoudigInformatieObject.getOndertekening()
                 );
             }
@@ -164,7 +161,7 @@ public class RestInformatieobjectConverter {
         }
         restEnkelvoudigInformatieobject.creatiedatum = enkelvoudigInformatieObject.getCreatiedatum();
         if (enkelvoudigInformatieObject.getVertrouwelijkheidaanduiding() != null) {
-            // use the name because the frontend expects this value to be in uppercase
+            // we use the uppercase version of this enum in the ZAC backend API
             restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding = enkelvoudigInformatieObject.getVertrouwelijkheidaanduiding()
                     .name();
         }
@@ -309,7 +306,7 @@ public class RestInformatieobjectConverter {
             restEnkelvoudigInformatieObjectVersieGegevens.status = informatieobject.getStatus();
         }
         if (informatieobject.getVertrouwelijkheidaanduiding() != null) {
-            // use the name because the frontend expects this value to be in uppercase
+            // we use the uppercase version of this enum in the ZAC backend API
             restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding = informatieobject.getVertrouwelijkheidaanduiding()
                     .name();
         }
@@ -427,7 +424,7 @@ public class RestInformatieobjectConverter {
         final RestGekoppeldeZaakEnkelvoudigInformatieObject restEnkelvoudigInformatieobject = new RestGekoppeldeZaakEnkelvoudigInformatieObject();
         restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID;
         restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.getIdentificatie();
-        restEnkelvoudigInformatieobject.rechten = restRechtenConverter.convert(rechten);
+        restEnkelvoudigInformatieobject.rechten = RestRechtenConverter.convert(rechten);
         if (rechten.lezen()) {
             convertEnkelvoudigInformatieObject(enkelvoudigInformatieObject, lock, restEnkelvoudigInformatieobject);
             restEnkelvoudigInformatieobject.relatieType = relatieType;

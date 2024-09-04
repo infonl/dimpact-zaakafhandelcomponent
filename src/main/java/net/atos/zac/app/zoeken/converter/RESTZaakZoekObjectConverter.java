@@ -21,9 +21,6 @@ public class RESTZaakZoekObjectConverter {
     @Inject
     private PolicyService policyService;
 
-    @Inject
-    private RestRechtenConverter restRechtenConverter;
-
     public RESTZaakZoekObject convert(final ZaakZoekObject zoekItem) {
         final RESTZaakZoekObject restZoekItem = new RESTZaakZoekObject();
         restZoekItem.id = zoekItem.getUuid();
@@ -37,8 +34,7 @@ public class RESTZaakZoekObjectConverter {
         restZoekItem.startdatum = DateTimeConverterUtil.convertToLocalDate(zoekItem.getStartdatum());
         restZoekItem.einddatum = DateTimeConverterUtil.convertToLocalDate(zoekItem.getEinddatum());
         restZoekItem.einddatumGepland = DateTimeConverterUtil.convertToLocalDate(zoekItem.getEinddatumGepland());
-        restZoekItem.uiterlijkeEinddatumAfdoening = DateTimeConverterUtil.convertToLocalDate(
-                zoekItem.getUiterlijkeEinddatumAfdoening());
+        restZoekItem.uiterlijkeEinddatumAfdoening = DateTimeConverterUtil.convertToLocalDate(zoekItem.getUiterlijkeEinddatumAfdoening());
         restZoekItem.publicatiedatum = DateTimeConverterUtil.convertToLocalDate(zoekItem.getPublicatiedatum());
         restZoekItem.communicatiekanaal = zoekItem.getCommunicatiekanaal();
         restZoekItem.vertrouwelijkheidaanduiding = zoekItem.getVertrouwelijkheidaanduiding();
@@ -61,7 +57,7 @@ public class RESTZaakZoekObjectConverter {
         restZoekItem.indicatieHeropend = zoekItem.isIndicatie(ZaakIndicatie.HEROPEND);
         restZoekItem.statusToelichting = zoekItem.getStatusToelichting();
         restZoekItem.indicaties = zoekItem.getZaakIndicaties();
-        restZoekItem.rechten = restRechtenConverter.convert(policyService.readZaakRechten(zoekItem));
+        restZoekItem.rechten = RestRechtenConverter.convert(policyService.readZaakRechten(zoekItem));
         restZoekItem.betrokkenen = new HashMap<>();
         if (zoekItem.getBetrokkenen() != null) {
             zoekItem.getBetrokkenen().forEach((betrokkenheid, ids) -> {

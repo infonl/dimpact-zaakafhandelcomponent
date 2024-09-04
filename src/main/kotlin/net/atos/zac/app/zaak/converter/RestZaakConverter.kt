@@ -52,7 +52,6 @@ class RestZaakConverter @Inject constructor(
     private val restUserConverter: RestUserConverter,
     private val restBesluitConverter: RestBesluitConverter,
     private val restZaaktypeConverter: RestZaaktypeConverter,
-    private val restRechtenConverter: RestRechtenConverter,
     private val restGeometryConverter: RestGeometryConverter,
     private val policyService: PolicyService,
     private val zaakVariabelenService: ZaakVariabelenService,
@@ -136,7 +135,7 @@ class RestZaakConverter @Inject constructor(
             ).orElse(false),
             isBesluittypeAanwezig = zaaktype.besluittypen?.isNotEmpty() ?: false,
             isProcesGestuurd = bpmnService.isProcesGestuurd(zaak.uuid),
-            rechten = policyService.readZaakRechten(zaak, zaaktype).let(restRechtenConverter::convert),
+            rechten = policyService.readZaakRechten(zaak, zaaktype).let(RestRechtenConverter::convert),
             zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid),
             indicaties = when {
                 zaak.is_Hoofdzaak -> EnumSet.of(ZaakIndicatie.HOOFDZAAK)
