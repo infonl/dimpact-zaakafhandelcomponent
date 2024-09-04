@@ -27,7 +27,7 @@ import net.atos.client.zgw.zrc.model.createZaakInformatieobject
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createBesluitType
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
-import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjecttypeConverter
+import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTZaakInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
@@ -64,7 +64,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val restGerelateerdeZaakConverter = mockk<RestGerelateerdeZaakConverter>()
     val restHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
     val restInformatieobjectConverter = mockk<RestInformatieobjectConverter>()
-    val restInformatieobjecttypeConverter = mockk<RESTInformatieobjecttypeConverter>()
+    val restInformatieobjecttypeConverter = mockk<RestInformatieobjecttypeConverter>()
     val webdavHelper = mockk<WebdavHelper>()
     val zaakInformatieobjectConverter = mockk<RESTZaakInformatieobjectConverter>()
     val zgwApiService = mockk<ZGWApiService>()

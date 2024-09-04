@@ -35,9 +35,9 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.util.InformatieObjectTypeUtil.isNuGeldig
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.audit.model.RESTHistorieRegel
-import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjecttypeConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTZaakInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
+import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerplaatsGegevens
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerwijderenGegevens
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerzendGegevens
@@ -86,7 +86,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val eventingService: EventingService,
     private val zaakInformatieobjectConverter: RESTZaakInformatieobjectConverter,
     private val restInformatieobjectConverter: RestInformatieobjectConverter,
-    private val restInformatieobjecttypeConverter: RESTInformatieobjecttypeConverter,
+    private val restInformatieobjecttypeConverter: RestInformatieobjecttypeConverter,
     private val restHistorieRegelConverter: RESTHistorieRegelConverter,
     private val restGerelateerdeZaakConverter: RestGerelateerdeZaakConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>,
@@ -264,9 +264,8 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     fun listInformatieobjecttypesForZaak(@PathParam("zaakUuid") zaakID: UUID): List<RestInformatieobjecttype> =
         zrcClientService.readZaak(zaakID).zaaktype
             .let { ztcClientService.readZaaktype(it).informatieobjecttypen }
-            .map { ztcClientService.readInformatieobjecttype(it) }
-            .filter { isNuGeldig(it) }
-            .toList()
+            .map(ztcClientService::readInformatieobjecttype)
+            .filter(::isNuGeldig)
             .let(restInformatieobjecttypeConverter::convert)
 
     @GET
@@ -285,7 +284,6 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         .apply { assertPolicy(policyService.readDocumentRechten(this).lezen) }
         .let(zrcClientService::listZaakinformatieobjecten)
         .map(zaakInformatieobjectConverter::convert)
-        .toList()
 
     @GET
     @Path("informatieobject/{uuid}/edit")
@@ -381,13 +379,10 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         val informatieobjecten = uuids
             .map(UUID::fromString)
             .map(drcClientService::readEnkelvoudigInformatieobject)
-            .toList()
-
         informatieobjecten
             .map(policyService::readDocumentRechten)
             .map { it.downloaden }
             .forEach(PolicyService::assertPolicy)
-
         return informatieobjecten
             .let(enkelvoudigInformatieObjectDownloadService::getZipStreamOutput)
             .let(Response::ok)
@@ -432,8 +427,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             URIUtil.parseUUIDFromResourceURI(enkelvoudigInformatieObject.url),
             enkelvoudigInformatieObjectWithLockRequest,
             enkelvoudigInformatieObjectVersieGegevens.toelichting
-        )
-            .let(restInformatieobjectConverter::convertToREST)
+        ).let(restInformatieobjectConverter::convertToREST)
 
     @POST
     @Path("/informatieobject/{uuid}/lock")
