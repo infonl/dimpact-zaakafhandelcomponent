@@ -42,7 +42,7 @@ import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerplaatsGegevens
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerwijderenGegevens
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerzendGegevens
 import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjectZoekParameters
-import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjecttype
+import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype
 import net.atos.zac.app.informatieobjecten.model.RESTZaakInformatieobject
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
@@ -254,14 +254,14 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     @GET
     @Path("informatieobjecttypes/{zaakTypeUuid}")
-    fun listInformatieobjecttypes(@PathParam("zaakTypeUuid") zaakTypeID: UUID): List<RESTInformatieobjecttype> =
+    fun listInformatieobjecttypes(@PathParam("zaakTypeUuid") zaakTypeID: UUID): List<RestInformatieobjecttype> =
         ztcClientService.readZaaktype(zaakTypeID).let {
             restInformatieobjecttypeConverter.convertFromUris(it.informatieobjecttypen)
         }
 
     @GET
     @Path("informatieobjecttypes/zaak/{zaakUuid}")
-    fun listInformatieobjecttypesForZaak(@PathParam("zaakUuid") zaakID: UUID): List<RESTInformatieobjecttype> =
+    fun listInformatieobjecttypesForZaak(@PathParam("zaakUuid") zaakID: UUID): List<RestInformatieobjecttype> =
         zrcClientService.readZaak(zaakID).zaaktype
             .let { ztcClientService.readZaaktype(it).informatieobjecttypen }
             .map { ztcClientService.readInformatieobjecttype(it) }
