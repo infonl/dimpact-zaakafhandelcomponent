@@ -5,9 +5,9 @@
 package net.atos.zac.app.zaak.converter
 
 import jakarta.inject.Inject
+import net.atos.client.zgw.ztc.model.extensions.isNuGeldig
+import net.atos.client.zgw.ztc.model.extensions.isServicenormBeschikbaar
 import net.atos.client.zgw.ztc.model.generated.ZaakType
-import net.atos.client.zgw.ztc.util.isNuGeldig
-import net.atos.client.zgw.ztc.util.isServicenormBeschikbaar
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.app.admin.converter.RestZaakafhandelParametersConverter
 import net.atos.zac.app.zaak.model.RelatieType
@@ -40,9 +40,9 @@ class RestZaaktypeConverter @Inject constructor(
             identificatie = zaaktype.identificatie,
             doel = zaaktype.doel,
             omschrijving = zaaktype.omschrijving,
-            servicenorm = isServicenormBeschikbaar(zaaktype),
+            servicenorm = zaaktype.isServicenormBeschikbaar(),
             versiedatum = zaaktype.versiedatum,
-            nuGeldig = isNuGeldig(zaaktype),
+            nuGeldig = zaaktype.isNuGeldig(),
             beginGeldigheid = zaaktype.beginGeldigheid,
             eindeGeldigheid = zaaktype.eindeGeldigheid,
             vertrouwelijkheidaanduiding = zaaktype.vertrouwelijkheidaanduiding,

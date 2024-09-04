@@ -32,7 +32,7 @@ import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.util.InformatieObjectTypeUtil.isNuGeldig
+import net.atos.client.zgw.ztc.model.extensions.isNuGeldig
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.audit.model.RESTHistorieRegel
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
@@ -261,11 +261,11 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     @GET
     @Path("informatieobjecttypes/zaak/{zaakUuid}")
-    fun listInformatieobjecttypesForZaak(@PathParam("zaakUuid") zaakID: UUID): List<RestInformatieobjecttype> =
-        zrcClientService.readZaak(zaakID).zaaktype
+    fun listInformatieobjecttypesForZaak(@PathParam("zaakUuid") zaakUUID: UUID): List<RestInformatieobjecttype> =
+        zrcClientService.readZaak(zaakUUID).zaaktype
             .let { ztcClientService.readZaaktype(it).informatieobjecttypen }
             .map(ztcClientService::readInformatieobjecttype)
-            .filter(::isNuGeldig)
+            .filter { it.isNuGeldig() }
             .let(restInformatieobjecttypeConverter::convert)
 
     @GET
