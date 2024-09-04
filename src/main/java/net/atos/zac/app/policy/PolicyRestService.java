@@ -27,18 +27,15 @@ public class PolicyRestService {
     @Inject
     private PolicyService policyService;
 
-    @Inject
-    private RestRechtenConverter rechtenConverter;
-
     @GET
     @Path("werklijstRechten")
     public RestWerklijstRechten readWerklijstRechten() {
-        return rechtenConverter.convert(policyService.readWerklijstRechten());
+        return RestRechtenConverter.convert(policyService.readWerklijstRechten());
     }
 
     @GET
     @Path("overigeRechten")
     public RestOverigeRechten readOverigeRechten() {
-        return rechtenConverter.convert(policyService.readOverigeRechten());
+        return RestRechtenConverter.convert(policyService.readOverigeRechten());
     }
 }

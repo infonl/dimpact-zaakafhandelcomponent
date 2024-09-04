@@ -13,7 +13,7 @@ import net.atos.zac.app.zaak.model.RestZaakStatus;
 /**
  * weergave van een zaak die is gekoppeld aan een (enkelvoudig) informatieobject
  */
-public class RESTZaakInformatieobject {
+public class RestZaakInformatieobject {
 
     public String zaakIdentificatie;
 

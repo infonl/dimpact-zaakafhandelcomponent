@@ -35,18 +35,18 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.util.InformatieObjectTypeUtil.isNuGeldig
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.audit.model.RESTHistorieRegel
-import net.atos.zac.app.informatieobjecten.converter.RESTZaakInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
+import net.atos.zac.app.informatieobjecten.converter.RestZaakInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerplaatsGegevens
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerwijderenGegevens
 import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerzendGegevens
 import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjectZoekParameters
-import net.atos.zac.app.informatieobjecten.model.RESTZaakInformatieobject
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject
 import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype
+import net.atos.zac.app.informatieobjecten.model.RestZaakInformatieobject
 import net.atos.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.authentication.LoggedInUser
@@ -84,7 +84,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val inboxDocumentenService: InboxDocumentenService,
     private val enkelvoudigInformatieObjectLockService: EnkelvoudigInformatieObjectLockService,
     private val eventingService: EventingService,
-    private val zaakInformatieobjectConverter: RESTZaakInformatieobjectConverter,
+    private val zaakInformatieobjectConverter: RestZaakInformatieobjectConverter,
     private val restInformatieobjectConverter: RestInformatieobjectConverter,
     private val restInformatieobjecttypeConverter: RestInformatieobjecttypeConverter,
     private val restHistorieRegelConverter: RESTHistorieRegelConverter,
@@ -279,7 +279,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     @GET
     @Path("informatieobject/{uuid}/zaakinformatieobjecten")
-    fun listZaakInformatieobjecten(@PathParam("uuid") uuid: UUID): List<RESTZaakInformatieobject> = uuid
+    fun listZaakInformatieobjecten(@PathParam("uuid") uuid: UUID): List<RestZaakInformatieobject> = uuid
         .let(drcClientService::readEnkelvoudigInformatieobject)
         .apply { assertPolicy(policyService.readDocumentRechten(this).lezen) }
         .let(zrcClientService::listZaakinformatieobjecten)

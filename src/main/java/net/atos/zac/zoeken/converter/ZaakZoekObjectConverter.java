@@ -75,7 +75,7 @@ public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoe
                 DateTimeConverterUtil.convertToDate(zaak.getUiterlijkeEinddatumAfdoening())
         );
         zaakZoekObject.setPublicatiedatum(DateTimeConverterUtil.convertToDate(zaak.getPublicatiedatum()));
-        // make sure to use the enum name and not the value here since the frontend translations rely on the enum name
+        // we use the uppercase version of this enum in the ZAC backend API
         zaakZoekObject.setVertrouwelijkheidaanduiding(zaak.getVertrouwelijkheidaanduiding().name());
         zaakZoekObject.setAfgehandeld(!zaak.isOpen());
         zgwApiService.findInitiatorRoleForZaak(zaak).ifPresent(zaakZoekObject::setInitiator);

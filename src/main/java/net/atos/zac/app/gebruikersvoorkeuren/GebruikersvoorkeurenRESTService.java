@@ -55,9 +55,6 @@ public class GebruikersvoorkeurenRESTService {
     @Inject
     private PolicyService policyService;
 
-    @Inject
-    private RestRechtenConverter rechtenConverter;
-
     @GET
     @Path("zoekopdracht/{lijstID}")
     public List<RESTZoekopdracht> listZoekopdrachten(@PathParam("lijstID") final Werklijst lijstID) {
@@ -101,7 +98,7 @@ public class GebruikersvoorkeurenRESTService {
         );
         restTabelGegevens.aantalPerPagina = tabelInstellingen.getAantalPerPagina();
         restTabelGegevens.pageSizeOptions = TabelInstellingen.PAGE_SIZE_OPTIONS;
-        restTabelGegevens.werklijstRechten = rechtenConverter.convert(policyService.readWerklijstRechten());
+        restTabelGegevens.werklijstRechten = RestRechtenConverter.convert(policyService.readWerklijstRechten());
         return restTabelGegevens;
     }
 

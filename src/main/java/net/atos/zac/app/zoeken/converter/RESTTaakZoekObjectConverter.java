@@ -18,9 +18,6 @@ public class RESTTaakZoekObjectConverter {
     @Inject
     private PolicyService policyService;
 
-    @Inject
-    private RestRechtenConverter restRechtenConverter;
-
     public RESTTaakZoekObject convert(final TaakZoekObject taakZoekObject) {
         final RESTTaakZoekObject restTaakZoekObject = new RESTTaakZoekObject();
         restTaakZoekObject.id = taakZoekObject.getId();
@@ -40,7 +37,7 @@ public class RESTTaakZoekObjectConverter {
         restTaakZoekObject.zaakUuid = taakZoekObject.getZaakUUID();
         restTaakZoekObject.zaakToelichting = taakZoekObject.getZaakToelichting();
         restTaakZoekObject.zaakOmschrijving = taakZoekObject.getZaakOmschrijving();
-        restTaakZoekObject.rechten = restRechtenConverter.convert(policyService.readTaakRechten(taakZoekObject));
+        restTaakZoekObject.rechten = RestRechtenConverter.convert(policyService.readTaakRechten(taakZoekObject));
         return restTaakZoekObject;
     }
 }
