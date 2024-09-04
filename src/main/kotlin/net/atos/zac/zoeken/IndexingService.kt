@@ -49,8 +49,11 @@ class IndexingService @Inject constructor(
         private const val SOLR_MAX_RESULTS = 100
         private const val TAKEN_MAX_RESULTS = 50
 
+        const val MAX_SEQUENTIAL_ERRORS = 20
+
         private val LOG = Logger.getLogger(IndexingService::class.java.name)
         private val reindexingViewfinder = ConcurrentHashMap.newKeySet<ZoekObjectType>()
+        private val failureCounters = mutableMapOf<ZoekObjectType, Int>()
 
         private lateinit var solrClient: SolrClient
     }
@@ -102,6 +105,7 @@ class IndexingService @Inject constructor(
             logTypeMessage(objectType, "Reindexing finished successfully")
         } finally {
             reindexingViewfinder.remove(objectType)
+            failureCounters.remove(objectType)
         }
     }
 
@@ -161,13 +165,14 @@ class IndexingService @Inject constructor(
         }
     }
 
-    private fun removeFromSolrIndex(idsToBeDeleted: List<String>) {
-        if (idsToBeDeleted.isEmpty()) {
-            return
+    private fun removeFromSolrIndex(idsToBeDeleted: List<String>): Boolean {
+        if (idsToBeDeleted.isNotEmpty()) {
+            runTranslatingToIndexingException {
+                solrClient.deleteById(idsToBeDeleted)
+            }
         }
-        runTranslatingToIndexingException {
-            solrClient.deleteById(idsToBeDeleted)
-        }
+
+        return true
     }
 
     private fun removeFromSolrIndex(id: String) {
@@ -187,10 +192,10 @@ class IndexingService @Inject constructor(
         while (true) {
             query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark)
             val response = runTranslatingToIndexingException { solrClient.query(query) }
-            runIgnoringExceptions(objectType) {
-                removeFromSolrIndex(response.results.mapNotNull { it["id"].toString() })
-            }
-            if (cursorMark == response.nextCursorMark) {
+            if (!continueOnExceptions(objectType) {
+                    removeFromSolrIndex(response.results.mapNotNull { it["id"].toString() })
+                } || cursorMark == response.nextCursorMark
+            ) {
                 break
             }
             cursorMark = response.nextCursorMark
@@ -202,7 +207,7 @@ class IndexingService @Inject constructor(
             ordering = "-identificatie"
             page = ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS
         }
-        while (runIgnoringExceptions(ZoekObjectType.ZAAK) { reindexZaken(listParameters) } != false) {
+        while (continueOnExceptions(ZoekObjectType.ZAAK) { reindexZaken(listParameters) }) {
             listParameters.page++
         }
     }
@@ -211,7 +216,7 @@ class IndexingService @Inject constructor(
         val listParameters = EnkelvoudigInformatieobjectListParameters().apply {
             page = ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS
         }
-        while (runIgnoringExceptions(ZoekObjectType.DOCUMENT) { reindexInformatieobjecten(listParameters) } != false) {
+        while (continueOnExceptions(ZoekObjectType.DOCUMENT) { reindexInformatieobjecten(listParameters) }) {
             listParameters.page++
         }
     }
@@ -219,7 +224,7 @@ class IndexingService @Inject constructor(
     private fun reindexAllTaken() {
         val numberOfTasks = flowableTaskService.countOpenTasks()
         var page = 0
-        while (runIgnoringExceptions(ZoekObjectType.TAAK) { reindexTaken(page, numberOfTasks) } != false) {
+        while (continueOnExceptions(ZoekObjectType.TAAK) { reindexTaken(page, numberOfTasks) }) {
             page++
         }
     }
@@ -232,10 +237,10 @@ class IndexingService @Inject constructor(
             performCommit = false
         )
         logProgress(
-            ZoekObjectType.ZAAK,
-            (listParameters.page - ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE +
+            objectType = ZoekObjectType.ZAAK,
+            progress = (listParameters.page - ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE +
                 zaakResults.results.size,
-            zaakResults.count.toLong()
+            totalSize = zaakResults.count.toLong()
         )
         return zaakResults.next != null
     }
@@ -281,11 +286,11 @@ class IndexingService @Inject constructor(
     private fun logTypeMessage(objectType: ZoekObjectType, message: String) =
         LOG.info("[$objectType] $message")
 
-    private fun logTypeError(objectType: ZoekObjectType, error: Throwable) =
-        LOG.log(Level.WARNING, "[$objectType] Error during indexing", error)
+    private fun logTypeError(objectType: ZoekObjectType, failureNumber: Int, error: Throwable) =
+        LOG.log(Level.WARNING, "[$objectType] Error ($failureNumber/$MAX_SEQUENTIAL_ERRORS) during indexing", error)
 
-    private fun logProgress(objectType: ZoekObjectType, voortgang: Long, grootte: Long) =
-        logTypeMessage(objectType, "reindexed: $voortgang / $grootte")
+    private fun logProgress(objectType: ZoekObjectType, progress: Long, totalSize: Long) =
+        logTypeMessage(objectType, "reindexed: $progress / $totalSize")
 
     private fun <T> runTranslatingToIndexingException(fn: () -> T): T {
         try {
@@ -297,13 +302,16 @@ class IndexingService @Inject constructor(
         }
     }
 
-    private fun <T> runIgnoringExceptions(objectType: ZoekObjectType, fn: () -> T): T? {
-        try {
-            return runTranslatingToIndexingException { fn() }
+    private fun continueOnExceptions(objectType: ZoekObjectType, fn: () -> Boolean): Boolean {
+        var currentFailureCount = failureCounters[objectType] ?: 0
+        return try {
+            runTranslatingToIndexingException { fn() }.also {
+                failureCounters[objectType] = 0
+            }
         } catch (indexingException: IndexingException) {
-            logTypeError(objectType, indexingException)
+            failureCounters[objectType] = ++currentFailureCount
+            logTypeError(objectType, currentFailureCount, indexingException)
+            currentFailureCount < MAX_SEQUENTIAL_ERRORS
         }
-
-        return null
     }
 }

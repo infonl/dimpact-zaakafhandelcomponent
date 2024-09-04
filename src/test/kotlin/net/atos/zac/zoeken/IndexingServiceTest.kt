@@ -16,6 +16,7 @@ import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.flowable.task.FlowableTaskService
+import net.atos.zac.zoeken.IndexingService.Companion.MAX_SEQUENTIAL_ERRORS
 import net.atos.zac.zoeken.converter.AbstractZoekObjectConverter
 import net.atos.zac.zoeken.converter.ZaakZoekObjectConverter
 import net.atos.zac.zoeken.model.ZoekObject
@@ -29,6 +30,7 @@ import org.apache.solr.common.SolrDocument
 import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.common.params.CursorMarkParams
 import org.eclipse.microprofile.config.ConfigProvider
+import java.io.IOException
 import java.net.URI
 
 class IndexingServiceTest : BehaviorSpec({
@@ -161,7 +163,7 @@ class IndexingServiceTest : BehaviorSpec({
             }
         }
 
-        When("error occurs during indexing") {
+        When("adding beans in Solr errors") {
             val solrException = SolrServerException("Solr exception")
             every { solrClient.addBeans(any<Collection<*>>()) } throws solrException
 
@@ -171,6 +173,35 @@ class IndexingServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     solrClient.deleteById(any<List<String>>())
                     solrClient.addBeans(any<Collection<*>>())
+                }
+            }
+        }
+    }
+
+    Given("Solr indexing exists and zaak information cannot be obtained") {
+        val queryResponse = mockk<QueryResponse>()
+        val documentList = SolrDocumentList().apply {
+            addAll(
+                listOf(
+                    SolrDocument(mapOf("id" to 1)),
+                    SolrDocument(mapOf("id" to 2))
+                )
+            )
+        }
+        every { queryResponse.results } returns documentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { solrClient.query(any()) } returns queryResponse
+        every { solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
+
+        val ioException = IOException("IO exception")
+        every { zrcClientService.listZaken(any<ZaakListParameters>()) } throws ioException
+
+        When("reading zaak details throws an error") {
+            indexingService.reindex(ZoekObjectType.ZAAK)
+
+            Then("aborts after max sequential errors") {
+                verify(exactly = MAX_SEQUENTIAL_ERRORS) {
+                    zrcClientService.listZaken(any<ZaakListParameters>())
                 }
             }
         }
