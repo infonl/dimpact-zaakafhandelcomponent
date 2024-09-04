@@ -360,8 +360,8 @@ public class RestInformatieobjectConverter {
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding != null) {
             enkelvoudigInformatieObjectWithLockData.setVertrouwelijkheidaanduiding(
-                    // we use the name of this enum in the ZAC API
-                    VertrouwelijkheidaanduidingEnum.valueOf(restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding)
+                    // convert this enum to uppercase in case the client sends it in lowercase
+                    VertrouwelijkheidaanduidingEnum.valueOf(restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding.toUpperCase())
             );
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.beschrijving != null) {
