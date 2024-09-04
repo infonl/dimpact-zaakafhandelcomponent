@@ -12,7 +12,7 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
+import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.zaak.model.RestBesluit
 import net.atos.zac.app.zaak.model.RestBesluitVastleggenGegevens
 import net.atos.zac.app.zaak.model.toRestBesluitType
@@ -25,7 +25,7 @@ import java.time.LocalDate
 class RestBesluitConverter @Inject constructor(
     private val brcClientService: BrcClientService,
     private val drcClientService: DrcClientService,
-    private val restInformatieobjectConverter: RESTInformatieobjectConverter,
+    private val restInformatieobjectConverter: RestInformatieobjectConverter,
     private val ztcClientService: ZtcClientService
 ) {
     fun convertToRestBesluit(besluit: Besluit) = RestBesluit(

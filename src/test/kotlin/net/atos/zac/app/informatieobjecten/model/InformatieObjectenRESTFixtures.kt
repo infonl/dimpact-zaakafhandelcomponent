@@ -18,7 +18,7 @@ fun createRESTEnkelvoudigInformatieobject(
     bestandsNaam: String = "dummyFilename",
     formaat: String = "dummyType",
     indicatieGebruiksrecht: Boolean? = null
-) = RESTEnkelvoudigInformatieobject().apply {
+) = RestEnkelvoudigInformatieobject().apply {
     this.uuid = uuid
     this.status = status
     this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
@@ -65,7 +65,7 @@ fun createRESTEnkelvoudigInformatieObjectVersieGegevens(
     formaat: String = "dummyType",
     informatieobjectTypeUUID: UUID = UUID.randomUUID(),
     vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name
-) = RESTEnkelvoudigInformatieObjectVersieGegevens().apply {
+) = RestEnkelvoudigInformatieObjectVersieGegevens().apply {
     this.uuid = uuid
     this.zaakUuid = zaakUuid
     this.bestandsnaam = bestandsnaam

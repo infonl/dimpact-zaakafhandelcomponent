@@ -27,9 +27,9 @@ import net.atos.client.zgw.zrc.model.createZaakInformatieobject
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createBesluitType
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
-import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjecttypeConverter
 import net.atos.zac.app.informatieobjecten.converter.RESTZaakInformatieobjectConverter
+import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieObjectVersieGegevens
 import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
@@ -42,6 +42,7 @@ import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockS
 import net.atos.zac.event.EventingService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
+import net.atos.zac.policy.output.createDocumentRechten
 import net.atos.zac.policy.output.createDocumentRechtenAllDeny
 import net.atos.zac.policy.output.createZaakRechten
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
@@ -62,7 +63,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val restGerelateerdeZaakConverter = mockk<RestGerelateerdeZaakConverter>()
     val restHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
-    val restInformatieobjectConverter = mockk<RESTInformatieobjectConverter>()
+    val restInformatieobjectConverter = mockk<RestInformatieobjectConverter>()
     val restInformatieobjecttypeConverter = mockk<RESTInformatieobjecttypeConverter>()
     val webdavHelper = mockk<WebdavHelper>()
     val zaakInformatieobjectConverter = mockk<RESTZaakInformatieobjectConverter>()
@@ -434,6 +435,28 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     size shouldBe 1
                     this[0] shouldBe restEnkelvoudigInformatieobjecten[0]
                 }
+            }
+        }
+    }
+    Given("An enkelvoudig informatieobject") {
+        val informatieobjectUUID = UUID.randomUUID()
+        val enkelvoudiginformatieobject = createEnkelvoudigInformatieObject()
+        val restEnkelvoudigInformatieObjectVersieGegevens =
+            createRESTEnkelvoudigInformatieObjectVersieGegevens(uuid = informatieobjectUUID)
+        every {
+            drcClientService.readEnkelvoudigInformatieobject(informatieobjectUUID)
+        } returns enkelvoudiginformatieobject
+        every { policyService.readDocumentRechten(enkelvoudiginformatieobject) } returns createDocumentRechten()
+        every {
+            restInformatieobjectConverter.convertToRestEnkelvoudigInformatieObjectVersieGegevens(enkelvoudiginformatieobject)
+        } returns restEnkelvoudigInformatieObjectVersieGegevens
+
+        When("the current version of the enkelvoudig informatieobject is requested") {
+            val returnedEnkelvoudigInformatieObjectVersieGegevens =
+                enkelvoudigInformatieObjectRestService.readHuidigeVersieInformatieObject(informatieobjectUUID)
+
+            Then("the current version of the enkelvoudig informatieobject is returned") {
+                returnedEnkelvoudigInformatieObjectVersieGegevens shouldBe restEnkelvoudigInformatieObjectVersieGegevens
             }
         }
     }

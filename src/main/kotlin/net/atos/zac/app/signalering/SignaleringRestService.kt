@@ -18,8 +18,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
-import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject
+import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
+import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import net.atos.zac.app.signalering.converter.RestSignaleringInstellingenConverter
 import net.atos.zac.app.signalering.converter.toRestSignaleringTaakSummary
 import net.atos.zac.app.signalering.model.RestSignaleringInstellingen
@@ -47,7 +47,7 @@ class SignaleringRestService @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
     private val drcClientService: DrcClientService,
     private val identityService: IdentityService,
-    private val restInformatieobjectConverter: RESTInformatieobjectConverter,
+    private val restInformatieobjectConverter: RestInformatieobjectConverter,
     private val restSignaleringInstellingenConverter: RestSignaleringInstellingenConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
@@ -96,7 +96,7 @@ class SignaleringRestService @Inject constructor(
     @Path("/informatieobjecten/{type}")
     fun listInformatieobjectenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type
-    ): List<RESTEnkelvoudigInformatieobject> =
+    ): List<RestEnkelvoudigInformatieobject> =
         loggedInUserInstance.getSignaleringZoekParameters()
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.DOCUMENT)

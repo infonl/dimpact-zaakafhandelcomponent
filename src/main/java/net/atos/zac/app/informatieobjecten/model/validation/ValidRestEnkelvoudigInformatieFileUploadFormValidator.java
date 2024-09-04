@@ -3,14 +3,14 @@ package net.atos.zac.app.informatieobjecten.model.validation;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieFileUpload;
+import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieFileUpload;
 
 
 public class ValidRestEnkelvoudigInformatieFileUploadFormValidator implements
-                                                                   ConstraintValidator<ValidRestEnkelvoudigInformatieFileUploadForm, RESTEnkelvoudigInformatieFileUpload> {
+                                                                   ConstraintValidator<ValidRestEnkelvoudigInformatieFileUploadForm, RestEnkelvoudigInformatieFileUpload> {
 
     @Override
-    public boolean isValid(RESTEnkelvoudigInformatieFileUpload value, ConstraintValidatorContext context) {
+    public boolean isValid(RestEnkelvoudigInformatieFileUpload value, ConstraintValidatorContext context) {
         if (value.bestandsnaam != null) {
             return value.file != null && value.file.length != 0;
         }

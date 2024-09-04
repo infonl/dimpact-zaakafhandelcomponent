@@ -6,7 +6,7 @@ package net.atos.zac.app.zaak.model
 
 import jakarta.json.bind.annotation.JsonbProperty
 import net.atos.client.zgw.brc.model.generated.VervalredenEnum
-import net.atos.zac.app.informatieobjecten.model.RESTEnkelvoudigInformatieobject
+import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.net.URI
@@ -39,5 +39,5 @@ data class RestBesluit(
 
     var zaakUuid: UUID? = null,
 
-    var informatieobjecten: List<RESTEnkelvoudigInformatieobject>? = null,
+    var informatieobjecten: List<RestEnkelvoudigInformatieobject>? = null,
 )

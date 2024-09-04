@@ -205,6 +205,32 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_STATUS_OK
             }
         }
+        When("the huidigeversie endpoint is called") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID/huidigeversie"
+            )
+            Then(
+                """
+                    the response should be OK and the informatieobject should be returned and
+                    should have the status 'definitief' since it was signed
+                    """
+            ) {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_OK
+                with(responseBody) {
+                    shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
+                    shouldContainJsonKeyValue("status", DOCUMENT_STATUS_DEFINITIEF)
+                    shouldContainJsonKeyValue("titel", DOCUMENT_UPDATED_FILE_TITLE)
+                    shouldContainJsonKeyValue(
+                        "vertrouwelijkheidaanduiding",
+                        DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
+                    )
+                    shouldContainJsonKey("informatieobjectTypeUUID")
+                    shouldContainJsonKey("bestandsnaam")
+                }
+            }
+        }
     }
 
     Given(

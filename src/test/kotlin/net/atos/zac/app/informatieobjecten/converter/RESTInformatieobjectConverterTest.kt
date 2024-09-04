@@ -58,19 +58,20 @@ class RESTInformatieobjectConverterTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
 
-    val restInformatieobjectConverter = RESTInformatieobjectConverter(
-        brcClientService,
-        configuratieService,
-        drcClientService,
-        enkelvoudigInformatieObjectLockService,
-        identityService,
-        loggedInUserInstance,
-        policyService,
-        restRechtenConverter,
-        restTaalConverter,
-        zrcClientService,
-        ztcClientService
-    )
+    val restInformatieobjectConverter =
+        RestInformatieobjectConverter(
+            brcClientService,
+            configuratieService,
+            drcClientService,
+            enkelvoudigInformatieObjectLockService,
+            identityService,
+            loggedInUserInstance,
+            policyService,
+            restRechtenConverter,
+            restTaalConverter,
+            zrcClientService,
+            ztcClientService
+        )
 
     Given("REST taak document data and REST file upload are provided") {
         val restTaakDocumentData = createRestTaskDocumentData()
