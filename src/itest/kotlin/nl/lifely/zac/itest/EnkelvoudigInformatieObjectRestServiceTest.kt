@@ -146,6 +146,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     .addFormDataPart("bestandsomvang", TEST_TXT_FILE_SIZE.toString())
                     .addFormDataPart("formaat", TEXT_MIME_TYPE)
                     .addFormDataPart(
+                        "vertrouwelijkheidaanduiding",
+                        DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
+                    )
+                    .addFormDataPart(
                         "file",
                         TEST_TXT_FILE_NAME,
                         file.asRequestBody(TEXT_MIME_TYPE.toMediaType())

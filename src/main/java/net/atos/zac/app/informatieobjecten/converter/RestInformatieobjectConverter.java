@@ -360,7 +360,9 @@ public class RestInformatieobjectConverter {
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding != null) {
             enkelvoudigInformatieObjectWithLockData.setVertrouwelijkheidaanduiding(
-                    VertrouwelijkheidaanduidingEnum.fromValue(restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding)
+                    // convert this enum to uppercase in case the client sends it in lowercase
+                    VertrouwelijkheidaanduidingEnum.valueOf(restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding
+                            .toUpperCase())
             );
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.beschrijving != null) {

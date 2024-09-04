@@ -55,7 +55,7 @@ class RestZaakConverter @Inject constructor(
     private val restGeometryConverter: RestGeometryConverter,
     private val policyService: PolicyService,
     private val zaakVariabelenService: ZaakVariabelenService,
-    private val bpmnService: BPMNService,
+    private val bpmnService: BPMNService
 ) {
     companion object {
         private val LOG = Logger.getLogger(RestZaakConverter::class.java.name)
@@ -159,7 +159,8 @@ class RestZaakConverter @Inject constructor(
         this.toelichting = restZaak.toelichting
         this.registratiedatum = LocalDate.now()
         this.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
-            VertrouwelijkheidaanduidingEnum.fromValue(it)
+            // convert this enum to uppercase in case the client sends it in lowercase
+            VertrouwelijkheidaanduidingEnum.valueOf(it.uppercase())
         }
         this.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometryConverter.convert(it) }
     }
@@ -172,47 +173,43 @@ class RestZaakConverter @Inject constructor(
         zaak.einddatumGepland = restZaak.einddatumGepland
         zaak.uiterlijkeEinddatumAfdoening = restZaak.uiterlijkeEinddatumAfdoening
         zaak.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
-            VertrouwelijkheidaanduidingEnum.fromValue(it)
+            // convert this enum to uppercase in case the client sends it in lowercase
+            VertrouwelijkheidaanduidingEnum.valueOf(it.uppercase())
         }
         zaak.communicatiekanaalNaam = restZaak.communicatiekanaal
         zaak.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometryConverter.convert(it) }
         return zaak
     }
 
-    fun convertToPatch(zaakUUID: UUID?, verlengGegevens: RESTZaakVerlengGegevens): Zaak {
-        val zaak = Zaak()
-        zaak.einddatumGepland = verlengGegevens.einddatumGepland
-        zaak.uiterlijkeEinddatumAfdoening = verlengGegevens.uiterlijkeEinddatumAfdoening
-        val verlenging = zrcClientService.readZaak(zaakUUID).verlenging
-        zaak.verlenging = if (verlenging != null && verlenging.duur != null) {
-            Verlenging(
-                verlengGegevens.redenVerlenging,
-                verlenging.duur.plusDays(verlengGegevens.duurDagen.toLong())
-            )
-        } else {
-            Verlenging(
-                verlengGegevens.redenVerlenging,
-                Period.ofDays(verlengGegevens.duurDagen)
-            )
+    fun convertToPatch(zaakUUID: UUID, verlengGegevens: RESTZaakVerlengGegevens) =
+        zrcClientService.readZaak(zaakUUID).let { zaak ->
+            Zaak().apply {
+                einddatumGepland = verlengGegevens.einddatumGepland
+                uiterlijkeEinddatumAfdoening = verlengGegevens.uiterlijkeEinddatumAfdoening
+                verlenging = Verlenging(
+                    verlengGegevens.redenVerlenging,
+                    zaak.verlenging?.duur?.plusDays(verlengGegevens.duurDagen.toLong()) ?: Period.ofDays(verlengGegevens.duurDagen)
+                )
+            }
         }
-        return zaak
-    }
 
     private fun toRestGerelateerdeZaken(zaak: Zaak): List<RestGerelateerdeZaak> {
         val gerelateerdeZaken = mutableListOf<RestGerelateerdeZaak>()
         zaak.hoofdzaak?.let {
             gerelateerdeZaken.add(
                 restGerelateerdeZaakConverter.convert(
-                    zrcClientService.readZaak(it),
-                    RelatieType.HOOFDZAAK
+                    zaak = zrcClientService.readZaak(it),
+                    relatieType = RelatieType.HOOFDZAAK
                 )
             )
         }
-        zaak.deelzaken?.map { zrcClientService.readZaak(it) }
+        zaak.deelzaken
+            ?.map(zrcClientService::readZaak)
             ?.map { restGerelateerdeZaakConverter.convert(it, RelatieType.DEELZAAK) }
-            ?.forEach { gerelateerdeZaken.add(it) }
-        zaak.relevanteAndereZaken?.map { restGerelateerdeZaakConverter.convert(it) }
-            ?.forEach { gerelateerdeZaken.add(it) }
+            ?.forEach(gerelateerdeZaken::add)
+        zaak.relevanteAndereZaken
+            ?.map(restGerelateerdeZaakConverter::convert)
+            ?.forEach(gerelateerdeZaken::add)
         return gerelateerdeZaken
     }
 }
