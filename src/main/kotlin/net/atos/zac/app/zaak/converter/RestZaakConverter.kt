@@ -6,6 +6,7 @@ package net.atos.zac.app.zaak.converter
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.brc.BrcClientService
+import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZrcClientService
@@ -56,6 +57,7 @@ class RestZaakConverter @Inject constructor(
     private val policyService: PolicyService,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val bpmnService: BPMNService,
+    private val drcClientService: DrcClientService,
 ) {
     companion object {
         private val LOG = Logger.getLogger(RestZaakConverter::class.java.name)
@@ -159,7 +161,8 @@ class RestZaakConverter @Inject constructor(
         this.toelichting = restZaak.toelichting
         this.registratiedatum = LocalDate.now()
         this.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
-            VertrouwelijkheidaanduidingEnum.fromValue(it)
+            // convert this enum to uppercase in case the client sends it in lowercase
+            VertrouwelijkheidaanduidingEnum.valueOf(it.uppercase())
         }
         this.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometryConverter.convert(it) }
     }
@@ -172,7 +175,8 @@ class RestZaakConverter @Inject constructor(
         zaak.einddatumGepland = restZaak.einddatumGepland
         zaak.uiterlijkeEinddatumAfdoening = restZaak.uiterlijkeEinddatumAfdoening
         zaak.vertrouwelijkheidaanduiding = restZaak.vertrouwelijkheidaanduiding?.let {
-            VertrouwelijkheidaanduidingEnum.fromValue(it)
+            // convert this enum to uppercase in case the client sends it in lowercase
+            VertrouwelijkheidaanduidingEnum.valueOf(it.uppercase())
         }
         zaak.communicatiekanaalNaam = restZaak.communicatiekanaal
         zaak.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometryConverter.convert(it) }
