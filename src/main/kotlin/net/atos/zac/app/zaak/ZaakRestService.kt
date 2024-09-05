@@ -45,8 +45,8 @@ import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.util.StatusTypeUtil
 import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.client.zgw.ztc.model.extensions.isNuGeldig
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
-import net.atos.client.zgw.ztc.util.isNuGeldig
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakAfzender
 import net.atos.zac.admin.model.ZaakAfzender.Speciaal
@@ -128,7 +128,6 @@ import net.atos.zac.zoeken.model.index.ZoekObjectType
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.collections4.CollectionUtils
-import org.apache.commons.lang3.StringUtils
 import java.net.URI
 import java.time.LocalDate
 import java.util.Locale
@@ -259,16 +258,15 @@ class ZaakRestService @Inject constructor(
     fun createZaak(@Valid restZaakAanmaakGegevens: RESTZaakAanmaakGegevens): RestZaak {
         val restZaak = restZaakAanmaakGegevens.zaak
         val zaaktype = ztcClientService.readZaaktype(restZaak.zaaktype.uuid)
-
         // make sure to use the omschrijving of the zaaktype that was retrieved to perform
         // authorisation on zaaktype
         assertPolicy(
             policyService.readOverigeRechten().startenZaak &&
                 loggedInUserInstance.get().isAuthorisedForZaaktype(zaaktype.omschrijving)
         )
-
-        val zaak = zgwApiService.createZaak(restZaakConverter.toZaak(restZaak, zaaktype))
-        if (StringUtils.isNotEmpty(restZaak.initiatorIdentificatie)) {
+        val zaak = restZaakConverter.toZaak(restZaak, zaaktype)
+            .let(zgwApiService::createZaak)
+        restZaak.initiatorIdentificatie?.takeIf { it.isNotEmpty() }?.let {
             addInitiator(
                 restZaak.initiatorIdentificatieType!!,
                 restZaak.initiatorIdentificatie!!,
@@ -291,18 +289,15 @@ class ZaakRestService @Inject constructor(
             ),
             null
         )
-
         restZaakAanmaakGegevens.inboxProductaanvraag?.let { inboxProductaanvraag ->
             koppelInboxProductaanvraag(zaak, inboxProductaanvraag)
         }
-
         restZaakAanmaakGegevens.bagObjecten?.let { restbagObjecten ->
             for (restbagObject in restbagObjecten) {
                 val zaakobject: Zaakobject = restBAGConverter.convertToZaakobject(restbagObject, zaak)
                 zrcClientService.createZaakobject(zaakobject)
             }
         }
-
         return restZaakConverter.toRestZaak(zaak)
     }
 
@@ -501,7 +496,7 @@ class ZaakRestService @Inject constructor(
             .asSequence()
             .filter { loggedInUserInstance.get().isAuthorisedForZaaktype(it.omschrijving) }
             .filter { !it.concept }
-            .filter { isNuGeldig(it) }
+            .filter { it.isNuGeldig() }
             .filter { healthCheckService.controleerZaaktype(it.url).isValide }
             .map { restZaaktypeConverter.convert(it) }
             .toList()

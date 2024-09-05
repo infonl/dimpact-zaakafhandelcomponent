@@ -13,7 +13,12 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import net.atos.client.brp.BrpClientService
+import net.atos.client.brp.exception.BrpPersonNotFoundException
 import net.atos.client.klant.KlantClientService
 import net.atos.client.klant.model.ExpandBetrokkene
 import net.atos.client.kvk.KvkClientService
@@ -50,6 +55,7 @@ import org.hibernate.validator.constraints.Length
 import java.util.EnumSet
 import java.util.Objects
 import java.util.UUID
+import kotlin.jvm.optionals.getOrNull
 
 @Path("klanten")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -67,49 +73,56 @@ class KlantRestService @Inject constructor(
     companion object {
         val betrokkenen: EnumSet<OmschrijvingGeneriekEnum> =
             EnumSet.allOf(OmschrijvingGeneriekEnum::class.java).apply {
-                this.remove(OmschrijvingGeneriekEnum.INITIATOR)
-                this.remove(OmschrijvingGeneriekEnum.BEHANDELAAR)
+                this.removeAll(
+                    listOf(
+                        OmschrijvingGeneriekEnum.INITIATOR,
+                        OmschrijvingGeneriekEnum.BEHANDELAAR
+                    )
+                )
             }
 
-        const val TELEFOON_SOORT_DIGITAAL_ADRES: String = "telefoon"
-        const val EMAIL_SOORT_DIGITAAL_ADRES: String = "email"
+        const val TELEFOON_SOORT_DIGITAAL_ADRES = "telefoon"
+        const val EMAIL_SOORT_DIGITAAL_ADRES = "email"
     }
 
     @GET
     @Path("persoon/{bsn}")
     fun readPersoon(
         @PathParam("bsn") @Length(min = 8, max = 9) bsn: String
-    ): RestPersoon =
-        klantClientService.findDigitalAddressesByNumber(bsn).toRestPersoon().let {
-            // note that we currently explicitly wait here for the asynchronous client invocation to complete
-            // thereby blocking the request thread
-            brpClientService.retrievePersoonAsync(bsn).toCompletableFuture().get().toRestPersoon().apply {
-                telefoonnummer = it.telefoonnummer
-                emailadres = it.emailadres
+    ) = runBlocking {
+        // run the two client calls concurrently in a coroutine scope so we do not need to wait for the first call to complete
+        withContext(Dispatchers.IO) {
+            val klantPersoonDigitalAddresses = async { klantClientService.findDigitalAddressesByNumber(bsn) }
+            val brpPersoon = async { brpClientService.retrievePersoon(bsn) }
+            klantPersoonDigitalAddresses.await().toRestPersoon().let { klantPersoon ->
+                brpPersoon.await()?.toRestPersoon()?.apply {
+                    telefoonnummer = klantPersoon.telefoonnummer
+                    emailadres = klantPersoon.emailadres
+                } ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor BSN '$bsn'")
             }
         }
+    }
 
     @GET
     @Path("vestiging/{vestigingsnummer}")
     fun readVestiging(
         @PathParam("vestigingsnummer") vestigingsnummer: String
-    ): RestBedrijf =
-        klantClientService.findDigitalAddressesByNumber(vestigingsnummer)
-            .toRestPersoon().let { klantRestPersoon ->
-                // note that we currently explicitly wait here for the asynchronous client invocation to complete
-                // thereby blocking the request thread
-                kvkClientService.findVestigingAsync(vestigingsnummer).toCompletableFuture().get()
-                    .map {
-                        it.toRestBedrijf().apply {
-                            emailadres = klantRestPersoon.emailadres
-                            telefoonnummer = klantRestPersoon.telefoonnummer
-                        }
-                    }.orElseThrow {
-                        VestigingNotFoundException(
-                            "Geen vestiging gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'"
-                        )
-                    }
+    ) = runBlocking {
+        // run the two client calls concurrently in a coroutine scope so we do not need to wait for the first call to complete
+        withContext(Dispatchers.IO) {
+            val klantVestigingDigitalAddresses =
+                async { klantClientService.findDigitalAddressesByNumber(vestigingsnummer) }
+            val vestiging = async { kvkClientService.findVestiging(vestigingsnummer) }
+            klantVestigingDigitalAddresses.await().toRestPersoon().let { klantVestigingRestPersoon ->
+                vestiging.await().getOrNull()?.toRestBedrijf()?.apply {
+                    emailadres = klantVestigingRestPersoon.emailadres
+                    telefoonnummer = klantVestigingRestPersoon.telefoonnummer
+                } ?: throw VestigingNotFoundException(
+                    "Geen vestiging gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'"
+                )
             }
+        }
+    }
 
     @GET
     @Path("vestigingsprofiel/{vestigingsnummer}")

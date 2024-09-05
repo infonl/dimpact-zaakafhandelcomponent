@@ -18,7 +18,6 @@ import net.atos.zac.policy.PolicyService
 class RestGerelateerdeZaakConverter @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
-    private val rechtenConverter: RestRechtenConverter,
     private val policyService: PolicyService
 ) {
     fun convert(zaak: Zaak, relatieType: RelatieType?): RestGerelateerdeZaak {
@@ -27,7 +26,7 @@ class RestGerelateerdeZaakConverter @Inject constructor(
         return RestGerelateerdeZaak(
             identificatie = zaak.identificatie,
             relatieType = relatieType,
-            rechten = rechtenConverter.convert(zaakrechten),
+            rechten = RestRechtenConverter.convert(zaakrechten),
             zaaktypeOmschrijving = takeIf { zaakrechten.lezen }?.let { zaaktype.omschrijving },
             startdatum = takeIf { zaakrechten.lezen }?.let { zaak.startdatum },
             statustypeOmschrijving = takeIf { zaakrechten.lezen }?.let {

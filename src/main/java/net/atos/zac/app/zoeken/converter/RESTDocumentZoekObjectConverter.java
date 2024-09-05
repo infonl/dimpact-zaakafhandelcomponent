@@ -22,9 +22,6 @@ public class RESTDocumentZoekObjectConverter {
     @Inject
     private PolicyService policyService;
 
-    @Inject
-    private RestRechtenConverter restRechtenConverter;
-
     public RESTDocumentZoekObject convert(final DocumentZoekObject documentZoekObject) {
         final RESTDocumentZoekObject restDocumentZoekObject = new RESTDocumentZoekObject();
         restDocumentZoekObject.id = documentZoekObject.getUuid();
@@ -60,7 +57,7 @@ public class RESTDocumentZoekObjectConverter {
         restDocumentZoekObject.indicaties = documentZoekObject.getDocumentIndicaties().stream()
                 .filter(indicatie -> !indicatie.equals(DocumentIndicatie.GEBRUIKSRECHT))
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(DocumentIndicatie.class)));
-        restDocumentZoekObject.rechten = restRechtenConverter.convert(policyService.readDocumentRechten(documentZoekObject));
+        restDocumentZoekObject.rechten = RestRechtenConverter.convert(policyService.readDocumentRechten(documentZoekObject));
         return restDocumentZoekObject;
     }
 }

@@ -6,7 +6,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 @Suppress("LongParameterList")
-fun createRESTEnkelvoudigInformatieobject(
+fun createRestEnkelvoudigInformatieobject(
     uuid: UUID = UUID.randomUUID(),
     status: StatusEnum = StatusEnum.IN_BEWERKING,
     vertrouwelijkheidaanduiding: String? = null,
@@ -18,7 +18,7 @@ fun createRESTEnkelvoudigInformatieobject(
     bestandsNaam: String = "dummyFilename",
     formaat: String = "dummyType",
     indicatieGebruiksrecht: Boolean? = null
-) = RESTEnkelvoudigInformatieobject().apply {
+) = RestEnkelvoudigInformatieobject().apply {
     this.uuid = uuid
     this.status = status
     this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
@@ -44,12 +44,12 @@ fun createRESTFileUpload(
     this.type = type
 }
 
-fun createRESTInformatieobjecttype(
+fun createRestInformatieobjecttype(
     uuid: UUID = UUID.randomUUID(),
     omschrijving: String = "dummyOmschrijving",
     vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name,
     concept: Boolean = false
-) = RESTInformatieobjecttype().apply {
+) = RestInformatieobjecttype().apply {
     this.uuid = uuid
     this.omschrijving = omschrijving
     this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
@@ -57,7 +57,7 @@ fun createRESTInformatieobjecttype(
 }
 
 @Suppress("LongParameterList")
-fun createRESTEnkelvoudigInformatieObjectVersieGegevens(
+fun createRestEnkelvoudigInformatieObjectVersieGegevens(
     uuid: UUID = UUID.randomUUID(),
     zaakUuid: UUID = UUID.randomUUID(),
     bestandsnaam: String = "dummyFile.txt",
@@ -65,7 +65,7 @@ fun createRESTEnkelvoudigInformatieObjectVersieGegevens(
     formaat: String = "dummyType",
     informatieobjectTypeUUID: UUID = UUID.randomUUID(),
     vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name
-) = RESTEnkelvoudigInformatieObjectVersieGegevens().apply {
+) = RestEnkelvoudigInformatieObjectVersieGegevens().apply {
     this.uuid = uuid
     this.zaakUuid = zaakUuid
     this.bestandsnaam = bestandsnaam

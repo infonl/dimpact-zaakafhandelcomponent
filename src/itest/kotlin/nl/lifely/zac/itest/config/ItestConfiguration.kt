@@ -140,8 +140,8 @@ object ItestConfiguration {
      */
     const val DOCUMENT_FILE_TITLE = "dummyTitel"
     const val DOCUMENT_UPDATED_FILE_TITLE = "updated title with Špëcîål characters"
-    const val DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK = "zaakvertrouwelijk"
-    const val DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR = "openbaar"
+    const val DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK = "ZAAKVERTROUWELIJK"
+    const val DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR = "OPENBAAR"
     const val DOCUMENT_STATUS_DEFINITIEF = "definitief"
     const val DOCUMENT_STATUS_IN_BEWERKING = "in_bewerking"
     const val TEXT_MIME_TYPE = "application/text"

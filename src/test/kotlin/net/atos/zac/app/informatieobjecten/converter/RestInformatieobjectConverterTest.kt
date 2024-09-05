@@ -21,12 +21,9 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.zac.app.configuratie.converter.RESTTaalConverter
-import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieObjectVersieGegevens
-import net.atos.zac.app.informatieobjecten.model.createRESTEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
-import net.atos.zac.app.policy.converter.RestRechtenConverter
-import net.atos.zac.app.policy.model.RestDocumentRechten
-import net.atos.zac.app.policy.model.createRESTDocumentRechten
+import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
+import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
 import net.atos.zac.app.task.model.createRestTaskDocumentData
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
@@ -44,7 +41,7 @@ import java.util.Base64
 import java.util.Optional
 import java.util.UUID
 
-class RESTInformatieobjectConverterTest : BehaviorSpec({
+class RestInformatieobjectConverterTest : BehaviorSpec({
     val brcClientService = mockk<BrcClientService>()
     val configuratieService = mockk<ConfiguratieService>()
     val drcClientService = mockk<DrcClientService>()
@@ -53,12 +50,11 @@ class RESTInformatieobjectConverterTest : BehaviorSpec({
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val loggedInUser = createLoggedInUser()
     val policyService = mockk<PolicyService>()
-    val restRechtenConverter = mockk<RestRechtenConverter>()
     val restTaalConverter = mockk<RESTTaalConverter>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
 
-    val restInformatieobjectConverter = RESTInformatieobjectConverter(
+    val restInformatieobjectConverter = RestInformatieobjectConverter(
         brcClientService,
         configuratieService,
         drcClientService,
@@ -66,7 +62,6 @@ class RESTInformatieobjectConverterTest : BehaviorSpec({
         identityService,
         loggedInUserInstance,
         policyService,
-        restRechtenConverter,
         restTaalConverter,
         zrcClientService,
         ztcClientService
@@ -112,7 +107,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec({
 
     Given("REST enkelvoudig informatie object data and REST file upload are provided for a taak") {
         val restFileUpload = createRESTFileUpload()
-        val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject()
+        val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
         val providedInformatieObjectType = createInformatieObjectType()
 
         every { loggedInUserInstance.get() } returns loggedInUser
@@ -149,7 +144,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec({
     Given("REST enkelvoudig informatie object data and REST file upload are provided for a zaak") {
         // when converting a zaak more fields in the RESTEnkelvoudigInformatieobject are used in the
         // conversion compared to when converting a taak
-        val restEnkelvoudigInformatieobject = createRESTEnkelvoudigInformatieobject(
+        val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject(
             vertrouwelijkheidaanduiding = "vertrouwelijk",
             creatieDatum = LocalDate.now(),
             auteur = "dummyAuteur",
@@ -192,17 +187,14 @@ class RESTInformatieobjectConverterTest : BehaviorSpec({
         val uri = URI("https://example.com/informatieobjecten/$expectedUUID")
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(url = uri).apply {
             informatieobjecttype = uri
+            vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.ZEER_GEHEIM
         }
         val documentRechten = createDocumentRechtenAllDeny(lezen = true)
-        val restDocumentRechten = createRESTDocumentRechten()
 
         every { loggedInUserInstance.get() } returns loggedInUser
         every {
             policyService.readDocumentRechten(enkelvoudigInformatieObject, null, null)
         } returns documentRechten
-        every {
-            restRechtenConverter.convert(documentRechten)
-        } returns restDocumentRechten
         every {
             brcClientService.isInformatieObjectGekoppeldAanBesluit(enkelvoudigInformatieObject.url)
         } returns true
@@ -226,6 +218,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec({
                     informatieobjectTypeUUID shouldBe expectedUUID
                     versie shouldBe 1234
                     bestandsomvang shouldBe 0
+                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.ZEER_GEHEIM.name
                 }
             }
         }
@@ -245,9 +238,6 @@ class RESTInformatieobjectConverterTest : BehaviorSpec({
         every {
             policyService.readDocumentRechten(document, null, null)
         } returns rechten
-        every {
-            restRechtenConverter.convert(rechten)
-        } returns RestDocumentRechten()
         every {
             brcClientService.isInformatieObjectGekoppeldAanBesluit(document.url)
         } returns false
@@ -295,7 +285,7 @@ class RESTInformatieobjectConverterTest : BehaviorSpec({
 
     Given("A 'REST enkelvoudiginformatieobject versie gegevens' object containing a file, bestandsnaam and formaat") {
         val informatieobjectType = createInformatieObjectType()
-        val restEnkelvoudigInformatieobjectVersieGegevens = createRESTEnkelvoudigInformatieObjectVersieGegevens(
+        val restEnkelvoudigInformatieobjectVersieGegevens = createRestEnkelvoudigInformatieObjectVersieGegevens(
             vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR.name.lowercase()
         )
 
