@@ -44,11 +44,11 @@ class ConfiguratieRestService @Inject constructor(
     fun readDefaultTaal(): RestTaal? = configuratieService.findDefaultTaal()?.toRestTaal()
 
     @GET
-    @Path("maxFileSizeMB")
+    @Path("max-file-size-mb")
     fun readMaxFileSizeMB(): Long = configuratieService.readMaxFileSizeMB()
 
     @GET
-    @Path("additionalAllowedFileTypes")
+    @Path("additional-allowed-file-types")
     fun readAdditionalAllowedFileTypes(): List<String> = configuratieService.readAdditionalAllowedFileTypes()
 
     @GET
