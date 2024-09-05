@@ -20,7 +20,6 @@ import net.atos.client.zgw.shared.model.Fout
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
-import net.atos.zac.app.configuratie.converter.RESTTaalConverter
 import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
 import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
 import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
@@ -38,7 +37,6 @@ import org.eclipse.jetty.http.HttpStatus
 import java.net.URI
 import java.time.LocalDate
 import java.util.Base64
-import java.util.Optional
 import java.util.UUID
 
 class RestInformatieobjectConverterTest : BehaviorSpec({
@@ -50,7 +48,6 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val loggedInUser = createLoggedInUser()
     val policyService = mockk<PolicyService>()
-    val restTaalConverter = mockk<RESTTaalConverter>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
 
@@ -62,7 +59,6 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         identityService,
         loggedInUserInstance,
         policyService,
-        restTaalConverter,
         zrcClientService,
         ztcClientService
     )
@@ -200,7 +196,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         } returns true
         every {
             configuratieService.findTaal(any())
-        } returns Optional.empty()
+        } returns null
         every {
             ztcClientService.readInformatieobjecttype(any<URI>())
         } returns createInformatieObjectType()

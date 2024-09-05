@@ -6,24 +6,24 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import io.kotest.matchers.shouldBe
-import net.atos.zac.app.configuratie.model.RESTTaal
+import net.atos.zac.app.configuratie.model.RestTaal
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
 class RESTTaalReaderTest : DescribeSpec({
 
     val taalReader = RESTTaalReader()
-    val taal = RESTTaal().apply {
-        this.id = "id"
-        this.code = "code"
-        this.naam = "naam"
-        this.name = "name"
-        this.local = "local"
-    }
+    val taal = RestTaal(
+        id = "id",
+        code = "code",
+        naam = "naam",
+        name = "name",
+        local = "local"
+    )
 
     describe("isReadable") {
         it("can read RESTTaal class") {
-            taalReader.isReadable(null, RESTTaal::class.java, null, null) shouldBe true
+            taalReader.isReadable(null, RestTaal::class.java, null, null) shouldBe true
         }
 
         it("cannot read unknown classes") {
