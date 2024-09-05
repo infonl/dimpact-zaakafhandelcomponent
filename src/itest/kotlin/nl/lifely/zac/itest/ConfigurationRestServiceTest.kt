@@ -94,7 +94,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         }
         When("the max file size is retrieved") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/configuratie/maxFileSizeMB"
+                url = "$ZAC_API_URI/configuratie/max-file-size-mb"
             )
 
             Then("the max file size is returned") {
@@ -104,7 +104,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         }
         When("the additional file types are retrieved") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/configuratie/additionalAllowedFileTypes"
+                url = "$ZAC_API_URI/configuratie/additional-allowed-file-types"
             )
 
             Then("no additional file types are returned because ZAC does not provide any by default") {
