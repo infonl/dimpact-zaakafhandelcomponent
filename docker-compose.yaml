@@ -465,6 +465,7 @@ services:
       - DB_NAME=zac
       - DB_PASSWORD=password
       - DB_USER=zac
+      - FEATURE_FLAG_BPMN_SUPPORT=${FEATURE_FLAG_BPMN_SUPPORT:-false}
       - GEMEENTE_CODE=${GEMEENTE_CODE:-9999}
       - GEMEENTE_MAIL=${GEMEENTE_MAIL:-gemeente-zac-test@example.com}
       - GEMEENTE_NAAM=${GEMEENTE_NAAM:-DummyZacGemeente}
