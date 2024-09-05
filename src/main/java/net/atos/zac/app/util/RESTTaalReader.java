@@ -14,21 +14,21 @@ import jakarta.ws.rs.ext.Provider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import net.atos.zac.app.configuratie.model.RESTTaal;
+import net.atos.zac.app.configuratie.model.RestTaal;
 
 
 @Provider
 @Produces(MediaType.TEXT_PLAIN)
-public class RESTTaalReader implements MessageBodyReader<RESTTaal> {
+public class RESTTaalReader implements MessageBodyReader<RestTaal> {
 
     @Override
     public boolean isReadable(Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType) {
-        return type == RESTTaal.class;
+        return type == RestTaal.class;
     }
 
     @Override
-    public RESTTaal readFrom(
-            Class<RESTTaal> aClass,
+    public RestTaal readFrom(
+            Class<RestTaal> aClass,
             Type type,
             Annotation[] annotations,
             MediaType mediaType,
@@ -36,6 +36,6 @@ public class RESTTaalReader implements MessageBodyReader<RESTTaal> {
             InputStream inputStream
     ) throws IOException, WebApplicationException {
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(inputStream, RESTTaal.class);
+        return mapper.readValue(inputStream, RestTaal.class);
     }
 }

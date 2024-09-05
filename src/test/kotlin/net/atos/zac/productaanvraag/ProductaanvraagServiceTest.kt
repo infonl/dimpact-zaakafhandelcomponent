@@ -37,7 +37,6 @@ import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.configuratie.ConfiguratieService
-import net.atos.zac.configuratie.ConfiguratieService.BRON_ORGANISATIE
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.flowable.bpmn.BPMNService
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -270,7 +269,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 with(zaakToBeCreated.captured) {
                     zaaktype shouldBe zaakType.url
                     communicatiekanaalNaam shouldBe "E-formulier"
-                    bronorganisatie shouldBe BRON_ORGANISATIE
+                    bronorganisatie shouldBe "123443210"
                     omschrijving shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'"
                     toelichting shouldBe null
                     with(zaakgeometrie) {
@@ -364,7 +363,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 with(zaakToBeCreated.captured) {
                     zaaktype shouldBe zaakType.url
                     communicatiekanaalNaam shouldBe "E-formulier"
-                    bronorganisatie shouldBe BRON_ORGANISATIE
+                    bronorganisatie shouldBe "123443210"
                     omschrijving shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'"
                     toelichting shouldBe null
                 }
@@ -448,7 +447,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 with(zaakToBeCreated.captured) {
                     zaaktype shouldBe zaakType.url
                     communicatiekanaalNaam shouldBe "E-formulier"
-                    bronorganisatie shouldBe BRON_ORGANISATIE
+                    bronorganisatie shouldBe "123443210"
                     omschrijving shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'"
                     toelichting shouldBe null
                 }
@@ -517,7 +516,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 with(zaakToBeCreated.captured) {
                     zaaktype shouldBe zaakType.url
                     communicatiekanaalNaam shouldBe "E-formulier"
-                    bronorganisatie shouldBe BRON_ORGANISATIE
+                    bronorganisatie shouldBe "123443210"
                     omschrijving shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'"
                     toelichting shouldBe null
                 }
@@ -678,7 +677,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 with(zaakToBeCreated.captured) {
                     zaaktype shouldBe zaakType.url
                     communicatiekanaalNaam shouldBe "E-formulier"
-                    bronorganisatie shouldBe BRON_ORGANISATIE
+                    bronorganisatie shouldBe "123443210"
                     omschrijving shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'"
                     toelichting shouldBe null
                 }
