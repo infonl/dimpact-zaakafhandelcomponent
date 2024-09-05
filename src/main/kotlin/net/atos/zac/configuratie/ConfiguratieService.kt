@@ -26,6 +26,8 @@ import java.util.UUID
 class ConfiguratieService @Inject constructor(
     private val entityManager: EntityManager,
 
+    ztcClientService: ZtcClientService,
+
     @ConfigProperty(name = "ADDITIONAL_ALLOWED_FILE_TYPES", defaultValue = NONE)
     private val additionalAllowedFileTypes: String,
 
@@ -47,7 +49,8 @@ class ConfiguratieService @Inject constructor(
     @ConfigProperty(name = "GEMEENTE_MAIL")
     private val gemeenteMail: String,
 
-    private val ztcClientService: ZtcClientService,
+    @ConfigProperty(name = "FEATURE_FLAG_BPMN_SUPPORT")
+    private val bpmnSupport: Boolean
 ) {
     companion object {
         // TODO zaakafhandelcomponent#1468 vervangen van onderstaande placeholders
@@ -110,6 +113,8 @@ class ConfiguratieService @Inject constructor(
         val talen = entityManager.createQuery(query).resultList
         return talen.firstOrNull()
     }
+
+    fun featureFlagBpmnSupport(): Boolean = bpmnSupport
 
     fun readMaxFileSizeMB() = MAX_FILE_SIZE_MB.toLong()
 

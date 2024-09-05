@@ -17,7 +17,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.util.shouldEqualJsonIgnoringOrder
 
-class ConfigurationServiceTest : BehaviorSpec({
+class ConfigurationRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
 
@@ -136,6 +136,18 @@ class ConfigurationServiceTest : BehaviorSpec({
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 responseBody shouldEqualJson "\"$CONFIG_GEMEENTE_CODE\""
+            }
+        }
+        When("the feature flag 'BPMN support' is retrieved") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/configuratie/feature-flags/bpmn-support"
+            )
+
+            Then("'false' is returned because BPMN support is disabled by default") {
+                response.code shouldBe HTTP_STATUS_OK
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                responseBody shouldEqualJson "false"
             }
         }
     }

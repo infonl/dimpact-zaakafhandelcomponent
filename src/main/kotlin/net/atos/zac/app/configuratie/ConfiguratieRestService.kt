@@ -32,6 +32,10 @@ class ConfiguratieRestService @Inject constructor(
     private val configuratieService: ConfiguratieService
 ) {
     @GET
+    @Path("feature-flags/bpmn-support")
+    fun isBpmnEnabled(): Boolean = configuratieService.featureFlagBpmnSupport()
+
+    @GET
     @Path("talen")
     fun listTalen(): List<RestTaal> = configuratieService.listTalen().toRestTalen()
 
