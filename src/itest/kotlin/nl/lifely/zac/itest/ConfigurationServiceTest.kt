@@ -10,6 +10,9 @@ import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.config.ItestConfiguration.CONFIG_GEMEENTE_CODE
+import nl.lifely.zac.itest.config.ItestConfiguration.CONFIG_GEMEENTE_NAAM
+import nl.lifely.zac.itest.config.ItestConfiguration.CONFIG_MAX_FILE_SIZE_IN_MB
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.util.shouldEqualJsonIgnoringOrder
@@ -96,7 +99,7 @@ class ConfigurationServiceTest : BehaviorSpec({
 
             Then("the max file size is returned") {
                 response.code shouldBe HTTP_STATUS_OK
-                response.body!!.string().toLong() shouldBe 80L
+                response.body!!.string().toLong() shouldBe CONFIG_MAX_FILE_SIZE_IN_MB
             }
         }
         When("the additional file types are retrieved") {
@@ -120,7 +123,7 @@ class ConfigurationServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                responseBody shouldEqualJson "DummyZacGemeente"
+                responseBody shouldEqualJson "\"$CONFIG_GEMEENTE_NAAM\""
             }
         }
         When("the gemeente code is retrieved") {
@@ -132,7 +135,7 @@ class ConfigurationServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                responseBody shouldEqualJson "0001"
+                responseBody shouldEqualJson "\"$CONFIG_GEMEENTE_CODE\""
             }
         }
     }

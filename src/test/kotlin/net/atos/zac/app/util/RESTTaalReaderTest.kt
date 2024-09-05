@@ -13,13 +13,13 @@ import java.io.ByteArrayOutputStream
 class RESTTaalReaderTest : DescribeSpec({
 
     val taalReader = RESTTaalReader()
-    val taal = RestTaal().apply {
-        this.id = "id"
-        this.code = "code"
-        this.naam = "naam"
-        this.name = "name"
-        this.local = "local"
-    }
+    val taal = RestTaal(
+        id = "id",
+        code = "code",
+        naam = "naam",
+        name = "name",
+        local = "local"
+    )
 
     describe("isReadable") {
         it("can read RESTTaal class") {

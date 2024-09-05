@@ -2,186 +2,155 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.configuratie
 
-package net.atos.zac.configuratie;
-
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
-import jakarta.transaction.Transactional;
-import jakarta.ws.rs.core.UriBuilder;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
-import net.atos.client.zgw.ztc.ZtcClientService;
-import net.atos.client.zgw.ztc.model.CatalogusListParameters;
-import net.atos.zac.configuratie.model.Taal;
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.inject.Inject
+import jakarta.persistence.EntityManager
+import jakarta.transaction.Transactional
+import jakarta.ws.rs.core.UriBuilder
+import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.client.zgw.ztc.model.CatalogusListParameters
+import net.atos.zac.configuratie.model.Taal
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import org.eclipse.microprofile.config.inject.ConfigProperty
+import java.net.URI
+import java.util.Optional
+import java.util.UUID
 
 @ApplicationScoped
 @Transactional
-public class ConfiguratieService {
-    //TODO zaakafhandelcomponent#1468 vervangen van onderstaande placeholders
-    public static final String BRON_ORGANISATIE = "123443210";
+@AllOpen
+@NoArgConstructor
+@Suppress("LongParameterList", "TooManyFunctions")
+class ConfiguratieService @Inject constructor(
+    private val entityManager: EntityManager,
 
-    public static final String VERANTWOORDELIJKE_ORGANISATIE = "316245124";
-
-    public static final String CATALOGUS_DOMEIN = "ALG";
-
-    public static final String OMSCHRIJVING_TAAK_DOCUMENT = "taak-document";
-
-    public static final String OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN = "geen";
-
-    public static final String TAAL_NEDERLANDS = "dut"; // ISO 639-2/B
-
-    public static final String STATUSTYPE_OMSCHRIJVING_HEROPEND = "Heropend";
-
-    public static final String STATUSTYPE_OMSCHRIJVING_INTAKE = "Intake";
-
-    public static final String STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING = "In behandeling";
-
-    public static final String STATUSTYPE_OMSCHRIJVING_AFGEROND = "Afgerond";
-
-    /**
-     * Zaak communicatiekanaal used when creating zaken from Dimpact productaanvragen.
-     * This communicatiekanaal always needs to be available.
-     */
-    public static final String COMMUNICATIEKANAAL_EFORMULIER = "E-formulier";
-
-    public static final String INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL = "e-mail";
-
-    public static final String INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE = "bijlage";
-    // ~TODO
-
-    public static final String ENV_VAR_ZGW_API_CLIENT_MP_REST_URL = "ZGW_API_CLIENT_MP_REST_URL";
-
-    // Note that WildFly / RESTEasy also defines a max file upload size.
-    // The value used in our WildFly configuration should be set higher to account for overhead. (e.g. 80MB -> 120MB).
-    // We use the Base2 system to calculate the max file size in bytes.
-    public static final Integer MAX_FILE_SIZE_MB = 80;
-
-    private static final String NONE = "<NONE>";
-
-    @PersistenceContext(unitName = "ZaakafhandelcomponentPU")
-    private EntityManager entityManager;
-
-    @Inject
     @ConfigProperty(name = "ADDITIONAL_ALLOWED_FILE_TYPES", defaultValue = NONE)
-    private String additionalAllowedFileTypes;
+    private val additionalAllowedFileTypes: String,
 
-    @Inject
     @ConfigProperty(name = ENV_VAR_ZGW_API_CLIENT_MP_REST_URL)
-    private String zgwApiClientMpRestUrl;
-
-    public List<Taal> listTalen() {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<Taal> query = builder.createQuery(Taal.class);
-        final Root<Taal> root = query.from(Taal.class);
-        query.orderBy(builder.asc(root.get("naam")));
-        final TypedQuery<Taal> emQuery = entityManager.createQuery(query);
-        return emQuery.getResultList();
-    }
-
-    public Optional<Taal> findDefaultTaal() {
-        return findTaal(TAAL_NEDERLANDS);
-    }
-
-    public Optional<Taal> findTaal(final String code) {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<Taal> query = builder.createQuery(Taal.class);
-        final Root<Taal> root = query.from(Taal.class);
-        query.where(builder.equal(root.get("code"), code));
-        final TypedQuery<Taal> emQuery = entityManager.createQuery(query);
-        final List<Taal> talen = emQuery.getResultList();
-        return talen.isEmpty() ? Optional.empty() : Optional.of(talen.getFirst());
-    }
-
-    public long readMaxFileSizeMB() {
-        return Long.valueOf(MAX_FILE_SIZE_MB);
-    }
-
-    public List<String> readAdditionalAllowedFileTypes() {
-        return additionalAllowedFileTypes.equals(NONE) ? Collections.emptyList() :
-                List.of(additionalAllowedFileTypes.split(","));
-    }
+    private val zgwApiClientMpRestUrl: String,
 
     /**
      * Base URL of the zaakafhandelcomponent: protocol, host, port and context (no trailing slash)
      */
-    @Inject
     @ConfigProperty(name = "CONTEXT_URL")
-    private String contextUrl;
+    private val contextUrl: String,
 
-    @Inject
     @ConfigProperty(name = "GEMEENTE_CODE")
-    private String gemeenteCode;
+    private val gemeenteCode: String,
 
-    @Inject
     @ConfigProperty(name = "GEMEENTE_NAAM")
-    private String gemeenteNaam;
+    private val gemeenteNaam: String,
 
-    @Inject
     @ConfigProperty(name = "GEMEENTE_MAIL")
-    private String gemeenteMail;
+    private val gemeenteMail: String,
 
-    @Inject
     @ConfigProperty(name = "AUTH_RESOURCE")
-    private String authResource;
+    private val authResource: String,
 
-    @Inject
-    private ZtcClientService ztcClientService;
+    private val ztcClientService: ZtcClientService,
+) {
+    companion object {
+        // TODO zaakafhandelcomponent#1468 vervangen van onderstaande placeholders
+        const val BRON_ORGANISATIE = "123443210"
+        const val VERANTWOORDELIJKE_ORGANISATIE = "316245124"
+        const val CATALOGUS_DOMEIN = "ALG"
+        const val OMSCHRIJVING_TAAK_DOCUMENT = "taak-document"
+        const val OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN = "geen"
 
-    private URI catalogusURI;
+        /**
+         * ISO 639-2/B language code for Dutch.
+         */
+        const val TAAL_NEDERLANDS = "dut"
 
-    public URI readDefaultCatalogusURI() {
-        if (catalogusURI == null) {
-            final CatalogusListParameters catalogusListParameters = new CatalogusListParameters();
-            catalogusListParameters.setDomein(CATALOGUS_DOMEIN);
-            catalogusURI = ztcClientService.readCatalogus(catalogusListParameters).getUrl();
+        const val STATUSTYPE_OMSCHRIJVING_HEROPEND = "Heropend"
+        const val STATUSTYPE_OMSCHRIJVING_INTAKE = "Intake"
+        const val STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING = "In behandeling"
+        const val STATUSTYPE_OMSCHRIJVING_AFGEROND = "Afgerond"
+
+        /**
+         * Zaak communicatiekanaal used when creating zaken from Dimpact productaanvragen.
+         * This communicatiekanaal always needs to be available.
+         */
+        const val COMMUNICATIEKANAAL_EFORMULIER = "E-formulier"
+
+        const val INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL = "e-mail"
+        const val INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE = "bijlage"
+
+        // ~TODO
+        const val ENV_VAR_ZGW_API_CLIENT_MP_REST_URL = "ZGW_API_CLIENT_MP_REST_URL"
+
+        /**
+         * Maximum file size in MB for file uploads.
+         *
+         * Note that WildFly / RESTEasy also defines a max file upload size.
+         * The value used in our WildFly configuration should be set higher to account for overhead. (e.g. 80MB -> 120MB).
+         * We use the Base2 system to calculate the max file size in bytes.
+         */
+        const val MAX_FILE_SIZE_MB: Int = 80
+
+        private const val NONE = "<NONE>"
+    }
+
+    private var catalogusURI: URI =
+        ztcClientService.readCatalogus(CatalogusListParameters().apply { domein = CATALOGUS_DOMEIN }).url
+
+    fun listTalen(): List<Taal> {
+        val query = entityManager.criteriaBuilder.createQuery(Taal::class.java)
+        val root = query.from(Taal::class.java)
+        query.orderBy(entityManager.criteriaBuilder.asc(root.get<Any>("naam")))
+        return entityManager.createQuery(query).resultList
+    }
+
+    fun findDefaultTaal(): Optional<Taal> = findTaal(TAAL_NEDERLANDS)
+
+    fun findTaal(code: String): Optional<Taal> {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(Taal::class.java)
+        val root = query.from(Taal::class.java)
+        query.where(builder.equal(root.get<Any>("code"), code))
+        val emQuery = entityManager.createQuery(query)
+        val talen = emQuery.resultList
+        return if (talen.isEmpty()) Optional.empty<Taal>() else Optional.of(talen.first())
+    }
+
+    fun readMaxFileSizeMB() = MAX_FILE_SIZE_MB.toLong()
+
+    fun readAdditionalAllowedFileTypes(): List<String> =
+        if (additionalAllowedFileTypes == NONE) {
+            emptyList()
+        } else {
+            java.util.List.of(
+                *additionalAllowedFileTypes!!.split(
+                    ",".toRegex()
+                ).dropLastWhile { it.isEmpty() }.toTypedArray()
+            )
         }
-        return catalogusURI;
-    }
 
-    public boolean isLocalDevelopment() {
-        return authResource.contains("localhost");
-    }
+    fun readDefaultCatalogusURI(): URI = catalogusURI
 
-    public URI zaakTonenUrl(final String zaakIdentificatie) {
-        return UriBuilder.fromUri(contextUrl).path("zaken/{zaakIdentificatie}").build(zaakIdentificatie);
-    }
+    val isLocalDevelopment: Boolean = authResource.contains("localhost")
 
-    public URI taakTonenUrl(final String taakId) {
-        return UriBuilder.fromUri(contextUrl).path("taken/{taakId}").build(taakId);
-    }
+    fun zaakTonenUrl(zaakIdentificatie: String): URI =
+        UriBuilder.fromUri(contextUrl).path("zaken/{zaakIdentificatie}").build(zaakIdentificatie)
 
-    public URI informatieobjectTonenUrl(final UUID enkelvoudigInformatieobjectUUID) {
-        return UriBuilder.fromUri(contextUrl).path("informatie-objecten/{enkelvoudigInformatieobjectUUID}")
-                .build(enkelvoudigInformatieobjectUUID.toString());
-    }
+    fun taakTonenUrl(taakId: String): URI =
+        UriBuilder.fromUri(contextUrl).path("taken/{taakId}").build(taakId)
 
-    public String readGemeenteCode() {
-        return gemeenteCode;
-    }
+    fun informatieobjectTonenUrl(enkelvoudigInformatieobjectUUID: UUID): URI =
+        UriBuilder
+            .fromUri(contextUrl)
+            .path("informatie-objecten/{enkelvoudigInformatieobjectUUID}")
+            .build(enkelvoudigInformatieobjectUUID.toString())
 
-    public String readGemeenteNaam() {
-        return gemeenteNaam;
-    }
+    fun readGemeenteCode(): String = gemeenteCode
 
-    public String readGemeenteMail() {
-        return gemeenteMail;
-    }
+    fun readGemeenteNaam(): String = gemeenteNaam
 
-    public String readZgwApiClientMpRestUrl() {
-        return zgwApiClientMpRestUrl;
-    }
+    fun readGemeenteMail(): String = gemeenteMail
+
+    fun readZgwApiClientMpRestUrl(): String = zgwApiClientMpRestUrl
 }

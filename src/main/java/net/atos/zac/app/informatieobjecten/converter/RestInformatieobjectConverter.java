@@ -35,7 +35,7 @@ import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.ztc.ZtcClientService;
-import net.atos.zac.app.configuratie.converter.RestTaalConverter;
+import net.atos.zac.app.configuratie.model.RestTaalKt;
 import net.atos.zac.app.informatieobjecten.model.RESTFileUpload;
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens;
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject;
@@ -62,7 +62,6 @@ public class RestInformatieobjectConverter {
     private IdentityService identityService;
     private Instance<LoggedInUser> loggedInUserInstance;
     private PolicyService policyService;
-    private RestTaalConverter restTaalConverter;
     private ZrcClientService zrcClientService;
     private ZtcClientService ztcClientService;
 
@@ -81,7 +80,6 @@ public class RestInformatieobjectConverter {
             IdentityService identityService,
             Instance<LoggedInUser> loggedInUserInstance,
             PolicyService policyService,
-            RestTaalConverter restTaalConverter,
             ZrcClientService zrcClientService,
             ZtcClientService ztcClientService
     ) {
@@ -89,7 +87,6 @@ public class RestInformatieobjectConverter {
         this.drcClientService = drcClientService;
         this.brcClientService = brcClientService;
         this.zrcClientService = zrcClientService;
-        this.restTaalConverter = restTaalConverter;
         this.loggedInUserInstance = loggedInUserInstance;
         this.enkelvoudigInformatieObjectLockService = enkelvoudigInformatieObjectLockService;
         this.identityService = identityService;
@@ -172,7 +169,7 @@ public class RestInformatieobjectConverter {
         restEnkelvoudigInformatieobject.formaat = enkelvoudigInformatieObject.getFormaat();
 
         configuratieService.findTaal(enkelvoudigInformatieObject.getTaal()).ifPresent(
-                taal -> restEnkelvoudigInformatieobject.taal = taal.getNaam()
+                taal -> restEnkelvoudigInformatieobject.taal = taal.naam
         );
 
         restEnkelvoudigInformatieobject.versie = enkelvoudigInformatieObject.getVersie();
@@ -317,7 +314,7 @@ public class RestInformatieobjectConverter {
         restEnkelvoudigInformatieObjectVersieGegevens.titel = informatieobject.getTitel();
         restEnkelvoudigInformatieObjectVersieGegevens.auteur = informatieobject.getAuteur();
         configuratieService.findTaal(informatieobject.getTaal())
-                .map(restTaalConverter::convert)
+                .map(RestTaalKt::toRestTaal)
                 .ifPresent(taal -> restEnkelvoudigInformatieObjectVersieGegevens.taal = taal);
         restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam = informatieobject.getInhoud().toString();
         restEnkelvoudigInformatieObjectVersieGegevens.informatieobjectTypeUUID = UriUtil.uuidFromURI(informatieobject
@@ -378,7 +375,7 @@ public class RestInformatieobjectConverter {
             enkelvoudigInformatieObjectWithLockData.setTitel(restEnkelvoudigInformatieObjectVersieGegevens.titel);
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.taal != null) {
-            enkelvoudigInformatieObjectWithLockData.setTaal(restEnkelvoudigInformatieObjectVersieGegevens.taal.code);
+            enkelvoudigInformatieObjectWithLockData.setTaal(restEnkelvoudigInformatieObjectVersieGegevens.taal.getCode());
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.auteur != null) {
             enkelvoudigInformatieObjectWithLockData.setAuteur(restEnkelvoudigInformatieObjectVersieGegevens.auteur);
