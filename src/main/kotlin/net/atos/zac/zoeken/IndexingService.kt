@@ -7,9 +7,14 @@ package net.atos.zac.zoeken
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import jakarta.json.bind.JsonbException
+import jakarta.ws.rs.ProcessingException
+import jakarta.ws.rs.WebApplicationException
+import jakarta.xml.bind.JAXBException
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import net.atos.client.zgw.shared.ZGWApiService
+import net.atos.client.zgw.shared.exception.ZgwRuntimeException
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZrcClientService
@@ -26,12 +31,12 @@ import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.impl.Http2SolrClient
-import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.common.params.CursorMarkParams
 import org.eclipse.microprofile.config.ConfigProvider
 import java.io.IOException
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import java.util.logging.Level
 import java.util.logging.Logger
 
 @Singleton
@@ -99,7 +104,7 @@ class IndexingService @Inject constructor(
                 ZoekObjectType.DOCUMENT -> reindexAllInformatieobjecten()
                 ZoekObjectType.TAAK -> reindexAllTaken()
             }
-            logTypeMessage(objectType, "Reindexing finished successfully")
+            logTypeMessage(objectType, "Reindexing finished")
         } finally {
             reindexingViewfinder.remove(objectType)
         }
@@ -137,7 +142,7 @@ class IndexingService @Inject constructor(
         removeFromSolrIndex(taskID.toString())
 
     fun commit() {
-        wrapInIndexingException<Any> {
+        runTranslatingToIndexingException {
             // this overload waits until the solr searcher is done, which is what we want
             solrClient.commit(null, true, true)
         }
@@ -153,7 +158,7 @@ class IndexingService @Inject constructor(
         if (beansToBeAdded.isEmpty()) {
             return
         }
-        wrapInIndexingException<Any> {
+        runTranslatingToIndexingException {
             solrClient.addBeans(beansToBeAdded)
             if (performCommit) {
                 commit()
@@ -165,13 +170,13 @@ class IndexingService @Inject constructor(
         if (idsToBeDeleted.isEmpty()) {
             return
         }
-        wrapInIndexingException<Any> {
+        runTranslatingToIndexingException {
             solrClient.deleteById(idsToBeDeleted)
         }
     }
 
     private fun removeFromSolrIndex(id: String) {
-        wrapInIndexingException<Any> {
+        runTranslatingToIndexingException {
             solrClient.deleteById(id)
         }
     }
@@ -184,120 +189,176 @@ class IndexingService @Inject constructor(
             rows = SOLR_MAX_RESULTS
         }
         var cursorMark = CursorMarkParams.CURSOR_MARK_START
-        var done = false
-        while (!done) {
+        while (true) {
             query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark)
-            val response = wrapInIndexingException<QueryResponse> {
-                solrClient.query(query)
+            val response = continueOnExceptions(objectType) { solrClient.query(query) }
+            if (response == null) {
+                logTypeMessage(objectType, "Aborting removal of entities after cursor mark $cursorMark")
+                return
             }
-            removeFromSolrIndex(
-                response.results
-                    .mapNotNull { document -> document["id"] }
-                    .map { it.toString() }
-            )
-            val nextCursorMark = response.nextCursorMark
-            if (cursorMark == nextCursorMark) {
-                done = true
-            } else {
-                cursorMark = nextCursorMark
+
+            continueOnExceptions(objectType) {
+                removeFromSolrIndex(response.results.mapNotNull { it["id"].toString() })
             }
+            if (cursorMark == response.nextCursorMark) {
+                break
+            }
+            cursorMark = response.nextCursorMark
         }
     }
 
     private fun reindexAllZaken() {
-        val listParameters = ZaakListParameters().apply {
-            ordering = "-identificatie"
-            page = ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS
+        val numberOfZaken = continueOnExceptions(ZoekObjectType.ZAAK) {
+            zrcClientService.listZaken(
+                ZaakListParameters().apply {
+                    ordering = "-identificatie"
+                    page = ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS
+                }
+            ).count
         }
-        while (reindexZaken(listParameters)) {
-            listParameters.page++
+        if (numberOfZaken == null) {
+            logTypeMessage(ZoekObjectType.ZAAK, "Cannot find number of zaken! Aborting reindexing")
+            return
         }
+
+        val numberOfPages: Int = numberOfZaken / Results.NUM_ITEMS_PER_PAGE.toInt() +
+            ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS
+
+        for (pageNumber in ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS..numberOfPages) {
+            continueOnExceptions(ZoekObjectType.ZAAK) { reindexZakenPage(pageNumber, numberOfPages) }
+        }
+    }
+
+    private fun reindexZakenPage(pageNumber: Int, totalSize: Int) {
+        val zaakResults = zrcClientService.listZaken(
+            ZaakListParameters().apply {
+                ordering = "-identificatie"
+                page = pageNumber
+            }
+        )
+        val ids = zaakResults.results.map { it.uuid.toString() }
+        indexeerDirect(
+            objectIds = ids,
+            objectType = ZoekObjectType.ZAAK,
+            performCommit = false
+        )
+        logProgress(
+            objectType = ZoekObjectType.ZAAK,
+            progress = (pageNumber - ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE + ids.size,
+            totalSize = totalSize.toLong()
+        )
     }
 
     private fun reindexAllInformatieobjecten() {
-        val listParameters = EnkelvoudigInformatieobjectListParameters().apply {
-            page = ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS
+        val numberOfInformatieobjecten = continueOnExceptions(ZoekObjectType.DOCUMENT) {
+            drcClientService.listEnkelvoudigInformatieObjecten(
+                EnkelvoudigInformatieobjectListParameters().apply {
+                    page = ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS
+                }
+            ).count
         }
-        while (reindexInformatieobjecten(listParameters)) {
-            listParameters.page++
+        if (numberOfInformatieobjecten == null) {
+            logTypeMessage(ZoekObjectType.DOCUMENT, "Cannot find number of information objects. Aborting reindexing")
+            return
         }
+
+        val numberOfPages: Int = numberOfInformatieobjecten / Results.NUM_ITEMS_PER_PAGE.toInt() +
+            ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS
+
+        for (pageNumber in ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS..numberOfPages) {
+            continueOnExceptions(ZoekObjectType.DOCUMENT) { reindexInformatieobjectenPage(pageNumber, numberOfPages) }
+        }
+    }
+
+    private fun reindexInformatieobjectenPage(pageNumber: Int, totalSize: Int) {
+        val informationObjectsResults = drcClientService.listEnkelvoudigInformatieObjecten(
+            EnkelvoudigInformatieobjectListParameters().apply { page = ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS }
+        )
+        val ids = informationObjectsResults.results.map { URIUtil.parseUUIDFromResourceURI(it.url).toString() }
+        indexeerDirect(
+            objectIds = ids,
+            objectType = ZoekObjectType.DOCUMENT,
+            performCommit = false
+        )
+        logProgress(
+            objectType = ZoekObjectType.DOCUMENT,
+            progress = (pageNumber - ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE + ids.size,
+            totalSize = totalSize.toLong()
+        )
     }
 
     private fun reindexAllTaken() {
-        val numberOfTasks = flowableTaskService.countOpenTasks()
-        var page = 0
-        while (reindexTaken(page, numberOfTasks)) {
-            page++
+        val numberOfTasks = continueOnExceptions(ZoekObjectType.TAAK) { flowableTaskService.countOpenTasks() }
+        if (numberOfTasks == null) {
+            logTypeMessage(ZoekObjectType.TAAK, "Cannot find number of tasks. Aborting reindexing")
+            return
+        }
+        val numberOfPages: Int = numberOfTasks.toInt() / TAKEN_MAX_RESULTS
+
+        for (pageNumber in 0..numberOfPages) {
+            continueOnExceptions(ZoekObjectType.TAAK) { reindexTakenPage(pageNumber, numberOfPages) }
         }
     }
 
-    private fun reindexZaken(listParameters: ZaakListParameters): Boolean {
-        val zaakResults = zrcClientService.listZaken(listParameters)
-        indexeerDirect(
-            zaakResults.results.map { it.uuid.toString() },
-            ZoekObjectType.ZAAK,
-            performCommit = false
-        )
-        logProgress(
-            ZoekObjectType.ZAAK,
-            (listParameters.page - ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE +
-                zaakResults.results.size,
-            zaakResults.count.toLong()
-        )
-        return zaakResults.next != null
-    }
-
-    private fun reindexInformatieobjecten(
-        listParameters: EnkelvoudigInformatieobjectListParameters
-    ): Boolean {
-        val enkelvoudigInformatieObjectenResults = drcClientService.listEnkelvoudigInformatieObjecten(listParameters)
-        indexeerDirect(
-            enkelvoudigInformatieObjectenResults.results.map { URIUtil.parseUUIDFromResourceURI(it.url).toString() },
-            ZoekObjectType.DOCUMENT,
-            performCommit = false
-        )
-        logProgress(
-            ZoekObjectType.DOCUMENT,
-            (listParameters.page - ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE +
-                enkelvoudigInformatieObjectenResults.results.size,
-            enkelvoudigInformatieObjectenResults.count.toLong()
-        )
-        return enkelvoudigInformatieObjectenResults.next != null
-    }
-
-    private fun reindexTaken(page: Int, numberOfTasks: Long): Boolean {
-        val firstResult = page * TAKEN_MAX_RESULTS
+    private fun reindexTakenPage(pageNumber: Int, totalSize: Int): Boolean {
+        val firstResult = pageNumber * TAKEN_MAX_RESULTS
         val tasks = flowableTaskService.listOpenTasks(
             TaakSortering.CREATIEDATUM,
             SorteerRichting.DESCENDING,
             firstResult,
             TAKEN_MAX_RESULTS
         )
+        if (tasks.isEmpty()) {
+            return false
+        }
         indexeerDirect(
-            tasks.map { it.id },
-            ZoekObjectType.TAAK,
+            objectIds = tasks.map { it.id },
+            objectType = ZoekObjectType.TAAK,
             performCommit = false
         )
-        if (tasks.isNotEmpty()) {
-            logProgress(ZoekObjectType.TAAK, firstResult.toLong() + tasks.size, numberOfTasks)
-            return tasks.size == TAKEN_MAX_RESULTS
-        }
-        return false
+        logProgress(
+            objectType = ZoekObjectType.TAAK,
+            progress = firstResult.toLong() + tasks.size,
+            totalSize = totalSize.toLong()
+        )
+        return tasks.size == TAKEN_MAX_RESULTS
     }
 
     private fun logTypeMessage(objectType: ZoekObjectType, message: String) =
         LOG.info("[$objectType] $message")
 
-    private fun logProgress(objectType: ZoekObjectType, voortgang: Long, grootte: Long) =
-        logTypeMessage(objectType, "reindexed: $voortgang / $grootte")
+    private fun logTypeError(objectType: ZoekObjectType, error: Throwable) =
+        LOG.log(Level.WARNING, "[$objectType] Error during indexing", error)
 
-    private fun <T> wrapInIndexingException(fn: () -> T): T {
+    private fun logProgress(objectType: ZoekObjectType, progress: Long, totalSize: Long) =
+        logTypeMessage(objectType, "reindexed: $progress / $totalSize")
+
+    @Suppress("ThrowsCount")
+    private fun <T> runTranslatingToIndexingException(fn: () -> T): T {
         try {
             return fn()
         } catch (solrServerException: SolrServerException) {
             throw IndexingException(solrServerException)
         } catch (ioException: IOException) {
             throw IndexingException(ioException)
+        } catch (webApplicationException: WebApplicationException) {
+            throw IndexingException(webApplicationException)
+        } catch (zgwRuntimeException: ZgwRuntimeException) {
+            throw IndexingException(zgwRuntimeException)
+        } catch (jsonbException: JsonbException) {
+            throw IndexingException(jsonbException)
+        } catch (jaxbException: JAXBException) {
+            throw IndexingException(jaxbException)
+        } catch (processingException: ProcessingException) {
+            throw IndexingException(processingException)
         }
     }
+
+    private fun <T> continueOnExceptions(objectType: ZoekObjectType, fn: () -> T): T? =
+        try {
+            runTranslatingToIndexingException { fn() }
+        } catch (indexingException: IndexingException) {
+            logTypeError(objectType, indexingException)
+            null
+        }
 }
