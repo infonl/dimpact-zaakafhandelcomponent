@@ -37,7 +37,6 @@ import org.eclipse.jetty.http.HttpStatus
 import java.net.URI
 import java.time.LocalDate
 import java.util.Base64
-import java.util.Optional
 import java.util.UUID
 
 class RestInformatieobjectConverterTest : BehaviorSpec({
@@ -197,7 +196,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         } returns true
         every {
             configuratieService.findTaal(any())
-        } returns Optional.empty()
+        } returns null
         every {
             ztcClientService.readInformatieobjecttype(any<URI>())
         } returns createInformatieObjectType()

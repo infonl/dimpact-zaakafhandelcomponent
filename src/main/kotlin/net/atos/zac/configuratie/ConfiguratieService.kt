@@ -47,9 +47,6 @@ class ConfiguratieService @Inject constructor(
     @ConfigProperty(name = "GEMEENTE_MAIL")
     private val gemeenteMail: String,
 
-    @ConfigProperty(name = "AUTH_RESOURCE")
-    private val authResource: String,
-
     private val ztcClientService: ZtcClientService,
 ) {
     companion object {
