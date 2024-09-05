@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.configuratie
@@ -16,7 +16,6 @@ import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.net.URI
-import java.util.Optional
 import java.util.UUID
 
 @ApplicationScoped
@@ -105,16 +104,14 @@ class ConfiguratieService @Inject constructor(
         return entityManager.createQuery(query).resultList
     }
 
-    fun findDefaultTaal(): Optional<Taal> = findTaal(TAAL_NEDERLANDS)
+    fun findDefaultTaal(): Taal? = findTaal(TAAL_NEDERLANDS)
 
-    fun findTaal(code: String): Optional<Taal> {
-        val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(Taal::class.java)
+    fun findTaal(code: String): Taal? {
+        val query = entityManager.criteriaBuilder.createQuery(Taal::class.java)
         val root = query.from(Taal::class.java)
-        query.where(builder.equal(root.get<Any>("code"), code))
-        val emQuery = entityManager.createQuery(query)
-        val talen = emQuery.resultList
-        return if (talen.isEmpty()) Optional.empty<Taal>() else Optional.of(talen.first())
+        query.where(entityManager.criteriaBuilder.equal(root.get<Any>("code"), code))
+        val talen = entityManager.createQuery(query).resultList
+        return talen.firstOrNull()
     }
 
     fun readMaxFileSizeMB() = MAX_FILE_SIZE_MB.toLong()
@@ -123,16 +120,10 @@ class ConfiguratieService @Inject constructor(
         if (additionalAllowedFileTypes == NONE) {
             emptyList()
         } else {
-            java.util.List.of(
-                *additionalAllowedFileTypes!!.split(
-                    ",".toRegex()
-                ).dropLastWhile { it.isEmpty() }.toTypedArray()
-            )
+            additionalAllowedFileTypes.split(",").filter { it.isNotEmpty() }
         }
 
     fun readDefaultCatalogusURI(): URI = catalogusURI
-
-    val isLocalDevelopment: Boolean = authResource.contains("localhost")
 
     fun zaakTonenUrl(zaakIdentificatie: String): URI =
         UriBuilder.fromUri(contextUrl).path("zaken/{zaakIdentificatie}").build(zaakIdentificatie)

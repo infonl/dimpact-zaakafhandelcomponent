@@ -37,7 +37,7 @@ class ConfiguratieRestService @Inject constructor(
 
     @GET
     @Path("talen/default")
-    fun readDefaultTaal(): RestTaal? = configuratieService.findDefaultTaal().map { it.toRestTaal() }.orElse(null)
+    fun readDefaultTaal(): RestTaal? = configuratieService.findDefaultTaal()?.toRestTaal()
 
     @GET
     @Path("maxFileSizeMB")
