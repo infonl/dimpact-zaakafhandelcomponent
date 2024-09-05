@@ -24,7 +24,7 @@ export class ZaakafhandelParametersService {
     private foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
-  private basepath = "/rest/zaakafhandelParameters";
+  private basepath = "/rest/zaakafhandelparameters";
 
   listZaakafhandelParameters(): Observable<ZaakafhandelParameters[]> {
     return this.http
@@ -46,7 +46,7 @@ export class ZaakafhandelParametersService {
 
   listZaakbeeindigRedenen(): Observable<ZaakbeeindigReden[]> {
     return this.http
-      .get<ZaakbeeindigReden[]>(`${this.basepath}/zaakbeeindigRedenen`)
+      .get<ZaakbeeindigReden[]>(`${this.basepath}/zaakbeeindigredenen`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -74,7 +74,7 @@ export class ZaakafhandelParametersService {
 
   listCaseDefinitions(): Observable<CaseDefinition[]> {
     return this.http
-      .get<CaseDefinition[]>(`${this.basepath}/caseDefinition`)
+      .get<CaseDefinition[]>(`${this.basepath}/case-definitions`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -82,7 +82,7 @@ export class ZaakafhandelParametersService {
 
   readCaseDefinition(key: string): Observable<CaseDefinition> {
     return this.http
-      .get<CaseDefinition>(`${this.basepath}/caseDefinition/${key}`)
+      .get<CaseDefinition>(`${this.basepath}/case-definitions/${key}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -103,7 +103,7 @@ export class ZaakafhandelParametersService {
 
   listFormulierDefinities(): Observable<FormulierDefinitie[]> {
     return this.http
-      .get<FormulierDefinitie[]>(`${this.basepath}/formulierDefinities`)
+      .get<FormulierDefinitie[]>(`${this.basepath}/formulierdefinities`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
