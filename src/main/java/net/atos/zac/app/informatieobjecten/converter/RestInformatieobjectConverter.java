@@ -35,7 +35,7 @@ import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.ztc.ZtcClientService;
-import net.atos.zac.app.configuratie.converter.RESTTaalConverter;
+import net.atos.zac.app.configuratie.converter.RestTaalConverter;
 import net.atos.zac.app.informatieobjecten.model.RESTFileUpload;
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens;
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject;
@@ -62,7 +62,7 @@ public class RestInformatieobjectConverter {
     private IdentityService identityService;
     private Instance<LoggedInUser> loggedInUserInstance;
     private PolicyService policyService;
-    private RESTTaalConverter restTaalConverter;
+    private RestTaalConverter restTaalConverter;
     private ZrcClientService zrcClientService;
     private ZtcClientService ztcClientService;
 
@@ -81,7 +81,7 @@ public class RestInformatieobjectConverter {
             IdentityService identityService,
             Instance<LoggedInUser> loggedInUserInstance,
             PolicyService policyService,
-            RESTTaalConverter restTaalConverter,
+            RestTaalConverter restTaalConverter,
             ZrcClientService zrcClientService,
             ZtcClientService ztcClientService
     ) {

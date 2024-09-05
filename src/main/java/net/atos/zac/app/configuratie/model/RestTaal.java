@@ -7,7 +7,7 @@ package net.atos.zac.app.configuratie.model;
 
 import java.io.Serializable;
 
-public class RESTTaal implements Serializable {
+public class RestTaal implements Serializable {
     public String id;
 
     public String code;

@@ -17,34 +17,34 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.zac.app.configuratie.converter.RESTTaalConverter;
-import net.atos.zac.app.configuratie.model.RESTTaal;
+import net.atos.zac.app.configuratie.converter.RestTaalConverter;
+import net.atos.zac.app.configuratie.model.RestTaal;
 import net.atos.zac.configuratie.ConfiguratieService;
 
 /**
- *
+ * Provides specific configuration items to a ZAC client.
  */
 @Path("configuratie")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
-public class ConfiguratieRESTService {
+public class ConfiguratieRestService {
 
     @Inject
     private ConfiguratieService configuratieService;
 
     @Inject
-    private RESTTaalConverter taalConverter;
+    private RestTaalConverter taalConverter;
 
     @GET
     @Path("talen")
-    public List<RESTTaal> listTalen() {
+    public List<RestTaal> listTalen() {
         return taalConverter.convert(configuratieService.listTalen());
     }
 
     @GET
     @Path("talen/default")
-    public RESTTaal readDefaultTaal() {
+    public RestTaal readDefaultTaal() {
         return configuratieService.findDefaultTaal().map(taalConverter::convert).orElse(null);
     }
 
