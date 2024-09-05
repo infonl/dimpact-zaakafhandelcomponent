@@ -9,9 +9,6 @@ import jakarta.json.bind.annotation.JsonbTypeAdapter;
 
 import net.atos.client.zgw.shared.model.AbstractEnum;
 
-/**
- *
- */
 @JsonbTypeAdapter(AardRelatieWeergave.Adapter.class)
 public enum AardRelatieWeergave implements AbstractEnum<AardRelatieWeergave> {
 

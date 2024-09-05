@@ -14,7 +14,7 @@ import jakarta.ws.rs.FormParam;
 import net.atos.client.zgw.drc.model.generated.StatusEnum;
 import net.atos.zac.app.configuratie.model.RESTTaal;
 
-public class RESTEnkelvoudigInformatieObjectVersieGegevens extends RESTEnkelvoudigInformatieFileUpload {
+public class RestEnkelvoudigInformatieObjectVersieGegevens extends RestEnkelvoudigInformatieFileUpload {
 
     @FormParam("uuid")
     public UUID uuid;

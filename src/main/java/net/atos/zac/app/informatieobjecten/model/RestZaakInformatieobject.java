@@ -7,13 +7,13 @@ package net.atos.zac.app.informatieobjecten.model;
 
 import java.time.LocalDate;
 
-import net.atos.zac.app.policy.model.RESTZaakRechten;
+import net.atos.zac.app.policy.model.RestZaakRechten;
 import net.atos.zac.app.zaak.model.RestZaakStatus;
 
 /**
  * weergave van een zaak die is gekoppeld aan een (enkelvoudig) informatieobject
  */
-public class RESTZaakInformatieobject {
+public class RestZaakInformatieobject {
 
     public String zaakIdentificatie;
 
@@ -25,5 +25,5 @@ public class RESTZaakInformatieobject {
 
     public String zaaktypeOmschrijving;
 
-    public RESTZaakRechten zaakRechten;
+    public RestZaakRechten zaakRechten;
 }

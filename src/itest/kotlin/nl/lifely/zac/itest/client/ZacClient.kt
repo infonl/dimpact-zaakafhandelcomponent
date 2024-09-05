@@ -6,6 +6,7 @@ package nl.lifely.zac.itest.client
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import nl.lifely.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
+import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Response
 import java.time.ZonedDateTime
@@ -214,7 +215,8 @@ class ZacClient {
         groupName: String,
         description: String? = "dummyOmschrijving",
         startDate: ZonedDateTime,
-        communicatiekanaal: String? = COMMUNICATIEKANAAL_TEST_1
+        communicatiekanaal: String? = COMMUNICATIEKANAAL_TEST_1,
+        vertrouwelijkheidaanduiding: String? = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
     ): Response {
         logger.info {
             "Creating zaak with group id: $groupId and group name: $groupName"
@@ -233,7 +235,7 @@ class ZacClient {
                 "      \"naam\": \"$groupName\"\n" +
                 "    },\n" +
                 "    \"communicatiekanaal\": \"$communicatiekanaal\",\n" +
-                "    \"vertrouwelijkheidaanduiding\": \"openbaar\",\n" +
+                "    \"vertrouwelijkheidaanduiding\": \"$vertrouwelijkheidaanduiding\",\n" +
                 "    \"omschrijving\": \"$description\",\n" +
                 "    \"toelichting\": null\n" +
                 "  },\n" +

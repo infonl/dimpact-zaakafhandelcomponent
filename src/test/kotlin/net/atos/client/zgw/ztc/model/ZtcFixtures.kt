@@ -88,12 +88,12 @@ fun createZaakType(
 }
 
 fun createInformatieObjectType(
-    catalogusURI: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
+    uri: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
     omschrijving: String = "dummyOmschrijving",
     vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
     beginGeldigheid: LocalDate = LocalDate.now()
 ) = InformatieObjectType(
-    catalogusURI,
+    uri,
     false,
     null,
     null,

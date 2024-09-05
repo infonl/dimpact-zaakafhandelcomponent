@@ -27,7 +27,7 @@ import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.zac.app.identity.model.createRESTUser
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
-import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
+import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.task.converter.RestTaskConverter
 import net.atos.zac.app.task.converter.RestTaskHistoryConverter
 import net.atos.zac.app.task.model.TaakStatus
@@ -58,7 +58,7 @@ import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.task.TaskService
 import net.atos.zac.util.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEvent
-import net.atos.zac.zoeken.IndexeerService
+import net.atos.zac.zoeken.IndexingService
 import org.flowable.task.api.Task
 import org.flowable.task.api.history.HistoricTaskInstance
 import org.flowable.task.api.history.createHistoricTaskInstanceEntityImpl
@@ -72,7 +72,7 @@ class TaskRestServiceTest : BehaviorSpec({
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
     val eventingService = mockk<EventingService>()
     val httpSessionInstance = mockk<Instance<HttpSession>>()
-    val indexeerService = mockk<IndexeerService>()
+    val indexingService = mockk<IndexingService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val policyService = mockk<PolicyService>()
     val taakVariabelenService = mockk<TaakVariabelenService>()
@@ -80,7 +80,7 @@ class TaskRestServiceTest : BehaviorSpec({
     val flowableTaskService = mockk<FlowableTaskService>()
     val zrcClientService = mockk<ZrcClientService>()
     val opschortenZaakHelper = mockk<OpschortenZaakHelper>()
-    val restInformatieobjectConverter = mockk<RESTInformatieobjectConverter>()
+    val restInformatieobjectConverter = mockk<RestInformatieobjectConverter>()
     val signaleringService = mockk<SignaleringService>()
     val taakHistorieConverter = mockk<RestTaskHistoryConverter>()
     val zgwApiService = mockk<ZGWApiService>()
@@ -93,7 +93,7 @@ class TaskRestServiceTest : BehaviorSpec({
         enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService,
         eventingService = eventingService,
         httpSession = httpSessionInstance,
-        indexeerService = indexeerService,
+        indexingService = indexingService,
         loggedInUserInstance = loggedInUserInstance,
         policyService = policyService,
         taakVariabelenService = taakVariabelenService,
@@ -200,7 +200,7 @@ class TaskRestServiceTest : BehaviorSpec({
         every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
         every { taakVariabelenService.setTaskinformation(task, null) } just runs
         every { flowableTaskService.completeTask(task) } returns historicTaskInstance
-        every { indexeerService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
+        every { indexingService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
         every { historicTaskInstance.id } returns restTaak.id
         every { restTaskConverter.convert(historicTaskInstance) } returns restTaakConverted
         every { eventingService.send(any<ScreenEvent>()) } just runs
@@ -290,7 +290,7 @@ class TaskRestServiceTest : BehaviorSpec({
             )
             every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
             every { flowableTaskService.completeTask(task) } returns historicTaskInstance
-            every { indexeerService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
+            every { indexingService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
             every { restTaskConverter.convert(historicTaskInstance) } returns restTaakConverted
             every { httpSessionInstance.get() } returns httpSession
             // in this test we assume there was no document uploaded to the http session beforehand

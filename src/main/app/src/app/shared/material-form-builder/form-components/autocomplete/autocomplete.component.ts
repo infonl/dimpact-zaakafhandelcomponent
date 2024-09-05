@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -60,10 +60,6 @@ export class AutocompleteComponent
     });
   }
 
-  isSearching(): boolean {
-    return typeof this.data.formControl.value === "string";
-  }
-
   displayFn = (obj: any): string => {
     return obj && obj[this.data.optionLabel] ? obj[this.data.optionLabel] : obj;
   };
@@ -74,6 +70,14 @@ export class AutocompleteComponent
     return this.options.filter((option) =>
       option[this.data.optionLabel].toLowerCase().includes(filterValue),
     );
+  }
+
+  isEditing(): boolean {
+    return this.data.formControl.value;
+  }
+
+  clear() {
+    this.data.formControl.setValue(null);
   }
 
   ngOnDestroy(): void {

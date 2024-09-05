@@ -13,7 +13,7 @@ import net.atos.zac.app.bag.model.RESTPand
 import net.atos.zac.app.identity.model.RestGroup
 import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.klant.model.klant.IdentificatieType
-import net.atos.zac.app.policy.model.RESTZaakRechten
+import net.atos.zac.app.policy.model.RestZaakRechten
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import net.atos.zac.zoeken.model.ZaakIndicatie
 import java.net.URI
@@ -26,7 +26,7 @@ import java.util.UUID
 const val ZAAK_TYPE_1_OMSCHRIJVING = "zaaktype1"
 const val ZAAK_TYPE_2_OMSCHRIJVING = "zaaktype2"
 
-fun createRESTBesluit(
+fun createRestBesluit(
     url: URI = URI("http://localhost:8080/${UUID.randomUUID()}"),
     uuid: UUID = UUID.randomUUID()
 ) = RestBesluit(
@@ -62,7 +62,7 @@ fun createRESTGeometry(
     type = type
 )
 
-fun createRESTGroup(
+fun createRestGroup(
     id: String = "dummyId",
     name: String = "dummyName",
 ) = RestGroup(
@@ -88,7 +88,7 @@ fun createRESTOpenbareRuimte() = RESTOpenbareRuimte()
 
 fun createRESTPand() = RESTPand()
 
-fun createRESTUser(
+fun createRestUser(
     id: String = "dummyId",
     name: String = "dummyName",
 ) = RestUser(
@@ -96,11 +96,11 @@ fun createRESTUser(
     naam = name
 )
 
-fun createRESTZaak(
-    behandelaar: RestUser = createRESTUser(),
-    restGroup: RestGroup = createRESTGroup(),
+fun createRestZaak(
+    behandelaar: RestUser = createRestUser(),
+    restGroup: RestGroup = createRestGroup(),
     indicaties: EnumSet<ZaakIndicatie> = EnumSet.noneOf(ZaakIndicatie::class.java),
-    restZaakType: RestZaaktype = createRESTZaaktype(),
+    restZaakType: RestZaaktype = createRestZaaktype(),
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.of(2023, 10, 10)
 ) = RestZaak(
     uuid = UUID.randomUUID(),
@@ -108,9 +108,9 @@ fun createRESTZaak(
     omschrijving = "Sample Zaak",
     toelichting = "This is a test zaak",
     zaaktype = restZaakType,
-    status = createRESTZaakStatus(),
-    resultaat = createRESTZaakResultaat(),
-    besluiten = listOf(createRESTBesluit()),
+    status = createRestZaakStatus(),
+    resultaat = createRestZaakResultaat(),
+    besluiten = listOf(createRestBesluit()),
     bronorganisatie = "Sample Bronorganisatie",
     verantwoordelijkeOrganisatie = "Sample Verantwoordelijke Organisatie",
     registratiedatum = LocalDate.of(2023, 9, 14),
@@ -145,12 +145,12 @@ fun createRESTZaak(
     isBesluittypeAanwezig = false,
     isInIntakeFase = true,
     isProcesGestuurd = false,
-    rechten = createRESTZaakRechten()
+    rechten = createRestZaakRechten()
 )
 
 fun createRESTZaakAanmaakGegevens(
     zaakTypeUUID: UUID = UUID.randomUUID(),
-    zaak: RestZaak = createRESTZaak(
+    zaak: RestZaak = createRestZaak(
         restZaakType = RestZaaktype(
             // we only need a UUID for the zaaktype when creating a zaak
             uuid = zaakTypeUUID
@@ -204,11 +204,11 @@ fun createRESTZaakKoppelGegevens(
     reverseRelatieType = reverseRelatieType
 )
 
-fun createRESTZaakRechten() = RESTZaakRechten()
+fun createRestZaakRechten() = RestZaakRechten()
 
-fun createRESTZaakResultaat() = RESTZaakResultaat()
+fun createRestZaakResultaat() = RestZaakResultaat()
 
-fun createRESTZaakStatus(
+fun createRestZaakStatus(
     naam: String = "dummyName",
     toelichting: String = "dummyToelichting"
 ) = RestZaakStatus(
@@ -216,7 +216,7 @@ fun createRESTZaakStatus(
     toelichting = toelichting
 )
 
-fun createRESTZaaktype() = RestZaaktype(
+fun createRestZaaktype() = RestZaaktype(
     uuid = UUID.randomUUID(),
     identificatie = "dummyIdentificatie",
     doel = "Sample Doel",

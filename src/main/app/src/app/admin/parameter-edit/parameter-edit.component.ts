@@ -620,9 +620,8 @@ export class ParameterEditComponent
       afzender.replyTo = this.getZaakAfzenderControl(afzender, "replyTo").value;
     }
 
-    this.adminService
-      .updateZaakafhandelparameters(this.parameters)
-      .subscribe((data) => {
+    this.adminService.updateZaakafhandelparameters(this.parameters).subscribe(
+      (data) => {
         this.loading = false;
         this.utilService.openSnackbar("msg.zaakafhandelparameters.opgeslagen");
         this.parameters = data;
@@ -634,9 +633,13 @@ export class ParameterEditComponent
             }
           }
         }
-      });
+      },
+      (error) => {
+        this.loading = false;
+      },
+    );
 
-    this.smartDocumentsTree.save().subscribe();
+    this.smartDocumentsTree?.save().subscribe();
   }
 
   compareObject(object1: any, object2: any): boolean {

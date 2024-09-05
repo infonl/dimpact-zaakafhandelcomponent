@@ -12,7 +12,7 @@ import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.app.formulieren.converter.RESTFormulierDefinitieConverter
 import net.atos.zac.app.identity.converter.RestGroupConverter
 import net.atos.zac.app.identity.converter.RestUserConverter
-import net.atos.zac.app.policy.converter.RESTRechtenConverter
+import net.atos.zac.app.policy.converter.RestRechtenConverter
 import net.atos.zac.app.task.model.RestTask
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskData
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
@@ -34,7 +34,6 @@ import java.util.UUID
 class RestTaskConverter @Inject constructor(
     private val groepConverter: RestGroupConverter,
     private val medewerkerConverter: RestUserConverter,
-    private val rechtenConverter: RESTRechtenConverter,
     private val policyService: PolicyService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val formulierDefinitieConverter: RESTFormulierDefinitieConverter,
@@ -48,7 +47,7 @@ class RestTaskConverter @Inject constructor(
     fun convert(taskInfo: TaskInfo): RestTask {
         val zaaktypeOmschrijving = readZaaktypeOmschrijving(taskInfo)
         val restTaakRechten = policyService.readTaakRechten(taskInfo, zaaktypeOmschrijving).let {
-            rechtenConverter.convert(it)
+            RestRechtenConverter.convert(it)
         }
         val restTask = RestTask(
             id = taskInfo.id,

@@ -21,7 +21,7 @@ import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.productaanvraag.ProductaanvraagService
-import net.atos.zac.zoeken.IndexeerService
+import net.atos.zac.zoeken.IndexingService
 import java.net.URI
 import java.util.UUID
 
@@ -31,7 +31,7 @@ const val SECRET = "dummySecret"
 class NotificatieReceiverTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
-    val indexeerService = mockk<IndexeerService>()
+    val indexingService = mockk<IndexingService>()
     val inboxDocumentenService = mockk<InboxDocumentenService>()
     val zaakafhandelParameterBeheerService = mockk<ZaakafhandelParameterBeheerService>()
     val objecttypesClientService = mockk<ObjecttypesClientService>()
@@ -40,7 +40,7 @@ class NotificatieReceiverTest : BehaviorSpec({
     val notificatieReceiver = NotificatieReceiver(
         eventingService,
         productaanvraagService,
-        indexeerService,
+        indexingService,
         inboxDocumentenService,
         zaakafhandelParameterBeheerService,
         objecttypesClientService,

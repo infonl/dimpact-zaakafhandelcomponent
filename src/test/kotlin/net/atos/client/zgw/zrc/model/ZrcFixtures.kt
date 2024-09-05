@@ -125,7 +125,8 @@ fun createZaak(
     status: URI? = null,
     verlenging: Verlenging? = null,
     deelzaken: Set<URI>? = null,
-    uuid: UUID = UUID.randomUUID()
+    uuid: UUID = UUID.randomUUID(),
+    omschrijving: String = "dummyOmschrijving"
 ) = Zaak(
     zaakTypeURI,
     startDate,
@@ -145,6 +146,7 @@ fun createZaak(
     this.status = status
     this.verlenging = verlenging
     this.deelzaken = deelzaken
+    this.omschrijving = omschrijving
 }
 
 fun createZaakobjectOpenbareRuimte(

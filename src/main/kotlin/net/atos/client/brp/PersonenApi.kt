@@ -18,7 +18,6 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 import java.time.temporal.ChronoUnit
-import java.util.concurrent.CompletionStage
 
 /**
  * BRP Personen Bevragen
@@ -58,7 +57,4 @@ interface PersonenApi {
      */
     @POST
     fun personen(personenQuery: PersonenQuery): PersonenQueryResponse
-
-    @POST
-    fun personenAsync(personenQuery: PersonenQuery): CompletionStage<PersonenQueryResponse>
 }

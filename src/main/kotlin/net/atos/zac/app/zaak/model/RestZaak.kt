@@ -9,7 +9,7 @@ import jakarta.validation.Valid
 import net.atos.zac.app.identity.model.RestGroup
 import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.klant.model.klant.IdentificatieType
-import net.atos.zac.app.policy.model.RESTZaakRechten
+import net.atos.zac.app.policy.model.RestZaakRechten
 import net.atos.zac.zoeken.model.ZaakIndicatie
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -70,11 +70,11 @@ data class RestZaak(
     var kenmerken: List<RESTZaakKenmerk>?,
     var omschrijving: String,
     var publicatiedatum: LocalDate?,
-    var rechten: RESTZaakRechten,
+    var rechten: RestZaakRechten,
     var redenOpschorting: String?,
     var redenVerlenging: String?,
     var registratiedatum: LocalDate?,
-    var resultaat: RESTZaakResultaat?,
+    var resultaat: RestZaakResultaat?,
     var startdatum: LocalDate?,
     var status: RestZaakStatus?,
     var toelichting: String?,

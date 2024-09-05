@@ -39,7 +39,7 @@ import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.shared.helper.OpschortenZaakHelper
 import net.atos.zac.util.DateTimeConverterUtil
-import net.atos.zac.zoeken.IndexeerService
+import net.atos.zac.zoeken.IndexingService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI
 import java.time.LocalDate
@@ -54,7 +54,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val planItemConverter = mockk<RESTPlanItemConverter>()
     val zgwApiService = mockk<ZGWApiService>()
-    val indexeerService = mockk<IndexeerService>()
+    val indexingService = mockk<IndexingService>()
     val mailService = mockk<MailService>()
     val configuratieService = mockk<ConfiguratieService>()
     val mailTemplateService = mockk<MailTemplateService>()
@@ -70,7 +70,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         zaakafhandelParameterService,
         planItemConverter,
         zgwApiService,
-        indexeerService,
+        indexingService,
         mailService,
         configuratieService,
         mailTemplateService,
@@ -106,7 +106,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
         every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
-        every { indexeerService.addOrUpdateZaak(zaak.uuid, false) } just runs
+        every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
         every {
             cmmnService.startHumanTaskPlanItem(
                 planItemInstanceId,
@@ -127,7 +127,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
             Then("A CMMN human task plan item is started and the zaak is re-indexed") {
                 verify(exactly = 1) {
                     cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
-                    indexeerService.addOrUpdateZaak(any(), any())
+                    indexingService.addOrUpdateZaak(any(), any())
                 }
             }
             with(taskDataSlot.captured) {
@@ -164,7 +164,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
         every { zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID) } returns zaakafhandelParameters
         every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
-        every { indexeerService.addOrUpdateZaak(zaak.uuid, false) } just runs
+        every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
         every {
             cmmnService.startHumanTaskPlanItem(
                 planItemInstanceId,
@@ -186,7 +186,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
             Then("A CMMN human task plan item is started and the zaak is opgeschort and re-indexed") {
                 verify(exactly = 1) {
                     cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
-                    indexeerService.addOrUpdateZaak(any(), any())
+                    indexingService.addOrUpdateZaak(any(), any())
                     opschortenZaakHelper.opschortenZaak(any(), any(), any())
                 }
             }
@@ -217,7 +217,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
             Then("An exception is thrown and the human task item is not started and the zaak is not indexed") {
                 verify(exactly = 0) {
                     cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
-                    indexeerService.addOrUpdateZaak(any(), any())
+                    indexingService.addOrUpdateZaak(any(), any())
                 }
             }
         }
@@ -261,7 +261,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                 zaak.uuid
             )
         } just runs
-        every { indexeerService.addOrUpdateZaak(zaak.uuid, false) } just runs
+        every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
 
         When("A human task plan item is started") {
             planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
@@ -269,7 +269,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
             Then("The task is created with the zaak fatal date") {
                 verify(exactly = 1) {
                     cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
-                    indexeerService.addOrUpdateZaak(any(), any())
+                    indexingService.addOrUpdateZaak(any(), any())
                 }
             }
         }

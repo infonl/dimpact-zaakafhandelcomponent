@@ -31,7 +31,7 @@ import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
-import net.atos.zac.app.informatieobjecten.converter.RESTInformatieobjectConverter
+import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RESTFileUpload
 import net.atos.zac.app.task.converter.RestTaskConverter
 import net.atos.zac.app.task.converter.RestTaskHistoryConverter
@@ -66,7 +66,7 @@ import net.atos.zac.task.TaskService
 import net.atos.zac.util.DateTimeConverterUtil
 import net.atos.zac.util.UriUtil
 import net.atos.zac.websocket.event.ScreenEventType
-import net.atos.zac.zoeken.IndexeerService
+import net.atos.zac.zoeken.IndexingService
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -91,13 +91,13 @@ class TaskRestService @Inject constructor(
     private val taskService: TaskService,
     private val flowableTaskService: FlowableTaskService,
     private val taakVariabelenService: TaakVariabelenService,
-    private val indexeerService: IndexeerService,
+    private val indexingService: IndexingService,
     private val restTaskConverter: RestTaskConverter,
     private val eventingService: EventingService,
     private val loggedInUserInstance: Instance<LoggedInUser>,
     @ActiveSession
     private val httpSession: Instance<HttpSession>,
-    private val restInformatieobjectConverter: RESTInformatieobjectConverter,
+    private val restInformatieobjectConverter: RestInformatieobjectConverter,
     private val zgwApiService: ZGWApiService,
     private val zrcClientService: ZrcClientService,
     private val drcClientService: DrcClientService,
@@ -243,7 +243,7 @@ class TaskRestService @Inject constructor(
         }
 
         return flowableTaskService.completeTask(updatedTask).also {
-            indexeerService.addOrUpdateZaak(restTask.zaakUuid, false)
+            indexingService.addOrUpdateZaak(restTask.zaakUuid, false)
             eventingService.send(ScreenEventType.TAAK.updated(it))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
         }.let(restTaskConverter::convert)
@@ -302,7 +302,7 @@ class TaskRestService @Inject constructor(
             explanation = restTaskAssignData.reden
         ).let {
             taskService.sendScreenEventsOnTaskChange(it, restTaskAssignData.zaakUuid)
-            indexeerService.indexeerDirect(restTaskAssignData.taakId, ZoekObjectType.TAAK, true)
+            indexingService.indexeerDirect(restTaskAssignData.taakId, ZoekObjectType.TAAK, true)
             return it
         }
     }

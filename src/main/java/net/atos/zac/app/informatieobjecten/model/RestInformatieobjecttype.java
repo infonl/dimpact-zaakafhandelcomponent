@@ -7,7 +7,7 @@ package net.atos.zac.app.informatieobjecten.model;
 
 import java.util.UUID;
 
-public class RESTInformatieobjecttype {
+public class RestInformatieobjecttype {
     public UUID uuid;
 
     public String omschrijving;

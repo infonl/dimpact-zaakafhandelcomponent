@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 
-import net.atos.zac.app.policy.converter.RESTRechtenConverter;
+import net.atos.zac.app.policy.converter.RestRechtenConverter;
 import net.atos.zac.app.zoeken.model.RESTDocumentZoekObject;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.util.DateTimeConverterUtil;
@@ -21,9 +21,6 @@ public class RESTDocumentZoekObjectConverter {
 
     @Inject
     private PolicyService policyService;
-
-    @Inject
-    private RESTRechtenConverter restRechtenConverter;
 
     public RESTDocumentZoekObject convert(final DocumentZoekObject documentZoekObject) {
         final RESTDocumentZoekObject restDocumentZoekObject = new RESTDocumentZoekObject();
@@ -60,7 +57,7 @@ public class RESTDocumentZoekObjectConverter {
         restDocumentZoekObject.indicaties = documentZoekObject.getDocumentIndicaties().stream()
                 .filter(indicatie -> !indicatie.equals(DocumentIndicatie.GEBRUIKSRECHT))
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(DocumentIndicatie.class)));
-        restDocumentZoekObject.rechten = restRechtenConverter.convert(policyService.readDocumentRechten(documentZoekObject));
+        restDocumentZoekObject.rechten = RestRechtenConverter.convert(policyService.readDocumentRechten(documentZoekObject));
         return restDocumentZoekObject;
     }
 }

@@ -64,7 +64,7 @@ import net.atos.zac.policy.PolicyService;
 import net.atos.zac.shared.helper.OpschortenZaakHelper;
 import net.atos.zac.util.DateTimeConverterUtil;
 import net.atos.zac.util.UriUtil;
-import net.atos.zac.zoeken.IndexeerService;
+import net.atos.zac.zoeken.IndexingService;
 
 /**
  * Provides REST endpoints for CMMN plan items.
@@ -83,7 +83,7 @@ public class PlanItemsRESTService {
     private ZaakafhandelParameterService zaakafhandelParameterService;
     private RESTPlanItemConverter planItemConverter;
     private ZGWApiService zgwApiService;
-    private IndexeerService indexeerService;
+    private IndexingService indexingService;
     private MailService mailService;
     private ConfiguratieService configuratieService;
     private MailTemplateService mailTemplateService;
@@ -106,7 +106,7 @@ public class PlanItemsRESTService {
             ZaakafhandelParameterService zaakafhandelParameterService,
             RESTPlanItemConverter planItemConverter,
             ZGWApiService zgwApiService,
-            IndexeerService indexeerService,
+            IndexingService indexingService,
             MailService mailService,
             ConfiguratieService configuratieService,
             MailTemplateService mailTemplateService,
@@ -121,7 +121,7 @@ public class PlanItemsRESTService {
         this.zaakafhandelParameterService = zaakafhandelParameterService;
         this.planItemConverter = planItemConverter;
         this.zgwApiService = zgwApiService;
-        this.indexeerService = indexeerService;
+        this.indexingService = indexingService;
         this.mailService = mailService;
         this.configuratieService = configuratieService;
         this.mailTemplateService = mailTemplateService;
@@ -234,7 +234,7 @@ public class PlanItemsRESTService {
                 taakdata,
                 zaakUUID
         );
-        indexeerService.addOrUpdateZaak(zaakUUID, false);
+        indexingService.addOrUpdateZaak(zaakUUID, false);
     }
 
     @POST

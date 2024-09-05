@@ -25,7 +25,7 @@ import net.atos.zac.app.gebruikersvoorkeuren.converter.RESTZoekopdrachtConverter
 import net.atos.zac.app.gebruikersvoorkeuren.model.RESTDashboardCardInstelling;
 import net.atos.zac.app.gebruikersvoorkeuren.model.RESTTabelGegevens;
 import net.atos.zac.app.gebruikersvoorkeuren.model.RESTZoekopdracht;
-import net.atos.zac.app.policy.converter.RESTRechtenConverter;
+import net.atos.zac.app.policy.converter.RestRechtenConverter;
 import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.gebruikersvoorkeuren.GebruikersvoorkeurenService;
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen;
@@ -54,9 +54,6 @@ public class GebruikersvoorkeurenRESTService {
 
     @Inject
     private PolicyService policyService;
-
-    @Inject
-    private RESTRechtenConverter rechtenConverter;
 
     @GET
     @Path("zoekopdracht/{lijstID}")
@@ -101,7 +98,7 @@ public class GebruikersvoorkeurenRESTService {
         );
         restTabelGegevens.aantalPerPagina = tabelInstellingen.getAantalPerPagina();
         restTabelGegevens.pageSizeOptions = TabelInstellingen.PAGE_SIZE_OPTIONS;
-        restTabelGegevens.werklijstRechten = rechtenConverter.convert(policyService.readWerklijstRechten());
+        restTabelGegevens.werklijstRechten = RestRechtenConverter.convert(policyService.readWerklijstRechten());
         return restTabelGegevens;
     }
 

@@ -7,8 +7,6 @@ package net.atos.client.brp
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.client.brp.exception.BrpPersonNotFoundException
-import net.atos.client.brp.exception.BrpRuntimeException
 import net.atos.client.brp.model.generated.PersonenQuery
 import net.atos.client.brp.model.generated.PersonenQueryResponse
 import net.atos.client.brp.model.generated.Persoon
@@ -28,7 +26,6 @@ import net.atos.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
-import java.util.concurrent.CompletionStage
 import java.util.logging.Logger
 
 @ApplicationScoped
@@ -78,38 +75,6 @@ class BrpClientService @Inject constructor(
                 LOG.info("No person found for burgerservicenummer: $burgerservicenummer")
                 null
             }
-        }
-
-    /**
-     * Retrieves a person by burgerservicenummer from the BRP Personen API asynchronously.
-     *
-     * @param burgerservicenummer the burgerservicenummer of the person to retrieve
-     * @return a CompletionStage with the person if found, otherwise throws an exception
-     * @throws BrpPersonNotFoundException if no person is found for the given burgerservicenummer
-     */
-    fun retrievePersoonAsync(burgerservicenummer: String): CompletionStage<Persoon> =
-        createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer).let {
-            personenApi.personenAsync(it)
-                .handle { response, exception ->
-                    (response as RaadpleegMetBurgerservicenummerResponse?)?.personen?.let { persons ->
-                        if (persons.isNotEmpty()) {
-                            if (persons.size > 1) {
-                                LOG.warning(
-                                    "Multiple persons found for burgerservicenummer: '$burgerservicenummer'. " +
-                                        "Returning the first one."
-                                )
-                            }
-                            return@handle persons.first()
-                        } else {
-                            throw BrpPersonNotFoundException(
-                                "No person found for burgerservicenummer: $burgerservicenummer"
-                            )
-                        }
-                    }
-                    exception?.let { e ->
-                        throw BrpRuntimeException("Error occured while finding person in the BRP API", e)
-                    }
-                }
         }
 
     private fun createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer: String) =

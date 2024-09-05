@@ -15,13 +15,13 @@ import jakarta.ws.rs.FormParam;
 
 import net.atos.client.zgw.drc.model.generated.StatusEnum;
 import net.atos.zac.app.identity.model.RestUser;
-import net.atos.zac.app.policy.model.RESTDocumentRechten;
+import net.atos.zac.app.policy.model.RestDocumentRechten;
 import net.atos.zac.zoeken.model.DocumentIndicatie;
 
 /**
  * Representation of an 'enkelvoudig informatieobject' (e.g. a document) in the ZAC REST API.
  */
-public class RESTEnkelvoudigInformatieobject extends RESTEnkelvoudigInformatieFileUpload {
+public class RestEnkelvoudigInformatieobject extends RestEnkelvoudigInformatieFileUpload {
 
     public UUID uuid;
 
@@ -116,5 +116,5 @@ public class RESTEnkelvoudigInformatieobject extends RESTEnkelvoudigInformatieFi
     public boolean isBesluitDocument;
 
     @FormParam("rechten")
-    public RESTDocumentRechten rechten;
+    public RestDocumentRechten rechten;
 }

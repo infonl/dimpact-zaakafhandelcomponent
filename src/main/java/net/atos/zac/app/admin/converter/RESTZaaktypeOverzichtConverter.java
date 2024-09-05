@@ -5,8 +5,8 @@
 
 package net.atos.zac.app.admin.converter;
 
-import static net.atos.client.zgw.ztc.util.ZaakTypeUtilKt.isNuGeldig;
-import static net.atos.client.zgw.ztc.util.ZaakTypeUtilKt.isServicenormBeschikbaar;
+import static net.atos.client.zgw.ztc.model.extensions.ZaakTypeExtensionsKt.isNuGeldig;
+import static net.atos.client.zgw.ztc.model.extensions.ZaakTypeExtensionsKt.isServicenormBeschikbaar;
 
 import net.atos.client.zgw.shared.util.URIUtil;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
