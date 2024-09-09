@@ -5,23 +5,23 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.slot
+import io.mockk.mockkStatic
+import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.client.smartdocuments.model.document.OutputFormat
-import net.atos.client.smartdocuments.model.document.SmartDocument
-import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.smartdocuments.model.createFile
+import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
 import net.atos.client.zgw.zrc.model.createZaak
-import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.model.createInformatieObjectType
-import net.atos.client.zgw.ztc.model.createZaakType
+import net.atos.client.zgw.zrc.model.createZaakInformatieobject
+import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
+import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.converter.DocumentCreationDataConverter
 import net.atos.zac.documentcreation.model.createData
 import net.atos.zac.documentcreation.model.createDocumentCreationAttendedResponse
 import net.atos.zac.documentcreation.model.createDocumentCreationDataAttended
-import net.atos.zac.documentcreation.model.createDocumentCreationDataUnattended
-import net.atos.zac.documentcreation.model.createDocumentCreationUnattendedResponse
+import net.atos.zac.identity.model.User
+import net.atos.zac.identity.model.getFullName
 import net.atos.zac.smartdocuments.SmartDocumentsService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import java.net.URI
@@ -32,15 +32,15 @@ class DocumentCreationServiceTest : BehaviorSpec({
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val documentCreationDataConverter = mockk<DocumentCreationDataConverter>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val ztcClientService = mockk<ZtcClientService>()
-    val zrcClientService = mockk<ZrcClientService>()
+    val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
+    val configuratieService: ConfiguratieService = mockk<ConfiguratieService>()
     val documentCreationService = DocumentCreationService(
         smartDocumentsService = smartDocumentsService,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
         documentCreationDataConverter = documentCreationDataConverter,
-        loggedInUserInstance = loggedInUserInstance,
-        ztcClientService = ztcClientService,
-        zrcClientService = zrcClientService
+        enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService,
+        configuratieService = configuratieService,
+        loggedInUserInstance = loggedInUserInstance
     )
 
     beforeEach {
@@ -50,28 +50,40 @@ class DocumentCreationServiceTest : BehaviorSpec({
     Given("Document creation data with a zaak and an information object type") {
         val zaakTypeUUID = UUID.randomUUID()
         val zaakTypeURI = URI("https://example.com/$zaakTypeUUID")
-        val zaakType = createZaakType(uri = zaakTypeURI)
         val documentCreationData = createDocumentCreationDataAttended(
-            zaak = createZaak(zaakTypeURI = zaakTypeURI),
-            informatieobjecttype = createInformatieObjectType()
+            zaak = createZaak(zaakTypeURI = zaakTypeURI)
         )
-        val externalZaakUrl = URI("https://example.com/dummyExternalZaakUrl")
         val loggedInUser = createLoggedInUser()
         val data = createData()
         val documentCreationAttendedResponse = createDocumentCreationAttendedResponse()
+        val fullName = "Full Name"
+
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { zrcClientService.createUrlExternToZaak(documentCreationData.zaak.uuid) } returns externalZaakUrl
+        mockkStatic(User::getFullName)
+        every { any<User>().getFullName() } returns fullName
         every {
             documentCreationDataConverter.createData(
-                loggedInUser,
+                loggedInUserInstance.get(),
                 documentCreationData.zaak,
                 documentCreationData.taskId
             )
         } returns data
-        every { ztcClientService.readZaaktype(documentCreationData.zaak.zaaktype) } returns zaakType
+        every { smartDocumentsService.createDocumentAttended(any(), any()) } returns documentCreationAttendedResponse
         every {
-            smartDocumentsService.createDocumentAttended(any(), any(), any())
-        } returns documentCreationAttendedResponse
+            smartDocumentsTemplatesService.getTemplateGroupName(documentCreationData.templateGroupId)
+        } returns UUID.randomUUID().toString()
+        every {
+            smartDocumentsTemplatesService.getTemplateName(documentCreationData.templateId)
+        } returns UUID.randomUUID().toString()
+        every {
+            configuratieService.documentCreationUrl(
+                documentCreationData.zaak.uuid,
+                documentCreationData.taskId,
+                documentCreationData.templateGroupId,
+                documentCreationData.templateId,
+                fullName
+            )
+        } returns URI("https://sd.host.com")
 
         When("the 'create document attended' method is called") {
             val documentCreationResponse = documentCreationService.createDocumentAttended(documentCreationData)
@@ -83,56 +95,61 @@ class DocumentCreationServiceTest : BehaviorSpec({
             ) {
                 with(documentCreationResponse) {
                     redirectUrl shouldBe documentCreationAttendedResponse.redirectUrl
-                    message shouldBe null
+                    message shouldBe documentCreationAttendedResponse.message
                 }
             }
         }
     }
-    Given("Document creation data with a zaak, a template group name and a template name") {
-        val templateGroupId = "1"
-        val templateId = "2"
-        val templateGroupName = "dummyTemplateGroupName"
-        val templateName = "dummyTemplateName"
-        val documentCreationData = createDocumentCreationDataUnattended(
-            templateGroupId = templateGroupId,
-            templateId = templateId,
-            zaak = createZaak()
-        )
-        val loggedInUser = createLoggedInUser()
-        val data = createData()
-        val message = "dummyMessage"
-        val documentCreationUnattendedResponse = createDocumentCreationUnattendedResponse(message)
-        val smartDocumentSlot = slot<SmartDocument>()
-        every { loggedInUserInstance.get() } returns loggedInUser
+
+    Given("Generated document information") {
+        val smartDocumentId = "1"
+        val templateGroupId = "2"
+        val templateId = "3"
+        val taakId = "4"
+        val userName = "Full Name"
+        val zaak = createZaak()
+        val downloadedFile = createFile()
+        val enkelvoudigInformatieObjectLockRequest = createEnkelvoudigInformatieObjectCreateLockRequest()
+        val zaakInformatieobject = createZaakInformatieobject()
+
+        every { smartDocumentsService.downloadDocument(smartDocumentId) } returns downloadedFile
         every {
-            documentCreationDataConverter.createData(
-                loggedInUser,
-                documentCreationData.zaak,
-                documentCreationData.taskId
+            documentCreationDataConverter.toEnkelvoudigInformatieObjectCreateLockRequest(
+                zaak,
+                downloadedFile,
+                "DOCX",
+                templateGroupId,
+                templateId,
+                userName
             )
-        } returns data
-        every { smartDocumentsTemplatesService.getTemplateGroupName(templateGroupId) } returns templateGroupName
-        every { smartDocumentsTemplatesService.getTemplateName(templateId) } returns templateName
+        } returns enkelvoudigInformatieObjectLockRequest
         every {
-            smartDocumentsService.createDocumentUnattended(data, capture(smartDocumentSlot))
-        } returns documentCreationUnattendedResponse
+            enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
+                zaak,
+                enkelvoudigInformatieObjectLockRequest,
+                taakId
+            )
+        } returns zaakInformatieobject
 
-        When("the 'create document unattended' method is called") {
-            val documentCreationResponse = documentCreationService.createDocumentUnattended(documentCreationData)
+        When("storing a downloaded file is requested") {
+            val returnedZaakInformatieobject = documentCreationService.storeDocument(
+                smartDocumentId,
+                templateGroupId,
+                templateId,
+                userName,
+                zaak,
+                taakId
+            )
 
-            Then(
-                """
-                the create unattended SmartDocuments document method is called with the template group and name and 
-                 outputformat 'docx' and a document creation response is returned
-                """
-            ) {
-                with(documentCreationResponse) {
-                    this.message shouldBe message
-                }
-                with(smartDocumentSlot.captured) {
-                    selection.templateGroup shouldBe templateGroupName
-                    selection.template shouldBe templateName
-                    variables!!.outputFormats shouldBe listOf(OutputFormat("docx"))
+            Then("ZaakInformatieobject is stored") {
+                returnedZaakInformatieobject shouldBe zaakInformatieobject
+
+                verify(exactly = 1) {
+                    enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
+                        zaak,
+                        enkelvoudigInformatieObjectLockRequest,
+                        taakId
+                    )
                 }
             }
         }

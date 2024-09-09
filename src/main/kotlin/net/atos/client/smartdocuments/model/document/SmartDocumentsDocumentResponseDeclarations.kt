@@ -32,7 +32,7 @@ data class File(
 )
 
 @NoArgConstructor
-data class UnattendedResponse(
+data class DownloadResponse(
     @field:JsonbProperty("file")
     var files: List<File>? = null
 )
