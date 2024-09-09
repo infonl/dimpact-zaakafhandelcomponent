@@ -32,6 +32,10 @@ class ConfiguratieRestService @Inject constructor(
     private val configuratieService: ConfiguratieService
 ) {
     @GET
+    @Path("feature-flags/bpmn-support")
+    fun isBpmnEnabled(): Boolean = configuratieService.featureFlagBpmnSupport()
+
+    @GET
     @Path("talen")
     fun listTalen(): List<RestTaal> = configuratieService.listTalen().toRestTalen()
 
@@ -40,11 +44,11 @@ class ConfiguratieRestService @Inject constructor(
     fun readDefaultTaal(): RestTaal? = configuratieService.findDefaultTaal()?.toRestTaal()
 
     @GET
-    @Path("maxFileSizeMB")
+    @Path("max-file-size-mb")
     fun readMaxFileSizeMB(): Long = configuratieService.readMaxFileSizeMB()
 
     @GET
-    @Path("additionalAllowedFileTypes")
+    @Path("additional-allowed-file-types")
     fun readAdditionalAllowedFileTypes(): List<String> = configuratieService.readAdditionalAllowedFileTypes()
 
     @GET

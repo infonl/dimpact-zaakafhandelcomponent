@@ -52,7 +52,7 @@ export class ConfiguratieService {
   readMaxFileSizeMB(): Observable<number> {
     if (!this.maxFileSizeMB$) {
       this.maxFileSizeMB$ = this.http
-        .get<number>(`${this.basepath}/maxFileSizeMB`)
+        .get<number>(`${this.basepath}/max-file-size-mb`)
         .pipe(
           catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
           shareReplay(1),
@@ -64,7 +64,7 @@ export class ConfiguratieService {
   readAdditionalAllowedFileTypes(): Observable<string[]> {
     if (!this.additionalAllowedFileTypes$) {
       this.additionalAllowedFileTypes$ = this.http
-        .get<string[]>(`${this.basepath}/additionalAllowedFileTypes`)
+        .get<string[]>(`${this.basepath}/additional-allowed-file-types`)
         .pipe(
           catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
           shareReplay(1),
