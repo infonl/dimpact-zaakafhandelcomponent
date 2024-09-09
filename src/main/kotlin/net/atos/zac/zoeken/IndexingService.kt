@@ -92,19 +92,19 @@ class IndexingService @Inject constructor(
 
     fun reindex(objectType: ZoekObjectType) {
         if (reindexingViewfinder.contains(objectType)) {
-            logTypeMessage(objectType, "Reindexing not started, still in progress")
+            LOG.warning("[$objectType] Reindexing not started, still in progress")
             return
         }
         reindexingViewfinder.add(objectType)
         try {
-            logTypeMessage(objectType, "Reindexing started ...")
+            LOG.info("[$objectType] Reindexing started")
             removeEntitiesFromSolrIndex(objectType)
             when (objectType) {
                 ZoekObjectType.ZAAK -> reindexAllZaken()
                 ZoekObjectType.DOCUMENT -> reindexAllInformatieobjecten()
                 ZoekObjectType.TAAK -> reindexAllTaken()
             }
-            logTypeMessage(objectType, "Reindexing finished")
+            LOG.info("[$objectType] Reindexing finished")
         } finally {
             reindexingViewfinder.remove(objectType)
         }
@@ -193,7 +193,10 @@ class IndexingService @Inject constructor(
             query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark)
             val response = continueOnExceptions(objectType) { solrClient.query(query) }
             if (response == null) {
-                logTypeMessage(objectType, "Aborting removal of entities after cursor mark $cursorMark")
+                LOG.warning(
+                    "[$objectType] Cannot fetch next page. " +
+                        "Aborting removal of entities after cursor mark $cursorMark"
+                )
                 return
             }
 
@@ -217,7 +220,7 @@ class IndexingService @Inject constructor(
             ).count
         }
         if (numberOfZaken == null) {
-            logTypeMessage(ZoekObjectType.ZAAK, "Cannot find number of zaken! Aborting reindexing")
+            LOG.warning("[${ZoekObjectType.ZAAK}] Cannot find zaken count! Aborting reindexing")
             return
         }
 
@@ -242,11 +245,8 @@ class IndexingService @Inject constructor(
             objectType = ZoekObjectType.ZAAK,
             performCommit = false
         )
-        logProgress(
-            objectType = ZoekObjectType.ZAAK,
-            progress = (pageNumber - ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE + ids.size,
-            totalSize = totalSize.toLong()
-        )
+        val progress = (pageNumber - ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE + ids.size
+        LOG.info("[${ZoekObjectType.ZAAK}] Reindexed: $progress / $totalSize")
     }
 
     private fun reindexAllInformatieobjecten() {
@@ -258,7 +258,7 @@ class IndexingService @Inject constructor(
             ).count
         }
         if (numberOfInformatieobjecten == null) {
-            logTypeMessage(ZoekObjectType.DOCUMENT, "Cannot find number of information objects. Aborting reindexing")
+            LOG.warning("[${ZoekObjectType.DOCUMENT}] Cannot find information objects count! Aborting reindexing")
             return
         }
 
@@ -280,17 +280,14 @@ class IndexingService @Inject constructor(
             objectType = ZoekObjectType.DOCUMENT,
             performCommit = false
         )
-        logProgress(
-            objectType = ZoekObjectType.DOCUMENT,
-            progress = (pageNumber - ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE + ids.size,
-            totalSize = totalSize.toLong()
-        )
+        val progress = (pageNumber - ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE + ids.size
+        LOG.info("[${ZoekObjectType.DOCUMENT}] Reindexed: $progress / $totalSize")
     }
 
     private fun reindexAllTaken() {
         val numberOfTasks = continueOnExceptions(ZoekObjectType.TAAK) { flowableTaskService.countOpenTasks() }
         if (numberOfTasks == null) {
-            logTypeMessage(ZoekObjectType.TAAK, "Cannot find number of tasks. Aborting reindexing")
+            LOG.warning("[${ZoekObjectType.TAAK}] Cannot find tasks count. Aborting reindexing")
             return
         }
         val numberOfPages: Int = numberOfTasks.toInt() / TAKEN_MAX_RESULTS
@@ -316,22 +313,10 @@ class IndexingService @Inject constructor(
             objectType = ZoekObjectType.TAAK,
             performCommit = false
         )
-        logProgress(
-            objectType = ZoekObjectType.TAAK,
-            progress = firstResult.toLong() + tasks.size,
-            totalSize = totalSize.toLong()
-        )
+        val progress = firstResult + tasks.size
+        LOG.info("[${ZoekObjectType.TAAK}] Reindexed: $progress / $totalSize")
         return tasks.size == TAKEN_MAX_RESULTS
     }
-
-    private fun logTypeMessage(objectType: ZoekObjectType, message: String) =
-        LOG.info("[$objectType] $message")
-
-    private fun logTypeError(objectType: ZoekObjectType, error: Throwable) =
-        LOG.log(Level.WARNING, "[$objectType] Error during indexing", error)
-
-    private fun logProgress(objectType: ZoekObjectType, progress: Long, totalSize: Long) =
-        logTypeMessage(objectType, "reindexed: $progress / $totalSize")
 
     @Suppress("ThrowsCount")
     private fun <T> runTranslatingToIndexingException(fn: () -> T): T {
@@ -358,7 +343,7 @@ class IndexingService @Inject constructor(
         try {
             runTranslatingToIndexingException { fn() }
         } catch (indexingException: IndexingException) {
-            logTypeError(objectType, indexingException)
+            LOG.log(Level.WARNING, "[$objectType] Error during indexing", indexingException)
             null
         }
 }
