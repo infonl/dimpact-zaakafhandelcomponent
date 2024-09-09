@@ -59,6 +59,10 @@ klantinteractiesApi:
   url: "" # http://open-klant.internal/klantinteracties
   token: ""
 
+# featureFlags defines supported feature flags and their default values
+featureFlags:
+  bpmnSupport: false
+
 # contactmomentenApi Configuration of Contactmomenten API provider (Open Klant)
 contactmomentenApi:
   url: "" # http://open-klant.internal
