@@ -1,7 +1,7 @@
 apiVersion: v2
 name: zaakafhandelcomponent
 description: A Helm chart for installing Zaakafhandelcomponent
-version: 0.3.3
+version: 0.3.4
 appVersion: "latest"
 dependencies:
   - name: opentelemetry-collector
