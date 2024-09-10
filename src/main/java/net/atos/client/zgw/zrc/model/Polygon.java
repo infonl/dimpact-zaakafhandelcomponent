@@ -12,8 +12,11 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 
 
 public class Polygon extends Geometry {
+    private List<List<Point2D>> coordinates;
 
-    private final List<List<Point2D>> coordinates;
+    public Polygon() {
+        super(GeometryType.POLYGON);
+    }
 
     public Polygon(final List<List<Point2D>> coordinates) {
         super(GeometryType.POLYGON);

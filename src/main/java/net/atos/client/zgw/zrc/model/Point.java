@@ -9,11 +9,8 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-/**
- *
- */
-public class Point extends Geometry {
 
+public class Point extends Geometry {
     private Point2D coordinates;
 
     public Point() {

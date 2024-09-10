@@ -10,12 +10,14 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-/**
- *
- */
+
 public class GeometryCollection extends Geometry {
 
-    private final List<Geometry> geometries;
+    private List<Geometry> geometries;
+
+    public GeometryCollection() {
+        super(GeometryType.GEOMETRYCOLLECTION);
+    }
 
     public GeometryCollection(final List<Geometry> geometries) {
         super(GeometryType.GEOMETRYCOLLECTION);
