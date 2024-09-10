@@ -15,14 +15,10 @@ import jakarta.json.bind.annotation.JsonbTypeAdapter;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-/**
- *
- */
+
 @JsonbTypeAdapter(Point2D.Adapter.class)
 public class Point2D {
-
     private final BigDecimal longitude;
-
     private final BigDecimal latitude;
 
     public Point2D(final BigDecimal latitude, final BigDecimal longitude) {

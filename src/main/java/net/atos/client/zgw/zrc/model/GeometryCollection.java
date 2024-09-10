@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -10,12 +10,14 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-/**
- *
- */
+
 public class GeometryCollection extends Geometry {
 
-    private final List<Geometry> geometries;
+    private List<Geometry> geometries;
+
+    public GeometryCollection() {
+        super(GeometryType.GEOMETRYCOLLECTION);
+    }
 
     public GeometryCollection(final List<Geometry> geometries) {
         super(GeometryType.GEOMETRYCOLLECTION);
