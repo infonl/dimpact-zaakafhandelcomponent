@@ -76,7 +76,12 @@ class IndexingService @Inject constructor(
      * @param performCommit whether to perform a hard Solr commit
      */
     fun indexeerDirect(objectId: String, objectType: ZoekObjectType, performCommit: Boolean) =
-        addToSolrIndex(listOf(getConverter(objectType).convert(objectId)), performCommit)
+        addToSolrIndex(
+            getConverter(objectType).let { converter ->
+                listOf(continueOnExceptions(objectType) { converter.convert(objectId) })
+            },
+            performCommit
+        )
 
     /**
      * Add a list of objectIds to the Solr index and optionally performs a (hard) Solr commit so
@@ -88,7 +93,12 @@ class IndexingService @Inject constructor(
      * @param performCommit whether to perform a hard Solr commit
      */
     fun indexeerDirect(objectIds: List<String>, objectType: ZoekObjectType, performCommit: Boolean) =
-        addToSolrIndex(objectIds.map { getConverter(objectType).convert(it) }, performCommit)
+        addToSolrIndex(
+            getConverter(objectType).let { converter ->
+                objectIds.map { continueOnExceptions(objectType) { converter.convert(it) } }
+            },
+            performCommit
+        )
 
     fun reindex(objectType: ZoekObjectType) {
         if (reindexingViewfinder.contains(objectType)) {
@@ -212,7 +222,7 @@ class IndexingService @Inject constructor(
 
     private fun reindexAllZaken() {
         val numberOfZaken = continueOnExceptions(ZoekObjectType.ZAAK) {
-            zrcClientService.listZaken(
+            zrcClientService.listZakenUuids(
                 ZaakListParameters().apply {
                     ordering = "-identificatie"
                     page = ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS
@@ -228,25 +238,25 @@ class IndexingService @Inject constructor(
             ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS
 
         for (pageNumber in ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS..numberOfPages) {
-            continueOnExceptions(ZoekObjectType.ZAAK) { reindexZakenPage(pageNumber, numberOfPages) }
+            continueOnExceptions(ZoekObjectType.ZAAK) { reindexZakenPage(pageNumber, numberOfZaken) }
         }
     }
 
-    private fun reindexZakenPage(pageNumber: Int, totalSize: Int) {
-        val zaakResults = zrcClientService.listZaken(
+    private fun reindexZakenPage(pageNumber: Int, totalCount: Int) {
+        val zaakResults = zrcClientService.listZakenUuids(
             ZaakListParameters().apply {
                 ordering = "-identificatie"
                 page = pageNumber
             }
         )
-        val ids = zaakResults.results.map { it.uuid.toString() }
+        val ids = zaakResults.results.map { it.uuid().toString() }
         indexeerDirect(
             objectIds = ids,
             objectType = ZoekObjectType.ZAAK,
             performCommit = false
         )
         val progress = (pageNumber - ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE + ids.size
-        LOG.info("[${ZoekObjectType.ZAAK}] Reindexed: $progress / $totalSize")
+        LOG.info("[${ZoekObjectType.ZAAK}] Reindexed: $progress / $totalCount ")
     }
 
     private fun reindexAllInformatieobjecten() {
@@ -266,11 +276,13 @@ class IndexingService @Inject constructor(
             ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS
 
         for (pageNumber in ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS..numberOfPages) {
-            continueOnExceptions(ZoekObjectType.DOCUMENT) { reindexInformatieobjectenPage(pageNumber, numberOfPages) }
+            continueOnExceptions(ZoekObjectType.DOCUMENT) {
+                reindexInformatieobjectenPage(pageNumber, numberOfInformatieobjecten)
+            }
         }
     }
 
-    private fun reindexInformatieobjectenPage(pageNumber: Int, totalSize: Int) {
+    private fun reindexInformatieobjectenPage(pageNumber: Int, totalCount: Int) {
         val informationObjectsResults = drcClientService.listEnkelvoudigInformatieObjecten(
             EnkelvoudigInformatieobjectListParameters().apply { page = ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS }
         )
@@ -281,7 +293,7 @@ class IndexingService @Inject constructor(
             performCommit = false
         )
         val progress = (pageNumber - ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE + ids.size
-        LOG.info("[${ZoekObjectType.DOCUMENT}] Reindexed: $progress / $totalSize")
+        LOG.info("[${ZoekObjectType.DOCUMENT}] Reindexed: $progress / $totalCount")
     }
 
     private fun reindexAllTaken() {
@@ -293,11 +305,11 @@ class IndexingService @Inject constructor(
         val numberOfPages: Int = numberOfTasks.toInt() / TAKEN_MAX_RESULTS
 
         for (pageNumber in 0..numberOfPages) {
-            continueOnExceptions(ZoekObjectType.TAAK) { reindexTakenPage(pageNumber, numberOfPages) }
+            continueOnExceptions(ZoekObjectType.TAAK) { reindexTakenPage(pageNumber, numberOfTasks.toInt()) }
         }
     }
 
-    private fun reindexTakenPage(pageNumber: Int, totalSize: Int): Boolean {
+    private fun reindexTakenPage(pageNumber: Int, totalCount: Int): Boolean {
         val firstResult = pageNumber * TAKEN_MAX_RESULTS
         val tasks = flowableTaskService.listOpenTasks(
             TaakSortering.CREATIEDATUM,
@@ -314,7 +326,7 @@ class IndexingService @Inject constructor(
             performCommit = false
         )
         val progress = firstResult + tasks.size
-        LOG.info("[${ZoekObjectType.TAAK}] Reindexed: $progress / $totalSize")
+        LOG.info("[${ZoekObjectType.TAAK}] Reindexed: $progress / $totalCount")
         return tasks.size == TAKEN_MAX_RESULTS
     }
 

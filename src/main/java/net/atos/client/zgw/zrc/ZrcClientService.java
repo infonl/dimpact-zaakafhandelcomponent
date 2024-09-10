@@ -43,6 +43,7 @@ import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters;
 import net.atos.client.zgw.zrc.model.ZaakListParameters;
+import net.atos.client.zgw.zrc.model.ZaakUuid;
 import net.atos.client.zgw.zrc.model.generated.Resultaat;
 import net.atos.client.zgw.zrc.model.generated.ZaakEigenschap;
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
@@ -326,6 +327,16 @@ public class ZrcClientService {
      */
     public Results<Zaak> listZaken(final ZaakListParameters filter) {
         return zrcClient.zaakList(filter);
+    }
+
+    /**
+     * List instances of {@link Zaak} filtered by {@link ZaakListParameters}.
+     *
+     * @param filter {@link ZaakListParameters}.
+     * @return List of {@link ZaakUuid} instances.
+     */
+    public Results<ZaakUuid> listZakenUuids(final ZaakListParameters filter) {
+        return zrcClient.zaakListUuids(filter);
     }
 
     /**
