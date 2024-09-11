@@ -53,6 +53,8 @@ public class FormulierRuntimeService {
 
     private static final String FORMIO_TITLE = "title";
 
+    private static final String AANTAL_DAGEN_VANAF_HEDEN_FORMAAT = "^[+-]\\d{1,4}$";
+
     @Inject
     private ZGWApiService zgwApiService;
 
@@ -126,8 +128,8 @@ public class FormulierRuntimeService {
         if (formulierData.zaakHervatten && zaak.isOpgeschort()) {
             opschortenZaakHelper.hervattenZaak(zaak, REDEN_ZAAK_HERVATTEN);
         }
-        versturenDocumenten(formulierData);
-        ondertekenDocumenten(formulierData);
+        markDocumentAsSent(formulierData);
+        markDocumentAsSigned(formulierData);
 
         final Map<String, Object> zaakVariablen = zaakVariabelenService.readProcessZaakdata(zaak.getUuid());
         zaakVariablen.putAll(formulierData.zaakVariabelen);
@@ -221,7 +223,7 @@ public class FormulierRuntimeService {
     }
 
     private String formatDatumDefaultValue(final String defaultWaarde) {
-        if (defaultWaarde.matches("^[+-]\\d{1,4}$")) {
+        if (defaultWaarde.matches(AANTAL_DAGEN_VANAF_HEDEN_FORMAAT)) {
             int dagen = Integer.parseInt(substring(defaultWaarde, 1));
             if (defaultWaarde.startsWith("+")) {
                 return LocalDate.now().plusDays(dagen).format(DATUM_FORMAAT);
@@ -247,7 +249,7 @@ public class FormulierRuntimeService {
         }
     }
 
-    private void versturenDocumenten(final FormulierData formulierData) {
+    private void markDocumentAsSent(final FormulierData formulierData) {
         if (formulierData.documentenVerzenden != null) {
             Arrays.stream(formulierData.documentenVerzenden.split(DOCUMENT_SEPARATOR))
                     .map(UUID::fromString)
@@ -259,7 +261,7 @@ public class FormulierRuntimeService {
         }
     }
 
-    private void ondertekenDocumenten(final FormulierData formulierData) {
+    private void markDocumentAsSigned(final FormulierData formulierData) {
         if (formulierData.documentenOndertekenen != null) {
             Arrays.stream(formulierData.documentenOndertekenen.split(DOCUMENT_SEPARATOR))
                     .map(UUID::fromString)

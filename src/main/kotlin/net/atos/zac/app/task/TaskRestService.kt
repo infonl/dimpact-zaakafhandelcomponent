@@ -129,20 +129,27 @@ class TaskRestService @Inject constructor(
                 }
                 restTask.formioFormulier?.let {
                     restTask.formioFormulier = formulierRuntimeService.renderFormioFormulier(restTask)
-                    restTask.taakdata!!.putAll(
-                        zaakVariabelenService.readProcessZaakdata(restTask.zaakUuid)
-                            .filterNot {
-                                it.key.equals(ZaakVariabelenService.VAR_ZAAK_UUID) ||
-                                    it.key.equals(
-                                        ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
-                                    )
-                            }
-                    )
+                    addZaakdata(restTask)
                 }
             }
             return restTask
         }
     }
+
+    private fun addZaakdata(restTask: RestTask) = restTask.taakdata?.apply {
+        putAll(readFilteredZaakdata(restTask))
+    } ?: {
+        restTask.taakdata = readFilteredZaakdata(restTask).toMutableMap()
+    }
+
+    private fun readFilteredZaakdata(restTask: RestTask) =
+        zaakVariabelenService.readProcessZaakdata(restTask.zaakUuid)
+            .filterNot {
+                it.key.equals(ZaakVariabelenService.VAR_ZAAK_UUID) ||
+                    it.key.equals(
+                        ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
+                    )
+            }
 
     @PUT
     @Path("taakdata")

@@ -240,7 +240,7 @@ class TaskRestServiceTest : BehaviorSpec({
         val restTaakDataKey = "dummyKey"
         val restTaakDataValue = "dummyValue"
         val signatureUUID = UUID.randomUUID()
-        val restTaakData: MutableMap<String, Any> = mutableMapOf(
+        val restTaakData = mutableMapOf<String, Any>(
             restTaakDataKey to restTaakDataValue,
             "ondertekenen" to signatureUUID.toString()
         )

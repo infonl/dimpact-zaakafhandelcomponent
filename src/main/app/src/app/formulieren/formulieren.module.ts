@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
