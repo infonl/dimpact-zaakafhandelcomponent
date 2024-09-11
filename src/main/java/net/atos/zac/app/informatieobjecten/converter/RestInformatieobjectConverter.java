@@ -6,6 +6,7 @@
 package net.atos.zac.app.informatieobjecten.converter;
 
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
+import static net.atos.zac.app.configuratie.model.RestTaalKt.toRestTaal;
 import static net.atos.zac.app.identity.model.RestUserKt.toRestUser;
 import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
 import static net.atos.zac.identity.model.UserKt.getFullName;
@@ -35,7 +36,6 @@ import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.ztc.ZtcClientService;
-import net.atos.zac.app.configuratie.converter.RESTTaalConverter;
 import net.atos.zac.app.informatieobjecten.model.RESTFileUpload;
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens;
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject;
@@ -45,6 +45,7 @@ import net.atos.zac.app.task.model.RestTaskDocumentData;
 import net.atos.zac.app.zaak.model.RelatieType;
 import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.configuratie.ConfiguratieService;
+import net.atos.zac.configuratie.model.Taal;
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
 import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
 import net.atos.zac.identity.IdentityService;
@@ -62,7 +63,6 @@ public class RestInformatieobjectConverter {
     private IdentityService identityService;
     private Instance<LoggedInUser> loggedInUserInstance;
     private PolicyService policyService;
-    private RESTTaalConverter restTaalConverter;
     private ZrcClientService zrcClientService;
     private ZtcClientService ztcClientService;
 
@@ -81,7 +81,6 @@ public class RestInformatieobjectConverter {
             IdentityService identityService,
             Instance<LoggedInUser> loggedInUserInstance,
             PolicyService policyService,
-            RESTTaalConverter restTaalConverter,
             ZrcClientService zrcClientService,
             ZtcClientService ztcClientService
     ) {
@@ -89,7 +88,6 @@ public class RestInformatieobjectConverter {
         this.drcClientService = drcClientService;
         this.brcClientService = brcClientService;
         this.zrcClientService = zrcClientService;
-        this.restTaalConverter = restTaalConverter;
         this.loggedInUserInstance = loggedInUserInstance;
         this.enkelvoudigInformatieObjectLockService = enkelvoudigInformatieObjectLockService;
         this.identityService = identityService;
@@ -171,9 +169,10 @@ public class RestInformatieobjectConverter {
         }
         restEnkelvoudigInformatieobject.formaat = enkelvoudigInformatieObject.getFormaat();
 
-        configuratieService.findTaal(enkelvoudigInformatieObject.getTaal()).ifPresent(
-                taal -> restEnkelvoudigInformatieobject.taal = taal.getNaam()
-        );
+        final Taal taal = configuratieService.findTaal(enkelvoudigInformatieObject.getTaal());
+        if (taal != null) {
+            restEnkelvoudigInformatieobject.taal = taal.naam;
+        }
 
         restEnkelvoudigInformatieobject.versie = enkelvoudigInformatieObject.getVersie();
         restEnkelvoudigInformatieobject.registratiedatumTijd = enkelvoudigInformatieObject.getBeginRegistratie().toZonedDateTime();
@@ -316,9 +315,10 @@ public class RestInformatieobjectConverter {
         restEnkelvoudigInformatieObjectVersieGegevens.ontvangstdatum = informatieobject.getOntvangstdatum();
         restEnkelvoudigInformatieObjectVersieGegevens.titel = informatieobject.getTitel();
         restEnkelvoudigInformatieObjectVersieGegevens.auteur = informatieobject.getAuteur();
-        configuratieService.findTaal(informatieobject.getTaal())
-                .map(restTaalConverter::convert)
-                .ifPresent(taal -> restEnkelvoudigInformatieObjectVersieGegevens.taal = taal);
+        final Taal taal = configuratieService.findTaal(informatieobject.getTaal());
+        if (taal != null) {
+            restEnkelvoudigInformatieObjectVersieGegevens.taal = toRestTaal(taal);
+        }
         restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam = informatieobject.getInhoud().toString();
         restEnkelvoudigInformatieObjectVersieGegevens.informatieobjectTypeUUID = UriUtil.uuidFromURI(informatieobject
                 .getInformatieobjecttype());
@@ -378,7 +378,7 @@ public class RestInformatieobjectConverter {
             enkelvoudigInformatieObjectWithLockData.setTitel(restEnkelvoudigInformatieObjectVersieGegevens.titel);
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.taal != null) {
-            enkelvoudigInformatieObjectWithLockData.setTaal(restEnkelvoudigInformatieObjectVersieGegevens.taal.code);
+            enkelvoudigInformatieObjectWithLockData.setTaal(restEnkelvoudigInformatieObjectVersieGegevens.taal.getCode());
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.auteur != null) {
             enkelvoudigInformatieObjectWithLockData.setAuteur(restEnkelvoudigInformatieObjectVersieGegevens.auteur);

@@ -39,6 +39,9 @@ object ItestConfiguration {
     const val BETROKKENE_IDENTIFACTION_TYPE_VESTIGING = "VN"
     const val BETROKKENE_ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
     const val BRON_ORGANISATIE = "123443210"
+    const val CONFIG_MAX_FILE_SIZE_IN_MB = 80L
+    const val CONFIG_GEMEENTE_CODE = "9999"
+    const val CONFIG_GEMEENTE_NAAM = "DummyZacGemeente"
     const val COMMUNICATIEKANAAL_TEST_1 = "dummyCommunicatiekanaal1"
     const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"

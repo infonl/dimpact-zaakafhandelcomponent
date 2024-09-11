@@ -1,9 +1,8 @@
 package net.atos.zac.zoeken
 
-import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkConstructor
@@ -30,6 +29,7 @@ import org.apache.solr.common.SolrDocument
 import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.common.params.CursorMarkParams
 import org.eclipse.microprofile.config.ConfigProvider
+import java.io.IOException
 import java.net.URI
 
 class IndexingServiceTest : BehaviorSpec({
@@ -63,9 +63,7 @@ class IndexingServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given(
-        """Two zaken"""
-    ) {
+    Given("Two zaken") {
         val zaakType = createZaakType()
         val zaaktypeURI = URI("http://example.com/${zaakType.url}")
         val zaken = listOf(
@@ -127,13 +125,19 @@ class IndexingServiceTest : BehaviorSpec({
         )
 
         beforeContainer {
+            clearMocks(solrClient)
+
             every { queryResponse.results } returns documentList
             every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
 
             every { solrClient.query(any()) } returns queryResponse
             every { solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
 
-            every { zrcClientService.listZaken(any<ZaakListParameters>()) } returns Results(zaken, 2)
+            every { zrcClientService.listZaken(any<ZaakListParameters>()) } returnsMany listOf(
+                Results(zaken, 2),
+                Results(zaken, 2),
+                Results(emptyList(), 0)
+            )
 
             every { zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
             every { converterInstances.iterator() } returns converterInstancesIterator
@@ -157,16 +161,95 @@ class IndexingServiceTest : BehaviorSpec({
             }
         }
 
-        When("error occurs during indexing") {
+        When("adding beans in Solr errors") {
             val solrException = SolrServerException("Solr exception")
             every { solrClient.addBeans(any<Collection<*>>()) } throws solrException
 
-            val exception = shouldThrowExactly<IndexingException> {
-                indexingService.reindex(ZoekObjectType.ZAAK)
-            }
+            indexingService.reindex(ZoekObjectType.ZAAK)
 
-            Then("it re-throws the exception") {
-                exception.cause shouldBe solrException
+            Then("ignores errors") {
+                verify(exactly = 1) {
+                    solrClient.deleteById(any<List<String>>())
+                    solrClient.addBeans(any<Collection<*>>())
+                }
+            }
+        }
+    }
+
+    Given("Solr indexing exists and zaak count cannot be obtained") {
+        val queryResponse = mockk<QueryResponse>()
+        val documentList = SolrDocumentList().apply {
+            addAll(
+                listOf(
+                    SolrDocument(mapOf("id" to 1)),
+                    SolrDocument(mapOf("id" to 2))
+                )
+            )
+        }
+        every { queryResponse.results } returns documentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { solrClient.query(any()) } returns queryResponse
+        every { solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
+
+        val ioException = IOException("IO exception")
+        every { zrcClientService.listZaken(any<ZaakListParameters>()) } throws ioException
+
+        When("reading zaak count throws an error") {
+            indexingService.reindex(ZoekObjectType.ZAAK)
+
+            Then("aborts and does not try to list zaken") {
+                verify(exactly = 1) {
+                    zrcClientService.listZaken(any<ZaakListParameters>())
+                }
+            }
+        }
+    }
+
+    Given("Solr indexing exists and zaak count is available") {
+        val queryResponse = mockk<QueryResponse>()
+        val documentList = SolrDocumentList().apply {
+            addAll(
+                listOf(
+                    SolrDocument(mapOf("id" to 1)),
+                    SolrDocument(mapOf("id" to 2))
+                )
+            )
+        }
+        val zaakType = createZaakType()
+        val zaaktypeURI = URI("http://example.com/${zaakType.url}")
+        val zaken = listOf(
+            createZaak(zaakTypeURI = zaaktypeURI),
+            createZaak(zaakTypeURI = zaaktypeURI)
+        )
+        val zaakZoekObjecten = listOf(
+            createZaakZoekObject(),
+            createZaakZoekObject()
+        )
+
+        every { queryResponse.results } returns documentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { solrClient.query(any()) } returns queryResponse
+        every { solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
+        every { solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
+
+        every { zrcClientService.listZaken(match<ZaakListParameters> { it.page == 1 }) } returns Results(zaken, 102)
+        every { zrcClientService.listZaken(match<ZaakListParameters> { it.page == 2 }) } throws IOException("exception")
+
+        every { zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
+        every { converterInstances.iterator() } returns converterInstancesIterator
+        every { converterInstancesIterator.hasNext() } returns true andThen true andThen false
+        every { converterInstancesIterator.next() } returns zaakZoekObjectConverter andThen zaakZoekObjectConverter
+        zaken.forEachIndexed { index, zaak ->
+            every { zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
+        }
+
+        When("reading zaak list throws an error") {
+            indexingService.reindex(ZoekObjectType.ZAAK)
+
+            Then("continues without exception") {
+                verify(exactly = 3) {
+                    zrcClientService.listZaken(any<ZaakListParameters>())
+                }
             }
         }
     }
