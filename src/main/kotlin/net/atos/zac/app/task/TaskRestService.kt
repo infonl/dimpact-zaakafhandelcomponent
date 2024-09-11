@@ -45,6 +45,7 @@ import net.atos.zac.authentication.ActiveSession
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.event.EventingService
+import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
@@ -54,6 +55,7 @@ import net.atos.zac.flowable.task.TaakVariabelenService.isZaakHervatten
 import net.atos.zac.flowable.task.TaakVariabelenService.readSignatures
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
 import net.atos.zac.flowable.util.TaskUtil
+import net.atos.zac.formulieren.FormulierRuntimeService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.shared.helper.OpschortenZaakHelper
@@ -103,7 +105,9 @@ class TaskRestService @Inject constructor(
     private val taakHistorieConverter: RestTaskHistoryConverter,
     private val policyService: PolicyService,
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
-    private val opschortenZaakHelper: OpschortenZaakHelper
+    private val opschortenZaakHelper: OpschortenZaakHelper,
+    private val formulierRuntimeService: FormulierRuntimeService,
+    private val zaakVariabelenService: ZaakVariabelenService
 ) {
     @GET
     @Path("zaak/{zaakUUID}")
@@ -114,12 +118,38 @@ class TaskRestService @Inject constructor(
 
     @GET
     @Path("{taskId}")
-    fun readTask(@PathParam("taskId") taskId: String): RestTask =
-        flowableTaskService.readTask(taskId).let {
-            assertPolicy(policyService.readTaakRechten(it).lezen)
-            deleteSignaleringen(it)
-            restTaskConverter.convert(it)
+    fun readTask(@PathParam("taskId") taskId: String): RestTask {
+        flowableTaskService.readTask(taskId).let { task ->
+            assertPolicy(policyService.readTaakRechten(task).lezen)
+            deleteSignaleringen(task)
+            val restTask = restTaskConverter.convert(task)
+            if (TaskUtil.isOpen(task)) {
+                restTask.formulierDefinitie?.let {
+                    formulierRuntimeService.renderFormulierDefinitie(restTask)
+                }
+                restTask.formioFormulier?.let {
+                    restTask.formioFormulier = formulierRuntimeService.renderFormioFormulier(restTask)
+                    addZaakdata(restTask)
+                }
+            }
+            return restTask
         }
+    }
+
+    private fun addZaakdata(restTask: RestTask) = restTask.taakdata?.apply {
+        putAll(readFilteredZaakdata(restTask))
+    } ?: {
+        restTask.taakdata = readFilteredZaakdata(restTask).toMutableMap()
+    }
+
+    private fun readFilteredZaakdata(restTask: RestTask) =
+        zaakVariabelenService.readProcessZaakdata(restTask.zaakUuid)
+            .filterNot {
+                it.key.equals(ZaakVariabelenService.VAR_ZAAK_UUID) ||
+                    it.key.equals(
+                        ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
+                    )
+            }
 
     @PUT
     @Path("taakdata")
@@ -205,13 +235,28 @@ class TaskRestService @Inject constructor(
     @Path("complete")
     fun completeTask(restTask: RestTask): RestTask {
         val task = flowableTaskService.readOpenTask(restTask.id)
-        val zaak = zrcClientService.readZaak(restTask.zaakUuid)
         assertPolicy(TaskUtil.isOpen(task) && policyService.readTaakRechten(task).wijzigen)
 
         val loggedInUserId = loggedInUserInstance.get().id
         if (restTask.behandelaar == null || restTask.behandelaar!!.id != loggedInUserId) {
             flowableTaskService.assignTaskToUser(task.id, loggedInUserId, REDEN_TAAK_AFGESLOTEN)
         }
+
+        val zaak = zrcClientService.readZaak(restTask.zaakUuid)
+        val updatedTask = if (restTask.formulierDefinitie != null || restTask.formioFormulier != null) {
+            formulierRuntimeService.submit(restTask, task, zaak)
+        } else {
+            processHardCodedFormTask(restTask, zaak)
+        }
+
+        return flowableTaskService.completeTask(updatedTask).also {
+            indexingService.addOrUpdateZaak(restTask.zaakUuid, false)
+            eventingService.send(ScreenEventType.TAAK.updated(it))
+            eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
+        }.let(restTaskConverter::convert)
+    }
+
+    private fun processHardCodedFormTask(restTask: RestTask, zaak: Zaak): Task {
         val updatedTask = updateDescriptionAndDueDate(restTask)
         createDocuments(restTask, zaak)
         if (isZaakHervatten(restTask.taakdata)) {
@@ -220,21 +265,17 @@ class TaskRestService @Inject constructor(
         restTask.taakdata?.let { taakdata ->
             taakdata[TAAK_DATA_DOCUMENTEN_VERZENDEN_POST]?.let {
                 updateVerzenddatumEnkelvoudigInformatieObjecten(
-                    documenten = it,
+                    documenten = it.toString(),
                     // implicitly assume that the verzenddatum key is present in taakdata
-                    verzenddatumString = taakdata[TAAK_DATA_VERZENDDATUM]!!,
-                    toelichting = taakdata[TAAK_DATA_TOELICHTING]
+                    verzenddatumString = taakdata[TAAK_DATA_VERZENDDATUM]!!.toString(),
+                    toelichting = taakdata[TAAK_DATA_TOELICHTING]?.toString()
                 )
             }
             ondertekenEnkelvoudigInformatieObjecten(taakdata, zaak)
         }
         taakVariabelenService.setTaskData(updatedTask, restTask.taakdata)
         taakVariabelenService.setTaskinformation(updatedTask, restTask.taakinformatie)
-        return flowableTaskService.completeTask(updatedTask).also {
-            indexingService.addOrUpdateZaak(restTask.zaakUuid, false)
-            eventingService.send(ScreenEventType.TAAK.updated(it))
-            eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
-        }.let(restTaskConverter::convert)
+        return updatedTask
     }
 
     @POST
@@ -283,7 +324,7 @@ class TaskRestService @Inject constructor(
                     taakdata[key]?.let { jsonDocumentData ->
                         try {
                             val restTaskDocumentData = ObjectMapper().readValue(
-                                jsonDocumentData,
+                                jsonDocumentData as String,
                                 RestTaskDocumentData::class.java
                             )
                             val enkelvoudigInformatieObjectCreateLockRequest = restInformatieobjectConverter.convert(
@@ -316,7 +357,7 @@ class TaskRestService @Inject constructor(
         }
     }
 
-    private fun ondertekenEnkelvoudigInformatieObjecten(taakdata: Map<String, String>, zaak: Zaak) {
+    private fun ondertekenEnkelvoudigInformatieObjecten(taakdata: Map<String, Any>, zaak: Zaak) {
         val signatures = readSignatures(taakdata)
         signatures.ifPresent { signature ->
             signature.split(

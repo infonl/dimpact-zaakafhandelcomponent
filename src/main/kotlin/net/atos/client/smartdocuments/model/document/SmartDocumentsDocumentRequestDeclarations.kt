@@ -110,7 +110,7 @@ data class StartformulierData(
 data class TaakData(
     val naam: String,
     var behandelaar: String? = null,
-    val data: Map<String, String>
+    val data: Map<String, Any>
 )
 
 data class Variables(

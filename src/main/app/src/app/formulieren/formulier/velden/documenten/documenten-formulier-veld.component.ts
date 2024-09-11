@@ -67,6 +67,11 @@ export class DocumentenFormulierVeldComponent implements OnInit {
     }
     observable.subscribe((documenten) => {
       this.dataSource.data = documenten;
+      documenten.forEach((document) => {
+        if (this.veldDefinitie.defaultWaarde?.includes(document.uuid)) {
+          this.selection.toggle(document);
+        }
+      });
     });
   }
 

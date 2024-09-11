@@ -16,7 +16,9 @@ import org.flowable.cmmn.api.CmmnRuntimeService;
 import org.flowable.cmmn.api.history.HistoricCaseInstance;
 import org.flowable.cmmn.api.runtime.CaseInstance;
 import org.flowable.cmmn.api.runtime.PlanItemInstance;
+import org.flowable.engine.HistoryService;
 import org.flowable.engine.RuntimeService;
+import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.runtime.ProcessInstance;
 
 @ApplicationScoped
@@ -49,10 +51,13 @@ public class ZaakVariabelenService {
     private CmmnRuntimeService cmmnRuntimeService;
 
     @Inject
+    private CmmnHistoryService cmmnHistoryService;
+
+    @Inject
     private RuntimeService bpmnRuntimeService;
 
     @Inject
-    private CmmnHistoryService cmmnHistoryService;
+    private HistoryService bpmnHistoryService;
 
     public UUID readZaakUUID(final PlanItemInstance planItemInstance) {
         return (UUID) readCaseVariable(planItemInstance, VAR_ZAAK_UUID);
@@ -113,6 +118,10 @@ public class ZaakVariabelenService {
         return MapUtils.emptyIfNull(findVariables(zaakUUID));
     }
 
+    public Map<String, Object> readProcessZaakdata(final UUID zaakUUID) {
+        return MapUtils.emptyIfNull(findProcesVariables(zaakUUID));
+    }
+
     public void setZaakdata(final UUID zaakUUID, final Map<String, Object> zaakdata) {
         setVariables(zaakUUID, zaakdata);
     }
@@ -151,7 +160,6 @@ public class ZaakVariabelenService {
         if (caseInstance != null) {
             return caseInstance.getCaseVariables();
         }
-
         final HistoricCaseInstance historicCaseInstance = cmmnHistoryService.createHistoricCaseInstanceQuery()
                 .caseInstanceBusinessKey(zaakUUID.toString())
                 .includeCaseVariables()
@@ -170,10 +178,17 @@ public class ZaakVariabelenService {
         if (processInstance != null) {
             return processInstance.getProcessVariables();
         }
+        final HistoricProcessInstance historicProcessInstance = bpmnHistoryService.createHistoricProcessInstanceQuery()
+                .processInstanceBusinessKey(zaakUUID.toString())
+                .includeProcessVariables()
+                .singleResult();
+        if (historicProcessInstance != null) {
+            return historicProcessInstance.getProcessVariables();
+        }
         return null;
     }
 
-    public Map<String, Object> findVariables(final UUID zaakUUID) {
+    private Map<String, Object> findVariables(final UUID zaakUUID) {
         Map<String, Object> caseVariables = findCaseVariables(zaakUUID);
         if (caseVariables != null) {
             return caseVariables;

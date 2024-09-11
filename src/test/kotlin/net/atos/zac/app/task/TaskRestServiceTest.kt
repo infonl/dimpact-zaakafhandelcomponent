@@ -39,11 +39,13 @@ import net.atos.zac.app.task.model.createRestTaskReleaseData
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.event.EventingService
+import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
 import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_VERZENDDATUM
 import net.atos.zac.flowable.util.TaskUtil.getTaakStatus
+import net.atos.zac.formulieren.FormulierRuntimeService
 import net.atos.zac.identity.model.getFullName
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
@@ -83,6 +85,8 @@ class TaskRestServiceTest : BehaviorSpec({
     val taakHistorieConverter = mockk<RestTaskHistoryConverter>()
     val zgwApiService = mockk<ZGWApiService>()
     val taskService = mockk<TaskService>()
+    val formulierRuntimeService = mockk<FormulierRuntimeService>()
+    val zaakVariabelenService = mockk<ZaakVariabelenService>()
 
     val taskRestService = TaskRestService(
         drcClientService = drcClientService,
@@ -101,7 +105,9 @@ class TaskRestServiceTest : BehaviorSpec({
         signaleringService = signaleringService,
         taakHistorieConverter = taakHistorieConverter,
         zgwApiService = zgwApiService,
-        taskService = taskService
+        taskService = taskService,
+        formulierRuntimeService = formulierRuntimeService,
+        zaakVariabelenService = zaakVariabelenService
     )
     val loggedInUser = createLoggedInUser()
 
@@ -234,7 +240,7 @@ class TaskRestServiceTest : BehaviorSpec({
         val restTaakDataKey = "dummyKey"
         val restTaakDataValue = "dummyValue"
         val signatureUUID = UUID.randomUUID()
-        val restTaakData = mutableMapOf(
+        val restTaakData = mutableMapOf<String, Any>(
             restTaakDataKey to restTaakDataValue,
             "ondertekenen" to signatureUUID.toString()
         )

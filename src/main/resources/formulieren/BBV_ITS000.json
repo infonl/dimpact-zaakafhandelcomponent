@@ -1,0 +1,672 @@
+{
+  "naam": "BBV_ITS000",
+  "title": "Opstellen voorstel",
+  "display": "wizard",
+  "components": [
+    {
+      "label": "Opstellen voorstel",
+      "type": "panel",
+      "key": "BBV_ITS000_SN001",
+      "title": "Opstellen voorstel",
+      "input": false,
+      "breadcrumbClickable": false,
+      "buttonSettings": {
+        "next": true,
+        "previous": false,
+        "cancel": false
+      },
+      "components": [
+        {
+          "label": "Steller",
+          "type": "fieldset",
+          "key": "AG_Steller",
+          "legend": "Steller",
+          "input": false,
+          "components": [
+            {
+              "label": "Groep",
+              "type": "select",
+              "key": "AG_Steller_Groep",
+              "input": true,
+              "defaultValue": "groepa",
+              "widget": "html5",
+              "validate": {
+                "required": true
+              },
+              "data": {
+                "values": [
+                  {
+                    "label": "groepa",
+                    "value": "groepa"
+                  },
+                  {
+                    "label": "groepb",
+                    "value": "groepb"
+                  },
+                  {
+                    "label": "groepc",
+                    "value": "groepc"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "Medewerker",
+              "type": "select",
+              "key": "AG_Steller_Medewerker",
+              "widget": "html5",
+              "input": true,
+              "validate": {
+                "required": true
+              },
+              "data": {
+                "values": [
+                  {
+                    "label": "Gebruiker 1",
+                    "value": "user1"
+                  },
+                  {
+                    "label": "Gebruiker 2",
+                    "value": "user2"
+                  },
+                  {
+                    "label": "Gebruiker 3",
+                    "value": "user3"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "label": "Besluitpunten",
+          "type": "textarea",
+          "key": "TA_Beslispunten",
+          "tooltip": "Kopieer hier de tekst van het dictum van het collegevoorstel.",
+          "applyMaskOn": "change",
+          "autoExpand": false,
+          "input": true,
+          "validate": {
+            "required": true
+          }
+        },
+        {
+          "label": "Samenvatting",
+          "type": "textarea",
+          "key": "TA_Samenvatting",
+          "tooltip": "Kopieer hier de tekst van de samenvatting van het collegevoorstel. Maximaal 8 regels tekst.",
+          "applyMaskOn": "change",
+          "autoExpand": false,
+          "validateWhenHidden": false,
+          "input": true,
+          "validate": {
+            "required": true
+          }
+        },
+        {
+          "label": "Het beteft een",
+          "type": "select",
+          "key": "CO_Betreft",
+          "tooltip": "Collegevoorstel: Vink collegevoorstel aan wanneer jouw zaak niet naar de raad hoeft. Dit vink je ook aan als er een brief aan de raad bij jouw stukken zit. Raadsvoorstel: Vink raadsvoorstel aan als er een raadvoorstel bij jouw stukken zit.",
+          "widget": "html5",
+          "input": true,
+          "validate": {
+            "required": true
+          },
+          "data": {
+            "values": [
+              {
+                "label": "Collegevoorstel",
+                "value": "Collegevoorstel"
+              },
+              {
+                "label": "Raadsvoorstel",
+                "value": "Raadsvoorstel"
+              }
+            ]
+          }
+        },
+        {
+          "label": "Het stuk is",
+          "type": "select",
+          "key": "CO_VoorstelOpAgenda",
+          "widget": "html5",
+          "input": true,
+          "validate": {
+            "required": true
+          },
+          "data": {
+            "values": [
+              {
+                "label": "Openbaar",
+                "value": "Openbaar"
+              },
+              {
+                "label": "Geheim",
+                "value": "Geheim"
+              }
+            ]
+          }
+        },
+        {
+          "label": "Agenderen als",
+          "type": "radio",
+          "key": "RB_VoorstelAgendering",
+          "input": true,
+          "optionsLabelPosition": "right",
+          "inline": false,
+          "validate": {
+            "required": true
+          },
+          "values": [
+            {
+              "label": "Conform",
+              "value": "conform"
+            },
+            {
+              "label": "Discussie",
+              "value": "Discussie"
+            },
+            {
+              "label": "Opiniërend",
+              "value": "Opiniërend"
+            }
+          ]
+        },
+        {
+          "label": "Voorstel vergaderdatum",
+          "type": "datetime",
+          "key": "DF_VoorstelVergaderdatum",
+          "tooltip": "Vul de datum van de Collegevergadering in.",
+          "useLocaleSettings": true,
+          "format": "dd-MM-yyyy",
+          "datePicker": {
+            "disableWeekends": false,
+            "disableWeekdays": false,
+            "minDate": "moment()"
+          },
+          "enableTime": false,
+          "validate": {
+            "required": true
+          },
+          "enableMinDateInput": true,
+          "enableMaxDateInput": false,
+          "input": true,
+          "widget": {
+            "type": "calendar",
+            "displayInTimezone": "viewer",
+            "locale": "nl",
+            "useLocaleSettings": true,
+            "allowInput": true,
+            "mode": "single",
+            "enableTime": false,
+            "noCalendar": false,
+            "format": "dd-MM-yyyy",
+            "minDate": "moment()"
+          }
+        },
+        {
+          "label": "Moet gepubliceerd op www.overheid.nl",
+          "type": "radio",
+          "key": "RB_Publicatie",
+          "tooltip": "Kies voor 'Ja' als het voorstel na vaststelling moet worden gepubliceerd op www.overheid.nl. Svp het document Bekendmaking toevoegen als WORD-document.",
+          "input": true,
+          "optionsLabelPosition": "right",
+          "inline": false,
+          "validate": {
+            "required": true
+          },
+          "values": [
+            {
+              "label": "Ja",
+              "value": "Ja"
+            },
+            {
+              "label": "Nee",
+              "value": "Nee"
+            }
+          ]
+        },
+        {
+          "label": "Advies Concerncontroller",
+          "type": "select",
+          "key": "CO_AdviesConcerncontroller",
+          "widget": "html5",
+          "input": true,
+          "validate": {
+            "required": true
+          },
+          "data": {
+            "values": [
+              {
+                "label": "Ja",
+                "value": "Ja"
+              },
+              {
+                "label": "Nee",
+                "value": "Nee"
+              }
+            ]
+          },
+          "defaultValue": "Ja"
+        },
+        {
+          "label": "Advies Bureau Collegezaken",
+          "type": "select",
+          "key": "CO_AdviesCollegeondersteuning",
+          "widget": "html5",
+          "input": true,
+          "validate": {
+            "required": true
+          },
+          "data": {
+            "values": [
+              {
+                "label": "Ja",
+                "value": "Ja"
+              },
+              {
+                "label": "Nee",
+                "value": "Nee"
+              }
+            ]
+          },
+          "defaultValue": "Ja"
+        },
+        {
+          "label": "Advies secretaris Collegevergadering",
+          "type": "select",
+          "key": "CO_AdviesSCV",
+          "widget": "html5",
+          "input": true,
+          "validate": {
+            "required": true
+          },
+          "data": {
+            "values": [
+              {
+                "label": "Ja",
+                "value": "Ja"
+              },
+              {
+                "label": "Nee",
+                "value": "Nee"
+              }
+            ]
+          },
+          "defaultValue": "Ja"
+        },
+        {
+          "label": "Samenvatting",
+          "type": "textarea",
+          "key": "TA_Samenvatting",
+          "applyMaskOn": "change",
+          "autoExpand": false,
+          "validateWhenHidden": false,
+          "input": true
+        }
+      ]
+    },
+    {
+      "label": "Procedure Raadsvoorstel",
+      "type": "panel",
+      "key": "BBV_ITS000_SN009",
+      "title": "Procedure Raadsvoorstel",
+      "input": false,
+      "breadcrumbClickable": false,
+      "buttonSettings": {
+        "next": true,
+        "previous": true,
+        "cancel": false
+      },
+      "conditional": {
+        "show": true,
+        "when": "CO_Betreft",
+        "eq": "Raadsvoorstel"
+      },
+      "components": [
+        {
+          "label": "Procedure",
+          "type": "select",
+          "key": "CO_Procedure",
+          "widget": "html5",
+          "input": true,
+          "validate": {
+            "required": true
+          },
+          "defaultValue": "Ter besluitvorming",
+          "data": {
+            "values": [
+              {
+                "label": "Ter besluitvorming",
+                "value": "Ter besluitvorming"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "label": "Procedure Collegevoorstel",
+      "type": "panel",
+      "key": "BBV_ITS000_SN008",
+      "title": "Procedure Collegevoorstel",
+      "input": false,
+      "breadcrumbClickable": false,
+      "buttonSettings": {
+        "next": true,
+        "previous": true,
+        "cancel": false
+      },
+      "conditional": {
+        "show": true,
+        "when": "CO_Betreft",
+        "eq": "Collegevoorstel"
+      },
+      "components": [
+        {
+          "label": "Procedure",
+          "type": "select",
+          "key": "CO_Procedure",
+          "widget": "html5",
+          "input": true,
+          "validate": {
+            "required": true
+          },
+          "data": {
+            "values": [
+              {
+                "label": "Ter kennisname",
+                "value": "Ter kennisname"
+              },
+              {
+                "label": "Ter bespreking",
+                "value": "Ter bespreking"
+              },
+              {
+                "label": "Ter besluitvorming",
+                "value": "Ter besluitvorming"
+              }
+            ]
+          }
+        },
+        {
+          "label": "Bijgevoegde brieven:",
+          "type": "selectboxes",
+          "inputType": "checkbox",
+          "key": "CB_Brieven",
+          "input": true,
+          "optionsLabelPosition": "right",
+          "values": [
+            {
+              "label": "Met brief aan Raad",
+              "value": "metBriefAanRaad"
+            },
+            {
+              "label": "Met brief aan derden",
+              "value": "metBriefAanDerden"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Aanwijzingen brieven",
+      "type": "panel",
+      "key": "BBV_ITS000_SN011",
+      "title": "Aanwijzing brieven",
+      "input": false,
+      "breadcrumbClickable": false,
+      "buttonSettings": {
+        "next": true,
+        "previous": true,
+        "cancel": false
+      },
+      "conditional": {
+        "json": {
+          "or": [
+            {
+              "var": "data.CB_Brieven.metBriefAanRaad"
+            },
+            {
+              "var": "data.CB_Brieven.metBriefAanDerden"
+            }
+          ]
+        }
+      },
+      "components": [
+        {
+          "label": "Soort brief aan Raad",
+          "type": "radio",
+          "key": "RB_BriefRaad",
+          "input": true,
+          "optionsLabelPosition": "right",
+          "inline": false,
+          "validate": {
+            "required": true
+          },
+          "values": [
+            {
+              "label": "Ter informatie",
+              "value": "Ter informatie"
+            },
+            {
+              "label": "Voor wensen/bedenkingen",
+              "value": "Voor wensen/bedenkingen"
+            },
+            {
+              "label": "Opiniërend",
+              "value": "Opiniërend"
+            }
+          ]
+        },
+        {
+          "label": "Aanwijzingen brief aan Raad",
+          "type": "textarea",
+          "key": "TA_BriefRaadAanw",
+          "applyMaskOn": "change",
+          "autoExpand": false,
+          "input": true,
+          "conditional": {
+            "json": {
+              "var": "data.CB_Brieven.metBriefAanRaad"
+            }
+          }
+        },
+        {
+          "label": "Aanwijzingen brief aan derden",
+          "type": "textarea",
+          "key": "TA_BriefDerdenAanw",
+          "applyMaskOn": "change",
+          "autoExpand": false,
+          "input": true,
+          "conditional": {
+            "json": {
+              "var": "data.CB_Brieven.metBriefAanDerden"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "Toewijzen concerncontroller / portefeuillehouder",
+      "type": "panel",
+      "key": "BBV_ITS000_SN007",
+      "title": "Toewijzen concerncontroller / portefeuillehouder",
+      "input": false,
+      "breadcrumbClickable": false,
+      "buttonSettings": {
+        "next": true,
+        "previous": true,
+        "cancel": false
+      },
+      "components": [
+        {
+          "label": "Ter advisering concerncontroller",
+          "type": "fieldset",
+          "key": "AG_AdviesConcerncontroller",
+          "legend": "Ter advisering concerncontroller",
+          "input": false,
+          "components": [
+            {
+              "label": "Groep",
+              "type": "select",
+              "key": "AG_AdviesConcerncontroller_Groep",
+              "input": true,
+              "defaultValue": "groepa",
+              "widget": "html5",
+              "validate": {
+                "required": true
+              },
+              "data": {
+                "values": [
+                  {
+                    "label": "groepa",
+                    "value": "groepa"
+                  },
+                  {
+                    "label": "groepb",
+                    "value": "groepb"
+                  },
+                  {
+                    "label": "groepc",
+                    "value": "groepc"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "Medewerker",
+              "type": "select",
+              "key": "AG_AdviesConcerncontroller_Medewerker",
+              "widget": "html5",
+              "validateWhenHidden": false,
+              "input": true,
+              "validate": {
+                "required": true
+              },
+              "data": {
+                "values": [
+                  {
+                    "label": "Gebruiker 1",
+                    "value": "user1"
+                  },
+                  {
+                    "label": "Gebruiker 2",
+                    "value": "user2"
+                  },
+                  {
+                    "label": "Gebruiker 3",
+                    "value": "user3"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "label": "Ter accordering naar portefeuillehouder",
+          "type": "fieldset",
+          "key": "AG_GoedkeuringAfdelingshoofd",
+          "legend": "Ter accordering naar portefeuillehouder",
+          "tooltip": "Kies hier de betreffende bestuursadviseur of de AO-secretaris. Neem bij twijfel contact op met één van beide.",
+          "input": false,
+          "components": [
+            {
+              "label": "Groep",
+              "type": "select",
+              "key": "AG_GoedkeuringAfdelingshoofd_Groep",
+              "input": true,
+              "defaultValue": "groepa",
+              "widget": "html5",
+              "validate": {
+                "required": true
+              },
+              "data": {
+                "values": [
+                  {
+                    "label": "groepa",
+                    "value": "groepa"
+                  },
+                  {
+                    "label": "groepb",
+                    "value": "groepb"
+                  },
+                  {
+                    "label": "groepc",
+                    "value": "groepc"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "Medewerker",
+              "type": "select",
+              "key": "AG_GoedkeuringAfdelingshoofd_Medewerker",
+              "widget": "html5",
+              "input": true,
+              "data": {
+                "values": [
+                  {
+                    "label": "Gebruiker 1",
+                    "value": "user1"
+                  },
+                  {
+                    "label": "Gebruiker 2",
+                    "value": "user2"
+                  },
+                  {
+                    "label": "Gebruiker 3",
+                    "value": "user3"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Adviesvraag vaste adviseurs",
+      "type": "panel",
+      "key": "BBV_ITS000_SN003",
+      "title": "Adviesvraag vaste adviseurs",
+      "input": false,
+      "breadcrumbClickable": false,
+      "buttonSettings": {
+        "next": true,
+        "previous": true,
+        "cancel": false
+      },
+      "components": [
+        {
+          "label": "Toelichting adviesvraag Concerncontroller",
+          "type": "textarea",
+          "key": "TA_AdviesvraagConcerncontroller",
+          "tooltip": "Geen verplicht veld. Dit kun je gebruiken als je nog extra info kwijt wilt.",
+          "applyMaskOn": "change",
+          "autoExpand": false,
+          "input": true
+        },
+        {
+          "label": "Toelichting op adviesvraag Bureau Collegezaken",
+          "type": "textarea",
+          "key": "TA_AdviesvraagCollegeOndersteuning",
+          "tooltip": "Geen verplicht veld. Dit kun je gebruiken als je nog extra info kwijt wilt.",
+          "applyMaskOn": "change",
+          "autoExpand": false,
+          "input": true
+        },
+        {
+          "label": "Toelichting op adviesvraag Secretaris Collegevergadering",
+          "type": "textarea",
+          "key": "TA_AdviesvraagSCV",
+          "tooltip": "Geen verplicht veld. Dit kun je gebruiken als je nog extra info kwijt wilt.",
+          "applyMaskOn": "change",
+          "autoExpand": false,
+          "input": true
+        }
+      ]
+    }
+  ]
+}

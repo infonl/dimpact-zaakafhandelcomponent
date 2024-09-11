@@ -21,12 +21,12 @@
     <form [formGroup]="definitieFormGroup">
       <mat-card>
         <mat-card-header>
-          <mat-card-title>{{'formulierDefinitie'| translate}}</mat-card-title>
+          <mat-card-title>{{ 'formulierDefinitie'| translate }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <div class="flex-row flex-wrap gap-20">
             <mat-form-field class="w50" floatLabel="always">
-              <mat-label>{{'naam' | translate}}</mat-label>
+              <mat-label>{{ 'naam' | translate }}</mat-label>
               <input
                 matInput
                 (keyup)="updateSysteemnaam()"
@@ -34,19 +34,19 @@
               />
             </mat-form-field>
             <mat-form-field class="w50" floatLabel="always">
-              <mat-label>{{'systeemnaam' | translate}}</mat-label>
+              <mat-label>{{ 'systeemnaam' | translate }}</mat-label>
               <input matInput formControlName="systeemnaam" />
             </mat-form-field>
           </div>
           <div class="flex-row">
             <mat-form-field class="w100" floatLabel="always">
-              <mat-label>{{'beschrijving' | translate}}</mat-label>
+              <mat-label>{{ 'beschrijving' | translate }}</mat-label>
               <input matInput formControlName="beschrijving" />
             </mat-form-field>
           </div>
           <div class="flex-row">
             <mat-form-field class="row w100" floatLabel="always">
-              <mat-label>{{'uitleg' | translate}}</mat-label>
+              <mat-label>{{ 'uitleg' | translate }}</mat-label>
               <textarea matInput formControlName="uitleg"></textarea>
             </mat-form-field>
           </div>
@@ -58,35 +58,35 @@
               [disabled]="bezigMetOpslaan || definitieFormGroup.invalid"
               (click)="opslaan()"
             >
-              {{"actie.opslaan" | translate}}
+              {{ "actie.opslaan" | translate }}
             </button>
             <button
               mat-raised-button
               [disabled]="bezigMetOpslaan"
               (click)="annuleren()"
             >
-              {{"actie.annuleren" | translate}}
+              {{ "actie.annuleren" | translate }}
             </button>
           </div>
         </mat-card-content>
       </mat-card>
       <mat-card>
         <mat-card-header>
-          <mat-card-title>{{'veldDefinities'| translate}}</mat-card-title>
+          <mat-card-title>{{ 'veldDefinities'| translate }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <mat-table [dataSource]="dataSource">
             <ng-container matColumnDef="label">
               <mat-header-cell *matHeaderCellDef
-                >{{'label' | translate}}</mat-header-cell
-              >
+                >{{ 'label' | translate }}
+              </mat-header-cell>
               <mat-cell *matCellDef="let element;" [formGroup]="element">
                 <mat-form-field
                   class="full-width"
                   floatLabel="always"
                   subscriptSizing="dynamic"
                 >
-                  <mat-label>{{'label' | translate}}</mat-label>
+                  <mat-label>{{ 'label' | translate }}</mat-label>
                   <input
                     matInput
                     formControlName="label"
@@ -98,15 +98,15 @@
 
             <ng-container matColumnDef="systeemnaam">
               <mat-header-cell *matHeaderCellDef
-                >{{'systeemnaam' | translate}}</mat-header-cell
-              >
+                >{{ 'systeemnaam' | translate }}
+              </mat-header-cell>
               <mat-cell *matCellDef="let element;" [formGroup]="element">
                 <mat-form-field
                   class="full-width"
                   floatLabel="always"
                   subscriptSizing="dynamic"
                 >
-                  <mat-label>{{'systeemnaam' | translate}}</mat-label>
+                  <mat-label>{{ 'systeemnaam' | translate }}</mat-label>
                   <input matInput formControlName="systeemnaam" />
                 </mat-form-field>
               </mat-cell>
@@ -114,15 +114,15 @@
 
             <ng-container matColumnDef="beschrijving">
               <mat-header-cell *matHeaderCellDef
-                >{{'beschrijving' | translate}}</mat-header-cell
-              >
+                >{{ 'beschrijving' | translate }}
+              </mat-header-cell>
               <mat-cell *matCellDef="let element;" [formGroup]="element">
                 <mat-form-field
                   class="full-width"
                   floatLabel="always"
                   subscriptSizing="dynamic"
                 >
-                  <mat-label>{{'beschrijving' | translate}}</mat-label>
+                  <mat-label>{{ 'beschrijving' | translate }}</mat-label>
                   <input matInput formControlName="beschrijving" />
                 </mat-form-field>
               </mat-cell>
@@ -130,15 +130,15 @@
 
             <ng-container matColumnDef="helptekst">
               <mat-header-cell *matHeaderCellDef
-                >{{'helptekst' | translate}}</mat-header-cell
-              >
+                >{{ 'helptekst' | translate }}
+              </mat-header-cell>
               <mat-cell *matCellDef="let element;" [formGroup]="element">
                 <mat-form-field
                   class="full-width"
                   floatLabel="always"
                   subscriptSizing="dynamic"
                 >
-                  <mat-label>{{'helptekst' | translate}}</mat-label>
+                  <mat-label>{{ 'helptekst' | translate }}</mat-label>
                   <input matInput formControlName="helptekst" />
                 </mat-form-field>
               </mat-cell>
@@ -146,15 +146,15 @@
 
             <ng-container matColumnDef="veldtype">
               <mat-header-cell *matHeaderCellDef
-                >{{'veldtype' | translate}}</mat-header-cell
-              >
+                >{{ 'veldtype' | translate }}
+              </mat-header-cell>
               <mat-cell *matCellDef="let element;" [formGroup]="element">
                 <mat-form-field
                   class="full-width"
                   floatLabel="always"
                   subscriptSizing="dynamic"
                 >
-                  <mat-label>{{'veldtype' | translate}}</mat-label>
+                  <mat-label>{{ 'veldtype' | translate }}</mat-label>
                   <mat-select
                     formControlName="veldtype"
                     (selectionChange)="onVeldtypeChange($event, element)"
@@ -173,15 +173,15 @@
 
             <ng-container matColumnDef="defaultWaarde">
               <mat-header-cell *matHeaderCellDef
-                >{{'defaultWaarde' | translate}}</mat-header-cell
-              >
+                >{{ 'defaultWaarde' | translate }}
+              </mat-header-cell>
               <mat-cell *matCellDef="let element;" [formGroup]="element">
                 <mat-form-field
                   class="full-width"
                   floatLabel="always"
                   subscriptSizing="dynamic"
                 >
-                  <mat-label>{{'defaultWaarde' | translate}}</mat-label>
+                  <mat-label>{{ 'defaultWaarde' | translate }}</mat-label>
                   <input
                     *ngIf="!isTekstvlak(element)"
                     matInput
@@ -199,8 +199,8 @@
 
             <ng-container matColumnDef="verplicht">
               <mat-header-cell *matHeaderCellDef
-                >{{'verplicht' | translate}}</mat-header-cell
-              >
+                >{{ 'verplicht' | translate }}
+              </mat-header-cell>
               <mat-cell *matCellDef="let element;" [formGroup]="element">
                 <mat-checkbox formControlName="verplicht"></mat-checkbox>
               </mat-cell>
@@ -208,7 +208,7 @@
 
             <ng-container matColumnDef="meerkeuzeOpties">
               <mat-header-cell *matHeaderCellDef>
-                {{'meerkeuzeOpties' | translate}}
+                {{ 'meerkeuzeOpties' | translate }}
               </mat-header-cell>
               <mat-cell *matCellDef="let element;" [formGroup]="element">
                 <mat-form-field
@@ -216,7 +216,7 @@
                   floatLabel="always"
                   subscriptSizing="dynamic"
                 >
-                  <mat-label>{{'meerkeuzeOpties' | translate}}</mat-label>
+                  <mat-label>{{ 'meerkeuzeOpties' | translate }}</mat-label>
                   <input matInput formControlName="meerkeuzeOpties" />
                 </mat-form-field>
               </mat-cell>
@@ -224,7 +224,7 @@
 
             <ng-container matColumnDef="volgorde">
               <mat-header-cell *matHeaderCellDef>
-                {{'volgorde' | translate}}
+                {{ 'volgorde' | translate }}
               </mat-header-cell>
               <mat-cell *matCellDef="let element;" [formGroup]="element">
                 <mat-form-field
@@ -232,7 +232,7 @@
                   floatLabel="always"
                   subscriptSizing="dynamic"
                 >
-                  <mat-label>{{'volgorde' | translate}}</mat-label>
+                  <mat-label>{{ 'volgorde' | translate }}</mat-label>
                   <input matInput formControlName="volgorde" />
                 </mat-form-field>
               </mat-cell>
@@ -267,7 +267,7 @@
           <ng-container
             *ngIf="definitieFormGroup?.get('veldDefinities').value.length === 0"
           >
-            <p>{{'msg.geen.gegevens.gevonden' | translate}}</p>
+            <p>{{ 'msg.geen.gegevens.gevonden' | translate }}</p>
           </ng-container>
         </mat-card-content>
       </mat-card>
@@ -275,7 +275,7 @@
 
     <mat-expansion-panel>
       <mat-expansion-panel-header>
-        <mat-panel-title> Uitleg meerkeuze opties </mat-panel-title>
+        <mat-panel-title> Uitleg meerkeuze opties</mat-panel-title>
       </mat-expansion-panel-header>
       <small>
         <b>RADIO, CHECKBOXES EN KEUZELIJST</b><br />
@@ -289,7 +289,7 @@
             Een referentietabel <b>REF:CODE</b>, bijvoorbeeld: REF:AFZENDER
           </li>
         </ul>
-        Beschikbare referentietabellen: [{{referentieLijsten.join(', ')}}]
+        Beschikbare referentietabellen: [{{ referentieLijsten.join(', ') }}]
         <br />
         <br />
         <b>DOCUMENTEN_LIJST</b><br />
@@ -309,7 +309,7 @@
 
     <mat-expansion-panel>
       <mat-expansion-panel-header>
-        <mat-panel-title> Uitleg speciale systeemnamen </mat-panel-title>
+        <mat-panel-title> Uitleg speciale systeemnamen</mat-panel-title>
       </mat-expansion-panel-header>
       <small>
         <ul>
@@ -333,9 +333,78 @@
             <b>taak-toekennen-behandelaar</b>: de taak wordt toegekend aan de
             gekozen MEDEWERKER_KEUZELIJST waarde
           </li>
+          <li><b>toelichting</b>: toelichting op de taak</li>
+          <li>
+            <b>mail-bijlagen</b>: een DOCUMENTEN_LIJST veld voor het toevoegen
+            van bijlagen aan een mail
+          </li>
+          <li>
+            <b>documenten-verzenden</b>: een DOCUMENTEN_LIJST veld voor het
+            markeren van documenten met de indicatie verzonden
+          </li>
+          <li>
+            <b>documenten-verzenden-datum</b>: een DATUM veld welke aangeeft
+            wanneer de betreffende documenten worden/zijn verzonden
+          </li>
+          <li>
+            <b>documenten-onderteken</b>: een DOCUMENTEN_LIJST veld voor het
+            ondertekend van documenten na het afronden van het formulier
+          </li>
         </ul>
-        Indien het niet mogelijk is om de gekozen conditie uit te voeren zal het
-        veld niet worden weergegeven.
+        <i
+          >NB: Opschorten en hervatten zijn alleen actief als het mogelijk is de
+          betreffende actie uit te voeren</i
+        >
+        <br /><br />
+      </small>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title> Uitleg standaardwaarden </mat-panel-title>
+      </mat-expansion-panel-header>
+      <small>
+        Standaardwaarden die beginnen met ":" worden vervangen door de waarde
+        van het zaakdata element waarvan de naam overeenkomt met de tekst achter
+        de ":".
+        <br />
+        De volgende variabelen kunnen worden gebruikt als standaardwaarde voor
+        een velddefinitie
+        <ul>
+          <li>
+            <b>ZAAK:STARTDATUM</b>: De startdatum van de zaak (dd-mm-yyyy)
+          </li>
+          <li>
+            <b>ZAAK:FATALE_DATUM</b>: De fatale datum van de zaak (dd-mm-yyyy)
+          </li>
+          <li>
+            <b>ZAAK:STREEFDATUM</b>: De streefdatum van de zaak (dd-mm-yyyy)
+          </li>
+          <li>
+            <b>ZAAK:BEHANDELAAR</b>: De volledige naam van de zaak toegewezen
+            behandelaar
+          </li>
+          <li><b>ZAAK:GROEP</b>: De naam van de zaak toegewezen groep</li>
+          <li>
+            <b>TAAK:STARTDATUM</b>: De startdatum van de taak (dd-mm-yyyy)
+          </li>
+          <li>
+            <b>TAAK:FATALE_DATUM</b>: De fatale datum van de taak (dd-mm-yyyy)
+          </li>
+          <li>
+            <b>TAAK:BEHANDELAAR</b>: De volledige naam van de taak toegewezen
+            behandelaar
+          </li>
+          <li><b>TAAK:GROEP</b>: De naam van de taak toegewezen groep</li>
+        </ul>
+        <br />
+        DATUM velddefinities ondersteunen naast de bovenstaande datum variabelen
+        ook de volgende standaardwaarden
+        <ul>
+          <li><b>+3</b>: vandaag plus 3 dagen</li>
+          <li><b>-2</b>: vandaag min 2 dagen</li>
+          <li><b>24-05-2023</b>: een vaste datum</li>
+        </ul>
       </small>
     </mat-expansion-panel>
   </mat-sidenav-content>

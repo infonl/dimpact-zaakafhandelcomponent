@@ -32,19 +32,30 @@
           <div class="form">
             <mfb-form
               *ngIf="formulier"
-              (formPartial)="onFormPartial($event)"
-              (formSubmit)="onFormSubmit($event)"
+              (formPartial)="onHardCodedFormPartial($event)"
+              (formSubmit)="onHardCodedFormSubmit($event)"
               [formFields]="formulier.form"
               [config]="formConfig"
               [submitted]="posts"
             ></mfb-form>
             <zac-formulier
               *ngIf="formulierDefinitie"
+              (formPartial)="onConfigurableFormPartial($event)"
+              (formSubmit)="onConfigurableFormSubmit($event)"
               [definitie]="formulierDefinitie"
+              [waarden]="taak.taakdata"
               [zaak]="zaak"
+              [readonly]="isReadonly()"
             ></zac-formulier>
+            <zac-formio-wrapper
+              *ngIf="formioFormulier"
+              [submission]="{ data: taak.taakdata }"
+              [form]="formioFormulier"
+              [readOnly]="isReadonly()"
+              (submit)="onFormioFormSubmit($event)"
+            ></zac-formio-wrapper>
             <mat-progress-bar
-              *ngIf="!formulier && !formulierDefinitie"
+              *ngIf="!formulier && !formulierDefinitie && !formioFormulier"
               mode="query"
             ></mat-progress-bar>
           </div>

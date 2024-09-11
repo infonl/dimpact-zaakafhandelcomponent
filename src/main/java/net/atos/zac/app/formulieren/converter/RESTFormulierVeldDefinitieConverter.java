@@ -5,29 +5,19 @@
 
 package net.atos.zac.app.formulieren.converter;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import jakarta.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import net.atos.zac.admin.ReferenceTableService;
-import net.atos.zac.admin.model.ReferenceTable;
-import net.atos.zac.admin.model.ReferenceTableValue;
 import net.atos.zac.app.formulieren.model.RESTFormulierVeldDefinitie;
 import net.atos.zac.formulieren.model.FormulierVeldDefinitie;
 
 public class RESTFormulierVeldDefinitieConverter {
 
-    @Inject
-    private ReferenceTableService referenceTableService;
+    private static final String VALIDATIES_SEPARATOR = ";";
 
-    private final String SEPARATOR = ";";
-
-    public RESTFormulierVeldDefinitie convert(final FormulierVeldDefinitie veldDefinitie, boolean runtime) {
+    public RESTFormulierVeldDefinitie convert(final FormulierVeldDefinitie veldDefinitie) {
         final RESTFormulierVeldDefinitie restVeldDefinitie = new RESTFormulierVeldDefinitie();
         restVeldDefinitie.id = veldDefinitie.getId();
         restVeldDefinitie.systeemnaam = veldDefinitie.getSysteemnaam();
@@ -40,19 +30,7 @@ public class RESTFormulierVeldDefinitieConverter {
         restVeldDefinitie.defaultWaarde = veldDefinitie.getDefaultWaarde();
         restVeldDefinitie.meerkeuzeOpties = veldDefinitie.getMeerkeuzeOpties();
         if (StringUtils.isNotBlank(veldDefinitie.getValidaties())) {
-            restVeldDefinitie.validaties = List.of(StringUtils.split(veldDefinitie.getValidaties(), SEPARATOR));
-        }
-
-        if (runtime) {
-            final String referentietabelCode = StringUtils.substringAfter(veldDefinitie.getMeerkeuzeOpties(), "REF:");
-            if (StringUtils.isNotBlank(referentietabelCode)) {
-                final ReferenceTable referenceTable = referenceTableService.readReferenceTable(referentietabelCode);
-                restVeldDefinitie.meerkeuzeOpties = referenceTable.getValues()
-                        .stream()
-                        .sorted(Comparator.comparingInt(ReferenceTableValue::getSortOrder))
-                        .map(ReferenceTableValue::getName)
-                        .collect(Collectors.joining(SEPARATOR));
-            }
+            restVeldDefinitie.validaties = List.of(StringUtils.split(veldDefinitie.getValidaties(), VALIDATIES_SEPARATOR));
         }
         return restVeldDefinitie;
     }
@@ -70,7 +48,7 @@ public class RESTFormulierVeldDefinitieConverter {
         veldDefinitie.setDefaultWaarde(restVeldDefinitie.defaultWaarde);
         veldDefinitie.setMeerkeuzeOpties(restVeldDefinitie.meerkeuzeOpties);
         if (CollectionUtils.isNotEmpty(restVeldDefinitie.validaties)) {
-            veldDefinitie.setValidaties(String.join(SEPARATOR, restVeldDefinitie.validaties));
+            veldDefinitie.setValidaties(String.join(VALIDATIES_SEPARATOR, restVeldDefinitie.validaties));
         }
         return veldDefinitie;
     }

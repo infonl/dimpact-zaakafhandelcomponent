@@ -5,17 +5,10 @@
 
 package net.atos.zac.flowable.task;
 
-import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING;
-import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_UUUID;
-import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE;
-import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID;
+import static net.atos.zac.flowable.ZaakVariabelenService.*;
 import static net.atos.zac.flowable.util.TaskUtil.isCmmnTask;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -30,12 +23,12 @@ import org.flowable.task.api.TaskInfo;
 @ApplicationScoped
 @Transactional
 public class TaakVariabelenService {
-    public static final String TAAK_DATA_ONDERTEKENEN = "ondertekenen";
     public static final String TAAK_DATA_DOCUMENTEN_VERZENDEN_POST = "documentenVerzendenPost";
     public static final String TAAK_DATA_VERZENDDATUM = "verzenddatum";
     public static final String TAAK_DATA_TOELICHTING = "toelichting";
     public static final String TAAK_DATA_MULTIPLE_VALUE_JOIN_CHARACTER = ";";
 
+    private static final String TAAK_DATA_ONDERTEKENEN = "ondertekenen";
     private static final String TAAK_DATA_ZAAK_OPSCHORTEN = "zaakOpschorten";
     private static final String TAAK_DATA_ZAAK_HERVATTEN = "zaakHervatten";
     private final static String TAAK_DATA_MAIL_FROM = "verzender";
@@ -50,8 +43,8 @@ public class TaakVariabelenService {
     @Inject
     private TaskService taskService;
 
-    public static Map<String, String> readTaskData(final TaskInfo taskInfo) {
-        return (Map<String, String>) findTaskVariable(taskInfo, VAR_TASK_TAAKDATA).orElse(Collections.emptyMap());
+    public static Map<String, Object> readTaskData(final TaskInfo taskInfo) {
+        return (Map<String, Object>) findTaskVariable(taskInfo, VAR_TASK_TAAKDATA).orElse(Collections.emptyMap());
     }
 
     public static Map<String, String> readTaskInformation(final TaskInfo taskInfo) {
@@ -63,19 +56,19 @@ public class TaakVariabelenService {
     }
 
     public static Optional<String> readMailFrom(Map<String, String> taakData) {
-        return findTaskDataElement(taakData, TAAK_DATA_MAIL_FROM);
+        return findStringTaskDataElement(taakData, TAAK_DATA_MAIL_FROM);
     }
 
     public static Optional<String> readMailReplyTo(Map<String, String> taakData) {
-        return findTaskDataElement(taakData, TAAK_DATA_MAIL_REPLYTO);
+        return findStringTaskDataElement(taakData, TAAK_DATA_MAIL_REPLYTO);
     }
 
     public static Optional<String> readMailTo(Map<String, String> taakData) {
-        return findTaskDataElement(taakData, TAAK_DATA_MAIL_TO);
+        return findStringTaskDataElement(taakData, TAAK_DATA_MAIL_TO);
     }
 
     public static Optional<String> readMailBody(Map<String, String> taakData) {
-        return findTaskDataElement(taakData, TAAK_DATA_MAIL_BODY);
+        return findStringTaskDataElement(taakData, TAAK_DATA_MAIL_BODY);
     }
 
     public static void setMailBody(Map<String, String> taakData, final String body) {
@@ -83,20 +76,20 @@ public class TaakVariabelenService {
     }
 
     public static Optional<String> readMailAttachments(Map<String, String> taakData) {
-        return findTaskDataElement(taakData, TAAK_DATA_MAIL_BIJLAGEN);
+        return findStringTaskDataElement(taakData, TAAK_DATA_MAIL_BIJLAGEN);
     }
 
-    public static Optional<String> readSignatures(Map<String, String> taakData) {
-        return findTaskDataElement(taakData, TAAK_DATA_ONDERTEKENEN);
+    public static Optional<String> readSignatures(Map<String, Object> taakData) {
+        return findObjectTaskDataElement(taakData, TAAK_DATA_ONDERTEKENEN);
     }
 
     public static boolean isZaakOpschorten(Map<String, String> taakData) {
-        Optional<String> zaakOpgeschort = findTaskDataElement(taakData, TAAK_DATA_ZAAK_OPSCHORTEN);
+        Optional<String> zaakOpgeschort = findStringTaskDataElement(taakData, TAAK_DATA_ZAAK_OPSCHORTEN);
         return zaakOpgeschort.filter(BooleanUtils.TRUE::equals).isPresent();
     }
 
-    public static boolean isZaakHervatten(Map<String, String> taakData) {
-        final Optional<String> zaakHervatten = findTaskDataElement(taakData, TAAK_DATA_ZAAK_HERVATTEN);
+    public static boolean isZaakHervatten(Map<String, Object> taakData) {
+        final Optional<String> zaakHervatten = findObjectTaskDataElement(taakData, TAAK_DATA_ZAAK_HERVATTEN);
         return zaakHervatten.filter(BooleanUtils.TRUE::equals).isPresent();
     }
 
@@ -116,7 +109,7 @@ public class TaakVariabelenService {
         return (String) readVariable(taskInfo, VAR_ZAAKTYPE_OMSCHRIJVING);
     }
 
-    public void setTaskData(final Task task, final Map<String, String> taakdata) {
+    public void setTaskData(final Task task, final Map<String, Object> taakdata) {
         setTaskVariable(task, VAR_TASK_TAAKDATA, taakdata);
     }
 
@@ -157,10 +150,18 @@ public class TaakVariabelenService {
         }
     }
 
-    private static Optional<String> findTaskDataElement(final Map<String, String> taakData, final String elementName) {
+    private static Optional<String> findStringTaskDataElement(final Map<String, String> taakData, final String elementName) {
         final String value = taakData.get(elementName);
         if (StringUtils.isNotEmpty(value)) {
             return Optional.of(value);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private static Optional<String> findObjectTaskDataElement(final Map<String, Object> taakData, final String elementName) {
+        if (taakData.get(elementName)instanceof String stringValue && StringUtils.isNotEmpty(stringValue)) {
+            return Optional.of(stringValue);
         } else {
             return Optional.empty();
         }

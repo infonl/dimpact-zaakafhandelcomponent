@@ -15,7 +15,7 @@ fun createRestTask(
     id: String = "dummyId",
     zaakUuid: UUID = UUID.randomUUID(),
     behandelaar: RestUser = createRestUser(),
-    taakData: MutableMap<String, String> = emptyMap<String, String>().toMutableMap(),
+    taakData: MutableMap<String, Any> = emptyMap<String, Any>().toMutableMap(),
     tabellen: MutableMap<String, List<String>> = emptyMap<String, List<String>>().toMutableMap()
 ) = RestTask(
     id = id,

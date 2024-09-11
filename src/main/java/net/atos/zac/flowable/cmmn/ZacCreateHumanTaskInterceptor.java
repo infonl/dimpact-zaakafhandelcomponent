@@ -5,10 +5,9 @@
 
 package net.atos.zac.flowable.cmmn;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import static java.util.Collections.unmodifiableMap;
+
+import java.util.*;
 
 import org.flowable.cmmn.engine.interceptor.CreateHumanTaskAfterContext;
 import org.flowable.cmmn.engine.interceptor.CreateHumanTaskBeforeContext;
@@ -56,7 +55,7 @@ public class ZacCreateHumanTaskInterceptor implements CreateHumanTaskInterceptor
     public void afterCreateHumanTask(final CreateHumanTaskAfterContext context) {
         final Map<String, String> taakdata = (Map<String, String>) context.getPlanItemInstanceEntity()
                 .getTransientVariable(VAR_TRANSIENT_TAAKDATA);
-        FlowableHelper.getInstance().getTaakVariabelenService().setTaskData(context.getTaskEntity(), taakdata);
+        FlowableHelper.getInstance().getTaakVariabelenService().setTaskData(context.getTaskEntity(), unmodifiableMap(taakdata));
         context.getTaskEntity().setDueDate((Date) context.getPlanItemInstanceEntity()
                 .getTransientVariable(VAR_TRANSIENT_DUE_DATE));
         context.getTaskEntity().setDescription((String) context.getPlanItemInstanceEntity()

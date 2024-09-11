@@ -79,7 +79,6 @@ class ProductaanvraagService @Inject constructor(
 
         private const val AANVRAAG_PDF_TITEL = "Aanvraag PDF"
         private const val AANVRAAG_PDF_BESCHRIJVING = "PDF document met de aanvraag gegevens van de zaak"
-        private const val BPMN_PROCESS_DEFINITION_KEY = "test-met-proces"
         private const val PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS = "aanvraaggegevens"
         private const val PRODUCTAANVRAAG_FORMULIER_VELD_BRON = "bron"
         private const val PRODUCTAANVRAAG_FORMULIER_VELD_TYPE = "type"
@@ -464,7 +463,7 @@ class ProductaanvraagService @Inject constructor(
             verantwoordelijkeOrganisatie = ConfiguratieService.BRON_ORGANISATIE
             startdatum = LocalDate.now()
         }.let(zgwApiService::createZaak)
-        bpmnService.readProcessDefinitionByprocessDefinitionKey(BPMN_PROCESS_DEFINITION_KEY).let {
+        bpmnService.readProcessDefinitionByprocessDefinitionKey(zaaktype.referentieproces.naam).let {
             zrcClientService.createRol(creeerRolGroep(it.description, createdZaak))
         }
         pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, createdZaak)
@@ -472,7 +471,7 @@ class ProductaanvraagService @Inject constructor(
             createdZaak,
             zaaktype,
             getAanvraaggegevens(productaanvraagObject),
-            BPMN_PROCESS_DEFINITION_KEY
+            zaaktype.referentieproces.naam
         )
     }
 

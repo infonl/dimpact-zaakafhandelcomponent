@@ -45,7 +45,7 @@ public class FormulierDefinitieRESTService {
     public List<RESTFormulierDefinitie> list() {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return service.listFormulierDefinities().stream()
-                .map(formulierDefinitie -> converter.convert(formulierDefinitie, false, false))
+                .map(formulierDefinitie -> converter.convert(formulierDefinitie, false))
                 .toList();
     }
 
@@ -53,8 +53,7 @@ public class FormulierDefinitieRESTService {
     public RESTFormulierDefinitie create(final RESTFormulierDefinitie restFormulierDefinitie) {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return converter.convert(
-                service.createFormulierDefinitie(
-                        converter.convert(restFormulierDefinitie)), true, false);
+                service.createFormulierDefinitie(converter.convert(restFormulierDefinitie)), true);
     }
 
     @GET
@@ -62,21 +61,20 @@ public class FormulierDefinitieRESTService {
     public RESTFormulierDefinitie read(@PathParam("id") final long id) {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return converter.convert(
-                service.readFormulierDefinitie(id), true, false);
+                service.readFormulierDefinitie(id), true);
     }
 
     @GET
     @Path("runtime/{systeemnaam}")
     public RESTFormulierDefinitie find(@PathParam("systeemnaam") final String systeemnaam) {
-        return converter.convert(service.readFormulierDefinitie(systeemnaam), true, true);
+        return converter.convert(service.readFormulierDefinitie(systeemnaam), true);
     }
 
     @PUT
     public RESTFormulierDefinitie update(final RESTFormulierDefinitie restFormulierDefinitie) {
         assertPolicy(policyService.readOverigeRechten().beheren());
         return converter.convert(
-                service.updateFormulierDefinitie(
-                        converter.convert(restFormulierDefinitie)), true, false);
+                service.updateFormulierDefinitie(converter.convert(restFormulierDefinitie)), true);
     }
 
     @DELETE

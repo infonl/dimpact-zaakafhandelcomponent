@@ -5,6 +5,7 @@
 
 import { NgModule } from "@angular/core";
 
+import { FormioModule } from "@formio/angular";
 import { FormulierenModule } from "../formulieren/formulieren.module";
 import { GebruikersvoorkeurenModule } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.module";
 import { InformatieObjectenModule } from "../informatie-objecten/informatie-objecten.module";
@@ -36,6 +37,7 @@ import { TakenWerkvoorraadComponent } from "./taken-werkvoorraad/taken-werkvoorr
     GebruikersvoorkeurenModule,
     FormulierenModule,
     MimetypeToExtensionPipe,
+    FormioModule,
   ],
 })
 export class TakenModule {}
