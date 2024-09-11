@@ -93,9 +93,9 @@ class SmartDocumentsService @Inject constructor(
     /**
      * Download generated document
      */
-    fun downloadDocument(smartDocumentId: String): File =
+    fun downloadDocument(fileId: String): File =
         smartDocumentsClient.downloadFile(
-            smartDocumentsId = smartDocumentId,
+            smartDocumentsId = fileId,
             documentFormat = OUTPUT_FORMAT_DOCX
         ).let { downloadedFile ->
             File(

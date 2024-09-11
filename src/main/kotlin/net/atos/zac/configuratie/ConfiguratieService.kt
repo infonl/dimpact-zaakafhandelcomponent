@@ -92,7 +92,8 @@ class ConfiguratieService @Inject constructor(
 
         private const val NONE = "<NONE>"
 
-        private const val SMART_DOCUMENTS_REDIRECT_URL_BASE = "rest/document-creation/redirect/zaak/{zaakUuid}"
+        private const val SMART_DOCUMENTS_REDIRECT_URL_BASE =
+            "rest/document-creation/smartdocuments/callback/zaak/{zaakUuid}"
     }
 
     private var catalogusURI: URI =

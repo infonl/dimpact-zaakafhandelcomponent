@@ -88,14 +88,14 @@ class DocumentCreationService @Inject constructor(
      * Download generated SmartDocuments file and store it as Informatieobject
      */
     fun storeDocument(
-        sdDocumentId: String,
+        fileId: String,
         templateGroupId: String,
         templateId: String,
         userName: String,
         zaak: Zaak,
         taakId: String? = null
     ): ZaakInformatieobject =
-        smartDocumentsService.downloadDocument(sdDocumentId).let { file ->
+        smartDocumentsService.downloadDocument(fileId).let { file ->
             documentCreationDataConverter.toEnkelvoudigInformatieObjectCreateLockRequest(
                 zaak = zaak,
                 smartDocumentsFile = file,

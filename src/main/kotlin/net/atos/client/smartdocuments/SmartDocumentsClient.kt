@@ -44,7 +44,7 @@ interface SmartDocumentsClient {
 
     @GET
     @Path("smartdocuments/result/show")
-    @Consumes("text/html; charset=UTF-8")
+    @Consumes(MediaType.TEXT_HTML)
     fun downloadFile(
         @QueryParam("id") smartDocumentsId: String,
         @QueryParam("format") documentFormat: String,

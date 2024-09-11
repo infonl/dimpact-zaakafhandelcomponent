@@ -56,18 +56,26 @@ class DocumentCreationRestService @Inject constructor(
                 .let { response -> RestDocumentCreationAttendedResponse(response.redirectUrl, response.message) }
         }
 
+    /**
+     * SmartDocuments callback
+     *
+     * Called when SmartDocument Wizard "Finish" button is clicked. The URL provided as "redirectUrl" to
+     * SmartDocuments contains all the parameters needed to store the document for a zaak:
+     * zaak ID, template and template group IDs, username and created document ID
+     */
     @POST
-    @Path("/redirect/zaak/{zaakUuid}")
-    fun createDocumentRedirect(
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Path("/smartdocuments/callback/zaak/{zaakUuid}")
+    fun createDocumentForZaakCallback(
         @PathParam("zaakUuid") zaakUuid: UUID,
         @QueryParam("templateGroupId") templateGroupId: String,
         @QueryParam("templateId") templateId: String,
         @QueryParam("userName") userName: String,
-        @FormParam("sdDocument") smartDocumentId: String,
+        @FormParam("sdDocument") fileId: String,
     ) =
         zrcClientService.readZaak(zaakUuid).let { zaak ->
             documentCreationService.storeDocument(
-                smartDocumentId,
+                fileId,
                 templateGroupId,
                 templateId,
                 userName,
@@ -77,20 +85,28 @@ class DocumentCreationRestService @Inject constructor(
             "File ${zaakInformatieobject.titel} stored for zaak $zaakUuid"
         }
 
+    /**
+     * SmartDocuments callback
+     *
+     * Called when SmartDocument Wizard "Finish" button is clicked. The URL provided as "redirectUrl" to
+     * SmartDocuments contains all the parameters needed to store the document for a task:
+     * zaak and taak IDs, template and template group IDs, username and created document ID
+     */
     @POST
-    @Path("/redirect/zaak/{zaakUuid}/taak/{taakId}")
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Path("/smartdocuments/callback/zaak/{zaakUuid}/taak/{taakId}")
     @Suppress("LongParameterList")
-    fun createDocumentRedirect(
+    fun createDocumentForTaskCallback(
         @PathParam("zaakUuid") zaakUuid: UUID,
         @PathParam("taakId") taskId: String,
         @QueryParam("templateGroupId") templateGroupId: String,
         @QueryParam("templateId") templateId: String,
         @QueryParam("userName") userName: String,
-        @FormParam("sdDocument") smartDocumentId: String,
+        @FormParam("sdDocument") fileId: String,
     ) =
         zrcClientService.readZaak(zaakUuid).let { zaak ->
             documentCreationService.storeDocument(
-                smartDocumentId,
+                fileId,
                 templateGroupId,
                 templateId,
                 userName,
