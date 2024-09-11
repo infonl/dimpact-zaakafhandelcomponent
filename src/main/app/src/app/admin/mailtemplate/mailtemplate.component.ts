@@ -16,6 +16,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { Observable, of } from "rxjs";
 import { catchError } from "rxjs/operators";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { HtmlEditorFormField } from "../../shared/material-form-builder/form-components/html-editor/html-editor-form-field";
@@ -59,14 +60,15 @@ export class MailtemplateComponent
   isLoadingResults = false;
 
   constructor(
+    public utilService: UtilService,
+    public configuratieService: ConfiguratieService,
     private identityService: IdentityService,
     private service: MailtemplateBeheerService,
-    public utilService: UtilService,
     private route: ActivatedRoute,
     private router: Router,
     private translateService: TranslateService,
   ) {
-    super(utilService);
+    super(utilService, configuratieService);
   }
 
   ngOnInit(): void {

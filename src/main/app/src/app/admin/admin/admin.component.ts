@@ -1,9 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Component } from "@angular/core";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { ViewComponent } from "../../shared/abstract-view/view-component";
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
@@ -15,7 +16,10 @@ export abstract class AdminComponent extends ViewComponent {
   menu: MenuItem[] = [];
   activeMenu: string;
 
-  constructor(public utilService: UtilService) {
+  constructor(
+    public utilService: UtilService,
+    public configuratieService: ConfiguratieService,
+  ) {
     super();
   }
 
@@ -43,13 +47,19 @@ export abstract class AdminComponent extends ViewComponent {
     this.menu.push(
       this.getMenuLink("title.parameters", "/admin/parameters", "tune"),
     );
-    this.menu.push(
-      this.getMenuLink(
-        "title.formulierdefinities",
-        "/admin/formulierdefinities",
-        "design_services",
-      ),
-    );
+    this.configuratieService
+      .readFeatureFlagBpmnSupport()
+      .subscribe((bpmSupport) => {
+        if (bpmSupport) {
+          this.menu.push(
+            this.getMenuLink(
+              "title.formulierdefinities",
+              "/admin/formulierdefinities",
+              "design_services",
+            ),
+          );
+        }
+      });
     this.menu.push(
       this.getMenuLink(
         "title.inrichtingscheck",

@@ -16,6 +16,7 @@ import { MatSelectChange } from "@angular/material/select";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute, Router } from "@angular/router";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { AdminComponent } from "../admin/admin.component";
@@ -58,16 +59,17 @@ export class FormulierDefinitieEditComponent
   dataSource: MatTableDataSource<AbstractControl>;
 
   constructor(
+    public dialog: MatDialog,
+    public utilService: UtilService,
+    public configuratieService: ConfiguratieService,
     private identityService: IdentityService,
     private service: FormulierDefinitieService,
     private referentieService: ReferentieTabelService,
-    public dialog: MatDialog,
     private route: ActivatedRoute,
     private formBuilder: FormBuilder,
     private router: Router,
-    public utilService: UtilService,
   ) {
-    super(utilService);
+    super(utilService, configuratieService);
   }
 
   ngOnInit(): void {

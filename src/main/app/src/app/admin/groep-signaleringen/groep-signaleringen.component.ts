@@ -7,6 +7,7 @@ import { Component, OnInit, ViewChild } from "@angular/core";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { Observable } from "rxjs";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { Group } from "../../identity/model/group";
@@ -33,11 +34,12 @@ export class GroepSignaleringenComponent
     new MatTableDataSource<SignaleringSettings>();
 
   constructor(
+    public utilService: UtilService,
+    public configuratieService: ConfiguratieService,
     private identityService: IdentityService,
     private service: SignaleringenSettingsBeheerService,
-    public utilService: UtilService,
   ) {
-    super(utilService);
+    super(utilService, configuratieService);
   }
 
   ngOnInit(): void {

@@ -7,6 +7,7 @@ import { Component, OnInit, ViewChild } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import {
@@ -42,12 +43,13 @@ export class FormulierDefinitiesComponent
     new MatTableDataSource<FormulierDefinitie>();
 
   constructor(
-    private identityService: IdentityService,
-    private service: FormulierDefinitieService,
     public dialog: MatDialog,
     public utilService: UtilService,
+    public configuratieService: ConfiguratieService,
+    private identityService: IdentityService,
+    private service: FormulierDefinitieService,
   ) {
-    super(utilService);
+    super(utilService, configuratieService);
   }
 
   ngOnInit(): void {

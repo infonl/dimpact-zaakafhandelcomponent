@@ -11,6 +11,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { Observable, of } from "rxjs";
 import { catchError } from "rxjs/operators";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -42,13 +43,14 @@ export class ReferentieTabelComponent extends AdminComponent implements OnInit {
   waardeFormField: InputFormField[] = [];
 
   constructor(
+    public utilService: UtilService,
+    public configuratieService: ConfiguratieService,
     private identityService: IdentityService,
     private service: ReferentieTabelService,
-    public utilService: UtilService,
     private route: ActivatedRoute,
     private foutAfhandelingService: FoutAfhandelingService,
   ) {
-    super(utilService);
+    super(utilService, configuratieService);
   }
 
   ngOnInit(): void {
