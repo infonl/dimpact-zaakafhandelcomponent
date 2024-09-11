@@ -38,14 +38,14 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.util.shouldEqualJsonIgnoringOrder
 
 @Order(TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED)
-class SmartDocumentsTest : BehaviorSpec({
+class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
     Given("ZAC Docker container is running and zaakafhandelparameters have been created") {
         When("the list SmartDocuments templates endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaakafhandelParameters/documentTemplates"
+                url = "$ZAC_API_URI/zaakafhandelparameters/document-templates"
             )
 
             Then("the response should be ok") {
@@ -91,8 +91,8 @@ class SmartDocumentsTest : BehaviorSpec({
         }
 
         When("the create mapping endpoint is called with correct payload") {
-            val smartDocumentsZaakafhandelParametersUrl = "$ZAC_API_URI/zaakafhandelParameters/" +
-                "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/documentTemplates"
+            val smartDocumentsZaakafhandelParametersUrl = "$ZAC_API_URI/zaakafhandelparameters/" +
+                "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/document-templates"
             val restTemplateGroups = """
                 [
                   {
@@ -169,8 +169,8 @@ class SmartDocumentsTest : BehaviorSpec({
         }
 
         When("the create mapping endpoint is called with invalid payload") {
-            val smartDocumentsZaakafhandelParametersUrl = "$ZAC_API_URI/zaakafhandelParameters/" +
-                "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/documentTemplates"
+            val smartDocumentsZaakafhandelParametersUrl = "$ZAC_API_URI/zaakafhandelparameters/" +
+                "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID/document-templates"
             val restTemplateGroups = """
                 [
                   {

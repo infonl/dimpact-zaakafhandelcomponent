@@ -49,7 +49,7 @@ import java.util.UUID
 import java.util.logging.Logger
 
 @Singleton
-@Path("zaakafhandelParameters")
+@Path("zaakafhandelparameters")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @AllOpen
@@ -73,12 +73,12 @@ class ZaakafhandelParametersRestService @Inject constructor(
     }
 
     /**
-     * Retrieve all CASE_DEFINITIONs that can be linked to a ZAAKTYPE
+     * Retrieve all case definitions that can be linked to a ZAAKTYPE
      *
-     * @return LIST of CASE_DEFINITIONs
+     * @return list of all case definitions
      */
     @GET
-    @Path("caseDefinition")
+    @Path("case-definitions")
     fun listCaseDefinitions(): List<RESTCaseDefinition> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return cmmnService.listCaseDefinitions()
@@ -92,8 +92,8 @@ class ZaakafhandelParametersRestService @Inject constructor(
      * @return CASE_DEFINITION including its PLAN_ITEM_DEFINITIONs
      */
     @GET
-    @Path("caseDefinition/{key}")
-    fun readCaseDefinition(@PathParam("key") caseDefinitionKey: String?): RESTCaseDefinition {
+    @Path("case-definitions/{key}")
+    fun readCaseDefinition(@PathParam("key") caseDefinitionKey: String): RESTCaseDefinition {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return caseDefinitionConverter.convertToRESTCaseDefinition(caseDefinitionKey, true)
     }
@@ -164,7 +164,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
      * @return list of zaakbeeindig-redenen
      */
     @GET
-    @Path("zaakbeeindigRedenen")
+    @Path("zaakbeeindigredenen")
     fun listZaakbeeindigRedenen(): List<RESTZaakbeeindigReden> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(
@@ -178,7 +178,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
      * @return list of zaakbeeindig-redenen
      */
     @GET
-    @Path("zaakbeeindigRedenen/{zaaktypeUUID}")
+    @Path("zaakbeeindigredenen/{zaaktypeUUID}")
     fun listZaakbeeindigRedenenForZaaktype(
         @PathParam("zaaktypeUUID") zaaktypeUUID: UUID?
     ): List<RESTZaakbeeindigReden> =
@@ -204,12 +204,12 @@ class ZaakafhandelParametersRestService @Inject constructor(
     }
 
     /**
-     * Retrieve all FORMULIER_DEFINITIEs that can be linked to a HUMAN_TASK_PLAN_ITEM
+     * Retrieve all formulier definities that can be linked to a HUMAN_TASK_PLAN_ITEM
      *
-     * @return lijst of FORMULIER_DEFINITIEs
+     * @return lijst of formulier definities
      */
     @GET
-    @Path("formulierDefinities")
+    @Path("formulierdefinities")
     fun listFormulierDefinities(): List<RESTTaakFormulierDefinitie> =
         FormulierDefinitie.entries.toTypedArray()
             .map {
@@ -241,14 +241,14 @@ class ZaakafhandelParametersRestService @Inject constructor(
         }
 
     @GET
-    @Path("documentTemplates")
+    @Path("document-templates")
     fun listTemplates(): Set<RestSmartDocumentsTemplateGroup> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return smartDocumentsTemplatesService.listTemplates()
     }
 
     @GET
-    @Path("{zaakafhandelUUID}/documentTemplates")
+    @Path("{zaakafhandelUUID}/document-templates")
     fun getTemplatesMapping(
         @PathParam("zaakafhandelUUID") zaakafhandelUUID: UUID
     ): Set<RestMappedSmartDocumentsTemplateGroup> {
@@ -257,7 +257,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
     }
 
     @POST
-    @Path("{zaakafhandelUUID}/documentTemplates")
+    @Path("{zaakafhandelUUID}/document-templates")
     fun storeTemplatesMapping(
         @PathParam("zaakafhandelUUID") zaakafhandelUUID: UUID,
         restTemplateGroups: Set<RestMappedSmartDocumentsTemplateGroup>

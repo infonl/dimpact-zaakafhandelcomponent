@@ -28,7 +28,7 @@ class ZacClient {
                 "and UUID: $zaakTypeUuid"
         }
         return itestHttpClient.performPutRequest(
-            url = "$ZAC_API_URI/zaakafhandelParameters",
+            url = "$ZAC_API_URI/zaakafhandelparameters",
             requestBodyAsString = "{\n" +
                 "  \"humanTaskParameters\": [\n" +
                 "    {\n" +
