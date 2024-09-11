@@ -14,7 +14,7 @@ import { FormulierDefinitie } from "./model/formulieren/formulier-definitie";
   providedIn: "root",
 })
 export class FormulierDefinitieService {
-  private basepath = "/rest/formulierDefinities";
+  private basepath = "/rest/formulierdefinities";
 
   constructor(
     private http: HttpClient,

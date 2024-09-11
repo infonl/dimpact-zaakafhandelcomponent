@@ -40,6 +40,7 @@ import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters;
 import net.atos.client.zgw.zrc.model.ZaakListParameters;
+import net.atos.client.zgw.zrc.model.ZaakUuid;
 import net.atos.client.zgw.zrc.model.generated.Resultaat;
 import net.atos.client.zgw.zrc.model.generated.ZaakEigenschap;
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
@@ -70,6 +71,12 @@ public interface ZrcClient {
                          @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
     Results<Zaak> zaakList(@BeanParam final ZaakListParameters parameters);
 
+    @GET
+    @Path("zaken")
+    @ClientHeaderParams({
+                         @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
+                         @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
+    Results<ZaakUuid> zaakListUuids(@BeanParam final ZaakListParameters parameters);
 
     @POST
     @Path("zaken")
