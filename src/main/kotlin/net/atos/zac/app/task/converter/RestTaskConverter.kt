@@ -118,7 +118,7 @@ class RestTaskConverter @Inject constructor(
     }
 
     private fun readFormioFormulier(formulierNaam: String): JsonObject {
-        return this.javaClass.getResourceAsStream("formulieren/%s.json".format(formulierNaam))!!
+        return this::class.java.classLoader.getResourceAsStream("formulieren/%s.json".format(formulierNaam))!!
             .bufferedReader().use {
                 Json.createReader(it).use {
                     it.readObject()
