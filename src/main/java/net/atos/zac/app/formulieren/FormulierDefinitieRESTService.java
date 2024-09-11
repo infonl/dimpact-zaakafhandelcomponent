@@ -27,7 +27,7 @@ import net.atos.zac.formulieren.FormulierDefinitieService;
 import net.atos.zac.policy.PolicyService;
 
 @Singleton
-@Path("formulierDefinities")
+@Path("formulierdefinities")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class FormulierDefinitieRESTService {
