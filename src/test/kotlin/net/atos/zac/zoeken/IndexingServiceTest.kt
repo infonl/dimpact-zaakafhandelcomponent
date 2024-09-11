@@ -13,6 +13,7 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.ZaakListParameters
+import net.atos.client.zgw.zrc.model.ZaakUuid
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -31,6 +32,7 @@ import org.apache.solr.common.params.CursorMarkParams
 import org.eclipse.microprofile.config.ConfigProvider
 import java.io.IOException
 import java.net.URI
+import java.util.UUID
 
 class IndexingServiceTest : BehaviorSpec({
     // add static mocking for config provider because the IndexeerService class
@@ -113,11 +115,9 @@ class IndexingServiceTest : BehaviorSpec({
             )
         }
 
-        val zaakType = createZaakType()
-        val zaaktypeURI = URI("http://example.com/${zaakType.url}")
-        val zaken = listOf(
-            createZaak(zaakTypeURI = zaaktypeURI),
-            createZaak(zaakTypeURI = zaaktypeURI)
+        val zakenUuid = listOf(
+            ZaakUuid(UUID.randomUUID()),
+            ZaakUuid(UUID.randomUUID())
         )
         val zaakZoekObjecten = listOf(
             createZaakZoekObject(),
@@ -133,9 +133,9 @@ class IndexingServiceTest : BehaviorSpec({
             every { solrClient.query(any()) } returns queryResponse
             every { solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
 
-            every { zrcClientService.listZaken(any<ZaakListParameters>()) } returnsMany listOf(
-                Results(zaken, 2),
-                Results(zaken, 2),
+            every { zrcClientService.listZakenUuids(any<ZaakListParameters>()) } returnsMany listOf(
+                Results(zakenUuid, 2),
+                Results(zakenUuid, 2),
                 Results(emptyList(), 0)
             )
 
@@ -143,7 +143,7 @@ class IndexingServiceTest : BehaviorSpec({
             every { converterInstances.iterator() } returns converterInstancesIterator
             every { converterInstancesIterator.hasNext() } returns true andThen true andThen false
             every { converterInstancesIterator.next() } returns zaakZoekObjectConverter andThen zaakZoekObjectConverter
-            zaken.forEachIndexed { index, zaak ->
+            zakenUuid.forEachIndexed { index, zaak ->
                 every { zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
             }
         }
@@ -192,14 +192,14 @@ class IndexingServiceTest : BehaviorSpec({
         every { solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
 
         val ioException = IOException("IO exception")
-        every { zrcClientService.listZaken(any<ZaakListParameters>()) } throws ioException
+        every { zrcClientService.listZakenUuids(any<ZaakListParameters>()) } throws ioException
 
         When("reading zaak count throws an error") {
             indexingService.reindex(ZoekObjectType.ZAAK)
 
             Then("aborts and does not try to list zaken") {
                 verify(exactly = 1) {
-                    zrcClientService.listZaken(any<ZaakListParameters>())
+                    zrcClientService.listZakenUuids(any<ZaakListParameters>())
                 }
             }
         }
@@ -215,11 +215,9 @@ class IndexingServiceTest : BehaviorSpec({
                 )
             )
         }
-        val zaakType = createZaakType()
-        val zaaktypeURI = URI("http://example.com/${zaakType.url}")
-        val zaken = listOf(
-            createZaak(zaakTypeURI = zaaktypeURI),
-            createZaak(zaakTypeURI = zaaktypeURI)
+        val zakenUuid = listOf(
+            ZaakUuid(UUID.randomUUID()),
+            ZaakUuid(UUID.randomUUID())
         )
         val zaakZoekObjecten = listOf(
             createZaakZoekObject(),
@@ -232,14 +230,18 @@ class IndexingServiceTest : BehaviorSpec({
         every { solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
         every { solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
 
-        every { zrcClientService.listZaken(match<ZaakListParameters> { it.page == 1 }) } returns Results(zaken, 102)
-        every { zrcClientService.listZaken(match<ZaakListParameters> { it.page == 2 }) } throws IOException("exception")
+        every {
+            zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 1 })
+        } returns Results(zakenUuid, 102)
+        every {
+            zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 2 })
+        } throws IOException("exception")
 
         every { zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
         every { converterInstances.iterator() } returns converterInstancesIterator
         every { converterInstancesIterator.hasNext() } returns true andThen true andThen false
         every { converterInstancesIterator.next() } returns zaakZoekObjectConverter andThen zaakZoekObjectConverter
-        zaken.forEachIndexed { index, zaak ->
+        zakenUuid.forEachIndexed { index, zaak ->
             every { zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
         }
 
@@ -248,7 +250,7 @@ class IndexingServiceTest : BehaviorSpec({
 
             Then("continues without exception") {
                 verify(exactly = 3) {
-                    zrcClientService.listZaken(any<ZaakListParameters>())
+                    zrcClientService.listZakenUuids(any<ZaakListParameters>())
                 }
             }
         }
