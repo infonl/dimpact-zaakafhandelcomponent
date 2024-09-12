@@ -93,6 +93,8 @@ class ZaakService @Inject constructor(
     /**
      * Assigns a list of zaken to a group and/or user and updates the search index on the fly.
      * This can be a long-running operation.
+     *
+     * Zaken that are not open will be skipped.
      */
     @WithSpan
     @Suppress("LongParameterList")
@@ -108,7 +110,9 @@ class ZaakService @Inject constructor(
         }
         val zakenAssignedList = mutableListOf<UUID>()
         zaakUUIDs
-            .map { zrcClientService.readZaak(it) }
+            .map(zrcClientService::readZaak)
+            // zaken that are not open cannot be assigned (= ZAC business rule)
+            .filter { it.isOpen }
             .map { zaak ->
                 group.let {
                     zrcClientService.updateRol(
@@ -168,6 +172,8 @@ class ZaakService @Inject constructor(
     /**
      * Releases a list of zaken from a user and updates the search index on the fly.
      * This can be a long-running operation.
+     *
+     * Zaken that are not open will be skipped.
      */
     @WithSpan
     fun releaseZaken(
@@ -179,10 +185,10 @@ class ZaakService @Inject constructor(
             "Started to release ${zaakUUIDs.size} zaken with screen event resource ID: '$screenEventResourceId'."
         }
         zaakUUIDs
-            .map { zrcClientService.readZaak(it) }
-            .forEach {
-                zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation)
-            }
+            .map(zrcClientService::readZaak)
+            // zaken that are not open cannot be assigned (= ZAC business rule)
+            .filter { it.isOpen }
+            .forEach { zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation) }
         LOG.fine { "Successfully released  ${zaakUUIDs.size} zaken." }
 
         // if a screen event resource ID was specified, send an 'updated zaken_verdelen' screen event

@@ -10,6 +10,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.createZaak
@@ -48,7 +49,7 @@ class ZaakServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A list of zaken and a group and a user") {
+    Given("A list of open zaken and a group and a user") {
         val screenEventSlot = slot<ScreenEvent>()
         zaken.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
@@ -79,10 +80,59 @@ class ZaakServiceTest : BehaviorSpec({
                     a screen event of type 'zaken verdelen' should sent"""
             ) {
                 zaken.map {
-                    // for every zaak both the user and group roles should have been updated
                     verify(exactly = 2) {
                         zrcClientService.updateRol(it, any(), explanation)
                     }
+                }
+                with(screenEventSlot.captured) {
+                    opcode shouldBe Opcode.UPDATED
+                    objectType shouldBe ScreenEventType.ZAKEN_VERDELEN
+                    objectId.resource shouldBe screenEventResourceId
+                }
+            }
+        }
+    }
+    Given("One open and one closed zaak and a group and a user") {
+        val openZaak = createZaak()
+        val closedZaak = createZaak(
+            archiefnominatie = Archiefnominatie.VERNIETIGEN
+        )
+        val zakenList = listOf(openZaak, closedZaak)
+        val screenEventSlot = slot<ScreenEvent>()
+        zakenList.map {
+            every { zrcClientService.readZaak(it.uuid) } returns it
+        }
+        every {
+            ztcClientService.readRoltype(
+                openZaak.zaaktype,
+                OmschrijvingGeneriekEnum.BEHANDELAAR
+            )
+        } returns rolTypeBehandelaar
+        every { zrcClientService.updateRol(openZaak, any(), explanation) } just Runs
+        every { eventingService.send(capture(screenEventSlot)) } just Runs
+        When(
+            """the assign zaken function is called with a group, a user
+                and a screen event resource id"""
+        ) {
+            zaakService.assignZaken(
+                zaakUUIDs = zakenList.map { it.uuid },
+                explanation = explanation,
+                group = group,
+                user = user,
+                screenEventResourceId = screenEventResourceId
+            )
+
+            Then(
+                """
+                    only for the open zaak the group and user roles 
+                    and the search index should be updated and
+                    a screen event of type 'zaken verdelen' should sent
+                    and the closed zaak should be skipped
+                    """
+            ) {
+                // only the open zaak should have group and user roles assigned to it
+                verify(exactly = 2) {
+                    zrcClientService.updateRol(openZaak, any(), explanation)
                 }
                 with(screenEventSlot.captured) {
                     opcode shouldBe Opcode.UPDATED
@@ -119,6 +169,45 @@ class ZaakServiceTest : BehaviorSpec({
                         zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation)
                     }
                 }
+                with(screenEventSlot.captured) {
+                    opcode shouldBe Opcode.UPDATED
+                    objectType shouldBe ScreenEventType.ZAKEN_VRIJGEVEN
+                    objectId.resource shouldBe screenEventResourceId
+                }
+            }
+        }
+    }
+    Given("One open and one closed zaak and a screen event resource id") {
+        val openZaak = createZaak()
+        val closedZaak = createZaak(
+            archiefnominatie = Archiefnominatie.VERNIETIGEN
+        )
+        val zakenList = listOf(openZaak, closedZaak)
+        val screenEventSlot = slot<ScreenEvent>()
+        zakenList.map {
+            every { zrcClientService.readZaak(it.uuid) } returns it
+        }
+        every { zrcClientService.deleteRol(openZaak, any(), explanation) } just Runs
+        every { eventingService.send(capture(screenEventSlot)) } just Runs
+        When(
+            """the release zaken function is called with
+                 a screen event resource id"""
+        ) {
+            zaakService.releaseZaken(
+                zaakUUIDs = zakenList.map { it.uuid },
+                explanation = explanation,
+                screenEventResourceId = screenEventResourceId
+            )
+            Then(
+                """only the open zaak should no longer have a user assigned
+                     but the group should still be assigned
+                    and the search index should be updated and
+                    a screen event of type 'zaken vrijgeven' should sent"""
+            ) {
+                verify(exactly = 1) {
+                    zrcClientService.deleteRol(openZaak, BetrokkeneType.MEDEWERKER, explanation)
+                }
+
                 with(screenEventSlot.captured) {
                     opcode shouldBe Opcode.UPDATED
                     objectType shouldBe ScreenEventType.ZAKEN_VRIJGEVEN
