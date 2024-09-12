@@ -111,8 +111,14 @@ class ZaakService @Inject constructor(
         val zakenAssignedList = mutableListOf<UUID>()
         zaakUUIDs
             .map(zrcClientService::readZaak)
-            // zaken that are not open cannot be assigned (= ZAC business rule)
-            .filter { it.isOpen }
+            .filter {
+                if (!it.isOpen) {
+                    LOG.fine(
+                        "Zaak with UUID '${it.uuid} is not open. Therefore it is not assigned."
+                    )
+                }
+                it.isOpen
+            }
             .map { zaak ->
                 group.let {
                     zrcClientService.updateRol(
@@ -186,8 +192,14 @@ class ZaakService @Inject constructor(
         }
         zaakUUIDs
             .map(zrcClientService::readZaak)
-            // zaken that are not open cannot be assigned (= ZAC business rule)
-            .filter { it.isOpen }
+            .filter {
+                if (!it.isOpen) {
+                    LOG.fine(
+                        "Zaak with UUID '${it.uuid} is not open. Therefore it is not released."
+                    )
+                }
+                it.isOpen
+            }
             .forEach { zrcClientService.deleteRol(it, BetrokkeneType.MEDEWERKER, explanation) }
         LOG.fine { "Successfully released  ${zaakUUIDs.size} zaken." }
 
