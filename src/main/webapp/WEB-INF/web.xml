@@ -103,7 +103,7 @@
         <web-resource-collection>
             <web-resource-name>sd-redirect</web-resource-name>
             <description>SmartDocuments redirect url</description>
-            <url-pattern>/rest/document-creation/redirect/*</url-pattern>
+            <url-pattern>/rest/document-creation/smartdocuments/callback/*</url-pattern>
             <http-method>POST</http-method>
         </web-resource-collection>
     </security-constraint>

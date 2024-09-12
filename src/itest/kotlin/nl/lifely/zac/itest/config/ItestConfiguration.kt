@@ -18,7 +18,7 @@ import java.util.UUID
 object ItestConfiguration {
     private const val ZAC_CONTAINER_PORT = 8080
     private const val ZAC_MANAGEMENT_PORT = 9990
-    private const val GREENMAIL_API_PORT = 8888
+    private const val GREENMAIL_API_PORT = 18083
 
     const val HTTP_STATUS_OK = 200
     const val HTTP_STATUS_NO_CONTENT = 204
@@ -192,6 +192,8 @@ object ItestConfiguration {
     const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_ID = "273C2707E5A844699B653C87ACFD618E"
     const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_NAME = "group 2 template 2"
 
+    const val SMART_DOCUMENTS_FILE_ID = "dummyFileId"
+    const val SMART_DOCUMENTS_FILE_NAME = "sample"
     const val SMART_DOCUMENTS_FILE_EXTENSION = "docx"
 
     const val SMTP_SERVER_PORT = 25

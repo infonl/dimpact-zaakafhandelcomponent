@@ -7,7 +7,6 @@ package net.atos.client.smartdocuments.model
 
 import net.atos.client.smartdocuments.model.document.AttendedResponse
 import net.atos.client.smartdocuments.model.document.Document
-import net.atos.client.smartdocuments.model.document.DownloadResponse
 import net.atos.client.smartdocuments.model.document.File
 import net.atos.client.smartdocuments.model.document.Selection
 import net.atos.client.smartdocuments.model.document.SmartDocument
@@ -29,12 +28,6 @@ fun createAttendedResponse(
 ) = AttendedResponse().apply {
     this.ticket = ticket
 }
-
-fun createDownloadResponse(
-    files: List<File> = listOf(createFile())
-) = DownloadResponse(
-    files = files
-)
 
 fun createFile(
     fileName: String = "dummyFileName",

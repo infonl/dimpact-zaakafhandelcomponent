@@ -5,23 +5,25 @@
 package nl.lifely.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
-import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_BAD_REQUEST
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
-import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_EXTENSION
+import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_GROUP_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID
-import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.task1ID
 import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
+import okhttp3.FormBody
 import org.json.JSONObject
+import java.net.URLEncoder
 
 /**
  * This test assumes that a zaak has been created, a task has been started and a template mapping is created
@@ -34,13 +36,15 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
     Given("ZAC and all related Docker containers are running and zaak exists") {
         When("the create document attended ('wizard') endpoint is called with a zaak UUID") {
-            val endpointUrl = "$ZAC_API_URI/documentcreation/createdocumentattended"
+            val endpointUrl = "$ZAC_API_URI/document-creation/create-document-attended"
             logger.info { "Calling $endpointUrl endpoint" }
             val response = itestHttpClient.performJSONPostRequest(
                 url = endpointUrl,
                 requestBodyAsString = JSONObject(
                     mapOf(
-                        "zaakUUID" to zaakProductaanvraag1Uuid
+                        "zaakUuid" to zaakProductaanvraag1Uuid,
+                        "smartDocumentsTemplateGroupId" to SMART_DOCUMENTS_ROOT_GROUP_ID,
+                        "smartDocumentsTemplateId" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID,
                     )
                 ).toString()
             )
@@ -57,80 +61,58 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 }
             }
         }
+    }
 
-        When("the create document unattended endpoint is called with a zaak UUID") {
-            val endpointUrl = "$ZAC_API_URI/documentcreation/createdocumentunattended"
+    Given("ZAC and a file created from template in SmartDocuments") {
+        When("SmartDocuments zaak callback is provided with metadata about the new file") {
+            val endpointUrl = "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakProductaanvraag1Uuid" +
+                "?templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID" +
+                "&userName=" + URLEncoder.encode(TEST_USER_1_NAME, Charsets.UTF_8)
             logger.info { "Calling $endpointUrl endpoint" }
-            val response = itestHttpClient.performJSONPostRequest(
+            val response = itestHttpClient.performPostRequest(
                 url = endpointUrl,
-                requestBodyAsString = JSONObject(
-                    mapOf(
-                        "smartDocumentsTemplateGroupId" to SMART_DOCUMENTS_ROOT_GROUP_ID,
-                        "smartDocumentsTemplateId" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID,
-                        "zaakUuid" to zaakProductaanvraag1Uuid
-                    )
-                ).toString()
+                requestBody = FormBody.Builder()
+                    .add("sdDocument", SMART_DOCUMENTS_FILE_ID)
+                    .build(),
+                addAuthorizationHeader = false
             )
-            Then("the response should be OK") {
+
+            Then("The response should contain zaak and informatieobject UUIDs") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK
                 with(responseBody) {
-                    shouldContainJsonKeyValue(
-                        "message",
-                        "SmartDocuments document with filename: '$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME" +
-                            ".$SMART_DOCUMENTS_FILE_EXTENSION' was created and stored successfully in the zaakregister."
-                    )
+                    shouldContainJsonKeyValue("zaakUuid", zaakProductaanvraag1Uuid.toString())
+                    shouldContainJsonKey("zaakInformatieobjectUuid")
                 }
             }
         }
+    }
 
-        When("the create document unattended endpoint is called with a zaak UUID and a task ID") {
-            val endpointUrl = "$ZAC_API_URI/documentcreation/createdocumentunattended"
+    Given("ZAC and a file created from template in SmartDocuments") {
+        When("SmartDocuments taak callback is provided with metadata about the new file") {
+            val endpointUrl = "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakProductaanvraag1Uuid" +
+                "/taak/$task1ID?templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
+                "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID&userName=" +
+                URLEncoder.encode(TEST_USER_1_NAME, Charsets.UTF_8)
             logger.info { "Calling $endpointUrl endpoint" }
-            val response = itestHttpClient.performJSONPostRequest(
+            val response = itestHttpClient.performPostRequest(
                 url = endpointUrl,
-                requestBodyAsString = JSONObject(
-                    mapOf(
-                        "smartDocumentsTemplateGroupId" to SMART_DOCUMENTS_ROOT_GROUP_ID,
-                        "smartDocumentsTemplateId" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID,
-                        "taskId" to task1ID,
-                        "zaakUuid" to zaakProductaanvraag1Uuid
-                    )
-                ).toString()
+                requestBody = FormBody.Builder()
+                    .add("sdDocument", SMART_DOCUMENTS_FILE_ID)
+                    .build(),
+                addAuthorizationHeader = false
             )
-            Then("the response should be OK") {
+
+            Then("The response should contain zaak, taak and informatieobject UUIDs") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK
                 with(responseBody) {
-                    shouldContainJsonKeyValue(
-                        "message",
-                        "SmartDocuments document with filename: '$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME" +
-                            ".$SMART_DOCUMENTS_FILE_EXTENSION' was created and stored successfully in the zaakregister."
-                    )
+                    shouldContainJsonKeyValue("zaakUuid", zaakProductaanvraag1Uuid.toString())
+                    shouldContainJsonKeyValue("taskId", task1ID)
+                    shouldContainJsonKey("zaakInformatieobjectUuid")
                 }
-            }
-        }
-
-        When("the create document unattended endpoint is called with non-existent mapping") {
-            val endpointUrl = "$ZAC_API_URI/documentcreation/createdocumentunattended"
-            logger.info { "Calling $endpointUrl endpoint" }
-            val response = itestHttpClient.performJSONPostRequest(
-                url = endpointUrl,
-                requestBodyAsString = JSONObject(
-                    mapOf(
-                        "smartDocumentsTemplateGroupId" to "unknown",
-                        "smartDocumentsTemplateId" to "missing",
-                        "zaakUuid" to zaakProductaanvraag1Uuid
-                    )
-                ).toString()
-            )
-            Then("the response should be bad request") {
-                val responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_BAD_REQUEST
-                responseBody shouldBe "No information object type mapped for template group id unknown"
             }
         }
     }

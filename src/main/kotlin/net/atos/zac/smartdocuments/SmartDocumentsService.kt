@@ -16,6 +16,7 @@ import net.atos.client.smartdocuments.model.document.File
 import net.atos.client.smartdocuments.model.document.SmartDocument
 import net.atos.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
 import net.atos.zac.authentication.LoggedInUser
+import net.atos.zac.documentcreation.DocumentCreationService.Companion.OUTPUT_FORMAT_DOCX
 import net.atos.zac.documentcreation.model.DocumentCreationAttendedResponse
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -46,7 +47,6 @@ class SmartDocumentsService @Inject constructor(
 ) {
     companion object {
         private val LOG = Logger.getLogger(SmartDocumentsService::class.java.name)
-        const val OUTPUT_FORMAT_DOCX = "DOCX"
     }
 
     /**

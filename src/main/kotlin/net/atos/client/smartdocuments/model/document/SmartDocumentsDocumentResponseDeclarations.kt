@@ -30,9 +30,3 @@ data class File(
     @field:JsonbProperty("outputFormat")
     var outputFormat: String
 )
-
-@NoArgConstructor
-data class DownloadResponse(
-    @field:JsonbProperty("file")
-    var files: List<File>? = null
-)

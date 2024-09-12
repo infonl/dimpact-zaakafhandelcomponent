@@ -17,6 +17,7 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedCallbackResponse
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
 import net.atos.zac.documentcreation.DocumentCreationService
@@ -29,6 +30,7 @@ import java.util.UUID
 
 @Singleton
 @Path("document-creation")
+@Produces(MediaType.APPLICATION_JSON)
 @NoArgConstructor
 @AllOpen
 class DocumentCreationRestService @Inject constructor(
@@ -38,7 +40,6 @@ class DocumentCreationRestService @Inject constructor(
 ) {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
     @Path("/create-document-attended")
     fun createDocumentAttended(
         @Valid restDocumentCreationAttendedData: RestDocumentCreationAttendedData
@@ -64,7 +65,6 @@ class DocumentCreationRestService @Inject constructor(
      * zaak ID, template and template group IDs, username and created document ID
      */
     @POST
-    @Consumes(MediaType.TEXT_PLAIN)
     @Path("/smartdocuments/callback/zaak/{zaakUuid}")
     fun createDocumentForZaakCallback(
         @PathParam("zaakUuid") zaakUuid: UUID,
@@ -72,7 +72,7 @@ class DocumentCreationRestService @Inject constructor(
         @QueryParam("templateId") templateId: String,
         @QueryParam("userName") userName: String,
         @FormParam("sdDocument") fileId: String,
-    ) =
+    ): RestDocumentCreationAttendedCallbackResponse =
         zrcClientService.readZaak(zaakUuid).let { zaak ->
             documentCreationService.storeDocument(
                 fileId,
@@ -82,7 +82,10 @@ class DocumentCreationRestService @Inject constructor(
                 zaak
             )
         }.let { zaakInformatieobject ->
-            "File ${zaakInformatieobject.titel} stored for zaak $zaakUuid"
+            RestDocumentCreationAttendedCallbackResponse(
+                zaakInformatieobject.zaakUUID,
+                zaakInformatieobject.uuid
+            )
         }
 
     /**
@@ -93,7 +96,6 @@ class DocumentCreationRestService @Inject constructor(
      * zaak and taak IDs, template and template group IDs, username and created document ID
      */
     @POST
-    @Consumes(MediaType.TEXT_PLAIN)
     @Path("/smartdocuments/callback/zaak/{zaakUuid}/taak/{taakId}")
     @Suppress("LongParameterList")
     fun createDocumentForTaskCallback(
@@ -103,7 +105,7 @@ class DocumentCreationRestService @Inject constructor(
         @QueryParam("templateId") templateId: String,
         @QueryParam("userName") userName: String,
         @FormParam("sdDocument") fileId: String,
-    ) =
+    ): RestDocumentCreationAttendedCallbackResponse =
         zrcClientService.readZaak(zaakUuid).let { zaak ->
             documentCreationService.storeDocument(
                 fileId,
@@ -114,6 +116,10 @@ class DocumentCreationRestService @Inject constructor(
                 taskId
             )
         }.let { zaakInformatieobject ->
-            "File ${zaakInformatieobject.titel} stored for zaak $zaakUuid and task $taskId"
+            RestDocumentCreationAttendedCallbackResponse(
+                zaakInformatieobject.zaakUUID,
+                zaakInformatieobject.uuid,
+                taskId
+            )
         }
 }
