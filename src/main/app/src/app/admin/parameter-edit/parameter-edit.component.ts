@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -18,6 +18,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { Subscription, forkJoin } from "rxjs";
 import { switchMap, tap } from "rxjs/operators";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { Group } from "../../identity/model/group";
@@ -97,13 +98,14 @@ export class ParameterEditComponent
   constructor(
     public utilService: UtilService,
     public adminService: ZaakafhandelParametersService,
+    public configuratieService: ConfiguratieService,
     private identityService: IdentityService,
     private route: ActivatedRoute,
     private formBuilder: FormBuilder,
     private referentieTabelService: ReferentieTabelService,
     private mailtemplateBeheerService: MailtemplateBeheerService,
   ) {
-    super(utilService);
+    super(utilService, configuratieService);
     this.route.data.subscribe((data) => {
       this.parameters = data.parameters;
       this.parameters.intakeMail = this.parameters.intakeMail

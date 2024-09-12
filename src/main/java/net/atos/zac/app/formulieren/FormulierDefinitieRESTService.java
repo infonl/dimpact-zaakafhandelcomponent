@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -27,7 +27,7 @@ import net.atos.zac.formulieren.FormulierDefinitieService;
 import net.atos.zac.policy.PolicyService;
 
 @Singleton
-@Path("formulierDefinities")
+@Path("formulierdefinities")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class FormulierDefinitieRESTService {

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -8,6 +8,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { TranslateService } from "@ngx-translate/core";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import {
@@ -35,13 +36,14 @@ export class ReferentieTabellenComponent
     new MatTableDataSource<ReferentieTabel>();
 
   constructor(
+    public dialog: MatDialog,
+    public utilService: UtilService,
+    public configuratieService: ConfiguratieService,
     private identityService: IdentityService,
     private service: ReferentieTabelService,
-    public dialog: MatDialog,
     private translate: TranslateService,
-    public utilService: UtilService,
   ) {
-    super(utilService);
+    super(utilService, configuratieService);
   }
 
   ngOnInit(): void {

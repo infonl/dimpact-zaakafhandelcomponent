@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -17,6 +17,7 @@ import { Sort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { TranslateService } from "@ngx-translate/core";
 import { forkJoin } from "rxjs";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import {
@@ -66,14 +67,15 @@ export class MailtemplatesComponent
   expandedRow: Mailtemplate | null;
 
   constructor(
+    public dialog: MatDialog,
+    public utilService: UtilService,
+    public configuratieService: ConfiguratieService,
     private identityService: IdentityService,
     private mailtemplateBeheerService: MailtemplateBeheerService,
-    public dialog: MatDialog,
     private translate: TranslateService,
-    public utilService: UtilService,
     private mailtemplateKoppelingService: MailtemplateKoppelingService,
   ) {
-    super(utilService);
+    super(utilService, configuratieService);
   }
 
   ngOnInit(): void {

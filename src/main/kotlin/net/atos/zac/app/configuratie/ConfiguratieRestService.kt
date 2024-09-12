@@ -33,7 +33,7 @@ class ConfiguratieRestService @Inject constructor(
 ) {
     @GET
     @Path("feature-flags/bpmn-support")
-    fun isBpmnEnabled(): Boolean = configuratieService.featureFlagBpmnSupport()
+    fun featureFlagBpmnSupport(): Boolean = configuratieService.featureFlagBpmnSupport()
 
     @GET
     @Path("talen")
