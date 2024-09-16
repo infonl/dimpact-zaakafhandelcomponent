@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.0.20"
-kotlinx-coroutines = "1.8.1"
+kotlinx-coroutines = "1.9.0"
 nodejs = "20.17.0"
 jsonschema2pojo = "1.2.1"
 kotlin-csv = "1.10.0"
