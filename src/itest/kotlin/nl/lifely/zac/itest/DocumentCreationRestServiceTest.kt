@@ -5,23 +5,27 @@
 package nl.lifely.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
+import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_EXTENSION
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_ID
+import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_GROUP_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.task1ID
 import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import okhttp3.FormBody
+import okhttp3.Headers
 import org.json.JSONObject
 import java.net.URLEncoder
 
@@ -71,19 +75,25 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             logger.info { "Calling $endpointUrl endpoint" }
             val response = itestHttpClient.performPostRequest(
                 url = endpointUrl,
+                headers = Headers.headersOf(
+                    "Accept",
+                    "text/html",
+                    "Content-Type",
+                    "multipart/form-data"
+                ),
                 requestBody = FormBody.Builder()
                     .add("sdDocument", SMART_DOCUMENTS_FILE_ID)
                     .build(),
                 addAuthorizationHeader = false
             )
 
-            Then("The response should contain zaak and informatieobject UUIDs") {
+            Then("The response should contain file name and link to zaak") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK
                 with(responseBody) {
-                    shouldContainJsonKeyValue("zaakUuid", zaakProductaanvraag1Uuid.toString())
-                    shouldContainJsonKey("zaakInformatieobjectUuid")
+                    shouldContain("Document $SMART_DOCUMENTS_FILE_NAME.$SMART_DOCUMENTS_FILE_EXTENSION")
+                    shouldContain("http://localhost:8080/zaken/$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION")
                 }
             }
         }
@@ -98,20 +108,26 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             logger.info { "Calling $endpointUrl endpoint" }
             val response = itestHttpClient.performPostRequest(
                 url = endpointUrl,
+                headers = Headers.headersOf(
+                    "Accept",
+                    "text/html",
+                    "Content-Type",
+                    "multipart/form-data"
+                ),
                 requestBody = FormBody.Builder()
                     .add("sdDocument", SMART_DOCUMENTS_FILE_ID)
                     .build(),
                 addAuthorizationHeader = false
             )
 
-            Then("The response should contain zaak, taak and informatieobject UUIDs") {
+            Then("The response should contain file name and links to zaak and task") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK
                 with(responseBody) {
-                    shouldContainJsonKeyValue("zaakUuid", zaakProductaanvraag1Uuid.toString())
-                    shouldContainJsonKeyValue("taskId", task1ID)
-                    shouldContainJsonKey("zaakInformatieobjectUuid")
+                    shouldContain("Document $SMART_DOCUMENTS_FILE_NAME.$SMART_DOCUMENTS_FILE_EXTENSION")
+                    shouldContain("http://localhost:8080/zaken/$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION")
+                    shouldContain("http://localhost:8080/taken/$task1ID")
                 }
             }
         }

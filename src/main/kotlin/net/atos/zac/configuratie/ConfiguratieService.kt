@@ -151,7 +151,7 @@ class ConfiguratieService @Inject constructor(
         if (taskUuid != null) {
             UriBuilder
                 .fromUri(contextUrl)
-                .path("$SMART_DOCUMENTS_REDIRECT_URL_BASE/task/{taakId}")
+                .path("$SMART_DOCUMENTS_REDIRECT_URL_BASE/task/{taskId}")
                 .queryParam("templateId", templateId)
                 .queryParam("templateGroupId", templateGroupId)
                 .queryParam("userName", userName)

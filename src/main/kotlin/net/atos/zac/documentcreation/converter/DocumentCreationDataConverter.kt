@@ -220,7 +220,7 @@ class DocumentCreationDataConverter @Inject constructor(
         auteur = userName
         taal = ConfiguratieService.TAAL_NEDERLANDS
         beschrijving = ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT
-        status = StatusEnum.DEFINITIEF
+        status = StatusEnum.IN_BEWERKING
         vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
         informatieobjecttype = smartDocumentsTemplatesService.getInformationObjectTypeUUID(
             zaakafhandelParametersUUID = uuidFromURI(zaak.zaaktype),

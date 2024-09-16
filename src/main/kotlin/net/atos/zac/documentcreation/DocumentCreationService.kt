@@ -93,7 +93,7 @@ class DocumentCreationService @Inject constructor(
         templateId: String,
         userName: String,
         zaak: Zaak,
-        taakId: String? = null
+        taskId: String? = null
     ): ZaakInformatieobject =
         smartDocumentsService.downloadDocument(fileId).let { file ->
             documentCreationDataConverter.toEnkelvoudigInformatieObjectCreateLockRequest(
@@ -107,7 +107,7 @@ class DocumentCreationService @Inject constructor(
                 enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                     zaak = zaak,
                     enkelvoudigInformatieObjectCreateLockRequest = it,
-                    taskId = taakId,
+                    taskId = taskId,
                 )
             }
         }
