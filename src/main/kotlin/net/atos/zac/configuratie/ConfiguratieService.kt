@@ -141,21 +141,21 @@ class ConfiguratieService @Inject constructor(
             .path("informatie-objecten/{enkelvoudigInformatieobjectUUID}")
             .build(enkelvoudigInformatieobjectUUID.toString())
 
-    fun documentCreationUrl(
+    fun documentCreationCallbackUrl(
         zaakUuid: UUID,
-        taakUuid: String?,
+        taskUuid: String?,
         templateGroupId: String,
         templateId: String,
         userName: String
     ): URI =
-        if (taakUuid != null) {
+        if (taskUuid != null) {
             UriBuilder
                 .fromUri(contextUrl)
-                .path("$SMART_DOCUMENTS_REDIRECT_URL_BASE/taak/{taakId}")
+                .path("$SMART_DOCUMENTS_REDIRECT_URL_BASE/task/{taakId}")
                 .queryParam("templateId", templateId)
                 .queryParam("templateGroupId", templateGroupId)
                 .queryParam("userName", userName)
-                .build(zaakUuid.toString(), taakUuid)
+                .build(zaakUuid.toString(), taskUuid)
         } else {
             UriBuilder
                 .fromUri(contextUrl)

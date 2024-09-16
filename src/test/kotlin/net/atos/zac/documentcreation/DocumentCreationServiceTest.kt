@@ -76,7 +76,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
             smartDocumentsTemplatesService.getTemplateName(documentCreationData.templateId)
         } returns UUID.randomUUID().toString()
         every {
-            configuratieService.documentCreationUrl(
+            configuratieService.documentCreationCallbackUrl(
                 documentCreationData.zaak.uuid,
                 documentCreationData.taskId,
                 documentCreationData.templateGroupId,

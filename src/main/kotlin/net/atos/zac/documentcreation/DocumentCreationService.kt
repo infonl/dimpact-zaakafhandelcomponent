@@ -74,7 +74,7 @@ class DocumentCreationService @Inject constructor(
             variables = Variables(
                 outputFormats = listOf(OutputFormat(OUTPUT_FORMAT_DOCX)),
                 redirectMethod = REDIRECT_METHOD,
-                redirectUrl = configuratieService.documentCreationUrl(
+                redirectUrl = configuratieService.documentCreationCallbackUrl(
                     creationDataUnattended.zaak.uuid,
                     creationDataUnattended.taskId,
                     creationDataUnattended.templateGroupId,

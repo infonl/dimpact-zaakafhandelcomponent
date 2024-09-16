@@ -92,7 +92,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     Given("ZAC and a file created from template in SmartDocuments") {
         When("SmartDocuments taak callback is provided with metadata about the new file") {
             val endpointUrl = "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakProductaanvraag1Uuid" +
-                "/taak/$task1ID?templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
+                "/task/$task1ID?templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
                 "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID&userName=" +
                 URLEncoder.encode(TEST_USER_1_NAME, Charsets.UTF_8)
             logger.info { "Calling $endpointUrl endpoint" }

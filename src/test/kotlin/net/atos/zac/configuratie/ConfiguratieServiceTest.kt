@@ -53,7 +53,7 @@ class ConfiguratieServiceTest : BehaviorSpec({
         )
 
         When("Document creation URL is requested for zaak") {
-            val uri = configurationService.documentCreationUrl(
+            val uri = configurationService.documentCreationCallbackUrl(
                 zaakUuid = zaakUuid,
                 null,
                 templateGroupId,
@@ -70,7 +70,7 @@ class ConfiguratieServiceTest : BehaviorSpec({
 
         When("Document creation URL is requested for taak") {
             val taakUuid = UUID.randomUUID().toString()
-            val uri = configurationService.documentCreationUrl(
+            val uri = configurationService.documentCreationCallbackUrl(
                 zaakUuid,
                 taakUuid,
                 templateGroupId,
@@ -80,7 +80,7 @@ class ConfiguratieServiceTest : BehaviorSpec({
 
             Then("Correct URl is provided") {
                 uri.toString() shouldBe "$contextUrl/rest/document-creation/smartdocuments/callback/zaak/" +
-                    "$zaakUuid/taak/$taakUuid?templateId=$templateId&templateGroupId=$templateGroupId" +
+                    "$zaakUuid/task/$taakUuid?templateId=$templateId&templateGroupId=$templateGroupId" +
                     "&userName=" + URLEncoder.encode(userName, Charsets.UTF_8)
             }
         }
