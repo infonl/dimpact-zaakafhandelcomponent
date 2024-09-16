@@ -65,7 +65,9 @@ In sommige taakbehandelformulieren komen keuzelijsten voor waarvan de opties via
   - Verzoek is door initiator ingetrokken | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
   - Zaak is een duplicaat | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
     ![image](images/33fc1158-0ada-4fea-a491-fc1e6e9935a0.png)
-9. Ga verder naar 'SmartDocuments'. Dit is nog verder in te vullen.
+9. Ga verder naar 'SmartDocuments'. Hier kunt u het documenttype selecteren dat door elke sjabloon moet worden verwerkt.
+  - SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen
+  - Elke SmartDocuments-sjabloon moet de plug-in "RedirectURL" ingeschakeld hebben
 ![image](images/f744cc21-04a4-4457-827a-1e6807c019b2.png)
 10. Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
 
@@ -210,8 +212,3 @@ Stappen:
 2. Kies de groep uit de keuzelijst die je wilt instellen
 3. Schakel een signalering per e-mail in door deze aan te vinken
 ![image](images/208075964-091b65fc-96f5-4351-be74-2aa0eb28b13b.png)
-
- 
-
-
-
