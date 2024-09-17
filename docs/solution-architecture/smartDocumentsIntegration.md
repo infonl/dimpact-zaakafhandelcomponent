@@ -1,8 +1,8 @@
 # SmartDocuments
 
-## Configuration 
+## Case Configurations 
 
-The configuration of every case type contains a mapping between SmartDocuments template and document type. This mapping is used to get the correct template and template group with the Document creation flow below.
+Each case type configuration defines a mapping between SmartDocuments template and document type. This mapping is used to get the correct template and template group with the Document creation flow below.
 
 ## Document creation flow
 
@@ -17,8 +17,9 @@ The ZAC - SmartDocuments document creation flow is as follows:
 5. ZAC callback endpoint in turn:
    1. Downloads the Word document from SmartDocuments 
    2. Creates a document ('enkelvoudiginformatieobject') in the ZRC API implementation (also known as 'zaakregister'; in the context of ZAC this is usually OpenZaak).
-   3. Usage permissions ('Gebruiksrechten') are set for the document. Without this step the zaak to which this document belongs cannot be closed nor interrupted.  
-   4. The document/enkelvoudiginformatieobject is linked to the case or task in question (by creating a ‘zaakinformatieobject’).
+   3. Confidentiality of the document is set to PUBLIC and the document status to IN_PROGRESS
+   4. Usage permissions ('Gebruiksrechten') are set for the document. Without this step the zaak to which this document belongs cannot be closed nor interrupted.
+   5. The document/enkelvoudiginformatieobject is linked to the case or task in question (by creating a ‘zaakinformatieobject’).
 6. The zaakregister sends a notification to Open Notificaties that a new document has been linked to a case or task.
 7. Open Notificaties sends a callback request to ZAC informing ZAC of this event.
 8. Depending on which SmartDocuments environment is used and how it is configured, the user also has the option to download the document to their local computer.
