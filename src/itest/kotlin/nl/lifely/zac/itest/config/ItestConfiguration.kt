@@ -27,7 +27,7 @@ object ItestConfiguration {
 
     /**
      * Temporarily increase the HTTP read timeout to 60 seconds to allow for
-     * the slow 'documentcreation/createdocumentunattended' endpoint to complete on slower computers.
+     * the slow 'document-creation/create-document-attended' endpoint to complete on slower computers.
      * In the long run we should change this endpoint to be asynchronous.
      */
     const val HTTP_READ_TIMEOUT_SECONDS = 60L
