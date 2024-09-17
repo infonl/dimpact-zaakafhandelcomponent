@@ -9,98 +9,136 @@ import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.FormParam
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
+import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
+import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.zac.app.documentcreation.converter.RestDocumentCreationConverter
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
-import net.atos.zac.app.documentcreation.model.RestDocumentCreationUnattendedData
-import net.atos.zac.app.documentcreation.model.RestDocumentCreationUnattendedResponse
-import net.atos.zac.app.exception.InputValidationFailedException
-import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
-import net.atos.zac.documentcreation.model.DocumentCreationDataUnattended
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
+import java.util.UUID
 
 @Singleton
-@Path("documentcreation")
-@Consumes(MediaType.APPLICATION_JSON)
+@Path("document-creation")
 @Produces(MediaType.APPLICATION_JSON)
 @NoArgConstructor
 @AllOpen
 class DocumentCreationRestService @Inject constructor(
     private val policyService: PolicyService,
     private val documentCreationService: DocumentCreationService,
-    private val ztcClientService: ZtcClientService,
     private val zrcClientService: ZrcClientService,
-    private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
-    private val restUnattendedDataConverter: RestDocumentCreationConverter
+    private val configuratieService: ConfiguratieService
 ) {
     @POST
-    @Path("/createdocumentattended")
-    @Deprecated("Use createDocumentUnattended instead")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/create-document-attended")
     fun createDocumentAttended(
         @Valid restDocumentCreationAttendedData: RestDocumentCreationAttendedData
-    ): RestDocumentCreationAttendedResponse {
-        val zaak = zrcClientService.readZaak(restDocumentCreationAttendedData.zaakUUID).also {
+    ): RestDocumentCreationAttendedResponse =
+        zrcClientService.readZaak(restDocumentCreationAttendedData.zaakUuid).also {
             assertPolicy(policyService.readZaakRechten(it).creeerenDocument)
-        }
-        // documents created by SmartDocuments are always of the type 'bijlage'
-        // the zaaktype of the specified zaak needs to be configured to be able to use this informatieObjectType
-        return ztcClientService.readInformatieobjecttypen(zaak.zaaktype)
-            .firstOrNull { ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE == it.omschrijving }?.let {
-                    informatieObjectType ->
-                DocumentCreationDataAttended(
-                    zaak = zaak,
-                    taskId = restDocumentCreationAttendedData.taskId,
-                    informatieobjecttype = informatieObjectType
-                ).let(documentCreationService::createDocumentAttended)
-                    .let { RestDocumentCreationAttendedResponse(it.redirectUrl, it.message) }
-            } ?: run {
-            throw InputValidationFailedException(
-                "No informatieobjecttype '${ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE}' found for " +
-                    "zaaktype '${zaak.zaaktype}'. Cannot create document."
+        }.let {
+            DocumentCreationDataAttended(
+                zaak = it,
+                templateId = restDocumentCreationAttendedData.smartDocumentsTemplateId,
+                templateGroupId = restDocumentCreationAttendedData.smartDocumentsTemplateGroupId,
+                taskId = restDocumentCreationAttendedData.taskId,
             )
+                .let(documentCreationService::createDocumentAttended)
+                .let { response -> RestDocumentCreationAttendedResponse(response.redirectUrl, response.message) }
         }
-    }
 
+    /**
+     * SmartDocuments callback
+     *
+     * Called when SmartDocument Wizard "Finish" button is clicked. The URL provided as "redirectUrl" to
+     * SmartDocuments contains all the parameters needed to store the document for a zaak:
+     * zaak ID, template and template group IDs, username and created document ID
+     */
     @POST
-    @Path("/createdocumentunattended")
-    fun createDocumentUnattended(
-        @Valid restDocumentCreationUnattendedData: RestDocumentCreationUnattendedData
-    ): RestDocumentCreationUnattendedResponse {
-        val zaak = zrcClientService.readZaak(restDocumentCreationUnattendedData.zaakUuid)
-        assertPolicy(policyService.readZaakRechten(zaak).creeerenDocument)
-        return restDocumentCreationUnattendedData.let { unattendedData ->
-            DocumentCreationDataUnattended(
-                taskId = unattendedData.taskId,
-                templateGroupId = unattendedData.smartDocumentsTemplateGroupId,
-                templateId = unattendedData.smartDocumentsTemplateId,
-                zaak = zaak
-            ).let(documentCreationService::createDocumentUnattended)
-                .let { unattendedResponse ->
-                    restUnattendedDataConverter.toEnkelvoudigInformatieObjectCreateLockRequest(
-                        zaak,
-                        unattendedData,
-                        unattendedResponse
-                    ).let {
-                        enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-                            zaak = zaak,
-                            enkelvoudigInformatieObjectCreateLockRequest = it,
-                            taskId = unattendedData.taskId
-                        )
-                    }
-                    RestDocumentCreationUnattendedResponse(message = unattendedResponse.message)
-                }
+    @Path("/smartdocuments/callback/zaak/{zaakUuid}")
+    @Produces(MediaType.TEXT_HTML)
+    fun createDocumentForZaakCallback(
+        @PathParam("zaakUuid") zaakUuid: UUID,
+        @QueryParam("templateGroupId") templateGroupId: String,
+        @QueryParam("templateId") templateId: String,
+        @QueryParam("userName") userName: String,
+        @FormParam("sdDocument") fileId: String,
+    ): String =
+        zrcClientService.readZaak(zaakUuid).let { zaak ->
+            documentCreationService.storeDocument(
+                fileId,
+                templateGroupId,
+                templateId,
+                userName,
+                zaak
+            ).let { zaakInformatieobject ->
+                val fileName = zaakInformatieobject.titel
+                val zaakUri = configuratieService.zaakTonenUrl(zaak.identificatie)
+                """<!DOCTYPE html><html>
+                   <head><title>Document $fileName</title></head>
+                   <body>
+                       <p>Document $fileName gemaakt voor zaak <a href="$zaakUri">${zaak.identificatie}</a> !</p>
+                       <p>Sluit dit tabblad!</p>
+                       <hr/>
+                       <p>Document $fileName created for zaak <a href="$zaakUri">${zaak.identificatie}</a> !</p>
+                       <p>Please, close this tab!</p>
+                   <body></html>
+                """.trimIndent()
+            }
         }
-    }
+
+    /**
+     * SmartDocuments callback
+     *
+     * Called when SmartDocument Wizard "Finish" button is clicked. The URL provided as "redirectUrl" to
+     * SmartDocuments contains all the parameters needed to store the document for a task:
+     * zaak and task IDs, template and template group IDs, username and created document ID
+     */
+    @POST
+    @Path("/smartdocuments/callback/zaak/{zaakUuid}/task/{taskId}")
+    @Produces(MediaType.TEXT_HTML)
+    @Suppress("LongParameterList")
+    fun createDocumentForTaskCallback(
+        @PathParam("zaakUuid") zaakUuid: UUID,
+        @PathParam("taskId") taskId: String,
+        @QueryParam("templateGroupId") templateGroupId: String,
+        @QueryParam("templateId") templateId: String,
+        @QueryParam("userName") userName: String,
+        @FormParam("sdDocument") fileId: String,
+    ): String =
+        zrcClientService.readZaak(zaakUuid).let { zaak ->
+            documentCreationService.storeDocument(
+                fileId,
+                templateGroupId,
+                templateId,
+                userName,
+                zaak,
+                taskId
+            ).let { zaakInformatieobject ->
+                val fileName = zaakInformatieobject.titel
+                val zaakUri = configuratieService.zaakTonenUrl(zaak.identificatie)
+                val taskUri = configuratieService.taakTonenUrl(taskId)
+                """<!DOCTYPE html><html>
+                   <head><title>Document $fileName</title></head>
+                   <body>
+                       <p>Document $fileName gemaakt voor zaak <a href="$zaakUri">${zaak.identificatie}</a>, taak <a href="$taskUri">$taskId</a> !</p>
+                       <p>Sluit dit tabblad!</p>
+                       <hr/>
+                       <p>Document $fileName created for zaak <a href="$zaakUri">${zaak.identificatie}</a>, taak <a href="$taskUri">$taskId</a> !</p>
+                       <p>Please, close this tab!</p>
+                   <body></html>
+                """.trimIndent()
+            }
+        }
 }

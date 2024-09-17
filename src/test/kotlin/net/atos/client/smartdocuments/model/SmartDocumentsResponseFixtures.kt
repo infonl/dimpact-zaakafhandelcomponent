@@ -8,10 +8,9 @@ package net.atos.client.smartdocuments.model
 import net.atos.client.smartdocuments.model.document.AttendedResponse
 import net.atos.client.smartdocuments.model.document.Document
 import net.atos.client.smartdocuments.model.document.File
-import net.atos.client.smartdocuments.model.document.Registratie
 import net.atos.client.smartdocuments.model.document.Selection
 import net.atos.client.smartdocuments.model.document.SmartDocument
-import net.atos.client.smartdocuments.model.document.UnattendedResponse
+import net.atos.client.smartdocuments.model.document.Variables
 import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseDocumentsStructure
 import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseGroupsAccess
 import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseHeadersStructure
@@ -22,9 +21,6 @@ import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseUserG
 import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseUsersStructure
 import net.atos.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
 import net.atos.client.smartdocuments.model.template.User
-import net.atos.client.zgw.drc.model.generated.StatusEnum
-import java.net.URI
-import java.time.LocalDate
 import java.util.UUID
 
 fun createAttendedResponse(
@@ -32,12 +28,6 @@ fun createAttendedResponse(
 ) = AttendedResponse().apply {
     this.ticket = ticket
 }
-
-fun createUnattendedResponse(
-    files: List<File> = listOf(createFile())
-) = UnattendedResponse(
-    files = files
-)
 
 fun createFile(
     fileName: String = "dummyFileName",
@@ -148,26 +138,11 @@ fun createsmartDocumentsTemplatesResponse() = SmartDocumentsTemplatesResponse(
     )
 )
 
-@Suppress("LongParameterList")
-fun createRegistratie(
-    zaak: URI = URI("https://example.com/dummyZaak"),
-    informatieObjectStatus: StatusEnum = StatusEnum.IN_BEWERKING,
-    informatieObjectType: URI = URI("https://example.com/dummyInformatieObjectType"),
-    bronOrganisatie: String = "dummyBronOrganisatie",
-    creatieDatum: LocalDate = LocalDate.now(),
-    auditToelichting: String = "dummyAuditToelichting"
-) =
-    Registratie(
-        zaak = zaak,
-        informatieObjectStatus = informatieObjectStatus,
-        informatieObjectType = informatieObjectType,
-        bronOrganisatie = bronOrganisatie,
-        creatieDatum = creatieDatum,
-        auditToelichting = auditToelichting
-    )
-
-fun createSmartDocument() = SmartDocument(
-    selection = createSelection()
+fun createSmartDocument(
+    variables: Variables
+) = SmartDocument(
+    selection = createSelection(),
+    variables = variables
 )
 
 fun createSelection(
