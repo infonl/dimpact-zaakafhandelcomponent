@@ -5,7 +5,6 @@
 
 package net.atos.zac.smartdocuments
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
@@ -14,14 +13,15 @@ import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
 import net.atos.client.smartdocuments.SmartDocumentsClient
 import net.atos.client.smartdocuments.model.createAttendedResponse
-import net.atos.client.smartdocuments.model.createFile
-import net.atos.client.smartdocuments.model.createRegistratie
 import net.atos.client.smartdocuments.model.createSmartDocument
-import net.atos.client.smartdocuments.model.createUnattendedResponse
 import net.atos.client.smartdocuments.model.createsmartDocumentsTemplatesResponse
+import net.atos.client.smartdocuments.model.document.OutputFormat
+import net.atos.client.smartdocuments.model.document.Variables
+import net.atos.client.smartdocuments.rest.DownloadedFile
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.documentcreation.model.createData
+import nl.lifely.zac.util.toBase64String
 import java.net.URI
 import java.util.Optional
 
@@ -43,11 +43,15 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("Document creation data with a zaak and an information object type") {
+    Given("Document creation data with a zaak") {
         val loggedInUser = createLoggedInUser()
         val data = createData()
-        val registratie = createRegistratie()
-        val smartDocument = createSmartDocument()
+        val variables = Variables(
+            outputFormats = listOf(OutputFormat("DOCX")),
+            redirectMethod = "POST",
+            redirectUrl = "url"
+        )
+        val smartDocument = createSmartDocument(variables)
         val attendedResponse = createAttendedResponse()
         every { loggedInUserInstance.get() } returns loggedInUser
         every { smartDocumentsClient.attendedDeposit(any(), any(), any()) } returns attendedResponse
@@ -55,7 +59,6 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         When("the 'create document attended' method is called") {
             val documentCreationResponse = smartDocumentsService.createDocumentAttended(
                 data = data,
-                registratie = registratie,
                 smartDocument = smartDocument
             )
 
@@ -65,113 +68,39 @@ class SmartDocumentsServiceTest : BehaviorSpec({
                 """
             ) {
                 with(documentCreationResponse) {
-                    redirectUrl shouldBe URI("$smartDocumentsURL/smartdocuments/wizard?ticket=${attendedResponse.ticket}")
+                    redirectUrl shouldBe URI(
+                        "$smartDocumentsURL/smartdocuments/wizard?ticket=${attendedResponse.ticket}"
+                    )
                     message shouldBe null
                 }
             }
         }
     }
-    Given("Document creation data with a zaak, a template group name and a template name") {
-        val loggedInUser = createLoggedInUser()
-        val data = createData()
-        val smartDocument = createSmartDocument()
-        val file = createFile(
-            fileName = "dummyTemplateName.docx",
-            outputFormat = "DOCX"
-        )
-        val unattendedResponse = createUnattendedResponse(
-            files = listOf(file)
-        )
-        every { loggedInUserInstance.get() } returns loggedInUser
-        every { smartDocumentsClient.unattendedDeposit(any(), any(), any()) } returns unattendedResponse
 
-        When("the 'create document unattended' method is called") {
-            val documentCreationResponse = smartDocumentsService.createDocumentUnattended(
-                data = data,
-                smartDocument = smartDocument
-            )
+    Given("Document is generated and ready for download") {
+        val downloadedFile = mockk<DownloadedFile>()
 
-            Then(
-                """
-                the create unattended SmartDocuments document method is called and a document creation response is returned
-                """
-            ) {
-                with(documentCreationResponse) {
-                    message shouldBe "SmartDocuments document with filename: '${file.fileName}' " +
-                        "was created and stored successfully in the zaakregister."
+        val fileName = "abcd.docx"
+        val body = "body content".toByteArray(Charsets.UTF_8)
+
+        every { smartDocumentsClient.downloadFile(any(), any()) } returns downloadedFile
+        every { downloadedFile.body() } returns body
+        every { downloadedFile.contentDisposition() } returns "attachment; filename=\"$fileName\""
+
+        When("the 'download file' method is called") {
+            val file = smartDocumentsService.downloadDocument("sdId")
+
+            Then("a file object representing the content is returned") {
+                with(file) {
+                    fileName shouldBe fileName
+                    outputFormat shouldBe "DOCX"
+                    document.data shouldBe body.toBase64String()
                 }
             }
         }
     }
-    Given(
-        """
-            Document creation data with a zaak, a template group name and a template name but a SmartDocuments unattended
-             response which does not contain a DOCX file
-            """
-    ) {
-        val loggedInUser = createLoggedInUser()
-        val data = createData()
-        val smartDocument = createSmartDocument()
-        val file = createFile(
-            fileName = "dummyTemplateName.docx",
-            outputFormat = "HTML"
-        )
-        val unattendedResponse = createUnattendedResponse(
-            files = listOf(file)
-        )
-        every { loggedInUserInstance.get() } returns loggedInUser
-        every { smartDocumentsClient.unattendedDeposit(any(), any(), any()) } returns unattendedResponse
 
-        When("the 'create document unattended' method is called") {
-            val exception = shouldThrow<IllegalArgumentException> {
-                smartDocumentsService.createDocumentUnattended(
-                    data = data,
-                    smartDocument = smartDocument
-                )
-            }
-
-            Then(
-                """
-                an exception is thrown
-                """
-            ) {
-                exception.message shouldBe "SmartDocuments response does not contain a DOCX file"
-            }
-        }
-    }
-    Given(
-        """
-            Document creation data with a zaak, a template group name and a template name but a SmartDocuments unattended
-             response contains an empty file list
-            """
-    ) {
-        val loggedInUser = createLoggedInUser()
-        val data = createData()
-        val smartDocument = createSmartDocument()
-        val unattendedResponse = createUnattendedResponse(
-            files = emptyList()
-        )
-        every { loggedInUserInstance.get() } returns loggedInUser
-        every { smartDocumentsClient.unattendedDeposit(any(), any(), any()) } returns unattendedResponse
-
-        When("the 'create document unattended' method is called") {
-            val exception = shouldThrow<IllegalArgumentException> {
-                smartDocumentsService.createDocumentUnattended(
-                    data = data,
-                    smartDocument = smartDocument
-                )
-            }
-
-            Then(
-                """
-                an exception is thrown
-                """
-            ) {
-                exception.message shouldBe "SmartDocuments response contains an empty file list"
-            }
-        }
-    }
-    Given("SD contains templates") {
+    Given("SmartDocuments contains templates") {
         val loggedInUser = createLoggedInUser()
         every { loggedInUserInstance.get() } returns loggedInUser
 

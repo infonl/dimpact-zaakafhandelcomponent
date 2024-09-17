@@ -13,7 +13,6 @@ import net.atos.client.smartdocuments.model.document.TaakData
 import net.atos.client.smartdocuments.model.document.ZaakData
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createZaak
-import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
 import java.net.URI
 
 fun createAanvragerData(
@@ -47,19 +46,9 @@ fun createData(
 fun createDocumentCreationDataAttended(
     zaak: Zaak = createZaak(),
     taskId: String = "dummyTaskId",
-    informatieobjecttype: InformatieObjectType? = null
-) = DocumentCreationDataAttended(
-    zaak = zaak,
-    taskId = taskId,
-    informatieobjecttype = informatieobjecttype
-)
-
-fun createDocumentCreationDataUnattended(
-    zaak: Zaak = createZaak(),
-    taskId: String = "dummyTaskId",
     templateGroupId: String = "1",
     templateId: String = "2"
-) = DocumentCreationDataUnattended(
+) = DocumentCreationDataAttended(
     zaak = zaak,
     taskId = taskId,
     templateGroupId = templateGroupId,
@@ -67,21 +56,11 @@ fun createDocumentCreationDataUnattended(
 )
 
 fun createDocumentCreationAttendedResponse(
+    message: String = "success",
     redirectUri: URI = URI.create("https://example.com/dummyRedirectURI")
 ) = DocumentCreationAttendedResponse(
-    redirectUrl = redirectUri
-)
-
-fun createDocumentCreationUnattendedResponse(
-    message: String = "dummyMessage",
-    fileName: String = "file.docx",
-    fileType: String = "Word Document",
-    fileContent: String = "content"
-) = DocumentCreationUnattendedResponse(
     message = message,
-    fileName = fileName,
-    fileType = fileType,
-    fileContent = fileContent
+    redirectUrl = redirectUri
 )
 
 fun createGebruikerData(

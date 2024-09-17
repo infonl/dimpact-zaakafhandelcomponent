@@ -11,15 +11,16 @@ import jakarta.ws.rs.core.UriBuilder
 import net.atos.client.smartdocuments.SmartDocumentsClient
 import net.atos.client.smartdocuments.model.document.Data
 import net.atos.client.smartdocuments.model.document.Deposit
+import net.atos.client.smartdocuments.model.document.Document
 import net.atos.client.smartdocuments.model.document.File
-import net.atos.client.smartdocuments.model.document.Registratie
 import net.atos.client.smartdocuments.model.document.SmartDocument
 import net.atos.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
 import net.atos.zac.authentication.LoggedInUser
+import net.atos.zac.documentcreation.DocumentCreationService.Companion.OUTPUT_FORMAT_DOCX
 import net.atos.zac.documentcreation.model.DocumentCreationAttendedResponse
-import net.atos.zac.documentcreation.model.DocumentCreationUnattendedResponse
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
+import nl.lifely.zac.util.toBase64String
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.util.Optional
@@ -43,11 +44,9 @@ class SmartDocumentsService @Inject constructor(
     private val fixedUserName: Optional<String>,
 
     private val loggedInUserInstance: Instance<LoggedInUser>,
-
 ) {
     companion object {
         private val LOG = Logger.getLogger(SmartDocumentsService::class.java.name)
-        const val OUTPUTFORMAT_DOCX = "DOCX"
     }
 
     /**
@@ -55,15 +54,13 @@ class SmartDocumentsService @Inject constructor(
      */
     fun createDocumentAttended(
         data: Data,
-        registratie: Registratie,
         smartDocument: SmartDocument
     ): DocumentCreationAttendedResponse {
         val deposit = Deposit(
             data = data,
-            registratie = registratie,
             smartDocument = smartDocument
         )
-        val userName = fixedUserName.orElse(loggedInUserInstance.get().id).also {
+        val userName = fixedUserName.orElse(loggedInUserInstance.get()?.id).also {
             LOG.fine("Starting Smart Documents wizard for user: '$it'")
         }
         return smartDocumentsClient.attendedDeposit(
@@ -83,60 +80,30 @@ class SmartDocumentsService @Inject constructor(
     }
 
     /**
-     * Sends a request to SmartDocuments to create a document using the Smart Documents unattended mode.
-     *
-     * @return the document creation response
-     */
-    fun createDocumentUnattended(
-        data: Data,
-        smartDocument: SmartDocument
-    ): DocumentCreationUnattendedResponse {
-        val deposit = Deposit(
-            data = data,
-            smartDocument = smartDocument
-        )
-        val userName = fixedUserName.orElse(loggedInUserInstance.get().id).also {
-            LOG.fine("Starting SmartDocuments unattended document creation flow for user: '$it'")
-        }
-        return smartDocumentsClient.unattendedDeposit(
-            authenticationToken = "Basic $authenticationToken",
-            userName = userName,
-            deposit = deposit
-        ).also {
-            LOG.fine("SmartDocuments unattended document creation response: '$it'")
-        }.files.let {
-            require(it != null) { "SmartDocuments response does not contain a file" }
-            generateDocumentCreationUnattendedResponse(it)
-        }
-    }
-
-    @Suppress("ThrowsCount")
-    private fun generateDocumentCreationUnattendedResponse(files: List<File>): DocumentCreationUnattendedResponse {
-        require(files.isNotEmpty()) { "SmartDocuments response contains an empty file list" }
-
-        val docxFiles = files.filter { it.outputFormat == OUTPUTFORMAT_DOCX }
-        require(docxFiles.isNotEmpty()) { "SmartDocuments response does not contain a DOCX file" }
-        require(docxFiles.size == 1) { "SmartDocuments response contains multiple DOCX files" }
-
-        val generatedDocxFile = docxFiles[0]
-
-        return DocumentCreationUnattendedResponse(
-            message = "SmartDocuments document with filename: '${generatedDocxFile.fileName}' " +
-                "was created and stored successfully in the zaakregister.",
-            fileName = generatedDocxFile.fileName,
-            fileType = OUTPUTFORMAT_DOCX,
-            fileContent = generatedDocxFile.document.data
-        )
-    }
-
-    /**
      * Lists all SmartDocuments templates groups and templates available for the current user.
      *
      * @return A structure describing templates and groups
      */
     fun listTemplates(): SmartDocumentsTemplatesResponse =
         smartDocumentsClient.listTemplates(
-            "Basic $authenticationToken",
-            fixedUserName.orElse(loggedInUserInstance.get().id)
+            authenticationToken = "Basic $authenticationToken",
+            userName = fixedUserName.orElse(loggedInUserInstance.get()?.id)
         )
+
+    /**
+     * Download generated document
+     */
+    fun downloadDocument(fileId: String): File =
+        smartDocumentsClient.downloadFile(
+            smartDocumentsId = fileId,
+            documentFormat = OUTPUT_FORMAT_DOCX
+        ).let { downloadedFile ->
+            File(
+                fileName = downloadedFile.contentDisposition()
+                    .removePrefix("attachment; filename=\"")
+                    .removeSuffix("\""),
+                document = Document(data = downloadedFile.body().toBase64String()),
+                outputFormat = OUTPUT_FORMAT_DOCX
+            )
+        }
 }

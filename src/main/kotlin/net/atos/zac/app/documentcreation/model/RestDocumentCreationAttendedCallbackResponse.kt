@@ -5,7 +5,11 @@
 package net.atos.zac.app.documentcreation.model
 
 import nl.lifely.zac.util.NoArgConstructor
-import java.net.URI
+import java.util.UUID
 
 @NoArgConstructor
-data class RestDocumentCreationAttendedResponse(val redirectURL: URI? = null, val message: String? = null)
+data class RestDocumentCreationAttendedCallbackResponse(
+    val zaakUuid: UUID,
+    val zaakInformatieobjectUuid: UUID,
+    val taskId: String? = null
+)

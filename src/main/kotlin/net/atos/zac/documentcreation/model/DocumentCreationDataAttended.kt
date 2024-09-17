@@ -5,12 +5,13 @@
 package net.atos.zac.documentcreation.model
 
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
 
 data class DocumentCreationDataAttended(
-    val informatieobjecttype: InformatieObjectType? = null,
-
     val taskId: String? = null,
+
+    val templateGroupId: String,
+
+    val templateId: String,
 
     val zaak: Zaak
 )

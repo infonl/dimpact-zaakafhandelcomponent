@@ -77,7 +77,6 @@ class ConfiguratieService @Inject constructor(
         const val COMMUNICATIEKANAAL_EFORMULIER = "E-formulier"
 
         const val INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL = "e-mail"
-        const val INFORMATIEOBJECTTYPE_OMSCHRIJVING_BIJLAGE = "bijlage"
 
         // ~TODO
         const val ENV_VAR_ZGW_API_CLIENT_MP_REST_URL = "ZGW_API_CLIENT_MP_REST_URL"
@@ -92,6 +91,9 @@ class ConfiguratieService @Inject constructor(
         const val MAX_FILE_SIZE_MB: Int = 80
 
         private const val NONE = "<NONE>"
+
+        private const val SMART_DOCUMENTS_REDIRECT_URL_BASE =
+            "rest/document-creation/smartdocuments/callback/zaak/{zaakUuid}"
     }
 
     private var catalogusURI: URI =
@@ -138,6 +140,31 @@ class ConfiguratieService @Inject constructor(
             .fromUri(contextUrl)
             .path("informatie-objecten/{enkelvoudigInformatieobjectUUID}")
             .build(enkelvoudigInformatieobjectUUID.toString())
+
+    fun documentCreationCallbackUrl(
+        zaakUuid: UUID,
+        taskUuid: String?,
+        templateGroupId: String,
+        templateId: String,
+        userName: String
+    ): URI =
+        if (taskUuid != null) {
+            UriBuilder
+                .fromUri(contextUrl)
+                .path("$SMART_DOCUMENTS_REDIRECT_URL_BASE/task/{taskId}")
+                .queryParam("templateId", templateId)
+                .queryParam("templateGroupId", templateGroupId)
+                .queryParam("userName", userName)
+                .build(zaakUuid.toString(), taskUuid)
+        } else {
+            UriBuilder
+                .fromUri(contextUrl)
+                .path(SMART_DOCUMENTS_REDIRECT_URL_BASE)
+                .queryParam("templateId", templateId)
+                .queryParam("templateGroupId", templateGroupId)
+                .queryParam("userName", userName)
+                .build(zaakUuid.toString())
+        }
 
     fun readGemeenteCode(): String = gemeenteCode
 

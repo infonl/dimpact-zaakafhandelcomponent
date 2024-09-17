@@ -15,10 +15,14 @@ import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.shared.util.URIUtil
 import net.atos.client.smartdocuments.model.document.AanvragerData
 import net.atos.client.smartdocuments.model.document.Data
+import net.atos.client.smartdocuments.model.document.File
 import net.atos.client.smartdocuments.model.document.GebruikerData
 import net.atos.client.smartdocuments.model.document.StartformulierData
 import net.atos.client.smartdocuments.model.document.TaakData
 import net.atos.client.smartdocuments.model.document.ZaakData
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
+import net.atos.client.zgw.drc.model.generated.StatusEnum
+import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
@@ -30,14 +34,19 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.authentication.LoggedInUser
+import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.getFullName
 import net.atos.zac.productaanvraag.ProductaanvraagService
+import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.util.StringUtil
+import net.atos.zac.util.UriUtil.uuidFromURI
 import nl.lifely.zac.util.NoArgConstructor
+import nl.lifely.zac.util.decodedBase64StringLength
 import java.net.URI
+import java.time.LocalDate
 import java.util.Objects
 
 @NoArgConstructor
@@ -51,7 +60,8 @@ class DocumentCreationDataConverter @Inject constructor(
     private val objectsClientService: ObjectsClientService,
     private val flowableTaskService: FlowableTaskService,
     private val identityService: IdentityService,
-    private val productaanvraagService: ProductaanvraagService
+    private val productaanvraagService: ProductaanvraagService,
+    private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService
 ) {
     companion object {
         const val DATE_FORMAT: String = "dd-MM-yyyy"
@@ -195,4 +205,33 @@ class DocumentCreationDataConverter @Inject constructor(
                 data = TaakVariabelenService.readTaskData(taskInfo)
             )
         }
+
+    fun toEnkelvoudigInformatieObjectCreateLockRequest(
+        zaak: Zaak,
+        smartDocumentsFile: File,
+        smartDocumentsFileType: String,
+        smartDocumentsTemplateGroupId: String,
+        smartDocumentsTemplateId: String,
+        userName: String
+    ) = EnkelvoudigInformatieObjectCreateLockRequest().apply {
+        bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
+        creatiedatum = LocalDate.now()
+        titel = smartDocumentsFile.fileName
+        auteur = userName
+        taal = ConfiguratieService.TAAL_NEDERLANDS
+        beschrijving = ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT
+        status = StatusEnum.IN_BEWERKING
+        vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
+        informatieobjecttype = smartDocumentsTemplatesService.getInformationObjectTypeUUID(
+            zaakafhandelParametersUUID = uuidFromURI(zaak.zaaktype),
+            templateGroupId = smartDocumentsTemplateGroupId,
+            templateId = smartDocumentsTemplateId
+        ).let {
+            ztcClientService.readInformatieobjecttype(it).url
+        }
+        bestandsnaam = smartDocumentsFile.fileName
+        formaat = smartDocumentsFileType
+        inhoud = smartDocumentsFile.document.data
+        bestandsomvang = smartDocumentsFile.document.data?.decodedBase64StringLength()
+    }
 }

@@ -11,7 +11,13 @@ import java.util.UUID
 @NoArgConstructor
 data class RestDocumentCreationAttendedData(
     @field:NotNull
-    var zaakUUID: UUID,
+    var zaakUuid: UUID,
 
-    var taskId: String? = null
+    var taskId: String? = null,
+
+    @field:NotNull
+    var smartDocumentsTemplateGroupId: String,
+
+    @field:NotNull
+    var smartDocumentsTemplateId: String
 )

@@ -351,6 +351,8 @@ services:
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/__files:/home/wiremock/__files
     entrypoint: [ "/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose" ]
+    ports:
+      - "18080:8080"
     profiles: [ "itest" ]
 
   kvk-wiremock:
@@ -360,6 +362,8 @@ services:
       - ./scripts/docker-compose/imports/kvk-wiremock/mappings:/home/wiremock/mappings
       - ./scripts/docker-compose/imports/kvk-wiremock/__files:/home/wiremock/__files
     entrypoint: [ "/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose" ]
+    ports:
+      - "18081:8080"
     profiles: [ "itest" ]
 
   office-converter:
@@ -445,7 +449,7 @@ services:
     ports:
       - "25:25"
       - "143:143"
-      - "8888:8080"
+      - "18083:8080"
     profiles: [ "itest" ]
 
   zac:
