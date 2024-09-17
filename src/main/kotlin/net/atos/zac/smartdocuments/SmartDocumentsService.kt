@@ -60,7 +60,7 @@ class SmartDocumentsService @Inject constructor(
             data = data,
             smartDocument = smartDocument
         )
-        val userName = fixedUserName.orElse(loggedInUserInstance.get()?.id).also {
+        val userName = fixedUserName.orElse(loggedInUserInstance.get().id).also {
             LOG.fine("Starting Smart Documents wizard for user: '$it'")
         }
         return smartDocumentsClient.attendedDeposit(
@@ -87,7 +87,7 @@ class SmartDocumentsService @Inject constructor(
     fun listTemplates(): SmartDocumentsTemplatesResponse =
         smartDocumentsClient.listTemplates(
             authenticationToken = "Basic $authenticationToken",
-            userName = fixedUserName.orElse(loggedInUserInstance.get()?.id)
+            userName = fixedUserName.orElse(loggedInUserInstance.get().id)
         )
 
     /**
