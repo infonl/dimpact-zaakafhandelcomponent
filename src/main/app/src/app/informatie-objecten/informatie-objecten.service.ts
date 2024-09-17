@@ -132,7 +132,7 @@ export class InformatieObjectenService {
   ): Observable<DocumentCreationResponse> {
     return this.http
       .post<DocumentCreationResponse>(
-        `rest/documentcreation/createdocumentattended`,
+        `rest/document-creation/create-document-attended`,
         documentCreationData,
       )
       .pipe(
