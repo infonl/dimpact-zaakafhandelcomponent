@@ -9,7 +9,7 @@ Each case type configuration defines a mapping between SmartDocuments template a
 The ZAC - SmartDocuments document creation flow is as follows:
 
 1. User starts SmartDocument wizard from ZAC ('create document'). This can be done either from a case (zaak) or from a task.
-2. ZAC sends a HTTPS request to start a document creation wizard to SmartDocuments and sends case- and other information in this request.
+2. ZAC sends an HTTPS request to start a document creation wizard to SmartDocuments and sends case- and other information in this request.
 3. The document creation wizard is started in SmartDocuments. Case or task information and template type are pre-filled.
 4. At the end of the document creation wizard, SmartDocuments:
    1. creates a Word document and stores it on SmartDocuments side for later retrieval
