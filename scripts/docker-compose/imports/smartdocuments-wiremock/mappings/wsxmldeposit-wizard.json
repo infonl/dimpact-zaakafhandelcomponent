@@ -21,7 +21,8 @@
         "SmartDocument": {
           "Selection": {
             "TemplateGroup": "root",
-            "Template": "root template 1"
+            "Template": "root template 1",
+            "FixedValues": ""
           },
           "Variables": {
             "OutputFormats": [ { "OutputFormat": "DOCX" } ],
