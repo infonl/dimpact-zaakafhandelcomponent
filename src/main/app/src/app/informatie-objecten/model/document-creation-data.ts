@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 export class DocumentCreationData {
-  public zaakUUID: string;
+  public zaakUuid: string;
   public taskId: string;
-  public informatieobjecttypeUUID: string;
-  public titel: string;
+  public smartDocumentsTemplateGroupId: string;
+  public smartDocumentsTemplateId: string;
 }

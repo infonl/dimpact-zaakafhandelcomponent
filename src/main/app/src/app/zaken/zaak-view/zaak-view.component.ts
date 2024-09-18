@@ -725,7 +725,16 @@ export class ZaakViewComponent
 
   private maakDocument(): void {
     const documentCreatieGegeven = new DocumentCreationData();
-    documentCreatieGegeven.zaakUUID = this.zaak.uuid;
+    documentCreatieGegeven.zaakUuid = this.zaak.uuid;
+    // We use hardcoded template and template group here to allow e2e tests to pass
+    // The below two should be changed with the correct IDs mapped to the zaak type
+    //
+    // group   : Melding evenement organiseren behandelen
+    // template: Data Test
+    documentCreatieGegeven.smartDocumentsTemplateGroupId =
+      "DA3A76D24DFD48C9837B03E47BC701FB";
+    documentCreatieGegeven.smartDocumentsTemplateId =
+      "7B7857BB9959470C82974037304E433D";
     this.informatieObjectenService
       .createDocumentAttended(documentCreatieGegeven)
       .subscribe((documentCreatieResponse) => {
