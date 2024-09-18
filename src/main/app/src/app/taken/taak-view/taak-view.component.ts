@@ -286,8 +286,17 @@ export class TaakViewComponent
 
   private createDocumentAttended(): void {
     const documentCreationData = new DocumentCreationData();
-    documentCreationData.zaakUUID = this.taak.zaakUuid;
+    documentCreationData.zaakUuid = this.taak.zaakUuid;
     documentCreationData.taskId = this.taak.id;
+    // We use hardcoded template and template group here to allow e2e tests to pass
+    // The below two should be changed with the correct IDs mapped to the zaak type
+    //
+    // group   : Melding evenement organiseren behandelen
+    // template: Data Test
+    documentCreationData.smartDocumentsTemplateGroupId =
+      "DA3A76D24DFD48C9837B03E47BC701FB";
+    documentCreationData.smartDocumentsTemplateId =
+      "7B7857BB9959470C82974037304E433D";
     this.informatieObjectenService
       .createDocumentAttended(documentCreationData)
       .subscribe((documentCreatieResponse) => {
