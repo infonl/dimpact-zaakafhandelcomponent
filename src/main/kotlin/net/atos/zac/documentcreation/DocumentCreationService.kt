@@ -69,7 +69,7 @@ class DocumentCreationService @Inject constructor(
                 templateGroup = smartDocumentsTemplatesService.getTemplateGroupName(
                     creationDataUnattended.templateGroupId
                 ),
-                template = smartDocumentsTemplatesService.getTemplateName(creationDataUnattended.templateId),
+                template = smartDocumentsTemplatesService.getTemplateName(creationDataUnattended.templateId)
             ),
             variables = Variables(
                 outputFormats = listOf(OutputFormat(OUTPUT_FORMAT_DOCX)),

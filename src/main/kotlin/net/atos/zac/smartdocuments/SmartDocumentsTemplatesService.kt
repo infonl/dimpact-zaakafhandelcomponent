@@ -209,22 +209,19 @@ class SmartDocumentsTemplatesService @Inject constructor(
         LOG.fine { "Fetching template group name for id $templateGroupId" }
 
         entityManager.criteriaBuilder.let { builder ->
-            builder.createQuery(SmartDocumentsTemplateGroup::class.java).let { query ->
-                query.from(SmartDocumentsTemplateGroup::class.java).let { root ->
-                    try {
-                        return entityManager.createQuery(
-                            query.select(root)
-                                .where(
-                                    builder.equal(
-                                        root.get<String>(SmartDocumentsTemplateGroup::smartDocumentsId.name),
-                                        templateGroupId
-                                    )
-                                )
-                        ).singleResult.name
-                    } catch (noResultException: NoResultException) {
-                        "$EXCEPTION_PREFIX group id $templateGroupId".let { message ->
-                            LOG.log(Level.FINE, message, noResultException)
-                            throw SmartDocumentsException(message)
+            builder.createTupleQuery().let { criteriaQuery ->
+                criteriaQuery.from(SmartDocumentsTemplateGroup::class.java).let { root ->
+                    root.get<String>(SmartDocumentsTemplateGroup::name.name).let { namePath ->
+                        criteriaQuery.multiselect(namePath).where(
+                            builder.equal(
+                                root.get<String>(SmartDocumentsTemplateGroup::smartDocumentsId.name),
+                                templateGroupId
+                            )
+                        ).let { multiselectQuery ->
+                            return entityManager.createQuery(multiselectQuery)
+                                .setMaxResults(1)
+                                .resultList[0]
+                                .get(namePath)
                         }
                     }
                 }
@@ -243,22 +240,19 @@ class SmartDocumentsTemplatesService @Inject constructor(
         LOG.fine { "Fetching template group name for id $templateId" }
 
         entityManager.criteriaBuilder.let { builder ->
-            builder.createQuery(SmartDocumentsTemplate::class.java).let { query ->
-                query.from(SmartDocumentsTemplate::class.java).let { root ->
-                    try {
-                        return entityManager.createQuery(
-                            query.select(root)
-                                .where(
-                                    builder.equal(
-                                        root.get<String>(SmartDocumentsTemplate::smartDocumentsId.name),
-                                        templateId
-                                    )
-                                )
-                        ).singleResult.name
-                    } catch (noResultException: NoResultException) {
-                        "$EXCEPTION_PREFIX id $templateId".let { message ->
-                            LOG.log(Level.FINE, message, noResultException)
-                            throw SmartDocumentsException(message)
+            builder.createTupleQuery().let { criteriaQuery ->
+                criteriaQuery.from(SmartDocumentsTemplate::class.java).let { root ->
+                    root.get<String>(SmartDocumentsTemplate::name.name).let { namePath ->
+                        criteriaQuery.multiselect(namePath).where(
+                            builder.equal(
+                                root.get<String>(SmartDocumentsTemplate::smartDocumentsId.name),
+                                templateId
+                            )
+                        ).let { multiselectQuery ->
+                            return entityManager.createQuery(multiselectQuery)
+                                .setMaxResults(1)
+                                .resultList[0]
+                                .get(namePath)
                         }
                     }
                 }
