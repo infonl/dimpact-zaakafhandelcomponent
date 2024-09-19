@@ -9,6 +9,7 @@ import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.DefaultValue
 import jakarta.ws.rs.FormParam
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
@@ -19,7 +20,6 @@ import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
-import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
 import net.atos.zac.policy.PolicyService
@@ -36,9 +36,15 @@ import java.util.UUID
 class DocumentCreationRestService @Inject constructor(
     private val policyService: PolicyService,
     private val documentCreationService: DocumentCreationService,
-    private val zrcClientService: ZrcClientService,
-    private val configuratieService: ConfiguratieService
+    private val zrcClientService: ZrcClientService
 ) {
+    companion object {
+        private const val MESSAGE_DOCUMENT_CREATED_NL = "✅ Document %s gemaakt"
+        private const val MESSAGE_DOCUMENT_CREATED_EN = "✅ Document %s created"
+        private const val MESSAGE_DOCUMENT_CANCELLED_NL = "❌ Document creatie geannuleerd"
+        private const val MESSAGE_DOCUMENT_CANCELLED_EN = "❌ Document creation cancelled"
+    }
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/create-document-attended")
@@ -73,28 +79,29 @@ class DocumentCreationRestService @Inject constructor(
         @QueryParam("templateGroupId") templateGroupId: String,
         @QueryParam("templateId") templateId: String,
         @QueryParam("userName") userName: String,
-        @FormParam("sdDocument") fileId: String,
+        @FormParam("sdDocument") @DefaultValue("") fileId: String,
     ): String =
         zrcClientService.readZaak(zaakUuid).let { zaak ->
-            documentCreationService.storeDocument(
-                fileId,
-                templateGroupId,
-                templateId,
-                userName,
-                zaak
-            ).let { zaakInformatieobject ->
-                val fileName = zaakInformatieobject.titel
-                val zaakUri = configuratieService.zaakTonenUrl(zaak.identificatie)
-                """<!DOCTYPE html><html>
-                   <head><title>Document $fileName</title></head>
-                   <body>
-                       <p>Document $fileName gemaakt voor zaak <a href="$zaakUri">${zaak.identificatie}</a> !</p>
-                       <p>Sluit dit tabblad!</p>
-                       <hr/>
-                       <p>Document $fileName created for zaak <a href="$zaakUri">${zaak.identificatie}</a> !</p>
-                       <p>Please, close this tab!</p>
-                   <body></html>
-                """.trimIndent()
+            if (fileId.isBlank()) {
+                buildHtmlResponse(
+                    MESSAGE_DOCUMENT_CANCELLED_NL,
+                    MESSAGE_DOCUMENT_CANCELLED_EN,
+                    zaak.identificatie
+                )
+            } else {
+                documentCreationService.storeDocument(
+                    fileId,
+                    templateGroupId,
+                    templateId,
+                    userName,
+                    zaak
+                ).titel.let {
+                    buildHtmlResponse(
+                        MESSAGE_DOCUMENT_CREATED_NL.format(it),
+                        MESSAGE_DOCUMENT_CREATED_EN.format(it),
+                        zaak.identificatie
+                    )
+                }
             }
         }
 
@@ -115,30 +122,49 @@ class DocumentCreationRestService @Inject constructor(
         @QueryParam("templateGroupId") templateGroupId: String,
         @QueryParam("templateId") templateId: String,
         @QueryParam("userName") userName: String,
-        @FormParam("sdDocument") fileId: String,
+        @FormParam("sdDocument") @DefaultValue("") fileId: String,
     ): String =
         zrcClientService.readZaak(zaakUuid).let { zaak ->
-            documentCreationService.storeDocument(
-                fileId,
-                templateGroupId,
-                templateId,
-                userName,
-                zaak,
-                taskId
-            ).let { zaakInformatieobject ->
-                val fileName = zaakInformatieobject.titel
-                val zaakUri = configuratieService.zaakTonenUrl(zaak.identificatie)
-                val taskUri = configuratieService.taakTonenUrl(taskId)
-                """<!DOCTYPE html><html>
-                   <head><title>Document $fileName</title></head>
-                   <body>
-                       <p>Document $fileName gemaakt voor zaak <a href="$zaakUri">${zaak.identificatie}</a>, taak <a href="$taskUri">$taskId</a> !</p>
-                       <p>Sluit dit tabblad!</p>
-                       <hr/>
-                       <p>Document $fileName created for zaak <a href="$zaakUri">${zaak.identificatie}</a>, taak <a href="$taskUri">$taskId</a> !</p>
-                       <p>Please, close this tab!</p>
-                   <body></html>
-                """.trimIndent()
+            if (fileId.isBlank()) {
+                buildHtmlResponse(
+                    MESSAGE_DOCUMENT_CANCELLED_NL,
+                    MESSAGE_DOCUMENT_CANCELLED_EN,
+                    zaak.identificatie,
+                    taskId
+                )
+            } else {
+                documentCreationService.storeDocument(
+                    fileId,
+                    templateGroupId,
+                    templateId,
+                    userName,
+                    zaak,
+                    taskId
+                ).titel.let {
+                    buildHtmlResponse(
+                        MESSAGE_DOCUMENT_CREATED_NL.format(it),
+                        MESSAGE_DOCUMENT_CREATED_EN.format(it),
+                        zaak.identificatie,
+                        taskId
+                    )
+                }
             }
         }
+
+    private fun buildHtmlResponse(
+        messageNl: String,
+        messageEn: String,
+        zaakId: String,
+        taskId: String? = null
+    ) =
+        """<!DOCTYPE html><html>
+           <head><title>$messageNl</title></head>
+           <body>
+               <p>$messageNl voor zaak $zaakId${if (taskId != null) ", taak $taskId" else ""} !</p>
+               <p>Sluit dit tabblad!</p>
+               <hr/>
+               <p>$messageEn for zaak $zaakId${if (taskId != null) ", task $taskId" else ""} !</p>
+               <p>Please, close this tab!</p>
+           <body></html>
+        """.trimIndent()
 }
