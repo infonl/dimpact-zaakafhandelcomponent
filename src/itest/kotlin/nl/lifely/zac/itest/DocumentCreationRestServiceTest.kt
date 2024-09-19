@@ -92,8 +92,10 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK
                 with(responseBody) {
-                    shouldContain("Document $SMART_DOCUMENTS_FILE_NAME.$SMART_DOCUMENTS_FILE_EXTENSION")
-                    shouldContain("http://localhost:8080/zaken/$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION")
+                    shouldContain("✅ Document $SMART_DOCUMENTS_FILE_NAME.$SMART_DOCUMENTS_FILE_EXTENSION")
+                    shouldContain("gemaakt voor zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION")
+                    shouldContain("✅ Document $SMART_DOCUMENTS_FILE_NAME.$SMART_DOCUMENTS_FILE_EXTENSION")
+                    shouldContain("created for zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION")
                 }
             }
         }
@@ -125,9 +127,73 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK
                 with(responseBody) {
-                    shouldContain("Document $SMART_DOCUMENTS_FILE_NAME.$SMART_DOCUMENTS_FILE_EXTENSION")
-                    shouldContain("http://localhost:8080/zaken/$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION")
-                    shouldContain("http://localhost:8080/taken/$task1ID")
+                    shouldContain("✅ Document $SMART_DOCUMENTS_FILE_NAME.$SMART_DOCUMENTS_FILE_EXTENSION")
+                    shouldContain("gemaakt voor zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION")
+                    shouldContain("✅ Document $SMART_DOCUMENTS_FILE_NAME.$SMART_DOCUMENTS_FILE_EXTENSION")
+                    shouldContain("created for zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION")
+                }
+            }
+        }
+    }
+
+    Given("ZAC and a file creation cancelled in SmartDocuments") {
+        When("SmartDocuments zaak callback is called") {
+            val endpointUrl = "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakProductaanvraag1Uuid" +
+                "?templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID" +
+                "&userName=" + URLEncoder.encode(TEST_USER_1_NAME, Charsets.UTF_8)
+            logger.info { "Calling $endpointUrl endpoint" }
+            val response = itestHttpClient.performPostRequest(
+                url = endpointUrl,
+                headers = Headers.headersOf(
+                    "Accept",
+                    "text/html",
+                    "Content-Type",
+                    "multipart/form-data"
+                ),
+                requestBody = FormBody.Builder().build(),
+                addAuthorizationHeader = false
+            )
+
+            Then("The response should contain propper cancellation message") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_OK
+                with(responseBody) {
+                    shouldContain("❌ Document creatie geannuleerd voor zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION")
+                    shouldContain("❌ Document creation cancelled for zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION")
+                }
+            }
+        }
+    }
+
+    Given("ZAC and a file creation cancelled in SmartDocuments") {
+        When("SmartDocuments taak callback is called") {
+            val endpointUrl = "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakProductaanvraag1Uuid" +
+                "/task/$task1ID?templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
+                "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID&userName=" +
+                URLEncoder.encode(TEST_USER_1_NAME, Charsets.UTF_8)
+            logger.info { "Calling $endpointUrl endpoint" }
+            val response = itestHttpClient.performPostRequest(
+                url = endpointUrl,
+                headers = Headers.headersOf(
+                    "Accept",
+                    "text/html",
+                    "Content-Type",
+                    "multipart/form-data"
+                ),
+                requestBody = FormBody.Builder().build(),
+                addAuthorizationHeader = false
+            )
+
+            Then("The response should contain propper cancellation message") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_OK
+                with(responseBody) {
+                    shouldContain("❌ Document creatie geannuleerd voor zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION")
+                    shouldContain("❌ Document creation cancelled for zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION")
+                    shouldContain(", taak $task1ID")
+                    shouldContain(", task $task1ID")
                 }
             }
         }
