@@ -24,6 +24,8 @@ import net.atos.zac.smartdocuments.SmartDocumentsService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
+import java.util.logging.Level
+import java.util.logging.Logger
 
 @NoArgConstructor
 @ApplicationScoped
@@ -40,6 +42,8 @@ class DocumentCreationService @Inject constructor(
     companion object {
         const val OUTPUT_FORMAT_DOCX = "DOCX"
         const val REDIRECT_METHOD = "POST"
+
+        private val LOG = Logger.getLogger(DocumentCreationService::class.java.name)
     }
 
     fun createDocumentAttended(
@@ -49,14 +53,16 @@ class DocumentCreationService @Inject constructor(
             loggedInUser = loggedInUserInstance.get(),
             zaak = documentCreationDataAttended.zaak,
             taskId = documentCreationDataAttended.taskId
-        ).let { data ->
-            createSmartDocumentForAttendedFlow(documentCreationDataAttended).let { smartDocument ->
+        ).runCatching {
+            createSmartDocumentForAttendedFlow(documentCreationDataAttended).let {
                 smartDocumentsService.createDocumentAttended(
-                    data = data,
-                    smartDocument = smartDocument
+                    data = this,
+                    smartDocument = it
                 )
             }
-        }
+        }.onFailure {
+            LOG.log(Level.WARNING, "Failed to create document with attended flow", it)
+        }.getOrThrow()
 
     /**
      * Creates a SmartDocument object for the attended flow.
@@ -69,7 +75,7 @@ class DocumentCreationService @Inject constructor(
                 templateGroup = smartDocumentsTemplatesService.getTemplateGroupName(
                     creationDataUnattended.templateGroupId
                 ),
-                template = smartDocumentsTemplatesService.getTemplateName(creationDataUnattended.templateId),
+                template = smartDocumentsTemplatesService.getTemplateName(creationDataUnattended.templateId)
             ),
             variables = Variables(
                 outputFormats = listOf(OutputFormat(OUTPUT_FORMAT_DOCX)),

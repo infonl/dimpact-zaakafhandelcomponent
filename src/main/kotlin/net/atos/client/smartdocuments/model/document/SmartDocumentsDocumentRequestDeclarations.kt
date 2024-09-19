@@ -57,7 +57,10 @@ data class Selection(
     val templateGroup: String? = null,
 
     @field:JsonbProperty("Template")
-    val template: String? = null
+    val template: String? = null,
+
+    @field:JsonbProperty("FixedValues")
+    val fixedValues: String = ""
 )
 
 data class SmartDocument(
