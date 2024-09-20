@@ -58,7 +58,7 @@ export class ZaakafhandelParametersService {
     return this.http
       .get<
         ZaakbeeindigReden[]
-      >(`${this.basepath}/zaakbeeindigRedenen/${zaaktypeUuid}`)
+      >(`${this.basepath}/zaakbeeindigredenen/${zaaktypeUuid}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
