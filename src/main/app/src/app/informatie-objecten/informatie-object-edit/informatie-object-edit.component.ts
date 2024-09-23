@@ -102,11 +102,13 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
       .id("titel")
       .label("titel")
       .validators(Validators.required)
+      .maxlength(100)
       .build();
 
     const beschrijving = new InputFormFieldBuilder(this.infoObject.beschrijving)
       .id("beschrijving")
       .label("beschrijving")
+      .maxlength(100)
       .build();
 
     const taal = new SelectFormFieldBuilder(this.infoObject.taal)
@@ -196,6 +198,7 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
     this.subscriptions$.push(
       inhoudField.formControl.valueChanges.subscribe((file: File) => {
         titel.formControl.setValue(file?.name?.replace(/\.[^/.]+$/, "") || "");
+        titel.formControl.markAsDirty();
       }),
     );
 
