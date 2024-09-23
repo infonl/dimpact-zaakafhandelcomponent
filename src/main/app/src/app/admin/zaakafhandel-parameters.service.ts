@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -58,7 +58,7 @@ export class ZaakafhandelParametersService {
     return this.http
       .get<
         ZaakbeeindigReden[]
-      >(`${this.basepath}/zaakbeeindigRedenen/${zaaktypeUuid}`)
+      >(`${this.basepath}/zaakbeeindigredenen/${zaaktypeUuid}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

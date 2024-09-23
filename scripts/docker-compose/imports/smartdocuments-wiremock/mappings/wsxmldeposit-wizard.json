@@ -20,7 +20,14 @@
       "equalToJson": {
         "SmartDocument": {
           "Selection": {
-            "TemplateGroup": "Melding evenement organiseren behandelen"
+            "TemplateGroup": "root",
+            "Template": "root template 1",
+            "FixedValues": ""
+          },
+          "Variables": {
+            "OutputFormats": [ { "OutputFormat": "DOCX" } ],
+            "RedirectMethod": "POST",
+            "RedirectUrl": "${json-unit.any-string}"
           }
         },
         "data": {
@@ -34,8 +41,8 @@
           "startformulier": {
             "data": {
               "omschrijving": "Ik heb een vraag over mijn paspoort",
-              "naam": "Jan Jansen",
-              "telefoonnummer": "0612345678"
+              "telefoonnummer": "0612345678",
+              "naam": "Jan Jansen"
             },
             "productAanvraagtype": "productaanvraag-type-1"
           },
@@ -52,14 +59,6 @@
             "vertrouwelijkheidaanduiding": "openbaar",
             "zaaktype": "Melding evenement organiseren behandelen"
           }
-        },
-        "registratie": {
-          "auditToelichting": "Door SmartDocuments",
-          "bronorganisatie": "123443210",
-          "creatiedatum": "${json-unit.any-string}",
-          "informatieobjectStatus": "ter_vaststelling",
-          "informatieobjecttype": "http://openzaak.local:8000/catalogi/api/v1/informatieobjecttypen/b1933137-94d6-49bc-9e12-afe712512276",
-          "zaak": "${json-unit.any-string}"
         }
       },
       "ignoreArrayOrder": true

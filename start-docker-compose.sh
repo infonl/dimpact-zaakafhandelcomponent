@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -11,10 +11,11 @@ help()
 {
    echo "Starts the ZAC Docker Compose environment using the 1Password CLI tools to retrieve secrets."
    echo
-   echo "Syntax: $0 [-d|t|z|b|l|h]"
+   echo "Syntax: $0 [-d|m|t|z|b|l|h]"
    echo "options:"
    echo "-d     Delete local Docker volume data before starting Docker Compose."
-   echo "-t     Also enable tracing and start the containers used for handling metrics and traces"
+   echo "-m     Also enable tracing and start the containers used for handling metrics and traces"
+   echo "-t     Also enable containers used for integration testing"
    echo "-z     Also start last-known-good ZAC Docker container as part of the Docker Compose environment."
    echo "-b     Build and start local ZAC Docker image in the Docker Compose environment."
    echo "-l     Start local ZAC Docker image in the Docker Compose environment."
@@ -29,14 +30,15 @@ echoerr() {
 }
 
 volumeDataFolder="./scripts/docker-compose/volume-data"
-startZac=false
 pullZac=false
 buildZac=false
 localZac=false
-enableTracing=false
 enableZacOpenTelemetrySampler=off
+profiles=()
 
-while getopts ':dtzblh' OPTION; do
+[ -f fix-permissions.sh ] && ./fix-permissions.sh
+
+while getopts ':dmtzblh' OPTION; do
   case $OPTION in
     d)
       echo "Deleting local Docker volume data folder: '$volumeDataFolder'.."
@@ -47,20 +49,24 @@ while getopts ':dtzblh' OPTION; do
       help
       exit;;
     t)
+      echo "Also enabling containers used for integration testing"
+      profiles+=("itest")
+      ;;
+    m)
       echo "Also enabling tracing and starting containers used for handling metrics and traces"
-      enableTracing=true
+      profiles+=("metrics")
       enableZacOpenTelemetrySampler=on
       ;;
     z)
-      startZac=true
+      profiles+=("zac")
       pullZac=true
       ;;
     b)
-      startZac=true
+      profiles+=("zac")
       buildZac=true
       ;;
     l)
-      startZac=true
+      profiles+=("zac")
       localZac=true
       ;;
     \?)
@@ -106,22 +112,11 @@ mkdir -p $volumeDataFolder/zac-database-data
 mkdir -p $volumeDataFolder/zac-keycloak-database-data
 mkdir -p $volumeDataFolder/zgw-referentielijsten-database-data
 
+# Build comma separated profile list
+printf -v concatenated_profiles '%s,' "${profiles[@]}"
+profilesList="${concatenated_profiles%,}"
+
 # Uses the 1Password CLI tools to set up the environment variables for running Docker Compose and ZAC in IntelliJ.
 # Please see docs/INSTALL.md for details on how to use this script.
-if [ "$startZac" = true ] ; then
-  if [ "$enableTracing" = true ] ; then
-    profiles=zac,metrics
-  else
-    profiles=zac
-  fi
-  echo "Starting Docker Compose environment with ${ZAC_DOCKER_IMAGE:-ZAC} ..."
-  export APP_ENV=devlocal && export COMPOSE_PROFILES=$profiles && export SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=$enableZacOpenTelemetrySampler && op run --env-file="./.env.tpl" --no-masking -- docker compose --project-name zac up -d
-else
-    if [ "$enableTracing" = true ] ; then
-      profiles=metrics
-    else
-      profiles=
-    fi
-  echo "Starting Docker Compose environment without ZAC ..."
-  export APP_ENV=devlocal && export COMPOSE_PROFILES=$profiles && export SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=$enableZacOpenTelemetrySampler && op run --env-file="./.env.tpl" --no-masking -- docker compose --project-name zac up -d
-fi
+echo "Starting Docker Compose environment with profiles $profilesList ..."
+export APP_ENV=devlocal && export COMPOSE_PROFILES=$profilesList && export SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=$enableZacOpenTelemetrySampler && op run --env-file="./.env.tpl" --no-masking -- docker compose --project-name zac up -d

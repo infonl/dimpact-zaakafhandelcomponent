@@ -30,9 +30,3 @@ data class File(
     @field:JsonbProperty("outputFormat")
     var outputFormat: String
 )
-
-@NoArgConstructor
-data class UnattendedResponse(
-    @field:JsonbProperty("file")
-    var files: List<File>? = null
-)

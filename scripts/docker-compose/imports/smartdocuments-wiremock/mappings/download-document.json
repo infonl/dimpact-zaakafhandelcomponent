@@ -1,0 +1,14 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/smartdocuments/result/show?id=dummyFileId&format=DOCX"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/html",
+      "content-disposition": "attachment; filename=\"sample.docx\""
+    },
+    "bodyFileName": "sample.docx"
+  }
+}

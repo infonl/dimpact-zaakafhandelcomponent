@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -21,6 +21,7 @@ export class ConfiguratieService {
   private additionalAllowedFileTypes$: Observable<string[]>;
   private gemeenteCode$: Observable<string>;
   private gemeenteNaam$: Observable<string>;
+  private bpmnSupport$: Observable<boolean>;
 
   constructor(
     private http: HttpClient,
@@ -95,5 +96,17 @@ export class ConfiguratieService {
         );
     }
     return this.gemeenteNaam$;
+  }
+
+  readFeatureFlagBpmnSupport(): Observable<boolean> {
+    if (!this.bpmnSupport$) {
+      this.bpmnSupport$ = this.http
+        .get<boolean>(`${this.basepath}/feature-flags/bpmn-support`)
+        .pipe(
+          catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+          shareReplay(1),
+        );
+    }
+    return this.bpmnSupport$;
   }
 }

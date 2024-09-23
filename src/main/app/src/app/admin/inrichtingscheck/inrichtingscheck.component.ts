@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -14,6 +14,7 @@ import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatSort, Sort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { VersionLayout } from "../../shared/version/version.component";
@@ -63,10 +64,11 @@ export class InrichtingscheckComponent
   ztcCacheTime: string;
 
   constructor(
-    private healtCheckService: HealthCheckService,
     public utilService: UtilService,
+    public configuratieService: ConfiguratieService,
+    private healtCheckService: HealthCheckService,
   ) {
-    super(utilService);
+    super(utilService, configuratieService);
   }
 
   ngOnInit(): void {

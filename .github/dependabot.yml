@@ -35,6 +35,9 @@ updates:
       # ignore major Node.js updates. We want to use LTS version
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
+      # ignore major Bootstrap updates. Version 5 breaks our BPMN functionality
+      - dependency-name: "bootstrap"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "npm"
     directory: "/src/e2e/"

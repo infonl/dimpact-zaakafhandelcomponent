@@ -9,6 +9,3 @@ import java.net.URI
 
 @NoArgConstructor
 data class RestDocumentCreationAttendedResponse(val redirectURL: URI? = null, val message: String? = null)
-
-@NoArgConstructor
-data class RestDocumentCreationUnattendedResponse(val message: String? = null)

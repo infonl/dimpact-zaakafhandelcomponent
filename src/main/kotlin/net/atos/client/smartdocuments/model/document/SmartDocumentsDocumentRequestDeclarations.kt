@@ -6,9 +6,7 @@ package net.atos.client.smartdocuments.model.document
 
 import jakarta.json.bind.annotation.JsonbDateFormat
 import jakarta.json.bind.annotation.JsonbProperty
-import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.zac.documentcreation.converter.DocumentCreationDataConverter.Companion.DATE_FORMAT
-import java.net.URI
 import java.time.LocalDate
 
 data class AanvragerData(
@@ -40,13 +38,6 @@ data class Deposit(
     @field:JsonbProperty("SmartDocument")
     val smartDocument: SmartDocument,
 
-    @Deprecated(
-        "Only required for the SmartDocuments attended flow. " +
-            "Will be removed in future once we no longer support the SmartDocuments attended flow."
-    )
-    @field:JsonbProperty("registratie")
-    val registratie: Registratie? = null,
-
     @field:JsonbProperty("data")
     val data: Data? = null
 )
@@ -61,36 +52,15 @@ data class OutputFormat(
     val outputFormat: String
 )
 
-@Deprecated(
-    "Only required for the SmartDocuments attended flow. " +
-        "Will be removed in future once we no longer support the SmartDocuments attended flow."
-)
-data class Registratie(
-    @field:JsonbProperty("zaak")
-    val zaak: URI,
-
-    @field:JsonbProperty("informatieobjectStatus")
-    val informatieObjectStatus: StatusEnum,
-
-    @field:JsonbProperty("informatieobjecttype")
-    val informatieObjectType: URI,
-
-    @field:JsonbProperty("bronorganisatie")
-    val bronOrganisatie: String,
-
-    @field:JsonbProperty("creatiedatum")
-    val creatieDatum: LocalDate,
-
-    @field:JsonbProperty("auditToelichting")
-    val auditToelichting: String
-)
-
 data class Selection(
     @field:JsonbProperty("TemplateGroup")
     val templateGroup: String? = null,
 
     @field:JsonbProperty("Template")
-    val template: String? = null
+    val template: String? = null,
+
+    @field:JsonbProperty("FixedValues")
+    val fixedValues: String = ""
 )
 
 data class SmartDocument(
@@ -115,7 +85,13 @@ data class TaakData(
 
 data class Variables(
     @field:JsonbProperty("OutputFormats")
-    val outputFormats: List<OutputFormat>
+    val outputFormats: List<OutputFormat>,
+
+    @field:JsonbProperty("RedirectUrl")
+    val redirectUrl: String,
+
+    @field:JsonbProperty("RedirectMethod")
+    val redirectMethod: String
 )
 
 data class ZaakData(

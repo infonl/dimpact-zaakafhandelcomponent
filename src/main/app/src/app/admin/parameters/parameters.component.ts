@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -7,6 +7,7 @@ import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { ClientMatcher } from "../../shared/dynamic-table/filter/clientMatcher";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
@@ -41,10 +42,11 @@ export class ParametersComponent
   caseDefinitions: CaseDefinition[];
 
   constructor(
-    private zaakafhandelParametersService: ZaakafhandelParametersService,
     public utilService: UtilService,
+    public configuratieService: ConfiguratieService,
+    private zaakafhandelParametersService: ZaakafhandelParametersService,
   ) {
-    super(utilService);
+    super(utilService, configuratieService);
   }
 
   ngOnInit(): void {

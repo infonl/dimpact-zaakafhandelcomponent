@@ -12,7 +12,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_EXTENSION
-import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME
+import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_2_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_3_BSN
@@ -52,14 +52,14 @@ class ZaakHistorieTest : BehaviorSpec({
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "zaakinformatieobject",
                     "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME.$SMART_DOCUMENTS_FILE_EXTENSION",
+                    "nieuweWaarde": "$SMART_DOCUMENTS_FILE_NAME.$SMART_DOCUMENTS_FILE_EXTENSION",
                     "toelichting": ""
                   },
                   {
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "zaakinformatieobject",
                     "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "$SMART_DOCUMENTS_ROOT_TEMPLATE_1_NAME.$SMART_DOCUMENTS_FILE_EXTENSION",
+                    "nieuweWaarde": "$SMART_DOCUMENTS_FILE_NAME.$SMART_DOCUMENTS_FILE_EXTENSION",
                     "toelichting": ""
                   },
                   {

@@ -18,7 +18,7 @@ import java.util.UUID
 object ItestConfiguration {
     private const val ZAC_CONTAINER_PORT = 8080
     private const val ZAC_MANAGEMENT_PORT = 9990
-    private const val GREENMAIL_API_PORT = 8888
+    private const val GREENMAIL_API_PORT = 18083
 
     const val HTTP_STATUS_OK = 200
     const val HTTP_STATUS_NO_CONTENT = 204
@@ -27,7 +27,7 @@ object ItestConfiguration {
 
     /**
      * Temporarily increase the HTTP read timeout to 60 seconds to allow for
-     * the slow 'documentcreation/createdocumentunattended' endpoint to complete on slower computers.
+     * the slow 'document-creation/create-document-attended' endpoint to complete on slower computers.
      * In the long run we should change this endpoint to be asynchronous.
      */
     const val HTTP_READ_TIMEOUT_SECONDS = 60L
@@ -192,6 +192,8 @@ object ItestConfiguration {
     const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_ID = "273C2707E5A844699B653C87ACFD618E"
     const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_NAME = "group 2 template 2"
 
+    const val SMART_DOCUMENTS_FILE_ID = "dummyFileId"
+    const val SMART_DOCUMENTS_FILE_NAME = "sample"
     const val SMART_DOCUMENTS_FILE_EXTENSION = "docx"
 
     const val SMTP_SERVER_PORT = 25

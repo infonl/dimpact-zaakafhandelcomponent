@@ -16,9 +16,7 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
-import net.atos.zac.app.documentcreation.converter.RestDocumentCreationConverter
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
-import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
 import net.atos.zac.documentcreation.model.createDocumentCreationAttendedResponse
@@ -31,15 +29,10 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
-    val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
-    val restDocumentCreationConverter = mockk<RestDocumentCreationConverter>()
     val documentCreationRestService = DocumentCreationRestService(
-        ztcClientService = ztcClientService,
-        zrcClientService = zrcClientService,
         policyService = policyService,
         documentCreationService = documentCreationService,
-        enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService,
-        restUnattendedDataConverter = restDocumentCreationConverter
+        zrcClientService = zrcClientService
     )
 
     isolationMode = IsolationMode.InstancePerTest
@@ -47,8 +40,10 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     Given("document creation data is provided and zaaktype can use the 'bijlage' informatieobjecttype") {
         val zaak = createZaak()
         val restDocumentCreationAttendedData = RestDocumentCreationAttendedData(
-            zaakUUID = zaak.uuid,
-            taskId = "dummyTaskId"
+            zaakUuid = zaak.uuid,
+            taskId = "dummyTaskId",
+            smartDocumentsTemplateGroupId = "groupId",
+            smartDocumentsTemplateId = "templateId"
         )
         val documentCreationResponse = createDocumentCreationAttendedResponse()
         val documentCreationDataAttended = slot<DocumentCreationDataAttended>()
@@ -71,12 +66,13 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             )
 
             Then("the document creation service is called to create the document") {
-                restDocumentCreationResponse.message shouldBe null
+                restDocumentCreationResponse.message shouldBe documentCreationResponse.message
                 restDocumentCreationResponse.redirectURL shouldBe documentCreationResponse.redirectUrl
                 with(documentCreationDataAttended.captured) {
                     this.zaak shouldBe zaak
-                    this.taskId shouldBe restDocumentCreationAttendedData.taskId
-                    this.informatieobjecttype?.omschrijving shouldBe "bijlage"
+                    taskId shouldBe restDocumentCreationAttendedData.taskId
+                    templateId shouldBe restDocumentCreationAttendedData.smartDocumentsTemplateId
+                    templateGroupId shouldBe restDocumentCreationAttendedData.smartDocumentsTemplateGroupId
                 }
             }
         }
