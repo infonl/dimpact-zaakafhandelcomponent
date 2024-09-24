@@ -319,7 +319,7 @@ jobs:
       # Determine the next semantic version based on the commit message tags
       - name: Get next tag
         id: get-tag
-        uses: anothrNick/github-tag-action@1.70.0
+        uses: anothrNick/github-tag-action@1.71.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PRERELEASE: false
