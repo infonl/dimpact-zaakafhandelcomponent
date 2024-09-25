@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SmartDocuments result</title>
+    <title>SmartDocuments wizard resultaat pagina</title>
     <link
       rel="stylesheet"
       href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css"
@@ -76,26 +76,58 @@
 
       // Set the document title and layout title based on the 'zaak' query parameter
       document.addEventListener("DOMContentLoaded", function () {
-        const typeValue = getQueryParam("zaak") ? "zaak" : "taak";
-        console.log(typeValue);
         const nameValue = getQueryParam("zaak") || getQueryParam("taak");
+        const typeValue = getQueryParam("zaak") ? "zaak" : "taak";
         const docValue = getQueryParam("doc");
         const resultValue = getQueryParam("result");
-        if (nameValue) {
+        const resuktValidValues = ["success", "failed", "canceled"].find(
+          (value) => value === resultValue,
+        );
+
+        console.log("resuktValidValues", resuktValidValues);
+
+        const resultText = {
+          success: {
+            en: `Document "${docValue}" has been successfully added to ${typeValue} "${nameValue}".`,
+            nl: `Document "${docValue}" is succesvol toegevoegd aan ${typeValue} "${nameValue}".`,
+          },
+          failed: {
+            en: `Failed to add document "${docValue}" to ${typeValue} "${nameValue}".`,
+            nl: `Toevoegen van document "${docValue}" aan ${typeValue} "${nameValue}" is mislukt.`,
+          },
+          canceled: {
+            en: `Adding document "${docValue}" to ${typeValue} "${nameValue}" has been canceled.`,
+            nl: `Toevoegen van document "${docValue}" aan ${typeValue} "${nameValue}" is afgebroken.`,
+          },
+          onbekend: {
+            en: `Unknown error occurred.`,
+            nl: `Onbekende fout opgetreden.`,
+          },
+        };
+
+        const language = "nl"; // or 'en', depending on your requirement
+
+        console.log(
+          resultValue,
+          resultText,
+          resuktValidValues ? resultText[resultValue][language] : "fkldsjfkj",
+        );
+
+        document.getElementById("box").textContent =
+          resultText.onbekend[language];
+        document.getElementById("layout-title").textContent = document.title;
+
+        if (resuktValidValues) {
+          console.log("hjkfdkjfhdshfkj", resultValue, resultText[resultValue]);
+
           document.title =
             typeValue.charAt(0).toUpperCase() +
             typeValue.slice(1) +
             " | " +
             nameValue;
           document.getElementById("layout-title").textContent = document.title;
-          document.getElementById("item-type").textContent = typeValue;
-          document.getElementById("item-name").textContent = nameValue;
-        }
-        if (docValue) {
-          document.getElementById("item-doc").textContent = docValue;
-        }
-        if (resultValue) {
-          document.getElementById("item-result").textContent = resultValue;
+          document.getElementById("box").textContent =
+            resultText[resultValue][language];
         }
       });
     </script>
@@ -108,7 +140,6 @@
             id="layout-title"
             class="mdl-layout-title mdl-layout-title__zac"
           >
-            SmartDocuments result
           </span>
         </div>
       </header>
@@ -116,11 +147,7 @@
       <main class="mdl-layout__content">
         <div class="page-content">
           <div class="wrapper">
-            <div class="box">
-              Toevoegen document "<span id="item-doc">soort</span>" aan
-              <span id="item-type">soort</span> "<span id="item-name">zaak</span
-              >" is <span id="item-result">onbekend</span>.
-            </div>
+            <div id="box" class="box">Wachten op resultaat...</div>
             <div class="normal-text">
               Sluit dit tabblad om verder te gaan waar je bent gebleven.
             </div>
