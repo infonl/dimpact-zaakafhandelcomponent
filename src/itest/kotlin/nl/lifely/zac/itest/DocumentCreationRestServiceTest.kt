@@ -12,6 +12,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_SEE_OTHER
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_EXTENSION
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_NAME
@@ -90,13 +91,14 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             Then("The response should contain file name and link to zaak") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
-                with(responseBody) {
-                    shouldContain("✅ Document $SMART_DOCUMENTS_FILE_NAME.$SMART_DOCUMENTS_FILE_EXTENSION")
-                    shouldContain("gemaakt voor zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION")
-                    shouldContain("✅ Document $SMART_DOCUMENTS_FILE_NAME.$SMART_DOCUMENTS_FILE_EXTENSION")
-                    shouldContain("created for zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION")
-                }
+                val locationHeader = response.header("Location")!!
+                logger.info { "Location header: $locationHeader" }
+
+                response.code shouldBe HTTP_STATUS_SEE_OTHER
+                locationHeader shouldContain "static/smart-documents-result.html" +
+                    "?zaak=$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION" +
+                    "&doc=$SMART_DOCUMENTS_FILE_NAME.$SMART_DOCUMENTS_FILE_EXTENSION" +
+                    "&result=success"
             }
         }
     }
@@ -125,13 +127,15 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             Then("The response should contain file name and links to zaak and task") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
-                with(responseBody) {
-                    shouldContain("✅ Document $SMART_DOCUMENTS_FILE_NAME.$SMART_DOCUMENTS_FILE_EXTENSION")
-                    shouldContain("gemaakt voor zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION")
-                    shouldContain("✅ Document $SMART_DOCUMENTS_FILE_NAME.$SMART_DOCUMENTS_FILE_EXTENSION")
-                    shouldContain("created for zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION")
-                }
+                val locationHeader = response.header("Location")!!
+                logger.info { "Location header: $locationHeader" }
+
+                response.code shouldBe HTTP_STATUS_SEE_OTHER
+                locationHeader shouldContain "static/smart-documents-result.html" +
+                    "?zaak=$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION" +
+                    "&taak=$task1ID" +
+                    "&doc=$SMART_DOCUMENTS_FILE_NAME.$SMART_DOCUMENTS_FILE_EXTENSION" +
+                    "&result=success"
             }
         }
     }
@@ -157,11 +161,13 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             Then("The response should contain propper cancellation message") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
-                with(responseBody) {
-                    shouldContain("❌ Document creatie geannuleerd voor zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION")
-                    shouldContain("❌ Document creation cancelled for zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION")
-                }
+                val locationHeader = response.header("Location")!!
+                logger.info { "Location header: $locationHeader" }
+
+                response.code shouldBe HTTP_STATUS_SEE_OTHER
+                locationHeader shouldContain "static/smart-documents-result.html" +
+                    "?zaak=$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION" +
+                    "&result=cancelled"
             }
         }
     }
@@ -188,13 +194,14 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             Then("The response should contain propper cancellation message") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
-                with(responseBody) {
-                    shouldContain("❌ Document creatie geannuleerd voor zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION")
-                    shouldContain("❌ Document creation cancelled for zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION")
-                    shouldContain(", taak $task1ID")
-                    shouldContain(", task $task1ID")
-                }
+                val locationHeader = response.header("Location")!!
+                logger.info { "Location header: $locationHeader" }
+
+                response.code shouldBe HTTP_STATUS_SEE_OTHER
+                locationHeader shouldContain "static/smart-documents-result.html" +
+                    "?zaak=$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION" +
+                    "&taak=$task1ID" +
+                    "&result=cancelled"
             }
         }
     }
