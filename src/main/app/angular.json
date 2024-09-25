@@ -34,7 +34,7 @@
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
-            "assets": ["src/assets", "src/custom-page.html", "src/favicon.ico"],
+            "assets": ["src/assets", "src/public", "src/favicon.ico"],
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
               "node_modules/ol/ol.css",
