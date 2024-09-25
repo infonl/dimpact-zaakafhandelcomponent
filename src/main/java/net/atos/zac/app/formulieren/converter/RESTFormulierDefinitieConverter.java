@@ -37,7 +37,7 @@ public class RESTFormulierDefinitieConverter {
         return convert(restFormulierDefinitie, new FormulierDefinitie());
     }
 
-    public FormulierDefinitie convert(
+    private FormulierDefinitie convert(
             final RESTFormulierDefinitie restFormulierDefinitie,
             final FormulierDefinitie formulierDefinitie
     ) {
