@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 - 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -15,6 +15,7 @@ import { MailtemplateComponent } from "./mailtemplate/mailtemplate.component";
 import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component";
 import { ParameterEditComponent } from "./parameter-edit/parameter-edit.component";
 import { ParametersComponent } from "./parameters/parameters.component";
+import { ProcessDefinitionsComponent } from "./process-definitions/process-definitions.component";
 import { ReferentieTabelResolver } from "./referentie-tabel-resolver.service";
 import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
 import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
@@ -38,6 +39,7 @@ const routes: Routes = [
         component: ParameterEditComponent,
         resolve: { parameters: ZaakafhandelParametersResolver },
       },
+      { path: "processdefinitions", component: ProcessDefinitionsComponent },
       { path: "referentietabellen", component: ReferentieTabellenComponent },
       {
         path: "referentietabellen/:id",

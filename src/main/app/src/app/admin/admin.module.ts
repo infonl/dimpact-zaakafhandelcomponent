@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 - 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -19,6 +19,7 @@ import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component"
 import { ParameterEditComponent } from "./parameter-edit/parameter-edit.component";
 import { SmartDocumentsTreeComponent } from "./parameter-edit/smart-documents/smart-documents-tree.component";
 import { ParametersComponent } from "./parameters/parameters.component";
+import { ProcessDefinitionsComponent } from "./process-definitions/process-definitions.component";
 import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
 import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
 
@@ -36,6 +37,7 @@ import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-ta
     MailtemplateComponent,
     TekstvlakEditDialogComponent,
     SmartDocumentsTreeComponent,
+    ProcessDefinitionsComponent,
   ],
   exports: [],
   imports: [SharedModule, ZoekenModule, AdminRoutingModule, NgxEditorModule],

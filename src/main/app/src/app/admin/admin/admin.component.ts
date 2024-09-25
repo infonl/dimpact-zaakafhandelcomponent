@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 - 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -23,7 +23,7 @@ export abstract class AdminComponent extends ViewComponent {
     super();
   }
 
-  setupMenu(title: string, params?: {}): void {
+  setupMenu(title: string, params?: unknown): void {
     this.utilService.setTitle((this.activeMenu = title), params);
     this.menu = [];
     this.menu.push(new HeaderMenuItem("actie.admin"));
@@ -55,6 +55,13 @@ export abstract class AdminComponent extends ViewComponent {
             this.getMenuLink(
               "title.formulierdefinities",
               "/admin/formulierdefinities",
+              "design_services",
+            ),
+          );
+          this.menu.push(
+            this.getMenuLink(
+              "title.procesdefinities",
+              "/admin/processdefinitions",
               "design_services",
             ),
           );

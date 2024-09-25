@@ -1,18 +1,16 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 package net.atos.zac.flowable.bpmn;
 
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
-import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING;
-import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_UUUID;
-import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE;
-import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID;
+import static net.atos.zac.flowable.ZaakVariabelenService.*;
 
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -101,6 +99,28 @@ public class BPMNService {
             LOG.severe("Zaak %s niet gestart omdat BPMN model '%s' niet bestaat"
                     .formatted(zaak.getUuid(), processDefinitionKey));
         }
+    }
+
+    public List<ProcessDefinition> listProcessDefinitions() {
+        return repositoryService.createProcessDefinitionQuery()
+                .latestVersion()
+                .orderByProcessDefinitionName().asc()
+                .list();
+    }
+
+    public void addProcessDefinition(final String filename, final String processDefinitionContent) {
+        repositoryService.createDeployment()
+                .addString(filename, processDefinitionContent)
+                .name(filename)
+                .enableDuplicateFiltering()
+                .deploy();
+    }
+
+    public void deleteProcessDefinition(final String processDefinitionKey) {
+        repositoryService.createDeploymentQuery()
+                .processDefinitionKey(processDefinitionKey)
+                .list()
+                .forEach(deployment -> repositoryService.deleteDeployment(deployment.getId(), true));
     }
 
     private ProcessInstance findProcessInstance(final UUID zaakUUID) {

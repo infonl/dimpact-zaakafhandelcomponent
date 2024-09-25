@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2023 - 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -60,6 +60,7 @@ public class FormulierDefinitieRESTService {
     @GET
     @Path("runtime/{systeemnaam}")
     public RESTFormulierDefinitie find(@PathParam("systeemnaam") final String systeemnaam) {
+        assertPolicy(policyService.readOverigeRechten().beheren());
         return converter.convert(service.readFormulierDefinitie(systeemnaam), true);
     }
 
