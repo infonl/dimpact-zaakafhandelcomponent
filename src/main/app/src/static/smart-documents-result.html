@@ -75,7 +75,6 @@
         const docValue = urlParams.get("doc");
         const resultValue = urlParams.get("result");
         const validResults = ["success", "failed", "canceled"];
-        const language = "nl"; // 'en' for English
 
         const resultText = {
           success: {
@@ -96,11 +95,22 @@
           },
         };
 
+        closingText = {
+          en: `Close this tab to resume where you left off.`,
+          nl: `Sluit dit tabblad om verder te gaan waar je bent gebleven.`,
+        };
+
+        const language = ["en", "nl"].includes(navigator.language.split("-")[0])
+          ? navigator.language.split("-")[0]
+          : "nl";
+
         const resultMessage = validResults.includes(resultValue)
           ? resultText[resultValue][language]
           : resultText.onbekend[language];
 
         document.getElementById("box").textContent = resultMessage;
+        document.getElementById("closing-text").textContent =
+          closingText[language];
         document.title = `${typeValue.charAt(0).toUpperCase() + typeValue.slice(1)} | ${nameValue}`;
         document.getElementById("layout-title").textContent = document.title;
       });
@@ -122,9 +132,7 @@
         <div class="page-content">
           <div class="wrapper">
             <div id="box" class="box">Wachten op resultaat...</div>
-            <div class="normal-text">
-              Sluit dit tabblad om verder te gaan waar je bent gebleven.
-            </div>
+            <div id="closing-text" class="closing-text"></div>
           </div>
         </div>
       </main>
