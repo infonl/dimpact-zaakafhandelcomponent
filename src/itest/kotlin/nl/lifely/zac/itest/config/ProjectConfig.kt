@@ -60,6 +60,8 @@ class ProjectConfig : AbstractProjectConfig() {
         "SMTP_SERVER" to "greenmail",
         "SMTP_PORT" to SMTP_SERVER_PORT.toString(),
         "SIGNALERINGEN_DELETE_OLDER_THAN_DAYS" to "0",
+        // Enable BPMN support
+        "FEATURE_FLAG_BPMN_SUPPORT" to "true",
         // override default entrypoint for ZAC Docker container to add JaCoCo agent
         "ZAC_DOCKER_ENTRYPOINT" to
             "java" +
