@@ -76,13 +76,18 @@
 
       // Set the document title and layout title based on the 'zaak' query parameter
       document.addEventListener("DOMContentLoaded", function () {
-        const typeValue = getQueryParam("type");
-        const nameValue = getQueryParam("name");
+        const typeValue = getQueryParam("zaak") ? "zaak" : "taak";
+        console.log(typeValue);
+        const nameValue = getQueryParam("zaak") || getQueryParam("taak");
         const docValue = getQueryParam("doc");
         const resultValue = getQueryParam("result");
-        if (typeValue && nameValue) {
-          document.title = typeValue.toUpperCase() + " | " + nameValue;
-          document.getElementById("layout-title").textContent = nameValue;
+        if (nameValue) {
+          document.title =
+            typeValue.charAt(0).toUpperCase() +
+            typeValue.slice(1) +
+            " | " +
+            nameValue;
+          document.getElementById("layout-title").textContent = document.title;
           document.getElementById("item-type").textContent = typeValue;
           document.getElementById("item-name").textContent = nameValue;
         }
