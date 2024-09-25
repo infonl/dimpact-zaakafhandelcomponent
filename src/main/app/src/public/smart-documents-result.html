@@ -3,14 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Material Design Lite Page</title>
-    <!-- MDL Styles and Scripts -->
+    <title>SmartDocuments result</title>
     <link
       rel="stylesheet"
       href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css"
     />
     <style>
-      /* Load Roboto font with a relative URL */
       @font-face {
         font-family: Roboto;
         font-style: normal;
@@ -32,34 +30,29 @@
         src: url("/assets/fonts/Roboto/500.woff2") format("woff2");
       }
 
-      /* Apply the Roboto font to the body */
       body {
         font-family: "Roboto", sans-serif;
         font-size: 16px;
         color: #212121;
       }
 
-      /* Centering the header title */
       .mdl-layout__header-row {
         display: flex;
-        justify-content: center; /* Center horizontally */
-        align-items: center; /* Center vertically */
+        justify-content: center;
+        align-items: center;
         padding: 0 16px !important;
       }
 
-      /* Ensure the main area takes full height minus the header */
       .mdl-layout__content {
         display: flex;
         justify-content: center;
         align-items: center;
-        height: calc(
-          100vh - 64px
-        ); /* Full viewport height minus header height */
+        height: calc(100vh - 64px);
       }
 
       .wrapper {
-        width: 444px; /* Fixed width */
-        text-align: center; /* Center the text inside the wrapper */
+        width: 444px;
+        text-align: center;
       }
 
       .box {
@@ -67,47 +60,68 @@
         font-size: 14px;
         color: white;
         padding: 14px 16px;
-        margin-bottom: 16px; /* Space between the box and normal text */
+        margin-bottom: 16px;
       }
 
       .mdl-layout-title__zac {
         font-weight: 500;
       }
     </style>
+    <script>
+      // Function to get query parameter value
+      function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+      }
+
+      // Set the document title and layout title based on the 'zaak' query parameter
+      document.addEventListener("DOMContentLoaded", function () {
+        const typeValue = getQueryParam("type");
+        const nameValue = getQueryParam("name");
+        const docValue = getQueryParam("doc");
+        const resultValue = getQueryParam("result");
+        if (typeValue && nameValue) {
+          document.title = typeValue.toUpperCase() + " | " + nameValue;
+          document.getElementById("layout-title").textContent = nameValue;
+          document.getElementById("item-type").textContent = typeValue;
+          document.getElementById("item-name").textContent = nameValue;
+        }
+        if (docValue) {
+          document.getElementById("item-doc").textContent = docValue;
+        }
+        if (resultValue) {
+          document.getElementById("item-result").textContent = resultValue;
+        }
+      });
+    </script>
   </head>
   <body>
     <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
       <header class="mdl-layout__header">
         <div class="mdl-layout__header-row">
-          <span class="mdl-layout-title mdl-layout-title__zac">
-            Material Styled Custom Page
+          <span
+            id="layout-title"
+            class="mdl-layout-title mdl-layout-title__zac"
+          >
+            SmartDocuments result
           </span>
         </div>
       </header>
 
       <main class="mdl-layout__content">
         <div class="page-content">
-          <!-- Wrapper around centered box and normal text -->
           <div class="wrapper">
-            <!-- Black centered box with white text -->
-            <div class="box">This is a black box with white text.</div>
-
-            <!-- Normal text below -->
+            <div class="box">
+              Toevoegen document "<span id="item-doc">soort</span>" aan
+              <span id="item-type">soort</span> "<span id="item-name">zaak</span
+              >" is <span id="item-result">onbekend</span>.
+            </div>
             <div class="normal-text">
-              This is some normal text below the black box.
+              Sluit dit tabblad om verder te gaan waar je bent gebleven.
             </div>
           </div>
         </div>
       </main>
-
-      <!-- Optional footer -->
-      <!-- 
-      <footer class="mdl-mini-footer">
-        <div class="mdl-mini-footer__left-section">
-          <div class="mdl-logo">Material Design Footer</div>
-        </div>
-      </footer> 
-      -->
     </div>
   </body>
 </html>
