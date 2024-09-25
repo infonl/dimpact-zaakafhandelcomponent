@@ -68,23 +68,14 @@
       }
     </style>
     <script>
-      // Function to get query parameter value
-      function getQueryParam(param) {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(param);
-      }
-
-      // Set the document title and layout title based on the 'zaak' query parameter
       document.addEventListener("DOMContentLoaded", function () {
-        const nameValue = getQueryParam("zaak") || getQueryParam("taak");
-        const typeValue = getQueryParam("zaak") ? "zaak" : "taak";
-        const docValue = getQueryParam("doc");
-        const resultValue = getQueryParam("result");
-        const resuktValidValues = ["success", "failed", "canceled"].find(
-          (value) => value === resultValue,
-        );
-
-        console.log("resuktValidValues", resuktValidValues);
+        const urlParams = new URLSearchParams(window.location.search);
+        const nameValue = urlParams.get("zaak") || urlParams.get("taak");
+        const typeValue = urlParams.get("zaak") ? "zaak" : "taak";
+        const docValue = urlParams.get("doc");
+        const resultValue = urlParams.get("result");
+        const validResults = ["success", "failed", "canceled"];
+        const language = "nl"; // 'en' for English
 
         const resultText = {
           success: {
@@ -105,30 +96,13 @@
           },
         };
 
-        const language = "nl"; // or 'en', depending on your requirement
+        const resultMessage = validResults.includes(resultValue)
+          ? resultText[resultValue][language]
+          : resultText.onbekend[language];
 
-        console.log(
-          resultValue,
-          resultText,
-          resuktValidValues ? resultText[resultValue][language] : "fkldsjfkj",
-        );
-
-        document.getElementById("box").textContent =
-          resultText.onbekend[language];
+        document.getElementById("box").textContent = resultMessage;
+        document.title = `${typeValue.charAt(0).toUpperCase() + typeValue.slice(1)} | ${nameValue}`;
         document.getElementById("layout-title").textContent = document.title;
-
-        if (resuktValidValues) {
-          console.log("hjkfdkjfhdshfkj", resultValue, resultText[resultValue]);
-
-          document.title =
-            typeValue.charAt(0).toUpperCase() +
-            typeValue.slice(1) +
-            " | " +
-            nameValue;
-          document.getElementById("layout-title").textContent = document.title;
-          document.getElementById("box").textContent =
-            resultText[resultValue][language];
-        }
       });
     </script>
   </head>
