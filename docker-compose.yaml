@@ -100,21 +100,21 @@ services:
       - DB_USER=openzaak
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
-      - DEBUG=true
-      - DEMO_CONFIG_ENABLE=false
-      - DISABLE_2FA=true
+      - DEBUG=True
+      - DEMO_CONFIG_ENABLE=False
+      - DISABLE_2FA=True
       - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
       - DJANGO_SUPERUSER_PASSWORD=admin
       - LOG_LEVEL=DEBUG
-      - NOTIF_OPENZAAK_CONFIG_ENABLE=false
-      - NOTIFICATIONS_DISABLED=true
-      - OPENZAAK_NOTIF_CONFIG_ENABLE=false
-      - OPENZAAK_SELECTIELIJST_CONFIG_ENABLE=false
+      - NOTIF_OPENZAAK_CONFIG_ENABLE=False
+      - NOTIFICATIONS_DISABLED=True
+      - OPENZAAK_NOTIF_CONFIG_ENABLE=False
+      - OPENZAAK_SELECTIELIJST_CONFIG_ENABLE=False
       - OPENZAAK_SUPERUSER_USERNAME=admin
       - OPENZAAK_SUPERUSER_EMAIL=noreply@example.com
       - SECRET_KEY=openZaakSecretKey
       - SENDFILE_BACKEND=django_sendfile.backends.simple
-      - SITES_CONFIG_ENABLE=false
+      - SITES_CONFIG_ENABLE=False
     ports:
       - "8001:8000"
     volumes:
