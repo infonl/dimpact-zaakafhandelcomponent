@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -17,7 +17,7 @@ public class RESTFormulierVeldDefinitieConverter {
 
     private static final String VALIDATIES_SEPARATOR = ";";
 
-    public RESTFormulierVeldDefinitie convert(final FormulierVeldDefinitie veldDefinitie) {
+    public static RESTFormulierVeldDefinitie convert(final FormulierVeldDefinitie veldDefinitie) {
         final RESTFormulierVeldDefinitie restVeldDefinitie = new RESTFormulierVeldDefinitie();
         restVeldDefinitie.id = veldDefinitie.getId();
         restVeldDefinitie.systeemnaam = veldDefinitie.getSysteemnaam();
@@ -35,7 +35,7 @@ public class RESTFormulierVeldDefinitieConverter {
         return restVeldDefinitie;
     }
 
-    public FormulierVeldDefinitie convert(final RESTFormulierVeldDefinitie restVeldDefinitie) {
+    public static FormulierVeldDefinitie convert(final RESTFormulierVeldDefinitie restVeldDefinitie) {
         final FormulierVeldDefinitie veldDefinitie = new FormulierVeldDefinitie();
         veldDefinitie.setId(restVeldDefinitie.id);
         veldDefinitie.setSysteemnaam(restVeldDefinitie.systeemnaam);
