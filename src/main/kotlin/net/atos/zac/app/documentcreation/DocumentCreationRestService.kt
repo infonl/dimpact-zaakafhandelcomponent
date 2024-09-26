@@ -29,6 +29,8 @@ import net.atos.zac.policy.PolicyService.assertPolicy
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.util.UUID
+import java.util.logging.Level
+import java.util.logging.Logger
 
 @Singleton
 @Path("document-creation")
@@ -47,6 +49,8 @@ class DocumentCreationRestService @Inject constructor(
             CANCELLED,
             FAILURE
         }
+
+        private val LOG = Logger.getLogger(DocumentCreationRestService::class.java.name)
     }
 
     @POST
@@ -106,6 +110,10 @@ class DocumentCreationRestService @Inject constructor(
                             result = SmartDocumentsWizardResult.SUCCESS
                         )
                     }
+                }.onFailure {
+                    LOG.log(Level.WARNING, it) {
+                        "Failed to create document for zaak ${zaak.identificatie}"
+                    }
                 }.getOrElse {
                     buildWizardFinishPageRedirectResponse(
                         zaakId = zaak.identificatie,
@@ -158,9 +166,14 @@ class DocumentCreationRestService @Inject constructor(
                             result = SmartDocumentsWizardResult.SUCCESS
                         )
                     }
+                }.onFailure {
+                    LOG.log(Level.WARNING, it) {
+                        "Failed to create document for zaak ${zaak.identificatie} and task $taskId"
+                    }
                 }.getOrElse {
                     buildWizardFinishPageRedirectResponse(
                         zaakId = zaak.identificatie,
+                        taskId = taskId,
                         result = SmartDocumentsWizardResult.FAILURE
                     )
                 }

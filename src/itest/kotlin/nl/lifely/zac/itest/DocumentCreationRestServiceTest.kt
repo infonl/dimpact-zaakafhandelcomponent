@@ -85,10 +85,10 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 requestBody = FormBody.Builder()
                     .add("sdDocument", SMART_DOCUMENTS_FILE_ID)
                     .build(),
-                addAuthorizationHeader = false
+                addAuthorizationHeader = true
             )
 
-            Then("The response should contain file name and link to zaak") {
+            Then("The response should contain redirect url to our smart-documents-result page") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 val locationHeader = response.header("Location")!!
@@ -121,10 +121,10 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 requestBody = FormBody.Builder()
                     .add("sdDocument", SMART_DOCUMENTS_FILE_ID)
                     .build(),
-                addAuthorizationHeader = false
+                addAuthorizationHeader = true
             )
 
-            Then("The response should contain file name and links to zaak and task") {
+            Then("The response should contain redirect url, doc name, zaak and taak ids") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 val locationHeader = response.header("Location")!!
@@ -155,10 +155,10 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     "multipart/form-data"
                 ),
                 requestBody = FormBody.Builder().build(),
-                addAuthorizationHeader = false
+                addAuthorizationHeader = true
             )
 
-            Then("The response should contain propper cancellation message") {
+            Then("The response should contain redirect url, zaak id") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 val locationHeader = response.header("Location")!!
@@ -188,10 +188,10 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     "multipart/form-data"
                 ),
                 requestBody = FormBody.Builder().build(),
-                addAuthorizationHeader = false
+                addAuthorizationHeader = true
             )
 
-            Then("The response should contain propper cancellation message") {
+            Then("The response should contain redirect url, zaak and taak ids") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 val locationHeader = response.header("Location")!!
