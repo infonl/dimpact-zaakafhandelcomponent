@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.zrc.model;
 
 import static net.atos.client.zgw.shared.util.DateTimeUtil.DATE_TIME_FORMAT_WITH_MILLISECONDS;
@@ -17,9 +16,6 @@ import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.json.bind.annotation.JsonbProperty;
 import jakarta.json.bind.annotation.JsonbTransient;
 
-/**
- *
- */
 public class ZaakInformatieobject {
 
     public static final int TITEL_MAX_LENGTH = 200;
@@ -69,6 +65,12 @@ public class ZaakInformatieobject {
     private ZonedDateTime registratiedatum;
 
     /**
+     * De datum waarop het informatieobject uit het zaakdossier verwijderd moet worden.
+     */
+    @JsonbDateFormat(DATE_TIME_FORMAT_WITH_MILLISECONDS)
+    private ZonedDateTime vernietigingsdatum;
+
+    /**
      * Constructor for PATCH request
      */
     public ZaakInformatieobject() {
@@ -90,12 +92,14 @@ public class ZaakInformatieobject {
             @JsonbProperty("url") final URI url,
             @JsonbProperty("uuid") final UUID uuid,
             @JsonbProperty("aardRelatieWeergave") final AardRelatieWeergave aardRelatieWeergave,
-            @JsonbProperty("registratiedatum") final ZonedDateTime registratiedatum
+            @JsonbProperty("registratiedatum") final ZonedDateTime registratiedatum,
+            @JsonbProperty("vernietigingsdatum") final ZonedDateTime vernietigingsdatum
     ) {
         this.url = url;
         this.uuid = uuid;
         this.aardRelatieWeergave = aardRelatieWeergave;
         this.registratiedatum = registratiedatum;
+        this.vernietigingsdatum = vernietigingsdatum;
     }
 
     public URI getUrl() {
@@ -146,6 +150,10 @@ public class ZaakInformatieobject {
         return registratiedatum;
     }
 
+    public ZonedDateTime getVernietigingsdatum() {
+        return vernietigingsdatum;
+    }
+
     @JsonbTransient
     public UUID getZaakUUID() {
         return uuidFromURI(zaak);
@@ -162,6 +170,7 @@ public class ZaakInformatieobject {
                ", titel='" + titel + '\'' +
                ", beschrijving='" + beschrijving + '\'' +
                ", registratiedatum=" + registratiedatum +
+               ", vernietigingsdatum=" + vernietigingsdatum +
                '}';
     }
 }
