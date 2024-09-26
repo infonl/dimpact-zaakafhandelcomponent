@@ -74,6 +74,9 @@
       .wizard-result-test.canceled {
         background-color: #fbedd5;
       }
+      .wizard-result-test.unkown {
+        background-color: #ffe5e5;
+      }
     </style>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
@@ -87,9 +90,11 @@
             : "taak"
           : null;
         const docValue = urlParams.get("doc");
+
         const resultValue = VALID_RESULTS.includes(urlParams.get("result"))
           ? urlParams.get("result")
           : "unkownn";
+
         const language = ["en", "nl"].includes(navigator.language.split("-")[0])
           ? navigator.language.split("-")[0]
           : "nl";
@@ -100,17 +105,30 @@
             const data = await response.json();
 
             // get all needed labels from the json file response and replace {{values}} with the actual values
-            return Object.entries(data)
+            const result = Object.entries(data)
               .filter(([key, value]) =>
-                key.includes("msg.smartdocuments.wizard."),
+                key.includes("msg.smartdocuments.wizard.result."),
               )
               .reduce((acc, [key, value]) => {
-                acc[key.replace("msg.smartdocuments.wizard.", "")] = value
-                  .replace("{{typeValue}}", typeValue)
-                  .replace("{{nameValue}}", nameValue)
-                  .replace("{{docValue}}", docValue);
+                acc[key.replace("msg.smartdocuments.wizard.result.", "")] =
+                  value
+                    .replace("{{typeValue}}", typeValue)
+                    .replace("{{nameValue}}", nameValue)
+                    .replace("{{docValue}}", docValue);
                 return acc;
               }, {});
+
+            const subText = Object.entries(data)
+              .filter(([key, value]) =>
+                key.includes("msg.smartdocuments.wizard.subtext."),
+              )
+              .reduce((acc, [key, value]) => {
+                acc[key.replace("msg.smartdocuments.wizard.subtext.", "")] =
+                  value;
+                return acc;
+              }, {});
+
+            return { result, subText };
           } catch (error) {
             console.error("Error fetching the JSON file:", error);
             return null;
@@ -118,19 +136,24 @@
         }
 
         fetchLabels().then((fetchedLabels) => {
-          if (fetchedLabels && fetchedLabels[resultValue]) {
+          console.log("fetchedLabels", fetchedLabels);
+
+          if (fetchedLabels) {
+            console.log("resultValue", resultValue);
             // doc title and layout title
             if (typeValue) {
               document.title = `${typeValue.charAt(0).toUpperCase() + typeValue.slice(1)} | ${nameValue}`;
             }
+
             // wizard result text if valid can be found
             const wizardResultElement =
               document.getElementById("wizard-result-test");
-            wizardResultElement.textContent = fetchedLabels[resultValue];
+            wizardResultElement.textContent = fetchedLabels.result[resultValue];
             wizardResultElement.classList.add(resultValue);
+
             // closing tab subtext
             document.getElementById("sub-text").textContent =
-              fetchedLabels?.subtext;
+              fetchedLabels.subText[resultValue];
           } else {
             document.getElementById("wizard-result-test").textContent =
               language === "nl"
