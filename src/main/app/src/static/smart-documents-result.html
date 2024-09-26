@@ -43,6 +43,10 @@
         padding: 0 16px !important;
       }
 
+      .mdl-layout-title__zac {
+        font-weight: 500;
+      }
+
       .mdl-layout__content {
         display: flex;
         justify-content: center;
@@ -55,26 +59,25 @@
         text-align: center;
       }
 
-      .box {
+      .wizard-result-test {
         background-color: #212121;
         font-size: 14px;
         color: white;
         padding: 14px 16px;
         margin-bottom: 16px;
       }
-
-      .mdl-layout-title__zac {
-        font-weight: 500;
-      }
     </style>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
+        const VALID_RESULTS = ["success", "failed", "canceled", "unknown"];
+
         const urlParams = new URLSearchParams(window.location.search);
         const nameValue = urlParams.get("zaak") || urlParams.get("taak");
         const typeValue = urlParams.get("zaak") ? "zaak" : "taak";
         const docValue = urlParams.get("doc");
-        const resultValue = urlParams.get("result");
-        const validResults = ["success", "failed", "canceled"];
+        const resultValue = VALID_RESULTS.includes(urlParams.get("result"))
+          ? urlParams.get("result")
+          : "unkownn";
 
         const resultText = {
           success: {
@@ -82,16 +85,16 @@
             nl: `Document "${docValue}" is succesvol toegevoegd aan ${typeValue} "${nameValue}".`,
           },
           failed: {
-            en: `Failed to add document "${docValue}" to ${typeValue} "${nameValue}".`,
-            nl: `Toevoegen van document "${docValue}" aan ${typeValue} "${nameValue}" is mislukt.`,
+            en: `Failed to add document to ${typeValue} "${nameValue}".`,
+            nl: `Toevoegen van document aan ${typeValue} "${nameValue}" is mislukt.`,
           },
           canceled: {
-            en: `Adding document "${docValue}" to ${typeValue} "${nameValue}" has been canceled.`,
-            nl: `Toevoegen van document "${docValue}" aan ${typeValue} "${nameValue}" is afgebroken.`,
+            en: `Adding document to ${typeValue} "${nameValue}" has been canceled.`,
+            nl: `Toevoegen van document aan ${typeValue} "${nameValue}" is afgebroken.`,
           },
-          onbekend: {
-            en: `Unknown error occurred.`,
-            nl: `Onbekende fout opgetreden.`,
+          unkownn: {
+            en: `Unknown error occurred when loading this page.`,
+            nl: `Onbekende fout opgetreden bij het laden van deze pagina.`,
           },
         };
 
@@ -104,15 +107,21 @@
           ? navigator.language.split("-")[0]
           : "nl";
 
-        const resultMessage = validResults.includes(resultValue)
-          ? resultText[resultValue][language]
-          : resultText.onbekend[language];
-
-        document.getElementById("box").textContent = resultMessage;
-        document.getElementById("closing-text").textContent =
-          closingText[language];
+        // doc title and layout title
         document.title = `${typeValue.charAt(0).toUpperCase() + typeValue.slice(1)} | ${nameValue}`;
         document.getElementById("layout-title").textContent = document.title;
+
+        // box text if valid can be found
+        if (
+          resultText[resultValue] &&
+          resultText[resultValue][language] !== undefined
+        ) {
+          document.getElementById("wizard-result-test").textContent =
+            resultText[resultValue][language];
+        }
+
+        // closing tab text
+        document.getElementById("sub-text").textContent = closingText[language];
       });
     </script>
   </head>
@@ -131,8 +140,10 @@
       <main class="mdl-layout__content">
         <div class="page-content">
           <div class="wrapper">
-            <div id="box" class="box">Wachten op resultaat...</div>
-            <div id="closing-text" class="closing-text"></div>
+            <div id="wizard-result-test" class="wizard-result-test">
+              Wachten op resultaat...
+            </div>
+            <div id="sub-text"></div>
           </div>
         </div>
       </main>
