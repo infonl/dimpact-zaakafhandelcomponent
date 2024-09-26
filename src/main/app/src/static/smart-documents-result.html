@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SmartDocuments wizard resultaat pagina</title>
+    <title>SmartDocuments wizard resultaatpagina</title>
     <link
       rel="stylesheet"
       href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css"
@@ -60,11 +60,19 @@
       }
 
       .wizard-result-test {
-        background-color: #212121;
+        /* background-color: #212121; */
         font-size: 14px;
-        color: white;
         padding: 14px 16px;
         margin-bottom: 16px;
+      }
+      .wizard-result-test.success {
+        background-color: #dfede3;
+      }
+      .wizard-result-test.failed {
+        background-color: #ffe5e5;
+      }
+      .wizard-result-test.canceled {
+        background-color: #fbedd5;
       }
     </style>
     <script>
@@ -73,55 +81,65 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const nameValue = urlParams.get("zaak") || urlParams.get("taak");
-        const typeValue = urlParams.get("zaak") ? "zaak" : "taak";
+        const typeValue = nameValue
+          ? urlParams.get("zaak")
+            ? "zaak"
+            : "taak"
+          : null;
         const docValue = urlParams.get("doc");
         const resultValue = VALID_RESULTS.includes(urlParams.get("result"))
           ? urlParams.get("result")
           : "unkownn";
-
-        const resultText = {
-          success: {
-            en: `Document "${docValue}" has been successfully added to ${typeValue} "${nameValue}".`,
-            nl: `Document "${docValue}" is succesvol toegevoegd aan ${typeValue} "${nameValue}".`,
-          },
-          failed: {
-            en: `Failed to add document to ${typeValue} "${nameValue}".`,
-            nl: `Toevoegen van document aan ${typeValue} "${nameValue}" is mislukt.`,
-          },
-          canceled: {
-            en: `Adding document to ${typeValue} "${nameValue}" has been canceled.`,
-            nl: `Toevoegen van document aan ${typeValue} "${nameValue}" is afgebroken.`,
-          },
-          unkownn: {
-            en: `Unknown error occurred when loading this page.`,
-            nl: `Onbekende fout opgetreden bij het laden van deze pagina.`,
-          },
-        };
-
-        closingText = {
-          en: `Close this tab to resume where you left off.`,
-          nl: `Sluit dit tabblad om verder te gaan waar je bent gebleven.`,
-        };
-
         const language = ["en", "nl"].includes(navigator.language.split("-")[0])
           ? navigator.language.split("-")[0]
           : "nl";
 
-        // doc title and layout title
-        document.title = `${typeValue.charAt(0).toUpperCase() + typeValue.slice(1)} | ${nameValue}`;
-        document.getElementById("layout-title").textContent = document.title;
+        async function fetchLabels() {
+          try {
+            const response = await fetch(`/assets/i18n/${language}.json`);
+            const data = await response.json();
 
-        // box text if valid can be found
-        if (
-          resultText[resultValue] &&
-          resultText[resultValue][language] !== undefined
-        ) {
-          document.getElementById("wizard-result-test").textContent =
-            resultText[resultValue][language];
+            // get all needed labels from the json file response and replace {{values}} with the actual values
+            return Object.entries(data)
+              .filter(([key, value]) =>
+                key.includes("msg.smartdocuments.wizard."),
+              )
+              .reduce((acc, [key, value]) => {
+                acc[key.replace("msg.smartdocuments.wizard.", "")] = value
+                  .replace("{{typeValue}}", typeValue)
+                  .replace("{{nameValue}}", nameValue)
+                  .replace("{{docValue}}", docValue);
+                return acc;
+              }, {});
+          } catch (error) {
+            console.error("Error fetching the JSON file:", error);
+            return null;
+          }
         }
 
-        // closing tab text
-        document.getElementById("sub-text").textContent = closingText[language];
+        fetchLabels().then((fetchedLabels) => {
+          if (fetchedLabels && fetchedLabels[resultValue]) {
+            // doc title and layout title
+            if (typeValue) {
+              document.title = `${typeValue.charAt(0).toUpperCase() + typeValue.slice(1)} | ${nameValue}`;
+            }
+            // wizard result text if valid can be found
+            const wizardResultElement =
+              document.getElementById("wizard-result-test");
+            wizardResultElement.textContent = fetchedLabels[resultValue];
+            wizardResultElement.classList.add(resultValue);
+            // closing tab subtext
+            document.getElementById("sub-text").textContent =
+              fetchedLabels?.subtext;
+          } else {
+            document.getElementById("wizard-result-test").textContent =
+              language === "nl"
+                ? "Er is iets fout gegaan"
+                : "Something went wrong";
+          }
+
+          document.getElementById("layout-title").textContent = document.title;
+        });
       });
     </script>
   </head>
