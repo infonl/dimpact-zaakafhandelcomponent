@@ -74,13 +74,13 @@
       .wizard-result-test.canceled {
         background-color: #fbedd5;
       }
-      .wizard-result-test.unkown {
+      .wizard-result-test.unknown {
         background-color: #ffe5e5;
       }
     </style>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        const VALID_RESULTS = ["success", "failed", "canceled", "unknown"];
+        const VALID_RESULTS = ["success", "failed", "canceled"];
 
         const urlParams = new URLSearchParams(window.location.search);
         const nameValue = urlParams.get("zaak") || urlParams.get("taak");
@@ -136,10 +136,11 @@
         }
 
         fetchLabels().then((fetchedLabels) => {
-          console.log("fetchedLabels", fetchedLabels);
-
-          if (fetchedLabels) {
-            console.log("resultValue", resultValue);
+          if (
+            fetchedLabels &&
+            fetchedLabels.result[resultValue] &&
+            fetchedLabels.subText[resultValue]
+          ) {
             // doc title and layout title
             if (typeValue) {
               document.title = `${typeValue.charAt(0).toUpperCase() + typeValue.slice(1)} | ${nameValue}`;
