@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -7,17 +7,11 @@ package net.atos.zac.app.formulieren.converter;
 
 import java.util.Comparator;
 
-import jakarta.inject.Inject;
-
 import net.atos.zac.app.formulieren.model.RESTFormulierDefinitie;
 import net.atos.zac.formulieren.model.FormulierDefinitie;
 import net.atos.zac.formulieren.model.FormulierVeldDefinitie;
 
 public class RESTFormulierDefinitieConverter {
-
-    @Inject
-    private RESTFormulierVeldDefinitieConverter veldDefinitieConverter;
-
     public RESTFormulierDefinitie convert(
             final FormulierDefinitie formulierDefinitie,
             boolean inclusiefVelden
@@ -33,7 +27,7 @@ public class RESTFormulierDefinitieConverter {
         if (inclusiefVelden) {
             restFormulierDefinitie.veldDefinities = formulierDefinitie.getVeldDefinities().stream()
                     .sorted(Comparator.comparingInt(FormulierVeldDefinitie::getVolgorde))
-                    .map(vd -> veldDefinitieConverter.convert(vd))
+                    .map(RESTFormulierVeldDefinitieConverter::convert)
                     .toList();
         }
         return restFormulierDefinitie;
@@ -43,14 +37,17 @@ public class RESTFormulierDefinitieConverter {
         return convert(restFormulierDefinitie, new FormulierDefinitie());
     }
 
-    public FormulierDefinitie convert(final RESTFormulierDefinitie restFormulierDefinitie, final FormulierDefinitie formulierDefinitie) {
+    private FormulierDefinitie convert(
+            final RESTFormulierDefinitie restFormulierDefinitie,
+            final FormulierDefinitie formulierDefinitie
+    ) {
         formulierDefinitie.setId(restFormulierDefinitie.id);
         formulierDefinitie.setNaam(restFormulierDefinitie.naam);
         formulierDefinitie.setSysteemnaam(restFormulierDefinitie.systeemnaam);
         formulierDefinitie.setBeschrijving(restFormulierDefinitie.beschrijving);
         formulierDefinitie.setUitleg(restFormulierDefinitie.uitleg);
         formulierDefinitie.setVeldDefinities(restFormulierDefinitie.veldDefinities.stream()
-                .map(veldDefinitieConverter::convert)
+                .map(RESTFormulierVeldDefinitieConverter::convert)
                 .toList());
         return formulierDefinitie;
     }
