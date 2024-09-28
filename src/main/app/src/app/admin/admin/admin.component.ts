@@ -53,6 +53,13 @@ export abstract class AdminComponent extends ViewComponent {
         if (bpmSupport) {
           this.menu.push(
             this.getMenuLink(
+              "title.procesdefinities",
+              "/admin/processdefinitions",
+              "design_services",
+            ),
+          );
+          this.menu.push(
+            this.getMenuLink(
               "title.formulierdefinities",
               "/admin/formulierdefinities",
               "design_services",
@@ -60,8 +67,8 @@ export abstract class AdminComponent extends ViewComponent {
           );
           this.menu.push(
             this.getMenuLink(
-              "title.procesdefinities",
-              "/admin/processdefinitions",
+              "title.formioformulieren",
+              "/admin/formioformulieren",
               "design_services",
             ),
           );

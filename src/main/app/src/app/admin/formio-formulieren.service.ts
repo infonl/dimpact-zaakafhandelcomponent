@@ -8,43 +8,41 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { ProcessDefinition } from "./model/process-definition";
-import { ProcessDefinitionContent } from "./model/process-definition-content";
+import { FormioFormulier } from "./model/formio-formulier";
+import { FormioFormulierContent } from "./model/formio-formulier-content";
 
 @Injectable({
   providedIn: "root",
 })
-export class ProcessDefinitionService {
-  private basepath = "/rest/processdefinitions";
+export class FormioFormulierenService {
+  private basepath = "/rest/formioformulieren";
 
   constructor(
     private http: HttpClient,
     private foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
-  listProcessDefinitions(): Observable<ProcessDefinition[]> {
+  listFormioFormulieren(): Observable<FormioFormulier[]> {
     return this.http
-      .get<ProcessDefinition[]>(`${this.basepath}`)
+      .get<FormioFormulier[]>(`${this.basepath}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
-  uploadProcessDefinition(
-    processDefinitionContent: ProcessDefinitionContent,
+  uploadFormioFormulier(
+    formioFormulierContent: FormioFormulierContent,
   ): Observable<void> {
     return this.http
-      .post<void>(`${this.basepath}`, processDefinitionContent)
+      .post<void>(`${this.basepath}`, formioFormulierContent)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
-  deleteProcessDefinition(
-    processDefinition: ProcessDefinition,
-  ): Observable<void> {
+  deleteFormioFormulier(formioFormulier: FormioFormulier): Observable<void> {
     return this.http
-      .delete<void>(`${this.basepath}/${processDefinition.key}`)
+      .delete<void>(`${this.basepath}/${formioFormulier.id}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

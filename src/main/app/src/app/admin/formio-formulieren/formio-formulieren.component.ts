@@ -15,15 +15,15 @@ import {
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { AdminComponent } from "../admin/admin.component";
-import { ProcessDefinition } from "../model/process-definition";
-import { ProcessDefinitionContent } from "../model/process-definition-content";
-import { ProcessDefinitionsService } from "../process-definitions.service";
+import { FormioFormulierenService } from "../formio-formulieren.service";
+import { FormioFormulier } from "../model/formio-formulier";
+import { FormioFormulierContent } from "../model/formio-formulier-content";
 
 @Component({
-  templateUrl: "./process-definitions.component.html",
-  styleUrls: ["./process-definitions.component.less"],
+  templateUrl: "./formio-formulieren.component.html",
+  styleUrls: ["./formio-formulieren.component.less"],
 })
-export class ProcessDefinitionsComponent
+export class FormioFormulierenComponent
   extends AdminComponent
   implements OnInit
 {
@@ -32,23 +32,23 @@ export class ProcessDefinitionsComponent
   @ViewChild("fileInput", { static: false }) fileInput: ElementRef;
 
   isLoadingResults = false;
-  columns: string[] = ["name", "version", "key", "id"];
-  dataSource: MatTableDataSource<ProcessDefinition> =
-    new MatTableDataSource<ProcessDefinition>();
+  columns: string[] = ["name", "title", "id"];
+  dataSource: MatTableDataSource<FormioFormulier> =
+    new MatTableDataSource<FormioFormulier>();
 
   constructor(
     public dialog: MatDialog,
     public utilService: UtilService,
     public configuratieService: ConfiguratieService,
-    private processDefinitionsService: ProcessDefinitionsService,
+    private formioFormulierenService: FormioFormulierenService,
     private foutAfhandelingService: FoutAfhandelingService,
   ) {
     super(utilService, configuratieService);
   }
 
   ngOnInit(): void {
-    this.setupMenu("title.procesdefinities");
-    this.loadProcessDefinitions();
+    this.setupMenu("title.formioformulieren");
+    this.loadFormioFormulieren();
   }
 
   selectFile() {
@@ -60,12 +60,12 @@ export class ProcessDefinitionsComponent
     if (file) {
       this.readFileContent(file)
         .then((content) => {
-          this.processDefinitionsService
-            .uploadProcessDefinition(
-              new ProcessDefinitionContent(file.name, content),
+          this.formioFormulierenService
+            .uploadFormioFormulier(
+              new FormioFormulierContent(file.name, content),
             )
             .subscribe(() => {
-              this.loadProcessDefinitions();
+              this.loadFormioFormulieren();
             });
         })
         .catch((error) => {
@@ -74,38 +74,36 @@ export class ProcessDefinitionsComponent
     }
   }
 
-  delete(processDefinition: ProcessDefinition): void {
+  delete(formioFormulier: FormioFormulier): void {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
           {
-            key: "msg.procesdefinitie.verwijderen.bevestigen",
-            args: { naam: processDefinition.name },
+            key: "msg.formioformulier.verwijderen.bevestigen",
+            args: { naam: formioFormulier.name },
           },
-          this.processDefinitionsService.deleteProcessDefinition(
-            processDefinition,
-          ),
+          this.formioFormulierenService.deleteFormioFormulier(formioFormulier),
         ),
       })
       .afterClosed()
       .subscribe((result) => {
         if (result) {
           this.utilService.openSnackbar(
-            "msg.procesdefinitie.verwijderen.uitgevoerd",
-            { naam: processDefinition.name },
+            "msg.formioformulier.verwijderen.uitgevoerd",
+            { naam: formioFormulier.name },
           );
-          this.loadProcessDefinitions();
+          this.loadFormioFormulieren();
         }
       });
   }
 
-  private loadProcessDefinitions(): void {
+  private loadFormioFormulieren(): void {
     this.isLoadingResults = true;
     this.utilService.setLoading(true);
-    this.processDefinitionsService
-      .listProcessDefinitions()
-      .subscribe((processDefinitions) => {
-        this.dataSource.data = processDefinitions;
+    this.formioFormulierenService
+      .listFormioFormulieren()
+      .subscribe((formioFormulier) => {
+        this.dataSource.data = formioFormulier;
         this.isLoadingResults = false;
         this.utilService.setLoading(false);
       });
