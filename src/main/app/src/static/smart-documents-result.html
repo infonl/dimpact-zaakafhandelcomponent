@@ -66,6 +66,7 @@
         color: var(--primary-color);
       }
 
+      /* Material Design Layout Structure */
       .mdl-layout {
         display: flex;
         flex-direction: column;
@@ -172,20 +173,22 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        const VALID_RESULTS = ["success", "failed", "canceled"];
         const urlParams = new URLSearchParams(window.location.search);
 
-        const nameValue = sanitizeInput(
-          urlParams.get("zaak") || urlParams.get("taak"),
-        );
-        const typeValue = nameValue
-          ? urlParams.get("zaak")
-            ? "zaak"
-            : "taak"
-          : null;
+        // Sanitize all query parameters
+        const zaakValue = sanitizeInput(urlParams.get("zaak"));
+        const taakValue = sanitizeInput(urlParams.get("taak"));
         const docValue = sanitizeInput(urlParams.get("doc"));
-        const resultValue = VALID_RESULTS.includes(urlParams.get("result"))
-          ? sanitizeInput(urlParams.get("result"))
+        const resultValue = sanitizeInput(urlParams.get("result"));
+
+        // Determine nameValue and typeValue based on sanitized inputs
+        const nameValue = zaakValue || taakValue;
+        const typeValue = zaakValue ? "zaak" : taakValue ? "taak" : null;
+
+        // Validate and set finalResultValue
+        const VALID_RESULTS = ["success", "failed", "canceled"];
+        const finalResultValue = VALID_RESULTS.includes(resultValue)
+          ? resultValue
           : "unknown";
 
         const language = getBrowserLanguage();
@@ -201,13 +204,13 @@
         fetchLabels(language, typeValue, nameValue, docValue)
           .then((fetchedLabels) => {
             if (
-              fetchedLabels?.result[resultValue] &&
-              fetchedLabels?.subText[resultValue]
+              fetchedLabels?.result[finalResultValue] &&
+              fetchedLabels?.subText[finalResultValue]
             ) {
               updatePageContent(
-                resultValue,
-                fetchedLabels.result[resultValue],
-                fetchedLabels.subText[resultValue],
+                finalResultValue,
+                fetchedLabels.result[finalResultValue],
+                fetchedLabels.subText[finalResultValue],
               );
             } else {
               displayError(language);
@@ -272,8 +275,8 @@
           }, {});
       }
 
-      function updatePageContent(resultValue, resultText, subText) {
-        document.getElementById("wizard-result").classList.add(resultValue);
+      function updatePageContent(resultVal, resultText, subText) {
+        document.getElementById("wizard-result").classList.add(resultVal);
         document.getElementById("wizard-result-test").textContent = resultText;
         document.getElementById("sub-text").textContent = subText;
       }
