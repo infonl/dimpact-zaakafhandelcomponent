@@ -183,9 +183,11 @@
         const docValue = sanitizeInput(urlParams.get("doc"));
         const resultValue = sanitizeInput(urlParams.get("result"));
 
+        const language = getBrowserLanguage();
+
         // Determine nameValue and typeValue based on sanitized inputs
         const nameValue = zaakValue || taakValue;
-        const typeValue = zaakValue ? "zaak" : taakValue ? "taak" : null;
+        const typeValue = getTypeValue(zaakValue, taakValue, language);
 
         // Validate and set finalResultValue
         const VALID_RESULTS = ["success", "failed", "canceled"];
@@ -193,14 +195,22 @@
           ? resultValue
           : "unknown";
 
-        const language = getBrowserLanguage();
-
         // Set the document and layout title
         if (typeValue) {
           const pageTitle = `${capitalize(typeValue)} | ${nameValue}`;
           document.title = pageTitle;
           document.getElementById("layout-title").textContent = pageTitle;
+        } else {
+          return displayError(language);
         }
+
+        // set waiting text before handling language labels
+        document.getElementById("wizard-result-test").textContent =
+          language === "nl"
+            ? "Wachten op resultaat..."
+            : "Waiting for result...";
+
+        return;
 
         // Fetch the labels and update content based on language
         fetchLabels(language, typeValue, nameValue, docValue)
@@ -283,6 +293,17 @@
         document.getElementById("sub-text").textContent = subText;
       }
 
+      function getTypeValue(zaakValue, taakValue, language) {
+        const typeMap = {
+          en: { zaak: "case", taak: "task" },
+          nl: { zaak: "zaak", taak: "taak" },
+        };
+
+        if (zaakValue) return typeMap[language].zaak;
+        if (taakValue) return typeMap[language].taak;
+        return null;
+      }
+
       function displayError(language) {
         const errorMessage =
           language === "nl" ? "Er is iets fout gegaan" : "Something went wrong";
@@ -340,9 +361,7 @@
                   d="M0 19H22L11 0L0 19ZM12 16H10V14H12V16ZM12 12H10V8H12V12Z"
                 />
               </svg>
-              <div id="wizard-result-test" aria-label="Resultaat tekst">
-                Wachten op resultaat...
-              </div>
+              <div id="wizard-result-test" aria-label="Resultaat tekst"></div>
             </div>
             <div
               id="sub-text"
