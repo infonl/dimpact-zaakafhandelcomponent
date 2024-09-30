@@ -120,7 +120,7 @@ class ConfiguratieServiceTest : BehaviorSpec({
 
             Then("correct URL is built") {
                 finishPageUrl.toString() shouldBe "$contextUrl/static/smart-documents-result.html" +
-                        "?zaak=1&taak=1&doc=document+name&result=result"
+                    "?zaak=1&taak=1&doc=document+name&result=result"
             }
         }
     }
