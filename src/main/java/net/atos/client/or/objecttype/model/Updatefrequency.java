@@ -51,7 +51,7 @@ public enum Updatefrequency {
             return stream(values())
                     .filter(updatefrequency -> StringUtils.equals(updatefrequency.value, json))
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException(String.format("Unkown value for %s: '%s'", Updatefrequency.class
+                    .orElseThrow(() -> new RuntimeException(String.format("Unknown value for %s: '%s'", Updatefrequency.class
                             .getSimpleName(), json)));
         }
     }

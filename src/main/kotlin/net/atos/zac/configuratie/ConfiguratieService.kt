@@ -94,6 +94,7 @@ class ConfiguratieService @Inject constructor(
 
         private const val SMART_DOCUMENTS_REDIRECT_URL_BASE =
             "rest/document-creation/smartdocuments/callback/zaak/{zaakUuid}"
+        private const val SMART_DOCUMENTS_WIZARD_FINISH_PAGE = "static/smart-documents-result.html"
     }
 
     private var catalogusURI: URI =
@@ -143,19 +144,19 @@ class ConfiguratieService @Inject constructor(
 
     fun documentCreationCallbackUrl(
         zaakUuid: UUID,
-        taskUuid: String?,
+        taskId: String?,
         templateGroupId: String,
         templateId: String,
         userName: String
     ): URI =
-        if (taskUuid != null) {
+        if (taskId != null) {
             UriBuilder
                 .fromUri(contextUrl)
                 .path("$SMART_DOCUMENTS_REDIRECT_URL_BASE/task/{taskId}")
                 .queryParam("templateId", templateId)
                 .queryParam("templateGroupId", templateGroupId)
                 .queryParam("userName", userName)
-                .build(zaakUuid.toString(), taskUuid)
+                .build(zaakUuid.toString(), taskId)
         } else {
             UriBuilder
                 .fromUri(contextUrl)
@@ -165,6 +166,27 @@ class ConfiguratieService @Inject constructor(
                 .queryParam("userName", userName)
                 .build(zaakUuid.toString())
         }
+
+    fun documentCreationFinishPageUrl(
+        zaakId: String,
+        taskId: String? = null,
+        documentName: String? = null,
+        result: String
+    ): URI =
+        UriBuilder
+            .fromUri(contextUrl)
+            .path(SMART_DOCUMENTS_WIZARD_FINISH_PAGE)
+            .queryParam("zaak", zaakId)
+            .apply {
+                if (taskId != null) {
+                    queryParam("taak", taskId)
+                }
+                if (documentName != null) {
+                    queryParam("doc", documentName)
+                }
+            }
+            .queryParam("result", result)
+            .build()
 
     fun readGemeenteCode(): String = gemeenteCode
 
