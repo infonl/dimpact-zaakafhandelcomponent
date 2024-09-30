@@ -85,4 +85,43 @@ class ConfiguratieServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("SmartDocuments wizard finished execution") {
+        val entityManager = mockk<EntityManager>()
+        val ztcClientService = mockk<ZtcClientService>()
+        val catalogus = mockk<Catalogus>()
+
+        val additionalAllowedFileTypes = ""
+        val zgwApiClientMpRestUrl = "https://example.com:1111"
+        val contextUrl = "https://example.com:2222"
+        val gemeenteCode = "gemeenteCode"
+        val gemeenteNaam = "Gemeente Name"
+        val gemeenteMail = "gemeente@example.com"
+        val bpmnSupport = false
+        val catalogusUri = "https://example.com/catalogus"
+
+        every { catalogus.url } returns URI(catalogusUri)
+        every { ztcClientService.readCatalogus(any<CatalogusListParameters>()) } returns catalogus
+
+        val configurationService = ConfiguratieService(
+            entityManager,
+            ztcClientService,
+            additionalAllowedFileTypes,
+            zgwApiClientMpRestUrl,
+            contextUrl,
+            gemeenteCode,
+            gemeenteNaam,
+            gemeenteMail,
+            bpmnSupport
+        )
+
+        When("SmartDocuments finish page URL is requested") {
+            val finishPageUrl = configurationService.documentCreationFinishPageUrl("1", "1", "document name", "result")
+
+            Then("correct URL is built") {
+                finishPageUrl.toString() shouldBe "$contextUrl/static/smart-documents-result.html" +
+                    "?zaak=1&taak=1&doc=document+name&result=result"
+            }
+        }
+    }
 })

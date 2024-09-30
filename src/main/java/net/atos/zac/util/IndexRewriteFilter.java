@@ -25,7 +25,7 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 @WebFilter(filterName = "indexRewriteFilter")
 public class IndexRewriteFilter implements Filter {
-    private static final List<String> RESOURCE_PATHS = List.of("/assets", "/rest", "/websocket", "/webdav");
+    private static final List<String> RESOURCE_PATHS = List.of("/assets", "/static", "/rest", "/websocket", "/webdav");
     private static final Pattern REGEX_RESOURCES = Pattern.compile(
             "\\.(js(on|\\.map)?|css|txt|jpe?g|png|gif|svg|ico|webmanifest|eot|ttf|woff2?)$"
     );
