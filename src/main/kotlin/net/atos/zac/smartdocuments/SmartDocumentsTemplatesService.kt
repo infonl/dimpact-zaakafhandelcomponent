@@ -13,7 +13,7 @@ import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.admin.model.ZaakafhandelParametersSummary
 import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroup
@@ -62,10 +62,11 @@ class SmartDocumentsTemplatesService @Inject constructor(
         LOG.fine { "Storing template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID" }
 
         val initialUsage = getMemoryUsage()
-        zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelParametersUUID).let { zaakafhandelParams ->
-            restTemplateGroups.toSmartDocumentsTemplateGroupSet(zaakafhandelParams).let { modelTemplateGroups ->
+        zaakafhandelParameterService.readZaakafhandelParametersSummary(zaakafhandelParametersUUID).let { summary ->
+            logMemoryUsage("zaakafhandelParams", initialUsage)
+            restTemplateGroups.toSmartDocumentsTemplateGroupSet(summary).let { modelTemplateGroups ->
                 logMemoryUsage("convert", initialUsage)
-                deleteTemplateMapping(zaakafhandelParams)
+                deleteTemplateMapping(summary)
                 logMemoryUsage("delete", initialUsage)
                 modelTemplateGroups.forEach { entityManager.merge(it) }
                 logMemoryUsage("merge", initialUsage)
@@ -88,7 +89,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
      */
     @Transactional(REQUIRED)
     fun deleteTemplateMapping(
-        zaakafhandelParameters: ZaakafhandelParameters
+        zaakafhandelParameters: ZaakafhandelParametersSummary
     ): Int {
         LOG.fine { "Deleting template mapping for zaakafhandelParameters UUID ${zaakafhandelParameters.zaakTypeUUID}" }
 
@@ -97,7 +98,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
                 query.from(SmartDocumentsTemplateGroup::class.java).let { root ->
                     query.where(
                         builder.equal(
-                            root.get<ZaakafhandelParameters>(
+                            root.get<ZaakafhandelParametersSummary>(
                                 SmartDocumentsTemplateGroup::zaakafhandelParameters.name
                             ).get<Long>("id"),
                             zaakafhandelParameters.id
@@ -112,7 +113,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
     }
 
     private fun getZaakafhandelParametersId(zaakafhandelParametersUUID: UUID) =
-        zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelParametersUUID).id
+        zaakafhandelParameterService.readZaakafhandelParametersSummary(zaakafhandelParametersUUID).id
 
     /**
      * Lists all template groups for a zaakafhandelparameters
@@ -133,7 +134,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
                             .where(
                                 builder.and(
                                     builder.equal(
-                                        root.get<ZaakafhandelParameters>(
+                                        root.get<ZaakafhandelParametersSummary>(
                                             SmartDocumentsTemplate::zaakafhandelParameters.name
                                         )
                                             .get<Long>("id"),
@@ -176,7 +177,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
                                 .where(
                                     builder.and(
                                         builder.equal(
-                                            root.get<ZaakafhandelParameters>(
+                                            root.get<ZaakafhandelParametersSummary>(
                                                 SmartDocumentsTemplate::zaakafhandelParameters.name
                                             )
                                                 .get<Long>("id"),
