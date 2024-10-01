@@ -38,7 +38,6 @@ class SmartDocumentsTemplatesService @Inject constructor(
 ) {
     companion object {
         private const val EXCEPTION_PREFIX = "No information object type mapped for template"
-        private const val KiB = 1024
 
         private val LOG = Logger.getLogger(DocumentCreationService::class.java.name)
     }
@@ -61,24 +60,12 @@ class SmartDocumentsTemplatesService @Inject constructor(
     ) {
         LOG.fine { "Storing template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID" }
 
-        val initialUsage = getMemoryUsage()
         zaakafhandelParameterService.readZaakafhandelParametersSummary(zaakafhandelParametersUUID).let { summary ->
-            logMemoryUsage("zaakafhandelParams", initialUsage)
             restTemplateGroups.toSmartDocumentsTemplateGroupSet(summary).let { modelTemplateGroups ->
-                logMemoryUsage("convert", initialUsage)
                 deleteTemplateMapping(summary)
-                logMemoryUsage("delete", initialUsage)
                 modelTemplateGroups.forEach { entityManager.merge(it) }
-                logMemoryUsage("merge", initialUsage)
             }
         }
-    }
-
-    private fun getMemoryUsage() = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
-
-    private fun logMemoryUsage(mark: String, usedBefore: Long) {
-        val currentUsage = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
-        LOG.warning { "$mark | used: ${(currentUsage - usedBefore) / KiB} KiB" }
     }
 
     /**

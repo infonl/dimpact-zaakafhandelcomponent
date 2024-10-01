@@ -67,7 +67,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             builder.createQuery(ZaakafhandelParametersSummary::class.java).let { query ->
                 query.from(ZaakafhandelParametersSummary::class.java).let { root ->
                     query.select(root).where(
-                        builder.equal(root.get<Any>(ZaakafhandelParametersSummary.ZAAKTYPE_UUID), zaaktypeUUID)
+                        builder.equal(root.get<Any>(ZaakafhandelParameters.ZAAKTYPE_UUID), zaaktypeUUID)
                     )
                     return entityManager.createQuery(query).resultList.first()
                 }
