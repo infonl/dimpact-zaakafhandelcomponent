@@ -50,7 +50,8 @@ public class ZaakafhandelParameterService implements Caching {
     }
 
     private final Cache<UUID, ZaakafhandelParameters> uuidToZaakafhandelParametersCache = createCache("UUID -> ZaakafhandelParameters");
-    private final Cache<UUID, ZaakafhandelParametersSummary> uuidToZaakafhandelParametersSummaryCache = createCache("UUID -> ZaakafhandelParametersSummary");
+    private final Cache<UUID, ZaakafhandelParametersSummary> uuidToZaakafhandelParametersSummaryCache = createCache(
+            "UUID -> ZaakafhandelParametersSummary");
     private final Cache<String, List<ZaakafhandelParameters>> stringToZaakafhandelParametersListCache = createCache(
             "List<ZaakafhandelParameters>");
 
@@ -63,8 +64,8 @@ public class ZaakafhandelParameterService implements Caching {
 
     public ZaakafhandelParametersSummary readZaakafhandelParametersSummary(final UUID zaaktypeUUID) {
         return uuidToZaakafhandelParametersSummaryCache.get(
-            zaaktypeUUID,
-            uuid -> beheerService.readZaakafhandelParametersSummary(zaaktypeUUID)
+                zaaktypeUUID,
+                uuid -> beheerService.readZaakafhandelParametersSummary(zaaktypeUUID)
         );
     }
 

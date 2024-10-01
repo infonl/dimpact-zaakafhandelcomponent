@@ -5,7 +5,6 @@
 
 package net.atos.zac.smartdocuments.rest
 
-import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.ZaakafhandelParametersSummary
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplate
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup

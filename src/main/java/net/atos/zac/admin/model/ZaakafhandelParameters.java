@@ -7,30 +7,19 @@ package net.atos.zac.admin.model;
 
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
 
-import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
-import org.apache.commons.lang3.StringUtils;
 
 @Entity
 @Table(schema = SCHEMA, name = "zaakafhandelparameters")
@@ -101,7 +90,7 @@ public class ZaakafhandelParameters extends ZaakafhandelParametersBase {
     }
 
     public void setUserEventListenerParametersCollection(
-        final Collection<UserEventListenerParameters> userEventListenerParametersCollection
+            final Collection<UserEventListenerParameters> userEventListenerParametersCollection
     ) {
         if (this.userEventListenerParametersCollection == null) {
             this.userEventListenerParametersCollection = new HashSet<>();
@@ -151,25 +140,26 @@ public class ZaakafhandelParameters extends ZaakafhandelParametersBase {
 
     public ZaakbeeindigParameter readZaakbeeindigParameter(final Long zaakbeeindigRedenId) {
         return getZaakbeeindigParameters().stream()
-                   .filter(zaakbeeindigParameter -> zaakbeeindigParameter.getZaakbeeindigReden().getId().equals(zaakbeeindigRedenId))
-                   .findAny().orElseThrow(() -> new RuntimeException(
-                String.format("No ZaakbeeindigParameter found for zaaktypeUUID: '%s' and zaakbeeindigRedenId: '%d'", getZaakTypeUUID(),
-                    zaakbeeindigRedenId)));
+                .filter(zaakbeeindigParameter -> zaakbeeindigParameter.getZaakbeeindigReden().getId().equals(zaakbeeindigRedenId))
+                .findAny().orElseThrow(() -> new RuntimeException(
+                        String.format("No ZaakbeeindigParameter found for zaaktypeUUID: '%s' and zaakbeeindigRedenId: '%d'",
+                                getZaakTypeUUID(),
+                                zaakbeeindigRedenId)));
     }
 
 
     public UserEventListenerParameters readUserEventListenerParameters(final String planitemDefinitionID) {
         return getUserEventListenerParametersCollection().stream()
-                   .filter(userEventListenerParameters -> userEventListenerParameters.getPlanItemDefinitionID().equals(planitemDefinitionID))
-                   .findAny().orElseThrow(() -> new RuntimeException(
-                String.format("No UserEventListenerParameters found for zaaktypeUUID: '%s' and planitemDefinitionID: '%s'",
-                    getZaakTypeUUID(),
-                    planitemDefinitionID)));
+                .filter(userEventListenerParameters -> userEventListenerParameters.getPlanItemDefinitionID().equals(planitemDefinitionID))
+                .findAny().orElseThrow(() -> new RuntimeException(
+                        String.format("No UserEventListenerParameters found for zaaktypeUUID: '%s' and planitemDefinitionID: '%s'",
+                                getZaakTypeUUID(),
+                                planitemDefinitionID)));
     }
 
     public Optional<HumanTaskParameters> findHumanTaskParameter(final String planitemDefinitionID) {
         return getHumanTaskParametersCollection().stream()
-                   .filter(humanTaskParameter -> humanTaskParameter.getPlanItemDefinitionID().equals(planitemDefinitionID))
-                   .findAny();
+                .filter(humanTaskParameter -> humanTaskParameter.getPlanItemDefinitionID().equals(planitemDefinitionID))
+                .findAny();
     }
 }
