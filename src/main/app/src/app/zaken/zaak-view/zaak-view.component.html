@@ -202,9 +202,19 @@
                   >
                   </zac-edit-groep-behandelaar>
                   <zac-static-text
-                    *ngIf="zaak.archiefNominatie"
-                    [label]="'archiefNominatie.datum.'+zaak.archiefNominatie | translate"
+                    *ngIf="zaak.archiefNominatie === 'VERNIETIGEN'"
+                    [label]="
+                      'archiefNominatie.datum.' + zaak.archiefNominatie
+                        | translate
+                    "
                     [value]="zaak.archiefActiedatum | datum | empty"
+                  ></zac-static-text>
+                  <zac-static-text
+                    *ngIf="zaak.archiefNominatie === 'BLIJVEND_BEWAREN'"
+                    [label]="'archiefNominatie' | translate"
+                    [value]="
+                      'archiefNominatie.' + zaak.archiefNominatie | translate
+                    "
                   ></zac-static-text>
                 </div>
                 <div class="flex w33 w50-md w100-sm">

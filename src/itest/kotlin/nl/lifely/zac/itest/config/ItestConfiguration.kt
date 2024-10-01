@@ -22,6 +22,7 @@ object ItestConfiguration {
 
     const val HTTP_STATUS_OK = 200
     const val HTTP_STATUS_NO_CONTENT = 204
+    const val HTTP_STATUS_SEE_OTHER = 303
     const val HTTP_STATUS_BAD_REQUEST = 400
     const val HTTP_STATUS_FORBIDDEN = 403
 
