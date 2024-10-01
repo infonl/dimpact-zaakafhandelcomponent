@@ -19,7 +19,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
-import org.flowable.common.engine.api.FlowableObjectNotFoundException;
+import org.apache.commons.lang3.StringUtils;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
@@ -78,27 +78,35 @@ public class BPMNService {
         }
     }
 
-    public void startProcess(
+    public boolean startProcess(
             final Zaak zaak,
             final ZaakType zaaktype,
-            final Map<String, Object> zaakData,
-            final String processDefinitionKey
+            Map<String, Object> zaakData
     ) {
-        try {
-            runtimeService.createProcessInstanceBuilder()
-                    .processDefinitionKey(processDefinitionKey)
-                    .businessKey(zaak.getUuid().toString())
-                    .variable(VAR_ZAAK_UUID, zaak.getUuid())
-                    .variable(VAR_ZAAK_IDENTIFICATIE, zaak.getIdentificatie())
-                    .variable(VAR_ZAAKTYPE_UUUID, parseUUIDFromResourceURI(zaaktype.getUrl()))
-                    .variable(VAR_ZAAKTYPE_OMSCHRIJVING, zaaktype.getOmschrijving())
-                    .variables(zaakData)
-                    .start();
-            LOG.info("Zaak %s gestart met BPMN model '%s'".formatted(zaak.getUuid(), processDefinitionKey));
-        } catch (final FlowableObjectNotFoundException flowableObjectNotFoundException) {
-            LOG.severe("Zaak %s niet gestart omdat BPMN model '%s' niet bestaat"
-                    .formatted(zaak.getUuid(), processDefinitionKey));
+        if (zaaktype.getReferentieproces() == null || StringUtils.isBlank(zaaktype.getReferentieproces().getNaam())) {
+            return false;
         }
+        final var processDefinitionKey = zaaktype.getReferentieproces().getNaam();
+        if (repositoryService.createProcessDefinitionQuery()
+                .processDefinitionKey(processDefinitionKey)
+                .active()
+                .count() == 0) {
+            return false;
+        }
+        LOG.info(() -> String.format("Starting zaak '%s' using BPMN model '%s'", zaak.getUuid(), processDefinitionKey));
+        if (zaakData == null) {
+            zaakData = Collections.emptyMap();
+        }
+        runtimeService.createProcessInstanceBuilder()
+                .processDefinitionKey(processDefinitionKey)
+                .businessKey(zaak.getUuid().toString())
+                .variable(VAR_ZAAK_UUID, zaak.getUuid())
+                .variable(VAR_ZAAK_IDENTIFICATIE, zaak.getIdentificatie())
+                .variable(VAR_ZAAKTYPE_UUUID, parseUUIDFromResourceURI(zaaktype.getUrl()))
+                .variable(VAR_ZAAKTYPE_OMSCHRIJVING, zaaktype.getOmschrijving())
+                .variables(zaakData)
+                .start();
+        return true;
     }
 
     public List<ProcessDefinition> listProcessDefinitions() {
