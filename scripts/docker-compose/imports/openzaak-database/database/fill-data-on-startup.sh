@@ -5,12 +5,12 @@ useradd openzaak
 while true
 do
     verifier=$(psql -U openzaak -d openzaak -t -A -c "select count(id) from accounts_user where username = 'admin'")
-    if [ "1" = $verifier ]
+    if [ "1" = "$verifier" ]
         then
-            echo "Running database setup scripts"
+            echo "Running database setup scripts ..."
             for file in /docker-entrypoint-initdb.d/database/*.sql
             do
-                echo "Running $file"
+                echo "Running $file ..."
                 psql -U openzaak openzaak \
                     -v BAG_API_CLIENT_MP_REST_URL="${BAG_API_CLIENT_MP_REST_URL}" \
                     -v BAG_API_KEY="${BAG_API_KEY}" \
@@ -22,3 +22,5 @@ do
             sleep 5
     fi
 done
+
+echo ">>>>  Data import script finished <<<<"
