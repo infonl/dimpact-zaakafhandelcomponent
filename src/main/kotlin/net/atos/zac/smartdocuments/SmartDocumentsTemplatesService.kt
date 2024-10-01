@@ -38,6 +38,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
 ) {
     companion object {
         private const val EXCEPTION_PREFIX = "No information object type mapped for template"
+        private const val KiB = 1024
 
         private val LOG = Logger.getLogger(DocumentCreationService::class.java.name)
     }
@@ -60,18 +61,24 @@ class SmartDocumentsTemplatesService @Inject constructor(
     ) {
         LOG.fine { "Storing template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID" }
 
-        zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelParametersUUID).let {
-            restTemplateGroups.toSmartDocumentsTemplateGroupSet(it).let { modelTemplateGroups ->
-                deleteTemplateMapping(zaakafhandelParametersUUID)
-                modelTemplateGroups.forEach { templateGroup ->
-                    entityManager.merge(templateGroup)
-                }
+        val initialUsage = getMemoryUsage()
+        zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelParametersUUID).let { zaakafhandelParams ->
+            restTemplateGroups.toSmartDocumentsTemplateGroupSet(zaakafhandelParams).let { modelTemplateGroups ->
+                logMemoryUsage("convert", initialUsage)
+                deleteTemplateMapping(zaakafhandelParams)
+                logMemoryUsage("delete", initialUsage)
+                modelTemplateGroups.forEach { entityManager.merge(it) }
+                logMemoryUsage("merge", initialUsage)
             }
         }
     }
 
-    private fun getZaakafhandelParametersId(zaakafhandelParametersUUID: UUID) =
-        zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelParametersUUID).id
+    private fun getMemoryUsage() = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
+
+    private fun logMemoryUsage(mark: String, usedBefore: Long) {
+        val currentUsage = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
+        LOG.warning { "$mark | used: ${(currentUsage - usedBefore) / KiB} KiB" }
+    }
 
     /**
      * Deletes all template groups and templates for a zaakafhandelparameters
@@ -81,18 +88,19 @@ class SmartDocumentsTemplatesService @Inject constructor(
      */
     @Transactional(REQUIRED)
     fun deleteTemplateMapping(
-        zaakafhandelParametersUUID: UUID
+        zaakafhandelParameters: ZaakafhandelParameters
     ): Int {
-        LOG.fine { "Deleting template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID" }
+        LOG.fine { "Deleting template mapping for zaakafhandelParameters UUID ${zaakafhandelParameters.zaakTypeUUID}" }
 
         entityManager.criteriaBuilder.let { builder ->
             builder.createCriteriaDelete(SmartDocumentsTemplateGroup::class.java).let { query ->
                 query.from(SmartDocumentsTemplateGroup::class.java).let { root ->
                     query.where(
                         builder.equal(
-                            root.get<ZaakafhandelParameters>(SmartDocumentsTemplate::zaakafhandelParameters.name)
-                                .get<Long>("id"),
-                            getZaakafhandelParametersId(zaakafhandelParametersUUID)
+                            root.get<ZaakafhandelParameters>(
+                                SmartDocumentsTemplateGroup::zaakafhandelParameters.name
+                            ).get<Long>("id"),
+                            zaakafhandelParameters.id
                         )
                     )
                     return entityManager.createQuery(query).executeUpdate().also {
@@ -102,6 +110,9 @@ class SmartDocumentsTemplatesService @Inject constructor(
             }
         }
     }
+
+    private fun getZaakafhandelParametersId(zaakafhandelParametersUUID: UUID) =
+        zaakafhandelParameterService.readZaakafhandelParameters(zaakafhandelParametersUUID).id
 
     /**
      * Lists all template groups for a zaakafhandelparameters

@@ -65,7 +65,7 @@ class ZtcClientService @Inject constructor(
                 .maximumSize(size)
                 .recordStats()
                 .removalListener { key: K?, _: V?, cause ->
-                    LOG.fine("Removing key: $key because of: $cause")
+                    LOG.fine("Removing key: $key in cache $name because of: $cause")
                 }.build()
 
             CACHES["ZTC $name"] = cache

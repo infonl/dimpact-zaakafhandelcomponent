@@ -38,7 +38,9 @@ public class ZaakafhandelParameterService implements Caching {
                 .maximumSize(MAX_CACHE_SIZE)
                 .recordStats()
                 .removalListener(
-                        (K key, V value, RemovalCause cause) -> LOG.info("Removing key: %s because of: %s".formatted(key, cause))
+                        (K key, V value, RemovalCause cause) -> LOG.fine(
+                                "Removing key: %s in cache %s because of: %s".formatted(key, name, cause)
+                        )
                 )
                 .build();
 
