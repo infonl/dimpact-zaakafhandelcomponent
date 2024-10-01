@@ -18,6 +18,7 @@ import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.ZaakafhandelParameters.CREATIEDATUM
 import net.atos.zac.admin.model.ZaakafhandelParameters.PRODUCTAANVRAAGTYYPE
 import net.atos.zac.admin.model.ZaakafhandelParameters.ZAAKTYPE_OMSCHRIJVING
+import net.atos.zac.admin.model.ZaakafhandelParametersSummary
 import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.admin.model.ZaakbeeindigReden
 import net.atos.zac.util.UriUtil
@@ -56,6 +57,20 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         } else {
             ZaakafhandelParameters().apply {
                 zaakTypeUUID = zaaktypeUUID
+            }
+        }
+    }
+
+    fun readZaakafhandelParametersSummary(zaaktypeUUID: UUID): ZaakafhandelParametersSummary {
+        ztcClientService.resetCacheTimeToNow()
+        entityManager.criteriaBuilder.let { builder ->
+            builder.createQuery(ZaakafhandelParametersSummary::class.java).let { query ->
+                query.from(ZaakafhandelParametersSummary::class.java).let { root ->
+                    query.select(root).where(
+                        builder.equal(root.get<Any>(ZaakafhandelParametersSummary.ZAAKTYPE_UUID), zaaktypeUUID)
+                    )
+                    return entityManager.createQuery(query).resultList.first()
+                }
             }
         }
     }

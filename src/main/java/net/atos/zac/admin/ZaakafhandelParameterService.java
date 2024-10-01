@@ -22,11 +22,12 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats;
 
 import net.atos.client.zgw.shared.cache.Caching;
 import net.atos.zac.admin.model.ZaakafhandelParameters;
+import net.atos.zac.admin.model.ZaakafhandelParametersSummary;
 
 @ApplicationScoped
 public class ZaakafhandelParameterService implements Caching {
     private static final Logger LOG = Logger.getLogger(ZaakafhandelParameterService.class.getName());
-    private static final int MAX_CACHE_SIZE = 100;
+    private static final int MAX_CACHE_SIZE = 20;
 
     @Inject
     private ZaakafhandelParameterBeheerService beheerService;
@@ -38,7 +39,9 @@ public class ZaakafhandelParameterService implements Caching {
                 .maximumSize(MAX_CACHE_SIZE)
                 .recordStats()
                 .removalListener(
-                        (K key, V value, RemovalCause cause) -> LOG.info("Removing key: %s because of: %s".formatted(key, cause))
+                        (K key, V value, RemovalCause cause) -> LOG.fine(
+                                "Removing key: %s in cache %s because of: %s".formatted(key, name, cause)
+                        )
                 )
                 .build();
 
@@ -47,6 +50,8 @@ public class ZaakafhandelParameterService implements Caching {
     }
 
     private final Cache<UUID, ZaakafhandelParameters> uuidToZaakafhandelParametersCache = createCache("UUID -> ZaakafhandelParameters");
+    private final Cache<UUID, ZaakafhandelParametersSummary> uuidToZaakafhandelParametersSummaryCache = createCache(
+            "UUID -> ZaakafhandelParametersSummary");
     private final Cache<String, List<ZaakafhandelParameters>> stringToZaakafhandelParametersListCache = createCache(
             "List<ZaakafhandelParameters>");
 
@@ -54,6 +59,13 @@ public class ZaakafhandelParameterService implements Caching {
         return uuidToZaakafhandelParametersCache.get(
                 zaaktypeUUID,
                 uuid -> beheerService.readZaakafhandelParameters(zaaktypeUUID)
+        );
+    }
+
+    public ZaakafhandelParametersSummary readZaakafhandelParametersSummary(final UUID zaaktypeUUID) {
+        return uuidToZaakafhandelParametersSummaryCache.get(
+                zaaktypeUUID,
+                uuid -> beheerService.readZaakafhandelParametersSummary(zaaktypeUUID)
         );
     }
 
@@ -66,10 +78,12 @@ public class ZaakafhandelParameterService implements Caching {
 
     public void cacheRemoveZaakafhandelParameters(final UUID zaaktypeUUID) {
         uuidToZaakafhandelParametersCache.invalidate(zaaktypeUUID);
+        uuidToZaakafhandelParametersSummaryCache.invalidate(zaaktypeUUID);
     }
 
     public String clearManagedCache() {
         uuidToZaakafhandelParametersCache.invalidateAll();
+        uuidToZaakafhandelParametersSummaryCache.invalidateAll();
         return cleared(Caching.ZAC_ZAAKAFHANDELPARAMETERS_MANAGED);
     }
 
