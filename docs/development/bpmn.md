@@ -1,3 +1,7 @@
+## Enabling BPMN functionality
+
+The BPMN functionality is behind a feature flag. To enable it you have to change the ZAC environment variable to `FEATURE_FLAG_BPMN_SUPPORT=true`
+
 ## BPMN dependencies
 
 ### Automation Engine 
