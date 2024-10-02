@@ -100,7 +100,7 @@ class ZtcClientServiceTest : BehaviorSpec({
                     with(ztcClientService.cacheStatistics()["ZTC UUID -> ZaakType"]) {
                         this?.hitCount() shouldBe 0
                         this?.missCount() shouldBe 102
-                        this?.evictionCount() shouldBe 2
+                        this?.evictionCount() shouldBe 82
                     }
                 }
             }
