@@ -36,7 +36,7 @@ RUN date -Iseconds > /build_timestamp.txt
 ENV WILDFLY_OVERRIDING_ENV_VARS=1
 
 # JAVA_OPTS
-ENV JAVA_OPTS="-Xms1024m -Xmx1024m -Xlog:gc::time,uptime"
+ENV JAVA_OPTS="-Xms1024m -Xmx1024m"
 
 # Start zaakafhandelcomponent
 ENTRYPOINT java $JAVA_OPTS -jar zaakafhandelcomponent.jar

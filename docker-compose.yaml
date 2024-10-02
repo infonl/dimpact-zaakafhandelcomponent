@@ -473,6 +473,7 @@ services:
       - GEMEENTE_CODE=${GEMEENTE_CODE:-9999}
       - GEMEENTE_MAIL=${GEMEENTE_MAIL:-gemeente-zac-test@example.com}
       - GEMEENTE_NAAM=${GEMEENTE_NAAM:-DummyZacGemeente}
+      - JAVA_OPTS=-Xms1024m -Xmx1024m -Xlog:gc::time,uptime
       - KLANTINTERACTIES_API_CLIENT_MP_REST_URL=http://openklant.local:8000
       - KLANTINTERACTIES_API_TOKEN=dummyToken
       - KVK_API_CLIENT_MP_REST_URL=${KVK_API_CLIENT_MP_REST_URL:-dummyKvkApiUrl}
@@ -495,6 +496,10 @@ services:
       - SD_CLIENT_MP_REST_URL=${SD_CLIENT_MP_REST_URL:-http://smartdocuments-wiremock:8080}
       - SD_FIXED_USER_NAME=${SD_FIXED_USER_NAME:-}
       - SIGNALERINGEN_DELETE_OLDER_THAN_DAYS=${SIGNALERINGEN_DELETE_OLDER_THAN_DAYS:-14}
+      - SMTP_SERVER=${SMTP_SERVER:-in-v3.mailjet.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USERNAME=${SMTP_USERNAME:-dummyMailjetApiKey}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-dummyMailjetApiSecretKey}
       - SOLR_URL=http://solr:8983
       # Turn off the Open Telemetry sampler by default because it is not always needed
       # Typically when using the Docker Compose profile 'metrics' you want to turn this on
@@ -504,10 +509,6 @@ services:
       - ZGW_API_CLIENTID=zac_client
       - ZGW_API_SECRET=openzaakZaakafhandelcomponentClientSecret
       - ZGW_API_URL_EXTERN=http://localhost:8001/
-      - SMTP_SERVER=${SMTP_SERVER:-in-v3.mailjet.com}
-      - SMTP_PORT=${SMTP_PORT:-587}
-      - SMTP_USERNAME=${SMTP_USERNAME:-dummyMailjetApiKey}
-      - SMTP_PASSWORD=${SMTP_PASSWORD:-dummyMailjetApiSecretKey}
     ports:
       - "8080:8080"
       - "9990:9990"
