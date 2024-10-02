@@ -34,6 +34,7 @@ class ItestHttpClient {
         okHttpClient = OkHttpClient.Builder()
             .cookieJar(JavaNetCookieJar(cookieManager))
             .readTimeout(HTTP_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .followRedirects(false)
             .build()
     }
 

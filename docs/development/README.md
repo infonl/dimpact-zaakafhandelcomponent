@@ -13,6 +13,7 @@ The following ZAC developer documentation is available:
 and (OpenAPI) API specifications used by ZAC.
 - [Managing Solr](managingSolr.md) - Instructions on how to manage the Solr search engine in ZAC. 
 For example, how to reindex the Solr search index.
+- [BPMN](bpmn.md) - components used to support BPMN standard flows. 
 
 ## Monitoring
 ZAC exposes two monitoring endpoints through WildFly by default:

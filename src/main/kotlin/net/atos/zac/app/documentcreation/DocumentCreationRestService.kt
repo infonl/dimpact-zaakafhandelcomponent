@@ -17,9 +17,11 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.Response
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
-import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
+import net.atos.zac.app.documentcreation.rest.RestDocumentCreationAttendedData
+import net.atos.zac.app.documentcreation.rest.RestDocumentCreationAttendedResponse
+import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
 import net.atos.zac.policy.PolicyService
@@ -27,6 +29,8 @@ import net.atos.zac.policy.PolicyService.assertPolicy
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.util.UUID
+import java.util.logging.Level
+import java.util.logging.Logger
 
 @Singleton
 @Path("document-creation")
@@ -36,13 +40,17 @@ import java.util.UUID
 class DocumentCreationRestService @Inject constructor(
     private val policyService: PolicyService,
     private val documentCreationService: DocumentCreationService,
-    private val zrcClientService: ZrcClientService
+    private val zrcClientService: ZrcClientService,
+    private val configurationService: ConfiguratieService
 ) {
     companion object {
-        private const val MESSAGE_DOCUMENT_CREATED_NL = "✅ Document %s gemaakt"
-        private const val MESSAGE_DOCUMENT_CREATED_EN = "✅ Document %s created"
-        private const val MESSAGE_DOCUMENT_CANCELLED_NL = "❌ Document creatie geannuleerd"
-        private const val MESSAGE_DOCUMENT_CANCELLED_EN = "❌ Document creation cancelled"
+        enum class SmartDocumentsWizardResult {
+            SUCCESS,
+            CANCELLED,
+            FAILURE
+        }
+
+        private val LOG = Logger.getLogger(DocumentCreationRestService::class.java.name)
     }
 
     @POST
@@ -80,26 +88,36 @@ class DocumentCreationRestService @Inject constructor(
         @QueryParam("templateId") templateId: String,
         @QueryParam("userName") userName: String,
         @FormParam("sdDocument") @DefaultValue("") fileId: String,
-    ): String =
+    ): Response =
         zrcClientService.readZaak(zaakUuid).let { zaak ->
             if (fileId.isBlank()) {
-                buildHtmlResponse(
-                    MESSAGE_DOCUMENT_CANCELLED_NL,
-                    MESSAGE_DOCUMENT_CANCELLED_EN,
-                    zaak.identificatie
+                buildWizardFinishPageRedirectResponse(
+                    zaakId = zaak.identificatie,
+                    result = SmartDocumentsWizardResult.CANCELLED
                 )
             } else {
-                documentCreationService.storeDocument(
-                    fileId,
-                    templateGroupId,
-                    templateId,
-                    userName,
-                    zaak
-                ).titel.let {
-                    buildHtmlResponse(
-                        MESSAGE_DOCUMENT_CREATED_NL.format(it),
-                        MESSAGE_DOCUMENT_CREATED_EN.format(it),
-                        zaak.identificatie
+                runCatching {
+                    documentCreationService.storeDocument(
+                        fileId,
+                        templateGroupId,
+                        templateId,
+                        userName,
+                        zaak
+                    ).let {
+                        buildWizardFinishPageRedirectResponse(
+                            zaakId = zaak.identificatie,
+                            documentName = it.titel,
+                            result = SmartDocumentsWizardResult.SUCCESS
+                        )
+                    }
+                }.onFailure {
+                    LOG.log(Level.WARNING, it) {
+                        "Failed to create document for zaak ${zaak.identificatie}"
+                    }
+                }.getOrElse {
+                    buildWizardFinishPageRedirectResponse(
+                        zaakId = zaak.identificatie,
+                        result = SmartDocumentsWizardResult.FAILURE
                     )
                 }
             }
@@ -123,48 +141,57 @@ class DocumentCreationRestService @Inject constructor(
         @QueryParam("templateId") templateId: String,
         @QueryParam("userName") userName: String,
         @FormParam("sdDocument") @DefaultValue("") fileId: String,
-    ): String =
+    ): Response =
         zrcClientService.readZaak(zaakUuid).let { zaak ->
             if (fileId.isBlank()) {
-                buildHtmlResponse(
-                    MESSAGE_DOCUMENT_CANCELLED_NL,
-                    MESSAGE_DOCUMENT_CANCELLED_EN,
-                    zaak.identificatie,
-                    taskId
+                buildWizardFinishPageRedirectResponse(
+                    zaakId = zaak.identificatie,
+                    taskId = taskId,
+                    result = SmartDocumentsWizardResult.CANCELLED
                 )
             } else {
-                documentCreationService.storeDocument(
-                    fileId,
-                    templateGroupId,
-                    templateId,
-                    userName,
-                    zaak,
-                    taskId
-                ).titel.let {
-                    buildHtmlResponse(
-                        MESSAGE_DOCUMENT_CREATED_NL.format(it),
-                        MESSAGE_DOCUMENT_CREATED_EN.format(it),
-                        zaak.identificatie,
+                runCatching {
+                    documentCreationService.storeDocument(
+                        fileId,
+                        templateGroupId,
+                        templateId,
+                        userName,
+                        zaak,
                         taskId
+                    ).let {
+                        buildWizardFinishPageRedirectResponse(
+                            zaakId = zaak.identificatie,
+                            taskId = taskId,
+                            documentName = it.titel,
+                            result = SmartDocumentsWizardResult.SUCCESS
+                        )
+                    }
+                }.onFailure {
+                    LOG.log(Level.WARNING, it) {
+                        "Failed to create document for zaak ${zaak.identificatie} and task $taskId"
+                    }
+                }.getOrElse {
+                    buildWizardFinishPageRedirectResponse(
+                        zaakId = zaak.identificatie,
+                        taskId = taskId,
+                        result = SmartDocumentsWizardResult.FAILURE
                     )
                 }
             }
         }
 
-    private fun buildHtmlResponse(
-        messageNl: String,
-        messageEn: String,
+    private fun buildWizardFinishPageRedirectResponse(
         zaakId: String,
-        taskId: String? = null
+        taskId: String? = null,
+        documentName: String? = null,
+        result: SmartDocumentsWizardResult
     ) =
-        """<!DOCTYPE html><html>
-           <head><title>$messageNl</title></head>
-           <body>
-               <p>$messageNl voor zaak $zaakId${if (taskId != null) ", taak $taskId" else ""} !</p>
-               <p>Sluit dit tabblad!</p>
-               <hr/>
-               <p>$messageEn for zaak $zaakId${if (taskId != null) ", task $taskId" else ""} !</p>
-               <p>Please, close this tab!</p>
-           <body></html>
-        """.trimIndent()
+        Response.seeOther(
+            configurationService.documentCreationFinishPageUrl(
+                zaakId = zaakId,
+                taskId = taskId,
+                documentName = documentName,
+                result = result.toString().lowercase()
+            )
+        ).build()
 }

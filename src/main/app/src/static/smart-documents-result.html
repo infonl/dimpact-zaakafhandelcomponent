@@ -1,0 +1,376 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2024 Lifely
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+
+    <title>SmartDocuments wizard resultaatpagina</title>
+
+    <!-- Preload critical assets for performance -->
+    <link
+      rel="preload"
+      href="/assets/fonts/Roboto/400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href="/assets/fonts/Roboto/500.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href="/assets/i18n/nl.json"
+      as="fetch"
+      crossorigin="anonymous"
+    />
+
+    <!-- Optimized CSS -->
+    <style>
+      :root {
+        --background-color: #fff;
+        --primary-color: #212121;
+        --secondary-color: #fff;
+        --header-bar-color: #3f51b5;
+        --success-bg: #dfede3;
+        --success-fill: #46a35e;
+        --error-bg: #ffe5e5;
+        --error-fill: #f44336;
+        --warning-bg: #fbedd5;
+        --warning-fill: #ffa500;
+      }
+
+      @font-face {
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: 400 500;
+        src:
+          url("/assets/fonts/Roboto/400.woff2") format("woff2"),
+          url("/assets/fonts/Roboto/500.woff2") format("woff2");
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 28px;
+        color: var(--primary-color);
+      }
+
+      /* Material Design Layout Structure */
+      .mdl-layout {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        background-color: var(--background-color);
+      }
+
+      .mdl-layout__header {
+        background-color: var(--header-bar-color);
+        color: var(--secondary-color);
+        display: flex;
+        align-items: center;
+        height: 64px;
+        position: relative;
+        z-index: 3;
+      }
+
+      .mdl-layout__header-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        padding: 0 16px;
+        width: 100%;
+      }
+
+      .mdl-layout--fixed-header .mdl-layout__header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 4;
+      }
+
+      .mdl-layout__content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: calc(100vh);
+        overflow-y: auto;
+        flex-grow: 1;
+        position: relative;
+        z-index: 1;
+      }
+
+      .mdl-layout-title {
+        font-size: 20px;
+        font-weight: 500;
+        margin: 0;
+        padding: 0 16px !important;
+        color: inherit;
+      }
+
+      .wrapper {
+        min-width: 444px;
+      }
+
+      .wizard-result {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        line-height: 20px;
+        padding: 14px 16px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+      }
+
+      .wizard-result.success {
+        background-color: var(--success-bg);
+        fill: var(--success-fill);
+      }
+
+      .wizard-result.failure,
+      .wizard-result.unknown {
+        background-color: var(--error-bg);
+        fill: var(--error-fill);
+      }
+
+      .wizard-result.cancelled {
+        background-color: var(--warning-bg);
+        fill: var(--warning-fill);
+      }
+
+      svg {
+        fill: inherit;
+      }
+
+      .wizard-result > svg {
+        display: none;
+      }
+
+      .wizard-result.success > svg.checkmark,
+      .wizard-result.failure > svg.exclamation,
+      .wizard-result.cancelled > svg.exclamation,
+      .wizard-result.unknown > svg.exclamation {
+        display: block;
+      }
+
+      .sub-text {
+        text-align: center;
+      }
+    </style>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Sanitize all query parameters
+        const zaakValue = sanitizeInput(urlParams.get("zaak"));
+        const taakValue = sanitizeInput(urlParams.get("taak"));
+        const docValue = sanitizeInput(urlParams.get("doc"));
+        let resultValue = sanitizeInput(urlParams.get("result"));
+        resultValue = resultValue.toLowerCase();
+
+        const language = getBrowserLanguage();
+
+        // Determine nameValue and typeValue based on sanitized inputs
+        const nameValue = zaakValue || taakValue;
+        const typeValue = getTypeValue(zaakValue, taakValue, language);
+
+        // Validate and set finalResultValue
+        const VALID_RESULTS = ["success", "failure", "cancelled"];
+        const finalResultValue = VALID_RESULTS.includes(resultValue)
+          ? resultValue
+          : "unknown";
+
+        // Set the document and layout title
+        if (typeValue) {
+          const pageTitle = `${capitalize(typeValue)} | ${nameValue}`;
+          document.title = pageTitle;
+          document.getElementById("layout-title").textContent = pageTitle;
+        } else {
+          return displayError(language);
+        }
+
+        // set waiting text before handling language labels
+        document.getElementById("wizard-result-test").textContent =
+          language === "nl"
+            ? "Wachten op resultaat..."
+            : "Waiting for result...";
+
+        // Fetch the labels and update content based on language
+        fetchLabels(language, typeValue, nameValue, docValue)
+          .then((fetchedLabels) => {
+            if (
+              fetchedLabels?.result[finalResultValue] &&
+              fetchedLabels?.subText[finalResultValue]
+            ) {
+              updatePageContent(
+                finalResultValue,
+                fetchedLabels.result[finalResultValue],
+                fetchedLabels.subText[finalResultValue],
+              );
+            } else {
+              displayError(language);
+            }
+          })
+          .catch(() => {
+            displayError(language);
+          });
+      });
+
+      // Sanitize inputs for safety
+      function sanitizeInput(input) {
+        const div = document.createElement("div");
+        div.innerText = input || ""; // Handle null values
+        return div.innerHTML; // This ensures that the input is sanitized
+      }
+
+      function getBrowserLanguage() {
+        const lang = navigator.language.split("-")[0];
+        return ["en", "nl"].includes(lang) ? lang : "nl"; // Default to Dutch if language is unsupported
+      }
+
+      async function fetchLabels(language, typeValue, nameValue, docValue) {
+        try {
+          const response = await fetch(`/assets/i18n/${language}.json`);
+          if (!response.ok) throw new Error("Failed to fetch labels");
+          const data = await response.json();
+
+          // Replace placeholder values in result and subtext
+          const result = processLabels(
+            data,
+            "msg.smartdocuments.wizard.result.",
+            typeValue,
+            nameValue,
+            docValue,
+          );
+          const subText = processLabels(
+            data,
+            "msg.smartdocuments.wizard.subtext.",
+            typeValue,
+            nameValue,
+            docValue,
+          );
+
+          return { result, subText };
+        } catch (error) {
+          console.error("Error fetching the JSON file:", error);
+          throw error;
+        }
+      }
+
+      function processLabels(data, prefix, typeValue, nameValue, docValue) {
+        return Object.entries(data)
+          .filter(([key]) => key.startsWith(prefix))
+          .reduce((acc, [key, value]) => {
+            // Replace placeholders with actual values
+            acc[key.replace(prefix, "")] = value
+              .replace("{{typeValue}}", typeValue || "")
+              .replace("{{nameValue}}", nameValue || "")
+              .replace("{{docValue}}", docValue || "");
+            return acc;
+          }, {});
+      }
+
+      function updatePageContent(resultVal, resultText, subText) {
+        document.getElementById("wizard-result").classList.add(resultVal);
+        document.getElementById("wizard-result-test").textContent = resultText;
+        document.getElementById("sub-text").textContent = subText;
+      }
+
+      function getTypeValue(zaakValue, taakValue, language) {
+        const typeMap = {
+          en: { zaak: "case", taak: "task" },
+          nl: { zaak: "zaak", taak: "taak" },
+        };
+
+        if (zaakValue) return typeMap[language].zaak;
+        if (taakValue) return typeMap[language].taak;
+        return null;
+      }
+
+      function displayError(language) {
+        const errorMessage =
+          language === "nl" ? "Er is iets fout gegaan" : "Something went wrong";
+        document.getElementById("wizard-result-test").textContent =
+          errorMessage;
+      }
+
+      function capitalize(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+      }
+    </script>
+  </head>
+  <body>
+    <div class="mdl-layout mdl-layout--fixed-header">
+      <header class="mdl-layout__header">
+        <div class="mdl-layout__header-row">
+          <span
+            id="layout-title"
+            class="mdl-layout-title mdl-layout-title__zac"
+          ></span>
+        </div>
+      </header>
+
+      <main class="mdl-layout__content">
+        <div class="page-content">
+          <div class="wrapper">
+            <div
+              id="wizard-result"
+              class="wizard-result"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              <svg
+                width="19"
+                height="14"
+                viewBox="0 0 19 14"
+                xmlns="http://www.w3.org/2000/svg"
+                class="checkmark"
+                aria-hidden="true"
+              >
+                <path
+                  d="M6.50003 11.17L2.33003 7L0.910034 8.41L6.50003 14L18.5 2L17.09 0.59L6.50003 11.17Z"
+                />
+              </svg>
+              <svg
+                width="22"
+                height="19"
+                viewBox="0 0 22 19"
+                xmlns="http://www.w3.org/2000/svg"
+                class="exclamation"
+                aria-hidden="true"
+              >
+                <path
+                  d="M0 19H22L11 0L0 19ZM12 16H10V14H12V16ZM12 12H10V8H12V12Z"
+                />
+              </svg>
+              <div id="wizard-result-test" aria-label="Resultaat tekst"></div>
+            </div>
+            <div
+              id="sub-text"
+              class="sub-text"
+              aria-label="Additionele informatie"
+            ></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>
