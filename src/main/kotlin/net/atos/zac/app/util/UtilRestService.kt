@@ -33,21 +33,21 @@ class UtilRestService @Inject constructor(
     fun index() =
         body(
             h(1, "Util") +
-                    h(2, "Caches") +
-                    links(listOf("cache", "cache/ztc", "cache/zhps")) +
-                    links(listOf("cache/clear", "cache/ztc/clear", "cache/zhps/clear")) +
-                    h(2, "System") +
-                    links(listOf("memory"))
+                h(2, "Caches") +
+                links(listOf("cache", "cache/ztc", "cache/zhps")) +
+                links(listOf("cache/clear", "cache/ztc/clear", "cache/zhps/clear")) +
+                h(2, "System") +
+                links(listOf("memory"))
         )
 
     @GET
     @Path("cache")
     fun caches(): String = body(
-            listOf(
-                ztcClientCaches(),
-                zaakafhandelParameterServiceCaches()
-            )
+        listOf(
+            ztcClientCaches(),
+            zaakafhandelParameterServiceCaches()
         )
+    )
 
     @GET
     @Path("cache/ztc")
@@ -68,9 +68,11 @@ class UtilRestService @Inject constructor(
     private fun getSeriviceCacheDetails(prefix: String, caching: Caching) =
         caching.cacheStatistics().let { statistics ->
             caching.cacheSizes().let { sizes ->
-                prefix + ul(statistics.keys.map {
-                    "${b(it)} ${ul(statistics.get(it))} ${ul(sizes.get(it).toString() + " objects")}<p/>"
-                })
+                prefix + ul(
+                    statistics.keys.map {
+                        "${b(it)} ${ul(statistics.get(it))} ${ul(sizes.get(it).toString() + " objects")}<p/>"
+                    }
+                )
             }
         }
 
@@ -86,7 +88,7 @@ class UtilRestService @Inject constructor(
 
     @GET
     @Path("cache/zhps/clear")
-    fun clearAllZaakafhandelParameterServiceCaches()=
+    fun clearAllZaakafhandelParameterServiceCaches() =
         body(clearAllZhpsCaches())
 
     private fun clearZtcClientCaches() =
@@ -118,13 +120,13 @@ class UtilRestService @Inject constructor(
             Runtime.getRuntime().totalMemory().let { totalMemory ->
                 body(
                     h(1, "Memory") +
-                            ul(
-                                listOf(
-                                    "free: " + FileUtils.byteCountToDisplaySize(freeMemory),
-                                    "used : " + FileUtils.byteCountToDisplaySize(totalMemory - freeMemory),
-                                    "total: " + FileUtils.byteCountToDisplaySize(totalMemory)
-                                )
+                        ul(
+                            listOf(
+                                "free: " + FileUtils.byteCountToDisplaySize(freeMemory),
+                                "used : " + FileUtils.byteCountToDisplaySize(totalMemory - freeMemory),
+                                "total: " + FileUtils.byteCountToDisplaySize(totalMemory)
                             )
+                        )
                 )
             }
         }

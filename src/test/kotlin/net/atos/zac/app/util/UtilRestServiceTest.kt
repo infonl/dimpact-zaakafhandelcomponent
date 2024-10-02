@@ -1,4 +1,4 @@
-package net.atos.zac.app.util 
+package net.atos.zac.app.util
 import com.github.benmanes.caffeine.cache.stats.CacheStats
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.string.shouldContain
