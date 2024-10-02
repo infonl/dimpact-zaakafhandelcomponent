@@ -20,7 +20,7 @@ import org.apache.commons.text.StringEscapeUtils
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.TEXT_HTML)
 @Suppress("TooManyFunctions")
-class UtilRESTService @Inject constructor(
+class UtilRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService
 ) {
