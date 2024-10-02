@@ -13,12 +13,16 @@ import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.shared.cache.Caching
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.admin.ZaakafhandelParameterService
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.io.FileUtils
 import org.apache.commons.text.StringEscapeUtils
 
 @Path("util")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.TEXT_HTML)
+@NoArgConstructor
+@AllOpen
 @Suppress("TooManyFunctions")
 class UtilRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
