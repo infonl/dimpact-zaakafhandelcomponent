@@ -35,8 +35,11 @@ RUN date -Iseconds > /build_timestamp.txt
 # Turn on ability to be able to override WildFly settings using environment variables
 ENV WILDFLY_OVERRIDING_ENV_VARS=1
 
+# JAVA_OPTS
+ENV JAVA_OPTS="-Xms1024m -Xmx1024m -Xlog:gc::time,uptime"
+
 # Start zaakafhandelcomponent
-ENTRYPOINT ["java", "-Xms1700m", "-Xmx1700m", "-Xlog:gc::time,uptime", "-jar", "zaakafhandelcomponent.jar"]
+ENTRYPOINT java $JAVA_OPTS -jar zaakafhandelcomponent.jar
 EXPOSE 8080 9990
 
 ARG branchName
