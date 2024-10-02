@@ -115,7 +115,7 @@ class UtilRestService @Inject constructor(
 
     @GET
     @Path("memory")
-    fun systemResources() =
+    fun memory() =
         Runtime.getRuntime().freeMemory().let { freeMemory ->
             Runtime.getRuntime().totalMemory().let { totalMemory ->
                 body(
@@ -124,7 +124,8 @@ class UtilRestService @Inject constructor(
                             listOf(
                                 "free: " + FileUtils.byteCountToDisplaySize(freeMemory),
                                 "used : " + FileUtils.byteCountToDisplaySize(totalMemory - freeMemory),
-                                "total: " + FileUtils.byteCountToDisplaySize(totalMemory)
+                                "total: " + FileUtils.byteCountToDisplaySize(totalMemory),
+                                "max  : " + FileUtils.byteCountToDisplaySize(Runtime.getRuntime().maxMemory())
                             )
                         )
                 )

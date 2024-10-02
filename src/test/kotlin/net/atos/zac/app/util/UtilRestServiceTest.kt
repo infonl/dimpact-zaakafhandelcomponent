@@ -39,4 +39,29 @@ class UtilRestServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("util endpoint") {
+        val utilRESTService = UtilRestService(ztcClientService, zaakafhandelParameterService)
+
+        When("index is requested") {
+            val indexResponse = utilRESTService.index()
+
+            Then("it returns caches and memory links") {
+                indexResponse shouldContain "cache"
+                indexResponse shouldContain "clear"
+                indexResponse shouldContain "memory"
+            }
+        }
+
+        When("memory info is requested") {
+            val memoryResponse = utilRESTService.memory()
+
+            Then("free, used, total and max memory are shown") {
+                memoryResponse shouldContain "free"
+                memoryResponse shouldContain "used"
+                memoryResponse shouldContain "total"
+                memoryResponse shouldContain "max"
+            }
+        }
+    }
 })
