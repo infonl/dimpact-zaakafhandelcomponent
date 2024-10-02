@@ -40,6 +40,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 
 /**
@@ -59,10 +60,13 @@ class ZtcClientService @Inject constructor(
         private val CACHES = mutableMapOf<String, Cache<*, *>>()
 
         private val LOG = Logger.getLogger(ZtcClientService::class.java.name)
+        private const val MAX_CACHE_SIZE: Long = 20
+        private const val EXPIRATION_TIME_HOURS: Long = 1
 
-        private fun <K, V> createCache(name: String, size: Long = 100): Cache<K, V> {
+        private fun <K, V> createCache(name: String, size: Long = MAX_CACHE_SIZE): Cache<K, V> {
             val cache: Cache<K, V> = Caffeine.newBuilder()
                 .maximumSize(size)
+                .expireAfterAccess(EXPIRATION_TIME_HOURS, TimeUnit.HOURS)
                 .recordStats()
                 .removalListener { key: K?, _: V?, cause ->
                     LOG.fine("Removing key: $key in cache $name because of: $cause")
@@ -422,6 +426,9 @@ class ZtcClientService @Inject constructor(
 
     override fun cacheStatistics(): Map<String, CacheStats> =
         CACHES.mapValuesTo(mutableMapOf<String, CacheStats>()) { it.value.stats() }
+
+    override fun cacheSizes(): Map<String, Long> =
+        CACHES.mapValuesTo(mutableMapOf()) { it.value.estimatedSize() }
 
     private fun createInvocationBuilder(uri: URI) =
         // for security reasons check if the provided URI starts with the value of the

@@ -8,7 +8,7 @@ package net.atos.zac.smartdocuments.templates
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import net.atos.client.smartdocuments.model.createsmartDocumentsTemplatesResponse
-import net.atos.zac.admin.model.createZaakafhandelParametersSummary
+import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.smartdocuments.rest.createRESTMappedTemplate
 import net.atos.zac.smartdocuments.rest.createRESTMappedTemplateGroup
 import net.atos.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroup
@@ -104,7 +104,7 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
         )
 
         When("convert to JPA model is called") {
-            val zaakafhandelParametersFixture = createZaakafhandelParametersSummary()
+            val zaakafhandelParametersFixture = createZaakafhandelParameters()
             val jpaModel = restTemplateRequest.toSmartDocumentsTemplateGroupSet(zaakafhandelParametersFixture)
 
             Then("it produces a correct jpa representation") {

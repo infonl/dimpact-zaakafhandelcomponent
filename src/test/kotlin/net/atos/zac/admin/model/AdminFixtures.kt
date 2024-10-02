@@ -75,23 +75,3 @@ fun createZaakafhandelParameters(
         this.einddatumGeplandWaarschuwing = einddatumGeplandWaarschuwing
         this.productaanvraagtype = productaanvraagtype
     }
-
-@Suppress("LongParameterList")
-fun createZaakafhandelParametersSummary(
-    id: Long? = 1234L,
-    creationDate: ZonedDateTime = ZonedDateTime.now(),
-    domein: String = "dummyDomein",
-    zaaktypeUUID: UUID = UUID.randomUUID(),
-    zaaktypeOmschrijving: String = "dummyZaaktypeOmschrijving",
-    einddatumGeplandWaarschuwing: Int? = null,
-    productaanvraagtype: String? = null
-) =
-    ZaakafhandelParametersSummary().apply {
-        this.id = id
-        this.creatiedatum = creationDate
-        this.domein = domein
-        this.zaakTypeUUID = zaaktypeUUID
-        this.zaaktypeOmschrijving = zaaktypeOmschrijving
-        this.einddatumGeplandWaarschuwing = einddatumGeplandWaarschuwing
-        this.productaanvraagtype = productaanvraagtype
-    }

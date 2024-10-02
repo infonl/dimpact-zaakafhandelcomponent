@@ -5,7 +5,7 @@
 
 package net.atos.zac.smartdocuments.rest
 
-import net.atos.zac.admin.model.ZaakafhandelParametersSummary
+import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplate
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
 import nl.lifely.zac.util.AllOpen
@@ -25,7 +25,7 @@ fun Set<RestMappedSmartDocumentsTemplateGroup>.toStringRepresentation(): Set<Str
     this.flatMap { convertTemplateGroupToStringRepresentation(it, null) }.toSet()
 
 fun Set<RestMappedSmartDocumentsTemplateGroup>.toSmartDocumentsTemplateGroupSet(
-    zaakafhandelParameters: ZaakafhandelParametersSummary
+    zaakafhandelParameters: ZaakafhandelParameters
 ): Set<SmartDocumentsTemplateGroup> =
     this.mapTo(mutableSetOf()) {
         convertTemplateGroupToModel(it, null, zaakafhandelParameters)
@@ -37,7 +37,7 @@ fun Set<SmartDocumentsTemplateGroup>.toRestSmartDocumentsTemplateGroup(): Set<Re
 private fun createModelTemplateGroup(
     smartDocumentsTemplateGroup: RestMappedSmartDocumentsTemplateGroup,
     parentGroup: SmartDocumentsTemplateGroup?,
-    zaakafhandelParams: ZaakafhandelParametersSummary
+    zaakafhandelParams: ZaakafhandelParameters
 ) = SmartDocumentsTemplateGroup().apply {
     smartDocumentsId = smartDocumentsTemplateGroup.id
     zaakafhandelParameters = zaakafhandelParams
@@ -49,7 +49,7 @@ private fun createModelTemplateGroup(
 private fun createModelTemplate(
     smartDocumentsTemplate: RestMappedSmartDocumentsTemplate,
     parentGroup: SmartDocumentsTemplateGroup,
-    zaakafhandelParams: ZaakafhandelParametersSummary
+    zaakafhandelParams: ZaakafhandelParameters
 ) = SmartDocumentsTemplate().apply {
     smartDocumentsId = smartDocumentsTemplate.id
     zaakafhandelParameters = zaakafhandelParams
@@ -85,15 +85,15 @@ private fun convertTemplateGroupToRest(
 private fun convertTemplateGroupToModel(
     group: RestMappedSmartDocumentsTemplateGroup,
     parent: SmartDocumentsTemplateGroup?,
-    zaakafhandelParameter: ZaakafhandelParametersSummary
+    zaakafhandelParameterId: ZaakafhandelParameters
 ): SmartDocumentsTemplateGroup {
-    val jpaGroup = createModelTemplateGroup(group, parent, zaakafhandelParameter)
+    val jpaGroup = createModelTemplateGroup(group, parent, zaakafhandelParameterId)
 
     jpaGroup.templates = group.templates?.map {
-        createModelTemplate(it as RestMappedSmartDocumentsTemplate, jpaGroup, zaakafhandelParameter)
+        createModelTemplate(it as RestMappedSmartDocumentsTemplate, jpaGroup, zaakafhandelParameterId)
     }?.ifEmpty { null }?.toMutableSet()
     jpaGroup.children = group.groups?.map {
-        convertTemplateGroupToModel(it as RestMappedSmartDocumentsTemplateGroup, jpaGroup, zaakafhandelParameter)
+        convertTemplateGroupToModel(it as RestMappedSmartDocumentsTemplateGroup, jpaGroup, zaakafhandelParameterId)
     }?.ifEmpty { null }?.toMutableSet()
 
     return jpaGroup
