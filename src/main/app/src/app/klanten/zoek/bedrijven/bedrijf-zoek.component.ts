@@ -41,7 +41,7 @@ export class BedrijfZoekComponent implements OnInit {
   ];
   loading = false;
   types = ["HOOFDVESTIGING", "NEVENVESTIGING", "RECHTSPERSOON"];
-  formId: string;
+  uuid: string;
   private formSelectedSubscription!: Subscription;
 
   kvkFormField: AbstractFormControlField;
@@ -124,12 +124,14 @@ export class BedrijfZoekComponent implements OnInit {
       type: this.typeFormField.formControl,
     });
 
+    this.uuid = crypto.randomUUID(); // Generate a unique form ID
+
     if (this.syncEnabled) {
       // Subscribe to select event, ignore own event
       this.formSelectedSubscription =
         this.formCommunicationService.formSubmitted$.subscribe(
-          ({ seelcted, formId }) => {
-            if (seelcted && formId !== this.formId) {
+          ({ selected, uuid }) => {
+            if (selected && uuid !== this.uuid) {
               this.wissen();
             }
           },
@@ -197,8 +199,8 @@ export class BedrijfZoekComponent implements OnInit {
     console.log("this.syncEnabled", this.syncEnabled);
 
     if (this.syncEnabled) {
-      this.formCommunicationService.notifySelected(this.formId);
-      console.log(`Form ${this.formId} seelcted`);
+      this.formCommunicationService.notifySelected(this.uuid);
+      console.log(`Form ${this.uuid} selected`);
     }
   }
 
