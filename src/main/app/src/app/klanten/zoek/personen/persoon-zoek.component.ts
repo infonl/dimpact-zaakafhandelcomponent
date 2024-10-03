@@ -298,7 +298,7 @@ export class PersoonZoekComponent implements OnInit {
     this.wissen();
 
     if (this.syncEnabled) {
-      this.formCommunicationService.notifySelected(this.uuid);
+      this.formCommunicationService.notifyItemSelected(this.uuid);
     }
   }
 

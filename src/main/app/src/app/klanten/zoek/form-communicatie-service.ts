@@ -11,7 +11,7 @@ export class FormCommunicatieService {
   }>({ selected: false, uuid: null });
   itemSelected$ = this.itemSelectedSource.asObservable();
 
-  notifySelected(uuid: string) {
+  notifyItemSelected(uuid: string) {
     this.itemSelectedSource.next({ selected: true, uuid });
   }
 }
