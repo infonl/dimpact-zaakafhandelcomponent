@@ -5,19 +5,13 @@ import { BehaviorSubject } from "rxjs";
   providedIn: "root",
 })
 export class FormCommunicatieService {
-  private formSubmittedSource = new BehaviorSubject<{
-    submitted: boolean;
+  private formSelectedSource = new BehaviorSubject<{
+    seelcted: boolean;
     formId: string | null;
-  }>({ submitted: false, formId: null });
-  formSubmitted$ = this.formSubmittedSource.asObservable();
-
-  private formClearedSource = new BehaviorSubject<{
-    cleared: boolean;
-    formId: string | null;
-  }>({ cleared: false, formId: null });
-  formCleared$ = this.formClearedSource.asObservable();
+  }>({ seelcted: false, formId: null });
+  formSubmitted$ = this.formSelectedSource.asObservable();
 
   notifySelected(formId: string) {
-    this.formSubmittedSource.next({ submitted: true, formId });
+    this.formSelectedSource.next({ seelcted: true, formId });
   }
 }

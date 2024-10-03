@@ -56,8 +56,7 @@ export class PersoonZoekComponent implements OnInit {
   foutmelding: string;
   loading = false;
   formId!: string;
-  private formSubmittedSubscription!: Subscription;
-  private formClearedSubscription!: Subscription;
+  private formSelectedSubscription!: Subscription;
 
   constructor(
     private klantenService: KlantenService,
@@ -170,10 +169,10 @@ export class PersoonZoekComponent implements OnInit {
 
     if (this.syncEnabled) {
       // Subscribe to select event, ignore own event
-      this.formSubmittedSubscription =
+      this.formSelectedSubscription =
         this.formCommunicationService.formSubmitted$.subscribe(
-          ({ submitted, formId }) => {
-            if (submitted && formId !== this.formId) {
+          ({ seelcted, formId }) => {
+            if (seelcted && formId !== this.formId) {
               this.wissen();
             }
           },
@@ -302,7 +301,7 @@ export class PersoonZoekComponent implements OnInit {
 
     if (this.syncEnabled) {
       this.formCommunicationService.notifySelected(this.formId);
-      console.log(`Form ${this.formId} submitted`);
+      console.log(`Form ${this.formId} seelcted`);
     }
   }
 
@@ -317,11 +316,8 @@ export class PersoonZoekComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    if (this.formSubmittedSubscription) {
-      this.formSubmittedSubscription.unsubscribe();
-    }
-    if (this.formClearedSubscription) {
-      this.formClearedSubscription.unsubscribe();
+    if (this.formSelectedSubscription) {
+      this.formSelectedSubscription.unsubscribe();
     }
   }
 }
