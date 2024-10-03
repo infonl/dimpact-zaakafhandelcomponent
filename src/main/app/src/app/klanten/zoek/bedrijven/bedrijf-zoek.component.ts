@@ -196,11 +196,8 @@ export class BedrijfZoekComponent implements OnInit {
     this.bedrijf.emit(bedrijf);
     this.wissen();
 
-    console.log("this.syncEnabled", this.syncEnabled);
-
     if (this.syncEnabled) {
       this.formCommunicationService.notifySelected(this.uuid);
-      console.log(`Form ${this.uuid} selected`);
     }
   }
 

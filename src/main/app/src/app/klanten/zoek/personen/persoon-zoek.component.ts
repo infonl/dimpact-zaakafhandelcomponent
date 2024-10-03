@@ -297,11 +297,8 @@ export class PersoonZoekComponent implements OnInit {
     this.persoon.emit(persoon);
     this.wissen();
 
-    console.log(`Person ${this.uuid} selected`);
-
     if (this.syncEnabled) {
       this.formCommunicationService.notifySelected(this.uuid);
-      console.log(`Form ${this.uuid} selected`);
     }
   }
 
