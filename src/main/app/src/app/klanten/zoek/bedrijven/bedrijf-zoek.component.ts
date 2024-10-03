@@ -41,7 +41,7 @@ export class BedrijfZoekComponent implements OnInit {
   ];
   loading = false;
   types = ["HOOFDVESTIGING", "NEVENVESTIGING", "RECHTSPERSOON"];
-  formId!: string;
+  formId: string;
   private formSelectedSubscription!: Subscription;
 
   kvkFormField: AbstractFormControlField;

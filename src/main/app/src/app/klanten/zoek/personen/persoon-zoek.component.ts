@@ -55,7 +55,7 @@ export class PersoonZoekComponent implements OnInit {
   mijnGemeente: string;
   foutmelding: string;
   loading = false;
-  formId!: string;
+  formId: string;
   private formSelectedSubscription!: Subscription;
 
   constructor(
