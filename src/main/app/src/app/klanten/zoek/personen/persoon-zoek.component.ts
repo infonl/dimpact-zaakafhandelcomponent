@@ -8,10 +8,9 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
-import { Subject, forkJoin, Subscription } from "rxjs";
+import { forkJoin, Subject, Subscription } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
-import { FormCommunicatieService } from "../form-communicatie-service";
 import { ActionIcon } from "../../../shared/edit/action-icon";
 import { DateFormFieldBuilder } from "../../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
@@ -22,6 +21,7 @@ import { Cardinaliteit } from "../../model/personen/cardinaliteit";
 import { ListPersonenParameters } from "../../model/personen/list-personen-parameters";
 import { PersonenParameters } from "../../model/personen/personen-parameters";
 import { Persoon } from "../../model/personen/persoon";
+import { FormCommunicatieService } from "../form-communicatie-service";
 
 @Component({
   selector: "zac-persoon-zoek",

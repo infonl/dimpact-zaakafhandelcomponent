@@ -10,7 +10,6 @@ import { MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { Subscription } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
-import { FormCommunicatieService } from "../form-communicatie-service";
 import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { SelectFormFieldBuilder } from "../../../shared/material-form-builder/form-components/select/select-form-field-builder";
 import { AbstractFormControlField } from "../../../shared/material-form-builder/model/abstract-form-control-field";
@@ -18,6 +17,7 @@ import { CustomValidators } from "../../../shared/validators/customValidators";
 import { KlantenService } from "../../klanten.service";
 import { Bedrijf } from "../../model/bedrijven/bedrijf";
 import { ListBedrijvenParameters } from "../../model/bedrijven/list-bedrijven-parameters";
+import { FormCommunicatieService } from "../form-communicatie-service";
 
 @Component({
   selector: "zac-bedrijf-zoek",
