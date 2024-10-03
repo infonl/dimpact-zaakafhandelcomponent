@@ -8,7 +8,9 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
+import { Subscription } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
+import { FormCommunicatieService } from "../form-communicatie-service";
 import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { SelectFormFieldBuilder } from "../../../shared/material-form-builder/form-components/select/select-form-field-builder";
 import { AbstractFormControlField } from "../../../shared/material-form-builder/model/abstract-form-control-field";
@@ -25,6 +27,7 @@ import { ListBedrijvenParameters } from "../../model/bedrijven/list-bedrijven-pa
 export class BedrijfZoekComponent implements OnInit {
   @Output() bedrijf? = new EventEmitter<Bedrijf>();
   @Input() sideNav?: MatSidenav;
+  @Input() syncEnabled: boolean = false;
   bedrijven: MatTableDataSource<Bedrijf> = new MatTableDataSource<Bedrijf>();
   foutmelding: string;
   formGroup: FormGroup;
@@ -38,6 +41,9 @@ export class BedrijfZoekComponent implements OnInit {
   ];
   loading = false;
   types = ["HOOFDVESTIGING", "NEVENVESTIGING", "RECHTSPERSOON"];
+  formId!: string;
+  private formSubmittedSubscription!: Subscription;
+  private formClearedSubscription!: Subscription;
 
   kvkFormField: AbstractFormControlField;
   vestigingsnummerFormField: AbstractFormControlField;
@@ -51,6 +57,7 @@ export class BedrijfZoekComponent implements OnInit {
   constructor(
     private klantenService: KlantenService,
     private utilService: UtilService,
+    private formCommunicationService: FormCommunicatieService,
     private formBuilder: FormBuilder,
     private router: Router,
   ) {}
@@ -106,6 +113,7 @@ export class BedrijfZoekComponent implements OnInit {
       .label("plaats")
       .maxlength(50)
       .build();
+
     this.formGroup = this.formBuilder.group({
       kvkNummer: this.kvkFormField.formControl,
       naam: this.naamFormField.formControl,
@@ -116,6 +124,18 @@ export class BedrijfZoekComponent implements OnInit {
       plaats: this.plaatsFormField.formControl,
       type: this.typeFormField.formControl,
     });
+
+    if (this.syncEnabled) {
+      // Subscribe to select event, ignore own event
+      this.formSubmittedSubscription =
+        this.formCommunicationService.formSubmitted$.subscribe(
+          ({ submitted, formId }) => {
+            if (submitted && formId !== this.formId) {
+              this.wissen();
+            }
+          },
+        );
+    }
   }
 
   isValid(): boolean {
@@ -174,10 +194,26 @@ export class BedrijfZoekComponent implements OnInit {
   selectBedrijf(bedrijf: Bedrijf): void {
     this.bedrijf.emit(bedrijf);
     this.wissen();
+
+    console.log("this.syncEnabled", this.syncEnabled);
+
+    if (this.syncEnabled) {
+      this.formCommunicationService.notifySelected(this.formId);
+      console.log(`Form ${this.formId} submitted`);
+    }
   }
 
   wissen() {
     this.formGroup.reset();
     this.bedrijven.data = [];
+  }
+
+  ngOnDestroy() {
+    if (this.formSubmittedSubscription) {
+      this.formSubmittedSubscription.unsubscribe();
+    }
+    if (this.formClearedSubscription) {
+      this.formClearedSubscription.unsubscribe();
+    }
   }
 }

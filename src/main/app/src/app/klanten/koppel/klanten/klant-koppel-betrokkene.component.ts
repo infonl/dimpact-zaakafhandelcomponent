@@ -56,12 +56,14 @@ import { PersoonZoekComponent } from "../../zoek/personen/persoon-zoek.component
     @if (type === "persoon") {
       <zac-persoon-zoek
         #zoek
+        [syncEnabled]="true"
         (persoon)="klantGeselecteerd($event)"
       ></zac-persoon-zoek>
     }
     @if (type === "bedrijf") {
       <zac-bedrijf-zoek
         #zoek
+        [syncEnabled]="true"
         (bedrijf)="klantGeselecteerd($event)"
       ></zac-bedrijf-zoek>
     }

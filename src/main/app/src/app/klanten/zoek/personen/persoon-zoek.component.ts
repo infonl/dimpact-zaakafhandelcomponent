@@ -8,9 +8,10 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
-import { Subject, forkJoin } from "rxjs";
+import { Subject, forkJoin, Subscription } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
+import { FormCommunicatieService } from "../form-communicatie-service";
 import { ActionIcon } from "../../../shared/edit/action-icon";
 import { DateFormFieldBuilder } from "../../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
@@ -30,6 +31,7 @@ import { Persoon } from "../../model/personen/persoon";
 export class PersoonZoekComponent implements OnInit {
   @Output() persoon? = new EventEmitter<Persoon>();
   @Input() sideNav?: MatSidenav;
+  @Input() syncEnabled: boolean = false;
   formGroup: FormGroup;
   bsnFormField: AbstractFormControlField;
   geslachtsnaamFormField: AbstractFormControlField;
@@ -53,6 +55,9 @@ export class PersoonZoekComponent implements OnInit {
   mijnGemeente: string;
   foutmelding: string;
   loading = false;
+  formId!: string;
+  private formSubmittedSubscription!: Subscription;
+  private formClearedSubscription!: Subscription;
 
   constructor(
     private klantenService: KlantenService,
@@ -60,6 +65,7 @@ export class PersoonZoekComponent implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router,
     private configuratieService: ConfiguratieService,
+    private formCommunicationService: FormCommunicatieService,
   ) {}
 
   ngOnInit(): void {
@@ -126,6 +132,7 @@ export class PersoonZoekComponent implements OnInit {
       )
       .maxlength(5)
       .build();
+
     this.queryFields = {
       bsn: this.bsnFormField,
       geslachtsnaam: this.geslachtsnaamFormField,
@@ -137,6 +144,7 @@ export class PersoonZoekComponent implements OnInit {
       postcode: this.postcodeFormField,
       huisnummer: this.huisnummerFormField,
     };
+
     this.formGroup = this.formBuilder.group({
       bsn: this.bsnFormField.formControl,
       geslachtsnaam: this.geslachtsnaamFormField.formControl,
@@ -149,6 +157,7 @@ export class PersoonZoekComponent implements OnInit {
       postcode: this.postcodeFormField.formControl,
       huisnummer: this.huisnummerFormField.formControl,
     });
+
     forkJoin([
       this.klantenService.getPersonenParameters(),
       this.configuratieService.readGemeenteCode(),
@@ -156,6 +165,20 @@ export class PersoonZoekComponent implements OnInit {
       this.queries = personenParameters;
       this.mijnGemeente = gemeenteCode;
     });
+
+    this.formId = crypto.randomUUID(); // Generate a unique form ID
+
+    if (this.syncEnabled) {
+      // Subscribe to select event, ignore own event
+      this.formSubmittedSubscription =
+        this.formCommunicationService.formSubmitted$.subscribe(
+          ({ submitted, formId }) => {
+            if (submitted && formId !== this.formId) {
+              this.wissen();
+            }
+          },
+        );
+    }
   }
 
   isValid(): boolean {
@@ -274,6 +297,13 @@ export class PersoonZoekComponent implements OnInit {
   selectPersoon(persoon: Persoon): void {
     this.persoon.emit(persoon);
     this.wissen();
+
+    console.log(`Person ${this.formId} selected`);
+
+    if (this.syncEnabled) {
+      this.formCommunicationService.notifySelected(this.formId);
+      console.log(`Form ${this.formId} submitted`);
+    }
   }
 
   openPersoonPagina(persoon: Persoon): void {
@@ -284,5 +314,14 @@ export class PersoonZoekComponent implements OnInit {
   wissen() {
     this.formGroup.reset();
     this.personen.data = [];
+  }
+
+  ngOnDestroy() {
+    if (this.formSubmittedSubscription) {
+      this.formSubmittedSubscription.unsubscribe();
+    }
+    if (this.formClearedSubscription) {
+      this.formClearedSubscription.unsubscribe();
+    }
   }
 }
