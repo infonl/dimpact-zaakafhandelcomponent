@@ -129,7 +129,7 @@ export class BedrijfZoekComponent implements OnInit {
     if (this.syncEnabled) {
       // Subscribe to select event, ignore own event
       this.formSelectedSubscription =
-        this.formCommunicationService.formSubmitted$.subscribe(
+        this.formCommunicationService.itemSelected$.subscribe(
           ({ selected, uuid }) => {
             if (selected && uuid !== this.uuid) {
               this.wissen();

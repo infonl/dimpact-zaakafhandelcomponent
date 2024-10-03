@@ -5,13 +5,13 @@ import { BehaviorSubject } from "rxjs";
   providedIn: "root",
 })
 export class FormCommunicatieService {
-  private formSelectedSource = new BehaviorSubject<{
+  private itemSelectedSource = new BehaviorSubject<{
     selected: boolean;
     uuid: string | null;
   }>({ selected: false, uuid: null });
-  formSubmitted$ = this.formSelectedSource.asObservable();
+  itemSelected$ = this.itemSelectedSource.asObservable();
 
   notifySelected(uuid: string) {
-    this.formSelectedSource.next({ selected: true, uuid });
+    this.itemSelectedSource.next({ selected: true, uuid });
   }
 }
