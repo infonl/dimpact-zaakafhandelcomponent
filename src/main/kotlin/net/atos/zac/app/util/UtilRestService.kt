@@ -15,7 +15,6 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.admin.ZaakafhandelParameterService
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
-import org.apache.commons.io.FileUtils
 import org.apache.commons.text.StringEscapeUtils
 
 @Path("util")
@@ -122,10 +121,10 @@ class UtilRestService @Inject constructor(
                     h(1, "Memory") +
                         ul(
                             listOf(
-                                "free: " + FileUtils.byteCountToDisplaySize(freeMemory),
-                                "used : " + FileUtils.byteCountToDisplaySize(totalMemory - freeMemory),
-                                "total: " + FileUtils.byteCountToDisplaySize(totalMemory),
-                                "max  : " + FileUtils.byteCountToDisplaySize(Runtime.getRuntime().maxMemory())
+                                "free: $freeMemory bytes",
+                                "used : ${totalMemory - freeMemory} bytes",
+                                "total: $totalMemory bytes",
+                                "max  : ${Runtime.getRuntime().maxMemory()} bytes"
                             )
                         )
                 )
