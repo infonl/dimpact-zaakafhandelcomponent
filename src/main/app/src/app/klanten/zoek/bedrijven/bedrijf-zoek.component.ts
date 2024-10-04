@@ -8,6 +8,7 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
+import { Subscription } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
 import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { SelectFormFieldBuilder } from "../../../shared/material-form-builder/form-components/select/select-form-field-builder";
@@ -16,6 +17,7 @@ import { CustomValidators } from "../../../shared/validators/customValidators";
 import { KlantenService } from "../../klanten.service";
 import { Bedrijf } from "../../model/bedrijven/bedrijf";
 import { ListBedrijvenParameters } from "../../model/bedrijven/list-bedrijven-parameters";
+import { FormCommunicatieService } from "../form-communicatie-service";
 
 @Component({
   selector: "zac-bedrijf-zoek",
@@ -25,6 +27,7 @@ import { ListBedrijvenParameters } from "../../model/bedrijven/list-bedrijven-pa
 export class BedrijfZoekComponent implements OnInit {
   @Output() bedrijf? = new EventEmitter<Bedrijf>();
   @Input() sideNav?: MatSidenav;
+  @Input() syncEnabled: boolean = false;
   bedrijven: MatTableDataSource<Bedrijf> = new MatTableDataSource<Bedrijf>();
   foutmelding: string;
   formGroup: FormGroup;
@@ -38,6 +41,8 @@ export class BedrijfZoekComponent implements OnInit {
   ];
   loading = false;
   types = ["HOOFDVESTIGING", "NEVENVESTIGING", "RECHTSPERSOON"];
+  uuid: string;
+  private formSelectedSubscription!: Subscription;
 
   kvkFormField: AbstractFormControlField;
   vestigingsnummerFormField: AbstractFormControlField;
@@ -51,6 +56,7 @@ export class BedrijfZoekComponent implements OnInit {
   constructor(
     private klantenService: KlantenService,
     private utilService: UtilService,
+    private formCommunicationService: FormCommunicatieService,
     private formBuilder: FormBuilder,
     private router: Router,
   ) {}
@@ -106,6 +112,7 @@ export class BedrijfZoekComponent implements OnInit {
       .label("plaats")
       .maxlength(50)
       .build();
+
     this.formGroup = this.formBuilder.group({
       kvkNummer: this.kvkFormField.formControl,
       naam: this.naamFormField.formControl,
@@ -116,6 +123,20 @@ export class BedrijfZoekComponent implements OnInit {
       plaats: this.plaatsFormField.formControl,
       type: this.typeFormField.formControl,
     });
+
+    this.uuid = crypto.randomUUID(); // Generate a unique form ID
+
+    if (this.syncEnabled) {
+      // Subscribe to select event, ignore own event
+      this.formSelectedSubscription =
+        this.formCommunicationService.itemSelected$.subscribe(
+          ({ selected, uuid }) => {
+            if (selected && uuid !== this.uuid) {
+              this.wissen();
+            }
+          },
+        );
+    }
   }
 
   isValid(): boolean {
@@ -174,10 +195,20 @@ export class BedrijfZoekComponent implements OnInit {
   selectBedrijf(bedrijf: Bedrijf): void {
     this.bedrijf.emit(bedrijf);
     this.wissen();
+
+    if (this.syncEnabled) {
+      this.formCommunicationService.notifyItemSelected(this.uuid);
+    }
   }
 
   wissen() {
     this.formGroup.reset();
     this.bedrijven.data = [];
+  }
+
+  ngOnDestroy() {
+    if (this.formSelectedSubscription) {
+      this.formSelectedSubscription.unsubscribe();
+    }
   }
 }

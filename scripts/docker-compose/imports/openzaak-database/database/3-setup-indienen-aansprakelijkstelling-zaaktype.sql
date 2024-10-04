@@ -1,3 +1,4 @@
+-- SQL script that creates the 'Indienen aansprakelijkstelling door derden behandelen' zaaktype in the Open Zaak database
 
 -- note that we currently use the public https://selectielijst.openzaak.nl/ VNG Selectielijst service here
 INSERT INTO catalogi_zaaktype
@@ -174,20 +175,20 @@ VALUES
 (
   (SELECT COALESCE(MAX(id),0) FROM catalogi_resultaattype) + 1, -- Adjust ID as needed
   '00da48aa-9263-4053-bd88-4b9037c9d966', -- UUID
-  'Afgebroken', -- Omschrijving
-  'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506', -- Resultaattypeomschrijving
-  'Afgebroken', -- Omschrijving Generiek
-  'https://selectielijst.openzaak.nl/api/v1/resultaten/3db49761-7544-4836-a133-3c77db280e90', -- Selectielijstklasse
-  'blijvend_bewaren', -- Archiefnominatie
-  'P1Y', -- Archiefactietermijn
-  'afgehandeld', -- Brondatum Archiefprocedure Afleidingswijze
-  '', -- Brondatum Archiefprocedure Datumkenmerk
-  false, -- Brondatum Archiefprocedure Einddatum Bekend
-  '', -- Brondatum Archiefprocedure Objecttype
-  '', -- Brondatum Archiefprocedure Registratie
-  NULL, -- Brondatum Archiefprocedure Procestermijn
-  'Het afhandelen van een geschil dat door een derde aanhangig wordt gemaakt omdat deze een (vermeend) nadeel heeft ondervonden door het (niet) handelen van de instelling', -- Toelichting
-  (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'), -- Zaaktype ID
+  'Afgebroken',
+  'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506',
+  'Afgebroken',
+  'https://selectielijst.openzaak.nl/api/v1/resultaten/0d978967-6bf2-452f-951a-c16bff338f42',
+  'vernietigen',
+  'P1Y',
+  'afgehandeld',
+  '',
+  false,
+  '',
+  '',
+  NULL,
+  'Het afhandelen van een geschil dat door een derde aanhangig wordt gemaakt omdat deze een (vermeend) nadeel heeft ondervonden door het (niet) handelen van de instelling',
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'),
   '_etag',
   NULL,
   '',
