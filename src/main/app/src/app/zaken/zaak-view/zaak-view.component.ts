@@ -582,7 +582,9 @@ export class ZaakViewComponent
         new ButtonMenuItem(
           "actie.document.maken",
           () => {
-            this.maakDocument();
+            // this.maakDocument();
+            this.actionsSidenav.open();
+            this.action = SideNavAction.DOCUMENT_MAKEN;
           },
           "note_add",
         ),

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -11,6 +11,7 @@ import { InformatieObjectIndicatiesComponent } from "../shared/indicaties/inform
 import { MimetypeToExtensionPipe } from "../shared/pipes/mimetypeToExtension.pipe";
 import { SharedModule } from "../shared/shared.module";
 import { InformatieObjectAddComponent } from "./informatie-object-add/informatie-object-add.component";
+import { InformatieObjectCreateAttendedComponent } from "./informatie-object-create-attended/informatie-object-create-attended.component";
 import { InformatieObjectEditComponent } from "./informatie-object-edit/informatie-object-edit.component";
 import { InformatieObjectVerzendenComponent } from "./informatie-object-verzenden/informatie-object-verzenden.component";
 import { InformatieObjectViewComponent } from "./informatie-object-view/informatie-object-view.component";
@@ -22,9 +23,14 @@ import { RouteReuseStrategyService } from "./route-reuse-strategy.service";
     InformatieObjectViewComponent,
     InformatieObjectEditComponent,
     InformatieObjectAddComponent,
+    InformatieObjectCreateAttendedComponent,
     InformatieObjectVerzendenComponent,
   ],
-  exports: [InformatieObjectAddComponent, InformatieObjectVerzendenComponent],
+  exports: [
+    InformatieObjectAddComponent,
+    InformatieObjectCreateAttendedComponent,
+    InformatieObjectVerzendenComponent,
+  ],
   providers: [
     { provide: RouteReuseStrategy, useClass: RouteReuseStrategyService },
   ],
