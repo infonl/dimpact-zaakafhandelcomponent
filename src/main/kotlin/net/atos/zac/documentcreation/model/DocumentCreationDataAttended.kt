@@ -5,13 +5,22 @@
 package net.atos.zac.documentcreation.model
 
 import net.atos.client.zgw.zrc.model.Zaak
+import java.time.ZonedDateTime
 
 data class DocumentCreationDataAttended(
-    val taskId: String? = null,
+    val zaak: Zaak,
+
+    val taskId: String?,
 
     val templateGroupId: String,
 
     val templateId: String,
 
-    val zaak: Zaak
+    var title: String? = null,
+
+    var description: String? = null,
+
+    var author: String? = null,
+
+    var creationDate: ZonedDateTime,
 )

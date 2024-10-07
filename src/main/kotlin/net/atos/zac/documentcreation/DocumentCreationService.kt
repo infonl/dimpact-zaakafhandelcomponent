@@ -24,6 +24,7 @@ import net.atos.zac.smartdocuments.SmartDocumentsService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
+import java.time.ZonedDateTime
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -85,7 +86,10 @@ class DocumentCreationService @Inject constructor(
                     creationDataUnattended.taskId,
                     creationDataUnattended.templateGroupId,
                     creationDataUnattended.templateId,
-                    loggedInUserInstance.get().getFullName()
+                    creationDataUnattended.title,
+                    creationDataUnattended.description,
+                    creationDataUnattended.creationDate,
+                    creationDataUnattended.author ?: loggedInUserInstance.get().getFullName()
                 ).toString()
             )
         )
@@ -94,12 +98,15 @@ class DocumentCreationService @Inject constructor(
      * Download generated SmartDocuments file and store it as Informatieobject
      */
     fun storeDocument(
+        zaak: Zaak,
+        taskId: String? = null,
         fileId: String,
         templateGroupId: String,
         templateId: String,
-        userName: String,
-        zaak: Zaak,
-        taskId: String? = null
+        title: String?,
+        description: String?,
+        creationDate: ZonedDateTime,
+        userName: String
     ): ZaakInformatieobject =
         smartDocumentsService.downloadDocument(fileId).let { file ->
             documentCreationDataConverter.toEnkelvoudigInformatieObjectCreateLockRequest(
@@ -108,6 +115,9 @@ class DocumentCreationService @Inject constructor(
                 smartDocumentsFileType = OUTPUT_FORMAT_DOCX,
                 smartDocumentsTemplateGroupId = templateGroupId,
                 smartDocumentsTemplateId = templateId,
+                title = title,
+                description = description,
+                creationDate = creationDate,
                 userName = userName,
             ).let {
                 enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(

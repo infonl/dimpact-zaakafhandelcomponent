@@ -11,6 +11,8 @@ import net.atos.client.zgw.ztc.model.CatalogusListParameters
 import net.atos.client.zgw.ztc.model.generated.Catalogus
 import java.net.URI
 import java.net.URLEncoder
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.util.UUID
 
 class ConfiguratieServiceTest : BehaviorSpec({
@@ -35,6 +37,9 @@ class ConfiguratieServiceTest : BehaviorSpec({
         val zaakUuid = UUID.randomUUID()
         val templateGroupId = "groupId"
         val templateId = "templateId"
+        val title = "title"
+        val description = "description"
+        val creationDate = ZonedDateTime.of(2024, 10, 7, 0, 0, 0, 0, ZoneOffset.UTC)
         val userName = "Full User Name"
 
         every { catalogus.url } returns URI(catalogusUri)
@@ -58,13 +63,17 @@ class ConfiguratieServiceTest : BehaviorSpec({
                 null,
                 templateGroupId,
                 templateId,
+                title,
+                description,
+                creationDate,
                 userName
             )
 
             Then("Correct URl is provided") {
                 uri.toString() shouldBe "$contextUrl/rest/document-creation/smartdocuments/callback/zaak/" +
                     "$zaakUuid?templateId=$templateId&templateGroupId=$templateGroupId&userName=" +
-                    URLEncoder.encode(userName, Charsets.UTF_8)
+                    URLEncoder.encode(userName, Charsets.UTF_8) + "&creationDate=2024-10-07T00%3A00Z&title=$title" +
+                    "&description=$description"
             }
         }
 
@@ -75,13 +84,17 @@ class ConfiguratieServiceTest : BehaviorSpec({
                 taakUuid,
                 templateGroupId,
                 templateId,
+                title,
+                description,
+                creationDate,
                 userName
             )
 
             Then("Correct URl is provided") {
                 uri.toString() shouldBe "$contextUrl/rest/document-creation/smartdocuments/callback/zaak/" +
-                    "$zaakUuid/task/$taakUuid?templateId=$templateId&templateGroupId=$templateGroupId" +
-                    "&userName=" + URLEncoder.encode(userName, Charsets.UTF_8)
+                    "$zaakUuid/task/$taakUuid?templateId=$templateId&templateGroupId=$templateGroupId&userName=" +
+                    URLEncoder.encode(userName, Charsets.UTF_8) + "&creationDate=2024-10-07T00%3A00Z&title=$title" +
+                    "&description=$description"
             }
         }
     }

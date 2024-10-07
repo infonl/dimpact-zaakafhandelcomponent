@@ -46,7 +46,7 @@ import net.atos.zac.util.UriUtil.uuidFromURI
 import nl.lifely.zac.util.NoArgConstructor
 import nl.lifely.zac.util.decodedBase64StringLength
 import java.net.URI
-import java.time.LocalDate
+import java.time.ZonedDateTime
 import java.util.Objects
 
 @NoArgConstructor
@@ -212,14 +212,17 @@ class DocumentCreationDataConverter @Inject constructor(
         smartDocumentsFileType: String,
         smartDocumentsTemplateGroupId: String,
         smartDocumentsTemplateId: String,
+        title: String?,
+        description: String?,
+        creationDate: ZonedDateTime,
         userName: String
     ) = EnkelvoudigInformatieObjectCreateLockRequest().apply {
         bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
-        creatiedatum = LocalDate.now()
-        titel = smartDocumentsFile.fileName
+        creatiedatum = creationDate.toLocalDate()
+        titel = title
         auteur = userName
         taal = ConfiguratieService.TAAL_NEDERLANDS
-        beschrijving = ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT
+        beschrijving = description
         status = StatusEnum.IN_BEWERKING
         vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
         informatieobjecttype = smartDocumentsTemplatesService.getInformationObjectTypeUUID(
