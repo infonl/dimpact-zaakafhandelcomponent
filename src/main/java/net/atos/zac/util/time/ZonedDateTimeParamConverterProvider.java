@@ -9,7 +9,8 @@ import jakarta.ws.rs.ext.ParamConverterProvider;
 import jakarta.ws.rs.ext.Provider;
 
 /**
- * Solves missing valueOf() and string constructor for ZonedDateTime class
+ * Provider for ZonedDateTime jakarta web-service parameter converter.
+ * @see ZonedDateTimeParamConverter
  */
 @Provider
 public class ZonedDateTimeParamConverterProvider implements ParamConverterProvider {
