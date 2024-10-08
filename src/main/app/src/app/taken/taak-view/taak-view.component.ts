@@ -297,6 +297,7 @@ export class TaakViewComponent
       "DA3A76D24DFD48C9837B03E47BC701FB";
     documentCreationData.smartDocumentsTemplateId =
       "7B7857BB9959470C82974037304E433D";
+    documentCreationData.title = "gemaakt door SmartDocuments";
     this.informatieObjectenService
       .createDocumentAttended(documentCreationData)
       .subscribe((documentCreatieResponse) => {
