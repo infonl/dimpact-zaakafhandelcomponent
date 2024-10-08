@@ -144,6 +144,9 @@ maxFileSizeMB: 80
 # remoteDebug Enable Java remote debugging
 remoteDebug: False
 
+# javaOptions: jvm options to set in the _JAVA_OPTIONS env var, recommended defaults are used if not provided and are shown below
+#javaOptions: -Xmx1024m -Xms1024m -Xlog:gc::time,uptime
+
 # replicaCount the number of replicas to run
 replicaCount: 1
 
