@@ -134,7 +134,8 @@
         font-size: 14px;
         line-height: 20px;
         padding: 14px 16px;
-        margin-bottom: 16px;
+        margin-bottom: 10px;
+        border-radius: 4px;
       }
 
       .wizard-result.success {
@@ -142,13 +143,13 @@
         fill: var(--success-fill);
       }
 
-      .wizard-result.failed,
+      .wizard-result.failure,
       .wizard-result.unknown {
         background-color: var(--error-bg);
         fill: var(--error-fill);
       }
 
-      .wizard-result.canceled {
+      .wizard-result.cancelled {
         background-color: var(--warning-bg);
         fill: var(--warning-fill);
       }
@@ -162,8 +163,8 @@
       }
 
       .wizard-result.success > svg.checkmark,
-      .wizard-result.failed > svg.exclamation,
-      .wizard-result.canceled > svg.exclamation,
+      .wizard-result.failure > svg.exclamation,
+      .wizard-result.cancelled > svg.exclamation,
       .wizard-result.unknown > svg.exclamation {
         display: block;
       }
@@ -181,7 +182,8 @@
         const zaakValue = sanitizeInput(urlParams.get("zaak"));
         const taakValue = sanitizeInput(urlParams.get("taak"));
         const docValue = sanitizeInput(urlParams.get("doc"));
-        const resultValue = sanitizeInput(urlParams.get("result"));
+        let resultValue = sanitizeInput(urlParams.get("result"));
+        resultValue = resultValue.toLowerCase();
 
         const language = getBrowserLanguage();
 
@@ -190,7 +192,7 @@
         const typeValue = getTypeValue(zaakValue, taakValue, language);
 
         // Validate and set finalResultValue
-        const VALID_RESULTS = ["success", "failed", "canceled"];
+        const VALID_RESULTS = ["success", "failure", "cancelled"];
         const finalResultValue = VALID_RESULTS.includes(resultValue)
           ? resultValue
           : "unknown";

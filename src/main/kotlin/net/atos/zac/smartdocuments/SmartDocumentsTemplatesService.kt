@@ -8,7 +8,6 @@ package net.atos.zac.smartdocuments
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
-import jakarta.persistence.NoResultException
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
@@ -24,7 +23,6 @@ import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.util.UUID
-import java.util.logging.Level
 import java.util.logging.Logger
 
 @ApplicationScoped
@@ -37,8 +35,6 @@ class SmartDocumentsTemplatesService @Inject constructor(
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
 ) {
     companion object {
-        private const val EXCEPTION_PREFIX = "No information object type mapped for template"
-
         private val LOG = Logger.getLogger(DocumentCreationService::class.java.name)
     }
 
@@ -156,42 +152,42 @@ class SmartDocumentsTemplatesService @Inject constructor(
                 "$zaakafhandelParametersUUID, template group id $templateGroupId and template id $templateId"
         }
 
-        entityManager.criteriaBuilder.let { builder ->
-            builder.createQuery(SmartDocumentsTemplate::class.java).let { query ->
-                query.from(SmartDocumentsTemplate::class.java).let { root ->
-                    try {
-                        return entityManager.createQuery(
-                            query.select(root)
-                                .where(
-                                    builder.and(
-                                        builder.equal(
-                                            root.get<ZaakafhandelParameters>(
-                                                SmartDocumentsTemplate::zaakafhandelParameters.name
-                                            )
-                                                .get<Long>("id"),
-                                            getZaakafhandelParametersId(zaakafhandelParametersUUID)
-                                        ),
-                                        builder.equal(
-                                            root.get<SmartDocumentsTemplateGroup>(
-                                                SmartDocumentsTemplate::templateGroup.name
-                                            )
-                                                .get<String>(SmartDocumentsTemplate::smartDocumentsId.name),
-                                            templateGroupId
-                                        ),
-                                        builder.equal(
-                                            root.get<SmartDocumentsTemplate>(
-                                                SmartDocumentsTemplate::smartDocumentsId.name
-                                            ),
-                                            templateId
-                                        )
+        return entityManager.criteriaBuilder.let { builder ->
+            builder.createTupleQuery().let { criteriaQuery ->
+                criteriaQuery.from(SmartDocumentsTemplate::class.java).let { root ->
+                    root.get<UUID>(SmartDocumentsTemplate::informatieObjectTypeUUID.name).let { namePath ->
+                        criteriaQuery.multiselect(namePath).where(
+                            builder.and(
+                                builder.equal(
+                                    root.get<ZaakafhandelParameters>(
+                                        SmartDocumentsTemplate::zaakafhandelParameters.name
                                     )
+                                        .get<Long>("id"),
+                                    getZaakafhandelParametersId(zaakafhandelParametersUUID)
+                                ),
+                                builder.equal(
+                                    root.get<SmartDocumentsTemplateGroup>(
+                                        SmartDocumentsTemplate::templateGroup.name
+                                    )
+                                        .get<String>(SmartDocumentsTemplate::smartDocumentsId.name),
+                                    templateGroupId
+                                ),
+                                builder.equal(
+                                    root.get<SmartDocumentsTemplate>(
+                                        SmartDocumentsTemplate::smartDocumentsId.name
+                                    ),
+                                    templateId
                                 )
-                        ).singleResult.informatieObjectTypeUUID
-                    } catch (noResultException: NoResultException) {
-                        "$EXCEPTION_PREFIX group id $templateGroupId and template id $templateId".let { message ->
-                            LOG.log(Level.FINE, message, noResultException)
-                            throw SmartDocumentsException(message)
-                        }
+                            )
+                        ).let { multiselectQuery ->
+                            entityManager.createQuery(multiselectQuery)
+                                .setMaxResults(1)
+                                .resultList[0]
+                                .get(namePath)
+                        }.takeIf { it != null } ?: throw SmartDocumentsException(
+                            "No information object type mapped for template group id " +
+                                "$templateGroupId and template id $templateId"
+                        )
                     }
                 }
             }

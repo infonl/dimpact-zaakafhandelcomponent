@@ -40,6 +40,8 @@ public interface Caching {
 
     Map<String, CacheStats> cacheStatistics();
 
+    Map<String, Long> cacheSizes();
+
     default String cleared(final String cache) {
         final String message = String.format("%s cache cleared", cache);
         LOG.info(message);

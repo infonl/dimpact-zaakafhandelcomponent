@@ -37,11 +37,13 @@ import { KlantGegevens } from "../../model/klanten/klant-gegevens";
     </ng-template>
     @if (type === "persoon") {
       <zac-persoon-zoek
+        [syncEnabled]="true"
         (persoon)="klantGeselecteerd($event)"
       ></zac-persoon-zoek>
     }
     @if (type === "bedrijf") {
       <zac-bedrijf-zoek
+        [syncEnabled]="true"
         (bedrijf)="klantGeselecteerd($event)"
       ></zac-bedrijf-zoek>
     }
