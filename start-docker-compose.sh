@@ -115,11 +115,11 @@ mkdir -p $volumeDataFolder/zgw-referentielijsten-database-data
 # Build comma separated profile list
 profilesList=""
 if [ ${#profiles[@]} -ne 0 ]; then
-  printf -v concatenated_profiles ' with profiles %s,' "${profiles[@]}"
+  printf -v concatenated_profiles '%s,' "${profiles[@]}"
   profilesList="${concatenated_profiles%,}"
 fi
 
 # Uses the 1Password CLI tools to set up the environment variables for running Docker Compose and ZAC in IntelliJ.
 # Please see docs/INSTALL.md for details on how to use this script.
-echo "Starting Docker Compose environment$profilesList ..."
+echo "Starting Docker Compose environment with profiles [$profilesList] ..."
 export APP_ENV=devlocal && export COMPOSE_PROFILES=$profilesList && export SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=$enableZacOpenTelemetrySampler && op run --env-file="./.env.tpl" --no-masking -- docker compose --project-name zac up -d
