@@ -119,8 +119,8 @@ import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.util.DateTimeConverterUtil
-import net.atos.zac.util.LocalDateUtil
 import net.atos.zac.util.UriUtil
+import net.atos.zac.util.time.LocalDateUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService

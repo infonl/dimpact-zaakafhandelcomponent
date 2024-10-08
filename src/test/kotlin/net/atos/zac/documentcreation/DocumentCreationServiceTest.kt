@@ -25,6 +25,7 @@ import net.atos.zac.identity.model.getFullName
 import net.atos.zac.smartdocuments.SmartDocumentsService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import java.net.URI
+import java.time.ZonedDateTime
 import java.util.UUID
 
 class DocumentCreationServiceTest : BehaviorSpec({
@@ -81,6 +82,9 @@ class DocumentCreationServiceTest : BehaviorSpec({
                 documentCreationData.taskId,
                 documentCreationData.templateGroupId,
                 documentCreationData.templateId,
+                documentCreationData.title,
+                documentCreationData.description,
+                documentCreationData.creationDate,
                 fullName
             )
         } returns URI("https://sd.host.com")
@@ -106,6 +110,9 @@ class DocumentCreationServiceTest : BehaviorSpec({
         val templateGroupId = "2"
         val templateId = "3"
         val taakId = "4"
+        val title = "title"
+        val description = "description"
+        val creationDate = ZonedDateTime.now()
         val userName = "Full Name"
         val zaak = createZaak()
         val downloadedFile = createFile()
@@ -120,6 +127,9 @@ class DocumentCreationServiceTest : BehaviorSpec({
                 "DOCX",
                 templateGroupId,
                 templateId,
+                title,
+                description,
+                creationDate,
                 userName
             )
         } returns enkelvoudigInformatieObjectLockRequest
@@ -133,12 +143,15 @@ class DocumentCreationServiceTest : BehaviorSpec({
 
         When("storing a downloaded file is requested") {
             val returnedZaakInformatieobject = documentCreationService.storeDocument(
-                smartDocumentId,
-                templateGroupId,
-                templateId,
-                userName,
-                zaak,
-                taakId
+                zaak = zaak,
+                taskId = taakId,
+                fileId = smartDocumentId,
+                templateGroupId = templateGroupId,
+                templateId = templateId,
+                title = title,
+                description = description,
+                creationDate = creationDate,
+                userName = userName
             )
 
             Then("ZaakInformatieobject is stored") {

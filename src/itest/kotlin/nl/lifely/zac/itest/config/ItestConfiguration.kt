@@ -194,8 +194,7 @@ object ItestConfiguration {
     const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_NAME = "group 2 template 2"
 
     const val SMART_DOCUMENTS_FILE_ID = "dummyFileId"
-    const val SMART_DOCUMENTS_FILE_NAME = "sample"
-    const val SMART_DOCUMENTS_FILE_EXTENSION = "docx"
+    const val SMART_DOCUMENTS_FILE_TITLE = "Smart Documents file"
 
     const val SMTP_SERVER_PORT = 25
     const val VERANTWOORDELIJKE_ORGANISATIE = "316245124"
