@@ -72,8 +72,8 @@ class ConfiguratieServiceTest : BehaviorSpec({
             Then("Correct URl is provided") {
                 uri.toString() shouldBe "$contextUrl/rest/document-creation/smartdocuments/callback/zaak/" +
                     "$zaakUuid?templateId=$templateId&templateGroupId=$templateGroupId&userName=" +
-                    URLEncoder.encode(userName, Charsets.UTF_8) + "&creationDate=2024-10-07T00%3A00Z&title=$title" +
-                    "&description=$description"
+                    URLEncoder.encode(userName, Charsets.UTF_8) + "&creationDate=2024-10-07T00%3A00%3A00Z" +
+                    "&title=$title&description=$description"
             }
         }
 
@@ -93,8 +93,8 @@ class ConfiguratieServiceTest : BehaviorSpec({
             Then("Correct URl is provided") {
                 uri.toString() shouldBe "$contextUrl/rest/document-creation/smartdocuments/callback/zaak/" +
                     "$zaakUuid/task/$taakUuid?templateId=$templateId&templateGroupId=$templateGroupId&userName=" +
-                    URLEncoder.encode(userName, Charsets.UTF_8) + "&creationDate=2024-10-07T00%3A00Z&title=$title" +
-                    "&description=$description"
+                    URLEncoder.encode(userName, Charsets.UTF_8) + "&creationDate=2024-10-07T00%3A00%3A00Z" +
+                    "&title=$title&description=$description"
             }
         }
     }

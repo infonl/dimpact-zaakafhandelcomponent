@@ -17,6 +17,7 @@ import nl.lifely.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.net.URI
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 @ApplicationScoped
@@ -158,7 +159,7 @@ class ConfiguratieService @Inject constructor(
             .queryParam("templateId", templateId)
             .queryParam("templateGroupId", templateGroupId)
             .queryParam("userName", userName)
-            .queryParam("creationDate", creationDate)
+            .queryParam("creationDate", creationDate.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
 
         if (title != null) {
             builder.queryParam("title", title)
