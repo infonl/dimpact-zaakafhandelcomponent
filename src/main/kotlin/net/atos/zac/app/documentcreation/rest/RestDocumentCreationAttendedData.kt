@@ -16,7 +16,8 @@ data class RestDocumentCreationAttendedData(
 
     var taskId: String? = null,
 
-    var title: String? = null,
+    @field:NotNull
+    var title: String,
 
     var description: String? = null,
 

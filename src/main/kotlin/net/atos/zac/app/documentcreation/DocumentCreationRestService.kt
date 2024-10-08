@@ -92,7 +92,7 @@ class DocumentCreationRestService @Inject constructor(
         @PathParam("zaakUuid") zaakUuid: UUID,
         @QueryParam("templateGroupId") templateGroupId: String,
         @QueryParam("templateId") templateId: String,
-        @QueryParam("title") title: String?,
+        @QueryParam("title") title: String,
         @QueryParam("description") description: String?,
         @QueryParam("creationDate") creationDate: ZonedDateTime,
         @QueryParam("userName") userName: String,
@@ -119,7 +119,7 @@ class DocumentCreationRestService @Inject constructor(
                     ).let {
                         buildWizardFinishPageRedirectResponse(
                             zaakId = zaak.identificatie,
-                            documentName = it.titel,
+                            documentName = title,
                             result = SmartDocumentsWizardResult.SUCCESS
                         )
                     }
@@ -153,7 +153,7 @@ class DocumentCreationRestService @Inject constructor(
         @PathParam("taskId") taskId: String,
         @QueryParam("templateGroupId") templateGroupId: String,
         @QueryParam("templateId") templateId: String,
-        @QueryParam("title") title: String?,
+        @QueryParam("title") title: String,
         @QueryParam("description") description: String?,
         @QueryParam("creationDate") creationDate: ZonedDateTime,
         @QueryParam("userName") userName: String,
@@ -183,7 +183,7 @@ class DocumentCreationRestService @Inject constructor(
                         buildWizardFinishPageRedirectResponse(
                             zaakId = zaak.identificatie,
                             taskId = taskId,
-                            documentName = it.titel,
+                            documentName = title,
                             result = SmartDocumentsWizardResult.SUCCESS
                         )
                     }

@@ -16,7 +16,7 @@ data class DocumentCreationDataAttended(
 
     val templateId: String,
 
-    var title: String? = null,
+    var title: String,
 
     var description: String? = null,
 

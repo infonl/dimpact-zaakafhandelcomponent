@@ -103,7 +103,7 @@ class DocumentCreationService @Inject constructor(
         fileId: String,
         templateGroupId: String,
         templateId: String,
-        title: String?,
+        title: String,
         description: String?,
         creationDate: ZonedDateTime,
         userName: String

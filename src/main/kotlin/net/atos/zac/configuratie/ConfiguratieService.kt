@@ -149,7 +149,7 @@ class ConfiguratieService @Inject constructor(
         taskId: String?,
         templateGroupId: String,
         templateId: String,
-        title: String?,
+        title: String,
         description: String?,
         creationDate: ZonedDateTime,
         userName: String
@@ -158,12 +158,10 @@ class ConfiguratieService @Inject constructor(
             .fromUri(contextUrl)
             .queryParam("templateId", templateId)
             .queryParam("templateGroupId", templateGroupId)
+            .queryParam("title", title)
             .queryParam("userName", userName)
             .queryParam("creationDate", creationDate.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
 
-        if (title != null) {
-            builder.queryParam("title", title)
-        }
         if (description != null) {
             builder.queryParam("description", description)
         }

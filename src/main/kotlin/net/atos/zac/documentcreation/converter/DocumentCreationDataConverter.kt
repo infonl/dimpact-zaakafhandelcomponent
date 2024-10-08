@@ -212,14 +212,14 @@ class DocumentCreationDataConverter @Inject constructor(
         smartDocumentsFileType: String,
         smartDocumentsTemplateGroupId: String,
         smartDocumentsTemplateId: String,
-        title: String?,
+        title: String,
         description: String?,
         creationDate: ZonedDateTime,
         userName: String
     ) = EnkelvoudigInformatieObjectCreateLockRequest().apply {
         bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
         creatiedatum = creationDate.toLocalDate()
-        titel = title ?: smartDocumentsFile.fileName
+        titel = title
         auteur = userName
         taal = ConfiguratieService.TAAL_NEDERLANDS
         beschrijving = description
