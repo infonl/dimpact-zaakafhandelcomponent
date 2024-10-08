@@ -46,7 +46,8 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             zaakUuid = zaak.uuid,
             taskId = "dummyTaskId",
             smartDocumentsTemplateGroupId = "groupId",
-            smartDocumentsTemplateId = "templateId"
+            smartDocumentsTemplateId = "templateId",
+            title = "Title",
         )
         val documentCreationResponse = createDocumentCreationAttendedResponse()
         val documentCreationDataAttended = slot<DocumentCreationDataAttended>()
