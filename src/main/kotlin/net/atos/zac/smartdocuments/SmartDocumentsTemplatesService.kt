@@ -182,8 +182,8 @@ class SmartDocumentsTemplatesService @Inject constructor(
                         ).let { multiselectQuery ->
                             entityManager.createQuery(multiselectQuery)
                                 .setMaxResults(1)
-                                .resultList[0]
-                                .get(namePath)
+                                .resultList.firstOrNull()
+                                ?.get(namePath)
                         }.takeIf { it != null } ?: throw SmartDocumentsException(
                             "No information object type mapped for template group id " +
                                 "$templateGroupId and template id $templateId"
@@ -204,7 +204,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
     fun getTemplateGroupName(templateGroupId: String): String {
         LOG.fine { "Fetching template group name for id $templateGroupId" }
 
-        entityManager.criteriaBuilder.let { builder ->
+        return entityManager.criteriaBuilder.let { builder ->
             builder.createTupleQuery().let { criteriaQuery ->
                 criteriaQuery.from(SmartDocumentsTemplateGroup::class.java).let { root ->
                     root.get<String>(SmartDocumentsTemplateGroup::name.name).let { namePath ->
@@ -214,11 +214,13 @@ class SmartDocumentsTemplatesService @Inject constructor(
                                 templateGroupId
                             )
                         ).let { multiselectQuery ->
-                            return entityManager.createQuery(multiselectQuery)
+                            entityManager.createQuery(multiselectQuery)
                                 .setMaxResults(1)
-                                .resultList[0]
-                                .get(namePath)
-                        }
+                                .resultList.firstOrNull()
+                                ?.get(namePath)
+                        }.takeIf { it != null } ?: throw SmartDocumentsException(
+                            "Template group with id $templateGroupId is not configured"
+                        )
                     }
                 }
             }
@@ -235,7 +237,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
     fun getTemplateName(templateId: String): String {
         LOG.fine { "Fetching template group name for id $templateId" }
 
-        entityManager.criteriaBuilder.let { builder ->
+        return entityManager.criteriaBuilder.let { builder ->
             builder.createTupleQuery().let { criteriaQuery ->
                 criteriaQuery.from(SmartDocumentsTemplate::class.java).let { root ->
                     root.get<String>(SmartDocumentsTemplate::name.name).let { namePath ->
@@ -245,11 +247,13 @@ class SmartDocumentsTemplatesService @Inject constructor(
                                 templateId
                             )
                         ).let { multiselectQuery ->
-                            return entityManager.createQuery(multiselectQuery)
+                            entityManager.createQuery(multiselectQuery)
                                 .setMaxResults(1)
-                                .resultList[0]
-                                .get(namePath)
-                        }
+                                .resultList.firstOrNull()
+                                ?.get(namePath)
+                        }.takeIf { it != null } ?: throw SmartDocumentsException(
+                            "Template with id $templateId is not configured"
+                        )
                     }
                 }
             }

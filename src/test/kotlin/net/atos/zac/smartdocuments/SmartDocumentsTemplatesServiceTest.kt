@@ -121,4 +121,96 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("A missing template group") {
+        val templateGroupId = "123abc"
+
+        val criteriaBuilder = mockk<CriteriaBuilder>()
+        val criteriaQuery = mockk<CriteriaQuery<Tuple>>()
+        val root = mockk<Root<SmartDocumentsTemplateGroup>>()
+        val stringPath = mockk<Path<String>>()
+        val predicate = mockk<Predicate>()
+        val typedQuery = mockk<TypedQuery<Tuple>>()
+        val tuple = mockk<Tuple>()
+
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+
+        every { criteriaBuilder.createTupleQuery() } returns criteriaQuery
+        every { criteriaBuilder.equal(stringPath, templateGroupId) } returns predicate
+
+        every { root.get<String>("name") } returns stringPath
+        every { root.get<String>("smartDocumentsId") } returns stringPath
+
+        every { criteriaQuery.multiselect(stringPath) } returns criteriaQuery
+        every { criteriaQuery.where(any<Predicate>()) } returns criteriaQuery
+        every { criteriaQuery.from(SmartDocumentsTemplateGroup::class.java) } returns root
+
+        every { criteriaBuilder.createTupleQuery() } returns criteriaQuery
+        every { criteriaBuilder.equal(stringPath, templateGroupId) } returns predicate
+
+        every { criteriaQuery.where(any<Predicate>()) } returns criteriaQuery
+        every { criteriaQuery.from(SmartDocumentsTemplateGroup::class.java) } returns root
+
+        every { typedQuery.setMaxResults(any<Int>()) } returns typedQuery
+        every { typedQuery.resultList } returns listOf(tuple)
+
+        every { tuple.get(stringPath) } returns null
+
+        When("template group name query is started") {
+            val exception = shouldThrow<SmartDocumentsException> {
+                smartDocumentsTemplatesService.getTemplateGroupName(templateGroupId)
+            }
+
+            Then("exception is thrown") {
+                exception.message shouldContain "123abc"
+            }
+        }
+    }
+
+    Given("A missing template") {
+        val templateId = "123abc"
+
+        val criteriaBuilder = mockk<CriteriaBuilder>()
+        val criteriaQuery = mockk<CriteriaQuery<Tuple>>()
+        val root = mockk<Root<SmartDocumentsTemplate>>()
+        val stringPath = mockk<Path<String>>()
+        val predicate = mockk<Predicate>()
+        val typedQuery = mockk<TypedQuery<Tuple>>()
+        val tuple = mockk<Tuple>()
+
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+
+        every { criteriaBuilder.createTupleQuery() } returns criteriaQuery
+        every { criteriaBuilder.equal(stringPath, templateId) } returns predicate
+
+        every { root.get<String>("name") } returns stringPath
+        every { root.get<String>("smartDocumentsId") } returns stringPath
+
+        every { criteriaQuery.multiselect(stringPath) } returns criteriaQuery
+        every { criteriaQuery.where(any<Predicate>()) } returns criteriaQuery
+        every { criteriaQuery.from(SmartDocumentsTemplate::class.java) } returns root
+
+        every { criteriaBuilder.createTupleQuery() } returns criteriaQuery
+        every { criteriaBuilder.equal(stringPath, templateId) } returns predicate
+
+        every { criteriaQuery.where(any<Predicate>()) } returns criteriaQuery
+        every { criteriaQuery.from(SmartDocumentsTemplate::class.java) } returns root
+
+        every { typedQuery.setMaxResults(any<Int>()) } returns typedQuery
+        every { typedQuery.resultList } returns listOf(tuple)
+
+        every { tuple.get(stringPath) } returns null
+
+        When("template name query is started") {
+            val exception = shouldThrow<SmartDocumentsException> {
+                smartDocumentsTemplatesService.getTemplateName(templateId)
+            }
+
+            Then("exception is thrown") {
+                exception.message shouldContain "123abc"
+            }
+        }
+    }
 })
