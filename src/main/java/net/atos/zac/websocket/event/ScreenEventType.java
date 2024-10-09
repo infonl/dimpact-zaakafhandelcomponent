@@ -20,7 +20,7 @@ import org.flowable.task.api.TaskInfo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.kotlin.KotlinModule;
 
@@ -206,10 +206,10 @@ public enum ScreenEventType {
     }
 
     private final static KotlinModule KOTLIN_MODULE = (new KotlinModule.Builder()).build();
-    private final static ObjectWriter OBJECT_WRITER = new ObjectMapper()
+    private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .registerModule(new JavaTimeModule())
             .registerModule(KOTLIN_MODULE)
-            .writer();
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     private static ScreenEvent instance(
             final Opcode opcode,
@@ -217,7 +217,7 @@ public enum ScreenEventType {
             final String eventResourceId,
             final List<RestZaakOverzicht> restZaakOverzichtList
     ) throws JsonProcessingException {
-        String details = OBJECT_WRITER.writeValueAsString(restZaakOverzichtList);
+        String details = OBJECT_MAPPER.writeValueAsString(restZaakOverzichtList);
         return instance(opcode, type, eventResourceId, details);
     }
 
