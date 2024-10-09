@@ -705,21 +705,12 @@ test_verlengen_doorlooptijd if {
     verlengen_doorlooptijd
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as true
-        with input.zaak.opgeschort as false
 }
 
 test_verlengen_doorlooptijd_zaak_closed_fails if {
     not verlengen_doorlooptijd
         with input.user.rollen as [ "behandelaar" ]
         with input.zaak.open as false
-        with input.zaak.opgeschort as false
-}
-
-test_verlengen_doorlooptijd_opgeschort_fails if {
-    not verlengen_doorlooptijd
-        with input.user.rollen as [ "behandelaar" ]
-        with input.zaak.open as false
-        with input.zaak.opgeschort as true
 }
 
 test_verlengen_doorlooptijd_wrong_role_fails if {

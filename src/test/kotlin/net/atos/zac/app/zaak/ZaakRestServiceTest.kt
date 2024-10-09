@@ -466,4 +466,24 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("no verlengenDoorlooptijd policy") {
+        val zaak = createZaak()
+        val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.minusDays(10)
+        val restZaak = createRestZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate)
+        val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaak, "change description")
+
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechten(verlengenDoorlooptijd = false)
+
+        When("zaak update is requested") {
+            val exception = shouldThrow<PolicyException> {
+                zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+            }
+
+            Then("it fails") {
+                exception.message shouldBe null
+            }
+        }
+    }
 })

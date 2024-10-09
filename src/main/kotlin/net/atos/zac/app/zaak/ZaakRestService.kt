@@ -308,7 +308,9 @@ class ZaakRestService @Inject constructor(
         restZaakEditMetRedenGegevens: RESTZaakEditMetRedenGegevens
     ): RestZaak {
         val zaak = zrcClientService.readZaak(zaakUUID)
-        assertPolicy(policyService.readZaakRechten(zaak).wijzigen)
+        with(policyService.readZaakRechten(zaak)) {
+            assertPolicy(wijzigen && verlengenDoorlooptijd)
+        }
 
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID,
