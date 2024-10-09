@@ -91,7 +91,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   openzaak.local:
-    image: openzaak/open-zaak:1.14.0
+    image: openzaak/open-zaak:1.13.0
     platform: linux/amd64
     environment:
       - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local
@@ -107,9 +107,6 @@ services:
       - DJANGO_SUPERUSER_PASSWORD=admin
       - LOG_LEVEL=DEBUG
       - NOTIFICATIONS_DISABLED=true
-      - OPENZAAK_NOTIF_CONFIG_ENABLE=true
-      - OPENZAAK_NOTIF_CLIENT_ID=notif
-      - NOTIF_API_ROOT=dummy
       - OPENZAAK_SUPERUSER_USERNAME=admin
       - OPENZAAK_SUPERUSER_EMAIL=noreply@example.com
       - SECRET_KEY=openZaakSecretKey
