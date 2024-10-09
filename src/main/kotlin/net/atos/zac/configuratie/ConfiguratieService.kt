@@ -16,6 +16,8 @@ import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.net.URI
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 @ApplicationScoped
@@ -147,25 +149,33 @@ class ConfiguratieService @Inject constructor(
         taskId: String?,
         templateGroupId: String,
         templateId: String,
+        title: String,
+        description: String?,
+        creationDate: ZonedDateTime,
         userName: String
-    ): URI =
-        if (taskId != null) {
-            UriBuilder
-                .fromUri(contextUrl)
+    ): URI {
+        val builder = UriBuilder
+            .fromUri(contextUrl)
+            .queryParam("templateId", templateId)
+            .queryParam("templateGroupId", templateGroupId)
+            .queryParam("title", title)
+            .queryParam("userName", userName)
+            .queryParam("creationDate", creationDate.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
+
+        if (description != null) {
+            builder.queryParam("description", description)
+        }
+
+        return if (taskId != null) {
+            builder
                 .path("$SMART_DOCUMENTS_REDIRECT_URL_BASE/task/{taskId}")
-                .queryParam("templateId", templateId)
-                .queryParam("templateGroupId", templateGroupId)
-                .queryParam("userName", userName)
                 .build(zaakUuid.toString(), taskId)
         } else {
-            UriBuilder
-                .fromUri(contextUrl)
+            builder
                 .path(SMART_DOCUMENTS_REDIRECT_URL_BASE)
-                .queryParam("templateId", templateId)
-                .queryParam("templateGroupId", templateGroupId)
-                .queryParam("userName", userName)
                 .build(zaakUuid.toString())
         }
+    }
 
     fun documentCreationFinishPageUrl(
         zaakId: String,

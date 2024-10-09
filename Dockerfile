@@ -36,7 +36,7 @@ RUN date -Iseconds > /build_timestamp.txt
 ENV WILDFLY_OVERRIDING_ENV_VARS=1
 
 # Start zaakafhandelcomponent
-ENTRYPOINT ["java", "-Xms1700m", "-Xmx1700m", "-Xlog:gc::time,uptime", "-jar", "zaakafhandelcomponent.jar"]
+ENTRYPOINT ["java", "-jar", "zaakafhandelcomponent.jar"]
 EXPOSE 8080 9990
 
 ARG branchName

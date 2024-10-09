@@ -14,6 +14,7 @@ import net.atos.client.smartdocuments.model.document.ZaakData
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createZaak
 import java.net.URI
+import java.time.ZonedDateTime
 
 fun createAanvragerData(
     naam: String = "dummyNaam",
@@ -43,16 +44,21 @@ fun createData(
     aanvragerData = aanvragerData
 )
 
+@Suppress("LongParameterList")
 fun createDocumentCreationDataAttended(
     zaak: Zaak = createZaak(),
     taskId: String = "dummyTaskId",
     templateGroupId: String = "1",
-    templateId: String = "2"
+    templateId: String = "2",
+    title: String = "title",
+    creationDate: ZonedDateTime = ZonedDateTime.now(),
 ) = DocumentCreationDataAttended(
     zaak = zaak,
     taskId = taskId,
     templateGroupId = templateGroupId,
-    templateId = templateId
+    templateId = templateId,
+    title = title,
+    creationDate = creationDate
 )
 
 fun createDocumentCreationAttendedResponse(

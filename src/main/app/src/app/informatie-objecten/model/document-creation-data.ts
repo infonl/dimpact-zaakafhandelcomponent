@@ -8,4 +8,8 @@ export class DocumentCreationData {
   public taskId: string;
   public smartDocumentsTemplateGroupId: string;
   public smartDocumentsTemplateId: string;
+  public title: string;
+  public description?: string;
+  public author?: string;
+  public creationDate?: string;
 }

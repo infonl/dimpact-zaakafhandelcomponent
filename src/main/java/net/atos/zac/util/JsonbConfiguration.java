@@ -11,6 +11,9 @@ import jakarta.json.bind.JsonbConfig;
 import jakarta.ws.rs.ext.ContextResolver;
 import jakarta.ws.rs.ext.Provider;
 
+import net.atos.zac.util.time.LocalDateAdapter;
+import net.atos.zac.util.time.ZonedDateTimeAdapter;
+
 @Provider
 public class JsonbConfiguration implements ContextResolver<Jsonb> {
 
