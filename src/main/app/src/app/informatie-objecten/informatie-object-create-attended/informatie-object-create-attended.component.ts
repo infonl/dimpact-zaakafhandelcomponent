@@ -14,7 +14,15 @@ import {
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import moment from "moment";
-import { Subscription, combineLatest, map, tap } from "rxjs";
+import {
+  Subscription,
+  Subject,
+  combineLatest,
+  map,
+  tap,
+  BehaviorSubject,
+} from "rxjs";
+import { filter, takeUntil } from "rxjs/operators";
 import { LoggedInUser } from "src/app/identity/model/logged-in-user";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -47,6 +55,10 @@ export class InformatieObjectCreateAttendedComponent implements OnDestroy {
 
   @ViewChild(FormComponent) form: FormComponent;
 
+  sjabloonGroep: any;
+  sjabloon: any;
+  sjabloonOptions$: BehaviorSubject<any[]> = new BehaviorSubject([]); // Initialize with empty options
+
   constructor(
     private zakenService: ZakenService,
     private smartDocumentsService: SmartDocumentsService,
@@ -66,9 +78,12 @@ export class InformatieObjectCreateAttendedComponent implements OnDestroy {
 
   private status: SelectFormField;
   private subscriptions: Subscription[] = [];
+  private ngDestroy = new Subject<void>();
 
   private getInputs(deps: { loggedInUser: LoggedInUser }) {
     const { loggedInUser } = deps;
+
+    console.log("this.sjabloonOptions:", this.sjabloonOptions$);
 
     this.formConfig = new FormConfigBuilder()
       .saveText("actie.toevoegen")
@@ -80,11 +95,11 @@ export class InformatieObjectCreateAttendedComponent implements OnDestroy {
       Vertrouwelijkheidaanduiding,
     );
 
-    const sjabloonGroep = new AutocompleteFormFieldBuilder()
+    this.sjabloonGroep = new AutocompleteFormFieldBuilder()
       .id("sjabloonGroepUUID")
       .label("Sjabloongroep")
-      .validators(Validators.required)
       .optionLabel("name")
+      .validators(Validators.required)
       .options(
         this.smartDocumentsService.getTemplatesMappingFlat(
           this.zaak.zaaktype.uuid,
@@ -92,13 +107,27 @@ export class InformatieObjectCreateAttendedComponent implements OnDestroy {
       )
       .build();
 
-    const sjabloon = new AutocompleteFormFieldBuilder()
+    this.sjabloon = new AutocompleteFormFieldBuilder()
       .id("sjabloonUUID")
       .label("Sjabloon")
+      .optionLabel("name")
       .validators(Validators.required)
-      .optionLabel("omschrijving")
-      .options(this.zakenService.listZaaktypes())
+      .options(this.sjabloonOptions$)
       .build();
+
+    this.sjabloonGroep.formControl.valueChanges
+      .pipe(
+        filter((zt) => typeof zt !== "string"),
+        takeUntil(this.ngDestroy),
+      )
+      .subscribe((selectedTemplateGroup) => {
+        this.sjabloon.formControl.setValue(null); // Always reset selected template after group change or clearing
+        if (selectedTemplateGroup) {
+          this.sjabloonOptions$.next(selectedTemplateGroup.templates);
+        } else {
+          this.sjabloonOptions$.next([]);
+        }
+      });
 
     const titel = new InputFormFieldBuilder()
       .id("titel")
@@ -149,8 +178,8 @@ export class InformatieObjectCreateAttendedComponent implements OnDestroy {
       .build();
 
     return {
-      sjabloonGroep,
-      sjabloon,
+      sjabloonGroep: this.sjabloonGroep,
+      sjabloon: this.sjabloon,
       titel,
       beschrijving,
       vertrouwelijkheidsAanduidingen,
@@ -199,6 +228,10 @@ export class InformatieObjectCreateAttendedComponent implements OnDestroy {
     );
   }
 
+  private sjabloonGroupSelected(selectedZaaktype: any) {
+    console.log("Selected sjabloongorep:", selectedZaaktype);
+  }
+
   private isAfgehandeld(): boolean {
     return this.zaak && !this.zaak.isOpen;
   }
@@ -210,6 +243,9 @@ export class InformatieObjectCreateAttendedComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.ngDestroy.next();
+    this.ngDestroy.complete();
+
     for (const subscription of this.subscriptions) {
       subscription.unsubscribe();
     }
@@ -221,6 +257,8 @@ export class InformatieObjectCreateAttendedComponent implements OnDestroy {
       Object.keys(formGroup.controls).forEach((key) => {
         const control = formGroup.controls[key];
         const value = control.value;
+
+        console.log("key", key, value);
 
         switch (key) {
           case "informatieobjectTypeUUID":
