@@ -57,7 +57,7 @@ export class InformatieObjectCreateAttendedComponent implements OnDestroy {
 
   sjabloonGroep: any;
   sjabloon: any;
-  sjabloonOptions$: BehaviorSubject<any[]> = new BehaviorSubject([]); // Initialize with empty options
+  sjabloonOptions$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
   constructor(
     private zakenService: ZakenService,
@@ -112,7 +112,7 @@ export class InformatieObjectCreateAttendedComponent implements OnDestroy {
       .label("Sjabloon")
       .optionLabel("name")
       .validators(Validators.required)
-      .options(this.sjabloonOptions$)
+      .options(this.sjabloonOptions$.value)
       .build();
 
     this.sjabloonGroep.formControl.valueChanges
