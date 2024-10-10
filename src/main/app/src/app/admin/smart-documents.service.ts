@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { catchError, Observable } from "rxjs";
+import { catchError, Observable, map } from "rxjs";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 
@@ -62,6 +62,30 @@ export class SmartDocumentsService {
       );
   }
 
+  getTemplatesMappingFlat(
+    zaakafhandelUUID: string,
+  ): Observable<DocumentsTemplateGroup[]> {
+    return this.zacHttp
+      .GET(
+        "/rest/zaakafhandelparameters/{zaakafhandelUUID}/document-templates",
+        {
+          pathParams: {
+            path: {
+              zaakafhandelUUID,
+            },
+          },
+        },
+      )
+      .pipe(
+        map((data) => {
+          const flattened = data.map(this.flattenGroups).flat();
+          console.log("Flattened groups:", flattened);
+          return flattened;
+        }),
+        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+      );
+  }
+
   storeTemplatesMapping(
     zaakafhandelUUID: string,
     templates: DocumentsTemplateGroup[],
@@ -82,4 +106,24 @@ export class SmartDocumentsService {
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
+
+  // Function to flatten groups while ensuring type safety
+  flattenGroups = ({
+    id,
+    name,
+    templates = [],
+    groups = [],
+  }: SmartDocumentsTemplateGroup): DocumentsTemplateGroup[] => {
+    const templateInfo: DocumentsTemplate[] = templates.map(({ id, name }) => ({
+      id,
+      name,
+      informatieObjectTypeUUID: "",
+    }));
+
+    // Recursively flatten the groups
+    return [
+      { id, name, templates: templateInfo },
+      ...groups.flatMap(this.flattenGroups),
+    ];
+  };
 }
