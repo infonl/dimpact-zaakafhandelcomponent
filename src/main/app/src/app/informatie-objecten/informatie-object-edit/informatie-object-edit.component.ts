@@ -60,9 +60,7 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
   private subscriptions$: Subscription[] = [];
 
   constructor(
-    private zakenService: ZakenService,
     private informatieObjectenService: InformatieObjectenService,
-    private navigation: NavigationService,
     public utilService: UtilService,
     private configuratieService: ConfiguratieService,
     private translateService: TranslateService,
