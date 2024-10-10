@@ -140,26 +140,30 @@ export class InformatieObjectCreateAttendedComponent
       .maxlength(50)
       .build();
 
-    sjabloonGroep.formControl.valueChanges
-      .pipe(
-        filter((zt) => typeof zt !== "string"),
-        takeUntil(this.ngDestroy),
-      )
-      .subscribe((selectedTemplateGroup) => {
-        sjabloon.formControl.setValue(null); // Always reset selected template after group change or clearing
-        if (selectedTemplateGroup) {
-          this.sjabloonOptions$.next(selectedTemplateGroup.templates);
-        } else {
-          this.sjabloonOptions$.next([]);
-        }
-      });
+    this.fields = [
+      [sjabloonGroep, sjabloon],
+      [titel],
+      [beschrijving],
+      [informatieobjectType, vertrouwelijk],
+      [beginRegistratie],
+      [auteur],
+    ];
 
-    sjabloon.formControl.valueChanges
-      .pipe(
-        filter((zt) => typeof zt !== "string"),
-        takeUntil(this.ngDestroy),
-      )
-      .subscribe((selectedTemplate) => {
+    this.subscriptions$.push(
+      sjabloonGroep.formControl.valueChanges.subscribe(
+        (selectedTemplateGroup) => {
+          sjabloon.formControl.setValue(null); // Always reset selected template after group change or clearing
+          if (selectedTemplateGroup) {
+            this.sjabloonOptions$.next(selectedTemplateGroup.templates);
+          } else {
+            this.sjabloonOptions$.next([]);
+          }
+        },
+      ),
+    );
+
+    this.subscriptions$.push(
+      sjabloon.formControl.valueChanges.subscribe((selectedTemplate) => {
         if (selectedTemplate && selectedTemplate.informatieObjectTypeUUID) {
           informatieobjectType.formControl.setValue(
             this.informatieObjectTypes.find(
@@ -175,19 +179,9 @@ export class InformatieObjectCreateAttendedComponent
           informatieobjectType.formControl.setValue(null);
           vertrouwelijk.formControl.setValue(null);
         }
-      });
-
-    this.fields = [
-      [sjabloonGroep, sjabloon],
-      [titel],
-      [beschrijving],
-      [informatieobjectType, vertrouwelijk],
-      [beginRegistratie],
-      [auteur],
-    ];
+      }),
+    );
   }
-
-  private ngDestroy = new Subject<void>();
 
   private async fetchInformatieobjecttypes(): Promise<any> {
     try {
@@ -203,8 +197,6 @@ export class InformatieObjectCreateAttendedComponent
   }
 
   ngOnDestroy(): void {
-    this.ngDestroy.next();
-    this.ngDestroy.complete();
     for (const subscription of this.subscriptions$) {
       subscription.unsubscribe();
     }
