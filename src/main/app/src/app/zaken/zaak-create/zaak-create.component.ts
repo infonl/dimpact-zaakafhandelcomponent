@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -241,36 +241,34 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
     if (formGroup) {
       const zaak: Zaak = new Zaak();
       Object.keys(formGroup.controls).forEach((key) => {
-        Object.keys(formGroup.controls).forEach((key) => {
-          switch (key) {
-            case "vertrouwelijkheidaanduiding":
-              zaak[key] = formGroup.controls[key].value?.value;
-              break;
-            case "initiatorIdentificatie":
-              if (this.initiator != null) {
-                zaak["initiatorIdentificatieType"] =
-                  this.initiator.identificatieType;
-                zaak[key] = this.initiator.identificatie;
-              }
-              break;
-            case "bagObjecten":
-              // skip
-              break;
-            case "toekenning":
-              if (this.medewerkerGroepFormField.formControl.value.medewerker) {
-                zaak.behandelaar =
-                  this.medewerkerGroepFormField.formControl.value.medewerker;
-              }
-              if (this.medewerkerGroepFormField.formControl.value.groep) {
-                zaak.groep =
-                  this.medewerkerGroepFormField.formControl.value.groep;
-              }
-              break;
-            default:
-              zaak[key] = formGroup.controls[key].value;
-              break;
-          }
-        });
+        switch (key) {
+          case "vertrouwelijkheidaanduiding":
+            zaak[key] = formGroup.controls[key].value?.value;
+            break;
+          case "initiatorIdentificatie":
+            if (this.initiator != null) {
+              zaak["initiatorIdentificatieType"] =
+                this.initiator.identificatieType;
+              zaak[key] = this.initiator.identificatie;
+            }
+            break;
+          case "bagObjecten":
+            // skip
+            break;
+          case "toekenning":
+            if (this.medewerkerGroepFormField.formControl.value.medewerker) {
+              zaak.behandelaar =
+                this.medewerkerGroepFormField.formControl.value.medewerker;
+            }
+            if (this.medewerkerGroepFormField.formControl.value.groep) {
+              zaak.groep =
+                this.medewerkerGroepFormField.formControl.value.groep;
+            }
+            break;
+          default:
+            zaak[key] = formGroup.controls[key].value;
+            break;
+        }
       });
       this.zakenService
         .createZaak(
