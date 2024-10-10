@@ -15,9 +15,9 @@
 
 <div class="form">
   <mfb-form
-    *ngIf="fields$ | async"
+    *ngIf="fields"
     (formSubmit)="onFormSubmit($event)"
-    [formFields]="fields$ | async"
+    [formFields]="fields"
     [config]="formConfig"
   ></mfb-form>
 </div>
