@@ -7,6 +7,7 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnInit,
   OnDestroy,
   Output,
   ViewChild,
@@ -21,19 +22,18 @@ import {
   map,
   tap,
   BehaviorSubject,
+  firstValueFrom,
 } from "rxjs";
-import { filter, takeUntil } from "rxjs/operators";
+import { filter, takeUntil, first } from "rxjs/operators";
 import { LoggedInUser } from "src/app/identity/model/logged-in-user";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { SelectFormField } from "../../shared/material-form-builder/form-components/select/select-form-field";
-import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
 import { FormComponent } from "../../shared/material-form-builder/form/form/form.component";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { OrderUtil } from "../../shared/order/order-util";
 import { Zaak } from "../../zaken/model/zaak";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobject";
@@ -48,7 +48,9 @@ import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
   templateUrl: "./informatie-object-create-attended.component.html",
   styleUrls: ["./informatie-object-create-attended.component.less"],
 })
-export class InformatieObjectCreateAttendedComponent implements OnDestroy {
+export class InformatieObjectCreateAttendedComponent
+  implements OnInit, OnDestroy
+{
   @Input() zaak: Zaak;
   @Input() sideNav: MatDrawer;
   @Output() document = new EventEmitter<EnkelvoudigInformatieobject>();
@@ -58,9 +60,10 @@ export class InformatieObjectCreateAttendedComponent implements OnDestroy {
   sjabloonGroep: any;
   sjabloon: any;
   sjabloonOptions$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+  informatieobjectType: any;
+  vertrouwelijk: any;
 
   constructor(
-    private zakenService: ZakenService,
     private smartDocumentsService: SmartDocumentsService,
     private informatieObjectenService: InformatieObjectenService,
     public utilService: UtilService,
@@ -69,6 +72,11 @@ export class InformatieObjectCreateAttendedComponent implements OnDestroy {
 
   formConfig: FormConfig;
   loggedInUser$ = this.identityService.readLoggedInUser();
+  informatieObjectTypes: any;
+
+  async ngOnInit(): Promise<void> {
+    this.informatieObjectTypes = await this.fetchInformatieobjecttypes();
+  }
 
   fields$ = combineLatest([this.loggedInUser$]).pipe(
     map(([loggedInUser]) => this.getInputs({ loggedInUser })),
@@ -82,8 +90,6 @@ export class InformatieObjectCreateAttendedComponent implements OnDestroy {
 
   private getInputs(deps: { loggedInUser: LoggedInUser }) {
     const { loggedInUser } = deps;
-
-    console.log("this.sjabloonOptions:", this.sjabloonOptions$);
 
     this.formConfig = new FormConfigBuilder()
       .saveText("actie.toevoegen")
@@ -112,7 +118,47 @@ export class InformatieObjectCreateAttendedComponent implements OnDestroy {
       .label("Sjabloon")
       .optionLabel("name")
       .validators(Validators.required)
-      .options(this.sjabloonOptions$.value)
+      .options(this.sjabloonOptions$)
+      .build();
+
+    const titel = new InputFormFieldBuilder()
+      .id("titel")
+      .label("titel")
+      .validators(Validators.required)
+      .maxlength(100)
+      .build();
+
+    const beschrijving = new InputFormFieldBuilder()
+      .id("beschrijving")
+      .label("beschrijving")
+      .maxlength(100)
+      .build();
+
+    this.informatieobjectType = new InputFormFieldBuilder()
+      .id("informatieobjectTypeUUID")
+      .label("informatieobjectType")
+      .validators(Validators.required)
+      .disabled()
+      .build();
+
+    this.vertrouwelijk = new InputFormFieldBuilder()
+      .id("vertrouwelijkheidaanduiding")
+      .label("vertrouwelijkheidaanduiding")
+      .validators(Validators.required)
+      .disabled()
+      .build();
+
+    const beginRegistratie = new DateFormFieldBuilder(moment())
+      .id("creatiedatum")
+      .label("creatiedatum")
+      .validators(Validators.required)
+      .build();
+
+    const auteur = new InputFormFieldBuilder(loggedInUser.naam)
+      .id("auteur")
+      .label("auteur")
+      .validators(Validators.required, Validators.pattern("\\S.*"))
+      .maxlength(50)
       .build();
 
     this.sjabloonGroep.formControl.valueChanges
@@ -129,53 +175,28 @@ export class InformatieObjectCreateAttendedComponent implements OnDestroy {
         }
       });
 
-    const titel = new InputFormFieldBuilder()
-      .id("titel")
-      .label("titel")
-      .validators(Validators.required)
-      .maxlength(100)
-      .build();
-
-    const beschrijving = new InputFormFieldBuilder()
-      .id("beschrijving")
-      .label("beschrijving")
-      .maxlength(100)
-      .build();
-
-    const informatieobjectType = new SelectFormFieldBuilder()
-      .id("informatieobjectTypeUUID")
-      .label("informatieobjectType")
-      .options(
-        this.informatieObjectenService.listInformatieobjecttypesForZaak(
-          this.zaak.uuid,
-        ),
+    this.sjabloon.formControl.valueChanges
+      .pipe(
+        filter((zt) => typeof zt !== "string"),
+        takeUntil(this.ngDestroy),
       )
-      .optionLabel("omschrijving")
-      .validators(Validators.required)
-      .settings({ translateLabels: false, capitalizeFirstLetter: true })
-      .build();
-
-    const vertrouwelijk = new SelectFormFieldBuilder()
-      .id("vertrouwelijkheidaanduiding")
-      .label("vertrouwelijkheidaanduiding")
-      .optionLabel("label")
-      .options(vertrouwelijkheidsAanduidingen)
-      .optionsOrder(OrderUtil.orderAsIs())
-      .validators(Validators.required)
-      .build();
-
-    const beginRegistratie = new DateFormFieldBuilder(moment())
-      .id("creatiedatum")
-      .label("creatiedatum")
-      .validators(Validators.required)
-      .build();
-
-    const auteur = new InputFormFieldBuilder(loggedInUser.naam)
-      .id("auteur")
-      .label("auteur")
-      .validators(Validators.required, Validators.pattern("\\S.*"))
-      .maxlength(50)
-      .build();
+      .subscribe((selectedTemplate) => {
+        if (selectedTemplate && selectedTemplate.informatieObjectTypeUUID) {
+          this.informatieobjectType.formControl.setValue(
+            this.informatieObjectTypes.find(
+              (type) => type.uuid === selectedTemplate.informatieObjectTypeUUID,
+            )?.omschrijving || null,
+          );
+          this.vertrouwelijk.formControl.setValue(
+            this.informatieObjectTypes.find(
+              (type) => type.uuid === selectedTemplate.informatieObjectTypeUUID,
+            )?.vertrouwelijkheidaanduiding || null,
+          );
+        } else {
+          this.informatieobjectType.formControl.setValue(null);
+          this.vertrouwelijk.formControl.setValue(null);
+        }
+      });
 
     return {
       sjabloonGroep: this.sjabloonGroep,
@@ -183,8 +204,8 @@ export class InformatieObjectCreateAttendedComponent implements OnDestroy {
       titel,
       beschrijving,
       vertrouwelijkheidsAanduidingen,
-      informatieobjectType,
-      vertrouwelijk,
+      informatieobjectType: this.informatieobjectType,
+      vertrouwelijk: this.vertrouwelijk,
       beginRegistratie,
       auteur,
     };
@@ -226,6 +247,19 @@ export class InformatieObjectCreateAttendedComponent implements OnDestroy {
         }
       }),
     );
+  }
+
+  private async fetchInformatieobjecttypes(): Promise<any> {
+    try {
+      const informatieobjecttypes = await firstValueFrom(
+        this.informatieObjectenService
+          .listInformatieobjecttypes(this.zaak.zaaktype.uuid)
+          .pipe(first()),
+      );
+      return informatieobjecttypes;
+    } catch (error) {
+      console.error("Error fetching informatieobjecttypes:", error);
+    }
   }
 
   private sjabloonGroupSelected(selectedZaaktype: any) {

@@ -1,32 +1,36 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { Injectable } from "@angular/core";
 import { catchError, Observable, map } from "rxjs";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 
-export type SmartDocumentsTemplateGroup = {
+interface BaseTemplate {
   id: string;
   name: string;
-  groups?: SmartDocumentsTemplateGroup[];
-  templates?: SmartDocumentsTemplate[];
-};
+}
 
-export type SmartDocumentsTemplate = {
-  id: string;
-  name: string;
-};
+export type SmartDocumentsTemplate = BaseTemplate;
 
-export type DocumentsTemplateGroup = {
-  id: string;
-  name: string;
-  groups?: DocumentsTemplateGroup[];
-  templates?: DocumentsTemplate[];
-};
-
-export type DocumentsTemplate = {
-  id: string;
-  name: string;
+export interface DocumentsTemplate extends BaseTemplate {
   informatieObjectTypeUUID: string;
-};
+}
+
+interface BaseGroup<T extends BaseTemplate> {
+  id: string;
+  name: string;
+  groups?: BaseGroup<T>[];
+  templates?: T[];
+}
+
+export type SmartDocumentsTemplateGroup = BaseGroup<SmartDocumentsTemplate>;
+
+export type DocumentsTemplateGroup = BaseGroup<DocumentsTemplate>;
+
+export interface RootObject extends DocumentsTemplateGroup {}
 
 @Injectable({ providedIn: "root" })
 export class SmartDocumentsService {
@@ -78,8 +82,7 @@ export class SmartDocumentsService {
       )
       .pipe(
         map((data) => {
-          const flattened = data.map(this.flattenGroups).flat();
-          console.log("Flattened groups:", flattened);
+          const flattened = data.map(this.flattenObject).flat();
           return flattened;
         }),
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
@@ -107,23 +110,40 @@ export class SmartDocumentsService {
       );
   }
 
-  // Function to flatten groups while ensuring type safety
-  flattenGroups = ({
-    id,
-    name,
-    templates = [],
-    groups = [],
-  }: SmartDocumentsTemplateGroup): DocumentsTemplateGroup[] => {
-    const templateInfo: DocumentsTemplate[] = templates.map(({ id, name }) => ({
-      id,
-      name,
-      informatieObjectTypeUUID: "",
-    }));
+  /**
+   * Flattens a nested RootObject (DocumentsTemplateGroup) into an array of group objects,
+   * omitting nested groups, and preserving templates.
+   * @param {RootObject} obj - The root object to flatten.
+   * @returns {Array<Omit<DocumentsTemplateGroup, "groups">>} - The flattened array of groups with templates, excluding nested groups.
+   */
+  flattenObject(
+    obj: RootObject,
+  ): Array<Omit<DocumentsTemplateGroup, "groups">> {
+    const result: Array<Omit<DocumentsTemplateGroup, "groups">> = [];
 
-    // Recursively flatten the groups
-    return [
-      { id, name, templates: templateInfo },
-      ...groups.flatMap(this.flattenGroups),
-    ];
-  };
+    function flattenGroups(group: DocumentsTemplateGroup) {
+      result.push({
+        id: group.id,
+        name: group.name,
+        templates: group.templates || [],
+      });
+
+      if (group.groups) {
+        group.groups.forEach(flattenGroups);
+      }
+    }
+
+    // Flatten the root object itself
+    result.push({
+      id: obj.id,
+      name: obj.name,
+      templates: obj.templates || [],
+    });
+
+    if (obj.groups) {
+      obj.groups.forEach(flattenGroups);
+    }
+
+    return result;
+  }
 }
