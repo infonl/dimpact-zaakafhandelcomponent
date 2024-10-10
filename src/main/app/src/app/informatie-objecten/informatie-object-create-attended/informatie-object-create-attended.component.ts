@@ -40,6 +40,8 @@ import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobje
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 import { AutocompleteFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/autocomplete/autocomplete-form-field-builder";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
+import { User } from "src/app/identity/model/user";
+import { AbstractFormField } from "src/app/shared/material-form-builder/model/abstract-form-field";
 
 @Component({
   selector: "zac-informatie-object-create-attended",
@@ -55,11 +57,12 @@ export class InformatieObjectCreateAttendedComponent
 
   @ViewChild(FormComponent) form: FormComponent;
 
-  sjabloonGroep: any;
-  sjabloon: any;
-  sjabloonOptions$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-  informatieobjectType: any;
-  vertrouwelijk: any;
+  fields: Array<AbstractFormField[]>;
+  formConfig: FormConfig;
+  private ingelogdeMedewerker: User;
+  private informatieObjectTypes: any;
+  private subscriptions$: Subscription[] = [];
+  private sjabloonOptions$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
   constructor(
     private smartDocumentsService: SmartDocumentsService,
@@ -68,38 +71,16 @@ export class InformatieObjectCreateAttendedComponent
     private identityService: IdentityService,
   ) {}
 
-  formConfig: FormConfig;
-  loggedInUser$ = this.identityService.readLoggedInUser();
-  informatieObjectTypes: any;
-
   async ngOnInit(): Promise<void> {
-    this.informatieObjectTypes = await this.fetchInformatieobjecttypes();
-  }
-
-  fields$ = combineLatest([this.loggedInUser$]).pipe(
-    map(([loggedInUser]) => this.getInputs({ loggedInUser })),
-    // tap((inputs) => this.setSubscriptions(inputs)),
-    map((inputs) => this.getFormLayout(inputs)),
-  );
-
-  private status: SelectFormField;
-  private subscriptions: Subscription[] = [];
-  private ngDestroy = new Subject<void>();
-
-  private getInputs(deps: { loggedInUser: LoggedInUser }) {
-    const { loggedInUser } = deps;
-
     this.formConfig = new FormConfigBuilder()
       .saveText("actie.toevoegen")
       .cancelText("actie.annuleren")
+      .requireUserChanges()
       .build();
+    this.getIngelogdeMedewerker();
+    this.informatieObjectTypes = await this.fetchInformatieobjecttypes();
 
-    const vertrouwelijkheidsAanduidingen = this.utilService.getEnumAsSelectList(
-      "vertrouwelijkheidaanduiding",
-      Vertrouwelijkheidaanduiding,
-    );
-
-    this.sjabloonGroep = new AutocompleteFormFieldBuilder()
+    const sjabloonGroep = new AutocompleteFormFieldBuilder()
       .id("sjabloonGroep")
       .label("Sjabloongroep")
       .optionLabel("name")
@@ -111,7 +92,7 @@ export class InformatieObjectCreateAttendedComponent
       )
       .build();
 
-    this.sjabloon = new AutocompleteFormFieldBuilder()
+    const sjabloon = new AutocompleteFormFieldBuilder()
       .id("sjabloon")
       .label("Sjabloon")
       .optionLabel("name")
@@ -132,14 +113,14 @@ export class InformatieObjectCreateAttendedComponent
       .maxlength(100)
       .build();
 
-    this.informatieobjectType = new InputFormFieldBuilder()
+    const informatieobjectType = new InputFormFieldBuilder()
       .id("informatieobjectType")
       .label("informatieobjectType")
       .validators(Validators.required)
       .disabled()
       .build();
 
-    this.vertrouwelijk = new InputFormFieldBuilder()
+    const vertrouwelijk = new InputFormFieldBuilder()
       .id("vertrouwelijkheidaanduiding")
       .label("vertrouwelijkheidaanduiding")
       .validators(Validators.required)
@@ -152,20 +133,20 @@ export class InformatieObjectCreateAttendedComponent
       .validators(Validators.required)
       .build();
 
-    const auteur = new InputFormFieldBuilder(loggedInUser.naam)
+    const auteur = new InputFormFieldBuilder(this.ingelogdeMedewerker.naam)
       .id("auteur")
       .label("auteur")
       .validators(Validators.required, Validators.pattern("\\S.*"))
       .maxlength(50)
       .build();
 
-    this.sjabloonGroep.formControl.valueChanges
+    sjabloonGroep.formControl.valueChanges
       .pipe(
         filter((zt) => typeof zt !== "string"),
         takeUntil(this.ngDestroy),
       )
       .subscribe((selectedTemplateGroup) => {
-        this.sjabloon.formControl.setValue(null); // Always reset selected template after group change or clearing
+        sjabloon.formControl.setValue(null); // Always reset selected template after group change or clearing
         if (selectedTemplateGroup) {
           this.sjabloonOptions$.next(selectedTemplateGroup.templates);
         } else {
@@ -173,53 +154,30 @@ export class InformatieObjectCreateAttendedComponent
         }
       });
 
-    this.sjabloon.formControl.valueChanges
+    sjabloon.formControl.valueChanges
       .pipe(
         filter((zt) => typeof zt !== "string"),
         takeUntil(this.ngDestroy),
       )
       .subscribe((selectedTemplate) => {
         if (selectedTemplate && selectedTemplate.informatieObjectTypeUUID) {
-          this.informatieobjectType.formControl.setValue(
+          informatieobjectType.formControl.setValue(
             this.informatieObjectTypes.find(
               (type) => type.uuid === selectedTemplate.informatieObjectTypeUUID,
             )?.omschrijving || null,
           );
-          this.vertrouwelijk.formControl.setValue(
+          vertrouwelijk.formControl.setValue(
             this.informatieObjectTypes.find(
               (type) => type.uuid === selectedTemplate.informatieObjectTypeUUID,
             )?.vertrouwelijkheidaanduiding || null,
           );
         } else {
-          this.informatieobjectType.formControl.setValue(null);
-          this.vertrouwelijk.formControl.setValue(null);
+          informatieobjectType.formControl.setValue(null);
+          vertrouwelijk.formControl.setValue(null);
         }
       });
 
-    return {
-      sjabloonGroep: this.sjabloonGroep,
-      sjabloon: this.sjabloon,
-      titel,
-      beschrijving,
-      vertrouwelijkheidsAanduidingen,
-      informatieobjectType: this.informatieobjectType,
-      vertrouwelijk: this.vertrouwelijk,
-      beginRegistratie,
-      auteur,
-    };
-  }
-
-  private getFormLayout({
-    sjabloonGroep,
-    sjabloon,
-    titel,
-    beschrijving,
-    informatieobjectType,
-    vertrouwelijk,
-    beginRegistratie,
-    auteur,
-  }: ReturnType<InformatieObjectCreateAttendedComponent["getInputs"]>) {
-    return [
+    this.fields = [
       [sjabloonGroep, sjabloon],
       [titel],
       [beschrijving],
@@ -228,6 +186,8 @@ export class InformatieObjectCreateAttendedComponent
       [auteur],
     ];
   }
+
+  private ngDestroy = new Subject<void>();
 
   private async fetchInformatieobjecttypes(): Promise<any> {
     try {
@@ -242,21 +202,10 @@ export class InformatieObjectCreateAttendedComponent
     }
   }
 
-  private isAfgehandeld(): boolean {
-    return this.zaak && !this.zaak.isOpen;
-  }
-
-  ngAfterViewInit(): void {
-    if (this.isAfgehandeld()) {
-      this.status.formControl.disable();
-    }
-  }
-
   ngOnDestroy(): void {
     this.ngDestroy.next();
     this.ngDestroy.complete();
-
-    for (const subscription of this.subscriptions) {
+    for (const subscription of this.subscriptions$) {
       subscription.unsubscribe();
     }
   }
@@ -292,5 +241,11 @@ export class InformatieObjectCreateAttendedComponent
       console.log("Object to submit to endpoint", infoObject);
     }
     this.sideNav.close();
+  }
+
+  private getIngelogdeMedewerker() {
+    this.identityService.readLoggedInUser().subscribe((ingelogdeMedewerker) => {
+      this.ingelogdeMedewerker = ingelogdeMedewerker;
+    });
   }
 }
