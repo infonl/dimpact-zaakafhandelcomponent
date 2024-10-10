@@ -13,6 +13,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
+import { MatDialog } from "@angular/material/dialog";
 import { MatDrawer } from "@angular/material/sidenav";
 import moment from "moment";
 import { BehaviorSubject, firstValueFrom, Subscription } from "rxjs";
@@ -28,9 +29,13 @@ import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-c
 import { FormComponent } from "../../shared/material-form-builder/form/form/form.component";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
+import {
+  NotificationDialogComponent,
+  NotificationDialogData,
+} from "../../shared/notification-dialog/notification-dialog.component";
 import { Zaak } from "../../zaken/model/zaak";
 import { InformatieObjectenService } from "../informatie-objecten.service";
-import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobject";
+import { DocumentCreationData } from "../model/document-creation-data";
 
 @Component({
   selector: "zac-informatie-object-create-attended",
@@ -42,7 +47,7 @@ export class InformatieObjectCreateAttendedComponent
 {
   @Input() zaak: Zaak;
   @Input() sideNav: MatDrawer;
-  @Output() document = new EventEmitter<EnkelvoudigInformatieobject>();
+  @Output() document = new EventEmitter<DocumentCreationData>();
 
   @ViewChild(FormComponent) form: FormComponent;
 
@@ -58,6 +63,7 @@ export class InformatieObjectCreateAttendedComponent
     private informatieObjectenService: InformatieObjectenService,
     public utilService: UtilService,
     private identityService: IdentityService,
+    private dialog: MatDialog,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -193,17 +199,19 @@ export class InformatieObjectCreateAttendedComponent
 
   onFormSubmit(formGroup: FormGroup): void {
     if (formGroup) {
-      const infoObject = new EnkelvoudigInformatieobject();
+      const docObject = new DocumentCreationData();
       Object.keys(formGroup.controls).forEach((key) => {
         const control = formGroup.controls[key];
         const value = control.value;
 
         switch (key) {
           case "sjabloonGroep":
-            infoObject[key] = value.id;
+            docObject["zaakUuid"] = this.zaak.uuid;
+            docObject["smartDocumentsTemplateGroupId"] = value.id;
             break;
           case "sjabloon":
-            infoObject[key] = value.informatieObjectTypeUUID;
+            docObject["smartDocumentsTemplateId"] =
+              value.informatieObjectTypeUUID;
             break;
           case "informatieobjectType":
           case "vertrouwelijkheidaanduiding":
@@ -211,17 +219,28 @@ export class InformatieObjectCreateAttendedComponent
             break;
           default:
             if (value instanceof moment) {
-              infoObject[key] = value; // conversie niet nodig, ISO-8601 in UTC gaat goed met java ZonedDateTime.parse
+              docObject[key] = value; // conversie niet nodig, ISO-8601 in UTC gaat goed met java ZonedDateTime.parse
               break;
             } else {
-              infoObject[key] = value;
+              docObject[key] = value;
             }
             break;
         }
       });
-      console.log("Object to submit to endpoint", infoObject);
+      console.log("Object to submit to endpoint", docObject);
+      this.informatieObjectenService
+        .createDocumentAttended(docObject)
+        .subscribe((documentCreatieResponse) => {
+          if (documentCreatieResponse.redirectURL) {
+            window.open(documentCreatieResponse.redirectURL);
+            this.sideNav.close();
+          } else {
+            this.dialog.open(NotificationDialogComponent, {
+              data: new NotificationDialogData(documentCreatieResponse.message),
+            });
+          }
+        });
     }
-    this.sideNav.close();
   }
 
   private getIngelogdeMedewerker() {
