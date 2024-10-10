@@ -37,10 +37,8 @@ import { FormConfigBuilder } from "../../shared/material-form-builder/model/form
 import { Zaak } from "../../zaken/model/zaak";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobject";
-import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 import { AutocompleteFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/autocomplete/autocomplete-form-field-builder";
-import { ZakenService } from "src/app/zaken/zaken.service";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
 
 @Component({
@@ -102,7 +100,7 @@ export class InformatieObjectCreateAttendedComponent
     );
 
     this.sjabloonGroep = new AutocompleteFormFieldBuilder()
-      .id("sjabloonGroepUUID")
+      .id("sjabloonGroep")
       .label("Sjabloongroep")
       .optionLabel("name")
       .validators(Validators.required)
@@ -114,7 +112,7 @@ export class InformatieObjectCreateAttendedComponent
       .build();
 
     this.sjabloon = new AutocompleteFormFieldBuilder()
-      .id("sjabloonUUID")
+      .id("sjabloon")
       .label("Sjabloon")
       .optionLabel("name")
       .validators(Validators.required)
@@ -135,7 +133,7 @@ export class InformatieObjectCreateAttendedComponent
       .build();
 
     this.informatieobjectType = new InputFormFieldBuilder()
-      .id("informatieobjectTypeUUID")
+      .id("informatieobjectType")
       .label("informatieobjectType")
       .validators(Validators.required)
       .disabled()
@@ -262,10 +260,6 @@ export class InformatieObjectCreateAttendedComponent
     }
   }
 
-  private sjabloonGroupSelected(selectedZaaktype: any) {
-    console.log("Selected sjabloongorep:", selectedZaaktype);
-  }
-
   private isAfgehandeld(): boolean {
     return this.zaak && !this.zaak.isOpen;
   }
@@ -295,23 +289,11 @@ export class InformatieObjectCreateAttendedComponent
         console.log("key", key, value);
 
         switch (key) {
-          case "informatieobjectTypeUUID":
-            infoObject[key] = value.uuid;
-            break;
-          case "taal":
-            infoObject[key] = value.code;
-            break;
-          case "status":
-            infoObject[key] = InformatieobjectStatus[value.value.toUpperCase()];
+          case "sjabloonGroep":
+          case "sjabloon":
+          case "informatieobjectType":
             break;
           case "vertrouwelijkheidaanduiding":
-            infoObject[key] = value.value;
-            break;
-          case "bestand":
-            infoObject["bestandsomvang"] = value.size;
-            infoObject["bestandsnaam"] = value.name;
-            infoObject["bestand"] = value;
-            infoObject["formaat"] = value.type;
             break;
           default:
             if (value instanceof moment) {
