@@ -4,7 +4,7 @@
  */
 
 import { Injectable } from "@angular/core";
-import { catchError, Observable, map } from "rxjs";
+import { catchError, map, Observable } from "rxjs";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 

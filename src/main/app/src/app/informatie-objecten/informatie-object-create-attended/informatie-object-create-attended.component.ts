@@ -7,41 +7,30 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnInit,
   OnDestroy,
+  OnInit,
   Output,
   ViewChild,
 } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import moment from "moment";
-import {
-  Subscription,
-  Subject,
-  combineLatest,
-  map,
-  tap,
-  BehaviorSubject,
-  firstValueFrom,
-} from "rxjs";
-import { filter, takeUntil, first } from "rxjs/operators";
-import { LoggedInUser } from "src/app/identity/model/logged-in-user";
+import { BehaviorSubject, firstValueFrom, Subscription } from "rxjs";
+import { first } from "rxjs/operators";
+import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
+import { User } from "src/app/identity/model/user";
+import { AutocompleteFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/autocomplete/autocomplete-form-field-builder";
+import { AbstractFormField } from "src/app/shared/material-form-builder/model/abstract-form-field";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { SelectFormField } from "../../shared/material-form-builder/form-components/select/select-form-field";
 import { FormComponent } from "../../shared/material-form-builder/form/form/form.component";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { Zaak } from "../../zaken/model/zaak";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobject";
-import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
-import { AutocompleteFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/autocomplete/autocomplete-form-field-builder";
-import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
-import { User } from "src/app/identity/model/user";
-import { AbstractFormField } from "src/app/shared/material-form-builder/model/abstract-form-field";
 
 @Component({
   selector: "zac-informatie-object-create-attended",
@@ -217,8 +206,8 @@ export class InformatieObjectCreateAttendedComponent
             infoObject[key] = value.informatieObjectTypeUUID;
             break;
           case "informatieobjectType":
-            break;
           case "vertrouwelijkheidaanduiding":
+            // Skip these fields, end point will determine these values (again)
             break;
           default:
             if (value instanceof moment) {

@@ -156,9 +156,9 @@
       <mat-card class="zaken-card w50 flex-1">
         <mat-card-header class="flex-row space-between">
           <mat-card-title>{{ zaak.identificatie }}</mat-card-title>
-          <mat-card-subtitle>{{
-            zaak.zaaktype.omschrijving
-          }}</mat-card-subtitle>
+          <mat-card-subtitle
+            >{{ zaak.zaaktype.omschrijving }}</mat-card-subtitle
+          >
           <div class="flex-row">
             <zac-zaak-indicaties
               [layout]="indicatiesLayout.VIEW"
@@ -689,10 +689,8 @@
                       {{ "type" | translate }}
                     </th>
                     <td mat-cell *matCellDef="let bagObjectGegevens">
-                      {{
-                        "objecttype." +
-                          bagObjectGegevens.bagObject.bagObjectType | translate
-                      }}
+                      {{ "objecttype." +
+                      bagObjectGegevens.bagObject.bagObjectType | translate }}
                     </td>
                   </ng-container>
                   <ng-container matColumnDef="omschrijving">
