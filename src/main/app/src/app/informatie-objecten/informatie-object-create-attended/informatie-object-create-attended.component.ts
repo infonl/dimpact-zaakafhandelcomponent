@@ -33,6 +33,7 @@ import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 import { AutocompleteFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/autocomplete/autocomplete-form-field-builder";
 import { ZakenService } from "src/app/zaken/zaken.service";
+import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
 
 @Component({
   selector: "zac-informatie-object-create-attended",
@@ -48,6 +49,7 @@ export class InformatieObjectCreateAttendedComponent implements OnDestroy {
 
   constructor(
     private zakenService: ZakenService,
+    private smartDocumentsService: SmartDocumentsService,
     private informatieObjectenService: InformatieObjectenService,
     public utilService: UtilService,
     private identityService: IdentityService,
@@ -78,19 +80,16 @@ export class InformatieObjectCreateAttendedComponent implements OnDestroy {
       Vertrouwelijkheidaanduiding,
     );
 
-    console.log("zaak", this.zaak);
-    const listZaaktypes$ = console.log(
-      "this.zakenService.listZaaktypes()",
-      this.zakenService.listZaaktypes(),
-      this.zaak,
-    );
-
     const sjabloonGroep = new AutocompleteFormFieldBuilder()
       .id("sjabloonGroepUUID")
       .label("Sjabloongroep")
       .validators(Validators.required)
-      .optionLabel("omschrijving")
-      .options(this.zakenService.listZaaktypes())
+      .optionLabel("name")
+      .options(
+        this.smartDocumentsService.getTemplatesMappingFlat(
+          this.zaak.zaaktype.uuid,
+        ),
+      )
       .build();
 
     const sjabloon = new AutocompleteFormFieldBuilder()
