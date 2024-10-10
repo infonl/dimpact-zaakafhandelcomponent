@@ -78,7 +78,7 @@ export class InformatieObjectCreateAttendedComponent
 
   fields$ = combineLatest([this.loggedInUser$]).pipe(
     map(([loggedInUser]) => this.getInputs({ loggedInUser })),
-    tap((inputs) => this.setSubscriptions(inputs)),
+    // tap((inputs) => this.setSubscriptions(inputs)),
     map((inputs) => this.getFormLayout(inputs)),
   );
 
@@ -229,24 +229,6 @@ export class InformatieObjectCreateAttendedComponent
     ];
   }
 
-  private setSubscriptions({
-    informatieobjectType,
-    vertrouwelijk,
-    vertrouwelijkheidsAanduidingen,
-  }: ReturnType<InformatieObjectCreateAttendedComponent["getInputs"]>) {
-    this.subscriptions.push(
-      informatieobjectType.formControl.valueChanges.subscribe((value) => {
-        if (value) {
-          vertrouwelijk.formControl.setValue(
-            vertrouwelijkheidsAanduidingen.find(
-              (option) => option.value === value.vertrouwelijkheidaanduiding,
-            ),
-          );
-        }
-      }),
-    );
-  }
-
   private async fetchInformatieobjecttypes(): Promise<any> {
     try {
       const informatieobjecttypes = await firstValueFrom(
@@ -286,11 +268,13 @@ export class InformatieObjectCreateAttendedComponent
         const control = formGroup.controls[key];
         const value = control.value;
 
-        console.log("key", key, value);
-
         switch (key) {
           case "sjabloonGroep":
+            infoObject[key] = value.id;
+            break;
           case "sjabloon":
+            infoObject[key] = value.informatieObjectTypeUUID;
+            break;
           case "informatieobjectType":
             break;
           case "vertrouwelijkheidaanduiding":
@@ -299,11 +283,13 @@ export class InformatieObjectCreateAttendedComponent
             if (value instanceof moment) {
               infoObject[key] = value; // conversie niet nodig, ISO-8601 in UTC gaat goed met java ZonedDateTime.parse
               break;
+            } else {
+              infoObject[key] = value;
             }
-
-            infoObject[key] = value;
+            break;
         }
       });
+      console.log("Object to submit to endpoint", infoObject);
     }
     this.sideNav.close();
   }
