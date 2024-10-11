@@ -75,8 +75,8 @@ export class InformatieObjectCreateAttendedComponent
     this.getIngelogdeMedewerker();
     this.informatieObjectTypes = await this.fetchInformatieobjecttypes();
 
-    const sjabloonGroep = new AutocompleteFormFieldBuilder()
-      .id("sjabloonGroep")
+    const templateGroup = new AutocompleteFormFieldBuilder()
+      .id("templateGroup")
       .label("Sjabloongroep")
       .optionLabel("name")
       .validators(Validators.required)
@@ -87,36 +87,36 @@ export class InformatieObjectCreateAttendedComponent
       )
       .build();
 
-    const sjabloon = new AutocompleteFormFieldBuilder()
-      .id("sjabloon")
+    const template = new AutocompleteFormFieldBuilder()
+      .id("template")
       .label("Sjabloon")
       .optionLabel("name")
       .validators(Validators.required)
       .options(this.sjabloonOptions$)
       .build();
 
-    const titel = new InputFormFieldBuilder()
-      .id("titel")
+    const title = new InputFormFieldBuilder()
+      .id("title")
       .label("titel")
       .validators(Validators.required)
       .maxlength(100)
       .build();
 
-    const beschrijving = new InputFormFieldBuilder()
-      .id("beschrijving")
+    const description = new InputFormFieldBuilder()
+      .id("description")
       .label("beschrijving")
       .maxlength(100)
       .build();
 
-    const informatieobjectType = new InputFormFieldBuilder()
-      .id("informatieobjectType")
+    const informationObjectType = new InputFormFieldBuilder()
+      .id("informationObjectType")
       .label("informatieobjectType")
       .validators(Validators.required)
       .disabled()
       .build();
 
-    const vertrouwelijk = new InputFormFieldBuilder()
-      .id("vertrouwelijkheidaanduiding")
+    const confidentiality = new InputFormFieldBuilder()
+      .id("confidentiality")
       .label("vertrouwelijkheidaanduiding")
       .validators(Validators.required)
       .disabled()
@@ -136,18 +136,18 @@ export class InformatieObjectCreateAttendedComponent
       .build();
 
     this.fields = [
-      [sjabloonGroep, sjabloon],
-      [titel],
-      [beschrijving],
-      [informatieobjectType, vertrouwelijk],
+      [templateGroup, template],
+      [title],
+      [description],
+      [informationObjectType, confidentiality],
       [beginRegistratie],
       [auteur],
     ];
 
     this.subscriptions$.push(
-      sjabloonGroep.formControl.valueChanges.subscribe(
+      templateGroup.formControl.valueChanges.subscribe(
         (selectedTemplateGroup) => {
-          sjabloon.formControl.setValue(null); // Always reset selected template after group change or clearing
+          template.formControl.setValue(null); // Always reset selected template after group change or clearing
           if (selectedTemplateGroup) {
             this.sjabloonOptions$.next(selectedTemplateGroup.templates);
           } else {
@@ -158,21 +158,21 @@ export class InformatieObjectCreateAttendedComponent
     );
 
     this.subscriptions$.push(
-      sjabloon.formControl.valueChanges.subscribe((selectedTemplate) => {
+      template.formControl.valueChanges.subscribe((selectedTemplate) => {
         if (selectedTemplate && selectedTemplate.informatieObjectTypeUUID) {
-          informatieobjectType.formControl.setValue(
+          informationObjectType.formControl.setValue(
             this.informatieObjectTypes.find(
               (type) => type.uuid === selectedTemplate.informatieObjectTypeUUID,
             )?.omschrijving || null,
           );
-          vertrouwelijk.formControl.setValue(
+          confidentiality.formControl.setValue(
             this.informatieObjectTypes.find(
               (type) => type.uuid === selectedTemplate.informatieObjectTypeUUID,
-            )?.vertrouwelijkheidaanduiding || null,
+            )?.confidentiality || null,
           );
         } else {
-          informatieobjectType.formControl.setValue(null);
-          vertrouwelijk.formControl.setValue(null);
+          informationObjectType.formControl.setValue(null);
+          confidentiality.formControl.setValue(null);
         }
       }),
     );
@@ -199,42 +199,38 @@ export class InformatieObjectCreateAttendedComponent
 
   onFormSubmit(formGroup: FormGroup): void {
     if (formGroup) {
-      const docObject = new DocumentCreationData();
+      const documentCreateData = new DocumentCreationData();
       Object.keys(formGroup.controls).forEach((key) => {
         const control = formGroup.controls[key];
         const value = control.value;
 
+        // Convert form fields to REST end point Body Parameters
         switch (key) {
-          case "sjabloonGroep":
-            docObject["zaakUuid"] = this.zaak.uuid;
-            docObject["smartDocumentsTemplateGroupId"] = value.id;
+          case "templateGroup":
+            documentCreateData["zaakUuid"] = this.zaak.uuid;
+            documentCreateData["smartDocumentsTemplateGroupId"] = value.id;
             break;
-          case "sjabloon":
-            docObject["smartDocumentsTemplateId"] = value.id;
+          case "template":
+            documentCreateData["smartDocumentsTemplateId"] = value.id;
             break;
-          case "beschrijving":
-            docObject["descirption"] = value;
-            break;
-          case "titel":
-            docObject["title"] = value;
-            break;
-          case "informatieobjectType":
-          case "vertrouwelijkheidaanduiding":
-            // Skip these fields, end point will determine these values (again)
+          case "informationObjectType":
+          case "confidentiality":
+            // Fields not end point Body Parameters; 'just informational'. End point will determine these values itself (again)
             break;
           default:
             if (value instanceof moment) {
-              docObject[key] = value; // conversie niet nodig, ISO-8601 in UTC gaat goed met java ZonedDateTime.parse
+              documentCreateData[key] = value; // conversie niet nodig, ISO-8601 in UTC gaat goed met java ZonedDateTime.parse
               break;
             } else {
-              docObject[key] = value;
+              documentCreateData[key] = value;
             }
             break;
         }
       });
-      console.log("Object to submit to endpoint", docObject);
+
+      // Make REST call to create document
       this.informatieObjectenService
-        .createDocumentAttended(docObject)
+        .createDocumentAttended(documentCreateData)
         .subscribe((documentCreatieResponse) => {
           if (documentCreatieResponse.redirectURL) {
             window.open(documentCreatieResponse.redirectURL);
