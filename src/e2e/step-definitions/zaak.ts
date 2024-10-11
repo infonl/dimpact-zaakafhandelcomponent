@@ -126,7 +126,7 @@ When(
     await this.page.getByLabel("Zaak toevoegen").click();
     await this.page.getByLabel("Zaaktype").click();
     await this.page
-      .getByRole("option", { name: "Melding evenement organiseren behandelen" })
+      .getByRole("option", { name: "Zaaktype voor e2e testen" })
       .click();
     await this.page
       .locator("div")
