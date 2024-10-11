@@ -167,13 +167,11 @@ export class InformatieObjectCreateAttendedComponent
           const infoObjectType = this.informatieObjectTypes.find(
             (type) => type.uuid === selectedTemplate.informatieObjectTypeUUID,
           );
-          console.log("informationObjectType", infoObjectType);
 
           if (infoObjectType) {
             informationObjectType.formControl.setValue(
               infoObjectType.omschrijving || null,
             );
-
             confidentiality.formControl.setValue(
               this.translateService.instant(
                 this.vertrouwelijkaanduidingToTranslationKeyPipe.transform(
