@@ -210,8 +210,13 @@ export class InformatieObjectCreateAttendedComponent
             docObject["smartDocumentsTemplateGroupId"] = value.id;
             break;
           case "sjabloon":
-            docObject["smartDocumentsTemplateId"] =
-              value.informatieObjectTypeUUID;
+            docObject["smartDocumentsTemplateId"] = value.id;
+            break;
+          case "beschrijving":
+            docObject["descirption"] = value;
+            break;
+          case "titel":
+            docObject["title"] = value;
             break;
           case "informatieobjectType":
           case "vertrouwelijkheidaanduiding":
