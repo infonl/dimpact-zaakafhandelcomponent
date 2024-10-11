@@ -36,6 +36,8 @@ import {
 import { Zaak } from "../../zaken/model/zaak";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { DocumentCreationData } from "../model/document-creation-data";
+import { TranslateService } from "@ngx-translate/core";
+import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 
 @Component({
   selector: "zac-informatie-object-create-attended",
@@ -63,6 +65,8 @@ export class InformatieObjectCreateAttendedComponent
     private informatieObjectenService: InformatieObjectenService,
     public utilService: UtilService,
     private identityService: IdentityService,
+    private vertrouwelijkaanduidingToTranslationKeyPipe: VertrouwelijkaanduidingToTranslationKeyPipe,
+    private translateService: TranslateService,
     private dialog: MatDialog,
   ) {}
 
@@ -160,20 +164,29 @@ export class InformatieObjectCreateAttendedComponent
     this.subscriptions$.push(
       template.formControl.valueChanges.subscribe((selectedTemplate) => {
         if (selectedTemplate && selectedTemplate.informatieObjectTypeUUID) {
-          informationObjectType.formControl.setValue(
-            this.informatieObjectTypes.find(
-              (type) => type.uuid === selectedTemplate.informatieObjectTypeUUID,
-            )?.omschrijving || null,
+          const infoObjectType = this.informatieObjectTypes.find(
+            (type) => type.uuid === selectedTemplate.informatieObjectTypeUUID,
           );
-          confidentiality.formControl.setValue(
-            this.informatieObjectTypes.find(
-              (type) => type.uuid === selectedTemplate.informatieObjectTypeUUID,
-            )?.confidentiality || null,
-          );
-        } else {
-          informationObjectType.formControl.setValue(null);
-          confidentiality.formControl.setValue(null);
+          console.log("informationObjectType", infoObjectType);
+
+          if (infoObjectType) {
+            informationObjectType.formControl.setValue(
+              infoObjectType.omschrijving || null,
+            );
+
+            confidentiality.formControl.setValue(
+              this.translateService.instant(
+                this.vertrouwelijkaanduidingToTranslationKeyPipe.transform(
+                  infoObjectType.vertrouwelijkheidaanduiding,
+                ) || null,
+              ),
+            );
+
+            return;
+          }
         }
+        informationObjectType.formControl.setValue(null);
+        confidentiality.formControl.setValue(null);
       }),
     );
   }
@@ -215,7 +228,7 @@ export class InformatieObjectCreateAttendedComponent
             break;
           case "informationObjectType":
           case "confidentiality":
-            // Fields not end point Body Parameters; 'just informational'. End point will determine these values itself (again)
+            // Fields not end point Body Parameters; 'just informational', so leave them out. End point will determine these values itself (again)
             break;
           default:
             if (value instanceof moment) {
