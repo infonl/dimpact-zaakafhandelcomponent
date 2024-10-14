@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -34,7 +34,6 @@ import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { LoggedInUser } from "../../identity/model/logged-in-user";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { DocumentCreationData } from "../../informatie-objecten/model/document-creation-data";
 import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { KlantenService } from "../../klanten/klanten.service";
 import { Klant } from "../../klanten/model/klanten/klant";
@@ -52,17 +51,12 @@ import { ExpandableTableData } from "../../shared/dynamic-table/model/expandable
 import { TextIcon } from "../../shared/edit/text-icon";
 import { HistorieRegel } from "../../shared/historie/model/historie-regel";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
-import { LocationService } from "../../shared/location/location.service";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
 import { ReadonlyFormFieldBuilder } from "../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
 import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
-import {
-  NotificationDialogComponent,
-  NotificationDialogData,
-} from "../../shared/notification-dialog/notification-dialog.component";
 import { OrderUtil } from "../../shared/order/order-util";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
@@ -199,7 +193,6 @@ export class ZaakViewComponent
     private websocketService: WebsocketService,
     private dialog: MatDialog,
     private translate: TranslateService,
-    private locationService: LocationService,
     private zaakKoppelenService: ZaakKoppelenService,
     private bagService: BAGService,
     private referentieTabelService: ReferentieTabelService,
@@ -582,7 +575,8 @@ export class ZaakViewComponent
         new ButtonMenuItem(
           "actie.document.maken",
           () => {
-            this.maakDocument();
+            this.actionsSidenav.open();
+            this.action = SideNavAction.DOCUMENT_MAKEN;
           },
           "note_add",
         ),
@@ -721,32 +715,6 @@ export class ZaakViewComponent
         this.updateMargins();
       },
     );
-  }
-
-  private maakDocument(): void {
-    const documentCreatieGegeven = new DocumentCreationData();
-    documentCreatieGegeven.zaakUuid = this.zaak.uuid;
-    // We use hardcoded template and template group here to allow e2e tests to pass
-    // The below two should be changed with the correct IDs mapped to the zaak type
-    //
-    // group   : Melding evenement organiseren behandelen
-    // template: Data Test
-    documentCreatieGegeven.smartDocumentsTemplateGroupId =
-      "DA3A76D24DFD48C9837B03E47BC701FB";
-    documentCreatieGegeven.smartDocumentsTemplateId =
-      "7B7857BB9959470C82974037304E433D";
-    documentCreatieGegeven.title = "gemaakt door SmartDocuments";
-    this.informatieObjectenService
-      .createDocumentAttended(documentCreatieGegeven)
-      .subscribe((documentCreatieResponse) => {
-        if (documentCreatieResponse.redirectURL) {
-          window.open(documentCreatieResponse.redirectURL);
-        } else {
-          this.dialog.open(NotificationDialogComponent, {
-            data: new NotificationDialogData(documentCreatieResponse.message),
-          });
-        }
-      });
   }
 
   private createKoppelingenMenuItems(): void {
