@@ -230,7 +230,7 @@ export class InformatieObjectCreateAttendedComponent
             break;
           default:
             if (value instanceof moment) {
-              documentCreateData[key] = value; // conversie niet nodig, ISO-8601 in UTC gaat goed met java ZonedDateTime.parse
+              documentCreateData[key] = value;
               break;
             } else {
               documentCreateData[key] = value;
