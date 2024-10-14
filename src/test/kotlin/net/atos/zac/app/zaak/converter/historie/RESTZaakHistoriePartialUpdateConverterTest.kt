@@ -16,20 +16,20 @@ class RESTZaakHistoriePartialUpdateConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
+    val zrcClientService = mockk<ZrcClientService>()
+    val auditTrail = mockk<ZRCAuditTrailRegel>()
+    val actie = mockk<RESTHistorieActie>()
+
+    val creationDate = ZonedDateTime.now()
+    val userView = "view"
+    val description = "description"
+
+    val restZaakHistoriePartialUpdateConverter = RESTZaakHistoriePartialUpdateConverter(zrcClientService)
+
     Given("audit trail contains changes for start and completion dates") {
-        val zrcClientService = mockk<ZrcClientService>()
-        val auditTrail = mockk<ZRCAuditTrailRegel>()
-        val actie = mockk<RESTHistorieActie>()
-
-        val creationDate = ZonedDateTime.now()
-        val userView = "view"
-        val description = "description"
-
         every { auditTrail.aanmaakdatum } returns creationDate
         every { auditTrail.gebruikersWeergave } returns userView
         every { auditTrail.toelichting } returns description
-
-        val restZaakHistoriePartialUpdateConverter = RESTZaakHistoriePartialUpdateConverter(zrcClientService)
 
         val newValues = mapOf(
             "startdatum" to "2024-10-30",
