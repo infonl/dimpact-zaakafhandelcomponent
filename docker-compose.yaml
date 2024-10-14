@@ -10,6 +10,7 @@ services:
         condition: service_healthy
     ports:
       - "8081:8080"
+      - "9001:9000"
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
@@ -28,7 +29,8 @@ services:
     command:
       - "start-dev"
       - "--import-realm"
-      - "--hostname=http://localhost:8081"
+      - "--features=hostname:v1"
+      - "--hostname-url=http://localhost:8081"
       - "--http-enabled=true"
       - "--health-enabled=true"
 
