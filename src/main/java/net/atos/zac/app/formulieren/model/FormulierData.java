@@ -13,7 +13,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
 
-import net.atos.zac.util.LocalDateAdapter;
+import net.atos.zac.util.time.LocalDateAdapter;
 
 public class FormulierData {
 

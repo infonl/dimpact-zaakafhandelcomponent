@@ -31,7 +31,7 @@ import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.bpmn.BPMNService
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.util.PeriodUtil
+import net.atos.zac.util.time.PeriodUtil
 import net.atos.zac.zoeken.model.ZaakIndicatie
 import java.time.LocalDate
 import java.time.Period

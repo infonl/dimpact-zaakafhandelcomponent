@@ -28,6 +28,7 @@ import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -64,9 +65,13 @@ class DocumentCreationRestService @Inject constructor(
         }.let {
             DocumentCreationDataAttended(
                 zaak = it,
+                taskId = restDocumentCreationAttendedData.taskId,
                 templateId = restDocumentCreationAttendedData.smartDocumentsTemplateId,
                 templateGroupId = restDocumentCreationAttendedData.smartDocumentsTemplateGroupId,
-                taskId = restDocumentCreationAttendedData.taskId,
+                title = restDocumentCreationAttendedData.title,
+                description = restDocumentCreationAttendedData.description,
+                author = restDocumentCreationAttendedData.author,
+                creationDate = restDocumentCreationAttendedData.creationDate ?: ZonedDateTime.now()
             )
                 .let(documentCreationService::createDocumentAttended)
                 .let { response -> RestDocumentCreationAttendedResponse(response.redirectUrl, response.message) }
@@ -82,10 +87,14 @@ class DocumentCreationRestService @Inject constructor(
     @POST
     @Path("/smartdocuments/callback/zaak/{zaakUuid}")
     @Produces(MediaType.TEXT_HTML)
+    @Suppress("LongParameterList")
     fun createDocumentForZaakCallback(
         @PathParam("zaakUuid") zaakUuid: UUID,
         @QueryParam("templateGroupId") templateGroupId: String,
         @QueryParam("templateId") templateId: String,
+        @QueryParam("title") title: String,
+        @QueryParam("description") description: String?,
+        @QueryParam("creationDate") creationDate: ZonedDateTime,
         @QueryParam("userName") userName: String,
         @FormParam("sdDocument") @DefaultValue("") fileId: String,
     ): Response =
@@ -93,20 +102,24 @@ class DocumentCreationRestService @Inject constructor(
             if (fileId.isBlank()) {
                 buildWizardFinishPageRedirectResponse(
                     zaakId = zaak.identificatie,
+                    documentName = title,
                     result = SmartDocumentsWizardResult.CANCELLED
                 )
             } else {
                 runCatching {
                     documentCreationService.storeDocument(
-                        fileId,
-                        templateGroupId,
-                        templateId,
-                        userName,
-                        zaak
+                        zaak = zaak,
+                        fileId = fileId,
+                        templateGroupId = templateGroupId,
+                        templateId = templateId,
+                        title = title,
+                        description = description,
+                        creationDate = creationDate,
+                        userName = userName
                     ).let {
                         buildWizardFinishPageRedirectResponse(
                             zaakId = zaak.identificatie,
-                            documentName = it.titel,
+                            documentName = title,
                             result = SmartDocumentsWizardResult.SUCCESS
                         )
                     }
@@ -117,6 +130,7 @@ class DocumentCreationRestService @Inject constructor(
                 }.getOrElse {
                     buildWizardFinishPageRedirectResponse(
                         zaakId = zaak.identificatie,
+                        documentName = title,
                         result = SmartDocumentsWizardResult.FAILURE
                     )
                 }
@@ -139,6 +153,9 @@ class DocumentCreationRestService @Inject constructor(
         @PathParam("taskId") taskId: String,
         @QueryParam("templateGroupId") templateGroupId: String,
         @QueryParam("templateId") templateId: String,
+        @QueryParam("title") title: String,
+        @QueryParam("description") description: String?,
+        @QueryParam("creationDate") creationDate: ZonedDateTime,
         @QueryParam("userName") userName: String,
         @FormParam("sdDocument") @DefaultValue("") fileId: String,
     ): Response =
@@ -147,22 +164,26 @@ class DocumentCreationRestService @Inject constructor(
                 buildWizardFinishPageRedirectResponse(
                     zaakId = zaak.identificatie,
                     taskId = taskId,
+                    documentName = title,
                     result = SmartDocumentsWizardResult.CANCELLED
                 )
             } else {
                 runCatching {
                     documentCreationService.storeDocument(
-                        fileId,
-                        templateGroupId,
-                        templateId,
-                        userName,
-                        zaak,
-                        taskId
+                        zaak = zaak,
+                        taskId = taskId,
+                        fileId = fileId,
+                        templateGroupId = templateGroupId,
+                        templateId = templateId,
+                        title = title,
+                        description = description,
+                        creationDate = creationDate,
+                        userName = userName
                     ).let {
                         buildWizardFinishPageRedirectResponse(
                             zaakId = zaak.identificatie,
                             taskId = taskId,
-                            documentName = it.titel,
+                            documentName = title,
                             result = SmartDocumentsWizardResult.SUCCESS
                         )
                     }
@@ -174,6 +195,7 @@ class DocumentCreationRestService @Inject constructor(
                     buildWizardFinishPageRedirectResponse(
                         zaakId = zaak.identificatie,
                         taskId = taskId,
+                        documentName = title,
                         result = SmartDocumentsWizardResult.FAILURE
                     )
                 }

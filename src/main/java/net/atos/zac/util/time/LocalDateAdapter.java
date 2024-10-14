@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.util;
+package net.atos.zac.util.time;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
