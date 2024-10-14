@@ -202,7 +202,6 @@ class ZaakRestServiceTest : BehaviorSpec({
         val zaak = createZaak(zaakType.url)
 
         every { cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null) } just runs
-        every { bpmnService.startProcess(zaak, zaakType, null) } returns false
         every { identityService.readGroup(restZaakAanmaakGegevens.zaak.groep!!.id) } returns group
         every { identityService.readUser(restZaakAanmaakGegevens.zaak.behandelaar!!.id) } returns user
         every {

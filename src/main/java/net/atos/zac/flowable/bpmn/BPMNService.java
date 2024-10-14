@@ -19,7 +19,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
-import org.apache.commons.lang3.StringUtils;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
@@ -57,18 +56,24 @@ public class BPMNService {
                         processEngineConfiguration.getLabelFontName(),
                         processEngineConfiguration.getAnnotationFontName(),
                         processEngineConfiguration.getClassLoader(), 1.0,
-                        processEngineConfiguration.isDrawSequenceFlowNameWithNoLabelDI());
+                        processEngineConfiguration.isDrawSequenceFlowNameWithNoLabelDI()
+                );
     }
 
     public boolean isProcesGestuurd(final UUID zaakUUID) {
         return findProcessInstance(zaakUUID) != null;
     }
 
-    public ProcessDefinition readProcessDefinitionByprocessDefinitionKey(final String processDefinitionKey) {
-        final ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+    public ProcessDefinition findProcessDefinitionByprocessDefinitionKey(final String processDefinitionKey) {
+        return repositoryService.createProcessDefinitionQuery()
                 .processDefinitionKey(processDefinitionKey)
+                .active()
                 .latestVersion()
                 .singleResult();
+    }
+
+    public ProcessDefinition readProcessDefinitionByprocessDefinitionKey(final String processDefinitionKey) {
+        final ProcessDefinition processDefinition = findProcessDefinitionByprocessDefinitionKey(processDefinitionKey);
         if (processDefinition != null) {
             return processDefinition;
         } else {
@@ -78,21 +83,12 @@ public class BPMNService {
         }
     }
 
-    public boolean startProcess(
+    public void startProcess(
             final Zaak zaak,
             final ZaakType zaaktype,
             Map<String, Object> zaakData
     ) {
-        if (zaaktype.getReferentieproces() == null || StringUtils.isBlank(zaaktype.getReferentieproces().getNaam())) {
-            return false;
-        }
         final var processDefinitionKey = zaaktype.getReferentieproces().getNaam();
-        if (repositoryService.createProcessDefinitionQuery()
-                .processDefinitionKey(processDefinitionKey)
-                .active()
-                .count() == 0) {
-            return false;
-        }
         LOG.info(() -> String.format("Starting zaak '%s' using BPMN model '%s'", zaak.getUuid(), processDefinitionKey));
         if (zaakData == null) {
             zaakData = Collections.emptyMap();
@@ -106,7 +102,6 @@ public class BPMNService {
                 .variable(VAR_ZAAKTYPE_OMSCHRIJVING, zaaktype.getOmschrijving())
                 .variables(zaakData)
                 .start();
-        return true;
     }
 
     public List<ProcessDefinition> listProcessDefinitions() {

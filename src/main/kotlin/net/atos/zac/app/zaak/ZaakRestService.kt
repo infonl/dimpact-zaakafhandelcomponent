@@ -281,7 +281,13 @@ class ZaakRestService @Inject constructor(
             val user = identityService.readUser(it.id)
             zrcClientService.updateRol(zaak, zaakService.bepaalRolMedewerker(user, zaak), AANMAKEN_ZAAK_REDEN)
         }
-        if (!bpmnService.startProcess(zaak, zaaktype, null)) {
+        if (zaaktype.referentieproces?.naam?.isNotEmpty() == true) {
+            bpmnService.startProcess(
+                zaak,
+                zaaktype,
+                null
+            )
+        } else {
             cmmnService.startCase(
                 zaak,
                 zaaktype,
@@ -502,7 +508,7 @@ class ZaakRestService @Inject constructor(
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
             .filter {
-                (configuratieService.featureFlagBpmnSupport() && it.referentieproces?.naam != null) ||
+                (configuratieService.featureFlagBpmnSupport() && it.referentieproces?.naam?.isNotEmpty() == true) ||
                     healthCheckService.controleerZaaktype(it.url).isValide
             }
             .map { restZaaktypeConverter.convert(it) }

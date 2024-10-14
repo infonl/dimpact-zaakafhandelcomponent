@@ -23,7 +23,7 @@ import net.atos.zac.policy.PolicyService
 import nl.lifely.zac.util.NoArgConstructor
 
 @Singleton
-@Path("processdefinitions")
+@Path("process-definitions")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @NoArgConstructor

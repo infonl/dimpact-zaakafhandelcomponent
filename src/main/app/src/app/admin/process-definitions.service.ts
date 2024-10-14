@@ -15,7 +15,7 @@ import { ProcessDefinitionContent } from "./model/process-definition-content";
   providedIn: "root",
 })
 export class ProcessDefinitionsService {
-  private basepath = "/rest/processdefinitions";
+  private basepath = "/rest/process-definitions";
 
   constructor(
     private http: HttpClient,

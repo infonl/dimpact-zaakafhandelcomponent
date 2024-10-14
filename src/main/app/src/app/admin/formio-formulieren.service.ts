@@ -15,7 +15,7 @@ import { FormioFormulierContent } from "./model/formio-formulier-content";
   providedIn: "root",
 })
 export class FormioFormulierenService {
-  private basepath = "/rest/formioformulieren";
+  private basepath = "/rest/formio-formulieren";
 
   constructor(
     private http: HttpClient,
