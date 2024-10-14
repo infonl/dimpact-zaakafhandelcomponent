@@ -20,13 +20,6 @@ export interface DocumentsTemplate extends BaseTemplate {
 }
 
 interface BaseGroup<T extends BaseTemplate> {
-export type SmartDocumentsTemplate = BaseTemplate;
-
-export interface DocumentsTemplate extends BaseTemplate {
-  informatieObjectTypeUUID: string;
-}
-
-interface BaseGroup<T extends BaseTemplate> {
   id: string;
   name: string;
   groups?: BaseGroup<T>[];
@@ -34,15 +27,7 @@ interface BaseGroup<T extends BaseTemplate> {
 }
 
 export type SmartDocumentsTemplateGroup = BaseGroup<SmartDocumentsTemplate>;
-  groups?: BaseGroup<T>[];
-  templates?: T[];
-}
 
-export type SmartDocumentsTemplateGroup = BaseGroup<SmartDocumentsTemplate>;
-
-export type DocumentsTemplateGroup = BaseGroup<DocumentsTemplate>;
-
-export interface RootObject extends DocumentsTemplateGroup {}
 export type DocumentsTemplateGroup = BaseGroup<DocumentsTemplate>;
 
 export interface RootObject extends DocumentsTemplateGroup {}
@@ -97,7 +82,7 @@ export class SmartDocumentsService {
       )
       .pipe(
         map((data) => {
-          const flattened = data.map(this.flattenObject).flat();
+          const flattened = data.map(this.flattenDocumentsTemplateGroup).flat();
           return flattened;
         }),
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
@@ -123,5 +108,42 @@ export class SmartDocumentsService {
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
+  }
+
+  /**
+   * Flattens a nested RootObject (DocumentsTemplateGroup) into an array of group objects,
+   * omitting nested groups, and preserving templates.
+   * @param {RootObject} obj - The root object to flatten.
+   * @returns {Array<Omit<DocumentsTemplateGroup, "groups">>} - The flattened array of groups with templates, excluding nested groups.
+   */
+  flattenDocumentsTemplateGroup(
+    obj: RootObject,
+  ): Array<Omit<DocumentsTemplateGroup, "groups">> {
+    const result: Array<Omit<DocumentsTemplateGroup, "groups">> = [];
+
+    function flattenDocumentsTemplateGroup(group: DocumentsTemplateGroup) {
+      result.push({
+        id: group.id,
+        name: group.name,
+        templates: group.templates || [],
+      });
+
+      if (group.groups) {
+        group.groups.forEach(flattenDocumentsTemplateGroup);
+      }
+    }
+
+    // Flatten the root object itself
+    result.push({
+      id: obj.id,
+      name: obj.name,
+      templates: obj.templates || [],
+    });
+
+    if (obj.groups) {
+      obj.groups.forEach(flattenDocumentsTemplateGroup);
+    }
+
+    return result;
   }
 }
