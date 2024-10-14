@@ -49,7 +49,7 @@ object ItestConfiguration {
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING = "bijlage"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
     const val KEYCLOAK_HOSTNAME_URL = "http://localhost:8081"
-    const val KEYCLOAK_HEALTH_READY_URL = "$KEYCLOAK_HOSTNAME_URL/health/ready"
+    const val KEYCLOAK_HEALTH_READY_URL = "http://localhost:9001/health/ready"
     const val KEYCLOAK_REALM = "zaakafhandelcomponent"
     const val KEYCLOAK_CLIENT = "zaakafhandelcomponent"
     const val KEYCLOAK_CLIENT_SECRET = "keycloakZaakafhandelcomponentClientSecret"
