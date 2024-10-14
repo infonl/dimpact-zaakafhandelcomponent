@@ -281,7 +281,7 @@ class ZaakRestService @Inject constructor(
             val user = identityService.readUser(it.id)
             zrcClientService.updateRol(zaak, zaakService.bepaalRolMedewerker(user, zaak), AANMAKEN_ZAAK_REDEN)
         }
-        if (zaaktype.referentieproces?.naam?.isNotEmpty() == true) {
+        if (configuratieService.featureFlagBpmnSupport() && zaaktype.referentieproces?.naam?.isNotEmpty() == true) {
             bpmnService.startProcess(
                 zaak,
                 zaaktype,
