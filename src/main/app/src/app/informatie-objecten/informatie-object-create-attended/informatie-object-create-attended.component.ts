@@ -115,14 +115,12 @@ export class InformatieObjectCreateAttendedComponent
     const informationObjectType = new InputFormFieldBuilder()
       .id("informationObjectType")
       .label("informatieobjectType")
-      .validators(Validators.required)
       .disabled()
       .build();
 
     const confidentiality = new InputFormFieldBuilder()
       .id("confidentiality")
       .label("vertrouwelijkheidaanduiding")
-      .validators(Validators.required)
       .disabled()
       .build();
 
