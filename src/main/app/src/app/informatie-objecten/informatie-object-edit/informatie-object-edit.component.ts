@@ -31,9 +31,7 @@ import { FormComponent } from "../../shared/material-form-builder/form/form/form
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { NavigationService } from "../../shared/navigation/navigation.service";
 import { OrderUtil } from "../../shared/order/order-util";
-import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { EnkelvoudigInformatieObjectVersieGegevens } from "../model/enkelvoudig-informatie-object-versie-gegevens";
 import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobject";
@@ -60,9 +58,7 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
   private subscriptions$: Subscription[] = [];
 
   constructor(
-    private zakenService: ZakenService,
     private informatieObjectenService: InformatieObjectenService,
-    private navigation: NavigationService,
     public utilService: UtilService,
     private configuratieService: ConfiguratieService,
     private translateService: TranslateService,

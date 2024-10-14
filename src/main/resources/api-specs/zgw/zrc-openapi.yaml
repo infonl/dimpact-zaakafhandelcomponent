@@ -11523,9 +11523,10 @@ components:
       - kanaal
       - resource
       - resourceUrl
-    NullEnum:
-      enum:
-      - null
+      # manual changed by Lifely: this causes corrupt uncompilable Java code with OpenAPI Generator 7.9.0
+      # NullEnum:
+      #      enum:
+      #      - null
     ObjectAdres:
       type: object
       properties:
