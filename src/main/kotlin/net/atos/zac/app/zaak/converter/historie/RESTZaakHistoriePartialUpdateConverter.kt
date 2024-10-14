@@ -6,12 +6,16 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Geometry
 import net.atos.zac.app.audit.model.RESTHistorieActie
 import net.atos.zac.app.audit.model.RESTHistorieRegel
+import net.atos.zac.util.time.LocalDateUtil
 import java.net.URI
 
 private const val COMMUNICATIEKANAAL = "communicatiekanaal"
 private const val ZAAKGEOMETRIE = "zaakgeometrie"
 private const val HOOFDZAAK = "hoofdzaak"
 private const val RELEVANTE_ANDERE_ZAKEN = "relevanteAndereZaken"
+private const val UITERLIJKE_EINDDATUM_AFDOENING = "uiterlijkeEinddatumAfdoening"
+private const val STARTDATUM = "startdatum"
+private const val EINDDATUM = "einddatum"
 
 class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
     private val zrcClientService: ZrcClientService
@@ -57,6 +61,9 @@ class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
                     .map(URI::create)
                     .map(zrcClientService::readZaak)
                     .joinToString { it.identificatie }
+            resource == UITERLIJKE_EINDDATUM_AFDOENING -> LocalDateUtil.format(item as? String)
+            resource == STARTDATUM -> LocalDateUtil.format(item as? String)
+            resource == EINDDATUM -> LocalDateUtil.format(item as? String)
             else -> item.toString()
         }
 }

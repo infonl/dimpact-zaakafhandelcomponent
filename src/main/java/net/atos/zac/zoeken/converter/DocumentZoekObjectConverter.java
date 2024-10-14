@@ -21,7 +21,7 @@ import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
 import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
 import net.atos.zac.identity.IdentityService;
-import net.atos.zac.util.DateTimeConverterUtil;
+import net.atos.zac.util.time.DateTimeConverterUtil;
 import net.atos.zac.zoeken.model.DocumentIndicatie;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
 import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject;

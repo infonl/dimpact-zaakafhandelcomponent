@@ -56,7 +56,7 @@ import net.atos.zac.policy.output.createWerklijstRechtenAllDeny
 import net.atos.zac.shared.helper.OpschortenZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.task.TaskService
-import net.atos.zac.util.DateTimeConverterUtil
+import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.zoeken.IndexingService
 import org.flowable.task.api.Task

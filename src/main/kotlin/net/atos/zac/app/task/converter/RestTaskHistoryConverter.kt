@@ -11,8 +11,8 @@ import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.model.ValueChangeData
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.getFullName
-import net.atos.zac.util.DateTimeConverterUtil
 import net.atos.zac.util.JsonbUtil
+import net.atos.zac.util.time.DateTimeConverterUtil
 import org.flowable.task.api.history.HistoricTaskLogEntry
 import org.flowable.task.api.history.HistoricTaskLogEntryType
 import java.util.Date

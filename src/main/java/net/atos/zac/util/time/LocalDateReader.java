@@ -1,4 +1,4 @@
-package net.atos.zac.app.util;
+package net.atos.zac.util.time;
 
 import java.io.IOException;
 import java.io.InputStream;
