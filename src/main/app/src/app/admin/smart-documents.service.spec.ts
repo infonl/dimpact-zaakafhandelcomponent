@@ -1,9 +1,9 @@
+import { HttpClientTestingModule } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
-import { HttpClientTestingModule } from "@angular/common/http/testing";
-import { SmartDocumentsService } from "./smart-documents.service";
 import { UtilService } from "../core/service/util.service";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { SmartDocumentsService } from "./smart-documents.service";
 
 describe("SmartDocumentsService", () => {
   let smartDocumentsService: SmartDocumentsService;
