@@ -14,8 +14,8 @@ import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestZaaktype
 import net.atos.zac.app.zaak.model.RestZaaktypeRelatie
 import net.atos.zac.app.zaak.model.toRestZaaktypeRelatie
-import net.atos.zac.util.PeriodUtil
 import net.atos.zac.util.UriUtil
+import net.atos.zac.util.time.PeriodUtil
 import java.time.Period
 
 class RestZaaktypeConverter @Inject constructor(

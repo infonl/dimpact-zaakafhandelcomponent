@@ -119,8 +119,8 @@ import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.util.DateTimeConverterUtil
-import net.atos.zac.util.LocalDateUtil
 import net.atos.zac.util.UriUtil
+import net.atos.zac.util.time.LocalDateUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
@@ -310,7 +310,9 @@ class ZaakRestService @Inject constructor(
         restZaakEditMetRedenGegevens: RESTZaakEditMetRedenGegevens
     ): RestZaak {
         val zaak = zrcClientService.readZaak(zaakUUID)
-        assertPolicy(policyService.readZaakRechten(zaak).wijzigen)
+        with(policyService.readZaakRechten(zaak)) {
+            assertPolicy(wijzigen && verlengenDoorlooptijd)
+        }
 
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID,

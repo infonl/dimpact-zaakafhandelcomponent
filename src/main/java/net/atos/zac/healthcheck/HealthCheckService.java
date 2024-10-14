@@ -33,7 +33,7 @@ import net.atos.zac.admin.model.ZaakafhandelParameters;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.healthcheck.model.BuildInformatie;
 import net.atos.zac.healthcheck.model.ZaaktypeInrichtingscheck;
-import net.atos.zac.util.LocalDateUtil;
+import net.atos.zac.util.time.LocalDateUtil;
 
 @Singleton
 public class HealthCheckService {
