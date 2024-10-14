@@ -118,6 +118,7 @@ describe("SmartDocumentsService", () => {
       ],
     },
   ];
+
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
