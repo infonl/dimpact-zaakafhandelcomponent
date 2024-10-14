@@ -369,6 +369,14 @@ services:
       - "18081:8080"
     profiles: [ "itest" ]
 
+  opa-tests:
+    image: openpolicyagent/opa:0.69.0
+    volumes:
+      - ./src/test/resources/policies:/home/tests
+      - ./src/main/resources/policies:/home/policies
+    entrypoint: [ "opa", "test", "/home/policies", "/home/tests" ]
+    profiles: [ "itest" ]
+
   office-converter:
     image: ghcr.io/eugenmayer/kontextwork-converter:1.5.0
     platform: linux/amd64

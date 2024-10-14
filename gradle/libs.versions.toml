@@ -20,9 +20,6 @@ microprofile-rest-client = "3.0"
 jacoco = "0.8.12"
 glassfish-expressly = "5.0.0"
 
-opa-binary = "0.63.0"
-opa-plugin = "0.4.2"
-
 apache-commons-lang = "3.17.0"
 apache-commons-text = "1.12.0"
 apache-commons-collections = "4.4"
@@ -174,4 +171,3 @@ taskinfo = { id = "org.barfuin.gradle.taskinfo", version.ref = "taskinfo" }
 swagger-generator = { id = "org.hidetake.swagger.generator", version.ref = "swagger-generator" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
-opa = { id = "com.bisnode.opa", version.ref = "opa-plugin" }
