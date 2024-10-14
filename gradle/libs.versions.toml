@@ -41,7 +41,7 @@ webdav-servlet = "1.2.78"
 htmlcleaner = "2.29"
 unboundid = "7.0.1"
 swagger = "5.17.14"
-infinispan = "15.0.9.Final"
+infinispan = "15.0.10.Final"
 apache-httpclient = "4.5.14"
 reactive-streams = "1.0.4"
 
