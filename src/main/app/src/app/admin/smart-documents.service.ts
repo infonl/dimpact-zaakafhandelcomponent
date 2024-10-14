@@ -121,7 +121,7 @@ export class SmartDocumentsService {
   ): Array<Omit<DocumentsTemplateGroup, "groups">> {
     const result: Array<Omit<DocumentsTemplateGroup, "groups">> = [];
 
-    function flattenGroups(group: DocumentsTemplateGroup) {
+    function flattenDocumentsTemplateGroup(group: DocumentsTemplateGroup) {
       result.push({
         id: group.id,
         name: group.name,
@@ -129,7 +129,7 @@ export class SmartDocumentsService {
       });
 
       if (group.groups) {
-        group.groups.forEach(flattenGroups);
+        group.groups.forEach(flattenDocumentsTemplateGroup);
       }
     }
 
@@ -141,7 +141,7 @@ export class SmartDocumentsService {
     });
 
     if (obj.groups) {
-      obj.groups.forEach(flattenGroups);
+      obj.groups.forEach(flattenDocumentsTemplateGroup);
     }
 
     return result;
