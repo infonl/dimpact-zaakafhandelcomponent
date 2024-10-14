@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2023 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely, 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.zaak
@@ -281,14 +281,22 @@ class ZaakRestService @Inject constructor(
             val user = identityService.readUser(it.id)
             zrcClientService.updateRol(zaak, zaakService.bepaalRolMedewerker(user, zaak), AANMAKEN_ZAAK_REDEN)
         }
-        cmmnService.startCase(
-            zaak,
-            zaaktype,
-            zaakafhandelParameterService.readZaakafhandelParameters(
-                URIUtil.parseUUIDFromResourceURI(zaaktype.url)
-            ),
-            null
-        )
+        if (configuratieService.featureFlagBpmnSupport() && zaaktype.referentieproces?.naam?.isNotEmpty() == true) {
+            bpmnService.startProcess(
+                zaak,
+                zaaktype,
+                null
+            )
+        } else {
+            cmmnService.startCase(
+                zaak,
+                zaaktype,
+                zaakafhandelParameterService.readZaakafhandelParameters(
+                    URIUtil.parseUUIDFromResourceURI(zaaktype.url)
+                ),
+                null
+            )
+        }
         restZaakAanmaakGegevens.inboxProductaanvraag?.let { inboxProductaanvraag ->
             koppelInboxProductaanvraag(zaak, inboxProductaanvraag)
         }
@@ -499,7 +507,10 @@ class ZaakRestService @Inject constructor(
             .filter { loggedInUserInstance.get().isAuthorisedForZaaktype(it.omschrijving) }
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
-            .filter { healthCheckService.controleerZaaktype(it.url).isValide }
+            .filter {
+                (configuratieService.featureFlagBpmnSupport() && it.referentieproces?.naam?.isNotEmpty() == true) ||
+                    healthCheckService.controleerZaaktype(it.url).isValide
+            }
             .map { restZaaktypeConverter.convert(it) }
             .toList()
 

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Lifely
+ * SPDX-FileCopyrightText: 2023 Lifely, 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -201,6 +201,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         val zaakObjectOpenbareRuimte = createZaakobjectOpenbareRuimte()
         val zaak = createZaak(zaakType.url)
 
+        every { configuratieService.featureFlagBpmnSupport() } returns false
         every { cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null) } just runs
         every { identityService.readGroup(restZaakAanmaakGegevens.zaak.groep!!.id) } returns group
         every { identityService.readUser(restZaakAanmaakGegevens.zaak.behandelaar!!.id) } returns user
