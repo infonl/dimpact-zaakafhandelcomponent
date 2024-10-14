@@ -246,6 +246,10 @@ export class InformatieObjectCreateAttendedComponent
           if (documentCreatieResponse.redirectURL) {
             window.open(documentCreatieResponse.redirectURL);
             this.sideNav.close();
+            this.document.emit(documentCreateData);
+            this.form.reset();
+            this.ngOnInit();
+            this.sideNav.close();
           } else {
             this.dialog.open(NotificationDialogComponent, {
               data: new NotificationDialogData(documentCreatieResponse.message),
