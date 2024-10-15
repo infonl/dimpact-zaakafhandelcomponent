@@ -3,6 +3,7 @@ package net.atos.zac.app.util
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
+import net.atos.zac.util.time.ZonedDateTimeReader
 import java.io.ByteArrayInputStream
 import java.time.ZonedDateTime
 import java.time.format.DateTimeParseException

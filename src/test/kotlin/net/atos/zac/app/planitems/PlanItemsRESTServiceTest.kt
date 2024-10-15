@@ -38,7 +38,7 @@ import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.shared.helper.OpschortenZaakHelper
-import net.atos.zac.util.DateTimeConverterUtil
+import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.zoeken.IndexingService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.util;
+package net.atos.zac.util.time;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,7 +14,7 @@ import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- *
+ * Converts from/to different date objects in Java
  */
 public final class DateTimeConverterUtil {
 
