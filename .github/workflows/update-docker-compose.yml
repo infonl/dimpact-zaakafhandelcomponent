@@ -1,8 +1,8 @@
 #
-# SPDX-FileCopyrightText: 2023 Lifely
+# SPDX-FileCopyrightText: 2024 Lifely
 # SPDX-License-Identifier: EUPL-1.2+
 #
-name: Update Gradle Wrapper
+name: Update Docker images in our Docker Compose file
 
 # This workflow uses the Update Gradle Wrapper action to create a Pull Request if there is a new Gradle Wrapper version available.
 # Do note that this PR does _not_ automatically trigger any other workflows.
@@ -14,13 +14,18 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
+permissions:
+  contents: read
+
 jobs:
-  update-gradle-wrapper:
+  flow:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
-      - name: Update Gradle Wrapper
-        uses: gradle-update/update-gradle-wrapper-action@v2
-        with:
-          pr-title-template: 'chore(deps): Bump Gradle Wrapper from %sourceVersion% to %targetVersion%'
+      - name: simple-compose-service-updates
+        uses: sbe-arg/simple-compose-service-updates@v1.1.0
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
