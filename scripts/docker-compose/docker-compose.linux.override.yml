@@ -140,6 +140,13 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+  opa-tests:
+    user: "1000:1000"
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   office-converter:
     # Linux workaround for host.docker.internal support
     # see: https://stackoverflow.com/a/67158212
