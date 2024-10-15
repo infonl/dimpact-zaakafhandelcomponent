@@ -16,8 +16,8 @@ private const val RELEVANTE_ANDERE_ZAKEN = "relevanteAndereZaken"
 
 private const val STARTDATUM = "startdatum"
 private const val EINDDATUM = "einddatum"
+private const val EINDDATUM_GEPLAND = "einddatumGepland"
 private const val UITERLIJKE_EINDDATUM_AFDOENING = "uiterlijkeEinddatumAfdoening"
-private const val STREEFDATUM = "streefdatum"
 
 class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
     private val zrcClientService: ZrcClientService
@@ -65,8 +65,8 @@ class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
                     .joinToString { it.identificatie }
             resource == STARTDATUM -> LocalDateUtil.format(item as? String)
             resource == EINDDATUM -> LocalDateUtil.format(item as? String)
+            resource == EINDDATUM_GEPLAND -> LocalDateUtil.format(item as? String)
             resource == UITERLIJKE_EINDDATUM_AFDOENING -> LocalDateUtil.format(item as? String)
-            resource == STREEFDATUM -> LocalDateUtil.format(item as? String)
             else -> item.toString()
         }
 }
