@@ -264,7 +264,7 @@ opa:
     annotations: { }
   image:
     repository: openpolicyagent/opa
-    tag: "edge-static"
+    tag: "0.69.0-static"
     pullPolicy: IfNotPresent
   # The settings below will be ignored when running as a sidecar (the zac values will be used instead)
   autoscaling: 

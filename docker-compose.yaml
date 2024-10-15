@@ -243,7 +243,8 @@ services:
 
   # Open Policy Agent (OPA)
   opa:
-    image: openpolicyagent/opa:edge-static
+    # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
+    image: openpolicyagent/opa:0.69.0-static
     command: run --server --log-level debug
     ports:
       - "8181:8181"
@@ -370,6 +371,7 @@ services:
     profiles: [ "itest" ]
 
   opa-tests:
+    # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
     image: openpolicyagent/opa:0.69.0
     volumes:
       - ./src/test/resources/policies:/home/tests
