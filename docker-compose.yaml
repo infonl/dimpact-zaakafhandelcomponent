@@ -467,7 +467,7 @@ services:
 
   zac:
     # By default, we use the latest ZAC Docker Image. Change this if you wish to use a specific version.
-    image: ${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:latest}
+    image: ${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:1.8.12
     environment:
       - AUTH_REALM=zaakafhandelcomponent
       - AUTH_RESOURCE=zaakafhandelcomponent
