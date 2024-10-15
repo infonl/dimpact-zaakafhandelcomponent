@@ -380,7 +380,7 @@ services:
     profiles: [ "itest" ]
 
   office-converter:
-    image: ghcr.io/eugenmayer/kontextwork-converter:1.5.0
+    image: ghcr.io/eugenmayer/kontextwork-converter:v0.3.2
     platform: linux/amd64
     ports:
       - "8083:8080"
