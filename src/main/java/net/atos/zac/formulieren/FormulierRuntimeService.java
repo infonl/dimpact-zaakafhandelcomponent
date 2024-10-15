@@ -3,8 +3,8 @@ package net.atos.zac.formulieren;
 import static jakarta.json.JsonValue.ValueType.STRING;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static net.atos.zac.util.DateTimeConverterUtil.convertToLocalDate;
 import static net.atos.zac.util.UriUtil.uuidFromURI;
+import static net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate;
 import static org.apache.commons.lang3.StringUtils.*;
 
 import java.time.LocalDate;
@@ -37,7 +37,7 @@ import net.atos.zac.flowable.task.TaakVariabelenService;
 import net.atos.zac.formulieren.model.FormulierVeldtype;
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.shared.helper.OpschortenZaakHelper;
-import net.atos.zac.util.DateTimeConverterUtil;
+import net.atos.zac.util.time.DateTimeConverterUtil;
 
 public class FormulierRuntimeService {
 

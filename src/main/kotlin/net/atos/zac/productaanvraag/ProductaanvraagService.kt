@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.productaanvraag
@@ -470,8 +470,7 @@ class ProductaanvraagService @Inject constructor(
         bpmnService.startProcess(
             createdZaak,
             zaaktype,
-            getAanvraaggegevens(productaanvraagObject),
-            zaaktype.referentieproces.naam
+            getAanvraaggegevens(productaanvraagObject)
         )
     }
 

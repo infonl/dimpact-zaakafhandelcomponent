@@ -6,10 +6,13 @@
 package net.atos.zac.util.time;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import net.atos.client.zgw.ztc.model.generated.BesluitType;
 
 public final class LocalDateUtil {
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
     private LocalDateUtil() {
     }
@@ -28,5 +31,9 @@ public final class LocalDateUtil {
 
     public static boolean dateNowIsBetween(BesluitType besluittype) {
         return dateNowIsBetween(besluittype.getBeginGeldigheid(), besluittype.getEindeGeldigheid());
+    }
+
+    public static String format(String date) {
+        return LocalDate.parse(date).format(DATE_FORMATTER);
     }
 }

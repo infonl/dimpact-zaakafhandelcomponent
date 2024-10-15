@@ -115,14 +115,12 @@ export class InformatieObjectCreateAttendedComponent
     const informationObjectType = new InputFormFieldBuilder()
       .id("informationObjectType")
       .label("informatieobjectType")
-      .validators(Validators.required)
       .disabled()
       .build();
 
     const confidentiality = new InputFormFieldBuilder()
       .id("confidentiality")
       .label("vertrouwelijkheidaanduiding")
-      .validators(Validators.required)
       .disabled()
       .build();
 
@@ -245,6 +243,9 @@ export class InformatieObjectCreateAttendedComponent
         .subscribe((documentCreatieResponse) => {
           if (documentCreatieResponse.redirectURL) {
             window.open(documentCreatieResponse.redirectURL);
+            this.sideNav.close();
+            this.document.emit(documentCreateData);
+            this.form.reset();
             this.sideNav.close();
           } else {
             this.dialog.open(NotificationDialogComponent, {
