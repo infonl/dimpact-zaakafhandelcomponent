@@ -18,14 +18,22 @@ permissions:
   contents: read
 
 jobs:
-  flow:
+  update-docker-compose:
     runs-on: ubuntu-22.04
     permissions:
       contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
+      - name: setup-git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"  
+
       - name: simple-compose-service-updates
         uses: sbe-arg/simple-compose-service-updates@v1.1.0
+        with:
+          skips: 'ghcr.io/infonl/zaakafhandelcomponent'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
