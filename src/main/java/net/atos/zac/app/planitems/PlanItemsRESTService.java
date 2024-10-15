@@ -62,8 +62,8 @@ import net.atos.zac.mailtemplates.model.MailGegevens;
 import net.atos.zac.mailtemplates.model.MailTemplate;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.shared.helper.OpschortenZaakHelper;
-import net.atos.zac.util.DateTimeConverterUtil;
 import net.atos.zac.util.UriUtil;
+import net.atos.zac.util.time.DateTimeConverterUtil;
 import net.atos.zac.zoeken.IndexingService;
 
 /**

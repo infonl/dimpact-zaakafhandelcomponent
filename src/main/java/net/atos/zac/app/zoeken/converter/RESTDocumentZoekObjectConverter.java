@@ -13,7 +13,7 @@ import jakarta.inject.Inject;
 import net.atos.zac.app.policy.converter.RestRechtenConverter;
 import net.atos.zac.app.zoeken.model.RESTDocumentZoekObject;
 import net.atos.zac.policy.PolicyService;
-import net.atos.zac.util.DateTimeConverterUtil;
+import net.atos.zac.util.time.DateTimeConverterUtil;
 import net.atos.zac.zoeken.model.DocumentIndicatie;
 import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject;
 
