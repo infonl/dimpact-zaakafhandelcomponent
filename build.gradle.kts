@@ -1,7 +1,5 @@
-import com.bisnode.opa.configuration.ExecutableMode
 import com.github.gradle.node.npm.task.NpmTask
 import io.smallrye.openapi.api.OpenApiConfig
-import org.apache.tools.ant.taskdefs.condition.Os
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 import java.util.Locale
 
@@ -26,7 +24,6 @@ plugins {
     alias(libs.plugins.spotless)
     alias(libs.plugins.allopen)
     alias(libs.plugins.noarg)
-    alias(libs.plugins.opa)
 }
 
 repositories {
@@ -202,16 +199,6 @@ noArg {
 
 jacoco {
     toolVersion = libs.versions.jacoco.get()
-}
-
-if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
-    opa {
-        srcDir = "$rootDir/src/main/resources/policies"
-        testDir = "$rootDir/src/test/resources/policies"
-        version = libs.versions.opa.binary.get()
-        mode = ExecutableMode.DOWNLOAD
-        location = "$rootDir/build/opa/$version/opa"
-    }
 }
 
 java {
@@ -397,9 +384,6 @@ tasks {
 
     test {
         dependsOn("npmRunTest")
-        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
-            dependsOn("testRegoCoverage")
-        }
     }
 
     compileJava {

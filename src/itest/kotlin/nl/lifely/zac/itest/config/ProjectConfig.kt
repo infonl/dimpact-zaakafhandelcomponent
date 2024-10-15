@@ -181,6 +181,11 @@ class ProjectConfig : AbstractProjectConfig() {
                 )
             )
             .waitingFor(
+                "opa-tests",
+                OneShotStartupWaitStrategy()
+                    .withStartupTimeout(10.seconds.toJavaDuration())
+            )
+            .waitingFor(
                 "openzaak.local",
                 Wait.forLogMessage(".*spawned uWSGI worker 2.*", 1)
                     .withStartupTimeout(3.minutes.toJavaDuration())
