@@ -1,12 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.task.converter
 
 import jakarta.inject.Inject
-import jakarta.json.Json
-import jakarta.json.JsonObject
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.app.formulieren.converter.RESTFormulierDefinitieConverter
@@ -22,9 +20,10 @@ import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeUUID
 import net.atos.zac.flowable.util.TaskUtil
+import net.atos.zac.formio.FormioService
 import net.atos.zac.formulieren.FormulierDefinitieService
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.util.DateTimeConverterUtil
+import net.atos.zac.util.time.DateTimeConverterUtil
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo
@@ -37,7 +36,8 @@ class RestTaskConverter @Inject constructor(
     private val policyService: PolicyService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val formulierDefinitieConverter: RESTFormulierDefinitieConverter,
-    private val formulierDefinitieService: FormulierDefinitieService
+    private val formulierDefinitieService: FormulierDefinitieService,
+    private val formioService: FormioService,
 ) {
     fun convert(tasks: List<TaskInfo>) = tasks
         .map { convert(it) }
@@ -110,20 +110,11 @@ class RestTaskConverter @Inject constructor(
                     restTask.formulierDefinitie = formulierDefinitieConverter.convert(it, true)
                 },
                 {
-                    restTask.formioFormulier = readFormioFormulier(taskInfo.formKey)
+                    restTask.formioFormulier = formioService.readFormioFormulier(taskInfo.formKey)
                 }
             )
         }
         return restTask
-    }
-
-    private fun readFormioFormulier(formulierNaam: String): JsonObject {
-        return this::class.java.classLoader.getResourceAsStream("formulieren/%s.json".format(formulierNaam))!!
-            .bufferedReader().use {
-                Json.createReader(it).use {
-                    it.readObject()
-                }
-            }
     }
 
     fun extractGroupId(identityLinks: List<IdentityLinkInfo>): String? =

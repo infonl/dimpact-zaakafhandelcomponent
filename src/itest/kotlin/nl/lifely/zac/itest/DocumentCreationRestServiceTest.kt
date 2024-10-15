@@ -12,6 +12,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.client.urlEncode
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_BAD_REQUEST
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_SEE_OTHER
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_ID
@@ -41,7 +42,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
     Given("ZAC and all related Docker containers are running and zaak exists") {
-        When("the create document attended ('wizard') endpoint is called with a zaak UUID") {
+        When("the create document attended ('wizard') endpoint is called with minimum set of parameters") {
             val endpointUrl = "$ZAC_API_URI/document-creation/create-document-attended"
             logger.info { "Calling $endpointUrl endpoint" }
             val response = itestHttpClient.performJSONPostRequest(
@@ -66,6 +67,59 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                         "$SMART_DOCUMENTS_MOCK_BASE_URI/smartdocuments/wizard?ticket=dummySmartdocumentsTicketID"
                     )
                 }
+            }
+        }
+
+        When("the create document attended ('wizard') endpoint is called with all parameters") {
+            val endpointUrl = "$ZAC_API_URI/document-creation/create-document-attended"
+            logger.info { "Calling $endpointUrl endpoint" }
+            val response = itestHttpClient.performJSONPostRequest(
+                url = endpointUrl,
+                requestBodyAsString = JSONObject(
+                    mapOf(
+                        "zaakUuid" to zaakProductaanvraag1Uuid,
+                        "taskUuid" to task1ID,
+                        "smartDocumentsTemplateGroupId" to SMART_DOCUMENTS_ROOT_GROUP_ID,
+                        "smartDocumentsTemplateId" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID,
+                        "title" to SMART_DOCUMENTS_FILE_TITLE,
+                        "description" to "document description",
+                        "author" to TEST_USER_1_NAME,
+                        "creationDate" to ZonedDateTime.now()
+                    )
+                ).toString()
+            )
+            Then("the response should be OK and the response should contain a redirect URL to Smartdocuments") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_OK
+
+                with(responseBody) {
+                    shouldContainJsonKeyValue(
+                        "redirectURL",
+                        "$SMART_DOCUMENTS_MOCK_BASE_URI/smartdocuments/wizard?ticket=dummySmartdocumentsTicketID"
+                    )
+                }
+            }
+        }
+
+        When("the create document attended ('wizard') endpoint is called without mandatory parameter") {
+            val endpointUrl = "$ZAC_API_URI/document-creation/create-document-attended"
+            logger.info { "Calling $endpointUrl endpoint" }
+            val response = itestHttpClient.performJSONPostRequest(
+                url = endpointUrl,
+                requestBodyAsString = JSONObject(
+                    mapOf(
+                        "zaakUuid" to zaakProductaanvraag1Uuid,
+                        "smartDocumentsTemplateGroupId" to SMART_DOCUMENTS_ROOT_GROUP_ID,
+                        "smartDocumentsTemplateId" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID,
+                    )
+                ).toString()
+            )
+            Then("the response should be 400 Client Error") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_BAD_REQUEST
+                responseBody shouldContain "must not be null"
             }
         }
     }

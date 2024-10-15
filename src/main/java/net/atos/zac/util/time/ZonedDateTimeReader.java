@@ -1,4 +1,4 @@
-package net.atos.zac.app.util;
+package net.atos.zac.util.time;
 
 import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
 

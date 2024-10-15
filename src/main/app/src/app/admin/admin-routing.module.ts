@@ -1,10 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { FormioFormulierenComponent } from "./formio-formulieren/formio-formulieren.component";
 import { FormulierDefinitieEditComponent } from "./formulier-definitie-edit/formulier-definitie-edit.component";
 import { FormulierDefinitieResolverService } from "./formulier-definitie-edit/formulier-definitie-resolver.service";
 import { FormulierDefinitiesComponent } from "./formulier-definities/formulier-definities.component";
@@ -15,6 +16,7 @@ import { MailtemplateComponent } from "./mailtemplate/mailtemplate.component";
 import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component";
 import { ParameterEditComponent } from "./parameter-edit/parameter-edit.component";
 import { ParametersComponent } from "./parameters/parameters.component";
+import { ProcessDefinitionsComponent } from "./process-definitions/process-definitions.component";
 import { ReferentieTabelResolver } from "./referentie-tabel-resolver.service";
 import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
 import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
@@ -25,6 +27,7 @@ const routes: Routes = [
     path: "admin",
     children: [
       { path: "", redirectTo: "check", pathMatch: "full" },
+      { path: "formioformulieren", component: FormioFormulierenComponent },
       { path: "formulierdefinities", component: FormulierDefinitiesComponent },
       {
         path: "formulierdefinities/:id",
@@ -38,6 +41,7 @@ const routes: Routes = [
         component: ParameterEditComponent,
         resolve: { parameters: ZaakafhandelParametersResolver },
       },
+      { path: "processdefinitions", component: ProcessDefinitionsComponent },
       { path: "referentietabellen", component: ReferentieTabellenComponent },
       {
         path: "referentietabellen/:id",
