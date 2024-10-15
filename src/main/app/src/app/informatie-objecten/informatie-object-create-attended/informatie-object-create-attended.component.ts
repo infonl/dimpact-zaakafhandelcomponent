@@ -248,7 +248,6 @@ export class InformatieObjectCreateAttendedComponent
             this.sideNav.close();
             this.document.emit(documentCreateData);
             this.form.reset();
-            this.ngOnInit();
             this.sideNav.close();
           } else {
             this.dialog.open(NotificationDialogComponent, {
