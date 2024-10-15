@@ -34,6 +34,8 @@ jobs:
       - name: simple-compose-service-updates
         uses: sbe-arg/simple-compose-service-updates@v1.1.0
         with:
-          skips: 'infonl/zaakafhandelcomponent'
+          # Need to check updates for eugenmayer/kontextwork-converter manually because
+          # simple-compose-service-updates thinks that e.g. version 'v0.3.2' is newer than '1.6.1'
+          skips: 'infonl/zaakafhandelcomponent,eugenmayer/kontextwork-converter'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
