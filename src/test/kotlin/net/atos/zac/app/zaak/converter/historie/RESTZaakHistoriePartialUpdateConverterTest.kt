@@ -34,7 +34,7 @@ class RESTZaakHistoriePartialUpdateConverterTest : BehaviorSpec({
         val newValues = mapOf(
             "startdatum" to "2024-10-30",
             "uiterlijkeEinddatumAfdoening" to "2024-11-30",
-            "streefdatum" to "2024-12-30"
+            "einddatumGepland" to "2024-12-30"
         )
 
         When("history is requested") {
@@ -67,7 +67,7 @@ class RESTZaakHistoriePartialUpdateConverterTest : BehaviorSpec({
                     datumTijd shouldBe creationDate
                     door shouldBe userView
                     toelichting shouldBe description
-                    attribuutLabel shouldBe "streefdatum"
+                    attribuutLabel shouldBe "einddatumGepland"
                     oudeWaarde shouldBe null
                     nieuweWaarde shouldBe "30-12-2024"
                 }
