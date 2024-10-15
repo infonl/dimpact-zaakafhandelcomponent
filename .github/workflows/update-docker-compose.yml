@@ -34,6 +34,6 @@ jobs:
       - name: simple-compose-service-updates
         uses: sbe-arg/simple-compose-service-updates@v1.1.0
         with:
-          skips: 'ghcr.io/infonl/zaakafhandelcomponent'
+          skips: 'infonl/zaakafhandelcomponent'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
