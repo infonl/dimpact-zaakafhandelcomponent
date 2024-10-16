@@ -35,7 +35,7 @@ services:
       - "--health-enabled=true"
 
   keycloak-database:
-    image: postgres:16.3
+    image: docker.io/postgres:16.3
     ports:
       - "54326:5432"
     healthcheck:
@@ -52,7 +52,7 @@ services:
       - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
 
   zac-database:
-    image: postgres:16.3
+    image: docker.io/postgres:16.3
     ports:
       - "54320:5432"
     healthcheck:
@@ -70,7 +70,7 @@ services:
       - ./scripts/docker-compose/volume-data/zac-database-data:/var/lib/postgresql/data
 
   openzaak-database:
-    image: postgis/postgis:16-3.4
+    image: docker.io/postgis/postgis:16-3.4
     ports:
       - "54322:5432"
     platform: linux/amd64
@@ -93,7 +93,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   openzaak.local:
-    image: openzaak/open-zaak:1.13.0
+    image: docker.io/openzaak/open-zaak:1.13.0
     platform: linux/amd64
     environment:
       - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local
@@ -131,7 +131,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   objecten-api.local:
-    image: maykinmedia/objects-api:2.3.2
+    image: docker.io/maykinmedia/objects-api:2.3.2
     platform: linux/amd64
     ports:
       - "8010:8000"
@@ -156,7 +156,7 @@ services:
         condition: service_healthy
 
   objecten-api-database:
-    image: postgis/postgis:16-3.4
+    image: docker.io/postgis/postgis:16-3.4
     ports:
       - "54323:5432"
     platform: linux/amd64
@@ -172,7 +172,7 @@ services:
       - POSTGRES_DB=objects
 
   objecten-api-import:
-    image: maykinmedia/objects-api:2.3.2
+    image: docker.io/maykinmedia/objects-api:2.3.2
     platform: linux/amd64
     environment: *objects-env
     # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
@@ -185,7 +185,7 @@ services:
         condition: service_healthy
 
   objecttypen-api:
-    image: maykinmedia/objecttypes-api:2.1.3
+    image: docker.io/maykinmedia/objecttypes-api:2.1.3
     platform: linux/amd64
     ports:
       - "8011:8000"
@@ -202,7 +202,7 @@ services:
         condition: service_healthy
 
   objecttypen-api-database:
-    image: postgres:16.3
+    image: docker.io/postgres:16.3
     ports:
       - "54324:5432"
     healthcheck:
@@ -217,7 +217,7 @@ services:
       - POSTGRES_DB=objecttypes
 
   objecttypen-api-import:
-    image: maykinmedia/objecttypes-api:2.1.3
+    image: docker.io/maykinmedia/objecttypes-api:2.1.3
     platform: linux/amd64
     environment: *objecttypes-env
     command: sh init/init.sh
@@ -228,7 +228,7 @@ services:
       - objecttypen-api
 
   solr:
-    image: solr:9.6.1-slim
+    image: docker.io/solr:9.6.1-slim
     platform: linux/amd64
     ports:
       - "8983:8983"
@@ -244,13 +244,13 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:0.69.0-static
+    image: docker.io/openpolicyagent/opa:0.69.0-static
     command: run --server --log-level debug
     ports:
       - "8181:8181"
 
   openldap:
-    image: bitnami/openldap:2.6.8
+    image: docker.io/bitnami/openldap:2.6.8
     ports:
       - "1389:1389"
       - "1636:1636"
@@ -307,7 +307,7 @@ services:
       - gbamock
 
   openklant-database:
-    image: postgres:16.3
+    image: docker.io/postgres:16.3
     ports:
       - "54325:5432"
     healthcheck:
@@ -349,7 +349,7 @@ services:
         condition: service_started
 
   smartdocuments-wiremock:
-    image: wiremock/wiremock:3.8.0-1
+    image: docker.io/wiremock/wiremock:3.8.0-1
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
@@ -360,7 +360,7 @@ services:
     profiles: [ "itest" ]
 
   kvk-wiremock:
-    image: wiremock/wiremock:3.8.0-1
+    image: docker.io/wiremock/wiremock:3.8.0-1
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/kvk-wiremock/mappings:/home/wiremock/mappings
@@ -372,7 +372,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:0.69.0
+    image: docker.io/openpolicyagent/opa:0.69.0
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -387,7 +387,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: otel/opentelemetry-collector:0.98.0
+    image: docker.io/otel/opentelemetry-collector:0.98.0
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -401,7 +401,7 @@ services:
 
   # Observability traces data store
   tempo:
-    image: grafana/tempo:latest
+    image: docker.io/grafana/tempo:latest
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml
@@ -415,7 +415,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: prom/prometheus:latest
+    image: docker.io/prom/prometheus:latest
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -428,7 +428,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: grafana/grafana:11.0.1
+    image: docker.io/grafana/grafana:11.0.1
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -451,7 +451,7 @@ services:
     profiles: [ "metrics" ]
 
   greenmail:
-    image: greenmail/standalone:2.1.0-rc-1
+    image: docker.io/greenmail/standalone:2.1.0-rc-1
     environment:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0
