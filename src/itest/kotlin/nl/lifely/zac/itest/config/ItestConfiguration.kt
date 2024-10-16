@@ -94,7 +94,6 @@ object ItestConfiguration {
     const val TEST_GEMEENTE_EMAIL_ADDRESS = "gemeente-zac-test@example.com"
 
     const val TEST_INFORMATIE_OBJECT_TYPE_1_UUID = "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
-    const val TEST_INFORMATIE_OBJECT_TYPE_2_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
 
     /**
      * Test person that exists in both the BRP and the Klanten API databases
@@ -152,7 +151,8 @@ object ItestConfiguration {
     const val DOCUMENT_STATUS_IN_BEWERKING = "in_bewerking"
     const val TEXT_MIME_TYPE = "application/text"
     const val PDF_MIME_TYPE = "application/pdf"
-    const val DOCUMENT_IDENTIFICATION = "DOCUMENT-2024-0000000001"
+    const val DOCUMENT_1_IDENTIFICATION = "DOCUMENT-2024-0000000001"
+    const val DOCUMENT_2_IDENTIFICATION = "DOCUMENT-2024-0000000002"
 
     /**
      * Constants used in the KVK WireMock template response

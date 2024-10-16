@@ -11,6 +11,8 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_1_IDENTIFICATION
+import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_2_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
 import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
@@ -33,6 +35,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
 import nl.lifely.zac.itest.config.ItestConfiguration.task1ID
 import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
+import nl.lifely.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -111,25 +114,37 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 val responseBody = response.body!!.string()
                 logger.info { "$endpointUrl response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK
-                with(responseBody) {
-                    shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
-                    shouldContainJsonKeyValue("status", DOCUMENT_STATUS_IN_BEWERKING)
-                    shouldContainJsonKeyValue("taal", "Nederlands")
-                    shouldContainJsonKeyValue("titel", DOCUMENT_FILE_TITLE)
-                    shouldContainJsonKeyValue(
-                        "vertrouwelijkheidaanduiding",
-                        DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
-                    )
-                    shouldContainJsonKeyValue(
-                        "informatieobjectTypeOmschrijving",
-                        INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
-                    )
-                    shouldContainJsonKey("informatieobjectTypeUUID")
-                    shouldContainJsonKey("identificatie")
-                    shouldContainJsonKeyValue("bestandsnaam", TEST_PDF_FILE_NAME)
-                    shouldContainJsonKeyValue("bestandsomvang", file.length().toString())
-                    shouldContainJsonKeyValue("formaat", PDF_MIME_TYPE)
-                }
+                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                         {
+                          "bestandsnaam" : "$TEST_PDF_FILE_NAME",
+                          "auteur" : "$TEST_USER_1_NAME",
+                          "beschrijving" : "",
+                          "bestandsomvang" : ${file.length()},
+                          "creatiedatum" : "${LocalDate.now()}",
+                          "formaat" : "$PDF_MIME_TYPE",
+                          "identificatie" : "$DOCUMENT_1_IDENTIFICATION",
+                          "indicatieGebruiksrecht" : false,
+                          "indicaties" : [ ],
+                          "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
+                          "informatieobjectTypeUUID" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID",
+                          "isBesluitDocument" : false,
+                          "link" : "",
+                          "rechten" : {
+                            "lezen" : true,
+                            "ondertekenen" : true,
+                            "ontgrendelen" : true,
+                            "toevoegenNieuweVersie" : true,
+                            "vergrendelen" : true,
+                            "verwijderen" : true,
+                            "wijzigen" : true
+                          },
+                          "status" : "$DOCUMENT_STATUS_IN_BEWERKING",
+                          "taal" : "Nederlands",
+                          "titel" : "$DOCUMENT_FILE_TITLE",
+                          "versie" : 1,
+                          "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK"
+                        }
+                """.trimIndent()
                 enkelvoudigInformatieObjectUUID = JSONObject(responseBody).getString("uuid")
             }
         }
@@ -299,25 +314,37 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 val responseBody = response.body!!.string()
                 logger.info { "$endpointUrl response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK
-                with(responseBody) {
-                    shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
-                    shouldContainJsonKeyValue("status", DOCUMENT_STATUS_DEFINITIEF)
-                    shouldContainJsonKeyValue("taal", "Engels")
-                    shouldContainJsonKeyValue("titel", DOCUMENT_FILE_TITLE)
-                    shouldContainJsonKeyValue(
-                        "vertrouwelijkheidaanduiding",
-                        DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
-                    )
-                    shouldContainJsonKeyValue(
-                        "informatieobjectTypeOmschrijving",
-                        INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
-                    )
-                    shouldContainJsonKey("informatieobjectTypeUUID")
-                    shouldContainJsonKey("identificatie")
-                    shouldContainJsonKeyValue("bestandsnaam", TEST_TXT_FILE_NAME)
-                    shouldContainJsonKeyValue("bestandsomvang", file.length().toString())
-                    shouldContainJsonKeyValue("formaat", TEXT_MIME_TYPE)
-                }
+                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                    {
+                      "bestandsnaam" : "$TEST_TXT_FILE_NAME",
+                      "auteur" : "$TEST_USER_1_NAME",
+                      "beschrijving" : "",
+                      "bestandsomvang" : ${file.length()},
+                      "creatiedatum" : "${LocalDate.now()}",
+                      "formaat" : "$TEXT_MIME_TYPE",
+                      "identificatie" : "$DOCUMENT_2_IDENTIFICATION",
+                      "indicatieGebruiksrecht" : false,
+                      "indicaties" : [ ],
+                      "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
+                      "informatieobjectTypeUUID" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID",
+                      "isBesluitDocument" : false,
+                      "link" : "",
+                      "rechten" : {
+                        "lezen" : true,
+                        "ondertekenen" : true,
+                        "ontgrendelen" : true,
+                        "toevoegenNieuweVersie" : true,
+                        "vergrendelen" : true,
+                        "verwijderen" : true,
+                        "wijzigen" : true
+                      },
+                      "status" : "$DOCUMENT_STATUS_DEFINITIEF",
+                      "taal" : "Engels",
+                      "titel" : "$DOCUMENT_FILE_TITLE",
+                      "versie" : 1,
+                      "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
+                    }
+                """.trimIndent()
                 enkelvoudigInformatieObject2UUID = JSONObject(responseBody).getString("uuid")
             }
         }
@@ -349,24 +376,35 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK
-                with(responseBody) {
-                    shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
-                    shouldContainJsonKeyValue("status", DOCUMENT_STATUS_DEFINITIEF)
-                    shouldContainJsonKeyValue("taal", "Engels")
-                    shouldContainJsonKeyValue("titel", DOCUMENT_FILE_TITLE)
-                    shouldContainJsonKeyValue(
-                        "vertrouwelijkheidaanduiding",
-                        DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
-                    )
-                    shouldContainJsonKeyValue(
-                        "informatieobjectTypeOmschrijving",
-                        INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
-                    )
-                    shouldContainJsonKey("informatieobjectTypeUUID")
-                    shouldContainJsonKey("identificatie")
-                    shouldContainJsonKeyValue("bestandsnaam", TEST_TXT_CONVERTED_TO_PDF_FILE_NAME)
-                    shouldContainJsonKeyValue("formaat", PDF_MIME_TYPE)
-                }
+                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                         {
+                          "bestandsnaam" : "$TEST_TXT_CONVERTED_TO_PDF_FILE_NAME",
+                          "auteur" : "$TEST_USER_1_NAME",
+                          "beschrijving" : "",
+                          "creatiedatum" : "${LocalDate.now()}",
+                          "formaat" : "$PDF_MIME_TYPE",
+                          "identificatie" : "$DOCUMENT_2_IDENTIFICATION",
+                          "indicatieGebruiksrecht" : false,
+                          "indicaties" : [ ],
+                          "informatieobjectTypeOmschrijving" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING",
+                          "informatieobjectTypeUUID" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID",
+                          "isBesluitDocument" : false,
+                          "rechten" : {
+                            "lezen" : true,
+                            "ondertekenen" : false,
+                            "ontgrendelen" : true,
+                            "toevoegenNieuweVersie" : true,
+                            "vergrendelen" : false,
+                            "verwijderen" : true,
+                            "wijzigen" : true
+                          },
+                          "status" : "$DOCUMENT_STATUS_DEFINITIEF",
+                          "taal" : "Engels",
+                          "titel" : "$DOCUMENT_FILE_TITLE",
+                          "versie" : 2,
+                          "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
+                        }
+                """.trimIndent()
             }
         }
     }
