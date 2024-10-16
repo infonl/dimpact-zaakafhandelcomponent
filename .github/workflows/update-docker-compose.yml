@@ -4,10 +4,10 @@
 #
 name: Update Docker images in our Docker Compose file
 
-# This workflow uses the Update Gradle Wrapper action to create a Pull Request if there is a new Gradle Wrapper version available.
-# Do note that this PR does _not_ automatically trigger any other workflows.
-# As a workaround to trigger our normal PR workflows you can manually close and then immediately reopen the PR. See:
-# https://github.com/gradle-update/update-gradle-wrapper-action#running-ci-workflows-in-pull-requests-created-by-the-action
+# This workflow creates Pull Requests to update Docker images found in our Docker Compose file if there are newer
+# versions found using https://github.com/sbe-arg/simple-compose-service-updates.
+# It is hopefully a temporary workaround until Dependabot supports updating Docker Compose files.
+# See: https://github.com/dependabot/dependabot-core/issues/390
 
 on:
   workflow_dispatch:
