@@ -38,4 +38,7 @@ jobs:
           # simple-compose-service-updates thinks that e.g. version 'v0.3.2' is newer than '1.6.1'
           skips: 'infonl/zaakafhandelcomponent,eugenmayer/kontextwork-converter'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # We use a Personal Access Token here so that the Pull Requests created from this workflow
+          # will trigger our default build workflows.
+          # see: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/triggering-a-workflow#triggering-a-workflow-from-a-workflow
+          GH_TOKEN: ${{ secrets.DIMPACT_DOCKER_COMPOSE_UPDATE_PRS_PAT_TOKEN }}
