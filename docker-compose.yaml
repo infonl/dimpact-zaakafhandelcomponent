@@ -277,7 +277,7 @@ services:
 
   # The GBA mock is required by the BRP proxy
   gbamock:
-    image: docker.io/ghcr.io/brp-api/haal-centraal-brp-bevragen-gba-mock:2.0.8
+    image: ghcr.io/brp-api/haal-centraal-brp-bevragen-gba-mock:2.0.8
     platform: linux/amd64
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
@@ -291,7 +291,7 @@ services:
       - "5010:5010"
 
   brpproxy:
-    image: docker.io/ghcr.io/brp-api/haal-centraal-brp-bevragen-proxy:2.1.2
+    image: ghcr.io/brp-api/haal-centraal-brp-bevragen-proxy:2.1.2
     platform: linux/amd64
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
@@ -380,7 +380,7 @@ services:
     profiles: [ "itest" ]
 
   office-converter:
-    image: docker.io/ghcr.io/eugenmayer/kontextwork-converter:1.5.0
+    image: ghcr.io/eugenmayer/kontextwork-converter:1.5.0
     platform: linux/amd64
     ports:
       - "8083:8080"
