@@ -4,10 +4,10 @@
 #
 name: Update Docker images in our Docker Compose file
 
-# This workflow uses the Update Gradle Wrapper action to create a Pull Request if there is a new Gradle Wrapper version available.
-# Do note that this PR does _not_ automatically trigger any other workflows.
-# As a workaround to trigger our normal PR workflows you can manually close and then immediately reopen the PR. See:
-# https://github.com/gradle-update/update-gradle-wrapper-action#running-ci-workflows-in-pull-requests-created-by-the-action
+# This workflow creates Pull Requests to update Docker images found in our Docker Compose file if there are newer
+# versions found using https://github.com/sbe-arg/simple-compose-service-updates.
+# It is hopefully a temporary workaround until Dependabot supports updating Docker Compose files.
+# See: https://github.com/dependabot/dependabot-core/issues/390
 
 on:
   workflow_dispatch:
@@ -18,14 +18,24 @@ permissions:
   contents: read
 
 jobs:
-  flow:
+  update-docker-compose:
     runs-on: ubuntu-22.04
     permissions:
       contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
+      - name: setup-git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"  
+
       - name: simple-compose-service-updates
         uses: sbe-arg/simple-compose-service-updates@v1.1.0
+        with:
+          # Need to check updates for eugenmayer/kontextwork-converter manually because
+          # simple-compose-service-updates thinks that e.g. version 'v0.3.2' is newer than '1.6.1'
+          skips: 'infonl/zaakafhandelcomponent,eugenmayer/kontextwork-converter'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
