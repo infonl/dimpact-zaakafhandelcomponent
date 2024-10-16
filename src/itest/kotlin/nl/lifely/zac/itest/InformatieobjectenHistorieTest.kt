@@ -16,8 +16,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.match
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
-import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
 import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_UPDATED_FILE_TITLE
@@ -136,7 +136,7 @@ class InformatieobjectenHistorieTest : BehaviorSpec({
                     "applicatie": "ZAC",
                     "attribuutLabel": "informatieobject",
                     "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "$DOCUMENT_IDENTIFICATION",
+                    "nieuweWaarde": "$DOCUMENT_1_IDENTIFICATION",
                     "toelichting": ""
                   }
                 ]

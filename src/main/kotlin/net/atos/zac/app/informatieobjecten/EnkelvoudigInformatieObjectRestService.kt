@@ -509,8 +509,8 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @Path("/informatieobject/{uuid}/convert")
     @Throws(IOException::class)
     fun convertInformatieObjectToPDF(
-        @PathParam("uuid") enkelvoudigInformatieobjectUUID: UUID?,
-        @QueryParam("zaak") zaakUUID: UUID?
+        @PathParam("uuid") enkelvoudigInformatieobjectUUID: UUID,
+        @QueryParam("zaak") zaakUUID: UUID
     ): Response {
         val document = drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID)
         assertPolicy(
