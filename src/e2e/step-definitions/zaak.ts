@@ -260,16 +260,87 @@ Then(
   },
 );
 
+// When(
+//   "Employee {string} clicks on Create Document for zaak",
+//   { timeout: ONE_MINUTE_IN_MS },
+//   async function (this: CustomWorld, user) {
+//     await this.page.getByText("Document maken").click();
+
+//     // const smartDocumentsPage = await this.page.waitForEvent("popup");
+//     // await this.expect(
+//     //   smartDocumentsPage.getByRole("link", { name: "SmartDocuments" }),
+//     // ).toBeVisible();
+//   },
+// );
+
 When(
   "Employee {string} clicks on Create Document for zaak",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
     await this.page.getByText("note_addDocument maken").click();
 
-    const smartDocumentsPage = await this.page.waitForEvent("popup");
-    await this.expect(
-      smartDocumentsPage.getByRole("link", { name: "SmartDocuments" }),
-    ).toBeVisible();
+    const sidebar = this.page.locator("div.sidenav-title");
+    await sidebar.waitFor({ state: "visible" });
+    await sidebar.getByText("Document maken").click();
+
+    // Check for the presence of the "Toevoegen" button
+    const submitButton = this.page.locator("#opslaan_button");
+    await submitButton.waitFor({ state: "visible" });
+
+    // Verify that the "Toevoegen" button is disabled
+    // Verify that the button is initially disabled
+    const isInitiallyDisabled = await submitButton.isDisabled();
+    if (!isInitiallyDisabled) {
+      throw new Error(
+        "The submit button should be disabled initially but it is enabled.",
+      );
+    }
+
+    await this.page.waitForTimeout(15000); // Wait for 15 (backend problem loading doc type templates)
+
+    // filling the create document form
+    const autofillInputTemplateGroup = this.page.locator(
+      "#templateGroup_autocompletefield",
+    );
+    await autofillInputTemplateGroup.click();
+
+    let listbox = this.page.locator('div[role="listbox"]');
+    await listbox.waitFor({ state: "visible" });
+    let firstItem = listbox.locator('mat-option[role="option"]').first();
+    await firstItem.click();
+
+    await this.page.waitForTimeout(1000); // Wait for 15 (backend problem loading doc type templates)
+
+    const autofillInputTemplate = this.page.locator(
+      "#template_autocompletefield",
+    );
+    await autofillInputTemplate.click();
+
+    listbox = this.page.locator('div[role="listbox"]');
+    await listbox.waitFor({ state: "visible" });
+    firstItem = listbox.locator('mat-option[role="option"]').first();
+    await firstItem.click();
+
+    await this.page.waitForTimeout(1000); // Wait for 15 (backend problem loading doc type templates)
+
+    const autofillInputTitle = this.page.locator("#title_tekstfield");
+    await autofillInputTitle.click();
+    await autofillInputTitle.fill("Title Test Text");
+
+    await this.page.waitForTimeout(31000); // Wait for 15 (backend problem loading doc type templates)
+
+    // Now check if the button is enabled after those actions
+    const isEnabled = await submitButton.isEnabled();
+    if (!isEnabled) {
+      throw new Error(
+        "The submit button should be enabled after the necessary actions but it is still disabled.",
+      );
+    }
+
+    // Submit the form
+    await submitButton.click();
+
+    await this.page.waitForTimeout(15000); // Wait for 15 (backend problem loading doc type templates)
   },
 );
 
