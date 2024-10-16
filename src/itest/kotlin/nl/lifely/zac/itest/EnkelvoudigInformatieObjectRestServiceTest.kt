@@ -24,6 +24,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_SIZE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_TXT_CONVERTED_TO_PDF_FILE_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_SIZE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
@@ -42,7 +43,6 @@ import java.io.File
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.UUID
 
 /**
  * This test assumes a zaak has been created, and a task has been started in a previously run test.
@@ -335,6 +335,38 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK
+            }
+        }
+        When("the get enkelvoudiginformatieobject endpoint is called") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObject2UUID/"
+            )
+            Then(
+                """
+                    the response should be OK and should contain information about the document converted to PDF
+                    """
+            ) {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_OK
+                with(responseBody) {
+                    shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
+                    shouldContainJsonKeyValue("status", DOCUMENT_STATUS_DEFINITIEF)
+                    shouldContainJsonKeyValue("taal", "Engels")
+                    shouldContainJsonKeyValue("titel", DOCUMENT_FILE_TITLE)
+                    shouldContainJsonKeyValue(
+                        "vertrouwelijkheidaanduiding",
+                        DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+                    )
+                    shouldContainJsonKeyValue(
+                        "informatieobjectTypeOmschrijving",
+                        INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
+                    )
+                    shouldContainJsonKey("informatieobjectTypeUUID")
+                    shouldContainJsonKey("identificatie")
+                    shouldContainJsonKeyValue("bestandsnaam", TEST_TXT_CONVERTED_TO_PDF_FILE_NAME)
+                    shouldContainJsonKeyValue("formaat", PDF_MIME_TYPE)
+                }
             }
         }
     }

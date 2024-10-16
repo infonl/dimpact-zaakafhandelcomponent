@@ -112,6 +112,7 @@ object ItestConfiguration {
     const val TEST_PDF_FILE_NAME = "dummyTestDocument.pdf"
     const val TEST_PDF_FILE_SIZE = 9268
     const val TEST_TXT_FILE_NAME = "testTextDocument.txt"
+    const val TEST_TXT_CONVERTED_TO_PDF_FILE_NAME = "testTextDocument.pdf"
     const val TEST_TXT_FILE_SIZE = 63
     const val TEST_SPEC_ORDER_INITIAL = 0
     const val TEST_SPEC_ORDER_AFTER_ZAAK_CREATED = 1
