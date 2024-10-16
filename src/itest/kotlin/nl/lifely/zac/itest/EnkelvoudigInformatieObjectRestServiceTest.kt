@@ -42,6 +42,7 @@ import java.io.File
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 
 /**
  * This test assumes a zaak has been created, and a task has been started in a previously run test.
@@ -50,11 +51,16 @@ import java.time.format.DateTimeFormatter
 class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
+    lateinit var enkelvoudigInformatieObject2UUID: String
 
     Given(
         "ZAC and all related Docker containers are running and zaak exists"
     ) {
-        When("the create enkelvoudig informatie object with file upload endpoint is called for the zaak") {
+        When(
+            """
+                the create enkelvoudig informatie object with file upload endpoint is called for the zaak with a PDF file
+                """
+        ) {
             val endpointUrl =
                 "$ZAC_API_URI/informatieobjecten/informatieobject/$zaakProductaanvraag1Uuid/$zaakProductaanvraag1Uuid"
             logger.info { "Calling $endpointUrl endpoint" }
@@ -127,7 +133,11 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 enkelvoudigInformatieObjectUUID = JSONObject(responseBody).getString("uuid")
             }
         }
-        When("update of enkelvoudig informatie object with file upload endpoint is called") {
+        When(
+            """
+                update of enkelvoudig informatie object with file upload endpoint is called with a TXT file
+                """
+        ) {
             val endpointUrl =
                 "$ZAC_API_URI/informatieobjecten/informatieobject/update"
             logger.info { "Calling $endpointUrl endpoint" }
@@ -233,6 +243,98 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     shouldContainJsonKey("informatieobjectTypeUUID")
                     shouldContainJsonKey("bestandsnaam")
                 }
+            }
+        }
+        When(
+            """
+                the create enkelvoudig informatie object with file upload endpoint is called for the zaak with a TXT file
+                """
+        ) {
+            val endpointUrl =
+                "$ZAC_API_URI/informatieobjecten/informatieobject/$zaakProductaanvraag1Uuid/$zaakProductaanvraag1Uuid"
+            logger.info { "Calling $endpointUrl endpoint" }
+            val file = Thread.currentThread().contextClassLoader.getResource(TEST_TXT_FILE_NAME).let {
+                File(it!!.path)
+            }
+            val requestBody =
+                MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("bestandsnaam", TEST_TXT_FILE_NAME)
+                    .addFormDataPart("titel", DOCUMENT_FILE_TITLE)
+                    .addFormDataPart("bestandsomvang", file.length().toString())
+                    .addFormDataPart("formaat", TEXT_MIME_TYPE)
+                    .addFormDataPart(
+                        "file",
+                        TEST_TXT_FILE_NAME,
+                        file.asRequestBody(TEXT_MIME_TYPE.toMediaType())
+                    )
+                    .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID)
+                    .addFormDataPart(
+                        "vertrouwelijkheidaanduiding",
+                        DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+                    )
+                    .addFormDataPart("status", DOCUMENT_STATUS_DEFINITIEF)
+                    .addFormDataPart(
+                        "creatiedatum",
+                        DateTimeFormatter.ofPattern(
+                            "yyyy-MM-dd'T'HH:mm+01:00"
+                        ).format(ZonedDateTime.now())
+                    )
+                    .addFormDataPart("auteur", TEST_USER_1_NAME)
+                    .addFormDataPart("taal", "eng")
+                    .build()
+            val response = itestHttpClient.performPostRequest(
+                url = endpointUrl,
+                headers = Headers.headersOf(
+                    "Accept",
+                    "application/json",
+                    "Content-Type",
+                    "multipart/form-data"
+                ),
+                requestBody = requestBody
+            )
+            Then(
+                "the response should be OK and contain information for the created document and uploaded file"
+            ) {
+                val responseBody = response.body!!.string()
+                logger.info { "$endpointUrl response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_OK
+                with(responseBody) {
+                    shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
+                    shouldContainJsonKeyValue("status", DOCUMENT_STATUS_DEFINITIEF)
+                    shouldContainJsonKeyValue("taal", "Engels")
+                    shouldContainJsonKeyValue("titel", DOCUMENT_FILE_TITLE)
+                    shouldContainJsonKeyValue(
+                        "vertrouwelijkheidaanduiding",
+                        DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+                    )
+                    shouldContainJsonKeyValue(
+                        "informatieobjectTypeOmschrijving",
+                        INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
+                    )
+                    shouldContainJsonKey("informatieobjectTypeUUID")
+                    shouldContainJsonKey("identificatie")
+                    shouldContainJsonKeyValue("bestandsnaam", TEST_TXT_FILE_NAME)
+                    shouldContainJsonKeyValue("bestandsomvang", file.length().toString())
+                    shouldContainJsonKeyValue("formaat", TEXT_MIME_TYPE)
+                }
+                enkelvoudigInformatieObject2UUID = JSONObject(responseBody).getString("uuid")
+            }
+        }
+        When("the convert endpoint is called") {
+            val response = itestHttpClient.performPostRequest(
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObject2UUID/" +
+                    "convert?zaak=$zaakProductaanvraag1Uuid",
+                requestBody = "".toRequestBody()
+            )
+            Then(
+                """
+                    the response should be OK and the informatieobject should be converted from TXT to PDF
+                    """
+            ) {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_OK
             }
         }
     }
