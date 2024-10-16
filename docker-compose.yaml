@@ -17,7 +17,6 @@ services:
       - DB_VENDOR=postgres
       - DB_ADDR=keycloak-database
       - DB_USER=keycloak
-      - DB_USER=keycloak
       - DB_NAME=keycloak
       - DB_PASSWORD=keycloak
       - LDAP_URL=ldap://openldap:1389
