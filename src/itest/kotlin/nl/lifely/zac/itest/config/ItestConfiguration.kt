@@ -58,6 +58,7 @@ object ItestConfiguration {
     const val OBJECT_PRODUCTAANVRAAG_2_UUID = "f1f6f670-fda8-4e98-81a6-6528937f10ee"
     const val OBJECTS_BASE_URI = "http://objecten-api.local:8000"
     const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT = "021f685e-9482-4620-b157-34cd4003da6b"
+    const val OFFICE_CONVERTER_BASE_URI = "http://office-converter:8080"
     const val OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_1_BRON_KENMERK = "f8534f13-0669-4d4d-a364-6b6c4ad3d243"
     const val OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_2_BRON_KENMERK = "dca40822-5eb3-4acc-b915-7b020041ad55"
     const val OPEN_FORMULIEREN_FORMULIER_BRON_NAAM = "open-forms"
@@ -93,7 +94,6 @@ object ItestConfiguration {
     const val TEST_GEMEENTE_EMAIL_ADDRESS = "gemeente-zac-test@example.com"
 
     const val TEST_INFORMATIE_OBJECT_TYPE_1_UUID = "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
-    const val TEST_INFORMATIE_OBJECT_TYPE_2_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
 
     /**
      * Test person that exists in both the BRP and the Klanten API databases
@@ -111,6 +111,7 @@ object ItestConfiguration {
     const val TEST_PDF_FILE_NAME = "dummyTestDocument.pdf"
     const val TEST_PDF_FILE_SIZE = 9268
     const val TEST_TXT_FILE_NAME = "testTextDocument.txt"
+    const val TEST_TXT_CONVERTED_TO_PDF_FILE_NAME = "testTextDocument.pdf"
     const val TEST_TXT_FILE_SIZE = 63
     const val TEST_SPEC_ORDER_INITIAL = 0
     const val TEST_SPEC_ORDER_AFTER_ZAAK_CREATED = 1
@@ -150,7 +151,8 @@ object ItestConfiguration {
     const val DOCUMENT_STATUS_IN_BEWERKING = "in_bewerking"
     const val TEXT_MIME_TYPE = "application/text"
     const val PDF_MIME_TYPE = "application/pdf"
-    const val DOCUMENT_IDENTIFICATION = "DOCUMENT-2024-0000000001"
+    const val DOCUMENT_1_IDENTIFICATION = "DOCUMENT-2024-0000000001"
+    const val DOCUMENT_2_IDENTIFICATION = "DOCUMENT-2024-0000000002"
 
     /**
      * Constants used in the KVK WireMock template response

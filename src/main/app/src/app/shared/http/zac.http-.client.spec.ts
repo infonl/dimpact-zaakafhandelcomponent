@@ -64,7 +64,7 @@ describe("HttpClientTesting", () => {
         "/rest/informatieobjecten/informatieobject/{uuid}/convert",
         undefined as never,
         {
-          pathParams: { path: { uuid: "123" } },
+          pathParams: { query: { zaak: "123" }, path: { uuid: "123" } },
         },
       )
       .subscribe((data) => {
