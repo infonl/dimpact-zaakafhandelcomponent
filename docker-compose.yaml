@@ -401,7 +401,7 @@ services:
 
   # Observability traces data store
   tempo:
-    image: docker.io/grafana/tempo:latest
+    image: docker.io/grafana/tempo:2.6.1
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml
@@ -415,7 +415,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: docker.io/prom/prometheus:latest
+    image: docker.io/prom/prometheus:2.6.1
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -467,7 +467,7 @@ services:
 
   zac:
     # By default, we use the latest ZAC Docker Image. Change this if you wish to use a specific version.
-    image: ${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:latest}
+    image: ${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:2.6.1}
     environment:
       - AUTH_REALM=zaakafhandelcomponent
       - AUTH_RESOURCE=zaakafhandelcomponent
