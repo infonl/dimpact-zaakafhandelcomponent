@@ -275,36 +275,13 @@ services:
     entrypoint: ["/zac-scripts/generate-zac-import-ldif-and-start-openldap.sh"]
     command: ["/opt/bitnami/scripts/openldap/run.sh"]
 
-  # The GBA mock is required by the BRP proxy
-  gbamock:
-    image: ghcr.io/brp-api/haal-centraal-brp-bevragen-gba-mock:2.0.8
-    platform: linux/amd64
+  personen-mock:
+    image: ghcr.io/brp-api/personen-mock:2.3.0-202409180940
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
-      # Disable FileSystemWatcher because it causes this Docker container to
-      # fail when running on an M3 Pro Mac with: "Unhandled exception.
-      # System.IO.IOException: Function not implemented
-      #   at System.IO.FileSystemWatcher.StartRaisingEvents()"
-      - ASPNETCORE_hostBuilder__reloadConfigOnChange=false
     ports:
       - "5010:5010"
-
-  brpproxy:
-    image: ghcr.io/brp-api/haal-centraal-brp-bevragen-proxy:2.1.2
-    platform: linux/amd64
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Release
-      - ASPNETCORE_URLS=http://+:5000
-      # Disable FileSystemWatcher because it causes this Docker container to
-      # fail when running on an M3 Pro Mac with: "Unhandled exception.
-      # System.IO.IOException: Function not implemented
-      #   at System.IO.FileSystemWatcher.StartRaisingEvents()"
-      - ASPNETCORE_hostBuilder__reloadConfigOnChange=false
-    ports:
-      - "5001:5000"
-    depends_on:
-      - gbamock
 
   openklant-database:
     image: postgres:16.3
