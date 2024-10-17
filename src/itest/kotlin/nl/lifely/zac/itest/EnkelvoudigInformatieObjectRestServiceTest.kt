@@ -376,24 +376,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK
-                with(responseBody) {
-                    shouldContainJsonKeyValue("auteur", TEST_USER_1_NAME)
-                    shouldContainJsonKeyValue("status", DOCUMENT_STATUS_DEFINITIEF)
-                    shouldContainJsonKeyValue("taal", "Engels")
-                    shouldContainJsonKeyValue("titel", DOCUMENT_FILE_TITLE)
-                    shouldContainJsonKeyValue(
-                        "vertrouwelijkheidaanduiding",
-                        DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
-                    )
-                    shouldContainJsonKeyValue(
-                        "informatieobjectTypeOmschrijving",
-                        INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
-                    )
-                    shouldContainJsonKey("informatieobjectTypeUUID")
-                    shouldContainJsonKey("identificatie")
-                    shouldContainJsonKeyValue("bestandsnaam", TEST_TXT_CONVERTED_TO_PDF_FILE_NAME)
-                    shouldContainJsonKeyValue("formaat", PDF_MIME_TYPE)
-                }
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                          {
                           "bestandsnaam" : "$TEST_TXT_CONVERTED_TO_PDF_FILE_NAME",
