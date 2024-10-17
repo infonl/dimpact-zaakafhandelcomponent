@@ -56,7 +56,7 @@ class SmartDocumentsTemplateGroup {
     @OneToMany(mappedBy = "templateGroup", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     var templates: MutableSet<SmartDocumentsTemplate>? = null
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "zaakafhandelparameters_id", nullable = false)
     lateinit var zaakafhandelParameters: ZaakafhandelParameters
 }
