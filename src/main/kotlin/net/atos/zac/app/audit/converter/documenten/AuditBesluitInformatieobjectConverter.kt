@@ -16,7 +16,7 @@ class AuditBesluitInformatieobjectConverter @Inject constructor(
     private val brcClientService: BrcClientService
 ) {
 
-    fun convert(wijziging: BesluitInformatieobjectWijziging): List<RESTHistorieRegel>  =
+    fun convert(wijziging: BesluitInformatieobjectWijziging): List<RESTHistorieRegel> =
         listOf(RESTHistorieRegel("informatieobject", toWaarde(wijziging.oud), toWaarde(wijziging.nieuw)))
 
     private fun toWaarde(besluitInformatieObject: BesluitInformatieObject?): String? =
