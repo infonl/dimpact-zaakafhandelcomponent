@@ -119,7 +119,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
                                 builder.and(
                                     builder.equal(
                                         root.get<ZaakafhandelParameters>(
-                                            SmartDocumentsTemplate::zaakafhandelParameters.name
+                                            SmartDocumentsTemplateGroup::zaakafhandelParameters.name
                                         )
                                             .get<Long>("id"),
                                         getZaakafhandelParametersId(zaakafhandelParametersUUID)
