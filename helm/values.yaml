@@ -264,7 +264,7 @@ opa:
     annotations: { }
   image:
     repository: openpolicyagent/opa
-    tag: "edge-static"
+    tag: "0.69.0-static"
     pullPolicy: IfNotPresent
   # The settings below will be ignored when running as a sidecar (the zac values will be used instead)
   autoscaling: 
@@ -347,7 +347,7 @@ office_converter:
   #url: ""
   image:
     repository: ghcr.io/eugenmayer/kontextwork-converter
-    tag: "1.0.0"
+    tag: "1.6.1"
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1

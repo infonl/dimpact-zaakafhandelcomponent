@@ -20,9 +20,6 @@ microprofile-rest-client = "3.0"
 jacoco = "0.8.12"
 glassfish-expressly = "5.0.0"
 
-opa-binary = "0.63.0"
-opa-plugin = "0.4.2"
-
 apache-commons-lang = "3.17.0"
 apache-commons-text = "1.12.0"
 apache-commons-collections = "4.4"
@@ -35,9 +32,9 @@ javax-cache = "1.1.1"
 google-guava = "33.3.1-jre"
 itextpdf = "8.0.5"
 itextpdf-html2pdf = "5.0.5"
-flyway = "10.19.0"
+flyway = "10.20.0"
 apache-solr = "9.7.0"
-webdav-servlet = "1.2.78"
+webdav-servlet = "1.2.80"
 htmlcleaner = "2.29"
 unboundid = "7.0.1"
 swagger = "5.17.14"
@@ -58,8 +55,8 @@ eclipse-microprofile-health-api = "4.0.1"
 eclipse-microprofile-fault-tolerance-api = "4.0.2"
 hibernate-validator = "8.0.1.Final"
 jakarta-jakartaee = "10.0.0"
-jboss-resteasy-multipart-provider = "6.2.9.Final"
-wildfly-security-elytron-http-oidc = "2.4.2.Final"
+jboss-resteasy-multipart-provider = "6.2.10.Final"
+wildfly-security-elytron-http-oidc = "2.5.2.Final"
 # ~versions of dependencies provided by Wildfly
 
 eclipse-yasson = "3.0.4"
@@ -174,4 +171,3 @@ taskinfo = { id = "org.barfuin.gradle.taskinfo", version.ref = "taskinfo" }
 swagger-generator = { id = "org.hidetake.swagger.generator", version.ref = "swagger-generator" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
-opa = { id = "com.bisnode.opa", version.ref = "opa-plugin" }

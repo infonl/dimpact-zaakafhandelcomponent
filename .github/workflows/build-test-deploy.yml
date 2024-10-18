@@ -271,6 +271,11 @@ jobs:
           # or else all vulnerabilities will be reported
           limit-severities-for-sarif: true
           severity: 'CRITICAL,HIGH'
+        env:
+          # skip downloading the Trivy databases since we update the Trivy cache regularly
+          # in another workflow
+          TRIVY_SKIP_DB_UPDATE: true
+          TRIVY_SKIP_JAVA_DB_UPDATE: true
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3

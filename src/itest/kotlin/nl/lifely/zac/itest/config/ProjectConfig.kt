@@ -17,6 +17,7 @@ import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.lifely.zac.itest.config.ItestConfiguration.KVK_MOCK_BASE_URI
+import nl.lifely.zac.itest.config.ItestConfiguration.OFFICE_CONVERTER_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_MOCK_BASE_URI
@@ -56,6 +57,7 @@ class ProjectConfig : AbstractProjectConfig() {
     }
     private val dockerComposeEnvironment = mapOf(
         "KVK_API_CLIENT_MP_REST_URL" to KVK_MOCK_BASE_URI,
+        "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to OFFICE_CONVERTER_BASE_URI,
         "SD_CLIENT_MP_REST_URL" to SMART_DOCUMENTS_MOCK_BASE_URI,
         "SMTP_SERVER" to "greenmail",
         "SMTP_PORT" to SMTP_SERVER_PORT.toString(),
@@ -179,6 +181,11 @@ class ProjectConfig : AbstractProjectConfig() {
                 Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
                     "ZAC"
                 )
+            )
+            .waitingFor(
+                "opa-tests",
+                OneShotStartupWaitStrategy()
+                    .withStartupTimeout(10.seconds.toJavaDuration())
             )
             .waitingFor(
                 "openzaak.local",
