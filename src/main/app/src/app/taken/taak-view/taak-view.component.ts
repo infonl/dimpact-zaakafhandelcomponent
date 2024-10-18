@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -17,6 +17,7 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
+import { tap } from "rxjs/operators";
 import { FormulierDefinitie } from "../../admin/model/formulieren/formulier-definitie";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
@@ -42,6 +43,7 @@ import {
   NotificationDialogComponent,
   NotificationDialogData,
 } from "../../shared/notification-dialog/notification-dialog.component";
+import { OrderUtil } from "../../shared/order/order-util";
 import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
@@ -72,7 +74,8 @@ export class TaakViewComponent
   formulier: AbstractTaakFormulier;
   formConfig: FormConfig;
   formulierDefinitie: FormulierDefinitie;
-  formioFormulier: any;
+  formioFormulier;
+  formioChangeData;
 
   menu: MenuItem[] = [];
   readonly sideNavAction = SideNavAction;
@@ -171,9 +174,9 @@ export class TaakViewComponent
     if (taak.formulierDefinitieId) {
       this.createHardCodedTaakForm(taak, zaak);
     } else if (taak.formulierDefinitie) {
-      this.createConfigurableTaakForm(taak);
+      this.createConfigurableTaakForm(taak.formulierDefinitie);
     } else {
-      this.createFormioForm(taak);
+      this.createFormioForm(taak.formioFormulier);
     }
   }
 
@@ -202,18 +205,89 @@ export class TaakViewComponent
     });
   }
 
-  private createConfigurableTaakForm(taak: Taak): void {
-    this.formulierDefinitie = taak.formulierDefinitie;
+  private createConfigurableTaakForm(
+    formulierDefinitie: FormulierDefinitie,
+  ): void {
+    this.formulierDefinitie = formulierDefinitie;
     this.utilService.setTitle("title.taak", {
-      taak: this.formulierDefinitie.naam,
+      taak: formulierDefinitie.naam,
     });
   }
 
-  private createFormioForm(taak: Taak): void {
-    this.formioFormulier = taak.formioFormulier;
+  private createFormioForm(formioFormulier: { [key: string]: any }): void {
+    this.formioFormulier = formioFormulier;
+    this.initializeSpecializedFormioComponents(formioFormulier.components);
     this.utilService.setTitle("title.taak", {
-      taak: this.formioFormulier.title,
+      taak: formioFormulier.title,
     });
+  }
+
+  private initializeSpecializedFormioComponents(
+    components: Array<{ [key: string]: any }>,
+  ): void {
+    for (const component of components) {
+      switch (component.type) {
+        case "groepMedewerkerFieldset":
+          this.initializeGroepMedewerkerFieldsetComponent(component);
+          break;
+      }
+      if (component.hasOwnProperty("components")) {
+        this.initializeSpecializedFormioComponents(component.components);
+      }
+    }
+  }
+
+  private initializeGroepMedewerkerFieldsetComponent(component: {
+    [key: string]: any;
+  }): void {
+    component.type = "fieldset";
+    const groepComponent = component.components[0];
+    const medewerkerComponent = component.components[1];
+    this.initializeGroepMedewerkerFieldsetGroepComponent(groepComponent);
+    this.initializeGroepMedewerkerFieldsetMedewerkerComponent(
+      medewerkerComponent,
+      groepComponent.key,
+    );
+  }
+
+  private initializeGroepMedewerkerFieldsetGroepComponent(groepComponent: {
+    [key: string]: any;
+  }): void {
+    groepComponent.valueProperty = "id";
+    groepComponent.template = "{{ item.naam }}";
+    groepComponent.data = {
+      custom: () =>
+        this.identityService
+          .listGroups()
+          .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam"))))
+          .toPromise(),
+    };
+  }
+
+  private initializeGroepMedewerkerFieldsetMedewerkerComponent(
+    medewerkerComponent: {
+      [key: string]: any;
+    },
+    groepComponentKey: string,
+  ): void {
+    medewerkerComponent.valueProperty = "id";
+    medewerkerComponent.template = "{{ item.naam }}";
+    medewerkerComponent.data = {
+      custom: () => {
+        if (
+          this.formioChangeData &&
+          this.formioChangeData.hasOwnProperty(groepComponentKey) &&
+          this.formioChangeData[groepComponentKey] !== ""
+        ) {
+          return this.identityService
+            .listUsersInGroup(this.formioChangeData[groepComponentKey])
+            .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam"))))
+            .toPromise();
+        } else {
+          return Promise.resolve([]);
+        }
+      },
+    };
   }
 
   isReadonly() {
@@ -384,6 +458,10 @@ export class TaakViewComponent
         this.posts++;
       });
     }
+  }
+
+  onFormioFormChange(event: any) {
+    this.formioChangeData = event.data;
   }
 
   editToewijzing(event: any) {
