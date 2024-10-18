@@ -76,6 +76,13 @@ class ZaakHistorieTest : BehaviorSpec({
                     "toelichting": ""
                   },
                   {
+                    "actie": "GEKOPPELD",
+                    "attribuutLabel": "zaakinformatieobject",
+                    "door": "$TEST_USER_1_NAME",
+                    "nieuweWaarde": "dummyTitel",
+                    "toelichting": ""
+                  },
+                  {
                     "actie": "ONTKOPPELD",
                     "attribuutLabel": "Behandelaar",
                     "door": "Functionele gebruiker",

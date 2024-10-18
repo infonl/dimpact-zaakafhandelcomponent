@@ -380,7 +380,7 @@ services:
     profiles: [ "itest" ]
 
   office-converter:
-    image: ghcr.io/eugenmayer/kontextwork-converter:1.5.0
+    image: ghcr.io/eugenmayer/kontextwork-converter:1.6.1
     platform: linux/amd64
     ports:
       - "8083:8080"
@@ -496,7 +496,7 @@ services:
       - LDAP_USER=cn=admin,dc=example,dc=org
       - MAILJET_API_KEY=${MAILJET_API_KEY:-dummyMailjetApiKey}
       - MAILJET_API_SECRET_KEY=${MAILJET_API_SECRET_KEY:-dummyMailjetApiSecretKey}
-      - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://office-converter:8083
+      - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://office-converter:8080
       - OBJECTS_API_CLIENT_MP_REST_URL=http://objecten-api.local:8000
       - OBJECTS_API_TOKEN=dummyZacObjectsToken
       - OBJECTTYPES_API_CLIENT_MP_REST_URL=http://objecttypen-api:8000
