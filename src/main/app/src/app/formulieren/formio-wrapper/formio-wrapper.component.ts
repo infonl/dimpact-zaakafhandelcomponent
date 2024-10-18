@@ -24,8 +24,13 @@ export class FormioWrapperComponent {
   @Input() options: FormioOptions;
   @Input() readOnly: boolean;
   @Output() submit = new EventEmitter<any>();
+  @Output() change = new EventEmitter<any>();
 
   onSubmit(event: any) {
     this.submit.emit(event);
+  }
+
+  onChange(event: any) {
+    this.change.emit(event);
   }
 }
