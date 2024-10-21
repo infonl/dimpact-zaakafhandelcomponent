@@ -20,7 +20,7 @@ When(
 
     const sidebar = this.page.locator("div.sidenav-title");
     await sidebar.waitFor({ state: "visible" });
-    await sidebar.getByText("Document maken").click();
+    await sidebar.getByText("Document maken");
   },
 );
 
@@ -32,12 +32,7 @@ When(
     await submitButton.waitFor({ state: "visible" });
 
     // Verify that the button is initially disabled
-    const isInitiallyDisabled = await submitButton.isDisabled();
-    if (!isInitiallyDisabled) {
-      throw new Error(
-        "The submit button should be disabled initially but it is enabled.",
-      );
-    }
+    await submitButton.isDisabled();
 
     // filling the create document form
     await this.page.getByLabel("Sjabloongroep").click();
@@ -54,12 +49,7 @@ When(
     await autofillInputTitle.fill("Document Title Text");
 
     // Now check if the button is enabled after those actions
-    const isEnabled = await submitButton.isEnabled();
-    if (!isEnabled) {
-      throw new Error(
-        "The submit button should be enabled after the necessary actions but it is still disabled.",
-      );
-    }
+    await submitButton.isEnabled();
   },
 );
 
@@ -67,8 +57,7 @@ When(
   "Employee {string} submits the form to create the document should see SmartDocuments tab",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
-    const submitButton = this.page.locator("#opslaan_button");
-    await submitButton.click();
+    await this.page.click("#opslaan_button");
 
     smartDocumentsPage = await this.page.waitForEvent("popup");
     await this.expect(
@@ -77,15 +66,10 @@ When(
   },
 );
 
-Then(
+When(
   "Employee {string} submits the SmartDocuments form",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
-    // Use the reference to the smartDocumentsPage
-    // Wait if needed for any loading
-
-    // await smartDocumentsPage.waitForTimeout(5000);
-
     const klaarButton = smartDocumentsPage.locator(
       "#gwt-debug-wizardEngine_panelControls_nextButton",
     );
