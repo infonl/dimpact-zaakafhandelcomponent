@@ -24,7 +24,7 @@ When(
 );
 
 When(
-  "Employee {string} enters create document form fields",
+  "Employee {string} enters and submits the form to start the SmartDocuments wizard",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
     const submitButton = this.page.locator("#opslaan_button");
@@ -51,7 +51,7 @@ When(
 );
 
 When(
-  "Employee {string} clicks the SmartDocuments Wizard finish button",
+  "Employee {string} completes the SmartDocuments wizard",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
     smartDocumentsWizardPage = await this.page.waitForEvent("popup");
