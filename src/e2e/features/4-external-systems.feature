@@ -10,7 +10,6 @@ Feature: External Systems
     And Employee "Bob" is on the newly created zaak with status "Intake"
     
     When Employee "Bob" clicks on Create Document for zaak
-    And Employee "Bob" fills in the create document form
-    And Employee "Bob" submits the form to create the document should see SmartDocuments tab
-    And Employee "Bob" submits the SmartDocuments form
+    And Employee "Bob" enters create document form fields
+    And Employee "Bob" clicks the SmartDocuments Wizard finish button
   

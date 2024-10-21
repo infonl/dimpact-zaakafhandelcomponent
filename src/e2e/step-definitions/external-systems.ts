@@ -9,8 +9,7 @@ import { CustomWorld } from "../support/worlds/world";
 
 const ONE_MINUTE_IN_MS = 60_000;
 
-// Reference to smartdocuments page
-let smartDocumentsPage: Page;
+let smartDocumentsWizardPage: Page;
 
 When(
   "Employee {string} clicks on Create Document for zaak",
@@ -25,16 +24,14 @@ When(
 );
 
 When(
-  "Employee {string} fills in the create document form",
+  "Employee {string} enters create document form fields",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
     const submitButton = this.page.locator("#opslaan_button");
     await submitButton.waitFor({ state: "visible" });
 
-    // Verify that the button is initially disabled
-    await submitButton.isDisabled();
+    await this.expect(submitButton).toBeDisabled();
 
-    // filling the create document form
     await this.page.getByLabel("Sjabloongroep").click();
     await this.page
       .getByRole("option", { name: "Melding evenement organiseren behandelen" })
@@ -48,44 +45,24 @@ When(
     await autofillInputTitle.click();
     await autofillInputTitle.fill("Document Title Text");
 
-    // Now check if the button is enabled after those actions
-    await submitButton.isEnabled();
-  },
-);
-
-When(
-  "Employee {string} submits the form to create the document should see SmartDocuments tab",
-  { timeout: ONE_MINUTE_IN_MS },
-  async function (this: CustomWorld, user) {
+    await this.expect(submitButton).toBeEnabled();
     await this.page.click("#opslaan_button");
-
-    smartDocumentsPage = await this.page.waitForEvent("popup");
-    await this.expect(
-      smartDocumentsPage.getByRole("link", { name: "SmartDocuments" }),
-    ).toBeVisible();
   },
 );
 
 When(
-  "Employee {string} submits the SmartDocuments form",
+  "Employee {string} clicks the SmartDocuments Wizard finish button",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
-    const klaarButton = smartDocumentsPage.locator(
+    smartDocumentsWizardPage = await this.page.waitForEvent("popup");
+    await this.expect(
+      smartDocumentsWizardPage.getByRole("link", { name: "SmartDocuments" }),
+    ).toBeVisible();
+
+    const klaarButton = smartDocumentsWizardPage.locator(
       "#gwt-debug-wizardEngine_panelControls_nextButton",
     );
     await klaarButton.waitFor({ state: "visible" });
     await klaarButton.click();
-  },
-);
-
-Then(
-  "Employee {string} should see a result page mentioning the document is created",
-  { timeout: ONE_MINUTE_IN_MS },
-  async function (this: CustomWorld, user) {
-    // Last things to test here: https://dimpact.atlassian.net/browse/PZ-4251
-    // const caseNumber = this.testStorage.get("caseNumber");
-    // await this.expect(this.page.getByText(caseNumber).first()).toBeVisible();
-    // const allPages = this.page.context().pages();
-    // await allPages[1].close();
   },
 );
