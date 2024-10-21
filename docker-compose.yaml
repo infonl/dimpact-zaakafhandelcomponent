@@ -126,7 +126,7 @@ services:
         condition: service_started
 
   redis:
-    image: redis:7.2.5
+    image: redis:7.4.1
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
