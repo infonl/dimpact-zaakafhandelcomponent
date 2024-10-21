@@ -12,10 +12,11 @@ import net.atos.client.zgw.shared.model.ObjectType.BESLUIT
 import net.atos.client.zgw.shared.model.ObjectType.BESLUIT_INFORMATIEOBJECT
 import net.atos.client.zgw.shared.model.ObjectType.ENKELVOUDIG_INFORMATIEOBJECT
 import net.atos.client.zgw.shared.model.ObjectType.GEBRUIKSRECHTEN
-import net.atos.client.zgw.shared.model.ObjectType.OBJECT_INFORMATIEOBJECT
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
 import net.atos.client.zgw.shared.model.audit.AuditWijziging
+import net.atos.client.zgw.shared.model.audit.besluiten.BesluitInformatieobjectWijziging
 import net.atos.zac.app.audit.converter.besluiten.AuditBesluitConverter
+import net.atos.zac.app.audit.converter.documenten.AuditBesluitInformatieobjectConverter
 import net.atos.zac.app.audit.converter.documenten.AuditEnkelvoudigInformatieobjectConverter
 import net.atos.zac.app.audit.converter.documenten.AuditGebruiksrechtenWijzigingConverter
 import net.atos.zac.app.audit.model.RESTHistorieActie
@@ -27,7 +28,8 @@ private const val UPDATE = "update"
 private const val PARTIAL_UPDATE = "partial_update"
 
 class RESTHistorieRegelConverter @Inject constructor(
-    private val auditEnkelvoudigInformatieobjectConverter: AuditEnkelvoudigInformatieobjectConverter
+    private val auditEnkelvoudigInformatieobjectConverter: AuditEnkelvoudigInformatieobjectConverter,
+    private val auditBesluitInformatieobjectConverter: AuditBesluitInformatieobjectConverter
 ) {
     fun convert(auditTrail: List<AuditTrailRegel>): List<RESTHistorieRegel> =
         auditTrail.sortedByDescending { it.aanmaakdatum }
@@ -42,10 +44,12 @@ class RESTHistorieRegelConverter @Inject constructor(
                     AuditBesluitConverter.convert(this as AuditWijziging<Besluit>)
                 GEBRUIKSRECHTEN ->
                     AuditGebruiksrechtenWijzigingConverter.convert(this as AuditWijziging<Gebruiksrechten>)
-                ENKELVOUDIG_INFORMATIEOBJECT, OBJECT_INFORMATIEOBJECT, BESLUIT_INFORMATIEOBJECT ->
+                ENKELVOUDIG_INFORMATIEOBJECT ->
                     auditEnkelvoudigInformatieobjectConverter.convert(
                         this as AuditWijziging<EnkelvoudigInformatieObject>
                     )
+                BESLUIT_INFORMATIEOBJECT ->
+                    auditBesluitInformatieobjectConverter.convert(this as BesluitInformatieobjectWijziging)
                 else -> emptyList()
             }
         }.map { convertAuditTrailBasis(it, this) }

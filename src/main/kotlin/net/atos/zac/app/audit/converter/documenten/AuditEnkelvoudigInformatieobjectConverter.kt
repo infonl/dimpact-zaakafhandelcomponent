@@ -16,10 +16,9 @@ import org.apache.commons.lang3.ObjectUtils
 import java.net.URI
 import java.time.LocalDate
 
-class AuditEnkelvoudigInformatieobjectConverter {
-    @Inject
-    lateinit var ztcClientService: ZtcClientService
-
+class AuditEnkelvoudigInformatieobjectConverter @Inject constructor(
+    private val ztcClientService: ZtcClientService
+) {
     fun convert(wijziging: AuditWijziging<EnkelvoudigInformatieObject>): List<RESTHistorieRegel> {
         val oud = wijziging.oud
         val nieuw = wijziging.nieuw
