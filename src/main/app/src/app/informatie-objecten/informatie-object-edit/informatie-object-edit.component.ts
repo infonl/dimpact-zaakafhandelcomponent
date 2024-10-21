@@ -15,7 +15,6 @@ import {
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
-import moment from "moment";
 import { Subscription, tap } from "rxjs";
 import { FileInputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/file-input/file-input-form-field-builder";
 import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";

@@ -74,6 +74,7 @@ export class InformatieObjectCreateAttendedComponent
     this.formConfig = new FormConfigBuilder()
       .saveText("actie.toevoegen")
       .cancelText("actie.annuleren")
+      .requireUserChanges()
       .build();
     this.getIngelogdeMedewerker();
     this.informatieObjectTypes = await this.fetchInformatieobjecttypes();
