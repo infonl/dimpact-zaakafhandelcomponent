@@ -1,0 +1,40 @@
+#
+# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# Note: This workflow only downloads the Trivy scanner databases and adds them to the cache.
+# See: https://github.com/aquasecurity/trivy-action for details.
+name: Update Trivy Scanner Cache
+
+on:
+  schedule:
+    - cron: "0 2 * * 1-5"
+  workflow_dispatch:
+
+jobs:
+  update-trivy-db:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: Download and extract the Trivy vulnerability DB
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/.cache/trivy/db
+          oras pull ghcr.io/aquasecurity/trivy-db:2
+          tar -xzf db.tar.gz -C $GITHUB_WORKSPACE/.cache/trivy/db
+          rm db.tar.gz
+
+      - name: Download and extract the Trivy Java DB
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/.cache/trivy/java-db
+          oras pull ghcr.io/aquasecurity/trivy-java-db:1
+          tar -xzf javadb.tar.gz -C $GITHUB_WORKSPACE/.cache/trivy/java-db
+          rm javadb.tar.gz
+
+      - name: Cache Trivy DBs
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ github.workspace }}/.cache/trivy
+          key: cache-trivy-${{ steps.date.outputs.date }}

@@ -1,8 +1,12 @@
-name: Scheduled docker container scan
+#
+# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Scheduled Trivy Docker image scan
 
 on:
   schedule:
-    - cron: "0 21 * * 1-5"
+    - cron: "0 3 * * 1-5"
   workflow_dispatch:
 
 env:
@@ -13,7 +17,7 @@ permissions:
 
 jobs:
   build:
-    name: Run docker scan
+    name: Run Trivy Docker image scan
     runs-on: ubuntu-22.04
     steps:
       - name: Pull Docker Image
@@ -29,6 +33,11 @@ jobs:
           # or else all vulnerabilities will be reported
           limit-severities-for-sarif: true
           severity: 'CRITICAL,HIGH'
+        env:
+          # skip downloading the Trivy databases since we update the Trivy cache regularly
+          # in another workflow
+          TRIVY_SKIP_DB_UPDATE: true
+          TRIVY_SKIP_JAVA_DB_UPDATE: true
 
       - name: Upload Trivy Scan Results to GitHub Security Tab
         uses: github/codeql-action/upload-sarif@v3

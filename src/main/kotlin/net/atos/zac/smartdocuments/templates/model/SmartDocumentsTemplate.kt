@@ -7,6 +7,7 @@ package net.atos.zac.smartdocuments.templates.model
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -48,7 +49,7 @@ class SmartDocumentsTemplate {
     @JoinColumn(name = "sjabloon_groep_id", nullable = false)
     lateinit var templateGroup: SmartDocumentsTemplateGroup
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "zaakafhandelparameters_id", nullable = false)
     lateinit var zaakafhandelParameters: ZaakafhandelParameters
 

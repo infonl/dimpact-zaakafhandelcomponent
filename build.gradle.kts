@@ -34,26 +34,6 @@ repositories {
 group = "net.atos.common-ground"
 description = "Zaakafhandelcomponent"
 
-// make sure the Java version is supported by WildFly
-// and update our base Docker image and JDK versions in our GitHubs workflows accordingly
-val javaVersion = JavaVersion.VERSION_21
-
-val zacDockerImage by extra {
-    if (project.hasProperty("zacDockerImage")) {
-        project.property("zacDockerImage").toString()
-    } else {
-        "ghcr.io/infonl/zaakafhandelcomponent:dev"
-    }
-}
-
-val versionNumber by extra {
-    if (project.hasProperty("versionNumber")) {
-        project.property("versionNumber").toString()
-    } else {
-        "dev"
-    }
-}
-
 val branchName by extra {
     if (project.hasProperty("branchName")) {
         project.property("branchName").toString()
@@ -70,15 +50,36 @@ val commitHash by extra {
     }
 }
 
+// create custom configuration for the JaCoCo agent JAR used to generate code coverage of our integration tests
+// see: https://blog.akquinet.de/2018/09/06/test-coverage-for-containerized-java-apps/
+val jacocoAgentJarForItest: Configuration by configurations.creating {
+    isTransitive = false
+}
+
+// sets the Java version for all Koltin and Java compilation tasks (source and target compatibility)
+// make sure the Java version is supported by WildFly
+// and update our base Docker image and JDK versions in our GitHubs workflows accordingly
+val javaVersion = 21
+
+val versionNumber by extra {
+    if (project.hasProperty("versionNumber")) {
+        project.property("versionNumber").toString()
+    } else {
+        "dev"
+    }
+}
+
 // create custom configuration for extra dependencies that are required in the generated WAR
 val warLib: Configuration by configurations.creating {
     extendsFrom(configurations["compileOnly"])
 }
 
-// create custom configuration for the JaCoCo agent JAR used to generate code coverage of our integration tests
-// see: https://blog.akquinet.de/2018/09/06/test-coverage-for-containerized-java-apps/
-val jacocoAgentJarForItest: Configuration by configurations.creating {
-    isTransitive = false
+val zacDockerImage by extra {
+    if (project.hasProperty("zacDockerImage")) {
+        project.property("zacDockerImage").toString()
+    } else {
+        "ghcr.io/infonl/zaakafhandelcomponent:dev"
+    }
 }
 
 sourceSets {
@@ -202,13 +203,6 @@ jacoco {
 }
 
 java {
-    java.sourceCompatibility = javaVersion
-    java.targetCompatibility = javaVersion
-
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(javaVersion.majorVersion)
-    }
-
     // add our generated client code to the main source set
     sourceSets["main"].java
         .srcDir("$rootDir/src/generated/productaanvraag/java")
@@ -240,6 +234,13 @@ jsonSchema2Pojo {
     includeToString = false
     initializeCollections = false
     includeAdditionalProperties = false
+}
+
+kotlin {
+    // set the Java version for all Kotlin and Java compilation tasks
+    // including source and target compatibility
+    // see: https://www.baeldung.com/kotlin/gradle-kotlin-bytecode-version
+    jvmToolchain(javaVersion)
 }
 
 node {
