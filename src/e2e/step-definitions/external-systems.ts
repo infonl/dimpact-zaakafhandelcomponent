@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Then, When } from "@cucumber/cucumber";
+import { When } from "@cucumber/cucumber";
 import { Page } from "@playwright/test";
 import { CustomWorld } from "../support/worlds/world";
 
