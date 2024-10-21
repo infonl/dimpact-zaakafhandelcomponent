@@ -4,8 +4,8 @@
  */
 
 import { Then, When } from "@cucumber/cucumber";
-import { CustomWorld } from "../support/worlds/world";
 import { Page } from "@playwright/test";
+import { CustomWorld } from "../support/worlds/world";
 
 const ONE_MINUTE_IN_MS = 60_000;
 
