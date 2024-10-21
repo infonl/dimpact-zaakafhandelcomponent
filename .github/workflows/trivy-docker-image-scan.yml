@@ -6,7 +6,7 @@ name: Scheduled Trivy Docker image scan
 
 on:
   schedule:
-    - cron: "0 22 * * 1-5"
+    - cron: "0 3 * * 1-5"
   workflow_dispatch:
 
 env:
