@@ -74,7 +74,6 @@ export class InformatieObjectCreateAttendedComponent
     this.formConfig = new FormConfigBuilder()
       .saveText("actie.toevoegen")
       .cancelText("actie.annuleren")
-      .requireUserChanges()
       .build();
     this.getIngelogdeMedewerker();
     this.informatieObjectTypes = await this.fetchInformatieobjecttypes();
@@ -227,12 +226,7 @@ export class InformatieObjectCreateAttendedComponent
             // Fields not end point Body Parameters; 'just informational', so leave them out. End point will determine these values itself (again)
             break;
           default:
-            if (value instanceof moment) {
-              documentCreateData[key] = value;
-              break;
-            } else {
-              documentCreateData[key] = value;
-            }
+            documentCreateData[key] = value;
             break;
         }
       });
@@ -253,6 +247,8 @@ export class InformatieObjectCreateAttendedComponent
             });
           }
         });
+    } else {
+      this.sideNav.close();
     }
   }
 
