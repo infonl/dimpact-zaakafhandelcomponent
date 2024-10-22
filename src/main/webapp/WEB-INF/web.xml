@@ -110,7 +110,7 @@
 
     <security-constraint>
         <web-resource-collection>
-            <web-resource-name>static</web-resource-name>
+            <web-resource-name>sd-wizard-result-page</web-resource-name>
             <description>SmartDocuments wizard result page</description>
             <url-pattern>/static/smart-documents-result.html</url-pattern>
             <http-method>GET</http-method>
