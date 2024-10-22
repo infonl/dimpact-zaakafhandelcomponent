@@ -15,7 +15,6 @@ import {
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
-import moment from "moment";
 import { Subscription, tap } from "rxjs";
 import { FileInputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/file-input/file-input-form-field-builder";
 import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
@@ -265,21 +264,28 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
       Object.keys(formGroup.controls).forEach((key) => {
         const control = formGroup.controls[key];
         const value = control.value;
-        console.log(key, value);
-        if (value instanceof moment) {
-          nieuweVersie[key] = value; // conversie niet nodig, ISO-8601 in UTC gaat goed met java ZonedDateTime.parse
-        } else if (key === "status") {
-          nieuweVersie[key] = InformatieobjectStatus[value.value.toUpperCase()];
-        } else if (key === "vertrouwelijkheidaanduiding") {
-          nieuweVersie[key] = value.value;
-        } else if (key === "bestand" && value) {
-          nieuweVersie["bestandsnaam"] = value.name;
-          nieuweVersie["file"] = value;
-          nieuweVersie["formaat"] = value.type;
-        } else if (key === "informatieobjectTypeUUID") {
-          nieuweVersie[key] = value.uuid;
-        } else {
-          nieuweVersie[key] = value;
+
+        switch (key) {
+          case "status":
+            nieuweVersie[key] =
+              InformatieobjectStatus[value.value.toUpperCase()];
+            break;
+          case "vertrouwelijkheidaanduiding":
+            nieuweVersie[key] = value.value;
+            break;
+          case "bestand":
+            if (value) {
+              nieuweVersie["bestandsnaam"] = value.name;
+              nieuweVersie["file"] = value;
+              nieuweVersie["formaat"] = value.type;
+            }
+            break;
+          case "informatieobjectTypeUUID":
+            nieuweVersie[key] = value.uuid;
+            break;
+          default:
+            nieuweVersie[key] = value;
+            break;
         }
       });
 
