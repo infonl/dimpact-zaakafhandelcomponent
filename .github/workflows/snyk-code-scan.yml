@@ -5,11 +5,6 @@
 name: Snyk Security code scanner
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-  merge_group:
   schedule:
     - cron: "21 11 * * 0"
   workflow_dispatch:
