@@ -102,7 +102,7 @@
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>sd-document-creation</web-resource-name>
-            <description>SmartDocuments' Create Document callback</description>
+            <description>SmartDocuments Create Document callback</description>
             <url-pattern>/rest/document-creation/smartdocuments/callback/*</url-pattern>
             <http-method>POST</http-method>
         </web-resource-collection>
@@ -111,8 +111,8 @@
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>static</web-resource-name>
-            <description>SmartDocuments' wizard result pages</description>
-            <url-pattern>/static/*</url-pattern>
+            <description>SmartDocuments wizard result page</description>
+            <url-pattern>/static/smart-documents-result.html</url-pattern>
             <http-method>GET</http-method>
         </web-resource-collection>
     </security-constraint>
