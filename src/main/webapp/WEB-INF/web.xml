@@ -101,7 +101,7 @@
 
     <security-constraint>
         <web-resource-collection>
-            <web-resource-name>webdav</web-resource-name>
+            <web-resource-name>sd-document-creation</web-resource-name>
             <description>SmartDocuments' Create Document callback</description>
             <url-pattern>/rest/document-creation/smartdocuments/callback/*</url-pattern>
             <http-method>POST</http-method>
@@ -110,7 +110,7 @@
 
     <security-constraint>
         <web-resource-collection>
-            <web-resource-name>webdav</web-resource-name>
+            <web-resource-name>static</web-resource-name>
             <description>SmartDocuments' wizard result pages</description>
             <url-pattern>/static/*</url-pattern>
             <http-method>GET</http-method>
@@ -119,7 +119,7 @@
 
     <security-constraint>
         <web-resource-collection>
-            <web-resource-name>webdav</web-resource-name>
+            <web-resource-name>assets</web-resource-name>
             <description>Fonts, translation bundles, CSS</description>
             <url-pattern>/assets/*</url-pattern>
             <http-method>GET</http-method>
