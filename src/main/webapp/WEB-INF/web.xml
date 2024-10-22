@@ -99,6 +99,24 @@
         </web-resource-collection>
     </security-constraint>
 
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>webdav</web-resource-name>
+            <description>SmartDocuments create document callback</description>
+            <url-pattern>/rest/document-creation/smartdocuments/callback/*</url-pattern>
+            <http-method>POST</http-method>
+        </web-resource-collection>
+    </security-constraint>
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>webdav</web-resource-name>
+            <description>SmartDocuments wizard result pages</description>
+            <url-pattern>/static/*</url-pattern>
+            <http-method>GET</http-method>
+        </web-resource-collection>
+    </security-constraint>
+
     <login-config>
         <auth-method>OIDC</auth-method>
     </login-config>
