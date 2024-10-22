@@ -1,4 +1,4 @@
-# App
+# Zaakafhandelcomponent frontend application
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.0.7.
 
@@ -21,10 +21,6 @@ Run `npm run build` to build the project. The build artifacts will be stored in 
 ## Running unit tests
 
 Run `npm run test` or `npm run test:watch` to execute the unit tests via [Jest](https://jestjs.io/).
-
-## Running end-to-end tests
-
-From the root of the project execute script `./start-e2e-with-test-env.sh` or `./start-e2e-with-local-env.sh` to execute the end-to-end tests using Playwright. At the moment the local tests need more zaakType data to run succesfully.
 
 ## Further help
 
