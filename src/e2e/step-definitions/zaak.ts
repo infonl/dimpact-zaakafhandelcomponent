@@ -72,6 +72,7 @@ Given(
     ).toBeVisible();
   },
 );
+
 When(
   "Employee {string} does not have enough information to finish Intake and assigns a task to Employee {string}",
   { timeout: TWO_MINUTES_IN_MS },
@@ -257,37 +258,6 @@ Then(
     await this.expect(
       this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER),
     ).toBeVisible();
-  },
-);
-
-When(
-  "Employee {string} clicks on Create Document for zaak",
-  { timeout: ONE_MINUTE_IN_MS },
-  async function (this: CustomWorld, user) {
-    await this.page.getByText("note_addDocument maken").click();
-
-    const smartDocumentsPage = await this.page.waitForEvent("popup");
-    await this.expect(
-      smartDocumentsPage.getByRole("link", { name: "SmartDocuments" }),
-    ).toBeVisible();
-  },
-);
-
-Then(
-  "Employee {string} closes the SmartDocuments tab",
-  { timeout: ONE_MINUTE_IN_MS },
-  async function (this: CustomWorld, user) {
-    const allPages = this.page.context().pages();
-    await allPages[1].close();
-  },
-);
-
-Then(
-  "Employee {string} should not get an error",
-  { timeout: ONE_MINUTE_IN_MS },
-  async function (this: CustomWorld, user) {
-    const caseNumber = this.testStorage.get("caseNumber");
-    await this.expect(this.page.getByText(caseNumber).first()).toBeVisible();
   },
 );
 
