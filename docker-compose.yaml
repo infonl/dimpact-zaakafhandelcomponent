@@ -35,7 +35,7 @@ services:
       - "--health-enabled=true"
 
   keycloak-database:
-    image: docker.io/postgres:16.3
+    image: docker.io/postgres:16.4
     ports:
       - "54326:5432"
     healthcheck:
@@ -52,7 +52,7 @@ services:
       - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
 
   zac-database:
-    image: docker.io/postgres:16.3
+    image: docker.io/postgres:16.4
     ports:
       - "54320:5432"
     healthcheck:
@@ -202,7 +202,7 @@ services:
         condition: service_healthy
 
   objecttypen-api-database:
-    image: docker.io/postgres:16.3
+    image: docker.io/postgres:16.4
     ports:
       - "54324:5432"
     healthcheck:
@@ -284,7 +284,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: docker.io/postgres:16.3
+    image: docker.io/postgres:16.4
     ports:
       - "54325:5432"
     healthcheck:
