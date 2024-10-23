@@ -45,7 +45,6 @@ Employee->>SmartDocuments: Fill in remaining document data
 Employee->>SmartDocuments: Click "Finish" in the creation wizard
 SmartDocuments->>SmartDocuments: Create document
 SmartDocuments--)+ZAC: Provide document information
-Employee->>SmartDocuments: Close document creation wizard
 
 ZAC->>SmartDocuments: Download document
 ZAC->>+OpenZaak: Store document
@@ -53,4 +52,7 @@ ZAC->>OpenZaak: Link document to case or task
 OpenZaak->>-OpenNotificaties: Send notification that a new document is linked to a case or task
 OpenNotificaties--)ZAC: Received notification "document linked to a case"
 ZAC->>-Behandelaar: Document is zichtbaar in de zaak
+
+ZAC->>Employee: Redirect to result page 
+Employee->>Employee: Close document creation wizard tab
 ```
