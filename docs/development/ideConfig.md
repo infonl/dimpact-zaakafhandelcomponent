@@ -33,12 +33,12 @@
 
 #### Setup Wildfly for ZAC
 1. Enable the built-in IntelliJ WildFly extension if not already enabled (it requires the IntelliJ Enterprise Edition).
-2. Create a run configuration using the WildFly extension for ZAC using the `JBoss/Wildfly Server - local` template.
+2. Create a run configuration (`IntelliJ IDEA - Settings... - Build, Execution, Deployment - Application Servers`) using the WildFly extension for ZAC using the `JBoss/Wildfly Server - Final` template.
    Select `Application server` - `Configure` and point it to your local Wildfly installation in the project root.
    Do not change the automatically detected libraries!
    ![zac-intellij-runtime-wildfly-1.png](./attachments/images/zac-intellij-runtime-wildfly-1.png)
 3. Change the Wildfly configuration as follows:
-   ![zac-intellij-runtime-wildfly-2.png](./attachments/images/zac-intellij-runtime-wildfly-2.png)
+   ![zac-intellij-runtime-wildfly-7.png](./attachments/images/zac-intellij-runtime-wildfly-7.png)![zac-intellij-runtime-wildfly-2.png](./attachments/images/zac-intellij-runtime-wildfly-2.png)
 4. Add the 'exploded zaakafhandelcomponent WAR' artifact to the deployment:
    ![zac-intellij-runtime-wildfly-3.png](./attachments/images/zac-intellij-runtime-wildfly-3.png)
 5. Configure 1Password CLI extensions to populate the required environment variables in Startup/Connection.
