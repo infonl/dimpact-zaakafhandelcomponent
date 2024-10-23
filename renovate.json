@@ -28,4 +28,5 @@
       "matchDatasources": ["docker"],
       "allowedVersions": "< 17.0.0"
     }
+  ]
 }
