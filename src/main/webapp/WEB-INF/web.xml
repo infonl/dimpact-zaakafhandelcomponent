@@ -99,6 +99,33 @@
         </web-resource-collection>
     </security-constraint>
 
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>sd-document-creation</web-resource-name>
+            <description>SmartDocuments Create Document callback</description>
+            <url-pattern>/rest/document-creation/smartdocuments/callback/*</url-pattern>
+            <http-method>POST</http-method>
+        </web-resource-collection>
+    </security-constraint>
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>sd-wizard-result-page</web-resource-name>
+            <description>SmartDocuments wizard result page</description>
+            <url-pattern>/static/smart-documents-result.html</url-pattern>
+            <http-method>GET</http-method>
+        </web-resource-collection>
+    </security-constraint>
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>assets</web-resource-name>
+            <description>Fonts, translation bundles, CSS</description>
+            <url-pattern>/assets/*</url-pattern>
+            <http-method>GET</http-method>
+        </web-resource-collection>
+    </security-constraint>
+
     <login-config>
         <auth-method>OIDC</auth-method>
     </login-config>
