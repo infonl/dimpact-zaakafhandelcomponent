@@ -3,13 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { When } from "@cucumber/cucumber";
-import { Page } from "@playwright/test";
+import { Then, When } from "@cucumber/cucumber";
+import { expect, Page } from "@playwright/test";
 import { CustomWorld } from "../support/worlds/world";
 
 const ONE_MINUTE_IN_MS = 60_000;
 
 let smartDocumentsWizardPage: Page;
+let addedDocumentTitle: string;
 
 When(
   "Employee {string} clicks on Create Document for zaak",
@@ -42,8 +43,10 @@ When(
     await this.page.getByRole("option", { name: "OpenZaakTest" }).click();
 
     const autofillInputTitle = this.page.locator("#title_tekstfield");
+    addedDocumentTitle = `E2E Document Title Text`;
     await autofillInputTitle.click();
-    await autofillInputTitle.fill("Document Title Text");
+    await autofillInputTitle.fill(addedDocumentTitle);
+    await expect(autofillInputTitle).toHaveValue(addedDocumentTitle);
 
     await this.expect(submitButton).toBeEnabled();
     await this.page.click("#opslaan_button");
@@ -64,5 +67,40 @@ When(
     );
     await klaarButton.waitFor({ state: "visible" });
     await klaarButton.click();
+  },
+);
+
+When(
+  "Employee {string} closes the wizard result page",
+  { timeout: ONE_MINUTE_IN_MS },
+  async function (this: CustomWorld, user) {
+    const caseNumber = this.testStorage.get("caseNumber");
+    const caseNumberLocator = smartDocumentsWizardPage.locator(
+      `text=${caseNumber}`,
+    );
+    await expect(caseNumberLocator).toHaveCount(2);
+
+    const wizardResultDiv = smartDocumentsWizardPage.locator("#wizard-result");
+    await wizardResultDiv.waitFor({ state: "attached" });
+    await expect(wizardResultDiv).toBeVisible();
+
+    await expect(wizardResultDiv).toHaveClass(/wizard-result success/);
+    await expect(wizardResultDiv.getByText("succes")).toBeVisible();
+
+    await smartDocumentsWizardPage.close();
+  },
+);
+
+Then(
+  "Employee {string} sees the newly created document added to the zaak",
+  { timeout: ONE_MINUTE_IN_MS },
+  async function (this: CustomWorld, user) {
+    const caseNumber = this.testStorage.get("caseNumber");
+    const caseNumberLocator = this.page.locator(`text=${caseNumber}`);
+    await expect(caseNumberLocator).toHaveCount(2);
+
+    const documnentTitleText = this.page.locator(`text=${addedDocumentTitle}`);
+    await documnentTitleText.waitFor({ state: "attached" });
+    await expect(documnentTitleText.first()).toBeVisible();
   },
 );

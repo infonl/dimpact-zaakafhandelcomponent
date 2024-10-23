@@ -20,12 +20,12 @@ const TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER = "0612345678";
 
 async function checkZaakAssignment(
   this: CustomWorld,
-  zaakNumber: any,
+  caseNumber: any,
   userProfile: any,
 ) {
   await this.expect(
     this.page
-      .getByText(`Aanvullende informatie nodig voor zaak ${zaakNumber}`)
+      .getByText(`Aanvullende informatie nodig voor zaak ${caseNumber}`)
       .first(),
   ).toBeVisible();
 
@@ -81,7 +81,7 @@ When(
     user1: z.infer<typeof worldUsers>,
     user2: z.infer<typeof worldUsers>,
   ) {
-    const zaakNumber = this.testStorage.get("caseNumber");
+    const caseNumber = this.testStorage.get("caseNumber");
     const user2Parsed = worldUsers.parse(user2);
     const user2Profile = profiles[user2Parsed];
 
@@ -113,10 +113,10 @@ When(
 
     await this.expect(
       this.page.getByText(
-        `Document "Aanvullende informatie nodig voor zaak ${zaakNumber}" is toegevoegd aan de zaak`,
+        `Document "Aanvullende informatie nodig voor zaak ${caseNumber}" is toegevoegd aan de zaak`,
       ),
     ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
-    await checkZaakAssignment.call(this, zaakNumber, user2Profile);
+    await checkZaakAssignment.call(this, caseNumber, user2Profile);
   },
 );
 
@@ -201,9 +201,9 @@ Then(
   async function (this: CustomWorld, user1: string, _user2: string) {
     const user1Parsed = worldUsers.parse(user1);
     const user1Profile = profiles[user1Parsed];
-    const zaakNumber = this.testStorage.get("caseNumber");
+    const caseNumber = this.testStorage.get("caseNumber");
 
-    await checkZaakAssignment.call(this, zaakNumber, user1Profile);
+    await checkZaakAssignment.call(this, caseNumber, user1Profile);
   },
 );
 
