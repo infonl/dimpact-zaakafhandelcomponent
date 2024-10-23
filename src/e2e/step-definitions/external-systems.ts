@@ -145,11 +145,5 @@ Then(
     );
     await documnentDescriptionText.waitFor({ state: "attached" });
     await expect(documnentDescriptionText).toBeVisible();
-
-    // const documnentAuthorText = tabPanelLocator.locator(
-    //   `text=${addedDocumentAuthor}`,
-    // );
-    // await documnentAuthorText.waitFor({ state: "attached" });
-    // await expect(documnentAuthorText).toBeVisible();
   },
 );
