@@ -1,5 +1,30 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base"],
-  "enabledManagers": ["docker-compose","maven-wrapper","gradle-wrapper"]
+  "extends": [
+    "config:base",
+    ":separateMultipleMajorReleases",
+    "docker:pinDigests",
+    "docker:enableMajor"
+  ],
+  "enabledManagers": [
+    "docker-compose",
+    "maven-wrapper",
+    "gradle-wrapper"
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["digest"],
+      "schedule": ["every weekend on the 1st through 7th day of the month"]
+    },
+    {
+      "matchPackageNames": ["postgres"],
+      "matchDatasources": ["docker"],
+      "allowedVersions": "< 17.0.0"
+    },
+    {
+      "matchPackageNames": ["postgis/postgis"],
+      "matchDatasources": ["docker"],
+      "allowedVersions": "< 17.0.0"
+    }
 }
