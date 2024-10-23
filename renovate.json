@@ -3,6 +3,7 @@
   "extends": [
     "config:base",
     ":separateMultipleMajorReleases",
+    ":automergeDigest",
     "docker:pinDigests",
     "docker:enableMajor"
   ],
