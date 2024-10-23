@@ -39,6 +39,7 @@ import net.atos.zac.util.StringUtil.ONBEKEND
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
+import java.util.EnumSet
 import java.util.Locale
 import java.util.Objects
 
@@ -51,7 +52,8 @@ data class RestPersoon(
     var verblijfplaats: String? = null,
     override var emailadres: String? = null,
     override var naam: String? = null,
-    override var telefoonnummer: String? = null
+    override var telefoonnummer: String? = null,
+    var indicaties: EnumSet<RestPersoonIndicaties> = EnumSet.noneOf(RestPersoonIndicaties::class.java),
 ) : RestKlant() {
     override fun getIdentificatieType(): IdentificatieType? {
         return if (bsn != null) IdentificatieType.BSN else null
@@ -72,7 +74,15 @@ fun Persoon.toRestPersoon() = RestPersoon(
     geboortedatum = this.geboorte?.datum?.toStringRepresentation(),
     verblijfplaats = this.verblijfplaats?.toStringRepresentation(),
     naam = this.naam?.volledigeNaam,
-)
+).apply {
+    when {
+        inOnderzoek != null -> indicaties.add(RestPersoonIndicaties.IN_ONDERZOEK)
+        geheimhoudingPersoonsgegevens -> indicaties.add(RestPersoonIndicaties.GEHEIMHOUDING_OP_PERSOONSGEGEVENS)
+        opschortingBijhouding != null -> indicaties.add(RestPersoonIndicaties.OVERLEDEN)
+        rni.size != 0 -> indicaties.add(RestPersoonIndicaties.NIET_INGEZETENE)
+        indicatieCurateleRegister -> indicaties.add(RestPersoonIndicaties.ONDER_CURATELE)
+    }
+}
 
 fun PersoonBeperkt.toRestPerson() = RestPersoon(
     bsn = this.burgerservicenummer,
@@ -86,8 +96,15 @@ fun PersoonBeperkt.toRestPerson() = RestPersoon(
             it.adresregel2,
             it.adresregel3
         )
+    },
+).apply {
+    when {
+        inOnderzoek != null -> indicaties.add(RestPersoonIndicaties.IN_ONDERZOEK)
+        geheimhoudingPersoonsgegevens -> indicaties.add(RestPersoonIndicaties.GEHEIMHOUDING_OP_PERSOONSGEGEVENS)
+        opschortingBijhouding != null -> indicaties.add(RestPersoonIndicaties.OVERLEDEN)
+        rni.size != 0 -> indicaties.add(RestPersoonIndicaties.NIET_INGEZETENE)
     }
-)
+}
 
 fun List<DigitaalAdres>.toRestPersoon(): RestPersoon {
     val restPersoon = RestPersoon()
@@ -99,7 +116,6 @@ fun List<DigitaalAdres>.toRestPersoon(): RestPersoon {
     }
     return restPersoon
 }
-
 fun PersonenQueryResponse.toRechtsPersonen(): List<RestPersoon> =
     when (this) {
         is RaadpleegMetBurgerservicenummerResponse -> this.personen.toRestPersons()
