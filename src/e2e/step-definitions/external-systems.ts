@@ -11,6 +11,8 @@ const ONE_MINUTE_IN_MS = 60_000;
 
 let smartDocumentsWizardPage: Page;
 let addedDocumentTitle: string;
+let addedDocumentDesscription: string;
+let addedDocumentAuthor: string;
 
 When(
   "Employee {string} clicks on Create Document for zaak",
@@ -42,11 +44,25 @@ When(
     await this.page.getByLabel("Sjabloon").last().click();
     await this.page.getByRole("option", { name: "OpenZaakTest" }).click();
 
-    const autofillInputTitle = this.page.locator("#title_tekstfield");
-    addedDocumentTitle = `E2E Document Title Text`;
-    await autofillInputTitle.click();
-    await autofillInputTitle.fill(addedDocumentTitle);
-    await expect(autofillInputTitle).toHaveValue(addedDocumentTitle);
+    const inputTitle = this.page.locator("#title_tekstfield");
+    addedDocumentTitle = `E2E Test - Document Title Text`;
+    await inputTitle.click();
+    await inputTitle.fill(addedDocumentTitle);
+    await expect(inputTitle).toHaveValue(addedDocumentTitle);
+
+    const inputDescription = this.page.locator("#description_tekstfield");
+    addedDocumentDesscription = `E2E Test - Document Description Text`;
+    await inputDescription.click();
+    await inputDescription.fill(addedDocumentDesscription);
+    await expect(inputDescription).toHaveValue(addedDocumentDesscription);
+
+    const inputAuthor = this.page.locator("#auteur_tekstfield");
+    addedDocumentAuthor = `E2E Test - Document Author Name`;
+    await inputAuthor.click();
+    await inputAuthor.fill(addedDocumentAuthor);
+    await expect(inputAuthor).toHaveValue(addedDocumentAuthor);
+
+    await this.page.waitForTimeout(15000);
 
     await this.expect(submitButton).toBeEnabled();
     await this.page.click("#opslaan_button");
@@ -91,16 +107,49 @@ When(
   },
 );
 
-Then(
-  "Employee {string} sees the newly created document added to the zaak",
+When(
+  "Employee {string} views the created document",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
     const caseNumber = this.testStorage.get("caseNumber");
     const caseNumberLocator = this.page.locator(`text=${caseNumber}`);
+
     await expect(caseNumberLocator).toHaveCount(2);
 
-    const documnentTitleText = this.page.locator(`text=${addedDocumentTitle}`);
-    await documnentTitleText.waitFor({ state: "attached" });
-    await expect(documnentTitleText.first()).toBeVisible();
+    const documentTitleText = this.page.locator(`text=${addedDocumentTitle}`);
+    await expect(documentTitleText.first()).toBeVisible();
+
+    const anchorLocator = this.page.locator('a[title="Document bekijken"]');
+    await anchorLocator.click();
+  },
+);
+
+Then(
+  "Employee {string} sees all added details in the created document meta data",
+  { timeout: ONE_MINUTE_IN_MS },
+  async function (this: CustomWorld, user) {
+    const tabPanelLocator = this.page
+      .locator('mat-tab-body[role="tabpanel"]')
+      .nth(0);
+    await tabPanelLocator.waitFor({ state: "visible" });
+    await expect(tabPanelLocator).toBeVisible();
+
+    const documentTitleText = tabPanelLocator.locator(
+      `text=${addedDocumentTitle}`,
+    );
+    await documentTitleText.waitFor({ state: "attached" });
+    await expect(documentTitleText).toBeVisible();
+
+    const documnentDescriptionText = tabPanelLocator.locator(
+      `text=${addedDocumentDesscription}`,
+    );
+    await documnentDescriptionText.waitFor({ state: "attached" });
+    await expect(documnentDescriptionText).toBeVisible();
+
+    // const documnentAuthorText = tabPanelLocator.locator(
+    //   `text=${addedDocumentAuthor}`,
+    // );
+    // await documnentAuthorText.waitFor({ state: "attached" });
+    // await expect(documnentAuthorText).toBeVisible();
   },
 );

@@ -11,4 +11,5 @@ Feature: External Systems
     And Employee "Bob" enters and submits the form to start the SmartDocuments wizard
     And Employee "Bob" completes the SmartDocuments wizard
     And Employee "Bob" closes the wizard result page
-    Then Employee "Bob" sees the newly created document added to the zaak
+    And Employee "Bob" views the created document
+    Then Employee "Bob" sees all added details in the created document meta data
