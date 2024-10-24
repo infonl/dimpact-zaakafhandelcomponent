@@ -101,12 +101,6 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  gbamock:
-    # Linux workaround for host.docker.internal support
-    # see: https://stackoverflow.com/a/67158212
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
   brp-personen-mock:
     # Linux workaround for host.docker.internal support
     # see: https://stackoverflow.com/a/67158212
