@@ -62,8 +62,6 @@ When(
     await inputAuthor.fill(addedDocumentAuthor);
     await expect(inputAuthor).toHaveValue(addedDocumentAuthor);
 
-    await this.page.waitForTimeout(15000);
-
     await this.expect(submitButton).toBeEnabled();
     await this.page.click("#opslaan_button");
   },
