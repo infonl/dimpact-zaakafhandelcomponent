@@ -58,7 +58,7 @@ class KlantRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
 
-    Given("Klanten en bedrijven data is present in the BRP Mock and the Klanten API database") {
+    Given("Klanten en bedrijven data is present in the BRP Personen Mock and the Klanten API database") {
         When("the list roltypen endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/klanten/roltype"
