@@ -16,5 +16,5 @@ jobs:
       - name: Update publiccode.yaml
         uses: OpenCatalogi/publiccode-action@latest
         with:
-          gitname: test123
-          gitmail: dummy@example.com
+          git_name: test123
+          git_mail: dummy@example.com
