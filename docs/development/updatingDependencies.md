@@ -11,6 +11,13 @@ This includes updating of backend (Java), frontend (TypeScript) as well as GitHu
 
 This is done by Renovate and its configuration file renovate.json. The version restrictions are following PodiumD 2.0 development. 
 
+### Renovate configuration
+
+The configuration inherits from base settings provided by Renovate, which lay the groundwork for handling updates in a standardized manner. It includes logic to handle major version updates separately and automerges certain updates to reduce manual interventions.
+
+* Pinning Docker Digests: This strategy involves locking Docker images to specific digests. Pinned digests help eliminate the risk of unexpected updates that could introduce breaking changes or vulnerabilities, as you always use a known working image version.
+* Scheduled Digest Updates: Even with pinned digests, it's important to periodically update them to include the latest security patches and features. Therefore, Renovate is configured to check for and apply digest updates weekly during the first week of each month's weekends. These digest updates are configured to be automerged. 
+
 ## Updating (OpenAPI) API specifications used by ZAC
 
 ZAC integrates with various components and external services using APIs.
