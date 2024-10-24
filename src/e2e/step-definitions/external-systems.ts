@@ -18,7 +18,7 @@ const documentInput = {
 };
 
 When(
-  "Employee {string} clicks on Create Document for zaak",
+  "Employee {string} clicks on Create Document button for the new zaak",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
     await this.page.getByText("note_addDocument maken").click();
