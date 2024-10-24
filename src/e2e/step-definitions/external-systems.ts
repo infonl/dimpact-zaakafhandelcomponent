@@ -10,9 +10,12 @@ import { CustomWorld } from "../support/worlds/world";
 const ONE_MINUTE_IN_MS = 60_000;
 
 let smartDocumentsWizardPage: Page;
-let addedDocumentTitle: string;
-let addedDocumentDesscription: string;
-let addedDocumentAuthor: string;
+
+const documentInput = {
+  title: "E2E Test - Document Title Text",
+  description: "E2E Test - Document Description Text",
+  author: "E2E Test - Document Author Name",
+};
 
 When(
   "Employee {string} clicks on Create Document for zaak",
@@ -45,22 +48,19 @@ When(
     await this.page.getByRole("option", { name: "OpenZaakTest" }).click();
 
     const inputTitle = this.page.locator("#title_tekstfield");
-    addedDocumentTitle = `E2E Test - Document Title Text`;
     await inputTitle.click();
-    await inputTitle.fill(addedDocumentTitle);
-    await expect(inputTitle).toHaveValue(addedDocumentTitle);
+    await inputTitle.fill(documentInput.title);
+    await expect(inputTitle).toHaveValue(documentInput.title);
 
     const inputDescription = this.page.locator("#description_tekstfield");
-    addedDocumentDesscription = `E2E Test - Document Description Text`;
     await inputDescription.click();
-    await inputDescription.fill(addedDocumentDesscription);
-    await expect(inputDescription).toHaveValue(addedDocumentDesscription);
+    await inputDescription.fill(documentInput.description);
+    await expect(inputDescription).toHaveValue(documentInput.description);
 
     const inputAuthor = this.page.locator("#auteur_tekstfield");
-    addedDocumentAuthor = `E2E Test - Document Author Name`;
     await inputAuthor.click();
-    await inputAuthor.fill(addedDocumentAuthor);
-    await expect(inputAuthor).toHaveValue(addedDocumentAuthor);
+    await inputAuthor.fill(documentInput.author);
+    await expect(inputAuthor).toHaveValue(documentInput.author);
 
     await this.expect(submitButton).toBeEnabled();
     await this.page.click("#opslaan_button");
@@ -114,7 +114,7 @@ When(
 
     await expect(caseNumberLocator).toHaveCount(2);
 
-    const documentTitleText = this.page.locator(`text=${addedDocumentTitle}`);
+    const documentTitleText = this.page.locator(`text=${documentInput.title}`);
     await expect(documentTitleText.first()).toBeVisible();
 
     const anchorLocator = this.page.locator('a[title="Document bekijken"]');
@@ -133,19 +133,19 @@ Then(
     await expect(tabPanelLocator).toBeVisible();
 
     const documentTitleText = tabPanelLocator.locator(
-      `text=${addedDocumentTitle}`,
+      `text=${documentInput.title}`,
     );
     await documentTitleText.waitFor({ state: "attached" });
     await expect(documentTitleText).toBeVisible();
 
     const documnentDescriptionText = tabPanelLocator.locator(
-      `text=${addedDocumentDesscription}`,
+      `text=${documentInput.description}`,
     );
     await documnentDescriptionText.waitFor({ state: "attached" });
     await expect(documnentDescriptionText).toBeVisible();
 
     const documnentAuthor = tabPanelLocator.locator(
-      `text=${addedDocumentAuthor}`,
+      `text=${documentInput.author}`,
     );
     await documnentAuthor.waitFor({ state: "attached" });
     await expect(documnentAuthor).toBeVisible();
