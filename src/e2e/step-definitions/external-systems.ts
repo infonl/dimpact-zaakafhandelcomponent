@@ -57,7 +57,7 @@ When(
     await inputDescription.fill(documentInput.description);
     await expect(inputDescription).toHaveValue(documentInput.description);
 
-    const inputAuthor = this.page.locator("#auteur_tekstfield");
+    const inputAuthor = this.page.locator("#author_tekstfield");
     await inputAuthor.click();
     await inputAuthor.fill(documentInput.author);
     await expect(inputAuthor).toHaveValue(documentInput.author);
