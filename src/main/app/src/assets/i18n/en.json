@@ -694,6 +694,7 @@
   "msg.inboxProductaanvraag.verwijderen.uitgevoerd": "Product request has been deleted",
   "msg.document.verwijderen.uitgevoerd": "Document \"{{document}}\" has been deleted",
   "msg.document.verzenden.post.behandelen": "Request to send documents by mail",
+  "msg.document.verzenden.post.uitleg": "Upon selecting \"Send Document,\" it is expected that you have mailed a (final) document to the initiator of the case.<br>Here, you can record this action digitally.",
   "msg.documenten.verzenden.uitgevoerd": "The documents have been marked as sent",
   "msg.document.verzenden.uitgevoerd": "The document has been marked as sent",
   "msg.error.required": "The {{label}} field is empty. Enter the required data!",
