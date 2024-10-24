@@ -130,9 +130,9 @@ export class InformatieObjectCreateAttendedComponent
       .validators(Validators.required)
       .build();
 
-    const auteur = new InputFormFieldBuilder(this.ingelogdeMedewerker.naam)
-      .id("auteur")
-      .label("auteur")
+    const author = new InputFormFieldBuilder(this.ingelogdeMedewerker.naam)
+      .id("author")
+      .label("author")
       .validators(Validators.required, Validators.pattern("\\S.*"))
       .maxlength(50)
       .build();
@@ -143,7 +143,7 @@ export class InformatieObjectCreateAttendedComponent
       [description],
       [informationObjectType, confidentiality],
       [beginRegistratie],
-      [auteur],
+      [author],
     ];
 
     this.subscriptions$.push(
