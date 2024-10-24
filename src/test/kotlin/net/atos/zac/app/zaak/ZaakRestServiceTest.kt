@@ -83,7 +83,7 @@ import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.productaanvraag.createProductaanvraagDimpact
-import net.atos.zac.shared.helper.OpschortenZaakHelper
+import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.zaak.ZaakService
@@ -112,7 +112,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val objectsClientService = mockk<ObjectsClientService>()
     val ontkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
-    val opschortenZaakHelper = mockk<OpschortenZaakHelper>()
+    val opschortenZaakHelper = mockk<SuspensionZaakHelper>()
     val policyService = mockk<PolicyService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
     val restBAGConverter = mockk<RESTBAGConverter>()

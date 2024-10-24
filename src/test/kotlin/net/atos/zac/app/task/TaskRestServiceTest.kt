@@ -53,7 +53,7 @@ import net.atos.zac.policy.output.createDocumentRechtenAllDeny
 import net.atos.zac.policy.output.createTaakRechtenAllDeny
 import net.atos.zac.policy.output.createWerklijstRechten
 import net.atos.zac.policy.output.createWerklijstRechtenAllDeny
-import net.atos.zac.shared.helper.OpschortenZaakHelper
+import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.task.TaskService
 import net.atos.zac.util.time.DateTimeConverterUtil
@@ -79,7 +79,7 @@ class TaskRestServiceTest : BehaviorSpec({
     val restTaskConverter = mockk<RestTaskConverter>()
     val flowableTaskService = mockk<FlowableTaskService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val opschortenZaakHelper = mockk<OpschortenZaakHelper>()
+    val opschortenZaakHelper = mockk<SuspensionZaakHelper>()
     val restInformatieobjectConverter = mockk<RestInformatieobjectConverter>()
     val signaleringService = mockk<SignaleringService>()
     val taakHistorieConverter = mockk<RestTaskHistoryConverter>()

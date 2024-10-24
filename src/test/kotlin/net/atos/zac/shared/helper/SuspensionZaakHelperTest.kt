@@ -21,12 +21,12 @@ import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import java.time.LocalDate
 import java.util.Optional
 
-class OpschortenZaakHelperTest : BehaviorSpec({
+class SuspensionZaakHelperTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZrcClientService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
 
-    val opschortenZaakHelper = OpschortenZaakHelper(
+    val suspensionZaakHelper = SuspensionZaakHelper(
         policyService,
         zrcClientService,
         zaakVariabelenService
@@ -75,7 +75,7 @@ class OpschortenZaakHelperTest : BehaviorSpec({
         When("the zaak is postponed for x days from user with access") {
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(opschorten = true)
 
-            val returnedZaak = opschortenZaakHelper.opschortenZaak(
+            val returnedZaak = suspensionZaakHelper.suspendZaak(
                 zaak,
                 numberOfDaysPostponed,
                 postPonementReason
@@ -107,7 +107,7 @@ class OpschortenZaakHelperTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
 
             val exception = shouldThrow<PolicyException> {
-                opschortenZaakHelper.opschortenZaak(
+                suspensionZaakHelper.suspendZaak(
                     zaak,
                     numberOfDaysPostponed,
                     postPonementReason
@@ -117,6 +117,7 @@ class OpschortenZaakHelperTest : BehaviorSpec({
             Then("it throws exception with no message") { exception.message shouldBe null }
         }
     }
+
     Given("a zaak that is postponed and does not have an planned end date") {
         val reasonResumed = "dummyResumeReason"
         val zaak = createZaak(
@@ -149,7 +150,7 @@ class OpschortenZaakHelperTest : BehaviorSpec({
         When("the zaak is resumed from user with access") {
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(hervatten = true)
 
-            opschortenZaakHelper.hervattenZaak(zaak, reasonResumed)
+            suspensionZaakHelper.resumeZaak(zaak, reasonResumed)
 
             Then("the zaak should be resumed") {
                 verify(exactly = 1) {
@@ -172,7 +173,49 @@ class OpschortenZaakHelperTest : BehaviorSpec({
         When("the zaak is resumed from user with no access") {
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
 
-            val exception = shouldThrow<PolicyException> { opschortenZaakHelper.hervattenZaak(zaak, reasonResumed) }
+            val exception = shouldThrow<PolicyException> { suspensionZaakHelper.resumeZaak(zaak, reasonResumed) }
+
+            Then("it throws exception with no message") { exception.message shouldBe null }
+        }
+    }
+
+    Given("a zaak with a final date") {
+        val extensionDescription = "extension description"
+        val zaak = createZaak(
+            einddatumGepland = LocalDate.now().plusDays(1),
+            uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
+        )
+        val extendedZaak = createZaak(
+            opschorting = createOpschorting(reden = null),
+            einddatumGepland = LocalDate.now().plusDays(3),
+            uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(4)
+        )
+        val patchedZaak = slot<Zaak>()
+
+        every {
+            zrcClientService.patchZaak(zaak.uuid, capture(patchedZaak), extensionDescription)
+        } returns extendedZaak
+
+        When("extension of the final date is requested from user with access") {
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+                wijzigen = true,
+                verlengenDoorlooptijd = true
+            )
+
+            val result = suspensionZaakHelper.extendZaakFatalDate(zaak, 2, extensionDescription)
+
+            Then("the correct dates are set") {
+                result.uiterlijkeEinddatumAfdoening shouldBe extendedZaak.uiterlijkeEinddatumAfdoening
+                result.einddatumGepland shouldBe extendedZaak.einddatumGepland
+            }
+        }
+
+        When("extension of the final date is requested from user with no access") {
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
+
+            val exception = shouldThrow<PolicyException> {
+                suspensionZaakHelper.extendZaakFatalDate(zaak, 1, extensionDescription)
+            }
 
             Then("it throws exception with no message") { exception.message shouldBe null }
         }

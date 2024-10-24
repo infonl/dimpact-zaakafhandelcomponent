@@ -58,7 +58,7 @@ import net.atos.zac.flowable.util.TaskUtil
 import net.atos.zac.formulieren.FormulierRuntimeService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
-import net.atos.zac.shared.helper.OpschortenZaakHelper
+import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
@@ -105,7 +105,7 @@ class TaskRestService @Inject constructor(
     private val taakHistorieConverter: RestTaskHistoryConverter,
     private val policyService: PolicyService,
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
-    private val opschortenZaakHelper: OpschortenZaakHelper,
+    private val opschortenZaakHelper: SuspensionZaakHelper,
     private val formulierRuntimeService: FormulierRuntimeService,
     private val zaakVariabelenService: ZaakVariabelenService
 ) {
@@ -260,7 +260,7 @@ class TaskRestService @Inject constructor(
         val updatedTask = updateDescriptionAndDueDate(restTask)
         createDocuments(restTask, zaak)
         if (isZaakHervatten(restTask.taakdata)) {
-            opschortenZaakHelper.hervattenZaak(zaak, REDEN_ZAAK_HERVATTEN)
+            opschortenZaakHelper.resumeZaak(zaak, REDEN_ZAAK_HERVATTEN)
         }
         restTask.taakdata?.let { taakdata ->
             taakdata[TAAK_DATA_DOCUMENTEN_VERZENDEN_POST]?.let {
