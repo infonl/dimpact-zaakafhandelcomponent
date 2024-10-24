@@ -1,5 +1,47 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base"],
-  "enabledManagers": ["docker-compose","maven-wrapper","gradle-wrapper"]
+  "extends": [
+    "config:base",
+    ":separateMultipleMajorReleases",
+    ":automergeDigest",
+    "docker:pinDigests",
+    "docker:enableMajor"
+  ],
+  "enabledManagers": [
+    "docker-compose",
+    "maven-wrapper",
+    "gradle-wrapper"
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["digest"],
+      "schedule": ["every weekend on the 1st through 7th day of the month"]
+    },
+    {
+      "matchPackageNames": ["quay.io/keycloak/keycloak"],
+      "matchDatasources": ["docker"],
+      "allowedVersions": "<= 24.0.5"
+    },
+    {
+      "matchPackageNames": ["maykinmedia/objects-api"],
+      "matchDatasources": ["docker"],
+      "allowedVersions": "<= 2.4.4"
+    },
+    {
+      "matchPackageNames": ["maykinmedia/objecttypes-api"],
+      "matchDatasources": ["docker"],
+      "allowedVersions": "<= 2.2.2"
+    },
+    {
+      "matchPackageNames": ["maykinmedia/open-klant"],
+      "matchDatasources": ["docker"],
+      "allowedVersions": "<= 2.3.0"
+    },
+    {
+      "matchPackageNames": ["openzaak/open-zaak"],
+      "matchDatasources": ["docker"],
+      "allowedVersions": "<= 1.15.0"
+    }
+  ]
 }
