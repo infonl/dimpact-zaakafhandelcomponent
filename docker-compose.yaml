@@ -275,7 +275,7 @@ services:
     entrypoint: ["/zac-scripts/generate-zac-import-ldif-and-start-openldap.sh"]
     command: ["/opt/bitnami/scripts/openldap/run.sh"]
 
-  personen-mock:
+  brp-personen-mock:
     image: ghcr.io/brp-api/personen-mock:2.3.0-202409180940
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
@@ -452,7 +452,7 @@ services:
       - AUTH_SERVER=http://keycloak:8080
       - BAG_API_CLIENT_MP_REST_URL=https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/
       - BAG_API_KEY=${BAG_API_KEY:-dummyBagApiKey}
-      - BRP_API_CLIENT_MP_REST_URL=http://brpproxy:5010/haalcentraal/api/brp
+      - BRP_API_CLIENT_MP_REST_URL=http://brp-personen-mock:5010/haalcentraal/api/brp
       - BRP_API_KEY=dummyKey # not used when using the BRP proxy
       - CONTEXT_URL=http://localhost:8080
       - DB_HOST=zac-database
