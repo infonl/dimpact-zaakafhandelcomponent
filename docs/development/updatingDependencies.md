@@ -7,6 +7,10 @@ This document describes how to update dependencies in ZAC and (OpenAPI) API spec
 This is normally done by GitHub Dependabot using the Dependabot workflows in the project.
 This includes updating of backend (Java), frontend (TypeScript) as well as GitHub Action and Docker dependencies.
 
+## Updating docker-compose images
+
+This is done by Renovate and its configuration file renovate.json. The version restrictions are following PodiumD 2.0 development. 
+
 ## Updating (OpenAPI) API specifications used by ZAC
 
 ZAC integrates with various components and external services using APIs.

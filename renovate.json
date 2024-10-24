@@ -19,14 +19,29 @@
       "schedule": ["every weekend on the 1st through 7th day of the month"]
     },
     {
-      "matchPackageNames": ["postgres"],
+      "matchPackageNames": ["quay.io/keycloak/keycloak"],
       "matchDatasources": ["docker"],
-      "allowedVersions": "< 17.0.0"
+      "allowedVersions": "<= 24.0.5"
     },
     {
-      "matchPackageNames": ["postgis/postgis"],
+      "matchPackageNames": ["maykinmedia/objects-api"],
       "matchDatasources": ["docker"],
-      "allowedVersions": "< 17.0.0"
+      "allowedVersions": "<= 2.4.4"
+    },
+    {
+      "matchPackageNames": ["maykinmedia/objecttypes-api"],
+      "matchDatasources": ["docker"],
+      "allowedVersions": "<= 2.2.2"
+    },
+    {
+      "matchPackageNames": ["maykinmedia/open-klant"],
+      "matchDatasources": ["docker"],
+      "allowedVersions": "<= 2.3.0"
+    },
+    {
+      "matchPackageNames": ["openzaak/open-zaak"],
+      "matchDatasources": ["docker"],
+      "allowedVersions": "<= 1.15.0"
     }
   ]
 }
