@@ -15,17 +15,18 @@ import {
 } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
+import { TranslateService } from "@ngx-translate/core";
 import { UtilService } from "../../core/service/util.service";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { DocumentenLijstFormField } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-form-field";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
+import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
 import { FormComponent } from "../../shared/material-form-builder/form/form/form.component";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { Zaak } from "../../zaken/model/zaak";
-import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { DocumentVerzendGegevens } from "../model/document-verzend-gegevens";
 
@@ -46,7 +47,7 @@ export class InformatieObjectVerzendenComponent implements OnInit, OnChanges {
   private documentSelectFormField: DocumentenLijstFormField;
 
   constructor(
-    private zakenService: ZakenService,
+    private translate: TranslateService,
     private informatieObjectenService: InformatieObjectenService,
     public utilService: UtilService,
   ) {}
@@ -69,6 +70,10 @@ export class InformatieObjectVerzendenComponent implements OnInit, OnChanges {
       )
       .build();
 
+    const paragraph = new ParagraphFormFieldBuilder()
+      .text(this.translate.instant("msg.document.verzenden.post.uitleg"))
+      .build();
+
     const verzendDatum = new DateFormFieldBuilder(new Date())
       .id("verzenddatum")
       .validators(Validators.required)
@@ -83,6 +88,7 @@ export class InformatieObjectVerzendenComponent implements OnInit, OnChanges {
       .build();
 
     this.fields = [
+      [paragraph],
       [this.documentSelectFormField],
       [verzendDatum],
       [toelichtingField],
