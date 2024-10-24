@@ -40,6 +40,7 @@ import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.generated.Resultaat;
 import net.atos.zac.admin.ZaakafhandelParameterService;
+import net.atos.zac.admin.model.FormulierDefinitie;
 import net.atos.zac.admin.model.HumanTaskParameters;
 import net.atos.zac.admin.model.MailtemplateKoppeling;
 import net.atos.zac.admin.model.ZaakafhandelParameters;
@@ -61,7 +62,7 @@ import net.atos.zac.mailtemplates.model.Mail;
 import net.atos.zac.mailtemplates.model.MailGegevens;
 import net.atos.zac.mailtemplates.model.MailTemplate;
 import net.atos.zac.policy.PolicyService;
-import net.atos.zac.shared.helper.OpschortenZaakHelper;
+import net.atos.zac.shared.helper.SuspensionZaakHelper;
 import net.atos.zac.util.UriUtil;
 import net.atos.zac.util.time.DateTimeConverterUtil;
 import net.atos.zac.zoeken.IndexingService;
@@ -75,6 +76,7 @@ import net.atos.zac.zoeken.IndexingService;
 @Produces(MediaType.APPLICATION_JSON)
 public class PlanItemsRESTService {
     private static final String REDEN_OPSCHORTING = "Aanvullende informatie opgevraagd";
+    private static final String REDEN_PAST_FATALE_DATUM = "Aanvullende informatie opgevraagd";
 
     private ZaakVariabelenService zaakVariabelenService;
     private CMMNService cmmnService;
@@ -88,7 +90,7 @@ public class PlanItemsRESTService {
     private ConfiguratieService configuratieService;
     private MailTemplateService mailTemplateService;
     private PolicyService policyService;
-    private OpschortenZaakHelper opschortenZaakHelper;
+    private SuspensionZaakHelper suspensionZaakHelper;
     private RESTMailGegevensConverter restMailGegevensConverter;
 
     /**
@@ -111,7 +113,7 @@ public class PlanItemsRESTService {
             ConfiguratieService configuratieService,
             MailTemplateService mailTemplateService,
             PolicyService policyService,
-            OpschortenZaakHelper opschortenZaakHelper,
+            SuspensionZaakHelper suspensionZaakHelper,
             RESTMailGegevensConverter restMailGegevensConverter
     ) {
         this.zaakVariabelenService = zaakVariabelenService;
@@ -126,7 +128,7 @@ public class PlanItemsRESTService {
         this.configuratieService = configuratieService;
         this.mailTemplateService = mailTemplateService;
         this.policyService = policyService;
-        this.opschortenZaakHelper = opschortenZaakHelper;
+        this.suspensionZaakHelper = suspensionZaakHelper;
         this.restMailGegevensConverter = restMailGegevensConverter;
     }
 
@@ -159,23 +161,22 @@ public class PlanItemsRESTService {
     @GET
     @Path("humanTaskPlanItem/{id}")
     public RESTPlanItem readHumanTaskPlanItem(@PathParam("id") final String planItemId) {
-        final PlanItemInstance humanTaskPlanItem = cmmnService.readOpenPlanItem(planItemId);
-        final UUID zaakUUID = zaakVariabelenService.readZaakUUID(humanTaskPlanItem);
-        final UUID zaaktypeUUID = zaakVariabelenService.readZaaktypeUUID(humanTaskPlanItem);
-        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                zaaktypeUUID);
-        return planItemConverter.convertPlanItem(humanTaskPlanItem, zaakUUID, zaakafhandelParameters);
+        return convertPlanItem(planItemId);
     }
 
     @GET
     @Path("processTaskPlanItem/{id}")
     public RESTPlanItem readProcessTaskPlanItem(@PathParam("id") final String planItemId) {
-        final PlanItemInstance processTaskPlanItem = cmmnService.readOpenPlanItem(planItemId);
-        final UUID zaakUUID = zaakVariabelenService.readZaakUUID(processTaskPlanItem);
-        final UUID zaaktypeUUID = zaakVariabelenService.readZaaktypeUUID(processTaskPlanItem);
+        return convertPlanItem(planItemId);
+    }
+
+    private RESTPlanItem convertPlanItem(String planItemId) {
+        final PlanItemInstance planItemInstance = cmmnService.readOpenPlanItem(planItemId);
+        final UUID zaakUUID = zaakVariabelenService.readZaakUUID(planItemInstance);
+        final UUID zaaktypeUUID = zaakVariabelenService.readZaaktypeUUID(planItemInstance);
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
                 zaaktypeUUID);
-        return planItemConverter.convertPlanItem(processTaskPlanItem, zaakUUID, zaakafhandelParameters);
+        return planItemConverter.convertPlanItem(planItemInstance, zaakUUID, zaakafhandelParameters);
     }
 
     @POST
@@ -191,9 +192,14 @@ public class PlanItemsRESTService {
         );
 
         final LocalDate fatalDate = calculateFatalDate(humanTaskData, zaakafhandelParameters, planItem, zaak);
-        if (fatalDate != null && isZaakOpschorten(taakdata)) {
-            final long numberOfDays = ChronoUnit.DAYS.between(LocalDate.now(), fatalDate);
-            opschortenZaakHelper.opschortenZaak(zaak, numberOfDays, REDEN_OPSCHORTING);
+        if (fatalDate != null) {
+            if (isZaakOpschorten(taakdata)) {
+                final long numberOfDays = ChronoUnit.DAYS.between(LocalDate.now(), fatalDate);
+                suspensionZaakHelper.suspendZaak(zaak, numberOfDays, REDEN_OPSCHORTING);
+            } else if (fatalDate.isAfter(zaak.getUiterlijkeEinddatumAfdoening())) {
+                final long numberOfDays = ChronoUnit.DAYS.between(zaak.getUiterlijkeEinddatumAfdoening(), fatalDate);
+                suspensionZaakHelper.extendZaakFatalDate(zaak, numberOfDays, REDEN_PAST_FATALE_DATUM);
+            }
         }
 
         if (humanTaskData.taakStuurGegevens.sendMail) {
@@ -305,7 +311,9 @@ public class PlanItemsRESTService {
         final LocalDate zaakFatalDate = zaak.getUiterlijkeEinddatumAfdoening();
 
         if (humanTaskData.fataledatum != null) {
-            validateFatalDate(humanTaskData.fataledatum, zaakFatalDate);
+            if (!isAanvullendeInformatieTask(planItem)) {
+                validateFatalDate(humanTaskData.fataledatum, zaakFatalDate);
+            }
             return humanTaskData.fataledatum;
         } else {
             if (humanTaskParameters.isPresent() && humanTaskParameters.get().getDoorlooptijd() != null) {
@@ -318,6 +326,10 @@ public class PlanItemsRESTService {
         }
 
         return null;
+    }
+
+    private static boolean isAanvullendeInformatieTask(PlanItemInstance planItem) {
+        return FormulierDefinitie.AANVULLENDE_INFORMATIE.toString().equals(planItem.getPlanItemDefinitionId());
     }
 
     private static void validateFatalDate(LocalDate taskFatalDate, LocalDate zaakFatalDate) {

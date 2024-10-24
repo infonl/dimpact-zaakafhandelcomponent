@@ -37,7 +37,7 @@ import net.atos.zac.mailtemplates.model.createMailGegevens
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
-import net.atos.zac.shared.helper.OpschortenZaakHelper
+import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.zoeken.IndexingService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
@@ -59,7 +59,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
     val configuratieService = mockk<ConfiguratieService>()
     val mailTemplateService = mockk<MailTemplateService>()
     val policyService = mockk<PolicyService>()
-    val opschortenZaakHelper = mockk<OpschortenZaakHelper>()
+    val opschortenZaakHelper = mockk<SuspensionZaakHelper>()
     val restMailGegevensConverter = mockk<RESTMailGegevensConverter>()
 
     val planItemsRESTService = PlanItemsRESTService(
@@ -177,7 +177,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
             )
         } just runs
         every {
-            opschortenZaakHelper.opschortenZaak(zaak, 1, "Aanvullende informatie opgevraagd")
+            opschortenZaakHelper.suspendZaak(zaak, 1, "Aanvullende informatie opgevraagd")
         } returns opgeschorteZaak
 
         When("A human task plan item is started from user with access") {
@@ -187,7 +187,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
                     indexingService.addOrUpdateZaak(any(), any())
-                    opschortenZaakHelper.opschortenZaak(any(), any(), any())
+                    opschortenZaakHelper.suspendZaak(any(), any(), any())
                 }
             }
         }

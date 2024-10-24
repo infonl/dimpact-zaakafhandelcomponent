@@ -21,12 +21,12 @@ import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import java.time.LocalDate
 import java.util.Optional
 
-class OpschortenZaakHelperTest : BehaviorSpec({
+class SuspensionZaakHelperTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZrcClientService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
 
-    val opschortenZaakHelper = OpschortenZaakHelper(
+    val suspensionZaakHelper = SuspensionZaakHelper(
         policyService,
         zrcClientService,
         zaakVariabelenService
@@ -75,7 +75,7 @@ class OpschortenZaakHelperTest : BehaviorSpec({
         When("the zaak is postponed for x days from user with access") {
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(opschorten = true)
 
-            val returnedZaak = opschortenZaakHelper.opschortenZaak(
+            val returnedZaak = suspensionZaakHelper.suspendZaak(
                 zaak,
                 numberOfDaysPostponed,
                 postPonementReason
@@ -107,7 +107,7 @@ class OpschortenZaakHelperTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
 
             val exception = shouldThrow<PolicyException> {
-                opschortenZaakHelper.opschortenZaak(
+                suspensionZaakHelper.suspendZaak(
                     zaak,
                     numberOfDaysPostponed,
                     postPonementReason
@@ -149,7 +149,7 @@ class OpschortenZaakHelperTest : BehaviorSpec({
         When("the zaak is resumed from user with access") {
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(hervatten = true)
 
-            opschortenZaakHelper.hervattenZaak(zaak, reasonResumed)
+            suspensionZaakHelper.resumeZaak(zaak, reasonResumed)
 
             Then("the zaak should be resumed") {
                 verify(exactly = 1) {
@@ -172,7 +172,7 @@ class OpschortenZaakHelperTest : BehaviorSpec({
         When("the zaak is resumed from user with no access") {
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
 
-            val exception = shouldThrow<PolicyException> { opschortenZaakHelper.hervattenZaak(zaak, reasonResumed) }
+            val exception = shouldThrow<PolicyException> { suspensionZaakHelper.resumeZaak(zaak, reasonResumed) }
 
             Then("it throws exception with no message") { exception.message shouldBe null }
         }

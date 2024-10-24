@@ -36,7 +36,7 @@ import net.atos.zac.flowable.task.FlowableTaskService;
 import net.atos.zac.flowable.task.TaakVariabelenService;
 import net.atos.zac.formulieren.model.FormulierVeldtype;
 import net.atos.zac.identity.IdentityService;
-import net.atos.zac.shared.helper.OpschortenZaakHelper;
+import net.atos.zac.shared.helper.SuspensionZaakHelper;
 import net.atos.zac.util.time.DateTimeConverterUtil;
 
 public class FormulierRuntimeService {
@@ -71,7 +71,7 @@ public class FormulierRuntimeService {
     private ReferenceTableService referenceTableService;
 
     @Inject
-    private OpschortenZaakHelper opschortenZaakHelper;
+    private SuspensionZaakHelper suspensionZaakHelper;
 
     @Inject
     private DrcClientService drcClientService;
@@ -118,7 +118,7 @@ public class FormulierRuntimeService {
             task = flowableTaskService.updateTask(task);
         }
         if (formulierData.zaakOpschorten && !zaak.isOpgeschort()) {
-            opschortenZaakHelper.opschortenZaak(
+            suspensionZaakHelper.suspendZaak(
                     zaak,
                     DAYS.between(LocalDate.now(), convertToLocalDate(task.getDueDate())),
                     restTask.getFormulierDefinitie() != null ?
@@ -126,7 +126,7 @@ public class FormulierRuntimeService {
                             restTask.getFormioFormulier().getString(FORMIO_TITLE));
         }
         if (formulierData.zaakHervatten && zaak.isOpgeschort()) {
-            opschortenZaakHelper.hervattenZaak(zaak, REDEN_ZAAK_HERVATTEN);
+            suspensionZaakHelper.resumeZaak(zaak, REDEN_ZAAK_HERVATTEN);
         }
         markDocumentAsSent(formulierData);
         markDocumentAsSigned(formulierData);

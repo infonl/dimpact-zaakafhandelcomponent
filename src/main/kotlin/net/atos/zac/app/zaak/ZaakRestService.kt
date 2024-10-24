@@ -114,7 +114,7 @@ import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.ProductaanvraagService
-import net.atos.zac.shared.helper.OpschortenZaakHelper
+import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
@@ -175,7 +175,7 @@ class ZaakRestService @Inject constructor(
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val restGeometryConverter: RestGeometryConverter,
     private val healthCheckService: HealthCheckService,
-    private val opschortenZaakHelper: OpschortenZaakHelper,
+    private val opschortenZaakHelper: SuspensionZaakHelper,
     private val zaakService: ZaakService,
     private val restZaakHistorieRegelConverter: RESTZaakHistorieRegelConverter
 ) {
@@ -365,7 +365,7 @@ class ZaakRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUUID)
         return if (opschortGegevens.indicatieOpschorting) {
             restZaakConverter.toRestZaak(
-                opschortenZaakHelper.opschortenZaak(
+                opschortenZaakHelper.suspendZaak(
                     zaak,
                     opschortGegevens.duurDagen,
                     opschortGegevens.redenOpschorting
@@ -373,7 +373,7 @@ class ZaakRestService @Inject constructor(
             )
         } else {
             restZaakConverter.toRestZaak(
-                opschortenZaakHelper.hervattenZaak(zaak, opschortGegevens.redenOpschorting)
+                opschortenZaakHelper.resumeZaak(zaak, opschortGegevens.redenOpschorting)
             )
         }
     }
