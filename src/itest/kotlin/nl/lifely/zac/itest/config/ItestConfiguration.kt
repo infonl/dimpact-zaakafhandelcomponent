@@ -101,11 +101,11 @@ object ItestConfiguration {
     const val TEST_PERSON_HENDRIKA_JANSE_BSN = "999993896"
     const val TEST_PERSON_HENDRIKA_JANSE_EMAIL = "hendrika.janse@example.com"
     const val TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE = "1965-01-01"
-    const val TEST_PERSON_HENDRIKA_JANSE_GENDER = "V"
+    const val TEST_PERSON_HENDRIKA_JANSE_GENDER = "vrouw"
     const val TEST_PERSON_HENDRIKA_JANSE_FULLNAME = "Héndrika Janse"
     const val TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER = "0612345678"
     const val TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE =
-        "Street ¦ 38 & House ¦ 10, Baghdad, Park Al-Sadoum, Hay Al-Nidhal 103"
+        "Street # 38 & House # 10, Baghdad, Park Al-Sadoum, Hay Al-Nidhal 103"
     const val TEST_PERSON_2_BSN = "999992958"
     const val TEST_PERSON_3_BSN = "999991838"
     const val TEST_PDF_FILE_NAME = "dummyTestDocument.pdf"
