@@ -70,7 +70,7 @@ services:
       - ./scripts/docker-compose/volume-data/zac-database-data:/var/lib/postgresql/data
 
   openzaak-database:
-    image: docker.io/postgis/postgis:16-3.4@sha256:44126d872ac91993766c341e369c539e8196614321765d36a6f1bab0419a5fa5
+    image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
     ports:
       - "54322:5432"
     platform: linux/amd64
@@ -156,7 +156,7 @@ services:
         condition: service_healthy
 
   objecten-api-database:
-    image: docker.io/postgis/postgis:16-3.4@sha256:44126d872ac91993766c341e369c539e8196614321765d36a6f1bab0419a5fa5
+    image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
     ports:
       - "54323:5432"
     platform: linux/amd64
