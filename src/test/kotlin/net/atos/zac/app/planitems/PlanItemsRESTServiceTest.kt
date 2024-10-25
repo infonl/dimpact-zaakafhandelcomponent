@@ -17,6 +17,7 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.generated.Resultaat
 import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.FormulierDefinitie
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.createHumanTaskParameters
 import net.atos.zac.admin.model.createZaakafhandelParameters
@@ -59,7 +60,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
     val configuratieService = mockk<ConfiguratieService>()
     val mailTemplateService = mockk<MailTemplateService>()
     val policyService = mockk<PolicyService>()
-    val opschortenZaakHelper = mockk<SuspensionZaakHelper>()
+    val suspensionZaakHelper = mockk<SuspensionZaakHelper>()
     val restMailGegevensConverter = mockk<RESTMailGegevensConverter>()
 
     val planItemsRESTService = PlanItemsRESTService(
@@ -75,7 +76,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         configuratieService,
         mailTemplateService,
         policyService,
-        opschortenZaakHelper,
+        suspensionZaakHelper,
         restMailGegevensConverter
     )
 
@@ -177,7 +178,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
             )
         } just runs
         every {
-            opschortenZaakHelper.suspendZaak(zaak, 1, "Aanvullende informatie opgevraagd")
+            suspensionZaakHelper.suspendZaak(zaak, 1, "Aanvullende informatie opgevraagd")
         } returns opgeschorteZaak
 
         When("A human task plan item is started from user with access") {
@@ -187,7 +188,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
                     indexingService.addOrUpdateZaak(any(), any())
-                    opschortenZaakHelper.suspendZaak(any(), any(), any())
+                    suspensionZaakHelper.suspendZaak(any(), any(), any())
                 }
             }
         }
@@ -270,6 +271,75 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
                     indexingService.addOrUpdateZaak(any(), any())
+                }
+            }
+        }
+    }
+
+    Given("Additional info human task with a fatal date after the fatal date of the related zaak") {
+        val numberOfDays = 3L
+        val additionalInfoPlanItemInstanceId = FormulierDefinitie.AANVULLENDE_INFORMATIE.toString()
+        val restHumanTaskData = createRESTHumanTaskData(
+            planItemInstanceId = additionalInfoPlanItemInstanceId,
+            taakdata = mapOf(
+                "dummyKey" to "dummyValue"
+            ),
+            fataledatum = LocalDate.now().plusDays(numberOfDays)
+        )
+        val zaak = createZaak(
+            zaakTypeURI = URI("http://example.com/$zaakTypeUUID"),
+            uiterlijkeEinddatumAfdoening = LocalDate.now()
+        )
+        val extendedZaak = createZaak(
+            zaakTypeURI = URI("http://example.com/$zaakTypeUUID"),
+            uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(numberOfDays)
+        )
+        val zaakafhandelParametersMock = mockk<ZaakafhandelParameters>()
+
+        every { cmmnService.readOpenPlanItem(additionalInfoPlanItemInstanceId) } returns planItemInstance
+        every { zaakVariabelenService.readZaakUUID(planItemInstance) } returns zaak.uuid
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(startenTaak = true)
+        every {
+            zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
+        } returns zaakafhandelParametersMock
+        every { planItemInstance.planItemDefinitionId } returns additionalInfoPlanItemInstanceId
+        every {
+            zaakafhandelParametersMock.findHumanTaskParameter(additionalInfoPlanItemInstanceId)
+        } returns Optional.of(
+            createHumanTaskParameters().apply {
+                doorlooptijd = 10
+            }
+        )
+        every {
+            suspensionZaakHelper.extendZaakFatalDate(zaak, numberOfDays, "Aanvullende informatie opgevraagd")
+        } returns extendedZaak
+        every {
+            cmmnService.startHumanTaskPlanItem(
+                additionalInfoPlanItemInstanceId,
+                restHumanTaskData.groep.id,
+                null,
+                DateTimeConverterUtil.convertToDate(restHumanTaskData.fataledatum),
+                restHumanTaskData.toelichting,
+                any(),
+                zaak.uuid
+            )
+        } just runs
+        every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+
+        When("A human task plan item is started") {
+            planItemsRESTService.doHumanTaskplanItem(restHumanTaskData)
+
+            Then("The task is created with its own fatal date") {
+                verify(exactly = 1) {
+                    cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
+                    indexingService.addOrUpdateZaak(any(), any())
+                }
+            }
+
+            And("zaak extend fatal date was performed") {
+                verify(exactly = 1) {
+                    suspensionZaakHelper.extendZaakFatalDate(any(), any(), any())
                 }
             }
         }
