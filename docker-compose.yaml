@@ -378,7 +378,7 @@ services:
 
   # Observability traces data store
   tempo:
-    image: docker.io/grafana/tempo:latest@sha256:dbe7c23c65322c9d76c02f2e0f5f9371ba4813134d3c1ae13674b2ac16d4eb3e
+    image: docker.io/grafana/tempo:2.6.1@sha256:ef4384fce6e8ad22b95b243d8fc165628cda655376fd50e7850536ad89d71d50
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml
@@ -443,8 +443,8 @@ services:
     profiles: [ "itest" ]
 
   zac:
-    # By default, we use the latest ZAC Docker Image. Change this if you wish to use a specific version.
-    image: ${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:latest@sha256:b0fdb60350d716e2886b7ea24b4de69d6531660eb570672fe6ca76fadcbea8a1}
+    # By default, we use the most recent ZAC Docker Image. Change this if you wish to use a specific version.
+    image: ${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:1.9.176@sha256:b0fdb60350d716e2886b7ea24b4de69d6531660eb570672fe6ca76fadcbea8a1}
     environment:
       - AUTH_REALM=zaakafhandelcomponent
       - AUTH_RESOURCE=zaakafhandelcomponent
