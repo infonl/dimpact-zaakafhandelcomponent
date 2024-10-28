@@ -42,6 +42,11 @@
       "matchPackageNames": ["openzaak/open-zaak"],
       "matchDatasources": ["docker"],
       "allowedVersions": "<= 1.15.0"
+    },
+    {
+      "matchPackageNames": ["infonl/zaakafhandelcomponent"],
+      "matchDatasources": ["docker"],
+      "enabled": false
     }
   ]
 }
