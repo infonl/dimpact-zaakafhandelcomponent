@@ -21,7 +21,8 @@
     {
       "matchPackageNames": ["quay.io/keycloak/keycloak"],
       "matchDatasources": ["docker"],
-      "allowedVersions": "<= 24.0.5"
+      "allowedVersions": "<= 24.0.5",
+      "description": "We currently focus on Dimpact PodiumD release 2.0 which pins Keycloak to this version"
     },
     {
       "matchPackageNames": ["maykinmedia/objects-api"],
@@ -46,7 +47,8 @@
     {
       "matchPackageNames": ["infonl/zaakafhandelcomponent"],
       "matchDatasources": ["docker"],
-      "enabled": false
+      "enabled": false,
+      "description": "The version of the ZAC Docker image in our Docker Compose file is set to 'latest' and is only used for local development"
     }
   ]
 }
