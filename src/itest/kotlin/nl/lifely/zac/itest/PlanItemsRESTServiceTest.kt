@@ -95,7 +95,8 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                     "taakStuurGegevens":{"sendMail":false},
                     "medewerker":null,"groep":{"id":"$TEST_GROUP_A_ID","naam":"$TEST_GROUP_A_DESCRIPTION"},
                     "taakdata":{}
-                }""".trimIndent()
+                }
+                """.trimIndent()
             )
             Then("a task is started for this zaak") {
                 val responseBody = response.body!!.string()
@@ -125,7 +126,8 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                     "taakStuurGegevens":{"sendMail":false},
                     "medewerker":null,"groep":{"id":"$TEST_GROUP_A_ID","naam":"$TEST_GROUP_A_DESCRIPTION"},
                     "taakdata":{}
-                }""".trimIndent()
+                }
+                """.trimIndent()
             )
 
             Then("a new task is started for this zaak") {
