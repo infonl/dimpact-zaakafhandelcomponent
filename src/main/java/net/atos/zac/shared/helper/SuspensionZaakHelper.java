@@ -17,9 +17,9 @@ import net.atos.client.zgw.zrc.model.generated.Opschorting;
 import net.atos.zac.flowable.ZaakVariabelenService;
 import net.atos.zac.policy.PolicyService;
 
-public class OpschortenZaakHelper {
-    private static final String OPSCHORTING = "Opschorting";
-    private static final String HERVATTING = "Hervatting";
+public class SuspensionZaakHelper {
+    private static final String SUSPENSION = "Opschorting";
+    private static final String RESUMING = "Hervatting";
 
     private PolicyService policyService;
     private ZrcClientService zrcClientService;
@@ -28,11 +28,11 @@ public class OpschortenZaakHelper {
     /**
      * Default no-arg constructor, required by Weld.
      */
-    public OpschortenZaakHelper() {
+    public SuspensionZaakHelper() {
     }
 
     @Inject
-    OpschortenZaakHelper(
+    SuspensionZaakHelper(
             final PolicyService policyService,
             final ZrcClientService zrcClientService,
             final ZaakVariabelenService zaakVariabelenService
@@ -42,27 +42,29 @@ public class OpschortenZaakHelper {
         this.zaakVariabelenService = zaakVariabelenService;
     }
 
-    public Zaak opschortenZaak(Zaak zaak, final long aantalDagen, final String redenOpschorting) {
+    public Zaak suspendZaak(Zaak zaak, final long numberOfDays, final String suspensionReason) {
         assertPolicy(policyService.readZaakRechten(zaak).opschorten());
         assertPolicy(StringUtils.isEmpty(zaak.getOpschorting().getReden()));
         final UUID zaakUUID = zaak.getUuid();
-        final String toelichting = String.format("%s: %s", OPSCHORTING, redenOpschorting);
+        final String toelichting = String.format("%s: %s", SUSPENSION, suspensionReason);
         LocalDate einddatumGepland = null;
         if (zaak.getEinddatumGepland() != null) {
-            einddatumGepland = zaak.getEinddatumGepland().plusDays(aantalDagen);
+            einddatumGepland = zaak.getEinddatumGepland().plusDays(numberOfDays);
         }
-        final LocalDate uiterlijkeEinddatumAfdoening = zaak.getUiterlijkeEinddatumAfdoening().plusDays(aantalDagen);
-        final Zaak updatedZaak = zrcClientService.patchZaak(
-                zaakUUID,
-                toPatch(einddatumGepland, uiterlijkeEinddatumAfdoening, redenOpschorting, true),
-                toelichting
+        final LocalDate uiterlijkeEinddatumAfdoening = zaak.getUiterlijkeEinddatumAfdoening().plusDays(numberOfDays);
+        final var patchZaak = addSuspensionToZaakPatch(
+                createZaakPatch(einddatumGepland, uiterlijkeEinddatumAfdoening),
+                suspensionReason,
+                true
         );
+
+        final Zaak updatedZaak = zrcClientService.patchZaak(zaakUUID, patchZaak, toelichting);
         zaakVariabelenService.setDatumtijdOpgeschort(zaakUUID, ZonedDateTime.now());
-        zaakVariabelenService.setVerwachteDagenOpgeschort(zaakUUID, Math.toIntExact(aantalDagen));
+        zaakVariabelenService.setVerwachteDagenOpgeschort(zaakUUID, Math.toIntExact(numberOfDays));
         return updatedZaak;
     }
 
-    public Zaak hervattenZaak(final Zaak zaak, final String redenHervatting) {
+    public Zaak resumeZaak(final Zaak zaak, final String resumeReason) {
         assertPolicy(policyService.readZaakRechten(zaak).hervatten());
         assertPolicy(zaak.isOpgeschort());
         final UUID zaakUUID = zaak.getUuid();
@@ -76,40 +78,55 @@ public class OpschortenZaakHelper {
         }
         final LocalDate uiterlijkeEinddatumAfdoening = zaak.getUiterlijkeEinddatumAfdoening().plusDays(offset);
 
-        final String toelichting = String.format("%s: %s", HERVATTING, redenHervatting);
-        final Zaak updatedZaak = zrcClientService.patchZaak(
-                zaakUUID,
-                toPatch(einddatumGepland, uiterlijkeEinddatumAfdoening, redenHervatting, false),
-                toelichting
+        final String toelichting = String.format("%s: %s", RESUMING, resumeReason);
+        final var patchZaak = addSuspensionToZaakPatch(
+                createZaakPatch(einddatumGepland, uiterlijkeEinddatumAfdoening),
+                resumeReason,
+                false
         );
+
+        final Zaak updatedZaak = zrcClientService.patchZaak(zaakUUID, patchZaak, toelichting);
         zaakVariabelenService.removeDatumtijdOpgeschort(zaakUUID);
         zaakVariabelenService.removeVerwachteDagenOpgeschort(zaakUUID);
         return updatedZaak;
     }
 
-    /**
-     * @param einddatumGepland             streefdatum van de zaak; may be null in which case the
-     *                                     streefdatum is not patched
-     * @param uiterlijkeEinddatumAfdoening fataledatum van de zaak
-     * @param reden                        reden voor de opschorting
-     * @param isOpschorting                true indien opschorten, false indien hervatten
-     * @return zaak voor patch
-     */
-    private Zaak toPatch(
-            final LocalDate einddatumGepland,
-            final LocalDate uiterlijkeEinddatumAfdoening,
-            final String reden,
-            final boolean isOpschorting
+    public Zaak extendZaakFatalDate(final Zaak zaak, final long numberOfDays, final String description) {
+        var zaakRechten = policyService.readZaakRechten(zaak);
+        assertPolicy(zaakRechten.wijzigen() && zaakRechten.verlengenDoorlooptijd());
+
+        final UUID zaakUUID = zaak.getUuid();
+        LocalDate endDatePlanned = null;
+        if (zaak.getEinddatumGepland() != null) {
+            endDatePlanned = zaak.getEinddatumGepland().plusDays(numberOfDays);
+        }
+        final LocalDate finalCompletionDate = zaak.getUiterlijkeEinddatumAfdoening().plusDays(numberOfDays);
+
+        return zrcClientService.patchZaak(zaakUUID, createZaakPatch(endDatePlanned, finalCompletionDate), description);
+    }
+
+    private Zaak createZaakPatch(
+            final LocalDate endDatePlanned,
+            final LocalDate finalCompletionDate
     ) {
         final Zaak zaak = new Zaak();
-        if (einddatumGepland != null) {
-            zaak.setEinddatumGepland(einddatumGepland);
+        if (endDatePlanned != null) {
+            zaak.setEinddatumGepland(endDatePlanned);
         }
-        zaak.setUiterlijkeEinddatumAfdoening(uiterlijkeEinddatumAfdoening);
+        zaak.setUiterlijkeEinddatumAfdoening(finalCompletionDate);
+        return zaak;
+    }
+
+    private Zaak addSuspensionToZaakPatch(
+            final Zaak zaak,
+            final String reason,
+            final boolean isOpschorting
+    ) {
         final Opschorting opschorting = new Opschorting();
-        opschorting.setReden(reden);
+        opschorting.setReden(reason);
         opschorting.setIndicatie(isOpschorting);
         zaak.setOpschorting(opschorting);
         return zaak;
     }
+
 }
