@@ -33,6 +33,7 @@ import nl.lifely.zac.itest.util.WebSocketTestListener
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -53,6 +54,10 @@ class SignaleringRestServiceTest : BehaviorSpec({
         duration = 30.seconds
         interval = 500.milliseconds
     }
+
+    val zaakFatalDate = LocalDate.parse(ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING)
+        .plusDays(2)
+        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
     Given("A test user") {
         When("a dashboard notification is turned on") {
@@ -268,10 +273,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                                 shouldContainJsonKeyValue("startdatum", ZAAK_PRODUCTAANVRAAG_1_START_DATE)
                                 shouldContainJsonKeyValue("status", "Intake")
                                 shouldContainJsonKeyValue("toelichting", "")
-                                shouldContainJsonKeyValue(
-                                    "uiterlijkeEinddatumAfdoening",
-                                    ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
-                                )
+                                shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", zaakFatalDate)
                                 shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
                             }
                         }
@@ -311,10 +313,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                                 shouldContainJsonKeyValue("status", "Intake")
                                 shouldContainJsonKey("behandelaar")
                                 shouldContainJsonKey("einddatumGepland")
-                                shouldContainJsonKeyValue(
-                                    "uiterlijkeEinddatumAfdoening",
-                                    ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
-                                )
+                                shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", zaakFatalDate)
                                 shouldContainJsonKey("groep")
                                 shouldContainJsonKey("openstaandeTaken")
                                 shouldContainJsonKey("rechten")

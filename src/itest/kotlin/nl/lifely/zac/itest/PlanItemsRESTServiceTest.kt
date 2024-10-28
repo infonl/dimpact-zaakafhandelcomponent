@@ -12,7 +12,9 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
@@ -33,6 +35,8 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
 
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
+    val zacClient = ZacClient()
+
     lateinit var humanTaskItemAanvullendeInformatieId: String
 
     Given("A zaak has been created") {
@@ -40,10 +44,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/planitems/zaak/$zaakProductaanvraag1Uuid/humanTaskPlanItems"
             )
-            Then(
-                """the list of human task plan items for this zaak is returned and contains 
-                         the task 'aanvullende informatie'"""
-            ) {
+            Then("the list of human task plan items for this zaak contains the task 'aanvullende informatie'") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
@@ -62,6 +63,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                 humanTaskItemAanvullendeInformatieId = JSONArray(responseBody).getJSONObject(0).getString("id")
             }
         }
+
         When("the get human task plan item endpoint is called for the task 'aanvullende informatie'") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/planitems/humanTaskPlanItem/$humanTaskItemAanvullendeInformatieId"
@@ -80,27 +82,71 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                 }
             }
         }
+
         When("the start human task plan items endpoint is called") {
-            // note that the fatal date of a task cannot be later than the fatal date of the related zaak
             val fataleDatum = LocalDate.parse(ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING)
                 .minusDays(1)
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
                 requestBodyAsString = """{
-                        "planItemInstanceId":"$humanTaskItemAanvullendeInformatieId",
-                        "fataledatum":"$fataleDatum",
-                        "taakStuurGegevens":{"sendMail":false},
-                        "medewerker":null,"groep":{"id":"$TEST_GROUP_A_ID","naam":"$TEST_GROUP_A_DESCRIPTION"},
-                        "taakdata":{}
-                    }
-                """.trimIndent()
+                    "planItemInstanceId":"$humanTaskItemAanvullendeInformatieId",
+                    "fataledatum":"$fataleDatum",
+                    "taakStuurGegevens":{"sendMail":false},
+                    "medewerker":null,"groep":{"id":"$TEST_GROUP_A_ID","naam":"$TEST_GROUP_A_DESCRIPTION"},
+                    "taakdata":{}
+                }""".trimIndent()
             )
             Then("a task is started for this zaak") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
 
                 response.isSuccessful shouldBe true
+            }
+        }
+
+        When("creation of a new additional info task with fatal date past the zaak fatal date is requested") {
+            val newAdditionalTaskInfoResponse = itestHttpClient.performGetRequest(
+                "$ZAC_API_URI/planitems/zaak/$zaakProductaanvraag1Uuid/humanTaskPlanItems"
+            )
+            val newAdditionalTaskInfoResponseBody = newAdditionalTaskInfoResponse.body!!.string()
+            logger.info { "Response: $newAdditionalTaskInfoResponseBody" }
+            newAdditionalTaskInfoResponse.isSuccessful shouldBe true
+            val newAdditionalInfoTaskId = JSONArray(newAdditionalTaskInfoResponseBody).getJSONObject(0).getString("id")
+
+            val fataleDatum = LocalDate.parse(ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING)
+                .plusDays(2)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
+                requestBodyAsString = """{
+                    "planItemInstanceId":"$newAdditionalInfoTaskId",
+                    "fataledatum":"$fataleDatum",
+                    "taakStuurGegevens":{"sendMail":false},
+                    "medewerker":null,"groep":{"id":"$TEST_GROUP_A_ID","naam":"$TEST_GROUP_A_DESCRIPTION"},
+                    "taakdata":{}
+                }""".trimIndent()
+            )
+
+            Then("a new task is started for this zaak") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+
+                response.isSuccessful shouldBe true
+            }
+
+            And("zaak fatal date is moved forward to correspond to the task fatal date") {
+                val zacResponse = zacClient.retrieveZaak(zaakProductaanvraag1Uuid)
+                val responseBody = zacResponse.body!!.string()
+                logger.info { "Response: $responseBody" }
+
+                with(zacResponse) {
+                    code shouldBe HTTP_STATUS_OK
+
+                    with(responseBody) {
+                        shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", fataleDatum.toString())
+                    }
+                }
             }
         }
     }
