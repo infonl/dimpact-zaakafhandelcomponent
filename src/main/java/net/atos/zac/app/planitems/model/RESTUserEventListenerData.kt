@@ -2,26 +2,23 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.planitems.model
 
-package net.atos.zac.app.planitems.model;
+import net.atos.zac.app.mail.model.RESTMailGegevens
+import java.util.UUID
 
-import java.util.UUID;
+class RESTUserEventListenerData {
+    var zaakUuid: UUID? = null
 
-import net.atos.zac.app.mail.model.RESTMailGegevens;
+    var planItemInstanceId: String? = null
 
-public class RESTUserEventListenerData {
+    var actie: UserEventListenerActie? = null
 
-    public UUID zaakUuid;
+    var zaakOntvankelijk: Boolean? = null
 
-    public String planItemInstanceId;
+    var resultaatToelichting: String? = null
 
-    public UserEventListenerActie actie;
+    var resultaattypeUuid: UUID? = null
 
-    public Boolean zaakOntvankelijk;
-
-    public String resultaatToelichting;
-
-    public UUID resultaattypeUuid;
-
-    public RESTMailGegevens restMailGegevens;
+    var restMailGegevens: RESTMailGegevens? = null
 }

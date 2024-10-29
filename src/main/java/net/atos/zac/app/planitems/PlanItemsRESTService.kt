@@ -2,70 +2,54 @@
  * SPDX-FileCopyrightText: 2021 - 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.planitems
 
-package net.atos.zac.app.planitems;
-
-import static net.atos.zac.flowable.task.TaakVariabelenService.isZaakOpschorten;
-import static net.atos.zac.flowable.task.TaakVariabelenService.readMailAttachments;
-import static net.atos.zac.flowable.task.TaakVariabelenService.readMailBody;
-import static net.atos.zac.flowable.task.TaakVariabelenService.readMailFrom;
-import static net.atos.zac.flowable.task.TaakVariabelenService.readMailReplyTo;
-import static net.atos.zac.flowable.task.TaakVariabelenService.readMailTo;
-import static net.atos.zac.flowable.task.TaakVariabelenService.setMailBody;
-import static net.atos.zac.policy.PolicyService.assertPolicy;
-
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-import jakarta.validation.Valid;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-
-import org.flowable.cmmn.api.runtime.PlanItemInstance;
-
-import net.atos.client.zgw.brc.BrcClientService;
-import net.atos.client.zgw.shared.ZGWApiService;
-import net.atos.client.zgw.zrc.ZrcClientService;
-import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.zrc.model.generated.Resultaat;
-import net.atos.zac.admin.ZaakafhandelParameterService;
-import net.atos.zac.admin.model.FormulierDefinitie;
-import net.atos.zac.admin.model.HumanTaskParameters;
-import net.atos.zac.admin.model.MailtemplateKoppeling;
-import net.atos.zac.admin.model.ZaakafhandelParameters;
-import net.atos.zac.app.exception.InputValidationFailedException;
-import net.atos.zac.app.mail.converter.RESTMailGegevensConverter;
-import net.atos.zac.app.planitems.converter.RESTPlanItemConverter;
-import net.atos.zac.app.planitems.model.RESTHumanTaskData;
-import net.atos.zac.app.planitems.model.RESTPlanItem;
-import net.atos.zac.app.planitems.model.RESTProcessTaskData;
-import net.atos.zac.app.planitems.model.RESTUserEventListenerData;
-import net.atos.zac.configuratie.ConfiguratieService;
-import net.atos.zac.flowable.ZaakVariabelenService;
-import net.atos.zac.flowable.cmmn.CMMNService;
-import net.atos.zac.mail.MailService;
-import net.atos.zac.mail.model.BronnenKt;
-import net.atos.zac.mail.model.MailAdres;
-import net.atos.zac.mailtemplates.MailTemplateService;
-import net.atos.zac.mailtemplates.model.Mail;
-import net.atos.zac.mailtemplates.model.MailGegevens;
-import net.atos.zac.mailtemplates.model.MailTemplate;
-import net.atos.zac.policy.PolicyService;
-import net.atos.zac.shared.helper.SuspensionZaakHelper;
-import net.atos.zac.util.UriUtil;
-import net.atos.zac.util.time.DateTimeConverterUtil;
-import net.atos.zac.zoeken.IndexingService;
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
+import jakarta.validation.Valid
+import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.GET
+import jakarta.ws.rs.POST
+import jakarta.ws.rs.Path
+import jakarta.ws.rs.PathParam
+import jakarta.ws.rs.Produces
+import jakarta.ws.rs.core.MediaType
+import net.atos.client.zgw.brc.BrcClientService
+import net.atos.client.zgw.shared.ZGWApiService
+import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.FormulierDefinitie
+import net.atos.zac.admin.model.MailtemplateKoppeling
+import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.app.exception.InputValidationFailedException
+import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
+import net.atos.zac.app.planitems.converter.RESTPlanItemConverter
+import net.atos.zac.app.planitems.model.RESTHumanTaskData
+import net.atos.zac.app.planitems.model.RESTPlanItem
+import net.atos.zac.app.planitems.model.RESTProcessTaskData
+import net.atos.zac.app.planitems.model.RESTUserEventListenerData
+import net.atos.zac.app.planitems.model.UserEventListenerActie
+import net.atos.zac.configuratie.ConfiguratieService
+import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.flowable.task.TaakVariabelenService
+import net.atos.zac.mail.MailService
+import net.atos.zac.mail.model.MailAdres
+import net.atos.zac.mail.model.getBronnenFromZaak
+import net.atos.zac.mailtemplates.MailTemplateService
+import net.atos.zac.mailtemplates.model.Mail
+import net.atos.zac.mailtemplates.model.MailGegevens
+import net.atos.zac.mailtemplates.model.MailTemplate
+import net.atos.zac.policy.PolicyService
+import net.atos.zac.shared.helper.SuspensionZaakHelper
+import net.atos.zac.util.UriUtil
+import net.atos.zac.util.time.DateTimeConverterUtil
+import net.atos.zac.zoeken.IndexingService
+import org.flowable.cmmn.api.runtime.PlanItemInstance
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
+import java.util.UUID
 
 /**
  * Provides REST endpoints for CMMN plan items.
@@ -74,273 +58,292 @@ import net.atos.zac.zoeken.IndexingService;
 @Path("planitems")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class PlanItemsRESTService {
-    private static final String REDEN_OPSCHORTING = "Aanvullende informatie opgevraagd";
-    private static final String REDEN_PAST_FATALE_DATUM = "Aanvullende informatie opgevraagd";
-
-    private ZaakVariabelenService zaakVariabelenService;
-    private CMMNService cmmnService;
-    private ZrcClientService zrcClientService;
-    private BrcClientService brcClientService;
-    private ZaakafhandelParameterService zaakafhandelParameterService;
-    private RESTPlanItemConverter planItemConverter;
-    private ZGWApiService zgwApiService;
-    private IndexingService indexingService;
-    private MailService mailService;
-    private ConfiguratieService configuratieService;
-    private MailTemplateService mailTemplateService;
-    private PolicyService policyService;
-    private SuspensionZaakHelper suspensionZaakHelper;
-    private RESTMailGegevensConverter restMailGegevensConverter;
+class PlanItemsRESTService {
+    private var zaakVariabelenService: ZaakVariabelenService? = null
+    private var cmmnService: CMMNService? = null
+    private var zrcClientService: ZrcClientService? = null
+    private var brcClientService: BrcClientService? = null
+    private var zaakafhandelParameterService: ZaakafhandelParameterService? = null
+    private var planItemConverter: RESTPlanItemConverter? = null
+    private var zgwApiService: ZGWApiService? = null
+    private var indexingService: IndexingService? = null
+    private var mailService: MailService? = null
+    private var configuratieService: ConfiguratieService? = null
+    private var mailTemplateService: MailTemplateService? = null
+    private var policyService: PolicyService? = null
+    private var suspensionZaakHelper: SuspensionZaakHelper? = null
+    private var restMailGegevensConverter: RESTMailGegevensConverter? = null
 
     /**
      * Default no-arg constructor, required by Weld.
      */
-    public PlanItemsRESTService() {
-    }
+    constructor()
 
     @Inject
-    public PlanItemsRESTService(
-            ZaakVariabelenService zaakVariabelenService,
-            CMMNService cmmnService,
-            ZrcClientService zrcClientService,
-            BrcClientService brcClientService,
-            ZaakafhandelParameterService zaakafhandelParameterService,
-            RESTPlanItemConverter planItemConverter,
-            ZGWApiService zgwApiService,
-            IndexingService indexingService,
-            MailService mailService,
-            ConfiguratieService configuratieService,
-            MailTemplateService mailTemplateService,
-            PolicyService policyService,
-            SuspensionZaakHelper suspensionZaakHelper,
-            RESTMailGegevensConverter restMailGegevensConverter
+    constructor(
+        zaakVariabelenService: ZaakVariabelenService?,
+        cmmnService: CMMNService?,
+        zrcClientService: ZrcClientService?,
+        brcClientService: BrcClientService?,
+        zaakafhandelParameterService: ZaakafhandelParameterService?,
+        planItemConverter: RESTPlanItemConverter?,
+        zgwApiService: ZGWApiService?,
+        indexingService: IndexingService?,
+        mailService: MailService?,
+        configuratieService: ConfiguratieService?,
+        mailTemplateService: MailTemplateService?,
+        policyService: PolicyService?,
+        suspensionZaakHelper: SuspensionZaakHelper?,
+        restMailGegevensConverter: RESTMailGegevensConverter?
     ) {
-        this.zaakVariabelenService = zaakVariabelenService;
-        this.cmmnService = cmmnService;
-        this.zrcClientService = zrcClientService;
-        this.brcClientService = brcClientService;
-        this.zaakafhandelParameterService = zaakafhandelParameterService;
-        this.planItemConverter = planItemConverter;
-        this.zgwApiService = zgwApiService;
-        this.indexingService = indexingService;
-        this.mailService = mailService;
-        this.configuratieService = configuratieService;
-        this.mailTemplateService = mailTemplateService;
-        this.policyService = policyService;
-        this.suspensionZaakHelper = suspensionZaakHelper;
-        this.restMailGegevensConverter = restMailGegevensConverter;
+        this.zaakVariabelenService = zaakVariabelenService
+        this.cmmnService = cmmnService
+        this.zrcClientService = zrcClientService
+        this.brcClientService = brcClientService
+        this.zaakafhandelParameterService = zaakafhandelParameterService
+        this.planItemConverter = planItemConverter
+        this.zgwApiService = zgwApiService
+        this.indexingService = indexingService
+        this.mailService = mailService
+        this.configuratieService = configuratieService
+        this.mailTemplateService = mailTemplateService
+        this.policyService = policyService
+        this.suspensionZaakHelper = suspensionZaakHelper
+        this.restMailGegevensConverter = restMailGegevensConverter
     }
 
     @GET
     @Path("zaak/{uuid}/humanTaskPlanItems")
-    public List<RESTPlanItem> listHumanTaskPlanItems(@PathParam("uuid") final UUID zaakUUID) {
-        final List<PlanItemInstance> humanTaskPlanItems = cmmnService.listHumanTaskPlanItems(zaakUUID);
-        final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        return planItemConverter.convertPlanItems(humanTaskPlanItems, zaak).stream()
-                .filter(restPlanItem -> restPlanItem.actief)
-                .toList();
+    fun listHumanTaskPlanItems(@PathParam("uuid") zaakUUID: UUID?): List<RESTPlanItem?> {
+        val humanTaskPlanItems = cmmnService!!.listHumanTaskPlanItems(zaakUUID)
+        val zaak = zrcClientService!!.readZaak(zaakUUID)
+        return planItemConverter!!.convertPlanItems(humanTaskPlanItems, zaak).stream()
+            .filter { restPlanItem: RESTPlanItem? -> restPlanItem!!.actief }
+            .toList()
     }
 
     @GET
     @Path("zaak/{uuid}/processTaskPlanItems")
-    public List<RESTPlanItem> listProcessTaskPlanItems(@PathParam("uuid") final UUID zaakUUID) {
-        final var processTaskPlanItems = cmmnService.listProcessTaskPlanItems(zaakUUID);
-        final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        return planItemConverter.convertPlanItems(processTaskPlanItems, zaak);
+    fun listProcessTaskPlanItems(@PathParam("uuid") zaakUUID: UUID?): List<RESTPlanItem?> {
+        val processTaskPlanItems = cmmnService!!.listProcessTaskPlanItems(zaakUUID)
+        val zaak = zrcClientService!!.readZaak(zaakUUID)
+        return planItemConverter!!.convertPlanItems(processTaskPlanItems, zaak)
     }
 
     @GET
     @Path("zaak/{uuid}/userEventListenerPlanItems")
-    public List<RESTPlanItem> listUserEventListenerPlanItems(@PathParam("uuid") final UUID zaakUUID) {
-        final List<PlanItemInstance> userEventListenerPlanItems = cmmnService.listUserEventListenerPlanItems(zaakUUID);
-        final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        return planItemConverter.convertPlanItems(userEventListenerPlanItems, zaak);
+    fun listUserEventListenerPlanItems(@PathParam("uuid") zaakUUID: UUID?): List<RESTPlanItem?> {
+        val userEventListenerPlanItems = cmmnService!!.listUserEventListenerPlanItems(zaakUUID)
+        val zaak = zrcClientService!!.readZaak(zaakUUID)
+        return planItemConverter!!.convertPlanItems(userEventListenerPlanItems, zaak)
     }
 
     @GET
     @Path("humanTaskPlanItem/{id}")
-    public RESTPlanItem readHumanTaskPlanItem(@PathParam("id") final String planItemId) {
-        return convertPlanItem(planItemId);
+    fun readHumanTaskPlanItem(@PathParam("id") planItemId: String): RESTPlanItem {
+        return convertPlanItem(planItemId)
     }
 
     @GET
     @Path("processTaskPlanItem/{id}")
-    public RESTPlanItem readProcessTaskPlanItem(@PathParam("id") final String planItemId) {
-        return convertPlanItem(planItemId);
+    fun readProcessTaskPlanItem(@PathParam("id") planItemId: String): RESTPlanItem {
+        return convertPlanItem(planItemId)
     }
 
-    private RESTPlanItem convertPlanItem(String planItemId) {
-        final PlanItemInstance planItemInstance = cmmnService.readOpenPlanItem(planItemId);
-        final UUID zaakUUID = zaakVariabelenService.readZaakUUID(planItemInstance);
-        final UUID zaaktypeUUID = zaakVariabelenService.readZaaktypeUUID(planItemInstance);
-        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                zaaktypeUUID);
-        return planItemConverter.convertPlanItem(planItemInstance, zaakUUID, zaakafhandelParameters);
+    private fun convertPlanItem(planItemId: String): RESTPlanItem {
+        val planItemInstance = cmmnService!!.readOpenPlanItem(planItemId)
+        val zaakUUID = zaakVariabelenService!!.readZaakUUID(planItemInstance)
+        val zaaktypeUUID = zaakVariabelenService!!.readZaaktypeUUID(planItemInstance)
+        val zaakafhandelParameters = zaakafhandelParameterService!!.readZaakafhandelParameters(
+            zaaktypeUUID
+        )
+        return planItemConverter!!.convertPlanItem(planItemInstance, zaakUUID, zaakafhandelParameters)
     }
 
     @POST
     @Path("doHumanTaskPlanItem")
-    public void doHumanTaskplanItem(@Valid final RESTHumanTaskData humanTaskData) {
-        final PlanItemInstance planItem = cmmnService.readOpenPlanItem(humanTaskData.planItemInstanceId);
-        final UUID zaakUUID = zaakVariabelenService.readZaakUUID(planItem);
-        final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        final Map<String, String> taakdata = humanTaskData.taakdata;
-        assertPolicy(policyService.readZaakRechten(zaak).startenTaak());
-        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                UriUtil.uuidFromURI(zaak.getZaaktype())
-        );
+    fun doHumanTaskplanItem(humanTaskData: @Valid RESTHumanTaskData) {
+        val planItem = cmmnService!!.readOpenPlanItem(humanTaskData.planItemInstanceId)
+        val zaakUUID = zaakVariabelenService!!.readZaakUUID(planItem)
+        val zaak = zrcClientService!!.readZaak(zaakUUID)
+        val taakdata = humanTaskData.taakdata
+        PolicyService.assertPolicy(policyService!!.readZaakRechten(zaak).startenTaak)
+        val zaakafhandelParameters = zaakafhandelParameterService!!.readZaakafhandelParameters(
+            UriUtil.uuidFromURI(zaak.zaaktype)
+        )
 
-        final LocalDate fatalDate = calculateFatalDate(humanTaskData, zaakafhandelParameters, planItem, zaak);
+        val fatalDate = calculateFatalDate(humanTaskData, zaakafhandelParameters, planItem, zaak)
         if (fatalDate != null) {
-            if (isZaakOpschorten(taakdata)) {
-                final long numberOfDays = ChronoUnit.DAYS.between(LocalDate.now(), fatalDate);
-                suspensionZaakHelper.suspendZaak(zaak, numberOfDays, REDEN_OPSCHORTING);
-            } else if (fatalDate.isAfter(zaak.getUiterlijkeEinddatumAfdoening())) {
-                final long numberOfDays = ChronoUnit.DAYS.between(zaak.getUiterlijkeEinddatumAfdoening(), fatalDate);
-                suspensionZaakHelper.extendZaakFatalDate(zaak, numberOfDays, REDEN_PAST_FATALE_DATUM);
+            if (TaakVariabelenService.isZaakOpschorten(taakdata)) {
+                val numberOfDays = ChronoUnit.DAYS.between(LocalDate.now(), fatalDate)
+                suspensionZaakHelper!!.suspendZaak(zaak, numberOfDays, REDEN_OPSCHORTING)
+            } else if (fatalDate.isAfter(zaak.uiterlijkeEinddatumAfdoening)) {
+                val numberOfDays = ChronoUnit.DAYS.between(zaak.uiterlijkeEinddatumAfdoening, fatalDate)
+                suspensionZaakHelper!!.extendZaakFatalDate(zaak, numberOfDays, REDEN_PAST_FATALE_DATUM)
             }
         }
 
-        if (humanTaskData.taakStuurGegevens.sendMail) {
-            final Mail mail = Mail.valueOf(humanTaskData.taakStuurGegevens.mail);
+        if (humanTaskData.taakStuurGegevens!!.sendMail) {
+            val mail = Mail.valueOf(
+                humanTaskData.taakStuurGegevens!!.mail!!
+            )
 
-            final MailTemplate mailTemplate = zaakafhandelParameters.getMailtemplateKoppelingen().stream()
-                    .map(MailtemplateKoppeling::getMailTemplate)
-                    .filter(template -> template.getMail().equals(mail))
-                    .findFirst()
-                    .orElseGet(() -> mailTemplateService.readMailtemplate(mail));
+            val mailTemplate = zaakafhandelParameters.mailtemplateKoppelingen.stream()
+                .map { obj: MailtemplateKoppeling -> obj.mailTemplate }
+                .filter { template: MailTemplate -> template.mail == mail }
+                .findFirst()
+                .orElseGet { mailTemplateService!!.readMailtemplate(mail) }
 
-            final String afzender = configuratieService.readGemeenteNaam();
-            setMailBody(taakdata, mailService.sendMail(
-                    new MailGegevens(
-                            readMailFrom(taakdata)
-                                    .map(email -> new MailAdres(email, afzender))
-                                    .orElseGet(() -> mailService.getGemeenteMailAdres()),
-                            readMailTo(taakdata)
-                                    .map(MailAdres::new)
-                                    .orElse(null),
-                            readMailReplyTo(taakdata)
-                                    .map(email -> new MailAdres(email, afzender))
-                                    .orElse(null),
-                            mailTemplate.getOnderwerp(),
-                            readMailBody(taakdata).orElse(null),
-                            readMailAttachments(taakdata).orElse(null),
-                            true),
-                    BronnenKt.getBronnenFromZaak(zaak)));
+            val afzender = configuratieService!!.readGemeenteNaam()
+            TaakVariabelenService.setMailBody(taakdata, mailService!!.sendMail(
+                MailGegevens(
+                    TaakVariabelenService.readMailFrom(taakdata)
+                        .map { email: String? ->
+                            MailAdres(
+                                email!!, afzender
+                            )
+                        }
+                        .orElseGet { mailService!!.gemeenteMailAdres },
+                    TaakVariabelenService.readMailTo(taakdata)
+                        .map { email: String? ->
+                            MailAdres(
+                                email!!
+                            )
+                        }
+                        .orElse(null),
+                    TaakVariabelenService.readMailReplyTo(taakdata)
+                        .map { email: String? ->
+                            MailAdres(
+                                email!!, afzender
+                            )
+                        }
+                        .orElse(null),
+                    mailTemplate.onderwerp,
+                    TaakVariabelenService.readMailBody(taakdata).orElse(null),
+                    TaakVariabelenService.readMailAttachments(taakdata).orElse(null),
+                    true),
+                zaak.getBronnenFromZaak()))
         }
-        cmmnService.startHumanTaskPlanItem(
-                humanTaskData.planItemInstanceId,
-                humanTaskData.groep.getId(),
-                humanTaskData.medewerker != null && !humanTaskData.medewerker.toString().isEmpty() ?
-                        humanTaskData.medewerker.getId() :
-                        null,
-                DateTimeConverterUtil.convertToDate(fatalDate),
-                humanTaskData.toelichting,
-                taakdata,
-                zaakUUID
-        );
-        indexingService.addOrUpdateZaak(zaakUUID, false);
+        cmmnService!!.startHumanTaskPlanItem(
+            humanTaskData.planItemInstanceId,
+            humanTaskData.groep!!.id,
+            if (humanTaskData.medewerker != null && !humanTaskData.medewerker.toString()
+                    .isEmpty()
+            ) humanTaskData.medewerker!!.id else null,
+            DateTimeConverterUtil.convertToDate(fatalDate),
+            humanTaskData.toelichting,
+            taakdata,
+            zaakUUID
+        )
+        indexingService!!.addOrUpdateZaak(zaakUUID, false)
     }
 
     @POST
     @Path("doProcessTaskPlanItem")
-    public void doProcessTaskplanItem(final RESTProcessTaskData processTaskData) {
-        cmmnService.startProcessTaskPlanItem(processTaskData.planItemInstanceId, processTaskData.data);
+    fun doProcessTaskplanItem(processTaskData: RESTProcessTaskData) {
+        cmmnService!!.startProcessTaskPlanItem(processTaskData.planItemInstanceId, processTaskData.data)
     }
 
     @POST
     @Path("doUserEventListenerPlanItem")
-    public void doUserEventListenerPlanItem(final RESTUserEventListenerData userEventListenerData) {
-        final Zaak zaak = zrcClientService.readZaak(userEventListenerData.zaakUuid);
-        final var zaakRechten = policyService.readZaakRechten(zaak);
-        assertPolicy(zaakRechten.startenTaak());
+    fun doUserEventListenerPlanItem(userEventListenerData: RESTUserEventListenerData) {
+        val zaak = zrcClientService!!.readZaak(userEventListenerData.zaakUuid)
+        val zaakRechten = policyService!!.readZaakRechten(zaak)
+        PolicyService.assertPolicy(zaakRechten.startenTaak)
         if (userEventListenerData.restMailGegevens != null) {
-            assertPolicy(zaakRechten.versturenEmail());
+            PolicyService.assertPolicy(zaakRechten.versturenEmail)
         }
-        switch (userEventListenerData.actie) {
-            case INTAKE_AFRONDEN -> {
-                final PlanItemInstance planItemInstance = cmmnService.readOpenPlanItem(
-                        userEventListenerData.planItemInstanceId
-                );
-                zaakVariabelenService.setOntvankelijk(planItemInstance, userEventListenerData.zaakOntvankelijk);
-                if (!userEventListenerData.zaakOntvankelijk) {
-                    policyService.checkZaakAfsluitbaar(zaak);
-                    final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                            UriUtil.uuidFromURI(zaak.getZaaktype())
-                    );
-                    zgwApiService.createResultaatForZaak(
-                            zaak,
-                            zaakafhandelParameters.getNietOntvankelijkResultaattype(),
-                            userEventListenerData.resultaatToelichting
-                    );
+        when (userEventListenerData.actie) {
+            UserEventListenerActie.INTAKE_AFRONDEN -> {
+                val planItemInstance = cmmnService!!.readOpenPlanItem(
+                    userEventListenerData.planItemInstanceId
+                )
+                zaakVariabelenService!!.setOntvankelijk(planItemInstance, userEventListenerData.zaakOntvankelijk)
+                if (!userEventListenerData.zaakOntvankelijk!!) {
+                    policyService!!.checkZaakAfsluitbaar(zaak)
+                    val zaakafhandelParameters = zaakafhandelParameterService!!.readZaakafhandelParameters(
+                        UriUtil.uuidFromURI(zaak.zaaktype)
+                    )
+                    zgwApiService!!.createResultaatForZaak(
+                        zaak,
+                        zaakafhandelParameters.nietOntvankelijkResultaattype,
+                        userEventListenerData.resultaatToelichting
+                    )
                 }
             }
-            case ZAAK_AFHANDELEN -> {
-                policyService.checkZaakAfsluitbaar(zaak);
-                if (!brcClientService.listBesluiten(zaak).isEmpty()) {
-                    final Resultaat resultaat = zrcClientService.readResultaat(zaak.getResultaat());
-                    resultaat.setToelichting(userEventListenerData.resultaatToelichting);
-                    zrcClientService.updateResultaat(resultaat);
+
+            UserEventListenerActie.ZAAK_AFHANDELEN -> {
+                policyService!!.checkZaakAfsluitbaar(zaak)
+                if (!brcClientService!!.listBesluiten(zaak).isEmpty()) {
+                    val resultaat = zrcClientService!!.readResultaat(zaak.resultaat)
+                    resultaat.toelichting = userEventListenerData.resultaatToelichting
+                    zrcClientService!!.updateResultaat(resultaat)
                 } else {
-                    zgwApiService.createResultaatForZaak(
-                            zaak,
-                            userEventListenerData.resultaattypeUuid,
-                            userEventListenerData.resultaatToelichting
-                    );
+                    zgwApiService!!.createResultaatForZaak(
+                        zaak,
+                        userEventListenerData.resultaattypeUuid,
+                        userEventListenerData.resultaatToelichting
+                    )
                 }
             }
         }
-        cmmnService.startUserEventListenerPlanItem(userEventListenerData.planItemInstanceId);
+        cmmnService!!.startUserEventListenerPlanItem(userEventListenerData.planItemInstanceId)
         if (userEventListenerData.restMailGegevens != null) {
-            mailService.sendMail(
-                    restMailGegevensConverter.convert(userEventListenerData.restMailGegevens),
-                    BronnenKt.getBronnenFromZaak(zaak)
-            );
+            mailService!!.sendMail(
+                restMailGegevensConverter!!.convert(userEventListenerData.restMailGegevens),
+                zaak.getBronnenFromZaak()
+            )
         }
     }
 
-    private LocalDate calculateFatalDate(
-            RESTHumanTaskData humanTaskData,
-            ZaakafhandelParameters zaakafhandelParameters,
-            PlanItemInstance planItem,
-            Zaak zaak
-    ) {
-        final Optional<HumanTaskParameters> humanTaskParameters = zaakafhandelParameters.findHumanTaskParameter(planItem
-                .getPlanItemDefinitionId());
-        final LocalDate zaakFatalDate = zaak.getUiterlijkeEinddatumAfdoening();
+    private fun calculateFatalDate(
+        humanTaskData: RESTHumanTaskData,
+        zaakafhandelParameters: ZaakafhandelParameters,
+        planItem: PlanItemInstance,
+        zaak: Zaak
+    ): LocalDate? {
+        val humanTaskParameters = zaakafhandelParameters.findHumanTaskParameter(
+            planItem
+                .planItemDefinitionId
+        )
+        val zaakFatalDate = zaak.uiterlijkeEinddatumAfdoening
 
         if (humanTaskData.fataledatum != null) {
             if (!isAanvullendeInformatieTask(planItem)) {
-                validateFatalDate(humanTaskData.fataledatum, zaakFatalDate);
+                validateFatalDate(humanTaskData.fataledatum!!, zaakFatalDate)
             }
-            return humanTaskData.fataledatum;
+            return humanTaskData.fataledatum
         } else {
-            if (humanTaskParameters.isPresent() && humanTaskParameters.get().getDoorlooptijd() != null) {
-                LocalDate calculatedFinalDate = LocalDate.now().plusDays(humanTaskParameters.get().getDoorlooptijd());
+            if (humanTaskParameters.isPresent && humanTaskParameters.get().doorlooptijd != null) {
+                var calculatedFinalDate = LocalDate.now().plusDays(humanTaskParameters.get().doorlooptijd.toLong())
                 if (calculatedFinalDate.isAfter(zaakFatalDate)) {
-                    calculatedFinalDate = zaakFatalDate;
+                    calculatedFinalDate = zaakFatalDate
                 }
-                return calculatedFinalDate;
+                return calculatedFinalDate
             }
         }
 
-        return null;
+        return null
     }
 
-    private static boolean isAanvullendeInformatieTask(PlanItemInstance planItem) {
-        return FormulierDefinitie.AANVULLENDE_INFORMATIE.toString().equals(planItem.getPlanItemDefinitionId());
-    }
+    companion object {
+        private const val REDEN_OPSCHORTING = "Aanvullende informatie opgevraagd"
+        private const val REDEN_PAST_FATALE_DATUM = "Aanvullende informatie opgevraagd"
 
-    private static void validateFatalDate(LocalDate taskFatalDate, LocalDate zaakFatalDate) {
-        if (taskFatalDate.isAfter(zaakFatalDate)) {
-            throw new InputValidationFailedException(
+        private fun isAanvullendeInformatieTask(planItem: PlanItemInstance): Boolean {
+            return FormulierDefinitie.AANVULLENDE_INFORMATIE.toString() == planItem.planItemDefinitionId
+        }
+
+        private fun validateFatalDate(taskFatalDate: LocalDate, zaakFatalDate: LocalDate) {
+            if (taskFatalDate.isAfter(zaakFatalDate)) {
+                throw InputValidationFailedException(
                     String.format(
-                            "Fatal date of a task (%s) cannot be later than the fatal date of the zaak (%s)",
-                            taskFatalDate,
-                            zaakFatalDate
+                        "Fatal date of a task (%s) cannot be later than the fatal date of the zaak (%s)",
+                        taskFatalDate,
+                        zaakFatalDate
                     )
-            );
+                )
+            }
         }
     }
 }

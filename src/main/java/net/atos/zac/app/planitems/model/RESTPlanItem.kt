@@ -2,39 +2,32 @@
  * SPDX-FileCopyrightText: 2021 - 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.planitems.model
 
-package net.atos.zac.app.planitems.model;
+import net.atos.zac.admin.model.FormulierDefinitie
+import java.time.LocalDate
+import java.util.UUID
 
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+class RESTPlanItem {
+    var id: String? = null
 
-import net.atos.zac.admin.model.FormulierDefinitie;
+    var naam: String? = null
 
-public class RESTPlanItem {
+    var type: PlanItemType? = null
 
-    public String id;
+    var groepId: String? = null
 
-    public String naam;
+    var actief: Boolean = false
 
-    public PlanItemType type;
+    var formulierDefinitie: FormulierDefinitie? = null
 
-    public String groepId;
+    var tabellen: MutableMap<String?, List<String>> = HashMap()
 
-    public boolean actief;
+    var zaakUuid: UUID? = null
 
-    public FormulierDefinitie formulierDefinitie;
+    var userEventListenerActie: UserEventListenerActie? = null
 
-    public Map<String, List<String>> tabellen = new HashMap<>();
+    var toelichting: String? = null
 
-    public UUID zaakUuid;
-
-    public UserEventListenerActie userEventListenerActie;
-
-    public String toelichting;
-
-    public LocalDate fataleDatum;
-
+    var fataleDatum: LocalDate? = null
 }

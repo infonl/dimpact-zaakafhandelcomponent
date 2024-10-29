@@ -2,17 +2,16 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.planitems.model
 
-package net.atos.zac.app.planitems.model;
+import net.atos.zac.admin.model.FormulierDefinitie
+import net.atos.zac.admin.model.FormulierVeldDefinitie
+import java.util.Arrays
 
-import java.util.Arrays;
-import java.util.Set;
-
-import net.atos.zac.admin.model.FormulierDefinitie;
-import net.atos.zac.admin.model.FormulierVeldDefinitie;
-
-public enum DefaultHumanTaskFormulierKoppeling {
-
+enum class DefaultHumanTaskFormulierKoppeling(
+    private val planItemDefinitionId: String,
+    val formulierDefinitie: FormulierDefinitie
+) {
     AANVULLENDE_INFORMATIE("AANVULLENDE_INFORMATIE", FormulierDefinitie.AANVULLENDE_INFORMATIE),
     GOEDKEUREN("GOEDKEUREN", FormulierDefinitie.GOEDKEUREN),
     ADVIES_INTERN("ADVIES_INTERN", FormulierDefinitie.ADVIES),
@@ -20,29 +19,19 @@ public enum DefaultHumanTaskFormulierKoppeling {
     DOCUMENT_VERZENDEN_POST("DOCUMENT_VERZENDEN_POST", FormulierDefinitie.DOCUMENT_VERZENDEN_POST),
     DEFAULT("", FormulierDefinitie.DEFAULT_TAAKFORMULIER);
 
-    private final String planItemDefinitionId;
-
-    private final FormulierDefinitie formulierDefinitie;
-
-    DefaultHumanTaskFormulierKoppeling(final String planItemDefinitionId, final FormulierDefinitie formulierDefinitie) {
-        this.planItemDefinitionId = planItemDefinitionId;
-        this.formulierDefinitie = formulierDefinitie;
-    }
-
-    public FormulierDefinitie getFormulierDefinitie() {
-        return formulierDefinitie;
-    }
-
-    public static FormulierDefinitie readFormulierDefinitie(final String planItemDefinitionId) {
-        return Arrays.stream(values())
-                .filter(humanTaskFormulierKoppeling -> humanTaskFormulierKoppeling.planItemDefinitionId.equals(
-                        planItemDefinitionId))
-                .map(DefaultHumanTaskFormulierKoppeling::getFormulierDefinitie)
+    companion object {
+        @JvmStatic
+        fun readFormulierDefinitie(planItemDefinitionId: String): FormulierDefinitie {
+            return Arrays.stream(entries.toTypedArray())
+                .filter { humanTaskFormulierKoppeling: DefaultHumanTaskFormulierKoppeling -> humanTaskFormulierKoppeling.planItemDefinitionId == planItemDefinitionId }
+                .map { obj: DefaultHumanTaskFormulierKoppeling -> obj.formulierDefinitie }
                 .findAny()
-                .orElse(DefaultHumanTaskFormulierKoppeling.DEFAULT.getFormulierDefinitie());
-    }
+                .orElse(DEFAULT.formulierDefinitie)
+        }
 
-    public static Set<FormulierVeldDefinitie> readFormulierVeldDefinities(final String planItemDefinitionId) {
-        return readFormulierDefinitie(planItemDefinitionId).getVeldDefinities();
+        @JvmStatic
+        fun readFormulierVeldDefinities(planItemDefinitionId: String): Set<FormulierVeldDefinitie> {
+            return readFormulierDefinitie(planItemDefinitionId).veldDefinities
+        }
     }
 }

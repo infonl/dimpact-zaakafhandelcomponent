@@ -2,37 +2,30 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.planitems.model
 
-package net.atos.zac.app.planitems.model;
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotNull
+import net.atos.zac.app.identity.model.RestGroup
+import net.atos.zac.app.identity.model.RestUser
+import java.time.LocalDate
 
-import java.time.LocalDate;
-import java.util.Map;
+class RESTHumanTaskData {
+    var planItemInstanceId: String? = null
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
+    var groep: RestGroup? = null
 
-import net.atos.zac.app.identity.model.RestGroup;
-import net.atos.zac.app.identity.model.RestUser;
-
-public class RESTHumanTaskData {
-
-    public String planItemInstanceId;
-
-    public RestGroup groep;
-
-    @Valid
-    public RestUser medewerker;
+    var medewerker: @Valid RestUser? = null
 
     /**
      * The 'final due date' of a task.
      * Note that this fatal date cannot come after the fatal date of the zaak to which this task belongs.
      */
-    public LocalDate fataledatum;
+    var fataledatum: LocalDate? = null
 
-    public String toelichting;
+    var toelichting: String? = null
 
-    public Map<String, String> taakdata;
+    var taakdata: Map<String, String>? = null
 
-    @NotNull
-    public RESTTaakStuurGegevens taakStuurGegevens;
+    var taakStuurGegevens: @NotNull RESTTaakStuurGegevens? = null
 }

@@ -2,114 +2,124 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.planitems.converter
 
-package net.atos.zac.app.planitems.converter;
-
-import static net.atos.zac.app.planitems.model.PlanItemType.HUMAN_TASK;
-import static net.atos.zac.app.planitems.model.PlanItemType.PROCESS_TASK;
-import static net.atos.zac.app.planitems.model.PlanItemType.USER_EVENT_LISTENER;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
-
-import jakarta.inject.Inject;
-
-import org.flowable.cmmn.api.runtime.PlanItemDefinitionType;
-import org.flowable.cmmn.api.runtime.PlanItemInstance;
-
-import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.zac.admin.ZaakafhandelParameterService;
-import net.atos.zac.admin.model.FormulierDefinitie;
-import net.atos.zac.admin.model.ReferenceTableValue;
-import net.atos.zac.admin.model.ZaakafhandelParameters;
-import net.atos.zac.app.planitems.model.PlanItemType;
-import net.atos.zac.app.planitems.model.RESTPlanItem;
-import net.atos.zac.app.planitems.model.UserEventListenerActie;
+import jakarta.inject.Inject
+import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.FormulierDefinitie
+import net.atos.zac.admin.model.HumanTaskParameters
+import net.atos.zac.admin.model.HumanTaskReferentieTabel
+import net.atos.zac.admin.model.ReferenceTableValue
+import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.app.planitems.model.PlanItemType
+import net.atos.zac.app.planitems.model.RESTPlanItem
+import net.atos.zac.app.planitems.model.UserEventListenerActie
+import net.atos.zac.util.UriUtil
+import org.flowable.cmmn.api.runtime.PlanItemDefinitionType
+import org.flowable.cmmn.api.runtime.PlanItemInstance
+import java.time.LocalDate
+import java.util.UUID
+import java.util.function.Consumer
 
 /**
  *
  */
-public class RESTPlanItemConverter {
-
+class RESTPlanItemConverter {
     @Inject
-    private ZaakafhandelParameterService zaakafhandelParameterService;
+    private val zaakafhandelParameterService: ZaakafhandelParameterService? = null
 
-    public List<RESTPlanItem> convertPlanItems(final List<PlanItemInstance> planItems, final Zaak zaak) {
-        final UUID zaaktypeUUID = uuidFromURI(zaak.getZaaktype());
-        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                zaaktypeUUID);
+    fun convertPlanItems(planItems: List<PlanItemInstance>, zaak: Zaak): List<RESTPlanItem?> {
+        val zaaktypeUUID = UriUtil.uuidFromURI(zaak.zaaktype)
+        val zaakafhandelParameters = zaakafhandelParameterService!!.readZaakafhandelParameters(
+            zaaktypeUUID
+        )
         return planItems.stream()
-                .map(planItemInstance -> this.convertPlanItem(planItemInstance, zaak.getUuid(), zaakafhandelParameters))
-                .toList();
+            .map { planItemInstance: PlanItemInstance ->
+                this.convertPlanItem(
+                    planItemInstance,
+                    zaak.uuid,
+                    zaakafhandelParameters
+                )
+            }
+            .toList()
     }
 
-    public RESTPlanItem convertPlanItem(
-            final PlanItemInstance planItem,
-            final UUID zaakUuid,
-            final ZaakafhandelParameters zaakafhandelParameters
-    ) {
-        final RESTPlanItem restPlanItem = new RESTPlanItem();
-        restPlanItem.id = planItem.getId();
-        restPlanItem.naam = planItem.getName();
-        restPlanItem.zaakUuid = zaakUuid;
-        restPlanItem.type = convertDefinitionType(planItem.getPlanItemDefinitionType());
-        return switch (restPlanItem.type) {
-            case USER_EVENT_LISTENER -> convertUserEventListener(restPlanItem, planItem, zaakafhandelParameters);
-            case HUMAN_TASK -> convertHumanTask(restPlanItem, planItem, zaakafhandelParameters);
-            case PROCESS_TASK -> convertProcessTask(restPlanItem);
-        };
+    fun convertPlanItem(
+        planItem: PlanItemInstance,
+        zaakUuid: UUID?,
+        zaakafhandelParameters: ZaakafhandelParameters
+    ): RESTPlanItem {
+        val restPlanItem = RESTPlanItem()
+        restPlanItem.id = planItem.id
+        restPlanItem.naam = planItem.name
+        restPlanItem.zaakUuid = zaakUuid
+        restPlanItem.type = convertDefinitionType(planItem.planItemDefinitionType)
+        return when (restPlanItem.type) {
+            PlanItemType.USER_EVENT_LISTENER -> convertUserEventListener(restPlanItem, planItem, zaakafhandelParameters)
+            PlanItemType.HUMAN_TASK -> convertHumanTask(restPlanItem, planItem, zaakafhandelParameters)
+            PlanItemType.PROCESS_TASK -> convertProcessTask(restPlanItem)
+        }
     }
 
-    private RESTPlanItem convertUserEventListener(
-            final RESTPlanItem restPlanItem,
-            final PlanItemInstance UserEventListenerPlanItem,
-            final ZaakafhandelParameters zaakafhandelParameters
-    ) {
+    private fun convertUserEventListener(
+        restPlanItem: RESTPlanItem,
+        UserEventListenerPlanItem: PlanItemInstance,
+        zaakafhandelParameters: ZaakafhandelParameters
+    ): RESTPlanItem {
         restPlanItem.userEventListenerActie = UserEventListenerActie.valueOf(
-                UserEventListenerPlanItem.getPlanItemDefinitionId());
+            UserEventListenerPlanItem.planItemDefinitionId
+        )
         restPlanItem.toelichting = zaakafhandelParameters.readUserEventListenerParameters(
-                UserEventListenerPlanItem.getPlanItemDefinitionId()).getToelichting();
-        return restPlanItem;
+            UserEventListenerPlanItem.planItemDefinitionId
+        ).toelichting
+        return restPlanItem
     }
 
-    private RESTPlanItem convertHumanTask(
-            final RESTPlanItem restPlanItem,
-            final PlanItemInstance humanTaskPlanItem,
-            final ZaakafhandelParameters zaakafhandelParameters
-    ) {
-        zaakafhandelParameters.findHumanTaskParameter(humanTaskPlanItem.getPlanItemDefinitionId())
-                .ifPresent(humanTaskParameters -> {
-                    restPlanItem.actief = humanTaskParameters.isActief();
-                    restPlanItem.formulierDefinitie = FormulierDefinitie.valueOf(humanTaskParameters.getFormulierDefinitieID());
-                    humanTaskParameters.getReferentieTabellen().forEach(
-                            rt -> restPlanItem.tabellen.put(rt.getVeld(), rt.getTabel().getValues().stream()
-                                    .map(ReferenceTableValue::getName)
-                                    .toList()));
-                    restPlanItem.groepId = humanTaskParameters.getGroepID();
-                    if (humanTaskParameters.getDoorlooptijd() != null) {
-                        restPlanItem.fataleDatum = LocalDate.now().plusDays(humanTaskParameters.getDoorlooptijd());
-                    }
-                });
-        return restPlanItem;
+    private fun convertHumanTask(
+        restPlanItem: RESTPlanItem,
+        humanTaskPlanItem: PlanItemInstance,
+        zaakafhandelParameters: ZaakafhandelParameters
+    ): RESTPlanItem {
+        zaakafhandelParameters.findHumanTaskParameter(humanTaskPlanItem.planItemDefinitionId)
+            .ifPresent { humanTaskParameters: HumanTaskParameters ->
+                restPlanItem.actief = humanTaskParameters.isActief
+                restPlanItem.formulierDefinitie =
+                    FormulierDefinitie.valueOf(humanTaskParameters.formulierDefinitieID)
+                humanTaskParameters.referentieTabellen.forEach(
+                    Consumer { rt: HumanTaskReferentieTabel ->
+                        restPlanItem.tabellen[rt.veld] = rt.tabel.values.stream()
+                            .map(ReferenceTableValue::name)
+                            .toList()
+                    })
+                restPlanItem.groepId = humanTaskParameters.groepID
+                if (humanTaskParameters.doorlooptijd != null) {
+                    restPlanItem.fataleDatum = LocalDate.now().plusDays(humanTaskParameters.doorlooptijd.toLong())
+                }
+            }
+        return restPlanItem
     }
 
-    private RESTPlanItem convertProcessTask(final RESTPlanItem restPlanItem) {
-        return restPlanItem;
+    private fun convertProcessTask(restPlanItem: RESTPlanItem): RESTPlanItem {
+        return restPlanItem
     }
 
-    private static PlanItemType convertDefinitionType(final String planItemDefinitionType) {
-        if (PlanItemDefinitionType.HUMAN_TASK.equals(planItemDefinitionType)) {
-            return HUMAN_TASK;
-        } else if (PlanItemDefinitionType.PROCESS_TASK.equals(planItemDefinitionType)) {
-            return PROCESS_TASK;
-        } else if (PlanItemDefinitionType.USER_EVENT_LISTENER.equals(planItemDefinitionType)) {
-            return USER_EVENT_LISTENER;
-        } else {
-            throw new IllegalArgumentException(
-                    String.format("Conversie van plan item definition type '%s' wordt niet ondersteund",
-                            planItemDefinitionType));
+    companion object {
+        private fun convertDefinitionType(planItemDefinitionType: String): PlanItemType {
+            return if (PlanItemDefinitionType.HUMAN_TASK == planItemDefinitionType) {
+                PlanItemType.HUMAN_TASK
+            } else if (PlanItemDefinitionType.PROCESS_TASK == planItemDefinitionType) {
+                PlanItemType.PROCESS_TASK
+            } else if (PlanItemDefinitionType.USER_EVENT_LISTENER == planItemDefinitionType) {
+                PlanItemType.USER_EVENT_LISTENER
+            } else {
+                throw IllegalArgumentException(
+                    String.format(
+                        "Conversie van plan item definition type '%s' wordt niet ondersteund",
+                        planItemDefinitionType
+                    )
+                )
+            }
         }
     }
 }

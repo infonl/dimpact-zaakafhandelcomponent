@@ -2,14 +2,10 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.planitems.model
 
-package net.atos.zac.app.planitems.model;
+class RESTProcessTaskData {
+    var planItemInstanceId: String? = null
 
-import java.util.Map;
-
-public class RESTProcessTaskData {
-
-    public String planItemInstanceId;
-
-    public Map<String, Object> data;
+    var data: Map<String, Any>? = null
 }
