@@ -112,6 +112,14 @@ class ZaakHistorieTest : BehaviorSpec({
                   },
                   {
                     "actie": "GEWIJZIGD",
+                    "attribuutLabel": "uiterlijkeEinddatumAfdoening",
+                    "door": "Test User1 Špëçîâl Characters",
+                    "nieuweWaarde": "17-01-1970",
+                    "oudeWaarde": "15-01-1970",
+                    "toelichting": "Aanvullende informatie opgevraagd"
+                  },
+                  {
+                    "actie": "GEWIJZIGD",
                     "attribuutLabel": "status",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "Intake",
