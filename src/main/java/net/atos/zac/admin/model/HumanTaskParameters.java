@@ -80,7 +80,7 @@ public class HumanTaskParameters {
     }
 
     public String getFormulierDefinitieID() {
-        return formulierDefinitieID != null ? formulierDefinitieID : DefaultHumanTaskFormulierKoppeling.readFormulierDefinitie(
+        return formulierDefinitieID != null ? formulierDefinitieID : DefaultHumanTaskFormulierKoppeling.Companion.readFormulierDefinitie(
                 planItemDefinitionID).name();
     }
 

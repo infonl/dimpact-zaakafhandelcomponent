@@ -26,6 +26,6 @@ public class RESTPlanItemDefinition {
         this.id = id;
         this.naam = naam;
         this.type = type;
-        this.defaultFormulierDefinitie = DefaultHumanTaskFormulierKoppeling.readFormulierDefinitie(id);
+        this.defaultFormulierDefinitie = DefaultHumanTaskFormulierKoppeling.Companion.readFormulierDefinitie(id);
     }
 }

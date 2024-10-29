@@ -18,7 +18,8 @@ data class RESTHumanTaskData(
     @field:NotNull
     var groep: RestGroup,
 
-    var medewerker: @Valid RestUser? = null,
+    @Valid
+    var medewerker: RestUser? = null,
 
     /**
      * The 'final due date' of a task.

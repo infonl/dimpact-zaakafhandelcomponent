@@ -83,18 +83,16 @@ class PlanItemsRESTService @Inject constructor(
 
     @GET
     @Path("zaak/{uuid}/humanTaskPlanItems")
-    fun listHumanTaskPlanItems(@PathParam("uuid") zaakUUID: UUID?): List<RESTPlanItem> =
+    fun listHumanTaskPlanItems(@PathParam("uuid") zaakUUID: UUID): List<RESTPlanItem> =
         cmmnService.listHumanTaskPlanItems(zaakUUID).let { humanTaskPlanItems ->
             zrcClientService.readZaak(zaakUUID).let { zaak ->
-                planItemConverter.convertPlanItems(humanTaskPlanItems, zaak)
-                    .filter { it.actief }
-                    .toList()
+                planItemConverter.convertPlanItems(humanTaskPlanItems, zaak).filter { it.actief }
             }
         }
 
     @GET
     @Path("zaak/{uuid}/processTaskPlanItems")
-    fun listProcessTaskPlanItems(@PathParam("uuid") zaakUUID: UUID?): List<RESTPlanItem> =
+    fun listProcessTaskPlanItems(@PathParam("uuid") zaakUUID: UUID): List<RESTPlanItem> =
         cmmnService.listProcessTaskPlanItems(zaakUUID).let { processTaskPlanItems ->
             zrcClientService.readZaak(zaakUUID).let { zaak ->
                 planItemConverter.convertPlanItems(processTaskPlanItems, zaak)
@@ -103,7 +101,7 @@ class PlanItemsRESTService @Inject constructor(
 
     @GET
     @Path("zaak/{uuid}/userEventListenerPlanItems")
-    fun listUserEventListenerPlanItems(@PathParam("uuid") zaakUUID: UUID?): List<RESTPlanItem> =
+    fun listUserEventListenerPlanItems(@PathParam("uuid") zaakUUID: UUID): List<RESTPlanItem> =
         cmmnService.listUserEventListenerPlanItems(zaakUUID).let { userEventListenerPlanItems ->
             zrcClientService.readZaak(zaakUUID).let { zaak ->
                 planItemConverter.convertPlanItems(userEventListenerPlanItems, zaak)
@@ -135,7 +133,7 @@ class PlanItemsRESTService @Inject constructor(
     @POST
     @Path("doHumanTaskPlanItem")
     @Suppress("LongMethod")
-    fun doHumanTaskplanItem(humanTaskData: @Valid RESTHumanTaskData) {
+    fun doHumanTaskplanItem(@Valid humanTaskData: RESTHumanTaskData) {
         val planItem = cmmnService.readOpenPlanItem(humanTaskData.planItemInstanceId)
         val zaakUUID = zaakVariabelenService.readZaakUUID(planItem)
         val zaak = zrcClientService.readZaak(zaakUUID)
@@ -145,13 +143,12 @@ class PlanItemsRESTService @Inject constructor(
             UriUtil.uuidFromURI(zaak.zaaktype)
         )
 
-        val fatalDate = calculateFatalDate(humanTaskData, zaakafhandelParameters, planItem, zaak)
-        if (fatalDate != null) {
+        val fatalDate = calculateFatalDate(humanTaskData, zaakafhandelParameters, planItem, zaak)?.also {
             if (TaakVariabelenService.isZaakOpschorten(taakdata)) {
-                val numberOfDays = ChronoUnit.DAYS.between(LocalDate.now(), fatalDate)
+                val numberOfDays = ChronoUnit.DAYS.between(LocalDate.now(), it)
                 suspensionZaakHelper.suspendZaak(zaak, numberOfDays, REDEN_OPSCHORTING)
-            } else if (fatalDate.isAfter(zaak.uiterlijkeEinddatumAfdoening)) {
-                val numberOfDays = ChronoUnit.DAYS.between(zaak.uiterlijkeEinddatumAfdoening, fatalDate)
+            } else if (it.isAfter(zaak.uiterlijkeEinddatumAfdoening)) {
+                val numberOfDays = ChronoUnit.DAYS.between(zaak.uiterlijkeEinddatumAfdoening, it)
                 suspensionZaakHelper.extendZaakFatalDate(zaak, numberOfDays, REDEN_PAST_FATALE_DATUM)
             }
         }
@@ -271,19 +268,19 @@ class PlanItemsRESTService @Inject constructor(
         val humanTaskParameters = zaakafhandelParameters.findHumanTaskParameter(planItem.planItemDefinitionId)
         val zaakFatalDate = zaak.uiterlijkeEinddatumAfdoening
 
-        if (humanTaskData.fataledatum != null) {
+        humanTaskData.fataledatum?.let {
             if (!isAanvullendeInformatieTask(planItem)) {
                 validateFatalDate(humanTaskData.fataledatum, zaakFatalDate)
             }
             return humanTaskData.fataledatum
-        } else {
-            if (humanTaskParameters.isPresent && humanTaskParameters.get().doorlooptijd != null) {
-                var calculatedFinalDate = LocalDate.now().plusDays(humanTaskParameters.get().doorlooptijd.toLong())
-                if (calculatedFinalDate.isAfter(zaakFatalDate)) {
-                    calculatedFinalDate = zaakFatalDate
-                }
-                return calculatedFinalDate
+        }
+
+        if (humanTaskParameters.isPresent && humanTaskParameters.get().doorlooptijd != null) {
+            var calculatedFinalDate = LocalDate.now().plusDays(humanTaskParameters.get().doorlooptijd.toLong())
+            if (calculatedFinalDate.isAfter(zaakFatalDate)) {
+                calculatedFinalDate = zaakFatalDate
             }
+            return calculatedFinalDate
         }
 
         return null

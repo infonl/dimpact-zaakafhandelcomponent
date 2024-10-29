@@ -44,7 +44,7 @@ class RESTPlanItemConverter @Inject constructor(
             when (type) {
                 PlanItemType.USER_EVENT_LISTENER -> convertUserEventListener(this, planItem, zaakafhandelParameters)
                 PlanItemType.HUMAN_TASK -> convertHumanTask(this, planItem, zaakafhandelParameters)
-                PlanItemType.PROCESS_TASK -> convertProcessTask(this)
+                PlanItemType.PROCESS_TASK -> {}
             }
         }
 
@@ -78,9 +78,6 @@ class RESTPlanItemConverter @Inject constructor(
                 }
             }
         }
-
-    private fun convertProcessTask(restPlanItem: RESTPlanItem): RESTPlanItem =
-        restPlanItem
 
     private fun convertDefinitionType(planItemDefinitionType: String): PlanItemType =
         when (planItemDefinitionType) {

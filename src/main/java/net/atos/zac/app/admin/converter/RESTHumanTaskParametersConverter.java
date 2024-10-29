@@ -72,7 +72,7 @@ public class RESTHumanTaskParametersConverter {
     ) {
         final List<RestHumanTaskReferenceTable> referentieTabellen = restHumanTaskReferenceTableConverter.convert(
                 humanTaskParameters.getReferentieTabellen());
-        DefaultHumanTaskFormulierKoppeling.readFormulierVeldDefinities(humanTaskDefinition.id).stream()
+        DefaultHumanTaskFormulierKoppeling.Companion.readFormulierVeldDefinities(humanTaskDefinition.id).stream()
                 .filter(veldDefinitie -> referentieTabellen.stream()
                         .noneMatch(referentieTabel -> veldDefinitie.name().equals(referentieTabel.veld)))
                 .map(restHumanTaskReferenceTableConverter::convertDefault)
@@ -97,9 +97,8 @@ public class RESTHumanTaskParametersConverter {
         final RESTHumanTaskParameters restHumanTaskParameters = new RESTHumanTaskParameters();
         restHumanTaskParameters.planItemDefinition = humanTaskDefinition;
         restHumanTaskParameters.actief = false;
-        restHumanTaskParameters.formulierDefinitieId = DefaultHumanTaskFormulierKoppeling.readFormulierDefinitie(
-                humanTaskDefinition.id
-        ).name();
+        restHumanTaskParameters.formulierDefinitieId = DefaultHumanTaskFormulierKoppeling.Companion.readFormulierDefinitie(
+                humanTaskDefinition.id).name();
         return restHumanTaskParameters;
     }
 }

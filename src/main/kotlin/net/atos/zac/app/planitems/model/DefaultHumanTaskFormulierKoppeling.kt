@@ -19,14 +19,12 @@ enum class DefaultHumanTaskFormulierKoppeling(
     DEFAULT("", FormulierDefinitie.DEFAULT_TAAKFORMULIER);
 
     companion object {
-        @JvmStatic
         fun readFormulierDefinitie(planItemDefinitionId: String): FormulierDefinitie =
             entries.toTypedArray()
                 .filter { it.planItemDefinitionId == planItemDefinitionId }
                 .map { it.formulierDefinitie }
                 .firstOrNull() ?: DEFAULT.formulierDefinitie
 
-        @JvmStatic
         fun readFormulierVeldDefinities(planItemDefinitionId: String): Set<FormulierVeldDefinitie> =
             readFormulierDefinitie(planItemDefinitionId).veldDefinities
     }
