@@ -18,7 +18,7 @@ data class RESTHumanTaskData(
     @field:NotNull
     var groep: RestGroup,
 
-    @Valid
+    @field:Valid
     var medewerker: RestUser? = null,
 
     /**

@@ -44,6 +44,7 @@ import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.util.UriUtil
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.zoeken.IndexingService
+import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.time.LocalDate
@@ -57,6 +58,7 @@ import java.util.UUID
 @Path("planitems")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@AllOpen
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
 class PlanItemsRESTService @Inject constructor(
