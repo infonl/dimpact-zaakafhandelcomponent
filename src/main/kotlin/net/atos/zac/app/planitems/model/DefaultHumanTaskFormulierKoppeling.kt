@@ -1,12 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.planitems.model
 
 import net.atos.zac.admin.model.FormulierDefinitie
 import net.atos.zac.admin.model.FormulierVeldDefinitie
-import java.util.Arrays
 
 enum class DefaultHumanTaskFormulierKoppeling(
     private val planItemDefinitionId: String,
@@ -21,17 +20,14 @@ enum class DefaultHumanTaskFormulierKoppeling(
 
     companion object {
         @JvmStatic
-        fun readFormulierDefinitie(planItemDefinitionId: String): FormulierDefinitie {
-            return Arrays.stream(entries.toTypedArray())
-                .filter { humanTaskFormulierKoppeling: DefaultHumanTaskFormulierKoppeling -> humanTaskFormulierKoppeling.planItemDefinitionId == planItemDefinitionId }
-                .map { obj: DefaultHumanTaskFormulierKoppeling -> obj.formulierDefinitie }
-                .findAny()
-                .orElse(DEFAULT.formulierDefinitie)
-        }
+        fun readFormulierDefinitie(planItemDefinitionId: String): FormulierDefinitie =
+            entries.toTypedArray()
+                .filter { it.planItemDefinitionId == planItemDefinitionId }
+                .map { it.formulierDefinitie }
+                .firstOrNull() ?: DEFAULT.formulierDefinitie
 
         @JvmStatic
-        fun readFormulierVeldDefinities(planItemDefinitionId: String): Set<FormulierVeldDefinitie> {
-            return readFormulierDefinitie(planItemDefinitionId).veldDefinities
-        }
+        fun readFormulierVeldDefinities(planItemDefinitionId: String): Set<FormulierVeldDefinitie> =
+            readFormulierDefinitie(planItemDefinitionId).veldDefinities
     }
 }
