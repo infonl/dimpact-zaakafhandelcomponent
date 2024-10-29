@@ -22,27 +22,31 @@
       "matchPackageNames": ["quay.io/keycloak/keycloak"],
       "matchDatasources": ["docker"],
       "allowedVersions": "<= 24.0.5",
-      "description": "We currently focus on Dimpact PodiumD release 2.0 which pins Keycloak to this version"
+      "description": "We currently focus on Dimpact PodiumD release 2.0 which pins this package to this version"
     },
     {
       "matchPackageNames": ["maykinmedia/objects-api"],
       "matchDatasources": ["docker"],
-      "allowedVersions": "<= 2.4.4"
+      "allowedVersions": "<= 2.4.4",
+      "description": "We currently focus on Dimpact PodiumD release 2.0 which pins this package to this version"
     },
     {
       "matchPackageNames": ["maykinmedia/objecttypes-api"],
       "matchDatasources": ["docker"],
-      "allowedVersions": "<= 2.2.2"
+      "allowedVersions": "<= 2.2.2",
+      "description": "We currently focus on Dimpact PodiumD release 2.0 which pins this package to this version"
     },
     {
       "matchPackageNames": ["maykinmedia/open-klant"],
       "matchDatasources": ["docker"],
-      "allowedVersions": "<= 2.3.0"
+      "allowedVersions": "<= 2.3.0",
+      "description": "We currently focus on Dimpact PodiumD release 2.0 which pins this package to this version"
     },
     {
       "matchPackageNames": ["openzaak/open-zaak"],
       "matchDatasources": ["docker"],
-      "allowedVersions": "<= 1.15.0"
+      "allowedVersions": "<= 1.15.0",
+      "description": "We currently focus on Dimpact PodiumD release 2.0 which pins this package to this version"
     },
     {
       "matchPackageNames": ["ghcr.io/infonl/zaakafhandelcomponent"],
