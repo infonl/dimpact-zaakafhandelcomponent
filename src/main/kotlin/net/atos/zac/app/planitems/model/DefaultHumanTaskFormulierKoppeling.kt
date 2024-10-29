@@ -5,10 +5,9 @@
 package net.atos.zac.app.planitems.model
 
 import net.atos.zac.admin.model.FormulierDefinitie
-import net.atos.zac.admin.model.FormulierVeldDefinitie
 
 enum class DefaultHumanTaskFormulierKoppeling(
-    private val planItemDefinitionId: String,
+    val planItemDefinitionId: String,
     val formulierDefinitie: FormulierDefinitie
 ) {
     AANVULLENDE_INFORMATIE("AANVULLENDE_INFORMATIE", FormulierDefinitie.AANVULLENDE_INFORMATIE),
@@ -16,16 +15,5 @@ enum class DefaultHumanTaskFormulierKoppeling(
     ADVIES_INTERN("ADVIES_INTERN", FormulierDefinitie.ADVIES),
     ADVIES_EXTERN("ADVIES_EXTERN", FormulierDefinitie.EXTERN_ADVIES_VASTLEGGEN),
     DOCUMENT_VERZENDEN_POST("DOCUMENT_VERZENDEN_POST", FormulierDefinitie.DOCUMENT_VERZENDEN_POST),
-    DEFAULT("", FormulierDefinitie.DEFAULT_TAAKFORMULIER);
-
-    companion object {
-        fun readFormulierDefinitie(planItemDefinitionId: String): FormulierDefinitie =
-            entries.toTypedArray()
-                .filter { it.planItemDefinitionId == planItemDefinitionId }
-                .map { it.formulierDefinitie }
-                .firstOrNull() ?: DEFAULT.formulierDefinitie
-
-        fun readFormulierVeldDefinities(planItemDefinitionId: String): Set<FormulierVeldDefinitie> =
-            readFormulierDefinitie(planItemDefinitionId).veldDefinities
-    }
+    DEFAULT("", FormulierDefinitie.DEFAULT_TAAKFORMULIER)
 }

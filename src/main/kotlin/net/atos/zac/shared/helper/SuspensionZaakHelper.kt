@@ -30,7 +30,7 @@ class SuspensionZaakHelper @Inject constructor(
 
         val zaakUUID = zaak.uuid
         val toelichting = "$SUSPENSION: $suspensionReason"
-        val einddatumGepland = zaak.einddatumGepland.plusDays(numberOfDays)
+        val einddatumGepland = zaak.einddatumGepland?.plusDays(numberOfDays)
         val uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening.plusDays(numberOfDays)
         val patchZaak = addSuspensionToZaakPatch(
             createZaakPatch(einddatumGepland, uiterlijkeEinddatumAfdoening),

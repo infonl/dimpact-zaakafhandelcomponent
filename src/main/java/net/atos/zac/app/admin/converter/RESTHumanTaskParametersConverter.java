@@ -14,7 +14,8 @@ import net.atos.zac.admin.model.HumanTaskParameters;
 import net.atos.zac.app.admin.model.RESTHumanTaskParameters;
 import net.atos.zac.app.admin.model.RESTPlanItemDefinition;
 import net.atos.zac.app.admin.model.RestHumanTaskReferenceTable;
-import net.atos.zac.app.planitems.model.DefaultHumanTaskFormulierKoppeling;
+import net.atos.zac.app.planitems.converter.FormulierKoppelingConverterKt;
+
 
 public class RESTHumanTaskParametersConverter {
 
@@ -72,7 +73,7 @@ public class RESTHumanTaskParametersConverter {
     ) {
         final List<RestHumanTaskReferenceTable> referentieTabellen = restHumanTaskReferenceTableConverter.convert(
                 humanTaskParameters.getReferentieTabellen());
-        DefaultHumanTaskFormulierKoppeling.Companion.readFormulierVeldDefinities(humanTaskDefinition.id).stream()
+        FormulierKoppelingConverterKt.readFormulierVeldDefinities(humanTaskDefinition.id).stream()
                 .filter(veldDefinitie -> referentieTabellen.stream()
                         .noneMatch(referentieTabel -> veldDefinitie.name().equals(referentieTabel.veld)))
                 .map(restHumanTaskReferenceTableConverter::convertDefault)
@@ -97,7 +98,7 @@ public class RESTHumanTaskParametersConverter {
         final RESTHumanTaskParameters restHumanTaskParameters = new RESTHumanTaskParameters();
         restHumanTaskParameters.planItemDefinition = humanTaskDefinition;
         restHumanTaskParameters.actief = false;
-        restHumanTaskParameters.formulierDefinitieId = DefaultHumanTaskFormulierKoppeling.Companion.readFormulierDefinitie(
+        restHumanTaskParameters.formulierDefinitieId = FormulierKoppelingConverterKt.toFormulierDefinitie(
                 humanTaskDefinition.id).name();
         return restHumanTaskParameters;
     }

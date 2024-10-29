@@ -27,7 +27,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import net.atos.zac.app.planitems.model.DefaultHumanTaskFormulierKoppeling;
+import net.atos.zac.app.planitems.converter.FormulierKoppelingConverterKt;
 
 @Entity
 @Table(schema = SCHEMA, name = "humantask_parameters")
@@ -80,7 +80,7 @@ public class HumanTaskParameters {
     }
 
     public String getFormulierDefinitieID() {
-        return formulierDefinitieID != null ? formulierDefinitieID : DefaultHumanTaskFormulierKoppeling.Companion.readFormulierDefinitie(
+        return formulierDefinitieID != null ? formulierDefinitieID : FormulierKoppelingConverterKt.toFormulierDefinitie(
                 planItemDefinitionID).name();
     }
 
