@@ -26,7 +26,9 @@ data class RestTask(
 
     var creatiedatumTijd: ZonedDateTime? = null,
 
-    // Datum waarop de taak is toegekend aan een behandelaar
+    /**
+     * Date and time when the task was assigned to the assignee
+     */
     var toekenningsdatumTijd: ZonedDateTime? = null,
 
     var fataledatum: LocalDate? = null,
@@ -35,20 +37,24 @@ data class RestTask(
 
     var groep: RestGroup? = null,
 
-    var zaakUuid: UUID? = null,
+    var zaakUuid: UUID,
 
-    var zaakIdentificatie: String? = null,
+    var zaakIdentificatie: String,
 
     var zaaktypeOmschrijving: String? = null,
 
     var status: TaakStatus? = null,
 
-    // Identificatie van een vooraf gecodeerde combinatie van taak start en afhandel formulieren.
-    // Deze worden enkel gebruikt door taken welke handmatig worden gestart vanuit een CMMN model
+    /**
+     * Identificatie van een vooraf gecodeerde combinatie van taak start en afhandel formulieren.
+     * Deze worden enkel gebruikt door taken welke handmatig worden gestart vanuit een CMMN model
+     */
     var formulierDefinitieId: String? = null,
 
-    // Definitie van een via de user interface gebouwd formulier.
-    // Deze worden enkel gebruikt voor het afhandelen van taken welke automatische worden gestart vanuit een BPMN proces
+    /**
+     * Definitie van een via de user interface gebouwd formulier.
+     * Deze worden enkel gebruikt voor het afhandelen van taken welke automatische worden gestart vanuit een BPMN proces.
+     */
     var formulierDefinitie: RESTFormulierDefinitie? = null,
 
     var formioFormulier: JsonObject? = null,
