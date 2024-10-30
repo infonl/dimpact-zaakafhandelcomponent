@@ -67,7 +67,7 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
     super(translate, informatieObjectenService);
   }
 
-  private opschortenMogelijk(): boolean {
+  private isZaakSuspendable(): boolean {
     return (
       this.zaak.zaaktype.opschortingMogelijk &&
       !this.zaak.redenOpschorting &&
@@ -169,7 +169,7 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
       },
     );
 
-    if (this.opschortenMogelijk()) {
+    if (this.isZaakSuspendable()) {
       this.form.push([
         new CheckboxFormFieldBuilder()
           .id(fields.ZAAK_OPSCHORTEN)
@@ -224,20 +224,21 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
     const fatalZaakDate =
       this.zaak.uiterlijkeEinddatumAfdoening &&
       moment(this.zaak.uiterlijkeEinddatumAfdoening);
+    const suspendedTextSuffix = this.isZaakSuspendable() ? "" : ".opgeschort";
 
     if (!fatalZaakDate) {
-      return "msg.taak.aanvullendeInformatie.fataleDatumZaak.leeg";
+      return `msg.taak.aanvullendeInformatie.fataleDatumZaak.leeg`;
     }
 
     if (!humanTaskDataFatalDate) {
-      return "msg.taak.aanvullendeInformatie.fataleDatumTaak.overig";
+      return `msg.taak.aanvullendeInformatie.fataleDatumTaak.overig${suspendedTextSuffix}`;
     }
 
     if (moment(humanTaskDataFatalDate).isAfter(fatalZaakDate)) {
-      return "msg.taak.aanvullendeInformatie.fataleDatumTaak.overschreden";
+      return `msg.taak.aanvullendeInformatie.fataleDatumTaak.overschreden${suspendedTextSuffix}`;
     }
 
-    return "msg.taak.aanvullendeInformatie.fataleDatumTaak.overig";
+    return `msg.taak.aanvullendeInformatie.fataleDatumTaak.overig${suspendedTextSuffix}`;
   }
 
   _initBehandelForm() {
