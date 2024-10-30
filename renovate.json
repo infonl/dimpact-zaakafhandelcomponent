@@ -51,8 +51,8 @@
     {
       "matchPackageNames": ["ghcr.io/infonl/zaakafhandelcomponent"],
       "matchDatasources": ["docker"],
-      "updateTypes": ["digest"],
-      "pinDigests": false,
+      "matchUpdateTypes": ["digest","pin","pinDigest"],
+      "enabled": false,
       "description": "The version of the ZAC Docker image in our Docker Compose file is set to 'latest' and is only used for local development"
     }
   ]
