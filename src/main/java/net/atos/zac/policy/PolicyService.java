@@ -95,6 +95,9 @@ public class PolicyService {
         return readZaakRechten(zaak, zaaktype, null);
     }
 
+    /**
+     * !!! user parameter is to be removed when we switch to paging
+     */
     public ZaakRechten readZaakRechten(final Zaak zaak, final ZaakType zaaktype, @Nullable final LoggedInUser user) {
         final ZaakData zaakData = new ZaakData();
         zaakData.open = zaak.isOpen();

@@ -9,6 +9,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import jakarta.enterprise.inject.Instance
 import jakarta.persistence.EntityManager
 import jakarta.persistence.Query
 import jakarta.persistence.criteria.CriteriaBuilder
@@ -19,7 +20,9 @@ import jakarta.persistence.criteria.Root
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
+import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
+import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.createTestTask
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -44,12 +47,14 @@ class SignaleringServiceTest : BehaviorSpec({
     val signaleringenMailHelper = mockk<SignaleringMailHelper>()
     val zrcClientService = mockk<ZrcClientService>()
     val restZaakOverzichtConverter = mockk<RestZaakOverzichtConverter>()
+    val restInformatieobjectConverter = mockk<RestInformatieobjectConverter>()
     val entityManager = mockk<EntityManager>()
     val criteriaBuilder = mockk<CriteriaBuilder>()
     val criteriaDeleteSignalering = mockk<CriteriaDelete<Signalering>>()
     val rootSignalering = mockk<Root<Signalering>>()
     val pathTijdstip = mockk<Path<Long>>()
     val query = mockk<Query>()
+    val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
 
     val signaleringService = SignaleringService(
         entityManager = entityManager,
@@ -59,7 +64,9 @@ class SignaleringServiceTest : BehaviorSpec({
         mailService = mailService,
         signaleringenMailHelper = signaleringenMailHelper,
         zrcClientService = zrcClientService,
-        restZaakOverzichtConverter = restZaakOverzichtConverter
+        restZaakOverzichtConverter = restZaakOverzichtConverter,
+        restInformatieobjectConverter = restInformatieobjectConverter,
+        loggedInUserInstance = loggedInUserInstance
     )
 
     beforeEach {

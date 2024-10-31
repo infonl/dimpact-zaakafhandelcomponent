@@ -18,25 +18,18 @@ import jakarta.ws.rs.core.MediaType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.atos.client.zgw.drc.DrcClientService
-import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import net.atos.zac.app.signalering.converter.RestSignaleringInstellingenConverter
-import net.atos.zac.app.signalering.converter.toRestSignaleringTaakSummary
 import net.atos.zac.app.signalering.model.RestSignaleringInstellingen
 import net.atos.zac.app.signalering.model.RestSignaleringTaskSummary
 import net.atos.zac.app.zaak.model.RestZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
-import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
-import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringType
-import net.atos.zac.signalering.model.SignaleringZoekParameters
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
-import java.util.UUID
 
 @Path("signaleringen")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -46,27 +39,23 @@ import java.util.UUID
 @Suppress("LongParameterList", "TooManyFunctions")
 class SignaleringRestService @Inject constructor(
     private val signaleringService: SignaleringService,
-    private val flowableTaskService: FlowableTaskService,
-    private val drcClientService: DrcClientService,
     private val identityService: IdentityService,
-    private val restInformatieobjectConverter: RestInformatieobjectConverter,
     private val restSignaleringInstellingenConverter: RestSignaleringInstellingenConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
-    private fun Instance<LoggedInUser>.getSignaleringZoekParameters() =
-        SignaleringZoekParameters(get())
     private fun Instance<LoggedInUser>.getSignaleringInstellingenZoekParameters() =
         SignaleringInstellingenZoekParameters(get())
 
     @GET
     @Path("/latest")
     fun latestSignaleringen(): ZonedDateTime? =
-        loggedInUserInstance.getSignaleringZoekParameters()
-            .let(signaleringService::latestSignalering)
+        signaleringService.latestSignalering()
 
     /**
      * Starts listing zaken signaleringen for the given signaleringsType.
      * This can be a long-running operation, so it is run asynchronously.
+     *
+     * !!! To be removed when we switch to paging
      */
     @PUT
     @Path("/zaken/{type}")
@@ -92,33 +81,31 @@ class SignaleringRestService @Inject constructor(
         @QueryParam("pageNumber") pageNumber: Int,
         @QueryParam("pageSize") pageSize: Int,
     ): List<RestZaakOverzicht> =
-        loggedInUserInstance.get().let {
-            signaleringService.listZakenSignaleringenPage(it, signaleringsType, pageNumber, pageSize)
-        }
+        signaleringService.listZakenSignaleringenPage(signaleringsType, pageNumber, pageSize)
 
+    /**
+     * !!! defaults are to be removed when we switch to paging
+     */
     @GET
     @Path("/taken/{type}")
     fun listTakenSignaleringen(
-        @PathParam("type") signaleringsType: SignaleringType.Type
+        @PathParam("type") signaleringsType: SignaleringType.Type,
+        @QueryParam("pageNumber") pageNumber: Int = 0,
+        @QueryParam("pageSize") pageSize: Int = 5
     ): List<RestSignaleringTaskSummary> =
-        loggedInUserInstance.getSignaleringZoekParameters()
-            .types(signaleringsType)
-            .subjecttype(SignaleringSubject.TAAK)
-            .let(signaleringService::listSignaleringen)
-            .map { flowableTaskService.readTask(it.subject) }
-            .map { it.toRestSignaleringTaakSummary() }
+        signaleringService.listTakenSignaleringenPage(signaleringsType, pageNumber, pageSize)
 
+    /**
+     * !!! defaults are to be removed when we switch to paging
+     */
     @GET
     @Path("/informatieobjecten/{type}")
     fun listInformatieobjectenSignaleringen(
-        @PathParam("type") signaleringsType: SignaleringType.Type
+        @PathParam("type") signaleringsType: SignaleringType.Type,
+        @QueryParam("pageNumber") pageNumber: Int = 0,
+        @QueryParam("pageSize") pageSize: Int = 5
     ): List<RestEnkelvoudigInformatieobject> =
-        loggedInUserInstance.getSignaleringZoekParameters()
-            .types(signaleringsType)
-            .subjecttype(SignaleringSubject.DOCUMENT)
-            .let(signaleringService::listSignaleringen)
-            .map { drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(it.subject)) }
-            .map(restInformatieobjectConverter::convertToREST)
+        signaleringService.listInformatieobjectenSignaleringen(signaleringsType, pageNumber, pageSize)
 
     @GET
     @Path("/instellingen")
