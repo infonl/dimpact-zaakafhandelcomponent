@@ -11,6 +11,7 @@ import net.atos.zac.app.informatieobjecten.model.createRestInformatieobjecttype
 import net.atos.zac.app.zaak.model.createRestUser
 import java.util.UUID
 
+@Suppress("LongParameterList")
 fun createRestTask(
     id: String = "dummyId",
     behandelaar: RestUser = createRestUser(),
