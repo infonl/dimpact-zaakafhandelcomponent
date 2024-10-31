@@ -20,6 +20,7 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.FormulierDefinitie
+import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.app.exception.InputValidationFailedException
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
@@ -49,6 +50,7 @@ import nl.lifely.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
+import java.util.Optional
 import java.util.UUID
 
 /**
@@ -260,7 +262,6 @@ class PlanItemsRESTService @Inject constructor(
         }
     }
 
-    @Suppress("ReturnCount")
     private fun calculateFatalDate(
         humanTaskData: RESTHumanTaskData,
         zaakafhandelParameters: ZaakafhandelParameters,
@@ -274,9 +275,17 @@ class PlanItemsRESTService @Inject constructor(
             if (!isAanvullendeInformatieTask(planItem)) {
                 validateFatalDate(humanTaskData.fataledatum, zaakFatalDate)
             }
+
             return humanTaskData.fataledatum
         }
 
+        return calculateFatalDateFromLeadTime(humanTaskParameters, zaakFatalDate)
+    }
+
+    private fun calculateFatalDateFromLeadTime(
+        humanTaskParameters: Optional<HumanTaskParameters>,
+        zaakFatalDate: LocalDate?
+    ): LocalDate? {
         if (humanTaskParameters.isPresent && humanTaskParameters.get().doorlooptijd != null) {
             var calculatedFinalDate = LocalDate.now().plusDays(humanTaskParameters.get().doorlooptijd.toLong())
             if (calculatedFinalDate.isAfter(zaakFatalDate)) {
