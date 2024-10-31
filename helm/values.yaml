@@ -54,7 +54,6 @@ zgwApis:
 notificationsSecretKey: ""
 
 # klantenApi Configuration of Klanten API provider (Open Klant)
-# this requires open klant 2.1.0
 klantinteractiesApi:
   url: "" # http://open-klant.internal/klantinteracties
   token: ""
@@ -62,12 +61,6 @@ klantinteractiesApi:
 # featureFlags defines supported feature flags and their default values
 featureFlags:
   bpmnSupport: false
-
-# contactmomentenApi Configuration of Contactmomenten API provider (Open Klant)
-contactmomentenApi:
-  url: "" # http://open-klant.internal
-  clientId: ""
-  secret: ""
 
 # objectenApi Configuration of the Objecten API provider (Overige Registraties)
 objectenApi:

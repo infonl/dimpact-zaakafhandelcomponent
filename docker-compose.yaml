@@ -302,7 +302,7 @@ services:
       - ./scripts/docker-compose/volume-data/openklant-database-data:/var/lib/postgresql/data
 
   openklant.local:
-    image: docker.io/maykinmedia/open-klant:2.1.0@sha256:708fb69e2ef460ecee32c5aa5174378ea56d3d358de5f40f1bbc161379429d5b
+    image: docker.io/maykinmedia/open-klant:2.3.0@sha256:deeccf6c1e0c76538169443ffe960895da98188540fec69e127d9e78fdce23da
     platform: linux/amd64
     environment:
       - ALLOWED_HOSTS=localhost,host.docker.internal,openklant.local
@@ -313,6 +313,7 @@ services:
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
       - DJANGO_SETTINGS_MODULE=openklant.conf.docker
+      - EMAIL_HOST=localhost
       - IS_HTTPS=no
       - NOTIFICATIONS_DISABLED=True
       - SECRET_KEY=openZaakSecretKey
