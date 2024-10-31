@@ -54,16 +54,17 @@
         font-family: Roboto;
         font-style: normal;
         font-weight: 400 500;
+        font-display: swap;
         src:
           url("/assets/fonts/Roboto/400.woff2") format("woff2"),
           url("/assets/fonts/Roboto/500.woff2") format("woff2");
       }
 
       body {
-        font-family: "Roboto", sans-serif;
-        font-size: 16px;
+        font-family: Roboto, "Helvetica Neue", sans-serif;
+        font-size: 14px;
         font-weight: 400;
-        line-height: 28px;
+        line-height: 20px;
         color: var(--primary-color);
       }
 
@@ -131,8 +132,6 @@
         justify-content: center;
         align-items: center;
         gap: 10px;
-        font-size: 14px;
-        line-height: 20px;
         padding: 14px 16px;
         margin-bottom: 10px;
         border-radius: 4px;
@@ -170,6 +169,8 @@
       }
 
       .sub-text {
+        font-size: 16px;
+        line-height: 28px;
         text-align: center;
       }
     </style>
