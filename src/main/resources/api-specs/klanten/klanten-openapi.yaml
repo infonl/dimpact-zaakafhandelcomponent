@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: klantinteracties
-  version: 0.0.3
+  version: 0.0.3 (1)
   description: |2
 
     Description WIP.
@@ -42,11 +42,17 @@ paths:
         name: naam
         schema:
           type: string
-        description: Zoek klantcontacten met specifieke tekst in inhoud
+        description: Zoek klantcontacten met specifieke tekst in inhoud.
       - name: page
         required: false
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
         schema:
           type: integer
       - in: query
@@ -223,6 +229,12 @@ paths:
         required: false
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
         schema:
           type: integer
       tags:
@@ -402,6 +414,12 @@ paths:
         required: false
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
         schema:
           type: integer
       - in: query
@@ -598,6 +616,12 @@ paths:
         description: Een pagina binnen de gepagineerde set resultaten.
         schema:
           type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
       tags:
       - bijlagen
       security:
@@ -767,21 +791,27 @@ paths:
         description: Een pagina binnen de gepagineerde set resultaten.
         schema:
           type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
       - in: query
         name: partij__nummer
         schema:
           type: string
-        description: Zoek categorie relatie object op basis van het partij nummer
+        description: Zoek categorie relatie object op basis van het partij nummer.
       - in: query
         name: partij__url
         schema:
           type: string
-        description: Zoek categorie relatie object op basis van de partij url
+        description: Zoek categorie relatie object op basis van de partij url.
       - in: query
         name: partij__uuid
         schema:
           type: string
-        description: Zoek categorie relatie object op basis van de partij uuid
+        description: Zoek categorie relatie object op basis van de partij uuid.
       tags:
       - categorie relaties
       security:
@@ -929,6 +959,12 @@ paths:
         description: Een pagina binnen de gepagineerde set resultaten.
         schema:
           type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
       tags:
       - categorieën
       security:
@@ -1065,12 +1101,99 @@ paths:
       description: Alle digitale adressen opvragen.
       summary: Alle digitale adressen opvragen.
       parameters:
+      - in: query
+        name: adres
+        schema:
+          type: string
+        description: Zoek digitaal adres(sen) object(en) op basis van adres dat exact
+          gelijk moet zijn aan deze waarde.
+      - in: query
+        name: adres__icontains
+        schema:
+          type: string
+        description: Zoek digitaal adres(sen) object(en) op basis van adres die de
+          opgegeven waarden bevat.
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - verstrektDoorBetrokkene
+            - verstrektDoorBetrokkene.hadKlantcontact
+            - verstrektDoorBetrokkene.hadKlantcontact.leiddeTotInterneTaken
+        description: |+
+          Sluit de gespecifieerde gerelateerde resources in in het antwoord.
+
+        explode: false
+        style: form
+      - in: query
+        name: omschrijving
+        schema:
+          type: string
+        description: Zoek digitaal adres(sen) object(en) op basis van omschijving
+          die de opgegeven waarden bevat.
       - name: page
         required: false
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
         schema:
           type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
+      - in: query
+        name: soortDigitaalAdres
+        schema:
+          type: string
+        description: Zoek digitaal adres(sen) object(en) op basis van het soort digitaal
+          adres dat exact gelijk moet zijn aan deze waarde.
+      - in: query
+        name: verstrektDoorBetrokkene__rol
+        schema:
+          type: string
+          enum:
+          - klant
+          - vertegenwoordiger
+        description: Zoek digitaal adres(sen) object(en) op basis van de betrokkene
+          rol.
+      - in: query
+        name: verstrektDoorBetrokkene__url
+        schema:
+          type: string
+        description: Zoek digitaal adres(sen) object(en) op basis van de betrokkene
+          url.
+      - in: query
+        name: verstrektDoorBetrokkene__uuid
+        schema:
+          type: string
+          format: uuid
+        description: Zoek digitaal adres(sen) object(en) op basis van de betrokkene
+          uuid.
+      - in: query
+        name: verstrektDoorPartij__soortPartij
+        schema:
+          type: string
+          enum:
+          - contactpersoon
+          - organisatie
+          - persoon
+        description: Zoek digitaal adres(sen) object(en) op basis van de partij soort.
+      - in: query
+        name: verstrektDoorPartij__url
+        schema:
+          type: string
+        description: Zoek digitaal adres(sen) object(en) op basis van de partij url.
+      - in: query
+        name: verstrektDoorPartij__uuid
+        schema:
+          type: string
+          format: uuid
+        description: Zoek digitaal adres(sen) object(en) op basis van de partij uuid.
       tags:
       - digitale adressen
       security:
@@ -1080,7 +1203,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedDigitaalAdresList'
+                $ref: '#/components/schemas/PaginatedExpandDigitaalAdresList'
           description: ''
     post:
       operationId: digitaleadressenCreate
@@ -1109,6 +1232,21 @@ paths:
       description: Een specifiek digitaal adres opvragen.
       summary: Een specifiek digitaal adres opvragen.
       parameters:
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - verstrektDoorBetrokkene
+            - verstrektDoorBetrokkene.hadKlantcontact
+            - verstrektDoorBetrokkene.hadKlantcontact.leiddeTotInterneTaken
+        description: |+
+          Sluit de gespecifieerde gerelateerde resources in in het antwoord.
+
+        explode: false
+        style: form
       - in: path
         name: uuid
         schema:
@@ -1125,7 +1263,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DigitaalAdres'
+                $ref: '#/components/schemas/ExpandDigitaalAdres'
           description: ''
     put:
       operationId: digitaleadressenUpdate
@@ -1214,16 +1352,16 @@ paths:
         schema:
           type: string
         description: Zoek internetaak object op basis van het aanleidingevende klantcontact
-          url
+          url.
       - in: query
         name: aanleidinggevendKlantcontact__uuid
         schema:
           type: string
           format: uuid
         description: Zoek internetaak object op basis van het aanleidingevende klantcontact
-          uuid
+          uuid.
       - in: query
-        name: actor__naam
+        name: actoren__naam
         schema:
           type: string
       - in: query
@@ -1245,6 +1383,12 @@ paths:
         description: Een pagina binnen de gepagineerde set resultaten.
         schema:
           type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
       - in: query
         name: status
         schema:
@@ -1259,13 +1403,13 @@ paths:
         name: toegewezenAanActor__url
         schema:
           type: string
-        description: Zoek internetaak object op basis van het toegewezen actor url
+        description: Zoek internetaak object op basis van het toegewezen actor url.
       - in: query
         name: toegewezenAanActor__uuid
         schema:
           type: string
           format: uuid
-        description: Zoek internetaak object op basis van het toegewezen actor uuid
+        description: Zoek internetaak object op basis van het toegewezen actor uuid.
       - in: query
         name: toegewezenOp
         schema:
@@ -1431,13 +1575,13 @@ paths:
         name: hadBetrokkene__url
         schema:
           type: string
-        description: Zoek klantcontact object op basis van het betrokkene url
+        description: Zoek klantcontact object op basis van het betrokkene url.
       - in: query
         name: hadBetrokkene__uuid
         schema:
           type: string
           format: uuid
-        description: Zoek klantcontact object op basis van het betrokkene uuid
+        description: Zoek klantcontact object op basis van het betrokkene uuid.
       - in: query
         name: indicatieContactGelukt
         schema:
@@ -1446,7 +1590,7 @@ paths:
         name: inhoud
         schema:
           type: string
-        description: Zoek klantcontacten met specifieke tekst in inhoud
+        description: Zoek klantcontacten met specifieke tekst in inhoud.
       - in: query
         name: kanaal
         schema:
@@ -1459,7 +1603,7 @@ paths:
         name: onderwerp
         schema:
           type: string
-        description: Zoek klantcontacten met specifieke tekst in onderwerp
+        description: Zoek klantcontacten met specifieke tekst in onderwerp.
       - in: query
         name: onderwerpobject__onderwerpobjectidentificatorCodeObjecttype
         schema:
@@ -1480,7 +1624,7 @@ paths:
         name: onderwerpobject__url
         schema:
           type: string
-        description: Zoek klantcontact object op basis van het onderwerpobject url
+        description: Zoek klantcontact object op basis van het onderwerpobject url.
       - in: query
         name: onderwerpobject__uuid
         schema:
@@ -1490,6 +1634,12 @@ paths:
         required: false
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
         schema:
           type: integer
       - in: query
@@ -1522,7 +1672,7 @@ paths:
         schema:
           type: string
         description: Zoek was klantcontact object op basis van het onderwerpobject
-          url
+          url.
       - in: query
         name: wasOnderwerpobject__uuid
         schema:
@@ -1710,6 +1860,12 @@ paths:
         description: Een pagina binnen de gepagineerde set resultaten.
         schema:
           type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
       tags:
       - onderwerpobjecten
       security:
@@ -1856,6 +2012,12 @@ paths:
         required: false
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
         schema:
           type: integer
       - in: query
@@ -2091,28 +2253,34 @@ paths:
         description: Een pagina binnen de gepagineerde set resultaten.
         schema:
           type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
       - in: query
         name: partijIdentificator__codeObjecttype
         schema:
           type: string
-        description: Zoek partij object op basis van het partij identificator objecttype
+        description: Zoek partij object op basis van het partij identificator objecttype.
       - in: query
         name: partijIdentificator__codeRegister
         schema:
           type: string
-        description: Zoek partij object op basis van het partij identificator register
+        description: Zoek partij object op basis van het partij identificator register.
       - in: query
         name: partijIdentificator__codeSoortObjectId
         schema:
           type: string
         description: Zoek partij object op basis van het partij identificator soort
-          object ID
+          object ID.
       - in: query
         name: partijIdentificator__objectId
         schema:
           type: string
         description: Zoek partij object op basis van het partij identificator object
-          ID
+          ID.
       - in: query
         name: soortPartij
         schema:
@@ -2129,14 +2297,14 @@ paths:
         schema:
           type: string
         description: Zoek partij object op basis van het vertegenwoordigde partij
-          url
+          url.
       - in: query
         name: vertegenwoordigdePartij__uuid
         schema:
           type: string
           format: uuid
         description: Zoek partij object op basis van het vertegenwoordigde partij
-          uuid
+          uuid.
       tags:
       - partijen
       security:
@@ -2305,6 +2473,12 @@ paths:
         description: Een pagina binnen de gepagineerde set resultaten.
         schema:
           type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
       - in: query
         name: uuid
         schema:
@@ -2454,12 +2628,18 @@ paths:
         description: Een pagina binnen de gepagineerde set resultaten.
         schema:
           type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
       - in: query
         name: vertegenwoordigdePartij__url
         schema:
           type: string
         description: Zoek Vertegenwoordigden object op basis van het vertegenwoordigde
-          partij url
+          partij url.
       - in: query
         name: vertegenwoordigdePartij__uuid
         schema:
@@ -2470,7 +2650,7 @@ paths:
         schema:
           type: string
         description: Zoek Vertegenwoordigden object op basis van het vertegenwoordigende
-          partij url
+          partij url.
       - in: query
         name: vertegenwoordigendePartij__uuid
         schema:
@@ -2752,7 +2932,8 @@ components:
         hadKlantcontact:
           allOf:
           - $ref: '#/components/schemas/KlantcontactForeignKey'
-          description: Persoon of organisatie die betrokken was bij een klantcontact.
+          description: Het klantcontact waar deze persoon of organisatie bij betrokken
+            was.
         digitaleAdressen:
           type: array
           items:
@@ -2847,22 +3028,6 @@ components:
           maxLength: 4
           minLength: 4
     BetrokkeneForeignKey:
-      type: object
-      properties:
-        uuid:
-          type: string
-          format: uuid
-          description: Unieke (technische) identificatiecode van de betrokkene bij
-            klantcontact.
-        url:
-          type: string
-          format: uri
-          readOnly: true
-          description: De unieke URL van deze betrokkene binnen deze API.
-      required:
-      - url
-      - uuid
-    BetrokkeneForeignkey:
       type: object
       properties:
         uuid:
@@ -3221,6 +3386,22 @@ components:
       required:
       - url
       - uuid
+    ExpandDigitaalAdres:
+      allOf:
+      - $ref: '#/components/schemas/DigitaalAdres'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              verstrekt_door_betrokkene:
+                allOf:
+                - $ref: '#/components/schemas/Betrokkene'
+                nullable: true
+                description: Digitaal adres dat een betrokkene bij klantcontact verstrekte
+                  voor gebruik bij opvolging van een klantcontact.
     ExpandKlantcontact:
       allOf:
       - $ref: '#/components/schemas/Klantcontact'
@@ -3232,24 +3413,28 @@ components:
               `expand` parameter
             properties:
               had_betrokkenen:
-                allOf:
-                - $ref: '#/components/schemas/Betrokkene'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Betrokkene'
                 readOnly: true
                 description: Persoon of organisatie die betrokken was bij een klantcontact.
               leidde_tot_interne_taken:
-                allOf:
-                - $ref: '#/components/schemas/InterneTaak'
+                type: array
+                items:
+                  $ref: '#/components/schemas/InterneTaak'
                 readOnly: true
                 description: Klantcontact dat leidde tot een interne taak.
               ging_over_onderwerpobjecten:
-                allOf:
-                - $ref: '#/components/schemas/Onderwerpobject'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Onderwerpobject'
                 readOnly: true
                 description: Onderwerpobject dat tijdens een klantcontact aan de orde
                   was.
               omvatte_bijlagen:
-                allOf:
-                - $ref: '#/components/schemas/Bijlage'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bijlage'
                 readOnly: true
                 description: Bijlage die (een deel van) de inhoud van het klantcontact
                   beschrijft.
@@ -3264,19 +3449,22 @@ components:
               `expand` parameter
             properties:
               digitale_adressen:
-                allOf:
-                - $ref: '#/components/schemas/DigitaalAdres'
+                type: array
+                items:
+                  $ref: '#/components/schemas/DigitaalAdres'
                 nullable: true
                 description: Digitaal adresen dat een partij verstrekte voor gebruik
                   bij toekomstig contact met de gemeente.
               betrokkenen:
-                allOf:
-                - $ref: '#/components/schemas/Betrokkene'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Betrokkene'
                 readOnly: true
                 description: Betrokkene bij klantcontact die een partij was.
               categorie_relaties:
-                allOf:
-                - $ref: '#/components/schemas/CategorieRelatie'
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategorieRelatie'
                 readOnly: true
                 description: 'De Categorie relaties van een partij: Let op: Dit attribuut
                   is EXPERIMENTEEL.'
@@ -3309,7 +3497,13 @@ components:
         toegewezenAanActor:
           allOf:
           - $ref: '#/components/schemas/ActorForeignKey'
-          description: Actor die een interne taak toegewezen kreeg.
+          description: Eerste actor die een interne taak toegewezen kreeg.
+          deprecated: true
+        toegewezenAanActoren:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActorForeignKey'
+          description: Actoren die een interne taak toegewezen kreeg.
         toelichting:
           type: string
           description: Toelichting die, aanvullend bij de inhoud van het klantcontact
@@ -3337,7 +3531,6 @@ components:
       - aanleidinggevendKlantcontact
       - gevraagdeHandeling
       - status
-      - toegewezenAanActor
       - toegewezenOp
       - url
       - uuid
@@ -3391,7 +3584,7 @@ components:
         hadBetrokkenen:
           type: array
           items:
-            $ref: '#/components/schemas/BetrokkeneForeignkey'
+            $ref: '#/components/schemas/BetrokkeneForeignKey'
           readOnly: true
           description: Persoon of organisatie die betrokken was bij een klantcontact.
         leiddeTotInterneTaken:
@@ -3717,6 +3910,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DigitaalAdres'
+    PaginatedExpandDigitaalAdresList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpandDigitaalAdres'
     PaginatedExpandKlantcontactList:
       type: object
       required:
@@ -4006,8 +4222,10 @@ components:
           description: Geeft aan van welke specifieke soort partij sprake is.
         indicatieGeheimhouding:
           type: boolean
+          nullable: true
           description: Geeft aan of de verstrekker van partijgegevens heeft aangegeven
-            dat deze gegevens als geheim beschouwd moeten worden.
+            dat deze gegevens als geheim beschouwd moeten worden. Als dit niet aangegeven
+            is dan wordt dit ingevuld als `null`.
         voorkeurstaal:
           type: string
           description: 'Taal, in ISO 639-2/B formaat, waarin de partij bij voorkeur
@@ -4037,7 +4255,6 @@ components:
       - categorieRelaties
       - digitaleAdressen
       - indicatieActief
-      - indicatieGeheimhouding
       - partijIdentificatoren
       - rekeningnummers
       - soortPartij
@@ -4332,7 +4549,8 @@ components:
         hadKlantcontact:
           allOf:
           - $ref: '#/components/schemas/KlantcontactForeignKey'
-          description: Persoon of organisatie die betrokken was bij een klantcontact.
+          description: Het klantcontact waar deze persoon of organisatie bij betrokken
+            was.
         digitaleAdressen:
           type: array
           items:
@@ -4529,7 +4747,13 @@ components:
         toegewezenAanActor:
           allOf:
           - $ref: '#/components/schemas/ActorForeignKey'
-          description: Actor die een interne taak toegewezen kreeg.
+          description: Eerste actor die een interne taak toegewezen kreeg.
+          deprecated: true
+        toegewezenAanActoren:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActorForeignKey'
+          description: Actoren die een interne taak toegewezen kreeg.
         toelichting:
           type: string
           description: Toelichting die, aanvullend bij de inhoud van het klantcontact
@@ -4588,7 +4812,7 @@ components:
         hadBetrokkenen:
           type: array
           items:
-            $ref: '#/components/schemas/BetrokkeneForeignkey'
+            $ref: '#/components/schemas/BetrokkeneForeignKey'
           readOnly: true
           description: Persoon of organisatie die betrokken was bij een klantcontact.
         leiddeTotInterneTaken:
@@ -4752,8 +4976,10 @@ components:
           description: Geeft aan van welke specifieke soort partij sprake is.
         indicatieGeheimhouding:
           type: boolean
+          nullable: true
           description: Geeft aan of de verstrekker van partijgegevens heeft aangegeven
-            dat deze gegevens als geheim beschouwd moeten worden.
+            dat deze gegevens als geheim beschouwd moeten worden. Als dit niet aangegeven
+            is dan wordt dit ingevuld als `null`.
         voorkeurstaal:
           type: string
           description: 'Taal, in ISO 639-2/B formaat, waarin de partij bij voorkeur
@@ -4962,6 +5188,8 @@ components:
       in: header
       name: Authorization
       description: Token-based authentication with required prefix "Token"
+servers:
+- url: /klantinteracties/api/v1
 tags:
 - name: actoren
 - name: actor klantcontacten
