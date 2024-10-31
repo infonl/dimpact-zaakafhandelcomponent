@@ -16,6 +16,7 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
+import net.atos.zac.app.zaak.model.RestZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -173,6 +174,22 @@ class SignaleringService @Inject constructor(
                 .where(getSignaleringWhere(parameters, builder, root))
                 .orderBy(builder.desc(root.get<Any>("tijdstip")))
         )
+            .resultList
+    }
+
+    fun listSignaleringen(parameters: SignaleringZoekParameters, pageNumber: Int, pageSize: Int): List<Signalering> {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(
+            Signalering::class.java
+        )
+        val root = query.from(Signalering::class.java)
+        return entityManager.createQuery(
+            query.select(root)
+                .where(getSignaleringWhere(parameters, builder, root))
+                .orderBy(builder.desc(root.get<Any>("tijdstip")))
+        )
+            .setFirstResult(pageNumber * pageSize)
+            .setMaxResults(pageSize)
             .resultList
     }
 
@@ -349,6 +366,32 @@ class SignaleringService @Inject constructor(
             eventingService.send(ScreenEventType.ZAKEN_SIGNALERINGEN.updated(it, zakenSignaleringen))
         }
     }
+
+    /**
+     * Lists zaken signaleringen for the given signaleringsType
+     */
+    fun listZakenSignaleringenPage(
+        user: LoggedInUser,
+        signaleringsType: SignaleringType.Type,
+        pageNumber: Int,
+        pageSize: Int
+    ): List<RestZaakOverzicht> {
+        LOG.fine {
+            "Listing page '$pageNumber' ($pageSize elements) for zaken signaleringen with type '$signaleringsType' ..."
+        }
+
+        return SignaleringZoekParameters(user)
+            .types(signaleringsType)
+            .subjecttype(SignaleringSubject.ZAAK)
+            .let { listSignaleringen(it, pageNumber, pageSize) }
+            .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
+            .map { restZaakOverzichtConverter.convert(it, user) }
+            .toList()
+            .also {
+                LOG.fine { "Successfully listed page $pageNumber for zaken signaleringen of type '$signaleringsType'." }
+            }
+    }
+
 
     private fun getDocument(documentUUID: String) =
         drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(documentUUID))

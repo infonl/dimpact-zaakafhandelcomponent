@@ -13,6 +13,7 @@ import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
+import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +25,7 @@ import net.atos.zac.app.signalering.converter.RestSignaleringInstellingenConvert
 import net.atos.zac.app.signalering.converter.toRestSignaleringTaakSummary
 import net.atos.zac.app.signalering.model.RestSignaleringInstellingen
 import net.atos.zac.app.signalering.model.RestSignaleringTaskSummary
+import net.atos.zac.app.zaak.model.RestZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.identity.IdentityService
@@ -51,10 +53,10 @@ class SignaleringRestService @Inject constructor(
     private val restSignaleringInstellingenConverter: RestSignaleringInstellingenConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
-    private fun Instance<LoggedInUser>.getSignaleringZoekParameters() = SignaleringZoekParameters(get())
-    private fun Instance<LoggedInUser>.getSignaleringInstellingenZoekParameters() = SignaleringInstellingenZoekParameters(
-        get()
-    )
+    private fun Instance<LoggedInUser>.getSignaleringZoekParameters() =
+        SignaleringZoekParameters(get())
+    private fun Instance<LoggedInUser>.getSignaleringInstellingenZoekParameters() =
+        SignaleringInstellingenZoekParameters(get())
 
     @GET
     @Path("/latest")
@@ -79,6 +81,20 @@ class SignaleringRestService @Inject constructor(
             }
         }
     }
+
+    /**
+     * Lists zaken signaleringen for the given signaleringsType.
+     */
+    @GET
+    @Path("/zaken/{type}")
+    fun listZakenSignaleringen(
+        @PathParam("type") signaleringsType: SignaleringType.Type,
+        @QueryParam("pageNumber") pageNumber: Int,
+        @QueryParam("pageSize") pageSize: Int,
+    ): List<RestZaakOverzicht> =
+        loggedInUserInstance.get().let {
+            signaleringService.listZakenSignaleringenPage(it, signaleringsType, pageNumber, pageSize)
+        }
 
     @GET
     @Path("/taken/{type}")
