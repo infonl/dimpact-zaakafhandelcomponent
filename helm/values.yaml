@@ -54,7 +54,6 @@ zgwApis:
 notificationsSecretKey: ""
 
 # klantenApi Configuration of Klanten API provider (Open Klant)
-# this requires open klant 2.1.0
 klantinteractiesApi:
   url: "" # http://open-klant.internal/klantinteracties
   token: ""

@@ -313,6 +313,7 @@ services:
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
       - DJANGO_SETTINGS_MODULE=openklant.conf.docker
+      - EMAIL_HOST=localhost
       - IS_HTTPS=no
       - NOTIFICATIONS_DISABLED=True
       - SECRET_KEY=openZaakSecretKey
