@@ -22,7 +22,7 @@ import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.app.task.model.TaakSortering
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.shared.model.SorteerRichting
-import net.atos.zac.util.UriUtil
+import net.atos.zac.util.UriUtil.uuidFromURI
 import net.atos.zac.zoeken.converter.AbstractZoekObjectConverter
 import net.atos.zac.zoeken.model.ZoekObject
 import net.atos.zac.zoeken.model.index.ZoekObjectType
@@ -120,7 +120,7 @@ class IndexingService @Inject constructor(
         }
     }
 
-    fun addOrUpdateZaak(zaakUUID: UUID?, inclusiefTaken: Boolean) {
+    fun addOrUpdateZaak(zaakUUID: UUID, inclusiefTaken: Boolean) {
         indexeerDirect(zaakUUID.toString(), ZoekObjectType.ZAAK, false)
         if (inclusiefTaken) {
             flowableTaskService.listOpenTasksForZaak(zaakUUID)
@@ -134,22 +134,16 @@ class IndexingService @Inject constructor(
 
     fun addOrUpdateInformatieobjectByZaakinformatieobject(zaakinformatieobjectUUID: UUID) =
         addOrUpdateInformatieobject(
-            UriUtil.uuidFromURI(
-                zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID).informatieobject
-            )
+            uuidFromURI(zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID).informatieobject)
         )
 
-    fun addOrUpdateTaak(taskID: String) =
-        indexeerDirect(taskID, ZoekObjectType.TAAK, false)
+    fun addOrUpdateTaak(taskID: String) = indexeerDirect(taskID, ZoekObjectType.TAAK, false)
 
-    fun removeZaak(zaakUUID: UUID) =
-        removeFromSolrIndex(zaakUUID.toString())
+    fun removeZaak(zaakUUID: UUID) = removeFromSolrIndex(zaakUUID.toString())
 
-    fun removeInformatieobject(informatieobjectUUID: UUID) =
-        removeFromSolrIndex(informatieobjectUUID.toString())
+    fun removeInformatieobject(informatieobjectUUID: UUID) = removeFromSolrIndex(informatieobjectUUID.toString())
 
-    fun removeTaak(taskID: String) =
-        removeFromSolrIndex(taskID.toString())
+    fun removeTaak(taskID: String) = removeFromSolrIndex(taskID)
 
     fun commit() {
         runTranslatingToIndexingException {
