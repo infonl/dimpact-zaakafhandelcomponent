@@ -62,12 +62,6 @@ klantinteractiesApi:
 featureFlags:
   bpmnSupport: false
 
-# contactgevevens API Configuration of Contactgegevens API provider (Open Klant)
-contactmomentenApi:
-  url: "" # http://open-klant.internal
-  clientId: ""
-  secret: ""
-
 # objectenApi Configuration of the Objecten API provider (Overige Registraties)
 objectenApi:
   url: "" # http://objecten.internal
