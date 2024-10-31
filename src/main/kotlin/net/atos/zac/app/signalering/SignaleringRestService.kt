@@ -91,7 +91,7 @@ class SignaleringRestService @Inject constructor(
     fun listTakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
         @QueryParam("pageNumber") pageNumber: Int = 0,
-        @QueryParam("pageSize") pageSize: Int = 5
+        @QueryParam("pageSize") pageSize: Int = 1000
     ): List<RestSignaleringTaskSummary> =
         signaleringService.listTakenSignaleringenPage(signaleringsType, pageNumber, pageSize)
 
@@ -103,7 +103,7 @@ class SignaleringRestService @Inject constructor(
     fun listInformatieobjectenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
         @QueryParam("pageNumber") pageNumber: Int = 0,
-        @QueryParam("pageSize") pageSize: Int = 5
+        @QueryParam("pageSize") pageSize: Int = 1000
     ): List<RestEnkelvoudigInformatieobject> =
         signaleringService.listInformatieobjectenSignaleringen(signaleringsType, pageNumber, pageSize)
 

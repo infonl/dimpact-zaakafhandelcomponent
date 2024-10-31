@@ -7,25 +7,35 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.persistence.EntityManager
 import jakarta.persistence.Query
+import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.CriteriaDelete
+import jakarta.persistence.criteria.CriteriaQuery
+import jakarta.persistence.criteria.Order
 import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import net.atos.client.zgw.drc.DrcClientService
+import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
+import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
+import net.atos.zac.app.signalering.converter.toRestSignaleringTaakSummary
+import net.atos.zac.app.signalering.model.createRestSignaleringTaskSummary
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
+import net.atos.zac.app.zaak.model.createRESTZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.createTestTask
 import net.atos.zac.flowable.task.FlowableTaskService
+import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.identity.model.createUser
 import net.atos.zac.mail.MailService
 import net.atos.zac.mail.model.createMailAdres
@@ -38,6 +48,7 @@ import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.createSignalering
 import net.atos.zac.signalering.model.createSignaleringType
 import java.time.ZonedDateTime
+import java.util.UUID
 
 class SignaleringServiceTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
@@ -53,8 +64,16 @@ class SignaleringServiceTest : BehaviorSpec({
     val criteriaDeleteSignalering = mockk<CriteriaDelete<Signalering>>()
     val rootSignalering = mockk<Root<Signalering>>()
     val pathTijdstip = mockk<Path<Long>>()
+    val pathTarget = mockk<Path<Any>>()
     val query = mockk<Query>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+    val user = mockk<LoggedInUser>()
+    val criteriaQuery = mockk<CriteriaQuery<Signalering>>()
+    val predicate = mockk<Predicate>()
+    val order = mockk<Order>()
+    val typedQuery = mockk<TypedQuery<Signalering>>()
+
+    mockkStatic(TaakVariabelenService::class)
 
     val signaleringService = SignaleringService(
         entityManager = entityManager,
@@ -143,6 +162,192 @@ class SignaleringServiceTest : BehaviorSpec({
                     replyTo shouldBe null
                     subject shouldBe mailTemplate.onderwerp
                     body shouldBe mailTemplate.body
+                }
+            }
+        }
+    }
+
+    Given("A zaken signalering of type ZAAK_OP_NAAM") {
+        val id = "id"
+        val signalering = createSignalering()
+        val zaak = createZaak()
+        val restZaakOverzicht = createRESTZaakOverzicht()
+        val pageNumber = 0
+        val pageSize = 5
+
+        every { loggedInUserInstance.get() } returns user
+        every { user.id } returns id
+
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+
+        every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
+        every { criteriaBuilder.equal(pathTarget, SignaleringTarget.USER) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, id) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, SignaleringSubject.ZAAK) } returns predicate
+        every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
+        every { criteriaBuilder.desc(pathTijdstip) } returns order
+
+        every { criteriaQuery.from(Signalering::class.java) } returns rootSignalering
+        every { criteriaQuery.select(rootSignalering) } returns criteriaQuery
+        every { criteriaQuery.where(any()) } returns criteriaQuery
+        every { criteriaQuery.orderBy(order) } returns criteriaQuery
+
+        every { rootSignalering.get<Any>("targettype") } returns pathTarget
+        every { rootSignalering.get<Any>("target") } returns pathTarget
+        every { rootSignalering.get<Any>("type") } returns pathTarget
+        every { rootSignalering.get<Long>("tijdstip") } returns pathTijdstip
+
+        every { pathTarget.get<Any>("id") } returns pathTarget
+        every { pathTarget.`in`(listOf("ZAAK_OP_NAAM")) } returns predicate
+        every { pathTarget.get<Any>("subjecttype") } returns pathTarget
+
+        every { typedQuery.setFirstResult(pageNumber) } returns typedQuery
+        every { typedQuery.setMaxResults(pageSize) } returns typedQuery
+        every { typedQuery.resultList } returns listOf(signalering)
+
+        every { zrcClientService.readZaak(UUID.fromString(signalering.subject)) } returns zaak
+        every { restZaakOverzichtConverter.convertForDisplay(zaak) } returns restZaakOverzicht
+
+        When("listing first page of zaken signaleringen") {
+            val result = signaleringService.listZakenSignaleringenPage(
+                SignaleringType.Type.ZAAK_OP_NAAM,
+                pageNumber,
+                pageSize
+            )
+
+            Then("paging is used to return the signalering") {
+                result.size shouldBe 1
+                verify(exactly = 1) {
+                    typedQuery.setFirstResult(pageNumber)
+                    typedQuery.setMaxResults(pageSize)
+                    typedQuery.resultList
+                }
+            }
+        }
+    }
+
+    Given("A taken signalering of type TAAK_OP_NAAM") {
+        val id = "id"
+        val signalering = createSignalering()
+        val task = createTestTask()
+        val restSignaleringTaskSummary = createRestSignaleringTaskSummary()
+        val pageNumber = 0
+        val pageSize = 5
+
+        every { loggedInUserInstance.get() } returns user
+        every { user.id } returns id
+
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+
+        every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
+        every { criteriaBuilder.equal(pathTarget, SignaleringTarget.USER) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, id) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, SignaleringSubject.TAAK) } returns predicate
+        every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
+        every { criteriaBuilder.desc(pathTijdstip) } returns order
+
+        every { criteriaQuery.from(Signalering::class.java) } returns rootSignalering
+        every { criteriaQuery.select(rootSignalering) } returns criteriaQuery
+        every { criteriaQuery.where(any()) } returns criteriaQuery
+        every { criteriaQuery.orderBy(order) } returns criteriaQuery
+
+        every { rootSignalering.get<Any>("targettype") } returns pathTarget
+        every { rootSignalering.get<Any>("target") } returns pathTarget
+        every { rootSignalering.get<Any>("type") } returns pathTarget
+        every { rootSignalering.get<Long>("tijdstip") } returns pathTijdstip
+
+        every { pathTarget.get<Any>("id") } returns pathTarget
+        every { pathTarget.`in`(listOf("TAAK_OP_NAAM")) } returns predicate
+        every { pathTarget.get<Any>("subjecttype") } returns pathTarget
+
+        every { typedQuery.setFirstResult(pageNumber) } returns typedQuery
+        every { typedQuery.setMaxResults(pageSize) } returns typedQuery
+        every { typedQuery.resultList } returns listOf(signalering)
+
+        every { flowableTaskService.readTask(signalering.subject) } returns task
+        every { task.toRestSignaleringTaakSummary() } returns restSignaleringTaskSummary
+        every { TaakVariabelenService.readZaakIdentificatie(task) } returns "zaakIdentificatie"
+        every { TaakVariabelenService.readZaaktypeOmschrijving(task) } returns "zaakOmschrijving"
+
+        When("listing first page of task signaleringen") {
+            val result = signaleringService.listTakenSignaleringenPage(
+                SignaleringType.Type.TAAK_OP_NAAM,
+                pageNumber,
+                pageSize
+            )
+
+            Then("paging is used to return the signalering") {
+                result.size shouldBe 1
+                verify(exactly = 1) {
+                    typedQuery.setFirstResult(pageNumber)
+                    typedQuery.setMaxResults(pageSize)
+                    typedQuery.resultList
+                }
+            }
+        }
+    }
+
+    Given("An information object signalering of type ZAAK_DOCUMENT_TOEGEVOEGD") {
+        val id = "id"
+        val signalering = createSignalering()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
+        val pageNumber = 0
+        val pageSize = 5
+
+        every { loggedInUserInstance.get() } returns user
+        every { user.id } returns id
+
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+
+        every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
+        every { criteriaBuilder.equal(pathTarget, SignaleringTarget.USER) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, id) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, SignaleringSubject.DOCUMENT) } returns predicate
+        every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
+        every { criteriaBuilder.desc(pathTijdstip) } returns order
+
+        every { criteriaQuery.from(Signalering::class.java) } returns rootSignalering
+        every { criteriaQuery.select(rootSignalering) } returns criteriaQuery
+        every { criteriaQuery.where(any()) } returns criteriaQuery
+        every { criteriaQuery.orderBy(order) } returns criteriaQuery
+
+        every { rootSignalering.get<Any>("targettype") } returns pathTarget
+        every { rootSignalering.get<Any>("target") } returns pathTarget
+        every { rootSignalering.get<Any>("type") } returns pathTarget
+        every { rootSignalering.get<Long>("tijdstip") } returns pathTijdstip
+
+        every { pathTarget.get<Any>("id") } returns pathTarget
+        every { pathTarget.`in`(listOf("ZAAK_DOCUMENT_TOEGEVOEGD")) } returns predicate
+        every { pathTarget.get<Any>("subjecttype") } returns pathTarget
+
+        every { typedQuery.setFirstResult(pageNumber) } returns typedQuery
+        every { typedQuery.setMaxResults(pageSize) } returns typedQuery
+        every { typedQuery.resultList } returns listOf(signalering)
+
+        every {
+            drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(signalering.subject))
+        } returns enkelvoudigInformatieObject
+        every {
+            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject)
+        } returns restEnkelvoudigInformatieobject
+
+        When("listing first page of information object signaleringen") {
+            val result = signaleringService.listInformatieobjectenSignaleringen(
+                SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD,
+                pageNumber,
+                pageSize
+            )
+
+            Then("paging is used to return the signalering") {
+                result.size shouldBe 1
+                verify(exactly = 1) {
+                    typedQuery.setFirstResult(pageNumber)
+                    typedQuery.setMaxResults(pageSize)
+                    typedQuery.resultList
                 }
             }
         }

@@ -190,7 +190,11 @@ class SignaleringService @Inject constructor(
             .resultList
     }
 
-    fun listSignaleringen(parameters: SignaleringZoekParameters, pageNumber: Int, pageSize: Int): List<Signalering> {
+    private fun listSignaleringen(
+        parameters: SignaleringZoekParameters,
+        pageNumber: Int,
+        pageSize: Int
+    ): List<Signalering> {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(
             Signalering::class.java
@@ -400,7 +404,6 @@ class SignaleringService @Inject constructor(
             .let { listSignaleringen(it, pageNumber, pageSize) }
             .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
             .map { restZaakOverzichtConverter.convertForDisplay(it) }
-            .toList()
             .also {
                 LOG.fine { "Successfully listed page $pageNumber for zaken signaleringen of type '$signaleringsType'." }
             }
