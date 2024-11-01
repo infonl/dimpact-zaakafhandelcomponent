@@ -4,7 +4,7 @@
 # 
 Feature: External Systems
 
-  Scenario: Employee wants to create a new document for a zaak Using the SmartDocumebts wizard
+  Scenario: Employee wants to create a new document for a zaak Using the SmartDocuments wizard
     Given "Bob" is logged in to zac
     And "Bob" wants to create a new zaak
     When Employee "Bob" clicks on Create Document button for the new zaak
