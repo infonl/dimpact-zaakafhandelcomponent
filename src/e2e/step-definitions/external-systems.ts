@@ -117,7 +117,9 @@ When(
 
     const documentTitleText = this.page.locator(`text=${documentInput.title}`);
     // increase the timout because it can take a while for the document to be visible
-    await expect(documentTitleText.first()).toBeVisible({ timeout: TWENTY_SECONDS_IN_MS });
+    await expect(documentTitleText.first()).toBeVisible({
+      timeout: TWENTY_SECONDS_IN_MS,
+    });
 
     const anchorLocator = this.page.locator('a[title="Document bekijken"]');
     await anchorLocator.click();
