@@ -48,8 +48,8 @@ class IndexingServiceTest : BehaviorSpec({
     every { anyConstructed<Http2SolrClient.Builder>().build() } returns solrClient
 
     val zaakZoekObjectConverter = mockk<ZaakZoekObjectConverter>()
-    val converterInstances = mockk<Instance<AbstractZoekObjectConverter<out ZoekObject?>>>()
-    val converterInstancesIterator = mockk<MutableIterator<AbstractZoekObjectConverter<out ZoekObject?>>>()
+    val converterInstances = mockk<Instance<AbstractZoekObjectConverter<out ZoekObject>>>()
+    val converterInstancesIterator = mockk<MutableIterator<AbstractZoekObjectConverter<out ZoekObject>>>()
     val drcClientService = mockk<DrcClientService>()
     val flowableTaskService = mockk<FlowableTaskService>()
     val zrcClientService = mockk<ZrcClientService>()

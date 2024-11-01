@@ -1,12 +1,10 @@
-package net.atos.zac.zoeken.converter;
+package net.atos.zac.zoeken.converter
 
-import net.atos.zac.zoeken.model.ZoekObject;
-import net.atos.zac.zoeken.model.index.ZoekObjectType;
+import net.atos.zac.zoeken.model.ZoekObject
+import net.atos.zac.zoeken.model.index.ZoekObjectType
 
-public abstract class AbstractZoekObjectConverter<ZOEKOBJECT extends ZoekObject> {
+abstract class AbstractZoekObjectConverter<ZOEKOBJECT : ZoekObject> {
+    abstract fun supports(objectType: ZoekObjectType): Boolean
 
-    public abstract boolean supports(final ZoekObjectType objectType);
-
-    public abstract ZOEKOBJECT convert(final String id);
-
+    abstract fun convert(id: String): ZOEKOBJECT?
 }

@@ -1,195 +1,145 @@
-package net.atos.zac.zoeken.converter;
+package net.atos.zac.zoeken.converter
 
-import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
-import static net.atos.zac.identity.model.UserKt.getFullName;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
+import jakarta.inject.Inject
+import net.atos.client.zgw.shared.ZGWApiService
+import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
+import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
+import net.atos.client.zgw.zrc.util.StatusTypeUtil
+import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.zac.flowable.task.FlowableTaskService
+import net.atos.zac.identity.IdentityService
+import net.atos.zac.identity.model.Group
+import net.atos.zac.identity.model.User
+import net.atos.zac.identity.model.getFullName
+import net.atos.zac.util.UriUtil
+import net.atos.zac.util.time.DateTimeConverterUtil
+import net.atos.zac.zoeken.model.ZaakIndicatie
+import net.atos.zac.zoeken.model.index.ZoekObjectType
+import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
+import java.util.UUID
 
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+class ZaakZoekObjectConverter @Inject constructor(
+    private val zrcClientService: ZrcClientService,
+    private val ztcClientService: ZtcClientService,
+    private val zgwApiService: ZGWApiService,
+    private val identityService: IdentityService,
+    private val flowableTaskService: FlowableTaskService
+) : AbstractZoekObjectConverter<ZaakZoekObject>() {
 
-import jakarta.inject.Inject;
-
-import net.atos.client.zgw.shared.ZGWApiService;
-import net.atos.client.zgw.shared.model.Results;
-import net.atos.client.zgw.zrc.ZrcClientService;
-import net.atos.client.zgw.zrc.model.Geometry;
-import net.atos.client.zgw.zrc.model.Rol;
-import net.atos.client.zgw.zrc.model.Status;
-import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.zrc.model.generated.Resultaat;
-import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters;
-import net.atos.client.zgw.ztc.ZtcClientService;
-import net.atos.client.zgw.ztc.model.generated.ResultaatType;
-import net.atos.client.zgw.ztc.model.generated.StatusType;
-import net.atos.client.zgw.ztc.model.generated.ZaakType;
-import net.atos.zac.flowable.task.FlowableTaskService;
-import net.atos.zac.identity.IdentityService;
-import net.atos.zac.identity.model.Group;
-import net.atos.zac.identity.model.User;
-import net.atos.zac.util.time.DateTimeConverterUtil;
-import net.atos.zac.zoeken.model.ZaakIndicatie;
-import net.atos.zac.zoeken.model.index.ZoekObjectType;
-import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
-
-public class ZaakZoekObjectConverter extends AbstractZoekObjectConverter<ZaakZoekObject> {
-    private final ZrcClientService zrcClientService;
-    private final ZtcClientService ztcClientService;
-    private final ZGWApiService zgwApiService;
-    private final IdentityService identityService;
-    private final FlowableTaskService flowableTaskService;
-
-    @Inject
-    public ZaakZoekObjectConverter(
-            ZrcClientService zrcClientService,
-            ZtcClientService ztcClientService,
-            ZGWApiService zgwApiService,
-            IdentityService identityService,
-            FlowableTaskService flowableTaskService
-    ) {
-        this.zrcClientService = zrcClientService;
-        this.ztcClientService = ztcClientService;
-        this.zgwApiService = zgwApiService;
-        this.identityService = identityService;
-        this.flowableTaskService = flowableTaskService;
+    override fun convert(id: String): ZaakZoekObject {
+        val zaak = zrcClientService.readZaak(UUID.fromString(id))
+        return convert(zaak)
     }
 
-    public ZaakZoekObject convert(final String zaakUUID) {
-        final Zaak zaak = zrcClientService.readZaak(UUID.fromString(zaakUUID));
-        return convert(zaak);
-    }
+    @Suppress("LongMethod")
+    private fun convert(zaak: Zaak): ZaakZoekObject {
+        val zaakZoekObject = ZaakZoekObject().apply {
+            uuid = zaak.uuid.toString()
+            type = ZoekObjectType.ZAAK
+            identificatie = zaak.identificatie
+            omschrijving = zaak.omschrijving
+            toelichting = zaak.toelichting
+            registratiedatum = DateTimeConverterUtil.convertToDate(zaak.registratiedatum)
+            startdatum = DateTimeConverterUtil.convertToDate(zaak.startdatum)
+            einddatumGepland = DateTimeConverterUtil.convertToDate(zaak.einddatumGepland)
+            einddatum = DateTimeConverterUtil.convertToDate(zaak.einddatum)
+            uiterlijkeEinddatumAfdoening = DateTimeConverterUtil.convertToDate(zaak.uiterlijkeEinddatumAfdoening)
+            publicatiedatum = DateTimeConverterUtil.convertToDate(zaak.publicatiedatum)
+            // we use the uppercase version of this enum in the ZAC backend API
+            vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name
+            isAfgehandeld = !zaak.isOpen
+            zgwApiService.findInitiatorRoleForZaak(zaak).ifPresent { setInitiator(it) }
+            // locatie is not yet supported
+            locatie = null
+            communicatiekanaal = zaak.communicatiekanaalNaam
+            archiefActiedatum = DateTimeConverterUtil.convertToDate(zaak.archiefactiedatum)
+        }
+        addBetrokkenen(zaak, zaakZoekObject)
 
-    private ZaakZoekObject convert(final Zaak zaak) {
-        final ZaakZoekObject zaakZoekObject = new ZaakZoekObject();
-        zaakZoekObject.setUuid(zaak.getUuid().toString());
-        zaakZoekObject.setType(ZoekObjectType.ZAAK);
-        zaakZoekObject.setIdentificatie(zaak.getIdentificatie());
-        zaakZoekObject.setOmschrijving(zaak.getOmschrijving());
-        zaakZoekObject.setToelichting(zaak.getToelichting());
-        zaakZoekObject.setRegistratiedatum(DateTimeConverterUtil.convertToDate(zaak.getRegistratiedatum()));
-        zaakZoekObject.setStartdatum(DateTimeConverterUtil.convertToDate(zaak.getStartdatum()));
-        zaakZoekObject.setEinddatumGepland(DateTimeConverterUtil.convertToDate(zaak.getEinddatumGepland()));
-        zaakZoekObject.setEinddatum(DateTimeConverterUtil.convertToDate(zaak.getEinddatum()));
-        zaakZoekObject.setUiterlijkeEinddatumAfdoening(
-                DateTimeConverterUtil.convertToDate(zaak.getUiterlijkeEinddatumAfdoening())
-        );
-        zaakZoekObject.setPublicatiedatum(DateTimeConverterUtil.convertToDate(zaak.getPublicatiedatum()));
-        // we use the uppercase version of this enum in the ZAC backend API
-        zaakZoekObject.setVertrouwelijkheidaanduiding(zaak.getVertrouwelijkheidaanduiding().name());
-        zaakZoekObject.setAfgehandeld(!zaak.isOpen());
-        zgwApiService.findInitiatorRoleForZaak(zaak).ifPresent(zaakZoekObject::setInitiator);
-        zaakZoekObject.setLocatie(convertToLocatie(zaak.getZaakgeometrie()));
-        zaakZoekObject.setCommunicatiekanaal(zaak.getCommunicatiekanaalNaam());
-
-        addBetrokkenen(zaak, zaakZoekObject);
-
-        final Group group = findGroup(zaak);
-        if (group != null) {
-            zaakZoekObject.setGroepID(group.getId());
-            zaakZoekObject.setGroepNaam(group.getName());
+        findGroup(zaak)?.let {
+            zaakZoekObject.groepID = it.id
+            zaakZoekObject.groepNaam = it.name
+        }
+        findBehandelaar(zaak)?.let {
+            zaakZoekObject.behandelaarNaam = it.getFullName()
+            zaakZoekObject.behandelaarGebruikersnaam = it.id
+            zaakZoekObject.isToegekend = true
         }
 
-        final User behandelaar = findBehandelaar(zaak);
-        if (behandelaar != null) {
-            zaakZoekObject.setBehandelaarNaam(getFullName(behandelaar));
-            zaakZoekObject.setBehandelaarGebruikersnaam(behandelaar.getId());
-            zaakZoekObject.setToegekend(true);
+        if (zaak.isVerlengd) {
+            zaakZoekObject.setIndicatie(ZaakIndicatie.VERLENGD, true)
+            zaakZoekObject.duurVerlenging = zaak.verlenging.duur.toString()
+            zaakZoekObject.redenVerlenging = zaak.verlenging.reden
         }
 
-        if (zaak.isVerlengd()) {
-            zaakZoekObject.setIndicatie(ZaakIndicatie.VERLENGD, true);
-            zaakZoekObject.setDuurVerlenging(String.valueOf(zaak.getVerlenging().getDuur()));
-            zaakZoekObject.setRedenVerlenging(zaak.getVerlenging().getReden());
+        if (zaak.isOpgeschort) {
+            zaakZoekObject.redenOpschorting = zaak.opschorting.reden
+            zaakZoekObject.setIndicatie(ZaakIndicatie.OPSCHORTING, true)
         }
 
-        if (zaak.isOpgeschort()) {
-            zaakZoekObject.setRedenOpschorting(zaak.getOpschorting().getReden());
-            zaakZoekObject.setIndicatie(ZaakIndicatie.OPSCHORTING, true);
+        if (zaak.archiefnominatie != null) {
+            zaakZoekObject.archiefNominatie = zaak.archiefnominatie.toString()
         }
 
-        if (zaak.getArchiefnominatie() != null) {
-            zaakZoekObject.setArchiefNominatie(zaak.getArchiefnominatie().toString());
-        }
-        zaakZoekObject.setArchiefActiedatum(DateTimeConverterUtil.convertToDate(zaak.getArchiefactiedatum()));
+        zaakZoekObject.setIndicatie(ZaakIndicatie.DEELZAAK, zaak.isDeelzaak)
+        zaakZoekObject.setIndicatie(ZaakIndicatie.HOOFDZAAK, zaak.is_Hoofdzaak)
 
-        zaakZoekObject.setIndicatie(ZaakIndicatie.DEELZAAK, zaak.isDeelzaak());
-        zaakZoekObject.setIndicatie(ZaakIndicatie.HOOFDZAAK, zaak.is_Hoofdzaak());
+        val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
+        zaakZoekObject.zaaktypeIdentificatie = zaaktype.identificatie
+        zaakZoekObject.zaaktypeOmschrijving = zaaktype.omschrijving
+        zaakZoekObject.zaaktypeUuid = UriUtil.uuidFromURI(zaaktype.url).toString()
 
-        final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
-        zaakZoekObject.setZaaktypeIdentificatie(zaaktype.getIdentificatie());
-        zaakZoekObject.setZaaktypeOmschrijving(zaaktype.getOmschrijving());
-        zaakZoekObject.setZaaktypeUuid(uuidFromURI(zaaktype.getUrl()).toString());
-
-        if (zaak.getStatus() != null) {
-            final Status status = zrcClientService.readStatus(zaak.getStatus());
-            zaakZoekObject.setStatusToelichting(status.getStatustoelichting());
-            zaakZoekObject.setStatusDatumGezet(DateTimeConverterUtil.convertToDate(status.getDatumStatusGezet()));
-            final StatusType statustype = ztcClientService.readStatustype(status.getStatustype());
-            zaakZoekObject.setStatustypeOmschrijving(statustype.getOmschrijving());
-            zaakZoekObject.setStatusEindstatus(statustype.getIsEindstatus());
-            zaakZoekObject.setIndicatie(ZaakIndicatie.HEROPEND, isHeropend(statustype));
+        if (zaak.status != null) {
+            val status = zrcClientService.readStatus(zaak.status)
+            zaakZoekObject.statusToelichting = status.statustoelichting
+            zaakZoekObject.statusDatumGezet = DateTimeConverterUtil.convertToDate(status.datumStatusGezet)
+            val statustype = ztcClientService.readStatustype(status.statustype)
+            zaakZoekObject.statustypeOmschrijving = statustype.omschrijving
+            zaakZoekObject.isStatusEindstatus = statustype.isEindstatus
+            zaakZoekObject.setIndicatie(ZaakIndicatie.HEROPEND, StatusTypeUtil.isHeropend(statustype))
         }
 
-        zaakZoekObject.setAantalOpenstaandeTaken(flowableTaskService.countOpenTasksForZaak(zaak.getUuid()));
+        zaakZoekObject.aantalOpenstaandeTaken = flowableTaskService.countOpenTasksForZaak(zaak.uuid)
 
-        if (zaak.getResultaat() != null) {
-            final Resultaat resultaat = zrcClientService.readResultaat(zaak.getResultaat());
+        if (zaak.resultaat != null) {
+            val resultaat = zrcClientService.readResultaat(zaak.resultaat)
             if (resultaat != null) {
-                final ResultaatType resultaattype = ztcClientService.readResultaattype(resultaat.getResultaattype());
-                zaakZoekObject.setResultaattypeOmschrijving(resultaattype.getOmschrijving());
-                zaakZoekObject.setResultaatToelichting(resultaat.getToelichting());
+                val resultaattype = ztcClientService.readResultaattype(resultaat.resultaattype)
+                zaakZoekObject.resultaattypeOmschrijving = resultaattype.omschrijving
+                zaakZoekObject.resultaatToelichting = resultaat.toelichting
             }
         }
-        zaakZoekObject.setBagObjectIDs(getBagObjectIDs(zaak));
+        zaakZoekObject.bagObjectIDs = getBagObjectIDs(zaak)
 
-        return zaakZoekObject;
+        return zaakZoekObject
     }
 
-
-    private String convertToLocatie(final Geometry zaakgeometrie) {
-        //todo
-        return null;
-    }
-
-    private void addBetrokkenen(final Zaak zaak, final ZaakZoekObject zaakZoekObject) {
-        for (Rol<?> rol : zrcClientService.listRollen(zaak)) {
-            zaakZoekObject.addBetrokkene(rol.getOmschrijving(), rol.getIdentificatienummer());
+    private fun addBetrokkenen(zaak: Zaak, zaakZoekObject: ZaakZoekObject) {
+        for (rol in zrcClientService.listRollen(zaak)) {
+            zaakZoekObject.addBetrokkene(rol.omschrijving, rol.identificatienummer)
         }
     }
 
-    private User findBehandelaar(final Zaak zaak) {
-        return zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
-                .map(behandelaar -> identityService.readUser(
-                        behandelaar.getBetrokkeneIdentificatie().getIdentificatie()))
-                .orElse(null);
+    private fun findBehandelaar(zaak: Zaak): User? =
+        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+            .map { identityService.readUser(it.betrokkeneIdentificatie.identificatie) }
+            .orElse(null)
+
+    private fun findGroup(zaak: Zaak): Group? =
+        zgwApiService.findGroepForZaak(zaak)
+            .map { identityService.readGroup(it.betrokkeneIdentificatie.identificatie) }
+            .orElse(null)
+
+    private fun getBagObjectIDs(zaak: Zaak): List<String> {
+        val zaakobjectListParameters = ZaakobjectListParameters().apply { this.zaak = zaak.url }
+        val zaakobjecten = zrcClientService.listZaakobjecten(zaakobjectListParameters)
+        return zaakobjecten.results
+            .filter { it.isBagObject }
+            .map { it.waarde }
+            .takeIf { it.isNotEmpty() } ?: emptyList()
     }
 
-
-    private Group findGroup(final Zaak zaak) {
-        return zgwApiService.findGroepForZaak(zaak)
-                .map(groep -> identityService.readGroup(groep.getBetrokkeneIdentificatie().getIdentificatie()))
-                .orElse(null);
-    }
-
-
-    public List<String> getBagObjectIDs(final Zaak zaak) {
-        final ZaakobjectListParameters zaakobjectListParameters = new ZaakobjectListParameters();
-        zaakobjectListParameters.setZaak(zaak.getUrl());
-        final Results<Zaakobject> zaakobjecten = zrcClientService.listZaakobjecten(zaakobjectListParameters);
-        if (zaakobjecten.getCount() > 0) {
-            return zaakobjecten.getResults()
-                    .stream()
-                    .filter(Zaakobject::isBagObject)
-                    .map(Zaakobject::getWaarde)
-                    .toList();
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    @Override
-    public boolean supports(final ZoekObjectType objectType) {
-        return objectType == ZoekObjectType.ZAAK;
-    }
+    override fun supports(objectType: ZoekObjectType): Boolean = objectType == ZoekObjectType.ZAAK
 }
