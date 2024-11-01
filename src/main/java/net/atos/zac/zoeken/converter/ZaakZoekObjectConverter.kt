@@ -31,6 +31,7 @@ class ZaakZoekObjectConverter @Inject constructor(
         val zaak = zrcClientService.readZaak(UUID.fromString(id))
         return convert(zaak)
     }
+    override fun supports(objectType: ZoekObjectType) = objectType == ZoekObjectType.ZAAK
 
     @Suppress("LongMethod")
     private fun convert(zaak: Zaak): ZaakZoekObject {
@@ -127,6 +128,4 @@ class ZaakZoekObjectConverter @Inject constructor(
             .map { it.waarde }
             .takeIf { it.isNotEmpty() } ?: emptyList()
     }
-
-    override fun supports(objectType: ZoekObjectType) = objectType == ZoekObjectType.ZAAK
 }

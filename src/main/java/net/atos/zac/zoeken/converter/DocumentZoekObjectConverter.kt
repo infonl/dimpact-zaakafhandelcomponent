@@ -32,6 +32,8 @@ class DocumentZoekObjectConverter @Inject constructor(
         return convert(document, zaakInformatieobject)
     }
 
+    override fun supports(objectType: ZoekObjectType) = objectType == ZoekObjectType.DOCUMENT
+
     @Suppress("LongMethod")
     private fun convert(
         informatieobject: EnkelvoudigInformatieObject,
@@ -90,6 +92,4 @@ class DocumentZoekObjectConverter @Inject constructor(
             }
         }
     }
-
-    override fun supports(objectType: ZoekObjectType) = objectType == ZoekObjectType.DOCUMENT
 }
