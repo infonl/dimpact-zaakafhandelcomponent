@@ -43,7 +43,7 @@ import java.util.logging.Logger
 @AllOpen
 @Suppress("TooManyFunctions")
 class IndexingService @Inject constructor(
-    private val converterInstances: Instance<AbstractZoekObjectConverter<out ZoekObject>>,
+    private val converterInstances: Instance<AbstractZoekObjectConverter<ZoekObject>>,
     private val zrcClientService: ZrcClientService,
     private val drcClientService: DrcClientService,
     private val flowableTaskService: FlowableTaskService
@@ -152,7 +152,7 @@ class IndexingService @Inject constructor(
         }
     }
 
-    private fun getConverter(objectType: ZoekObjectType): AbstractZoekObjectConverter<out ZoekObject> =
+    private fun getConverter(objectType: ZoekObjectType): AbstractZoekObjectConverter<ZoekObject> =
         converterInstances
             .firstOrNull { it.supports(objectType) }
             ?: throw IndexingException("[$objectType] No converter found")
