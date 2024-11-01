@@ -519,7 +519,36 @@ services:
           # Set a maximum memory limit for the ZAC container for a more realistic
           # scenario when testing ZAC locally or when running our integration tests.
           memory: 4G
+    healthcheck:
+      test: "bash -c 'printf \"GET /health/ready HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/8080; exit $?;'"
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
     depends_on:
       zac-database:
         condition: service_healthy
     profiles: ["zac"]
+
+  schema-crawler:
+    image: docker.io/schemacrawler/schemacrawler:v16.22.2@sha256:8c3143975d81866e6e02051eeb9caa34d37423a77de3a79231bd24431f43386a
+    entrypoint: ["/opt/schemacrawler/bin/schemacrawler.sh"]
+    command: >
+      --server=postgresql
+      --host=zac-database
+      --port=5432
+      --database=zac
+      --user=zac
+      --password=password
+      --info-level=standard
+      --command=script
+      --script-language=python
+      --script=mermaid.py
+      --output-file=share/zac-database-erd.mmd
+    volumes:
+      - ./output:/home/schcrwlr/share
+    restart: "no"
+    depends_on:
+      zac:
+        condition: service_healthy
+    profiles: ["erd"]

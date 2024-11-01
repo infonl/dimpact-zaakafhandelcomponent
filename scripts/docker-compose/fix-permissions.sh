@@ -15,6 +15,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
   echo -e "\nFixing directory permissions ..."
   VOLUMES_DIR=scripts/docker-compose/volume-data
   if [ -d "$VOLUMES_DIR" ]; then
-    sudo chown -R "$USER:$USER" "$VOLUMES_DIR" build/
+    sudo chown -R "$USER:$USER" "$VOLUMES_DIR" build/ output/
   fi
 )

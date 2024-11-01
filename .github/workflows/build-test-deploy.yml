@@ -233,6 +233,8 @@ jobs:
           ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} \
             -x compileJava -x processResources -x compileKotlin -x classes -x buildDockerImage \
             itest --info
+        env:
+          CREATE_ERD_DIAGRAM_IN_ITEST: true
 
       - name: Publish integration test results
         uses: EnricoMi/publish-unit-test-result-action@v2

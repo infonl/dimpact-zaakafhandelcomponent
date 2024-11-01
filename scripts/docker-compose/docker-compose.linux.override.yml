@@ -181,3 +181,10 @@ services:
     # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  schema-crawler:
+    user: "${UID}:${GID}"
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

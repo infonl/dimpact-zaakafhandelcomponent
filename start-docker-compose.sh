@@ -19,6 +19,7 @@ help()
    echo "-z     Also start last-known-good ZAC Docker container as part of the Docker Compose environment."
    echo "-b     Build and start local ZAC Docker image in the Docker Compose environment."
    echo "-l     Start local ZAC Docker image in the Docker Compose environment."
+   echo "-e     Also run schema-crawler to generate a mermaid ERD. This will only be able to run after ZAC has started!"
    echo "-h     Print this Help."
    echo
 }
@@ -38,12 +39,16 @@ profiles=()
 
 [ -f fix-permissions.sh ] && ./fix-permissions.sh
 
-while getopts ':dmtzblh' OPTION; do
+while getopts ':demtzblh' OPTION; do
   case $OPTION in
     d)
       echo "Deleting local Docker volume data folder: '$volumeDataFolder'.."
       rm -rf $volumeDataFolder
       echo "Done"
+      ;;
+    e)
+      echo "Also enabling schema-crawler container to generate an ERD diagram of the ZAC database."
+      profiles+=("erd")
       ;;
     h)
       help
@@ -117,6 +122,14 @@ profilesList=""
 if [ ${#profiles[@]} -ne 0 ]; then
   printf -v concatenated_profiles '%s,' "${profiles[@]}"
   profilesList="${concatenated_profiles%,}"
+fi
+
+# Detect the platform we're running on
+PLATFORM=$(uname -m)
+if [[ "$PLATFORM" == "arm64" || "$PLATFORM" == "aarch64" ]]; then
+  export DOCKER_PLATFORM="linux/arm64"
+else
+  export DOCKER_PLATFORM="linux/amd64"
 fi
 
 # Uses the 1Password CLI tools to set up the environment variables for running Docker Compose and ZAC in IntelliJ.

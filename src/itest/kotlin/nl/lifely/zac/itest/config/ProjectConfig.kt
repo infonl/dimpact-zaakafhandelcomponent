@@ -150,14 +150,18 @@ class ProjectConfig : AbstractProjectConfig() {
     private fun createDockerComposeContainer(): ComposeContainer {
         logger.info { "Using ZAC Docker image: '$zacDockerImage'" }
 
+        val removeDockerComposeVolumes = System.getenv("REMOVE_DOCKER_COMPOSE_VOLUMES")?.toBoolean() ?: true
+        val optionProfileErd = System.getenv("CREATE_ERD_DIAGRAM_IN_ITEST")?.toBoolean() ?: false
+        val options = listOf(
+            "zac", if(optionProfileErd) "erd" else null,
+            "itest")
+            .mapNotNull { "--profile $it" }
+            .toTypedArray()
         return ComposeContainer(File("docker-compose.yaml"))
             .withLocalCompose(true)
-            .withRemoveVolumes(System.getenv("REMOVE_DOCKER_COMPOSE_VOLUMES")?.toBoolean() ?: true)
+            .withRemoveVolumes(removeDockerComposeVolumes)
             .withEnv(dockerComposeEnvironment)
-            .withOptions(
-                "--profile zac",
-                "--profile itest"
-            )
+            .withOptions(*options)
             .withLogConsumer(
                 "solr",
                 Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
