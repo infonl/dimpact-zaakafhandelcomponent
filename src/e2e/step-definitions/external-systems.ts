@@ -8,13 +8,14 @@ import { expect, Page } from "@playwright/test";
 import { CustomWorld } from "../support/worlds/world";
 
 const ONE_MINUTE_IN_MS = 60_000;
+const TWENTY_SECONDS_IN_MS = 20_000;
 
 let smartDocumentsWizardPage: Page;
 
 const documentInput = {
-  title: "E2E Test - Document Title Text",
-  description: "E2E Test - Document Description Text",
-  author: "E2E Test - Document Author Name",
+  title: "E2E Test - SmartDocuments Document Title",
+  description: "E2E Test - SmartDocuments Document Description",
+  author: "E2E Test - SmartDocuments Document Author",
 };
 
 When(
@@ -115,7 +116,10 @@ When(
     await expect(caseNumberLocator).toHaveCount(2);
 
     const documentTitleText = this.page.locator(`text=${documentInput.title}`);
-    await expect(documentTitleText.first()).toBeVisible();
+    // increase the timout because it can take a while for the document to be visible
+    await expect(documentTitleText.first()).toBeVisible({
+      timeout: TWENTY_SECONDS_IN_MS,
+    });
 
     const anchorLocator = this.page.locator('a[title="Document bekijken"]');
     await anchorLocator.click();
