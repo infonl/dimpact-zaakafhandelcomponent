@@ -244,7 +244,7 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:0.69.0-static@sha256:eeba593a37823cd086b3e41f5b24da4bb0876d1a843776ae7792a68a0a950cc7
+    image: docker.io/openpolicyagent/opa:0.70.0-static@sha256:5679cbbedd1908063b7a68e8af28e662dce4ae3e069b4b5459531b141c6b6ff0
     command: run --server --log-level debug
     ports:
       - "8181:8181"
@@ -350,7 +350,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:0.69.0@sha256:be52e1221111a81427ae4ecd4f5e0694dafb9575e6dcedd71c806c8cc3fd8dc7
+    image: docker.io/openpolicyagent/opa:0.70.0@sha256:2b1c4b231f6dfa6a2baea4af4109203b10cd4b65e836d72f03bfe5d8dfce7095
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
