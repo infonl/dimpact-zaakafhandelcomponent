@@ -90,7 +90,6 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         )
         every { zrcClientService.readResultaat(zaak.resultaat) } returns resultaat
 
-
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns Optional.of(rolInitiator)
         every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns Optional.of(rolMedewerkerBehandelaar)
