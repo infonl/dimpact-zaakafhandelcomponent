@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.zoeken
@@ -9,6 +9,8 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.shared.model.SorteerRichting
+import net.atos.zac.solr.encoded
+import net.atos.zac.solr.quoted
 import net.atos.zac.zoeken.IndexingService.Companion.SOLR_CORE
 import net.atos.zac.zoeken.model.DatumRange
 import net.atos.zac.zoeken.model.DatumVeld

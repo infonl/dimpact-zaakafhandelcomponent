@@ -54,7 +54,7 @@ public class RESTZoekResultaatConverter {
     }
 
     private AbstractRESTZoekObject convert(final ZoekObject zoekObject) {
-        return switch (zoekObject.getType()) {
+        return switch (zoekObject.type) {
             case ZAAK -> restZaakZoekObjectConverter.convert((ZaakZoekObject) zoekObject);
             case TAAK -> restTaakZoekObjectConverter.convert((TaakZoekObject) zoekObject);
             case DOCUMENT -> restDocumentZoekObjectConverter.convert((DocumentZoekObject) zoekObject);
