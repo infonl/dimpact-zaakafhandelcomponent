@@ -45,6 +45,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVEN
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_REFERENTIEPROCES
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_2
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
@@ -106,7 +107,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "isProcesGestuurd": false,
                       "isVerlengd": false,
                       "kenmerken": [],
-                      "omschrijving": "dummyOmschrijving",
+                      "omschrijving": "$ZAAK_DESCRIPTION_2",
                       "rechten": {
                         "afbreken": true,
                         "behandelen": true,

@@ -14,6 +14,8 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.client.ZacClient
+import nl.lifely.zac.itest.config.ItestConfiguration.DATE_2024_01_01
+import nl.lifely.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
 import nl.lifely.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_EMAIL_ADDRESS
@@ -24,14 +26,13 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_EMAIL
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.zaakManual2Identification
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.TimeZone
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
@@ -47,7 +48,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
     Given(
         """
             A user who has 'taak verlopen email notificaties' turned on 
-            and a zaak with a task that is assigned and that has a fatal/due date within one day from now
+            and a zaak with a task that is assigned and that has a fatal/due date within one day from the zaak start date
             """
     ) {
         val response = itestHttpClient.performPutRequest(
@@ -61,13 +62,12 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         )
         response.code shouldBe HTTP_STATUS_OK
 
-        val zaakDescription = "dummyDescription"
         lateinit var zaakUuid: UUID
         zacClient.createZaak(
-            description = zaakDescription,
+            description = ZAAK_DESCRIPTION_1,
             groupId = TEST_GROUP_A_ID,
             groupName = TEST_GROUP_A_DESCRIPTION,
-            startDate = LocalDate.now().atStartOfDay(TimeZone.getDefault().toZoneId()),
+            startDate = DATE_TIME_2024_01_01,
             zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
         ).run {
             JSONObject(body!!.string()).run {
@@ -85,7 +85,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         getHumanTaskPlanItemsResponseBody.shouldBeJsonArray()
         val humanTaskItemId = JSONArray(getHumanTaskPlanItemsResponseBody).getJSONObject(0).getString("id")
 
-        val fataleDatum = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        val fataleDatum = DATE_2024_01_01.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         val doHumanTaskPlanItemResponse = itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
             requestBodyAsString = """{
@@ -132,7 +132,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                     with(getString("mimeMessage")) {
                         this shouldStartWith "Return-Path: <$TEST_GEMEENTE_EMAIL_ADDRESS>"
                         this shouldContain
-                            "Voor zaak $zaakManual2Identification over $zaakDescription staat een belangrijke een taak op jouw naam. " +
+                            "Voor zaak $zaakManual2Identification over $ZAAK_DESCRIPTION_1 staat een belangrijke een taak op jouw naam. " +
                             "De fatale datum voor het afhandelen is verstreken."
                     }
                 }
