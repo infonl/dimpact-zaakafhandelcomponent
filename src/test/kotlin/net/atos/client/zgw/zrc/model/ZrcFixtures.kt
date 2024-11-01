@@ -13,7 +13,9 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
+import net.atos.client.zgw.ztc.model.createResultaatType
 import net.atos.client.zgw.ztc.model.createRolType
+import net.atos.client.zgw.ztc.model.generated.ResultaatType
 import net.atos.client.zgw.ztc.model.generated.RolType
 import java.net.URI
 import java.time.LocalDate
@@ -64,12 +66,15 @@ fun createOrganisatorischeEenheid(
 }
 
 fun createResultaat(
-    url: URI = URI("http://example.com/${UUID.randomUUID()}"),
-    uuid: UUID = UUID.randomUUID()
+    url: URI = URI("http://example.com/resultaat/${UUID.randomUUID()}"),
+    uuid: UUID = UUID.randomUUID(),
+    resultaatTypeURI: URI = URI("http://example.com/resultaattype/${UUID.randomUUID()}")
 ) = Resultaat(
     url,
     uuid
-)
+).apply {
+    resultaattype = resultaatTypeURI
+}
 
 fun createRolMedewerker(
     zaak: URI = URI("https://example.com/${UUID.randomUUID()}"),
