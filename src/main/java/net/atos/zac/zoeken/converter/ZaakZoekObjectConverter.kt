@@ -14,6 +14,7 @@ import net.atos.zac.identity.model.User
 import net.atos.zac.identity.model.getFullName
 import net.atos.zac.util.UriUtil.uuidFromURI
 import net.atos.zac.util.time.DateTimeConverterUtil
+import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
 import net.atos.zac.zoeken.model.ZaakIndicatie
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
@@ -40,20 +41,20 @@ class ZaakZoekObjectConverter @Inject constructor(
             identificatie = zaak.identificatie
             omschrijving = zaak.omschrijving
             toelichting = zaak.toelichting
-            registratiedatum = DateTimeConverterUtil.convertToDate(zaak.registratiedatum)
-            startdatum = DateTimeConverterUtil.convertToDate(zaak.startdatum)
-            einddatumGepland = DateTimeConverterUtil.convertToDate(zaak.einddatumGepland)
-            einddatum = DateTimeConverterUtil.convertToDate(zaak.einddatum)
-            uiterlijkeEinddatumAfdoening = DateTimeConverterUtil.convertToDate(zaak.uiterlijkeEinddatumAfdoening)
-            publicatiedatum = DateTimeConverterUtil.convertToDate(zaak.publicatiedatum)
-            // we use the uppercase version of this enum in the ZAC backend API
+            registratiedatum = convertToDate(zaak.registratiedatum)
+            startdatum = convertToDate(zaak.startdatum)
+            einddatumGepland = convertToDate(zaak.einddatumGepland)
+            einddatum = convertToDate(zaak.einddatum)
+            uiterlijkeEinddatumAfdoening = convertToDate(zaak.uiterlijkeEinddatumAfdoening)
+            publicatiedatum = convertToDate(zaak.publicatiedatum)
+            // we use the name of this enum in the search index
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name
             isAfgehandeld = !zaak.isOpen
             zgwApiService.findInitiatorRoleForZaak(zaak).ifPresent { setInitiator(it) }
             // locatie is not yet supported
             locatie = null
             communicatiekanaal = zaak.communicatiekanaalNaam
-            archiefActiedatum = DateTimeConverterUtil.convertToDate(zaak.archiefactiedatum)
+            archiefActiedatum = convertToDate(zaak.archiefactiedatum)
             if (zaak.isVerlengd) {
                 setIndicatie(ZaakIndicatie.VERLENGD, true)
                 duurVerlenging = zaak.verlenging.duur.toString()
@@ -85,7 +86,7 @@ class ZaakZoekObjectConverter @Inject constructor(
         zaak.status?.let {
             val status = zrcClientService.readStatus(it)
             zaakZoekObject.statusToelichting = status.statustoelichting
-            zaakZoekObject.statusDatumGezet = DateTimeConverterUtil.convertToDate(status.datumStatusGezet)
+            zaakZoekObject.statusDatumGezet = convertToDate(status.datumStatusGezet)
             val statustype = ztcClientService.readStatustype(status.statustype)
             zaakZoekObject.statustypeOmschrijving = statustype.omschrijving
             zaakZoekObject.isStatusEindstatus = statustype.isEindstatus

@@ -19,10 +19,10 @@ import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType
 
 class TaakZoekObjectConverter @Inject constructor(
-    val identityService: IdentityService,
-    val flowableTaskService: FlowableTaskService,
-    val ztcClientService: ZtcClientService,
-    val zrcClientService: ZrcClientService
+    private val identityService: IdentityService,
+    private val flowableTaskService: FlowableTaskService,
+    private val ztcClientService: ZtcClientService,
+    private val zrcClientService: ZrcClientService
 ) : AbstractZoekObjectConverter<TaakZoekObject>() {
 
     override fun convert(id: String): TaakZoekObject {

@@ -4,7 +4,6 @@ import jakarta.inject.Inject
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
@@ -12,7 +11,6 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.getFullName
-import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
 import net.atos.zac.zoeken.model.DocumentIndicatie
 import net.atos.zac.zoeken.model.index.ZoekObjectType
@@ -20,12 +18,12 @@ import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject
 import java.util.UUID
 
 class DocumentZoekObjectConverter @Inject constructor(
-    val identityService: IdentityService,
-    val brcClientService: BrcClientService,
-    val ztcClientService: ZtcClientService,
-    val drcClientService: DrcClientService,
-    val zrcClientService: ZrcClientService,
-    val enkelvoudigInformatieObjectLockService: EnkelvoudigInformatieObjectLockService
+    private val identityService: IdentityService,
+    private val brcClientService: BrcClientService,
+    private val ztcClientService: ZtcClientService,
+    private val drcClientService: DrcClientService,
+    private val zrcClientService: ZrcClientService,
+    private val enkelvoudigInformatieObjectLockService: EnkelvoudigInformatieObjectLockService
 ) : AbstractZoekObjectConverter<DocumentZoekObject>() {
 
     override fun convert(id: String): DocumentZoekObject? {
