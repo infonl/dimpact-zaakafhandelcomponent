@@ -31,6 +31,8 @@ import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.common.params.SolrParams
 import org.eclipse.microprofile.config.ConfigProvider
 import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.EnumMap
 
 class ZoekenServiceTest : BehaviorSpec({
@@ -59,9 +61,11 @@ class ZoekenServiceTest : BehaviorSpec({
         val behandelaarFilterValue2 = "dummyBehandelaarFilterValue2"
         val zaakType1 = "dummyZaaktype1"
         val zaakType2 = "dummyZaaktype2"
+        val zaakSearchStartDate = LocalDate.of(2000, 1, 1)
+        val zaakSearchEndDate = LocalDate.of(2000, 2, 1)
         val zaakSearchDateRange = DatumRange(
-            LocalDate.of(2000, 1, 1),
-            LocalDate.of(2000, 2, 1)
+            zaakSearchStartDate,
+            zaakSearchEndDate
         )
         val zoekParameters = createZoekParameters(
             zoekObjectType = ZoekObjectType.ZAAK,
@@ -115,12 +119,18 @@ class ZoekenServiceTest : BehaviorSpec({
                         items[1] shouldBe zaakZoekObject2
                     }
                 }
+                val zaakSearchStartDateString = DateTimeFormatter.ISO_INSTANT.format(
+                    zaakSearchStartDate.atStartOfDay(ZoneId.systemDefault())
+                )
+                val zaakSearchEndDateString = DateTimeFormatter.ISO_INSTANT.format(
+                    zaakSearchEndDate.atStartOfDay(ZoneId.systemDefault())
+                )
                 with(solrParamsSlot.captured) {
                     get("q") shouldBe "*:*"
                     getParams("fq") shouldBe arrayOf(
                         "type:ZAAK",
                         "zaak_omschrijving:($zaakDescriptionSearchField)",
-                        "startdatum:[1999-12-31T23:00:00Z TO 2000-01-31T23:00:00Z]",
+                        "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
                         """{!tag=ZAAKTYPE}zaaktypeOmschrijving:("$zaakType1" OR "$zaakType2")""",
                         """{!tag=BEHANDELAAR}behandelaarNaam:("$behandelaarFilterValue1" OR "$behandelaarFilterValue2")"""
                     )
