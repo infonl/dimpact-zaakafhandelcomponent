@@ -60,21 +60,19 @@ class ZoekenService @Inject constructor(
         ).build()
     }
 
-    @Suppress("TooGenericExceptionThrown", "CyclomaticComplexity")
-    fun zoek(zoekParameters: ZoekParameters): ZoekResultaat<out ZoekObject?> {
+    @Suppress("TooGenericExceptionThrown", "CyclomaticComplexMethod", "LongMethod")
+    fun zoek(zoekParameters: ZoekParameters): ZoekResultaat<out ZoekObject> {
         val query = SolrQuery("*:*")
 
-        if (loggedInUserInstance.get() != null) {
-            // Signaleringen job does not have a logged-in user
+        // Signaleringen job does not have a logged-in user so check if it is present
+        loggedInUserInstance.get()?.also {
             applyAllowedZaaktypenPolicy(query)
         }
-
-        if (zoekParameters.type != null) {
+        zoekParameters.type?.let {
             query.addFilterQuery("type:${zoekParameters.type}")
         }
-
         zoekParameters.zoeken.forEach { (searchField: ZoekVeld, text: String) ->
-            if (StringUtils.isNotBlank(text)) {
+            if (text.isNotBlank()) {
                 if (searchField == ZoekVeld.ZAAK_IDENTIFICATIE || searchField == ZoekVeld.TAAK_ZAAK_ID) {
                     query.addFilterQuery("${searchField.veld}:(*${encoded(text)}*)")
                 } else {
@@ -82,12 +80,11 @@ class ZoekenService @Inject constructor(
                 }
             }
         }
-
         zoekParameters.datums.forEach { (dateField: DatumVeld, date: DatumRange) ->
             query.addFilterQuery(
-                "${dateField.veld}:[${if (date.van == null) {
+                "${dateField.veld}:[${date.van?.let {
                     "*"
-                } else {
+                } ?: {
                     DateTimeFormatter.ISO_INSTANT.format(
                         date.van.atStartOfDay(ZoneId.systemDefault())
                     )
@@ -100,12 +97,10 @@ class ZoekenService @Inject constructor(
                 }}]"
             )
         }
-
         zoekParameters.filters
             .forEach { (filterVeld: FilterVeld) ->
                 query.addFacetField("{!ex=$filterVeld}${filterVeld.veld}")
             }
-
         zoekParameters.filters.forEach { (filter: FilterVeld, filterParameters: FilterParameters) ->
             if (CollectionUtils.isNotEmpty(filterParameters.waarden)) {
                 val special = if (filterParameters.waarden.size == 1) {
@@ -124,7 +119,7 @@ class ZoekenService @Inject constructor(
                 } else {
                     query.addFilterQuery(
                         "{!tag=$filter}${if (filterParameters.inverse) "-" else StringUtils.EMPTY}" +
-                            // TODO
+                            // TODO; remove stream
                             "${filter.veld}:(${filterParameters.waarden.stream()
                                 .map { value: String -> quoted(value) }
                                 .collect(Collectors.joining(" OR "))})"
@@ -132,12 +127,10 @@ class ZoekenService @Inject constructor(
                 }
             }
         }
-
         zoekParameters.filterQueries
             .forEach { (veld: String, waarde: String) ->
                 query.addFilterQuery("$veld:${quoted(waarde)}")
             }
-
         query.setFacetMinCount(1)
         query.setFacetMissing(!zoekParameters.isGlobaalZoeken)
         query.setFacet(true)
@@ -154,14 +147,13 @@ class ZoekenService @Inject constructor(
                 SolrQuery.ORDER.asc
             }
         )
-
         if (zoekParameters.sortering.sorteerVeld != SorteerVeld.CREATED) {
             query.addSort(SorteerVeld.CREATED.veld, SolrQuery.ORDER.desc)
         }
         if (zoekParameters.sortering.sorteerVeld != SorteerVeld.ZAAK_IDENTIFICATIE) {
             query.addSort(SorteerVeld.ZAAK_IDENTIFICATIE.veld, SolrQuery.ORDER.desc)
         }
-        // uniek veld, zodat resultaten (van dezelfde query) altijd in dezelfde volgorde staan
+        // sort on 'id' field so that results (from the same query) always have the same order
         query.addSort("id", SolrQuery.ORDER.desc)
         try {
             val response = solrClient.query(query)
