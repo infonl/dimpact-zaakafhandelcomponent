@@ -16,6 +16,7 @@ import io.mockk.slot
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.app.zoeken.createZoekParameters
 import net.atos.zac.authentication.LoggedInUser
+import net.atos.zac.zoeken.model.ZoekVeld
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
 import org.apache.solr.client.solrj.beans.DocumentObjectBinder
@@ -25,6 +26,7 @@ import org.apache.solr.common.SolrDocument
 import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.common.params.SolrParams
 import org.eclipse.microprofile.config.ConfigProvider
+import java.util.EnumMap
 
 class ZoekenServiceTest : BehaviorSpec({
     // add static mocking for config provider because the IndexeerService class
@@ -48,7 +50,10 @@ class ZoekenServiceTest : BehaviorSpec({
 
     Given("A logged-in user authorised for all zaaktypes and wo objects of type ZAAK in the search index") {
         val zoekParameters = createZoekParameters(
-            zoekObjectType = ZoekObjectType.ZAAK
+            zoekObjectType = ZoekObjectType.ZAAK,
+            zoeken = EnumMap<ZoekVeld, String>(ZoekVeld::class.java).apply {
+                put(ZoekVeld.ZAAK_OMSCHRIJVING, "dummyOmchrijving")
+            }
         )
         val queryResponse = mockk<QueryResponse>()
         val solrDocumentList = mockk<SolrDocumentList>()
@@ -89,7 +94,10 @@ class ZoekenServiceTest : BehaviorSpec({
                 }
                 with(solrParamsSlot.captured) {
                     get("q") shouldBe "*:*"
-                    get("fq") shouldBe "type:ZAAK"
+                    getParams("fq") shouldBe arrayOf(
+                        "type:ZAAK",
+                        "zaak_omschrijving:(dummyOmchrijving)"
+                    )
                     get("facet") shouldBe "true"
                     get("facet.mincount") shouldBe "1"
                     get("facet.missing") shouldBe "true"
