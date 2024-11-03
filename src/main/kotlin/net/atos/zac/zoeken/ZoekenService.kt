@@ -26,20 +26,16 @@ import net.atos.zac.zoeken.model.ZoekVeld
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
-import org.apache.commons.collections4.CollectionUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.impl.Http2SolrClient
-import org.apache.solr.client.solrj.response.FacetField
 import org.apache.solr.common.params.SimpleParams
 import org.eclipse.microprofile.config.ConfigProvider
 import java.io.IOException
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.function.Consumer
-import java.util.stream.Collectors
 
 @ApplicationScoped
 @AllOpen
@@ -60,77 +56,42 @@ class ZoekenService @Inject constructor(
         ).build()
     }
 
-    @Suppress("TooGenericExceptionThrown", "CyclomaticComplexMethod", "LongMethod")
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
     fun zoek(zoekParameters: ZoekParameters): ZoekResultaat<out ZoekObject> {
         val query = SolrQuery("*:*")
-
-        // Signaleringen job does not have a logged-in user so check if it is present
-        loggedInUserInstance.get()?.also {
-            applyAllowedZaaktypenPolicy(query)
-        }
-        zoekParameters.type?.let {
-            query.addFilterQuery("type:${zoekParameters.type}")
-        }
+        applyAllowedZaaktypenPolicy(query)
+        zoekParameters.type?.let { query.addFilterQuery("type:${zoekParameters.type}") }
         zoekParameters.zoeken.forEach { (searchField: ZoekVeld, text: String) ->
             if (text.isNotBlank()) {
-                if (searchField == ZoekVeld.ZAAK_IDENTIFICATIE || searchField == ZoekVeld.TAAK_ZAAK_ID) {
-                    query.addFilterQuery("${searchField.veld}:(*${encoded(text)}*)")
+                val queryText = if (searchField == ZoekVeld.ZAAK_IDENTIFICATIE || searchField == ZoekVeld.TAAK_ZAAK_ID) {
+                    "(*${encoded(text)}*)"
                 } else {
-                    query.addFilterQuery("${searchField.veld}:(${encoded(text)})")
+                    "(${encoded(text)})"
                 }
+                query.addFilterQuery("${searchField.veld}:$queryText")
             }
         }
         zoekParameters.datums.forEach { (dateField: DatumVeld, date: DatumRange) ->
-            query.addFilterQuery(
-                "${dateField.veld}:[${date.van?.let {
-                    "*"
-                } ?: {
-                    DateTimeFormatter.ISO_INSTANT.format(
-                        date.van.atStartOfDay(ZoneId.systemDefault())
-                    )
-                }} TO ${if (date.tot == null) {
-                    "*"
-                } else {
-                    DateTimeFormatter.ISO_INSTANT.format(
-                        date.tot.atStartOfDay(ZoneId.systemDefault())
-                    )
-                }}]"
-            )
+            val from = date.van?.let { DateTimeFormatter.ISO_INSTANT.format(it.atStartOfDay(ZoneId.systemDefault())) } ?: "*"
+            val to = date.tot?.let { DateTimeFormatter.ISO_INSTANT.format(it.atStartOfDay(ZoneId.systemDefault())) } ?: "*"
+            query.addFilterQuery("${dateField.veld}:[$from TO $to]")
         }
-        zoekParameters.filters
-            .forEach { (filterVeld: FilterVeld) ->
-                query.addFacetField("{!ex=$filterVeld}${filterVeld.veld}")
-            }
         zoekParameters.filters.forEach { (filter: FilterVeld, filterParameters: FilterParameters) ->
-            if (CollectionUtils.isNotEmpty(filterParameters.waarden)) {
-                val special = if (filterParameters.waarden.size == 1) {
-                    filterParameters.waarden.first()
-                } else {
-                    null
-                }
-                if (FilterWaarde.LEEG.`is`(special)) {
-                    query.addFilterQuery(
-                        "{!tag=$filter}!${filter.veld}:(*)"
-                    )
-                } else if (FilterWaarde.NIET_LEEG.`is`(special)) {
-                    query.addFilterQuery(
-                        "{!tag=$filter}${filter.veld}:(*)"
-                    )
-                } else {
-                    query.addFilterQuery(
+            query.addFacetField("{!ex=$filter}${filter.veld}")
+            if (filterParameters.waarden.isNotEmpty()) {
+                val special = filterParameters.waarden.takeIf { it.size == 1 }?.first()
+                when {
+                    FilterWaarde.LEEG.`is`(special) -> query.addFilterQuery("{!tag=$filter}!${filter.veld}:(*)")
+                    FilterWaarde.NIET_LEEG.`is`(special) -> query.addFilterQuery("{!tag=$filter}${filter.veld}:(*)")
+                    else -> query.addFilterQuery(
                         "{!tag=$filter}${if (filterParameters.inverse) "-" else StringUtils.EMPTY}" +
-                            // TODO; remove stream
-                            "${filter.veld}:(${filterParameters.waarden.stream()
-                                .map { value: String -> quoted(value) }
-                                .collect(Collectors.joining(" OR "))})"
+                            "${filter.veld}:(${filterParameters.waarden.joinToString(" OR ") { quoted(it) }})"
                     )
                 }
             }
         }
         zoekParameters.filterQueries
-            .forEach { (veld: String, waarde: String) ->
-                query.addFilterQuery("$veld:${quoted(waarde)}")
-            }
+            .forEach { (veld: String, waarde: String) -> query.addFilterQuery("$veld:${quoted(waarde)}") }
         query.setFacetMinCount(1)
         query.setFacetMissing(!zoekParameters.isGlobaalZoeken)
         query.setFacet(true)
@@ -139,13 +100,7 @@ class ZoekenService @Inject constructor(
         query.setStart(zoekParameters.start)
         query.addSort(
             zoekParameters.sortering.sorteerVeld.veld,
-            if (zoekParameters.sortering
-                    .richting == SorteerRichting.DESCENDING
-            ) {
-                SolrQuery.ORDER.desc
-            } else {
-                SolrQuery.ORDER.asc
-            }
+            if (zoekParameters.sortering.richting == SorteerRichting.DESCENDING) SolrQuery.ORDER.desc else SolrQuery.ORDER.asc
         )
         if (zoekParameters.sortering.sorteerVeld != SorteerVeld.CREATED) {
             query.addSort(SorteerVeld.CREATED.veld, SolrQuery.ORDER.desc)
@@ -162,49 +117,40 @@ class ZoekenService @Inject constructor(
                     val zoekObjectType = ZoekObjectType.valueOf(it["type"].toString())
                     solrClient.binder.getBean(zoekObjectType.zoekObjectClass, it)
                 }
-            val zoekResultaat = ZoekResultaat(
-                zoekObjecten,
-                response.results.numFound
-            )
-            response.facetFields.forEach(
-                Consumer { facetField: FacetField ->
-                    val facetVeld = FilterVeld.fromValue(facetField.name)
-                    val waardes = mutableListOf<FilterResultaat>()
-                    facetField.values
-                        .filter { it.count > 0 }
-                        .forEach {
-                            waardes.add(
-                                FilterResultaat(
-                                    if (it.name == null) FilterWaarde.LEEG.toString() else it.name,
-                                    it.count
-                                )
-                            )
-                        }
-                    zoekResultaat.addFilter(facetVeld, waardes)
-                }
-            )
+            val zoekResultaat = ZoekResultaat(zoekObjecten, response.results.numFound)
+            response.facetFields.forEach { facetField ->
+                val facetVeld = FilterVeld.fromValue(facetField.name)
+                val values = facetField.values
+                    .filter { it.count > 0 }
+                    .map { FilterResultaat(it.name ?: FilterWaarde.LEEG.toString(), it.count) }
+                zoekResultaat.addFilter(facetVeld, values)
+            }
             return zoekResultaat
         } catch (ioException: IOException) {
-            throw RuntimeException(ioException)
+            throw SearchException(
+                "Failed to perform Solr search query with search parameters: '$zoekParameters'",
+                ioException
+            )
         } catch (solrServerException: SolrServerException) {
-            throw RuntimeException(solrServerException)
+            throw SearchException(
+                "Failed to perform Solr search query with search parameters: '$zoekParameters'",
+                solrServerException
+            )
         }
     }
 
     private fun applyAllowedZaaktypenPolicy(query: SolrQuery) {
-        val loggedInUser = loggedInUserInstance.get()
-        if (!loggedInUser.isAuthorisedForAllZaaktypen()) {
-            if (loggedInUser.geautoriseerdeZaaktypen!!.isEmpty()) {
-                query.addFilterQuery("$ZAAKTYPE_OMSCHRIJVING_VELD:$NON_EXISTING_ZAAKTYPE")
-            } else {
-                query.addFilterQuery(
-                    loggedInUser.geautoriseerdeZaaktypen
-                        // TODO; remove stream() call
-                        .stream()
-                        .map { quoted(it) }
-                        .map { "$ZAAKTYPE_OMSCHRIJVING_VELD:$it" }
-                        .collect(Collectors.joining(" OR "))
-                )
+        // signaleringen job does not have a logged-in user so check if logged-in user is present
+        loggedInUserInstance.get()?.let { loggedInUser ->
+            if (!loggedInUser.isAuthorisedForAllZaaktypen()) {
+                val filterQuery = if (loggedInUser.geautoriseerdeZaaktypen.isNullOrEmpty()) {
+                    "$ZAAKTYPE_OMSCHRIJVING_VELD:$NON_EXISTING_ZAAKTYPE"
+                } else {
+                    loggedInUser.geautoriseerdeZaaktypen.joinToString(
+                        " OR "
+                    ) { "$ZAAKTYPE_OMSCHRIJVING_VELD:${quoted(it)}" }
+                }
+                query.addFilterQuery(filterQuery)
             }
         }
     }

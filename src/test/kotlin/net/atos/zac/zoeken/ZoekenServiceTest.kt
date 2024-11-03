@@ -16,6 +16,10 @@ import io.mockk.slot
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.app.zoeken.createZoekParameters
 import net.atos.zac.authentication.LoggedInUser
+import net.atos.zac.zoeken.model.DatumRange
+import net.atos.zac.zoeken.model.DatumVeld
+import net.atos.zac.zoeken.model.FilterParameters
+import net.atos.zac.zoeken.model.FilterVeld
 import net.atos.zac.zoeken.model.ZoekVeld
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
@@ -26,6 +30,7 @@ import org.apache.solr.common.SolrDocument
 import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.common.params.SolrParams
 import org.eclipse.microprofile.config.ConfigProvider
+import java.time.LocalDate
 import java.util.EnumMap
 
 class ZoekenServiceTest : BehaviorSpec({
@@ -49,12 +54,30 @@ class ZoekenServiceTest : BehaviorSpec({
     }
 
     Given("A logged-in user authorised for all zaaktypes and wo objects of type ZAAK in the search index") {
+        val zaakDescriptionSearchField = "dummyZaakDescription"
+        val behandelaarFilterValue1 = "dummyBehandelaarFilterValue1"
+        val behandelaarFilterValue2 = "dummyBehandelaarFilterValue2"
+        val zaakType1 = "dummyZaaktype1"
+        val zaakType2 = "dummyZaaktype2"
+        val zaakSearchDateRange = DatumRange(
+            LocalDate.of(2000, 1, 1),
+            LocalDate.of(2000, 2, 1)
+        )
         val zoekParameters = createZoekParameters(
             zoekObjectType = ZoekObjectType.ZAAK,
             zoeken = EnumMap<ZoekVeld, String>(ZoekVeld::class.java).apply {
-                put(ZoekVeld.ZAAK_OMSCHRIJVING, "dummyOmchrijving")
+                put(ZoekVeld.ZAAK_OMSCHRIJVING, zaakDescriptionSearchField)
+            },
+            datums = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java).apply {
+                put(DatumVeld.STARTDATUM, zaakSearchDateRange)
             }
-        )
+        ).apply {
+            addFilter(
+                FilterVeld.BEHANDELAAR,
+                FilterParameters(listOf(behandelaarFilterValue1, behandelaarFilterValue2), false)
+            )
+            addFilter(FilterVeld.ZAAKTYPE, FilterParameters(listOf(zaakType1, zaakType2), false))
+        }
         val queryResponse = mockk<QueryResponse>()
         val solrDocumentList = mockk<SolrDocumentList>()
         val solrDocument1 = mockk<SolrDocument>()
@@ -96,7 +119,10 @@ class ZoekenServiceTest : BehaviorSpec({
                     get("q") shouldBe "*:*"
                     getParams("fq") shouldBe arrayOf(
                         "type:ZAAK",
-                        "zaak_omschrijving:(dummyOmchrijving)"
+                        "zaak_omschrijving:($zaakDescriptionSearchField)",
+                        "startdatum:[1999-12-31T23:00:00Z TO 2000-01-31T23:00:00Z]",
+                        """{!tag=ZAAKTYPE}zaaktypeOmschrijving:("$zaakType1" OR "$zaakType2")""",
+                        """{!tag=BEHANDELAAR}behandelaarNaam:("$behandelaarFilterValue1" OR "$behandelaarFilterValue2")"""
                     )
                     get("facet") shouldBe "true"
                     get("facet.mincount") shouldBe "1"
