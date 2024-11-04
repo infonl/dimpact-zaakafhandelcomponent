@@ -145,6 +145,9 @@ services:
       - SECRET_KEY=objectenApiSecretKey
       - TWO_FACTOR_FORCE_OTP_ADMIN=False # this is not available yet in this version
       - TWO_FACTOR_PATCH_ADMIN=False
+      - CACHE_DEFAULT=redis:6379/0
+      - CACHE_AXES=redis:6379/0
+      - EMAIL_HOST=localhost
     healthcheck:
       test: "bash -c 'printf \"GET / HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/8000; exit $?;'"
       interval: 10s
@@ -185,7 +188,7 @@ services:
         condition: service_healthy
 
   objecttypen-api:
-    image: docker.io/maykinmedia/objecttypes-api:2.1.3@sha256:d6588134ac6ebb3b2ea0f881fb7a0a56bf245ca2b7e9756b9c5f701c348f9558
+    image: docker.io/maykinmedia/objecttypes-api:2.2.2@sha256:d2d1b6715232d1ae2a92e82073ad78eda82b2da8df3615cba307b91f4d8473fd
     platform: linux/amd64
     ports:
       - "8011:8000"
@@ -194,9 +197,16 @@ services:
       - SECRET_KEY=objecttypenApiSecretKey
       - DJANGO_SETTINGS_MODULE=objecttypes.conf.docker
       - DB_HOST=objecttypen-api-database
+      - DB_NAME=objecttypes
+      - DB_USER=objecttypes
+      - DB_PASSWORD=objecttypes
       - DEBUG=true
       - TWO_FACTOR_FORCE_OTP_ADMIN=False # this is not available yet in this version
       - TWO_FACTOR_PATCH_ADMIN=False
+      - CACHE_DEFAULT=redis:6379/0
+      - CACHE_AXES=redis:6379/0
+      - EMAIL_HOST=localhost
+      - DISABLE_2FA=True
     depends_on:
       objecttypen-api-database:
         condition: service_healthy
@@ -217,7 +227,7 @@ services:
       - POSTGRES_DB=objecttypes
 
   objecttypen-api-import:
-    image: docker.io/maykinmedia/objecttypes-api:2.1.3@sha256:d6588134ac6ebb3b2ea0f881fb7a0a56bf245ca2b7e9756b9c5f701c348f9558
+    image: docker.io/maykinmedia/objecttypes-api:2.2.2@sha256:d2d1b6715232d1ae2a92e82073ad78eda82b2da8df3615cba307b91f4d8473fd
     platform: linux/amd64
     environment: *objecttypes-env
     command: sh init/init.sh
@@ -478,7 +488,7 @@ services:
       - OBJECTS_API_CLIENT_MP_REST_URL=http://objecten-api.local:8000
       - OBJECTS_API_TOKEN=dummyZacObjectsToken
       - OBJECTTYPES_API_CLIENT_MP_REST_URL=http://objecttypen-api:8000
-      - OBJECTTYPES_API_TOKEN=dummyZacObjectTypesToken
+      - OBJECTTYPES_API_TOKEN=123456
       - OPA_API_CLIENT_MP_REST_URL=http://opa:8181
       - OPEN_FORMS_URL=http://localhost:9999 # dummy for now
       - OPEN_NOTIFICATIONS_API_SECRET_KEY=openNotificatiesApiSecretKey
