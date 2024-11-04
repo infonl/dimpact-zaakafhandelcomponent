@@ -15,14 +15,12 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import net.atos.zac.app.signalering.converter.RestSignaleringInstellingenConverter
 import net.atos.zac.app.signalering.model.RestSignaleringInstellingen
-import net.atos.zac.app.signalering.model.RestSignaleringTaskSummary
-import net.atos.zac.app.zaak.model.RestZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.signalering.SignaleringService
@@ -43,13 +41,18 @@ class SignaleringRestService @Inject constructor(
     private val restSignaleringInstellingenConverter: RestSignaleringInstellingenConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
+
+    companion object {
+        private const val TOTAL_COUNT_HEADER = "X-Total-Count"
+    }
+
     private fun Instance<LoggedInUser>.getSignaleringInstellingenZoekParameters() =
         SignaleringInstellingenZoekParameters(get())
 
     @GET
     @Path("/latest")
-    fun latestSignaleringen(): ZonedDateTime? =
-        signaleringService.latestSignalering()
+    fun latestSignaleringOccurrence(): ZonedDateTime? =
+        signaleringService.latestSignaleringOccurrence()
 
     /**
      * Starts listing zaken signaleringen for the given signaleringsType.
@@ -80,8 +83,11 @@ class SignaleringRestService @Inject constructor(
         @PathParam("type") signaleringsType: SignaleringType.Type,
         @QueryParam("pageNumber") pageNumber: Int,
         @QueryParam("pageSize") pageSize: Int,
-    ): List<RestZaakOverzicht> =
-        signaleringService.listZakenSignaleringenPage(signaleringsType, pageNumber, pageSize)
+    ): Response =
+        Response.ok()
+            .header(TOTAL_COUNT_HEADER, signaleringService.countZakenSignaleringen(signaleringsType))
+            .entity(signaleringService.listZakenSignaleringenPage(signaleringsType, pageNumber, pageSize))
+            .build()
 
     /**
      * !!! defaults are to be removed when we switch to paging
@@ -92,8 +98,11 @@ class SignaleringRestService @Inject constructor(
         @PathParam("type") signaleringsType: SignaleringType.Type,
         @QueryParam("pageNumber") pageNumber: Int = 0,
         @QueryParam("pageSize") pageSize: Int = 1000
-    ): List<RestSignaleringTaskSummary> =
-        signaleringService.listTakenSignaleringenPage(signaleringsType, pageNumber, pageSize)
+    ): Response =
+        Response.ok()
+            .header(TOTAL_COUNT_HEADER, signaleringService.countTakenSignaleringen(signaleringsType))
+            .entity(signaleringService.listTakenSignaleringenPage(signaleringsType, pageNumber, pageSize))
+            .build()
 
     /**
      * !!! defaults are to be removed when we switch to paging
@@ -104,8 +113,11 @@ class SignaleringRestService @Inject constructor(
         @PathParam("type") signaleringsType: SignaleringType.Type,
         @QueryParam("pageNumber") pageNumber: Int = 0,
         @QueryParam("pageSize") pageSize: Int = 1000
-    ): List<RestEnkelvoudigInformatieobject> =
-        signaleringService.listInformatieobjectenSignaleringen(signaleringsType, pageNumber, pageSize)
+    ): Response =
+        Response.ok()
+            .header(TOTAL_COUNT_HEADER, signaleringService.countInformatieobjectenSignaleringen(signaleringsType))
+            .entity(signaleringService.listInformatieobjectenSignaleringen(signaleringsType, pageNumber, pageSize))
+            .build()
 
     @GET
     @Path("/instellingen")

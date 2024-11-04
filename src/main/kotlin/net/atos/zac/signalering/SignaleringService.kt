@@ -190,7 +190,14 @@ class SignaleringService @Inject constructor(
             .resultList
     }
 
-    private fun listSignaleringen(
+    /**
+     * Lists all signaleringen in a page
+     *
+     * @param parameters parameters of the signaleringen to list
+     * @param pageNumber number of the page to list
+     * @param pageSize size of the page
+     */
+    fun listSignaleringen(
         parameters: SignaleringZoekParameters,
         pageNumber: Int,
         pageSize: Int
@@ -210,7 +217,20 @@ class SignaleringService @Inject constructor(
             .resultList
     }
 
-    fun latestSignalering(): ZonedDateTime? {
+    private fun signaleringenCount(parameters: SignaleringZoekParameters): Long =
+        entityManager.criteriaBuilder.let { builder ->
+            builder.createQuery(Long::class.java).let { criteriaQuery ->
+                criteriaQuery.from(Signalering::class.java).let { root ->
+                    entityManager.createQuery(
+                        criteriaQuery
+                            .where(getSignaleringWhere(parameters, builder, root))
+                            .orderBy(builder.desc(root.get<Any>("tijdstip")))
+                    ).resultList.firstOrNull() ?: 0
+                }
+            }
+        }
+
+    fun latestSignaleringOccurrence(): ZonedDateTime? {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(
             ZonedDateTime::class.java
@@ -393,21 +413,34 @@ class SignaleringService @Inject constructor(
         signaleringsType: SignaleringType.Type,
         pageNumber: Int,
         pageSize: Int
-    ): List<RestZaakOverzicht> {
-        LOG.fine {
-            "Listing page $pageNumber ($pageSize elements) for zaken signaleringen of type '$signaleringsType' ..."
-        }
-
-        return loggedInUserInstance.getSignaleringZoekParameters()
+    ): List<RestZaakOverzicht> =
+        loggedInUserInstance.getSignaleringZoekParameters()
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.ZAAK)
-            .let { listSignaleringen(it, pageNumber, pageSize) }
+            .let {
+                LOG.fine {
+                    "Listing page $pageNumber ($pageSize elements) for zaken signaleringen " +
+                        "of type '$signaleringsType' ..."
+                }
+                listSignaleringen(it, pageNumber, pageSize)
+            }
             .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
             .map { restZaakOverzichtConverter.convertForDisplay(it) }
             .also {
                 LOG.fine { "Successfully listed page $pageNumber for zaken signaleringen of type '$signaleringsType'." }
             }
-    }
+
+    /**
+     * Counts the number of zaken signaleringen
+     *
+     * @param signaleringsType signaleringen type to count
+     */
+    fun countZakenSignaleringen(signaleringsType: SignaleringType.Type) =
+        signaleringenCount(
+            loggedInUserInstance.getSignaleringZoekParameters()
+                .types(signaleringsType)
+                .subjecttype(SignaleringSubject.ZAAK)
+        )
 
     /**
      * Lists a page of taken signaleringen for the given signaleringsType
@@ -416,21 +449,34 @@ class SignaleringService @Inject constructor(
         signaleringsType: SignaleringType.Type,
         pageNumber: Int,
         pageSize: Int
-    ): List<RestSignaleringTaskSummary> {
-        LOG.fine {
-            "Listing page $pageNumber ($pageSize elements) for taken signaleringen of type '$signaleringsType' ..."
-        }
-
-        return loggedInUserInstance.getSignaleringZoekParameters()
+    ): List<RestSignaleringTaskSummary> =
+        loggedInUserInstance.getSignaleringZoekParameters()
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.TAAK)
-            .let { listSignaleringen(it, pageNumber, pageSize) }
+            .let {
+                LOG.fine {
+                    "Listing page $pageNumber ($pageSize elements) for taken signaleringen " +
+                        "of type '$signaleringsType' ..."
+                }
+                listSignaleringen(it, pageNumber, pageSize)
+            }
             .map { flowableTaskService.readTask(it.subject) }
             .map { it.toRestSignaleringTaakSummary() }
             .also {
                 LOG.fine { "Successfully listed page $pageNumber for taken signaleringen of type '$signaleringsType'." }
             }
-    }
+
+    /**
+     * Counts the number of signaleringen
+     *
+     * @param signaleringsType signaleringen type to count
+     */
+    fun countTakenSignaleringen(signaleringsType: SignaleringType.Type) =
+        signaleringenCount(
+            loggedInUserInstance.getSignaleringZoekParameters()
+                .types(signaleringsType)
+                .subjecttype(SignaleringSubject.TAAK)
+        )
 
     /**
      * Lists a page of information objects signaleringen for the given signaleringsType
@@ -439,16 +485,17 @@ class SignaleringService @Inject constructor(
         signaleringsType: SignaleringType.Type,
         pageNumber: Int,
         pageSize: Int
-    ): List<RestEnkelvoudigInformatieobject> {
-        LOG.fine {
-            "Listing page $pageNumber ($pageSize elements) for information objects signaleringen " +
-                "of type '$signaleringsType' ..."
-        }
-
-        return loggedInUserInstance.getSignaleringZoekParameters()
+    ): List<RestEnkelvoudigInformatieobject> =
+        loggedInUserInstance.getSignaleringZoekParameters()
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.DOCUMENT)
-            .let { listSignaleringen(it, pageNumber, pageSize) }
+            .let {
+                LOG.fine {
+                    "Listing page $pageNumber ($pageSize elements) for information objects signaleringen " +
+                        "of type '$signaleringsType' ..."
+                }
+                listSignaleringen(it, pageNumber, pageSize)
+            }
             .map { drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(it.subject)) }
             .map(restInformatieobjectConverter::convertToREST)
             .also {
@@ -457,7 +504,18 @@ class SignaleringService @Inject constructor(
                         "of type '$signaleringsType'."
                 }
             }
-    }
+
+    /**
+     * Counts the number of information object signaleringen
+     *
+     * @param signaleringsType signaleringen type to count
+     */
+    fun countInformatieobjectenSignaleringen(signaleringsType: SignaleringType.Type) =
+        signaleringenCount(
+            loggedInUserInstance.getSignaleringZoekParameters()
+                .types(signaleringsType)
+                .subjecttype(SignaleringSubject.DOCUMENT)
+        )
 
     private fun getDocument(documentUUID: String) =
         drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(documentUUID))
