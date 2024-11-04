@@ -85,14 +85,13 @@ class SignaleringRestService @Inject constructor(
         @QueryParam("pageSize") @DefaultValue(value = "5") pageSize: Int
     ): Response =
         signaleringService.countZakenSignaleringen(signaleringsType).let { objectsCount ->
-            if (pageNumber <= objectsCount.maxPages(pageSize)) {
-                Response.ok()
-                    .header(TOTAL_COUNT_HEADER, objectsCount)
-                    .entity(signaleringService.listZakenSignaleringenPage(signaleringsType, pageNumber, pageSize))
-                    .build()
-            } else {
+            if (pageNumber > objectsCount.maxPages(pageSize)) {
                 Response.status(Response.Status.NOT_FOUND).build()
             }
+            Response.ok()
+                .header(TOTAL_COUNT_HEADER, objectsCount)
+                .entity(signaleringService.listZakenSignaleringenPage(signaleringsType, pageNumber, pageSize))
+                .build()
         }
 
     @GET
@@ -104,14 +103,13 @@ class SignaleringRestService @Inject constructor(
         @QueryParam("pageSize") @DefaultValue(value = "1000") pageSize: Int
     ): Response =
         signaleringService.countTakenSignaleringen(signaleringsType).let { objectsCount ->
-            if (pageNumber <= objectsCount.maxPages(pageSize)) {
-                Response.ok()
-                    .header(TOTAL_COUNT_HEADER, objectsCount)
-                    .entity(signaleringService.listTakenSignaleringenPage(signaleringsType, pageNumber, pageSize))
-                    .build()
-            } else {
+            if (pageNumber > objectsCount.maxPages(pageSize)) {
                 Response.status(Response.Status.NOT_FOUND).build()
             }
+            Response.ok()
+                .header(TOTAL_COUNT_HEADER, objectsCount)
+                .entity(signaleringService.listTakenSignaleringenPage(signaleringsType, pageNumber, pageSize))
+                .build()
         }
 
     @GET
@@ -123,16 +121,13 @@ class SignaleringRestService @Inject constructor(
         @QueryParam("pageSize") @DefaultValue(value = "1000") pageSize: Int
     ): Response =
         signaleringService.countInformatieobjectenSignaleringen(signaleringsType).let { objectsCount ->
-            if (pageNumber <= objectsCount.maxPages(pageSize)) {
-                Response.ok()
-                    .header(TOTAL_COUNT_HEADER, objectsCount)
-                    .entity(
-                        signaleringService.listInformatieobjectenSignaleringen(signaleringsType, pageNumber, pageSize)
-                    )
-                    .build()
-            } else {
+            if (pageNumber > objectsCount.maxPages(pageSize)) {
                 Response.status(Response.Status.NOT_FOUND).build()
             }
+            Response.ok()
+                .header(TOTAL_COUNT_HEADER, objectsCount)
+                .entity(signaleringService.listInformatieobjectenSignaleringen(signaleringsType, pageNumber, pageSize))
+                .build()
         }
 
     private fun Long.maxPages(pageSize: Int) = (this + pageSize - 1) / pageSize
