@@ -173,9 +173,7 @@ class SignaleringService @Inject constructor(
         }
     }
 
-    /**
-     * !!! To be removed when we switch to paging
-     */
+    @Deprecated(message = "To be removed when we switch to paging")
     fun listSignaleringen(parameters: SignaleringZoekParameters): List<Signalering> {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(
@@ -378,10 +376,9 @@ class SignaleringService @Inject constructor(
     /**
      * Lists zaken signaleringen for the given signaleringsType and sends a screen event with the result.
      * This can be a long-running operation.
-     *
-     * !!! To be removed when we switch to paging
      */
     @WithSpan
+    @Deprecated(message = "To be removed when we switch to paging")
     fun listZakenSignaleringen(
         user: LoggedInUser,
         @SpanAttribute("signaleringsType") signaleringsType: SignaleringType.Type,
@@ -524,9 +521,7 @@ class SignaleringService @Inject constructor(
 
     private fun getZaak(zaakUUID: String): Zaak = zrcClientService.readZaak(UUID.fromString(zaakUUID))
 
-    /**
-     * !!! To be removed when we switch to paging
-     */
+    @Deprecated("To be removed when we switch to paging")
     private fun listZakenSignaleringen(
         user: LoggedInUser,
         signaleringsType: SignaleringType.Type

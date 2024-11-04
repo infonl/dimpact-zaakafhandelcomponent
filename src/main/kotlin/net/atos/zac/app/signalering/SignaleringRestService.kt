@@ -57,11 +57,10 @@ class SignaleringRestService @Inject constructor(
     /**
      * Starts listing zaken signaleringen for the given signaleringsType.
      * This can be a long-running operation, so it is run asynchronously.
-     *
-     * !!! To be removed when we switch to paging
      */
     @PUT
     @Path("/zaken/{type}")
+    @Deprecated("To be removed when we switch to paging")
     fun startListingZakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
         screenEventResourceId: String
@@ -89,11 +88,9 @@ class SignaleringRestService @Inject constructor(
             .entity(signaleringService.listZakenSignaleringenPage(signaleringsType, pageNumber, pageSize))
             .build()
 
-    /**
-     * !!! defaults are to be removed when we switch to paging
-     */
     @GET
     @Path("/taken/{type}")
+    @Deprecated("defaults are to be removed when we switch to paging")
     fun listTakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
         @QueryParam("pageNumber") pageNumber: Int = 0,
@@ -104,11 +101,9 @@ class SignaleringRestService @Inject constructor(
             .entity(signaleringService.listTakenSignaleringenPage(signaleringsType, pageNumber, pageSize))
             .build()
 
-    /**
-     * !!! defaults are to be removed when we switch to paging
-     */
     @GET
     @Path("/informatieobjecten/{type}")
+    @Deprecated("defaults are to be removed when we switch to paging")
     fun listInformatieobjectenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
         @QueryParam("pageNumber") pageNumber: Int = 0,
