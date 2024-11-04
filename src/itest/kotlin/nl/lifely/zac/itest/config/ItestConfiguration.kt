@@ -119,6 +119,7 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 3
     const val TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED = 4
     const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 5
+    const val TEST_SPEC_ORDER_LAST = 6
     const val TEST_USER_1_USERNAME = "testuser1"
     const val TEST_USER_1_PASSWORD = "testuser1"
     const val TEST_USER_1_EMAIL = "testuser1@example.com"
