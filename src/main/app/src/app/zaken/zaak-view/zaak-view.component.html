@@ -70,7 +70,7 @@
       *ngSwitchCase="sideNavAction.DOCUMENT_VERZENDEN"
       [sideNav]="actionsSidenav"
       [zaak]="zaak"
-      (documentVerzonden)="updateZaak()"
+      (documentVerzonden)="documentVerzonden()"
     ></zac-informatie-verzenden>
     <zac-human-task-do
       *ngSwitchCase="sideNavAction.TAAK_STARTEN"
