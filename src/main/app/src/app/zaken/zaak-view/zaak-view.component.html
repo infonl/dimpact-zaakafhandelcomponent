@@ -58,7 +58,7 @@
       *ngSwitchCase="sideNavAction.DOCUMENT_MAKEN"
       [sideNav]="actionsSidenav"
       [zaak]="zaak"
-      (document)="documentToegevoegd()"
+      (document)="documentCreated()"
     ></zac-informatie-object-create-attended>
     <zac-informatie-object-add
       *ngSwitchCase="sideNavAction.DOCUMENT_TOEVOEGEN"
@@ -70,7 +70,7 @@
       *ngSwitchCase="sideNavAction.DOCUMENT_VERZENDEN"
       [sideNav]="actionsSidenav"
       [zaak]="zaak"
-      (documentVerzonden)="documentVerzonden()"
+      (documentSent)="documentSent()"
     ></zac-informatie-verzenden>
     <zac-human-task-do
       *ngSwitchCase="sideNavAction.TAAK_STARTEN"
@@ -156,9 +156,9 @@
       <mat-card class="zaken-card w50 flex-1">
         <mat-card-header class="flex-row space-between">
           <mat-card-title>{{ zaak.identificatie }}</mat-card-title>
-          <mat-card-subtitle
-            >{{ zaak.zaaktype.omschrijving }}</mat-card-subtitle
-          >
+          <mat-card-subtitle>{{
+            zaak.zaaktype.omschrijving
+          }}</mat-card-subtitle>
           <div class="flex-row">
             <zac-zaak-indicaties
               [layout]="indicatiesLayout.VIEW"
@@ -689,8 +689,10 @@
                       {{ "type" | translate }}
                     </th>
                     <td mat-cell *matCellDef="let bagObjectGegevens">
-                      {{ "objecttype." +
-                      bagObjectGegevens.bagObject.bagObjectType | translate }}
+                      {{
+                        "objecttype." +
+                          bagObjectGegevens.bagObject.bagObjectType | translate
+                      }}
                     </td>
                   </ng-container>
                   <ng-container matColumnDef="omschrijving">

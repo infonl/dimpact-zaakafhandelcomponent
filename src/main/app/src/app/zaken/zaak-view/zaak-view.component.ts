@@ -1334,7 +1334,12 @@ export class ZaakViewComponent
     this.updateZaak();
   }
 
-  documentVerzonden(): void {
+  documentCreated(): void {
+    this.sluitSidenav();
+    this.updateZaak();
+  }
+
+  documentSent(): void {
     this.sluitSidenav();
     this.updateZaak();
   }

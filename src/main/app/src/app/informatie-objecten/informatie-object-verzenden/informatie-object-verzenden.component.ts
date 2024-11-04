@@ -38,7 +38,7 @@ import { DocumentVerzendGegevens } from "../model/document-verzend-gegevens";
 export class InformatieObjectVerzendenComponent implements OnInit, OnChanges {
   @Input() zaak: Zaak;
   @Input() sideNav: MatDrawer;
-  @Output() documentVerzonden = new EventEmitter<void>();
+  @Output() documentSent = new EventEmitter<void>();
 
   @ViewChild(FormComponent) form: FormComponent;
 
@@ -110,7 +110,7 @@ export class InformatieObjectVerzendenComponent implements OnInit, OnChanges {
             ? "msg.documenten.verzenden.uitgevoerd"
             : "msg.document.verzenden.uitgevoerd",
         );
-        this.documentVerzonden.emit();
+        this.documentSent.emit();
         this.sideNav.close();
       });
     } else {
