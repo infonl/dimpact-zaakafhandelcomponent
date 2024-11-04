@@ -14,7 +14,7 @@ private const val SOLR_QUOTE = '\"'
  * @param value the raw unencoded string
  * @return the encoded and quoted Solr string
  */
-fun quoted(value: String) = SOLR_QUOTE.toString() + encoded(value) + SOLR_QUOTE
+fun quoted(value: String) = "$SOLR_QUOTE${encoded(value)}$SOLR_QUOTE"
 
 /**
  * Produces an encoded Solr string from a raw Java string.
