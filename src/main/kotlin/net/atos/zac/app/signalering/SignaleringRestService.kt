@@ -86,7 +86,7 @@ class SignaleringRestService @Inject constructor(
     ): Response =
         signaleringService.countZakenSignaleringen(signaleringsType).let { objectsCount ->
             if (pageNumber > objectsCount.maxPages(pageSize)) {
-                Response.status(Response.Status.NOT_FOUND).build()
+                return Response.status(Response.Status.NOT_FOUND).build()
             }
             Response.ok()
                 .header(TOTAL_COUNT_HEADER, objectsCount)
@@ -104,7 +104,7 @@ class SignaleringRestService @Inject constructor(
     ): Response =
         signaleringService.countTakenSignaleringen(signaleringsType).let { objectsCount ->
             if (pageNumber > objectsCount.maxPages(pageSize)) {
-                Response.status(Response.Status.NOT_FOUND).build()
+                return Response.status(Response.Status.NOT_FOUND).build()
             }
             Response.ok()
                 .header(TOTAL_COUNT_HEADER, objectsCount)
@@ -122,7 +122,7 @@ class SignaleringRestService @Inject constructor(
     ): Response =
         signaleringService.countInformatieobjectenSignaleringen(signaleringsType).let { objectsCount ->
             if (pageNumber > objectsCount.maxPages(pageSize)) {
-                Response.status(Response.Status.NOT_FOUND).build()
+                return Response.status(Response.Status.NOT_FOUND).build()
             }
             Response.ok()
                 .header(TOTAL_COUNT_HEADER, objectsCount)
