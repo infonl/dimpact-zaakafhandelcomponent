@@ -221,8 +221,8 @@ class SignaleringService @Inject constructor(
                 criteriaQuery.from(Signalering::class.java).let { root ->
                     entityManager.createQuery(
                         criteriaQuery
+                            .select(builder.count(root))
                             .where(getSignaleringWhere(parameters, builder, root))
-                            .orderBy(builder.desc(root.get<Any>("tijdstip")))
                     ).resultList.firstOrNull() ?: 0
                 }
             }

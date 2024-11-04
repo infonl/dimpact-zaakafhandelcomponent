@@ -8,6 +8,7 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.DefaultValue
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
@@ -80,39 +81,61 @@ class SignaleringRestService @Inject constructor(
     @Path("/zaken/{type}")
     fun listZakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
-        @QueryParam("pageNumber") pageNumber: Int,
-        @QueryParam("pageSize") pageSize: Int,
+        @QueryParam("pageNumber") @DefaultValue(value = "0") pageNumber: Int,
+        @QueryParam("pageSize") @DefaultValue(value = "5") pageSize: Int
     ): Response =
-        Response.ok()
-            .header(TOTAL_COUNT_HEADER, signaleringService.countZakenSignaleringen(signaleringsType))
-            .entity(signaleringService.listZakenSignaleringenPage(signaleringsType, pageNumber, pageSize))
-            .build()
+        signaleringService.countZakenSignaleringen(signaleringsType).let { objectsCount ->
+            if (pageNumber <= objectsCount.maxPages(pageSize)) {
+                Response.ok()
+                    .header(TOTAL_COUNT_HEADER, objectsCount)
+                    .entity(signaleringService.listZakenSignaleringenPage(signaleringsType, pageNumber, pageSize))
+                    .build()
+            } else {
+                Response.status(Response.Status.NOT_FOUND).build()
+            }
+        }
 
     @GET
     @Path("/taken/{type}")
-    @Deprecated("defaults are to be removed when we switch to paging")
+    @Deprecated("default page size is to be changed when we switch to paging")
     fun listTakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
-        @QueryParam("pageNumber") pageNumber: Int = 0,
-        @QueryParam("pageSize") pageSize: Int = 1000
+        @QueryParam("pageNumber") @DefaultValue(value = "0") pageNumber: Int,
+        @QueryParam("pageSize") @DefaultValue(value = "1000") pageSize: Int
     ): Response =
-        Response.ok()
-            .header(TOTAL_COUNT_HEADER, signaleringService.countTakenSignaleringen(signaleringsType))
-            .entity(signaleringService.listTakenSignaleringenPage(signaleringsType, pageNumber, pageSize))
-            .build()
+        signaleringService.countTakenSignaleringen(signaleringsType).let { objectsCount ->
+            if (pageNumber <= objectsCount.maxPages(pageSize)) {
+                Response.ok()
+                    .header(TOTAL_COUNT_HEADER, objectsCount)
+                    .entity(signaleringService.listTakenSignaleringenPage(signaleringsType, pageNumber, pageSize))
+                    .build()
+            } else {
+                Response.status(Response.Status.NOT_FOUND).build()
+            }
+        }
 
     @GET
     @Path("/informatieobjecten/{type}")
-    @Deprecated("defaults are to be removed when we switch to paging")
+    @Deprecated("default page size is to be changed when we switch to paging")
     fun listInformatieobjectenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
-        @QueryParam("pageNumber") pageNumber: Int = 0,
-        @QueryParam("pageSize") pageSize: Int = 1000
+        @QueryParam("pageNumber") @DefaultValue(value = "0") pageNumber: Int,
+        @QueryParam("pageSize") @DefaultValue(value = "1000") pageSize: Int
     ): Response =
-        Response.ok()
-            .header(TOTAL_COUNT_HEADER, signaleringService.countInformatieobjectenSignaleringen(signaleringsType))
-            .entity(signaleringService.listInformatieobjectenSignaleringen(signaleringsType, pageNumber, pageSize))
-            .build()
+        signaleringService.countInformatieobjectenSignaleringen(signaleringsType).let { objectsCount ->
+            if (pageNumber <= objectsCount.maxPages(pageSize)) {
+                Response.ok()
+                    .header(TOTAL_COUNT_HEADER, objectsCount)
+                    .entity(
+                        signaleringService.listInformatieobjectenSignaleringen(signaleringsType, pageNumber, pageSize)
+                    )
+                    .build()
+            } else {
+                Response.status(Response.Status.NOT_FOUND).build()
+            }
+        }
+
+    private fun Long.maxPages(pageSize: Int) = (this + pageSize - 1) / pageSize
 
     @GET
     @Path("/instellingen")
