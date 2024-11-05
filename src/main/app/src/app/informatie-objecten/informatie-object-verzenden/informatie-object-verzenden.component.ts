@@ -8,8 +8,8 @@ import {
   EventEmitter,
   Input,
   OnChanges,
-  OnInit,
   OnDestroy,
+  OnInit,
   Output,
   SimpleChanges,
   ViewChild,
@@ -17,6 +17,8 @@ import {
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
 import { UtilService } from "../../core/service/util.service";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
@@ -30,8 +32,6 @@ import { FormConfigBuilder } from "../../shared/material-form-builder/model/form
 import { Zaak } from "../../zaken/model/zaak";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { DocumentVerzendGegevens } from "../model/document-verzend-gegevens";
-import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
 
 @Component({
   selector: "zac-informatie-verzenden",
