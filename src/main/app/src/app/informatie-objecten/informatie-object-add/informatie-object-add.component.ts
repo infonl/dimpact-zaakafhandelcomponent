@@ -315,18 +315,6 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  ngAfterViewInit(): void {
-    if (this.isAfgehandeld()) {
-      this.status.formControl.disable();
-    }
-  }
-
-  ngOnDestroy(): void {
-    for (const subscription of this.subscriptions) {
-      subscription.unsubscribe();
-    }
-  }
-
   onFormSubmit(formGroup: FormGroup): void {
     if (formGroup) {
       const infoObject = new EnkelvoudigInformatieobject();
@@ -384,6 +372,18 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
         });
     } else {
       this.sideNav.close();
+    }
+  }
+
+  ngAfterViewInit(): void {
+    if (this.isAfgehandeld()) {
+      this.status.formControl.disable();
+    }
+  }
+
+  ngOnDestroy(): void {
+    for (const subscription of this.subscriptions) {
+      subscription.unsubscribe();
     }
   }
 }
