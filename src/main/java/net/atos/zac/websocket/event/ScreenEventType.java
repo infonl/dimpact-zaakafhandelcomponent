@@ -6,6 +6,7 @@
 package net.atos.zac.websocket.event;
 
 import static net.atos.zac.event.Opcode.DELETED;
+import static net.atos.zac.event.Opcode.SKIPPED;
 import static net.atos.zac.event.Opcode.UPDATED;
 import static net.atos.zac.util.UriUtil.uuidFromURI;
 
@@ -418,9 +419,13 @@ public enum ScreenEventType {
         return event(DELETED, besluit);
     }
 
-    public final ScreenEvent skipped(final UUID uuid) {
-        return event(UPDATED, uuid);
-    }
+    /**
+     * Factory method for ScreenEvent (with identification of a zaak) when a zaak was skipped during handling.
+     *
+     * @param zaak the skipped zaak.
+     * @return instance of the event
+     */
+    public final ScreenEvent skipped(final Zaak zaak) { return event(SKIPPED, zaak); }
 
     /**
      * Factory method for ScreenEvent (with case identification).

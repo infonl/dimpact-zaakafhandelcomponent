@@ -114,7 +114,7 @@ class ZaakService @Inject constructor(
             .filter {
                 if (!it.isOpen) {
                     LOG.fine("Zaak with UUID '${it.uuid} is not open. Therefore it is skipped and not assigned.")
-                    eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it.uuid))
+                    eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it))
                 }
                 it.isOpen
             }

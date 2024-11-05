@@ -134,7 +134,7 @@ class ZaakServiceTest : BehaviorSpec({
                     zrcClientService.updateRol(openZaak, any(), explanation)
                 }
                 verify(exactly = 1) {
-                    eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(closedZaak.uuid))
+                    eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(closedZaak))
                     eventingService.send(ScreenEventType.ZAKEN_VERDELEN.updated(screenEventResourceId))
                 }
             }
