@@ -1299,6 +1299,11 @@ export class ZaakViewComponent
     SessionStorageUtil.setItem("toonAfgerondeTaken", this.toonAfgerondeTaken);
   }
 
+  sluitSidenav(): void {
+    this.action = null;
+    this.actionsSidenav.close();
+  }
+
   taakGestart(): void {
     this.actiefPlanItem = null;
     this.sluitSidenav();
@@ -1309,11 +1314,6 @@ export class ZaakViewComponent
     this.actiefPlanItem = null;
     this.sluitSidenav();
     this.updateZaak();
-  }
-
-  sluitSidenav(): void {
-    this.action = null;
-    this.actionsSidenav.close();
   }
 
   mailVerstuurd(mailVerstuurd: boolean): void {
@@ -1331,6 +1331,16 @@ export class ZaakViewComponent
   }
 
   documentToegevoegd(): void {
+    this.updateZaak();
+  }
+
+  documentCreated(): void {
+    this.sluitSidenav();
+    this.updateZaak();
+  }
+
+  documentSent(): void {
+    this.sluitSidenav();
     this.updateZaak();
   }
 

@@ -240,7 +240,6 @@ export class InformatieObjectCreateAttendedComponent
             window.open(documentCreatieResponse.redirectURL);
             this.sideNav.close();
             this.document.emit(documentCreateData);
-            this.form.reset();
             this.sideNav.close();
           } else {
             this.dialog.open(NotificationDialogComponent, {
