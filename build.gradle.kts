@@ -1,3 +1,4 @@
+import com.diffplug.gradle.spotless.SpotlessExtension
 import com.github.gradle.node.npm.task.NpmTask
 import io.gitlab.arturbosch.detekt.Detekt
 import io.smallrye.openapi.api.OpenApiConfig
@@ -274,7 +275,7 @@ swaggerSources {
     }
 }
 
-configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+configure<SpotlessExtension> {
     format("misc") {
         target(".gitattributes", ".gitignore", ".containerignore", ".dockerignore")
 
