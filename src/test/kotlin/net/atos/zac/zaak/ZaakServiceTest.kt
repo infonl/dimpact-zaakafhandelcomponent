@@ -98,7 +98,6 @@ class ZaakServiceTest : BehaviorSpec({
             archiefnominatie = Archiefnominatie.VERNIETIGEN
         )
         val zakenList = listOf(openZaak, closedZaak)
-        val screenEventSlot = slot<ScreenEvent>()
         zakenList.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
         }
@@ -109,7 +108,7 @@ class ZaakServiceTest : BehaviorSpec({
             )
         } returns rolTypeBehandelaar
         every { zrcClientService.updateRol(openZaak, any(), explanation) } just Runs
-        every { eventingService.send(capture(screenEventSlot)) } just Runs
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
         When(
             """the assign zaken function is called with a group, a user
                 and a screen event resource id"""
@@ -134,10 +133,9 @@ class ZaakServiceTest : BehaviorSpec({
                 verify(exactly = 2) {
                     zrcClientService.updateRol(openZaak, any(), explanation)
                 }
-                with(screenEventSlot.captured) {
-                    opcode shouldBe Opcode.UPDATED
-                    objectType shouldBe ScreenEventType.ZAKEN_VERDELEN
-                    objectId.resource shouldBe screenEventResourceId
+                verify(exactly = 1) {
+                    eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(closedZaak.uuid))
+                    eventingService.send(ScreenEventType.ZAKEN_VERDELEN.updated(screenEventResourceId))
                 }
             }
         }

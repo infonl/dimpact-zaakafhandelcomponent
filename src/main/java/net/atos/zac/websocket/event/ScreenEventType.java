@@ -418,6 +418,10 @@ public enum ScreenEventType {
         return event(DELETED, besluit);
     }
 
+    public final ScreenEvent skipped(final UUID uuid) {
+        return event(UPDATED, uuid);
+    }
+
     /**
      * Factory method for ScreenEvent (with case identification).
      *

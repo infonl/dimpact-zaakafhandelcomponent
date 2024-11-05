@@ -113,20 +113,17 @@ class ZaakService @Inject constructor(
             .map(zrcClientService::readZaak)
             .filter {
                 if (!it.isOpen) {
-                    LOG.fine(
-                        "Zaak with UUID '${it.uuid} is not open. Therefore it is not assigned."
-                    )
+                    LOG.fine("Zaak with UUID '${it.uuid} is not open. Therefore it is skipped and not assigned.")
+                    eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it.uuid))
                 }
                 it.isOpen
             }
             .map { zaak ->
-                group.let {
-                    zrcClientService.updateRol(
-                        zaak,
-                        bepaalRolGroep(it, zaak),
-                        explanation
-                    )
-                }
+                zrcClientService.updateRol(
+                    zaak,
+                    bepaalRolGroep(group, zaak),
+                    explanation
+                )
                 user?.let {
                     zrcClientService.updateRol(
                         zaak,

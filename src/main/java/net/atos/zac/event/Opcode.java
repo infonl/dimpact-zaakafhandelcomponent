@@ -15,24 +15,29 @@ import java.util.Set;
 public enum Opcode {
 
     /**
-     * indication that the mentioned object has been added
+     * Indication that the mentioned object has been added.
      */
     CREATED,
 
     /**
-     * indication that the mentioned object has been updated
+     * Indication that the mentioned object has been updated.
      */
     UPDATED,
 
     /**
-     * indication that the mentioned object has been deleted
+     * Indication that the mentioned object has been deleted.
      */
     DELETED,
 
     /**
-     * indication that something has happened to the mentioned object
+     * Indication that something has happened to the mentioned object.
      */
-    ANY;
+    ANY,
+
+    /**
+     * Indication that the mentioned object was skipped during handling of the event.
+     */
+    SKIPPED;
 
     /**
      * Returns a set of all opcodes defined in this enum except for {@link #ANY}.
