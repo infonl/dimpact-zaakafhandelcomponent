@@ -329,7 +329,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
     Given("An assigned zaak with information object") {
         When("the list of zaken signaleringen for ZAAK_OP_NAAM is requested") {
             val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM?pageNumber=0&pageSize=5"
+                "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM?page-number=0&page-size=5"
             )
             val responseBody = response.body!!.string()
             logger.info { "Response: $responseBody" }
@@ -351,7 +351,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
         When("the list of zaken signaleringen is requested with wrong page") {
             val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD?pageNumber=123&pageSize=4567"
+                "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD?page-number=123&page-size=4567"
             )
             val responseBody = response.body!!.string()
             logger.info { "Response: $responseBody" }
