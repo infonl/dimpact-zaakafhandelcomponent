@@ -95,7 +95,6 @@ public class PolicyService {
         return readZaakRechten(zaak, zaaktype, null);
     }
 
-    @Deprecated
     public ZaakRechten readZaakRechten(final Zaak zaak, final ZaakType zaaktype, @Nullable final LoggedInUser user) {
         final ZaakData zaakData = new ZaakData();
         zaakData.open = zaak.isOpen();

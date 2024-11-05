@@ -45,6 +45,9 @@ class SignaleringRestService @Inject constructor(
 
     companion object {
         private const val TOTAL_COUNT_HEADER = "X-Total-Count"
+        private const val INITIAL_PAGE = "0"
+        private const val DEFAULT_PAGE_SIZE = "5"
+        private const val BACKWARD_COMPATIBILITY_PAGE_SIZE = "1000"
     }
 
     private fun Instance<LoggedInUser>.getSignaleringInstellingenZoekParameters() =
@@ -61,7 +64,6 @@ class SignaleringRestService @Inject constructor(
      */
     @PUT
     @Path("/zaken/{type}")
-    @Deprecated("To be removed when we switch to paging")
     fun startListingZakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
         screenEventResourceId: String
@@ -81,8 +83,8 @@ class SignaleringRestService @Inject constructor(
     @Path("/zaken/{type}")
     fun listZakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
-        @QueryParam("pageNumber") @DefaultValue(value = "0") pageNumber: Int,
-        @QueryParam("pageSize") @DefaultValue(value = "5") pageSize: Int
+        @QueryParam("pageNumber") @DefaultValue(INITIAL_PAGE) pageNumber: Int,
+        @QueryParam("pageSize") @DefaultValue(DEFAULT_PAGE_SIZE) pageSize: Int
     ): Response =
         signaleringService.countZakenSignaleringen(signaleringsType).let { objectsCount ->
             if (pageNumber > objectsCount.maxPages(pageSize)) {
@@ -96,11 +98,10 @@ class SignaleringRestService @Inject constructor(
 
     @GET
     @Path("/taken/{type}")
-    @Deprecated("default page size is to be changed when we switch to paging")
     fun listTakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
-        @QueryParam("pageNumber") @DefaultValue(value = "0") pageNumber: Int,
-        @QueryParam("pageSize") @DefaultValue(value = "1000") pageSize: Int
+        @QueryParam("pageNumber") @DefaultValue(INITIAL_PAGE) pageNumber: Int,
+        @QueryParam("pageSize") @DefaultValue(BACKWARD_COMPATIBILITY_PAGE_SIZE) pageSize: Int
     ): Response =
         signaleringService.countTakenSignaleringen(signaleringsType).let { objectsCount ->
             if (pageNumber > objectsCount.maxPages(pageSize)) {
@@ -114,11 +115,10 @@ class SignaleringRestService @Inject constructor(
 
     @GET
     @Path("/informatieobjecten/{type}")
-    @Deprecated("default page size is to be changed when we switch to paging")
     fun listInformatieobjectenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
-        @QueryParam("pageNumber") @DefaultValue(value = "0") pageNumber: Int,
-        @QueryParam("pageSize") @DefaultValue(value = "1000") pageSize: Int
+        @QueryParam("pageNumber") @DefaultValue(INITIAL_PAGE) pageNumber: Int,
+        @QueryParam("pageSize") @DefaultValue(BACKWARD_COMPATIBILITY_PAGE_SIZE) pageSize: Int
     ): Response =
         signaleringService.countInformatieobjectenSignaleringen(signaleringsType).let { objectsCount ->
             if (pageNumber > objectsCount.maxPages(pageSize)) {

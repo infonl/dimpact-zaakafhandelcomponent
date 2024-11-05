@@ -28,7 +28,6 @@ class RestZaakOverzichtConverter @Inject constructor(
     private val zrcClientService: ZrcClientService,
 ) {
 
-    @Deprecated("user parameter is to be removed when we switch to paging")
     fun convert(zaak: Zaak, user: LoggedInUser? = null): RestZaakOverzicht {
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val zaakrechten = policyService.readZaakRechten(zaak, zaaktype, user)

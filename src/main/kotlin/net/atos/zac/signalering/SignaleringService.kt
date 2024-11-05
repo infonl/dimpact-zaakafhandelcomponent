@@ -173,7 +173,6 @@ class SignaleringService @Inject constructor(
         }
     }
 
-    @Deprecated(message = "To be removed when we switch to paging")
     fun listSignaleringen(parameters: SignaleringZoekParameters): List<Signalering> {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(
@@ -378,7 +377,6 @@ class SignaleringService @Inject constructor(
      * This can be a long-running operation.
      */
     @WithSpan
-    @Deprecated(message = "To be removed when we switch to paging")
     fun listZakenSignaleringen(
         user: LoggedInUser,
         @SpanAttribute("signaleringsType") signaleringsType: SignaleringType.Type,
@@ -521,7 +519,6 @@ class SignaleringService @Inject constructor(
 
     private fun getZaak(zaakUUID: String): Zaak = zrcClientService.readZaak(UUID.fromString(zaakUUID))
 
-    @Deprecated("To be removed when we switch to paging")
     private fun listZakenSignaleringen(
         user: LoggedInUser,
         signaleringsType: SignaleringType.Type
