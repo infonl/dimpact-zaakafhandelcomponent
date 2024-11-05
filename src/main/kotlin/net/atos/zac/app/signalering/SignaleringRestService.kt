@@ -8,33 +8,27 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.DefaultValue
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
+import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.atos.client.zgw.drc.DrcClientService
-import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
-import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import net.atos.zac.app.signalering.converter.RestSignaleringInstellingenConverter
-import net.atos.zac.app.signalering.converter.toRestSignaleringTaakSummary
 import net.atos.zac.app.signalering.model.RestSignaleringInstellingen
-import net.atos.zac.app.signalering.model.RestSignaleringTaskSummary
 import net.atos.zac.authentication.LoggedInUser
-import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
-import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringType
-import net.atos.zac.signalering.model.SignaleringZoekParameters
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
-import java.util.UUID
 
 @Path("signaleringen")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -44,23 +38,25 @@ import java.util.UUID
 @Suppress("LongParameterList", "TooManyFunctions")
 class SignaleringRestService @Inject constructor(
     private val signaleringService: SignaleringService,
-    private val flowableTaskService: FlowableTaskService,
-    private val drcClientService: DrcClientService,
     private val identityService: IdentityService,
-    private val restInformatieobjectConverter: RestInformatieobjectConverter,
     private val restSignaleringInstellingenConverter: RestSignaleringInstellingenConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
-    private fun Instance<LoggedInUser>.getSignaleringZoekParameters() = SignaleringZoekParameters(get())
-    private fun Instance<LoggedInUser>.getSignaleringInstellingenZoekParameters() = SignaleringInstellingenZoekParameters(
-        get()
-    )
+
+    companion object {
+        private const val TOTAL_COUNT_HEADER = "X-Total-Count"
+        private const val INITIAL_PAGE = "0"
+        private const val DEFAULT_PAGE_SIZE = "5"
+        private const val BACKWARD_COMPATIBILITY_PAGE_SIZE = "1000"
+    }
+
+    private fun Instance<LoggedInUser>.getSignaleringInstellingenZoekParameters() =
+        SignaleringInstellingenZoekParameters(get())
 
     @GET
     @Path("/latest")
-    fun latestSignaleringen(): ZonedDateTime? =
-        loggedInUserInstance.getSignaleringZoekParameters()
-            .let(signaleringService::latestSignalering)
+    fun latestSignaleringOccurrence(): ZonedDateTime? =
+        signaleringService.latestSignaleringOccurrence()
 
     /**
      * Starts listing zaken signaleringen for the given signaleringsType.
@@ -80,29 +76,61 @@ class SignaleringRestService @Inject constructor(
         }
     }
 
+    /**
+     * Lists zaken signaleringen for the given signaleringsType.
+     */
+    @GET
+    @Path("/zaken/{type}")
+    fun listZakenSignaleringen(
+        @PathParam("type") signaleringsType: SignaleringType.Type,
+        @QueryParam("pageNumber") @DefaultValue(INITIAL_PAGE) pageNumber: Int,
+        @QueryParam("pageSize") @DefaultValue(DEFAULT_PAGE_SIZE) pageSize: Int
+    ): Response =
+        signaleringService.countZakenSignaleringen(signaleringsType).let { objectsCount ->
+            if (pageNumber > objectsCount.maxPages(pageSize)) {
+                return Response.status(Response.Status.NOT_FOUND).build()
+            }
+            Response.ok()
+                .header(TOTAL_COUNT_HEADER, objectsCount)
+                .entity(signaleringService.listZakenSignaleringenPage(signaleringsType, pageNumber, pageSize))
+                .build()
+        }
+
     @GET
     @Path("/taken/{type}")
     fun listTakenSignaleringen(
-        @PathParam("type") signaleringsType: SignaleringType.Type
-    ): List<RestSignaleringTaskSummary> =
-        loggedInUserInstance.getSignaleringZoekParameters()
-            .types(signaleringsType)
-            .subjecttype(SignaleringSubject.TAAK)
-            .let(signaleringService::listSignaleringen)
-            .map { flowableTaskService.readTask(it.subject) }
-            .map { it.toRestSignaleringTaakSummary() }
+        @PathParam("type") signaleringsType: SignaleringType.Type,
+        @QueryParam("pageNumber") @DefaultValue(INITIAL_PAGE) pageNumber: Int,
+        @QueryParam("pageSize") @DefaultValue(BACKWARD_COMPATIBILITY_PAGE_SIZE) pageSize: Int
+    ): Response =
+        signaleringService.countTakenSignaleringen(signaleringsType).let { objectsCount ->
+            if (pageNumber > objectsCount.maxPages(pageSize)) {
+                return Response.status(Response.Status.NOT_FOUND).build()
+            }
+            Response.ok()
+                .header(TOTAL_COUNT_HEADER, objectsCount)
+                .entity(signaleringService.listTakenSignaleringenPage(signaleringsType, pageNumber, pageSize))
+                .build()
+        }
 
     @GET
     @Path("/informatieobjecten/{type}")
     fun listInformatieobjectenSignaleringen(
-        @PathParam("type") signaleringsType: SignaleringType.Type
-    ): List<RestEnkelvoudigInformatieobject> =
-        loggedInUserInstance.getSignaleringZoekParameters()
-            .types(signaleringsType)
-            .subjecttype(SignaleringSubject.DOCUMENT)
-            .let(signaleringService::listSignaleringen)
-            .map { drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(it.subject)) }
-            .map(restInformatieobjectConverter::convertToREST)
+        @PathParam("type") signaleringsType: SignaleringType.Type,
+        @QueryParam("pageNumber") @DefaultValue(INITIAL_PAGE) pageNumber: Int,
+        @QueryParam("pageSize") @DefaultValue(BACKWARD_COMPATIBILITY_PAGE_SIZE) pageSize: Int
+    ): Response =
+        signaleringService.countInformatieobjectenSignaleringen(signaleringsType).let { objectsCount ->
+            if (pageNumber > objectsCount.maxPages(pageSize)) {
+                return Response.status(Response.Status.NOT_FOUND).build()
+            }
+            Response.ok()
+                .header(TOTAL_COUNT_HEADER, objectsCount)
+                .entity(signaleringService.listInformatieobjectenSignaleringen(signaleringsType, pageNumber, pageSize))
+                .build()
+        }
+
+    private fun Long.maxPages(pageSize: Int) = (this + pageSize - 1) / pageSize
 
     @GET
     @Path("/instellingen")

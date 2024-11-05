@@ -27,6 +27,7 @@ class RestZaakOverzichtConverter @Inject constructor(
     private val policyService: PolicyService,
     private val zrcClientService: ZrcClientService,
 ) {
+
     fun convert(zaak: Zaak, user: LoggedInUser? = null): RestZaakOverzicht {
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val zaakrechten = policyService.readZaakRechten(zaak, zaaktype, user)
@@ -64,6 +65,17 @@ class RestZaakOverzichtConverter @Inject constructor(
                     .map { groupConverter.convertGroupId(it.betrokkeneIdentificatie.identificatie) }
                     .orElse(null)
             }
+        )
+    }
+
+    fun convertForDisplay(zaak: Zaak): RestZaakOverzicht {
+        val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
+        val zaakrechten = policyService.readZaakRechten(zaak, zaaktype)
+        return RestZaakOverzicht(
+            identificatie = zaak.identificatie,
+            startdatum = takeIf { zaakrechten.lezen }?.let { zaak.startdatum },
+            toelichting = takeIf { zaakrechten.lezen }?.let { zaak.toelichting },
+            zaaktype = takeIf { zaakrechten.lezen }?.let { zaaktype.omschrijving },
         )
     }
 }

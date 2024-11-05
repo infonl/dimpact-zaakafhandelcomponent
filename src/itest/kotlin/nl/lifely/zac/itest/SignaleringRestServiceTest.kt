@@ -15,6 +15,7 @@ import io.kotest.matchers.date.shouldBeBetween
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NOT_FOUND
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
@@ -324,6 +325,43 @@ class SignaleringRestServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("An assigned zaak with information object") {
+        When("the list of zaken signaleringen for ZAAK_OP_NAAM is requested") {
+            val response = itestHttpClient.performGetRequest(
+                "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM?pageNumber=0&pageSize=5"
+            )
+            val responseBody = response.body!!.string()
+            logger.info { "Response: $responseBody" }
+            response.isSuccessful shouldBe true
+
+            Then("list size is returned") {
+                response.headers["X-Total-Count"] shouldBe "1"
+            }
+
+            And("list content is correct") {
+                with(JSONArray(responseBody).getJSONObject(0).toString()) {
+                    shouldContainJsonKeyValue("identificatie", ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION)
+                    shouldContainJsonKeyValue("startdatum", ZAAK_PRODUCTAANVRAAG_1_START_DATE)
+                    shouldContainJsonKeyValue("toelichting", "")
+                    shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
+                }
+            }
+        }
+
+        When("the list of zaken signaleringen is requested with wrong page") {
+            val response = itestHttpClient.performGetRequest(
+                "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD?pageNumber=123&pageSize=4567"
+            )
+            val responseBody = response.body!!.string()
+            logger.info { "Response: $responseBody" }
+
+            Then("404 should be returned") {
+                response.code shouldBe HTTP_STATUS_NOT_FOUND
+            }
+        }
+    }
+
     Given(
         """
         Two existing signaleringen and the ZAC environment variable 'SIGNALERINGEN_DELETE_OLDER_THAN_DAYS' set to 0 days

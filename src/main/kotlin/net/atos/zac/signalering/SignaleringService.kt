@@ -7,6 +7,7 @@ package net.atos.zac.signalering
 import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
@@ -15,7 +16,12 @@ import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
+import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
+import net.atos.zac.app.signalering.converter.toRestSignaleringTaakSummary
+import net.atos.zac.app.signalering.model.RestSignaleringTaskSummary
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
+import net.atos.zac.app.zaak.model.RestZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -49,16 +55,21 @@ import java.util.logging.Logger
 class SignaleringService @Inject constructor(
     private val entityManager: EntityManager,
     private val drcClientService: DrcClientService,
+    private val restInformatieobjectConverter: RestInformatieobjectConverter,
     private val eventingService: EventingService,
     private val flowableTaskService: FlowableTaskService,
     private val mailService: MailService,
     private val signaleringenMailHelper: SignaleringMailHelper,
     private val zrcClientService: ZrcClientService,
-    private val restZaakOverzichtConverter: RestZaakOverzichtConverter
+    private val restZaakOverzichtConverter: RestZaakOverzichtConverter,
+    private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
         private val LOG = Logger.getLogger(SignaleringService::class.java.name)
     }
+
+    private fun Instance<LoggedInUser>.getSignaleringZoekParameters() =
+        SignaleringZoekParameters(get())
 
     /**
      * Factory method for constructing Signalering instances.
@@ -176,7 +187,47 @@ class SignaleringService @Inject constructor(
             .resultList
     }
 
-    fun latestSignalering(parameters: SignaleringZoekParameters): ZonedDateTime? {
+    /**
+     * Lists all signaleringen in a page
+     *
+     * @param parameters parameters of the signaleringen to list
+     * @param pageNumber number of the page to list
+     * @param pageSize size of the page
+     */
+    fun listSignaleringen(
+        parameters: SignaleringZoekParameters,
+        pageNumber: Int,
+        pageSize: Int
+    ): List<Signalering> {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(
+            Signalering::class.java
+        )
+        val root = query.from(Signalering::class.java)
+        return entityManager.createQuery(
+            query.select(root)
+                .where(getSignaleringWhere(parameters, builder, root))
+                .orderBy(builder.desc(root.get<Any>("tijdstip")))
+        )
+            .setFirstResult(pageNumber * pageSize)
+            .setMaxResults(pageSize)
+            .resultList
+    }
+
+    private fun signaleringenCount(parameters: SignaleringZoekParameters): Long =
+        entityManager.criteriaBuilder.let { builder ->
+            builder.createQuery(Long::class.java).let { criteriaQuery ->
+                criteriaQuery.from(Signalering::class.java).let { root ->
+                    entityManager.createQuery(
+                        criteriaQuery
+                            .select(builder.count(root))
+                            .where(getSignaleringWhere(parameters, builder, root))
+                    ).resultList.firstOrNull() ?: 0
+                }
+            }
+        }
+
+    fun latestSignaleringOccurrence(): ZonedDateTime? {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(
             ZonedDateTime::class.java
@@ -184,7 +235,7 @@ class SignaleringService @Inject constructor(
         val root = query.from(Signalering::class.java)
 
         query.select(root.get("tijdstip"))
-            .where(getSignaleringWhere(parameters, builder, root))
+            .where(getSignaleringWhere(loggedInUserInstance.getSignaleringZoekParameters(), builder, root))
             .orderBy(builder.desc(root.get<Any>("tijdstip")))
 
         val resultList = entityManager.createQuery(query).resultList
@@ -332,7 +383,7 @@ class SignaleringService @Inject constructor(
         screenEventResourceId: String
     ) {
         LOG.fine {
-            "Started to list zaken signaleringen for type '$signaleringsType' " +
+            "Started to list zaken signaleringen of type '$signaleringsType' " +
                 "with screen event resource ID: '$screenEventResourceId'."
         }
 
@@ -349,6 +400,117 @@ class SignaleringService @Inject constructor(
             eventingService.send(ScreenEventType.ZAKEN_SIGNALERINGEN.updated(it, zakenSignaleringen))
         }
     }
+
+    /**
+     * Lists a page of zaken signaleringen for the given signaleringsType
+     */
+    fun listZakenSignaleringenPage(
+        signaleringsType: SignaleringType.Type,
+        pageNumber: Int,
+        pageSize: Int
+    ): List<RestZaakOverzicht> =
+        loggedInUserInstance.getSignaleringZoekParameters()
+            .types(signaleringsType)
+            .subjecttype(SignaleringSubject.ZAAK)
+            .let {
+                LOG.fine {
+                    "Listing page $pageNumber ($pageSize elements) for zaken signaleringen " +
+                        "of type '$signaleringsType' ..."
+                }
+                listSignaleringen(it, pageNumber, pageSize)
+            }
+            .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
+            .map { restZaakOverzichtConverter.convertForDisplay(it) }
+            .also {
+                LOG.fine { "Successfully listed page $pageNumber for zaken signaleringen of type '$signaleringsType'." }
+            }
+
+    /**
+     * Counts the number of zaken signaleringen
+     *
+     * @param signaleringsType signaleringen type to count
+     */
+    fun countZakenSignaleringen(signaleringsType: SignaleringType.Type) =
+        signaleringenCount(
+            loggedInUserInstance.getSignaleringZoekParameters()
+                .types(signaleringsType)
+                .subjecttype(SignaleringSubject.ZAAK)
+        )
+
+    /**
+     * Lists a page of taken signaleringen for the given signaleringsType
+     */
+    fun listTakenSignaleringenPage(
+        signaleringsType: SignaleringType.Type,
+        pageNumber: Int,
+        pageSize: Int
+    ): List<RestSignaleringTaskSummary> =
+        loggedInUserInstance.getSignaleringZoekParameters()
+            .types(signaleringsType)
+            .subjecttype(SignaleringSubject.TAAK)
+            .let {
+                LOG.fine {
+                    "Listing page $pageNumber ($pageSize elements) for taken signaleringen " +
+                        "of type '$signaleringsType' ..."
+                }
+                listSignaleringen(it, pageNumber, pageSize)
+            }
+            .map { flowableTaskService.readTask(it.subject) }
+            .map { it.toRestSignaleringTaakSummary() }
+            .also {
+                LOG.fine { "Successfully listed page $pageNumber for taken signaleringen of type '$signaleringsType'." }
+            }
+
+    /**
+     * Counts the number of signaleringen
+     *
+     * @param signaleringsType signaleringen type to count
+     */
+    fun countTakenSignaleringen(signaleringsType: SignaleringType.Type) =
+        signaleringenCount(
+            loggedInUserInstance.getSignaleringZoekParameters()
+                .types(signaleringsType)
+                .subjecttype(SignaleringSubject.TAAK)
+        )
+
+    /**
+     * Lists a page of information objects signaleringen for the given signaleringsType
+     */
+    fun listInformatieobjectenSignaleringen(
+        signaleringsType: SignaleringType.Type,
+        pageNumber: Int,
+        pageSize: Int
+    ): List<RestEnkelvoudigInformatieobject> =
+        loggedInUserInstance.getSignaleringZoekParameters()
+            .types(signaleringsType)
+            .subjecttype(SignaleringSubject.DOCUMENT)
+            .let {
+                LOG.fine {
+                    "Listing page $pageNumber ($pageSize elements) for information objects signaleringen " +
+                        "of type '$signaleringsType' ..."
+                }
+                listSignaleringen(it, pageNumber, pageSize)
+            }
+            .map { drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(it.subject)) }
+            .map(restInformatieobjectConverter::convertToREST)
+            .also {
+                LOG.fine {
+                    "Successfully listed page $pageNumber for information objects signaleringen " +
+                        "of type '$signaleringsType'."
+                }
+            }
+
+    /**
+     * Counts the number of information object signaleringen
+     *
+     * @param signaleringsType signaleringen type to count
+     */
+    fun countInformatieobjectenSignaleringen(signaleringsType: SignaleringType.Type) =
+        signaleringenCount(
+            loggedInUserInstance.getSignaleringZoekParameters()
+                .types(signaleringsType)
+                .subjecttype(SignaleringSubject.DOCUMENT)
+        )
 
     private fun getDocument(documentUUID: String) =
         drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(documentUUID))

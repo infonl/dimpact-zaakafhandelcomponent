@@ -25,6 +25,7 @@ object ItestConfiguration {
     const val HTTP_STATUS_SEE_OTHER = 303
     const val HTTP_STATUS_BAD_REQUEST = 400
     const val HTTP_STATUS_FORBIDDEN = 403
+    const val HTTP_STATUS_NOT_FOUND = 404
 
     /**
      * Temporarily increase the HTTP read timeout to 60 seconds to allow for
