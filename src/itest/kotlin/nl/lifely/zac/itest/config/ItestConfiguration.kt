@@ -324,4 +324,6 @@ object ItestConfiguration {
      * Global variable to store the UUID of an uploaded file in the integration tests.
      */
     lateinit var enkelvoudigInformatieObjectUUID: String
+
+    lateinit var zaakProductaanvraag1Betrokkene1Uuid: UUID
 }
