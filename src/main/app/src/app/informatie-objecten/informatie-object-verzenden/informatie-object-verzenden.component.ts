@@ -126,7 +126,7 @@ export class InformatieObjectVerzendenComponent
           // The form gets reloaded/remounted again upon opening the sidebar, and so having this form in a nice pristine state.
           // Explicitly resetting the form is not needed.
           //
-          // To actually do a form reset that surpresses validation errors (for sake of documenting the gained knowledge putting it here):
+          // To actually do a form reset that suppresses validation errors (for sake of documenting the gained knowledge putting it here):
           //
           // this.form.reset();
           // Object.keys(formGroup.controls).forEach((key) => {
