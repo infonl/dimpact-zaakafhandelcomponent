@@ -527,27 +527,33 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
     Given(
-        """Two zaken have been created and a websocket subscription has been created to listen for a 'zaken verdelen' 
-        screen event which will be sent by the asynchronous 'assign zaken from list' job"""
+        """
+            Two zaken have been created and two websocket subscriptions have been created to listen for both a 'zaken verdelen' 
+            screen event as well as for 'zaak rollen' screen events which will be sent by the asynchronous 'assign zaken from list' 
+            job
+        """
     ) {
         val uniqueResourceId = UUID.randomUUID()
-        val websocketListener = WebSocketTestListener(
-            textToBeSentOnOpen = "{" +
-                "\"subscriptionType\":\"CREATE\"," +
-                "\"event\":{" +
-                "  \"opcode\":\"UPDATED\"," +
-                "  \"objectType\":\"$SCREEN_EVENT_TYPE_ZAKEN_VERDELEN\"," +
-                "  \"objectId\":{" +
-                "    \"resource\":\"$uniqueResourceId\"" +
-                "  }," +
-                "\"_key\":\"ANY;$SCREEN_EVENT_TYPE_ZAKEN_VERDELEN;$uniqueResourceId\"" +
-                "}" +
-                "}"
+        val zakenVerdelenWebsocketListener = WebSocketTestListener(
+            textToBeSentOnOpen = """
+            {
+                "subscriptionType": "CREATE",
+                "event": {
+                    "opcode": "UPDATED",
+                    "objectType": "$SCREEN_EVENT_TYPE_ZAKEN_VERDELEN",
+                    "objectId": {
+                        "resource": "$uniqueResourceId"
+                    },
+                "_key": "UPDATED;$SCREEN_EVENT_TYPE_ZAKEN_VERDELEN;$uniqueResourceId"
+                 }
+            }
+            """.trimIndent()
         )
         itestHttpClient.connectNewWebSocket(
             url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
-            webSocketListener = websocketListener
+            webSocketListener = zakenVerdelenWebsocketListener
         )
+
         When(
             """the 'assign zaken from list' endpoint is called to start an asynchronous process to assign the two zaken 
                      to a group and a user using the unique resource ID that was used to create the websocket subscription"""
@@ -571,8 +577,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 lijstVerdelenResponse.code shouldBe HTTP_STATUS_NO_CONTENT
                 // the backend process is asynchronous, so we need to wait a bit until the zaken are assigned
                 eventually(10.seconds) {
-                    websocketListener.messagesReceived.size shouldBe 1
-                    with(JSONObject(websocketListener.messagesReceived[0])) {
+                    zakenVerdelenWebsocketListener.messagesReceived.size shouldBe 1
+                    with(JSONObject(zakenVerdelenWebsocketListener.messagesReceived[0])) {
                         getString("opcode") shouldBe "UPDATED"
                         getString("objectType") shouldBe "ZAKEN_VERDELEN"
                         getJSONObject("objectId").getString("resource") shouldBe uniqueResourceId.toString()

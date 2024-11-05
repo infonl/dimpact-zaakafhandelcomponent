@@ -29,6 +29,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECR
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE
+import nl.lifely.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAAK_ROLLEN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
@@ -133,7 +134,7 @@ class NotificationsTest : BehaviorSpec({
                         getBoolean("isProcesGestuurd") shouldBe false
                         getString("communicatiekanaal") shouldBe "E-formulier"
                         getString("omschrijving") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
-                                "met kenmerk '$OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_1_BRON_KENMERK'"
+                            "met kenmerk '$OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_1_BRON_KENMERK'"
                         getString("uiterlijkeEinddatumAfdoening") shouldBe ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
                         with(getJSONObject("zaakgeometrie").getJSONObject("point")) {
                             getBigDecimal("latitude") shouldBe PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE.toBigDecimal()
@@ -154,7 +155,7 @@ class NotificationsTest : BehaviorSpec({
                 response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                responseBody shouldEqualJsonIgnoringExtraneousFields  """
+                responseBody shouldEqualJsonIgnoringExtraneousFields """
                     [ {
                       "identificatie" : "999992958",
                       "roltoelichting" : "Overgenomen vanuit de product aanvraag",
@@ -356,11 +357,11 @@ class NotificationsTest : BehaviorSpec({
                     "subscriptionType": "CREATE",
                     "event": {
                         "opcode": "ANY",
-                        "objectType": "ZAAK_ROLLEN",
+                        "objectType": "$SCREEN_EVENT_TYPE_ZAAK_ROLLEN",
                          "objectId": {
                             "resource": "$zaakProductaanvraag1Uuid"
                          },
-                        "_key": "ANY;ZAAK_ROLLEN;$zaakProductaanvraag1Uuid"
+                        "_key": "ANY;$SCREEN_EVENT_TYPE_ZAAK_ROLLEN;$zaakProductaanvraag1Uuid"
                     }
                 }
             """.trimIndent()

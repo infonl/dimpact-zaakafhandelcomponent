@@ -425,7 +425,9 @@ public enum ScreenEventType {
      * @param zaak the skipped zaak.
      * @return instance of the event
      */
-    public final ScreenEvent skipped(final Zaak zaak) { return event(SKIPPED, zaak); }
+    public final ScreenEvent skipped(final Zaak zaak) {
+        return event(SKIPPED, zaak);
+    }
 
     /**
      * Factory method for ScreenEvent (with case identification).
