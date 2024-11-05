@@ -125,6 +125,19 @@ export class InformatieObjectVerzendenComponent
           // On the above emit, the parent closes (and destroys) the sidebar and so this form.
           // The form gets reloaded/remounted again upon opening the sidebar, and so having this form in a nice pristine state.
           // Explicitly resetting the form is not needed.
+          //
+          // To actually do a form reset that surpresses validation errors (for sake of documenting the gained knowledge putting it here):
+          //
+          // this.form.reset();
+          // Object.keys(formGroup.controls).forEach((key) => {
+          //   const control = formGroup.get(key);
+          //   if (control) {
+          //     control.reset();
+          //     control.setErrors(null);
+          //     control.markAsPristine();
+          //     control.markAsUntouched();
+          //   }
+          // });
         });
     } else {
       this.sideNav.close();
