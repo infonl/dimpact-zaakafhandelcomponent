@@ -12,8 +12,6 @@ import net.atos.zac.shared.model.SorteerRichting
 import net.atos.zac.solr.encoded
 import net.atos.zac.solr.quoted
 import net.atos.zac.zoeken.IndexingService.Companion.SOLR_CORE
-import net.atos.zac.zoeken.model.DatumRange
-import net.atos.zac.zoeken.model.DatumVeld
 import net.atos.zac.zoeken.model.FilterParameters
 import net.atos.zac.zoeken.model.FilterResultaat
 import net.atos.zac.zoeken.model.FilterVeld
@@ -26,7 +24,6 @@ import net.atos.zac.zoeken.model.ZoekVeld
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
-import org.apache.commons.lang3.StringUtils
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.SolrServerException
@@ -56,38 +53,16 @@ class ZoekenService @Inject constructor(
         ).build()
     }
 
-    @Suppress("CyclomaticComplexMethod", "LongMethod")
     fun zoek(zoekParameters: ZoekParameters): ZoekResultaat<out ZoekObject> {
         val query = SolrQuery("*:*")
         applyAllowedZaaktypenPolicy(query)
         zoekParameters.type?.let { query.addFilterQuery("type:${zoekParameters.type}") }
-        zoekParameters.zoeken.forEach { (searchField: ZoekVeld, text: String) ->
-            if (text.isNotBlank()) {
-                val queryText = if (searchField == ZoekVeld.ZAAK_IDENTIFICATIE || searchField == ZoekVeld.TAAK_ZAAK_ID) {
-                    "(*${encoded(text)}*)"
-                } else {
-                    "(${encoded(text)})"
-                }
-                query.addFilterQuery("${searchField.veld}:$queryText")
-            }
-        }
-        zoekParameters.datums.forEach { (dateField: DatumVeld, date: DatumRange) ->
-            val from = date.van?.let { DateTimeFormatter.ISO_INSTANT.format(it.atStartOfDay(ZoneId.systemDefault())) } ?: "*"
-            val to = date.tot?.let { DateTimeFormatter.ISO_INSTANT.format(it.atStartOfDay(ZoneId.systemDefault())) } ?: "*"
-            query.addFilterQuery("${dateField.veld}:[$from TO $to]")
-        }
-        zoekParameters.filters.forEach { (filter: FilterVeld, filterParameters: FilterParameters) ->
+        getFilterQueriesForZoekenParameters(zoekParameters).forEach(query::addFilterQuery)
+        getFilterQueriesForDatumsParameters(zoekParameters).forEach(query::addFilterQuery)
+        zoekParameters.filters.forEach { (filter, filterParameters) ->
             query.addFacetField("{!ex=$filter}${filter.veld}")
             if (filterParameters.waarden.isNotEmpty()) {
-                val special = filterParameters.waarden.takeIf { it.size == 1 }?.first()
-                when {
-                    FilterWaarde.LEEG.`is`(special) -> query.addFilterQuery("{!tag=$filter}!${filter.veld}:(*)")
-                    FilterWaarde.NIET_LEEG.`is`(special) -> query.addFilterQuery("{!tag=$filter}${filter.veld}:(*)")
-                    else -> query.addFilterQuery(
-                        "{!tag=$filter}${if (filterParameters.inverse) "-" else StringUtils.EMPTY}" +
-                            "${filter.veld}:(${filterParameters.waarden.joinToString(" OR ") { quoted(it) }})"
-                    )
-                }
+                query.addFilterQuery(getFilterQueryForWaardenParameter(filterParameters, filter))
             }
         }
         zoekParameters.filterQueries
@@ -128,16 +103,50 @@ class ZoekenService @Inject constructor(
             return zoekResultaat
         } catch (ioException: IOException) {
             throw SearchException(
-                "Failed to perform Solr search query with search parameters: '$zoekParameters'",
+                "Failed to perform Solr search query",
                 ioException
             )
         } catch (solrServerException: SolrServerException) {
             throw SearchException(
-                "Failed to perform Solr search query with search parameters: '$zoekParameters'",
+                "Failed to perform Solr search query",
                 solrServerException
             )
         }
     }
+
+    private fun getFilterQueryForWaardenParameter(
+        filterParameters: FilterParameters,
+        filter: FilterVeld
+    ): String {
+        val special = filterParameters.waarden.singleOrNull()
+        return when {
+            FilterWaarde.LEEG.`is`(special) -> "{!tag=$filter}!${filter.veld}:(*)"
+            FilterWaarde.NIET_LEEG.`is`(special) -> "{!tag=$filter}${filter.veld}:(*)"
+            else -> "{!tag=$filter}${if (filterParameters.inverse) "-" else ""}" +
+                "${filter.veld}:(${filterParameters.waarden.joinToString(" OR ") { quoted(it) }})"
+        }
+    }
+
+    private fun getFilterQueriesForDatumsParameters(zoekParameters: ZoekParameters): List<String> =
+        zoekParameters.datums.map { (dateField, date) ->
+            val from = date.van?.let { DateTimeFormatter.ISO_INSTANT.format(it.atStartOfDay(ZoneId.systemDefault())) } ?: "*"
+            val to = date.tot?.let { DateTimeFormatter.ISO_INSTANT.format(it.atStartOfDay(ZoneId.systemDefault())) } ?: "*"
+            "${dateField.veld}:[$from TO $to]"
+        }
+
+    private fun getFilterQueriesForZoekenParameters(zoekParameters: ZoekParameters): List<String> =
+        zoekParameters.zoeken.mapNotNull { (searchField, text) ->
+            if (text.isNotBlank()) {
+                val queryText = if (searchField == ZoekVeld.ZAAK_IDENTIFICATIE || searchField == ZoekVeld.TAAK_ZAAK_ID) {
+                    "(*${encoded(text)}*)"
+                } else {
+                    "(${encoded(text)})"
+                }
+                "${searchField.veld}:$queryText"
+            } else {
+                null
+            }
+        }
 
     private fun applyAllowedZaaktypenPolicy(query: SolrQuery) {
         // signaleringen job does not have a logged-in user so check if logged-in user is present
