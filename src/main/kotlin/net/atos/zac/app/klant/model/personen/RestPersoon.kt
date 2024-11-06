@@ -79,7 +79,7 @@ fun Persoon.toRestPersoon() = RestPersoon(
 ).apply {
     when {
         inOnderzoek != null -> indicaties.add(RestPersoonIndicaties.IN_ONDERZOEK)
-        geheimhoudingPersoonsgegevens -> indicaties.add(RestPersoonIndicaties.GEHEIMHOUDING_OP_PERSOONSGEGEVENS)
+        geheimhoudingPersoonsgegevens != null -> indicaties.add(RestPersoonIndicaties.GEHEIMHOUDING_OP_PERSOONSGEGEVENS)
         // "Voor overleden personen wordt altijd het opschortingBijhouding veld geleverd met reden code ‘O’ en
         // omschrijving ‘overlijden’. Zie de overlijden overzicht feature voor meer informatie over dit veld."
         // https://brp-api.github.io/Haal-Centraal-BRP-bevragen/v2/features-overzicht
@@ -107,7 +107,7 @@ fun PersoonBeperkt.toRestPerson() = RestPersoon(
 ).apply {
     when {
         inOnderzoek != null -> indicaties.add(RestPersoonIndicaties.IN_ONDERZOEK)
-        geheimhoudingPersoonsgegevens -> indicaties.add(RestPersoonIndicaties.GEHEIMHOUDING_OP_PERSOONSGEGEVENS)
+        geheimhoudingPersoonsgegevens != null -> indicaties.add(RestPersoonIndicaties.GEHEIMHOUDING_OP_PERSOONSGEGEVENS)
         // "Voor overleden personen wordt altijd het opschortingBijhouding veld geleverd met reden code ‘O’ en
         // omschrijving ‘overlijden’. Zie de overlijden overzicht feature voor meer informatie over dit veld."
         // https://brp-api.github.io/Haal-Centraal-BRP-bevragen/v2/features-overzicht
