@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import net.atos.client.brp.model.generated.AbstractDatum
 import net.atos.client.brp.model.generated.OpschortingBijhouding
-import net.atos.client.brp.model.generated.Persoon
 import net.atos.client.brp.model.generated.PersoonInOnderzoek
 import net.atos.client.brp.model.generated.RniDeelnemer
 import net.atos.client.brp.model.generated.Waardetabel
