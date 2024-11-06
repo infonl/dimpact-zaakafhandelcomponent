@@ -181,12 +181,11 @@ class ZaakServiceTest : BehaviorSpec({
             archiefnominatie = Archiefnominatie.VERNIETIGEN
         )
         val zakenList = listOf(openZaak, closedZaak)
-        val screenEventSlot = slot<ScreenEvent>()
         zakenList.map {
             every { zrcClientService.readZaak(it.uuid) } returns it
         }
         every { zrcClientService.deleteRol(openZaak, any(), explanation) } just Runs
-        every { eventingService.send(capture(screenEventSlot)) } just Runs
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
         When(
             """the release zaken function is called with
                  a screen event resource id"""
@@ -204,12 +203,8 @@ class ZaakServiceTest : BehaviorSpec({
             ) {
                 verify(exactly = 1) {
                     zrcClientService.deleteRol(openZaak, BetrokkeneType.MEDEWERKER, explanation)
-                }
-
-                with(screenEventSlot.captured) {
-                    opcode shouldBe Opcode.UPDATED
-                    objectType shouldBe ScreenEventType.ZAKEN_VRIJGEVEN
-                    objectId.resource shouldBe screenEventResourceId
+                    eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(closedZaak))
+                    eventingService.send(ScreenEventType.ZAKEN_VRIJGEVEN.updated(screenEventResourceId))
                 }
             }
         }
