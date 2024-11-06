@@ -7,8 +7,8 @@ import {
   AfterViewInit,
   Component,
   OnInit,
-  ViewChild,
   signal,
+  ViewChild,
 } from "@angular/core";
 
 import { detailExpand } from "../../shared/animations/animations";
@@ -259,9 +259,11 @@ export class ZakenWerkvoorraadComponent
     this.batchProcessService.start({
       ids: zaken.map(({ id }) => id),
       progressSubscription: {
-        opcode: Opcode.UPDATED,
+        opcode: Opcode.ANY,
         objectType: ObjectType.ZAAK_ROLLEN,
-        onNotification: (id) => {
+        onNotification: (id, event) => {
+          if (event.opcode !== Opcode.UPDATED) return;
+
           const zaak = this.dataSource.data.find((x) => x.id === id);
           if (this.toekenning && zaak) {
             zaak.groepNaam = this.toekenning.groep?.naam || zaak.groepNaam;
@@ -271,6 +273,11 @@ export class ZakenWerkvoorraadComponent
           }
         },
       },
+      processTimeout: {
+        onTimeout: () => {
+          this.utilService.openSnackbar("msg.error.timeout");
+        },
+      },
       finally: () =>
         firstValueFrom(
           this.indexService.commitPendingChangesToSearchIndex(),
@@ -278,6 +285,7 @@ export class ZakenWerkvoorraadComponent
           this.selection.clear();
           this.dataSource.load();
           this.zakenLoading.set(false);
+          this.batchProcessService.stop();
         }),
     });
     const dialogRef = this.dialog.open(dialogComponent, {

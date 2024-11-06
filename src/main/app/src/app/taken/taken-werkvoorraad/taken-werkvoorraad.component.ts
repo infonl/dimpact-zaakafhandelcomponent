@@ -7,8 +7,8 @@ import {
   AfterViewInit,
   Component,
   OnInit,
-  ViewChild,
   signal,
+  ViewChild,
 } from "@angular/core";
 
 import { detailExpand } from "../../shared/animations/animations";
@@ -245,15 +245,22 @@ export class TakenWerkvoorraadComponent
     this.batchProcessService.start({
       ids: taken.map(({ id }) => id),
       progressSubscription: {
+        opcode: Opcode.ANY,
         objectType: ObjectType.TAAK,
-        opcode: Opcode.UPDATED,
-        onNotification: (id) => {
+        onNotification: (id, event) => {
+          if (event.opcode !== Opcode.UPDATED) return;
+
           const taak = this.dataSource.data.find((x) => x.id === id);
           if (!taak || !this.toekenning) return;
           taak.groepNaam = this.toekenning.groep?.naam || taak.groepNaam;
           taak.groepID = this.toekenning.groep?.id || taak.groepID;
           taak.behandelaarGebruikersnaam = this.toekenning.medewerker?.id;
           taak.behandelaarNaam = this.toekenning.medewerker?.naam;
+        },
+      },
+      processTimeout: {
+        onTimeout: () => {
+          this.utilService.openSnackbar("msg.error.timeout");
         },
       },
       finalSubscription: {
@@ -292,7 +299,7 @@ export class TakenWerkvoorraadComponent
   }
 
   ngOnDestroy(): void {
-    // Make sure when returning to this comnponent, the very first page is loaded
+    // Make sure when returning to this component, the very first page is loaded
     this.dataSource.zoekopdrachtResetToFirstPage();
   }
 }
