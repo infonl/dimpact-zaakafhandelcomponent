@@ -136,6 +136,8 @@ class SignaleringRestServiceTest : BehaviorSpec({
             .replace(OPEN_ZAAK_EXTERNAL_URI, OPEN_ZAAK_BASE_URI)
         logger.info { "Zaak rollen URL: $zaakInformatieObjectenUrl" }
 
+        val notificationDate = ZonedDateTime.now(ZoneId.of("UTC"))
+
         When("a notification is sent to ZAC that a zaak is updated") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/notificaties",
@@ -152,7 +154,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                         "resource" to "zaakinformatieobject",
                         "hoofdObject" to "$OPEN_ZAAK_BASE_URI/$zaakPath",
                         "resourceUrl" to zaakInformatieObjectenUrl,
-                        "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                        "aanmaakdatum" to notificationDate.toString()
                     )
                 ).toString(),
                 addAuthorizationHeader = false
@@ -181,7 +183,36 @@ class SignaleringRestServiceTest : BehaviorSpec({
                         "resource" to "rol",
                         "hoofdObject" to "$OPEN_ZAAK_BASE_URI/$zaakPath",
                         "resourceUrl" to zaakRollenUrl,
-                        "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                        "aanmaakdatum" to notificationDate.plusSeconds(1).toString()
+                    )
+                ).toString(),
+                addAuthorizationHeader = false
+            )
+
+            Then("the response should be 'no content'") {
+                responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_NO_CONTENT
+            }
+        }
+
+        When("a second notification is sent to ZAC that a rol is updated for the same zaak") {
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/notificaties",
+                headers = Headers.headersOf(
+                    "Content-Type",
+                    "application/json",
+                    "Authorization",
+                    ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
+                ),
+                requestBodyAsString = JSONObject(
+                    mapOf(
+                        "actie" to "create",
+                        "kanaal" to "zaken",
+                        "resource" to "rol",
+                        "hoofdObject" to "$OPEN_ZAAK_BASE_URI/$zaakPath",
+                        "resourceUrl" to zaakRollenUrl,
+                        "aanmaakdatum" to notificationDate.plusSeconds(2).toString()
                     )
                 ).toString(),
                 addAuthorizationHeader = false
