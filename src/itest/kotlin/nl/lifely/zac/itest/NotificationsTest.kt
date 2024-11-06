@@ -35,6 +35,8 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_INITIAL
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -125,8 +127,7 @@ class NotificationsTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     with(JSONObject(responseBody)) {
                         getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
-                        getJSONObject("zaaktype")
-                            .getString("uuid") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID.toString()
+                        getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID.toString()
                         getJSONObject("status").getString("naam") shouldBe "Intake"
                         getJSONObject("groep").getString("id") shouldBe "test-group-a"
                         // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
@@ -142,6 +143,8 @@ class NotificationsTest : BehaviorSpec({
                         }
                         getString("initiatorIdentificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
                         getString("initiatorIdentificatieType") shouldBe BETROKKENE_IDENTIFICATION_TYPE_BSN
+                        getString("omschrijving") shouldBe ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
+                        getString("toelichting") shouldBe ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
                         zaakProductaanvraag1Uuid = getString("uuid").let(UUID::fromString)
                     }
                 }
