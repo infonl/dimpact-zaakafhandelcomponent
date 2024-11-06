@@ -1,4 +1,6 @@
+import com.diffplug.gradle.spotless.SpotlessExtension
 import com.github.gradle.node.npm.task.NpmTask
+import io.gitlab.arturbosch.detekt.Detekt
 import io.smallrye.openapi.api.OpenApiConfig
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 import java.util.Locale
@@ -81,6 +83,11 @@ val zacDockerImage by extra {
         "ghcr.io/infonl/zaakafhandelcomponent:dev"
     }
 }
+
+val srcGenerated = layout.projectDirectory.dir("src/generated")
+val srcMainResources = layout.projectDirectory.dir("src/main/resources")
+val srcMainApp = layout.projectDirectory.dir("src/main/app")
+val srcE2e = layout.projectDirectory.dir("src/e2e")
 
 sourceSets {
     // create custom integration test source set
@@ -205,26 +212,26 @@ jacoco {
 java {
     // add our generated client code to the main source set
     sourceSets["main"].java
-        .srcDir("$rootDir/src/generated/productaanvraag/java")
-        .srcDir("$rootDir/src/generated/kvk/zoeken/java")
-        .srcDir("$rootDir/src/generated/kvk/basisprofiel/java")
-        .srcDir("$rootDir/src/generated/kvk/vestigingsprofiel/java")
-        .srcDir("$rootDir/src/generated/brp/java")
-        .srcDir("$rootDir/src/generated/bag/java")
-        .srcDir("$rootDir/src/generated/klanten/java")
-        .srcDir("$rootDir/src/generated/zgw/brc/java")
-        .srcDir("$rootDir/src/generated/zgw/drc/java")
-        .srcDir("$rootDir/src/generated/zgw/zrc/java")
-        .srcDir("$rootDir/src/generated/zgw/ztc/java")
-        .srcDir("$rootDir/src/generated/or/objects/java")
-        .srcDir("$rootDir/src/generated/or/objecttypes/java")
+        .srcDir(srcGenerated.dir("productaanvraag/java"))
+        .srcDir(srcGenerated.dir("kvk/zoeken/java"))
+        .srcDir(srcGenerated.dir("kvk/basisprofiel/java"))
+        .srcDir(srcGenerated.dir("kvk/vestigingsprofiel/java"))
+        .srcDir(srcGenerated.dir("brp/java"))
+        .srcDir(srcGenerated.dir("bag/java"))
+        .srcDir(srcGenerated.dir("klanten/java"))
+        .srcDir(srcGenerated.dir("zgw/brc/java"))
+        .srcDir(srcGenerated.dir("zgw/drc/java"))
+        .srcDir(srcGenerated.dir("zgw/zrc/java"))
+        .srcDir(srcGenerated.dir("zgw/ztc/java"))
+        .srcDir(srcGenerated.dir("or/objects/java"))
+        .srcDir(srcGenerated.dir("or/objecttypes/java"))
 }
 
 jsonSchema2Pojo {
     // generates Java model files for the "productaanvraag" JSON schema(s)
-    setSource(files("$rootDir/src/main/resources/json-schemas/productaanvraag"))
+    setSource(srcMainResources.dir("json-schemas/productaanvraag").asFileTree)
     setSourceType("jsonschema")
-    targetDirectory = file("$rootDir/src/generated/productaanvraag/java")
+    targetDirectory = srcGenerated.dir("productaanvraag/java").asFile
     targetPackage = "net.atos.zac.productaanvraag.model.generated"
     setAnnotationStyle("JSONB2")
     dateType = "java.time.LocalDate"
@@ -247,7 +254,7 @@ node {
     download.set(true)
     version.set(libs.versions.nodejs.get())
     distBaseUrl.set("https://nodejs.org/dist")
-    nodeProjectDir.set(file("$rootDir/src/main/app"))
+    nodeProjectDir.set(srcMainApp.asFile)
     if (System.getenv("CI") != null) {
         npmInstallCommand.set("ci")
     } else {
@@ -268,7 +275,7 @@ swaggerSources {
     }
 }
 
-configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+configure<SpotlessExtension> {
     format("misc") {
         target(".gitattributes", ".gitignore", ".containerignore", ".dockerignore")
 
@@ -371,15 +378,15 @@ tasks {
     clean {
         dependsOn("mavenClean")
 
-        delete("$rootDir/src/main/app/dist")
-        delete("$rootDir/src/main/app/reports")
-        delete("$rootDir/src/main/app/coverage")
-        delete("$rootDir/src/generated")
-        delete("$rootDir/src/e2e/reports")
+        delete(srcMainApp.dir("dist"))
+        delete(srcMainApp.dir("reports"))
+        delete(srcMainApp.dir("src/generated"))
+        delete(srcMainApp.dir("coverage"))
+        delete(srcGenerated)
+        delete(srcE2e.dir("reports"))
     }
 
     build {
-
         dependsOn("generateWildflyBootableJar")
     }
 
@@ -410,12 +417,12 @@ tasks {
         exclude("wildfly/**")
     }
 
-    register<io.gitlab.arturbosch.detekt.Detekt>("detektApply") {
+    register<Detekt>("detektApply") {
         description = "Apply detekt fixes."
         autoCorrect = true
         ignoreFailures = true
     }
-    withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+    withType<Detekt>().configureEach {
         config.setFrom("$rootDir/config/detekt.yml")
         setSource(files("src/main/kotlin", "src/test/kotlin", "src/itest/kotlin", "build.gradle.kts"))
         // our Detekt configuration build builds upon the default configuration
@@ -669,7 +676,7 @@ tasks {
         rename {
             "org.jacoco.agent-runtime.jar"
         }
-        into("$rootDir/build/jacoco/itest/jacoco-agent")
+        into(layout.buildDirectory.dir("jacoco/itest/jacoco-agent"))
     }
 
     register<Test>("itest") {
@@ -686,8 +693,9 @@ tasks {
         dependsOn("itest")
 
         description = "Generates code coverage report for the integration tests"
-        inputs.files("$rootDir/build/jacoco/itest/jacoco-report/jacoco-it.exec")
-        executionData.setFrom("$rootDir/build/jacoco/itest/jacoco-report/jacoco-it.exec")
+        val resultFile = layout.buildDirectory.file("jacoco/itest/jacoco-report/jacoco-it.exec").orNull
+        inputs.files(resultFile)
+        executionData.setFrom(resultFile)
         // tell JaCoCo to report on our code base
         sourceSets(sourceSets["main"])
         reports {
@@ -696,19 +704,20 @@ tasks {
         }
         // do not use the Gradle build cache for this task
         outputs.cacheIf { false }
-        outputs.dir("$rootDir/build/reports/jacoco/jacocoIntegrationTestReport")
+        outputs.dir(layout.buildDirectory.dir("reports/jacoco/jacocoIntegrationTestReport"))
     }
 
     register<Maven>("generateWildflyBootableJar") {
         dependsOn("war")
         execGoal("wildfly-jar:package")
 
-        inputs.files(fileTree("$rootDir/src/main/resources/wildfly"))
-        inputs.file("$rootDir/build/libs/zaakafhandelcomponent.war")
-        inputs.file("$rootDir/pom.xml")
-        inputs.file("$rootDir/src/main/resources/wildfly/configure-wildfly.cli")
-        inputs.file("$rootDir/src/main/resources/wildfly/deploy-zaakafhandelcomponent.cli")
-        outputs.dir("$rootDir/target")
+        val wildflyResources = srcMainResources.dir("wildfly")
+        inputs.files(wildflyResources.asFileTree)
+        inputs.file(layout.buildDirectory.file("libs/zaakafhandelcomponent.war"))
+        inputs.file(layout.projectDirectory.file("pom.xml"))
+        inputs.file(wildflyResources.file("configure-wildfly.cli"))
+        inputs.file(wildflyResources.file("deploy-zaakafhandelcomponent.cli"))
+        outputs.dir(layout.projectDirectory.dir("target"))
     }
 
     register<Maven>("mavenClean") {
@@ -717,7 +726,7 @@ tasks {
 }
 
 abstract class Maven : Exec() {
-    // Simple function to invoke a maven goal, dependent on the os, with optional
+    // Simple function to invoke a maven goal, dependent on the os, with optional arguments
     fun execGoal(goal: String, vararg args: String) = commandLine(
         if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
             "./mvnw.cmd"
