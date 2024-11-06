@@ -23,7 +23,6 @@ import nl.lifely.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANV
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_2_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
-import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_1_BRON_KENMERK
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_2_BRON_KENMERK
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
@@ -134,8 +133,8 @@ class NotificationsTest : BehaviorSpec({
                         // since we have defined zaakafhandelparameters for this zaaktype a CMMN proces should be started
                         getBoolean("isProcesGestuurd") shouldBe false
                         getString("communicatiekanaal") shouldBe "E-formulier"
-                        getString("omschrijving") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
-                            "met kenmerk '$OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_1_BRON_KENMERK'"
+                        getString("omschrijving") shouldBe ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
+                        getString("toelichting") shouldBe ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
                         getString("uiterlijkeEinddatumAfdoening") shouldBe ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
                         with(getJSONObject("zaakgeometrie").getJSONObject("point")) {
                             getBigDecimal("latitude") shouldBe PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE.toBigDecimal()
@@ -143,8 +142,6 @@ class NotificationsTest : BehaviorSpec({
                         }
                         getString("initiatorIdentificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
                         getString("initiatorIdentificatieType") shouldBe BETROKKENE_IDENTIFICATION_TYPE_BSN
-                        getString("omschrijving") shouldBe ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
-                        getString("toelichting") shouldBe ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
                         zaakProductaanvraag1Uuid = getString("uuid").let(UUID::fromString)
                     }
                 }
