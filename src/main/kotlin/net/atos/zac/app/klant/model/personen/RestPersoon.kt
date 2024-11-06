@@ -77,17 +77,26 @@ fun Persoon.toRestPersoon() = RestPersoon(
     verblijfplaats = this.verblijfplaats?.toStringRepresentation(),
     naam = this.naam?.volledigeNaam,
 ).apply {
-    when {
-        inOnderzoek != null -> indicaties.add(RestPersoonIndicaties.IN_ONDERZOEK)
-        geheimhoudingPersoonsgegevens != null -> indicaties.add(RestPersoonIndicaties.GEHEIMHOUDING_OP_PERSOONSGEGEVENS)
-        // "Voor overleden personen wordt altijd het opschortingBijhouding veld geleverd met reden code ‘O’ en
-        // omschrijving ‘overlijden’. Zie de overlijden overzicht feature voor meer informatie over dit veld."
-        // https://brp-api.github.io/Haal-Centraal-BRP-bevragen/v2/features-overzicht
-        opschortingBijhouding?.reden?.omschrijving == OVERLIJDEN_OMSCHRIJVING ->
-            indicaties.add(RestPersoonIndicaties.OVERLEDEN)
-        opschortingBijhouding != null -> indicaties.add(RestPersoonIndicaties.OPSCHORTING_BIJHOUDING)
-        rni.size != 0 -> indicaties.add(RestPersoonIndicaties.NIET_INGEZETENE)
-        indicatieCurateleRegister -> indicaties.add(RestPersoonIndicaties.ONDER_CURATELE)
+    if (inOnderzoek != null) {
+        indicaties.add(RestPersoonIndicaties.IN_ONDERZOEK)
+    }
+    if (geheimhoudingPersoonsgegevens) {
+        indicaties.add(RestPersoonIndicaties.GEHEIMHOUDING_OP_PERSOONSGEGEVENS)
+    }
+    // "Voor overleden personen wordt altijd het opschortingBijhouding veld geleverd met reden code ‘O’ en
+    // omschrijving ‘overlijden’. Zie de overlijden overzicht feature voor meer informatie over dit veld."
+    // https://brp-api.github.io/Haal-Centraal-BRP-bevragen/v2/features-overzicht
+    if (opschortingBijhouding?.reden?.omschrijving == OVERLIJDEN_OMSCHRIJVING) {
+        indicaties.add(RestPersoonIndicaties.OVERLEDEN)
+    }
+    if (opschortingBijhouding != null) {
+        indicaties.add(RestPersoonIndicaties.OPSCHORTING_BIJHOUDING)
+    }
+    if (rni?.isNotEmpty() == true) {
+        indicaties.add(RestPersoonIndicaties.NIET_INGEZETENE)
+    }
+    if (indicatieCurateleRegister) {
+        indicaties.add(RestPersoonIndicaties.ONDER_CURATELE)
     }
 }
 
@@ -105,16 +114,23 @@ fun PersoonBeperkt.toRestPerson() = RestPersoon(
         )
     },
 ).apply {
-    when {
-        inOnderzoek != null -> indicaties.add(RestPersoonIndicaties.IN_ONDERZOEK)
-        geheimhoudingPersoonsgegevens != null -> indicaties.add(RestPersoonIndicaties.GEHEIMHOUDING_OP_PERSOONSGEGEVENS)
-        // "Voor overleden personen wordt altijd het opschortingBijhouding veld geleverd met reden code ‘O’ en
-        // omschrijving ‘overlijden’. Zie de overlijden overzicht feature voor meer informatie over dit veld."
-        // https://brp-api.github.io/Haal-Centraal-BRP-bevragen/v2/features-overzicht
-        opschortingBijhouding?.reden?.omschrijving == OVERLIJDEN_OMSCHRIJVING ->
-            indicaties.add(RestPersoonIndicaties.OVERLEDEN)
-        opschortingBijhouding != null -> indicaties.add(RestPersoonIndicaties.OPSCHORTING_BIJHOUDING)
-        rni.size != 0 -> indicaties.add(RestPersoonIndicaties.NIET_INGEZETENE)
+    if (inOnderzoek != null) {
+        indicaties.add(RestPersoonIndicaties.IN_ONDERZOEK)
+    }
+    if (geheimhoudingPersoonsgegevens) {
+        indicaties.add(RestPersoonIndicaties.GEHEIMHOUDING_OP_PERSOONSGEGEVENS)
+    }
+    // "Voor overleden personen wordt altijd het opschortingBijhouding veld geleverd met reden code ‘O’ en
+    // omschrijving ‘overlijden’. Zie de overlijden overzicht feature voor meer informatie over dit veld."
+    // https://brp-api.github.io/Haal-Centraal-BRP-bevragen/v2/features-overzicht
+    if (opschortingBijhouding?.reden?.omschrijving == OVERLIJDEN_OMSCHRIJVING) {
+        indicaties.add(RestPersoonIndicaties.OVERLEDEN)
+    }
+    if (opschortingBijhouding != null) {
+        indicaties.add(RestPersoonIndicaties.OPSCHORTING_BIJHOUDING)
+    }
+    if (rni?.isNotEmpty() == true) {
+        indicaties.add(RestPersoonIndicaties.NIET_INGEZETENE)
     }
 }
 
