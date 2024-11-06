@@ -97,6 +97,7 @@ class KlantRestServiceTest : BehaviorSpec({
                       "geslacht": "$TEST_PERSON_HENDRIKA_JANSE_GENDER",
                       "identificatie": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
                       "identificatieType": "BSN",
+                      "indicaties": [ "OPSCHORTING_BIJHOUDING" ],
                       "naam": "$TEST_PERSON_HENDRIKA_JANSE_FULLNAME",
                       "telefoonnummer": "$TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER",
                       "verblijfplaats": "$TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE"

@@ -80,7 +80,7 @@ fun Persoon.toRestPersoon() = RestPersoon(
     if (inOnderzoek != null) {
         indicaties.add(RestPersoonIndicaties.IN_ONDERZOEK)
     }
-    if (geheimhoudingPersoonsgegevens) {
+    if (geheimhoudingPersoonsgegevens == true) {
         indicaties.add(RestPersoonIndicaties.GEHEIMHOUDING_OP_PERSOONSGEGEVENS)
     }
     // "Voor overleden personen wordt altijd het opschortingBijhouding veld geleverd met reden code ‘O’ en
@@ -95,7 +95,7 @@ fun Persoon.toRestPersoon() = RestPersoon(
     if (rni?.isNotEmpty() == true) {
         indicaties.add(RestPersoonIndicaties.NIET_INGEZETENE)
     }
-    if (indicatieCurateleRegister) {
+    if (indicatieCurateleRegister == true) {
         indicaties.add(RestPersoonIndicaties.ONDER_CURATELE)
     }
 }
@@ -117,7 +117,7 @@ fun PersoonBeperkt.toRestPerson() = RestPersoon(
     if (inOnderzoek != null) {
         indicaties.add(RestPersoonIndicaties.IN_ONDERZOEK)
     }
-    if (geheimhoudingPersoonsgegevens) {
+    if (geheimhoudingPersoonsgegevens == true) {
         indicaties.add(RestPersoonIndicaties.GEHEIMHOUDING_OP_PERSOONSGEGEVENS)
     }
     // "Voor overleden personen wordt altijd het opschortingBijhouding veld geleverd met reden code ‘O’ en
