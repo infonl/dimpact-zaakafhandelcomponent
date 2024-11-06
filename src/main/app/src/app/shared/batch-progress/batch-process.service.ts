@@ -4,17 +4,26 @@ import { ObjectType } from "src/app/core/websocket/model/object-type";
 import { Opcode } from "src/app/core/websocket/model/opcode";
 import { WebsocketListener } from "src/app/core/websocket/model/websocket-listener";
 import { WebsocketService } from "src/app/core/websocket/websocket.service";
+import { ScreenEvent } from "../../core/websocket/model/screen-event";
 
 type SubscriptionType = {
   opcode: Opcode;
   objectType: ObjectType;
 };
 
+const DEFAULT_PROCESS_TIMEOUT_IN_MS = 1000 * 30;
+
+type ProcessTimeout = {
+  durationInMs?: number;
+  onTimeout: () => void;
+};
+
 type Options = {
   ids: string[];
   progressSubscription: SubscriptionType & {
-    onNotification?: (id: string) => void;
+    onNotification?: (id: string, event: ScreenEvent) => void;
   };
+  processTimeout?: ProcessTimeout;
   finalSubscription?: SubscriptionType & { screenEventResourceId: string };
   finally: () => void | Promise<void>;
 };
@@ -33,6 +42,7 @@ export class BatchProcessService {
   });
   private subscriptions: WebsocketListener[] = [];
   private options: Options;
+  private timeout?: ReturnType<typeof setTimeout>;
 
   constructor(
     private websocketService: WebsocketService,
@@ -54,13 +64,14 @@ export class BatchProcessService {
         options.progressSubscription.opcode,
         options.progressSubscription.objectType,
         id,
-        () => {
+        (event) => {
+          this.clearAndSetTimeout(options.processTimeout);
           this.removeSubscription(subscription);
           this.state.update((state) => ({
             ...state,
             [id]: true,
           }));
-          options.progressSubscription.onNotification?.(id);
+          options.progressSubscription.onNotification?.(id, event);
         },
       );
       return subscription;
@@ -75,6 +86,7 @@ export class BatchProcessService {
       );
       this.subscriptions.push(finalSubscription);
     }
+    this.clearAndSetTimeout(options.processTimeout);
   }
 
   showProgress(message: string) {
@@ -101,9 +113,20 @@ export class BatchProcessService {
     this.subscriptions = [];
   }
 
+  private clearAndSetTimeout(options?: ProcessTimeout) {
+    clearTimeout(this.timeout);
+
+    if (!options) return;
+
+    this.timeout = setTimeout(() => {
+      options.onTimeout();
+      Promise.resolve(this.options.finally()).finally(() => this.stop());
+    }, options.durationInMs ?? DEFAULT_PROCESS_TIMEOUT_IN_MS);
+  }
+
   private removeSubscription(subscription: WebsocketListener) {
     const i = this.subscriptions.indexOf(subscription);
-    i !== -1 && this.subscriptions.splice(i, 1);
+    if (i !== -1) this.subscriptions.splice(i, 1);
     this.websocketService.removeListener(subscription);
   }
 }
