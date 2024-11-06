@@ -59,7 +59,7 @@ fun createZaakZoekObject(
     behandelaarGebruikersnaam: String = "dummyBehandelaarGebruikersnaam"
 ) = ZaakZoekObject().apply {
     this.uuid = uuid.toString()
-    this.type = type
+    this.setType(type)
     this.behandelaarGebruikersnaam = behandelaarGebruikersnaam
 }
 

@@ -5,8 +5,6 @@
 name: "CodeQL"
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
     # ignore code analysis when only Markdown files have changed
@@ -60,3 +58,21 @@ jobs:
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{matrix.language}}"
+
+  check_codeql_status:
+    name: Check CodeQL Status
+    needs:
+      - analyze
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: read
+      pull-requests: read
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - name: Check CodeQL Status
+        uses: eldrick19/code-scanning-status-checker@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pr_number: ${{ github.event.pull_request.number }}
+          repo: ${{ github.repository }}

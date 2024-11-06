@@ -1,5 +1,59 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base"],
-  "enabledManagers": ["docker-compose","maven-wrapper","gradle-wrapper"]
+  "extends": [
+    "config:base",
+    ":separateMultipleMajorReleases",
+    ":automergeDigest",
+    "docker:pinDigests",
+    "docker:enableMajor"
+  ],
+  "enabledManagers": [
+    "docker-compose",
+    "maven-wrapper",
+    "gradle-wrapper"
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["digest"],
+      "schedule": ["every weekend on the 1st through 7th day of the month"]
+    },
+    {
+      "matchPackageNames": ["quay.io/keycloak/keycloak"],
+      "matchDatasources": ["docker"],
+      "allowedVersions": "<= 24.0.5",
+      "description": "We currently focus on Dimpact PodiumD release 2.0 which pins this package to this version"
+    },
+    {
+      "matchPackageNames": ["maykinmedia/objects-api"],
+      "matchDatasources": ["docker"],
+      "allowedVersions": "<= 2.4.4",
+      "description": "We currently focus on Dimpact PodiumD release 2.0 which pins this package to this version"
+    },
+    {
+      "matchPackageNames": ["maykinmedia/objecttypes-api"],
+      "matchDatasources": ["docker"],
+      "allowedVersions": "<= 2.2.2",
+      "description": "We currently focus on Dimpact PodiumD release 2.0 which pins this package to this version"
+    },
+    {
+      "matchPackageNames": ["maykinmedia/open-klant"],
+      "matchDatasources": ["docker"],
+      "allowedVersions": "<= 2.3.0",
+      "description": "We currently focus on Dimpact PodiumD release 2.0 which pins this package to this version"
+    },
+    {
+      "matchPackageNames": ["openzaak/open-zaak"],
+      "matchDatasources": ["docker"],
+      "allowedVersions": "<= 1.15.0",
+      "description": "We currently focus on Dimpact PodiumD release 2.0 which pins this package to this version"
+    },
+    {
+      "matchPackageNames": ["ghcr.io/infonl/zaakafhandelcomponent"],
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["digest","pin","pinDigest"],
+      "enabled": false,
+      "description": "The version of the ZAC Docker image in our Docker Compose file is set to 'latest' and is only used for local development"
+    }
+  ]
 }

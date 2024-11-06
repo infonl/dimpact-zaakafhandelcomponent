@@ -5,8 +5,10 @@
 
 import { Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import moment from "moment/moment";
+import moment, { Moment } from "moment/moment";
 import { Observable, of, Subject } from "rxjs";
+import { MessageFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/message/message-form-field-builder";
+import { MessageLevel } from "src/app/shared/material-form-builder/form-components/message/message-level.enum";
 import { Mail } from "../../../admin/model/mail";
 import { Mailtemplate } from "../../../admin/model/mailtemplate";
 import { ZaakAfzender } from "../../../admin/model/zaakafzender";
@@ -65,7 +67,7 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
     super(translate, informatieObjectenService);
   }
 
-  private opschortenMogelijk(): boolean {
+  private isZaakSuspendable(): boolean {
     return (
       this.zaak.zaaktype.opschortingMogelijk &&
       !this.zaak.redenOpschorting &&
@@ -76,10 +78,12 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
 
   _initStartForm() {
     this.humanTaskData.taakStuurGegevens.sendMail = true;
+
     this.mailtemplate$ = this.mailtemplateService.findMailtemplate(
       Mail.TAAK_AANVULLENDE_INFORMATIE,
       this.zaak.uuid,
     );
+
     this.humanTaskData.taakStuurGegevens.mail =
       Mail.TAAK_AANVULLENDE_INFORMATIE;
     const zoekparameters = new InformatieobjectZoekParameters();
@@ -88,21 +92,9 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
       this.informatieObjectenService.listEnkelvoudigInformatieobjecten(
         zoekparameters,
       );
-    const morgen = new Date();
-    morgen.setDate(morgen.getDate() + 1);
-    const fataledatumZaak =
-      this.zaak.uiterlijkeEinddatumAfdoening &&
-      new Date(this.zaak.uiterlijkeEinddatumAfdoening);
-    let fataleDatumBuilder = new DateFormFieldBuilder(
-      this.humanTaskData.fataledatum,
-    )
-      .id(AbstractTaakFormulier.TAAK_FATALEDATUM)
-      .minDate(morgen)
-      .label("fataledatum")
-      .showDays();
-    if (fataledatumZaak) {
-      fataleDatumBuilder = fataleDatumBuilder.maxDate(fataledatumZaak);
-    }
+
+    const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1));
+
     const fields = this.fields;
     this.form.push(
       [
@@ -141,7 +133,21 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
           .openInNieuweTab()
           .build(),
       ],
-      [fataleDatumBuilder.build()],
+      [
+        new DateFormFieldBuilder(this.humanTaskData.fataledatum)
+          .id(AbstractTaakFormulier.TAAK_FATALEDATUM)
+          .minDate(tomorrow)
+          .label("fataledatum")
+          .showDays()
+          .build(),
+      ],
+      [
+        new MessageFormFieldBuilder()
+          .id("messageField")
+          .text(this.getMessageFieldLabel(this.humanTaskData.fataledatum))
+          .level(MessageLevel.INFO)
+          .build(),
+      ],
     );
 
     this.zakenService
@@ -163,7 +169,7 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
       },
     );
 
-    if (this.opschortenMogelijk()) {
+    if (this.isZaakSuspendable()) {
       this.form.push([
         new CheckboxFormFieldBuilder()
           .id(fields.ZAAK_OPSCHORTEN)
@@ -203,6 +209,36 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
           }
         });
     }
+
+    this.getFormField(
+      AbstractTaakFormulier.TAAK_FATALEDATUM,
+    ).formControl.valueChanges.subscribe((selectedMoment) => {
+      this.getFormField("messageField").label =
+        this.getMessageFieldLabel(selectedMoment);
+    });
+  }
+
+  private getMessageFieldLabel(
+    humanTaskDataFatalDate: string | Moment,
+  ): string {
+    const fatalZaakDate =
+      this.zaak.uiterlijkeEinddatumAfdoening &&
+      moment(this.zaak.uiterlijkeEinddatumAfdoening);
+    const suspendedTextSuffix = this.isZaakSuspendable() ? "" : ".opgeschort";
+
+    if (!fatalZaakDate) {
+      return `msg.taak.aanvullendeInformatie.fataleDatumZaak.leeg`;
+    }
+
+    if (!humanTaskDataFatalDate) {
+      return `msg.taak.aanvullendeInformatie.fataleDatumTaak.overig${suspendedTextSuffix}`;
+    }
+
+    if (moment(humanTaskDataFatalDate).isAfter(fatalZaakDate)) {
+      return `msg.taak.aanvullendeInformatie.fataleDatumTaak.overschreden${suspendedTextSuffix}`;
+    }
+
+    return `msg.taak.aanvullendeInformatie.fataleDatumTaak.overig${suspendedTextSuffix}`;
   }
 
   _initBehandelForm() {

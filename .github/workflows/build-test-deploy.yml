@@ -347,7 +347,7 @@ jobs:
     needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version]
     runs-on: ubuntu-22.04
     timeout-minutes: 30
-    if: github.ref == 'refs/heads/main'
+    if: ${{ github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'update ghcr.io/infonl/zaakafhandelcomponent docker tag') }}
     env:
       ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
       NEXT_VERSION: ${{ needs.next-version.outputs.version }}

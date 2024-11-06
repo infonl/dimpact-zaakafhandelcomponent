@@ -12,4 +12,5 @@ export enum Opcode {
   UPDATED = "UPDATED",
   DELETED = "DELETED",
   ANY = "ANY",
+  SKIPPED = "SKIPPED",
 }

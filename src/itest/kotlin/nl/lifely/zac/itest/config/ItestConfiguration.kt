@@ -25,6 +25,7 @@ object ItestConfiguration {
     const val HTTP_STATUS_SEE_OTHER = 303
     const val HTTP_STATUS_BAD_REQUEST = 400
     const val HTTP_STATUS_FORBIDDEN = 403
+    const val HTTP_STATUS_NOT_FOUND = 404
 
     /**
      * Temporarily increase the HTTP read timeout to 60 seconds to allow for
@@ -90,6 +91,7 @@ object ItestConfiguration {
     const val SCREEN_EVENT_TYPE_ZAKEN_SIGNALERINGEN = "ZAKEN_SIGNALERINGEN"
     const val SCREEN_EVENT_TYPE_ZAKEN_VERDELEN = "ZAKEN_VERDELEN"
     const val SCREEN_EVENT_TYPE_ZAKEN_VRIJGEVEN = "ZAKEN_VRIJGEVEN"
+    const val SCREEN_EVENT_TYPE_ZAAK_ROLLEN = "ZAAK_ROLLEN"
 
     const val TEST_GEMEENTE_EMAIL_ADDRESS = "gemeente-zac-test@example.com"
 
@@ -101,11 +103,11 @@ object ItestConfiguration {
     const val TEST_PERSON_HENDRIKA_JANSE_BSN = "999993896"
     const val TEST_PERSON_HENDRIKA_JANSE_EMAIL = "hendrika.janse@example.com"
     const val TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE = "1965-01-01"
-    const val TEST_PERSON_HENDRIKA_JANSE_GENDER = "V"
+    const val TEST_PERSON_HENDRIKA_JANSE_GENDER = "vrouw"
     const val TEST_PERSON_HENDRIKA_JANSE_FULLNAME = "Héndrika Janse"
     const val TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER = "0612345678"
     const val TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE =
-        "Street ¦ 38 & House ¦ 10, Baghdad, Park Al-Sadoum, Hay Al-Nidhal 103"
+        "Street # 38 & House # 10, Baghdad, Park Al-Sadoum, Hay Al-Nidhal 103"
     const val TEST_PERSON_2_BSN = "999992958"
     const val TEST_PERSON_3_BSN = "999991838"
     const val TEST_PDF_FILE_NAME = "dummyTestDocument.pdf"
@@ -119,6 +121,7 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 3
     const val TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED = 4
     const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 5
+    const val TEST_SPEC_ORDER_LAST = 6
     const val TEST_USER_1_USERNAME = "testuser1"
     const val TEST_USER_1_PASSWORD = "testuser1"
     const val TEST_USER_1_EMAIL = "testuser1@example.com"
@@ -201,6 +204,8 @@ object ItestConfiguration {
     const val SMTP_SERVER_PORT = 25
     const val VERANTWOORDELIJKE_ORGANISATIE = "316245124"
     const val VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING"
+    const val ZAAK_DESCRIPTION_1 = "dummyDescription"
+    const val ZAAK_DESCRIPTION_2 = "dummyOmschrijving"
 
     /**
      * First zaak created from a productaanvraag.
@@ -217,6 +222,8 @@ object ItestConfiguration {
      * 'ZAAK-YYYY-SEQUENCE_NUMBER' where the year is taken from the start date of the zaak.
      */
     const val ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION = "ZAAK-1999-0000000001"
+    const val ZAAK_PRODUCTAANVRAAG_2_START_DATE = "1999-01-01"
+    const val ZAAK_PRODUCTAANVRAAG_2_UITERLIJKE_EINDDATUM_AFDOENING = "1999-01-15"
 
     /**
      * First 'manually' created zaak using the ZAC API.
@@ -279,7 +286,14 @@ object ItestConfiguration {
     val DATE_2023_09_21: LocalDate = LocalDate.of(2023, Month.SEPTEMBER, 21)
 
     @Suppress("MagicNumber")
+    val DATE_2024_01_01: LocalDate = LocalDate.of(2024, Month.JANUARY, 1)
+
+    @Suppress("MagicNumber")
+    val DATE_2024_01_31: LocalDate = LocalDate.of(2024, Month.JANUARY, 31)
+
     val DATE_TIME_2020_01_01: ZonedDateTime = DATE_2020_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
+    val DATE_TIME_2024_01_01: ZonedDateTime = DATE_2024_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
+
     val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
     val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID: UUID =
         UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
@@ -312,4 +326,6 @@ object ItestConfiguration {
      * Global variable to store the UUID of an uploaded file in the integration tests.
      */
     lateinit var enkelvoudigInformatieObjectUUID: String
+
+    lateinit var zaakProductaanvraag1Betrokkene1Uuid: UUID
 }

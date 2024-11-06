@@ -64,12 +64,15 @@ fun createOrganisatorischeEenheid(
 }
 
 fun createResultaat(
-    url: URI = URI("http://example.com/${UUID.randomUUID()}"),
-    uuid: UUID = UUID.randomUUID()
+    url: URI = URI("http://example.com/resultaat/${UUID.randomUUID()}"),
+    uuid: UUID = UUID.randomUUID(),
+    resultaatTypeURI: URI = URI("http://example.com/resultaattype/${UUID.randomUUID()}")
 ) = Resultaat(
     url,
     uuid
-)
+).apply {
+    resultaattype = resultaatTypeURI
+}
 
 fun createRolMedewerker(
     zaak: URI = URI("https://example.com/${UUID.randomUUID()}"),

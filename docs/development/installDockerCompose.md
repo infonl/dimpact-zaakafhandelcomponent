@@ -31,28 +31,7 @@ From the root folder of this repository execute the following command:
 This will run Docker Compose (using `docker compose up -d`) and uses the 1Password CLI extensions
 to retrieve certain environment variables from 1Password.
 
-The following services will be started:
-
-| Service                                         | Mapped port |
-| ----------------------------------------------- | :---------: |
-| BRP Proxy                                       |    5001     |
-| GBA Mock                                        |    5010     |
-| Keycloak                                        |    8081     |
-| Keycloak database (postgres)                    |      -      |
-| Office Converter                                |    8083     |
-| Open Klant                                      |    8002     |
-| Open Zaak                                       |    8001     |
-| Open Zaak database (postgis)                    |      -      |
-| Objecten API                                    |    8010     |
-| Objecten API database (postgis)                 |      -      |
-| Objecttypen API                                 |    8011     |
-| Objecttypen API database (postgres)             |      -      |
-| Redis                                           |      -      |
-| Solr                                            |    8983     |
-| Open Policy Agent                               |    8181     |
-| OpenLDAP                                        |      -      |
-| ZAC database (postgres)                         |    54320    |
-
+Please see the [Docker Compose](../../docker-compose.yaml) file for the services that will be started.
 Note that it may take a while for all services to start up completely.
 You can check the logs of the various Docker containers if you want to see the status.
 

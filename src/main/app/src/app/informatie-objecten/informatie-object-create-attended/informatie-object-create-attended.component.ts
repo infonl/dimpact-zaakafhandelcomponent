@@ -130,9 +130,9 @@ export class InformatieObjectCreateAttendedComponent
       .validators(Validators.required)
       .build();
 
-    const auteur = new InputFormFieldBuilder(this.ingelogdeMedewerker.naam)
-      .id("auteur")
-      .label("auteur")
+    const author = new InputFormFieldBuilder(this.ingelogdeMedewerker.naam)
+      .id("author")
+      .label("author")
       .validators(Validators.required, Validators.pattern("\\S.*"))
       .maxlength(50)
       .build();
@@ -143,7 +143,7 @@ export class InformatieObjectCreateAttendedComponent
       [description],
       [informationObjectType, confidentiality],
       [beginRegistratie],
-      [auteur],
+      [author],
     ];
 
     this.subscriptions$.push(
@@ -200,12 +200,6 @@ export class InformatieObjectCreateAttendedComponent
     }
   }
 
-  ngOnDestroy(): void {
-    for (const subscription of this.subscriptions$) {
-      subscription.unsubscribe();
-    }
-  }
-
   onFormSubmit(formGroup: FormGroup): void {
     if (formGroup) {
       const documentCreateData = new DocumentCreationData();
@@ -238,10 +232,11 @@ export class InformatieObjectCreateAttendedComponent
         .subscribe((documentCreatieResponse) => {
           if (documentCreatieResponse.redirectURL) {
             window.open(documentCreatieResponse.redirectURL);
-            this.sideNav.close();
             this.document.emit(documentCreateData);
-            this.form.reset();
-            this.sideNav.close();
+            //
+            // On the above emit, the parent closes (and destroys) the sidebar and so this form.
+            // The form gets reloaded/remounted again upon opening the sidebar, and so having this form in a nice pristine state.
+            // Explicitly resetting the form is not needed.
           } else {
             this.dialog.open(NotificationDialogComponent, {
               data: new NotificationDialogData(documentCreatieResponse.message),
@@ -257,5 +252,11 @@ export class InformatieObjectCreateAttendedComponent
     this.identityService.readLoggedInUser().subscribe((ingelogdeMedewerker) => {
       this.ingelogdeMedewerker = ingelogdeMedewerker;
     });
+  }
+
+  ngOnDestroy(): void {
+    for (const subscription of this.subscriptions$) {
+      subscription.unsubscribe();
+    }
   }
 }

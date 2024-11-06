@@ -8,6 +8,7 @@ import {
   EventEmitter,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   Output,
   SimpleChanges,
@@ -15,6 +16,10 @@ import {
 } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
+import { TranslateService } from "@ngx-translate/core";
+import { Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
+import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
 import { UtilService } from "../../core/service/util.service";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
@@ -25,7 +30,6 @@ import { AbstractFormField } from "../../shared/material-form-builder/model/abst
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { Zaak } from "../../zaken/model/zaak";
-import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { DocumentVerzendGegevens } from "../model/document-verzend-gegevens";
 
@@ -34,19 +38,22 @@ import { DocumentVerzendGegevens } from "../model/document-verzend-gegevens";
   templateUrl: "./informatie-object-verzenden.component.html",
   styleUrls: ["./informatie-object-verzenden.component.less"],
 })
-export class InformatieObjectVerzendenComponent implements OnInit, OnChanges {
+export class InformatieObjectVerzendenComponent
+  implements OnInit, OnChanges, OnDestroy
+{
   @Input() zaak: Zaak;
   @Input() sideNav: MatDrawer;
-  @Output() documentVerzonden = new EventEmitter<void>();
+  @Output() documentSent = new EventEmitter<void>();
 
   @ViewChild(FormComponent) form: FormComponent;
 
   fields: Array<AbstractFormField[]>;
   formConfig: FormConfig;
   private documentSelectFormField: DocumentenLijstFormField;
+  private destroy$ = new Subject<void>(); // Subject for handling unsubscription
 
   constructor(
-    private zakenService: ZakenService,
+    private translate: TranslateService,
     private informatieObjectenService: InformatieObjectenService,
     public utilService: UtilService,
   ) {}
@@ -69,6 +76,10 @@ export class InformatieObjectVerzendenComponent implements OnInit, OnChanges {
       )
       .build();
 
+    const paragraph = new ParagraphFormFieldBuilder()
+      .text(this.translate.instant("msg.document.verzenden.post.uitleg"))
+      .build();
+
     const verzendDatum = new DateFormFieldBuilder(new Date())
       .id("verzenddatum")
       .validators(Validators.required)
@@ -83,6 +94,7 @@ export class InformatieObjectVerzendenComponent implements OnInit, OnChanges {
       .build();
 
     this.fields = [
+      [paragraph],
       [this.documentSelectFormField],
       [verzendDatum],
       [toelichtingField],
@@ -98,15 +110,35 @@ export class InformatieObjectVerzendenComponent implements OnInit, OnChanges {
         : [];
       gegevens.zaakUuid = this.zaak.uuid;
       gegevens.toelichting = formGroup.controls["toelichting"].value;
-      this.informatieObjectenService.verzenden(gegevens).subscribe(() => {
-        this.utilService.openSnackbar(
-          gegevens.informatieobjecten.length > 1
-            ? "msg.documenten.verzenden.uitgevoerd"
-            : "msg.document.verzenden.uitgevoerd",
-        );
-        this.documentVerzonden.emit();
-        this.sideNav.close();
-      });
+
+      this.informatieObjectenService
+        .verzenden(gegevens)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          this.utilService.openSnackbar(
+            gegevens.informatieobjecten.length > 1
+              ? "msg.documenten.verzenden.uitgevoerd"
+              : "msg.document.verzenden.uitgevoerd",
+          );
+          this.documentSent.emit();
+          //
+          // On the above emit, the parent closes (and destroys) the sidebar and so this form.
+          // The form gets reloaded/remounted again upon opening the sidebar, and so having this form in a nice pristine state.
+          // Explicitly resetting the form is not needed.
+          //
+          // To actually do a form reset that suppresses validation errors (for sake of documenting the gained knowledge putting it here):
+          //
+          // this.form.reset();
+          // Object.keys(formGroup.controls).forEach((key) => {
+          //   const control = formGroup.get(key);
+          //   if (control) {
+          //     control.reset();
+          //     control.setErrors(null);
+          //     control.markAsPristine();
+          //     control.markAsUntouched();
+          //   }
+          // });
+        });
     } else {
       this.sideNav.close();
     }
@@ -120,5 +152,11 @@ export class InformatieObjectVerzendenComponent implements OnInit, OnChanges {
         ),
       );
     }
+  }
+
+  ngOnDestroy(): void {
+    // Trigger completion of all subscriptions
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

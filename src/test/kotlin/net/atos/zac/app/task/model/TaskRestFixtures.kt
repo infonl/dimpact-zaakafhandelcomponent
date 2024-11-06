@@ -11,18 +11,21 @@ import net.atos.zac.app.informatieobjecten.model.createRestInformatieobjecttype
 import net.atos.zac.app.zaak.model.createRestUser
 import java.util.UUID
 
+@Suppress("LongParameterList")
 fun createRestTask(
     id: String = "dummyId",
-    zaakUuid: UUID = UUID.randomUUID(),
     behandelaar: RestUser = createRestUser(),
     taakData: MutableMap<String, Any> = emptyMap<String, Any>().toMutableMap(),
-    tabellen: MutableMap<String, List<String>> = emptyMap<String, List<String>>().toMutableMap()
+    tabellen: MutableMap<String, List<String>> = emptyMap<String, List<String>>().toMutableMap(),
+    zaakIdentificatie: String = "dummyZaakIndentificatie",
+    zaakUuid: UUID = UUID.randomUUID()
 ) = RestTask(
     id = id,
-    zaakUuid = zaakUuid,
     behandelaar = behandelaar,
     taakdata = taakData,
-    tabellen = tabellen
+    tabellen = tabellen,
+    zaakIdentificatie = zaakIdentificatie,
+    zaakUuid = zaakUuid
 )
 
 fun createRestTaskDocumentData(

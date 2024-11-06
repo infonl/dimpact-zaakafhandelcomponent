@@ -12,12 +12,14 @@ import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.model.createResultsOfZaakObjecten
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createNatuurlijkPersoon
+import net.atos.client.zgw.zrc.model.createResultaat
 import net.atos.client.zgw.zrc.model.createRolMedewerker
 import net.atos.client.zgw.zrc.model.createRolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakStatus
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.client.zgw.ztc.model.createResultaatType
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createStatusType
 import net.atos.client.zgw.ztc.model.createZaakType
@@ -53,7 +55,12 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
 
     Given("a zaak with betrokkenen, without open tasks, zaak objecten and communication channels") {
         val zaakType = createZaakType()
+        val resultaatType = createResultaatType()
+        val resultaat = createResultaat(
+            resultaatTypeURI = resultaatType.url
+        )
         val zaak = createZaak(
+            resultaat = resultaat.url,
             zaakTypeURI = zaakType.url
         )
         val rolInitiator = createRolNatuurlijkPersoon(
@@ -73,20 +80,25 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         val userBehandelaar = createUser()
         val zaakObjectenList = emptyList<Zaakobject>()
 
+        // combine multiple every calls below into one every call
+
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns Optional.of(rolInitiator)
         every { zrcClientService.listRollen(zaak) } returns rollenZaak
+        every { zrcClientService.listZaakobjecten(any()) } returns createResultsOfZaakObjecten(
+            list = zaakObjectenList,
+            count = zaakObjectenList.size
+        )
+        every { zrcClientService.readResultaat(zaak.resultaat) } returns resultaat
+
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns Optional.of(rolInitiator)
         every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns Optional.of(rolMedewerkerBehandelaar)
         every {
             identityService.readUser(rolMedewerkerBehandelaar.betrokkeneIdentificatie.identificatie)
         } returns userBehandelaar
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every { ztcClientService.readResultaattype(resultaat.resultaattype) } returns resultaatType
         every { flowableTaskService.countOpenTasksForZaak(zaak.uuid) } returns 0
-        every { zrcClientService.listZaakobjecten(any()) } returns createResultsOfZaakObjecten(
-            list = zaakObjectenList,
-            count = zaakObjectenList.size
-        )
 
         When("the zaak is converted to a zaak zoek object") {
             val zaakZoekObject = zaakZoekenObjectConverter.convert(zaak.uuid.toString())
@@ -102,9 +114,8 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                     vertrouwelijkheidaanduiding shouldBe zaak.vertrouwelijkheidaanduiding.name
                     isAfgehandeld shouldBe !zaak.isOpen
                     initiatorIdentificatie shouldBe rolInitiator.identificatienummer
-                    // locatie conversion is not implemented (yet?)
+                    // locatie conversion is not implemented yet
                     locatie shouldBe null
-
                     betrokkenen.size shouldBe rollenZaak.size
                     betrokkenen shouldContain Pair(
                         "zaak_betrokkene_${rolAdviseur.omschrijving}",
@@ -115,6 +126,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                         listOf(rolBelanghebbende.identificatienummer)
                     )
                     zaakIndicaties shouldNotContain ZaakIndicatie.HEROPEND
+                    resultaattypeOmschrijving shouldBe resultaatType.omschrijving
                 }
             }
         }

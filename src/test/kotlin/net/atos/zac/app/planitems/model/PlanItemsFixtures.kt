@@ -16,30 +16,30 @@ fun createRESTHumanTaskData(
     toelichting: String? = null,
     taakdata: Map<String, String>? = null,
     taakStuurGegevens: RESTTaakStuurGegevens = createRESTTaakStuurGegevens()
-) = RESTHumanTaskData().apply {
-    this.planItemInstanceId = planItemInstanceId
-    this.groep = groep
-    this.medewerker = medewerker
-    this.fataledatum = fataledatum
-    this.toelichting = toelichting
-    this.taakdata = taakdata
-    this.taakStuurGegevens = taakStuurGegevens
-}
+) = RESTHumanTaskData(
+    planItemInstanceId = planItemInstanceId,
+    groep = groep,
+    medewerker = medewerker,
+    fataledatum = fataledatum,
+    toelichting = toelichting,
+    taakdata = taakdata,
+    taakStuurGegevens = taakStuurGegevens
+)
 
 fun createRESTTaakStuurGegevens(
     sendMail: Boolean = false,
     mail: String? = null
-) = RESTTaakStuurGegevens().apply {
-    this.sendMail = sendMail
-    this.mail = mail
-}
+) = RESTTaakStuurGegevens(
+    sendMail = sendMail,
+    mail = mail
+)
 
 fun createRESTUserEventListenerData(
     zaakUuid: UUID,
     actie: UserEventListenerActie,
     restMailGegevens: RESTMailGegevens
-) = RESTUserEventListenerData().apply {
-    this.zaakUuid = zaakUuid
-    this.actie = actie
-    this.restMailGegevens = restMailGegevens
-}
+) = RESTUserEventListenerData(
+    zaakUuid = zaakUuid,
+    actie = actie,
+    restMailGegevens = restMailGegevens
+)

@@ -60,28 +60,30 @@ class TaskRestServiceTest : BehaviorSpec({
                 responseBody.shouldBeJsonArray()
                 // the zaak is in the intake phase, so there should be only be one human task
                 // plan item: 'aanvullende informatie'
-                JSONArray(responseBody).length() shouldBe 1
-                with(JSONArray(responseBody)[0].toString()) {
-                    shouldContainJsonKeyValue("naam", HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM)
-                    shouldContainJsonKeyValue(
-                        "formulierDefinitieId",
-                        FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
-                    )
-                    shouldContainJsonKeyValue("status", "NIET_TOEGEKEND")
-                    shouldContainJsonKeyValue("zaakIdentificatie", ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION)
-                    shouldContainJsonKeyValue(
-                        "zaaktypeOmschrijving",
-                        ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
-                    )
-                    shouldContainJsonKeyValue("zaakUuid", zaakProductaanvraag1Uuid.toString())
-                    JSONObject(this,).getJSONObject("groep").apply {
-                        getString("id") shouldBe TEST_GROUP_A_ID
-                        getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
+                JSONArray(responseBody).length() shouldBe 2
+                for (task in JSONArray(responseBody)) {
+                    with(task.toString()) {
+                        shouldContainJsonKeyValue("naam", HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM)
+                        shouldContainJsonKeyValue(
+                            "formulierDefinitieId",
+                            FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
+                        )
+                        shouldContainJsonKeyValue("status", "NIET_TOEGEKEND")
+                        shouldContainJsonKeyValue("zaakIdentificatie", ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION)
+                        shouldContainJsonKeyValue(
+                            "zaaktypeOmschrijving",
+                            ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
+                        )
+                        shouldContainJsonKeyValue("zaakUuid", zaakProductaanvraag1Uuid.toString())
+                        JSONObject(this,).getJSONObject("groep").apply {
+                            getString("id") shouldBe TEST_GROUP_A_ID
+                            getString("naam") shouldBe TEST_GROUP_A_DESCRIPTION
+                        }
+                        shouldContainJsonKey("id")
+                        shouldNotContainJsonKey("toelichting")
                     }
-                    shouldContainJsonKey("id")
-                    shouldNotContainJsonKey("toelichting")
-                    task1ID = JSONObject(this).getString("id")
                 }
+                task1ID = JSONArray(responseBody).getJSONObject(0).getString("id")
             }
         }
         When("the update task endpoint is called") {
