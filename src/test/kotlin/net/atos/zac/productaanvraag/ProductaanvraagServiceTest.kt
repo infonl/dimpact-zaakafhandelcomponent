@@ -114,10 +114,12 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         }
     }
 
-    Given("a productaanvraag-dimpact object registration object") {
+    Given("a productaanvraag-dimpact object registration object with zaakgegevens") {
         val type = "productaanvraag"
         val bron = createBron()
         val zaakIdentificatie = "dummyZaakIdentificatie"
+        val zaakOmschrijving = "dummyOmschrijving"
+        val zaakToelichting = "dummyToelichting"
         val coordinates = listOf(52.08968250760225, 5.114358701512936)
         val orObject = createORObject(
             record = createObjectRecord(
@@ -129,7 +131,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         "geometry" to mapOf(
                             "type" to "Point",
                             "coordinates" to coordinates
-                        )
+                        ),
+                        "omschrijving" to zaakOmschrijving,
+                        "toelichting" to zaakToelichting
                     )
                 )
             )
@@ -151,6 +155,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                             this.type shouldBe Geometry.Type.POINT
                             this.coordinates shouldBe coordinates
                         }
+                        omschrijving shouldBe zaakOmschrijving
+                        toelichting shouldBe zaakToelichting
                     }
                 }
             }
