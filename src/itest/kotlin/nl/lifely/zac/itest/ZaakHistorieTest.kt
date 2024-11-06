@@ -46,7 +46,7 @@ class ZaakHistorieTest : BehaviorSpec({
                     "attribuutLabel": "Behandelaar",
                     "door": "$TEST_USER_1_NAME",
                     "nieuweWaarde": "$TEST_USER_1_NAME",
-                    "toelichting": "$ZAAK_PRODUCTAANVRAAG_1_TOELICHTING"
+                    "toelichting": ""
                   },
                   {
                     "actie": "GEKOPPELD",
@@ -173,7 +173,7 @@ class ZaakHistorieTest : BehaviorSpec({
                     "attribuutLabel": "zaak",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
-                    "toelichting": ""
+                    "toelichting": "$ZAAK_PRODUCTAANVRAAG_1_TOELICHTING"
                   }]
                 """.trimIndent()
 

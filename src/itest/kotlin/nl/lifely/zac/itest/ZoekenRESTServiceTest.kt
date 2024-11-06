@@ -29,6 +29,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_2
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_START_DATE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_START_DATE
@@ -232,7 +233,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                         "indicatieVerlenging" : false,
                         "indicaties" : [ ],
                         "initiatorIdentificatie" : "$TEST_PERSON_HENDRIKA_JANSE_BSN",
-                        "omschrijving" : "Aangemaakt vanuit open-forms met kenmerk '$OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_1_BRON_KENMERK'",
+                        "omschrijving" : "$ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING",
                         "rechten" : {
                           "afbreken" : true,
                           "behandelen" : true,

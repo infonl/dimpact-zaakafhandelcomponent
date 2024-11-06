@@ -27,6 +27,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_START_DATE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
@@ -274,7 +275,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                                 shouldContainJsonKey("uuid")
                                 shouldContainJsonKeyValue("startdatum", ZAAK_PRODUCTAANVRAAG_1_START_DATE)
                                 shouldContainJsonKeyValue("status", "Intake")
-                                shouldContainJsonKeyValue("toelichting", "")
+                                shouldContainJsonKeyValue("toelichting", ZAAK_PRODUCTAANVRAAG_1_TOELICHTING)
                                 shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", zaakFatalDate)
                                 shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
                             }
@@ -306,8 +307,8 @@ class SignaleringRestServiceTest : BehaviorSpec({
                             }
                             with(detail.getJSONObject(0).toString()) {
                                 shouldContainJsonKeyValue("identificatie", ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION)
-                                shouldContainJsonKeyValue("toelichting", "")
-                                shouldContainJsonKey("omschrijving")
+                                shouldContainJsonKeyValue("toelichting", ZAAK_PRODUCTAANVRAAG_1_TOELICHTING)
+                                shouldContainJsonKeyValue("omschrijving", ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING)
                                 shouldContainJsonKey("uuid")
                                 shouldContainJsonKeyValue("startdatum", ZAAK_PRODUCTAANVRAAG_1_START_DATE)
                                 shouldContainJsonKey("einddatum")
