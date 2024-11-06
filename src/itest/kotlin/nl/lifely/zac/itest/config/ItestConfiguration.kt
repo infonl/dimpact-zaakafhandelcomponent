@@ -215,6 +215,8 @@ object ItestConfiguration {
     const val ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION = "ZAAK-1970-0000000001"
     const val ZAAK_PRODUCTAANVRAAG_1_START_DATE = "1970-01-01"
     const val ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING = "1970-01-15"
+    const val ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING = "dummyZaakOmschrijving"
+    const val ZAAK_PRODUCTAANVRAAG_1_TOELICHTING = "dummyZaakToelichting"
 
     /**
      * First zaak created from a productaanvraag.
