@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import net.atos.client.brp.model.generated.AbstractDatum
 import net.atos.client.brp.model.generated.OpschortingBijhouding
 import net.atos.client.brp.model.generated.PersoonInOnderzoek
+import net.atos.client.brp.model.generated.PersoonInOnderzoekBeperkt
 import net.atos.client.brp.model.generated.RniDeelnemer
 import net.atos.client.brp.model.generated.Waardetabel
 import java.util.EnumSet
@@ -40,6 +41,35 @@ class RestPersoonTest : BehaviorSpec({
         }
     }
 
+    Given("Dead BRP PersoonBeperkt") {
+        val date = AbstractDatum().apply {
+            type = "type"
+            langFormaat = "langFormaat"
+        }
+        val persoonBeperkt = createPersoonBeperkt(
+            confidentialPersonalData = true,
+            suspensionMaintenance = OpschortingBijhouding().apply {
+                reden = Waardetabel().apply {
+                    code = "O"
+                    omschrijving = "overlijden"
+                }
+                datum = date
+            },
+            personInResearch = PersoonInOnderzoekBeperkt(),
+            rniDeelnemerList = listOf(RniDeelnemer()),
+        )
+
+        When("converted to RestPersoon") {
+            val restPersoon = persoonBeperkt.toRestPersoon()
+
+            Then("conversion is correct") {
+                restPersoon.bsn shouldBe persoonBeperkt.burgerservicenummer
+                // check for all but ONDER_CURATELE
+                restPersoon.indicaties shouldBe EnumSet.complementOf(EnumSet.of(RestPersoonIndicaties.ONDER_CURATELE))
+            }
+        }
+    }
+
     Given("BRP Persoon that's in research and has confidential personal data") {
         val persoon = createPersoon(
             confidentialPersonalData = true,
@@ -59,6 +89,25 @@ class RestPersoonTest : BehaviorSpec({
         }
     }
 
+    Given("BRP PersoonBeperkt that's in research and has confidential personal data") {
+        val persoonBeperkt = createPersoonBeperkt(
+            confidentialPersonalData = true,
+            personInResearch = PersoonInOnderzoekBeperkt(),
+        )
+
+        When("converted to RestPersoon") {
+            val restPersoon = persoonBeperkt.toRestPersoon()
+
+            Then("conversion is correct") {
+                restPersoon.bsn shouldBe persoonBeperkt.burgerservicenummer
+                restPersoon.indicaties shouldBe EnumSet.of(
+                    RestPersoonIndicaties.IN_ONDERZOEK,
+                    RestPersoonIndicaties.GEHEIMHOUDING_OP_PERSOONSGEGEVENS
+                )
+            }
+        }
+    }
+
     Given("BRP Persoon that has no indication relative data") {
         val persoon = createPersoon()
 
@@ -67,6 +116,19 @@ class RestPersoonTest : BehaviorSpec({
 
             Then("conversion yields no indications") {
                 restPersoon.bsn shouldBe persoon.burgerservicenummer
+                restPersoon.indicaties shouldBe EnumSet.noneOf(RestPersoonIndicaties::class.java)
+            }
+        }
+    }
+
+    Given("BRP PersoonBeperkt that has no indication relative data") {
+        val persoonBeperkt = createPersoonBeperkt()
+
+        When("converted to RestPersoon") {
+            val restPersoon = persoonBeperkt.toRestPersoon()
+
+            Then("conversion yields no indications") {
+                restPersoon.bsn shouldBe persoonBeperkt.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.noneOf(RestPersoonIndicaties::class.java)
             }
         }

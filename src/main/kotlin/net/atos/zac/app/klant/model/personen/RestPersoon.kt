@@ -68,7 +68,7 @@ private const val OVERLIJDEN_OMSCHRIJVING = "overlijden"
 
 fun List<Persoon>.toRestPersons(): List<RestPersoon> = this.map { it.toRestPersoon() }
 
-fun List<PersoonBeperkt>.toRestPersonen(): List<RestPersoon> = this.map { it.toRestPerson() }
+fun List<PersoonBeperkt>.toRestPersonen(): List<RestPersoon> = this.map { it.toRestPersoon() }
 
 fun Persoon.toRestPersoon() = RestPersoon(
     bsn = this.burgerservicenummer,
@@ -100,7 +100,7 @@ fun Persoon.toRestPersoon() = RestPersoon(
     }
 }
 
-fun PersoonBeperkt.toRestPerson() = RestPersoon(
+fun PersoonBeperkt.toRestPersoon() = RestPersoon(
     bsn = this.burgerservicenummer,
     geslacht = this.geslacht?.toDescription(),
     geboortedatum = this.geboorte?.datum?.toStringRepresentation(),

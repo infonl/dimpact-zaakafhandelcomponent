@@ -1,11 +1,11 @@
 package net.atos.zac.app.klant.model.personen
 
-import net.atos.client.brp.model.generated.AbstractDatum
 import net.atos.client.brp.model.generated.OpschortingBijhouding
 import net.atos.client.brp.model.generated.Persoon
+import net.atos.client.brp.model.generated.PersoonBeperkt
 import net.atos.client.brp.model.generated.PersoonInOnderzoek
+import net.atos.client.brp.model.generated.PersoonInOnderzoekBeperkt
 import net.atos.client.brp.model.generated.RniDeelnemer
-import java.time.ZonedDateTime
 
 fun createPersoon(
     confidentialPersonalData: Boolean = false,
@@ -16,13 +16,22 @@ fun createPersoon(
 ) =
     Persoon().apply {
         burgerservicenummer = "burgerservicenummer"
-        datumEersteInschrijvingGBA = AbstractDatum().apply {
-            type = "type"
-            langFormaat = ZonedDateTime.now().toString()
-        }
         geheimhoudingPersoonsgegevens = confidentialPersonalData
         inOnderzoek = personInResearch
         opschortingBijhouding = suspensionMaintenance
         indicatieCurateleRegister = indicationCuratoriesRegister
         rni = rniDeelnemerList
     }
+
+fun createPersoonBeperkt(
+    confidentialPersonalData: Boolean = false,
+    personInResearch: PersoonInOnderzoekBeperkt? = null,
+    suspensionMaintenance: OpschortingBijhouding? = null,
+    rniDeelnemerList: List<RniDeelnemer>? = null,
+) = PersoonBeperkt().apply {
+    burgerservicenummer = "burgerservicenummer"
+    geheimhoudingPersoonsgegevens = confidentialPersonalData
+    inOnderzoek = personInResearch
+    opschortingBijhouding = suspensionMaintenance
+    rni = rniDeelnemerList
+}
