@@ -36,6 +36,7 @@ public class SignaleringZoekParameters {
 
     private String subject;
 
+    private String detail;
 
     public SignaleringZoekParameters(final Signalering signalering) {
         this.targettype = signalering.getTargettype();
@@ -43,6 +44,7 @@ public class SignaleringZoekParameters {
         this.types = Set.of(signalering.getType().getType());
         this.subjecttype = signalering.getSubjecttype();
         this.subject = signalering.getSubject();
+        this.detail = signalering.getDetail();
     }
 
     public SignaleringZoekParameters(final SignaleringTarget targettype, final String target) {
@@ -86,6 +88,14 @@ public class SignaleringZoekParameters {
 
     public String getSubject() {
         return subject;
+    }
+
+    public String getDetail() {
+        return detail;
+    }
+
+    public void setDetail(String detail) {
+        this.detail = detail;
     }
 
     public SignaleringZoekParameters subjecttype(final SignaleringSubject subjecttype) {
