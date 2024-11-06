@@ -20,6 +20,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.lifely.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
@@ -45,7 +46,7 @@ class ZaakHistorieTest : BehaviorSpec({
                     "attribuutLabel": "Behandelaar",
                     "door": "$TEST_USER_1_NAME",
                     "nieuweWaarde": "$TEST_USER_1_NAME",
-                    "toelichting": ""
+                    "toelichting": "$ZAAK_PRODUCTAANVRAAG_1_TOELICHTING"
                   },
                   {
                     "actie": "GEKOPPELD",
