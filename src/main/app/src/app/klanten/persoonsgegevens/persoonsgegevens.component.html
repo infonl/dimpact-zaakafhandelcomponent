@@ -9,6 +9,7 @@
     <mat-panel-description *ngIf="persoon$ | async as persoon">
       {{persoon ? persoon.naam : ('msg.loading'| translate)}}
       <div class="flex-row">
+        <p *ngFor="let indicatie of persoon.indicaties">{{indicatie}}</p>
         <button
           *ngIf="persoon && isWijzigbaar()"
           [title]="'actie.initiator.wijzigen' | translate"

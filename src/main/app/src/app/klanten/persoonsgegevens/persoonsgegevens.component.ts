@@ -6,8 +6,8 @@
 import { Component, EventEmitter, Output, input } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import { switchMap } from "rxjs";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
-import { Persoon } from "../model/personen/persoon";
 
 @Component({
   selector: "zac-persoongegevens",
@@ -15,8 +15,8 @@ import { Persoon } from "../model/personen/persoon";
   templateUrl: "./persoonsgegevens.component.html",
 })
 export class PersoonsgegevensComponent {
-  @Output() delete = new EventEmitter<Persoon>();
-  @Output() edit = new EventEmitter<Persoon>();
+  @Output() delete = new EventEmitter<GeneratedType<"IdentificatieType">>();
+  @Output() edit = new EventEmitter<GeneratedType<"IdentificatieType">>();
 
   isVerwijderbaar = input<boolean>();
   isWijzigbaar = input<boolean>();

@@ -6,14 +6,14 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { UtilService } from "../../core/service/util.service";
-import { Persoon } from "../model/personen/persoon";
+import { GeneratedType } from "../../shared/utils/generated-types";
 
 @Component({
   templateUrl: "./persoon-view.component.html",
   styleUrls: ["./persoon-view.component.less"],
 })
 export class PersoonViewComponent implements OnInit {
-  persoon: Persoon;
+  persoon: GeneratedType<"RestPersoon">;
 
   constructor(
     private utilService: UtilService,

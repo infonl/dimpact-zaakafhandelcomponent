@@ -9,6 +9,7 @@ import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { Resultaat } from "../shared/model/resultaat";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { Bedrijf } from "./model/bedrijven/bedrijf";
 import { ListBedrijvenParameters } from "./model/bedrijven/list-bedrijven-parameters";
 import { Vestigingsprofiel } from "./model/bedrijven/vestigingsprofiel";
@@ -16,7 +17,6 @@ import { ContactGegevens } from "./model/klanten/contact-gegevens";
 import { Roltype } from "./model/klanten/roltype";
 import { ListPersonenParameters } from "./model/personen/list-personen-parameters";
 import { PersonenParameters } from "./model/personen/personen-parameters";
-import { Persoon } from "./model/personen/persoon";
 
 @Injectable({
   providedIn: "root",
@@ -29,9 +29,9 @@ export class KlantenService {
 
   private basepath = "/rest/klanten";
 
-  readPersoon(bsn: string): Observable<Persoon> {
+  readPersoon(bsn: string): Observable<GeneratedType<"RestPersoon">> {
     return this.http
-      .get<Persoon>(`${this.basepath}/persoon/${bsn}`)
+      .get<GeneratedType<"RestPersoon">>(`${this.basepath}/persoon/${bsn}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -81,10 +81,10 @@ export class KlantenService {
 
   listPersonen(
     listPersonenParameters: ListPersonenParameters,
-  ): Observable<Resultaat<Persoon>> {
+  ): Observable<Resultaat<GeneratedType<"RestPersoon">>> {
     return this.http
       .put<
-        Resultaat<Persoon>
+        Resultaat<GeneratedType<"RestPersoon">>
       >(`${this.basepath}/personen`, listPersonenParameters)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),

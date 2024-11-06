@@ -6,8 +6,8 @@
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
 import { Observable } from "rxjs";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
-import { Persoon } from "../model/personen/persoon";
 
 @Injectable({
   providedIn: "root",
@@ -18,7 +18,7 @@ export class PersoonResolverService {
   resolve(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot,
-  ): Observable<Persoon> {
+  ): Observable<GeneratedType<"RestPersoon">> {
     const bsn: string = route.paramMap.get("bsn");
     return this.klantenService.readPersoon(bsn);
   }

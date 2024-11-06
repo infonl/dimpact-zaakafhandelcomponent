@@ -1,7 +1,7 @@
-import { IdentificatieType } from "./identificatieType";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 
 export interface Klant {
-  identificatieType: IdentificatieType;
+  identificatieType: GeneratedType<"IdentificatieType">;
   identificatie: string;
   naam: string;
   emailadres: string;

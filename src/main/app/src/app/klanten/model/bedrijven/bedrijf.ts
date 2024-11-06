@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { IdentificatieType } from "../klanten/identificatieType";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { Klant } from "../klanten/klant";
 
 export class Bedrijf implements Klant {
@@ -13,7 +13,7 @@ export class Bedrijf implements Klant {
   adres: string;
   postcode: string;
   type: string;
-  identificatieType: IdentificatieType;
+  identificatieType: GeneratedType<"IdentificatieType">;
   identificatie: string;
   naam: string;
   emailadres: string;

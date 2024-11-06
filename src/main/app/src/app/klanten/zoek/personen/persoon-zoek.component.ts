@@ -15,12 +15,12 @@ import { ActionIcon } from "../../../shared/edit/action-icon";
 import { DateFormFieldBuilder } from "../../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { AbstractFormControlField } from "../../../shared/material-form-builder/model/abstract-form-control-field";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { CustomValidators } from "../../../shared/validators/customValidators";
 import { KlantenService } from "../../klanten.service";
 import { Cardinaliteit } from "../../model/personen/cardinaliteit";
 import { ListPersonenParameters } from "../../model/personen/list-personen-parameters";
 import { PersonenParameters } from "../../model/personen/personen-parameters";
-import { Persoon } from "../../model/personen/persoon";
 import { FormCommunicatieService } from "../form-communicatie-service";
 
 @Component({
@@ -29,7 +29,7 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   styleUrls: ["./persoon-zoek.component.less"],
 })
 export class PersoonZoekComponent implements OnInit {
-  @Output() persoon? = new EventEmitter<Persoon>();
+  @Output() persoon? = new EventEmitter<GeneratedType<"RestPersoon">>();
   @Input() sideNav?: MatSidenav;
   @Input() syncEnabled: boolean = false;
   formGroup: FormGroup;
@@ -51,7 +51,7 @@ export class PersoonZoekComponent implements OnInit {
     "verblijfplaats",
     "acties",
   ];
-  personen: MatTableDataSource<Persoon> = new MatTableDataSource<Persoon>();
+  personen = new MatTableDataSource<GeneratedType<"RestPersoon">>();
   mijnGemeente: string;
   foutmelding: string;
   loading = false;
@@ -293,7 +293,7 @@ export class PersoonZoekComponent implements OnInit {
       });
   }
 
-  selectPersoon(persoon: Persoon): void {
+  selectPersoon(persoon: GeneratedType<"RestPersoon">): void {
     this.persoon.emit(persoon);
     this.wissen();
 
@@ -302,7 +302,7 @@ export class PersoonZoekComponent implements OnInit {
     }
   }
 
-  openPersoonPagina(persoon: Persoon): void {
+  openPersoonPagina(persoon: GeneratedType<"RestPersoon">): void {
     this.sideNav?.close();
     this.router.navigate(["/persoon/", persoon.identificatie]);
   }

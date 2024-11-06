@@ -366,7 +366,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
         this.klantenService
           .readPersoon(this.inboxProductaanvraag.initiatorID)
           .subscribe((initiator) => {
-            this.initiator = initiator;
+            this.initiator = initiator as Klant;
             this.initiatorField.formControl.setValue(initiator.naam);
           });
       } else if (
