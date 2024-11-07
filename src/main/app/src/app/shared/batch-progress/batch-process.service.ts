@@ -97,6 +97,7 @@ export class BatchProcessService {
   }
 
   stop() {
+    clearTimeout(this.timeout);
     this.utilService.closeProgressDialog();
     this.clearSubscriptions();
   }
