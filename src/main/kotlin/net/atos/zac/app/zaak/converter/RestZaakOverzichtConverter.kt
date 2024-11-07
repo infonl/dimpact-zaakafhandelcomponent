@@ -13,7 +13,6 @@ import net.atos.zac.app.identity.converter.RestGroupConverter
 import net.atos.zac.app.identity.converter.RestUserConverter
 import net.atos.zac.app.policy.converter.RestRechtenConverter
 import net.atos.zac.app.zaak.model.RestZaakOverzicht
-import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.policy.PolicyService
 
 @Suppress("LongParameterList")
@@ -28,9 +27,9 @@ class RestZaakOverzichtConverter @Inject constructor(
     private val zrcClientService: ZrcClientService,
 ) {
 
-    fun convert(zaak: Zaak, user: LoggedInUser? = null): RestZaakOverzicht {
+    fun convert(zaak: Zaak): RestZaakOverzicht {
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
-        val zaakrechten = policyService.readZaakRechten(zaak, zaaktype, user)
+        val zaakrechten = policyService.readZaakRechten(zaak, zaaktype)
         return RestZaakOverzicht(
             uuid = zaak.uuid,
             identificatie = zaak.identificatie,

@@ -13,7 +13,6 @@ import static net.atos.zac.enkelvoudiginformatieobject.util.EnkelvoudigInformati
 import static net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving;
 import static net.atos.zac.flowable.util.TaskUtil.isOpen;
 
-import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -92,10 +91,6 @@ public class PolicyService {
     }
 
     public ZaakRechten readZaakRechten(final Zaak zaak, final ZaakType zaaktype) {
-        return readZaakRechten(zaak, zaaktype, null);
-    }
-
-    public ZaakRechten readZaakRechten(final Zaak zaak, final ZaakType zaaktype, @Nullable final LoggedInUser user) {
         final ZaakData zaakData = new ZaakData();
         zaakData.open = zaak.isOpen();
         zaakData.zaaktype = zaaktype.getOmschrijving();
@@ -109,8 +104,9 @@ public class PolicyService {
         }
         zaakData.intake = isIntake(statusType);
         zaakData.heropend = isHeropend(statusType);
-        LoggedInUser loggedInUser = user == null ? loggedInUserInstance.get() : user;
-        return evaluationClient.readZaakRechten(new RuleQuery<>(new ZaakInput(loggedInUser, zaakData))).getResult();
+        return evaluationClient.readZaakRechten(new RuleQuery<>(
+                new ZaakInput(loggedInUserInstance.get(), zaakData))
+        ).getResult();
     }
 
     public ZaakRechten readZaakRechten(final ZaakZoekObject zaakZoekObject) {

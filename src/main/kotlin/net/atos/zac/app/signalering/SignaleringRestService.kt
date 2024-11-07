@@ -17,9 +17,6 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import net.atos.zac.app.signalering.converter.RestSignaleringInstellingenConverter
 import net.atos.zac.app.signalering.model.RestSignaleringInstellingen
@@ -62,24 +59,6 @@ class SignaleringRestService @Inject constructor(
     @Path("/latest")
     fun latestSignaleringOccurrence(): ZonedDateTime? =
         signaleringService.latestSignaleringOccurrence()
-
-    /**
-     * Starts listing zaken signaleringen for the given signaleringsType.
-     * This can be a long-running operation, so it is run asynchronously.
-     */
-    @PUT
-    @Path("/zaken/{type}")
-    fun startListingZakenSignaleringen(
-        @PathParam("type") signaleringsType: SignaleringType.Type,
-        screenEventResourceId: String
-    ) {
-        // User is not available in co-routines, so fetch it outside the co-routine scope
-        loggedInUserInstance.get().let {
-            CoroutineScope(Dispatchers.IO).launch {
-                signaleringService.listZakenSignaleringen(it, signaleringsType, screenEventResourceId)
-            }
-        }
-    }
 
     /**
      * Lists zaken signaleringen for the given signaleringsType.
