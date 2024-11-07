@@ -39,6 +39,7 @@ import net.atos.zac.util.StringUtil.ONBEKEND
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
+import java.util.EnumSet
 import java.util.Locale
 import java.util.Objects
 
@@ -51,7 +52,8 @@ data class RestPersoon(
     var verblijfplaats: String? = null,
     override var emailadres: String? = null,
     override var naam: String? = null,
-    override var telefoonnummer: String? = null
+    override var telefoonnummer: String? = null,
+    val indicaties: EnumSet<RestPersoonIndicaties> = EnumSet.noneOf(RestPersoonIndicaties::class.java),
 ) : RestKlant() {
     override fun getIdentificatieType(): IdentificatieType? {
         return if (bsn != null) IdentificatieType.BSN else null
@@ -62,9 +64,11 @@ data class RestPersoon(
     }
 }
 
+private const val OVERLIJDEN_OMSCHRIJVING = "overlijden"
+
 fun List<Persoon>.toRestPersons(): List<RestPersoon> = this.map { it.toRestPersoon() }
 
-fun List<PersoonBeperkt>.toRestPersonen(): List<RestPersoon> = this.map { it.toRestPerson() }
+fun List<PersoonBeperkt>.toRestPersonen(): List<RestPersoon> = this.map { it.toRestPersoon() }
 
 fun Persoon.toRestPersoon() = RestPersoon(
     bsn = this.burgerservicenummer,
@@ -72,9 +76,31 @@ fun Persoon.toRestPersoon() = RestPersoon(
     geboortedatum = this.geboorte?.datum?.toStringRepresentation(),
     verblijfplaats = this.verblijfplaats?.toStringRepresentation(),
     naam = this.naam?.volledigeNaam,
-)
+).apply {
+    if (inOnderzoek != null) {
+        indicaties.add(RestPersoonIndicaties.IN_ONDERZOEK)
+    }
+    if (geheimhoudingPersoonsgegevens == true) {
+        indicaties.add(RestPersoonIndicaties.GEHEIMHOUDING_OP_PERSOONSGEGEVENS)
+    }
+    // "Voor overleden personen wordt altijd het opschortingBijhouding veld geleverd met reden code ‘O’ en
+    // omschrijving ‘overlijden’. Zie de overlijden overzicht feature voor meer informatie over dit veld."
+    // https://brp-api.github.io/Haal-Centraal-BRP-bevragen/v2/features-overzicht
+    if (opschortingBijhouding?.reden?.omschrijving == OVERLIJDEN_OMSCHRIJVING) {
+        indicaties.add(RestPersoonIndicaties.OVERLEDEN)
+    }
+    if (opschortingBijhouding != null) {
+        indicaties.add(RestPersoonIndicaties.OPSCHORTING_BIJHOUDING)
+    }
+    if (rni?.isNotEmpty() == true) {
+        indicaties.add(RestPersoonIndicaties.NIET_INGEZETENE)
+    }
+    if (indicatieCurateleRegister == true) {
+        indicaties.add(RestPersoonIndicaties.ONDER_CURATELE)
+    }
+}
 
-fun PersoonBeperkt.toRestPerson() = RestPersoon(
+fun PersoonBeperkt.toRestPersoon() = RestPersoon(
     bsn = this.burgerservicenummer,
     geslacht = this.geslacht?.toDescription(),
     geboortedatum = this.geboorte?.datum?.toStringRepresentation(),
@@ -86,8 +112,27 @@ fun PersoonBeperkt.toRestPerson() = RestPersoon(
             it.adresregel2,
             it.adresregel3
         )
+    },
+).apply {
+    if (inOnderzoek != null) {
+        indicaties.add(RestPersoonIndicaties.IN_ONDERZOEK)
     }
-)
+    if (geheimhoudingPersoonsgegevens == true) {
+        indicaties.add(RestPersoonIndicaties.GEHEIMHOUDING_OP_PERSOONSGEGEVENS)
+    }
+    // "Voor overleden personen wordt altijd het opschortingBijhouding veld geleverd met reden code ‘O’ en
+    // omschrijving ‘overlijden’. Zie de overlijden overzicht feature voor meer informatie over dit veld."
+    // https://brp-api.github.io/Haal-Centraal-BRP-bevragen/v2/features-overzicht
+    if (opschortingBijhouding?.reden?.omschrijving == OVERLIJDEN_OMSCHRIJVING) {
+        indicaties.add(RestPersoonIndicaties.OVERLEDEN)
+    }
+    if (opschortingBijhouding != null) {
+        indicaties.add(RestPersoonIndicaties.OPSCHORTING_BIJHOUDING)
+    }
+    if (rni?.isNotEmpty() == true) {
+        indicaties.add(RestPersoonIndicaties.NIET_INGEZETENE)
+    }
+}
 
 fun List<DigitaalAdres>.toRestPersoon(): RestPersoon {
     val restPersoon = RestPersoon()
@@ -99,7 +144,6 @@ fun List<DigitaalAdres>.toRestPersoon(): RestPersoon {
     }
     return restPersoon
 }
-
 fun PersonenQueryResponse.toRechtsPersonen(): List<RestPersoon> =
     when (this) {
         is RaadpleegMetBurgerservicenummerResponse -> this.personen.toRestPersons()

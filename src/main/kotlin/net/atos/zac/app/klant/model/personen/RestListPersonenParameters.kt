@@ -10,7 +10,6 @@ import net.atos.client.brp.model.generated.ZoekMetGeslachtsnaamEnGeboortedatum
 import net.atos.client.brp.model.generated.ZoekMetNaamEnGemeenteVanInschrijving
 import net.atos.client.brp.model.generated.ZoekMetPostcodeEnHuisnummer
 import net.atos.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijving
-import org.apache.commons.lang3.StringUtils
 import java.time.LocalDate
 
 data class RestListPersonenParameters(
@@ -28,35 +27,41 @@ data class RestListPersonenParameters(
 @Suppress("ReturnCount", "CyclomaticComplexMethod")
 fun RestListPersonenParameters.toPersonenQuery(): PersonenQuery =
     when {
-        StringUtils.isNotBlank(this.bsn) -> RaadpleegMetBurgerservicenummer().apply {
+        this.bsn?.isNotBlank() == true -> RaadpleegMetBurgerservicenummer().apply {
             addBurgerservicenummerItem(this@toPersonenQuery.bsn)
         }
-        StringUtils.isNotBlank(this.geslachtsnaam) && this.geboortedatum != null ->
+        this.geslachtsnaam?.isNotBlank() == true && this.geboortedatum != null ->
             ZoekMetGeslachtsnaamEnGeboortedatum().apply {
                 geslachtsnaam = this@toPersonenQuery.geslachtsnaam
                 geboortedatum = this@toPersonenQuery.geboortedatum
                 voornamen = this@toPersonenQuery.voornamen
                 voorvoegsel = this@toPersonenQuery.voorvoegsel
+                inclusiefOverledenPersonen = true
             }
-        StringUtils.isNotBlank(this.geslachtsnaam) && StringUtils.isNotBlank(this.voornamen) &&
-            StringUtils.isNotBlank(this.gemeenteVanInschrijving) ->
+        this.geslachtsnaam?.isNotBlank() == true &&
+            this.voornamen?.isNotBlank() == true &&
+            this.gemeenteVanInschrijving?.isNotBlank() == true ->
             ZoekMetNaamEnGemeenteVanInschrijving().apply {
                 geslachtsnaam = this@toPersonenQuery.geslachtsnaam
                 voornamen = this@toPersonenQuery.voornamen
                 gemeenteVanInschrijving = this@toPersonenQuery.gemeenteVanInschrijving
                 voorvoegsel = this@toPersonenQuery.voorvoegsel
+                inclusiefOverledenPersonen = true
             }
-        StringUtils.isNotBlank(this.postcode) && this.huisnummer != null ->
+        this.postcode?.isNotBlank() == true && this.huisnummer != null ->
             ZoekMetPostcodeEnHuisnummer().apply {
                 postcode = this@toPersonenQuery.postcode
                 huisnummer = this@toPersonenQuery.huisnummer
+                inclusiefOverledenPersonen = true
             }
-        StringUtils.isNotBlank(this.straat) && this.huisnummer != null &&
-            StringUtils.isNotBlank(this.gemeenteVanInschrijving) ->
+        this.straat?.isNotBlank() == true &&
+            this.huisnummer != null &&
+            this.gemeenteVanInschrijving?.isNotBlank() == true ->
             ZoekMetStraatHuisnummerEnGemeenteVanInschrijving().apply {
                 straat = this@toPersonenQuery.straat
                 huisnummer = this@toPersonenQuery.huisnummer
                 gemeenteVanInschrijving = this@toPersonenQuery.gemeenteVanInschrijving
+                inclusiefOverledenPersonen = true
             }
         else -> throw IllegalArgumentException("Ongeldige combinatie van zoek parameters")
     }
