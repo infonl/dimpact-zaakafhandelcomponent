@@ -25,6 +25,7 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
+import net.atos.zac.app.shared.RestPageParameters
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.model.createRESTZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
@@ -170,6 +171,7 @@ class SignaleringServiceTest : BehaviorSpec({
         val restZaakOverzicht = createRESTZaakOverzicht()
         val pageNumber = 0
         val pageSize = 5
+        val restPageParameters = RestPageParameters(pageNumber, pageSize)
 
         every { loggedInUserInstance.get() } returns user
         every { user.id } returns id
@@ -208,8 +210,7 @@ class SignaleringServiceTest : BehaviorSpec({
         When("listing first page of zaken signaleringen") {
             val result = signaleringService.listZakenSignaleringenPage(
                 SignaleringType.Type.ZAAK_OP_NAAM,
-                pageNumber,
-                pageSize
+                restPageParameters
             )
 
             Then("paging is used to return the signalering") {

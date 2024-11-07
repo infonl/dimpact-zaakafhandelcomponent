@@ -1,9 +1,10 @@
 package net.atos.zac.app.shared
 
+import jakarta.validation.constraints.Positive
 import nl.lifely.zac.util.NoArgConstructor
 
 @NoArgConstructor
 open class RestPageParameters(
-    @JvmField val page: Int,
-    @JvmField val rows: Int
+    @JvmField @Positive var page: Int,
+    @JvmField @Positive var rows: Int
 )

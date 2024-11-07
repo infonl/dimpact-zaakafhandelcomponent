@@ -8,23 +8,17 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
-import jakarta.ws.rs.DefaultValue
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
-import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
-import jakarta.ws.rs.core.Response
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
-import net.atos.zac.app.shared.RESTListParameters
 import net.atos.zac.app.shared.RESTResultaat
 import net.atos.zac.app.shared.RestPageParameters
 import net.atos.zac.app.signalering.converter.RestSignaleringInstellingenConverter
+import net.atos.zac.app.signalering.exception.SignaleringException
 import net.atos.zac.app.signalering.model.RestSignaleringInstellingen
 import net.atos.zac.app.signalering.model.RestSignaleringTaskSummary
 import net.atos.zac.app.zaak.model.RestZaakOverzicht
@@ -58,24 +52,6 @@ class SignaleringRestService @Inject constructor(
         signaleringService.latestSignaleringOccurrence()
 
     /**
-     * Starts listing zaken signaleringen for the given signaleringsType.
-     * This can be a long-running operation, so it is run asynchronously.
-     */
-    @PUT
-    @Path("/zaken/{type}")
-    fun startListingZakenSignaleringen(
-        @PathParam("type") signaleringsType: SignaleringType.Type,
-        screenEventResourceId: String
-    ) {
-        // User is not available in co-routines, so fetch it outside the co-routine scope
-        loggedInUserInstance.get().let {
-            CoroutineScope(Dispatchers.IO).launch {
-                signaleringService.listZakenSignaleringen(it, signaleringsType, screenEventResourceId)
-            }
-        }
-    }
-
-    /**
      * Lists zaken signaleringen for the given signaleringsType.
      */
     @PUT
@@ -85,7 +61,11 @@ class SignaleringRestService @Inject constructor(
         pageParameters: RestPageParameters
     ): RESTResultaat<RestZaakOverzicht> =
         signaleringService.countZakenSignaleringen(signaleringsType).let { objectsCount ->
-            require(pageParameters.page > objectsCount.maxPages(pageParameters.rows))
+            objectsCount.maxPages(pageParameters.rows).let { maxPages ->
+                if (pageParameters.page > maxPages) {
+                    throw SignaleringException("Requested page ${pageParameters.page} must be <= $maxPages")
+                }
+            }
             RESTResultaat(
                 signaleringService.listZakenSignaleringenPage(signaleringsType, pageParameters),
                 objectsCount

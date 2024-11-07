@@ -1,10 +1,12 @@
 package net.atos.zac.app.signalering
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
+import net.atos.zac.app.shared.RestPageParameters
 import net.atos.zac.app.signalering.converter.RestSignaleringInstellingenConverter
 import net.atos.zac.app.zaak.model.createRESTZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
@@ -31,28 +33,29 @@ class SignaleringRestServiceTest : BehaviorSpec({
         val pageSize = 5
         val numberOfElements = 11
         val restZaakOverzichtList = List(numberOfElements) { createRESTZaakOverzicht() }
+        val restPageParameters = RestPageParameters(pageNumber, pageSize)
 
         every { signaleringService.countZakenSignaleringen(signaleringType) } returns numberOfElements.toLong()
         every {
-            signaleringService.listZakenSignaleringenPage(signaleringType, pageNumber, pageSize)
+            signaleringService.listZakenSignaleringenPage(signaleringType, restPageParameters)
         } returns restZaakOverzichtList
 
         When("listing zaken signaleringen with proper page parameters") {
-            val response = signaleringRestService.listZakenSignaleringen(signaleringType, pageNumber, pageSize)
+            val restResultaat = signaleringRestService.listZakenSignaleringen(signaleringType, restPageParameters)
 
             Then("correct response is returned") {
-                response.status shouldBe 200
-                response.headers["X-Total-Count"] shouldBe listOf(numberOfElements)
-                response.entity shouldBe restZaakOverzichtList
+                restResultaat.totaal shouldBe numberOfElements
+                restResultaat.resultaten shouldBe restZaakOverzichtList
             }
         }
 
         When("listing zaken signaleringen with incorrect page parameters") {
-            val response = signaleringRestService.listZakenSignaleringen(signaleringType, 123, 456)
+            val exception = shouldThrow<IllegalArgumentException> {
+                signaleringRestService.listZakenSignaleringen(signaleringType, RestPageParameters(123, 456))
+            }
 
-            Then("404 response is returned") {
-                response.status shouldBe 404
-                response.entity shouldBe null
+            Then("exception is thrown") {
+                exception.message shouldBe "Requested page 123 must be <= 1"
             }
         }
     }
