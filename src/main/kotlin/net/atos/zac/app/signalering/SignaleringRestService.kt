@@ -19,7 +19,10 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import net.atos.zac.app.signalering.converter.RestSignaleringInstellingenConverter
 import net.atos.zac.app.signalering.model.RestSignaleringInstellingen
@@ -87,19 +90,27 @@ class SignaleringRestService @Inject constructor(
     @GET
     @Path("/zaken/{type}")
     fun listZakenSignaleringen(
-        @PathParam("type") signaleringsType: SignaleringType.Type,
+        @PathParam("type") signaleringType: SignaleringType.Type,
         @QueryParam(PAGE_NUMBER) @DefaultValue(INITIAL_PAGE) pageNumber: Int,
         @QueryParam(PAGE_SIZE) @DefaultValue(DEFAULT_PAGE_SIZE) pageSize: Int
-    ): Response =
-        signaleringService.countZakenSignaleringen(signaleringsType).let { objectsCount ->
-            if (pageNumber > objectsCount.maxPages(pageSize)) {
-                return Response.status(Response.Status.NOT_FOUND).build()
+    ): Response = runBlocking {
+        withContext(Dispatchers.IO) {
+            // run the two DB calls concurrently in a coroutine scope
+            val objectsCount = async { signaleringService.countZakenSignaleringen(signaleringType) }
+            val objectList = async {
+                signaleringService.listZakenSignaleringenPage(signaleringType, pageNumber, pageSize)
             }
-            Response.ok()
-                .header(TOTAL_COUNT_HEADER, objectsCount)
-                .entity(signaleringService.listZakenSignaleringenPage(signaleringsType, pageNumber, pageSize))
-                .build()
+
+            if (pageNumber > objectsCount.await().maxPages(pageSize)) {
+                Response.status(Response.Status.NOT_FOUND).build()
+            } else {
+                Response.ok()
+                    .header(TOTAL_COUNT_HEADER, objectsCount.await())
+                    .entity(objectList.await())
+                    .build()
+            }
         }
+    }
 
     private fun Long.maxPages(pageSize: Int) = (this + pageSize - 1) / pageSize
 

@@ -27,17 +27,19 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
     Given("zaken signaleringen for ZAAK_OP_NAAM") {
         val signaleringType = SignaleringType.Type.ZAAK_OP_NAAM
-        val pageNumber = 0
-        val pageSize = 5
         val numberOfElements = 11
         val restZaakOverzichtList = List(numberOfElements) { createRESTZaakOverzicht() }
 
         every { signaleringService.countZakenSignaleringen(signaleringType) } returns numberOfElements.toLong()
-        every {
-            signaleringService.listZakenSignaleringenPage(signaleringType, pageNumber, pageSize)
-        } returns restZaakOverzichtList
 
         When("listing zaken signaleringen with proper page parameters") {
+            val pageNumber = 0
+            val pageSize = 5
+
+            every {
+                signaleringService.listZakenSignaleringenPage(signaleringType, pageNumber, pageSize)
+            } returns restZaakOverzichtList
+
             val response = signaleringRestService.listZakenSignaleringen(signaleringType, pageNumber, pageSize)
 
             Then("correct response is returned") {
@@ -48,7 +50,14 @@ class SignaleringRestServiceTest : BehaviorSpec({
         }
 
         When("listing zaken signaleringen with incorrect page parameters") {
-            val response = signaleringRestService.listZakenSignaleringen(signaleringType, 123, 456)
+            val pageNumber = 123
+            val pageSize = 456
+
+            every {
+                signaleringService.listZakenSignaleringenPage(signaleringType, pageNumber, pageSize)
+            } returns emptyList()
+
+            val response = signaleringRestService.listZakenSignaleringen(signaleringType, pageNumber, pageSize)
 
             Then("404 response is returned") {
                 response.status shouldBe 404
