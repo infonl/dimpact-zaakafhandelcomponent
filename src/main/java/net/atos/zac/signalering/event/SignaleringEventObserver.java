@@ -93,7 +93,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
             final SignaleringInstellingen subscriptions = signaleringService.readInstellingen(signalering);
             LOG.fine(() -> String.format("Subscription settings: %s for signalering: %s", subscriptions, signalering));
             if (subscriptions.isDashboard()) {
-                signaleringService.createSignalering(signalering);
+                signaleringService.storeSignalering(signalering);
             }
             if (subscriptions.isMail()) {
                 signaleringService.sendSignalering(signalering);

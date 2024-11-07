@@ -35,6 +35,9 @@ fun getSignaleringWhere(
         where.add(builder.equal(root.get<Any>("type").get<Any>("subjecttype"), subjecttype))
         parameters.subject?.let { where.add(builder.equal(root.get<Any>("subject"), it)) }
     }
+    parameters.detail?.let {
+        where.add(builder.equal(root.get<Any>("detail"), parameters.detail))
+    }
     @Suppress("SpreadOperator")
     return builder.and(*where.toTypedArray<Predicate>())
 }

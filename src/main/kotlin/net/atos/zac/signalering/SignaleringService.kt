@@ -125,11 +125,28 @@ class SignaleringService @Inject constructor(
         signalering.targettype != SignaleringTarget.USER || signalering.target != actor
 
     @Transactional(REQUIRED)
-    fun createSignalering(signalering: Signalering): Signalering {
+    fun storeSignalering(signalering: Signalering): Signalering {
         ValidationUtil.valideerObject(signalering)
-        val created = entityManager.merge(signalering)
-        eventingService.send(ScreenEventType.SIGNALERINGEN.updated(created))
-        return created
+
+        val signaleringToStore = findSignalering(signalering)?.apply {
+            LOG.info("Replacing $this timestamp $tijdstip with ${signalering.tijdstip}")
+            tijdstip = signalering.tijdstip
+        } ?: signalering
+
+        return entityManager.merge(signaleringToStore).also {
+            eventingService.send(ScreenEventType.SIGNALERINGEN.updated(it))
+        }
+    }
+
+    @Transactional(REQUIRED)
+    fun findSignalering(signalering: Signalering): Signalering? {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(Signalering::class.java)
+        val root = query.from(Signalering::class.java)
+        val signaleringZoekParameters = SignaleringZoekParameters(signalering)
+        return entityManager.createQuery(
+            query.select(root).where(getSignaleringWhere(signaleringZoekParameters, builder, root))
+        ).resultList.firstOrNull()
     }
 
     /**
