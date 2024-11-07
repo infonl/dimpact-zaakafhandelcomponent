@@ -129,7 +129,7 @@ class SignaleringService @Inject constructor(
         ValidationUtil.valideerObject(signalering)
 
         val signaleringToStore = findSignalering(signalering)?.apply {
-            LOG.warning("Replacing $this timestamp $tijdstip with ${signalering.tijdstip}")
+            LOG.info("Replacing $this timestamp $tijdstip with ${signalering.tijdstip}")
             tijdstip = signalering.tijdstip
         } ?: signalering
 
