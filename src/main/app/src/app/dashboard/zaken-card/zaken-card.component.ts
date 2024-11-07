@@ -1,10 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnDestroy } from "@angular/core";
-import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
+import { Component, computed, effect, OnDestroy, signal } from "@angular/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
+import { firstValueFrom } from "rxjs";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { SignaleringenService } from "../../signaleringen.service";
@@ -30,8 +31,24 @@ export class ZakenCardComponent
     "omschrijving",
     "url",
   ];
+  pageSize = 5;
+  pageNumber = signal(0);
 
-  private signaleringListener: WebsocketListener;
+  parameters = computed(() => {
+    return { pageNumber: this.pageNumber(), pageSize: this.pageSize };
+  });
+
+  zakenQuery = injectQuery(() => ({
+    queryKey: ["aan mij toegekende zaken signaleringen", this.parameters()],
+    queryFn: () =>
+      firstValueFrom(
+        this.signaleringenService.listZakenSignalering({
+          signaleringType: this.data.signaleringType,
+          pageNumber: this.parameters().pageNumber,
+          pageSize: this.parameters().pageSize,
+        }),
+      ),
+  }));
 
   constructor(
     private signaleringenService: SignaleringenService,
@@ -39,19 +56,20 @@ export class ZakenCardComponent
     protected websocketService: WebsocketService,
   ) {
     super(identityService, websocketService);
+
+    effect(() => {
+      const { zaken = [], total = 0 } = this.zakenQuery.data() ?? {};
+
+      this.dataSource.data = zaken;
+      this.paginator.length = total;
+    });
+  }
+
+  onPageChange({ pageIndex }: { pageIndex: number }) {
+    this.pageNumber.set(pageIndex);
   }
 
   protected onLoad(afterLoad: () => void): void {
-    this.signaleringenService
-      .listZakenSignalering(this.data.signaleringType)
-      .subscribe((zaken) => {
-        this.dataSource.data = zaken;
-        afterLoad();
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.websocketService.removeListener(this.signaleringListener);
-    super.ngOnDestroy();
+    this.zakenQuery.refetch();
   }
 }

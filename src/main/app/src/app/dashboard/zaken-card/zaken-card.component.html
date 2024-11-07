@@ -55,5 +55,9 @@
     </tr>
   </table>
 
-  <mat-paginator [pageSize]="5" [hidePageSize]="true"></mat-paginator>
+  <mat-paginator
+    [pageSize]="5"
+    [hidePageSize]="true"
+    (page)="onPageChange($event)"
+  ></mat-paginator>
 </div>
