@@ -191,9 +191,8 @@ class ZaakService @Inject constructor(
             .map(zrcClientService::readZaak)
             .filter {
                 if (!it.isOpen) {
-                    LOG.fine(
-                        "Zaak with UUID '${it.uuid} is not open. Therefore it is not released."
-                    )
+                    LOG.fine("Zaak with UUID '${it.uuid} is not open. Therefore it is not released.")
+                    eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it))
                 }
                 it.isOpen
             }
