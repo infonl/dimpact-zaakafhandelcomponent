@@ -17,7 +17,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
-import { BehaviorSubject, firstValueFrom, Subscription } from "rxjs";
+import { BehaviorSubject, Subscription, firstValueFrom } from "rxjs";
 import { first } from "rxjs/operators";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
 import { User } from "src/app/identity/model/user";

@@ -702,6 +702,7 @@
   "msg.error.tegroot": "The {{label}} field contains a value that is too large. Enter at most {{max}}!",
   "msg.error.tekort": "The {{label}} field contains a value that is too short. Use at least {{requiredLength}} characters!",
   "msg.error.telang": "The {{label}} field contains a value that is too long. Use at most {{requiredLength}} characters!",
+  "msg.error.timeout": "The process was taking to long and has been cancelled.",
   "msg.error.invalid.postcode": "The {{label}} field contains an invalid zip code. Use the 1111AA format!",
   "msg.error.invalid.bsn": "The {{label}} field contains an invalid SSN. Enter a valid social security number!",
   "msg.error.invalid.huisnummer": "The {{label}} field can only contain numbers. Any additions are also found.",

@@ -488,12 +488,14 @@ class ProductaanvraagService @Inject constructor(
             bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
             communicatiekanaalNaam = ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER
             verantwoordelijkeOrganisatie = ConfiguratieService.BRON_ORGANISATIE
-            productaanvraag.zaakgegevens?.apply {
-                if (this.geometry != null && this.geometry.type == Geometry.Type.POINT) {
-                    zaakgeometrie = this.geometry.convertToZgwPoint()
+            productaanvraag.zaakgegevens?.let { zaakgegevens ->
+                // we currently only support 'point' geometry types
+                zaakgegevens.geometry?.takeIf { it.type == Geometry.Type.POINT }?.let {
+                    zaakgeometrie = it.convertToZgwPoint()
                 }
+                zaakgegevens.omschrijving?.let { omschrijving = it }
+                zaakgegevens.toelichting?.let { toelichting = it }
             }
-            // note that we leave the 'toelichting' field empty for a zaak created from a productaanvraag
         }.let(zgwApiService::createZaak)
 
         LOG.fine("Creating zaak using the ZGW API: $createdZaak")

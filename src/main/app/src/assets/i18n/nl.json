@@ -702,6 +702,7 @@
   "msg.error.tegroot": "Het {{label}}-veld bevat een te grote waarde. Vul maximaal {{max}} in!",
   "msg.error.tekort": "Het {{label}}-veld bevat een te korte waarde. Gebruik minimaal {{requiredLength}} tekens!",
   "msg.error.telang": "Het {{label}}-veld bevat een te lange waarde. Gebruik maximaal {{requiredLength}} tekens!",
+  "msg.error.timeout": "Het process duurde te lang en is afgebroken.",
   "msg.error.invalid.postcode": "Het {{label}}-veld bevat een ongeldige postcode. Gebruik het 1111AA formaat!",
   "msg.error.invalid.bsn": "Het {{label}}-veld bevat een ongeldig burgerservicenummer. Vul een valide burgerservicenummer in",
   "msg.error.invalid.huisnummer": "Het {{label}}-veld mag alleen bestaan uit cijfers. Eventuele toevoegingen worden ook gevonden.",
