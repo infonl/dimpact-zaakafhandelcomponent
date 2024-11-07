@@ -19,6 +19,7 @@ import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.json.bind.annotation.JsonbTransient;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.hibernate.validator.constraints.Length;
 
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
 import net.atos.client.zgw.shared.model.Archiefnominatie;
@@ -298,7 +299,7 @@ public class Zaak {
         return omschrijving;
     }
 
-    public void setOmschrijving(final String omschrijving) {
+    public void setOmschrijving(final @Length(max = OMSCHRIJVING_MAX_LENGTH) String omschrijving) {
         this.omschrijving = omschrijving;
     }
 
@@ -306,7 +307,7 @@ public class Zaak {
         return toelichting;
     }
 
-    public void setToelichting(final String toelichting) {
+    public void setToelichting(final @Length(max = TOELICHTING_MAX_LENGTH) String toelichting) {
         this.toelichting = toelichting;
     }
 

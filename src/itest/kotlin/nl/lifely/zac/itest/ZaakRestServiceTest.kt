@@ -46,6 +46,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVEN
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_REFERENTIEPROCES
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_2
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_EXPLANATION_1
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Betrokkene1Uuid
@@ -79,7 +80,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                 groupName = TEST_GROUP_A_DESCRIPTION,
                 startDate = DATE_TIME_2020_01_01,
                 communicatiekanaal = COMMUNICATIEKANAAL_TEST_1,
-                vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+                vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
+                description = ZAAK_DESCRIPTION_2,
+                toelichting = ZAAK_EXPLANATION_1
             )
             Then("the response should be a 200 HTTP response with the created zaak") {
                 response.code shouldBe HTTP_STATUS_OK
@@ -131,7 +134,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                       },
                       "registratiedatum": "${LocalDate.now()}",
                       "startdatum": "$DATE_2020_01_01",
-                      "toelichting": "",
+                      "toelichting": "$ZAAK_EXPLANATION_1",
                       "uiterlijkeEinddatumAfdoening": "$DATE_2020_01_15",
                       "verantwoordelijkeOrganisatie": "$VERANTWOORDELIJKE_ORGANISATIE",
                       "vertrouwelijkheidaanduiding": "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",

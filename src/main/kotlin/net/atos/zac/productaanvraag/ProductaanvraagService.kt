@@ -22,6 +22,7 @@ import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolVestiging
 import net.atos.client.zgw.zrc.model.Vestiging
 import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.client.zgw.zrc.model.Zaak.OMSCHRIJVING_MAX_LENGTH
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.client.zgw.ztc.ZtcClientService
@@ -83,11 +84,6 @@ class ProductaanvraagService @Inject constructor(
         private const val PRODUCTAANVRAAG_FORMULIER_VELD_BRON = "bron"
         private const val PRODUCTAANVRAAG_FORMULIER_VELD_TYPE = "type"
         private const val ROL_TOELICHTING = "Overgenomen vanuit de product aanvraag"
-
-        /**
-         * Maximum length of the description field in a zaak as defined by the ZGW ZRC API.
-         */
-        private const val ZAAK_DESCRIPTION_MAX_LENGTH = 80
         private const val ZAAK_INFORMATIEOBJECT_REDEN =
             "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
     }
@@ -345,13 +341,13 @@ class ProductaanvraagService @Inject constructor(
 
     private fun getZaakOmschrijving(productaanvraag: ProductaanvraagDimpact): String =
         "Aangemaakt vanuit ${productaanvraag.bron.naam} met kenmerk '${productaanvraag.bron.kenmerk}'".let {
-            return if (it.length > ZAAK_DESCRIPTION_MAX_LENGTH) {
+            return if (it.length > OMSCHRIJVING_MAX_LENGTH) {
                 // we truncate the zaak description to the maximum length allowed by the ZGW ZRC API
                 // or else it will not be accepted by the ZGW API implementation component
                 LOG.warning(
                     "Truncating zaak description '$it' to the maximum length allowed by the ZGW ZRC API"
                 )
-                it.substring(0, ZAAK_DESCRIPTION_MAX_LENGTH)
+                it.substring(0, OMSCHRIJVING_MAX_LENGTH)
             } else {
                 it
             }
@@ -483,19 +479,19 @@ class ProductaanvraagService @Inject constructor(
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
         val createdZaak = Zaak().apply {
             this.zaaktype = zaaktype.url
-            omschrijving = getZaakOmschrijving(productaanvraag)
             startdatum = productaanvraagObject.record.startAt
             bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
             communicatiekanaalNaam = ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER
             verantwoordelijkeOrganisatie = ConfiguratieService.BRON_ORGANISATIE
             productaanvraag.zaakgegevens?.let { zaakgegevens ->
-                // we currently only support 'point' geometry types
+                // we currently only support 'POINT' geometries
                 zaakgegevens.geometry?.takeIf { it.type == Geometry.Type.POINT }?.let {
                     zaakgeometrie = it.convertToZgwPoint()
                 }
-                zaakgegevens.omschrijving?.let { omschrijving = it }
                 zaakgegevens.toelichting?.let { toelichting = it }
             }
+            // if omschrijving is not set in the productaanvraag we generate a default one
+            omschrijving = productaanvraag.zaakgegevens?.omschrijving ?: getZaakOmschrijving(productaanvraag)
         }.let(zgwApiService::createZaak)
 
         LOG.fine("Creating zaak using the ZGW API: $createdZaak")

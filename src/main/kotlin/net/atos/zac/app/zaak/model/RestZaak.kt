@@ -6,6 +6,9 @@ package net.atos.zac.app.zaak.model
 
 import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.validation.Valid
+import jakarta.validation.constraints.Size
+import net.atos.client.zgw.zrc.model.Zaak.OMSCHRIJVING_MAX_LENGTH
+import net.atos.client.zgw.zrc.model.Zaak.TOELICHTING_MAX_LENGTH
 import net.atos.zac.app.identity.model.RestGroup
 import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.klant.model.klant.IdentificatieType
@@ -68,7 +71,10 @@ data class RestZaak(
     var isVerlengd: Boolean,
 
     var kenmerken: List<RESTZaakKenmerk>?,
+
+    @field:Size(max = OMSCHRIJVING_MAX_LENGTH)
     var omschrijving: String,
+
     var publicatiedatum: LocalDate?,
     var rechten: RestZaakRechten,
     var redenOpschorting: String?,
@@ -77,7 +83,10 @@ data class RestZaak(
     var resultaat: RestZaakResultaat?,
     var startdatum: LocalDate?,
     var status: RestZaakStatus?,
+
+    @field:Size(max = TOELICHTING_MAX_LENGTH)
     var toelichting: String?,
+
     var uiterlijkeEinddatumAfdoening: LocalDate?,
     var uuid: UUID,
     var verantwoordelijkeOrganisatie: String?,
