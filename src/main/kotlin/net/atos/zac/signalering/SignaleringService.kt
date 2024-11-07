@@ -18,6 +18,7 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
+import net.atos.zac.app.shared.RestPageParameters
 import net.atos.zac.app.signalering.converter.toRestSignaleringTaakSummary
 import net.atos.zac.app.signalering.model.RestSignaleringTaskSummary
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
@@ -207,14 +208,12 @@ class SignaleringService @Inject constructor(
     /**
      * Lists all signaleringen in a page
      *
-     * @param parameters parameters of the signaleringen to list
-     * @param pageNumber number of the page to list
-     * @param pageSize size of the page
+     * @param signaleringSearchParameters parameters of the signaleringen to list
+     * @param pageParameters page parameters
      */
     fun listSignaleringen(
-        parameters: SignaleringZoekParameters,
-        pageNumber: Int,
-        pageSize: Int
+        signaleringSearchParameters: SignaleringZoekParameters,
+        pageParameters: RestPageParameters
     ): List<Signalering> {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(
@@ -223,11 +222,11 @@ class SignaleringService @Inject constructor(
         val root = query.from(Signalering::class.java)
         return entityManager.createQuery(
             query.select(root)
-                .where(getSignaleringWhere(parameters, builder, root))
+                .where(getSignaleringWhere(signaleringSearchParameters, builder, root))
                 .orderBy(builder.desc(root.get<Any>("tijdstip")))
         )
-            .setFirstResult(pageNumber * pageSize)
-            .setMaxResults(pageSize)
+            .setFirstResult(pageParameters.page * pageParameters.rows)
+            .setMaxResults(pageParameters.rows)
             .resultList
     }
 
@@ -423,23 +422,25 @@ class SignaleringService @Inject constructor(
      */
     fun listZakenSignaleringenPage(
         signaleringsType: SignaleringType.Type,
-        pageNumber: Int,
-        pageSize: Int
+        pageParameters: RestPageParameters
     ): List<RestZaakOverzicht> =
         loggedInUserInstance.getSignaleringZoekParameters()
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.ZAAK)
             .let {
                 LOG.fine {
-                    "Listing page $pageNumber ($pageSize elements) for zaken signaleringen " +
+                    "Listing page ${pageParameters.page} (${pageParameters.rows} elements) for zaken signaleringen " +
                         "of type '$signaleringsType' ..."
                 }
-                listSignaleringen(it, pageNumber, pageSize)
+                listSignaleringen(it, pageParameters)
             }
             .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
             .map { restZaakOverzichtConverter.convertForDisplay(it) }
             .also {
-                LOG.fine { "Successfully listed page $pageNumber for zaken signaleringen of type '$signaleringsType'." }
+                LOG.fine {
+                    "Successfully listed page ${pageParameters.page} for zaken signaleringen " +
+                        "of type '$signaleringsType'."
+                }
             }
 
     /**

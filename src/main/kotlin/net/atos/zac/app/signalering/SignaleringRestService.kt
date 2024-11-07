@@ -21,9 +21,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
+import net.atos.zac.app.shared.RESTListParameters
+import net.atos.zac.app.shared.RESTResultaat
+import net.atos.zac.app.shared.RestPageParameters
 import net.atos.zac.app.signalering.converter.RestSignaleringInstellingenConverter
 import net.atos.zac.app.signalering.model.RestSignaleringInstellingen
 import net.atos.zac.app.signalering.model.RestSignaleringTaskSummary
+import net.atos.zac.app.zaak.model.RestZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.signalering.SignaleringService
@@ -44,16 +48,6 @@ class SignaleringRestService @Inject constructor(
     private val restSignaleringInstellingenConverter: RestSignaleringInstellingenConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
-
-    companion object {
-        private const val TOTAL_COUNT_HEADER = "X-Total-Count"
-
-        private const val INITIAL_PAGE = "0"
-        private const val DEFAULT_PAGE_SIZE = "5"
-
-        private const val PAGE_NUMBER = "page-number"
-        private const val PAGE_SIZE = "page-size"
-    }
 
     private fun Instance<LoggedInUser>.getSignaleringInstellingenZoekParameters() =
         SignaleringInstellingenZoekParameters(get())
@@ -84,21 +78,18 @@ class SignaleringRestService @Inject constructor(
     /**
      * Lists zaken signaleringen for the given signaleringsType.
      */
-    @GET
+    @PUT
     @Path("/zaken/{type}")
     fun listZakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
-        @QueryParam(PAGE_NUMBER) @DefaultValue(INITIAL_PAGE) pageNumber: Int,
-        @QueryParam(PAGE_SIZE) @DefaultValue(DEFAULT_PAGE_SIZE) pageSize: Int
-    ): Response =
+        pageParameters: RestPageParameters
+    ): RESTResultaat<RestZaakOverzicht> =
         signaleringService.countZakenSignaleringen(signaleringsType).let { objectsCount ->
-            if (pageNumber > objectsCount.maxPages(pageSize)) {
-                return Response.status(Response.Status.NOT_FOUND).build()
-            }
-            Response.ok()
-                .header(TOTAL_COUNT_HEADER, objectsCount)
-                .entity(signaleringService.listZakenSignaleringenPage(signaleringsType, pageNumber, pageSize))
-                .build()
+            require(pageParameters.page > objectsCount.maxPages(pageParameters.rows))
+            RESTResultaat(
+                signaleringService.listZakenSignaleringenPage(signaleringsType, pageParameters),
+                objectsCount
+            )
         }
 
     private fun Long.maxPages(pageSize: Int) = (this + pageSize - 1) / pageSize
