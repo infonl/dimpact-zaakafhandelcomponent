@@ -34,16 +34,18 @@ export class ZakenCardComponent
   pageSize = 5;
   pageNumber = signal(0);
 
-  parameters = computed(() => {
-    return { pageNumber: this.pageNumber(), pageSize: this.pageSize };
-  });
+  parameters = computed(() => ({
+    signaleringType: this.data.signaleringType,
+    pageNumber: this.pageNumber(),
+    pageSize: this.pageSize,
+  }));
 
   zakenQuery = injectQuery(() => ({
     queryKey: ["aan mij toegekende zaken signaleringen", this.parameters()],
     queryFn: () =>
       firstValueFrom(
         this.signaleringenService.listZakenSignalering({
-          signaleringType: this.data.signaleringType,
+          signaleringType: this.parameters().signaleringType,
           pageNumber: this.parameters().pageNumber,
           pageSize: this.parameters().pageSize,
         }),
