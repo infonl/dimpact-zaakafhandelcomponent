@@ -283,7 +283,6 @@ class SignaleringRestServiceTest : BehaviorSpec({
             logger.info { "Response: $responseBody" }
             response.isSuccessful shouldBe true
 
-
             Then("list size is returned") {
                 response.headers["X-Total-Count"] shouldBe "1"
             }
