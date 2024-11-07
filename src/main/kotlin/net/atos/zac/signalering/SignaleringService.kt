@@ -125,16 +125,21 @@ class SignaleringService @Inject constructor(
         signalering.targettype != SignaleringTarget.USER || signalering.target != actor
 
     @Transactional(REQUIRED)
-    fun storeSignalering(signalering: Signalering): Signalering {
+    fun storeSignalering(signalering: Signalering) {
         ValidationUtil.valideerObject(signalering)
+
+        var eventAlreadySent = false
 
         val signaleringToStore = findSignalering(signalering)?.apply {
             LOG.info("Replacing $this timestamp $tijdstip with ${signalering.tijdstip}")
             tijdstip = signalering.tijdstip
+            eventAlreadySent = true
         } ?: signalering
 
-        return entityManager.merge(signaleringToStore).also {
-            eventingService.send(ScreenEventType.SIGNALERINGEN.updated(it))
+        entityManager.merge(signaleringToStore)
+
+        if (!eventAlreadySent) {
+            eventingService.send(ScreenEventType.SIGNALERINGEN.updated(signalering))
         }
     }
 
