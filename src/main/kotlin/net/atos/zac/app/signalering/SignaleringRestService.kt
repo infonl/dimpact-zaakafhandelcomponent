@@ -20,8 +20,10 @@ import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import net.atos.zac.app.signalering.converter.RestSignaleringInstellingenConverter
 import net.atos.zac.app.signalering.model.RestSignaleringInstellingen
+import net.atos.zac.app.signalering.model.RestSignaleringTaskSummary
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.signalering.SignaleringService
@@ -48,7 +50,6 @@ class SignaleringRestService @Inject constructor(
 
         private const val INITIAL_PAGE = "0"
         private const val DEFAULT_PAGE_SIZE = "5"
-        private const val BACKWARD_COMPATIBILITY_PAGE_SIZE = "1000"
 
         private const val PAGE_NUMBER = "page-number"
         private const val PAGE_SIZE = "page-size"
@@ -100,41 +101,21 @@ class SignaleringRestService @Inject constructor(
                 .build()
         }
 
+    private fun Long.maxPages(pageSize: Int) = (this + pageSize - 1) / pageSize
+
     @GET
     @Path("/taken/{type}")
     fun listTakenSignaleringen(
-        @PathParam("type") signaleringsType: SignaleringType.Type,
-        @QueryParam(PAGE_NUMBER) @DefaultValue(INITIAL_PAGE) pageNumber: Int,
-        @QueryParam(PAGE_SIZE) @DefaultValue(BACKWARD_COMPATIBILITY_PAGE_SIZE) pageSize: Int
-    ): Response =
-        signaleringService.countTakenSignaleringen(signaleringsType).let { objectsCount ->
-            if (pageNumber > objectsCount.maxPages(pageSize)) {
-                return Response.status(Response.Status.NOT_FOUND).build()
-            }
-            Response.ok()
-                .header(TOTAL_COUNT_HEADER, objectsCount)
-                .entity(signaleringService.listTakenSignaleringenPage(signaleringsType, pageNumber, pageSize))
-                .build()
-        }
+        @PathParam("type") signaleringsType: SignaleringType.Type
+    ): List<RestSignaleringTaskSummary> =
+        signaleringService.listTakenSignaleringenPage(signaleringsType)
 
     @GET
     @Path("/informatieobjecten/{type}")
     fun listInformatieobjectenSignaleringen(
-        @PathParam("type") signaleringsType: SignaleringType.Type,
-        @QueryParam(PAGE_NUMBER) @DefaultValue(INITIAL_PAGE) pageNumber: Int,
-        @QueryParam(PAGE_SIZE) @DefaultValue(BACKWARD_COMPATIBILITY_PAGE_SIZE) pageSize: Int
-    ): Response =
-        signaleringService.countInformatieobjectenSignaleringen(signaleringsType).let { objectsCount ->
-            if (pageNumber > objectsCount.maxPages(pageSize)) {
-                return Response.status(Response.Status.NOT_FOUND).build()
-            }
-            Response.ok()
-                .header(TOTAL_COUNT_HEADER, objectsCount)
-                .entity(signaleringService.listInformatieobjectenSignaleringen(signaleringsType, pageNumber, pageSize))
-                .build()
-        }
-
-    private fun Long.maxPages(pageSize: Int) = (this + pageSize - 1) / pageSize
+        @PathParam("type") signaleringsType: SignaleringType.Type
+    ): List<RestEnkelvoudigInformatieobject> =
+        signaleringService.listInformatieobjectenSignaleringen(signaleringsType)
 
     @GET
     @Path("/instellingen")
