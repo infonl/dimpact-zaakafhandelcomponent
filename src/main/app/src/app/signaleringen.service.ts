@@ -6,10 +6,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
-import { catchError, switchMap } from "rxjs/operators";
-import { v4 as uuidv4 } from "uuid";
-import { ObjectType } from "./core/websocket/model/object-type";
-import { Opcode } from "./core/websocket/model/opcode";
+import { catchError, map, switchMap } from "rxjs/operators";
 import { WebsocketService } from "./core/websocket/websocket.service";
 import { FoutAfhandelingService } from "./fout-afhandeling/fout-afhandeling.service";
 import { EnkelvoudigInformatieobject } from "./informatie-objecten/model/enkelvoudig-informatieobject";
@@ -47,21 +44,30 @@ export class SignaleringenService {
       );
   }
 
-  listZakenSignalering(
-    signaleringType: SignaleringType,
-  ): Observable<ZaakOverzicht[]> {
-    const screenEventResourceId = uuidv4();
-    return this.websocketService.longRunningOperation<ZaakOverzicht[]>(
-      Opcode.UPDATED,
-      ObjectType.ZAKEN_SIGNALERINGEN,
-      screenEventResourceId,
-      () =>
-        this.http.put<void>(
-          `${this.basepath}/zaken/${signaleringType}`,
-          screenEventResourceId,
-          { headers: { "content-type": "application/json" } },
-        ),
-    );
+  listZakenSignalering(params: {
+    signaleringType: SignaleringType;
+    pageNumber: number;
+    pageSize: number;
+  }): Observable<{ total: number; zaken: ZaakOverzicht[] }> {
+    const { signaleringType, pageNumber, pageSize } = params;
+    return this.http
+      .get(
+        `${this.basepath}/zaken/${signaleringType}?page-number=${pageNumber}&page-size=${pageSize}`,
+        {
+          observe: "response",
+        },
+      )
+      .pipe(
+        map((response) => {
+          const total = parseInt(
+            response.headers.get("x-total-count") || "0",
+            10,
+          );
+          const zaken = response.body as ZaakOverzicht[];
+          return { total, zaken };
+        }),
+        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+      );
   }
 
   listTakenSignalering(
