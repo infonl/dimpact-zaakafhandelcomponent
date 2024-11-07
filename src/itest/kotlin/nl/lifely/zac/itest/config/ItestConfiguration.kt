@@ -204,8 +204,9 @@ object ItestConfiguration {
     const val SMTP_SERVER_PORT = 25
     const val VERANTWOORDELIJKE_ORGANISATIE = "316245124"
     const val VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING"
-    const val ZAAK_DESCRIPTION_1 = "dummyDescription"
-    const val ZAAK_DESCRIPTION_2 = "dummyOmschrijving"
+    const val ZAAK_DESCRIPTION_1 = "dummyZaakDescription1"
+    const val ZAAK_DESCRIPTION_2 = "dummyZaakDescription2"
+    const val ZAAK_EXPLANATION_1 = "dummyZaakExplanation1"
 
     /**
      * First zaak created from a productaanvraag.

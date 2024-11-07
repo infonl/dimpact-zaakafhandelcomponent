@@ -214,6 +214,7 @@ class ZacClient {
         groupId: String,
         groupName: String,
         description: String? = "dummyOmschrijving",
+        toelichting: String? = null,
         startDate: ZonedDateTime,
         communicatiekanaal: String? = COMMUNICATIEKANAAL_TEST_1,
         vertrouwelijkheidaanduiding: String? = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
@@ -237,7 +238,7 @@ class ZacClient {
                 "    \"communicatiekanaal\": \"$communicatiekanaal\",\n" +
                 "    \"vertrouwelijkheidaanduiding\": \"$vertrouwelijkheidaanduiding\",\n" +
                 "    \"omschrijving\": \"$description\",\n" +
-                "    \"toelichting\": null\n" +
+                "    \"toelichting\": \"$toelichting\"\n" +
                 "  },\n" +
                 "  \"bagObjecten\": []\n" +
                 "}"

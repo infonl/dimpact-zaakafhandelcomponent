@@ -40,7 +40,7 @@ class ZGWApiServiceTest : BehaviorSpec({
     }
 
     Given("A zaak with an existing result") {
-        val dummyResultaat = URI("http://example.com/${UUID.randomUUID()}")
+        val dummyResultaat = URI("https://example.com/${UUID.randomUUID()}")
         val zaak = createZaak(
             resultaat = dummyResultaat
         )
