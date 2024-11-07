@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Objecttypes API
-  version: 2.1.0 (v2)
+  version: 2.2.2 (v2)
   description: |+
     An API to manage Object types.
 
@@ -40,34 +40,39 @@ paths:
   /objecttypes:
     get:
       operationId: objecttype_list
-      description: ''
       parameters:
-        - in: query
-          name: dataClassification
-          schema:
-            type: string
-            enum:
-              - confidential
-              - intern
-              - open
-              - strictly_confidential
-          description: Confidential level of the object type
-        - name: page
-          required: false
-          in: query
-          description: A page number within the paginated result set.
-          schema:
-            type: integer
-        - name: pageSize
-          required: false
-          in: query
-          description: Number of results to return per page.
-          schema:
-            type: integer
+      - in: query
+        name: dataClassification
+        schema:
+          type: string
+          enum:
+          - confidential
+          - intern
+          - open
+          - strictly_confidential
+        description: |-
+          Confidential level of the object type
+
+          * `open` - Open
+          * `intern` - Intern
+          * `confidential` - Confidential
+          * `strictly_confidential` - Strictly confidential
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
       tags:
-        - Objecttypes
+      - Objecttypes
       security:
-        - tokenAuth: [ ]
+      - tokenAuth: []
       responses:
         '200':
           content:
@@ -77,18 +82,17 @@ paths:
           description: OK
     post:
       operationId: objecttype_create
-      description: ''
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type of the request body.
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type of the request body.
+        required: true
       tags:
-        - Objecttypes
+      - Objecttypes
       requestBody:
         content:
           application/json:
@@ -96,7 +100,7 @@ paths:
               $ref: '#/components/schemas/ObjectType'
         required: true
       security:
-        - tokenAuth: [ ]
+      - tokenAuth: []
       responses:
         '201':
           content:
@@ -107,31 +111,30 @@ paths:
   /objecttypes/{objecttype_uuid}/versions:
     get:
       operationId: objectversion_list
-      description: ''
       parameters:
-        - in: path
-          name: objecttype_uuid
-          schema:
-            type: string
-            format: uuid
-          description: Unique identifier (UUID4)
-          required: true
-        - name: page
-          required: false
-          in: query
-          description: A page number within the paginated result set.
-          schema:
-            type: integer
-        - name: pageSize
-          required: false
-          in: query
-          description: Number of results to return per page.
-          schema:
-            type: integer
+      - in: path
+        name: objecttype_uuid
+        schema:
+          type: string
+          format: uuid
+        description: Unique identifier (UUID4)
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
       tags:
-        - Objecttypes
+      - Objecttypes
       security:
-        - tokenAuth: [ ]
+      - tokenAuth: []
       responses:
         '200':
           content:
@@ -141,32 +144,31 @@ paths:
           description: OK
     post:
       operationId: objectversion_create
-      description: ''
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type of the request body.
-          required: true
-        - in: path
-          name: objecttype_uuid
-          schema:
-            type: string
-            format: uuid
-          description: Unique identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type of the request body.
+        required: true
+      - in: path
+        name: objecttype_uuid
+        schema:
+          type: string
+          format: uuid
+        description: Unique identifier (UUID4)
+        required: true
       tags:
-        - Objecttypes
+      - Objecttypes
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/ObjectVersion'
       security:
-        - tokenAuth: [ ]
+      - tokenAuth: []
       responses:
         '201':
           content:
@@ -177,26 +179,26 @@ paths:
   /objecttypes/{objecttype_uuid}/versions/{version}:
     get:
       operationId: objectversion_read
-      description: ''
       parameters:
-        - in: path
-          name: objecttype_uuid
-          schema:
-            type: string
-            format: uuid
-          description: Unique identifier (UUID4)
-          required: true
-        - in: path
-          name: version
-          schema:
-            type: integer
-            maximum: 32767
-            description: Integer version of the OBJECTTYPE
-          required: true
+      - in: path
+        name: objecttype_uuid
+        schema:
+          type: string
+          format: uuid
+        description: Unique identifier (UUID4)
+        required: true
+      - in: path
+        name: version
+        schema:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          description: Integer version of the OBJECTTYPE
+        required: true
       tags:
-        - Objecttypes
+      - Objecttypes
       security:
-        - tokenAuth: [ ]
+      - tokenAuth: []
       responses:
         '200':
           content:
@@ -206,39 +208,39 @@ paths:
           description: OK
     put:
       operationId: objectversion_update
-      description: ''
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type of the request body.
-          required: true
-        - in: path
-          name: objecttype_uuid
-          schema:
-            type: string
-            format: uuid
-          description: Unique identifier (UUID4)
-          required: true
-        - in: path
-          name: version
-          schema:
-            type: integer
-            maximum: 32767
-            description: Integer version of the OBJECTTYPE
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type of the request body.
+        required: true
+      - in: path
+        name: objecttype_uuid
+        schema:
+          type: string
+          format: uuid
+        description: Unique identifier (UUID4)
+        required: true
+      - in: path
+        name: version
+        schema:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          description: Integer version of the OBJECTTYPE
+        required: true
       tags:
-        - Objecttypes
+      - Objecttypes
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/ObjectVersion'
       security:
-        - tokenAuth: [ ]
+      - tokenAuth: []
       responses:
         '200':
           content:
@@ -248,39 +250,39 @@ paths:
           description: OK
     patch:
       operationId: objectversion_partial_update
-      description: ''
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type of the request body.
-          required: true
-        - in: path
-          name: objecttype_uuid
-          schema:
-            type: string
-            format: uuid
-          description: Unique identifier (UUID4)
-          required: true
-        - in: path
-          name: version
-          schema:
-            type: integer
-            maximum: 32767
-            description: Integer version of the OBJECTTYPE
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type of the request body.
+        required: true
+      - in: path
+        name: objecttype_uuid
+        schema:
+          type: string
+          format: uuid
+        description: Unique identifier (UUID4)
+        required: true
+      - in: path
+        name: version
+        schema:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          description: Integer version of the OBJECTTYPE
+        required: true
       tags:
-        - Objecttypes
+      - Objecttypes
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchedObjectVersion'
       security:
-        - tokenAuth: [ ]
+      - tokenAuth: []
       responses:
         '200':
           content:
@@ -290,45 +292,44 @@ paths:
           description: OK
     delete:
       operationId: objectversion_delete
-      description: ''
       parameters:
-        - in: path
-          name: objecttype_uuid
-          schema:
-            type: string
-            format: uuid
-          description: Unique identifier (UUID4)
-          required: true
-        - in: path
-          name: version
-          schema:
-            type: integer
-            maximum: 32767
-            description: Integer version of the OBJECTTYPE
-          required: true
+      - in: path
+        name: objecttype_uuid
+        schema:
+          type: string
+          format: uuid
+        description: Unique identifier (UUID4)
+        required: true
+      - in: path
+        name: version
+        schema:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          description: Integer version of the OBJECTTYPE
+        required: true
       tags:
-        - Objecttypes
+      - Objecttypes
       security:
-        - tokenAuth: [ ]
+      - tokenAuth: []
       responses:
         '204':
           description: No response body
   /objecttypes/{uuid}:
     get:
       operationId: objecttype_read
-      description: ''
       parameters:
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unique identifier (UUID4)
-          required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
       tags:
-        - Objecttypes
+      - Objecttypes
       security:
-        - tokenAuth: [ ]
+      - tokenAuth: []
       responses:
         '200':
           content:
@@ -338,25 +339,24 @@ paths:
           description: OK
     put:
       operationId: objecttype_update
-      description: ''
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type of the request body.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unique identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type of the request body.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
       tags:
-        - Objecttypes
+      - Objecttypes
       requestBody:
         content:
           application/json:
@@ -364,7 +364,7 @@ paths:
               $ref: '#/components/schemas/ObjectType'
         required: true
       security:
-        - tokenAuth: [ ]
+      - tokenAuth: []
       responses:
         '200':
           content:
@@ -374,32 +374,31 @@ paths:
           description: OK
     patch:
       operationId: objecttype_partial_update
-      description: ''
       parameters:
-        - in: header
-          name: Content-Type
-          schema:
-            type: string
-            enum:
-              - application/json
-          description: Content type of the request body.
-          required: true
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unique identifier (UUID4)
-          required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type of the request body.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
       tags:
-        - Objecttypes
+      - Objecttypes
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchedObjectType'
       security:
-        - tokenAuth: [ ]
+      - tokenAuth: []
       responses:
         '200':
           content:
@@ -409,19 +408,18 @@ paths:
           description: OK
     delete:
       operationId: objecttype_delete
-      description: ''
       parameters:
-        - in: path
-          name: uuid
-          schema:
-            type: string
-            format: uuid
-            description: Unique identifier (UUID4)
-          required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
       tags:
-        - Objecttypes
+      - Objecttypes
       security:
-        - tokenAuth: [ ]
+      - tokenAuth: []
       responses:
         '204':
           description: No response body
@@ -429,11 +427,16 @@ components:
   schemas:
     DataClassificationEnum:
       enum:
-        - open
-        - intern
-        - confidential
-        - strictly_confidential
+      - open
+      - intern
+      - confidential
+      - strictly_confidential
       type: string
+      description: |-
+        * `open` - Open
+        * `intern` - Intern
+        * `confidential` - Confidential
+        * `strictly_confidential` - Strictly confidential
     ObjectType:
       type: object
       properties:
@@ -463,8 +466,14 @@ components:
           maxLength: 1000
         dataClassification:
           allOf:
-            - $ref: '#/components/schemas/DataClassificationEnum'
-          description: Confidential level of the object type
+          - $ref: '#/components/schemas/DataClassificationEnum'
+          description: |-
+            Confidential level of the object type
+
+            * `open` - Open
+            * `intern` - Intern
+            * `confidential` - Confidential
+            * `strictly_confidential` - Strictly confidential
         maintainerOrganization:
           type: string
           description: Organization which is responsible for the object type
@@ -489,8 +498,17 @@ components:
           maxLength: 200
         updateFrequency:
           allOf:
-            - $ref: '#/components/schemas/UpdateFrequencyEnum'
-          description: Indicates how often the object type is updated
+          - $ref: '#/components/schemas/UpdateFrequencyEnum'
+          description: |-
+            Indicates how often the object type is updated
+
+            * `real_time` - Real-time
+            * `hourly` - Hourly
+            * `daily` - Daily
+            * `weekly` - Weekly
+            * `monthly` - Monthly
+            * `yearly` - Yearly
+            * `unknown` - Unknown
         providerOrganization:
           type: string
           description: Organization which is responsible for publication of the object
@@ -502,8 +520,6 @@ components:
           description: Link to the documentation for the object type
           maxLength: 200
         labels:
-          type: object
-          additionalProperties: { }
           description: Key-value pairs of keywords related for the object type
         createdAt:
           type: string
@@ -529,8 +545,8 @@ components:
           readOnly: true
           description: list of URLs for the OBJECTTYPE versions
       required:
-        - name
-        - namePlural
+      - name
+      - namePlural
     ObjectVersion:
       type: object
       description: |-
@@ -556,11 +572,14 @@ components:
           readOnly: true
         status:
           allOf:
-            - $ref: '#/components/schemas/StatusEnum'
-          description: Status of the object type version
+          - $ref: '#/components/schemas/StatusEnum'
+          description: |-
+            Status of the object type version
+
+            * `published` - Published
+            * `draft` - Draft
+            * `deprecated` - Deprecated
         jsonSchema:
-          type: object
-          additionalProperties: { }
           title: JSON schema
           description: JSON schema for Object validation
         createdAt:
@@ -577,10 +596,14 @@ components:
           type: string
           format: date
           readOnly: true
+          nullable: true
           title: Published_at
           description: Date when the version was published
     PaginatedObjectTypeList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -601,6 +624,9 @@ components:
             $ref: '#/components/schemas/ObjectType'
     PaginatedObjectVersionList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -648,8 +674,14 @@ components:
           maxLength: 1000
         dataClassification:
           allOf:
-            - $ref: '#/components/schemas/DataClassificationEnum'
-          description: Confidential level of the object type
+          - $ref: '#/components/schemas/DataClassificationEnum'
+          description: |-
+            Confidential level of the object type
+
+            * `open` - Open
+            * `intern` - Intern
+            * `confidential` - Confidential
+            * `strictly_confidential` - Strictly confidential
         maintainerOrganization:
           type: string
           description: Organization which is responsible for the object type
@@ -674,8 +706,17 @@ components:
           maxLength: 200
         updateFrequency:
           allOf:
-            - $ref: '#/components/schemas/UpdateFrequencyEnum'
-          description: Indicates how often the object type is updated
+          - $ref: '#/components/schemas/UpdateFrequencyEnum'
+          description: |-
+            Indicates how often the object type is updated
+
+            * `real_time` - Real-time
+            * `hourly` - Hourly
+            * `daily` - Daily
+            * `weekly` - Weekly
+            * `monthly` - Monthly
+            * `yearly` - Yearly
+            * `unknown` - Unknown
         providerOrganization:
           type: string
           description: Organization which is responsible for publication of the object
@@ -687,8 +728,6 @@ components:
           description: Link to the documentation for the object type
           maxLength: 200
         labels:
-          type: object
-          additionalProperties: { }
           description: Key-value pairs of keywords related for the object type
         createdAt:
           type: string
@@ -738,11 +777,14 @@ components:
           readOnly: true
         status:
           allOf:
-            - $ref: '#/components/schemas/StatusEnum'
-          description: Status of the object type version
+          - $ref: '#/components/schemas/StatusEnum'
+          description: |-
+            Status of the object type version
+
+            * `published` - Published
+            * `draft` - Draft
+            * `deprecated` - Deprecated
         jsonSchema:
-          type: object
-          additionalProperties: { }
           title: JSON schema
           description: JSON schema for Object validation
         createdAt:
@@ -759,24 +801,37 @@ components:
           type: string
           format: date
           readOnly: true
+          nullable: true
           title: Published_at
           description: Date when the version was published
     StatusEnum:
       enum:
-        - published
-        - draft
-        - deprecated
+      - published
+      - draft
+      - deprecated
       type: string
+      description: |-
+        * `published` - Published
+        * `draft` - Draft
+        * `deprecated` - Deprecated
     UpdateFrequencyEnum:
       enum:
-        - real_time
-        - hourly
-        - daily
-        - weekly
-        - monthly
-        - yearly
-        - unknown
+      - real_time
+      - hourly
+      - daily
+      - weekly
+      - monthly
+      - yearly
+      - unknown
       type: string
+      description: |-
+        * `real_time` - Real-time
+        * `hourly` - Hourly
+        * `daily` - Daily
+        * `weekly` - Weekly
+        * `monthly` - Monthly
+        * `yearly` - Yearly
+        * `unknown` - Unknown
   securitySchemes:
     tokenAuth:
       type: apiKey
@@ -784,8 +839,8 @@ components:
       name: Authorization
       description: Token-based authentication with required prefix "Token"
 tags:
-  - name: Objecttypes
+- name: Objecttypes
 externalDocs:
   url: https://objects-and-objecttypes-api.readthedocs.io/
 servers:
-  - url: /api/v2
+- url: /api/v2
