@@ -1,7 +1,7 @@
 [
     {
         "model": "token.tokenauth",
-        "pk": "dummyZacObjectTypesToken",
+        "pk": "123456",
         "fields": {
             "contact_person": "Dummy Contact",
             "email": "dummy@example.com",
