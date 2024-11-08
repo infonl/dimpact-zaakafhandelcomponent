@@ -1,9 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.zoeken.model
 
-package net.atos.zac.zoeken.model;
-
-public record FilterResultaat(String naam, long aantal) {
-}
+data class FilterResultaat(val naam: String, val aantal: Long)

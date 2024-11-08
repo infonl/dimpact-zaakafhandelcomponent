@@ -37,7 +37,7 @@ class TaakZoekObjectConverter @Inject constructor(
         return TaakZoekObject().apply {
             naam = taskInfo.name
             this.id = taskInfo.id
-            type = ZoekObjectType.TAAK
+            setType(ZoekObjectType.TAAK)
             creatiedatum = taskInfo.createTime
             toekenningsdatum = taskInfo.claimTime
             fataledatum = taskInfo.dueDate

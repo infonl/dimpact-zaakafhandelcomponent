@@ -135,7 +135,7 @@ class ZoekenService @Inject constructor(
         }
 
     private fun getFilterQueriesForZoekenParameters(zoekParameters: ZoekParameters): List<String> =
-        zoekParameters.zoeken.mapNotNull { (searchField, text) ->
+        zoekParameters.getZoeken().mapNotNull { (searchField, text) ->
             if (text.isNotBlank()) {
                 val queryText = if (searchField == ZoekVeld.ZAAK_IDENTIFICATIE || searchField == ZoekVeld.TAAK_ZAAK_ID) {
                     "(*${encoded(text)}*)"

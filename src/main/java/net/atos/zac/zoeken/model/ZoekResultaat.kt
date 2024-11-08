@@ -1,23 +1,20 @@
-package net.atos.zac.zoeken.model;
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package net.atos.zac.zoeken.model
 
-import java.util.EnumMap;
-import java.util.List;
+import net.atos.zac.shared.model.Resultaat
+import java.util.EnumMap
 
-import net.atos.zac.shared.model.Resultaat;
+class ZoekResultaat<TYPE>(items: List<TYPE>?, count: Long) :
+    Resultaat<TYPE>(items, count) {
 
-public class ZoekResultaat<TYPE> extends Resultaat<TYPE> {
+    val filters: EnumMap<FilterVeld, List<FilterResultaat>> = EnumMap(
+        FilterVeld::class.java
+    )
 
-    private final EnumMap<FilterVeld, List<FilterResultaat>> filters = new EnumMap<>(FilterVeld.class);
-
-    public ZoekResultaat(final List<TYPE> items, final long count) {
-        super(items, count);
-    }
-
-    public EnumMap<FilterVeld, List<FilterResultaat>> getFilters() {
-        return filters;
-    }
-
-    public void addFilter(final FilterVeld facetVeld, final List<FilterResultaat> waardes) {
-        filters.put(facetVeld, waardes);
+    fun addFilter(facetVeld: FilterVeld, waardes: List<FilterResultaat>) {
+        filters[facetVeld] = waardes
     }
 }

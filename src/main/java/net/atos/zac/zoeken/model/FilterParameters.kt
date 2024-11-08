@@ -1,11 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.zoeken.model
 
-package net.atos.zac.zoeken.model;
-
-import java.util.List;
-
-public record FilterParameters(List<String> waarden, boolean inverse) {
-}
+data class FilterParameters(val waarden: List<String>, val inverse: Boolean)

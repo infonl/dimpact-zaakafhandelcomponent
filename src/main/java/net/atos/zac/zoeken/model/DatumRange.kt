@@ -1,11 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.zoeken.model
 
-package net.atos.zac.zoeken.model;
+import java.time.LocalDate
 
-import java.time.LocalDate;
-
-public record DatumRange(LocalDate van, LocalDate tot) {
-}
+data class DatumRange(val van: LocalDate?, val tot: LocalDate?)

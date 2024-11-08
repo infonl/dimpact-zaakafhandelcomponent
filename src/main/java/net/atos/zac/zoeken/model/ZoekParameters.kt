@@ -2,128 +2,78 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.zoeken.model
 
-package net.atos.zac.zoeken.model;
+import net.atos.zac.shared.model.SorteerRichting
+import net.atos.zac.zoeken.model.index.ZoekObjectType
+import java.util.EnumMap
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+class ZoekParameters(val type: ZoekObjectType?) {
+    var rows: Int = 0
 
-import net.atos.zac.shared.model.SorteerRichting;
-import net.atos.zac.zoeken.model.index.ZoekObjectType;
+    var start: Int = 0
 
-public class ZoekParameters {
+    private var zoeken = EnumMap<ZoekVeld, String>(ZoekVeld::class.java)
 
-    private int rows;
+    var datums: EnumMap<DatumVeld, DatumRange> = EnumMap(DatumVeld::class.java)
 
-    private int start;
+    val filters: EnumMap<FilterVeld, FilterParameters> = EnumMap(
+        FilterVeld::class.java
+    )
 
-    private final ZoekObjectType type;
+    val filterQueries: HashMap<String, String> = HashMap()
 
-    private EnumMap<ZoekVeld, String> zoeken = new EnumMap<>(ZoekVeld.class);
+    var sortering: Sortering = Sortering(SorteerVeld.CREATED, SorteerRichting.DESCENDING)
+        private set
 
-    private EnumMap<DatumVeld, DatumRange> datums = new EnumMap<>(DatumVeld.class);
-
-    private final EnumMap<FilterVeld, FilterParameters> filters = new EnumMap<>(FilterVeld.class);
-
-    private final HashMap<String, String> filterQueries = new HashMap<>();
-
-    private Sortering sortering = new Sortering(SorteerVeld.CREATED, SorteerRichting.DESCENDING);
-
-    public ZoekParameters(final ZoekObjectType type) {
-        this.type = type;
-        this.getBeschikbareFilters().forEach(filterVeld -> this.addFilter(filterVeld, new FilterParameters(new ArrayList<>(), false)));
+    init {
+        beschikbareFilters.forEach { this.addFilter(it, FilterParameters(arrayListOf(), false)) }
     }
 
-    public int getRows() {
-        return rows;
+    fun getZoeken(): Map<ZoekVeld, String> {
+        return zoeken
     }
 
-    public void setRows(final int rows) {
-        this.rows = rows;
+    fun setZoeken(zoeken: EnumMap<ZoekVeld, String>) {
+        this.zoeken = zoeken
     }
 
-    public int getStart() {
-        return start;
+    fun addZoekVeld(zoekVeld: ZoekVeld, zoekTekst: String) {
+        zoeken[zoekVeld] = zoekTekst
     }
 
-    public void setStart(final int start) {
-        this.start = start;
+    fun addDatum(zoekVeld: DatumVeld, range: DatumRange) {
+        datums[zoekVeld] = range
     }
 
-    public Map<ZoekVeld, String> getZoeken() {
-        return zoeken;
+    fun addFilter(veld: FilterVeld, waarde: String) {
+        filters[veld] = FilterParameters(listOf(waarde), false)
     }
 
-    public void setZoeken(final EnumMap<ZoekVeld, String> zoeken) {
-        this.zoeken = zoeken;
+    fun addFilter(veld: FilterVeld, filterParameters: FilterParameters) {
+        filters[veld] = filterParameters
     }
 
-    public void addZoekVeld(final ZoekVeld zoekVeld, final String zoekTekst) {
-        this.zoeken.put(zoekVeld, zoekTekst);
+    fun addFilterQuery(veld: String, waarde: String) {
+        filterQueries[veld] = waarde
     }
 
-    public EnumMap<DatumVeld, DatumRange> getDatums() {
-        return datums;
+    fun setSortering(veld: SorteerVeld, richting: SorteerRichting) {
+        this.sortering = Sortering(veld, richting)
     }
 
-    public void setDatums(final EnumMap<DatumVeld, DatumRange> datums) {
-        this.datums = datums;
-    }
+    val isGlobaalZoeken: Boolean
+        get() = this.type == null
 
-    public void addDatum(final DatumVeld zoekVeld, final DatumRange range) {
-        this.datums.put(zoekVeld, range);
-    }
-
-
-    public EnumMap<FilterVeld, FilterParameters> getFilters() {
-        return filters;
-    }
-
-
-    public void addFilter(FilterVeld veld, String waarde) {
-        this.filters.put(veld, new FilterParameters(List.of(waarde), false));
-    }
-
-    public void addFilter(FilterVeld veld, FilterParameters filterParameters) {
-        this.filters.put(veld, filterParameters);
-    }
-
-    public void addFilterQuery(final String veld, final String waarde) {
-        this.filterQueries.put(veld, waarde);
-    }
-
-    public HashMap<String, String> getFilterQueries() {
-        return filterQueries;
-    }
-
-    public Sortering getSortering() {
-        return sortering;
-    }
-
-    public void setSortering(final SorteerVeld veld, SorteerRichting richting) {
-        this.sortering = new Sortering(veld, richting);
-    }
-
-    public ZoekObjectType getType() {
-        return type;
-    }
-
-    public boolean isGlobaalZoeken() {
-        return this.type == null;
-    }
-
-    private Set<FilterVeld> getBeschikbareFilters() {
-        if (type == null) {
-            return FilterVeld.facetten;
+    private val beschikbareFilters: Set<FilterVeld>
+        get() {
+            if (type == null) {
+                return FilterVeld.facetten
+            }
+            return when (type) {
+                ZoekObjectType.ZAAK -> FilterVeld.zaakFacetten
+                ZoekObjectType.TAAK -> FilterVeld.taakFacetten
+                ZoekObjectType.DOCUMENT -> FilterVeld.documentFacetten
+            }
         }
-        return switch (type) {
-            case ZAAK -> FilterVeld.zaakFacetten;
-            case TAAK -> FilterVeld.taakFacetten;
-            case DOCUMENT -> FilterVeld.documentFacetten;
-        };
-    }
 }
