@@ -33,7 +33,7 @@
     "@tanstack/angular-query-experimental": "^5.60.0",
     "@types/proj4": "^2.5.4",
     "@formio/angular": "^7.0.0",
-    "bootstrap": "^4.6.2",
+    "bootstrap": "^5.0.0",
     "moment": "^2.30.1",
     "ngx-editor": "^17.5.4",
     "ol": "^10.2.1",
@@ -46,7 +46,7 @@
     "zone.js": "^0.14.10"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^17.3.11",
+    "@angular-devkit/build-angular": "^18.2.11",
     "@angular-eslint/builder": "^17.5.3",
     "@angular-eslint/eslint-plugin": "^17.5.3",
     "@angular-eslint/eslint-plugin-template": "^17.5.3",
