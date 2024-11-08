@@ -1,4 +1,11 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package net.atos.zac.zoeken.model
+
+import java.util.Collections
+import java.util.EnumSet
 
 enum class FilterVeld(val veld: String) {
     TYPE("type"),
@@ -65,18 +72,8 @@ enum class FilterVeld(val veld: String) {
             )
         )
 
-        fun fromValue(veld: String): FilterVeld {
-            return Stream.of(*entries.toTypedArray())
-                .filter { filter: FilterVeld -> filter.veld.toString() == veld }
-                .findFirst()
-                .orElseThrow {
-                    IllegalArgumentException(
-                        String.format(
-                            "Onbekend Filterveld '%s'",
-                            veld
-                        )
-                    )
-                }
-        }
+        fun fromValue(sortField: String): FilterVeld =
+            entries.toTypedArray().firstOrNull { it.veld == sortField }
+                ?: throw IllegalArgumentException("Unsupported sort field: '$sortField'")
     }
 }

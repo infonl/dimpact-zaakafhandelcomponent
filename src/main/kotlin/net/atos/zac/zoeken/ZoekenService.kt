@@ -120,8 +120,8 @@ class ZoekenService @Inject constructor(
     ): String {
         val special = filterParameters.waarden.singleOrNull()
         return when {
-            FilterWaarde.LEEG.`is`(special) -> "{!tag=$filter}!${filter.veld}:(*)"
-            FilterWaarde.NIET_LEEG.`is`(special) -> "{!tag=$filter}${filter.veld}:(*)"
+            FilterWaarde.LEEG.isEqualTo(special) -> "{!tag=$filter}!${filter.veld}:(*)"
+            FilterWaarde.NIET_LEEG.isEqualTo(special) -> "{!tag=$filter}${filter.veld}:(*)"
             else -> "{!tag=$filter}${if (filterParameters.inverse) "-" else ""}" +
                 "${filter.veld}:(${filterParameters.waarden.joinToString(" OR ") { quoted(it) }})"
         }

@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package net.atos.zac.zoeken.model
 
 enum class SorteerVeld(val veld: String) {
@@ -44,18 +48,9 @@ enum class SorteerVeld(val veld: String) {
     INFORMATIEOBJECT_INDICATIES_SORT("informatieobject_indicaties_sort");
 
     companion object {
-        fun fromValue(veld: String): SorteerVeld {
-            return Stream.of(*entries.toTypedArray())
-                .filter { filter: SorteerVeld -> filter.veld.toString() == veld }
-                .findFirst()
-                .orElseThrow {
-                    IllegalArgumentException(
-                        String.format(
-                            "Onbekend SorteerVeld '%s'",
-                            veld
-                        )
-                    )
-                }
-        }
+        fun fromValue(sortField: String): SorteerVeld =
+            entries.toTypedArray()
+                .firstOrNull { it.veld == sortField }
+                ?: throw IllegalArgumentException("Unsupported sort field: '$sortField'")
     }
 }

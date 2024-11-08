@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package net.atos.zac.zoeken.model
 
 enum class FilterWaarde(private val magicValue: String) {
@@ -6,5 +10,5 @@ enum class FilterWaarde(private val magicValue: String) {
 
     override fun toString() = magicValue
 
-    fun <TYPE> `is`(value: TYPE?): Boolean = value != null && value.toString() == magicValue
+    fun <TYPE> isEqualTo(value: TYPE?): Boolean = value != null && value.toString() == magicValue
 }
