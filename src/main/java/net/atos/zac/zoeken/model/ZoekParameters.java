@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -118,12 +118,12 @@ public class ZoekParameters {
 
     private Set<FilterVeld> getBeschikbareFilters() {
         if (type == null) {
-            return FilterVeld.getFacetten();
+            return FilterVeld.facetten;
         }
         return switch (type) {
-            case ZAAK -> FilterVeld.getZaakFacetten();
-            case TAAK -> FilterVeld.getTaakFacetten();
-            case DOCUMENT -> FilterVeld.getDocumentFacetten();
+            case ZAAK -> FilterVeld.zaakFacetten;
+            case TAAK -> FilterVeld.taakFacetten;
+            case DOCUMENT -> FilterVeld.documentFacetten;
         };
     }
 }

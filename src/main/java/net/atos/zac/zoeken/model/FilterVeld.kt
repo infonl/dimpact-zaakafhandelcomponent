@@ -1,17 +1,14 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.zoeken.model
 
-package net.atos.zac.zoeken.model;
+import java.util.Collections
+import java.util.EnumSet
+import java.util.stream.Stream
 
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Set;
-import java.util.stream.Stream;
-
-public enum FilterVeld {
-
+enum class FilterVeld(val veld: String) {
     TYPE("type"),
     ZAAKTYPE("zaaktypeOmschrijving"),
     BEHANDELAAR("behandelaarNaam"),
@@ -40,52 +37,54 @@ public enum FilterVeld {
     DOCUMENT_VERGRENDELD_DOOR("informatieobject_vergrendeldDoorNaam"),
     DOCUMENT_INDICATIES("informatieobject_indicaties");
 
-    public static final Set<FilterVeld> ZAAK_FACETTEN = Collections.unmodifiableSet(
-            EnumSet.of(ZAAKTYPE, ZAAK_STATUS, BEHANDELAAR, GROEP, ZAAK_RESULTAAT, ZAAK_VERTROUWELIJKHEIDAANDUIDING, ZAAK_COMMUNICATIEKANAAL,
-                    ZAAK_ARCHIEF_NOMINATIE, ZAAK_INDICATIES));
+    companion object {
+        @JvmField
+        val zaakFacetten: Set<FilterVeld> = Collections.unmodifiableSet(
+            EnumSet.of(
+                ZAAKTYPE,
+                ZAAK_STATUS,
+                BEHANDELAAR,
+                GROEP,
+                ZAAK_RESULTAAT,
+                ZAAK_VERTROUWELIJKHEIDAANDUIDING,
+                ZAAK_COMMUNICATIEKANAAL,
+                ZAAK_ARCHIEF_NOMINATIE,
+                ZAAK_INDICATIES
+            )
+        )
 
-    public static final Set<FilterVeld> DOCUMENT_FACETTEN = Collections.unmodifiableSet(
-            EnumSet.of(DOCUMENT_STATUS, DOCUMENT_TYPE, DOCUMENT_VERGRENDELD_DOOR, ZAAKTYPE, DOCUMENT_INDICATIES));
+        @JvmField
+        val documentFacetten: Set<FilterVeld> = Collections.unmodifiableSet(
+            EnumSet.of(DOCUMENT_STATUS, DOCUMENT_TYPE, DOCUMENT_VERGRENDELD_DOOR, ZAAKTYPE, DOCUMENT_INDICATIES)
+        )
 
-    public static final Set<FilterVeld> TAAK_FACETTEN = Collections.unmodifiableSet(
-            EnumSet.of(TAAK_NAAM, TAAK_STATUS, GROEP, BEHANDELAAR, ZAAKTYPE));
+        @JvmField
+        val taakFacetten: Set<FilterVeld> = Collections.unmodifiableSet(
+            EnumSet.of(TAAK_NAAM, TAAK_STATUS, GROEP, BEHANDELAAR, ZAAKTYPE)
+        )
 
-    public static final Set<FilterVeld> FACETTEN = Collections.unmodifiableSet(
-            EnumSet.of(TYPE, ZAAKTYPE, TOEGEKEND, BEHANDELAAR, GROEP, ZAAK_STATUS, ZAAK_INDICATIES, ZAAK_RESULTAAT,
-                    ZAAK_VERTROUWELIJKHEIDAANDUIDING, ZAAK_COMMUNICATIEKANAAL, ZAAK_ARCHIEF_NOMINATIE,
-                    TAAK_NAAM, TAAK_STATUS, DOCUMENT_STATUS, DOCUMENT_INDICATIES, DOCUMENT_TYPE,
-                    DOCUMENT_VERGRENDELD_DOOR));
+        @JvmField
+        val facetten: Set<FilterVeld> = Collections.unmodifiableSet(
+            EnumSet.of(
+                TYPE, ZAAKTYPE, TOEGEKEND, BEHANDELAAR, GROEP, ZAAK_STATUS, ZAAK_INDICATIES, ZAAK_RESULTAAT,
+                ZAAK_VERTROUWELIJKHEIDAANDUIDING, ZAAK_COMMUNICATIEKANAAL, ZAAK_ARCHIEF_NOMINATIE,
+                TAAK_NAAM, TAAK_STATUS, DOCUMENT_STATUS, DOCUMENT_INDICATIES, DOCUMENT_TYPE,
+                DOCUMENT_VERGRENDELD_DOOR
+            )
+        )
 
-    private final String veld;
-
-    FilterVeld(final String veld) {
-        this.veld = veld;
-    }
-
-    public String getVeld() {
-        return veld;
-    }
-
-    public static FilterVeld fromValue(final String veld) {
-        return Stream.of(FilterVeld.values())
-                .filter(filter -> String.valueOf(filter.veld).equals(veld))
+        fun fromValue(veld: String): FilterVeld {
+            return Stream.of(*entries.toTypedArray())
+                .filter { filter: FilterVeld -> filter.veld.toString() == veld }
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Onbekend Filterveld '%s'", veld)));
-    }
-
-    public static Set<FilterVeld> getFacetten() {
-        return FACETTEN;
-    }
-
-    public static Set<FilterVeld> getTaakFacetten() {
-        return TAAK_FACETTEN;
-    }
-
-    public static Set<FilterVeld> getDocumentFacetten() {
-        return DOCUMENT_FACETTEN;
-    }
-
-    public static Set<FilterVeld> getZaakFacetten() {
-        return ZAAK_FACETTEN;
+                .orElseThrow {
+                    IllegalArgumentException(
+                        String.format(
+                            "Onbekend Filterveld '%s'",
+                            veld
+                        )
+                    )
+                }
+        }
     }
 }

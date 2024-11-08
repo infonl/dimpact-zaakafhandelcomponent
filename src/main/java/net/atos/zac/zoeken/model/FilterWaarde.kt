@@ -1,26 +1,14 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.zoeken.model
 
-package net.atos.zac.zoeken.model;
-
-public enum FilterWaarde {
+enum class FilterWaarde(private val magicValue: String) {
     LEEG("-NULL-"),
     NIET_LEEG("-NOT-NULL-");
 
-    private final String magicValue;
+    override fun toString() = magicValue
 
-    FilterWaarde(final String value) {
-        this.magicValue = value;
-    }
-
-    @Override
-    public String toString() {
-        return magicValue;
-    }
-
-    public <TYPE> boolean is(final TYPE value) {
-        return value != null && value.toString().equals(magicValue);
-    }
+    fun <TYPE> `is`(value: TYPE?): Boolean = value != null && value.toString() == magicValue
 }
