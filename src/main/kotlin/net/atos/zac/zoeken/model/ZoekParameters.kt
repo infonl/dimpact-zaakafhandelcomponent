@@ -9,30 +9,19 @@ import net.atos.zac.zoeken.model.index.ZoekObjectType
 import java.util.EnumMap
 
 class ZoekParameters(val type: ZoekObjectType?) {
-    var rows: Int = 0
-
-    var start: Int = 0
-
     private var zoeken = EnumMap<ZoekVeld, String>(ZoekVeld::class.java)
-
+    var rows: Int = 0
+    var start: Int = 0
     var datums: EnumMap<DatumVeld, DatumRange> = EnumMap(DatumVeld::class.java)
-
-    val filters: EnumMap<FilterVeld, FilterParameters> = EnumMap(
-        FilterVeld::class.java
-    )
-
-    val filterQueries: HashMap<String, String> = HashMap()
-
-    var sortering: Sortering = Sortering(SorteerVeld.CREATED, SorteerRichting.DESCENDING)
-        private set
+    val filters: EnumMap<FilterVeld, FilterParameters> = EnumMap(FilterVeld::class.java)
+    val filterQueries = mutableMapOf<String, String>()
+    var sortering = Sortering(SorteerVeld.CREATED, SorteerRichting.DESCENDING)
 
     init {
-        beschikbareFilters.forEach { this.addFilter(it, FilterParameters(arrayListOf(), false)) }
+        getBeschikbareFilters().forEach { this.addFilter(it, FilterParameters(arrayListOf(), false)) }
     }
 
-    fun getZoeken(): Map<ZoekVeld, String> {
-        return zoeken
-    }
+    fun getZoeken(): Map<ZoekVeld, String> = zoeken
 
     fun setZoeken(zoeken: EnumMap<ZoekVeld, String>) {
         this.zoeken = zoeken
@@ -62,18 +51,14 @@ class ZoekParameters(val type: ZoekObjectType?) {
         this.sortering = Sortering(veld, richting)
     }
 
-    val isGlobaalZoeken: Boolean
-        get() = this.type == null
+    fun isGlobaalZoeken(): Boolean = this.type == null
 
-    private val beschikbareFilters: Set<FilterVeld>
-        get() {
-            if (type == null) {
-                return FilterVeld.facetten
-            }
-            return when (type) {
-                ZoekObjectType.ZAAK -> FilterVeld.zaakFacetten
-                ZoekObjectType.TAAK -> FilterVeld.taakFacetten
-                ZoekObjectType.DOCUMENT -> FilterVeld.documentFacetten
-            }
+    private fun getBeschikbareFilters(): Set<FilterVeld> {
+        return when (type) {
+            null -> FilterVeld.facetten
+            ZoekObjectType.ZAAK -> FilterVeld.zaakFacetten
+            ZoekObjectType.TAAK -> FilterVeld.taakFacetten
+            ZoekObjectType.DOCUMENT -> FilterVeld.documentFacetten
         }
+    }
 }

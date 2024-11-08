@@ -4,9 +4,6 @@
  */
 package net.atos.zac.zoeken.model
 
-import java.util.Collections
-import java.util.EnumSet
-
 enum class FilterVeld(val veld: String) {
     TYPE("type"),
     ZAAKTYPE("zaaktypeOmschrijving"),
@@ -37,39 +34,28 @@ enum class FilterVeld(val veld: String) {
     DOCUMENT_INDICATIES("informatieobject_indicaties");
 
     companion object {
-        @JvmField
-        val zaakFacetten: Set<FilterVeld> = Collections.unmodifiableSet(
-            EnumSet.of(
-                ZAAKTYPE,
-                ZAAK_STATUS,
-                BEHANDELAAR,
-                GROEP,
-                ZAAK_RESULTAAT,
-                ZAAK_VERTROUWELIJKHEIDAANDUIDING,
-                ZAAK_COMMUNICATIEKANAAL,
-                ZAAK_ARCHIEF_NOMINATIE,
-                ZAAK_INDICATIES
-            )
+        val zaakFacetten = setOf(
+            ZAAKTYPE,
+            ZAAK_STATUS,
+            BEHANDELAAR,
+            GROEP,
+            ZAAK_RESULTAAT,
+            ZAAK_VERTROUWELIJKHEIDAANDUIDING,
+            ZAAK_COMMUNICATIEKANAAL,
+            ZAAK_ARCHIEF_NOMINATIE,
+            ZAAK_INDICATIES
         )
 
-        @JvmField
-        val documentFacetten: Set<FilterVeld> = Collections.unmodifiableSet(
-            EnumSet.of(DOCUMENT_STATUS, DOCUMENT_TYPE, DOCUMENT_VERGRENDELD_DOOR, ZAAKTYPE, DOCUMENT_INDICATIES)
-        )
+        val documentFacetten =
+            setOf(DOCUMENT_STATUS, DOCUMENT_TYPE, DOCUMENT_VERGRENDELD_DOOR, ZAAKTYPE, DOCUMENT_INDICATIES)
 
-        @JvmField
-        val taakFacetten: Set<FilterVeld> = Collections.unmodifiableSet(
-            EnumSet.of(TAAK_NAAM, TAAK_STATUS, GROEP, BEHANDELAAR, ZAAKTYPE)
-        )
+        val taakFacetten = setOf(TAAK_NAAM, TAAK_STATUS, GROEP, BEHANDELAAR, ZAAKTYPE)
 
-        @JvmField
-        val facetten: Set<FilterVeld> = Collections.unmodifiableSet(
-            EnumSet.of(
-                TYPE, ZAAKTYPE, TOEGEKEND, BEHANDELAAR, GROEP, ZAAK_STATUS, ZAAK_INDICATIES, ZAAK_RESULTAAT,
-                ZAAK_VERTROUWELIJKHEIDAANDUIDING, ZAAK_COMMUNICATIEKANAAL, ZAAK_ARCHIEF_NOMINATIE,
-                TAAK_NAAM, TAAK_STATUS, DOCUMENT_STATUS, DOCUMENT_INDICATIES, DOCUMENT_TYPE,
-                DOCUMENT_VERGRENDELD_DOOR
-            )
+        val facetten = setOf(
+            TYPE, ZAAKTYPE, TOEGEKEND, BEHANDELAAR, GROEP, ZAAK_STATUS, ZAAK_INDICATIES, ZAAK_RESULTAAT,
+            ZAAK_VERTROUWELIJKHEIDAANDUIDING, ZAAK_COMMUNICATIEKANAAL, ZAAK_ARCHIEF_NOMINATIE,
+            TAAK_NAAM, TAAK_STATUS, DOCUMENT_STATUS, DOCUMENT_INDICATIES, DOCUMENT_TYPE,
+            DOCUMENT_VERGRENDELD_DOOR
         )
 
         fun fromValue(sortField: String): FilterVeld =
