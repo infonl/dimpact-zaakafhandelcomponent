@@ -8,16 +8,17 @@ import net.atos.zac.shared.model.SorteerRichting
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import java.util.EnumMap
 
+@Suppress("TooManyFunctions")
 class ZoekParameters(val type: ZoekObjectType?) {
-    private var zoeken = EnumMap<ZoekVeld, String>(ZoekVeld::class.java)
+    private val zoeken = EnumMap<ZoekVeld, String>(ZoekVeld::class.java)
     private val filters = EnumMap<FilterVeld, FilterParameters>(FilterVeld::class.java).apply {
         getAvailableFilterFields(type).forEach { this[it] = FilterParameters(arrayListOf(), false) }
     }
+    private val filterQueries = mutableMapOf<String, String>()
 
     var rows: Int = 0
     var start: Int = 0
     var datums = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java)
-    val filterQueries = mutableMapOf<String, String>()
     var sortering = Sortering(SorteerVeld.CREATED, SorteerRichting.DESCENDING)
 
     fun getZoeken(): Map<ZoekVeld, String> = zoeken
@@ -39,6 +40,8 @@ class ZoekParameters(val type: ZoekObjectType?) {
     fun addFilter(filterVeld: FilterVeld, filterParameters: FilterParameters) {
         filters[filterVeld] = filterParameters
     }
+
+    fun getFilterQueries(): Map<String, String> = filterQueries
 
     fun addFilterQuery(veld: String, waarde: String) {
         filterQueries[veld] = waarde

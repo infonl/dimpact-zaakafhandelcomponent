@@ -65,7 +65,7 @@ class ZoekenService @Inject constructor(
                 query.addFilterQuery(getFilterQueryForWaardenParameter(filterParameters, filter))
             }
         }
-        zoekParameters.filterQueries
+        zoekParameters.getFilterQueries()
             .forEach { (veld: String, waarde: String) -> query.addFilterQuery("$veld:${quoted(waarde)}") }
         query.setFacetMinCount(1)
         query.setFacetMissing(!zoekParameters.isGlobaalZoeken())
