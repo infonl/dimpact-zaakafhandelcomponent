@@ -12,14 +12,12 @@ class ZoekParameters(val type: ZoekObjectType?) {
     private var zoeken = EnumMap<ZoekVeld, String>(ZoekVeld::class.java)
     var rows: Int = 0
     var start: Int = 0
-    var datums: EnumMap<DatumVeld, DatumRange> = EnumMap(DatumVeld::class.java)
-    val filters: EnumMap<FilterVeld, FilterParameters> = EnumMap(FilterVeld::class.java)
+    var datums = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java)
+    val filters = EnumMap<FilterVeld, FilterParameters>(FilterVeld::class.java).apply {
+        getBeschikbareFilters().forEach { this[it] = FilterParameters(arrayListOf(), false) }
+    }
     val filterQueries = mutableMapOf<String, String>()
     var sortering = Sortering(SorteerVeld.CREATED, SorteerRichting.DESCENDING)
-
-    init {
-        getBeschikbareFilters().forEach { this.addFilter(it, FilterParameters(arrayListOf(), false)) }
-    }
 
     fun getZoeken(): Map<ZoekVeld, String> = zoeken
 
