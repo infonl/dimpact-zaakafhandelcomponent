@@ -22,6 +22,7 @@ import net.atos.zac.zoeken.model.FilterParameters
 import net.atos.zac.zoeken.model.FilterVeld
 import net.atos.zac.zoeken.model.ZoekVeld
 import net.atos.zac.zoeken.model.index.ZoekObjectType
+import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
 import org.apache.solr.client.solrj.beans.DocumentObjectBinder
 import org.apache.solr.client.solrj.impl.Http2SolrClient
@@ -63,10 +64,7 @@ class ZoekenServiceTest : BehaviorSpec({
         val zaakType2 = "dummyZaaktype2"
         val zaakSearchStartDate = LocalDate.of(2000, 1, 1)
         val zaakSearchEndDate = LocalDate.of(2000, 2, 1)
-        val zaakSearchDateRange = DatumRange(
-            zaakSearchStartDate,
-            zaakSearchEndDate
-        )
+        val zaakSearchDateRange = DatumRange(zaakSearchStartDate, zaakSearchEndDate)
         val zoekParameters = createZoekParameters(
             zoekObjectType = ZoekObjectType.ZAAK,
             datums = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java).apply {
@@ -105,10 +103,10 @@ class ZoekenServiceTest : BehaviorSpec({
         every { solrDocumentList.numFound } returns 2
         every { queryResponse.facetFields } returns emptyList()
 
-        When("searching for all documents of type ZAAK") {
+        When("searching for all documents of type ZAAK for a specific behandelaar and zaaktypen") {
             val zoekResultaat = zoekService.zoek(zoekParameters)
 
-            Then("it should return a zoekresultaat containing two zaak zoek objecten") {
+            Then("it should return a zoekresultaat containing the two zaak zoek objecten") {
                 with(zoekResultaat) {
                     count shouldBe 2
                     with(items) {
@@ -145,6 +143,84 @@ class ZoekenServiceTest : BehaviorSpec({
                         "{!ex=ZAAK_COMMUNICATIEKANAAL}zaak_communicatiekanaal",
                         "{!ex=ZAAK_VERTROUWELIJKHEIDAANDUIDING}zaak_vertrouwelijkheidaanduiding",
                         "{!ex=ZAAK_ARCHIEF_NOMINATIE}zaak_archiefNominatie"
+                    )
+                    get("q.op") shouldBe "AND"
+                    get("rows") shouldBe "0"
+                    get("start") shouldBe "0"
+                    get("sort") shouldBe "created asc,zaak_identificatie desc,id desc"
+                }
+            }
+        }
+    }
+    Given("A logged-in user authorised for a zaaktype and one objects of type TAAK in the search index") {
+        val zaakType1 = "dummyZaaktype1"
+        val zaakSearchStartDate = LocalDate.of(2000, 1, 1)
+        val zaakSearchEndDate = LocalDate.of(2000, 2, 1)
+        val zaakSearchDateRange = DatumRange(zaakSearchStartDate, zaakSearchEndDate)
+        val zoekParameters = createZoekParameters(
+            zoekObjectType = ZoekObjectType.TAAK,
+            datums = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java).apply {
+                put(DatumVeld.STARTDATUM, zaakSearchDateRange)
+            }
+        ).apply {
+            addDatum(DatumVeld.STARTDATUM, zaakSearchDateRange)
+            addFilter(FilterVeld.ZAAKTYPE, FilterParameters(listOf(zaakType1), false))
+        }
+        val queryResponse = mockk<QueryResponse>()
+        val solrDocumentList = mockk<SolrDocumentList>()
+        val solrDocument1 = mockk<SolrDocument>()
+        val documentObjectBinder = mockk<DocumentObjectBinder>()
+        val taakZoekObject1 = mockk<TaakZoekObject>()
+        val solrParamsSlot = slot<SolrParams>()
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { loggedInUser.isAuthorisedForAllZaaktypen() } returns false
+        every { loggedInUser.geautoriseerdeZaaktypen } returns setOf(zaakType1)
+        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { queryResponse.results } returns solrDocumentList
+        every { solrDocumentList.size } returns 1
+        every {
+            solrDocumentList.iterator()
+        } returns listOf<SolrDocument>(solrDocument1,).iterator() as MutableIterator<SolrDocument>
+        every { solrDocument1["type"] } returns "TAAK"
+        every { solrClient.binder } returns documentObjectBinder
+        every { documentObjectBinder.getBean(TaakZoekObject::class.java, solrDocument1) } returns taakZoekObject1
+        every { solrDocumentList.numFound } returns 1
+        every { queryResponse.facetFields } returns emptyList()
+
+        When("searching for all documents of type TAAK with a specific filter") {
+            val zoekResultaat = zoekService.zoek(zoekParameters)
+
+            Then("it should return a zoekresultaat containing two zaak zoek objecten") {
+                with(zoekResultaat) {
+                    count shouldBe 1
+                    with(items) {
+                        size shouldBe 1
+                        items[0] shouldBe taakZoekObject1
+                    }
+                }
+                val zaakSearchStartDateString = DateTimeFormatter.ISO_INSTANT.format(
+                    zaakSearchStartDate.atStartOfDay(ZoneId.systemDefault())
+                )
+                val zaakSearchEndDateString = DateTimeFormatter.ISO_INSTANT.format(
+                    zaakSearchEndDate.atStartOfDay(ZoneId.systemDefault())
+                )
+                with(solrParamsSlot.captured) {
+                    get("q") shouldBe "*:*"
+                    getParams("fq") shouldBe arrayOf(
+                        """zaaktypeOmschrijving:"$zaakType1"""",
+                        "type:TAAK",
+                        "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
+                        """{!tag=ZAAKTYPE}zaaktypeOmschrijving:("$zaakType1")"""
+                    )
+                    get("facet") shouldBe "true"
+                    get("facet.mincount") shouldBe "1"
+                    get("facet.missing") shouldBe "true"
+                    getParams("facet.field") shouldBe arrayOf(
+                        "{!ex=ZAAKTYPE}zaaktypeOmschrijving",
+                        "{!ex=BEHANDELAAR}behandelaarNaam",
+                        "{!ex=GROEP}groepNaam",
+                        "{!ex=TAAK_NAAM}taak_naam",
+                        "{!ex=TAAK_STATUS}taak_status"
                     )
                     get("q.op") shouldBe "AND"
                     get("rows") shouldBe "0"
