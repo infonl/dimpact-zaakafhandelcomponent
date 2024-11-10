@@ -16,12 +16,15 @@ import io.mockk.slot
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.app.zoeken.createZoekParameters
 import net.atos.zac.authentication.LoggedInUser
+import net.atos.zac.shared.model.SorteerRichting
 import net.atos.zac.zoeken.model.DatumRange
 import net.atos.zac.zoeken.model.DatumVeld
 import net.atos.zac.zoeken.model.FilterParameters
 import net.atos.zac.zoeken.model.FilterVeld
+import net.atos.zac.zoeken.model.SorteerVeld
 import net.atos.zac.zoeken.model.ZoekVeld
 import net.atos.zac.zoeken.model.index.ZoekObjectType
+import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject
 import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
 import org.apache.solr.client.solrj.beans.DocumentObjectBinder
@@ -62,22 +65,6 @@ class ZoekenServiceTest : BehaviorSpec({
         val behandelaarFilterValue2 = "dummyBehandelaarFilterValue2"
         val zaakType1 = "dummyZaaktype1"
         val zaakType2 = "dummyZaaktype2"
-        val zaakSearchStartDate = LocalDate.of(2000, 1, 1)
-        val zaakSearchEndDate = LocalDate.of(2000, 2, 1)
-        val zaakSearchDateRange = DatumRange(zaakSearchStartDate, zaakSearchEndDate)
-        val zoekParameters = createZoekParameters(
-            zoekObjectType = ZoekObjectType.ZAAK,
-            datums = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java).apply {
-                put(DatumVeld.STARTDATUM, zaakSearchDateRange)
-            }
-        ).apply {
-            addFilter(
-                FilterVeld.BEHANDELAAR,
-                FilterParameters(listOf(behandelaarFilterValue1, behandelaarFilterValue2), false)
-            )
-            addFilter(FilterVeld.ZAAKTYPE, FilterParameters(listOf(zaakType1, zaakType2), false))
-            addZoekVeld(ZoekVeld.ZAAK_OMSCHRIJVING, zaakDescriptionSearchField)
-        }
         val queryResponse = mockk<QueryResponse>()
         val solrDocumentList = mockk<SolrDocumentList>()
         val solrDocument1 = mockk<SolrDocument>()
@@ -104,7 +91,24 @@ class ZoekenServiceTest : BehaviorSpec({
         every { queryResponse.facetFields } returns emptyList()
 
         When("searching for all documents of type ZAAK for a specific behandelaar and zaaktypen") {
-            val zoekResultaat = zoekService.zoek(zoekParameters)
+            val zaakSearchStartDate = LocalDate.of(2000, 1, 1)
+            val zaakSearchEndDate = LocalDate.of(2000, 2, 1)
+            val zaakSearchDateRange = DatumRange(zaakSearchStartDate, zaakSearchEndDate)
+            val zoekResultaat = zoekService.zoek(
+                createZoekParameters(
+                    zoekObjectType = ZoekObjectType.ZAAK,
+                    datums = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java).apply {
+                        put(DatumVeld.STARTDATUM, zaakSearchDateRange)
+                    }
+                ).apply {
+                    addFilter(
+                        FilterVeld.BEHANDELAAR,
+                        FilterParameters(listOf(behandelaarFilterValue1, behandelaarFilterValue2), false)
+                    )
+                    addFilter(FilterVeld.ZAAKTYPE, FilterParameters(listOf(zaakType1, zaakType2), false))
+                    addZoekVeld(ZoekVeld.ZAAK_OMSCHRIJVING, zaakDescriptionSearchField)
+                }
+            )
 
             Then("it should return a zoekresultaat containing the two zaak zoek objecten") {
                 with(zoekResultaat) {
@@ -152,20 +156,8 @@ class ZoekenServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("A logged-in user authorised for a zaaktype and one objects of type TAAK in the search index") {
+    Given("A logged-in user authorised for a zaaktype and one object of type TAAK in the search index") {
         val zaakType1 = "dummyZaaktype1"
-        val zaakSearchStartDate = LocalDate.of(2000, 1, 1)
-        val zaakSearchEndDate = LocalDate.of(2000, 2, 1)
-        val zaakSearchDateRange = DatumRange(zaakSearchStartDate, zaakSearchEndDate)
-        val zoekParameters = createZoekParameters(
-            zoekObjectType = ZoekObjectType.TAAK,
-            datums = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java).apply {
-                put(DatumVeld.STARTDATUM, zaakSearchDateRange)
-            }
-        ).apply {
-            addDatum(DatumVeld.STARTDATUM, zaakSearchDateRange)
-            addFilter(FilterVeld.ZAAKTYPE, FilterParameters(listOf(zaakType1), false))
-        }
         val queryResponse = mockk<QueryResponse>()
         val solrDocumentList = mockk<SolrDocumentList>()
         val solrDocument1 = mockk<SolrDocument>()
@@ -188,9 +180,22 @@ class ZoekenServiceTest : BehaviorSpec({
         every { queryResponse.facetFields } returns emptyList()
 
         When("searching for all documents of type TAAK with a specific filter") {
-            val zoekResultaat = zoekService.zoek(zoekParameters)
+            val zaakSearchStartDate = LocalDate.of(2000, 1, 1)
+            val zaakSearchEndDate = LocalDate.of(2000, 2, 1)
+            val zaakSearchDateRange = DatumRange(zaakSearchStartDate, zaakSearchEndDate)
+            val zoekResultaat = zoekService.zoek(
+                createZoekParameters(
+                    zoekObjectType = ZoekObjectType.TAAK,
+                    datums = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java).apply {
+                        put(DatumVeld.STARTDATUM, zaakSearchDateRange)
+                    }
+                ).apply {
+                    addDatum(DatumVeld.STARTDATUM, zaakSearchDateRange)
+                    addFilter(FilterVeld.ZAAKTYPE, FilterParameters(listOf(zaakType1), false))
+                }
+            )
 
-            Then("it should return a zoekresultaat containing two zaak zoek objecten") {
+            Then("it should return a zoekresultaat containing a taak zoek object") {
                 with(zoekResultaat) {
                     count shouldBe 1
                     with(items) {
@@ -226,6 +231,70 @@ class ZoekenServiceTest : BehaviorSpec({
                     get("rows") shouldBe "0"
                     get("start") shouldBe "0"
                     get("sort") shouldBe "created asc,zaak_identificatie desc,id desc"
+                }
+            }
+        }
+    }
+    Given("A logged-in user authorised for a zaaktype and one object of type DOCUMENT in the search index") {
+        val zaakType1 = "dummyZaaktype1"
+        val queryResponse = mockk<QueryResponse>()
+        val solrDocumentList = mockk<SolrDocumentList>()
+        val solrDocument1 = mockk<SolrDocument>()
+        val documentObjectBinder = mockk<DocumentObjectBinder>()
+        val documentZoekObject1 = mockk<DocumentZoekObject>()
+        val solrParamsSlot = slot<SolrParams>()
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { loggedInUser.isAuthorisedForAllZaaktypen() } returns false
+        every { loggedInUser.geautoriseerdeZaaktypen } returns setOf(zaakType1)
+        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { queryResponse.results } returns solrDocumentList
+        every { solrDocumentList.size } returns 1
+        every {
+            solrDocumentList.iterator()
+        } returns listOf<SolrDocument>(solrDocument1,).iterator() as MutableIterator<SolrDocument>
+        every { solrDocument1["type"] } returns "DOCUMENT"
+        every { solrClient.binder } returns documentObjectBinder
+        every { documentObjectBinder.getBean(DocumentZoekObject::class.java, solrDocument1) } returns documentZoekObject1
+        every { solrDocumentList.numFound } returns 1
+        every { queryResponse.facetFields } returns emptyList()
+
+        When("searching for all documents of type DOCUMENT with a sort field and sort direction") {
+            val zoekResultaat = zoekService.zoek(
+                createZoekParameters(
+                    zoekObjectType = ZoekObjectType.DOCUMENT,
+                    sorteerVeld = SorteerVeld.INFORMATIEOBJECT_TITEL,
+                    sorteerRichting = SorteerRichting.DESCENDING
+                )
+            )
+
+            Then("it should return a zoekresultaat containing a document zoek object with the correct sorting") {
+                with(zoekResultaat) {
+                    count shouldBe 1
+                    with(items) {
+                        size shouldBe 1
+                        items[0] shouldBe documentZoekObject1
+                    }
+                }
+                with(solrParamsSlot.captured) {
+                    get("q") shouldBe "*:*"
+                    getParams("fq") shouldBe arrayOf(
+                        """zaaktypeOmschrijving:"$zaakType1"""",
+                        "type:DOCUMENT"
+                    )
+                    get("facet") shouldBe "true"
+                    get("facet.mincount") shouldBe "1"
+                    get("facet.missing") shouldBe "true"
+                    getParams("facet.field") shouldBe arrayOf(
+                        "{!ex=ZAAKTYPE}zaaktypeOmschrijving",
+                        "{!ex=DOCUMENT_STATUS}informatieobject_status",
+                        "{!ex=DOCUMENT_TYPE}informatieobject_documentType",
+                        "{!ex=DOCUMENT_VERGRENDELD_DOOR}informatieobject_vergrendeldDoorNaam",
+                        "{!ex=DOCUMENT_INDICATIES}informatieobject_indicaties"
+                    )
+                    get("q.op") shouldBe "AND"
+                    get("rows") shouldBe "0"
+                    get("start") shouldBe "0"
+                    get("sort") shouldBe "informatieobject_titel_sort desc,created desc,zaak_identificatie desc,id desc"
                 }
             }
         }
