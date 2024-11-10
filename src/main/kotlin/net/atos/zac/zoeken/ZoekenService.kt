@@ -59,9 +59,9 @@ class ZoekenService @Inject constructor(
         zoekParameters.type?.let { query.addFilterQuery("type:${zoekParameters.type}") }
         getFilterQueriesForZoekenParameters(zoekParameters).forEach(query::addFilterQuery)
         getFilterQueriesForDatumsParameters(zoekParameters).forEach(query::addFilterQuery)
-        zoekParameters.filters.forEach { (filter, filterParameters) ->
+        zoekParameters.getFilters().forEach { (filter, filterParameters) ->
             query.addFacetField("{!ex=$filter}${filter.veld}")
-            if (filterParameters.waarden.isNotEmpty()) {
+            if (filterParameters.values.isNotEmpty()) {
                 query.addFilterQuery(getFilterQueryForWaardenParameter(filterParameters, filter))
             }
         }
@@ -118,12 +118,12 @@ class ZoekenService @Inject constructor(
         filterParameters: FilterParameters,
         filter: FilterVeld
     ): String {
-        val special = filterParameters.waarden.singleOrNull()
+        val special = filterParameters.values.singleOrNull()
         return when {
             FilterWaarde.LEEG.isEqualTo(special) -> "{!tag=$filter}!${filter.veld}:(*)"
             FilterWaarde.NIET_LEEG.isEqualTo(special) -> "{!tag=$filter}${filter.veld}:(*)"
             else -> "{!tag=$filter}${if (filterParameters.inverse) "-" else ""}" +
-                "${filter.veld}:(${filterParameters.waarden.joinToString(" OR ") { quoted(it) }})"
+                "${filter.veld}:(${filterParameters.values.joinToString(" OR ") { quoted(it) }})"
         }
     }
 

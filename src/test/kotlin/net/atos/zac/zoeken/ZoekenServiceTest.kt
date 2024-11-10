@@ -69,9 +69,6 @@ class ZoekenServiceTest : BehaviorSpec({
         )
         val zoekParameters = createZoekParameters(
             zoekObjectType = ZoekObjectType.ZAAK,
-            zoeken = EnumMap<ZoekVeld, String>(ZoekVeld::class.java).apply {
-                put(ZoekVeld.ZAAK_OMSCHRIJVING, zaakDescriptionSearchField)
-            },
             datums = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java).apply {
                 put(DatumVeld.STARTDATUM, zaakSearchDateRange)
             }
@@ -81,6 +78,7 @@ class ZoekenServiceTest : BehaviorSpec({
                 FilterParameters(listOf(behandelaarFilterValue1, behandelaarFilterValue2), false)
             )
             addFilter(FilterVeld.ZAAKTYPE, FilterParameters(listOf(zaakType1, zaakType2), false))
+            addZoekVeld(ZoekVeld.ZAAK_OMSCHRIJVING, zaakDescriptionSearchField)
         }
         val queryResponse = mockk<QueryResponse>()
         val solrDocumentList = mockk<SolrDocumentList>()

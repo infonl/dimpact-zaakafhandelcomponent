@@ -43,7 +43,7 @@ public class RESTZoekResultaatConverter {
         // indien geen resultaten, de huidige filters laten staan
         zoekParameters.filters.forEach((filterVeld, filters) -> {
             final List<FilterResultaat> filterResultaten = restZoekResultaat.filters.getOrDefault(filterVeld, new ArrayList<>());
-            filters.getWaarden().forEach(filter -> {
+            filters.getValues().forEach(filter -> {
                 if (filterResultaten.stream().noneMatch(filterResultaat -> filterResultaat.getNaam().equals(filter))) {
                     filterResultaten.add(new FilterResultaat(filter, 0));
                 }

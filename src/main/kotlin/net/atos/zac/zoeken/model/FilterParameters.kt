@@ -4,4 +4,4 @@
  */
 package net.atos.zac.zoeken.model
 
-data class FilterParameters(val waarden: List<String>, val inverse: Boolean)
+data class FilterParameters(val values: List<String>, val inverse: Boolean)
