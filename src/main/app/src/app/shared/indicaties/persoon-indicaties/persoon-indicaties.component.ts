@@ -27,7 +27,6 @@ export class PersoonIndicatiesComponent
 
   ngOnInit() {
     this.loadIndicaties();
-    console.log(this.indicaties);
   }
 
   loadIndicaties(): void {
@@ -59,7 +58,7 @@ export class PersoonIndicatiesComponent
         new Indicatie(
           indicatie,
           icon,
-          this.translateService.instant(`indicatie.${indicatie}`),
+          this.translateService.instant(`indicatie.persoon.${indicatie}`),
         ),
       ];
     }, [] satisfies Indicatie[]);
