@@ -281,27 +281,32 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
             Then("400 should be returned") {
                 response.code shouldBe HTTP_STATUS_BAD_REQUEST
+                responseBody.shouldContainJsonKeyValue("message", "Requested page 2 must be <= 1")
             }
         }
 
         When("the list of zaken signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD is requested") {
-            val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD?page-number=0&page-size=5"
+            val response = itestHttpClient.performPutRequest(
+                "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD",
+                requestBodyAsString = """{
+                    "page": 0,
+                    "rows": 5
+                }
+                """.trimIndent()
             )
             val responseBody = response.body!!.string()
             logger.info { "Response: $responseBody" }
             response.isSuccessful shouldBe true
 
-            Then("list size is returned") {
-                response.headers["X-Total-Count"] shouldBe "1"
-            }
-
-            And("list content is correct") {
-                with(JSONArray(responseBody).getJSONObject(0).toString()) {
-                    shouldContainJsonKeyValue("identificatie", ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION)
-                    shouldContainJsonKeyValue("startdatum", ZAAK_PRODUCTAANVRAAG_1_START_DATE)
-                    shouldContainJsonKeyValue("toelichting", ZAAK_PRODUCTAANVRAAG_1_TOELICHTING)
-                    shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
+            Then("list content is correct") {
+                with(responseBody) {
+                    shouldContainJsonKeyValue("totaal", "1.0")
+                    with(JSONObject(responseBody).getJSONArray("resultaten").getJSONObject(0).toString()) {
+                        shouldContainJsonKeyValue("identificatie", ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION)
+                        shouldContainJsonKeyValue("startdatum", ZAAK_PRODUCTAANVRAAG_1_START_DATE)
+                        shouldContainJsonKeyValue("toelichting", ZAAK_PRODUCTAANVRAAG_1_TOELICHTING)
+                        shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
+                    }
                 }
             }
         }
