@@ -29,7 +29,7 @@ export class KlantenService {
 
   private basepath = "/rest/klanten";
 
-  /* istanbul ignore next  */
+  /* istanbul ignore next */
   readPersoon(bsn: string): Observable<GeneratedType<"RestPersoon">> {
     return this.http
       .get<GeneratedType<"RestPersoon">>(`${this.basepath}/persoon/${bsn}`)
@@ -44,7 +44,7 @@ export class KlantenService {
       : this.readVestiging(rsinOfVestigingsnummer);
   }
 
-  /* istanbul ignore next  */
+  /* istanbul ignore next */
   readVestiging(vestigingsnummer: string): Observable<Bedrijf> {
     return this.http
       .get<Bedrijf>(`${this.basepath}/vestiging/${vestigingsnummer}`)
@@ -53,7 +53,7 @@ export class KlantenService {
       );
   }
 
-  /* istanbul ignore next  */
+  /* istanbul ignore next */
   readVestigingsprofiel(
     vestigingsnummer: string,
   ): Observable<Vestigingsprofiel> {
@@ -66,7 +66,7 @@ export class KlantenService {
       );
   }
 
-  /* istanbul ignore next  */
+  /* istanbul ignore next */
   readRechtspersoon(rsin: string): Observable<Bedrijf> {
     return this.http
       .get<Bedrijf>(`${this.basepath}/rechtspersoon/${rsin}`)
@@ -75,7 +75,7 @@ export class KlantenService {
       );
   }
 
-  /* istanbul ignore next  */
+  /* istanbul ignore next */
   getPersonenParameters(): Observable<PersonenParameters[]> {
     return this.http
       .get<PersonenParameters[]>(`${this.basepath}/personen/parameters`)
@@ -84,7 +84,7 @@ export class KlantenService {
       );
   }
 
-  /* istanbul ignore next  */
+  /* istanbul ignore next */
   listPersonen(
     listPersonenParameters: ListPersonenParameters,
   ): Observable<Resultaat<GeneratedType<"RestPersoon">>> {
@@ -97,7 +97,7 @@ export class KlantenService {
       );
   }
 
-  /* istanbul ignore next  */
+  /* istanbul ignore next */
   listBedrijven(
     listBedrijvenParameters: ListBedrijvenParameters,
   ): Observable<Resultaat<Bedrijf>> {
@@ -110,7 +110,7 @@ export class KlantenService {
       );
   }
 
-  /* istanbul ignore next  */
+  /* istanbul ignore next */
   listBetrokkeneRoltypen(zaaktypeUuid: string): Observable<Roltype[]> {
     return this.http
       .get<Roltype[]>(`${this.basepath}/roltype/${zaaktypeUuid}/betrokkene`)
@@ -119,7 +119,7 @@ export class KlantenService {
       );
   }
 
-  /* istanbul ignore next  */
+  /* istanbul ignore next */
   listRoltypen(): Observable<Roltype[]> {
     return this.http
       .get<Roltype[]>(`${this.basepath}/roltype`)
@@ -128,7 +128,7 @@ export class KlantenService {
       );
   }
 
-  /* istanbul ignore next  */
+  /* istanbul ignore next */
   ophalenContactGegevens(
     initiatorIdentificatie: string,
   ): Observable<ContactGegevens> {
