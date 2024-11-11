@@ -51,7 +51,6 @@ Common labels
 */}}
 {{- define "zaakafhandelcomponent.labels" -}}
 helm.sh/chart: {{ include "zaakafhandelcomponent.chart" . }}
-{{ include "zaakafhandelcomponent.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
