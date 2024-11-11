@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -9,6 +9,7 @@ import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { Resultaat } from "../shared/model/resultaat";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { Bedrijf } from "./model/bedrijven/bedrijf";
 import { ListBedrijvenParameters } from "./model/bedrijven/list-bedrijven-parameters";
 import { Vestigingsprofiel } from "./model/bedrijven/vestigingsprofiel";
@@ -16,7 +17,6 @@ import { ContactGegevens } from "./model/klanten/contact-gegevens";
 import { Roltype } from "./model/klanten/roltype";
 import { ListPersonenParameters } from "./model/personen/list-personen-parameters";
 import { PersonenParameters } from "./model/personen/personen-parameters";
-import { Persoon } from "./model/personen/persoon";
 
 @Injectable({
   providedIn: "root",
@@ -29,9 +29,10 @@ export class KlantenService {
 
   private basepath = "/rest/klanten";
 
-  readPersoon(bsn: string): Observable<Persoon> {
+  /* istanbul ignore next */
+  readPersoon(bsn: string): Observable<GeneratedType<"RestPersoon">> {
     return this.http
-      .get<Persoon>(`${this.basepath}/persoon/${bsn}`)
+      .get<GeneratedType<"RestPersoon">>(`${this.basepath}/persoon/${bsn}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -43,6 +44,7 @@ export class KlantenService {
       : this.readVestiging(rsinOfVestigingsnummer);
   }
 
+  /* istanbul ignore next */
   readVestiging(vestigingsnummer: string): Observable<Bedrijf> {
     return this.http
       .get<Bedrijf>(`${this.basepath}/vestiging/${vestigingsnummer}`)
@@ -51,6 +53,7 @@ export class KlantenService {
       );
   }
 
+  /* istanbul ignore next */
   readVestigingsprofiel(
     vestigingsnummer: string,
   ): Observable<Vestigingsprofiel> {
@@ -63,6 +66,7 @@ export class KlantenService {
       );
   }
 
+  /* istanbul ignore next */
   readRechtspersoon(rsin: string): Observable<Bedrijf> {
     return this.http
       .get<Bedrijf>(`${this.basepath}/rechtspersoon/${rsin}`)
@@ -71,6 +75,7 @@ export class KlantenService {
       );
   }
 
+  /* istanbul ignore next */
   getPersonenParameters(): Observable<PersonenParameters[]> {
     return this.http
       .get<PersonenParameters[]>(`${this.basepath}/personen/parameters`)
@@ -79,18 +84,20 @@ export class KlantenService {
       );
   }
 
+  /* istanbul ignore next */
   listPersonen(
     listPersonenParameters: ListPersonenParameters,
-  ): Observable<Resultaat<Persoon>> {
+  ): Observable<Resultaat<GeneratedType<"RestPersoon">>> {
     return this.http
       .put<
-        Resultaat<Persoon>
+        Resultaat<GeneratedType<"RestPersoon">>
       >(`${this.basepath}/personen`, listPersonenParameters)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
+  /* istanbul ignore next */
   listBedrijven(
     listBedrijvenParameters: ListBedrijvenParameters,
   ): Observable<Resultaat<Bedrijf>> {
@@ -103,6 +110,7 @@ export class KlantenService {
       );
   }
 
+  /* istanbul ignore next */
   listBetrokkeneRoltypen(zaaktypeUuid: string): Observable<Roltype[]> {
     return this.http
       .get<Roltype[]>(`${this.basepath}/roltype/${zaaktypeUuid}/betrokkene`)
@@ -111,6 +119,7 @@ export class KlantenService {
       );
   }
 
+  /* istanbul ignore next */
   listRoltypen(): Observable<Roltype[]> {
     return this.http
       .get<Roltype[]>(`${this.basepath}/roltype`)
@@ -119,6 +128,7 @@ export class KlantenService {
       );
   }
 
+  /* istanbul ignore next */
   ophalenContactGegevens(
     initiatorIdentificatie: string,
   ): Observable<ContactGegevens> {

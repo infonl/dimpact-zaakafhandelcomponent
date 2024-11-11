@@ -1,13 +1,14 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 224 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Component, EventEmitter, Output, input } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import { switchMap } from "rxjs";
+import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
-import { Persoon } from "../model/personen/persoon";
 
 @Component({
   selector: "zac-persoongegevens",
@@ -15,8 +16,8 @@ import { Persoon } from "../model/personen/persoon";
   templateUrl: "./persoonsgegevens.component.html",
 })
 export class PersoonsgegevensComponent {
-  @Output() delete = new EventEmitter<Persoon>();
-  @Output() edit = new EventEmitter<Persoon>();
+  @Output() delete = new EventEmitter<GeneratedType<"RestPersoon">>();
+  @Output() edit = new EventEmitter<GeneratedType<"RestPersoon">>();
 
   isVerwijderbaar = input<boolean>();
   isWijzigbaar = input<boolean>();
@@ -29,4 +30,6 @@ export class PersoonsgegevensComponent {
   );
 
   constructor(private klantenService: KlantenService) {}
+
+  protected readonly indicatiesLayout = IndicatiesLayout;
 }
