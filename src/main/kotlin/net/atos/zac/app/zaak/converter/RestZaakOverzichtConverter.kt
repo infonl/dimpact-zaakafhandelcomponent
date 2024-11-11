@@ -68,13 +68,16 @@ class RestZaakOverzichtConverter @Inject constructor(
     }
 
     fun convertForDisplay(zaak: Zaak): RestZaakOverzicht {
-        val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
-        val zaakrechten = policyService.readZaakRechten(zaak, zaaktype)
+        val zaakType = ztcClientService.readZaaktype(zaak.zaaktype)
+        val zaakrechten = policyService.readZaakRechten(zaak, zaakType)
         return RestZaakOverzicht(
             identificatie = zaak.identificatie,
-            startdatum = takeIf { zaakrechten.lezen }?.let { zaak.startdatum },
-            omschrijving = takeIf { zaakrechten.lezen }?.let { zaak.omschrijving },
-            zaaktype = takeIf { zaakrechten.lezen }?.let { zaaktype.omschrijving },
-        )
+        ).apply {
+            if (zaakrechten.lezen) {
+                startdatum = zaak.startdatum
+                omschrijving = zaak.omschrijving
+                zaaktype = zaakType.omschrijving
+            }
+        }
     }
 }
