@@ -6,14 +6,14 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
-import { catchError, map, switchMap } from "rxjs/operators";
+import { catchError, switchMap } from "rxjs/operators";
 import { WebsocketService } from "./core/websocket/websocket.service";
 import { FoutAfhandelingService } from "./fout-afhandeling/fout-afhandeling.service";
 import { EnkelvoudigInformatieobject } from "./informatie-objecten/model/enkelvoudig-informatieobject";
+import { Resultaat } from "./shared/model/resultaat";
 import { SignaleringType } from "./shared/signaleringen/signalering-type";
 import { SignaleringTaakSummary } from "./signaleringen/model/signalering-taak-summary";
 import { ZaakOverzichtDashboard } from "./zaken/model/zaak-overzicht-dashboard";
-import { Resultaat } from "./shared/model/resultaat";
 
 @Injectable({
   providedIn: "root",
