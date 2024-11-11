@@ -49,14 +49,14 @@ class RestZaakOverzichtConverterTest : BehaviorSpec({
                 with(result) {
                     identificatie shouldBe zaak.identificatie
                     startdatum shouldBe zaak.startdatum
-                    toelichting shouldBe zaak.toelichting
+                    omschrijving shouldBe zaak.omschrijving
                     zaaktype shouldBe zaakType.omschrijving
                 }
             }
 
             And("none of the other fields are populated") {
                 with(result) {
-                    omschrijving shouldBe null
+                    toelichting shouldBe null
                     uuid shouldBe null
                     einddatum shouldBe null
                     status shouldBe null

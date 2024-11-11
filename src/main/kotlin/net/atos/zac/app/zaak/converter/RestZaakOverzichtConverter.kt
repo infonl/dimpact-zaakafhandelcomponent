@@ -73,7 +73,7 @@ class RestZaakOverzichtConverter @Inject constructor(
         return RestZaakOverzicht(
             identificatie = zaak.identificatie,
             startdatum = takeIf { zaakrechten.lezen }?.let { zaak.startdatum },
-            toelichting = takeIf { zaakrechten.lezen }?.let { zaak.toelichting },
+            omschrijving = takeIf { zaakrechten.lezen }?.let { zaak.omschrijving },
             zaaktype = takeIf { zaakrechten.lezen }?.let { zaaktype.omschrijving },
         )
     }
