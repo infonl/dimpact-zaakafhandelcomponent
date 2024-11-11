@@ -9,7 +9,7 @@ import { firstValueFrom } from "rxjs";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { SignaleringenService } from "../../signaleringen.service";
-import { ZaakOverzicht } from "../../zaken/model/zaak-overzicht";
+import { ZaakOverzichtDashboard } from "../../zaken/model/zaak-overzicht-dashboard";
 import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 
 @Component({
@@ -21,7 +21,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
   ],
 })
 export class ZakenCardComponent
-  extends DashboardCardComponent<ZaakOverzicht>
+  extends DashboardCardComponent<ZaakOverzichtDashboard>
   implements OnDestroy
 {
   columns: string[] = [
@@ -36,7 +36,7 @@ export class ZakenCardComponent
 
   parameters = computed(() => ({
     signaleringType: this.data.signaleringType,
-    pageNumber: this.pageNumber(),
+    page: this.pageNumber(),
     pageSize: this.pageSize,
   }));
 
@@ -46,8 +46,8 @@ export class ZakenCardComponent
       firstValueFrom(
         this.signaleringenService.listZakenSignalering({
           signaleringType: this.parameters().signaleringType,
-          pageNumber: this.parameters().pageNumber,
-          pageSize: this.parameters().pageSize,
+          page: this.parameters().page,
+          rows: this.parameters().pageSize,
         }),
       ),
   }));
@@ -60,10 +60,10 @@ export class ZakenCardComponent
     super(identityService, websocketService);
 
     effect(() => {
-      const { zaken = [], total = 0 } = this.zakenQuery.data() ?? {};
+      const { resultaten = [], totaal = 0 } = this.zakenQuery.data() ?? {};
 
-      this.dataSource.data = zaken;
-      this.paginator.length = total;
+      this.dataSource.data = resultaten;
+      this.paginator.length = totaal;
     });
   }
 

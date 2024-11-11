@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -12,7 +12,8 @@ import { FoutAfhandelingService } from "./fout-afhandeling/fout-afhandeling.serv
 import { EnkelvoudigInformatieobject } from "./informatie-objecten/model/enkelvoudig-informatieobject";
 import { SignaleringType } from "./shared/signaleringen/signalering-type";
 import { SignaleringTaakSummary } from "./signaleringen/model/signalering-taak-summary";
-import { ZaakOverzicht } from "./zaken/model/zaak-overzicht";
+import { ZaakOverzichtDashboard } from "./zaken/model/zaak-overzicht-dashboard";
+import { Resultaat } from "./shared/model/resultaat";
 
 @Injectable({
   providedIn: "root",
@@ -46,26 +47,19 @@ export class SignaleringenService {
 
   listZakenSignalering(params: {
     signaleringType: SignaleringType;
-    pageNumber: number;
-    pageSize: number;
-  }): Observable<{ total: number; zaken: ZaakOverzicht[] }> {
-    const { signaleringType, pageNumber, pageSize } = params;
+    page: number;
+    rows: number;
+  }): Observable<Resultaat<ZaakOverzichtDashboard>> {
+    const { signaleringType, page, rows } = params;
     return this.http
-      .get(
-        `${this.basepath}/zaken/${signaleringType}?page-number=${pageNumber}&page-size=${pageSize}`,
+      .put<Resultaat<ZaakOverzichtDashboard>>(
+        `${this.basepath}/zaken/${signaleringType}`,
         {
-          observe: "response",
+          page,
+          rows,
         },
       )
       .pipe(
-        map((response) => {
-          const total = parseInt(
-            response.headers.get("x-total-count") || "0",
-            10,
-          );
-          const zaken = response.body as ZaakOverzicht[];
-          return { total, zaken };
-        }),
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
