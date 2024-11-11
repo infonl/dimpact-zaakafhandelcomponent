@@ -40,7 +40,6 @@ describe(KlantenService.name, () => {
     service = TestBed.inject(KlantenService);
   });
 
-
   describe(KlantenService.prototype.readBedrijf.name, () => {
     test.each([
       ["123456789", "rechtspersoon"],
