@@ -58,7 +58,7 @@ export class PersoonIndicatiesComponent
         new Indicatie(
           indicatie,
           icon,
-          this.translateService.instant(`indicatie.persoon.${indicatie}`),
+          this.translateService.instant(`indicatie.${indicatie}`),
         ),
       ];
     }, [] satisfies Indicatie[]);
