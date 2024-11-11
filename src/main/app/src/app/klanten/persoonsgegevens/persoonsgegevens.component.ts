@@ -6,9 +6,9 @@
 import { Component, EventEmitter, Output, input } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import { switchMap } from "rxjs";
+import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
-import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 
 @Component({
   selector: "zac-persoongegevens",
