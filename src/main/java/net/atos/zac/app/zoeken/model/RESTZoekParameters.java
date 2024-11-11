@@ -7,13 +7,14 @@ package net.atos.zac.app.zoeken.model;
 
 import java.util.Map;
 
+import net.atos.zac.app.shared.RestPageParameters;
 import net.atos.zac.zoeken.model.DatumVeld;
 import net.atos.zac.zoeken.model.FilterParameters;
 import net.atos.zac.zoeken.model.FilterVeld;
 import net.atos.zac.zoeken.model.SorteerVeld;
 import net.atos.zac.zoeken.model.index.ZoekObjectType;
 
-public class RESTZoekParameters {
+public class RESTZoekParameters extends RestPageParameters {
 
     public ZoekObjectType type;
 
@@ -26,10 +27,6 @@ public class RESTZoekParameters {
     public SorteerVeld sorteerVeld;
 
     public String sorteerRichting;
-
-    public int rows;
-
-    public int page;
 
     public boolean alleenMijnZaken;
 
