@@ -1,13 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.zoeken.model
 
-package net.atos.zac.zoeken.model;
-
-import java.util.stream.Stream;
-
-public enum SorteerVeld {
+enum class SorteerVeld(val veld: String) {
     CREATED("created"),
     ZAAK_IDENTIFICATIE("zaak_identificatie"),
     ZAAK_ZAAKTYPE("zaak_zaaktypeOmschrijving"),
@@ -50,20 +47,10 @@ public enum SorteerVeld {
     INFORMATIEOBJECT_VERZENDDATUM("informatieobject_verzenddatum"),
     INFORMATIEOBJECT_INDICATIES_SORT("informatieobject_indicaties_sort");
 
-    private final String veld;
-
-    SorteerVeld(final String veld) {
-        this.veld = veld;
-    }
-
-    public String getVeld() {
-        return veld;
-    }
-
-    public static SorteerVeld fromValue(final String veld) {
-        return Stream.of(SorteerVeld.values())
-                .filter(filter -> String.valueOf(filter.veld).equals(veld))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Onbekend SorteerVeld '%s'", veld)));
+    companion object {
+        fun fromValue(sortField: String): SorteerVeld =
+            entries.toTypedArray()
+                .firstOrNull { it.veld == sortField }
+                ?: throw IllegalArgumentException("Unsupported sort field: '$sortField'")
     }
 }

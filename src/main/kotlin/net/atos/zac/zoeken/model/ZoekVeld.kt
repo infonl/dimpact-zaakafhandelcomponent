@@ -1,11 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.zoeken.model
 
-package net.atos.zac.zoeken.model;
-
-public enum ZoekVeld {
+enum class ZoekVeld(val veld: String) {
     ALLE("text"),
 
     ZAAK_IDENTIFICATIE("zaak_identificatie"),
@@ -25,15 +24,5 @@ public enum ZoekVeld {
     TAAK_TOELICHTING("taak_toelichting"),
 
     DOCUMENT_TITEL("informatieobject_titel"),
-    DOCUMENT_BESCHRIJVING("informatieobject_beschrijving");
-
-    private final String veld;
-
-    ZoekVeld(final String veld) {
-        this.veld = veld;
-    }
-
-    public String getVeld() {
-        return veld;
-    }
+    DOCUMENT_BESCHRIJVING("informatieobject_beschrijving")
 }

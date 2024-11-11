@@ -14,7 +14,6 @@ import net.atos.zac.zoeken.model.FilterVeld
 import net.atos.zac.zoeken.model.SorteerVeld
 import net.atos.zac.zoeken.model.ZoekParameters
 import net.atos.zac.zoeken.model.ZoekResultaat
-import net.atos.zac.zoeken.model.ZoekVeld
 import net.atos.zac.zoeken.model.index.ZoekObjectType
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
 import java.util.EnumMap
@@ -68,14 +67,12 @@ fun createZoekParameters(
     rows: Int = 0,
     start: Int = 0,
     zoekObjectType: ZoekObjectType = ZoekObjectType.ZAAK,
-    zoeken: EnumMap<ZoekVeld, String> = EnumMap<ZoekVeld, String>(ZoekVeld::class.java),
     datums: EnumMap<DatumVeld, DatumRange> = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java),
     sorteerVeld: SorteerVeld = SorteerVeld.CREATED,
     sorteerRichting: SorteerRichting = SorteerRichting.ASCENDING
 ) = ZoekParameters(zoekObjectType).apply {
     this.rows = rows
     this.start = start
-    this.setZoeken(zoeken)
     this.datums = datums
     this.setSortering(sorteerVeld, sorteerRichting)
 }

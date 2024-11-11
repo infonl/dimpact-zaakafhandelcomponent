@@ -149,13 +149,13 @@ public class InboxDocumentenService {
             final CriteriaBuilder builder
     ) {
         if (creatiedatum != null) {
-            if (creatiedatum.van() != null) {
+            if (creatiedatum.getVan() != null) {
                 predicates.add(builder.greaterThanOrEqualTo(root.get(InboxDocument.CREATIEDATUM),
-                        DateTimeUtil.convertToDateTime(creatiedatum.van())));
+                        DateTimeUtil.convertToDateTime(creatiedatum.getVan())));
             }
-            if (creatiedatum.tot() != null) {
+            if (creatiedatum.getTot() != null) {
                 predicates.add(builder.lessThanOrEqualTo(root.get(InboxDocument.CREATIEDATUM),
-                        DateTimeUtil.convertToDateTime(creatiedatum.tot()).plusDays(1)
+                        DateTimeUtil.convertToDateTime(creatiedatum.getTot()).plusDays(1)
                                 .minusSeconds(1)));
             }
         }
