@@ -11,6 +11,9 @@ on:
     paths-ignore:
       - '**/*.md'
   merge_group:
+    # ignore code analysis when only Markdown files have changed
+    paths-ignore:
+      - '**/*.md'
   schedule:
     - cron: "21 11 * * 0"
 
