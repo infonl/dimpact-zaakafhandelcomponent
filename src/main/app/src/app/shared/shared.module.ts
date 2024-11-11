@@ -30,6 +30,7 @@ import { EditSelectComponent } from "./edit/edit-select/edit-select.component";
 import { EditTekstComponent } from "./edit/edit-tekst/edit-tekst.component";
 import { ExportButtonComponent } from "./export-button/export-button.component";
 import { BesluitIndicatiesComponent } from "./indicaties/besluit-indicaties/besluit-indicaties.component";
+import { PersoonIndicatiesComponent } from "./indicaties/persoon-indicaties/persoon-indicaties.component";
 import { ZaakIndicatiesComponent } from "./indicaties/zaak-indicaties/zaak-indicaties.component";
 import { MaterialFormBuilderModule } from "./material-form-builder/material-form-builder.module";
 import { MaterialModule } from "./material/material.module";
@@ -80,6 +81,7 @@ import { VersionComponent } from "./version/version.component";
     NotificationDialogComponent,
     ExportButtonComponent,
     BesluitIndicatiesComponent,
+    PersoonIndicatiesComponent,
     ZaakIndicatiesComponent,
     VersionComponent,
     SortPipe,
@@ -129,6 +131,7 @@ import { VersionComponent } from "./version/version.component";
     ColumnPickerComponent,
     ExportButtonComponent,
     BesluitIndicatiesComponent,
+    PersoonIndicatiesComponent,
     ZaakIndicatiesComponent,
     VersionComponent,
     SortPipe,

@@ -8,6 +8,7 @@ import { toObservable } from "@angular/core/rxjs-interop";
 import { switchMap } from "rxjs";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
+import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 
 @Component({
   selector: "zac-persoongegevens",
@@ -15,8 +16,8 @@ import { KlantenService } from "../klanten.service";
   templateUrl: "./persoonsgegevens.component.html",
 })
 export class PersoonsgegevensComponent {
-  @Output() delete = new EventEmitter<GeneratedType<"IdentificatieType">>();
-  @Output() edit = new EventEmitter<GeneratedType<"IdentificatieType">>();
+  @Output() delete = new EventEmitter<GeneratedType<"RestPersoon">>();
+  @Output() edit = new EventEmitter<GeneratedType<"RestPersoon">>();
 
   isVerwijderbaar = input<boolean>();
   isWijzigbaar = input<boolean>();
@@ -29,4 +30,6 @@ export class PersoonsgegevensComponent {
   );
 
   constructor(private klantenService: KlantenService) {}
+
+  protected readonly indicatiesLayout = IndicatiesLayout;
 }
