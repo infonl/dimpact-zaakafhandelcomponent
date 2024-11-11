@@ -4,4 +4,9 @@
  */
 package net.atos.zac.zoeken.model
 
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+
+@AllOpen
+@NoArgConstructor
 data class FilterParameters(val values: List<String>, val inverse: Boolean)

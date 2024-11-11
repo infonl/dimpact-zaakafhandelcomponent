@@ -305,5 +305,135 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                 }
             }
         }
+        When(
+            """
+                the search endpoint is called to search for all objects of type 'ZAAK' filtered on a specific zaaktype
+                and sorted on zaaktype
+            """.trimMargin()
+        ) {
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/zoeken/list",
+                requestBodyAsString = """
+                   {
+                    "filtersType": "ZoekParameters",
+                    "alleenMijnZaken": false,
+                    "alleenOpenstaandeZaken": true,
+                    "alleenAfgeslotenZaken": false,
+                    "alleenMijnTaken": false,
+                    "zoeken": {},
+                    "filters": {
+                        "ZAAKTYPE": {
+                             "waarden": [
+                               "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                             ],
+                             "inverse": "false"
+                        }
+                      },
+                    "datums": {},
+                    "rows": 10,
+                    "page":0,
+                    "type":"ZAAK",
+                    "sorteerRichting":"asc",
+                    "sorteerVeld":"ZAAK_ZAAKTYPE"
+                    }
+                """.trimIndent()
+            )
+            Then(
+                """the response is successful and the search results include the indexed zaken for this zaaktype only"""
+            ) {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+                // use eventually here because Solr might still be indexing the data
+                eventually(10.seconds) {
+                    responseBody shouldEqualJsonIgnoringExtraneousFields """
+                    {
+                      "foutmelding" : "",
+                      "resultaten" : [ {
+                        "identificatie" : "$zaakManual2Identification",
+                        "type" : "ZAAK",
+                        "aantalOpenstaandeTaken" : 0,
+                        "afgehandeld" : false,
+                        "betrokkenen" : {
+                          "Behandelaar" : [ "$TEST_GROUP_A_ID" ]
+                        },
+                        "communicatiekanaal" : "$COMMUNICATIEKANAAL_TEST_1",
+                        "groepId" : "$TEST_GROUP_A_ID",
+                        "groepNaam" : "$TEST_GROUP_A_DESCRIPTION",
+                        "indicatieDeelzaak" : false,
+                        "indicatieHeropend" : false,
+                        "indicatieHoofdzaak" : false,
+                        "indicatieOpschorting" : false,
+                        "indicatieVerlenging" : false,
+                        "indicaties" : [ ],
+                        "omschrijving" : "$ZAAK_DESCRIPTION_1",
+                        "rechten" : {
+                          "afbreken" : true,
+                          "behandelen" : true,
+                          "bekijkenZaakdata" : true,
+                          "creeerenDocument" : true,
+                          "heropenen" : true,
+                          "lezen" : true,
+                          "toekennen" : true,
+                          "toevoegenBagObject" : true,
+                          "toevoegenBetrokkeneBedrijf" : true,
+                          "toevoegenBetrokkenePersoon" : true,
+                          "toevoegenInitiatorBedrijf" : true,
+                          "toevoegenInitiatorPersoon" : true,
+                          "versturenEmail" : true,
+                          "versturenOntvangstbevestiging" : true,
+                          "verwijderenBetrokkene" : true,
+                          "verwijderenInitiator" : true,
+                          "wijzigen" : true,
+                          "wijzigenDoorlooptijd" : true
+                        },
+                        "statusToelichting" : "Status gewijzigd",
+                        "statustypeOmschrijving" : "Intake",
+                        "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
+                        "zaaktypeOmschrijving" : "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                      } ],
+                      "totaal" : 1.0,
+                      "filters" : {
+                        "ZAAKTYPE" : [ {
+                          "aantal" : 3,
+                          "naam" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                        }, {
+                          "aantal" : 1,
+                          "naam" : "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                        } ],                 
+                        "GROEP" : [ {
+                          "aantal" : 1,
+                          "naam" : "$TEST_GROUP_A_DESCRIPTION"
+                        } ],
+                        "ZAAK_STATUS" : [ {
+                          "aantal" : 1,
+                          "naam" : "Intake"
+                        } ],
+                        "ZAAK_RESULTAAT" : [ {
+                          "aantal" : 1,
+                          "naam" : "-NULL-"
+                        } ],
+                        "ZAAK_INDICATIES" : [ {
+                          "aantal" : 1,
+                          "naam" : "-NULL-"
+                        } ],
+                        "ZAAK_COMMUNICATIEKANAAL" : [ {                    
+                          "aantal" : 1,
+                          "naam" : "$COMMUNICATIEKANAAL_TEST_1"
+                        } ],
+                        "ZAAK_VERTROUWELIJKHEIDAANDUIDING" : [ {
+                          "aantal" : 1,
+                          "naam" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
+                        } ],
+                        "ZAAK_ARCHIEF_NOMINATIE" : [ {
+                          "aantal" : 1,
+                          "naam" : "-NULL-"
+                        } ]
+                      }
+                    }
+                    """.trimIndent()
+                }
+            }
+        }
     }
 })
