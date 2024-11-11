@@ -8,6 +8,7 @@ import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.app.shared.RestPageParameters
 import net.atos.zac.app.signalering.converter.RestSignaleringInstellingenConverter
+import net.atos.zac.app.signalering.exception.SignaleringException
 import net.atos.zac.app.zaak.model.createRESTZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.identity.IdentityService
@@ -50,7 +51,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         }
 
         When("listing zaken signaleringen with incorrect page parameters") {
-            val exception = shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<SignaleringException> {
                 signaleringRestService.listZakenSignaleringen(signaleringType, RestPageParameters(123, 456))
             }
 
