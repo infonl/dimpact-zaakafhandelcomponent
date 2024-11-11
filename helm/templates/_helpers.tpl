@@ -49,7 +49,7 @@ We truncate at 57 chars in order to provide space for the "-nginx" suffix
 {{/*
 Common labels
 */}}
-{{- define "zaakafhandelcomponent.labels" -}}
+{{- define "zaakafhandelcomponent.all.labels" }}
 helm.sh/chart: {{ include "zaakafhandelcomponent.chart" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
@@ -57,18 +57,23 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
+{{- define "zaakafhandelcomponent.labels" -}}
+{{ include "zaakafhandelcomponent.all.labels" . }}
+{{ include "zaakafhandelcomponent.selectorLabels" . }}
+{{- end }}
+
 {{- define "zaakafhandelcomponent.office-converter.labels" -}}
-{{ include "zaakafhandelcomponent.labels" . }}
+{{ include "zaakafhandelcomponent.all.labels" . }}
 {{ include "zaakafhandelcomponent.office-converter.selectorLabels" . }}
 {{- end }}
 
 {{- define "zaakafhandelcomponent.opa.labels" -}}
-{{ include "zaakafhandelcomponent.labels" . }}
+{{ include "zaakafhandelcomponent.all.labels" . }}
 {{ include "zaakafhandelcomponent.opa.selectorLabels" . }}
 {{- end }}
 
 {{- define "zaakafhandelcomponent.nginx.labels" -}}
-{{ include "zaakafhandelcomponent.labels" . }}
+{{ include "zaakafhandelcomponent.all.labels" . }}
 {{ include "zaakafhandelcomponent.nginx.selectorLabels" . }}
 {{- end }}
 
