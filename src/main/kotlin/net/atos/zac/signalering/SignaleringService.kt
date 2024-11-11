@@ -4,8 +4,6 @@
  */
 package net.atos.zac.signalering
 
-import io.opentelemetry.instrumentation.annotations.SpanAttribute
-import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
@@ -390,35 +388,6 @@ class SignaleringService @Inject constructor(
     }
 
     /**
-     * Lists zaken signaleringen for the given signaleringsType and sends a screen event with the result.
-     * This can be a long-running operation.
-     */
-    @WithSpan
-    fun listZakenSignaleringen(
-        user: LoggedInUser,
-        @SpanAttribute("signaleringsType") signaleringsType: SignaleringType.Type,
-        screenEventResourceId: String
-    ) {
-        LOG.fine {
-            "Started to list zaken signaleringen of type '$signaleringsType' " +
-                "with screen event resource ID: '$screenEventResourceId'."
-        }
-
-        val zakenSignaleringen = listZakenSignaleringen(user, signaleringsType)
-
-        LOG.fine {
-            "Successfully listed ${zakenSignaleringen.size} zaken signaleringen of type '$signaleringsType'."
-        }
-
-        // Send an 'updated zaken_verdelen' screen event with the job id so that it can be picked up by a client
-        // that has created a websocket subscription to this event
-        screenEventResourceId.let {
-            LOG.fine { "Sending 'ZAKEN_SIGNALERINGEN' screen event with ID '$it'." }
-            eventingService.send(ScreenEventType.ZAKEN_SIGNALERINGEN.updated(it, zakenSignaleringen))
-        }
-    }
-
-    /**
      * Lists a page of zaken signaleringen for the given signaleringsType
      */
     fun listZakenSignaleringenPage(
@@ -498,17 +467,6 @@ class SignaleringService @Inject constructor(
     private fun getTask(taakID: String) = flowableTaskService.readTask(taakID)
 
     private fun getZaak(zaakUUID: String): Zaak = zrcClientService.readZaak(UUID.fromString(zaakUUID))
-
-    private fun listZakenSignaleringen(
-        user: LoggedInUser,
-        signaleringsType: SignaleringType.Type
-    ) = SignaleringZoekParameters(user)
-        .types(signaleringsType)
-        .subjecttype(SignaleringSubject.ZAAK)
-        .let { listSignaleringen(it) }
-        .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
-        .map { restZaakOverzichtConverter.convert(it, user) }
-        .toList()
 
     private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type): SignaleringType =
         entityManager.find(SignaleringType::class.java, signaleringsType.toString())

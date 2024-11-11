@@ -125,17 +125,6 @@ public enum ScreenEventType {
 
     ZAKEN_VRIJGEVEN,
 
-    ZAKEN_SIGNALERINGEN {
-        @Override
-        public ScreenEvent event(
-                final Opcode opcode,
-                final String eventResourceId,
-                List<RestZaakOverzicht> restZaakOverzichtList
-        ) throws JsonProcessingException {
-            return instance(opcode, this, eventResourceId, restZaakOverzichtList);
-        }
-    },
-
     ANY;
 
     /**
