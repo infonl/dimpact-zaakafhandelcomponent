@@ -352,7 +352,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                       "resultaten" : [ {
                         "identificatie" : "$zaakManual2Identification",
                         "type" : "ZAAK",
-                        "aantalOpenstaandeTaken" : 0,
+                        "aantalOpenstaandeTaken" : 1,
                         "afgehandeld" : false,
                         "betrokkenen" : {
                           "Behandelaar" : [ "$TEST_GROUP_A_ID" ]
