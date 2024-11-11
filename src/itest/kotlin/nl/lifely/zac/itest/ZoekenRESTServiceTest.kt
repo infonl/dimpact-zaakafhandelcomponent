@@ -323,7 +323,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                     "zoeken": {},
                     "filters": {
                         "ZAAKTYPE": {
-                             "waarden": [
+                             "values": [
                                "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                              ],
                              "inverse": "false"

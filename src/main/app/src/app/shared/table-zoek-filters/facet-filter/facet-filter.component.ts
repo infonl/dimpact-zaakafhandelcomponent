@@ -51,7 +51,7 @@ export class FacetFilterComponent implements OnInit, OnChanges {
   }
 
   private setSelected(): void {
-    this.selected = this.filter?.waarden ? this.filter.waarden[0] : null;
+    this.selected = this.filter?.values ? this.filter.values[0] : null;
   }
 
   isVertaalbaar(veld: string): boolean {
