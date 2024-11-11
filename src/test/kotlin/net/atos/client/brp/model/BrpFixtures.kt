@@ -26,7 +26,6 @@ fun createPersoon(
     Persoon().apply {
         burgerservicenummer = bsn
         leeftijd = age
-        burgerservicenummer = "burgerservicenummer"
         geheimhoudingPersoonsgegevens = confidentialPersonalData
         inOnderzoek = personInResearch
         opschortingBijhouding = suspensionMaintenance
