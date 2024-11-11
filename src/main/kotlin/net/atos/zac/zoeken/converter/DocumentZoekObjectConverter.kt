@@ -48,7 +48,7 @@ class DocumentZoekObjectConverter @Inject constructor(
         val informatieobjecttype = ztcClientService.readInformatieobjecttype(informatieobject.informatieobjecttype)
         val informatieobjectUUID = parseUUIDFromResourceURI(informatieobject.url)
         return DocumentZoekObject().apply {
-            type = ZoekObjectType.DOCUMENT
+            setType(ZoekObjectType.DOCUMENT)
             uuid = informatieobjectUUID.toString()
             identificatie = informatieobject.identificatie
             titel = informatieobject.titel

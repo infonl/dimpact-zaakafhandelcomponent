@@ -2,6 +2,8 @@ package net.atos.zac.app.klant.model.personen
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import net.atos.client.brp.model.createPersoon
+import net.atos.client.brp.model.createPersoonBeperkt
 import net.atos.client.brp.model.generated.AbstractDatum
 import net.atos.client.brp.model.generated.OpschortingBijhouding
 import net.atos.client.brp.model.generated.PersoonInOnderzoek

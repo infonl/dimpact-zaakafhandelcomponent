@@ -1,11 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.zoeken.model
 
-package net.atos.zac.zoeken.model;
-
-public enum DatumVeld {
+enum class DatumVeld(val veld: String) {
     STARTDATUM("startdatum"),
 
     ZAAK_STARTDATUM("zaak_startdatum"),
@@ -24,15 +23,5 @@ public enum DatumVeld {
     INFORMATIEOBJECT_CREATIEDATUM("informatieobject_creatiedatum"),
     INFORMATIEOBJECT_REGISTRATIEDATUM("informatieobject_registratiedatum"),
     INFORMATIEOBJECT_ONTVANGSTDATUM("informatieobject_ontvangstdatum"),
-    INFORMATIEOBJECT_VERZENDDATUM("informatieobject_verzenddatum");
-
-    private final String veld;
-
-    DatumVeld(final String fieldList) {
-        this.veld = fieldList;
-    }
-
-    public String getVeld() {
-        return veld;
-    }
+    INFORMATIEOBJECT_VERZENDDATUM("informatieobject_verzenddatum")
 }
