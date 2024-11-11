@@ -9,7 +9,11 @@
     <mat-panel-description *ngIf="persoon$ | async as persoon">
       {{ persoon ? persoon.naam : ("msg.loading" | translate) }}
       <div class="flex-row items-center">
-        <zac-persoon-indicaties (click)="$event.stopPropagation()" [persoon]="persoon" [layout]="indicatiesLayout.VIEW"></zac-persoon-indicaties>
+        <zac-persoon-indicaties
+          (click)="$event.stopPropagation()"
+          [persoon]="persoon"
+          [layout]="indicatiesLayout.VIEW"
+        ></zac-persoon-indicaties>
         <button
           *ngIf="persoon && isWijzigbaar()"
           [title]="'actie.initiator.wijzigen' | translate"
