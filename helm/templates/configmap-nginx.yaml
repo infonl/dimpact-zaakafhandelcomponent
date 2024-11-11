@@ -88,19 +88,16 @@ data:
       }
 
       location @normal {
-        include conf.d/proxy
         client_max_body_size {{ .Values.nginx.client_max_body_size }};
       }
 
       location @longtimeout {
-        include conf.d/proxy
         client_max_body_size {{ .Values.nginx.client_max_body_size }};
         proxy_read_timeout 1d;
         proxy_send_timeout 1d;
       }
 
       location ~* \.woff2$ {
-        include conf.d/proxy
         proxy_cache static_cache;
         proxy_cache_background_update on;
         proxy_cache_lock on;
