@@ -4,4 +4,15 @@
  */
 package net.atos.zac.zoeken.model
 
-data class FilterParameters(val values: List<String>, val inverse: Boolean)
+import jakarta.json.bind.annotation.JsonbProperty
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+
+@AllOpen
+@NoArgConstructor
+data class FilterParameters(
+    @field:JsonbProperty("waarden")
+    var values: List<String>,
+
+    var inverse: Boolean
+)
