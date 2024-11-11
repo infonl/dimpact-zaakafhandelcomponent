@@ -400,3 +400,44 @@ opentelemetry-collector:
             - otlp
         metrics: {}
         logs: {}
+
+nginx:
+  enabled: false
+  image:
+    repository: nginxinc/nginx-unprivileged
+    pullPolicy: IfNotPresent
+    tag: stable
+  service:
+    type: ClusterIP
+    port: 80
+    annotations: {}
+  # -- mount existing nginx vhost config
+  existingConfigmap: null
+  replicaCount: 1
+  podLabels: {}
+  securityContext:
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: false
+    runAsNonRoot: true
+    runAsUser: 101
+  autoscaling:
+    enabled: false
+  livenessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+  readinessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+  resources: {}
+  useXForwardedHost: false
+  allowedHosts: ""
+  client_max_body_size: 120M
+
