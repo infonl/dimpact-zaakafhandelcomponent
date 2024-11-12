@@ -426,6 +426,7 @@
   "indicatie.OPSCHORTING_BIJHOUDING": "suspension of record maintenance",
   "indicatie.NIET_INGEZETENE": "non-resident",
   "indicatie.ONDER_CURATELE": "in receivership",
+  "indicatie.BLOKKERING_VANWEGE_VERHUIZING": "blocked due to moving",
   "informatieobject.status": "State",
   "informatieobject.status.definitief": "Final",
   "informatieobject.status.in_bewerking": "Being modified",
