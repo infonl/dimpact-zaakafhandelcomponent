@@ -13,6 +13,7 @@ Please follow our [Code of Conduct](./CODE_OF_CONDUCT.md) when contributing.
 We use the following code and API conventions:
 - [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html)
 - [REST API URI Naming Conventions and Best Practices](https://restfulapi.net/resource-naming/)
+- [Paging in REST API](./docs/development/paging.md)
 
 ## License
 
