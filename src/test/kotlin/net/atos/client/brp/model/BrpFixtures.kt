@@ -5,6 +5,8 @@
 
 package net.atos.client.brp.model
 
+import net.atos.client.brp.model.generated.Adressering
+import net.atos.client.brp.model.generated.AdresseringBeperkt
 import net.atos.client.brp.model.generated.OpschortingBijhouding
 import net.atos.client.brp.model.generated.Persoon
 import net.atos.client.brp.model.generated.PersoonBeperkt
@@ -22,6 +24,7 @@ fun createPersoon(
     suspensionMaintenance: OpschortingBijhouding? = null,
     indicationCuratoriesRegister: Boolean? = false,
     rniDeelnemerList: List<RniDeelnemer>? = null,
+    address: Adressering? = null
 ) =
     Persoon().apply {
         burgerservicenummer = bsn
@@ -31,6 +34,7 @@ fun createPersoon(
         opschortingBijhouding = suspensionMaintenance
         indicatieCurateleRegister = indicationCuratoriesRegister
         rni = rniDeelnemerList
+        adressering = address
     }
 
 @Suppress("LongParameterList")
@@ -41,6 +45,7 @@ fun createPersoonBeperkt(
     personInResearch: PersoonInOnderzoekBeperkt? = null,
     suspensionMaintenance: OpschortingBijhouding? = null,
     rniDeelnemerList: List<RniDeelnemer>? = null,
+    address: AdresseringBeperkt? = null
 ) = PersoonBeperkt().apply {
     burgerservicenummer = bsn
     leeftijd = age
@@ -49,6 +54,7 @@ fun createPersoonBeperkt(
     inOnderzoek = personInResearch
     opschortingBijhouding = suspensionMaintenance
     rni = rniDeelnemerList
+    adressering = address
 }
 
 fun createRaadpleegMetBurgerservicenummerResponse(

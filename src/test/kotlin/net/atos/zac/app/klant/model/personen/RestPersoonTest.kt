@@ -5,6 +5,8 @@ import io.kotest.matchers.shouldBe
 import net.atos.client.brp.model.createPersoon
 import net.atos.client.brp.model.createPersoonBeperkt
 import net.atos.client.brp.model.generated.AbstractDatum
+import net.atos.client.brp.model.generated.Adressering
+import net.atos.client.brp.model.generated.AdresseringBeperkt
 import net.atos.client.brp.model.generated.OpschortingBijhouding
 import net.atos.client.brp.model.generated.PersoonInOnderzoek
 import net.atos.client.brp.model.generated.PersoonInOnderzoekBeperkt
@@ -14,7 +16,7 @@ import java.util.EnumSet
 
 class RestPersoonTest : BehaviorSpec({
 
-    Given("Dead BRP Persoon") {
+    Given("BRP Persoon with all flags") {
         val date = AbstractDatum().apply {
             type = "type"
             langFormaat = "langFormaat"
@@ -31,6 +33,7 @@ class RestPersoonTest : BehaviorSpec({
             indicationCuratoriesRegister = true,
             personInResearch = PersoonInOnderzoek(),
             rniDeelnemerList = listOf(RniDeelnemer()),
+            address = Adressering().apply { indicatieVastgesteldVerblijftNietOpAdres = true }
         )
 
         When("converted to RestPersoon") {
@@ -43,7 +46,7 @@ class RestPersoonTest : BehaviorSpec({
         }
     }
 
-    Given("Dead BRP PersoonBeperkt") {
+    Given("BRP PersoonBeperkt with all flags") {
         val date = AbstractDatum().apply {
             type = "type"
             langFormaat = "langFormaat"
@@ -59,6 +62,7 @@ class RestPersoonTest : BehaviorSpec({
             },
             personInResearch = PersoonInOnderzoekBeperkt(),
             rniDeelnemerList = listOf(RniDeelnemer()),
+            address = AdresseringBeperkt().apply { indicatieVastgesteldVerblijftNietOpAdres = true }
         )
 
         When("converted to RestPersoon") {

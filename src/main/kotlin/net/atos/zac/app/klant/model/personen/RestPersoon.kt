@@ -98,6 +98,9 @@ fun Persoon.toRestPersoon() = RestPersoon(
     if (indicatieCurateleRegister == true) {
         indicaties.add(RestPersoonIndicaties.ONDER_CURATELE)
     }
+    if (adressering?.indicatieVastgesteldVerblijftNietOpAdres == true) {
+        indicaties.add(RestPersoonIndicaties.BLOKKERING_VANWEGE_VERHUIZING)
+    }
 }
 
 fun PersoonBeperkt.toRestPersoon() = RestPersoon(
@@ -131,6 +134,9 @@ fun PersoonBeperkt.toRestPersoon() = RestPersoon(
     }
     if (rni?.isNotEmpty() == true) {
         indicaties.add(RestPersoonIndicaties.NIET_INGEZETENE)
+    }
+    if (adressering?.indicatieVastgesteldVerblijftNietOpAdres == true) {
+        indicaties.add(RestPersoonIndicaties.BLOKKERING_VANWEGE_VERHUIZING)
     }
 }
 
