@@ -59,8 +59,12 @@ export class PersoonIndicatiesComponent
           indicatie,
           icon,
           this.translateService.instant(`indicatie.${indicatie}`),
-        ),
+        ).temporary(),
       ];
     }, [] satisfies Indicatie[]);
+  }
+
+  ngOnChanges() {
+    this.loadIndicaties();
   }
 }

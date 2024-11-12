@@ -10,6 +10,7 @@
       {{ persoon ? persoon.naam : ("msg.loading" | translate) }}
       <div class="flex-row items-center">
         <zac-persoon-indicaties
+          class="zac-persoon-indicaties"
           (click)="$event.stopPropagation()"
           [persoon]="persoon"
           [layout]="indicatiesLayout.VIEW"
