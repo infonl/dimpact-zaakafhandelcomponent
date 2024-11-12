@@ -251,7 +251,8 @@ Then(
   "{string} sees the zaak initiator",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_NAME).nth(0).click();
+    await this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_NAME);
+    await this.page.getByText(/initiator/i).click();
     await this.expect(
       this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_BSN),
     ).toBeVisible();
