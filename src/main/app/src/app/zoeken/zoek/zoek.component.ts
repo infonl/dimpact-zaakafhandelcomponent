@@ -120,19 +120,19 @@ export class ZoekComponent implements AfterViewInit, OnInit {
       this.zoekResultaat.filters.TYPE.find(
         (f) => f.naam === ZoekObjectType.DOCUMENT,
       )?.aantal > 0;
-    if (this.zoekParameters.filters.TYPE?.waarden.length > 0) {
+    if (this.zoekParameters.filters.TYPE?.values.length > 0) {
       if (this.hasZaken) {
-        this.hasZaken = this.zoekParameters.filters.TYPE.waarden.includes(
+        this.hasZaken = this.zoekParameters.filters.TYPE.values.includes(
           ZoekObjectType.ZAAK,
         );
       }
       if (this.hasTaken) {
-        this.hasTaken = this.zoekParameters.filters.TYPE.waarden.includes(
+        this.hasTaken = this.zoekParameters.filters.TYPE.values.includes(
           ZoekObjectType.TAAK,
         );
       }
       if (this.hasDocument) {
-        this.hasDocument = this.zoekParameters.filters.TYPE.waarden.includes(
+        this.hasDocument = this.zoekParameters.filters.TYPE.values.includes(
           ZoekObjectType.DOCUMENT,
         );
       }
