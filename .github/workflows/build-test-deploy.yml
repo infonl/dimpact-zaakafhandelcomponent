@@ -6,13 +6,7 @@ name: Build, test & deploy
 
 on:
   pull_request:
-    # ignore code analysis when only Markdown files have changed
-    paths-ignore:
-      - '**/*.md'
   merge_group:
-    # ignore code analysis when only Markdown files have changed
-    paths-ignore:
-      - '**/*.md'
   workflow_dispatch:
   push:
     branches:
