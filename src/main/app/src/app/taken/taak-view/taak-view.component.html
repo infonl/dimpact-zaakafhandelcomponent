@@ -18,6 +18,12 @@
     <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
   </mat-drawer>
   <mat-drawer #actionsSidenav mode="over" position="end" [ngSwitch]="action">
+    <zac-informatie-object-create-attended
+      *ngSwitchCase="sideNavAction.DOCUMENT_MAKEN"
+      [sideNav]="actionsSidenav"
+      [zaak]="zaak"
+      (document)="updateTaakdocumenten($event)"
+    ></zac-informatie-object-create-attended>
     <zac-informatie-object-add
       *ngSwitchCase="sideNavAction.DOCUMENT_TOEVOEGEN"
       [sideNav]="actionsSidenav"
