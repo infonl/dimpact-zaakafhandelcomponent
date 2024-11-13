@@ -444,16 +444,39 @@ nginx:
     enabled: false
     certificate_secret: nginx-certs
     kvk: 
-      enabled: true
-      key_secret: kvk_key
-      client_secret: kvk_client
-      server_secret: kvk_server
-      host: kvk.nl
-      path: /test
-      proxy_path: /test
-      ssl_verify: off
-      apikey_header_name: "X-Api-Key"
-      apikey_value: "test"
+      zoeken:
+        enabled: true
+        key_secret: kvk_key
+        client_secret: kvk_client
+        server_secret: kvk_server
+        host: kvk.nl
+        path: /test
+        proxy_path: /test
+        ssl_verify: off
+        apikey_header_name: "X-Api-Key"
+        apikey_value: "test"
+      basisprofiel:
+        enabled: true
+        key_secret: kvk_key
+        client_secret: kvk_client
+        server_secret: kvk_server
+        host: kvk.nl
+        path: /test
+        proxy_path: /test
+        ssl_verify: off
+        apikey_header_name: "X-Api-Key"
+        apikey_value: "test"
+      vestigingsprofiel:
+        enabled: true
+        key_secret: kvk_key
+        client_secret: kvk_client
+        server_secret: kvk_server
+        host: kvk.nl
+        path: /test
+        proxy_path: /test
+        ssl_verify: off
+        apikey_header_name: "X-Api-Key"
+        apikey_value: "test"
     brp: 
       enabled: true
       key_secret: brp_key

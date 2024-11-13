@@ -165,24 +165,66 @@ data:
         {{- end }}
         proxy_http_version 1.1;
       }
-      location {{ .Values.nginx.api_proxy.kvk.path }} {
-        {{- if not (eq .Values.nginx.api_proxy.kvk.key_secret "") }}
-        proxy_ssl_certificate_key /etc/nginx/certificates/{{ .Values.nginx.api_proxy.kvk.key_secret }};
+      location {{ .Values.nginx.api_proxy.kvk.zoeken.path }} {
+        {{- if not (eq .Values.nginx.api_proxy.kvk.zoeken.key_secret "") }}
+        proxy_ssl_certificate_key /etc/nginx/certificates/{{ .Values.nginx.api_proxy.kvk.zoeken.key_secret }};
         {{- end }}
-        {{- if not (eq .Values.nginx.api_proxy.kvk.client_secret "") }}
-        proxy_ssl_certificate /etc/nginx/certificates/{{ .Values.nginx.api_proxy.kvk.client_secret }};
+        {{- if not (eq .Values.nginx.api_proxy.kvk.zoeken.client_secret "") }}
+        proxy_ssl_certificate /etc/nginx/certificates/{{ .Values.nginx.api_proxy.kvk.zoeken.client_secret }};
         {{- end }}
-        {{- if not (eq .Values.nginx.api_proxy.kvk.server_secret "") }}
-        proxy_ssl_trusted_certificate /etc/nginx/certificates/{{ .Values.nginx.api_proxy.kvk.server_secret }};
+        {{- if not (eq .Values.nginx.api_proxy.kvk.zoeken.server_secret "") }}
+        proxy_ssl_trusted_certificate /etc/nginx/certificates/{{ .Values.nginx.api_proxy.kvk.zoeken.server_secret }};
         {{- end }}
-        proxy_pass https://{{ .Values.nginx.api_proxy.kvk.host }}{{ .Values.nginx.api_proxy.kvk.proxy_path }};
-        proxy_ssl_verify {{ .Values.nginx.api_proxy.kvk.ssl_verify }};
+        proxy_pass https://{{ .Values.nginx.api_proxy.kvk.zoeken.host }}{{ .Values.nginx.api_proxy.kvk.zoeken.proxy_path }};
+        proxy_ssl_verify {{ .Values.nginx.api_proxy.kvk.zoeken.ssl_verify }};
         proxy_ssl_session_reuse on;
         proxy_ssl_server_name on;
         proxy_set_header X-API-KEY "";
-        proxy_set_header Host {{ .Values.nginx.api_proxy.kvk.host }};
-        {{- if not (eq .Values.nginx.api_proxy.kvk.apikey_value "") }}
-        proxy_set_header {{ .Values.nginx.api_proxy.kvk.apikey_header_name }} {{ .Values.nginx.api_proxy.kvk.apikey_value }};
+        proxy_set_header Host {{ .Values.nginx.api_proxy.kvk.zoeken.host }};
+        {{- if not (eq .Values.nginx.api_proxy.kvk.zoeken.apikey_value "") }}
+        proxy_set_header {{ .Values.nginx.api_proxy.kvk.zoeken.apikey_header_name }} {{ .Values.nginx.api_proxy.kvk.zoeken.apikey_value }};
+        {{- end }}
+        proxy_http_version 1.1;
+      }
+      location {{ .Values.nginx.api_proxy.kvk.basisprofiel.path }} {
+        {{- if not (eq .Values.nginx.api_proxy.kvk.basisprofiel.key_secret "") }}
+        proxy_ssl_certificate_key /etc/nginx/certificates/{{ .Values.nginx.api_proxy.kvk.basisprofiel.key_secret }};
+        {{- end }}
+        {{- if not (eq .Values.nginx.api_proxy.kvk.basisprofiel.client_secret "") }}
+        proxy_ssl_certificate /etc/nginx/certificates/{{ .Values.nginx.api_proxy.kvk.basisprofiel.client_secret }};
+        {{- end }}
+        {{- if not (eq .Values.nginx.api_proxy.kvk.basisprofiel.server_secret "") }}
+        proxy_ssl_trusted_certificate /etc/nginx/certificates/{{ .Values.nginx.api_proxy.kvk.basisprofiel.server_secret }};
+        {{- end }}
+        proxy_pass https://{{ .Values.nginx.api_proxy.kvk.basisprofiel.host }}{{ .Values.nginx.api_proxy.kvk.basisprofiel.proxy_path }};
+        proxy_ssl_verify {{ .Values.nginx.api_proxy.kvk.basisprofiel.ssl_verify }};
+        proxy_ssl_session_reuse on;
+        proxy_ssl_server_name on;
+        proxy_set_header X-API-KEY "";
+        proxy_set_header Host {{ .Values.nginx.api_proxy.kvk.basisprofiel.host }};
+        {{- if not (eq .Values.nginx.api_proxy.kvk.basisprofiel.apikey_value "") }}
+        proxy_set_header {{ .Values.nginx.api_proxy.kvk.basisprofiel.apikey_header_name }} {{ .Values.nginx.api_proxy.kvk.basisprofiel.apikey_value }};
+        {{- end }}
+        proxy_http_version 1.1;
+      }
+      location {{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.path }} {
+        {{- if not (eq .Values.nginx.api_proxy.kvk.vestigingsprofiel.key_secret "") }}
+        proxy_ssl_certificate_key /etc/nginx/certificates/{{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.key_secret }};
+        {{- end }}
+        {{- if not (eq .Values.nginx.api_proxy.kvk.vestigingsprofiel.client_secret "") }}
+        proxy_ssl_certificate /etc/nginx/certificates/{{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.client_secret }};
+        {{- end }}
+        {{- if not (eq .Values.nginx.api_proxy.kvk.vestigingsprofiel.server_secret "") }}
+        proxy_ssl_trusted_certificate /etc/nginx/certificates/{{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.server_secret }};
+        {{- end }}
+        proxy_pass https://{{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.host }}{{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.proxy_path }};
+        proxy_ssl_verify {{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.ssl_verify }};
+        proxy_ssl_session_reuse on;
+        proxy_ssl_server_name on;
+        proxy_set_header X-API-KEY "";
+        proxy_set_header Host {{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.host }};
+        {{- if not (eq .Values.nginx.api_proxy.kvk.vestigingsprofiel.apikey_value "") }}
+        proxy_set_header {{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.apikey_header_name }} {{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.apikey_value }};
         {{- end }}
         proxy_http_version 1.1;
       }
