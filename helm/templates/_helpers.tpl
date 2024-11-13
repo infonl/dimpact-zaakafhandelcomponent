@@ -49,7 +49,7 @@ We truncate at 57 chars in order to provide space for the "-nginx" suffix
 {{/*
 Common labels
 */}}
-{{- define "zaakafhandelcomponent.all.labels" }}
+{{- define "zaakafhandelcomponent.all.labels" -}}
 helm.sh/chart: {{ include "zaakafhandelcomponent.chart" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}

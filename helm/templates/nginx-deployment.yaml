@@ -50,10 +50,20 @@ spec:
           volumeMounts:
             - name: nginx-config
               mountPath: /etc/nginx/conf.d/
+            {{- if .Values.nginx.api_proxy.enabled }}    
+            - name: nginx-secret
+              mountPath: /etc/nginx/certificates/
+            {{- end }}
       volumes:
         - name: nginx-config
           configMap:
             name: {{ if .Values.nginx.existingConfigmap }}{{ .Values.nginx.existingConfigmap  }}{{- else }}{{ include "zaakafhandelcomponent.nginx.fullname" . }}{{- end }}
+        {{- if .Values.nginx.api_proxy.enabled }}
+        - name: nginx-secret
+          secret:
+            secretName: {{ .Values.nginx.api_proxy.certificate_secret }}
+            defaultMode: 420
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
