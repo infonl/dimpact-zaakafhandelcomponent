@@ -38,6 +38,8 @@ import {
 import { Zaak } from "../../zaken/model/zaak";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { DocumentCreationData } from "../model/document-creation-data";
+import { Taak } from "src/app/taken/model/taak";
+import { HiddenFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/hidden/hidden-form-field-builder";
 
 @Component({
   selector: "zac-informatie-object-create-attended",
@@ -48,6 +50,7 @@ export class InformatieObjectCreateAttendedComponent
   implements OnInit, OnDestroy
 {
   @Input() zaak: Zaak;
+  @Input() taak: Taak;
   @Input() sideNav: MatDrawer;
   @Output() document = new EventEmitter<DocumentCreationData>();
 
@@ -137,6 +140,10 @@ export class InformatieObjectCreateAttendedComponent
       .maxlength(50)
       .build();
 
+    const taskId = new HiddenFormFieldBuilder(this.taak?.id || null)
+      .id("taskId")
+      .build();
+
     this.fields = [
       [templateGroup, template],
       [title],
@@ -144,6 +151,7 @@ export class InformatieObjectCreateAttendedComponent
       [informationObjectType, confidentiality],
       [beginRegistratie],
       [author],
+      [taskId],
     ];
 
     this.subscriptions$.push(

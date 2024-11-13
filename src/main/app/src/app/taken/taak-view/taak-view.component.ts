@@ -492,6 +492,11 @@ export class TaakViewComponent
     this.formulier.refreshTaakdocumentenEnBijlagen();
   }
 
+  documentCreated(): void {
+    this.action = null;
+    this.actionsSidenav.close();
+  }
+
   /**
    *  Zaak is nog niet geladen, beschikbare zaak-data uit de taak vast weergeven totdat de zaak is geladen
    */

@@ -22,7 +22,7 @@
       *ngSwitchCase="sideNavAction.DOCUMENT_MAKEN"
       [sideNav]="actionsSidenav"
       [zaak]="zaak"
-      (document)="updateTaakdocumenten($event)"
+      (document)="documentCreated()"
     ></zac-informatie-object-create-attended>
     <zac-informatie-object-add
       *ngSwitchCase="sideNavAction.DOCUMENT_TOEVOEGEN"
