@@ -8,19 +8,20 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
-import jakarta.ws.rs.DefaultValue
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
-import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
-import jakarta.ws.rs.core.Response
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
+import net.atos.zac.app.shared.RESTResultaat
+import net.atos.zac.app.shared.RestPageParameters
 import net.atos.zac.app.signalering.converter.RestSignaleringInstellingenConverter
+import net.atos.zac.app.signalering.exception.SignaleringException
 import net.atos.zac.app.signalering.model.RestSignaleringInstellingen
 import net.atos.zac.app.signalering.model.RestSignaleringTaskSummary
+import net.atos.zac.app.zaak.model.RestZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.signalering.SignaleringService
@@ -42,16 +43,6 @@ class SignaleringRestService @Inject constructor(
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
 
-    companion object {
-        private const val TOTAL_COUNT_HEADER = "X-Total-Count"
-
-        private const val INITIAL_PAGE = "0"
-        private const val DEFAULT_PAGE_SIZE = "5"
-
-        private const val PAGE_NUMBER = "page-number"
-        private const val PAGE_SIZE = "page-size"
-    }
-
     private fun Instance<LoggedInUser>.getSignaleringInstellingenZoekParameters() =
         SignaleringInstellingenZoekParameters(get())
 
@@ -63,21 +54,22 @@ class SignaleringRestService @Inject constructor(
     /**
      * Lists zaken signaleringen for the given signaleringsType.
      */
-    @GET
+    @PUT
     @Path("/zaken/{type}")
     fun listZakenSignaleringen(
         @PathParam("type") signaleringsType: SignaleringType.Type,
-        @QueryParam(PAGE_NUMBER) @DefaultValue(INITIAL_PAGE) pageNumber: Int,
-        @QueryParam(PAGE_SIZE) @DefaultValue(DEFAULT_PAGE_SIZE) pageSize: Int
-    ): Response =
+        pageParameters: RestPageParameters
+    ): RESTResultaat<RestZaakOverzicht> =
         signaleringService.countZakenSignaleringen(signaleringsType).let { objectsCount ->
-            if (pageNumber > objectsCount.maxPages(pageSize)) {
-                return Response.status(Response.Status.NOT_FOUND).build()
+            objectsCount.maxPages(pageParameters.rows).let { maxPages ->
+                if (pageParameters.page > maxPages) {
+                    throw SignaleringException("Requested page ${pageParameters.page} must be <= $maxPages")
+                }
             }
-            Response.ok()
-                .header(TOTAL_COUNT_HEADER, objectsCount)
-                .entity(signaleringService.listZakenSignaleringenPage(signaleringsType, pageNumber, pageSize))
-                .build()
+            RESTResultaat(
+                signaleringService.listZakenSignaleringenPage(signaleringsType, pageParameters),
+                objectsCount
+            )
         }
 
     private fun Long.maxPages(pageSize: Int) = (this + pageSize - 1) / pageSize

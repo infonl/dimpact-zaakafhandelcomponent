@@ -14,7 +14,7 @@ import io.kotest.matchers.date.shouldBeBetween
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
-import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NOT_FOUND
+import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_BAD_REQUEST
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
@@ -25,8 +25,8 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_START_DATE
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Headers
 import org.json.JSONArray
@@ -242,57 +242,71 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
     Given("An assigned zaak with information object") {
         When("the list of zaken signaleringen for ZAAK_OP_NAAM is requested") {
-            val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM?page-number=0&page-size=5"
+            val response = itestHttpClient.performPutRequest(
+                "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM",
+                requestBodyAsString = """{
+                    "page": 0,
+                    "rows": 5
+                }
+                """.trimIndent()
             )
             val responseBody = response.body!!.string()
             logger.info { "Response: $responseBody" }
             response.isSuccessful shouldBe true
 
-            Then("list size is returned") {
-                response.headers["X-Total-Count"] shouldBe "1"
-            }
-
-            And("list content is correct") {
-                with(JSONArray(responseBody).getJSONObject(0).toString()) {
-                    shouldContainJsonKeyValue("identificatie", ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION)
-                    shouldContainJsonKeyValue("startdatum", ZAAK_PRODUCTAANVRAAG_1_START_DATE)
-                    shouldContainJsonKeyValue("toelichting", ZAAK_PRODUCTAANVRAAG_1_TOELICHTING)
-                    shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
+            Then("list content is correct") {
+                with(responseBody) {
+                    shouldContainJsonKeyValue("totaal", "1.0")
+                    with(JSONObject(responseBody).getJSONArray("resultaten").getJSONObject(0).toString()) {
+                        shouldContainJsonKeyValue("identificatie", ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION)
+                        shouldContainJsonKeyValue("startdatum", ZAAK_PRODUCTAANVRAAG_1_START_DATE)
+                        shouldContainJsonKeyValue("omschrijving", ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING)
+                        shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
+                    }
                 }
             }
         }
 
         When("the list of zaken signaleringen is requested with wrong page") {
-            val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD?page-number=123&page-size=4567"
+            val response = itestHttpClient.performPutRequest(
+                "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM",
+                requestBodyAsString = """{
+                    "page": 2,
+                    "rows": 5
+                }
+                """.trimIndent()
             )
             val responseBody = response.body!!.string()
             logger.info { "Response: $responseBody" }
 
-            Then("404 should be returned") {
-                response.code shouldBe HTTP_STATUS_NOT_FOUND
+            Then("400 should be returned") {
+                response.code shouldBe HTTP_STATUS_BAD_REQUEST
+                responseBody.shouldContainJsonKeyValue("message", "Requested page 2 must be <= 1")
             }
         }
 
         When("the list of zaken signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD is requested") {
-            val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD?page-number=0&page-size=5"
+            val response = itestHttpClient.performPutRequest(
+                "$ZAC_API_URI/signaleringen/zaken/ZAAK_DOCUMENT_TOEGEVOEGD",
+                requestBodyAsString = """{
+                    "page": 0,
+                    "rows": 5
+                }
+                """.trimIndent()
             )
             val responseBody = response.body!!.string()
             logger.info { "Response: $responseBody" }
             response.isSuccessful shouldBe true
 
-            Then("list size is returned") {
-                response.headers["X-Total-Count"] shouldBe "1"
-            }
-
-            And("list content is correct") {
-                with(JSONArray(responseBody).getJSONObject(0).toString()) {
-                    shouldContainJsonKeyValue("identificatie", ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION)
-                    shouldContainJsonKeyValue("startdatum", ZAAK_PRODUCTAANVRAAG_1_START_DATE)
-                    shouldContainJsonKeyValue("toelichting", ZAAK_PRODUCTAANVRAAG_1_TOELICHTING)
-                    shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
+            Then("list content is correct") {
+                with(responseBody) {
+                    shouldContainJsonKeyValue("totaal", "1.0")
+                    with(JSONObject(responseBody).getJSONArray("resultaten").getJSONObject(0).toString()) {
+                        shouldContainJsonKeyValue("identificatie", ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION)
+                        shouldContainJsonKeyValue("startdatum", ZAAK_PRODUCTAANVRAAG_1_START_DATE)
+                        shouldContainJsonKeyValue("omschrijving", ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING)
+                        shouldContainJsonKeyValue("zaaktype", ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION)
+                    }
                 }
             }
         }

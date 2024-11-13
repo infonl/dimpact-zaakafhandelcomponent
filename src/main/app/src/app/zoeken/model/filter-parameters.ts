@@ -4,11 +4,11 @@
  */
 
 export class FilterParameters {
-  waarden: string[];
+  values: string[];
   inverse: string;
 
-  constructor(waarden: string[], inverse: boolean) {
-    this.waarden = waarden;
+  constructor(values: string[], inverse: boolean) {
+    this.values = values;
     this.inverse = String(inverse);
   }
 }

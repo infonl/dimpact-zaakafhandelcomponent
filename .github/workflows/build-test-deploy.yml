@@ -68,8 +68,10 @@ jobs:
         uses: gradle/actions/wrapper-validation@v4
 
       # The Gradle build also executes a Maven command to build the WildFly bootable JAR.
+      # Disable the Gradle Configuration Cache for now because we sometimes run into a similar issue to:
+      # https://github.com/diffplug/spotless/issues/651
       - name: Gradle build
-        run: ./gradlew build -x test --info
+        run: ./gradlew build -x test --info --no-configuration-cache
 
       - name: Cache Gradle build artefacts
         uses: actions/cache/save@v4

@@ -11,6 +11,6 @@ fun createZaakZoekObject(
 ) =
     ZaakZoekObject().apply {
         this.uuid = uuidAsString
-        this.type = type
+        this.setType(type)
         this.zaaktypeOmschrijving = zaaktypeOmschrijving
     }

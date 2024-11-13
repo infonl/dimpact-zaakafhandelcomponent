@@ -184,13 +184,13 @@ public class OntkoppeldeDocumentenService {
             final CriteriaBuilder builder
     ) {
         if (datumRange != null) {
-            if (datumRange.van() != null) {
+            if (datumRange.getVan() != null) {
                 predicates.add(builder.greaterThanOrEqualTo(root.get(veld),
-                        DateTimeUtil.convertToDateTime(datumRange.van())));
+                        DateTimeUtil.convertToDateTime(datumRange.getVan())));
             }
-            if (datumRange.tot() != null) {
+            if (datumRange.getTot() != null) {
                 predicates.add(builder.lessThanOrEqualTo(root.get(veld),
-                        DateTimeUtil.convertToDateTime(datumRange.tot()).plusDays(1)
+                        DateTimeUtil.convertToDateTime(datumRange.getTot()).plusDays(1)
                                 .minusSeconds(1)));
             }
         }

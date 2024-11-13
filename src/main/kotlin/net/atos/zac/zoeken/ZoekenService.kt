@@ -59,16 +59,16 @@ class ZoekenService @Inject constructor(
         zoekParameters.type?.let { query.addFilterQuery("type:${zoekParameters.type}") }
         getFilterQueriesForZoekenParameters(zoekParameters).forEach(query::addFilterQuery)
         getFilterQueriesForDatumsParameters(zoekParameters).forEach(query::addFilterQuery)
-        zoekParameters.filters.forEach { (filter, filterParameters) ->
+        zoekParameters.getFilters().forEach { (filter, filterParameters) ->
             query.addFacetField("{!ex=$filter}${filter.veld}")
-            if (filterParameters.waarden.isNotEmpty()) {
+            if (filterParameters.values.isNotEmpty()) {
                 query.addFilterQuery(getFilterQueryForWaardenParameter(filterParameters, filter))
             }
         }
-        zoekParameters.filterQueries
+        zoekParameters.getFilterQueries()
             .forEach { (veld: String, waarde: String) -> query.addFilterQuery("$veld:${quoted(waarde)}") }
         query.setFacetMinCount(1)
-        query.setFacetMissing(!zoekParameters.isGlobaalZoeken)
+        query.setFacetMissing(!zoekParameters.isGlobaalZoeken())
         query.setFacet(true)
         query.setParam("q.op", SimpleParams.AND_OPERATOR)
         query.setRows(zoekParameters.rows)
@@ -118,12 +118,12 @@ class ZoekenService @Inject constructor(
         filterParameters: FilterParameters,
         filter: FilterVeld
     ): String {
-        val special = filterParameters.waarden.singleOrNull()
+        val special = filterParameters.values.singleOrNull()
         return when {
-            FilterWaarde.LEEG.`is`(special) -> "{!tag=$filter}!${filter.veld}:(*)"
-            FilterWaarde.NIET_LEEG.`is`(special) -> "{!tag=$filter}${filter.veld}:(*)"
+            FilterWaarde.LEEG.isEqualTo(special) -> "{!tag=$filter}!${filter.veld}:(*)"
+            FilterWaarde.NIET_LEEG.isEqualTo(special) -> "{!tag=$filter}${filter.veld}:(*)"
             else -> "{!tag=$filter}${if (filterParameters.inverse) "-" else ""}" +
-                "${filter.veld}:(${filterParameters.waarden.joinToString(" OR ") { quoted(it) }})"
+                "${filter.veld}:(${filterParameters.values.joinToString(" OR ") { quoted(it) }})"
         }
     }
 
@@ -135,7 +135,7 @@ class ZoekenService @Inject constructor(
         }
 
     private fun getFilterQueriesForZoekenParameters(zoekParameters: ZoekParameters): List<String> =
-        zoekParameters.zoeken.mapNotNull { (searchField, text) ->
+        zoekParameters.getZoeken().mapNotNull { (searchField, text) ->
             if (text.isNotBlank()) {
                 val queryText = if (searchField == ZoekVeld.ZAAK_IDENTIFICATIE || searchField == ZoekVeld.TAAK_ZAAK_ID) {
                     "(*${encoded(text)}*)"

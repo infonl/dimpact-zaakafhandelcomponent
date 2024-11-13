@@ -1,14 +1,20 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
 <mat-expansion-panel>
   <mat-expansion-panel-header>
-    <mat-panel-title> {{'initiator.titel'| translate}} </mat-panel-title>
+    <mat-panel-title> {{ "initiator.titel" | translate }} </mat-panel-title>
     <mat-panel-description *ngIf="persoon$ | async as persoon">
-      {{persoon ? persoon.naam : ('msg.loading'| translate)}}
-      <div class="flex-row">
+      {{ persoon ? persoon.naam : ("msg.loading" | translate) }}
+      <div class="flex-row items-center">
+        <zac-persoon-indicaties
+          class="zac-persoon-indicaties"
+          (click)="$event.stopPropagation()"
+          [persoon]="persoon"
+          [layout]="indicatiesLayout.VIEW"
+        ></zac-persoon-indicaties>
         <button
           *ngIf="persoon && isWijzigbaar()"
           [title]="'actie.initiator.wijzigen' | translate"
@@ -30,7 +36,7 @@
           mat-icon-button
           [routerLink]="['/persoon', persoon.bsn]"
           (click)="$event.stopPropagation()"
-          [id]="'persoonBekijken_' + persoon.bsn +'_button'"
+          [id]="'persoonBekijken_' + persoon.bsn + '_button'"
           title="{{ 'actie.persoon.bekijken' | translate }}"
         >
           <mat-icon>visibility</mat-icon>

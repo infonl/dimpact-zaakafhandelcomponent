@@ -107,13 +107,13 @@ public class InboxProductaanvraagService {
         }
 
         if (listParameters.getOntvangstdatum() != null) {
-            if (listParameters.getOntvangstdatum().van() != null) {
+            if (listParameters.getOntvangstdatum().getVan() != null) {
                 predicates.add(builder.greaterThanOrEqualTo(root.get(InboxProductaanvraag.ONTVANGSTDATUM), listParameters
-                        .getOntvangstdatum().van()));
+                        .getOntvangstdatum().getVan()));
             }
-            if (listParameters.getOntvangstdatum().tot() != null) {
+            if (listParameters.getOntvangstdatum().getTot() != null) {
                 predicates.add(builder.lessThanOrEqualTo(root.get(InboxProductaanvraag.ONTVANGSTDATUM), listParameters.getOntvangstdatum()
-                        .tot()));
+                        .getTot()));
             }
         }
         return builder.and(predicates.toArray(new Predicate[0]));

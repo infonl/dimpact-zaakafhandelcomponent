@@ -1,13 +1,13 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Group } from "../../identity/model/group";
 import { User } from "../../identity/model/user";
-import { IdentificatieType } from "../../klanten/model/klanten/identificatieType";
 import { ZaakRechten } from "../../policy/model/zaak-rechten";
 import { ZaakIndicatie } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { Besluit } from "./besluit";
 import { Geometry } from "./geometry";
 import { GerelateerdeZaak } from "./gerelateerde-zaak";
@@ -47,7 +47,7 @@ export class Zaak {
   behandelaar: User;
   gerelateerdeZaken: GerelateerdeZaak[];
   kenmerken: ZaakKenmerk[];
-  initiatorIdentificatieType: IdentificatieType;
+  initiatorIdentificatieType: GeneratedType<"IdentificatieType">;
   initiatorIdentificatie: string;
   isOpen: boolean;
   isHeropend: boolean;

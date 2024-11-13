@@ -41,7 +41,7 @@ class ZaakZoekObjectConverter @Inject constructor(
     private fun convert(zaak: Zaak): ZaakZoekObject {
         val zaakZoekObject = ZaakZoekObject().apply {
             uuid = zaak.uuid.toString()
-            type = ZoekObjectType.ZAAK
+            setType(ZoekObjectType.ZAAK)
             identificatie = zaak.identificatie
             omschrijving = zaak.omschrijving
             toelichting = zaak.toelichting

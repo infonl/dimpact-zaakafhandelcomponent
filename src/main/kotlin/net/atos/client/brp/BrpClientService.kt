@@ -41,9 +41,17 @@ class BrpClientService @Inject constructor(
         private const val GEBOORTE = "geboorte"
         private const val VERBLIJFPLAATS = "verblijfplaats"
         private const val ADRESSERING = "adressering"
+        private const val INDICATIE_CURATELE_REGISTER = "indicatieCurateleRegister"
 
         private val LOG = Logger.getLogger(BrpClientService::class.java.name)
-        private val FIELDS_PERSOON = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, VERBLIJFPLAATS)
+        private val FIELDS_PERSOON = listOf(
+            BURGERSERVICENUMMER,
+            GESLACHT,
+            NAAM,
+            GEBOORTE,
+            VERBLIJFPLAATS,
+            INDICATIE_CURATELE_REGISTER
+        )
         private val FIELDS_PERSOON_BEPERKT = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING)
     }
 
