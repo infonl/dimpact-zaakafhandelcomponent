@@ -22,8 +22,10 @@ import { first } from "rxjs/operators";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
 import { User } from "src/app/identity/model/user";
 import { AutocompleteFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/autocomplete/autocomplete-form-field-builder";
+import { HiddenFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/hidden/hidden-form-field-builder";
 import { AbstractFormField } from "src/app/shared/material-form-builder/model/abstract-form-field";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
+import { Taak } from "src/app/taken/model/taak";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
@@ -38,8 +40,6 @@ import {
 import { Zaak } from "../../zaken/model/zaak";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { DocumentCreationData } from "../model/document-creation-data";
-import { Taak } from "src/app/taken/model/taak";
-import { HiddenFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/hidden/hidden-form-field-builder";
 
 @Component({
   selector: "zac-informatie-object-create-attended",
