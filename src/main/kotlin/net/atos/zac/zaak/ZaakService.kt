@@ -13,6 +13,7 @@ import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.NatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.NietNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
+import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
@@ -28,6 +29,8 @@ import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.lifely.zac.util.AllOpen
+import java.util.EnumSet
+import java.util.Locale
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -40,6 +43,17 @@ class ZaakService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private var eventingService: EventingService,
 ) {
+    companion object {
+        val ZAAK_BETROKKENEN_ENUMSET: EnumSet<OmschrijvingGeneriekEnum> =
+            EnumSet.allOf(OmschrijvingGeneriekEnum::class.java).apply {
+                this.removeAll(
+                    listOf(
+                        OmschrijvingGeneriekEnum.INITIATOR,
+                        OmschrijvingGeneriekEnum.BEHANDELAAR
+                    )
+                )
+            }
+    }
     fun addBetrokkenNatuurlijkPersoon(
         roltypeUUID: UUID,
         bsn: String,
@@ -202,6 +216,16 @@ class ZaakService @Inject constructor(
                 achternaam = user.lastName
             }
         )
+
+    fun listBetrokkenenforZaak(zaak: Zaak): List<Rol<*>> =
+        zrcClientService.listRollen(zaak)
+            .filter { rol ->
+                ZAAK_BETROKKENEN_ENUMSET.contains(
+                    OmschrijvingGeneriekEnum.valueOf(
+                        rol.omschrijvingGeneriek.uppercase(Locale.getDefault())
+                    )
+                )
+            }
 
     /**
      * Releases a list of zaken from a user and updates the search index on the fly.

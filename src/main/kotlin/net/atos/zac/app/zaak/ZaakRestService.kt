@@ -46,7 +46,6 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.util.StatusTypeUtil
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.extensions.isNuGeldig
-import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakAfzender.Speciaal
 import net.atos.zac.admin.model.ZaakafhandelParameters
@@ -57,7 +56,6 @@ import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.audit.model.RESTHistorieRegel
 import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.besluit.BesluitService
-import net.atos.zac.app.klant.KlantRestService
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import net.atos.zac.app.zaak.converter.RestBesluitConverter
@@ -129,7 +127,6 @@ import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.collections4.CollectionUtils
 import java.net.URI
 import java.time.LocalDate
-import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.function.Consumer
@@ -228,12 +225,12 @@ class ZaakRestService @Inject constructor(
 
     @POST
     @Path("betrokkene")
-    fun createBetrokken(@Valid gegevens: RESTZaakBetrokkeneGegevens): RestZaak {
+    fun addBetrokkene(@Valid gegevens: RESTZaakBetrokkeneGegevens): RestZaak {
         val zaak = zrcClientService.readZaak(gegevens.zaakUUID)
-        addBetrokkene(
-            gegevens.roltypeUUID,
-            gegevens.betrokkeneIdentificatieType,
-            gegevens.betrokkeneIdentificatie,
+        addBetrokkeneToZaak(
+            roltypeUUID = gegevens.roltypeUUID,
+            identificatieType = gegevens.betrokkeneIdentificatieType,
+            identificatie = gegevens.betrokkeneIdentificatie,
             toelichting = gegevens.roltoelichting?.ifEmpty { ROL_TOEVOEGEN_REDEN } ?: ROL_TOEVOEGEN_REDEN,
             zaak
         )
@@ -767,15 +764,7 @@ class ZaakRestService @Inject constructor(
     fun listBetrokkenenVoorZaak(@PathParam("uuid") zaakUUID: UUID): List<RestZaakBetrokkene> {
         val zaak = zrcClientService.readZaak(zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak).lezen)
-        return zrcClientService.listRollen(zaak)
-            .filter { rol ->
-                KlantRestService.betrokkenen.contains(
-                    OmschrijvingGeneriekEnum.valueOf(
-                        rol.omschrijvingGeneriek.uppercase(Locale.getDefault())
-                    )
-                )
-            }
-            .toRestZaakBetrokkenen()
+        return zaakService.listBetrokkenenforZaak(zaak).toRestZaakBetrokkenen()
     }
 
     /**
@@ -960,7 +949,7 @@ class ZaakRestService @Inject constructor(
     @Path("procesvariabelen")
     fun listProcesVariabelen(): List<String> = ZaakVariabelenService.VARS
 
-    private fun addBetrokkene(
+    private fun addBetrokkeneToZaak(
         roltypeUUID: UUID,
         identificatieType: IdentificatieType,
         identificatie: String,
