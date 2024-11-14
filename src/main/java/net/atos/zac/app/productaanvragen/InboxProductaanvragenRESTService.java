@@ -24,7 +24,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import net.atos.zac.util.MediaTypes;
 import org.apache.commons.collections4.CollectionUtils;
 
 import net.atos.client.zgw.drc.DrcClientService;
@@ -39,6 +38,7 @@ import net.atos.zac.policy.PolicyService;
 import net.atos.zac.productaanvraag.InboxProductaanvraagService;
 import net.atos.zac.productaanvraag.model.InboxProductaanvraagListParameters;
 import net.atos.zac.productaanvraag.model.InboxProductaanvraagResultaat;
+import net.atos.zac.util.MediaTypes;
 
 @Singleton
 @Path("inbox-productaanvragen")

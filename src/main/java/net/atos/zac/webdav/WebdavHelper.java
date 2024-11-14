@@ -14,12 +14,12 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.ws.rs.core.UriInfo;
 
-import net.atos.zac.util.MediaTypes;
 import org.apache.commons.collections4.map.LRUMap;
 
 import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.zac.authentication.LoggedInUser;
+import net.atos.zac.util.MediaTypes;
 
 @Singleton
 public class WebdavHelper {
