@@ -49,6 +49,7 @@ import { ZaaknietontvankelijkParameter } from "../model/zaaknietontvankelijk-par
 import { ZaaknietontvankelijkReden } from "../model/zaaknietontvankelijk-reden";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
+import { SmartDocumentsFormGroupComponent } from "./smart-documents-form-group/smart-documents-form-group.component";
 import { SmartDocumentsTreeComponent } from "./smart-documents/smart-documents-tree.component";
 
 @Component({
@@ -61,8 +62,14 @@ export class ParameterEditComponent
 {
   @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
   @ViewChild("menuSidenav") menuSidenav: MatSidenav;
+
   @ViewChild("smartDocumentsTree")
   smartDocumentsTree: SmartDocumentsTreeComponent;
+
+  @ViewChild("SmartDocumentsFormGroupComponent")
+  smartDocsFormGroup: SmartDocumentsFormGroupComponent;
+
+  isSmartDocumentsStepValid: boolean = false;
 
   parameters: ZaakafhandelParameters;
   humanTaskParameters: HumanTaskParameter[] = [];
@@ -79,6 +86,7 @@ export class ParameterEditComponent
   userEventListenersFormGroup: FormGroup;
   mailFormGroup: FormGroup;
   zaakbeeindigFormGroup: FormGroup;
+  smartDocumentsFormGroup: FormGroup;
 
   mailOpties: { label: string; value: string }[];
 
@@ -166,6 +174,16 @@ export class ParameterEditComponent
       ZaakStatusmailOptie,
     );
     this.setupMenu("title.parameters.wijzigen");
+  }
+
+  ngAfterViewInit(): void {
+    // Listen for validity changes after the view initializes
+    if (this.smartDocsFormGroup) {
+      console.log("FormGroup from child:", this.smartDocsFormGroup.formGroup);
+      this.smartDocsFormGroup.formValidityChanged.subscribe((valid) => {
+        this.isSmartDocumentsStepValid = valid;
+      });
+    }
   }
 
   ngOnDestroy(): void {
@@ -526,11 +544,17 @@ export class ParameterEditComponent
     ) as FormControl;
   }
 
+  onFormValidityChanged(isValid: boolean) {
+    console.log("Form validity changed:", isValid);
+    // handle form validity logic here
+  }
+
   isValid(): boolean {
     return (
       this.algemeenFormGroup.valid &&
       this.humanTasksFormGroup.valid &&
-      this.zaakbeeindigFormGroup.valid
+      this.zaakbeeindigFormGroup.valid &&
+      this.isSmartDocumentsStepValid
     );
   }
 
