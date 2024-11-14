@@ -29,7 +29,6 @@ import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren
 import { IdentityService } from "../../identity/identity.service";
 import { User } from "../../identity/model/user";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { DocumentCreationData } from "../../informatie-objecten/model/document-creation-data";
 import { EnkelvoudigInformatieobject } from "../../informatie-objecten/model/enkelvoudig-informatieobject";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
 import { TextIcon } from "../../shared/edit/text-icon";
@@ -39,10 +38,6 @@ import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import {
-  NotificationDialogComponent,
-  NotificationDialogData,
-} from "../../shared/notification-dialog/notification-dialog.component";
 import { OrderUtil } from "../../shared/order/order-util";
 import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
@@ -340,7 +335,8 @@ export class TaakViewComponent
         new ButtonMenuItem(
           "actie.document.maken",
           () => {
-            this.createDocumentAttended();
+            this.actionsSidenav.open();
+            this.action = SideNavAction.DOCUMENT_MAKEN;
           },
           "note_add",
         ),
@@ -356,33 +352,6 @@ export class TaakViewComponent
         ),
       );
     }
-  }
-
-  private createDocumentAttended(): void {
-    const documentCreationData = new DocumentCreationData();
-    documentCreationData.zaakUuid = this.taak.zaakUuid;
-    documentCreationData.taskId = this.taak.id;
-    // We use hardcoded template and template group here to allow e2e tests to pass
-    // The below two should be changed with the correct IDs mapped to the zaak type
-    //
-    // group   : Melding evenement organiseren behandelen
-    // template: Data Test
-    documentCreationData.smartDocumentsTemplateGroupId =
-      "DA3A76D24DFD48C9837B03E47BC701FB";
-    documentCreationData.smartDocumentsTemplateId =
-      "7B7857BB9959470C82974037304E433D";
-    documentCreationData.title = "gemaakt door SmartDocuments";
-    this.informatieObjectenService
-      .createDocumentAttended(documentCreationData)
-      .subscribe((documentCreatieResponse) => {
-        if (documentCreatieResponse.redirectURL) {
-          window.open(documentCreatieResponse.redirectURL);
-        } else {
-          this.dialog.open(NotificationDialogComponent, {
-            data: new NotificationDialogData(documentCreatieResponse.message),
-          });
-        }
-      });
   }
 
   private loadHistorie(): void {
@@ -521,6 +490,11 @@ export class TaakViewComponent
 
     this.taak.taakdocumenten.push(informatieobject.uuid);
     this.formulier.refreshTaakdocumentenEnBijlagen();
+  }
+
+  documentCreated(): void {
+    this.action = null;
+    this.actionsSidenav.close();
   }
 
   /**

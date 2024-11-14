@@ -22,8 +22,10 @@ import { first } from "rxjs/operators";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
 import { User } from "src/app/identity/model/user";
 import { AutocompleteFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/autocomplete/autocomplete-form-field-builder";
+import { HiddenFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/hidden/hidden-form-field-builder";
 import { AbstractFormField } from "src/app/shared/material-form-builder/model/abstract-form-field";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
+import { Taak } from "src/app/taken/model/taak";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
@@ -48,6 +50,7 @@ export class InformatieObjectCreateAttendedComponent
   implements OnInit, OnDestroy
 {
   @Input() zaak: Zaak;
+  @Input() taak: Taak;
   @Input() sideNav: MatDrawer;
   @Output() document = new EventEmitter<DocumentCreationData>();
 
@@ -137,6 +140,10 @@ export class InformatieObjectCreateAttendedComponent
       .maxlength(50)
       .build();
 
+    const taskId = new HiddenFormFieldBuilder(this.taak?.id || null)
+      .id("taskId")
+      .build();
+
     this.fields = [
       [templateGroup, template],
       [title],
@@ -144,6 +151,7 @@ export class InformatieObjectCreateAttendedComponent
       [informationObjectType, confidentiality],
       [beginRegistratie],
       [author],
+      [taskId],
     ];
 
     this.subscriptions$.push(
