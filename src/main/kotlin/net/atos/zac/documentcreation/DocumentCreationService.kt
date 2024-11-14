@@ -41,7 +41,7 @@ class DocumentCreationService @Inject constructor(
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
-        const val OUTPUT_FORMAT_DOCX = "DOCX"
+        const val OUTPUT_FORMAT_DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         const val REDIRECT_METHOD = "POST"
 
         private val LOG = Logger.getLogger(DocumentCreationService::class.java.name)
@@ -111,8 +111,8 @@ class DocumentCreationService @Inject constructor(
         smartDocumentsService.downloadDocument(fileId).let { file ->
             documentCreationDataConverter.toEnkelvoudigInformatieObjectCreateLockRequest(
                 zaak = zaak,
-                smartDocumentsFile = file,
-                smartDocumentsFileType = OUTPUT_FORMAT_DOCX,
+                file = file,
+                format = OUTPUT_FORMAT_DOCX,
                 smartDocumentsTemplateGroupId = templateGroupId,
                 smartDocumentsTemplateId = templateId,
                 title = title,

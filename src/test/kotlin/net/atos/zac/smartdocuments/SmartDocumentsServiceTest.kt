@@ -93,7 +93,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
             Then("a file object representing the content is returned") {
                 with(file) {
                     fileName shouldBe fileName
-                    outputFormat shouldBe "DOCX"
+                    outputFormat shouldBe "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                     document.data shouldBe body.toBase64String()
                 }
             }

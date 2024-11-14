@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "url": "/smartdocuments/result/show?id=dummyFileId&format=DOCX"
+    "url": "/smartdocuments/result/show?id=dummyFileId&format=application%2Fvnd.openxmlformats-officedocument.wordprocessingml.document"
   },
   "response": {
     "status": 200,

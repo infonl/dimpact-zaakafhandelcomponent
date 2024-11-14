@@ -208,8 +208,8 @@ class DocumentCreationDataConverter @Inject constructor(
 
     fun toEnkelvoudigInformatieObjectCreateLockRequest(
         zaak: Zaak,
-        smartDocumentsFile: File,
-        smartDocumentsFileType: String,
+        file: File,
+        format: String,
         smartDocumentsTemplateGroupId: String,
         smartDocumentsTemplateId: String,
         title: String,
@@ -232,9 +232,9 @@ class DocumentCreationDataConverter @Inject constructor(
         ).let {
             ztcClientService.readInformatieobjecttype(it).url
         }
-        bestandsnaam = smartDocumentsFile.fileName
-        formaat = smartDocumentsFileType
-        inhoud = smartDocumentsFile.document.data
-        bestandsomvang = smartDocumentsFile.document.data?.decodedBase64StringLength()
+        bestandsnaam = file.fileName
+        formaat = format
+        inhoud = file.document.data
+        bestandsomvang = file.document.data?.decodedBase64StringLength()
     }
 }
