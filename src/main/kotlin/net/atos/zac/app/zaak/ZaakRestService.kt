@@ -48,7 +48,6 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.extensions.isNuGeldig
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.model.ZaakAfzender
 import net.atos.zac.admin.model.ZaakAfzender.Speciaal
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.ZaakbeeindigParameter
@@ -962,28 +961,27 @@ class ZaakRestService @Inject constructor(
     fun listProcesVariabelen(): List<String> = ZaakVariabelenService.VARS
 
     private fun addBetrokkene(
-        roltype: UUID,
+        roltypeUUID: UUID,
         identificatieType: IdentificatieType,
         identificatie: String,
         toelichting: String,
         zaak: Zaak
     ) {
         val zaakRechten = policyService.readZaakRechten(zaak)
-        val betrokkene = ztcClientService.readRoltype(roltype)
         when (identificatieType) {
             IdentificatieType.BSN -> {
                 assertPolicy(zaakRechten.toevoegenBetrokkenePersoon)
-                zaakService.addBetrokkenNatuurlijkPersoon(betrokkene, identificatie, zaak, toelichting)
+                zaakService.addBetrokkenNatuurlijkPersoon(roltypeUUID, identificatie, zaak, toelichting)
             }
 
             IdentificatieType.VN -> {
                 assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
-                zaakService.addBetrokkenVestiging(betrokkene, identificatie, zaak, toelichting)
+                zaakService.addBetrokkenVestiging(roltypeUUID, identificatie, zaak, toelichting)
             }
 
             IdentificatieType.RSIN -> {
                 assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
-                zaakService.addBetrokkenNietNatuurlijkPersoon(betrokkene, identificatie, zaak, toelichting)
+                zaakService.addBetrokkenNietNatuurlijkPersoon(roltypeUUID, identificatie, zaak, toelichting)
             }
         }
     }
@@ -993,22 +991,25 @@ class ZaakRestService @Inject constructor(
         identificatie: String,
         zaak: Zaak
     ) {
-        val initiator = ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
         val zaakRechten = policyService.readZaakRechten(zaak)
         when (identificatieType) {
             IdentificatieType.BSN -> {
                 assertPolicy(zaakRechten.toevoegenInitiatorPersoon)
-                zaakService.addBetrokkenNatuurlijkPersoon(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN)
+                zaakService.addInitiatorNatuurlijkPersoon(
+                    bsn = identificatie,
+                    zaak = zaak,
+                    toelichting = ROL_TOEVOEGEN_REDEN
+                )
             }
 
             IdentificatieType.VN -> {
                 assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
-                zaakService.addBetrokkenVestiging(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN)
+                zaakService.addInitiatorVestiging(identificatie, zaak, ROL_TOEVOEGEN_REDEN)
             }
 
             IdentificatieType.RSIN -> {
                 assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
-                zaakService.addBetrokkenNietNatuurlijkPersoon(initiator, identificatie, zaak, ROL_TOEVOEGEN_REDEN)
+                zaakService.addInitiatorNietNatuurlijkPersoon(identificatie, zaak, ROL_TOEVOEGEN_REDEN)
             }
         }
     }
@@ -1245,10 +1246,5 @@ class ZaakRestService @Inject constructor(
         return list
     }
 
-    private fun speciaalMail(mail: String): Speciaal? {
-        if (!mail.contains("@")) {
-            return ZaakAfzender.Speciaal.valueOf(mail)
-        }
-        return null
-    }
+    private fun speciaalMail(mail: String): Speciaal? = if (!mail.contains("@")) Speciaal.valueOf(mail) else null
 }

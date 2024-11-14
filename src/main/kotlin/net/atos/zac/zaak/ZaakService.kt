@@ -34,59 +34,90 @@ import java.util.logging.Logger
 private val LOG = Logger.getLogger(ZaakService::class.java.name)
 
 @AllOpen
+@Suppress("TooManyFunctions")
 class ZaakService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
     private var eventingService: EventingService,
 ) {
     fun addBetrokkenNatuurlijkPersoon(
-        roltype: RolType,
+        roltypeUUID: UUID,
         bsn: String,
         zaak: Zaak,
         toelichting: String
     ) {
-        zrcClientService.createRol(
-            RolNatuurlijkPersoon(
-                zaak.url,
-                roltype,
-                toelichting,
-                NatuurlijkPersoon(bsn)
-            ),
-            toelichting
+        addBetrokkenNatuurlijkPersoonByRoleType(
+            roltype = ztcClientService.readRoltype(roltypeUUID),
+            bsn = bsn,
+            zaak = zaak,
+            toelichting = toelichting
+        )
+    }
+
+    fun addInitiatorNatuurlijkPersoon(
+        bsn: String,
+        zaak: Zaak,
+        toelichting: String
+    ) {
+        addBetrokkenNatuurlijkPersoonByRoleType(
+            roltype = ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR),
+            bsn = bsn,
+            zaak = zaak,
+            toelichting = toelichting
         )
     }
 
     fun addBetrokkenVestiging(
-        roltype: RolType,
+        roltypeUUID: UUID,
         vestigingsnummer: String,
         zaak: Zaak,
         toelichting: String
     ) {
-        zrcClientService.createRol(
-            RolVestiging(
-                zaak.url,
-                roltype,
-                toelichting,
-                Vestiging(vestigingsnummer)
-            ),
-            toelichting
+        addBetrokkenVestigingByRoleType(
+            roltype = ztcClientService.readRoltype(roltypeUUID),
+            vestigingsnummer = vestigingsnummer,
+            zaak = zaak,
+            toelichting = toelichting
+        )
+    }
+
+    fun addInitiatorVestiging(
+        vestigingsnummer: String,
+        zaak: Zaak,
+        toelichting: String
+    ) {
+        addBetrokkenVestigingByRoleType(
+            roltype = ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR),
+            vestigingsnummer = vestigingsnummer,
+            zaak = zaak,
+            toelichting = toelichting
         )
     }
 
     fun addBetrokkenNietNatuurlijkPersoon(
-        roltype: RolType,
+        roltypeUUID: UUID,
         rsin: String,
         zaak: Zaak,
         toelichting: String
     ) {
-        zrcClientService.createRol(
-            RolNietNatuurlijkPersoon(
-                zaak.url,
-                roltype,
-                toelichting,
-                NietNatuurlijkPersoon(rsin)
-            ),
-            toelichting
+        addBetrokkenNietNatuurlijkPersoonByRoleType(
+            roltype = ztcClientService.readRoltype(roltypeUUID),
+            rsin = rsin,
+            zaak = zaak,
+            toelichting = toelichting
+        )
+    }
+
+    fun addInitiatorNietNatuurlijkPersoon(
+        rsin: String,
+        zaak: Zaak,
+        toelichting: String
+    ) {
+        addBetrokkenNietNatuurlijkPersoonByRoleType(
+            roltype = ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR),
+            rsin = rsin,
+            zaak = zaak,
+            toelichting = toelichting
         )
     }
 
@@ -206,5 +237,56 @@ class ZaakService @Inject constructor(
             LOG.fine { "Sending 'ZAKEN_VRIJGEVEN' screen event with ID '$it'." }
             eventingService.send(ScreenEventType.ZAKEN_VRIJGEVEN.updated(it))
         }
+    }
+
+    private fun addBetrokkenNatuurlijkPersoonByRoleType(
+        roltype: RolType,
+        bsn: String,
+        zaak: Zaak,
+        toelichting: String
+    ) {
+        zrcClientService.createRol(
+            RolNatuurlijkPersoon(
+                zaak.url,
+                roltype,
+                toelichting,
+                NatuurlijkPersoon(bsn)
+            ),
+            toelichting
+        )
+    }
+
+    private fun addBetrokkenVestigingByRoleType(
+        roltype: RolType,
+        vestigingsnummer: String,
+        zaak: Zaak,
+        toelichting: String
+    ) {
+        zrcClientService.createRol(
+            RolVestiging(
+                zaak.url,
+                roltype,
+                toelichting,
+                Vestiging(vestigingsnummer)
+            ),
+            toelichting
+        )
+    }
+
+    private fun addBetrokkenNietNatuurlijkPersoonByRoleType(
+        roltype: RolType,
+        rsin: String,
+        zaak: Zaak,
+        toelichting: String
+    ) {
+        zrcClientService.createRol(
+            RolNietNatuurlijkPersoon(
+                zaak.url,
+                roltype,
+                toelichting,
+                NietNatuurlijkPersoon(rsin)
+            ),
+            toelichting
+        )
     }
 }
