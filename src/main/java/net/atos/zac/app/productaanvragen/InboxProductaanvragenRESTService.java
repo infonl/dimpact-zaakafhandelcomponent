@@ -24,6 +24,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import net.atos.zac.util.MediaTypes;
 import org.apache.commons.collections4.CollectionUtils;
 
 import net.atos.client.zgw.drc.DrcClientService;
@@ -89,7 +90,7 @@ public class InboxProductaanvragenRESTService {
             return Response.ok(is)
                     .header("Content-Disposition",
                             "inline; filename=\"%s\"".formatted(enkelvoudigInformatieobject.getBestandsnaam()))
-                    .header("Content-Type", "application/pdf").build();
+                    .header("Content-Type", MediaTypes.Application.PDF.getMediaType()).build();
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
