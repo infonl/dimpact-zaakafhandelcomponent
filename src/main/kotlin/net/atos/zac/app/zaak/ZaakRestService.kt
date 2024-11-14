@@ -1004,12 +1004,20 @@ class ZaakRestService @Inject constructor(
 
             IdentificatieType.VN -> {
                 assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
-                zaakService.addInitiatorVestiging(identificatie, zaak, ROL_TOEVOEGEN_REDEN)
+                zaakService.addInitiatorVestiging(
+                    vestigingsnummer = identificatie,
+                    zaak = zaak,
+                    toelichting = ROL_TOEVOEGEN_REDEN
+                )
             }
 
             IdentificatieType.RSIN -> {
                 assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
-                zaakService.addInitiatorNietNatuurlijkPersoon(identificatie, zaak, ROL_TOEVOEGEN_REDEN)
+                zaakService.addInitiatorNietNatuurlijkPersoon(
+                    rsin = identificatie,
+                    zaak = zaak,
+                    toelichting = ROL_TOEVOEGEN_REDEN
+                )
             }
         }
     }
