@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package net.atos.zac.util
 
 /**
@@ -5,10 +9,15 @@ package net.atos.zac.util
  *
  * See [Media Types](https://www.iana.org/assignments/media-types/media-types.xhtml) of IANA.
  *
- * Thanks goes out to [Youngbin Kim](https://gist.github.com/retheviper) for providing the code this subset
- * is based on: https://gist.github.com/retheviper/9b4e28f66b354d9f706e43d399100676
+ * Thanks goes out to [Youngbin Kim](https://gist.github.com/retheviper) for providing the original code:
+ * https://gist.github.com/retheviper/9b4e28f66b354d9f706e43d399100676
  */
 object MediaTypes {
+    /** Hypertext Application Language (HAL) for JSON */
+    const val MEDIA_TYPE_HAL_JSON = "application/hal+json"
+
+    /** Standardized format (RFC 7807) for representing error responses in HTTP APIs */
+    const val MEDIA_TYPE_PROBLEM_JSON = "application/problem+json"
 
     enum class Application(val extensions: Array<String>, val mediaType: String) {
         /** AbiWord document */
