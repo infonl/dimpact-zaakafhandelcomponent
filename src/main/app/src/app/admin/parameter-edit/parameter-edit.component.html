@@ -653,33 +653,31 @@
         </ng-template>
       </mat-step>
       <mat-step
-        [stepControl]="smartDocsFormGroup?.formGroup"
+        [stepControl]="formGroup"
         [hasError]="!isSmartDocumentsStepValid"
       >
         <ng-template matStepLabel
           >{{ "gegevens.smart-documents" | translate }}</ng-template
         >
         <ng-template matStepContent>
-          <form [formGroup]="smartDocsFormGroup?.formGroup" class="flex-col">
-            <smart-documents-form-group
-              (formValidityChanged)="isSmartDocumentsStepValid = $event"
+          <smart-documents-form-group
+            [formGroup]="formGroup"
+            (formValidityChanged)="isSmartDocumentsStepValid = $event"
+          >
+          </smart-documents-form-group>
+          <div class="button-group flex-row flex-wrap">
+            <button mat-raised-button matStepperPrevious>
+              {{ "actie.terug" | translate }}
+            </button>
+            <button
+              mat-raised-button
+              color="primary"
+              [disabled]="!isValid() || loading"
+              (click)="opslaan()"
             >
-            </smart-documents-form-group>
-
-            <div class="button-group flex-row flex-wrap">
-              <button mat-raised-button matStepperPrevious>
-                {{ "actie.terug" | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                [disabled]="!isValid() || loading"
-                (click)="opslaan()"
-              >
-                {{ "actie.opslaan" | translate }}
-              </button>
-            </div>
-          </form>
+              {{ "actie.opslaan" | translate }}
+            </button>
+          </div>
         </ng-template>
       </mat-step>
     </mat-stepper>

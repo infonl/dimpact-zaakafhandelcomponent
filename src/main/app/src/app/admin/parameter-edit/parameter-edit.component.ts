@@ -69,6 +69,7 @@ export class ParameterEditComponent
   @ViewChild("SmartDocumentsFormGroupComponent")
   smartDocsFormGroup: SmartDocumentsFormGroupComponent;
 
+  formGroup: FormGroup;
   isSmartDocumentsStepValid: boolean = true;
 
   parameters: ZaakafhandelParameters;
@@ -112,6 +113,7 @@ export class ParameterEditComponent
     private formBuilder: FormBuilder,
     private referentieTabelService: ReferentieTabelService,
     private mailtemplateBeheerService: MailtemplateBeheerService,
+    private fb: FormBuilder,
   ) {
     super(utilService, configuratieService);
     this.route.data.subscribe((data) => {
@@ -275,6 +277,17 @@ export class ParameterEditComponent
     this.createUserEventListenerForm();
     this.createMailForm();
     this.createZaakbeeindigForm();
+
+    this.formGroup = this.fb.group({
+      documentTitle: ["", [Validators.required]],
+      documentDescription: ["", [Validators.required]],
+    });
+
+    // Update isSmartDocumentsStepValid based on form validity
+    this.formGroup.statusChanges.subscribe(() => {
+      this.isSmartDocumentsStepValid = this.formGroup.valid;
+      console.log("Form validity:", this.isSmartDocumentsStepValid);
+    });
   }
 
   isHumanTaskParameterValid(humanTaskParameter: HumanTaskParameter): boolean {
