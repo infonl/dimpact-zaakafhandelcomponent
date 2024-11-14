@@ -69,7 +69,7 @@ export class ParameterEditComponent
   @ViewChild("SmartDocumentsFormGroupComponent")
   smartDocsFormGroup: SmartDocumentsFormGroupComponent;
 
-  isSmartDocumentsStepValid: boolean = false;
+  isSmartDocumentsStepValid: boolean = true;
 
   parameters: ZaakafhandelParameters;
   humanTaskParameters: HumanTaskParameter[] = [];
