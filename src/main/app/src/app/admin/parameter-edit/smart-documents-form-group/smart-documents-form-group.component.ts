@@ -1,36 +1,27 @@
-import { Component, EventEmitter, OnInit, Output } from "@angular/core";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { FormGroup } from "@angular/forms";
 
 @Component({
   selector: "smart-documents-form-group",
   templateUrl: "./smart-documents-form-group.component.html",
-  //   styleUrls: ["./smart-documents-form-group.component.less"],
 })
-export class SmartDocumentsFormGroupComponent implements OnInit {
-  formGroup: FormGroup;
-
+export class SmartDocumentsFormGroupComponent {
+  @Input() formGroup: FormGroup; // FormGroup passed from parent
   @Output() formValidityChanged = new EventEmitter<boolean>();
 
-  constructor(private fb: FormBuilder) {}
-
-  ngOnInit(): void {
-    this.createForm();
+  constructor() {
+    console.log("SmartDocumentsFormGroupComponent constructor called");
   }
 
-  createForm() {
-    this.formGroup = this.fb.group({
-      documentTitle: ["", [Validators.required]],
-      documentDescription: ["", [Validators.required]],
-    });
+  ngOnInit() {
+    if (this.formGroup) {
+      console.log("FormGroup initialized in SmartDocumentsFormGroupComponent");
+    }
 
-    this.formValidityChanged.emit(this.formGroup.valid);
-
-    this.formGroup.statusChanges.subscribe(() => {
+    // Emit form validity changes to the parent
+    this.formGroup.statusChanges.subscribe((status) => {
+      console.log("Form status in child changed:", status);
       this.formValidityChanged.emit(this.formGroup.valid);
     });
-  }
-
-  get isValid(): boolean {
-    return this.formGroup.valid;
   }
 }
