@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 @Component({
   selector: "smart-documents-form-group",
   templateUrl: "./smart-documents-form-group.component.html",
-  styleUrls: ["./smart-documents-form-group.component.css"],
+  //   styleUrls: ["./smart-documents-form-group.component.less"],
 })
 export class SmartDocumentsFormGroupComponent implements OnInit {
   formGroup: FormGroup;
@@ -23,16 +23,13 @@ export class SmartDocumentsFormGroupComponent implements OnInit {
       documentDescription: ["", [Validators.required]],
     });
 
-    // Emit the initial validity status
     this.formValidityChanged.emit(this.formGroup.valid);
 
-    // Listen for changes in validity
     this.formGroup.statusChanges.subscribe(() => {
       this.formValidityChanged.emit(this.formGroup.valid);
     });
   }
 
-  // Getter to check if the form is valid
   get isValid(): boolean {
     return this.formGroup.valid;
   }
