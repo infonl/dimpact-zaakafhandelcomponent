@@ -189,7 +189,7 @@
         const language = getBrowserLanguage();
 
         // Determine nameValue and typeValue based on sanitized inputs
-        const nameValue = zaakValue || taakValue;
+        const nameValue = taakValue || zaakValue;
         const typeValue = getTypeValue(zaakValue, taakValue, language);
 
         // Validate and set finalResultValue
@@ -300,8 +300,8 @@
           nl: { zaak: "zaak", taak: "taak" },
         };
 
-        if (zaakValue) return typeMap[language].zaak;
         if (taakValue) return typeMap[language].taak;
+        if (zaakValue) return typeMap[language].zaak;
         return null;
       }
 
