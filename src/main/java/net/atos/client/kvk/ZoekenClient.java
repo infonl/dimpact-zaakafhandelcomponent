@@ -22,12 +22,13 @@ import net.atos.client.kvk.exception.KvkRuntimeExceptionMapper;
 import net.atos.client.kvk.model.KvkZoekenParameters;
 import net.atos.client.kvk.util.KvkClientHeadersFactory;
 import net.atos.client.kvk.zoeken.model.generated.Resultaat;
+import net.atos.zac.util.MediaTypes;
 
 @RegisterRestClient(configKey = "KVK-API-Client")
 @RegisterClientHeaders(KvkClientHeadersFactory.class)
 @RegisterProvider(KvkRuntimeExceptionMapper.class)
 @RegisterProvider(KvkClientNoResultResponseExceptionMapper.class)
-@Produces({"application/hal+json"})
+@Produces({MediaTypes.MEDIA_TYPE_HAL_JSON})
 @Path("api/v2/zoeken")
 @Timeout(unit = ChronoUnit.SECONDS, value = 5)
 public interface ZoekenClient {

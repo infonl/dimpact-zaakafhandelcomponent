@@ -5,6 +5,7 @@
 
 package net.atos.client.bag.api;
 
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static net.atos.client.bag.BagClientService.DEFAULT_CRS;
 
 import java.math.BigDecimal;
@@ -35,6 +36,7 @@ import net.atos.client.bag.model.generated.LigplaatsIOHalCollection;
 import net.atos.client.bag.model.generated.LigplaatsIOLvcHalCollection;
 import net.atos.client.bag.model.generated.PointGeoJSON;
 import net.atos.client.bag.util.BagClientHeadersFactory;
+import net.atos.zac.util.MediaTypes;
 
 /**
  * IMBAG API - van de LVBAG
@@ -62,7 +64,7 @@ import net.atos.client.bag.util.BagClientHeadersFactory;
 public interface LigplaatsApi {
 
     /**
-     * bevragen van een ligplaats, op basis van een geometrische locatie.
+     * Bevragen van een ligplaats, op basis van een geometrische locatie.
      * <p>
      * Bevragen/raadplegen van één of meer ligplaatsen met een geometrische locatie. Parameter huidig kan worden toegepast, zie [functionele
      * specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature). De geldigOp en beschikbaarOp parameters
@@ -72,9 +74,9 @@ public interface LigplaatsApi {
      * expand](https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature).
      */
     @POST
-    @Consumes({"application/json"})
-    @Produces({"application/hal+json", "application/problem+json"})
-    public LigplaatsIOHalCollection ligplaatsGeometrie(
+    @Consumes({APPLICATION_JSON})
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    LigplaatsIOHalCollection ligplaatsGeometrie(
             PointGeoJSON pointGeoJSON,
             @QueryParam("geldigOp") LocalDate geldigOp,
             @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
@@ -85,7 +87,7 @@ public interface LigplaatsApi {
     ) throws ProcessingException;
 
     /**
-     * bevragen 1 ligplaats met de identificatie van een ligplaats.
+     * Bevragen 1 ligplaats met de identificatie van een ligplaats.
      * <p>
      * Bevragen/raadplegen van een voorkomen van een ligplaats met de identificatie van de ligplaats. Parameter huidig kan worden toegepast,
      * zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature). De geldigOp en
@@ -96,8 +98,8 @@ public interface LigplaatsApi {
      */
     @GET
     @Path("/{identificatie}")
-    @Produces({"application/hal+json", "application/problem+json"})
-    public LigplaatsIOHal ligplaatsIdentificatie(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    LigplaatsIOHal ligplaatsIdentificatie(
             @PathParam("identificatie") String identificatie,
             @QueryParam("geldigOp") LocalDate geldigOp,
             @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
@@ -107,7 +109,7 @@ public interface LigplaatsApi {
     ) throws ProcessingException;
 
     /**
-     * bevragen voorkomen van een ligplaats met de identificatie van een ligplaats en de identificatie van een voorkomen, bestaande uit een
+     * Bevragen voorkomen van een ligplaats met de identificatie van een ligplaats en de identificatie van een voorkomen, bestaande uit een
      * versie en een timestamp van het tijdstip van registratie in de LV BAG.
      * <p>
      * Bevragen/raadplegen van een voorkomen van een ligplaats met de identificatie van een ligplaats en de identificatie van een voorkomen,
@@ -115,8 +117,8 @@ public interface LigplaatsApi {
      */
     @GET
     @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
-    @Produces({"application/hal+json", "application/problem+json"})
-    public LigplaatsIOHal ligplaatsIdentificatieVoorkomen(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    LigplaatsIOHal ligplaatsIdentificatieVoorkomen(
             @PathParam("identificatie") String identificatie,
             @PathParam("versie") Integer versie,
             @PathParam("timestampRegistratieLv") String timestampRegistratieLv,
@@ -124,14 +126,14 @@ public interface LigplaatsApi {
     ) throws ProcessingException;
 
     /**
-     * bevragen levenscyclus van een ligplaats met de identificatie van een ligplaats.
+     * Bevragen levenscyclus van een ligplaats met de identificatie van een ligplaats.
      * <p>
      * Bevragen/raadplegen van de levenscyclus van een ligplaats, via de identificatie van de ligplaats.
      */
     @GET
     @Path("/{identificatie}/lvc")
-    @Produces({"application/hal+json", "application/problem+json"})
-    public LigplaatsIOLvcHalCollection ligplaatsLvcIdentificatie(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    LigplaatsIOLvcHalCollection ligplaatsLvcIdentificatie(
             @PathParam("identificatie") String identificatie,
             @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc,
             @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs
@@ -149,8 +151,8 @@ public interface LigplaatsApi {
      * paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).
      */
     @GET
-    @Produces({"application/hal+json", "application/problem+json"})
-    public LigplaatsIOHalCollection zoekLigplaatsen(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    LigplaatsIOHalCollection zoekLigplaatsen(
             @QueryParam("geldigOp") LocalDate geldigOp,
             @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
             @QueryParam("huidig") @DefaultValue("false") Boolean huidig,

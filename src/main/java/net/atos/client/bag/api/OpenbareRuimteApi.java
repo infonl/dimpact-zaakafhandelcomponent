@@ -28,6 +28,7 @@ import net.atos.client.bag.model.generated.OpenbareRuimteIOHalCollection;
 import net.atos.client.bag.model.generated.OpenbareRuimteIOLvcHalCollection;
 import net.atos.client.bag.util.BagClientHeadersFactory;
 import net.atos.client.bag.util.JsonbConfiguration;
+import net.atos.zac.util.MediaTypes;
 
 /**
  * IMBAG API - van de LVBAG
@@ -67,8 +68,8 @@ public interface OpenbareRuimteApi {
      */
     @GET
     @Path("/{openbareRuimteIdentificatie}")
-    @Produces({"application/hal+json", "application/problem+json"})
-    public OpenbareRuimteIOHal openbareruimteIdentificatie(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    OpenbareRuimteIOHal openbareruimteIdentificatie(
             @PathParam("openbareRuimteIdentificatie") String openbareRuimteIdentificatie,
             @QueryParam("geldigOp") LocalDate geldigOp,
             @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
@@ -85,8 +86,8 @@ public interface OpenbareRuimteApi {
      */
     @GET
     @Path("/{openbareRuimteIdentificatie}/{versie}/{timestampRegistratieLv}")
-    @Produces({"application/hal+json", "application/problem+json"})
-    public OpenbareRuimteIOHal openbareruimteIdentificatieVoorkomen(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    OpenbareRuimteIOHal openbareruimteIdentificatieVoorkomen(
             @PathParam("openbareRuimteIdentificatie") String openbareRuimteIdentificatie,
             @PathParam("versie") Integer versie,
             @PathParam("timestampRegistratieLv") String timestampRegistratieLv
@@ -99,8 +100,8 @@ public interface OpenbareRuimteApi {
      */
     @GET
     @Path("/{openbareRuimteIdentificatie}/lvc")
-    @Produces({"application/hal+json", "application/problem+json"})
-    public OpenbareRuimteIOLvcHalCollection openbareruimteLvcIdentificatie(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    OpenbareRuimteIOLvcHalCollection openbareruimteLvcIdentificatie(
             @PathParam("openbareRuimteIdentificatie") String openbareRuimteIdentificatie,
             @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc
     ) throws ProcessingException;
@@ -122,8 +123,8 @@ public interface OpenbareRuimteApi {
      * tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).
      */
     @GET
-    @Produces({"application/hal+json", "application/problem+json"})
-    public OpenbareRuimteIOHalCollection zoekOpenbareRuimten(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    OpenbareRuimteIOHalCollection zoekOpenbareRuimten(
             @QueryParam("woonplaatsNaam") String woonplaatsNaam,
             @QueryParam("openbareRuimteNaam") String openbareRuimteNaam,
             @QueryParam("woonplaatsIdentificatie") String woonplaatsIdentificatie,
