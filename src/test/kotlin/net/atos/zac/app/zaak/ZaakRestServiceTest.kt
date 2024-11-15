@@ -249,8 +249,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { zaakService.bepaalRolGroep(group, zaak) } returns rolOrganisatorischeEenheid
         every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
         every {
-            zaakService.addInitiatorNatuurlijkPersoon(
-                bsn = restZaak.initiatorIdentificatie!!,
+            zaakService.addInitiatorToZaak(
+                identificatieType = restZaak.initiatorIdentificatieType!!,
+                identificatie = restZaak.initiatorIdentificatie!!,
                 zaak = zaak,
                 toelichting = "Toegekend door de medewerker tijdens het behandelen van de zaak"
             )

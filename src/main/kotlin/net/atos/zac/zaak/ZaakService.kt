@@ -94,43 +94,40 @@ class ZaakService @Inject constructor(
         }
     }
 
-    fun addInitiatorNatuurlijkPersoon(
-        bsn: String,
+    fun addInitiatorToZaak(
+        identificatieType: IdentificatieType,
+        identificatie: String,
         zaak: Zaak,
         toelichting: String
     ) {
-        addRolNatuurlijkPersoonToZaak(
-            roltype = ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR),
-            bsn = bsn,
-            zaak = zaak,
-            toelichting = toelichting
-        )
-    }
+        when (identificatieType) {
+            IdentificatieType.BSN -> {
+                addRolNatuurlijkPersoonToZaak(
+                    roltype = ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR),
+                    bsn = identificatie,
+                    zaak = zaak,
+                    toelichting = toelichting
+                )
+            }
 
-    fun addInitiatorVestiging(
-        vestigingsnummer: String,
-        zaak: Zaak,
-        toelichting: String
-    ) {
-        addRolVestigingToZaak(
-            roltype = ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR),
-            vestigingsnummer = vestigingsnummer,
-            zaak = zaak,
-            toelichting = toelichting
-        )
-    }
+            IdentificatieType.VN -> {
+                addRolVestigingToZaak(
+                    roltype = ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR),
+                    vestigingsnummer = identificatie,
+                    zaak = zaak,
+                    toelichting = toelichting
+                )
+            }
 
-    fun addInitiatorNietNatuurlijkPersoon(
-        rsin: String,
-        zaak: Zaak,
-        toelichting: String
-    ) {
-        addRolNietNatuurlijkPersoonToZaak(
-            roltype = ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR),
-            rsin = rsin,
-            zaak = zaak,
-            toelichting = toelichting
-        )
+            IdentificatieType.RSIN -> {
+                addRolNietNatuurlijkPersoonToZaak(
+                    roltype = ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR),
+                    rsin = identificatie,
+                    zaak = zaak,
+                    toelichting = toelichting
+                )
+            }
+        }
     }
 
     /**
