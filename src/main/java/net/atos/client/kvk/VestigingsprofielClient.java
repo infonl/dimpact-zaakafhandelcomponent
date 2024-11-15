@@ -25,11 +25,12 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import net.atos.client.kvk.exception.KvkRuntimeExceptionMapper;
 import net.atos.client.kvk.util.KvkClientHeadersFactory;
 import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging;
+import net.atos.zac.util.MediaTypes;
 
 @RegisterRestClient(configKey = "KVK-API-Client")
 @RegisterClientHeaders(KvkClientHeadersFactory.class)
 @RegisterProvider(KvkRuntimeExceptionMapper.class)
-@Produces({"application/hal+json"})
+@Produces({MediaTypes.MEDIA_TYPE_HAL_JSON})
 @Path("api/v1/vestigingsprofielen")
 public interface VestigingsprofielClient {
 

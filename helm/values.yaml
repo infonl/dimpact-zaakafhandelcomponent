@@ -400,3 +400,103 @@ opentelemetry-collector:
             - otlp
         metrics: {}
         logs: {}
+
+nginx:
+  enabled: false
+  image:
+    repository: nginxinc/nginx-unprivileged
+    pullPolicy: IfNotPresent
+    tag: stable
+  service:
+    type: ClusterIP
+    port: 80
+    annotations: {}
+  # -- mount existing nginx vhost config
+  existingConfigmap: null
+  replicaCount: 1
+  podLabels: {}
+  securityContext:
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: false
+    runAsNonRoot: true
+    runAsUser: 101
+  autoscaling:
+    enabled: false
+  livenessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+  readinessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+  resources: {}
+  useXForwardedHost: false
+  allowedHosts: ""
+  client_max_body_size: 120M
+  api_proxy:
+    enabled: false
+    certificate_secret: nginx-certs
+    kvk: 
+      zoeken:
+        enabled: true
+        key_secret: kvk_key
+        client_secret: kvk_client
+        server_secret: kvk_server
+        host: kvk.nl
+        path: /test
+        proxy_path: /test
+        ssl_verify: false
+        apikey_header_name: "X-Api-Key"
+        apikey_value: "test"
+      basisprofiel:
+        enabled: true
+        key_secret: kvk_key
+        client_secret: kvk_client
+        server_secret: kvk_server
+        host: kvk.nl
+        path: /test
+        proxy_path: /test
+        ssl_verify: false
+        apikey_header_name: "X-Api-Key"
+        apikey_value: "test"
+      vestigingsprofiel:
+        enabled: true
+        key_secret: kvk_key
+        client_secret: kvk_client
+        server_secret: kvk_server
+        host: kvk.nl
+        path: /test
+        proxy_path: /test
+        ssl_verify: false
+        apikey_header_name: "X-Api-Key"
+        apikey_value: "test"
+    brp: 
+      enabled: true
+      key_secret: brp_key
+      client_secret: brp_client
+      server_secret: brp_server
+      host: brp.nl
+      path: /haalcentraal/api/brp
+      proxy_path: /haalcentraal/api/brp
+      ssl_verify: false
+      apikey_header_name: ""
+      apikey_value: ""
+      x_doelbinding: "test"
+    bag:
+      enabled: true
+      key_secret: bag_key
+      client_secret: bag_client
+      server_secret: bag_server
+      host: bag.nl
+      path: /lvbag/individuelebevragingen/v2/
+      proxy_path: /lvbag/individuelebevragingen/v2/
+      ssl_verify: false
+      apikey_header_name: "apikey"
+      apikey_value: "test"

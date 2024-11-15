@@ -8,6 +8,7 @@ import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
+import jakarta.ws.rs.core.MediaType
 import net.atos.client.brp.exception.BrpResponseExceptionMapper
 import net.atos.client.brp.model.generated.PersonenQuery
 import net.atos.client.brp.model.generated.PersonenQueryResponse
@@ -35,8 +36,8 @@ import java.time.temporal.ChronoUnit
 @RegisterProvider(BrpResponseExceptionMapper::class)
 @RegisterProvider(JsonbConfiguration::class)
 @Path("/personen")
-@Consumes("application/json")
-@Produces("application/json")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 @Timeout(unit = ChronoUnit.SECONDS, value = 10)
 interface PersonenApi {
     /**

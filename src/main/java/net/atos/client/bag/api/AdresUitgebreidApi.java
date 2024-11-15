@@ -28,6 +28,7 @@ import net.atos.client.bag.model.generated.AdresUitgebreidHal;
 import net.atos.client.bag.model.generated.AdresUitgebreidHalCollection;
 import net.atos.client.bag.util.BagClientHeadersFactory;
 import net.atos.client.bag.util.JsonbConfiguration;
+import net.atos.zac.util.MediaTypes;
 
 /**
  * IMBAG API - van de LVBAG
@@ -64,8 +65,8 @@ public interface AdresUitgebreidApi {
      */
     @GET
     @Path("/{nummeraanduidingIdentificatie}")
-    @Produces({"application/hal+json", "application/problem+json"})
-    public AdresUitgebreidHal bevraagAdresUitgebreidMetNumId(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    AdresUitgebreidHal bevraagAdresUitgebreidMetNumId(
             @PathParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
             @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs,
             @QueryParam("inclusiefEindStatus") @DefaultValue("false") Boolean inclusiefEindStatus
@@ -89,8 +90,8 @@ public interface AdresUitgebreidApi {
      * inclusiefEindstatus](https://github.com/lvbag/BAG-API/blob/master/Features/inclusief-eind-status.feature).
      */
     @GET
-    @Produces({"application/hal+json", "application/problem+json"})
-    public AdresUitgebreidHalCollection zoekAdresUitgebreid(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    AdresUitgebreidHalCollection zoekAdresUitgebreid(
             @QueryParam("postcode") String postcode,
             @QueryParam("huisnummer") Integer huisnummer,
             @QueryParam("huisnummertoevoeging") String huisnummertoevoeging,

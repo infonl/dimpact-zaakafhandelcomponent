@@ -34,6 +34,7 @@ import net.atos.client.bag.model.generated.VerblijfsobjectIOHal;
 import net.atos.client.bag.model.generated.VerblijfsobjectIOHalCollection;
 import net.atos.client.bag.model.generated.VerblijfsobjectIOLvcHalCollection;
 import net.atos.client.bag.util.BagClientHeadersFactory;
+import net.atos.zac.util.MediaTypes;
 
 /**
  * IMBAG API - van de LVBAG
@@ -78,8 +79,8 @@ public interface VerblijfsobjectApi {
      */
     @GET
     @Path("/{identificatie}")
-    @Produces({"application/hal+json", "application/problem+json"})
-    public VerblijfsobjectIOHal verblijfsobjectIdentificatie(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    VerblijfsobjectIOHal verblijfsobjectIdentificatie(
             @PathParam("identificatie") String identificatie,
             @QueryParam("geldigOp") LocalDate geldigOp,
             @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
@@ -97,8 +98,8 @@ public interface VerblijfsobjectApi {
      */
     @GET
     @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
-    @Produces({"application/hal+json", "application/problem+json"})
-    public VerblijfsobjectIOHal verblijfsobjectIdentificatieVoorkomen(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    VerblijfsobjectIOHal verblijfsobjectIdentificatieVoorkomen(
             @PathParam("identificatie") String identificatie,
             @PathParam("versie") Integer versie,
             @PathParam("timestampRegistratieLv") String timestampRegistratieLv,
@@ -112,8 +113,8 @@ public interface VerblijfsobjectApi {
      */
     @GET
     @Path("/{identificatie}/lvc")
-    @Produces({"application/hal+json", "application/problem+json"})
-    public VerblijfsobjectIOLvcHalCollection verblijfsobjectLvcIdentificatie(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    VerblijfsobjectIOLvcHalCollection verblijfsobjectLvcIdentificatie(
             @PathParam("identificatie") String identificatie,
             @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc,
             @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs
@@ -135,8 +136,8 @@ public interface VerblijfsobjectApi {
      * specificatie paginering](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature">...</a>).
      */
     @GET
-    @Produces({"application/hal+json", "application/problem+json"})
-    public VerblijfsobjectIOHalCollection zoekVerblijfsobjecten(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    VerblijfsobjectIOHalCollection zoekVerblijfsobjecten(
             @QueryParam("pandIdentificatie") String pandIdentificatie,
             @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
             @QueryParam("geldigOp") LocalDate geldigOp,

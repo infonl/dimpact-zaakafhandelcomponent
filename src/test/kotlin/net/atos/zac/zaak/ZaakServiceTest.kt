@@ -13,6 +13,9 @@ import io.mockk.verify
 import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
+import net.atos.client.zgw.zrc.model.Rol
+import net.atos.client.zgw.zrc.model.createRolNatuurlijkPersoon
+import net.atos.client.zgw.zrc.model.createRolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createRolType
@@ -276,6 +279,40 @@ class ZaakServiceTest : BehaviorSpec({
                         zrcClientService.deleteRol(it, any(), explanation)
                     }
                 }
+            }
+        }
+    }
+    Given(
+        "A zaak with one initiator, one behandelaar and two other betrokkenen roles not of type initiator or behandelaar"
+    ) {
+        val zaak = createZaak()
+        val rolNatuurlijkPersonen = listOf<Rol<*>>(
+            createRolNatuurlijkPersoon(
+                zaaktypeURI = zaak.zaaktype,
+                rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BELANGHEBBENDE)
+            ),
+            createRolOrganisatorischeEenheid(
+                zaaktypeURI = zaak.zaaktype,
+                rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BESLISSER)
+            ),
+            createRolNatuurlijkPersoon(
+                zaaktypeURI = zaak.zaaktype,
+                rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
+            ),
+            createRolNatuurlijkPersoon(
+                zaaktypeURI = zaak.zaaktype,
+                rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
+            )
+        )
+        every { zrcClientService.listRollen(zaak) } returns rolNatuurlijkPersonen
+
+        When("the list of betrokkenen is retrieved") {
+            val betrokkenenRoles = zaakService.listBetrokkenenforZaak(zaak)
+
+            Then("the list should consist of the two betrokkenen not of type initiator or behandelaar") {
+                betrokkenenRoles.size shouldBe 2
+                betrokkenenRoles[0] shouldBe rolNatuurlijkPersonen[0]
+                betrokkenenRoles[1] shouldBe rolNatuurlijkPersonen[1]
             }
         }
     }

@@ -25,6 +25,7 @@ import net.atos.client.bag.exception.BagResponseExceptionMapper;
 import net.atos.client.bag.model.generated.BronhouderHal;
 import net.atos.client.bag.model.generated.BronhouderHalCollection;
 import net.atos.client.bag.util.BagClientHeadersFactory;
+import net.atos.zac.util.MediaTypes;
 
 /**
  * IMBAG API - van de LVBAG
@@ -60,15 +61,15 @@ public interface BronhouderApi {
      */
     @GET
     @Path("/{identificatie}")
-    @Produces({"application/hal+json", "application/problem+json"})
-    public BronhouderHal bevragenBronhouder(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    BronhouderHal bevragenBronhouder(
             @PathParam("identificatie") String identificatie,
             @QueryParam("geldigOp") LocalDate geldigOp,
             @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp
     ) throws ProcessingException;
 
     /**
-     * bevragen voorkomen van een bronhouder met de identificatie van een bronhouder en de identificatie van een voorkomen, bestaande uit
+     * Bevragen voorkomen van een bronhouder met de identificatie van een bronhouder en de identificatie van een voorkomen, bestaande uit
      * een versie en een timestamp van het tijdstip van registratie in de LV BAG.
      * <p>
      * Bevragen/raadplegen van een voorkomen van een bronhouder met de identificatie van een bronhouder en de identificatie van een
@@ -76,8 +77,8 @@ public interface BronhouderApi {
      */
     @GET
     @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
-    @Produces({"application/hal+json", "application/problem+json"})
-    public BronhouderHal bronhouderIdentificatieVoorkomen(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    BronhouderHal bronhouderIdentificatieVoorkomen(
             @PathParam("identificatie") String identificatie,
             @PathParam("versie") Integer versie,
             @PathParam("timestampRegistratieLv") String timestampRegistratieLv
@@ -92,8 +93,8 @@ public interface BronhouderApi {
      * tijdreizen](https://github.com/lvbag/BAG-API/blob/master/Features/tijdreizen.feature).
      */
     @GET
-    @Produces({"application/hal+json", "application/problem+json"})
-    public BronhouderHalCollection zoekBronhouder(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    BronhouderHalCollection zoekBronhouder(
             @QueryParam("woonplaatsIdentificatie") String woonplaatsIdentificatie,
             @QueryParam("objectIdentificatie") String objectIdentificatie,
             @QueryParam("geldigOp") LocalDate geldigOp,

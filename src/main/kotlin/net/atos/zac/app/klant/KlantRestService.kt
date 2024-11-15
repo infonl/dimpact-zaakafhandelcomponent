@@ -24,7 +24,6 @@ import net.atos.client.klant.model.ExpandBetrokkene
 import net.atos.client.kvk.KvkClientService
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem
 import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.app.klant.exception.RechtspersoonNotFoundException
 import net.atos.zac.app.klant.exception.VestigingNotFoundException
 import net.atos.zac.app.klant.model.bedrijven.RestBedrijf
@@ -49,10 +48,10 @@ import net.atos.zac.app.klant.model.personen.toRechtsPersonen
 import net.atos.zac.app.klant.model.personen.toRestPersoon
 import net.atos.zac.app.klant.model.personen.toRestResultaat
 import net.atos.zac.app.shared.RESTResultaat
+import net.atos.zac.zaak.Betrokkenen.BETROKKENEN_ENUMSET
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.hibernate.validator.constraints.Length
-import java.util.EnumSet
 import java.util.Objects
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
@@ -71,16 +70,6 @@ class KlantRestService @Inject constructor(
     val klantClientService: KlantClientService
 ) {
     companion object {
-        val betrokkenen: EnumSet<OmschrijvingGeneriekEnum> =
-            EnumSet.allOf(OmschrijvingGeneriekEnum::class.java).apply {
-                this.removeAll(
-                    listOf(
-                        OmschrijvingGeneriekEnum.INITIATOR,
-                        OmschrijvingGeneriekEnum.BEHANDELAAR
-                    )
-                )
-            }
-
         const val TELEFOON_SOORT_DIGITAAL_ADRES = "telefoon"
         const val EMAIL_SOORT_DIGITAAL_ADRES = "email"
     }
@@ -167,7 +156,7 @@ class KlantRestService @Inject constructor(
     @Path("roltype/{zaaktypeUuid}/betrokkene")
     fun listBetrokkeneRoltypen(@PathParam("zaaktypeUuid") zaaktype: UUID): List<RestRoltype> =
         ztcClientService.listRoltypen(ztcClientService.readZaaktype(zaaktype).url)
-            .filter { betrokkenen.contains(it.omschrijvingGeneriek) }
+            .filter { BETROKKENEN_ENUMSET.contains(it.omschrijvingGeneriek) }
             .sortedBy { it.omschrijving }
             .toRestRoltypes()
 
