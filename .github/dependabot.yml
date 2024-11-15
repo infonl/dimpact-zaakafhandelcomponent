@@ -16,21 +16,23 @@ updates:
       # group minor and patch Angular updates together
       angular:
         patterns:
-          - "@angular*"
+          - "@angular/*"
+          - "@angular-eslint/*"
         update-types:
           - "minor"
           - "patch"
       # group all updates for ESLint including major, minor, and patch
       eslint:
         patterns:
-          - "@typescript-eslint*"
+          - "@typescript-eslint/*"
+          - eslint
         update-types:
           - "major"
           - "minor"
           - "patch"
     ignore:
       # ignore major Angular updates since they require manual steps
-      - dependency-name: "@angular*"
+      - dependency-name: "@angular/*"
         update-types: ["version-update:semver-major"]
       # ignore major Node.js updates. We want to use LTS version
       - dependency-name: "@types/node"
