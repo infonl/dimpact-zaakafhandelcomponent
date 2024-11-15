@@ -29,8 +29,8 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
 import net.atos.zac.websocket.event.ScreenEventType
+import net.atos.zac.zaak.Betrokkenen.BETROKKENEN_ENUMSET
 import nl.lifely.zac.util.AllOpen
-import java.util.EnumSet
 import java.util.Locale
 import java.util.UUID
 import java.util.logging.Logger
@@ -44,18 +44,6 @@ class ZaakService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private var eventingService: EventingService,
 ) {
-    companion object {
-        val ZAAK_BETROKKENEN_ENUMSET: EnumSet<OmschrijvingGeneriekEnum> =
-            EnumSet.allOf(OmschrijvingGeneriekEnum::class.java).apply {
-                this.removeAll(
-                    listOf(
-                        OmschrijvingGeneriekEnum.INITIATOR,
-                        OmschrijvingGeneriekEnum.BEHANDELAAR
-                    )
-                )
-            }
-    }
-
     fun addBetrokkeneToZaak(
         roleTypeUUID: UUID,
         identificationType: IdentificatieType,
@@ -172,7 +160,7 @@ class ZaakService @Inject constructor(
     fun listBetrokkenenforZaak(zaak: Zaak): List<Rol<*>> =
         zrcClientService.listRollen(zaak)
             .filter { rol ->
-                ZAAK_BETROKKENEN_ENUMSET.contains(
+                BETROKKENEN_ENUMSET.contains(
                     OmschrijvingGeneriekEnum.valueOf(
                         rol.omschrijvingGeneriek.uppercase(Locale.getDefault())
                     )

@@ -48,7 +48,7 @@ import net.atos.zac.app.klant.model.personen.toRechtsPersonen
 import net.atos.zac.app.klant.model.personen.toRestPersoon
 import net.atos.zac.app.klant.model.personen.toRestResultaat
 import net.atos.zac.app.shared.RESTResultaat
-import net.atos.zac.zaak.ZaakService.Companion.ZAAK_BETROKKENEN_ENUMSET
+import net.atos.zac.zaak.Betrokkenen.BETROKKENEN_ENUMSET
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.hibernate.validator.constraints.Length
@@ -156,7 +156,7 @@ class KlantRestService @Inject constructor(
     @Path("roltype/{zaaktypeUuid}/betrokkene")
     fun listBetrokkeneRoltypen(@PathParam("zaaktypeUuid") zaaktype: UUID): List<RestRoltype> =
         ztcClientService.listRoltypen(ztcClientService.readZaaktype(zaaktype).url)
-            .filter { ZAAK_BETROKKENEN_ENUMSET.contains(it.omschrijvingGeneriek) }
+            .filter { BETROKKENEN_ENUMSET.contains(it.omschrijvingGeneriek) }
             .sortedBy { it.omschrijving }
             .toRestRoltypes()
 
