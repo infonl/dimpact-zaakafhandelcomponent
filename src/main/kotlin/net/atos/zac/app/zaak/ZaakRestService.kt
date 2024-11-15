@@ -958,21 +958,11 @@ class ZaakRestService @Inject constructor(
     ) {
         val zaakRechten = policyService.readZaakRechten(zaak)
         when (identificatieType) {
-            IdentificatieType.BSN -> {
-                assertPolicy(zaakRechten.toevoegenBetrokkenePersoon)
-                zaakService.addBetrokkenNatuurlijkPersoon(roltypeUUID, identificatie, zaak, toelichting)
-            }
-
-            IdentificatieType.VN -> {
-                assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
-                zaakService.addBetrokkenVestiging(roltypeUUID, identificatie, zaak, toelichting)
-            }
-
-            IdentificatieType.RSIN -> {
-                assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
-                zaakService.addBetrokkenNietNatuurlijkPersoon(roltypeUUID, identificatie, zaak, toelichting)
-            }
+            IdentificatieType.BSN -> assertPolicy(zaakRechten.toevoegenBetrokkenePersoon)
+            IdentificatieType.VN -> assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
+            IdentificatieType.RSIN -> assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
         }
+        zaakService.addBetrokkeneToZaak(roltypeUUID, identificatieType, identificatie, zaak, toelichting)
     }
 
     private fun addInitiator(

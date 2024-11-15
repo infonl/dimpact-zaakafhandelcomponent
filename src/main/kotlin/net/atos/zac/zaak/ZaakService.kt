@@ -24,6 +24,7 @@ import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.client.zgw.ztc.model.generated.RolType
+import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.event.EventingService
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
@@ -54,18 +55,43 @@ class ZaakService @Inject constructor(
                 )
             }
     }
-    fun addBetrokkenNatuurlijkPersoon(
+
+    fun addBetrokkeneToZaak(
         roltypeUUID: UUID,
-        bsn: String,
+        identificatieType: IdentificatieType,
+        identificatie: String,
         zaak: Zaak,
         toelichting: String
     ) {
-        addBetrokkenNatuurlijkPersoonByRoleType(
-            roltype = ztcClientService.readRoltype(roltypeUUID),
-            bsn = bsn,
-            zaak = zaak,
-            toelichting = toelichting
-        )
+        val rolType = ztcClientService.readRoltype(roltypeUUID)
+        when (identificatieType) {
+            IdentificatieType.BSN -> {
+                addRolNatuurlijkPersoonToZaak(
+                    roltype = rolType,
+                    bsn = identificatie,
+                    zaak = zaak,
+                    toelichting = toelichting
+                )
+            }
+
+            IdentificatieType.VN -> {
+                addRolVestigingToZaak(
+                    roltype = rolType,
+                    vestigingsnummer = identificatie,
+                    zaak = zaak,
+                    toelichting = toelichting
+                )
+            }
+
+            IdentificatieType.RSIN -> {
+                addRolNietNatuurlijkPersoonToZaak(
+                    roltype = rolType,
+                    rsin = identificatie,
+                    zaak = zaak,
+                    toelichting = toelichting
+                )
+            }
+        }
     }
 
     fun addInitiatorNatuurlijkPersoon(
@@ -73,23 +99,9 @@ class ZaakService @Inject constructor(
         zaak: Zaak,
         toelichting: String
     ) {
-        addBetrokkenNatuurlijkPersoonByRoleType(
+        addRolNatuurlijkPersoonToZaak(
             roltype = ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR),
             bsn = bsn,
-            zaak = zaak,
-            toelichting = toelichting
-        )
-    }
-
-    fun addBetrokkenVestiging(
-        roltypeUUID: UUID,
-        vestigingsnummer: String,
-        zaak: Zaak,
-        toelichting: String
-    ) {
-        addBetrokkenVestigingByRoleType(
-            roltype = ztcClientService.readRoltype(roltypeUUID),
-            vestigingsnummer = vestigingsnummer,
             zaak = zaak,
             toelichting = toelichting
         )
@@ -100,23 +112,9 @@ class ZaakService @Inject constructor(
         zaak: Zaak,
         toelichting: String
     ) {
-        addBetrokkenVestigingByRoleType(
+        addRolVestigingToZaak(
             roltype = ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR),
             vestigingsnummer = vestigingsnummer,
-            zaak = zaak,
-            toelichting = toelichting
-        )
-    }
-
-    fun addBetrokkenNietNatuurlijkPersoon(
-        roltypeUUID: UUID,
-        rsin: String,
-        zaak: Zaak,
-        toelichting: String
-    ) {
-        addBetrokkenNietNatuurlijkPersoonByRoleType(
-            roltype = ztcClientService.readRoltype(roltypeUUID),
-            rsin = rsin,
             zaak = zaak,
             toelichting = toelichting
         )
@@ -127,7 +125,7 @@ class ZaakService @Inject constructor(
         zaak: Zaak,
         toelichting: String
     ) {
-        addBetrokkenNietNatuurlijkPersoonByRoleType(
+        addRolNietNatuurlijkPersoonToZaak(
             roltype = ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR),
             rsin = rsin,
             zaak = zaak,
@@ -263,7 +261,7 @@ class ZaakService @Inject constructor(
         }
     }
 
-    private fun addBetrokkenNatuurlijkPersoonByRoleType(
+    private fun addRolNatuurlijkPersoonToZaak(
         roltype: RolType,
         bsn: String,
         zaak: Zaak,
@@ -280,7 +278,7 @@ class ZaakService @Inject constructor(
         )
     }
 
-    private fun addBetrokkenVestigingByRoleType(
+    private fun addRolVestigingToZaak(
         roltype: RolType,
         vestigingsnummer: String,
         zaak: Zaak,
@@ -297,7 +295,7 @@ class ZaakService @Inject constructor(
         )
     }
 
-    private fun addBetrokkenNietNatuurlijkPersoonByRoleType(
+    private fun addRolNietNatuurlijkPersoonToZaak(
         roltype: RolType,
         rsin: String,
         zaak: Zaak,
