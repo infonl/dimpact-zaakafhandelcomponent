@@ -117,7 +117,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                         },
                         "startdatum" : "$DATE_2024_01_01",
                         "statusToelichting" : "Status gewijzigd",
-                        "statustypeOmschrijving" : "Intake",
+                        "statustypeOmschrijving" : "Aanvullende informatie vereist",
                         "uiterlijkeEinddatumAfdoening" : "$DATE_2024_01_31",
                         "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
                         "zaaktypeOmschrijving" : "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
@@ -255,7 +255,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                         },
                         "startdatum" : "$ZAAK_PRODUCTAANVRAAG_1_START_DATE",
                         "statusToelichting" : "Status gewijzigd",
-                        "statustypeOmschrijving" : "Intake",
+                        "statustypeOmschrijving" : "Aanvullende informatie vereist",
                         "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
                         "zaaktypeOmschrijving" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                       } ],
@@ -272,9 +272,12 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                           "aantal" : 4,
                           "naam" : "$TEST_GROUP_A_DESCRIPTION"
                         } ],
-                        "ZAAK_STATUS" : [ {
-                          "aantal" : 4,
-                          "naam" : "Intake"
+                        "ZAAK_STATUS": [ {
+                          "aantal": 2,
+                          "naam": "Aanvullende informatie vereist"
+                        }, {
+                          "aantal": 2,
+                          "naam": "Intake"
                         } ],
                         "ZAAK_RESULTAAT" : [ {
                           "aantal" : 4,
@@ -388,7 +391,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                           "wijzigenDoorlooptijd" : true
                         },
                         "statusToelichting" : "Status gewijzigd",
-                        "statustypeOmschrijving" : "Intake",
+                        "statustypeOmschrijving" : "Aanvullende informatie vereist",
                         "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
                         "zaaktypeOmschrijving" : "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                       } ],
@@ -407,7 +410,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                         } ],
                         "ZAAK_STATUS" : [ {
                           "aantal" : 1,
-                          "naam" : "Intake"
+                          "naam" : "Aanvullende informatie vereist"
                         } ],
                         "ZAAK_RESULTAAT" : [ {
                           "aantal" : 1,

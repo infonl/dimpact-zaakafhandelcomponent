@@ -1,5 +1,6 @@
 package net.atos.zac.flowable.cmmn
 
+import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
 import net.atos.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_INTAKE
 import net.atos.zac.flowable.FlowableHelper
@@ -36,12 +37,12 @@ class AanvullendeInformatieTaskListener : TaskListener {
     }
 
     private fun createdEvent(subScopeId: String) {
-        updateZaak(getPlanItemInstance(subScopeId), STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE)
+        updateParentZaakStatus(getPlanItemInstance(subScopeId), STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE)
     }
 
     private fun completedEvent(scopeId: String, subScopeId: String) {
         if (numberOfAdditionalInfoTasks(scopeId) == 1) {
-            updateZaak(getPlanItemInstance(subScopeId), STATUSTYPE_OMSCHRIJVING_INTAKE)
+            updateParentZaakStatus(getPlanItemInstance(subScopeId), STATUSTYPE_OMSCHRIJVING_INTAKE)
         }
     }
 
@@ -59,17 +60,36 @@ class AanvullendeInformatieTaskListener : TaskListener {
             .planItemInstanceState("active")
             .list().size
 
-    private fun updateZaak(planItemInstance: PlanItemInstance, statustypeOmschrijving: String) =
+    private fun updateParentZaakStatus(planItemInstance: PlanItemInstance, statustypeOmschrijving: String) =
         FlowableHelper.getInstance().let { flowableHelper ->
-            flowableHelper.zaakVariabelenService.readZaakUUID(planItemInstance).let { zaakUUID ->
-                flowableHelper.zrcClientService.readZaak(zaakUUID).let { zaak ->
-                    LOG.info("Zaak with UUID '$zaakUUID': changing status to '$statustypeOmschrijving'")
-                    flowableHelper.zgwApiService.createStatusForZaak(
-                        zaak,
-                        statustypeOmschrijving,
-                        STATUS_TOELICHTING
-                    )
+            getZaak(planItemInstance).let { zaak ->
+                getStatustypeDescription(zaak).takeIf { it != statustypeOmschrijving }?.let {
+                    updateZaakStatus(zaak, statustypeOmschrijving)
                 }
             }
+        }
+
+    private fun getZaak(planItemInstance: PlanItemInstance) =
+        FlowableHelper.getInstance().let { flowableHelper ->
+            flowableHelper.zaakVariabelenService.readZaakUUID(planItemInstance).let { zaakUUID ->
+                flowableHelper.zrcClientService.readZaak(zaakUUID)
+            }
+        }
+
+    private fun getStatustypeDescription(zaak: Zaak): String =
+        FlowableHelper.getInstance().let { flowableHelper ->
+            flowableHelper.zrcClientService.readStatus(zaak.status).let { zaakStatus ->
+                flowableHelper.ztcClientService.readStatustype(zaakStatus.statustype).omschrijving
+            }
+        }
+
+    private fun updateZaakStatus(zaak: Zaak, statustypeOmschrijving: String) =
+        FlowableHelper.getInstance().let { flowableHelper ->
+            LOG.info("Zaak with UUID '${zaak.uuid}': changing status to '$statustypeOmschrijving'")
+            flowableHelper.zgwApiService.createStatusForZaak(
+                zaak,
+                statustypeOmschrijving,
+                STATUS_TOELICHTING
+            )
         }
 }

@@ -11,6 +11,7 @@ import jakarta.inject.Inject;
 
 import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZrcClientService;
+import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.zac.event.EventingService;
 import net.atos.zac.flowable.task.TaakVariabelenService;
 import net.atos.zac.identity.IdentityService;
@@ -30,6 +31,9 @@ public class FlowableHelper {
 
     @Inject
     private ZGWApiService zgwApiService;
+
+    @Inject
+    private ZtcClientService ztcClientService;
 
     @Inject
     private ZrcClientService zrcClientService;
@@ -53,6 +57,10 @@ public class FlowableHelper {
 
     public ZrcClientService getZrcClientService() {
         return zrcClientService;
+    }
+
+    public ZtcClientService getZtcClientService() {
+        return ztcClientService;
     }
 
     public EventingService getEventingService() {

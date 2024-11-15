@@ -122,6 +122,13 @@ class ZaakHistorieTest : BehaviorSpec({
                   {
                     "actie": "GEWIJZIGD",
                     "attribuutLabel": "status",
+                    "door": "Test User1 Špëçîâl Characters",
+                    "nieuweWaarde": "Aanvullende informatie vereist",
+                    "toelichting": "Status gewijzigd"
+                  },
+                  {
+                    "actie": "GEWIJZIGD",
+                    "attribuutLabel": "status",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "Intake",
                     "toelichting": "Status gewijzigd"

@@ -44,7 +44,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
-                responseBody shouldEqualJson """
+                responseBody shouldEqualJsonIgnoringOrder  """
                     [ {
                       "humanTaskDefinitions" : [ {
                         "defaultFormulierDefinitie" : "AANVULLENDE_INFORMATIE",
