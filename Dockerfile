@@ -1,5 +1,5 @@
 ### Create runtime image fase
-FROM docker.io/eclipse-temurin:21.0.5_11-jre-ubi9-minimal@sha256:cba199ee5623602c6cfb2a2b8cbf014b4425a7d5611834eeae348b8b9af4050f AS runtime
+FROM docker.io/eclipse-temurin:23.0.1_11-jre-ubi9-minimal@sha256:6272767cace61b132c112eff4a2c5c4bba5b83256be75e6295c58c384c993618 AS runtime
 
 LABEL name="zaakafhandelcomponent"
 LABEL summary="Zaakafhandelcomponent (ZAC) developed for Dimpact"
