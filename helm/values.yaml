@@ -488,6 +488,7 @@ nginx:
       ssl_verify: off
       apikey_header_name: ""
       apikey_value: ""
+      x_doelbinding: ""
     bag:
       enabled: true
       key_secret: bag_key
