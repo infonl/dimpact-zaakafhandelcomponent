@@ -134,7 +134,11 @@ data:
         proxy_ssl_trusted_certificate {{ .Values.nginx.api_proxy.bag.server_secret }};
         {{- end }}
         proxy_pass https://{{ .Values.nginx.api_proxy.bag.host }}{{ .Values.nginx.api_proxy.bag.proxy_path }};
-        proxy_ssl_verify {{ .Values.nginx.api_proxy.bag.ssl_verify }};
+        {{- if .Values.nginx.api_proxy.bag.ssl_verify }}
+        proxy_ssl_verify on;
+        {{- else }}
+        proxy_ssl_verify off;
+        {{- end }}
         proxy_ssl_session_reuse on;
         proxy_ssl_server_name on;
         proxy_set_header X-API-KEY "";
@@ -154,8 +158,12 @@ data:
         {{- if not (eq .Values.nginx.api_proxy.brp.server_secret "") }}
         proxy_ssl_trusted_certificate {{ .Values.nginx.api_proxy.brp.server_secret }};
         {{- end }}
-        proxy_ssl_verify {{ .Values.nginx.api_proxy.brp.ssl_verify }};
         proxy_pass https://{{ .Values.nginx.api_proxy.brp.host }}{{ .Values.nginx.api_proxy.brp.proxy_path }};
+        {{- if .Values.nginx.api_proxy.brp.ssl_verify }}
+        proxy_ssl_verify on;
+        {{- else }}
+        proxy_ssl_verify off;
+        {{- end }}
         proxy_ssl_session_reuse on;
         proxy_ssl_server_name on;
         proxy_set_header X-API-KEY "";
@@ -179,7 +187,11 @@ data:
         proxy_ssl_trusted_certificate {{ .Values.nginx.api_proxy.kvk.zoeken.server_secret }};
         {{- end }}
         proxy_pass https://{{ .Values.nginx.api_proxy.kvk.zoeken.host }}{{ .Values.nginx.api_proxy.kvk.zoeken.proxy_path }};
-        proxy_ssl_verify {{ .Values.nginx.api_proxy.kvk.zoeken.ssl_verify }};
+        {{- if .Values.nginx.api_proxy.bag.ssl_verify }}
+        proxy_ssl_verify on;
+        {{- else }}
+        proxy_ssl_verify off;
+        {{- end }}
         proxy_ssl_session_reuse on;
         proxy_ssl_server_name on;
         proxy_set_header X-API-KEY "";
@@ -200,7 +212,11 @@ data:
         proxy_ssl_trusted_certificate {{ .Values.nginx.api_proxy.kvk.basisprofiel.server_secret }};
         {{- end }}
         proxy_pass https://{{ .Values.nginx.api_proxy.kvk.basisprofiel.host }}{{ .Values.nginx.api_proxy.kvk.basisprofiel.proxy_path }};
-        proxy_ssl_verify {{ .Values.nginx.api_proxy.kvk.basisprofiel.ssl_verify }};
+        {{- if .Values.nginx.api_proxy.bag.ssl_verify }}
+        proxy_ssl_verify on;
+        {{- else }}
+        proxy_ssl_verify off;
+        {{- end }}
         proxy_ssl_session_reuse on;
         proxy_ssl_server_name on;
         proxy_set_header X-API-KEY "";
@@ -221,7 +237,11 @@ data:
         proxy_ssl_trusted_certificate {{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.server_secret }};
         {{- end }}
         proxy_pass https://{{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.host }}{{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.proxy_path }};
-        proxy_ssl_verify {{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.ssl_verify }};
+        {{- if .Values.nginx.api_proxy.bag.ssl_verify }}
+        proxy_ssl_verify on;
+        {{- else }}
+        proxy_ssl_verify off;
+        {{- end }}
         proxy_ssl_session_reuse on;
         proxy_ssl_server_name on;
         proxy_set_header X-API-KEY "";

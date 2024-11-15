@@ -452,7 +452,7 @@ nginx:
         host: kvk.nl
         path: /test
         proxy_path: /test
-        ssl_verify: off
+        ssl_verify: false
         apikey_header_name: "X-Api-Key"
         apikey_value: "test"
       basisprofiel:
@@ -463,7 +463,7 @@ nginx:
         host: kvk.nl
         path: /test
         proxy_path: /test
-        ssl_verify: off
+        ssl_verify: false
         apikey_header_name: "X-Api-Key"
         apikey_value: "test"
       vestigingsprofiel:
@@ -474,7 +474,7 @@ nginx:
         host: kvk.nl
         path: /test
         proxy_path: /test
-        ssl_verify: off
+        ssl_verify: false
         apikey_header_name: "X-Api-Key"
         apikey_value: "test"
     brp: 
@@ -485,10 +485,10 @@ nginx:
       host: brp.nl
       path: /haalcentraal/api/brp
       proxy_path: /haalcentraal/api/brp
-      ssl_verify: off
+      ssl_verify: false
       apikey_header_name: ""
       apikey_value: ""
-      x_doelbinding: ""
+      x_doelbinding: "test"
     bag:
       enabled: true
       key_secret: bag_key
@@ -497,6 +497,6 @@ nginx:
       host: bag.nl
       path: /lvbag/individuelebevragingen/v2/
       proxy_path: /lvbag/individuelebevragingen/v2/
-      ssl_verify: off
+      ssl_verify: false
       apikey_header_name: "apikey"
       apikey_value: "test"
