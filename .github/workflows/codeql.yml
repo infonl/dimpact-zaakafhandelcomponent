@@ -21,7 +21,7 @@ jobs:
       skip: ${{ steps.paths-ignore.outputs.skip }}
     steps:
       - name: Skip CodeQL analysis when only Markdown files are changed
-        uses: kunitsucom/github-actions-paths-ignore-alternative@main
+        uses: kunitsucom/github-actions-paths-ignore-alternative@v0.0.4
         id: paths-ignore
         with:
           paths-ignore: |-
