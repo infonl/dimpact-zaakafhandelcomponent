@@ -250,10 +250,10 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
         every {
             zaakService.addInitiatorToZaak(
-                identificatieType = restZaak.initiatorIdentificatieType!!,
-                identificatie = restZaak.initiatorIdentificatie!!,
+                identificationType = restZaak.initiatorIdentificatieType!!,
+                identification = restZaak.initiatorIdentificatie!!,
                 zaak = zaak,
-                toelichting = "Toegekend door de medewerker tijdens het behandelen van de zaak"
+                explanation = "Toegekend door de medewerker tijdens het behandelen van de zaak"
             )
         } just runs
 

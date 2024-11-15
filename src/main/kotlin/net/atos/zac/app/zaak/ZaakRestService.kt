@@ -228,10 +228,10 @@ class ZaakRestService @Inject constructor(
     fun addBetrokkene(@Valid gegevens: RESTZaakBetrokkeneGegevens): RestZaak {
         val zaak = zrcClientService.readZaak(gegevens.zaakUUID)
         addBetrokkeneToZaak(
-            roltypeUUID = gegevens.roltypeUUID,
-            identificatieType = gegevens.betrokkeneIdentificatieType,
-            identificatie = gegevens.betrokkeneIdentificatie,
-            toelichting = gegevens.roltoelichting?.ifEmpty { ROL_TOEVOEGEN_REDEN } ?: ROL_TOEVOEGEN_REDEN,
+            roleTypeUUID = gegevens.roltypeUUID,
+            identificationType = gegevens.betrokkeneIdentificatieType,
+            identification = gegevens.betrokkeneIdentificatie,
+            explanation = gegevens.roltoelichting?.ifEmpty { ROL_TOEVOEGEN_REDEN } ?: ROL_TOEVOEGEN_REDEN,
             zaak
         )
         return restZaakConverter.toRestZaak(zaak)
@@ -950,37 +950,43 @@ class ZaakRestService @Inject constructor(
     fun listProcesVariabelen(): List<String> = ZaakVariabelenService.VARS
 
     private fun addBetrokkeneToZaak(
-        roltypeUUID: UUID,
-        identificatieType: IdentificatieType,
-        identificatie: String,
-        toelichting: String,
+        roleTypeUUID: UUID,
+        identificationType: IdentificatieType,
+        identification: String,
+        explanation: String,
         zaak: Zaak
     ) {
         val zaakRechten = policyService.readZaakRechten(zaak)
-        when (identificatieType) {
+        when (identificationType) {
             IdentificatieType.BSN -> assertPolicy(zaakRechten.toevoegenBetrokkenePersoon)
             IdentificatieType.VN -> assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
             IdentificatieType.RSIN -> assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
         }
-        zaakService.addBetrokkeneToZaak(roltypeUUID, identificatieType, identificatie, zaak, toelichting)
+        zaakService.addBetrokkeneToZaak(
+            roleTypeUUID = roleTypeUUID,
+            identificationType = identificationType,
+            identification = identification,
+            zaak = zaak,
+            explanation = explanation
+        )
     }
 
     private fun addInitiator(
-        identificatieType: IdentificatieType,
-        identificatie: String,
+        identificationType: IdentificatieType,
+        identification: String,
         zaak: Zaak
     ) {
         val zaakRechten = policyService.readZaakRechten(zaak)
-        when (identificatieType) {
+        when (identificationType) {
             IdentificatieType.BSN -> assertPolicy(zaakRechten.toevoegenInitiatorPersoon)
             IdentificatieType.VN -> assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
             IdentificatieType.RSIN -> assertPolicy(zaakRechten.toevoegenBetrokkeneBedrijf)
         }
         zaakService.addInitiatorToZaak(
-            identificatieType = identificatieType,
-            identificatie = identificatie,
+            identificationType = identificationType,
+            identification = identification,
             zaak = zaak,
-            toelichting = ROL_TOEVOEGEN_REDEN
+            explanation = ROL_TOEVOEGEN_REDEN
         )
     }
 

@@ -57,77 +57,34 @@ class ZaakService @Inject constructor(
     }
 
     fun addBetrokkeneToZaak(
-        roltypeUUID: UUID,
-        identificatieType: IdentificatieType,
-        identificatie: String,
+        roleTypeUUID: UUID,
+        identificationType: IdentificatieType,
+        identification: String,
         zaak: Zaak,
-        toelichting: String
+        explanation: String
     ) {
-        val rolType = ztcClientService.readRoltype(roltypeUUID)
-        when (identificatieType) {
-            IdentificatieType.BSN -> {
-                addRolNatuurlijkPersoonToZaak(
-                    roltype = rolType,
-                    bsn = identificatie,
-                    zaak = zaak,
-                    toelichting = toelichting
-                )
-            }
-
-            IdentificatieType.VN -> {
-                addRolVestigingToZaak(
-                    roltype = rolType,
-                    vestigingsnummer = identificatie,
-                    zaak = zaak,
-                    toelichting = toelichting
-                )
-            }
-
-            IdentificatieType.RSIN -> {
-                addRolNietNatuurlijkPersoonToZaak(
-                    roltype = rolType,
-                    rsin = identificatie,
-                    zaak = zaak,
-                    toelichting = toelichting
-                )
-            }
-        }
+        addRoleToZaak(
+            roleType = ztcClientService.readRoltype(roleTypeUUID),
+            identificationType = identificationType,
+            identification = identification,
+            zaak = zaak,
+            explanation = explanation
+        )
     }
 
     fun addInitiatorToZaak(
-        identificatieType: IdentificatieType,
-        identificatie: String,
+        identificationType: IdentificatieType,
+        identification: String,
         zaak: Zaak,
-        toelichting: String
+        explanation: String
     ) {
-        when (identificatieType) {
-            IdentificatieType.BSN -> {
-                addRolNatuurlijkPersoonToZaak(
-                    roltype = ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR),
-                    bsn = identificatie,
-                    zaak = zaak,
-                    toelichting = toelichting
-                )
-            }
-
-            IdentificatieType.VN -> {
-                addRolVestigingToZaak(
-                    roltype = ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR),
-                    vestigingsnummer = identificatie,
-                    zaak = zaak,
-                    toelichting = toelichting
-                )
-            }
-
-            IdentificatieType.RSIN -> {
-                addRolNietNatuurlijkPersoonToZaak(
-                    roltype = ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR),
-                    rsin = identificatie,
-                    zaak = zaak,
-                    toelichting = toelichting
-                )
-            }
-        }
+        addRoleToZaak(
+            roleType = ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR),
+            identificationType = identificationType,
+            identification = identification,
+            zaak = zaak,
+            explanation = explanation
+        )
     }
 
     /**
@@ -258,54 +215,38 @@ class ZaakService @Inject constructor(
         }
     }
 
-    private fun addRolNatuurlijkPersoonToZaak(
-        roltype: RolType,
-        bsn: String,
+    private fun addRoleToZaak(
+        roleType: RolType,
+        identificationType: IdentificatieType,
+        identification: String,
         zaak: Zaak,
-        toelichting: String
+        explanation: String
     ) {
-        zrcClientService.createRol(
-            RolNatuurlijkPersoon(
-                zaak.url,
-                roltype,
-                toelichting,
-                NatuurlijkPersoon(bsn)
-            ),
-            toelichting
-        )
-    }
+        val role = when (identificationType) {
+            IdentificatieType.BSN ->
+                RolNatuurlijkPersoon(
+                    zaak.url,
+                    roleType,
+                    explanation,
+                    NatuurlijkPersoon(identification)
+                )
 
-    private fun addRolVestigingToZaak(
-        roltype: RolType,
-        vestigingsnummer: String,
-        zaak: Zaak,
-        toelichting: String
-    ) {
-        zrcClientService.createRol(
-            RolVestiging(
-                zaak.url,
-                roltype,
-                toelichting,
-                Vestiging(vestigingsnummer)
-            ),
-            toelichting
-        )
-    }
+            IdentificatieType.VN ->
+                RolVestiging(
+                    zaak.url,
+                    roleType,
+                    explanation,
+                    Vestiging(identification)
+                )
 
-    private fun addRolNietNatuurlijkPersoonToZaak(
-        roltype: RolType,
-        rsin: String,
-        zaak: Zaak,
-        toelichting: String
-    ) {
-        zrcClientService.createRol(
-            RolNietNatuurlijkPersoon(
-                zaak.url,
-                roltype,
-                toelichting,
-                NietNatuurlijkPersoon(rsin)
-            ),
-            toelichting
-        )
+            IdentificatieType.RSIN ->
+                RolNietNatuurlijkPersoon(
+                    zaak.url,
+                    roleType,
+                    explanation,
+                    NietNatuurlijkPersoon(identification)
+                )
+        }
+        zrcClientService.createRol(role, explanation)
     }
 }
