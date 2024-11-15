@@ -13,6 +13,7 @@ import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.NatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.NietNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
+import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
@@ -23,70 +24,54 @@ import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.client.zgw.ztc.model.generated.RolType
+import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.event.EventingService
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
 import net.atos.zac.websocket.event.ScreenEventType
+import net.atos.zac.zaak.Betrokkenen.BETROKKENEN_ENUMSET
 import nl.lifely.zac.util.AllOpen
+import java.util.Locale
 import java.util.UUID
 import java.util.logging.Logger
 
 private val LOG = Logger.getLogger(ZaakService::class.java.name)
 
 @AllOpen
+@Suppress("TooManyFunctions")
 class ZaakService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
     private var eventingService: EventingService,
 ) {
-    fun addBetrokkenNatuurlijkPersoon(
-        roltype: RolType,
-        bsn: String,
+    fun addBetrokkeneToZaak(
+        roleTypeUUID: UUID,
+        identificationType: IdentificatieType,
+        identification: String,
         zaak: Zaak,
-        toelichting: String
+        explanation: String
     ) {
-        zrcClientService.createRol(
-            RolNatuurlijkPersoon(
-                zaak.url,
-                roltype,
-                toelichting,
-                NatuurlijkPersoon(bsn)
-            ),
-            toelichting
+        addRoleToZaak(
+            roleType = ztcClientService.readRoltype(roleTypeUUID),
+            identificationType = identificationType,
+            identification = identification,
+            zaak = zaak,
+            explanation = explanation
         )
     }
 
-    fun addBetrokkenVestiging(
-        roltype: RolType,
-        vestigingsnummer: String,
+    fun addInitiatorToZaak(
+        identificationType: IdentificatieType,
+        identification: String,
         zaak: Zaak,
-        toelichting: String
+        explanation: String
     ) {
-        zrcClientService.createRol(
-            RolVestiging(
-                zaak.url,
-                roltype,
-                toelichting,
-                Vestiging(vestigingsnummer)
-            ),
-            toelichting
-        )
-    }
-
-    fun addBetrokkenNietNatuurlijkPersoon(
-        roltype: RolType,
-        rsin: String,
-        zaak: Zaak,
-        toelichting: String
-    ) {
-        zrcClientService.createRol(
-            RolNietNatuurlijkPersoon(
-                zaak.url,
-                roltype,
-                toelichting,
-                NietNatuurlijkPersoon(rsin)
-            ),
-            toelichting
+        addRoleToZaak(
+            roleType = ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR),
+            identificationType = identificationType,
+            identification = identification,
+            zaak = zaak,
+            explanation = explanation
         )
     }
 
@@ -172,6 +157,16 @@ class ZaakService @Inject constructor(
             }
         )
 
+    fun listBetrokkenenforZaak(zaak: Zaak): List<Rol<*>> =
+        zrcClientService.listRollen(zaak)
+            .filter { rol ->
+                BETROKKENEN_ENUMSET.contains(
+                    OmschrijvingGeneriekEnum.valueOf(
+                        rol.omschrijvingGeneriek.uppercase(Locale.getDefault())
+                    )
+                )
+            }
+
     /**
      * Releases a list of zaken from a user and updates the search index on the fly.
      * This can be a long-running operation.
@@ -206,5 +201,40 @@ class ZaakService @Inject constructor(
             LOG.fine { "Sending 'ZAKEN_VRIJGEVEN' screen event with ID '$it'." }
             eventingService.send(ScreenEventType.ZAKEN_VRIJGEVEN.updated(it))
         }
+    }
+
+    private fun addRoleToZaak(
+        roleType: RolType,
+        identificationType: IdentificatieType,
+        identification: String,
+        zaak: Zaak,
+        explanation: String
+    ) {
+        val role = when (identificationType) {
+            IdentificatieType.BSN ->
+                RolNatuurlijkPersoon(
+                    zaak.url,
+                    roleType,
+                    explanation,
+                    NatuurlijkPersoon(identification)
+                )
+
+            IdentificatieType.VN ->
+                RolVestiging(
+                    zaak.url,
+                    roleType,
+                    explanation,
+                    Vestiging(identification)
+                )
+
+            IdentificatieType.RSIN ->
+                RolNietNatuurlijkPersoon(
+                    zaak.url,
+                    roleType,
+                    explanation,
+                    NietNatuurlijkPersoon(identification)
+                )
+        }
+        zrcClientService.createRol(role, explanation)
     }
 }
