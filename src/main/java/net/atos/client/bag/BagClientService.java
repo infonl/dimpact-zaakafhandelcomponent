@@ -31,6 +31,7 @@ import net.atos.client.bag.model.generated.OpenbareRuimteIOHal;
 import net.atos.client.bag.model.generated.PandIOHal;
 import net.atos.client.bag.model.generated.WoonplaatsIOHal;
 import net.atos.client.util.JAXRSClientFactory;
+import net.atos.zac.util.MediaTypes;
 
 @ApplicationScoped
 public class BagClientService {
@@ -99,7 +100,7 @@ public class BagClientService {
 
     private Invocation.Builder createInvocationBuilder(final URI uri) {
         return JAXRSClientFactory.getOrCreateClient().target(uri)
-                .request("application/hal+json", "application/problem+json")
+                .request(MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON)
                 .header(X_API_KEY, API_KEY);
     }
 }

@@ -16,8 +16,8 @@ import net.atos.client.smartdocuments.model.document.File
 import net.atos.client.smartdocuments.model.document.SmartDocument
 import net.atos.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
 import net.atos.zac.authentication.LoggedInUser
-import net.atos.zac.documentcreation.DocumentCreationService.Companion.OUTPUT_FORMAT_DOCX
 import net.atos.zac.documentcreation.model.DocumentCreationAttendedResponse
+import net.atos.zac.util.MediaTypes
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import nl.lifely.zac.util.toBase64String
@@ -96,14 +96,14 @@ class SmartDocumentsService @Inject constructor(
     fun downloadDocument(fileId: String): File =
         smartDocumentsClient.downloadFile(
             smartDocumentsId = fileId,
-            documentFormat = OUTPUT_FORMAT_DOCX
+            documentFormat = MediaTypes.Application.MS_WORD_OPEN_XML.mediaType
         ).let { downloadedFile ->
             File(
                 fileName = downloadedFile.contentDisposition()
                     .removePrefix("attachment; filename=\"")
                     .removeSuffix("\""),
                 document = Document(data = downloadedFile.body().toBase64String()),
-                outputFormat = OUTPUT_FORMAT_DOCX
+                outputFormat = MediaTypes.Application.MS_WORD_OPEN_XML.mediaType
             )
         }
 }

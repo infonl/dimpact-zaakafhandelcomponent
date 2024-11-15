@@ -39,6 +39,7 @@ import net.atos.zac.mail.model.Bronnen
 import net.atos.zac.mail.model.MailAdres
 import net.atos.zac.mailtemplates.MailTemplateHelper
 import net.atos.zac.mailtemplates.model.MailGegevens
+import net.atos.zac.util.MediaTypes
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import nl.lifely.zac.util.toBase64String
@@ -76,9 +77,6 @@ class MailService @Inject constructor(
         private const val SUBJECT_MAXWIDTH = 78
 
         private const val FONT_SIZE = 16f
-
-        private const val MEDIA_TYPE_PDF = "application/pdf"
-
         private const val MAIL_VERZENDER = "Afzender"
         private const val MAIL_ONTVANGER = "Ontvanger"
         private const val MAIL_BIJLAGE = "Bijlage"
@@ -145,7 +143,7 @@ class MailService @Inject constructor(
             informatieobjecttype = eMailObjectType.url
             inhoud = pdfDocument.toBase64String()
             vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
-            formaat = MEDIA_TYPE_PDF
+            formaat = MediaTypes.Application.PDF.mediaType
             bestandsnaam = "$subject.pdf"
             status = StatusEnum.DEFINITIEF
             vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR

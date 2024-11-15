@@ -20,6 +20,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import net.atos.client.bag.exception.BagResponseExceptionMapper;
 import net.atos.client.bag.model.generated.APIInfo;
 import net.atos.client.bag.util.BagClientHeadersFactory;
+import net.atos.zac.util.MediaTypes;
 
 /**
  * IMBAG API - van de LVBAG
@@ -50,6 +51,6 @@ public interface AlgemeneInformatieApi {
      * Algemene info van de API
      */
     @GET
-    @Produces({"application/json", "application/problem+json"})
-    public APIInfo getInfo() throws ProcessingException;
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    APIInfo getInfo() throws ProcessingException;
 }

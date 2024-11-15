@@ -28,6 +28,7 @@ import net.atos.client.bag.model.generated.NummeraanduidingIOHalCollection;
 import net.atos.client.bag.model.generated.NummeraanduidingIOLvcHalCollection;
 import net.atos.client.bag.util.BagClientHeadersFactory;
 import net.atos.client.bag.util.JsonbConfiguration;
+import net.atos.zac.util.MediaTypes;
 
 /**
  * IMBAG API - van de LVBAG
@@ -56,7 +57,7 @@ import net.atos.client.bag.util.JsonbConfiguration;
 public interface NummeraanduidingApi {
 
     /**
-     * bevragen van een nummeraanduiding op basis van de identificatie van een nummeraanduiding
+     * Bevragen van een nummeraanduiding op basis van de identificatie van een nummeraanduiding
      * <p>
      * Bevragen/raadplegen van één nummeraanduiding met de identificatie van een nummeraanduiding. Parameter huidig kan worden toegepast,
      * zie [functionele specificatie huidig](https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature). De geldigOp en
@@ -67,8 +68,8 @@ public interface NummeraanduidingApi {
      */
     @GET
     @Path("/{nummeraanduidingIdentificatie}")
-    @Produces({"application/hal+json", "application/problem+json"})
-    public NummeraanduidingIOHal nummeraanduidingIdentificatie(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    NummeraanduidingIOHal nummeraanduidingIdentificatie(
             @PathParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
             @QueryParam("geldigOp") LocalDate geldigOp,
             @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
@@ -77,7 +78,7 @@ public interface NummeraanduidingApi {
     ) throws ProcessingException;
 
     /**
-     * bevragen van een voorkomen van een nummeraanduiding, op basis van de identificatie van een nummeraanduiding en de identificatie van
+     * Bevragen van een voorkomen van een nummeraanduiding, op basis van de identificatie van een nummeraanduiding en de identificatie van
      * een voorkomen, bestaande uit een versie en een timestamp van het tijdstip van registratie in de LV BAG.
      * <p>
      * Bevragen/raadplegen van een voorkomen van een nummeraanduiding met de identificatie van een nummeraanduiding en de identificatie van
@@ -85,28 +86,28 @@ public interface NummeraanduidingApi {
      */
     @GET
     @Path("/{nummeraanduidingIdentificatie}/{versie}/{timestampRegistratieLv}")
-    @Produces({"application/hal+json", "application/problem+json"})
-    public NummeraanduidingIOHal nummeraanduidingIdentificatieVoorkomen(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    NummeraanduidingIOHal nummeraanduidingIdentificatieVoorkomen(
             @PathParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
             @PathParam("versie") Integer versie,
             @PathParam("timestampRegistratieLv") String timestampRegistratieLv
     ) throws ProcessingException;
 
     /**
-     * bevragen levenscyclus van een nummeraanduiding met de identificatie van een nummeraanduiding.
+     * Bevragen levenscyclus van een nummeraanduiding met de identificatie van een nummeraanduiding.
      * <p>
      * Bevragen/raadplegen van de levenscyclus van één nummeraanduiding met de identificatie van een nummeraanduiding.
      */
     @GET
     @Path("/{nummeraanduidingIdentificatie}/lvc")
-    @Produces({"application/hal+json", "application/problem+json"})
-    public NummeraanduidingIOLvcHalCollection nummeraanduidingLvcIdentificatie(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    NummeraanduidingIOLvcHalCollection nummeraanduidingLvcIdentificatie(
             @PathParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
             @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc
     ) throws ProcessingException;
 
     /**
-     * bevragen nummeraanduiding(en) op basis van verschillende combinaties van parameters.
+     * Bevragen nummeraanduiding(en) op basis van verschillende combinaties van parameters.
      * <p>
      * De volgende (combinaties van) parameters worden ondersteund: 1. Bevragen/raadplegen van een (collectie van) nummeraanduiding(en) met
      * postcode en huisnummer (evt. met huisletter en huisnummertoevoeging). 2. Bevragen/raadplegen van een (collectie van)
@@ -126,8 +127,8 @@ public interface NummeraanduidingApi {
      * exacte match](https://github.com/lvbag/BAG-API/blob/master/Features/exacte_matchnd.feature).
      */
     @GET
-    @Produces({"application/hal+json", "application/problem+json"})
-    public NummeraanduidingIOHalCollection zoekNummeraanduiding(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    NummeraanduidingIOHalCollection zoekNummeraanduiding(
             @QueryParam("postcode") String postcode,
             @QueryParam("huisnummer") Integer huisnummer,
             @QueryParam("huisnummertoevoeging") String huisnummertoevoeging,

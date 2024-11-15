@@ -28,6 +28,7 @@ import net.atos.client.bag.model.generated.AdresIOHalCollection;
 import net.atos.client.bag.model.generated.ZoekResultaatHalCollection;
 import net.atos.client.bag.util.BagClientHeadersFactory;
 import net.atos.client.bag.util.JsonbConfiguration;
+import net.atos.zac.util.MediaTypes;
 
 /**
  * IMBAG API - van de LVBAG
@@ -80,7 +81,7 @@ public interface AdresApi {
      * inclusiefEindstatus](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/inclusief-eind-status.feature">...</a>).
      */
     @GET
-    @Produces({"application/hal+json", "application/problem+json"})
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
     AdresIOHalCollection bevraagAdressen(
             @BeanParam BevraagAdressenParameters parameters
     ) throws ProcessingException;
@@ -98,7 +99,7 @@ public interface AdresApi {
      */
     @GET
     @Path("/{nummeraanduidingIdentificatie}")
-    @Produces({"application/hal+json", "application/problem+json"})
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
     AdresIOHal bevraagAdressenMetNumId(
             @PathParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
             @QueryParam("expand") String expand,
@@ -118,7 +119,7 @@ public interface AdresApi {
     @Deprecated
     @GET
     @Path("/zoek")
-    @Produces({"application/hal+json", "application/problem+json"})
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
     ZoekResultaatHalCollection zoek(
             @QueryParam("zoek") String zoek,
             @QueryParam("page") @DefaultValue("1") Integer page,

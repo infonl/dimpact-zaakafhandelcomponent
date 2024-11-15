@@ -36,6 +36,7 @@ import net.atos.client.bag.model.generated.OppervlakteFilter;
 import net.atos.client.bag.model.generated.TypeAdresseerbaarObject;
 import net.atos.client.bag.util.BagClientHeadersFactory;
 import net.atos.client.bag.util.JsonbConfiguration;
+import net.atos.zac.util.MediaTypes;
 
 /**
  * IMBAG API - van de LVBAG
@@ -77,8 +78,8 @@ public interface AdresseerbaarObjectApi {
      */
     @GET
     @Path("/{adresseerbaarObjectIdentificatie}")
-    @Produces({"application/hal+json", "application/problem+json"})
-    public AdresseerbaarObjectIOHal bevragenAdresseerbaarObject(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    AdresseerbaarObjectIOHal bevragenAdresseerbaarObject(
             @PathParam("adresseerbaarObjectIdentificatie") String adresseerbaarObjectIdentificatie,
             @QueryParam("geldigOp") LocalDate geldigOp,
             @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
@@ -97,8 +98,8 @@ public interface AdresseerbaarObjectApi {
      */
     @GET
     @Path("/{adresseerbaarObjectIdentificatie}/lvc")
-    @Produces({"application/hal+json", "application/problem+json"})
-    public AdresseerbaarObjectLvcIOHalCollection bevragenAdresseerbaarObjectLvc(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    AdresseerbaarObjectLvcIOHalCollection bevragenAdresseerbaarObjectLvc(
             @PathParam("adresseerbaarObjectIdentificatie") String adresseerbaarObjectIdentificatie,
             @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc,
             @HeaderParam("Accept-Crs") @DefaultValue(DEFAULT_CRS) String acceptCrs
@@ -119,8 +120,8 @@ public interface AdresseerbaarObjectApi {
      * paginering](https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature).
      */
     @GET
-    @Produces({"application/hal+json", "application/problem+json"})
-    public AdresseerbareObjectenIOHalCollection zoekAdresseerbareObjecten(
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
+    AdresseerbareObjectenIOHalCollection zoekAdresseerbareObjecten(
             @QueryParam("nummeraanduidingIdentificatie") String nummeraanduidingIdentificatie,
             @QueryParam("huidig") @DefaultValue("false") Boolean huidig,
             @QueryParam("geldigOp") LocalDate geldigOp,

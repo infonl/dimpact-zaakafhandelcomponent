@@ -22,6 +22,7 @@ import net.atos.client.kvk.basisprofiel.model.generated.Vestiging;
 import net.atos.client.kvk.basisprofiel.model.generated.VestigingList;
 import net.atos.client.kvk.exception.KvkRuntimeExceptionMapper;
 import net.atos.client.kvk.util.KvkClientHeadersFactory;
+import net.atos.zac.util.MediaTypes;
 
 /**
  * API Basisprofiel
@@ -31,7 +32,7 @@ import net.atos.client.kvk.util.KvkClientHeadersFactory;
 @RegisterRestClient(configKey = "KVK-API-Client")
 @RegisterClientHeaders(KvkClientHeadersFactory.class)
 @RegisterProvider(KvkRuntimeExceptionMapper.class)
-@Produces({"application/hal+json"})
+@Produces({MediaTypes.MEDIA_TYPE_HAL_JSON})
 @Path("api/v1/basisprofielen/{kvkNummer}")
 public interface BasisprofielClient {
 
