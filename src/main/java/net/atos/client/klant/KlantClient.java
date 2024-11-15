@@ -5,6 +5,8 @@
 
 package net.atos.client.klant;
 
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+
 import java.util.UUID;
 
 import jakarta.ws.rs.GET;
@@ -34,7 +36,7 @@ import net.atos.client.klant.util.KlantClientHeadersFactory;
 public interface KlantClient {
     @GET
     @Path("/partijen")
-    @Produces({"application/json"})
+    @Produces({APPLICATION_JSON})
     PaginatedExpandPartijList partijenList(
             @QueryParam("bezoekadresAdresregel1") String bezoekadresAdresregel1,
             @QueryParam("bezoekadresAdresregel2") String bezoekadresAdresregel2,

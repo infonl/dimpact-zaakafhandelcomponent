@@ -194,7 +194,6 @@ class ZaakRestServiceTest : BehaviorSpec({
         )
         val rolMedewerker = createRolMedewerker()
         val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid()
-        val rolTypeInitiator = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
         val user = createLoggedInUser()
         val zaakAfhandelParameters = createZaakafhandelParameters()
         val zaakObjectPand = createZaakobjectPand()
@@ -247,17 +246,14 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { zrcClientService.createZaakobject(zaakObjectPand) } returns zaakObjectPand
         every { zrcClientService.createZaakobject(zaakObjectOpenbareRuimte) } returns zaakObjectOpenbareRuimte
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
-        every {
-            ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
-        } returns rolTypeInitiator
         every { zaakService.bepaalRolGroep(group, zaak) } returns rolOrganisatorischeEenheid
         every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
         every {
-            zaakService.addBetrokkenNatuurlijkPersoon(
-                roltype = rolTypeInitiator,
-                bsn = restZaak.initiatorIdentificatie!!,
+            zaakService.addInitiatorToZaak(
+                identificationType = restZaak.initiatorIdentificatieType!!,
+                identification = restZaak.initiatorIdentificatie!!,
                 zaak = zaak,
-                toelichting = "Toegekend door de medewerker tijdens het behandelen van de zaak"
+                explanation = "Toegekend door de medewerker tijdens het behandelen van de zaak"
             )
         } just runs
 

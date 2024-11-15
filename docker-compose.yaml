@@ -35,7 +35,7 @@ services:
       - "--health-enabled=true"
 
   keycloak-database:
-    image: docker.io/postgres:17.0@sha256:8d3be35b184e70d81e54cbcbd3df3c0b47f37d06482c0dd1c140db5dbcc6a808
+    image: docker.io/postgres:17.1@sha256:163763c8afd28cae69035ce84b12d8180179559c747c0701b3cad17818a0dbc5
     ports:
       - "54326:5432"
     healthcheck:
@@ -52,7 +52,7 @@ services:
       - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
 
   zac-database:
-    image: docker.io/postgres:17.0@sha256:8d3be35b184e70d81e54cbcbd3df3c0b47f37d06482c0dd1c140db5dbcc6a808
+    image: docker.io/postgres:17.1@sha256:163763c8afd28cae69035ce84b12d8180179559c747c0701b3cad17818a0dbc5
     ports:
       - "54320:5432"
     healthcheck:
@@ -212,7 +212,7 @@ services:
         condition: service_healthy
 
   objecttypen-api-database:
-    image: docker.io/postgres:17.0@sha256:8d3be35b184e70d81e54cbcbd3df3c0b47f37d06482c0dd1c140db5dbcc6a808
+    image: docker.io/postgres:17.1@sha256:163763c8afd28cae69035ce84b12d8180179559c747c0701b3cad17818a0dbc5
     ports:
       - "54324:5432"
     healthcheck:
@@ -294,7 +294,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: docker.io/postgres:17.0@sha256:8d3be35b184e70d81e54cbcbd3df3c0b47f37d06482c0dd1c140db5dbcc6a808
+    image: docker.io/postgres:17.1@sha256:163763c8afd28cae69035ce84b12d8180179559c747c0701b3cad17818a0dbc5
     ports:
       - "54325:5432"
     healthcheck:
@@ -403,7 +403,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: docker.io/prom/prometheus:v2.55.1@sha256:2659f4c2ebb718e7695cb9b25ffa7d6be64db013daba13e05c875451cf51b0d3
+    image: docker.io/prom/prometheus:v3.0.0@sha256:3b9b2a15d376334da8c286d995777d3b9315aa666d2311170ada6059a517b74f
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver

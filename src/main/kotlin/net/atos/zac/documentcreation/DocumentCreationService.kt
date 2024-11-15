@@ -22,6 +22,7 @@ import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
 import net.atos.zac.identity.model.getFullName
 import net.atos.zac.smartdocuments.SmartDocumentsService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
+import net.atos.zac.util.MediaTypes
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
@@ -41,7 +42,6 @@ class DocumentCreationService @Inject constructor(
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
-        const val OUTPUT_FORMAT_DOCX = "DOCX"
         const val REDIRECT_METHOD = "POST"
 
         private val LOG = Logger.getLogger(DocumentCreationService::class.java.name)
@@ -79,7 +79,7 @@ class DocumentCreationService @Inject constructor(
                 template = smartDocumentsTemplatesService.getTemplateName(creationDataUnattended.templateId)
             ),
             variables = Variables(
-                outputFormats = listOf(OutputFormat(OUTPUT_FORMAT_DOCX)),
+                outputFormats = listOf(OutputFormat(MediaTypes.Application.MS_WORD_OPEN_XML.mediaType)),
                 redirectMethod = REDIRECT_METHOD,
                 redirectUrl = configuratieService.documentCreationCallbackUrl(
                     creationDataUnattended.zaak.uuid,
@@ -111,8 +111,8 @@ class DocumentCreationService @Inject constructor(
         smartDocumentsService.downloadDocument(fileId).let { file ->
             documentCreationDataConverter.toEnkelvoudigInformatieObjectCreateLockRequest(
                 zaak = zaak,
-                smartDocumentsFile = file,
-                smartDocumentsFileType = OUTPUT_FORMAT_DOCX,
+                file = file,
+                format = MediaTypes.Application.MS_WORD_OPEN_XML.mediaType,
                 smartDocumentsTemplateGroupId = templateGroupId,
                 smartDocumentsTemplateId = templateId,
                 title = title,

@@ -124,7 +124,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
             documentCreationDataConverter.toEnkelvoudigInformatieObjectCreateLockRequest(
                 zaak,
                 downloadedFile,
-                "DOCX",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 templateGroupId,
                 templateId,
                 title,

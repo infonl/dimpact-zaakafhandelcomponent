@@ -38,6 +38,7 @@ import net.atos.zac.policy.PolicyService;
 import net.atos.zac.productaanvraag.InboxProductaanvraagService;
 import net.atos.zac.productaanvraag.model.InboxProductaanvraagListParameters;
 import net.atos.zac.productaanvraag.model.InboxProductaanvraagResultaat;
+import net.atos.zac.util.MediaTypes;
 
 @Singleton
 @Path("inbox-productaanvragen")
@@ -89,7 +90,7 @@ public class InboxProductaanvragenRESTService {
             return Response.ok(is)
                     .header("Content-Disposition",
                             "inline; filename=\"%s\"".formatted(enkelvoudigInformatieobject.getBestandsnaam()))
-                    .header("Content-Type", "application/pdf").build();
+                    .header("Content-Type", MediaTypes.Application.PDF.getMediaType()).build();
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }

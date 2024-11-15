@@ -56,6 +56,7 @@ import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockS
 import net.atos.zac.event.EventingService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
+import net.atos.zac.util.MediaTypes
 import net.atos.zac.util.UriUtil
 import net.atos.zac.webdav.WebdavHelper
 import net.atos.zac.websocket.event.ScreenEventType
@@ -97,7 +98,6 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val officeConverterClientService: OfficeConverterClientService
 ) {
     companion object {
-        private const val MEDIA_TYPE_PDF = "application/pdf"
         private const val TOELICHTING_PDF = "Geconverteerd naar PDF"
     }
 
@@ -386,7 +386,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         return informatieobjecten
             .let(enkelvoudigInformatieObjectDownloadService::getZipStreamOutput)
             .let(Response::ok)
-            .header("Content-Type", "application/zip")
+            .header("Content-Type", MediaTypes.Application.ZIP.mediaType)
             .build()
     }
 
@@ -527,7 +527,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 val pdf = EnkelvoudigInformatieObjectWithLockRequest()
                 val inhoud = pdfInputStream.readAllBytes()
                 pdf.inhoud = inhoud.toBase64String()
-                pdf.formaat = MEDIA_TYPE_PDF
+                pdf.formaat = MediaTypes.Application.PDF.mediaType
                 pdf.bestandsnaam = StringUtils.substringBeforeLast(document.bestandsnaam, ".") + ".pdf"
                 pdf.bestandsomvang = inhoud.size
                 enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
@@ -547,7 +547,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 it != VertrouwelijkheidaanduidingEnum.GEHEIM &&
                 it != VertrouwelijkheidaanduidingEnum.ZEER_GEHEIM &&
                 informatieobject.ontvangstdatum == null &&
-                MEDIA_TYPE_PDF == informatieobject.formaat
+                informatieobject.formaat == MediaTypes.Application.PDF.mediaType
         }
 
     private fun listEnkelvoudigInformatieobjectenVoorZaak(zaak: Zaak): MutableList<RestEnkelvoudigInformatieobject> =

@@ -18,6 +18,7 @@ import net.atos.zac.csv.CsvService
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
+import net.atos.zac.util.MediaTypes
 import net.atos.zac.zoeken.ZoekenService
 import nl.lifely.zac.util.NoArgConstructor
 
@@ -46,6 +47,6 @@ class CsvRESTService @Inject constructor(
         val streamingOutput = zoekenService.zoek(zoekParameters).let {
             csvService.exportToCsv(it)
         }
-        return Response.ok(streamingOutput).header("Content-Type", "text/csv").build()
+        return Response.ok(streamingOutput).header("Content-Type", MediaTypes.Text.CSV.mediaType).build()
     }
 }

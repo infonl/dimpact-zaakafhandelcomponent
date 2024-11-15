@@ -284,8 +284,41 @@ VALUES
   NULL        -- datum_einde_geldigheid
 );
 
-
 -- For the second JSON object
+INSERT INTO catalogi_statustype
+(
+    id,
+    uuid,
+    statustype_omschrijving,
+    statustype_omschrijving_generiek,
+    statustypevolgnummer,
+    informeren,
+    statustekst,
+    toelichting,
+    zaaktype_id,
+    _etag,
+    doorlooptijd,
+    datum_begin_geldigheid,
+    datum_einde_geldigheid
+)
+VALUES
+    (
+        (SELECT COALESCE(MAX(id),0) FROM catalogi_statustype) + 1, -- Adjust ID as needed
+        '22b82146-af11-42cf-96bd-bea47057abd4', -- UUID
+        'Aanvullende informatie vereist', -- Statustype Omschrijving
+        '', -- Statustype Omschrijving Generiek
+        11, -- Statustypevolgnummer
+        false, -- Informeren
+        '', -- Statustekst
+        '', -- Toelichting
+        (SELECT id FROM catalogi_zaaktype WHERE uuid = '448356ff-dcfb-4504-9501-7fe929077c4f'), -- Zaaktype ID
+        '_etag', -- Placeholder
+        NULL,            -- doorlooptijd
+        NULL,            -- datum_begin_geldigheid
+        NULL             -- datum_einde_geldigheid
+    );
+
+-- For the third JSON object
 INSERT INTO catalogi_statustype
 (
   id,
@@ -319,7 +352,7 @@ VALUES
   NULL        -- datum_einde_geldigheid
 );
 
--- For the third JSON object
+-- For the fourth JSON object
 INSERT INTO catalogi_statustype
 (
   id,
@@ -353,7 +386,7 @@ VALUES
   NULL             -- datum_einde_geldigheid
 );
 
--- For the fourth JSON object
+-- For the fifth JSON object
 INSERT INTO catalogi_statustype
 (
   id,

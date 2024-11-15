@@ -188,8 +188,9 @@
 
         const language = getBrowserLanguage();
 
-        // Determine nameValue and typeValue based on sanitized inputs
-        const nameValue = zaakValue || taakValue;
+        // When document is added to a task, 'taak' AND 'zaak' query vars are both in, but task should be mentioned. So let 'taak' prevail
+        const nameValue = taakValue || zaakValue;
+
         const typeValue = getTypeValue(zaakValue, taakValue, language);
 
         // Validate and set finalResultValue
@@ -300,8 +301,8 @@
           nl: { zaak: "zaak", taak: "taak" },
         };
 
-        if (zaakValue) return typeMap[language].zaak;
         if (taakValue) return typeMap[language].taak;
+        if (zaakValue) return typeMap[language].zaak;
         return null;
       }
 

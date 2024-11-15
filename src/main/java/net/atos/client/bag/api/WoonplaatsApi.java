@@ -5,6 +5,7 @@
 
 package net.atos.client.bag.api;
 
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static net.atos.client.bag.BagClientService.DEFAULT_CRS;
 
 import java.math.BigDecimal;
@@ -36,6 +37,7 @@ import net.atos.client.bag.model.generated.WoonplaatsIOHalCollection;
 import net.atos.client.bag.model.generated.WoonplaatsIOLvcHalCollection;
 import net.atos.client.bag.util.BagClientHeadersFactory;
 import net.atos.client.bag.util.JsonbConfiguration;
+import net.atos.zac.util.MediaTypes;
 
 /**
  * IMBAG API - van de LVBAG
@@ -79,8 +81,8 @@ public interface WoonplaatsApi {
      * expand](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature">...</a>).
      */
     @POST
-    @Consumes({"application/json"})
-    @Produces({"application/hal+json", "application/problem+json"})
+    @Consumes({APPLICATION_JSON})
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
     WoonplaatsIOHalCollection woonplaatsGeometrie(
             PointGeoJSON pointGeoJSON,
             @QueryParam("geldigOp") LocalDate geldigOp,
@@ -105,7 +107,7 @@ public interface WoonplaatsApi {
      */
     @GET
     @Path("/{identificatie}")
-    @Produces({"application/hal+json", "application/problem+json"})
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
     WoonplaatsIOHal woonplaatsIdentificatie(
             @PathParam("identificatie") String identificatie,
             @QueryParam("geldigOp") LocalDate geldigOp,
@@ -126,7 +128,7 @@ public interface WoonplaatsApi {
      */
     @GET
     @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
-    @Produces({"application/hal+json", "application/problem+json"})
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
     WoonplaatsIOHal woonplaatsIdentificatieVoorkomen(
             @PathParam("identificatie") String identificatie,
             @PathParam("versie") Integer versie,
@@ -144,7 +146,7 @@ public interface WoonplaatsApi {
      */
     @GET
     @Path("/{identificatie}/lvc")
-    @Produces({"application/hal+json", "application/problem+json"})
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
     WoonplaatsIOLvcHalCollection woonplaatsLvcIdentificatie(
             @PathParam("identificatie") String identificatie,
             @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc,
@@ -167,7 +169,7 @@ public interface WoonplaatsApi {
      * paginering](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature">...</a>).
      */
     @GET
-    @Produces({"application/hal+json", "application/problem+json"})
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
     WoonplaatsIOHalCollection zoekWoonplaatsen(
             @QueryParam("naam") String naam,
             @QueryParam("geldigOp") LocalDate geldigOp,

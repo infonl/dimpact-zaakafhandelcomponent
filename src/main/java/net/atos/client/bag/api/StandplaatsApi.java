@@ -5,6 +5,7 @@
 
 package net.atos.client.bag.api;
 
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static net.atos.client.bag.BagClientService.DEFAULT_CRS;
 
 import java.math.BigDecimal;
@@ -35,6 +36,7 @@ import net.atos.client.bag.model.generated.StandplaatsIOHal;
 import net.atos.client.bag.model.generated.StandplaatsIOHalCollection;
 import net.atos.client.bag.model.generated.StandplaatsIOLvcHalCollection;
 import net.atos.client.bag.util.BagClientHeadersFactory;
+import net.atos.zac.util.MediaTypes;
 
 /**
  * IMBAG API - van de LVBAG
@@ -65,7 +67,7 @@ import net.atos.client.bag.util.BagClientHeadersFactory;
 public interface StandplaatsApi {
 
     /**
-     * bevragen van een standplaats met een geometrische locatie.
+     * Bevragen van een standplaats met een geometrische locatie.
      * <p>
      * Bevragen/raadplegen van één of meer standplaatsen met een geometrische locatie. Parameter huidig kan worden toegepast, zie
      * [functionele specificatie huidig](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature">...</a>). De
@@ -77,8 +79,8 @@ public interface StandplaatsApi {
      * expand](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/expand.feature">...</a>).
      */
     @POST
-    @Consumes({"application/json"})
-    @Produces({"application/hal+json", "application/problem+json"})
+    @Consumes({APPLICATION_JSON})
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
     StandplaatsIOHalCollection standplaatsGeometrie(
             PointGeoJSON pointGeoJSON,
             @QueryParam("geldigOp") LocalDate geldigOp,
@@ -90,7 +92,7 @@ public interface StandplaatsApi {
     ) throws ProcessingException;
 
     /**
-     * bevragen van een standplaats met de identificatie van een standplaats.
+     * Bevragen van een standplaats met de identificatie van een standplaats.
      * <p>
      * Bevragen/raadplegen van een standplaats met de identificatie van de standplaats. Parameter huidig kan worden toegepast, zie
      * [functionele specificatie huidig](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/huidig.feature">...</a>). De
@@ -103,7 +105,7 @@ public interface StandplaatsApi {
      */
     @GET
     @Path("/{identificatie}")
-    @Produces({"application/hal+json", "application/problem+json"})
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
     StandplaatsIOHal standplaatsIdentificatie(
             @PathParam("identificatie") String identificatie,
             @QueryParam("geldigOp") LocalDate geldigOp,
@@ -114,7 +116,7 @@ public interface StandplaatsApi {
     ) throws ProcessingException;
 
     /**
-     * bevragen van een voorkomen van een standplaats met de identificatie van een standplaats en de identificatie van een voorkomen,
+     * Bevragen van een voorkomen van een standplaats met de identificatie van een standplaats en de identificatie van een voorkomen,
      * bestaande uit een versie en een timestamp van het tijdstip van registratie in de LV BAG.
      * <p>
      * Bevragen/raadplegen van een voorkomen van een standplaats met de identificatie van een standplaats en de identificatie van een
@@ -122,7 +124,7 @@ public interface StandplaatsApi {
      */
     @GET
     @Path("/{identificatie}/{versie}/{timestampRegistratieLv}")
-    @Produces({"application/hal+json", "application/problem+json"})
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
     StandplaatsIOHal standplaatsIdentificatieVoorkomen(
             @PathParam("identificatie") String identificatie,
             @PathParam("versie") Integer versie,
@@ -131,13 +133,13 @@ public interface StandplaatsApi {
     ) throws ProcessingException;
 
     /**
-     * bevragen levenscyclus van een standplaats met de identificatie van een standplaats.
+     * Bevragen levenscyclus van een standplaats met de identificatie van een standplaats.
      * <p>
      * Bevragen/raadplegen van de levenscyclus van een standplaats met de identificatie van de standplaats.
      */
     @GET
     @Path("/{identificatie}/lvc")
-    @Produces({"application/hal+json", "application/problem+json"})
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
     StandplaatsIOLvcHalCollection standplaatsLvcIdentificatie(
             @PathParam("identificatie") String identificatie,
             @QueryParam("geheleLvc") @DefaultValue("false") Boolean geheleLvc,
@@ -159,7 +161,7 @@ public interface StandplaatsApi {
      * paginering](<a href="https://github.com/lvbag/BAG-API/blob/master/Features/paginering.feature">...</a>).
      */
     @GET
-    @Produces({"application/hal+json", "application/problem+json"})
+    @Produces({MediaTypes.MEDIA_TYPE_HAL_JSON, MediaTypes.MEDIA_TYPE_PROBLEM_JSON})
     StandplaatsIOHalCollection zoekStandplaatsen(
             @QueryParam("geldigOp") LocalDate geldigOp,
             @QueryParam("beschikbaarOp") OffsetDateTime beschikbaarOp,
