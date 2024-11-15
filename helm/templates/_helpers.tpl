@@ -31,33 +31,50 @@ Create chart name and version as used by the chart label.
 {{- end }}
 
 {{/*
+Create a name for NGINX
+We truncate at 57 chars in order to provide space for the "-nginx" suffix
+*/}}
+{{- define "zaakafhandelcomponent.nginx.name" -}}
+{{ include "zaakafhandelcomponent.name" . | trunc 57 | trimSuffix "-" }}-nginx
+{{- end }}
+
+{{/*
+Create a default fully qualified name for NGINX.
+We truncate at 57 chars in order to provide space for the "-nginx" suffix
+*/}}
+{{- define "zaakafhandelcomponent.nginx.fullname" -}}
+{{ include "zaakafhandelcomponent.fullname" . | trunc 57 | trimSuffix "-" }}-nginx
+{{- end }}
+
+{{/*
 Common labels
 */}}
-{{- define "zaakafhandelcomponent.labels" -}}
+{{- define "zaakafhandelcomponent.all.labels" -}}
 helm.sh/chart: {{ include "zaakafhandelcomponent.chart" . }}
-{{ include "zaakafhandelcomponent.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{- define "zaakafhandelcomponent.labels" -}}
+{{ include "zaakafhandelcomponent.all.labels" . }}
+{{ include "zaakafhandelcomponent.selectorLabels" . }}
 {{- end }}
 
 {{- define "zaakafhandelcomponent.office-converter.labels" -}}
-helm.sh/chart: {{ include "zaakafhandelcomponent.chart" . }}
+{{ include "zaakafhandelcomponent.all.labels" . }}
 {{ include "zaakafhandelcomponent.office-converter.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{- define "zaakafhandelcomponent.opa.labels" -}}
-helm.sh/chart: {{ include "zaakafhandelcomponent.chart" . }}
+{{ include "zaakafhandelcomponent.all.labels" . }}
 {{ include "zaakafhandelcomponent.opa.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+
+{{- define "zaakafhandelcomponent.nginx.labels" -}}
+{{ include "zaakafhandelcomponent.all.labels" . }}
+{{ include "zaakafhandelcomponent.nginx.selectorLabels" . }}
 {{- end }}
 
 {{/*
@@ -75,6 +92,11 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 
 {{- define "zaakafhandelcomponent.opa.selectorLabels" -}}
 app.kubernetes.io/name: opa
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{- define "zaakafhandelcomponent.nginx.selectorLabels" -}}
+app.kubernetes.io/name: nginx
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
