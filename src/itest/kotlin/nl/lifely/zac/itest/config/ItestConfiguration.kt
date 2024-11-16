@@ -96,6 +96,16 @@ object ItestConfiguration {
 
     const val TEST_INFORMATIE_OBJECT_TYPE_1_UUID = "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
 
+    const val TEST_SPEC_ORDER_INITIAL = 0
+    const val TEST_SPEC_ORDER_AFTER_ZAAK_CREATED = 1
+    const val TEST_SPEC_ORDER_AFTER_TASK_CREATED = 2
+    const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 3
+    const val TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED = 4
+    const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 5
+    const val TEST_SPEC_ORDER_AFTER_ONE_TASK_LEFT = 6
+    const val TEST_SPEC_ORDER_AFTER_SEARCH = 7
+    const val TEST_SPEC_ORDER_LAST = 100
+
     /**
      * Test person that exists in both the BRP and the Klanten API databases
      */
@@ -114,13 +124,6 @@ object ItestConfiguration {
     const val TEST_TXT_FILE_NAME = "testTextDocument.txt"
     const val TEST_TXT_CONVERTED_TO_PDF_FILE_NAME = "testTextDocument.pdf"
     const val TEST_TXT_FILE_SIZE = 63
-    const val TEST_SPEC_ORDER_INITIAL = 0
-    const val TEST_SPEC_ORDER_AFTER_ZAAK_CREATED = 1
-    const val TEST_SPEC_ORDER_AFTER_TASK_CREATED = 2
-    const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 3
-    const val TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED = 4
-    const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 5
-    const val TEST_SPEC_ORDER_LAST = 6
     const val TEST_USER_1_USERNAME = "testuser1"
     const val TEST_USER_1_PASSWORD = "testuser1"
     const val TEST_USER_1_EMAIL = "testuser1@example.com"
