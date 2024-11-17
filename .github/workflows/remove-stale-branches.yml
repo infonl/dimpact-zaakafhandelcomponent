@@ -1,4 +1,4 @@
-name: remove-stale-branches
+name: Remove stale branches
 
 on:
   schedule:
