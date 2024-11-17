@@ -14,8 +14,8 @@ import net.atos.zac.zoeken.model.FilterVeld
 import net.atos.zac.zoeken.model.SorteerVeld
 import net.atos.zac.zoeken.model.ZoekParameters
 import net.atos.zac.zoeken.model.ZoekResultaat
-import net.atos.zac.zoeken.model.index.ZoekObjectType
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import java.util.EnumMap
 import java.util.UUID
 

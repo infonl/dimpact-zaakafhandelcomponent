@@ -4,8 +4,8 @@
  */
 package net.atos.zac.zoeken.converter
 
-import net.atos.zac.zoeken.model.ZoekObject
-import net.atos.zac.zoeken.model.index.ZoekObjectType
+import net.atos.zac.zoeken.model.zoekobject.ZoekObject
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 
 abstract class AbstractZoekObjectConverter<ZOEKOBJECT : ZoekObject> {
     abstract fun supports(objectType: ZoekObjectType): Boolean

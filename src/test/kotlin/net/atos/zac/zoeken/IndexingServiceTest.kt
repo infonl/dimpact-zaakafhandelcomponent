@@ -19,9 +19,9 @@ import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.zoeken.converter.AbstractZoekObjectConverter
 import net.atos.zac.zoeken.converter.ZaakZoekObjectConverter
-import net.atos.zac.zoeken.model.ZoekObject
 import net.atos.zac.zoeken.model.createZaakZoekObject
-import net.atos.zac.zoeken.model.index.ZoekObjectType
+import net.atos.zac.zoeken.model.zoekobject.ZoekObject
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.client.solrj.response.QueryResponse

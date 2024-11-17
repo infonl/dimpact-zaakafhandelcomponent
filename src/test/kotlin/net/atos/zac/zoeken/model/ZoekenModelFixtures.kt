@@ -1,7 +1,7 @@
 package net.atos.zac.zoeken.model
 
-import net.atos.zac.zoeken.model.index.ZoekObjectType
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import java.util.UUID
 
 fun createZaakZoekObject(

@@ -11,8 +11,6 @@ import java.util.List;
 import org.apache.solr.client.solrj.beans.Field;
 
 import net.atos.zac.app.task.model.TaakStatus;
-import net.atos.zac.zoeken.model.ZoekObject;
-import net.atos.zac.zoeken.model.index.ZoekObjectType;
 
 public class TaakZoekObject implements ZoekObject {
 

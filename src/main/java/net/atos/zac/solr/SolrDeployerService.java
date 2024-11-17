@@ -39,7 +39,7 @@ import org.apache.solr.common.SolrException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import net.atos.zac.zoeken.IndexingService;
-import net.atos.zac.zoeken.model.index.ZoekObjectType;
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType;
 
 @Singleton
 public class SolrDeployerService {

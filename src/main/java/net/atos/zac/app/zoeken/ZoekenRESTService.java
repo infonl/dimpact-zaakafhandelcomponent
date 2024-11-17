@@ -6,8 +6,8 @@
 package net.atos.zac.app.zoeken;
 
 import static net.atos.zac.policy.PolicyService.assertPolicy;
-import static net.atos.zac.zoeken.model.index.ZoekObjectType.TAAK;
-import static net.atos.zac.zoeken.model.index.ZoekObjectType.ZAAK;
+import static net.atos.zac.zoeken.model.zoekobject.ZoekObjectType.TAAK;
+import static net.atos.zac.zoeken.model.zoekobject.ZoekObjectType.ZAAK;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -24,9 +24,9 @@ import net.atos.zac.app.zoeken.model.RESTZoekParameters;
 import net.atos.zac.app.zoeken.model.RESTZoekResultaat;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.zoeken.ZoekenService;
-import net.atos.zac.zoeken.model.ZoekObject;
 import net.atos.zac.zoeken.model.ZoekParameters;
 import net.atos.zac.zoeken.model.ZoekResultaat;
+import net.atos.zac.zoeken.model.zoekobject.ZoekObject;
 
 @Path("zoeken")
 @Consumes(MediaType.APPLICATION_JSON)

@@ -15,8 +15,6 @@ import org.apache.solr.client.solrj.beans.Field;
 
 import net.atos.client.zgw.drc.model.generated.StatusEnum;
 import net.atos.zac.zoeken.model.DocumentIndicatie;
-import net.atos.zac.zoeken.model.ZoekObject;
-import net.atos.zac.zoeken.model.index.ZoekObjectType;
 
 public class DocumentZoekObject implements ZoekObject {
 

@@ -15,7 +15,7 @@ import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexingService
-import net.atos.zac.zoeken.model.index.ZoekObjectType
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import nl.lifely.zac.util.AllOpen
 import org.flowable.task.api.Task
 import java.util.UUID

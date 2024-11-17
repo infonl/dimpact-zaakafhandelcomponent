@@ -17,11 +17,11 @@ import net.atos.zac.zoeken.model.FilterResultaat
 import net.atos.zac.zoeken.model.FilterVeld
 import net.atos.zac.zoeken.model.FilterWaarde
 import net.atos.zac.zoeken.model.SorteerVeld
-import net.atos.zac.zoeken.model.ZoekObject
 import net.atos.zac.zoeken.model.ZoekParameters
 import net.atos.zac.zoeken.model.ZoekResultaat
 import net.atos.zac.zoeken.model.ZoekVeld
-import net.atos.zac.zoeken.model.index.ZoekObjectType
+import net.atos.zac.zoeken.model.zoekobject.ZoekObject
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.apache.solr.client.solrj.SolrClient

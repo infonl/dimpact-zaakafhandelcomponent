@@ -3,12 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.zoeken.model.index;
-
-import net.atos.zac.zoeken.model.ZoekObject;
-import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject;
-import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject;
-import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
+package net.atos.zac.zoeken.model.zoekobject;
 
 public enum ZoekObjectType {
     TAAK(TaakZoekObject.class),

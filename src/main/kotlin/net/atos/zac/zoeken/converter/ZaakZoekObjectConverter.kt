@@ -19,8 +19,8 @@ import net.atos.zac.identity.model.getFullName
 import net.atos.zac.util.UriUtil.uuidFromURI
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
 import net.atos.zac.zoeken.model.ZaakIndicatie
-import net.atos.zac.zoeken.model.index.ZoekObjectType
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import java.util.UUID
 
 class ZaakZoekObjectConverter @Inject constructor(

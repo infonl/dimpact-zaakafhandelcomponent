@@ -19,8 +19,6 @@ import com.google.common.collect.Lists;
 
 import net.atos.client.zgw.zrc.model.Rol;
 import net.atos.zac.zoeken.model.ZaakIndicatie;
-import net.atos.zac.zoeken.model.ZoekObject;
-import net.atos.zac.zoeken.model.index.ZoekObjectType;
 
 public class ZaakZoekObject implements ZoekObject {
 

@@ -28,7 +28,7 @@ import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.createUser
 import net.atos.zac.zoeken.model.ZaakIndicatie
-import net.atos.zac.zoeken.model.index.ZoekObjectType
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import java.net.URI
 import java.time.ZoneId
 import java.util.Date

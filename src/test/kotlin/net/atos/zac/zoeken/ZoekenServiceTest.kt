@@ -23,10 +23,10 @@ import net.atos.zac.zoeken.model.FilterParameters
 import net.atos.zac.zoeken.model.FilterVeld
 import net.atos.zac.zoeken.model.SorteerVeld
 import net.atos.zac.zoeken.model.ZoekVeld
-import net.atos.zac.zoeken.model.index.ZoekObjectType
 import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject
 import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import org.apache.solr.client.solrj.beans.DocumentObjectBinder
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.client.solrj.response.QueryResponse

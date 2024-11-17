@@ -17,8 +17,8 @@ import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.getFullName
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
 import net.atos.zac.zoeken.model.DocumentIndicatie
-import net.atos.zac.zoeken.model.index.ZoekObjectType
 import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import java.util.UUID
 
 class DocumentZoekObjectConverter @Inject constructor(
