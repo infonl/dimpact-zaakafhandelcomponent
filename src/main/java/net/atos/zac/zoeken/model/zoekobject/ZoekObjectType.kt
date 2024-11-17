@@ -1,23 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.zoeken.model.zoekobject
 
-package net.atos.zac.zoeken.model.zoekobject;
-
-public enum ZoekObjectType {
-    TAAK(TaakZoekObject.class),
-    ZAAK(ZaakZoekObject.class),
-    DOCUMENT(DocumentZoekObject.class);
-
-    private final Class<? extends ZoekObject> zoekObjectClass;
-
-    ZoekObjectType(final Class<? extends ZoekObject> zoekObjectClass) {
-        this.zoekObjectClass = zoekObjectClass;
-    }
-
-    public Class<? extends ZoekObject> getZoekObjectClass() {
-        return zoekObjectClass;
-    }
-
+enum class ZoekObjectType(val zoekObjectClass: Class<out ZoekObject>) {
+    TAAK(TaakZoekObject::class.java),
+    ZAAK(ZaakZoekObject::class.java),
+    DOCUMENT(DocumentZoekObject::class.java)
 }
