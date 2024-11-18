@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.zoeken.model.zoekobject
@@ -127,17 +127,21 @@ data class DocumentZoekObject(
 
     fun getDocumentIndicaties(): EnumSet<DocumentIndicatie> =
         if (indicaties == null) {
-                EnumSet.noneOf<DocumentIndicatie>(DocumentIndicatie::class.java)
-            } else {
-                indicaties!!.stream().map<DocumentIndicatie>(DocumentIndicatie::valueOf)
-                    .collect(Collectors.toCollection(Supplier {
-                        EnumSet.noneOf<DocumentIndicatie>(DocumentIndicatie::class.java)
-                    }))
-            }
+            EnumSet.noneOf<DocumentIndicatie>(DocumentIndicatie::class.java)
+        } else {
+            indicaties!!.stream().map<DocumentIndicatie>(DocumentIndicatie::valueOf)
+                .collect(
+                    Collectors.toCollection(
+                        Supplier {
+                            EnumSet.noneOf<DocumentIndicatie>(DocumentIndicatie::class.java)
+                        }
+                    )
+                )
+        }
 
     fun setIndicatie(indicatie: DocumentIndicatie, value: Boolean) {
-            updateIndicaties(indicatie, value)
-            updateIndicatieVolgorde(indicatie, value)
+        updateIndicaties(indicatie, value)
+        updateIndicatieVolgorde(indicatie, value)
     }
 
     private fun updateIndicaties(indicatie: DocumentIndicatie, value: Boolean) {
