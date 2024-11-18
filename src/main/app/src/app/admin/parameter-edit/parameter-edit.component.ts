@@ -181,7 +181,6 @@ export class ParameterEditComponent
   ngAfterViewInit(): void {
     // Listen for validity changes after the view initializes
     if (this.smartDocsFormGroup) {
-      console.log("FormGroup from child:", this.smartDocsFormGroup.formGroup);
       this.smartDocsFormGroup.formValidityChanged.subscribe((valid) => {
         this.isSmartDocumentsStepValid = valid;
       });
@@ -279,8 +278,7 @@ export class ParameterEditComponent
     this.createZaakbeeindigForm();
 
     this.smartDocumentsForm = this.fb.group({
-      documentTitle: ["", [Validators.required]],
-      documentDescription: ["", [Validators.required]],
+      // remove
     });
 
     // Update isSmartDocumentsStepValid based on form validity
