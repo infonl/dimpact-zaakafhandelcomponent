@@ -28,8 +28,10 @@ import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.lifely.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
-import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BETROKKENE
+import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BELANGHEBBENDE
+import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_MEDEAANVRAGER
 import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_UUID_BELANGHEBBENDE
+import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_UUID_MEDEAANVRAGER
 import nl.lifely.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_VERDELEN
 import nl.lifely.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_VRIJGEVEN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
@@ -357,16 +359,17 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
         }
-        When("the add betrokkene to zaak endpoint is called with an empty 'rol toelichting'") {
+        When("the add betrokkene to zaak endpoint is called without a 'rol toelichting'") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/zaken/betrokkene",
-                requestBodyAsString = "{\n" +
-                    "  \"zaakUUID\": \"$zaak2UUID\",\n" +
-                    "  \"roltypeUUID\": \"$ROLTYPE_UUID_BELANGHEBBENDE\",\n" +
-                    "  \"roltoelichting\": \"\",\n" +
-                    "  \"betrokkeneIdentificatieType\": \"$BETROKKENE_IDENTIFICATION_TYPE_BSN\",\n" +
-                    "  \"betrokkeneIdentificatie\": \"$TEST_PERSON_HENDRIKA_JANSE_BSN\"\n" +
-                    "}"
+                requestBodyAsString = """
+                    {
+                        "zaakUUID": "$zaak2UUID",
+                        "roltypeUUID": "$ROLTYPE_UUID_BELANGHEBBENDE",
+                        "betrokkeneIdentificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_BSN",
+                        "betrokkeneIdentificatie": "$TEST_PERSON_HENDRIKA_JANSE_BSN"
+                    }
+                """.trimIndent()
             )
             Then("the response should be a 200 OK HTTP response") {
                 response.code shouldBe HTTP_STATUS_OK
@@ -425,16 +428,23 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
         }
-        When("the add betrokkene to zaak endpoint is called with valid data") {
+        When(
+            """
+            the add betrokkene to zaak endpoint is called with a role type and betrokkene identification 
+            that are not already added to the zaak
+            """
+        ) {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/zaken/betrokkene",
-                requestBodyAsString = "{\n" +
-                    "  \"zaakUUID\": \"$zaak2UUID\",\n" +
-                    "  \"roltypeUUID\": \"$ROLTYPE_UUID_BELANGHEBBENDE\",\n" +
-                    "  \"roltoelichting\": \"dummyToelichting\",\n" +
-                    "  \"betrokkeneIdentificatieType\": \"$BETROKKENE_IDENTIFICATION_TYPE_BSN\",\n" +
-                    "  \"betrokkeneIdentificatie\": \"$TEST_PERSON_HENDRIKA_JANSE_BSN\"\n" +
-                    "}"
+                requestBodyAsString = """
+                    {
+                        "zaakUUID": "$zaak2UUID",
+                        "roltypeUUID": "$ROLTYPE_UUID_MEDEAANVRAGER",
+                        "roltoelichting": "dummyToelichting",
+                        "betrokkeneIdentificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_BSN",
+                        "betrokkeneIdentificatie": "$TEST_PERSON_HENDRIKA_JANSE_BSN"
+                    }
+                """.trimIndent()
             )
             Then("the response should be a 200 OK HTTP response") {
                 response.code shouldBe HTTP_STATUS_OK
@@ -512,18 +522,19 @@ class ZaakRestServiceTest : BehaviorSpec({
                     length() shouldBe 2
                     getJSONObject(0).apply {
                         getString("rolid") shouldNotBe null
-                        getString("roltype") shouldBe ROLTYPE_NAME_BETROKKENE
+                        getString("roltype") shouldBe ROLTYPE_NAME_MEDEAANVRAGER
                         getString("roltoelichting") shouldBe "dummyToelichting"
                         getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
                         getString("identificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
-                        zaakProductaanvraag1Betrokkene1Uuid = getString("rolid").let(UUID::fromString)
                     }
                     getJSONObject(1).apply {
                         getString("rolid") shouldNotBe null
-                        getString("roltype") shouldBe ROLTYPE_NAME_BETROKKENE
+                        getString("roltype") shouldBe ROLTYPE_NAME_BELANGHEBBENDE
+                        // if no toelichting was provided, the default value should be used
                         getString("roltoelichting") shouldBe BETROKKENE_ROL_TOEVOEGEN_REDEN
                         getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
                         getString("identificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
+                        zaakProductaanvraag1Betrokkene1Uuid = getString("rolid").let(UUID::fromString)
                     }
                 }
             }

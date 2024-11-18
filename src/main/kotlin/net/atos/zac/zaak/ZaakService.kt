@@ -51,8 +51,19 @@ class ZaakService @Inject constructor(
         zaak: Zaak,
         explanation: String
     ) {
+        val roleType = ztcClientService.readRoltype(roleTypeUUID)
+        if (listBetrokkenenforZaak(zaak).any {
+                it.identificatienummer == identification && it.roltype == roleType.url
+            }
+        ) {
+            LOG.info {
+                "Betrokkene of type '$identificationType' and with identification '$identification' " +
+                    "already exists for zaak with UUID '${zaak.uuid}'. Ignoring."
+            }
+            return
+        }
         addRoleToZaak(
-            roleType = ztcClientService.readRoltype(roleTypeUUID),
+            roleType = roleType,
             identificationType = identificationType,
             identification = identification,
             zaak = zaak,
@@ -159,11 +170,10 @@ class ZaakService @Inject constructor(
 
     fun listBetrokkenenforZaak(zaak: Zaak): List<Rol<*>> =
         zrcClientService.listRollen(zaak)
-            .filter { rol ->
+            // filter out the roles that are not 'betrokkenen'
+            .filter {
                 BETROKKENEN_ENUMSET.contains(
-                    OmschrijvingGeneriekEnum.valueOf(
-                        rol.omschrijvingGeneriek.uppercase(Locale.getDefault())
-                    )
+                    OmschrijvingGeneriekEnum.valueOf(it.omschrijvingGeneriek.uppercase(Locale.getDefault()))
                 )
             }
 
