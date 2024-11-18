@@ -20,95 +20,95 @@ data class DocumentZoekObject(
     var uuid: String,
 
     @Field
-    private var type: String
-) : ZoekObject {
+    private var type: String,
+
     @Field("informatieobject_identificatie")
-    var identificatie: String? = null
+    var identificatie: String? = null,
 
     @Field("informatieobject_titel")
-    var titel: String? = null
+    var titel: String? = null,
 
     @Field("informatieobject_beschrijving")
-    var beschrijving: String? = null
+    var beschrijving: String? = null,
 
     @Field("informatieobject_zaaktypeUuid")
-    var zaaktypeUuid: String? = null
+    var zaaktypeUuid: String? = null,
 
     @Field("informatieobject_zaaktypeIdentificatie")
-    var zaaktypeIdentificatie: String? = null
+    var zaaktypeIdentificatie: String? = null,
 
     @Field("informatieobject_zaaktypeOmschrijving")
-    var zaaktypeOmschrijving: String? = null
+    var zaaktypeOmschrijving: String? = null,
 
     @Field("informatieobject_zaakId")
-    var zaakIdentificatie: String? = null
+    var zaakIdentificatie: String? = null,
 
     @Field("informatieobject_zaakUuid")
-    var zaakUuid: String? = null
+    var zaakUuid: String? = null,
 
     @Field("informatieobject_zaakAfgehandeld")
-    var isZaakAfgehandeld: Boolean = false
+    var isZaakAfgehandeld: Boolean = false,
 
     @Field("informatieobject_zaakRelatie")
-    var zaakRelatie: String? = null
+    var zaakRelatie: String? = null,
 
     @Field("informatieobject_creatiedatum")
-    var creatiedatum: Date? = null
+    var creatiedatum: Date? = null,
 
     @Field("informatieobject_registratiedatum")
-    var registratiedatum: Date? = null
+    var registratiedatum: Date? = null,
 
     @Field("informatieobject_ontvangstdatum")
-    var ontvangstdatum: Date? = null
+    var ontvangstdatum: Date? = null,
 
     @Field("informatieobject_verzenddatum")
-    var verzenddatum: Date? = null
+    var verzenddatum: Date? = null,
 
     @Field("informatieobject_ondertekeningDatum")
-    var ondertekeningDatum: Date? = null
+    var ondertekeningDatum: Date? = null,
 
     @Field("informatieobject_ondertekeningSoort")
-    var ondertekeningSoort: String? = null
+    var ondertekeningSoort: String? = null,
 
     @Field("informatieobject_vertrouwelijkheidaanduiding")
-    var vertrouwelijkheidaanduiding: String? = null
+    var vertrouwelijkheidaanduiding: String? = null,
 
     @Field("informatieobject_auteur")
-    var auteur: String? = null
+    var auteur: String? = null,
 
     @Field("informatieobject_status")
-    private var status: String? = null
+    private var status: String? = null,
 
     @Field("informatieobject_formaat")
-    var formaat: String? = null
+    var formaat: String? = null,
 
     @Field("informatieobject_versie")
-    var versie: Long = 0
+    var versie: Long = 0,
 
     @Field("informatieobject_bestandsnaam")
-    var bestandsnaam: String? = null
+    var bestandsnaam: String? = null,
 
     @Field("informatieobject_bestandsomvang")
-    var bestandsomvang: Long = 0
+    var bestandsomvang: Long = 0,
 
     @Field("informatieobject_documentType")
-    var documentType: String? = null
+    var documentType: String? = null,
 
     @Field("informatieobject_inhoudUrl")
-    var inhoudUrl: String? = null
+    var inhoudUrl: String? = null,
 
     @Field("informatieobject_vergrendeldDoorNaam")
-    var vergrendeldDoorNaam: String? = null
+    var vergrendeldDoorNaam: String? = null,
 
     @Field("informatieobject_vergrendeldDoorGebruikersnaam")
-    var vergrendeldDoorGebruikersnaam: String? = null
+    var vergrendeldDoorGebruikersnaam: String? = null,
 
     @Field("informatieobject_indicaties")
-    private var indicaties: MutableList<String>? = null
+    private var indicaties: MutableList<String>? = null,
 
     @Field("informatieobject_indicaties_sort")
     private var indicatiesVolgorde: Long = 0
-
+) : ZoekObject {
     override fun getObjectId() = uuid
 
     override fun getType() = ZoekObjectType.valueOf(type)
