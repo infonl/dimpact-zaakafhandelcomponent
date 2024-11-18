@@ -10,6 +10,7 @@ export class ZaaktypeInrichtingscheck {
   statustypeIntakeAanwezig: boolean;
   statustypeInBehandelingAanwezig: boolean;
   statustypeHeropendAanwezig: boolean;
+  statustypeAanvullendeInformatieVereist: boolean;
   statustypeAfgerondAanwezig: boolean;
   statustypeAfgerondLaatsteVolgnummer: boolean;
   resultaattypeAanwezig: boolean;
