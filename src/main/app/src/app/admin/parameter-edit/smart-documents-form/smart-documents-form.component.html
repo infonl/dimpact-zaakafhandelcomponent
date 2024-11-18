@@ -25,7 +25,7 @@
   <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
     <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
       <smart-documents-form-item
-        [template]="{ id: '1234', name: node.name }"
+        [template]="{ id: node.id, name: node.name }"
         [documentTypes]="[
           { id: '123', name: 'foo', informatieObjectTypeUUID: '123' },
           { id: '456', name: 'bar', informatieObjectTypeUUID: '456' },
