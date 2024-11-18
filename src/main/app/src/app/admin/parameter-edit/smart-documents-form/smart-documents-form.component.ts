@@ -12,6 +12,8 @@ import {
   MatTreeFlatDataSource,
   MatTreeFlattener,
 } from "@angular/material/tree";
+import { GeneratedType } from "src/app/shared/utils/generated-types";
+import { Informatieobjecttype } from "src/app/informatie-objecten/model/informatieobjecttype";
 
 interface FlatNode {
   expandable: boolean;
@@ -28,6 +30,8 @@ export class SmartDocumentsFormComponent {
   @Input() zaakTypeUuid: string;
   @Output() formValidityChanged = new EventEmitter<boolean>();
 
+  informationObjectTypes: Informatieobjecttype[] = [];
+
   constructor(
     private smartDocumentsService: SmartDocumentsService,
     private informatieObjectenService: InformatieObjectenService,
@@ -35,8 +39,15 @@ export class SmartDocumentsFormComponent {
     console.log("SmartDocumentsFormComponent constructor called");
 
     effect(() => {
-      this.dataSource.data = this.allSmartDocumentTemplateGroups.data() || [];
+      this.dataSource.data =
+        this.allSmartDocumentTemplateGroupsQuery.data() || [];
       console.log("this.dataSource.data:", this.dataSource.data);
+    });
+
+    effect(() => {
+      this.informationObjectTypes =
+        this.informationObjectTypesQuery.data() || [];
+      console.log("this.informationObjectTypes:", this.informationObjectTypes);
     });
   }
 
@@ -61,22 +72,29 @@ export class SmartDocumentsFormComponent {
     (node) => node.templates,
   );
 
-  allSmartDocumentTemplateGroups = injectQuery(() => ({
-    queryKey: ["all smart documents"],
+  allSmartDocumentTemplateGroupsQuery = injectQuery(() => ({
+    queryKey: ["allSmartDocumentTemplateGroupsQuery"],
     queryFn: () =>
       firstValueFrom(
         this.smartDocumentsService.getAllSmartDocumentsTemplateGroups(),
       ),
   }));
 
-  templateMappings = injectQuery(() => ({
-    queryKey: [
-      "smart documents template mapping for zaaktype",
-      this.zaakTypeUuid,
-    ],
+  templateMappingsQuery = injectQuery(() => ({
+    queryKey: ["templateMappingsQuery", this.zaakTypeUuid],
     queryFn: () =>
       firstValueFrom(
         this.smartDocumentsService.getZaakTypeTemplatesMappings(
+          this.zaakTypeUuid,
+        ),
+      ),
+  }));
+
+  informationObjectTypesQuery = injectQuery(() => ({
+    queryKey: ["informationObjectTypesQuery", this.zaakTypeUuid],
+    queryFn: () =>
+      firstValueFrom(
+        this.informatieObjectenService.listInformatieobjecttypes(
           this.zaakTypeUuid,
         ),
       ),
