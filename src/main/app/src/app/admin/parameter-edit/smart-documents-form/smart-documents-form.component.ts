@@ -2,20 +2,20 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 
 @Component({
-  selector: "smart-documents-form-group",
-  templateUrl: "./smart-documents-form-group.component.html",
+  selector: "smart-documents-form",
+  templateUrl: "./smart-documents-form.component.html",
 })
-export class SmartDocumentsFormGroupComponent {
-  @Input() formGroup: FormGroup; // FormGroup passed from parent
+export class SmartDocumentsFormComponent {
+  @Input() formGroup: FormGroup;
   @Output() formValidityChanged = new EventEmitter<boolean>();
 
   constructor() {
-    console.log("SmartDocumentsFormGroupComponent constructor called");
+    console.log("SmartDocumentsFormComponent constructor called");
   }
 
   ngOnInit() {
     if (this.formGroup) {
-      console.log("FormGroup initialized in SmartDocumentsFormGroupComponent");
+      console.log("FormGroup initialized in SmartDocumentsFormComponent");
     }
 
     // Emit form validity changes to the parent
