@@ -8,10 +8,15 @@ package net.atos.zac.app.admin.model;
 import java.util.List;
 
 /**
- * 4 statustype; Intake, In behandeling, Heropend, Afgerond: met Afgerond als laatste statustypevolgnummer
+ * 5 statustype; Intake, In behandeling, Heropend, Aanvullende informatie vereist,
+ * Afgerond: met Afgerond als laatste statustypevolgnummer
+ * <br/>
  * min 1 resultaattype
+ * <br/>
  * Roltypen, omschrijving generiek: initiator en behandelaar. 1 overig roltype
+ * <br/>
  * Informatieobjecttype: e-mail
+ * <br/>
  * indien zaak besluit heeft, Besluittype
  */
 public class RESTZaaktypeInrichtingscheck {
@@ -23,6 +28,8 @@ public class RESTZaaktypeInrichtingscheck {
     public boolean statustypeInBehandelingAanwezig;
 
     public boolean statustypeHeropendAanwezig;
+
+    public boolean statustypeAanvullendeInformatieVereist;
 
     public boolean statustypeAfgerondAanwezig;
 

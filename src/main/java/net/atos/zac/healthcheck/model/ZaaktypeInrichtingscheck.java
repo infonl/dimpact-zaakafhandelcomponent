@@ -22,6 +22,8 @@ public class ZaaktypeInrichtingscheck {
 
     private boolean statustypeHeropendAanwezig;
 
+    private boolean statustypeAanvullendeInformatieVereist;
+
     private boolean statustypeAfgerondAanwezig;
 
     private boolean statustypeAfgerondLaatsteVolgnummer;
@@ -68,6 +70,14 @@ public class ZaaktypeInrichtingscheck {
 
     public void setStatustypeHeropendAanwezig(final boolean statustypeHeropendAanwezig) {
         this.statustypeHeropendAanwezig = statustypeHeropendAanwezig;
+    }
+
+    public boolean isStatustypeAanvullendeInformatieVereist() {
+        return statustypeAanvullendeInformatieVereist;
+    }
+
+    public void setStatustypeAanvullendeInformatieVereist(boolean statustypeAanvullendeInformatieVereist) {
+        this.statustypeAanvullendeInformatieVereist = statustypeAanvullendeInformatieVereist;
     }
 
     public boolean isStatustypeAfgerondAanwezig() {
@@ -156,7 +166,7 @@ public class ZaaktypeInrichtingscheck {
 
     public boolean isValide() {
         return statustypeIntakeAanwezig && statustypeInBehandelingAanwezig && statustypeHeropendAanwezig && statustypeAfgerondAanwezig &&
-               statustypeAfgerondLaatsteVolgnummer &&
+               statustypeAfgerondLaatsteVolgnummer && statustypeAanvullendeInformatieVereist &&
                rolInitiatorAanwezig && rolBehandelaarAanwezig && rolOverigeAanwezig && informatieobjecttypeEmailAanwezig &&
                resultaattypeAanwezig &&
                zaakafhandelParametersValide && (resultaattypesMetVerplichtBesluit.isEmpty() || besluittypeAanwezig);

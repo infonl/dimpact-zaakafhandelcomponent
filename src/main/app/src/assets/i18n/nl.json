@@ -839,6 +839,7 @@
   "healthCheck.zaaktype.geenStatustypeIntakeAanwezig": "Het vereiste statustype \"Intake\" bestaat niet",
   "healthCheck.zaaktype.geenStatustypeInBehandelingAanwezig": "Het vereiste statustype \"In behandeling\" bestaat niet",
   "healthCheck.zaaktype.geenStatustypeHeropendAanwezig": "Het vereiste statustype \"Heropend\" bestaat niet",
+  "healthCheck.zaaktype.geenStatustypeAanvullendeInformatieVereist": "Het vereiste statustype \"Aanvullende Informatie Vereist\" bestaat niet",
   "healthCheck.zaaktype.geenStatustypeAfgerondAanwezig": "Het vereiste (eind) statustype \"Afgerond\" bestaat niet",
   "healthCheck.zaaktype.statustypeAfgerondLaatsteVolgnummer": "Statustype \"Afgerond\" is niet de <em>eindstatus</em> (heeft niet het laatste volgnummer)",
   "healthCheck.zaaktype.geenResultaattypeAanwezig": "Er is geen resultaattype gevonden. Minimaal één resultaattype is vereist",

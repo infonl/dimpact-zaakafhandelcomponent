@@ -153,6 +153,9 @@
                   <div *ngIf="!row.statustypeHeropendAanwezig">
                     {{'statustype' | translate}}
                   </div>
+                  <div *ngIf="!row.statustypeAanvullendeInformatieVereist">
+                    {{'statustype' | translate}}
+                  </div>
                   <div *ngIf="!row.statustypeAfgerondAanwezig">
                     {{'statustype' | translate}}
                   </div>
@@ -209,6 +212,10 @@
                   <div *ngIf="!row.statustypeHeropendAanwezig">
                     {{'healthCheck.zaaktype.geenStatustypeHeropendAanwezig' |
                     translate}}
+                  </div>
+                  <div *ngIf="!row.statustypeAanvullendeInformatieVereist">
+                    {{'healthCheck.zaaktype.geenStatustypeAanvullendeInformatieVereist'
+                    | translate}}
                   </div>
                   <div *ngIf="!row.statustypeAfgerondAanwezig">
                     {{'healthCheck.zaaktype.geenStatustypeAfgerondAanwezig' |

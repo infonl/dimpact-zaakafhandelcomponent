@@ -270,6 +270,7 @@ object ItestConfiguration {
     const val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_REFERENTIEPROCES = "melding klein evenement"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_IDENTIFICATIE =
         "indienen-aansprakelijkstelling-door-derden-behandelen"
+    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN = "indienen-aansprakelijkstelling-behandelen"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION =
         "Indienen aansprakelijkstelling door derden behandelen"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_BELANGHEBBENDE = "3bb6928b-76de-4716-ac5f-fa3d7d6eca36"
@@ -277,7 +278,8 @@ object ItestConfiguration {
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_CONTACTPERSOON = "ca31355e-abbf-4675-8700-9d167b194db1"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_GEMACHTIGDE = "4b473a85-5516-441f-8d7d-57512c6b6833"
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_MEDEAANVRAGER = "e49a634b-731c-4460-93f4-e919686811aa"
-    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_PLAATSVERVANGER = "74799b20-0350-457d-8773-a0f1ab16b299"
+    const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_PLAATSVERVANGER =
+        "74799b20-0350-457d-8773-a0f1ab16b299"
 
     @Suppress("MagicNumber")
     val DATE_TIME_2000_01_01: ZonedDateTime = LocalDate.of(2000, Month.JANUARY, 1)
@@ -291,6 +293,9 @@ object ItestConfiguration {
 
     @Suppress("MagicNumber")
     val DATE_2023_09_21: LocalDate = LocalDate.of(2023, Month.SEPTEMBER, 21)
+
+    @Suppress("MagicNumber")
+    val DATE_2023_10_01: LocalDate = LocalDate.of(2023, Month.OCTOBER, 1)
 
     @Suppress("MagicNumber")
     val DATE_2024_01_01: LocalDate = LocalDate.of(2024, Month.JANUARY, 1)
