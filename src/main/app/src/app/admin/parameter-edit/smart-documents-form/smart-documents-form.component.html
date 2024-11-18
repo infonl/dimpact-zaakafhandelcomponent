@@ -25,6 +25,7 @@
   <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
     <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding class="flex-1">
       <smart-documents-form-item
+        class="flex-1"
         [formGroup]="formGroup"
         [informationObjectTypes]="informationObjectTypes"
         [template]="node"

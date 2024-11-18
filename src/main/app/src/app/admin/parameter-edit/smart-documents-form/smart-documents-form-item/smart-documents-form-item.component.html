@@ -4,30 +4,33 @@
   ~
   -->
 
-<fieldset class="full-width border-0">
+<fieldset class="flex flex-row items-center border border-0">
   <mat-checkbox
+    [formControl]="enabled"
     [checked]="template.informatieObjectTypeUUID !== ''"
     (change)="clearSelectedDocumentType()"
   ></mat-checkbox>
   <div class="flex-1">{{ template.name }}</div>
-  <mat-form-field>
+  <mat-form-field subscriptSizing="dynamic">
     <mat-label>{{ "informatieobjectTypeOmschrijving" | translate }}</mat-label>
     <mat-select
       [(value)]="template.informatieObjectTypeUUID"
+      (valueChange)="setConfidentiality()"
       placeholder="{{ 'informatieobjectType.-kies-' | translate }}"
     >
       <mat-option
-        *ngFor="let documentType of documentTypes"
-        [value]="documentType.informatieObjectTypeUUID"
-        >{{ documentType.name }}</mat-option
+        *ngFor="let informationObjectType of informationObjectTypes"
+        [value]="informationObjectType.uuid"
+        >{{ informationObjectType.omschrijving }}</mat-option
       >
     </mat-select>
   </mat-form-field>
-  <mat-form-field disabled>
-    <mat-label>{{ "vertrouwlijkheidAanduiding" | translate }}</mat-label>
-    <mat-select>
-      <mat-option [value]="true">{{ "vertrouwelijkheidaanduiding.VERTROUWELIJK" | translate }}</mat-option>
-      <mat-option [value]="false">{{ "vertrouwelijkheidaanduiding.VERTROUWELIJK" | translate }}</mat-option>
-    </mat-select>
+  <mat-form-field subscriptSizing="dynamic">
+    <mat-label>{{ "vertrouwelijkheidaanduiding" | translate }}</mat-label>
+    <input
+      matInput
+      [formControl]="confidentiality"
+      translate="{{'vertrouwelijkheidaanduiding.'+confidentiality.getRawValue()}}"
+    />
   </mat-form-field>
 </fieldset>
