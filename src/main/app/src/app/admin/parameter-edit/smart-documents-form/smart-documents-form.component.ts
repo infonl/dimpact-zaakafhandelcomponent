@@ -4,7 +4,6 @@ import { injectQuery } from "@tanstack/angular-query-experimental";
 import { firstValueFrom } from "rxjs";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import {
-  DocumentsTemplate,
   DocumentsTemplateGroup,
   SmartDocumentsService,
   SmartDocumentsTemplateGroup,
@@ -104,7 +103,7 @@ export class SmartDocumentsFormComponent {
     return {
       id: node.id,
       name: node.name,
-      informatieObjectTypeUUID: node.informatieObjectTypeUUID || undefined,
+      informatieObjectTypeUUID: node.informatieObjectTypeUUID,
       level: level,
       expandable: !!node.templates && node.templates.length > 0,
     };
