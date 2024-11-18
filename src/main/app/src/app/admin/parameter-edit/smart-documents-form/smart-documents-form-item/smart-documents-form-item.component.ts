@@ -19,7 +19,7 @@ export class SmartDocumentsFormItemComponent implements OnInit {
   @Input() informationObjectTypes: GeneratedType<"RestInformatieobjecttype">[];
 
   confidentiality = new FormControl({ value: "", disabled: true });
-  enabled = new FormControl({ value: false, disabled: false });
+  checkbox = new FormControl({ value: false, disabled: false });
 
   constructor(private readonly translateService: TranslateService) {}
 
@@ -52,10 +52,13 @@ export class SmartDocumentsFormItemComponent implements OnInit {
 
   private updateEnabledStatus() {
     const hasValue = this.template.informatieObjectTypeUUID && this.template.informatieObjectTypeUUID !== ""
+
     if (hasValue) {
-      this.enabled.enable();
+      this.checkbox.enable();
     } else {
-      this.enabled.disable();
+      this.checkbox.disable();
     }
+
+    this.checkbox.setValue(hasValue);
   }
 }

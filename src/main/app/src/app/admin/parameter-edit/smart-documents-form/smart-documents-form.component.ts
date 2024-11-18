@@ -128,17 +128,17 @@ export class SmartDocumentsFormComponent {
     allTemplatesObject: SmartDocumentsTemplateGroup[],
     selectedTemplatesObject: DocumentsTemplateGroup[],
   ) => {
-    const flatSelectedTemplates = selectedTemplatesObject.flatMap(
-      ({ templates }) => templates,
-    );
-
     return allTemplatesObject.map((smartDocumentTemplateGroup) => {
       const templates = smartDocumentTemplateGroup.templates.map(
         (smartDocumentTemplate) => {
+          const selectedTemplates =
+            selectedTemplatesObject.find(
+              ({ id }) => id === smartDocumentTemplateGroup.id,
+            )?.templates ?? [];
+
           const informatieObjectTypeUUID =
-            flatSelectedTemplates.find(
-              (template) => template.id === smartDocumentTemplate.id,
-            )?.informatieObjectTypeUUID ?? "";
+            selectedTemplates.find(({ id }) => id === smartDocumentTemplate.id)
+              ?.informatieObjectTypeUUID ?? "";
 
           return {
             ...smartDocumentTemplate,

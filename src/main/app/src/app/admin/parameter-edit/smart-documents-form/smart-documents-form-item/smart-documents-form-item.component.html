@@ -6,8 +6,8 @@
 
 <fieldset>
   <mat-checkbox
-    [formControl]="enabled"
-    [checked]="template.informatieObjectTypeUUID !== undefined"
+    [formControl]="checkbox"
+    [checked]="template.informatieObjectTypeUUID !== ''"
     (change)="clearSelectedDocumentType()"
   ></mat-checkbox>
   <div class="flex-1">{{ template.name }}</div>
