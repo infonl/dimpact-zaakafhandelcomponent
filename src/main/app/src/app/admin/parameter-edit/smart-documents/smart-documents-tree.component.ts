@@ -10,12 +10,12 @@ import { injectQuery } from "@tanstack/angular-query-experimental";
 import { Observable, firstValueFrom } from "rxjs";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import {
-  DocumentsTemplate,
   DocumentsTemplateGroup,
   SmartDocumentsService,
   SmartDocumentsTemplate,
   SmartDocumentsTemplateGroup,
 } from "../../smart-documents.service";
+import {GeneratedType} from "../../../shared/utils/generated-types";
 
 function getSelectableGroup(
   original: SmartDocumentsTemplateGroup,
@@ -34,8 +34,8 @@ function getSelectableGroup(
 
 function getSelectableTemplates(
   original: SmartDocumentsTemplate[],
-  selection: DocumentsTemplate[],
-): DocumentsTemplate[] {
+  selection: GeneratedType<'RestMappedSmartDocumentsTemplate'>[],
+): GeneratedType<'RestMappedSmartDocumentsTemplate'>[] {
   return original.map((template) => ({
     ...template,
     informatieObjectTypeUUID:
