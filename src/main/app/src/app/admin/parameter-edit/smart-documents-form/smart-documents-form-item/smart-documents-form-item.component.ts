@@ -14,8 +14,11 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
 })
 export class SmartDocumentsFormItemComponent {
   @Input() template: GeneratedType<"RestMappedSmartDocumentsTemplate">;
-  @Input() documentTypes: GeneratedType<"RestMappedSmartDocumentsTemplate">[];
+  @Input() documentTypes: GeneratedType<"RestInformatieobjecttype">[];
+  @Input() informationObjectTypes: GeneratedType<"RestInformatieobjecttype">[];
   @Input() formGroup: FormGroup;
+
+  confidentiality = ''
 
   constructor() {
 

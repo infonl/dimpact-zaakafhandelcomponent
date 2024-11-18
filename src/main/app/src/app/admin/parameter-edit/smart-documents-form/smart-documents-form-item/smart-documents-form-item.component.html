@@ -13,7 +13,7 @@
   <mat-form-field>
     <mat-label>{{ "informatieobjectTypeOmschrijving" | translate }}</mat-label>
     <mat-select
-            [(value)]="template.informatieObjectTypeUUID"
+      [(value)]="template.informatieObjectTypeUUID"
       placeholder="{{ 'informatieobjectType.-kies-' | translate }}"
     >
       <mat-option
@@ -23,15 +23,11 @@
       >
     </mat-select>
   </mat-form-field>
-  <!--      <mat-form-field disabled>-->
-  <!--          <mat-label>{{ "groep" | translate }}</mat-label>-->
-  <!--          <mat-select-->
-  <!--                  placeholder="{{ 'groep.-kies-' | translate }}"-->
-  <!--                  formControlName="defaultGroepId"-->
-  <!--          >-->
-  <!--              <mat-option *ngFor="let groep of groepen" [value]="groep.id">{{-->
-  <!--                      groep.naam-->
-  <!--                  }}</mat-option>-->
-  <!--          </mat-select>-->
-  <!--      </mat-form-field>-->
+  <mat-form-field disabled>
+    <mat-label>{{ "vertrouwlijkheidAanduiding" | translate }}</mat-label>
+    <mat-select>
+      <mat-option [value]="true">{{ "vertrouwelijkheidaanduiding.VERTROUWELIJK" | translate }}</mat-option>
+      <mat-option [value]="false">{{ "vertrouwelijkheidaanduiding.VERTROUWELIJK" | translate }}</mat-option>
+    </mat-select>
+  </mat-form-field>
 </fieldset>
