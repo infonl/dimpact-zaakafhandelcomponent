@@ -9,9 +9,13 @@ import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.config.ItestConfiguration.DATE_2023_09_21
+import nl.lifely.zac.itest.config.ItestConfiguration.DATE_2023_10_01
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 
@@ -66,14 +70,14 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         "valide": true,
                         "zaakafhandelParametersValide": true,
                         "zaaktype": {
-                          "beginGeldigheid": "2023-10-01",
+                          "beginGeldigheid": "$DATE_2023_10_01",
                           "doel": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
-                          "identificatie": "indienen-aansprakelijkstelling-behandelen",
+                          "identificatie": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BEHANDELEN",
                           "nuGeldig": true,
                           "omschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION",
                           "servicenorm": false,
                           "uuid": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID",
-                          "versiedatum": "2023-10-01",
+                          "versiedatum": "$DATE_2023_10_01",
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }
                       },
@@ -94,14 +98,14 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         "valide": true,
                         "zaakafhandelParametersValide": true,
                         "zaaktype": {
-                          "beginGeldigheid": "2023-09-21",
+                          "beginGeldigheid": "$DATE_2023_09_21",
                           "doel": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
-                          "identificatie": "melding-evenement-organiseren-behandelen",
+                          "identificatie": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE",
                           "nuGeldig": true,
                           "omschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
                           "servicenorm": false,
                           "uuid": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
-                          "versiedatum": "2023-09-21",
+                          "versiedatum": "$DATE_2023_09_21",
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }
                       }
