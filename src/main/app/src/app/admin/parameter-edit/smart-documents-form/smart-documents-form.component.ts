@@ -4,7 +4,6 @@ import { injectQuery } from "@tanstack/angular-query-experimental";
 import { firstValueFrom } from "rxjs";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import {
-  DocumentsTemplate,
   DocumentsTemplateGroup,
   SmartDocumentsService,
   SmartDocumentsTemplateGroup,
@@ -14,7 +13,6 @@ import {
   MatTreeFlatDataSource,
   MatTreeFlattener,
 } from "@angular/material/tree";
-import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { Informatieobjecttype } from "src/app/informatie-objecten/model/informatieobjecttype";
 
 interface FlatNode {
