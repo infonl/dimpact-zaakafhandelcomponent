@@ -4,8 +4,8 @@
  *
  */
 
-import { Component, Input } from "@angular/core";
-import { FormControl, FormGroup } from "@angular/forms";
+import { Component, Input, OnInit } from "@angular/core";
+import { FormControl } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 
@@ -13,10 +13,9 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   selector: "smart-documents-form-item",
   templateUrl: "./smart-documents-form-item.component.html",
 })
-export class SmartDocumentsFormItemComponent {
+export class SmartDocumentsFormItemComponent implements OnInit {
   @Input() template: GeneratedType<"RestMappedSmartDocumentsTemplate">;
   @Input() informationObjectTypes: GeneratedType<"RestInformatieobjecttype">[];
-  @Input() formGroup: FormGroup;
 
   confidentiality = new FormControl({ value: "", disabled: true });
   enabled = new FormControl({ value: false, disabled: false });
@@ -24,16 +23,15 @@ export class SmartDocumentsFormItemComponent {
   constructor(private readonly translateService: TranslateService) {}
 
   ngOnInit() {
-    this.enabled.setValue(this.template.informatieObjectTypeUUID !== "");
+    this.updateEnabledStatus();
   }
 
   clearSelectedDocumentType() {
     this.template.informatieObjectTypeUUID = "";
-    this.confidentiality.reset();
-    this.enabled.reset();
+    this.updateFormControls();
   }
 
-  setConfidentiality() {
+  updateFormControls() {
     const { informatieObjectTypeUUID } = this.template;
 
     const confidentiality = this.informationObjectTypes.find(
@@ -45,5 +43,15 @@ export class SmartDocumentsFormItemComponent {
     );
 
     this.confidentiality.setValue(translated);
+    this.updateEnabledStatus();
+  }
+
+  private updateEnabledStatus() {
+    this.enabled.setValue(this.template.informatieObjectTypeUUID !== "");
+    if (this.template.informatieObjectTypeUUID !== "") {
+      this.enabled.enable();
+    } else {
+      this.enabled.disable();
+    }
   }
 }

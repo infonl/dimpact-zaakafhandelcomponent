@@ -15,7 +15,7 @@
     <mat-label>{{ "informatieobjectTypeOmschrijving" | translate }}</mat-label>
     <mat-select
       [(value)]="template.informatieObjectTypeUUID"
-      (valueChange)="setConfidentiality()"
+      (valueChange)="updateFormControls()"
       placeholder="{{ 'informatieobjectType.-kies-' | translate }}"
     >
       <mat-option
@@ -30,7 +30,9 @@
     <input
       matInput
       [formControl]="confidentiality"
-      translate="{{'vertrouwelijkheidaanduiding.'+confidentiality.getRawValue()}}"
+      translate="{{
+        'vertrouwelijkheidaanduiding.' + confidentiality.getRawValue()
+      }}"
     />
   </mat-form-field>
 </fieldset>
