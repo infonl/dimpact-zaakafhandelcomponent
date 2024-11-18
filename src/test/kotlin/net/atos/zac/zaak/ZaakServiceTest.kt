@@ -14,18 +14,22 @@ import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Rol
+import net.atos.client.zgw.zrc.model.createNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.createRolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.createRolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.identity.model.createGroup
 import net.atos.zac.identity.model.createUser
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
+import java.net.URI
+import java.util.UUID
 
 class ZaakServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
@@ -278,6 +282,117 @@ class ZaakServiceTest : BehaviorSpec({
                         zrcClientService.updateRol(it, any(), explanation)
                         zrcClientService.deleteRol(it, any(), explanation)
                     }
+                }
+            }
+        }
+    }
+    Given("A zaak without any betrokkenen") {
+        val zaak = createZaak()
+        val roleTypeUUID = UUID.randomUUID()
+        val roleTypeBelanghebbende = createRolType(
+            omschrijvingGeneriek = OmschrijvingGeneriekEnum.BELANGHEBBENDE,
+            uri = URI("https://example.com/roltype/$roleTypeUUID")
+        )
+        val roleSlot = slot<Rol<*>>()
+        every { ztcClientService.readRoltype(roleTypeUUID) } returns roleTypeBelanghebbende
+        every { zrcClientService.listRollen(zaak) } returns emptyList()
+        every { zrcClientService.createRol(capture(roleSlot), explanation) } returns createRolNatuurlijkPersoon()
+
+        When("a betrokkene of type natuurlijk persoon is added") {
+            zaakService.addBetrokkeneToZaak(
+                roleTypeUUID = roleTypeUUID,
+                identificationType = IdentificatieType.BSN,
+                identification = "dummyBSN",
+                zaak = zaak,
+                explanation = explanation
+            )
+
+            Then("the betrokkene is successfully added to the zaak") {
+                verify(exactly = 1) {
+                    zrcClientService.createRol(any(), explanation)
+                }
+                with(roleSlot.captured) {
+                    this.zaak shouldBe zaak.url
+                    roltype shouldBe roleTypeBelanghebbende.url
+                    roltoelichting shouldBe explanation
+                    omschrijving shouldBe roleTypeBelanghebbende.omschrijving
+                    omschrijvingGeneriek shouldBe OmschrijvingGeneriekEnum.BELANGHEBBENDE.toString()
+                }
+            }
+        }
+    }
+    Given("A zaak with a betrokkenen of type natuurlijk persoon and role type 'adviseur'") {
+        val zaak = createZaak()
+        val roleTypeUUID = UUID.randomUUID()
+        val roleTypeAdviseur = createRolType(
+            omschrijvingGeneriek = OmschrijvingGeneriekEnum.ADVISEUR
+        )
+        val roleTypeBelanghebbende = createRolType(
+            omschrijvingGeneriek = OmschrijvingGeneriekEnum.BELANGHEBBENDE,
+            uri = URI("https://example.com/roltype/$roleTypeUUID")
+        )
+        val identification = "dummyBSN"
+        val roleAdviseur = createRolNatuurlijkPersoon(
+            zaaktypeURI = zaak.zaaktype,
+            rolType = roleTypeAdviseur,
+            natuurlijkPersoon = createNatuurlijkPersoon(bsn = identification)
+        )
+        val roleSlot = slot<Rol<*>>()
+        every { ztcClientService.readRoltype(roleTypeUUID) } returns roleTypeBelanghebbende
+        every { zrcClientService.listRollen(zaak) } returns listOf(roleAdviseur)
+        every { zrcClientService.createRol(capture(roleSlot), explanation) } returns createRolNatuurlijkPersoon()
+
+        When("the same betrokkene is added again but with the role type 'belanghebbende'") {
+            zaakService.addBetrokkeneToZaak(
+                roleTypeUUID = roleTypeUUID,
+                identificationType = IdentificatieType.BSN,
+                identification = identification,
+                zaak = zaak,
+                explanation = explanation
+            )
+
+            Then("the betrokkene is added to the zaak again with role type 'belanghebbende'") {
+                verify(exactly = 1) {
+                    zrcClientService.createRol(any(), any())
+                }
+                with(roleSlot.captured) {
+                    this.zaak shouldBe zaak.url
+                    roltype shouldBe roleTypeBelanghebbende.url
+                    roltoelichting shouldBe explanation
+                    omschrijving shouldBe roleTypeBelanghebbende.omschrijving
+                    omschrijvingGeneriek shouldBe OmschrijvingGeneriekEnum.BELANGHEBBENDE.toString()
+                }
+            }
+        }
+    }
+    Given("A zaak with a betrokkenen of type natuurlijk persoon and role type adviseur") {
+        val zaak = createZaak()
+        val roleTypeUUID = UUID.randomUUID()
+        val roleTypeAdviseur = createRolType(
+            omschrijvingGeneriek = OmschrijvingGeneriekEnum.ADVISEUR,
+            uri = URI("https://example.com/roltype/$roleTypeUUID")
+        )
+        val identification = "dummyBSN"
+        val roleAdviseur = createRolNatuurlijkPersoon(
+            zaaktypeURI = zaak.zaaktype,
+            rolType = roleTypeAdviseur,
+            natuurlijkPersoon = createNatuurlijkPersoon(bsn = identification)
+        )
+        every { ztcClientService.readRoltype(roleTypeUUID) } returns roleTypeAdviseur
+        every { zrcClientService.listRollen(zaak) } returns listOf(roleAdviseur)
+
+        When("the same betrokkene is added again with the same role type") {
+            zaakService.addBetrokkeneToZaak(
+                roleTypeUUID = roleTypeUUID,
+                identificationType = IdentificatieType.BSN,
+                identification = identification,
+                zaak = zaak,
+                explanation = explanation
+            )
+
+            Then("the betrokkene is not added to the zaak again") {
+                verify(exactly = 0) {
+                    zrcClientService.createRol(any(), any())
                 }
             }
         }

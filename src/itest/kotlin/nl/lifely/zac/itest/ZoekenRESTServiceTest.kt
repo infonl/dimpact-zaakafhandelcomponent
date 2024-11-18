@@ -15,6 +15,8 @@ import nl.lifely.zac.itest.config.ItestConfiguration.DATE_2024_01_01
 import nl.lifely.zac.itest.config.ItestConfiguration.DATE_2024_01_31
 import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_2_BRON_KENMERK
+import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BELANGHEBBENDE
+import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_MEDEAANVRAGER
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
@@ -127,7 +129,8 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                         "aantalOpenstaandeTaken" : 0,
                         "afgehandeld" : false,
                         "betrokkenen" : {
-                          "Belanghebbende" : [ "$TEST_PERSON_HENDRIKA_JANSE_BSN", "$TEST_PERSON_HENDRIKA_JANSE_BSN" ],
+                          "$ROLTYPE_NAME_BELANGHEBBENDE" : [ "$TEST_PERSON_HENDRIKA_JANSE_BSN"],
+                          "$ROLTYPE_NAME_MEDEAANVRAGER" : [ "$TEST_PERSON_HENDRIKA_JANSE_BSN" ],
                           "Behandelaar" : [ "$TEST_GROUP_A_ID" ]
                         },
                         "communicatiekanaal" : "$COMMUNICATIEKANAAL_TEST_1",
