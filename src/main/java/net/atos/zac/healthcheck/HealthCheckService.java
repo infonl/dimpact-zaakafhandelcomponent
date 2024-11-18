@@ -134,11 +134,11 @@ public class HealthCheckService {
             }
             switch (statustype.getOmschrijving()) {
                 case ConfiguratieService.STATUSTYPE_OMSCHRIJVING_INTAKE -> zaaktypeInrichtingscheck.setStatustypeIntakeAanwezig(true);
-                case ConfiguratieService.STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING ->
-                    zaaktypeInrichtingscheck.setStatustypeInBehandelingAanwezig(true);
+                case ConfiguratieService.STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING -> zaaktypeInrichtingscheck
+                        .setStatustypeInBehandelingAanwezig(true);
                 case ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND -> zaaktypeInrichtingscheck.setStatustypeHeropendAanwezig(true);
-                case ConfiguratieService.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE ->
-                    zaaktypeInrichtingscheck.setStatustypeAanvullendeInformatieVereist(true);
+                case ConfiguratieService.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE -> zaaktypeInrichtingscheck
+                        .setStatustypeAanvullendeInformatieVereist(true);
                 case ConfiguratieService.STATUSTYPE_OMSCHRIJVING_AFGEROND -> {
                     afgerondVolgnummer = statustype.getVolgnummer();
                     zaaktypeInrichtingscheck.setStatustypeAfgerondAanwezig(true);
