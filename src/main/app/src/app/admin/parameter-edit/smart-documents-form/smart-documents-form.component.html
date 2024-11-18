@@ -26,12 +26,12 @@
     <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding class="flex-1">
       <smart-documents-form-item
         [formGroup]="formGroup"
-        [template]="{ id: '1234', name: node.name, informatieObjectTypeUUID: '' }"
-        [documentTypes]="[
-                { id: '123', name: 'foo', informatieObjectTypeUUID: '123' },
-                { id: '456', name: 'bar', informatieObjectTypeUUID: '456' },
-                { id: '789', name: 'baz', informatieObjectTypeUUID: '789' },
-                ]"
+        [template]="{
+          id: '1234',
+          name: node.name,
+          informatieObjectTypeUUID: ''
+        }"
+        [informationObjectTypes]="informationObjectTypes"
       ></smart-documents-form-item>
     </mat-tree-node>
     <!-- This is the tree node template for leaf nodes -->
