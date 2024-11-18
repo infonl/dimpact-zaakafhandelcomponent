@@ -1,5 +1,8 @@
 ### Create runtime image fase
 FROM docker.io/eclipse-temurin:21.0.5_11-jre-ubi9-minimal@sha256:cba199ee5623602c6cfb2a2b8cbf014b4425a7d5611834eeae348b8b9af4050f AS runtime
+ARG branchName
+ARG commitHash
+ARG versionNumber
 
 LABEL name="zaakafhandelcomponent"
 LABEL summary="Zaakafhandelcomponent (ZAC) developed for Dimpact"
@@ -40,7 +43,4 @@ ENV WILDFLY_OVERRIDING_ENV_VARS=1
 ENTRYPOINT ["java", "-jar", "zaakafhandelcomponent.jar"]
 EXPOSE 8080 9990
 
-ARG branchName
-ARG commitHash
-ARG versionNumber
 ENV BRANCH_NAME=$branchName COMMIT_HASH=$commitHash VERSION_NUMBER=$versionNumber
