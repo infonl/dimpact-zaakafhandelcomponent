@@ -166,7 +166,7 @@ public class ZaaktypeInrichtingscheck {
 
     public boolean isValide() {
         return statustypeIntakeAanwezig && statustypeInBehandelingAanwezig && statustypeHeropendAanwezig && statustypeAfgerondAanwezig &&
-               statustypeAfgerondLaatsteVolgnummer &&
+               statustypeAfgerondLaatsteVolgnummer && statustypeAanvullendeInformatieVereist &&
                rolInitiatorAanwezig && rolBehandelaarAanwezig && rolOverigeAanwezig && informatieobjecttypeEmailAanwezig &&
                resultaattypeAanwezig &&
                zaakafhandelParametersValide && (resultaattypesMetVerplichtBesluit.isEmpty() || besluittypeAanwezig);
