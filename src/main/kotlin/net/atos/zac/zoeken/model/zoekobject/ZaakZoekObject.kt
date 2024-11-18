@@ -15,8 +15,11 @@ import java.util.stream.Collectors
 
 @NoArgConstructor // required for Java bean inspection
 data class ZaakZoekObject(
+    /**
+     * The UUID of the zaak.
+     */
     @Field
-    private var id: String,
+    var id: String,
 
     @Field
     private var type: String
@@ -147,13 +150,7 @@ data class ZaakZoekObject(
     @Field("zaak_bagObjecten")
     var bagObjectIDs: List<String>? = null
 
-    var uuid: String
-        get() = id
-        set(uuid) {
-            this.id = uuid
-        }
-
-    override fun getObjectId() = uuid
+    override fun getObjectId() = id
 
     override fun getType() = ZoekObjectType.valueOf(type)
 
@@ -187,6 +184,11 @@ data class ZaakZoekObject(
         updateIndicatieVolgorde(indicatie, value)
     }
 
+    fun addBetrokkene(rol: String, identificatie: String) {
+        val key = "$ZAAK_BETROKKENE_PREFIX$rol"
+        betrokkenen.getOrPut(key) { mutableListOf() }.add(identificatie)
+    }
+
     private fun updateIndicaties(indicatie: ZaakIndicatie, value: Boolean) {
         if (indicaties == null) { indicaties = mutableListOf() }
         val key = indicatie.name
@@ -206,10 +208,5 @@ data class ZaakZoekObject(
         } else {
             this.indicatiesVolgorde = this.indicatiesVolgorde and (1L shl bit).inv()
         }
-    }
-
-    fun addBetrokkene(rol: String, identificatie: String) {
-        val key = "$ZAAK_BETROKKENE_PREFIX$rol"
-        betrokkenen.getOrPut(key) { mutableListOf() }.add(identificatie)
     }
 }

@@ -149,7 +149,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
             SignaleringType.Type.ZAAK_VERLOPEND, zaakZoekObject.behandelaarGebruikersnaam!!
         ).isMail &&
             !signaleringService.findSignaleringVerzonden(
-                getZaakSignaleringVerzondenParameters(zaakZoekObject.behandelaarGebruikersnaam!!, zaakZoekObject.uuid, detail)
+                getZaakSignaleringVerzondenParameters(zaakZoekObject.behandelaarGebruikersnaam!!, zaakZoekObject.id, detail)
             ).isPresent
 
     private fun buildZaakSignalering(
@@ -158,7 +158,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
         detail: SignaleringDetail
     ): Signalering {
         val zaak = Zaak().apply {
-            uuid = UUID.fromString(zaakZoekObject.uuid)
+            uuid = UUID.fromString(zaakZoekObject.id)
         }
         return signaleringService.signaleringInstance(
             SignaleringType.Type.ZAAK_VERLOPEND
@@ -187,7 +187,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
         .map {
             getZaakSignaleringVerzondenParameters(
                 it.behandelaarGebruikersnaam!!,
-                it.uuid,
+                it.getObjectId(),
                 SignaleringDetail.STREEFDATUM
             )
         }.forEach(signaleringService::deleteSignaleringVerzonden)
@@ -205,7 +205,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
         .map {
             getZaakSignaleringVerzondenParameters(
                 it.behandelaarGebruikersnaam!!,
-                it.uuid,
+                it.getObjectId(),
                 SignaleringDetail.FATALE_DATUM
             )
         }
