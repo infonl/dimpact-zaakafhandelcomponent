@@ -26,12 +26,8 @@
     <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding class="flex-1">
       <smart-documents-form-item
         [formGroup]="formGroup"
-        [template]="{
-          id: '1234',
-          name: node.name,
-          informatieObjectTypeUUID: ''
-        }"
         [informationObjectTypes]="informationObjectTypes"
+        [template]="node"
       ></smart-documents-form-item>
     </mat-tree-node>
     <!-- This is the tree node template for leaf nodes -->
@@ -39,7 +35,6 @@
     This padding value depends on the mat-icon-button width. -->
     <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodeToggle>
       <button
-        *ngIf="node.level === 0"
         mat-icon-button
         matTreeNodeToggle
         [attr.aria-label]="'Toggle ' + node.name"
@@ -49,7 +44,7 @@
         </mat-icon>
       </button>
       <div class="node-name flex-1">{{ node.name }}</div>
-      <mat-chip *ngIf="node.level === 0">inactief</mat-chip>
+      <mat-chip color="primary">actief</mat-chip>
     </mat-tree-node>
   </mat-tree>
 </form>
