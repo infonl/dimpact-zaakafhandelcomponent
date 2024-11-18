@@ -105,10 +105,9 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 3
     const val TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED = 4
     const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 5
-    const val TEST_SPEC_ORDER_AFTER_ONE_TASK_LEFT = 6
-    const val TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED = 7
-    const val TEST_SPEC_ORDER_AFTER_REINDEXING = 8
-    const val TEST_SPEC_ORDER_AFTER_SEARCH = 9
+    const val TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED = 6
+    const val TEST_SPEC_ORDER_AFTER_REINDEXING = 7
+    const val TEST_SPEC_ORDER_AFTER_SEARCH = 8
     const val TEST_SPEC_ORDER_LAST = 100
 
     const val TOTAL_COUNT_ZAKEN = 7
@@ -244,6 +243,7 @@ object ItestConfiguration {
      * First 'manually' created zaak using the ZAC API.
      */
     const val ZAAK_MANUAL_1_IDENTIFICATION = "ZAAK-2020-0000000001"
+    const val ZAAK_MANUAL_2_IDENTIFICATION = "ZAAK-2000-0000000001"
 
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
 

@@ -25,6 +25,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TOTAL_COUNT_ZAKEN
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
@@ -291,7 +292,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                         "zaaktypeOmschrijving" : "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                       },
                       {
-                         "identificatie": "ZAAK-2000-0000000001",
+                         "identificatie": "$ZAAK_MANUAL_2_IDENTIFICATION",
                          "type": "ZAAK",
                          "aantalOpenstaandeTaken": 0,
                          "afgehandeld": false,
@@ -300,9 +301,9 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                              "test-group-a"
                            ]
                          },
-                         "communicatiekanaal": "dummyCommunicatiekanaal1",
-                         "groepId": "test-group-a",
-                         "groepNaam": "Test group A",
+                         "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_1",
+                         "groepId": "$TEST_GROUP_A_ID",
+                         "groepNaam": "$TEST_GROUP_A_DESCRIPTION",
                          "indicatieDeelzaak": false,
                          "indicatieHeropend": false,
                          "indicatieHoofdzaak": false,
@@ -315,7 +316,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                          "statustypeOmschrijving": "In behandeling",
                          "toelichting": "null",
                          "vertrouwelijkheidaanduiding": "OPENBAAR",
-                         "zaaktypeOmschrijving": "Indienen aansprakelijkstelling door derden behandelen"
+                         "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                         }
                        ],
                       "totaal" : 2.0,
