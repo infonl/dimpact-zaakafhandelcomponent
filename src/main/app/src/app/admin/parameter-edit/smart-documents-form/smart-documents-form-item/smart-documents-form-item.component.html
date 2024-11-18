@@ -4,10 +4,10 @@
   ~
   -->
 
-<fieldset class="flex flex-row items-center border border-0">
+<fieldset>
   <mat-checkbox
     [formControl]="enabled"
-    [checked]="template.informatieObjectTypeUUID !== ''"
+    [checked]="!!template.informatieObjectTypeUUID"
     (change)="clearSelectedDocumentType()"
   ></mat-checkbox>
   <div class="flex-1">{{ template.name }}</div>
