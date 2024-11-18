@@ -93,7 +93,10 @@ export class SmartDocumentsTreeComponent {
   }));
   allSmartDocumentTemplates = injectQuery(() => ({
     queryKey: ["all smart documents"],
-    queryFn: () => firstValueFrom(this.smartDocumentsService.listTemplates()),
+    queryFn: () =>
+      firstValueFrom(
+        this.smartDocumentsService.getAllSmartDocumentsTemplates(),
+      ),
   }));
   templateMappings = injectQuery(() => ({
     queryKey: [

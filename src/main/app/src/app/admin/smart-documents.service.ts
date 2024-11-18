@@ -39,10 +39,21 @@ export class SmartDocumentsService {
     private foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
-  listTemplates(): Observable<SmartDocumentsTemplateGroup[]> {
+  getAllSmartDocumentsTemplates(): Observable<SmartDocumentsTemplateGroup[]> {
     return this.zacHttp
       .GET("/rest/zaakafhandelparameters/document-templates")
       .pipe(
+        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+      );
+  }
+
+  getAllSmartDocumentsTemplateGroups(): Observable<
+    SmartDocumentsTemplateGroup[]
+  > {
+    return this.zacHttp
+      .GET("/rest/zaakafhandelparameters/document-templates")
+      .pipe(
+        map((data) => data.map(this.flattenDocumentsTemplateGroup).flat()),
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
@@ -66,7 +77,7 @@ export class SmartDocumentsService {
       );
   }
 
-  getTemplatesMappingFlat(
+  getZaakTypeTemplatesMappings(
     zaakafhandelUUID: string,
   ): Observable<DocumentsTemplateGroup[]> {
     return this.zacHttp
