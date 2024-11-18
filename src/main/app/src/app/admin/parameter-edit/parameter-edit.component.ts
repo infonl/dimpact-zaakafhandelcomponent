@@ -284,7 +284,6 @@ export class ParameterEditComponent
     // Update isSmartDocumentsStepValid based on form validity
     this.smartDocumentsForm.statusChanges.subscribe(() => {
       this.isSmartDocumentsStepValid = this.smartDocumentsForm.valid;
-      console.log("Form validity:", this.isSmartDocumentsStepValid);
     });
   }
 
