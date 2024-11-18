@@ -1,20 +1,19 @@
+import { FlatTreeControl } from "@angular/cdk/tree";
 import { Component, effect, EventEmitter, Input, Output } from "@angular/core";
 import { FormGroup } from "@angular/forms";
+import {
+  MatTreeFlatDataSource,
+  MatTreeFlattener,
+} from "@angular/material/tree";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { firstValueFrom } from "rxjs";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
+import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
   DocumentsTemplateGroup,
   SmartDocumentsService,
   SmartDocumentsTemplateGroup,
 } from "../../smart-documents.service";
-import { FlatTreeControl } from "@angular/cdk/tree";
-import {
-  MatTreeFlatDataSource,
-  MatTreeFlattener,
-} from "@angular/material/tree";
-import { Informatieobjecttype } from "src/app/informatie-objecten/model/informatieobjecttype";
-import { GeneratedType } from "src/app/shared/utils/generated-types";
 
 interface FlatNode {
   expandable: boolean;
@@ -126,32 +125,32 @@ export class SmartDocumentsFormComponent {
   hasChild = (_: number, node: { expandable: boolean }) => node.expandable;
 
   private mergeSelectedTemplates = (
-    allTemplatesObject,
-    selectedTemplatesObject,
+    allTemplatesObject: SmartDocumentsTemplateGroup[],
+    selectedTemplatesObject: DocumentsTemplateGroup[],
   ) => {
-    const mapSelectedTemplates = selectedTemplatesObject.reduce((acc, item) => {
-      acc[item.id] = item.templates.reduce((innerAcc, template) => {
-        innerAcc[template.id] = template.informatieObjectTypeUUID;
-        return innerAcc;
-      }, {});
-      return acc;
-    }, {});
+    const flatSelectedTemplates = selectedTemplatesObject.flatMap(
+      ({ templates }) => templates,
+    );
 
-    const updateTemplates = (templates, selectedTemplates) => {
-      return templates.map((template) => ({
-        ...template,
-        ...(selectedTemplates[template.id] && {
-          informatieObjectTypeUUID: selectedTemplates[template.id],
-        }),
-      }));
-    };
+    return allTemplatesObject.map((smartDocumentTemplateGroup) => {
+      const templates = smartDocumentTemplateGroup.templates.map(
+        (smartDocumentTemplate) => {
+          const informatieObjectTypeUUID =
+            flatSelectedTemplates.find(
+              (template) => template.id === smartDocumentTemplate.id,
+            )?.informatieObjectTypeUUID ?? "";
 
-    return allTemplatesObject.map((item) => ({
-      ...item,
-      templates: updateTemplates(
-        item.templates,
-        mapSelectedTemplates[item.id] || {},
-      ),
-    }));
+          return {
+            ...smartDocumentTemplate,
+            informatieObjectTypeUUID,
+          } satisfies GeneratedType<"RestMappedSmartDocumentsTemplate">;
+        },
+      );
+
+      return {
+        ...smartDocumentTemplateGroup,
+        templates,
+      };
+    });
   };
 }
