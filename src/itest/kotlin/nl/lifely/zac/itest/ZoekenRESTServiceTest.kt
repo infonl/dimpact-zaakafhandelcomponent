@@ -15,15 +15,13 @@ import nl.lifely.zac.itest.config.ItestConfiguration.DATE_2024_01_01
 import nl.lifely.zac.itest.config.ItestConfiguration.DATE_2024_01_31
 import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_2_BRON_KENMERK
-import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BELANGHEBBENDE
-import nl.lifely.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_MEDEAANVRAGER
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_2_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_3_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ONE_TASK_LEFT
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_LAST
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
@@ -41,7 +39,7 @@ import nl.lifely.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import kotlin.time.Duration.Companion.seconds
 
 // Run this test last so that all the required data is available in the Solr index
-@Order(TEST_SPEC_ORDER_AFTER_ONE_TASK_LEFT)
+@Order(TEST_SPEC_ORDER_LAST)
 class ZoekenRESTServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
@@ -66,16 +64,14 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                     "page":0,
                     "type":"ZAAK"
                     }
-                """.trimIndent()
-            )
-            Then(
-                """the response is successful and the search results include the indexed zaken"""
-            ) {
-                val responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
-                // use eventually here because Solr might still be indexing the data
-                eventually(10.seconds) {
+                    """.trimIndent()
+                )
+                Then(
+                    """the response is successful and the search results include the indexed zaken"""
+                ) {
+                    val responseBody = response.body!!.string()
+                    logger.info { "Response: $responseBody" }
+                    response.isSuccessful shouldBe true
                     responseBody shouldEqualJsonIgnoringExtraneousFields """
                     {
                       "foutmelding" : "",
@@ -342,16 +338,14 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                     "sorteerRichting":"asc",
                     "sorteerVeld":"ZAAK_ZAAKTYPE"
                     }
-                """.trimIndent()
-            )
-            Then(
-                """the response is successful and the search results include the indexed zaken for this zaaktype only"""
-            ) {
-                val responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
-                // use eventually here because Solr might still be indexing the data
-                eventually(10.seconds) {
+                    """.trimIndent()
+                )
+                Then(
+                    """the response is successful and the search results include the indexed zaken for this zaaktype only"""
+                ) {
+                    val responseBody = response.body!!.string()
+                    logger.info { "Response: $responseBody" }
+                    response.isSuccessful shouldBe true
                     responseBody shouldEqualJsonIgnoringExtraneousFields """
                     {
                       "foutmelding" : "",
@@ -436,6 +430,127 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                           "naam" : "-NULL-"
                         } ]
                       }
+                    }
+                    """.trimIndent()
+                }
+            }
+        }
+    }
+    Given("""Multiple taken have been created and are indexed""") {
+        When(
+            """the search endpoint is called to search for all objects of type 'TAAK'"""
+        ) {
+            // use eventually here because Solr might still be indexing the data
+            eventually(10.seconds) {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/zoeken/list",
+                    requestBodyAsString = """
+                   {
+                    "filtersType": "ZoekParameters",
+                    "alleenMijnZaken": false,
+                    "alleenOpenstaandeZaken": false,
+                    "alleenAfgeslotenZaken": false,
+                    "alleenMijnTaken": false,
+                    "zoeken": {},
+                    "filters": {},
+                    "datums": {},
+                    "rows": 10,
+                    "page":0,
+                    "type":"TAAK"
+                    }
+                    """.trimIndent()
+                )
+                Then(
+                    """the response is successful and the search results include the indexed taken"""
+                ) {
+                    val responseBody = response.body!!.string()
+                    logger.info { "Response: $responseBody" }
+                    response.isSuccessful shouldBe true
+                    responseBody shouldEqualJsonIgnoringExtraneousFields """
+                    {
+                        "foutmelding": "",
+                        "resultaten": [
+                            {
+                                "type": "TAAK",
+                                "behandelaarGebruikersnaam": "$TEST_USER_1_USERNAME",
+                                "behandelaarNaam": "$TEST_USER_1_NAME",
+                                "fataledatum": "$DATE_2024_01_01",
+                                "groepNaam": "$TEST_GROUP_A_DESCRIPTION",
+                                "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
+                                "rechten": {
+                                    "lezen": true,
+                                    "toekennen": true,
+                                    "toevoegenDocument": false,
+                                    "wijzigen": true
+                                },
+                                "status": "TOEGEKEND",
+                                "zaakOmschrijving": "$ZAAK_DESCRIPTION_1",
+                                "zaakToelichting": "null",
+                                "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                            },
+                            {
+                                "type": "TAAK",
+                                "fataledatum": "$TAAK_1_FATAL_DATE",
+                                "groepNaam": "$TEST_GROUP_A_DESCRIPTION",
+                                "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
+                                "rechten": {
+                                    "lezen": true,
+                                    "toekennen": true,
+                                    "toevoegenDocument": false,
+                                    "wijzigen": true
+                                },
+                                "status": "NIET_TOEGEKEND",
+                                "zaakIdentificatie": "$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
+                                "zaakOmschrijving": "$ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING",
+                                "zaakToelichting": "$ZAAK_PRODUCTAANVRAAG_1_TOELICHTING",
+                                "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                            }
+                        ],
+                        "totaal": 2.0,
+                        "filters": {
+                            "ZAAKTYPE": [
+                                {
+                                    "aantal": 1,
+                                    "naam": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
+                                },
+                                {
+                                    "aantal": 1,
+                                    "naam": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                                }
+                            ],
+                            "BEHANDELAAR": [
+                                {
+                                    "aantal": 1,
+                                    "naam": "$TEST_USER_1_NAME"
+                                },
+                                {
+                                    "aantal": 1,
+                                    "naam": "-NULL-"
+                                }
+                            ],
+                            "GROEP": [
+                                {
+                                    "aantal": 2,
+                                    "naam": "$TEST_GROUP_A_DESCRIPTION"
+                                }
+                            ],
+                            "TAAK_NAAM": [
+                                {
+                                    "aantal": 2,
+                                    "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM"
+                                }
+                            ],
+                            "TAAK_STATUS": [
+                                {
+                                    "aantal": 1,
+                                    "naam": "NIET_TOEGEKEND"
+                                },
+                                {
+                                    "aantal": 1,
+                                    "naam": "TOEGEKEND"
+                                }
+                            ]
+                        }
                     }
                     """.trimIndent()
                 }

@@ -206,6 +206,7 @@ object ItestConfiguration {
     const val SMART_DOCUMENTS_FILE_TITLE = "Smart Documents file"
 
     const val SMTP_SERVER_PORT = 25
+    const val TAAK_1_FATAL_DATE = "1970-01-17"
     const val VERANTWOORDELIJKE_ORGANISATIE = "316245124"
     const val VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING"
     const val ZAAK_DESCRIPTION_1 = "dummyZaakDescription1"
