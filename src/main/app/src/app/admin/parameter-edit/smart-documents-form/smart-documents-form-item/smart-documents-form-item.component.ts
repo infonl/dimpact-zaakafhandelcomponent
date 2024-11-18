@@ -12,6 +12,7 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
 @Component({
   selector: "smart-documents-form-item",
   templateUrl: "./smart-documents-form-item.component.html",
+  styleUrls: ["./smart-documents-form-item.component.less"],
 })
 export class SmartDocumentsFormItemComponent implements OnInit {
   @Input() template: GeneratedType<"RestMappedSmartDocumentsTemplate">;
@@ -23,11 +24,11 @@ export class SmartDocumentsFormItemComponent implements OnInit {
   constructor(private readonly translateService: TranslateService) {}
 
   ngOnInit() {
-    this.updateEnabledStatus();
+    this.updateFormControls();
   }
 
   clearSelectedDocumentType() {
-    this.template.informatieObjectTypeUUID = "";
+    this.template.informatieObjectTypeUUID = undefined;
     this.updateFormControls();
   }
 
@@ -42,13 +43,16 @@ export class SmartDocumentsFormItemComponent implements OnInit {
       `vertrouwelijkheidaanduiding.${confidentiality}`,
     );
 
-    this.confidentiality.setValue(translated);
+    if(confidentiality) {
+      this.confidentiality.setValue(translated);
+    }
+
     this.updateEnabledStatus();
   }
 
   private updateEnabledStatus() {
-    this.enabled.setValue(this.template.informatieObjectTypeUUID !== "");
-    if (this.template.informatieObjectTypeUUID !== "") {
+    const hasValue = this.template.informatieObjectTypeUUID && this.template.informatieObjectTypeUUID !== ""
+    if (hasValue) {
       this.enabled.enable();
     } else {
       this.enabled.disable();
