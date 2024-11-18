@@ -146,24 +146,26 @@ data class DocumentZoekObject(
 
     private fun updateIndicaties(indicatie: DocumentIndicatie, value: Boolean) {
         val key = indicatie.name
-        if (this.indicaties == null) {
-            this.indicaties = arrayListOf()
+        if (indicaties == null) {
+            indicaties = arrayListOf()
         }
-        if (value) {
-            if (!this.indicaties!!.contains(key)) {
-                this.indicaties!!.add(key)
+        indicaties?.let {
+            if (value) {
+                if (!it.contains(key)) {
+                    it.add(key)
+                }
+            } else {
+                it.remove(key)
             }
-        } else {
-            this.indicaties!!.remove(key)
         }
     }
 
     private fun updateIndicatieVolgorde(indicatie: DocumentIndicatie, value: Boolean) {
         val bit = DocumentIndicatie.entries.size - 1 - indicatie.ordinal
-        if (value) {
-            this.indicatiesVolgorde = this.indicatiesVolgorde or (1L shl bit)
+        indicatiesVolgorde = if (value) {
+            indicatiesVolgorde or (1L shl bit)
         } else {
-            this.indicatiesVolgorde = this.indicatiesVolgorde and (1L shl bit).inv()
+            indicatiesVolgorde and (1L shl bit).inv()
         }
     }
 }

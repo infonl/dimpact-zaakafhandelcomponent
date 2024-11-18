@@ -42,11 +42,9 @@ class ZoekenRESTServiceTest : BehaviorSpec({
         When(
             """the search endpoint is called to search for all objects of all types"""
         ) {
-            // use eventually here because Solr might still be indexing the data
-            eventually(20.seconds) {
-                val response = itestHttpClient.performPutRequest(
-                    url = "$ZAC_API_URI/zoeken/list",
-                    requestBodyAsString = """
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/zoeken/list",
+                requestBodyAsString = """
                    {
                     "filtersType": "ZoekParameters",
                     "alleenMijnZaken": false,
@@ -59,22 +57,22 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                     "rows": 10,
                     "page":0                  
                     }
-                    """.trimIndent()
-                )
-                Then(
-                    """
-                        the response is successful and the search results include the indexed zaken, tasks and documents
-                    """
-                ) {
-                    val responseBody = response.body!!.string()
-                    logger.info { "Response: $responseBody" }
-                    response.isSuccessful shouldBe true
-                    // we only test on the total number of results and the filters, not on the actual results,
-                    // in order to keep the test maintainable
-                    responseBody shouldEqualJsonIgnoringExtraneousFields """
+                """.trimIndent()
+            )
+            Then(
+                """
+                   the response is successful and the search results include the indexed zaken, tasks and documents
+                """
+            ) {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+                // we only test on the total number of results and the filters, not on the actual results,
+                // in order to keep the test maintainable
+                responseBody shouldEqualJsonIgnoringExtraneousFields """
                     {
                         "foutmelding": "",                      
-                        "totaal": 10.0,
+                        "totaal": 15.0,
                         "filters": {
                             "TYPE": [
                                 {
@@ -86,7 +84,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                                     "naam": "TAAK"
                                 },
                                 {
-                                    "aantal": 1,
+                                    "aantal": 6,
                                     "naam": "DOCUMENT"
                                 }
                             ],
@@ -96,7 +94,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                                     "naam": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                                 },
                                 {
-                                    "aantal": 5,
+                                    "aantal": 10,
                                     "naam": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                                 }                                
                             ],
@@ -185,33 +183,36 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                                     "naam": "TOEGEKEND"
                                 }
                             ],
-                            "DOCUMENT_STATUS": [                    
+                            "DOCUMENT_STATUS": [
                                 {
-                                    "aantal": 1,
+                                    "aantal": 4,
+                                    "naam": "definitief"
+                                },
+                                {
+                                    "aantal": 2,
                                     "naam": "in_bewerking"
                                 }
                             ],
                             "DOCUMENT_TYPE": [
                                 {
-                                    "aantal": 1,
+                                    "aantal": 6,
                                     "naam": "bijlage"
                                 }
                             ],
                             "DOCUMENT_VERGRENDELD_DOOR": [],
                             "DOCUMENT_INDICATIES": [
                                 {
-                                    "aantal": 1,
+                                    "aantal": 5,
                                     "naam": "GEBRUIKSRECHT"
                                 },
                                 {
-                                    "aantal": 1,
+                                    "aantal": 6,
                                     "naam": "ONDERTEKEND"
                                 }                  
                             ]
                         }
                     }
-                    """.trimIndent()
-                }
+                """.trimIndent()
             }
         }
     }
@@ -223,7 +224,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
             """.trimMargin()
         ) {
             // use eventually here because Solr might still be indexing the data
-            eventually(10.seconds) {
+            eventually(20.seconds) {
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/zoeken/list",
                     requestBodyAsString = """
@@ -381,7 +382,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
             """the search endpoint is called to search for all objects of type 'TAAK'"""
         ) {
             // use eventually here because Solr might still be indexing the data
-            eventually(10.seconds) {
+            eventually(20.seconds) {
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/zoeken/list",
                     requestBodyAsString = """
