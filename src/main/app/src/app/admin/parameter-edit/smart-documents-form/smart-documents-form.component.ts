@@ -14,6 +14,7 @@ import {
   MatTreeFlattener,
 } from "@angular/material/tree";
 import { Informatieobjecttype } from "src/app/informatie-objecten/model/informatieobjecttype";
+import { GeneratedType } from "src/app/shared/utils/generated-types";
 
 interface FlatNode {
   expandable: boolean;
@@ -31,7 +32,7 @@ export class SmartDocumentsFormComponent {
   @Output() formValidityChanged = new EventEmitter<boolean>();
 
   allSmartDocumentTemplateGroup: SmartDocumentsTemplateGroup[] = [];
-  informationObjectTypes: Informatieobjecttype[] = [];
+  informationObjectTypes: GeneratedType<"RestInformatieobjecttype">[] = [];
   zaakTypeTemplateMappings: DocumentsTemplateGroup[] = [];
 
   constructor(
