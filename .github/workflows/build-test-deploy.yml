@@ -31,9 +31,23 @@ permissions:
   security-events: write
 
 jobs:
+  paths-ignore:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.paths-ignore.outputs.skip }}
+    steps:
+      - name: Skip job when only Markdown files are changed
+        uses: kunitsucom/github-actions-paths-ignore-alternative@v0.0.4
+        id: paths-ignore
+        with:
+          paths-ignore: |-
+            ^.*\.md$
+
   build:
     runs-on: ubuntu-22.04
     timeout-minutes: 30
+    needs: paths-ignore
+    if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
     outputs:
       branch_name: ${{ steps.gen_branch_name.outputs.BRANCH_NAME }}
       build_number: ${{ steps.gen_build_number.outputs.BUILD_NUMBER }}
@@ -103,7 +117,8 @@ jobs:
           key: zac-jar-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   run-unit-tests:
-    needs: [build]
+    needs: [build, paths-ignore]
+    if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     env:
@@ -165,7 +180,8 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   build-docker-image-and-run-itests:
-    needs: [build]
+    needs: [build, paths-ignore]
+    if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     env:
@@ -406,6 +422,7 @@ jobs:
           allowUpdates: true
           makeLatest: true
           generateReleaseNotes: true
+
   trigger-provision:
     needs: [push-docker-image]
     runs-on: ubuntu-22.04

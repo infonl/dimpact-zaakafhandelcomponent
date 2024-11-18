@@ -53,7 +53,7 @@
             "omschrijving": "dummyZaakOmschrijving",
             "registratiedatum": "${json-unit.any-string}",
             "startdatum": "01-01-1970",
-            "status": "Intake",
+            "status": "Aanvullende informatie vereist",
             "toelichting": "dummyZaakToelichting",
             "uiterlijkeEinddatumAfdoening": "${json-unit.any-string}",
             "vertrouwelijkheidaanduiding": "openbaar",

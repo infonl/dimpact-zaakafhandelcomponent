@@ -273,7 +273,7 @@ VALUES
   'c626ada3-52af-4be2-bd24-734a20fc4f9c', -- uuid
   'Afgerond', -- statustype_omschrijving
   '',         -- statustype_omschrijving_generiek
-  10,         -- statustypevolgnummer
+  11,         -- statustypevolgnummer
   false,      -- informeren
   '',         -- statustekst
   '',         -- toelichting
@@ -307,7 +307,7 @@ VALUES
         '22b82146-af11-42cf-96bd-bea47057abd4', -- UUID
         'Aanvullende informatie vereist', -- Statustype Omschrijving
         '', -- Statustype Omschrijving Generiek
-        11, -- Statustypevolgnummer
+        10, -- Statustypevolgnummer
         false, -- Informeren
         '', -- Statustekst
         '', -- Toelichting

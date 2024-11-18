@@ -20,7 +20,7 @@ jobs:
     outputs:
       skip: ${{ steps.paths-ignore.outputs.skip }}
     steps:
-      - name: Skip CodeQL analysis when only Markdown files are changed
+      - name: Skip job when only Markdown files are changed
         uses: kunitsucom/github-actions-paths-ignore-alternative@v0.0.4
         id: paths-ignore
         with:
@@ -40,7 +40,6 @@ jobs:
       fail-fast: false
       matrix:
         language: ["java-kotlin", "javascript-typescript"]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -79,15 +78,8 @@ jobs:
       contents: read
       checks: read
       pull-requests: read
-    if: ${{ needs.paths-ignore.outputs.skip == 'true' && github.event_name == 'pull_request' }}
+    if: ${{ needs.paths-ignore.outputs.skip != 'true' && github.event_name == 'pull_request' }}
     steps:
-      - name: Ignore when only Markdown files are changed
-        uses: kunitsucom/github-actions-paths-ignore-alternative@v0.0.4
-        id: paths-ignore
-        with:
-          paths-ignore: |-
-            ^.*\.md$
-
       - name: Check CodeQL Status
         uses: eldrick19/code-scanning-status-checker@v2
         with:

@@ -83,8 +83,10 @@ object ItestConfiguration {
     const val REFERENCE_TABLE_DOMEIN_NAME = "Domein"
     const val REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_CODE = "SERVER_ERROR_ERROR_PAGINA_TEKST"
     const val REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_NAME = "Server error error pagina tekst"
-    const val ROLTYPE_NAME_BETROKKENE = "Belanghebbende"
+    const val ROLTYPE_NAME_BELANGHEBBENDE = "Belanghebbende"
+    const val ROLTYPE_NAME_MEDEAANVRAGER = "Medeaanvrager"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
+    const val ROLTYPE_UUID_MEDEAANVRAGER = "b14cf056-0480-4060-a376-1dd522a50431"
     const val ROLTYPE_COUNT = 16
     const val SCREEN_EVENT_TYPE_TAKEN_VERDELEN = "TAKEN_VERDELEN"
     const val SCREEN_EVENT_TYPE_TAKEN_VRIJGEVEN = "TAKEN_VRIJGEVEN"
@@ -95,6 +97,16 @@ object ItestConfiguration {
     const val TEST_GEMEENTE_EMAIL_ADDRESS = "gemeente-zac-test@example.com"
 
     const val TEST_INFORMATIE_OBJECT_TYPE_1_UUID = "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
+
+    const val TEST_SPEC_ORDER_INITIAL = 0
+    const val TEST_SPEC_ORDER_AFTER_ZAAK_CREATED = 1
+    const val TEST_SPEC_ORDER_AFTER_TASK_CREATED = 2
+    const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 3
+    const val TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED = 4
+    const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 5
+    const val TEST_SPEC_ORDER_AFTER_ONE_TASK_LEFT = 6
+    const val TEST_SPEC_ORDER_AFTER_SEARCH = 7
+    const val TEST_SPEC_ORDER_LAST = 100
 
     /**
      * Test person that exists in both the BRP and the Klanten API databases
@@ -114,13 +126,6 @@ object ItestConfiguration {
     const val TEST_TXT_FILE_NAME = "testTextDocument.txt"
     const val TEST_TXT_CONVERTED_TO_PDF_FILE_NAME = "testTextDocument.pdf"
     const val TEST_TXT_FILE_SIZE = 63
-    const val TEST_SPEC_ORDER_INITIAL = 0
-    const val TEST_SPEC_ORDER_AFTER_ZAAK_CREATED = 1
-    const val TEST_SPEC_ORDER_AFTER_TASK_CREATED = 2
-    const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 3
-    const val TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED = 4
-    const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 5
-    const val TEST_SPEC_ORDER_LAST = 6
     const val TEST_USER_1_USERNAME = "testuser1"
     const val TEST_USER_1_PASSWORD = "testuser1"
     const val TEST_USER_1_EMAIL = "testuser1@example.com"
