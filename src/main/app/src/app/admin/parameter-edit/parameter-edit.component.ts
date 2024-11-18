@@ -49,7 +49,7 @@ import { ZaaknietontvankelijkParameter } from "../model/zaaknietontvankelijk-par
 import { ZaaknietontvankelijkReden } from "../model/zaaknietontvankelijk-reden";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
-import { SmartDocumentsFormGroupComponent } from "./smart-documents-form-group/smart-documents-form-group.component";
+import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
 import { SmartDocumentsTreeComponent } from "./smart-documents/smart-documents-tree.component";
 
 @Component({
@@ -66,10 +66,10 @@ export class ParameterEditComponent
   @ViewChild("smartDocumentsTree")
   smartDocumentsTree: SmartDocumentsTreeComponent;
 
-  @ViewChild("SmartDocumentsFormGroupComponent")
-  smartDocsFormGroup: SmartDocumentsFormGroupComponent;
+  @ViewChild("SmartDocumentsFormComponent")
+  smartDocsFormGroup: SmartDocumentsFormComponent;
 
-  formGroup: FormGroup;
+  smartDocumentsForm: FormGroup;
   isSmartDocumentsStepValid: boolean = true;
 
   parameters: ZaakafhandelParameters;
@@ -278,14 +278,14 @@ export class ParameterEditComponent
     this.createMailForm();
     this.createZaakbeeindigForm();
 
-    this.formGroup = this.fb.group({
+    this.smartDocumentsForm = this.fb.group({
       documentTitle: ["", [Validators.required]],
       documentDescription: ["", [Validators.required]],
     });
 
     // Update isSmartDocumentsStepValid based on form validity
-    this.formGroup.statusChanges.subscribe(() => {
-      this.isSmartDocumentsStepValid = this.formGroup.valid;
+    this.smartDocumentsForm.statusChanges.subscribe(() => {
+      this.isSmartDocumentsStepValid = this.smartDocumentsForm.valid;
       console.log("Form validity:", this.isSmartDocumentsStepValid);
     });
   }
