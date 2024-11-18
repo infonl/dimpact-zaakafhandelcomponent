@@ -1,0 +1,37 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2024 Lifely
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  ~
+  -->
+
+<fieldset class="full-width border-0">
+  <mat-checkbox
+    [checked]="true"
+    (change)="clearSelectedDocumentType()"
+  ></mat-checkbox>
+  <div class="flex-1">{{ template.name }}</div>
+  <mat-form-field>
+    <mat-label>{{ "informatieobjectTypeOmschrijving" | translate }}</mat-label>
+    <mat-select
+      placeholder="{{ 'informatieobjectType.-kies-' | translate }}"
+      formControlName="documentType"
+    >
+      <mat-option
+        *ngFor="let documentType of documentTypes"
+        [value]="documentType.id"
+        >{{ documentType.name }}</mat-option
+      >
+    </mat-select>
+  </mat-form-field>
+  <!--    <mat-form-field disabled>-->
+  <!--        <mat-label>{{ "groep" | translate }}</mat-label>-->
+  <!--        <mat-select-->
+  <!--                placeholder="{{ 'groep.-kies-' | translate }}"-->
+  <!--                formControlName="defaultGroepId"-->
+  <!--        >-->
+  <!--            <mat-option *ngFor="let groep of groepen" [value]="groep.id">{{-->
+  <!--                    groep.naam-->
+  <!--                }}</mat-option>-->
+  <!--        </mat-select>-->
+  <!--    </mat-form-field>-->
+</fieldset>

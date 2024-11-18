@@ -24,6 +24,9 @@ import { ParametersComponent } from "./parameters/parameters.component";
 import { ProcessDefinitionsComponent } from "./process-definitions/process-definitions.component";
 import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
 import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
+import {
+  SmartDocumentsFormItemComponent
+} from "./parameter-edit/smart-documents-form/smart-documents-form-item/smart-documents-form-item.component";
 
 @NgModule({
   declarations: [
@@ -40,6 +43,7 @@ import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-ta
     TekstvlakEditDialogComponent,
     SmartDocumentsTreeComponent,
     SmartDocumentsFormComponent,
+    SmartDocumentsFormItemComponent,
     ProcessDefinitionsComponent,
     FormioFormulierenComponent,
   ],

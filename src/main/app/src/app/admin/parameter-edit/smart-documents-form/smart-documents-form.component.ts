@@ -83,4 +83,6 @@ export class SmartDocumentsFormComponent {
       this.formValidityChanged.emit(this.formGroup.valid);
     });
   }
+
+  hasChild = (_: number, node: { expandable: boolean }) => node.expandable;
 }
