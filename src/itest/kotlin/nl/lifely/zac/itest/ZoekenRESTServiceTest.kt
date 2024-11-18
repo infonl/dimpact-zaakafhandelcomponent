@@ -23,7 +23,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_2_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_3_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_LAST
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ONE_TASK_LEFT
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
@@ -41,7 +41,7 @@ import nl.lifely.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import kotlin.time.Duration.Companion.seconds
 
 // Run this test last so that all the required data is available in the Solr index
-@Order(TEST_SPEC_ORDER_LAST)
+@Order(TEST_SPEC_ORDER_AFTER_ONE_TASK_LEFT)
 class ZoekenRESTServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
@@ -119,7 +119,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                         },
                         "startdatum" : "$DATE_2024_01_01",
                         "statusToelichting" : "Status gewijzigd",
-                        "statustypeOmschrijving" : "Intake",
+                        "statustypeOmschrijving" : "Aanvullende informatie vereist",
                         "uiterlijkeEinddatumAfdoening" : "$DATE_2024_01_31",
                         "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
                         "zaaktypeOmschrijving" : "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
@@ -258,7 +258,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                         },
                         "startdatum" : "$ZAAK_PRODUCTAANVRAAG_1_START_DATE",
                         "statusToelichting" : "Status gewijzigd",
-                        "statustypeOmschrijving" : "Intake",
+                        "statustypeOmschrijving" : "Aanvullende informatie vereist",
                         "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
                         "zaaktypeOmschrijving" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                       } ],
@@ -275,9 +275,12 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                           "aantal" : 4,
                           "naam" : "$TEST_GROUP_A_DESCRIPTION"
                         } ],
-                        "ZAAK_STATUS" : [ {
-                          "aantal" : 4,
-                          "naam" : "Intake"
+                        "ZAAK_STATUS": [ {
+                          "aantal": 2,
+                          "naam": "Aanvullende informatie vereist"
+                        }, {
+                          "aantal": 2,
+                          "naam": "Intake"
                         } ],
                         "ZAAK_RESULTAAT" : [ {
                           "aantal" : 4,
@@ -391,7 +394,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                           "wijzigenDoorlooptijd" : true
                         },
                         "statusToelichting" : "Status gewijzigd",
-                        "statustypeOmschrijving" : "Intake",
+                        "statustypeOmschrijving" : "Aanvullende informatie vereist",
                         "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
                         "zaaktypeOmschrijving" : "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                       } ],
@@ -410,7 +413,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                         } ],
                         "ZAAK_STATUS" : [ {
                           "aantal" : 1,
-                          "naam" : "Intake"
+                          "naam" : "Aanvullende informatie vereist"
                         } ],
                         "ZAAK_RESULTAAT" : [ {
                           "aantal" : 1,

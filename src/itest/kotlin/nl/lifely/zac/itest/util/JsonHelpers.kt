@@ -18,3 +18,11 @@ infix fun String.shouldEqualJsonIgnoringExtraneousFields(other: String) = should
         fieldComparison = FieldComparison.Lenient
     }
 )
+
+infix fun String.shouldEqualJsonIgnoringOrderAndExtraneousFields(other: String) = shouldEqualJson(
+    other,
+    compareJsonOptions {
+        arrayOrder = ArrayOrder.Lenient
+        fieldComparison = FieldComparison.Lenient
+    }
+)

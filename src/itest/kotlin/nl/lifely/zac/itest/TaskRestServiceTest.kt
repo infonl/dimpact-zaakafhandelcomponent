@@ -106,8 +106,9 @@ class TaskRestServiceTest : BehaviorSpec({
         }
     }
     Given(
-        """A task has been started and a websocket subscription has been created to listen
-                for a 'taken verdelen' screen event which will be sent by the asynchronous 'assign taken from list' job"""
+        """A task has been started and a websocket subscription has been created to listen for a 'taken verdelen'
+            | screen event which will be sent by the asynchronous 'assign taken from list' job
+        """.trimMargin()
     ) {
         val uniqueResourceId = UUID.randomUUID()
         val websocketListener = WebSocketTestListener(
@@ -156,8 +157,9 @@ class TaskRestServiceTest : BehaviorSpec({
         }
     }
     Given(
-        """A task has been started and a websocket subscription has been created to listen
-                for a 'taken vrijgeven' screen event which will be sent by the asynchronous 'release taken from list' job"""
+        """A task has been started and a websocket subscription has been created to listen for a 'taken vrijgeven'
+            |screen event which will be sent by the asynchronous 'release taken from list' job
+        """.trimMargin()
     ) {
         val uniqueResourceId = UUID.randomUUID()
         val websocketListener = WebSocketTestListener(

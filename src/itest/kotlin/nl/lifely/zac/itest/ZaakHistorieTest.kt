@@ -16,7 +16,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_2_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_3_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_LAST
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
@@ -25,7 +25,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.lifely.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 
-@Order(TEST_SPEC_ORDER_AFTER_TASK_COMPLETED)
+@Order(TEST_SPEC_ORDER_LAST)
 class ZaakHistorieTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
@@ -42,6 +42,13 @@ class ZaakHistorieTest : BehaviorSpec({
                 response.isSuccessful shouldBe true
 
                 val expectedResponse = """[{
+                    "actie": "GEWIJZIGD",
+                    "attribuutLabel": "status",
+                    "door": "$TEST_USER_1_NAME",
+                    "nieuweWaarde": "Intake",
+                    "toelichting": "Status gewijzigd"
+                  },
+                  {
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "Behandelaar",
                     "door": "$TEST_USER_1_NAME",
@@ -114,10 +121,17 @@ class ZaakHistorieTest : BehaviorSpec({
                   {
                     "actie": "GEWIJZIGD",
                     "attribuutLabel": "uiterlijkeEinddatumAfdoening",
-                    "door": "Test User1 Špëçîâl Characters",
+                    "door": "$TEST_USER_1_NAME",
                     "nieuweWaarde": "17-01-1970",
                     "oudeWaarde": "15-01-1970",
                     "toelichting": "Aanvullende informatie opgevraagd"
+                  },
+                  {
+                    "actie": "GEWIJZIGD",
+                    "attribuutLabel": "status",
+                    "door": "$TEST_USER_1_NAME",
+                    "nieuweWaarde": "Aanvullende informatie vereist",
+                    "toelichting": "Status gewijzigd"
                   },
                   {
                     "actie": "GEWIJZIGD",

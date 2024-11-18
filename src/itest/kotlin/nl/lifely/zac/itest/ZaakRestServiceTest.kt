@@ -54,7 +54,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Betrokkene1Uuid
 import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.lifely.zac.itest.util.WebSocketTestListener
-import nl.lifely.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
+import nl.lifely.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
@@ -90,7 +90,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "besluiten": [],
                       "bronorganisatie": "$BRON_ORGANISATIE",
