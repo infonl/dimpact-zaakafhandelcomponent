@@ -7,6 +7,7 @@ LABEL description="The zaakafhandelcomponent (ZAC) is an open-source, generic, w
 LABEL maintainer="Lifely/INFO"
 LABEL vendor="Lifely/INFO"
 LABEL url="https://github.com/infonl/dimpact-zaakafhandelcomponent"
+LABEL git_commit=$commitHash
 # Unset labels set by the Temurin Ubi9 base Docker image
 LABEL build-date=""
 LABEL com.redhat.component=""
