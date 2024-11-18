@@ -10,6 +10,9 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED
+import nl.lifely.zac.itest.config.ItestConfiguration.TOTAL_COUNT_DOCUMENTS
+import nl.lifely.zac.itest.config.ItestConfiguration.TOTAL_COUNT_TASKS
+import nl.lifely.zac.itest.config.ItestConfiguration.TOTAL_COUNT_ZAKEN
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONObject
 import kotlin.time.Duration.Companion.seconds
@@ -30,7 +33,7 @@ class IndexerenRESTServiceTest : BehaviorSpec({
                 addAuthorizationHeader = false
             )
             Then(
-                """the response is successful"""
+                """the response is successful and all zaken are indexed"""
             ) {
                 response.isSuccessful shouldBe true
                 // wait for the indexing to complete
@@ -53,7 +56,7 @@ class IndexerenRESTServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.body!!.string()).getDouble("totaal") shouldBe 7.0
+                    JSONObject(response.body!!.string()).getInt("totaal") shouldBe TOTAL_COUNT_ZAKEN
                 }
             }
         }
@@ -63,7 +66,7 @@ class IndexerenRESTServiceTest : BehaviorSpec({
                 addAuthorizationHeader = false
             )
             Then(
-                """the response is successful"""
+                """the response is successful and all tasks are indexed"""
             ) {
                 response.isSuccessful shouldBe true
                 // wait for the indexing to complete
@@ -86,7 +89,7 @@ class IndexerenRESTServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.body!!.string()).getDouble("totaal") shouldBe 2.0
+                    JSONObject(response.body!!.string()).getInt("totaal") shouldBe TOTAL_COUNT_TASKS
                 }
             }
         }
@@ -95,7 +98,7 @@ class IndexerenRESTServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/indexeren/herindexeren/DOCUMENT"
             )
             Then(
-                """the response is successful"""
+                """the response is successful and all documents are indexed"""
             ) {
                 response.isSuccessful shouldBe true
                 // wait for the indexing to complete
@@ -118,7 +121,7 @@ class IndexerenRESTServiceTest : BehaviorSpec({
                         }
                         """.trimIndent()
                     )
-                    JSONObject(response.body!!.string()).getDouble("totaal") shouldBe 6.0
+                    JSONObject(response.body!!.string()).getInt("totaal") shouldBe TOTAL_COUNT_DOCUMENTS
                 }
             }
         }
