@@ -4,6 +4,8 @@ import { injectQuery } from "@tanstack/angular-query-experimental";
 import { firstValueFrom } from "rxjs";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import {
+  DocumentsTemplate,
+  DocumentsTemplateGroup,
   SmartDocumentsService,
   SmartDocumentsTemplateGroup,
 } from "../../smart-documents.service";
@@ -30,47 +32,44 @@ export class SmartDocumentsFormComponent {
   @Input() zaakTypeUuid: string;
   @Output() formValidityChanged = new EventEmitter<boolean>();
 
+  allSmartDocumentTemplateGroup: SmartDocumentsTemplateGroup[] = [];
   informationObjectTypes: Informatieobjecttype[] = [];
+  zaakTypeTemplateMappings: DocumentsTemplateGroup[] = [];
 
   constructor(
     private smartDocumentsService: SmartDocumentsService,
     private informatieObjectenService: InformatieObjectenService,
   ) {
-    console.log("SmartDocumentsFormComponent constructor called");
-
     effect(() => {
-      this.dataSource.data =
+      this.allSmartDocumentTemplateGroup =
         this.allSmartDocumentTemplateGroupsQuery.data() || [];
-      console.log("this.dataSource.data:", this.dataSource.data);
-    });
+      console.log("full group list:", this.dataSource.data);
 
-    effect(() => {
       this.informationObjectTypes =
         this.informationObjectTypesQuery.data() || [];
-      console.log("this.informationObjectTypes:", this.informationObjectTypes);
+
+      this.zaakTypeTemplateMappings =
+        this.zaakTypeTemplateMappingsQuery.data() || [];
+      console.log("zaakTypeTemplateMappings:", this.zaakTypeTemplateMappings);
+
+      (this.dataSource.data = this.mergeSelectedTemplates(
+        this.allSmartDocumentTemplateGroup,
+        this.zaakTypeTemplateMappings,
+      )),
+        console.log("mergeSelectedTemplates:", this.dataSource.data);
     });
   }
 
-  private _transformer = (node: SmartDocumentsTemplateGroup, level: number) => {
-    return {
-      expandable: !!node.templates && node.templates.length > 0,
-      id: node.id,
-      name: node.name,
-      level: level,
-    };
-  };
+  ngOnInit() {
+    if (this.formGroup) {
+    }
 
-  treeControl = new FlatTreeControl<FlatNode>(
-    (node) => node.level,
-    (node) => node.expandable,
-  );
-
-  treeFlattener = new MatTreeFlattener(
-    this._transformer,
-    (node) => node.level,
-    (node) => node.expandable,
-    (node) => node.templates,
-  );
+    // Emit form validity changes to the parent
+    this.formGroup.statusChanges.subscribe((status) => {
+      console.log("Form status in child changed:", status);
+      this.formValidityChanged.emit(this.formGroup.valid);
+    });
+  }
 
   allSmartDocumentTemplateGroupsQuery = injectQuery(() => ({
     queryKey: ["allSmartDocumentTemplateGroupsQuery"],
@@ -80,8 +79,8 @@ export class SmartDocumentsFormComponent {
       ),
   }));
 
-  templateMappingsQuery = injectQuery(() => ({
-    queryKey: ["templateMappingsQuery", this.zaakTypeUuid],
+  zaakTypeTemplateMappingsQuery = injectQuery(() => ({
+    queryKey: ["zaakTypeTemplateMappingsQuery", this.zaakTypeUuid],
     queryFn: () =>
       firstValueFrom(
         this.smartDocumentsService.getZaakTypeTemplatesMappings(
@@ -100,22 +99,60 @@ export class SmartDocumentsFormComponent {
       ),
   }));
 
+  private _transformer = (node: any, level: number) => {
+    console.log(node);
+    return {
+      id: node.id,
+      name: node.name,
+      informatieObjectTypeUUID: node.informatieObjectTypeUUID || undefined,
+      level: level,
+      expandable: !!node.templates && node.templates.length > 0,
+    };
+  };
+
+  treeControl = new FlatTreeControl<FlatNode>(
+    (node) => node.level,
+    (node) => node.expandable,
+  );
+
+  treeFlattener = new MatTreeFlattener(
+    this._transformer,
+    (node) => node.level,
+    (node) => node.expandable,
+    (node) => node.templates,
+  );
+
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
-  hasChild2 = (_: number, { templates = [] }: SmartDocumentsTemplateGroup) =>
-    !!templates.length;
-
-  ngOnInit() {
-    if (this.formGroup) {
-      console.log("FormGroup initialized in SmartDocumentsFormComponent");
-    }
-
-    // Emit form validity changes to the parent
-    this.formGroup.statusChanges.subscribe((status) => {
-      console.log("Form status in child changed:", status);
-      this.formValidityChanged.emit(this.formGroup.valid);
-    });
-  }
-
   hasChild = (_: number, node: { expandable: boolean }) => node.expandable;
+
+  private mergeSelectedTemplates = (
+    allTemplatesObject,
+    selectedTemplatesObject,
+  ) => {
+    const mapSelectedTemplates = selectedTemplatesObject.reduce((acc, item) => {
+      acc[item.id] = item.templates.reduce((innerAcc, template) => {
+        innerAcc[template.id] = template.informatieObjectTypeUUID;
+        return innerAcc;
+      }, {});
+      return acc;
+    }, {});
+
+    const updateTemplates = (templates, selectedTemplates) => {
+      return templates.map((template) => ({
+        ...template,
+        ...(selectedTemplates[template.id] && {
+          informatieObjectTypeUUID: selectedTemplates[template.id],
+        }),
+      }));
+    };
+
+    return allTemplatesObject.map((item) => ({
+      ...item,
+      templates: updateTemplates(
+        item.templates,
+        mapSelectedTemplates[item.id] || {},
+      ),
+    }));
+  };
 }
