@@ -9,6 +9,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_CREATED
+import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 
 /**
@@ -16,7 +17,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
  * Note that the document in question is the form data PDF which was created during the handling of the 'productaanvraag'.
  * @see NotificationsTest
  */
-@Order(TEST_SPEC_ORDER_AFTER_TASK_CREATED)
+@Order(TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED)
 class IndexerenRESTServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 

@@ -6,6 +6,7 @@ package net.atos.zac.zoeken.model.zoekobject
 
 import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.zac.zoeken.model.DocumentIndicatie
+import nl.lifely.zac.util.NoArgConstructor
 import org.apache.solr.client.solrj.beans.Field
 import java.util.Date
 import java.util.EnumSet
@@ -13,6 +14,7 @@ import java.util.Locale
 import java.util.function.Supplier
 import java.util.stream.Collectors
 
+@NoArgConstructor // required for Java bean inspection
 data class DocumentZoekObject(
     @Field("id")
     var uuid: String,
