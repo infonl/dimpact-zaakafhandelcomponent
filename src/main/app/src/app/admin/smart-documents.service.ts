@@ -7,19 +7,11 @@ import { Injectable } from "@angular/core";
 import { catchError, map, Observable } from "rxjs";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
+import {GeneratedType} from "../shared/utils/generated-types";
 
-interface BaseTemplate {
-  id: string;
-  name: string;
-}
+export type SmartDocumentsTemplate = Omit<GeneratedType<'RestMappedSmartDocumentsTemplate'>, 'informatieObjectTypeUUID'>;
 
-export type SmartDocumentsTemplate = BaseTemplate;
-
-export interface DocumentsTemplate extends BaseTemplate {
-  informatieObjectTypeUUID: string;
-}
-
-interface BaseGroup<T extends BaseTemplate> {
+interface BaseGroup<T extends Omit<GeneratedType<'RestMappedSmartDocumentsTemplate'>, 'informatieObjectTypeUUID'>> {
   id: string;
   name: string;
   groups?: BaseGroup<T>[];
@@ -28,9 +20,7 @@ interface BaseGroup<T extends BaseTemplate> {
 
 export type SmartDocumentsTemplateGroup = BaseGroup<SmartDocumentsTemplate>;
 
-export type DocumentsTemplateGroup = BaseGroup<DocumentsTemplate>;
-
-export interface RootObject extends DocumentsTemplateGroup {}
+export type DocumentsTemplateGroup = BaseGroup<GeneratedType<'RestMappedSmartDocumentsTemplate'>>;
 
 @Injectable({ providedIn: "root" })
 export class SmartDocumentsService {
@@ -124,11 +114,11 @@ export class SmartDocumentsService {
   /**
    * Flattens a nested RootObject (DocumentsTemplateGroup) into an array of group objects,
    * omitting nested groups, and preserving templates.
-   * @param {RootObject} obj - The root object to flatten.
+   * @param {DocumentsTemplateGroup} obj - The root object to flatten.
    * @returns {Array<Omit<DocumentsTemplateGroup, "groups">>} - The flattened array of groups with templates, excluding nested groups.
    */
   flattenDocumentsTemplateGroup(
-    obj: RootObject,
+    obj: DocumentsTemplateGroup,
   ): Array<Omit<DocumentsTemplateGroup, "groups">> {
     const result: Array<Omit<DocumentsTemplateGroup, "groups">> = [];
 
