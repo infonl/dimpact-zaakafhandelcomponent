@@ -4,28 +4,54 @@
  *
  */
 
-import { Component, Input } from "@angular/core";
-import { FormGroup } from "@angular/forms";
+import { Component, Input, OnInit } from "@angular/core";
+import { FormControl } from "@angular/forms";
+import { TranslateService } from "@ngx-translate/core";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 
 @Component({
   selector: "smart-documents-form-item",
   templateUrl: "./smart-documents-form-item.component.html",
 })
-export class SmartDocumentsFormItemComponent {
+export class SmartDocumentsFormItemComponent implements OnInit {
   @Input() template: GeneratedType<"RestMappedSmartDocumentsTemplate">;
-  @Input() documentTypes: GeneratedType<"RestInformatieobjecttype">[];
   @Input() informationObjectTypes: GeneratedType<"RestInformatieobjecttype">[];
-  @Input() formGroup: FormGroup;
 
-  confidentiality = ''
+  confidentiality = new FormControl({ value: "", disabled: true });
+  enabled = new FormControl({ value: false, disabled: false });
 
-  constructor() {
+  constructor(private readonly translateService: TranslateService) {}
 
+  ngOnInit() {
+    this.updateEnabledStatus();
   }
 
   clearSelectedDocumentType() {
-    console.log("clearSelectedDocumentType");
-    this.template.informatieObjectTypeUUID = ''
+    this.template.informatieObjectTypeUUID = "";
+    this.updateFormControls();
+  }
+
+  updateFormControls() {
+    const { informatieObjectTypeUUID } = this.template;
+
+    const confidentiality = this.informationObjectTypes.find(
+      ({ uuid }) => informatieObjectTypeUUID === uuid,
+    )?.vertrouwelijkheidaanduiding;
+
+    const translated = this.translateService.instant(
+      `vertrouwelijkheidaanduiding.${confidentiality}`,
+    );
+
+    this.confidentiality.setValue(translated);
+    this.updateEnabledStatus();
+  }
+
+  private updateEnabledStatus() {
+    this.enabled.setValue(this.template.informatieObjectTypeUUID !== "");
+    if (this.template.informatieObjectTypeUUID !== "") {
+      this.enabled.enable();
+    } else {
+      this.enabled.disable();
+    }
   }
 }
