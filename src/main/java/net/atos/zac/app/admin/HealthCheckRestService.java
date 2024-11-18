@@ -99,6 +99,7 @@ public class HealthCheckRestService {
         restCheck.statustypeAfgerondAanwezig = check.isStatustypeAfgerondAanwezig();
         restCheck.statustypeAfgerondLaatsteVolgnummer = check.isStatustypeAfgerondLaatsteVolgnummer();
         restCheck.statustypeHeropendAanwezig = check.isStatustypeHeropendAanwezig();
+        restCheck.statustypeAanvullendeInformatieVereist = check.isStatustypeAanvullendeInformatieVereist();
         restCheck.statustypeInBehandelingAanwezig = check.isStatustypeInBehandelingAanwezig();
         restCheck.statustypeIntakeAanwezig = check.isStatustypeIntakeAanwezig();
         restCheck.zaakafhandelParametersValide = check.isZaakafhandelParametersValide();

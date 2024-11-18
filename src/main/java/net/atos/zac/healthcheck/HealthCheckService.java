@@ -137,6 +137,7 @@ public class HealthCheckService {
                 case ConfiguratieService.STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING -> zaaktypeInrichtingscheck
                         .setStatustypeInBehandelingAanwezig(true);
                 case ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND -> zaaktypeInrichtingscheck.setStatustypeHeropendAanwezig(true);
+                case ConfiguratieService.STA -> zaaktypeInrichtingscheck.setStatustypeHeropendAanwezig(true);
                 case ConfiguratieService.STATUSTYPE_OMSCHRIJVING_AFGEROND -> {
                     afgerondVolgnummer = statustype.getVolgnummer();
                     zaaktypeInrichtingscheck.setStatustypeAfgerondAanwezig(true);
