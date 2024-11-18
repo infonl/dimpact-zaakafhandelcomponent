@@ -2,395 +2,162 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.zoeken.model.zoekobject
 
-package net.atos.zac.zoeken.model.zoekobject;
+import net.atos.client.zgw.drc.model.generated.StatusEnum
+import net.atos.zac.zoeken.model.DocumentIndicatie
+import org.apache.solr.client.solrj.beans.Field
+import java.util.Date
+import java.util.EnumSet
+import java.util.Locale
+import java.util.function.Supplier
+import java.util.stream.Collectors
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.solr.client.solrj.beans.Field;
-
-import net.atos.client.zgw.drc.model.generated.StatusEnum;
-import net.atos.zac.zoeken.model.DocumentIndicatie;
-
-public class DocumentZoekObject implements ZoekObject {
-
+data class DocumentZoekObject(
     @Field("id")
-    private String uuid;
+    var uuid: String,
 
     @Field
-    private String type;
-
+    private var type: String
+) : ZoekObject {
     @Field("informatieobject_identificatie")
-    private String identificatie;
+    var identificatie: String? = null
 
     @Field("informatieobject_titel")
-    private String titel;
+    var titel: String? = null
 
     @Field("informatieobject_beschrijving")
-    private String beschrijving;
+    var beschrijving: String? = null
 
     @Field("informatieobject_zaaktypeUuid")
-    private String zaaktypeUuid;
+    var zaaktypeUuid: String? = null
 
     @Field("informatieobject_zaaktypeIdentificatie")
-    private String zaaktypeIdentificatie;
+    var zaaktypeIdentificatie: String? = null
 
     @Field("informatieobject_zaaktypeOmschrijving")
-    private String zaaktypeOmschrijving;
+    var zaaktypeOmschrijving: String? = null
 
     @Field("informatieobject_zaakId")
-    private String zaakIdentificatie;
+    var zaakIdentificatie: String? = null
 
     @Field("informatieobject_zaakUuid")
-    private String zaakUuid;
+    var zaakUuid: String? = null
 
     @Field("informatieobject_zaakAfgehandeld")
-    private boolean zaakAfgehandeld;
+    var isZaakAfgehandeld: Boolean = false
 
     @Field("informatieobject_zaakRelatie")
-    private String zaakRelatie;
+    var zaakRelatie: String? = null
 
     @Field("informatieobject_creatiedatum")
-    private Date creatiedatum;
+    var creatiedatum: Date? = null
 
     @Field("informatieobject_registratiedatum")
-    private Date registratiedatum;
+    var registratiedatum: Date? = null
 
     @Field("informatieobject_ontvangstdatum")
-    private Date ontvangstdatum;
+    var ontvangstdatum: Date? = null
 
     @Field("informatieobject_verzenddatum")
-    private Date verzenddatum;
+    var verzenddatum: Date? = null
 
     @Field("informatieobject_ondertekeningDatum")
-    private Date ondertekeningDatum;
+    var ondertekeningDatum: Date? = null
 
     @Field("informatieobject_ondertekeningSoort")
-    private String ondertekeningSoort;
+    var ondertekeningSoort: String? = null
 
     @Field("informatieobject_vertrouwelijkheidaanduiding")
-    private String vertrouwelijkheidaanduiding;
+    var vertrouwelijkheidaanduiding: String? = null
 
     @Field("informatieobject_auteur")
-    private String auteur;
+    var auteur: String? = null
 
     @Field("informatieobject_status")
-    private String status;
+    private var status: String? = null
 
     @Field("informatieobject_formaat")
-    private String formaat;
+    var formaat: String? = null
 
     @Field("informatieobject_versie")
-    private long versie;
+    var versie: Long = 0
 
     @Field("informatieobject_bestandsnaam")
-    private String bestandsnaam;
+    var bestandsnaam: String? = null
 
     @Field("informatieobject_bestandsomvang")
-    private long bestandsomvang;
+    var bestandsomvang: Long = 0
 
     @Field("informatieobject_documentType")
-    private String documentType;
+    var documentType: String? = null
 
     @Field("informatieobject_inhoudUrl")
-    private String inhoudUrl;
+    var inhoudUrl: String? = null
 
     @Field("informatieobject_vergrendeldDoorNaam")
-    private String vergrendeldDoorNaam;
+    var vergrendeldDoorNaam: String? = null
 
     @Field("informatieobject_vergrendeldDoorGebruikersnaam")
-    private String vergrendeldDoorGebruikersnaam;
+    var vergrendeldDoorGebruikersnaam: String? = null
 
     @Field("informatieobject_indicaties")
-    private List<String> indicaties;
+    private var indicaties: MutableList<String>? = null
 
     @Field("informatieobject_indicaties_sort")
-    private long indicatiesVolgorde;
+    private var indicatiesVolgorde: Long = 0
 
-    public DocumentZoekObject() {
+    override fun getObjectId() = uuid
+
+    override fun getType() = ZoekObjectType.valueOf(type)
+
+    fun setType(type: ZoekObjectType) {
+        this.type = type.toString()
     }
 
-    public String getUuid() {
-        return uuid;
+    fun getStatus() = status?.uppercase(Locale.getDefault())?.let { StatusEnum.valueOf(it) }
+
+    fun setStatus(status: StatusEnum) {
+        this.status = status.toString()
     }
 
-    public void setUuid(final String uuid) {
-        this.uuid = uuid;
+    fun isIndicatie(indicatie: DocumentIndicatie) = indicaties?.contains(indicatie.name) == true
+
+    fun getDocumentIndicaties(): EnumSet<DocumentIndicatie> =
+        if (indicaties == null) {
+                EnumSet.noneOf<DocumentIndicatie>(DocumentIndicatie::class.java)
+            } else {
+                indicaties!!.stream().map<DocumentIndicatie>(DocumentIndicatie::valueOf)
+                    .collect(Collectors.toCollection(Supplier {
+                        EnumSet.noneOf<DocumentIndicatie>(DocumentIndicatie::class.java)
+                    }))
+            }
+
+    fun setIndicatie(indicatie: DocumentIndicatie, value: Boolean) {
+            updateIndicaties(indicatie, value)
+            updateIndicatieVolgorde(indicatie, value)
     }
 
-    @Override
-    public String getObjectId() {
-        return getUuid();
-    }
-
-    @Override
-    public ZoekObjectType getType() {
-        return ZoekObjectType.valueOf(type);
-    }
-
-    public void setType(final ZoekObjectType type) {
-        this.type = type.toString();
-    }
-
-    public String getIdentificatie() {
-        return identificatie;
-    }
-
-    public void setIdentificatie(final String identificatie) {
-        this.identificatie = identificatie;
-    }
-
-    public String getTitel() {
-        return titel;
-    }
-
-    public void setTitel(final String titel) {
-        this.titel = titel;
-    }
-
-    public String getBeschrijving() {
-        return beschrijving;
-    }
-
-    public void setBeschrijving(final String beschrijving) {
-        this.beschrijving = beschrijving;
-    }
-
-    public String getZaaktypeUuid() {
-        return zaaktypeUuid;
-    }
-
-    public void setZaaktypeUuid(final String zaaktypeUuid) {
-        this.zaaktypeUuid = zaaktypeUuid;
-    }
-
-    public String getZaaktypeIdentificatie() {
-        return zaaktypeIdentificatie;
-    }
-
-    public void setZaaktypeIdentificatie(final String zaaktypeIdentificatie) {
-        this.zaaktypeIdentificatie = zaaktypeIdentificatie;
-    }
-
-    public String getZaaktypeOmschrijving() {
-        return zaaktypeOmschrijving;
-    }
-
-    public void setZaaktypeOmschrijving(final String zaaktypeOmschrijving) {
-        this.zaaktypeOmschrijving = zaaktypeOmschrijving;
-    }
-
-    public String getZaakIdentificatie() {
-        return zaakIdentificatie;
-    }
-
-    public void setZaakIdentificatie(final String zaakIdentificatie) {
-        this.zaakIdentificatie = zaakIdentificatie;
-    }
-
-    public String getZaakUuid() {
-        return zaakUuid;
-    }
-
-    public void setZaakUuid(final String zaakUuid) {
-        this.zaakUuid = zaakUuid;
-    }
-
-    public String getZaakRelatie() {
-        return zaakRelatie;
-    }
-
-    public void setZaakRelatie(final String zaakRelatie) {
-        this.zaakRelatie = zaakRelatie;
-    }
-
-    public boolean isZaakAfgehandeld() {
-        return zaakAfgehandeld;
-    }
-
-    public void setZaakAfgehandeld(final boolean zaakAfgehandeld) {
-        this.zaakAfgehandeld = zaakAfgehandeld;
-    }
-
-    public Date getCreatiedatum() {
-        return creatiedatum;
-    }
-
-    public void setCreatiedatum(final Date creatiedatum) {
-        this.creatiedatum = creatiedatum;
-    }
-
-    public Date getRegistratiedatum() {
-        return registratiedatum;
-    }
-
-    public void setRegistratiedatum(final Date registratiedatum) {
-        this.registratiedatum = registratiedatum;
-    }
-
-    public Date getOntvangstdatum() {
-        return ontvangstdatum;
-    }
-
-    public void setOntvangstdatum(final Date ontvangstdatum) {
-        this.ontvangstdatum = ontvangstdatum;
-    }
-
-    public Date getVerzenddatum() {
-        return verzenddatum;
-    }
-
-    public void setVerzenddatum(final Date verzenddatum) {
-        this.verzenddatum = verzenddatum;
-    }
-
-    public Date getOndertekeningDatum() {
-        return ondertekeningDatum;
-    }
-
-    public void setOndertekeningDatum(final Date ondertekeningDatum) {
-        this.ondertekeningDatum = ondertekeningDatum;
-    }
-
-    public String getVertrouwelijkheidaanduiding() {
-        return vertrouwelijkheidaanduiding;
-    }
-
-    public void setVertrouwelijkheidaanduiding(final String vertrouwelijkheidaanduiding) {
-        this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding;
-    }
-
-    public String getAuteur() {
-        return auteur;
-    }
-
-    public void setAuteur(final String auteur) {
-        this.auteur = auteur;
-    }
-
-    public StatusEnum getStatus() {
-        return status != null ? StatusEnum.valueOf(status.toUpperCase()) : null;
-    }
-
-    public void setStatus(final StatusEnum status) {
-        this.status = status.toString();
-    }
-
-    public String getFormaat() {
-        return formaat;
-    }
-
-    public void setFormaat(final String formaat) {
-        this.formaat = formaat;
-    }
-
-    public long getVersie() {
-        return versie;
-    }
-
-    public void setVersie(final long versie) {
-        this.versie = versie;
-    }
-
-    public String getBestandsnaam() {
-        return bestandsnaam;
-    }
-
-    public void setBestandsnaam(final String bestandsnaam) {
-        this.bestandsnaam = bestandsnaam;
-    }
-
-    public long getBestandsomvang() {
-        return bestandsomvang;
-    }
-
-    public void setBestandsomvang(final long bestandsomvang) {
-        this.bestandsomvang = bestandsomvang;
-    }
-
-    public String getDocumentType() {
-        return documentType;
-    }
-
-    public void setDocumentType(final String documentType) {
-        this.documentType = documentType;
-    }
-
-    public String getOndertekeningSoort() {
-        return ondertekeningSoort;
-    }
-
-    public void setOndertekeningSoort(final String ondertekeningSoort) {
-        this.ondertekeningSoort = ondertekeningSoort;
-    }
-
-    public String getInhoudUrl() {
-        return inhoudUrl;
-    }
-
-    public void setInhoudUrl(final String inhoudUrl) {
-        this.inhoudUrl = inhoudUrl;
-    }
-
-    public String getVergrendeldDoorNaam() {
-        return vergrendeldDoorNaam;
-    }
-
-    public void setVergrendeldDoorNaam(final String vergrendeldDoorNaam) {
-        this.vergrendeldDoorNaam = vergrendeldDoorNaam;
-    }
-
-    public String getVergrendeldDoorGebruikersnaam() {
-        return vergrendeldDoorGebruikersnaam;
-    }
-
-    public void setVergrendeldDoorGebruikersnaam(final String vergrendeldDoorGebruikersnaam) {
-        this.vergrendeldDoorGebruikersnaam = vergrendeldDoorGebruikersnaam;
-    }
-
-    public boolean isIndicatie(final DocumentIndicatie indicatie) {
-        return this.indicaties != null && this.indicaties.contains(indicatie.name());
-    }
-
-    public EnumSet<DocumentIndicatie> getDocumentIndicaties() {
+    private fun updateIndicaties(indicatie: DocumentIndicatie, value: Boolean) {
+        val key = indicatie.name
         if (this.indicaties == null) {
-            return EnumSet.noneOf(DocumentIndicatie.class);
-        }
-        return this.indicaties.stream().map(DocumentIndicatie::valueOf)
-                .collect(Collectors.toCollection(() -> EnumSet.noneOf(DocumentIndicatie.class)));
-    }
-
-    public void setIndicatie(final DocumentIndicatie indicatie, final Boolean value) {
-        if (value != null) {
-            updateIndicaties(indicatie, value);
-            updateIndicatieVolgorde(indicatie, value);
-        }
-    }
-
-    private void updateIndicaties(DocumentIndicatie indicatie, boolean value) {
-        final String key = indicatie.name();
-        if (this.indicaties == null) {
-            this.indicaties = new ArrayList<>();
+            this.indicaties = arrayListOf()
         }
         if (value) {
-            if (!this.indicaties.contains(key)) {
-                this.indicaties.add(key);
+            if (!this.indicaties!!.contains(key)) {
+                this.indicaties!!.add(key)
             }
         } else {
-            this.indicaties.remove(key);
+            this.indicaties!!.remove(key)
         }
     }
 
-    private void updateIndicatieVolgorde(final DocumentIndicatie indicatie, boolean value) {
-        final int bit = DocumentIndicatie.values().length - 1 - indicatie.ordinal();
+    private fun updateIndicatieVolgorde(indicatie: DocumentIndicatie, value: Boolean) {
+        val bit = DocumentIndicatie.entries.size - 1 - indicatie.ordinal
         if (value) {
-            this.indicatiesVolgorde |= 1L << bit;
+            this.indicatiesVolgorde = this.indicatiesVolgorde or (1L shl bit)
         } else {
-            this.indicatiesVolgorde &= ~(1L << bit);
+            this.indicatiesVolgorde = this.indicatiesVolgorde and (1L shl bit).inv()
         }
     }
 }
