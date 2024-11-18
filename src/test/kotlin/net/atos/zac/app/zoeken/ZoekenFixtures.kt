@@ -56,9 +56,10 @@ fun createZaakZoekObject(
     uuid: UUID = UUID.randomUUID(),
     type: ZoekObjectType = ZoekObjectType.ZAAK,
     behandelaarGebruikersnaam: String = "dummyBehandelaarGebruikersnaam"
-) = ZaakZoekObject().apply {
-    this.uuid = uuid.toString()
-    this.setType(type)
+) = ZaakZoekObject(
+    id = uuid.toString(),
+    type = type.name
+).apply {
     this.behandelaarGebruikersnaam = behandelaarGebruikersnaam
 }
 

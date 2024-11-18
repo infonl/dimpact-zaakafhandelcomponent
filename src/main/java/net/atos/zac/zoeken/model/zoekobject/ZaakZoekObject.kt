@@ -2,527 +2,214 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.zoeken.model.zoekobject
 
-package net.atos.zac.zoeken.model.zoekobject;
+import net.atos.client.zgw.zrc.model.Rol
+import net.atos.zac.zoeken.model.ZaakIndicatie
+import nl.lifely.zac.util.NoArgConstructor
+import org.apache.solr.client.solrj.beans.Field
+import java.util.Date
+import java.util.EnumSet
+import java.util.function.Supplier
+import java.util.stream.Collectors
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.apache.solr.client.solrj.beans.Field;
-
-import com.google.common.collect.Lists;
-
-import net.atos.client.zgw.zrc.model.Rol;
-import net.atos.zac.zoeken.model.ZaakIndicatie;
-
-public class ZaakZoekObject implements ZoekObject {
-
-    public static final String AFGEHANDELD_FIELD = "zaak_afgehandeld";
-
-    public static final String BEHANDELAAR_ID_FIELD = "zaak_behandelaarGebruikersnaam";
-
-    public static final String EINDSTATUS_FIELD = "zaak_statusEindstatus";
-
-    public static final String OMSCHRIJVING_FIELD = "zaak_omschrijving";
-
-    public static final String TOELICHTING_FIELD = "zaak_toelichting";
-
-    public static final String ZAAK_BETROKKENE_PREFIX = "zaak_betrokkene_";
+@NoArgConstructor // required for Java bean inspection
+data class ZaakZoekObject(
+    @Field
+    private var id: String,
 
     @Field
-    private String id;
-
-    @Field
-    private String type;
+    private var type: String
+) : ZoekObject {
+    companion object {
+        const val AFGEHANDELD_FIELD: String = "zaak_afgehandeld"
+        const val BEHANDELAAR_ID_FIELD: String = "zaak_behandelaarGebruikersnaam"
+        const val EINDSTATUS_FIELD: String = "zaak_statusEindstatus"
+        const val OMSCHRIJVING_FIELD: String = "zaak_omschrijving"
+        const val TOELICHTING_FIELD: String = "zaak_toelichting"
+        const val ZAAK_BETROKKENE_PREFIX: String = "zaak_betrokkene_"
+    }
 
     @Field("zaak_identificatie")
-    private String identificatie;
+    var identificatie: String? = null
 
     @Field(OMSCHRIJVING_FIELD)
-    private String omschrijving;
+    var omschrijving: String? = null
 
     @Field(TOELICHTING_FIELD)
-    private String toelichting;
+    var toelichting: String? = null
 
     @Field("zaak_registratiedatum")
-    private Date registratiedatum;
+    var registratiedatum: Date? = null
 
     @Field("zaak_archiefNominatie")
-    private String archiefNominatie;
+    var archiefNominatie: String? = null
 
     @Field("zaak_archiefActiedatum")
-    private Date archiefActiedatum;
+    var archiefActiedatum: Date? = null
 
     @Field("zaak_startdatum")
-    private Date startdatum;
+    var startdatum: Date? = null
 
     @Field("zaak_einddatumGepland")
-    private Date einddatumGepland;
+    var einddatumGepland: Date? = null
 
     @Field("zaak_einddatum")
-    private Date einddatum;
+    var einddatum: Date? = null
 
     @Field("zaak_uiterlijkeEinddatumAfdoening")
-    private Date uiterlijkeEinddatumAfdoening;
+    var uiterlijkeEinddatumAfdoening: Date? = null
 
     @Field("zaak_publicatiedatum")
-    private Date publicatiedatum;
+    var publicatiedatum: Date? = null
 
     @Field("zaak_communicatiekanaal")
-    private String communicatiekanaal;
+    var communicatiekanaal: String? = null
 
     @Field("zaak_vertrouwelijkheidaanduiding")
-    private String vertrouwelijkheidaanduiding;
+    var vertrouwelijkheidaanduiding: String? = null
 
     @Field(AFGEHANDELD_FIELD)
-    private boolean afgehandeld;
+    var isAfgehandeld: Boolean = false
 
     @Field("zaak_groepId")
-    private String groepID;
+    var groepID: String? = null
 
     @Field("zaak_groepNaam")
-    private String groepNaam;
+    var groepNaam: String? = null
 
     @Field("zaak_behandelaarNaam")
-    private String behandelaarNaam;
+    var behandelaarNaam: String? = null
 
     @Field(BEHANDELAAR_ID_FIELD)
-    private String behandelaarGebruikersnaam;
+    var behandelaarGebruikersnaam: String? = null
 
     @Field("zaak_initiatorIdentificatie")
-    private String initiatorIdentificatie;
+    var initiatorIdentificatie: String? = null
 
     @Field("zaak_initiatorType")
-    private String initiatorType;
+    private var initiatorType: String? = null
 
     @Field("zaak_locatie")
-    private String locatie;
+    var locatie: String? = null
 
     @Field("zaak_duurVerlenging")
-    private String duurVerlenging;
+    var duurVerlenging: String? = null
 
     @Field("zaak_redenVerlenging")
-    private String redenVerlenging;
+    var redenVerlenging: String? = null
 
     @Field("zaak_redenOpschorting")
-    private String redenOpschorting;
+    var redenOpschorting: String? = null
 
     @Field("zaak_zaaktypeUuid")
-    private String zaaktypeUuid;
+    var zaaktypeUuid: String? = null
 
     @Field("zaak_zaaktypeIdentificatie")
-    private String zaaktypeIdentificatie;
+    var zaaktypeIdentificatie: String? = null
 
     @Field("zaak_zaaktypeOmschrijving")
-    private String zaaktypeOmschrijving;
+    var zaaktypeOmschrijving: String? = null
 
     @Field("zaak_resultaattypeOmschrijving")
-    private String resultaattypeOmschrijving;
+    var resultaattypeOmschrijving: String? = null
 
     @Field("zaak_resultaatToelichting")
-    private String resultaatToelichting;
+    var resultaatToelichting: String? = null
 
     @Field(EINDSTATUS_FIELD)
-    private boolean statusEindstatus;
+    var isStatusEindstatus: Boolean = false
 
     @Field("zaak_statustypeOmschrijving")
-    private String statustypeOmschrijving;
+    var statustypeOmschrijving: String? = null
 
     @Field("zaak_statusDatumGezet")
-    private Date statusDatumGezet;
+    var statusDatumGezet: Date? = null
 
     @Field("zaak_statusToelichting")
-    private String statusToelichting;
+    var statusToelichting: String? = null
 
     @Field("zaak_aantalOpenstaandeTaken")
-    private long aantalOpenstaandeTaken;
+    var aantalOpenstaandeTaken: Long = 0
 
-    @Field(IS_TOEGEKEND_FIELD)
-    private boolean toegekend;
+    @Field(ZoekObject.Companion.IS_TOEGEKEND_FIELD)
+    var isToegekend: Boolean = false
 
     @Field("zaak_indicaties")
-    private List<String> indicaties;
+    private var indicaties: MutableList<String>? = null
 
     @Field("zaak_indicaties_sort")
-    private long indicatiesVolgorde;
+    private var indicatiesVolgorde: Long = 0
 
     @Field("zaak_betrokkene_*")
-    private Map<String, List<String>> betrokkenen;
+    var betrokkenen: MutableMap<String, MutableList<String>> = mutableMapOf()
 
     @Field("zaak_bagObjecten")
-    private List<String> bagObjectIDs;
+    var bagObjectIDs: List<String>? = null
 
-    public ZaakZoekObject() {
-    }
-
-    public String getUuid() {
-        return id;
-    }
-
-    public void setUuid(final String uuid) {
-        this.id = uuid;
-    }
-
-    @Override
-    public String getObjectId() {
-        return getUuid();
-    }
-
-    @Override
-    public ZoekObjectType getType() {
-        return ZoekObjectType.valueOf(type);
-    }
-
-    public void setType(final ZoekObjectType type) {
-        this.type = type.toString();
-    }
-
-    public String getIdentificatie() {
-        return identificatie;
-    }
-
-    public void setIdentificatie(final String identificatie) {
-        this.identificatie = identificatie;
-    }
-
-    public String getOmschrijving() {
-        return omschrijving;
-    }
-
-    public void setOmschrijving(final String omschrijving) {
-        this.omschrijving = omschrijving;
-    }
-
-    public String getToelichting() {
-        return toelichting;
-    }
-
-    public void setToelichting(final String toelichting) {
-        this.toelichting = toelichting;
-    }
-
-    public Date getRegistratiedatum() {
-        return registratiedatum;
-    }
-
-    public void setRegistratiedatum(final Date registratiedatum) {
-        this.registratiedatum = registratiedatum;
-    }
-
-    public Date getStartdatum() {
-        return startdatum;
-    }
-
-    public void setStartdatum(final Date startdatum) {
-        this.startdatum = startdatum;
-    }
-
-    public Date getEinddatumGepland() {
-        return einddatumGepland;
-    }
-
-    public void setEinddatumGepland(final Date einddatumGepland) {
-        this.einddatumGepland = einddatumGepland;
-    }
-
-    public Date getEinddatum() {
-        return einddatum;
-    }
-
-    public void setEinddatum(final Date einddatum) {
-        this.einddatum = einddatum;
-    }
-
-    public Date getUiterlijkeEinddatumAfdoening() {
-        return uiterlijkeEinddatumAfdoening;
-    }
-
-    public void setUiterlijkeEinddatumAfdoening(final Date uiterlijkeEinddatumAfdoening) {
-        this.uiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening;
-    }
-
-    public Date getPublicatiedatum() {
-        return publicatiedatum;
-    }
-
-    public void setPublicatiedatum(final Date publicatiedatum) {
-        this.publicatiedatum = publicatiedatum;
-    }
-
-    public void setStatusDatumGezet(final Date statusDatumGezet) {
-        this.statusDatumGezet = statusDatumGezet;
-    }
-
-    public String getCommunicatiekanaal() {
-        return communicatiekanaal;
-    }
-
-    public void setCommunicatiekanaal(final String communicatiekanaal) {
-        this.communicatiekanaal = communicatiekanaal;
-    }
-
-    public String getVertrouwelijkheidaanduiding() {
-        return vertrouwelijkheidaanduiding;
-    }
-
-    public void setVertrouwelijkheidaanduiding(final String vertrouwelijkheidaanduiding) {
-        this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding;
-    }
-
-    public boolean isAfgehandeld() {
-        return afgehandeld;
-    }
-
-    public void setAfgehandeld(final boolean afgehandeld) {
-        this.afgehandeld = afgehandeld;
-    }
-
-    public String getGroepID() {
-        return groepID;
-    }
-
-    public void setGroepID(final String groepID) {
-        this.groepID = groepID;
-    }
-
-    public String getGroepNaam() {
-        return groepNaam;
-    }
-
-    public void setGroepNaam(final String groepNaam) {
-        this.groepNaam = groepNaam;
-    }
-
-    public String getBehandelaarNaam() {
-        return behandelaarNaam;
-    }
-
-    public void setBehandelaarNaam(final String behandelaarNaam) {
-        this.behandelaarNaam = behandelaarNaam;
-    }
-
-    public String getBehandelaarGebruikersnaam() {
-        return behandelaarGebruikersnaam;
-    }
-
-    public void setBehandelaarGebruikersnaam(final String behandelaarGebruikersnaam) {
-        this.behandelaarGebruikersnaam = behandelaarGebruikersnaam;
-    }
-
-    public String getInitiatorIdentificatie() {
-        return initiatorIdentificatie;
-    }
-
-    public void setInitiator(final Rol<?> initiatorRole) {
-        if (initiatorRole != null) {
-            this.initiatorIdentificatie = initiatorRole.getIdentificatienummer();
-            this.initiatorType = initiatorRole.getBetrokkeneType().toValue();
+    var uuid: String
+        get() = id
+        set(uuid) {
+            this.id = uuid
         }
+
+    override fun getObjectId() = uuid
+
+    override fun getType() = ZoekObjectType.valueOf(type)
+
+    fun setType(type: ZoekObjectType) {
+        this.type = type.toString()
     }
 
-    public String getLocatie() {
-        return locatie;
+    fun setInitiator(initiatorRole: Rol<*>) {
+        this.initiatorIdentificatie = initiatorRole.getIdentificatienummer()
+        this.initiatorType = initiatorRole.betrokkeneType.toValue()
     }
 
-    public void setLocatie(final String locatie) {
-        this.locatie = locatie;
-    }
+    fun isIndicatie(indicatie: ZaakIndicatie) = indicaties?.contains(indicatie.name) == true
 
-    public String getDuurVerlenging() {
-        return duurVerlenging;
-    }
-
-    public void setDuurVerlenging(final String duurVerlenging) {
-        this.duurVerlenging = duurVerlenging;
-    }
-
-    public String getRedenVerlenging() {
-        return redenVerlenging;
-    }
-
-    public void setRedenVerlenging(final String redenVerlenging) {
-        this.redenVerlenging = redenVerlenging;
-    }
-
-    public String getRedenOpschorting() {
-        return redenOpschorting;
-    }
-
-    public void setRedenOpschorting(final String redenOpschorting) {
-        this.redenOpschorting = redenOpschorting;
-    }
-
-    public String getZaaktypeUuid() {
-        return zaaktypeUuid;
-    }
-
-    public void setZaaktypeUuid(final String zaaktypeUuid) {
-        this.zaaktypeUuid = zaaktypeUuid;
-    }
-
-    public String getZaaktypeIdentificatie() {
-        return zaaktypeIdentificatie;
-    }
-
-    public void setZaaktypeIdentificatie(final String zaaktypeIdentificatie) {
-        this.zaaktypeIdentificatie = zaaktypeIdentificatie;
-    }
-
-    public String getZaaktypeOmschrijving() {
-        return zaaktypeOmschrijving;
-    }
-
-    public void setZaaktypeOmschrijving(final String zaaktypeOmschrijving) {
-        this.zaaktypeOmschrijving = zaaktypeOmschrijving;
-    }
-
-    public String getResultaattypeOmschrijving() {
-        return resultaattypeOmschrijving;
-    }
-
-    public void setResultaattypeOmschrijving(final String resultaattypeOmschrijving) {
-        this.resultaattypeOmschrijving = resultaattypeOmschrijving;
-    }
-
-    public String getResultaatToelichting() {
-        return resultaatToelichting;
-    }
-
-    public void setResultaatToelichting(final String resultaatToelichting) {
-        this.resultaatToelichting = resultaatToelichting;
-    }
-
-    public boolean isStatusEindstatus() {
-        return statusEindstatus;
-    }
-
-    public void setStatusEindstatus(final boolean statusEindstatus) {
-        this.statusEindstatus = statusEindstatus;
-    }
-
-    public String getStatustypeOmschrijving() {
-        return statustypeOmschrijving;
-    }
-
-    public void setStatustypeOmschrijving(final String statustypeOmschrijving) {
-        this.statustypeOmschrijving = statustypeOmschrijving;
-    }
-
-    public Date getStatusDatumGezet() {
-        return statusDatumGezet;
-    }
-
-    public String getStatusToelichting() {
-        return statusToelichting;
-    }
-
-    public void setStatusToelichting(final String statusToelichting) {
-        this.statusToelichting = statusToelichting;
-    }
-
-    public String getArchiefNominatie() {
-        return archiefNominatie;
-    }
-
-    public void setArchiefNominatie(final String archiefNominatie) {
-        this.archiefNominatie = archiefNominatie;
-    }
-
-    public Date getArchiefActiedatum() {
-        return archiefActiedatum;
-    }
-
-    public void setArchiefActiedatum(final Date archiefActiedatum) {
-        this.archiefActiedatum = archiefActiedatum;
-    }
-
-    public long getAantalOpenstaandeTaken() {
-        return aantalOpenstaandeTaken;
-    }
-
-    public void setAantalOpenstaandeTaken(final long aantalOpenstaandeTaken) {
-        this.aantalOpenstaandeTaken = aantalOpenstaandeTaken;
-    }
-
-    public boolean isToegekend() {
-        return toegekend;
-    }
-
-    public void setToegekend(final boolean toegekend) {
-        this.toegekend = toegekend;
-    }
-
-    public boolean isIndicatie(final ZaakIndicatie indicatie) {
-        return this.indicaties != null && this.indicaties.contains(indicatie.name());
-    }
-
-    public EnumSet<ZaakIndicatie> getZaakIndicaties() {
-        if (this.indicaties == null) {
-            return EnumSet.noneOf(ZaakIndicatie.class);
+    fun getZaakIndicaties(): EnumSet<ZaakIndicatie> =
+        if (indicaties == null) {
+            EnumSet.noneOf<ZaakIndicatie>(ZaakIndicatie::class.java)
+        } else {
+            indicaties!!.stream().map<ZaakIndicatie>(ZaakIndicatie::valueOf)
+                .collect(
+                    Collectors.toCollection(
+                        Supplier {
+                            EnumSet.noneOf<ZaakIndicatie>(ZaakIndicatie::class.java)
+                        }
+                    )
+                )
         }
-        return this.indicaties.stream().map(ZaakIndicatie::valueOf)
-                .collect(Collectors.toCollection(() -> EnumSet.noneOf(ZaakIndicatie.class)));
+
+    fun setIndicatie(indicatie: ZaakIndicatie, value: Boolean) {
+        updateIndicaties(indicatie, value)
+        updateIndicatieVolgorde(indicatie, value)
     }
 
-    public void setIndicatie(final ZaakIndicatie indicatie, final boolean value) {
-        updateIndicaties(indicatie, value);
-        updateIndicatieVolgorde(indicatie, value);
-    }
-
-    private void updateIndicaties(ZaakIndicatie indicatie, boolean value) {
-        final String key = indicatie.name();
-        if (this.indicaties == null) {
-            this.indicaties = new ArrayList<>();
-        }
+    private fun updateIndicaties(indicatie: ZaakIndicatie, value: Boolean) {
+        if (indicaties == null) { indicaties = mutableListOf() }
+        val key = indicatie.name
         if (value) {
-            if (!this.indicaties.contains(key)) {
-                this.indicaties.add(key);
+            if (!indicaties!!.contains(key)) {
+                indicaties!!.add(key)
             }
         } else {
-            this.indicaties.remove(key);
+            indicaties!!.remove(key)
         }
     }
 
-    private void updateIndicatieVolgorde(final ZaakIndicatie indicatie, boolean value) {
-        final int bit = ZaakIndicatie.values().length - 1 - indicatie.ordinal();
+    private fun updateIndicatieVolgorde(indicatie: ZaakIndicatie, value: Boolean) {
+        val bit = ZaakIndicatie.entries.size - 1 - indicatie.ordinal
         if (value) {
-            this.indicatiesVolgorde |= 1L << bit;
+            this.indicatiesVolgorde = this.indicatiesVolgorde or (1L shl bit)
         } else {
-            this.indicatiesVolgorde &= ~(1L << bit);
+            this.indicatiesVolgorde = this.indicatiesVolgorde and (1L shl bit).inv()
         }
     }
 
-    public void addBetrokkene(final String rol, final String identificatie) {
-        final String key = "%s%s".formatted(ZAAK_BETROKKENE_PREFIX, rol);
-        if (betrokkenen == null) {
-            betrokkenen = new HashMap<>();
-        }
-        if (betrokkenen.containsKey(key)) {
-            betrokkenen.get(key).add(identificatie);
-        } else {
-            betrokkenen.put(key, Lists.newArrayList(identificatie));
-        }
+    fun addBetrokkene(rol: String, identificatie: String) {
+        val key = "$ZAAK_BETROKKENE_PREFIX$rol"
+        betrokkenen.getOrPut(key) { mutableListOf() }.add(identificatie)
     }
-
-    public Map<String, List<String>> getBetrokkenen() {
-        return betrokkenen;
-    }
-
-    public void setBetrokkenen(final Map<String, List<String>> betrokkenen) {
-        this.betrokkenen = betrokkenen;
-    }
-
-    public List<String> getBagObjectIDs() {
-        return bagObjectIDs;
-    }
-
-    public void setBagObjectIDs(final List<String> bagObjectIDs) {
-        this.bagObjectIDs = bagObjectIDs;
-    }
-
 }

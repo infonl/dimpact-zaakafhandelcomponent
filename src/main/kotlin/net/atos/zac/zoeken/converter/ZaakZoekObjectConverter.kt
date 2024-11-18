@@ -39,9 +39,10 @@ class ZaakZoekObjectConverter @Inject constructor(
 
     @Suppress("LongMethod")
     private fun convert(zaak: Zaak): ZaakZoekObject {
-        val zaakZoekObject = ZaakZoekObject().apply {
-            uuid = zaak.uuid.toString()
-            setType(ZoekObjectType.ZAAK)
+        val zaakZoekObject = ZaakZoekObject(
+            id = zaak.uuid.toString(),
+            type = ZoekObjectType.ZAAK.name
+        ).apply {
             identificatie = zaak.identificatie
             omschrijving = zaak.omschrijving
             toelichting = zaak.toelichting

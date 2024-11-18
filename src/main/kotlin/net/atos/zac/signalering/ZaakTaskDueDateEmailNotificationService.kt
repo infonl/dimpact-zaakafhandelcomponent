@@ -127,7 +127,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
             .items
             .map { it as ZaakZoekObject }
             .filter { hasZaakSignaleringTarget(it, SignaleringDetail.STREEFDATUM) }
-            .map { buildZaakSignalering(it.behandelaarGebruikersnaam, it, SignaleringDetail.STREEFDATUM) }
+            .map { buildZaakSignalering(it.behandelaarGebruikersnaam!!, it, SignaleringDetail.STREEFDATUM) }
             .sumOf(::verzendZaakSignalering)
 
     /**
@@ -141,15 +141,15 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
             .items
             .map { it as ZaakZoekObject }
             .filter { hasZaakSignaleringTarget(it, SignaleringDetail.FATALE_DATUM) }
-            .map { buildZaakSignalering(it.behandelaarGebruikersnaam, it, SignaleringDetail.FATALE_DATUM) }
+            .map { buildZaakSignalering(it.behandelaarGebruikersnaam!!, it, SignaleringDetail.FATALE_DATUM) }
             .sumOf(::verzendZaakSignalering)
 
     private fun hasZaakSignaleringTarget(zaakZoekObject: ZaakZoekObject, detail: SignaleringDetail): Boolean =
         signaleringService.readInstellingenUser(
-            SignaleringType.Type.ZAAK_VERLOPEND, zaakZoekObject.behandelaarGebruikersnaam
+            SignaleringType.Type.ZAAK_VERLOPEND, zaakZoekObject.behandelaarGebruikersnaam!!
         ).isMail &&
             !signaleringService.findSignaleringVerzonden(
-                getZaakSignaleringVerzondenParameters(zaakZoekObject.behandelaarGebruikersnaam, zaakZoekObject.uuid, detail)
+                getZaakSignaleringVerzondenParameters(zaakZoekObject.behandelaarGebruikersnaam!!, zaakZoekObject.uuid, detail)
             ).isPresent
 
     private fun buildZaakSignalering(
@@ -186,7 +186,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     ).items.map { it as ZaakZoekObject }
         .map {
             getZaakSignaleringVerzondenParameters(
-                it.behandelaarGebruikersnaam,
+                it.behandelaarGebruikersnaam!!,
                 it.uuid,
                 SignaleringDetail.STREEFDATUM
             )
@@ -204,7 +204,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     ).items.map { it as ZaakZoekObject }
         .map {
             getZaakSignaleringVerzondenParameters(
-                it.behandelaarGebruikersnaam,
+                it.behandelaarGebruikersnaam!!,
                 it.uuid,
                 SignaleringDetail.FATALE_DATUM
             )

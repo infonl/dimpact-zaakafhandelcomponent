@@ -308,7 +308,7 @@ class SignaleringService @Inject constructor(
         return entityManager.merge(instellingen)
     }
 
-    fun readInstellingenGroup(type: SignaleringType.Type, target: String?): SignaleringInstellingen {
+    fun readInstellingenGroup(type: SignaleringType.Type, target: String): SignaleringInstellingen {
         signaleringInstance(type).apply {
             setTargetGroup(target)
         }.let {
@@ -316,7 +316,7 @@ class SignaleringService @Inject constructor(
         }
     }
 
-    fun readInstellingenUser(type: SignaleringType.Type, target: String?): SignaleringInstellingen {
+    fun readInstellingenUser(type: SignaleringType.Type, target: String): SignaleringInstellingen {
         signaleringInstance(type).apply {
             setTargetUser(target)
         }.let {
