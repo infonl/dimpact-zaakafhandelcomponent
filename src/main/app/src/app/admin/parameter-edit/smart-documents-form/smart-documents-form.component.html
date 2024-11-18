@@ -4,24 +4,6 @@
   -->
 
 <form [formGroup]="formGroup" class="flex-col">
-  <mat-form-field>
-    <mat-label>Document Title</mat-label>
-    <input matInput formControlName="documentTitle" />
-    <mat-error *ngIf="formGroup.get('documentTitle').hasError('required')">
-      This field is required.
-    </mat-error>
-  </mat-form-field>
-
-  <mat-form-field>
-    <mat-label>Document Description</mat-label>
-    <input matInput formControlName="documentDescription" />
-    <mat-error
-      *ngIf="formGroup.get('documentDescription').hasError('required')"
-    >
-      This field is required.
-    </mat-error>
-  </mat-form-field>
-
   <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
     <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding class="flex-1">
       <smart-documents-form-item

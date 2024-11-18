@@ -18,6 +18,8 @@ export class SmartDocumentsFormItemComponent implements OnInit {
   @Input() template: GeneratedType<"RestMappedSmartDocumentsTemplate">;
   @Input() informationObjectTypes: GeneratedType<"RestInformatieobjecttype">[];
 
+  // @Output() formValidityChanged = new EventEmitter<boolean>();
+
   confidentiality = new FormControl({ value: "", disabled: true });
   checkbox = new FormControl({ value: false, disabled: false });
 
@@ -43,7 +45,7 @@ export class SmartDocumentsFormItemComponent implements OnInit {
       `vertrouwelijkheidaanduiding.${confidentiality}`,
     );
 
-    if(confidentiality) {
+    if (confidentiality) {
       this.confidentiality.setValue(translated);
     }
 
@@ -51,7 +53,9 @@ export class SmartDocumentsFormItemComponent implements OnInit {
   }
 
   private updateEnabledStatus() {
-    const hasValue = this.template.informatieObjectTypeUUID && this.template.informatieObjectTypeUUID !== ""
+    const hasValue =
+      this.template.informatieObjectTypeUUID &&
+      this.template.informatieObjectTypeUUID !== "";
 
     if (hasValue) {
       this.checkbox.enable();

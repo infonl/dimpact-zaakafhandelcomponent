@@ -41,30 +41,23 @@ export class SmartDocumentsFormComponent {
     effect(() => {
       this.allSmartDocumentTemplateGroup =
         this.allSmartDocumentTemplateGroupsQuery.data() || [];
-      console.log("full group list:", this.dataSource.data);
 
       this.informationObjectTypes =
         this.informationObjectTypesQuery.data() || [];
 
       this.zaakTypeTemplateMappings =
         this.zaakTypeTemplateMappingsQuery.data() || [];
-      console.log("zaakTypeTemplateMappings:", this.zaakTypeTemplateMappings);
 
-      (this.dataSource.data = this.mergeSelectedTemplates(
+      this.dataSource.data = this.mergeSelectedTemplates(
         this.allSmartDocumentTemplateGroup,
         this.zaakTypeTemplateMappings,
-      )),
-        console.log("mergeSelectedTemplates:", this.dataSource.data);
+      );
     });
   }
 
   ngOnInit() {
-    if (this.formGroup) {
-    }
-
     // Emit form validity changes to the parent
     this.formGroup.statusChanges.subscribe((status) => {
-      console.log("Form status in child changed:", status);
       this.formValidityChanged.emit(this.formGroup.valid);
     });
   }
