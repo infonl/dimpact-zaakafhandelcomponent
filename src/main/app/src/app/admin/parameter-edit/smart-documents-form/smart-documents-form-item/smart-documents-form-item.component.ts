@@ -41,13 +41,13 @@ export class SmartDocumentsFormItemComponent implements OnInit {
       ({ uuid }) => informatieObjectTypeUUID === uuid,
     )?.vertrouwelijkheidaanduiding;
 
-    const translated = this.translateService.instant(
-      `vertrouwelijkheidaanduiding.${confidentiality}`,
+    this.confidentiality.setValue(
+      confidentiality
+        ? this.translateService.instant(
+            `vertrouwelijkheidaanduiding.${confidentiality}`,
+          )
+        : null,
     );
-
-    if (confidentiality) {
-      this.confidentiality.setValue(translated);
-    }
 
     this.updateEnabledStatus();
   }
