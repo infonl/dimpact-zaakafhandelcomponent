@@ -34,15 +34,16 @@ class TaakZoekObjectConverter @Inject constructor(
         val zaakUUID = TaakVariabelenService.readZaakUUID(taskInfo)
         val zaak = zrcClientService.readZaak(zaakUUID)
         val zaaktype = ztcClientService.readZaaktype(readZaaktypeUUID(taskInfo))
-        return TaakZoekObject().apply {
+        return TaakZoekObject(
+            id = id,
+            type = ZoekObjectType.TAAK.name
+        ).apply {
             naam = taskInfo.name
-            this.id = taskInfo.id
-            setType(ZoekObjectType.TAAK)
             creatiedatum = taskInfo.createTime
             toekenningsdatum = taskInfo.claimTime
             fataledatum = taskInfo.dueDate
             toelichting = taskInfo.description
-            status = getTaakStatus(taskInfo)
+            setStatus(getTaakStatus(taskInfo))
             zaaktypeIdentificatie = zaaktype.identificatie
             zaaktypeOmschrijving = zaaktype.omschrijving
             zaaktypeUuid = parseUUIDFromResourceURI(zaaktype.url).toString()

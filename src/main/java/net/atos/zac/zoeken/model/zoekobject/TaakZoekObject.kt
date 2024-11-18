@@ -1,270 +1,97 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.zoeken.model.zoekobject
 
-package net.atos.zac.zoeken.model.zoekobject;
+import net.atos.zac.app.task.model.TaakStatus
+import nl.lifely.zac.util.NoArgConstructor
+import org.apache.solr.client.solrj.beans.Field
+import java.util.Date
 
-import java.util.Date;
-import java.util.List;
-
-import org.apache.solr.client.solrj.beans.Field;
-
-import net.atos.zac.app.task.model.TaakStatus;
-
-public class TaakZoekObject implements ZoekObject {
-
-    public static final String BEHANDELAAR_ID_FIELD = "taak_behandelaarGebruikersnaam";
+@NoArgConstructor // required for Java bean inspection
+data class TaakZoekObject(
+    @Field
+    var id: String,
 
     @Field
-    private String id;
-
-    @Field
-    private String type;
+    private var type: String
+) : ZoekObject {
+    companion object {
+        const val BEHANDELAAR_ID_FIELD: String = "taak_behandelaarGebruikersnaam"
+    }
 
     @Field("taak_naam")
-    private String naam;
+    var naam: String? = null
 
     @Field("taak_toelichting")
-    private String toelichting;
+    var toelichting: String? = null
 
     @Field("taak_status")
-    private String status;
+    private var status: String? = null
 
     @Field("taak_zaaktypeUuid")
-    private String zaaktypeUuid;
+    var zaaktypeUuid: String? = null
 
     @Field("taak_zaaktypeIdentificatie")
-    private String zaaktypeIdentificatie;
+    var zaaktypeIdentificatie: String? = null
 
     @Field("taak_zaaktypeOmschrijving")
-    private String zaaktypeOmschrijving;
+    var zaaktypeOmschrijving: String? = null
 
     @Field("taak_zaakUuid")
-    private String zaakUUID;
+    var zaakUUID: String? = null
 
     @Field("taak_zaakId")
-    private String zaakIdentificatie;
+    var zaakIdentificatie: String? = null
 
     @Field("taak_creatiedatum")
-    private Date creatiedatum;
+    var creatiedatum: Date? = null
 
     @Field("taak_toekenningsdatum")
-    private Date toekenningsdatum;
+    var toekenningsdatum: Date? = null
 
     @Field("taak_fataledatum")
-    private Date fataledatum;
+    var fataledatum: Date? = null
 
     @Field("taak_groepId")
-    private String groepID;
+    var groepID: String? = null
 
     @Field("taak_groepNaam")
-    private String groepNaam;
+    var groepNaam: String? = null
 
     @Field("taak_behandelaarNaam")
-    private String behandelaarNaam;
+    var behandelaarNaam: String? = null
 
     @Field(BEHANDELAAR_ID_FIELD)
-    private String behandelaarGebruikersnaam;
+    var behandelaarGebruikersnaam: String? = null
 
     @Field("taak_data")
-    private List<String> taakData;
+    var taakData: List<String>? = null
 
     @Field("taak_informatie")
-    private List<String> taakInformatie;
+    var taakInformatie: List<String>? = null
 
     @Field(ZaakZoekObject.TOELICHTING_FIELD)
-    private String zaakToelichting;
+    var zaakToelichting: String? = null
 
     @Field(ZaakZoekObject.OMSCHRIJVING_FIELD)
-    private String zaakOmschrijving;
+    var zaakOmschrijving: String? = null
 
-    @Field(IS_TOEGEKEND_FIELD)
-    private boolean toegekend;
+    @Field(ZoekObject.Companion.IS_TOEGEKEND_FIELD)
+    var isToegekend: Boolean = false
 
+    override fun getObjectId() = id
 
-    public TaakZoekObject() {
+    override fun getType() = ZoekObjectType.valueOf(type)
+
+    fun getStatus() = status?.let { TaakStatus.valueOf(it) }
+
+    fun setStatus(taakStatus: TaakStatus) {
+        status = taakStatus.toString()
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(final String id) {
-        this.id = id;
-    }
-
-    @Override
-    public String getObjectId() {
-        return getId();
-    }
-
-    @Override
-    public ZoekObjectType getType() {
-        return ZoekObjectType.valueOf(type);
-    }
-
-    public void setType(final ZoekObjectType type) {
-        this.type = type.toString();
-    }
-
-    public String getNaam() {
-        return naam;
-    }
-
-    public void setNaam(final String naam) {
-        this.naam = naam;
-    }
-
-    public String getToelichting() {
-        return toelichting;
-    }
-
-    public void setToelichting(final String toelichting) {
-        this.toelichting = toelichting;
-    }
-
-    public TaakStatus getStatus() {
-        return TaakStatus.valueOf(status);
-    }
-
-    public void setStatus(final TaakStatus status) {
-        this.status = status.toString();
-    }
-
-    public String getZaaktypeOmschrijving() {
-        return zaaktypeOmschrijving;
-    }
-
-    public void setZaaktypeOmschrijving(final String zaaktypeOmschrijving) {
-        this.zaaktypeOmschrijving = zaaktypeOmschrijving;
-    }
-
-    public String getZaaktypeUuid() {
-        return zaaktypeUuid;
-    }
-
-    public void setZaaktypeUuid(final String zaaktypeUuid) {
-        this.zaaktypeUuid = zaaktypeUuid;
-    }
-
-    public String getZaaktypeIdentificatie() {
-        return zaaktypeIdentificatie;
-    }
-
-    public void setZaaktypeIdentificatie(final String zaaktypeIdentificatie) {
-        this.zaaktypeIdentificatie = zaaktypeIdentificatie;
-    }
-
-    public String getZaakUUID() {
-        return zaakUUID;
-    }
-
-    public void setZaakUUID(final String zaakUUID) {
-        this.zaakUUID = zaakUUID;
-    }
-
-    public String getZaakIdentificatie() {
-        return zaakIdentificatie;
-    }
-
-    public void setZaakIdentificatie(final String zaakIdentificatie) {
-        this.zaakIdentificatie = zaakIdentificatie;
-    }
-
-    public Date getCreatiedatum() {
-        return creatiedatum;
-    }
-
-    public void setCreatiedatum(final Date creatiedatum) {
-        this.creatiedatum = creatiedatum;
-    }
-
-    public Date getToekenningsdatum() {
-        return toekenningsdatum;
-    }
-
-    public void setToekenningsdatum(final Date toekenningsdatum) {
-        this.toekenningsdatum = toekenningsdatum;
-    }
-
-    public Date getFataledatum() {
-        return fataledatum;
-    }
-
-    public void setFataledatum(final Date fataledatum) {
-        this.fataledatum = fataledatum;
-    }
-
-    public String getGroepID() {
-        return groepID;
-    }
-
-    public void setGroepID(final String groepID) {
-        this.groepID = groepID;
-    }
-
-    public String getGroepNaam() {
-        return groepNaam;
-    }
-
-    public void setGroepNaam(final String groepNaam) {
-        this.groepNaam = groepNaam;
-    }
-
-    public String getBehandelaarNaam() {
-        return behandelaarNaam;
-    }
-
-    public void setBehandelaarNaam(final String behandelaarNaam) {
-        this.behandelaarNaam = behandelaarNaam;
-    }
-
-    public String getBehandelaarGebruikersnaam() {
-        return behandelaarGebruikersnaam;
-    }
-
-    public void setBehandelaarGebruikersnaam(final String behandelaarGebruikersnaam) {
-        this.behandelaarGebruikersnaam = behandelaarGebruikersnaam;
-    }
-
-    public List<String> getTaakData() {
-        return taakData;
-    }
-
-    public void setTaakData(final List<String> taakData) {
-        this.taakData = taakData;
-    }
-
-    public List<String> getTaakInformatie() {
-        return taakInformatie;
-    }
-
-    public void setTaakInformatie(final List<String> taakInformatie) {
-        this.taakInformatie = taakInformatie;
-    }
-
-    public String getZaakToelichting() {
-        return zaakToelichting;
-    }
-
-    public void setZaakToelichting(final String zaakToelichting) {
-        this.zaakToelichting = zaakToelichting;
-    }
-
-    public String getZaakOmschrijving() {
-        return zaakOmschrijving;
-    }
-
-    public void setZaakOmschrijving(final String zaakOmschrijving) {
-        this.zaakOmschrijving = zaakOmschrijving;
-    }
-
-    public boolean isToegekend() {
-        return toegekend;
-    }
-
-    public void setToegekend(final boolean toegekend) {
-        this.toegekend = toegekend;
+    fun setType(type: ZoekObjectType) {
+        this.type = type.toString()
     }
 }

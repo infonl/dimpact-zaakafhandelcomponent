@@ -26,8 +26,7 @@ public class RESTTaakZoekObjectConverter {
         restTaakZoekObject.status = taakZoekObject.getStatus();
         restTaakZoekObject.toelichting = taakZoekObject.getToelichting();
         restTaakZoekObject.creatiedatum = DateTimeConverterUtil.convertToLocalDate(taakZoekObject.getCreatiedatum());
-        restTaakZoekObject.toekenningsdatum = DateTimeConverterUtil.convertToLocalDate(
-                taakZoekObject.getToekenningsdatum());
+        restTaakZoekObject.toekenningsdatum = DateTimeConverterUtil.convertToLocalDate(taakZoekObject.getToekenningsdatum());
         restTaakZoekObject.fataledatum = DateTimeConverterUtil.convertToLocalDate(taakZoekObject.getFataledatum());
         restTaakZoekObject.groepNaam = taakZoekObject.getGroepNaam();
         restTaakZoekObject.behandelaarNaam = taakZoekObject.getBehandelaarNaam();
