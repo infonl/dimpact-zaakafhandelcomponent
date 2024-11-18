@@ -1,3 +1,8 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2024 Lifely
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
 <form [formGroup]="formGroup" class="flex-col">
   <mat-form-field>
     <mat-label>Document Title</mat-label>
@@ -16,4 +21,23 @@
       This field is required.
     </mat-error>
   </mat-form-field>
+
+  <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+    <!-- This is the tree node template for leaf nodes -->
+    <!-- There is inline padding applied to this node using styles.
+    This padding value depends on the mat-icon-button width. -->
+    <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
+      <button
+        mat-icon-button
+        matTreeNodeToggle
+        [attr.aria-label]="'Toggle ' + node.name"
+      >
+        <mat-icon class="mat-icon-rtl-mirror">
+          {{ treeControl.isExpanded(node) ? "expand_more" : "chevron_right" }}
+        </mat-icon>
+      </button>
+      <div class="node-name flex-1">{{ node.name }}</div>
+      <mat-chip>Actief</mat-chip>
+    </mat-tree-node>
+  </mat-tree>
 </form>
