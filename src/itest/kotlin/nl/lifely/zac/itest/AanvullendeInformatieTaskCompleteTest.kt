@@ -21,7 +21,7 @@ import org.json.JSONArray
  * This test assumes a human task plan item (=task) has been started for a zaak in a previously run test.
  */
 @Order(TEST_SPEC_ORDER_AFTER_SEARCH)
-class AanvullendeInformatieTaskListenerTest : BehaviorSpec({
+class AanvullendeInformatieTaskCompleteTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()

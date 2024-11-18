@@ -28,21 +28,21 @@ class AanvullendeInformatieTaskListener : TaskListener {
         LOG.fine {
             "AanvullendeInformatie task ${delegateTask.id} in state ${delegateTask.state} was ${delegateTask.eventName}"
         }
-        (delegateTask as TaskInfo).let { taskInfo ->
+        with(delegateTask as TaskInfo) {
             when (delegateTask.eventName) {
-                EVENTNAME_CREATE -> createdEvent(taskInfo.subScopeId)
-                EVENTNAME_COMPLETE -> completedEvent(taskInfo.scopeId, taskInfo.subScopeId)
+                EVENTNAME_CREATE -> createdEvent(subScopeId)
+                EVENTNAME_COMPLETE -> completedEvent(scopeId, subScopeId)
             }
         }
     }
 
     private fun createdEvent(subScopeId: String) {
-        updateParentZaakStatus(getPlanItemInstance(subScopeId), STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE)
+        updateZaakStatusForTask(getPlanItemInstance(subScopeId), STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE)
     }
 
     private fun completedEvent(scopeId: String, subScopeId: String) {
         if (numberOfAdditionalInfoTasks(scopeId) == 1) {
-            updateParentZaakStatus(getPlanItemInstance(subScopeId), STATUSTYPE_OMSCHRIJVING_INTAKE)
+            updateZaakStatusForTask(getPlanItemInstance(subScopeId), STATUSTYPE_OMSCHRIJVING_INTAKE)
         }
     }
 
@@ -60,31 +60,29 @@ class AanvullendeInformatieTaskListener : TaskListener {
             .planItemInstanceState("active")
             .list().size
 
-    private fun updateParentZaakStatus(planItemInstance: PlanItemInstance, statustypeOmschrijving: String) =
-        FlowableHelper.getInstance().let { flowableHelper ->
-            getZaak(planItemInstance).let { zaak ->
-                getStatustypeDescription(zaak).takeIf { it != statustypeOmschrijving }?.let {
-                    updateZaakStatus(zaak, statustypeOmschrijving)
-                }
+    private fun updateZaakStatusForTask(planItemInstance: PlanItemInstance, statustypeOmschrijving: String) =
+        getZaak(planItemInstance).let { zaak ->
+            getStatustypeDescription(zaak).takeIf { it != statustypeOmschrijving }?.let {
+                updateZaakStatus(zaak, statustypeOmschrijving)
             }
         }
 
     private fun getZaak(planItemInstance: PlanItemInstance) =
-        FlowableHelper.getInstance().let { flowableHelper ->
+        withFlowableHelper { flowableHelper ->
             flowableHelper.zaakVariabelenService.readZaakUUID(planItemInstance).let { zaakUUID ->
                 flowableHelper.zrcClientService.readZaak(zaakUUID)
             }
         }
 
     private fun getStatustypeDescription(zaak: Zaak): String =
-        FlowableHelper.getInstance().let { flowableHelper ->
+        withFlowableHelper { flowableHelper ->
             flowableHelper.zrcClientService.readStatus(zaak.status).let { zaakStatus ->
                 flowableHelper.ztcClientService.readStatustype(zaakStatus.statustype).omschrijving
             }
         }
 
     private fun updateZaakStatus(zaak: Zaak, statustypeOmschrijving: String) =
-        FlowableHelper.getInstance().let { flowableHelper ->
+        withFlowableHelper { flowableHelper ->
             LOG.info("Zaak with UUID '${zaak.uuid}': changing status to '$statustypeOmschrijving'")
             flowableHelper.zgwApiService.createStatusForZaak(
                 zaak,
@@ -92,4 +90,6 @@ class AanvullendeInformatieTaskListener : TaskListener {
                 STATUS_TOELICHTING
             )
         }
+
+    inline fun <T> withFlowableHelper(block: (FlowableHelper) -> T): T = block(FlowableHelper.getInstance())
 }

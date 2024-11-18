@@ -13,6 +13,7 @@ The following ZAC developer documentation is available:
 and (OpenAPI) API specifications used by ZAC.
 - [Managing Solr](managingSolr.md) - Instructions on how to manage the Solr search engine in ZAC. 
 For example, how to reindex the Solr search index.
+- [CMMN](cmmn.md) - Instructions on how to edit the ZAC's CMMN model.
 - [BPMN](bpmn.md) - components used to support BPMN standard flows. 
 - [REST Paging](paging.md) - REST paging conventions. 
 
