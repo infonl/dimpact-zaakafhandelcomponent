@@ -81,7 +81,7 @@ data class TaakZoekObject(
         const val BEHANDELAAR_ID_FIELD: String = "taak_behandelaarGebruikersnaam"
     }
 
-    override fun getId() = id
+    override fun getObjectId() = id
 
     override fun getType() = ZoekObjectType.valueOf(type)
 

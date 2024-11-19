@@ -5,47 +5,33 @@
 package nl.lifely.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.lifely.zac.itest.config.ItestConfiguration.DATE_2024_01_01
-import nl.lifely.zac.itest.config.ItestConfiguration.DATE_2024_01_31
-import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_CREATION_DATE
 import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.lifely.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
-import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_2_BRON_KENMERK
 import nl.lifely.zac.itest.config.ItestConfiguration.TAAK_1_FATAL_DATE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_2_BSN
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_3_BSN
-import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_LAST
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
+import nl.lifely.zac.itest.config.ItestConfiguration.TOTAL_COUNT_DOCUMENTS
+import nl.lifely.zac.itest.config.ItestConfiguration.TOTAL_COUNT_TASKS
+import nl.lifely.zac.itest.config.ItestConfiguration.TOTAL_COUNT_ZAKEN
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_2
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_EXPLANATION_1
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_1_IDENTIFICATION
+import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_START_DATE
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_START_DATE
-import nl.lifely.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.lifely.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.lifely.zac.itest.config.ItestConfiguration.zaakManual2Identification
-import nl.lifely.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
-import kotlin.time.Duration.Companion.seconds
+import nl.lifely.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 
 // Run this test last so that all the required data is available in the Solr index
 @Order(TEST_SPEC_ORDER_LAST)
@@ -58,11 +44,9 @@ class ZoekenRESTServiceTest : BehaviorSpec({
         When(
             """the search endpoint is called to search for all objects of all types"""
         ) {
-            // use eventually here because Solr might still be indexing the data
-            eventually(10.seconds) {
-                val response = itestHttpClient.performPutRequest(
-                    url = "$ZAC_API_URI/zoeken/list",
-                    requestBodyAsString = """
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/zoeken/list",
+                requestBodyAsString = """
                    {
                     "filtersType": "ZoekParameters",
                     "alleenMijnZaken": false,
@@ -75,34 +59,34 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                     "rows": 10,
                     "page":0                  
                     }
-                    """.trimIndent()
-                )
-                Then(
-                    """
-                        the response is successful and the search results include the indexed zaken, tasks and documents
-                    """
-                ) {
-                    val responseBody = response.body!!.string()
-                    logger.info { "Response: $responseBody" }
-                    response.isSuccessful shouldBe true
-                    // we only test on the total number of results and the filters, not on the actual results,
-                    // in order to keep the test maintainable
-                    responseBody shouldEqualJsonIgnoringExtraneousFields """
+                """.trimIndent()
+            )
+            Then(
+                """
+                   the response is successful and the search results include the indexed zaken, tasks and documents
+                """
+            ) {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+                // we only test on the total number of results and the filters, not on the actual results,
+                // in order to keep the test maintainable
+                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                         "foutmelding": "",                      
-                        "totaal": 10.0,
+                        "totaal": ${TOTAL_COUNT_ZAKEN + TOTAL_COUNT_TASKS + TOTAL_COUNT_DOCUMENTS}.0,
                         "filters": {
                             "TYPE": [
                                 {
-                                    "aantal": 7,
+                                    "aantal": $TOTAL_COUNT_ZAKEN,
                                     "naam": "ZAAK"
                                 },                           
                                 {
-                                    "aantal": 2,
+                                    "aantal": $TOTAL_COUNT_TASKS,
                                     "naam": "TAAK"
                                 },
                                 {
-                                    "aantal": 1,
+                                    "aantal": $TOTAL_COUNT_DOCUMENTS,
                                     "naam": "DOCUMENT"
                                 }
                             ],
@@ -112,7 +96,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                                     "naam": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                                 },
                                 {
-                                    "aantal": 5,
+                                    "aantal": 10,
                                     "naam": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                                 }                                
                             ],
@@ -140,7 +124,11 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                             ],
                             "ZAAK_STATUS": [
                                 {
-                                    "aantal": 4,
+                                    "aantal": 2,
+                                    "naam": "Wacht op aanvullende informatie"
+                                },
+                                {
+                                    "aantal": 2,
                                     "naam": "Intake"
                                 },
                                 {
@@ -201,33 +189,36 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                                     "naam": "TOEGEKEND"
                                 }
                             ],
-                            "DOCUMENT_STATUS": [                    
+                            "DOCUMENT_STATUS": [
                                 {
-                                    "aantal": 1,
+                                    "aantal": 4,
+                                    "naam": "definitief"
+                                },
+                                {
+                                    "aantal": 2,
                                     "naam": "in_bewerking"
                                 }
                             ],
                             "DOCUMENT_TYPE": [
                                 {
-                                    "aantal": 1,
+                                    "aantal": 6,
                                     "naam": "bijlage"
                                 }
                             ],
                             "DOCUMENT_VERGRENDELD_DOOR": [],
                             "DOCUMENT_INDICATIES": [
                                 {
-                                    "aantal": 1,
+                                    "aantal": 5,
                                     "naam": "GEBRUIKSRECHT"
                                 },
                                 {
-                                    "aantal": 1,
+                                    "aantal": 6,
                                     "naam": "ONDERTEKEND"
                                 }                  
                             ]
                         }
                     }
-                    """.trimIndent()
-                }
+                """.trimIndent()
             }
         }
     }
@@ -238,11 +229,9 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                 and sorted on zaaktype
             """.trimMargin()
         ) {
-            // use eventually here because Solr might still be indexing the data
-            eventually(10.seconds) {
-                val response = itestHttpClient.performPutRequest(
-                    url = "$ZAC_API_URI/zoeken/list",
-                    requestBodyAsString = """
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/zoeken/list",
+                requestBodyAsString = """
                    {
                     "filtersType": "ZoekParameters",
                     "alleenMijnZaken": false,
@@ -265,17 +254,17 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                     "sorteerRichting":"asc",
                     "sorteerVeld":"ZAAK_ZAAKTYPE"
                     }
-                    """.trimIndent()
-                )
-                Then(
-                    """
-                        the response is successful and the search results include the indexed zaken for this zaaktype only
-                    """
-                ) {
-                    val responseBody = response.body!!.string()
-                    logger.info { "Response: $responseBody" }
-                    response.isSuccessful shouldBe true
-                    responseBody shouldEqualJsonIgnoringExtraneousFields """
+                """.trimIndent()
+            )
+            Then(
+                """
+                   the response is successful and the search results include the indexed zaken for this zaaktype only
+                """
+            ) {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "foutmelding" : "",
                       "resultaten" : [ 
@@ -298,12 +287,12 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                         "indicaties" : [ ],
                         "omschrijving" : "$ZAAK_DESCRIPTION_1",                     
                         "statusToelichting" : "Status gewijzigd",
-                        "statustypeOmschrijving" : "Intake",
+                        "statustypeOmschrijving" : "Wacht op aanvullende informatie",
                         "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
                         "zaaktypeOmschrijving" : "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                       },
                       {
-                         "identificatie": "ZAAK-2000-0000000001",
+                         "identificatie": "$ZAAK_MANUAL_2_IDENTIFICATION",
                          "type": "ZAAK",
                          "aantalOpenstaandeTaken": 0,
                          "afgehandeld": false,
@@ -312,9 +301,9 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                              "test-group-a"
                            ]
                          },
-                         "communicatiekanaal": "dummyCommunicatiekanaal1",
-                         "groepId": "test-group-a",
-                         "groepNaam": "Test group A",
+                         "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_1",
+                         "groepId": "$TEST_GROUP_A_ID",
+                         "groepNaam": "$TEST_GROUP_A_DESCRIPTION",
                          "indicatieDeelzaak": false,
                          "indicatieHeropend": false,
                          "indicatieHoofdzaak": false,
@@ -327,7 +316,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                          "statustypeOmschrijving": "In behandeling",
                          "toelichting": "null",
                          "vertrouwelijkheidaanduiding": "OPENBAAR",
-                         "zaaktypeOmschrijving": "Indienen aansprakelijkstelling door derden behandelen"
+                         "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                         }
                        ],
                       "totaal" : 2.0,
@@ -356,7 +345,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                             },
                             {
                                 "aantal" : 1,
-                                "naam" : "Intake"
+                                "naam" : "Wacht op aanvullende informatie"
                             } 
                          ],
                         "ZAAK_RESULTAAT" : [
@@ -387,8 +376,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                         } ]
                       }
                     }
-                    """.trimIndent()
-                }
+                """.trimIndent()
             }
         }
     }
@@ -396,11 +384,9 @@ class ZoekenRESTServiceTest : BehaviorSpec({
         When(
             """the search endpoint is called to search for all objects of type 'TAAK'"""
         ) {
-            // use eventually here because Solr might still be indexing the data
-            eventually(10.seconds) {
-                val response = itestHttpClient.performPutRequest(
-                    url = "$ZAC_API_URI/zoeken/list",
-                    requestBodyAsString = """
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/zoeken/list",
+                requestBodyAsString = """
                    {
                     "filtersType": "ZoekParameters",
                     "alleenMijnZaken": false,
@@ -414,15 +400,15 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                     "page":0,
                     "type":"TAAK"
                     }
-                    """.trimIndent()
-                )
-                Then(
-                    """the response is successful and the search results include the indexed taken"""
-                ) {
-                    val responseBody = response.body!!.string()
-                    logger.info { "Response: $responseBody" }
-                    response.isSuccessful shouldBe true
-                    responseBody shouldEqualJsonIgnoringExtraneousFields """                                          
+                """.trimIndent()
+            )
+            Then(
+                """the response is successful and the search results include the indexed taken"""
+            ) {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """                                          
                     {
                         "foutmelding": "",
                         "resultaten": [
@@ -508,8 +494,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                             ]
                         }
                     }
-                    """.trimIndent()
-                }
+                """.trimIndent()
             }
         }
     }

@@ -150,7 +150,7 @@ data class ZaakZoekObject(
         const val ZAAK_BETROKKENE_PREFIX: String = "zaak_betrokkene_"
     }
 
-    override fun getId() = id
+    override fun getObjectId() = id
 
     override fun getType() = ZoekObjectType.valueOf(type)
 

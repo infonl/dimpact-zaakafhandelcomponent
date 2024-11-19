@@ -107,7 +107,7 @@ data class DocumentZoekObject(
     @Field("informatieobject_indicaties_sort")
     private var indicatiesVolgorde: Long = 0
 ) : ZoekObject {
-    override fun getId() = id
+    override fun getObjectId() = id
 
     override fun getType() = ZoekObjectType.valueOf(type)
 

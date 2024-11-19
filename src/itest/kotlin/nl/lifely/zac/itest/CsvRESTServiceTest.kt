@@ -74,8 +74,7 @@ class CsvRESTServiceTest : BehaviorSpec({
         "afgehandeld",
         "archiefActiedatum",
         "archiefNominatie",
-        "bagObjectIDs",
-        "behandelaarGebruikersnaam"
+        "bagObjectIDs"
     )
 
     Given("Two open zaken") {

@@ -20,7 +20,7 @@ public class RESTTaakZoekObjectConverter {
 
     public RESTTaakZoekObject convert(final TaakZoekObject taakZoekObject) {
         final RESTTaakZoekObject restTaakZoekObject = new RESTTaakZoekObject();
-        restTaakZoekObject.id = taakZoekObject.getId();
+        restTaakZoekObject.id = taakZoekObject.getObjectId();
         restTaakZoekObject.type = taakZoekObject.getType();
         restTaakZoekObject.naam = taakZoekObject.getNaam();
         restTaakZoekObject.status = taakZoekObject.getStatus();
