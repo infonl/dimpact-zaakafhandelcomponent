@@ -28,8 +28,8 @@ import net.atos.zac.zoeken.model.DatumVeld
 import net.atos.zac.zoeken.model.FilterVeld
 import net.atos.zac.zoeken.model.FilterWaarde
 import net.atos.zac.zoeken.model.ZoekParameters
-import net.atos.zac.zoeken.model.index.ZoekObjectType
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.flowable.task.api.Task
@@ -127,7 +127,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
             .items
             .map { it as ZaakZoekObject }
             .filter { hasZaakSignaleringTarget(it, SignaleringDetail.STREEFDATUM) }
-            .map { buildZaakSignalering(it.behandelaarGebruikersnaam, it, SignaleringDetail.STREEFDATUM) }
+            .map { buildZaakSignalering(it.behandelaarGebruikersnaam!!, it, SignaleringDetail.STREEFDATUM) }
             .sumOf(::verzendZaakSignalering)
 
     /**
@@ -141,28 +141,28 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
             .items
             .map { it as ZaakZoekObject }
             .filter { hasZaakSignaleringTarget(it, SignaleringDetail.FATALE_DATUM) }
-            .map { buildZaakSignalering(it.behandelaarGebruikersnaam, it, SignaleringDetail.FATALE_DATUM) }
+            .map { buildZaakSignalering(it.behandelaarGebruikersnaam!!, it, SignaleringDetail.FATALE_DATUM) }
             .sumOf(::verzendZaakSignalering)
 
     private fun hasZaakSignaleringTarget(zaakZoekObject: ZaakZoekObject, detail: SignaleringDetail): Boolean =
-        signaleringService.readInstellingenUser(
-            SignaleringType.Type.ZAAK_VERLOPEND, zaakZoekObject.behandelaarGebruikersnaam
-        ).isMail &&
-            !signaleringService.findSignaleringVerzonden(
-                getZaakSignaleringVerzondenParameters(zaakZoekObject.behandelaarGebruikersnaam, zaakZoekObject.uuid, detail)
-            ).isPresent
+        zaakZoekObject.behandelaarGebruikersnaam?.let {
+            signaleringService.readInstellingenUser(SignaleringType.Type.ZAAK_VERLOPEND, it).isMail &&
+                !signaleringService.findSignaleringVerzonden(
+                    getZaakSignaleringVerzondenParameters(
+                        it,
+                        zaakZoekObject.getObjectId(),
+                        detail
+                    )
+                ).isPresent
+        } == true
 
     private fun buildZaakSignalering(
         target: String,
         zaakZoekObject: ZaakZoekObject,
         detail: SignaleringDetail
     ): Signalering {
-        val zaak = Zaak().apply {
-            uuid = UUID.fromString(zaakZoekObject.uuid)
-        }
-        return signaleringService.signaleringInstance(
-            SignaleringType.Type.ZAAK_VERLOPEND
-        ).apply {
+        val zaak = Zaak().apply { uuid = UUID.fromString(zaakZoekObject.getObjectId()) }
+        return signaleringService.signaleringInstance(SignaleringType.Type.ZAAK_VERLOPEND).apply {
             setTargetUser(target)
             setSubject(zaak)
             setDetailFromSignaleringDetail(detail)
@@ -186,8 +186,8 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     ).items.map { it as ZaakZoekObject }
         .map {
             getZaakSignaleringVerzondenParameters(
-                it.behandelaarGebruikersnaam,
-                it.uuid,
+                it.behandelaarGebruikersnaam!!,
+                it.getObjectId(),
                 SignaleringDetail.STREEFDATUM
             )
         }.forEach(signaleringService::deleteSignaleringVerzonden)
@@ -204,8 +204,8 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     ).items.map { it as ZaakZoekObject }
         .map {
             getZaakSignaleringVerzondenParameters(
-                it.behandelaarGebruikersnaam,
-                it.uuid,
+                it.behandelaarGebruikersnaam!!,
+                it.getObjectId(),
                 SignaleringDetail.FATALE_DATUM
             )
         }

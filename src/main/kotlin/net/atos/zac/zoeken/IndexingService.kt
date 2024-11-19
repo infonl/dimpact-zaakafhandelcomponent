@@ -24,8 +24,8 @@ import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.shared.model.SorteerRichting
 import net.atos.zac.util.UriUtil.uuidFromURI
 import net.atos.zac.zoeken.converter.AbstractZoekObjectConverter
-import net.atos.zac.zoeken.model.ZoekObject
-import net.atos.zac.zoeken.model.index.ZoekObjectType
+import net.atos.zac.zoeken.model.zoekobject.ZoekObject
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import nl.lifely.zac.util.AllOpen
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.SolrQuery

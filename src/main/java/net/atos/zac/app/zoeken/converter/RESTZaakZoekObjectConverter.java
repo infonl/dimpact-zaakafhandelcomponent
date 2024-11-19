@@ -23,7 +23,7 @@ public class RESTZaakZoekObjectConverter {
 
     public RESTZaakZoekObject convert(final ZaakZoekObject zoekItem) {
         final RESTZaakZoekObject restZoekItem = new RESTZaakZoekObject();
-        restZoekItem.id = zoekItem.getUuid();
+        restZoekItem.id = zoekItem.getObjectId();
         restZoekItem.type = zoekItem.getType();
         restZoekItem.identificatie = zoekItem.getIdentificatie();
         restZoekItem.omschrijving = zoekItem.getOmschrijving();
@@ -59,14 +59,12 @@ public class RESTZaakZoekObjectConverter {
         restZoekItem.indicaties = zoekItem.getZaakIndicaties();
         restZoekItem.rechten = RestRechtenConverter.convert(policyService.readZaakRechten(zoekItem));
         restZoekItem.betrokkenen = new HashMap<>();
-        if (zoekItem.getBetrokkenen() != null) {
-            zoekItem.getBetrokkenen().forEach((betrokkenheid, ids) -> {
-                restZoekItem.betrokkenen.put(
-                        betrokkenheid.replace(ZaakZoekObject.ZAAK_BETROKKENE_PREFIX, ""),
-                        ids
-                );
-            });
-        }
+        zoekItem.getBetrokkenen().forEach((betrokkenheid, ids) -> {
+            restZoekItem.betrokkenen.put(
+                    betrokkenheid.replace(ZaakZoekObject.ZAAK_BETROKKENE_PREFIX, ""),
+                    ids
+            );
+        });
         return restZoekItem;
     }
 }

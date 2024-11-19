@@ -17,8 +17,8 @@ import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.getFullName
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
 import net.atos.zac.zoeken.model.DocumentIndicatie
-import net.atos.zac.zoeken.model.index.ZoekObjectType
 import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import java.util.UUID
 
 class DocumentZoekObjectConverter @Inject constructor(
@@ -47,9 +47,10 @@ class DocumentZoekObjectConverter @Inject constructor(
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val informatieobjecttype = ztcClientService.readInformatieobjecttype(informatieobject.informatieobjecttype)
         val informatieobjectUUID = parseUUIDFromResourceURI(informatieobject.url)
-        return DocumentZoekObject().apply {
-            setType(ZoekObjectType.DOCUMENT)
-            uuid = informatieobjectUUID.toString()
+        return DocumentZoekObject(
+            id = informatieobjectUUID.toString(),
+            type = ZoekObjectType.DOCUMENT.name
+        ).apply {
             identificatie = informatieobject.identificatie
             titel = informatieobject.titel
             beschrijving = informatieobject.beschrijving
@@ -68,7 +69,7 @@ class DocumentZoekObjectConverter @Inject constructor(
             // we use the name of this enum in the search index
             vertrouwelijkheidaanduiding = informatieobject.vertrouwelijkheidaanduiding.name
             auteur = informatieobject.auteur
-            informatieobject.status?.let { status = it }
+            informatieobject.status?.let(::setStatus)
             formaat = informatieobject.formaat
             versie = informatieobject.versie.toLong()
             bestandsnaam = informatieobject.bestandsnaam

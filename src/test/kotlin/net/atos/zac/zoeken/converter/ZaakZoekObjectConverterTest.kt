@@ -28,7 +28,7 @@ import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.createUser
 import net.atos.zac.zoeken.model.ZaakIndicatie
-import net.atos.zac.zoeken.model.index.ZoekObjectType
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import java.net.URI
 import java.time.ZoneId
 import java.util.Date
@@ -105,7 +105,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
 
             Then("the zaak zoek object should contain expected data that is converted from the zaak") {
                 with(zaakZoekObject) {
-                    uuid shouldBe zaak.uuid.toString()
+                    getObjectId() shouldBe zaak.uuid.toString()
                     getType() shouldBe ZoekObjectType.ZAAK
                     identificatie shouldBe zaak.identificatie
                     omschrijving shouldBe zaak.omschrijving
@@ -125,7 +125,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                         "zaak_betrokkene_${rolBelanghebbende.omschrijving}",
                         listOf(rolBelanghebbende.identificatienummer)
                     )
-                    zaakIndicaties shouldNotContain ZaakIndicatie.HEROPEND
+                    getZaakIndicaties() shouldNotContain ZaakIndicatie.HEROPEND
                     resultaattypeOmschrijving shouldBe resultaatType.omschrijving
                 }
             }
@@ -183,7 +183,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
 
             Then("the zaak zoek object should contain expected data that is converted from the zaak") {
                 with(zaakZoekObject) {
-                    uuid shouldBe zaak.uuid.toString()
+                    getObjectId() shouldBe zaak.uuid.toString()
                     getType() shouldBe ZoekObjectType.ZAAK
                     identificatie shouldBe zaak.identificatie
                     omschrijving shouldBe zaak.omschrijving
@@ -204,7 +204,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                         "zaak_betrokkene_${rolBelanghebbende.omschrijving}",
                         listOf(rolBelanghebbende.identificatienummer)
                     )
-                    zaakIndicaties shouldContain ZaakIndicatie.HEROPEND
+                    getZaakIndicaties() shouldContain ZaakIndicatie.HEROPEND
                 }
             }
         }

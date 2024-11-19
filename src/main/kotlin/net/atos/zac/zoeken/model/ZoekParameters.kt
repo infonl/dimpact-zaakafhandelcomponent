@@ -5,7 +5,7 @@
 package net.atos.zac.zoeken.model
 
 import net.atos.zac.shared.model.SorteerRichting
-import net.atos.zac.zoeken.model.index.ZoekObjectType
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import java.util.EnumMap
 
 @Suppress("TooManyFunctions")

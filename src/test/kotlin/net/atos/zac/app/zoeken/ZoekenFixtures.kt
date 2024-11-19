@@ -14,8 +14,8 @@ import net.atos.zac.zoeken.model.FilterVeld
 import net.atos.zac.zoeken.model.SorteerVeld
 import net.atos.zac.zoeken.model.ZoekParameters
 import net.atos.zac.zoeken.model.ZoekResultaat
-import net.atos.zac.zoeken.model.index.ZoekObjectType
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import java.util.EnumMap
 import java.util.UUID
 
@@ -56,9 +56,10 @@ fun createZaakZoekObject(
     uuid: UUID = UUID.randomUUID(),
     type: ZoekObjectType = ZoekObjectType.ZAAK,
     behandelaarGebruikersnaam: String = "dummyBehandelaarGebruikersnaam"
-) = ZaakZoekObject().apply {
-    this.uuid = uuid.toString()
-    this.setType(type)
+) = ZaakZoekObject(
+    id = uuid.toString(),
+    type = type.name
+).apply {
     this.behandelaarGebruikersnaam = behandelaarGebruikersnaam
 }
 

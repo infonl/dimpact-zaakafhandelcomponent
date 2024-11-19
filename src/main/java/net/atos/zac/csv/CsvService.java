@@ -22,8 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.opencsv.CSVWriter;
 
-import net.atos.zac.zoeken.model.ZoekObject;
 import net.atos.zac.zoeken.model.ZoekResultaat;
+import net.atos.zac.zoeken.model.zoekobject.ZoekObject;
 
 public class CsvService {
     private final static char SEPARATOR = ';';

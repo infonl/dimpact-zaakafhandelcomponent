@@ -88,7 +88,7 @@ import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
-import net.atos.zac.zoeken.model.index.ZoekObjectType
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import org.flowable.task.api.Task
 import java.time.LocalDate
 import java.time.ZoneId

@@ -14,11 +14,11 @@ import net.atos.zac.app.zoeken.model.AbstractRESTZoekObject;
 import net.atos.zac.app.zoeken.model.RESTZoekParameters;
 import net.atos.zac.app.zoeken.model.RESTZoekResultaat;
 import net.atos.zac.zoeken.model.FilterResultaat;
-import net.atos.zac.zoeken.model.ZoekObject;
 import net.atos.zac.zoeken.model.ZoekResultaat;
 import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject;
 import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject;
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
+import net.atos.zac.zoeken.model.zoekobject.ZoekObject;
 
 public class RESTZoekResultaatConverter {
 

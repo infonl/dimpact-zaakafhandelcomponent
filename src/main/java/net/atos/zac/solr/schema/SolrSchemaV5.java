@@ -14,7 +14,7 @@ import java.util.Set;
 import org.apache.solr.client.solrj.request.schema.SchemaRequest;
 
 import net.atos.zac.solr.SolrSchemaUpdate;
-import net.atos.zac.zoeken.model.index.ZoekObjectType;
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType;
 
 class SolrSchemaV5 implements SolrSchemaUpdate {
 

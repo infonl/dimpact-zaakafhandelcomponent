@@ -24,7 +24,7 @@ public class RESTDocumentZoekObjectConverter {
 
     public RESTDocumentZoekObject convert(final DocumentZoekObject documentZoekObject) {
         final RESTDocumentZoekObject restDocumentZoekObject = new RESTDocumentZoekObject();
-        restDocumentZoekObject.id = documentZoekObject.getUuid();
+        restDocumentZoekObject.id = documentZoekObject.getObjectId();
         restDocumentZoekObject.type = documentZoekObject.getType();
         restDocumentZoekObject.titel = documentZoekObject.getTitel();
         restDocumentZoekObject.beschrijving = documentZoekObject.getBeschrijving();

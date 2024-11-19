@@ -45,6 +45,7 @@ object ItestConfiguration {
     const val CONFIG_GEMEENTE_CODE = "9999"
     const val CONFIG_GEMEENTE_NAAM = "DummyZacGemeente"
     const val COMMUNICATIEKANAAL_TEST_1 = "dummyCommunicatiekanaal1"
+    const val DOCUMENT_CREATION_DATE = "2023-10-30"
     const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
     const val INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING = "bijlage"
@@ -104,9 +105,14 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 3
     const val TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED = 4
     const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 5
-    const val TEST_SPEC_ORDER_AFTER_ONE_TASK_LEFT = 6
-    const val TEST_SPEC_ORDER_AFTER_SEARCH = 7
+    const val TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED = 6
+    const val TEST_SPEC_ORDER_AFTER_REINDEXING = 7
+    const val TEST_SPEC_ORDER_AFTER_SEARCH = 8
     const val TEST_SPEC_ORDER_LAST = 100
+
+    const val TOTAL_COUNT_ZAKEN = 7
+    const val TOTAL_COUNT_TASKS = 2
+    const val TOTAL_COUNT_DOCUMENTS = 6
 
     /**
      * Test person that exists in both the BRP and the Klanten API databases
@@ -206,6 +212,7 @@ object ItestConfiguration {
     const val SMART_DOCUMENTS_FILE_TITLE = "Smart Documents file"
 
     const val SMTP_SERVER_PORT = 25
+    const val TAAK_1_FATAL_DATE = "1970-01-17"
     const val VERANTWOORDELIJKE_ORGANISATIE = "316245124"
     const val VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING"
     const val ZAAK_DESCRIPTION_1 = "dummyZaakDescription1"
@@ -236,6 +243,7 @@ object ItestConfiguration {
      * First 'manually' created zaak using the ZAC API.
      */
     const val ZAAK_MANUAL_1_IDENTIFICATION = "ZAAK-2020-0000000001"
+    const val ZAAK_MANUAL_2_IDENTIFICATION = "ZAAK-2000-0000000001"
 
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
 

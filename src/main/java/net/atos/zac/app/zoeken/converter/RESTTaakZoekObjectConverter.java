@@ -20,14 +20,13 @@ public class RESTTaakZoekObjectConverter {
 
     public RESTTaakZoekObject convert(final TaakZoekObject taakZoekObject) {
         final RESTTaakZoekObject restTaakZoekObject = new RESTTaakZoekObject();
-        restTaakZoekObject.id = taakZoekObject.getId();
+        restTaakZoekObject.id = taakZoekObject.getObjectId();
         restTaakZoekObject.type = taakZoekObject.getType();
         restTaakZoekObject.naam = taakZoekObject.getNaam();
         restTaakZoekObject.status = taakZoekObject.getStatus();
         restTaakZoekObject.toelichting = taakZoekObject.getToelichting();
         restTaakZoekObject.creatiedatum = DateTimeConverterUtil.convertToLocalDate(taakZoekObject.getCreatiedatum());
-        restTaakZoekObject.toekenningsdatum = DateTimeConverterUtil.convertToLocalDate(
-                taakZoekObject.getToekenningsdatum());
+        restTaakZoekObject.toekenningsdatum = DateTimeConverterUtil.convertToLocalDate(taakZoekObject.getToekenningsdatum());
         restTaakZoekObject.fataledatum = DateTimeConverterUtil.convertToLocalDate(taakZoekObject.getFataledatum());
         restTaakZoekObject.groepNaam = taakZoekObject.getGroepNaam();
         restTaakZoekObject.behandelaarNaam = taakZoekObject.getBehandelaarNaam();

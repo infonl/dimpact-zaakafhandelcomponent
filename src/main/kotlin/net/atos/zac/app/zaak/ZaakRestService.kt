@@ -121,7 +121,7 @@ import net.atos.zac.util.time.LocalDateUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
-import net.atos.zac.zoeken.model.index.ZoekObjectType
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.collections4.CollectionUtils
