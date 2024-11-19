@@ -77,7 +77,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 exception = exception
             )
             // fall back to generic server error
-            else -> generateServerErrorResponse(exception)
+            else -> generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
         }
 
     private fun createResponse(exception: WebApplicationException) =
@@ -104,7 +104,8 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 exception = exception,
                 errorCode = ERROR_CODE_ZTC_CLIENT
             )
-            else -> generateServerErrorResponse(exception)
+            // fall back to generic server error
+            else -> generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
         }
 
     /**
@@ -146,11 +147,12 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
     private fun generateServerErrorResponse(
         exception: Exception,
         errorCode: String? = null,
+        exceptionMessage: String? = null
     ) = generateResponse(
         responseStatus = Response.Status.INTERNAL_SERVER_ERROR,
         errorCode = errorCode ?: ERROR_CODE_GENERIC_SERVER,
         exception = exception,
-        exceptionMessage = exception.message
+        exceptionMessage = exceptionMessage
     )
 
     private fun generateResponse(
