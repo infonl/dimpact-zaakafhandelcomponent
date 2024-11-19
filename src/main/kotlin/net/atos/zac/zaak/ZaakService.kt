@@ -8,6 +8,7 @@ import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.exception.ZrcResponseExceptionMapper
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.NatuurlijkPersoon
@@ -29,8 +30,9 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
 import net.atos.zac.websocket.event.ScreenEventType
-import net.atos.zac.zaak.Betrokkenen.BETROKKENEN_ENUMSET
+import net.atos.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import nl.lifely.zac.util.AllOpen
+import org.eclipse.microprofile.rest.client.annotation.RegisterProvider
 import java.util.Locale
 import java.util.UUID
 import java.util.logging.Logger

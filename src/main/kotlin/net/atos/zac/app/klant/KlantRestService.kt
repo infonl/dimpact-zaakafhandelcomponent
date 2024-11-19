@@ -48,7 +48,7 @@ import net.atos.zac.app.klant.model.personen.toRechtsPersonen
 import net.atos.zac.app.klant.model.personen.toRestPersoon
 import net.atos.zac.app.klant.model.personen.toRestResultaat
 import net.atos.zac.app.shared.RESTResultaat
-import net.atos.zac.zaak.Betrokkenen.BETROKKENEN_ENUMSET
+import net.atos.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.hibernate.validator.constraints.Length
