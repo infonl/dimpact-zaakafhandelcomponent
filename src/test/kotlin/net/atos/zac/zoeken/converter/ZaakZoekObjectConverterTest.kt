@@ -105,7 +105,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
 
             Then("the zaak zoek object should contain expected data that is converted from the zaak") {
                 with(zaakZoekObject) {
-                    id shouldBe zaak.uuid.toString()
+                    getId() shouldBe zaak.uuid.toString()
                     getType() shouldBe ZoekObjectType.ZAAK
                     identificatie shouldBe zaak.identificatie
                     omschrijving shouldBe zaak.omschrijving
@@ -183,7 +183,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
 
             Then("the zaak zoek object should contain expected data that is converted from the zaak") {
                 with(zaakZoekObject) {
-                    id shouldBe zaak.uuid.toString()
+                    getId() shouldBe zaak.uuid.toString()
                     getType() shouldBe ZoekObjectType.ZAAK
                     identificatie shouldBe zaak.identificatie
                     omschrijving shouldBe zaak.omschrijving

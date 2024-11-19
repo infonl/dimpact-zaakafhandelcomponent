@@ -15,7 +15,7 @@ import java.util.Locale
 @NoArgConstructor // required for Java bean inspection
 data class DocumentZoekObject(
     @Field("id")
-    var uuid: String,
+    private var id: String,
 
     @Field
     private var type: String,
@@ -107,7 +107,7 @@ data class DocumentZoekObject(
     @Field("informatieobject_indicaties_sort")
     private var indicatiesVolgorde: Long = 0
 ) : ZoekObject {
-    override fun getObjectId() = uuid
+    override fun getId() = id
 
     override fun getType() = ZoekObjectType.valueOf(type)
 

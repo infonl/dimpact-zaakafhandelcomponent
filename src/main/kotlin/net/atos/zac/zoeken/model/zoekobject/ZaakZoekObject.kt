@@ -19,7 +19,7 @@ data class ZaakZoekObject(
      * The UUID of the zaak.
      */
     @Field
-    var id: String,
+    private var id: String,
 
     @Field
     private var type: String,
@@ -150,7 +150,7 @@ data class ZaakZoekObject(
         const val ZAAK_BETROKKENE_PREFIX: String = "zaak_betrokkene_"
     }
 
-    override fun getObjectId() = id
+    override fun getId() = id
 
     override fun getType() = ZoekObjectType.valueOf(type)
 

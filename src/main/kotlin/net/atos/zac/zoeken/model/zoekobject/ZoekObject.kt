@@ -9,7 +9,7 @@ interface ZoekObject {
         const val IS_TOEGEKEND_FIELD: String = "isToegekend"
     }
 
-    fun getObjectId(): String
+    fun getId(): String
 
     fun getType(): ZoekObjectType
 }

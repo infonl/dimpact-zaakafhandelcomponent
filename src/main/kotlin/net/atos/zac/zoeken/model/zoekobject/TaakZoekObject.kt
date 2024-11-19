@@ -12,7 +12,7 @@ import java.util.Date
 @NoArgConstructor // required for Java bean inspection
 data class TaakZoekObject(
     @Field
-    var id: String,
+    private var id: String,
 
     @Field
     private var type: String,
@@ -81,7 +81,7 @@ data class TaakZoekObject(
         const val BEHANDELAAR_ID_FIELD: String = "taak_behandelaarGebruikersnaam"
     }
 
-    override fun getObjectId() = id
+    override fun getId() = id
 
     override fun getType() = ZoekObjectType.valueOf(type)
 
