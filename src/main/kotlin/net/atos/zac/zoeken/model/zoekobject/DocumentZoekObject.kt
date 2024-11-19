@@ -11,8 +11,6 @@ import org.apache.solr.client.solrj.beans.Field
 import java.util.Date
 import java.util.EnumSet
 import java.util.Locale
-import java.util.function.Supplier
-import java.util.stream.Collectors
 
 @NoArgConstructor // required for Java bean inspection
 data class DocumentZoekObject(
@@ -104,7 +102,7 @@ data class DocumentZoekObject(
     var vergrendeldDoorGebruikersnaam: String? = null,
 
     @Field("informatieobject_indicaties")
-    private var indicaties: MutableList<String>? = null,
+    private var indicaties: MutableList<String> = mutableListOf(),
 
     @Field("informatieobject_indicaties_sort")
     private var indicatiesVolgorde: Long = 0
@@ -123,21 +121,15 @@ data class DocumentZoekObject(
         this.status = status.toString()
     }
 
-    fun isIndicatie(indicatie: DocumentIndicatie) = indicaties?.contains(indicatie.name) == true
+    fun isIndicatie(indicatie: DocumentIndicatie) = indicaties.contains(indicatie.name) == true
 
-    fun getDocumentIndicaties(): EnumSet<DocumentIndicatie> =
-        if (indicaties == null) {
-            EnumSet.noneOf<DocumentIndicatie>(DocumentIndicatie::class.java)
-        } else {
-            indicaties!!.stream().map<DocumentIndicatie>(DocumentIndicatie::valueOf)
-                .collect(
-                    Collectors.toCollection(
-                        Supplier {
-                            EnumSet.noneOf<DocumentIndicatie>(DocumentIndicatie::class.java)
-                        }
-                    )
-                )
+    fun getDocumentIndicaties(): EnumSet<DocumentIndicatie> {
+        val documentIndicaties = EnumSet.noneOf<DocumentIndicatie>(DocumentIndicatie::class.java)
+        for (indicatie in indicaties) {
+            documentIndicaties.add(DocumentIndicatie.valueOf(indicatie))
         }
+        return documentIndicaties
+    }
 
     fun setIndicatie(indicatie: DocumentIndicatie, value: Boolean) {
         updateIndicaties(indicatie, value)
@@ -146,17 +138,12 @@ data class DocumentZoekObject(
 
     private fun updateIndicaties(indicatie: DocumentIndicatie, value: Boolean) {
         val key = indicatie.name
-        if (indicaties == null) {
-            indicaties = arrayListOf()
-        }
-        indicaties?.let {
-            if (value) {
-                if (!it.contains(key)) {
-                    it.add(key)
-                }
-            } else {
-                it.remove(key)
+        if (value) {
+            if (!indicaties.contains(key)) {
+                indicaties.add(key)
             }
+        } else {
+            indicaties.remove(key)
         }
     }
 
