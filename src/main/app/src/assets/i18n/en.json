@@ -732,6 +732,7 @@
   "msg.error.bag.client.exception": "Unfortunately a technical error has occurred. No BAG objects could be retrieved.",
   "msg.error.brc.client.exception": "Unfortunately a technical error has occurred. No decisions could be retrieved.",
   "msg.error.brp.client.exception": "Unfortunately a technical error has occurred. No persons could be retrieved.",
+  "msg.error.betrokkene.was.already.added.to.zaak": "This involved party has already been added to the case with the chosen involvement type.",
   "msg.error.drc.client.exception": "Unfortunately a technical error has occurred. No documents could be retrieved.",
   "msg.error.klanten.client.exception": "Unfortunately a technical error has occurred. No customer data could be retrieved.",
   "msg.error.objects.client.exception": "Unfortunately a technical error has occurred. No objects could be retrieved.",

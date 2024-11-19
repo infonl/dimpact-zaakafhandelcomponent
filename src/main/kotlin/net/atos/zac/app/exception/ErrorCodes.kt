@@ -11,6 +11,7 @@ package net.atos.zac.app.exception
 */
 
 const val ERROR_CODE_BAG_CLIENT = "msg.error.bag.client.exception"
+const val ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK = "msg.error.betrokkene.was.already.added.to.zaak"
 const val ERROR_CODE_BRC_CLIENT = "msg.error.brc.client.exception"
 const val ERROR_CODE_BRP_CLIENT = "msg.error.brp.client.exception"
 const val ERROR_CODE_DRC_CLIENT = "msg.error.drc.client.exception"
