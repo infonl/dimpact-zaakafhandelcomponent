@@ -27,6 +27,7 @@ import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
 import net.atos.zac.policy.exception.PolicyException
+import net.atos.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException
@@ -65,7 +66,17 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             exception is ProcessingException && (exception.cause is ConnectException || exception.cause is UnknownHostException) -> {
                 handleProcessingException(exception)
             }
-            exception is PolicyException -> generateForbiddenResponse(exception = exception)
+            exception is PolicyException -> generateResponse(
+                responseStatus = Response.Status.FORBIDDEN,
+                errorCode = ERROR_CODE_FORBIDDEN,
+                exception = exception
+            )
+            exception is BetrokkeneIsAlreadyAddedToZaakException -> generateResponse(
+                responseStatus = Response.Status.CONFLICT,
+                errorCode = ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK,
+                exception = exception
+            )
+            // fall back to generic server error
             else -> generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
         }
 
@@ -93,6 +104,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 exception = exception,
                 errorCode = ERROR_CODE_ZTC_CLIENT
             )
+            // fall back to generic server error
             else -> generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
         }
 
@@ -128,7 +140,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZRC_CLIENT)
                 it.contains(ZtcClientService::class.simpleName!!) ->
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_ZTC_CLIENT)
-                else -> generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
+                else -> generateServerErrorResponse(exception)
             }
         }
 
@@ -136,51 +148,38 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         exception: Exception,
         errorCode: String? = null,
         exceptionMessage: String? = null
-    ): Response =
-        Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-            .type(MediaType.APPLICATION_JSON)
-            .entity(
-                getJSONMessage(
-                    errorMessage = errorCode ?: ERROR_CODE_GENERIC_SERVER,
-                    exceptionMessage = exceptionMessage
-                )
-            )
-            .build().also {
-                LOG.log(
-                    Level.SEVERE,
-                    exceptionMessage ?: "Exception was thrown. Returning response with error code $errorCode.",
-                    exception
-                )
-            }
+    ) = generateResponse(
+        responseStatus = Response.Status.INTERNAL_SERVER_ERROR,
+        errorCode = errorCode ?: ERROR_CODE_GENERIC_SERVER,
+        exception = exception,
+        exceptionMessage = exceptionMessage
+    )
 
-    private fun generateForbiddenResponse(
+    private fun generateResponse(
+        responseStatus: Response.Status,
+        errorCode: String,
         exception: Exception,
         exceptionMessage: String? = null
-    ): Response =
-        Response.status(Response.Status.FORBIDDEN)
-            .type(MediaType.APPLICATION_JSON)
-            .entity(
-                getJSONMessage(
-                    errorMessage = ERROR_CODE_FORBIDDEN,
-                    exceptionMessage = exceptionMessage
-                )
+    ) = Response.status(responseStatus)
+        .type(MediaType.APPLICATION_JSON)
+        .entity(
+            getJSONMessage(
+                errorMessage = errorCode,
+                exceptionMessage = exceptionMessage
             )
-            .build().also {
-                LOG.log(
-                    Level.FINE,
-                    exceptionMessage ?: "Exception was thrown. Returning response with error code $ERROR_CODE_FORBIDDEN.",
-                    exception
-                )
-            }
+        )
+        .build().also {
+            LOG.log(
+                Level.FINE,
+                exception.message ?: "Exception was thrown. Returning response with error code $errorCode.",
+                exception
+            )
+        }
 
     private fun getJSONMessage(errorMessage: String, exceptionMessage: String? = null) =
         try {
-            val errorJsonHashMap = mutableMapOf(
-                "message" to errorMessage
-            )
-            exceptionMessage?.let {
-                errorJsonHashMap["exception"] = it
-            }
+            val errorJsonHashMap = mutableMapOf("message" to errorMessage)
+            exceptionMessage?.let { errorJsonHashMap["exception"] = it }
             ObjectMapper().writeValueAsString(errorJsonHashMap)
         } catch (jsonProcessingException: JsonProcessingException) {
             LOG.log(Level.SEVERE, JSON_CONVERSION_ERROR_MESSAGE, jsonProcessingException)

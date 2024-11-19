@@ -1,4 +1,8 @@
-package net.atos.zac.zaak
+/*
+* SPDX-FileCopyrightText: 2024 Lifely
+* SPDX-License-Identifier: EUPL-1.2+
+*/
+package net.atos.zac.zaak.model
 
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import java.util.EnumSet

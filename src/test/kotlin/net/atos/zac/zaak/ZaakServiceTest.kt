@@ -28,6 +28,7 @@ import net.atos.zac.identity.model.createGroup
 import net.atos.zac.identity.model.createUser
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
+import net.atos.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import java.net.URI
 import java.util.UUID
 
@@ -382,15 +383,19 @@ class ZaakServiceTest : BehaviorSpec({
         every { zrcClientService.listRollen(zaak) } returns listOf(roleAdviseur)
 
         When("the same betrokkene is added again with the same role type") {
-            zaakService.addBetrokkeneToZaak(
-                roleTypeUUID = roleTypeUUID,
-                identificationType = IdentificatieType.BSN,
-                identification = identification,
-                zaak = zaak,
-                explanation = explanation
-            )
+            val exception = shouldThrow<BetrokkeneIsAlreadyAddedToZaakException> {
+                zaakService.addBetrokkeneToZaak(
+                    roleTypeUUID = roleTypeUUID,
+                    identificationType = IdentificatieType.BSN,
+                    identification = identification,
+                    zaak = zaak,
+                    explanation = explanation
+                )
+            }
 
-            Then("the betrokkene is not added to the zaak again") {
+            Then("an exception is thrown and the betrokkene is not added to the zaak again") {
+                exception.message shouldBe "Betrokkene with type 'BSN' and identification 'dummyBSN' " +
+                    "was already added to the zaak with UUID '${zaak.uuid}'. Ignoring."
                 verify(exactly = 0) {
                     zrcClientService.createRol(any(), any())
                 }

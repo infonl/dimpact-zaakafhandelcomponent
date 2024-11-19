@@ -29,7 +29,8 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
 import net.atos.zac.websocket.event.ScreenEventType
-import net.atos.zac.zaak.Betrokkenen.BETROKKENEN_ENUMSET
+import net.atos.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
+import net.atos.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import nl.lifely.zac.util.AllOpen
 import java.util.Locale
 import java.util.UUID
@@ -56,11 +57,10 @@ class ZaakService @Inject constructor(
                 it.identificatienummer == identification && it.roltype == roleType.url
             }
         ) {
-            LOG.info {
-                "Betrokkene of type '$identificationType' and with identification '$identification' " +
-                    "already exists for zaak with UUID '${zaak.uuid}'. Ignoring."
-            }
-            return
+            throw BetrokkeneIsAlreadyAddedToZaakException(
+                "Betrokkene with type '$identificationType' and identification '$identification' " +
+                    "was already added to the zaak with UUID '${zaak.uuid}'. Ignoring."
+            )
         }
         addRoleToZaak(
             roleType = roleType,
