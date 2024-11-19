@@ -132,15 +132,6 @@ object ItestConfiguration {
     const val TEST_TXT_FILE_NAME = "testTextDocument.txt"
     const val TEST_TXT_CONVERTED_TO_PDF_FILE_NAME = "testTextDocument.pdf"
     const val TEST_TXT_FILE_SIZE = 63
-    const val TEST_SPEC_ORDER_INITIAL = 0
-    const val TEST_SPEC_ORDER_AFTER_ZAAK_CREATED = 1
-    const val TEST_SPEC_ORDER_AFTER_TASK_CREATED = 2
-    const val TEST_SPEC_ORDER_AFTER_TASK_RETRIEVED = 3
-    const val TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED = 4
-    const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 5
-    const val TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED = 6
-    const val TEST_SPEC_ORDER_AFTER_REINDEXING = 7
-    const val TEST_SPEC_ORDER_LAST = 8
     const val TEST_USER_1_USERNAME = "testuser1"
     const val TEST_USER_1_PASSWORD = "testuser1"
     const val TEST_USER_1_EMAIL = "testuser1@example.com"
