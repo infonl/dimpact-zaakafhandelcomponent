@@ -305,7 +305,7 @@ VALUES
     (
         (SELECT COALESCE(MAX(id),0) FROM catalogi_statustype) + 1, -- Adjust ID as needed
         '22b82146-af11-42cf-96bd-bea47057abd4', -- UUID
-        'Aanvullende informatie vereist', -- Statustype Omschrijving
+        'Wacht op aanvullende informatie', -- Statustype Omschrijving
         '', -- Statustype Omschrijving Generiek
         10, -- Statustypevolgnummer
         false, -- Informeren

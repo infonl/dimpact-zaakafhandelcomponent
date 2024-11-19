@@ -130,7 +130,7 @@ class ZaakHistorieTest : BehaviorSpec({
                     "actie": "GEWIJZIGD",
                     "attribuutLabel": "status",
                     "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "Aanvullende informatie vereist",
+                    "nieuweWaarde": "Wacht op aanvullende informatie",
                     "toelichting": "Status gewijzigd"
                   },
                   {

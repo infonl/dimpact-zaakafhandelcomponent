@@ -70,7 +70,7 @@ class ConfiguratieService @Inject constructor(
         const val STATUSTYPE_OMSCHRIJVING_HEROPEND = "Heropend"
         const val STATUSTYPE_OMSCHRIJVING_INTAKE = "Intake"
         const val STATUSTYPE_OMSCHRIJVING_IN_BEHANDELING = "In behandeling"
-        const val STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE = "Aanvullende informatie vereist"
+        const val STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE = "Wacht op aanvullende informatie"
         const val STATUSTYPE_OMSCHRIJVING_AFGEROND = "Afgerond"
 
         /**

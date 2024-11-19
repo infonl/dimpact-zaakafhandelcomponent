@@ -8,7 +8,7 @@ package net.atos.zac.app.admin.model;
 import java.util.List;
 
 /**
- * 5 statustype; Intake, In behandeling, Heropend, Aanvullende informatie vereist,
+ * 5 statustype; Intake, In behandeling, Heropend, Wacht op aanvullende informatie,
  * Afgerond: met Afgerond als laatste statustypevolgnummer
  * <br/>
  * min 1 resultaattype

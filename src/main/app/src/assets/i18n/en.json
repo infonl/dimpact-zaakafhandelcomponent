@@ -839,7 +839,7 @@
   "healthCheck.zaaktype.geenStatustypeIntakeAanwezig": "The required status type \"Intake\" does not exist",
   "healthCheck.zaaktype.geenStatustypeInBehandelingAanwezig": "The required status type \"In behandeling\" does not exist",
   "healthCheck.zaaktype.geenStatustypeHeropendAanwezig": "The required status type \"Heropend\" does not exist",
-  "healthCheck.zaaktype.geenStatustypeAanvullendeInformatieVereist": "The required status type \"Aanvullende Informatie Vereist\" does not exist",
+  "healthCheck.zaaktype.geenStatustypeAanvullendeInformatieVereist": "The required status type \"Wacht op aanvullende informatie\" does not exist",
   "healthCheck.zaaktype.geenStatustypeAfgerondAanwezig": "The required (end) status type \"Afgerond\" does not exist",
   "healthCheck.zaaktype.statustypeAfgerondLaatsteVolgnummer": "Status type \"Afgerond\" is not the final status",
   "healthCheck.zaaktype.geenResultaattypeAanwezig": "No result type was found, at least one result type is required",
