@@ -119,7 +119,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                         },
                         "startdatum" : "$DATE_2024_01_01",
                         "statusToelichting" : "Status gewijzigd",
-                        "statustypeOmschrijving" : "Aanvullende informatie vereist",
+                        "statustypeOmschrijving" : "Wacht op aanvullende informatie",
                         "uiterlijkeEinddatumAfdoening" : "$DATE_2024_01_31",
                         "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
                         "zaaktypeOmschrijving" : "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
@@ -258,7 +258,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                         },
                         "startdatum" : "$ZAAK_PRODUCTAANVRAAG_1_START_DATE",
                         "statusToelichting" : "Status gewijzigd",
-                        "statustypeOmschrijving" : "Aanvullende informatie vereist",
+                        "statustypeOmschrijving" : "Wacht op aanvullende informatie",
                         "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
                         "zaaktypeOmschrijving" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                       } ],
@@ -277,10 +277,10 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                         } ],
                         "ZAAK_STATUS": [ {
                           "aantal": 2,
-                          "naam": "Aanvullende informatie vereist"
+                          "naam": "Intake"
                         }, {
                           "aantal": 2,
-                          "naam": "Intake"
+                          "naam": "Wacht op aanvullende informatie"
                         } ],
                         "ZAAK_RESULTAAT" : [ {
                           "aantal" : 4,
@@ -394,7 +394,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                           "wijzigenDoorlooptijd" : true
                         },
                         "statusToelichting" : "Status gewijzigd",
-                        "statustypeOmschrijving" : "Aanvullende informatie vereist",
+                        "statustypeOmschrijving" : "Wacht op aanvullende informatie",
                         "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
                         "zaaktypeOmschrijving" : "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                       } ],
@@ -413,7 +413,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                         } ],
                         "ZAAK_STATUS" : [ {
                           "aantal" : 1,
-                          "naam" : "Aanvullende informatie vereist"
+                          "naam" : "Wacht op aanvullende informatie"
                         } ],
                         "ZAAK_RESULTAAT" : [ {
                           "aantal" : 1,

@@ -68,7 +68,7 @@ class TaskRestServiceCompleteTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
 
-                responseBody.shouldContainJsonKeyValue("$.status.naam", "Aanvullende informatie vereist")
+                responseBody.shouldContainJsonKeyValue("$.status.naam", "Wacht op aanvullende informatie")
             }
         }
     }
