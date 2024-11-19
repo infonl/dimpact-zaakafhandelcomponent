@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export const worldPossibleZacUrls = z.enum(["zac"]);
 export const worldUsers = z.enum(["Bob", "Oscar"]);
-export const zaakStatus = z.enum(["Intake"]);
+export const zaakStatus = z.enum(["Intake", "Aanvullende informatie vereist"]);
 
 export const worldParametersScheme = z.object({
   attach: z.any().refine((val): val is ICreateAttachment => {
