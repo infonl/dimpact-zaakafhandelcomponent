@@ -141,28 +141,29 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
             .items
             .map { it as ZaakZoekObject }
             .filter { hasZaakSignaleringTarget(it, SignaleringDetail.FATALE_DATUM) }
+            // TODO: refactor
             .map { buildZaakSignalering(it.behandelaarGebruikersnaam!!, it, SignaleringDetail.FATALE_DATUM) }
             .sumOf(::verzendZaakSignalering)
 
     private fun hasZaakSignaleringTarget(zaakZoekObject: ZaakZoekObject, detail: SignaleringDetail): Boolean =
-        signaleringService.readInstellingenUser(
-            SignaleringType.Type.ZAAK_VERLOPEND, zaakZoekObject.behandelaarGebruikersnaam!!
-        ).isMail &&
-            !signaleringService.findSignaleringVerzonden(
-                getZaakSignaleringVerzondenParameters(zaakZoekObject.behandelaarGebruikersnaam!!, zaakZoekObject.id, detail)
-            ).isPresent
+        zaakZoekObject.behandelaarGebruikersnaam?.let {
+            signaleringService.readInstellingenUser(SignaleringType.Type.ZAAK_VERLOPEND, it).isMail &&
+                    !signaleringService.findSignaleringVerzonden(
+                        getZaakSignaleringVerzondenParameters(
+                            it,
+                            zaakZoekObject.id,
+                            detail
+                        )
+                    ).isPresent
+        } == true
 
     private fun buildZaakSignalering(
         target: String,
         zaakZoekObject: ZaakZoekObject,
         detail: SignaleringDetail
     ): Signalering {
-        val zaak = Zaak().apply {
-            uuid = UUID.fromString(zaakZoekObject.id)
-        }
-        return signaleringService.signaleringInstance(
-            SignaleringType.Type.ZAAK_VERLOPEND
-        ).apply {
+        val zaak = Zaak().apply { uuid = UUID.fromString(zaakZoekObject.id) }
+        return signaleringService.signaleringInstance(SignaleringType.Type.ZAAK_VERLOPEND).apply {
             setTargetUser(target)
             setSubject(zaak)
             setDetailFromSignaleringDetail(detail)

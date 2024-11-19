@@ -63,10 +63,10 @@ data class TaakZoekObject(
     var behandelaarGebruikersnaam: String? = null,
 
     @Field("taak_data")
-    var taakData: List<String>? = null,
+    var taakData: List<String> = listOf(),
 
     @Field("taak_informatie")
-    var taakInformatie: List<String>? = null,
+    var taakInformatie: List<String> = listOf(),
 
     @Field(ZaakZoekObject.TOELICHTING_FIELD)
     var zaakToelichting: String? = null,
