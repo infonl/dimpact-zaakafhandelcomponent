@@ -6,7 +6,7 @@
 
 import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
-import {Observable, of} from "rxjs";
+import { Observable, of } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
@@ -40,7 +40,7 @@ describe(BatchProcessService.name, () => {
     service = TestBed.inject(BatchProcessService);
 
     websocketService = TestBed.inject(WebsocketService);
-    jest.spyOn(websocketService, 'removeListener').mockReturnValue()
+    jest.spyOn(websocketService, "removeListener").mockReturnValue();
     jest
       .spyOn(websocketService, "addListener")
       .mockReturnValue(
@@ -52,7 +52,9 @@ describe(BatchProcessService.name, () => {
 
     utilService = TestBed.inject(UtilService);
     jest.spyOn(utilService, "closeProgressDialog").mockReturnValue();
-    jest.spyOn(utilService, 'openProgressDialog').mockReturnValue(new Observable());
+    jest
+      .spyOn(utilService, "openProgressDialog")
+      .mockReturnValue(new Observable());
 
     translateService = TestBed.inject(TranslateService);
     jest.spyOn(translateService, "instant").mockReturnValue("mock-translation");
@@ -118,7 +120,7 @@ describe(BatchProcessService.name, () => {
     });
 
     test("should set a timeout when a timeout is passed", () => {
-    const setTimeout = jest.spyOn(window,'setTimeout')
+      const setTimeout = jest.spyOn(window, "setTimeout");
 
       service.showProgress("message", {
         onTimeout: jest.fn(),
@@ -141,18 +143,18 @@ describe(BatchProcessService.name, () => {
     });
 
     test("after the timeout it should call to stop the progress", async () => {
-        const stop = jest.spyOn(service, 'stop')
-        jest.useFakeTimers();
-        const timeout = 100;
-        const onTimeout = jest.fn();
-        service.showProgress("message", {
-            onTimeout: onTimeout,
-            durationInMs: timeout,
-        });
+      const stop = jest.spyOn(service, "stop");
+      jest.useFakeTimers();
+      const timeout = 100;
+      const onTimeout = jest.fn();
+      service.showProgress("message", {
+        onTimeout: onTimeout,
+        durationInMs: timeout,
+      });
 
-        jest.advanceTimersByTime(timeout + 1);
-        await jest.runAllTimersAsync(); // To call the `.finally()` of the promise
-        expect(stop).toHaveBeenCalledTimes(1);
-    })
+      jest.advanceTimersByTime(timeout + 1);
+      await jest.runAllTimersAsync(); // To call the `.finally()` of the promise
+      expect(stop).toHaveBeenCalledTimes(1);
+    });
   });
 });

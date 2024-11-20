@@ -42,7 +42,7 @@ export class BatchProcessService {
   private subscriptions: WebsocketListener[] = [];
   private options?: Options;
   private timeout?: ReturnType<typeof setTimeout>;
-  private progressTimeout?: ProgressTimeout
+  private progressTimeout?: ProgressTimeout;
 
   constructor(
     private websocketService: WebsocketService,
@@ -81,8 +81,7 @@ export class BatchProcessService {
         options.finalSubscription.opcode,
         options.finalSubscription.objectType,
         options.finalSubscription.screenEventResourceId,
-        () =>
-          Promise.resolve(options.finally()).finally(() => this.stop()),
+        () => Promise.resolve(options.finally()).finally(() => this.stop()),
       );
       this.subscriptions.push(finalSubscription);
     }
