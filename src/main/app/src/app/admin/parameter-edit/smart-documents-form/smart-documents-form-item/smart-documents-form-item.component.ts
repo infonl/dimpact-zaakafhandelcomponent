@@ -4,10 +4,11 @@
  *
  */
 
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, EventEmitter, Output } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
+// import { EventEmitter } from "stream";
 
 @Component({
   selector: "smart-documents-form-item",
@@ -15,27 +16,33 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   styleUrls: ["./smart-documents-form-item.component.less"],
 })
 export class SmartDocumentsFormItemComponent implements OnInit {
-  @Input() template: GeneratedType<"RestMappedSmartDocumentsTemplate">;
+  @Input() node: any;
   @Input() informationObjectTypes: GeneratedType<"RestInformatieobjecttype">[];
-
-  // @Output() formValidityChanged = new EventEmitter<boolean>();
+  @Output() selectionChange = new EventEmitter<
+    GeneratedType<"RestMappedSmartDocumentsTemplate">
+  >();
 
   confidentiality = new FormControl({ value: "", disabled: true });
   checkbox = new FormControl({ value: false, disabled: false });
 
+  previousInformatieObjectTypeUUID: string;
+
   constructor(private readonly translateService: TranslateService) {}
 
   ngOnInit() {
+    this.previousInformatieObjectTypeUUID = this.node?.informatieObjectTypeUUID;
     this.updateFormControls();
   }
 
   clearSelectedDocumentType() {
-    this.template.informatieObjectTypeUUID = undefined;
+    this.node.informatieObjectTypeUUID = "";
     this.updateFormControls();
   }
 
   updateFormControls() {
-    const { informatieObjectTypeUUID } = this.template;
+    console.log("updateFormControls NODE ......", this.node);
+
+    const { informatieObjectTypeUUID } = this.node;
 
     const confidentiality = this.informationObjectTypes.find(
       ({ uuid }) => informatieObjectTypeUUID === uuid,
@@ -49,20 +56,22 @@ export class SmartDocumentsFormItemComponent implements OnInit {
         : null,
     );
 
-    this.updateEnabledStatus();
+    this.updateCheckbox(
+      informatieObjectTypeUUID && informatieObjectTypeUUID !== "",
+    );
+
+    if (
+      this.node.informatieObjectTypeUUID !==
+      this.previousInformatieObjectTypeUUID
+    ) {
+      this.selectionChange.emit({ ...this.node });
+      this.previousInformatieObjectTypeUUID =
+        this.node.informatieObjectTypeUUID;
+    }
   }
 
-  private updateEnabledStatus() {
-    const hasValue =
-      this.template.informatieObjectTypeUUID &&
-      this.template.informatieObjectTypeUUID !== "";
-
-    if (hasValue) {
-      this.checkbox.enable();
-    } else {
-      this.checkbox.disable();
-    }
-
+  private updateCheckbox(hasValue: boolean) {
+    this.checkbox[hasValue ? "enable" : "disable"]();
     this.checkbox.setValue(hasValue);
   }
 }

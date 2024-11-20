@@ -10,12 +10,10 @@
         class="flex-1"
         [formGroup]="formGroup"
         [informationObjectTypes]="informationObjectTypes"
-        [template]="node"
+        [node]="node"
+        (selectionChange)="onNodeChange($event)"
       ></smart-documents-form-item>
     </mat-tree-node>
-    <!-- This is the tree node template for leaf nodes -->
-    <!-- There is inline padding applied to this node using styles.
-    This padding value depends on the mat-icon-button width. -->
     <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodeToggle>
       <button
         mat-icon-button
@@ -27,7 +25,12 @@
         </mat-icon>
       </button>
       <div class="node-name flex-1">{{ node.name }}</div>
-      <mat-chip>actief</mat-chip>
+      <mat-chip
+        [ngClass]="{ 'active-chip': hasSelectedInformationObjectType(node.id) }"
+        >{{
+          hasSelectedInformationObjectType(node.id) ? "actief" : "inactief"
+        }}</mat-chip
+      >
     </mat-tree-node>
   </mat-tree>
 </form>
