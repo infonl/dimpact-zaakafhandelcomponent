@@ -112,7 +112,7 @@ object ItestConfiguration {
 
     const val TOTAL_COUNT_ZAKEN = 7
     const val TOTAL_COUNT_TASKS = 2
-    const val TOTAL_COUNT_DOCUMENTS = 6
+    const val TOTAL_COUNT_DOCUMENTS = 7
 
     /**
      * Test person that exists in both the BRP and the Klanten API databases
