@@ -1,4 +1,4 @@
-package net.atos.zac.app.audit
+package net.atos.zac.app.zaak.converter.historie
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel
@@ -9,9 +9,24 @@ import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.zac.app.audit.CREATE
+import net.atos.zac.app.audit.DESTROY
+import net.atos.zac.app.audit.IDENTIFICATIE
+import net.atos.zac.app.audit.KLANTCONTACT
+import net.atos.zac.app.audit.PARTIAL_UPDATE
+import net.atos.zac.app.audit.RESULTAAT
+import net.atos.zac.app.audit.RESULTAATTYPE
+import net.atos.zac.app.audit.ROL
+import net.atos.zac.app.audit.ROLTYPE
+import net.atos.zac.app.audit.STATUS
+import net.atos.zac.app.audit.STATUSTYPE
+import net.atos.zac.app.audit.TITEL
+import net.atos.zac.app.audit.UPDATE
+import net.atos.zac.app.audit.ZAAK
+import net.atos.zac.app.audit.ZAAKINFORMATIEOBJECT
+import net.atos.zac.app.audit.ZAAKOBJECT
 import net.atos.zac.app.audit.model.RESTHistorieActie
 import net.atos.zac.app.audit.model.RESTHistorieRegel
-import net.atos.zac.app.zaak.converter.historie.RESTZaakHistoriePartialUpdateConverter
 import nl.lifely.zac.util.asMapWithKeyOfString
 import nl.lifely.zac.util.getTypedValue
 import nl.lifely.zac.util.stringProperty
@@ -36,7 +51,7 @@ private const val ZAAK = "zaak"
 private const val ZAAKINFORMATIEOBJECT = "zaakinformatieobject"
 private const val ZAAKOBJECT = "zaakobject"
 
-class ZaakHistoryService @Inject constructor(
+class RESTZaakHistorieRegelConverter @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
     private val restZaakHistoriePartialUpdateConverter: RESTZaakHistoriePartialUpdateConverter
