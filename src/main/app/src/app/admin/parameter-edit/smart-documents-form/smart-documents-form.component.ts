@@ -6,7 +6,7 @@ import {
   MatTreeFlattener,
 } from "@angular/material/tree";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { firstValueFrom } from "rxjs";
+import { Observable, firstValueFrom } from "rxjs";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
@@ -94,15 +94,11 @@ export class SmartDocumentsFormComponent {
       ),
   }));
 
-  private _transformer = (
-    node: any,
-    level: number,
-    parentId: string | null = null,
-  ) => {
+  private _transformer = (node: any, level: number) => {
     return {
       id: node.id,
-      parentId: node.parentId,
       name: node.name,
+      parentId: node.parentId,
       informatieObjectTypeUUID: node.informatieObjectTypeUUID,
       level: level,
       expandable: !!node.templates && node.templates.length > 0,
@@ -139,13 +135,11 @@ export class SmartDocumentsFormComponent {
   }
 
   hasSelectedInformationObjectType(id: any): boolean {
-    const currentNode = this.dataSource.data.find(
-      (dataNode) => dataNode.id === id,
-    );
+    const nodeHasSelectedInformationObjectType = this.dataSource.data
+      .find((node) => node.id === id)
+      ?.templates.some((_node) => _node.informatieObjectTypeUUID !== "");
 
-    return currentNode.templates.some(
-      (node) => node.informatieObjectTypeUUID !== "",
-    );
+    return !!nodeHasSelectedInformationObjectType;
   }
 
   onNodeChange(node: any): void {
@@ -205,4 +199,12 @@ export class SmartDocumentsFormComponent {
       };
     });
   };
+
+  public storeSmartDocumentsConfig(): Observable<never> {
+    console.log("Saving storeSmartDocumentsConfig", this.dataSource.data);
+    return this.smartDocumentsService.storeTemplatesMapping(
+      this.zaakTypeUuid,
+      this.dataSource.data,
+    );
+  }
 }

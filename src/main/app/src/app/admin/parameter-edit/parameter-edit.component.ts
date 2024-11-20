@@ -63,9 +63,6 @@ export class ParameterEditComponent
   @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
   @ViewChild("menuSidenav") menuSidenav: MatSidenav;
 
-  @ViewChild("smartDocumentsTree")
-  smartDocumentsTree: SmartDocumentsTreeComponent;
-
   @ViewChild("SmartDocumentsFormComponent")
   smartDocsFormGroup: SmartDocumentsFormComponent;
 
@@ -675,7 +672,18 @@ export class ParameterEditComponent
       },
     );
 
-    this.smartDocumentsTree?.save().subscribe();
+    console.log("about to opslaan.");
+    this.smartDocsFormGroup?.storeSmartDocumentsConfig().subscribe(
+      () => {
+        console.log("storeSmartDocumentsConfig successful");
+      },
+      (error) => {
+        console.error("storeSmartDocumentsConfig failed", error);
+      },
+      () => {
+        console.log("storeSmartDocumentsConfig completed");
+      },
+    );
   }
 
   compareObject(object1: any, object2: any): boolean {
