@@ -7,11 +7,19 @@ import { Injectable } from "@angular/core";
 import { catchError, map, Observable } from "rxjs";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
-import {GeneratedType} from "../shared/utils/generated-types";
+import { GeneratedType } from "../shared/utils/generated-types";
 
-export type SmartDocumentsTemplate = Omit<GeneratedType<'RestMappedSmartDocumentsTemplate'>, 'informatieObjectTypeUUID'>;
+export type SmartDocumentsTemplate = Omit<
+  GeneratedType<"RestMappedSmartDocumentsTemplate">,
+  "informatieObjectTypeUUID"
+>;
 
-interface BaseGroup<T extends Omit<GeneratedType<'RestMappedSmartDocumentsTemplate'>, 'informatieObjectTypeUUID'>> {
+interface BaseGroup<
+  T extends Omit<
+    GeneratedType<"RestMappedSmartDocumentsTemplate">,
+    "informatieObjectTypeUUID"
+  >,
+> {
   id: string;
   name: string;
   groups?: BaseGroup<T>[];
@@ -20,7 +28,9 @@ interface BaseGroup<T extends Omit<GeneratedType<'RestMappedSmartDocumentsTempla
 
 export type SmartDocumentsTemplateGroup = BaseGroup<SmartDocumentsTemplate>;
 
-export type DocumentsTemplateGroup = BaseGroup<GeneratedType<'RestMappedSmartDocumentsTemplate'>>;
+export type DocumentsTemplateGroup = BaseGroup<
+  GeneratedType<"RestMappedSmartDocumentsTemplate">
+>;
 
 @Injectable({ providedIn: "root" })
 export class SmartDocumentsService {
@@ -29,7 +39,9 @@ export class SmartDocumentsService {
     private foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
-  getAllSmartDocumentsTemplates(): Observable<SmartDocumentsTemplateGroup[]> {
+  getAllSmartDocumentsTemplateGroups(): Observable<
+    SmartDocumentsTemplateGroup[]
+  > {
     return this.zacHttp
       .GET("/rest/zaakafhandelparameters/document-templates")
       .pipe(
@@ -37,7 +49,7 @@ export class SmartDocumentsService {
       );
   }
 
-  getAllSmartDocumentsTemplateGroups(): Observable<
+  getAllSmartDocumentsTemplateGroupsFlat(): Observable<
     SmartDocumentsTemplateGroup[]
   > {
     return this.zacHttp
@@ -67,7 +79,7 @@ export class SmartDocumentsService {
       );
   }
 
-  getZaakTypeTemplatesMappings(
+  getZaakTypeTemplatesMappingsFlat(
     zaakafhandelUUID: string,
   ): Observable<DocumentsTemplateGroup[]> {
     return this.zacHttp

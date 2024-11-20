@@ -15,7 +15,7 @@ import {
   SmartDocumentsTemplate,
   SmartDocumentsTemplateGroup,
 } from "../../smart-documents.service";
-import {GeneratedType} from "../../../shared/utils/generated-types";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 
 function getSelectableGroup(
   original: SmartDocumentsTemplateGroup,
@@ -34,8 +34,8 @@ function getSelectableGroup(
 
 function getSelectableTemplates(
   original: SmartDocumentsTemplate[],
-  selection: GeneratedType<'RestMappedSmartDocumentsTemplate'>[],
-): GeneratedType<'RestMappedSmartDocumentsTemplate'>[] {
+  selection: GeneratedType<"RestMappedSmartDocumentsTemplate">[],
+): GeneratedType<"RestMappedSmartDocumentsTemplate">[] {
   return original.map((template) => ({
     ...template,
     informatieObjectTypeUUID:
@@ -95,7 +95,7 @@ export class SmartDocumentsTreeComponent {
     queryKey: ["all smart documents"],
     queryFn: () =>
       firstValueFrom(
-        this.smartDocumentsService.getAllSmartDocumentsTemplates(),
+        this.smartDocumentsService.getAllSmartDocumentsTemplateGroups(),
       ),
   }));
   templateMappings = injectQuery(() => ({

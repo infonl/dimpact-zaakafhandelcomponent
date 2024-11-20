@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { FlatTreeControl } from "@angular/cdk/tree";
 import { Component, effect, EventEmitter, Input, Output } from "@angular/core";
 import { FormGroup } from "@angular/forms";
@@ -30,28 +35,67 @@ export class SmartDocumentsFormComponent {
   @Input() zaakTypeUuid: string;
   @Output() formValidityChanged = new EventEmitter<boolean>();
 
-  allSmartDocumentTemplateGroup: SmartDocumentsTemplateGroup[] = [];
+  allSmartDocumentTemplateGroups: SmartDocumentsTemplateGroup[] = [];
+  currentStoredZaakTypeTemplateGroups: DocumentsTemplateGroup[] = [];
   informationObjectTypes: GeneratedType<"RestInformatieobjecttype">[] = [];
-  zaakTypeTemplateMappings: DocumentsTemplateGroup[] = [];
+
+  newStoredZaakTypeTemplateGroups: any[] = [];
 
   constructor(
     private smartDocumentsService: SmartDocumentsService,
     private informatieObjectenService: InformatieObjectenService,
   ) {
     effect(() => {
-      this.allSmartDocumentTemplateGroup =
-        this.allSmartDocumentTemplateGroupsQuery.data() || [];
+      this.allSmartDocumentTemplateGroups =
+        this.allSmartDocumentTemplateGroupsQuery.data()
+          ? this.addParentIdToTemplates(
+              this.allSmartDocumentTemplateGroupsQuery.data(),
+            )
+          : [];
+
+      this.currentStoredZaakTypeTemplateGroups =
+        this.zaakTypeTemplateMappingsQuery.data()
+          ? this.addParentIdToTemplates(
+              this.zaakTypeTemplateMappingsQuery.data(),
+            )
+          : [];
 
       this.informationObjectTypes =
         this.informationObjectTypesQuery.data() || [];
 
-      this.zaakTypeTemplateMappings =
-        this.zaakTypeTemplateMappingsQuery.data() || [];
+      console.log(
+        "this.allSmartDocumentTemplateGroups",
+        this.allSmartDocumentTemplateGroups,
+      );
 
-      this.dataSource.data = this.addParentIds(
-        this.mergeSelectedTemplates(
-          this.allSmartDocumentTemplateGroup,
-          this.zaakTypeTemplateMappings,
+      console.log(
+        "this.currentStoredZaakTypeTemplateGroups",
+        this.currentStoredZaakTypeTemplateGroups,
+      );
+
+      const uuidArry = this.convertToIdAndUUIDArray(
+        this.currentStoredZaakTypeTemplateGroups,
+      );
+
+      console.log("this.convertToIdAndUUIDArray", uuidArry);
+
+      this.newStoredZaakTypeTemplateGroups = JSON.parse(
+        JSON.stringify(this.allSmartDocumentTemplateGroups),
+      );
+
+      this.newStoredZaakTypeTemplateGroups = this.addObjectUUIDsToTemplate(
+        this.newStoredZaakTypeTemplateGroups,
+        uuidArry,
+      );
+
+      console.log(
+        "addObjectUUIDsToTemplate to newStoredZaakTypeTemplateGroups",
+        this.newStoredZaakTypeTemplateGroups,
+      );
+
+      this.dataSource.data = JSON.parse(
+        JSON.stringify(
+          this.flattenGroupsToRoot(this.newStoredZaakTypeTemplateGroups),
         ),
       );
 
@@ -60,7 +104,6 @@ export class SmartDocumentsFormComponent {
   }
 
   ngOnInit() {
-    // Emit form validity changes to the parent
     this.formGroup.statusChanges.subscribe((status) => {
       this.formValidityChanged.emit(this.formGroup.valid);
     });
@@ -68,6 +111,7 @@ export class SmartDocumentsFormComponent {
 
   allSmartDocumentTemplateGroupsQuery = injectQuery(() => ({
     queryKey: ["allSmartDocumentTemplateGroupsQuery"],
+    refetchOnWindowFocus: false,
     queryFn: () =>
       firstValueFrom(
         this.smartDocumentsService.getAllSmartDocumentsTemplateGroups(),
@@ -76,16 +120,16 @@ export class SmartDocumentsFormComponent {
 
   zaakTypeTemplateMappingsQuery = injectQuery(() => ({
     queryKey: ["zaakTypeTemplateMappingsQuery", this.zaakTypeUuid],
+    refetchOnWindowFocus: false,
     queryFn: () =>
       firstValueFrom(
-        this.smartDocumentsService.getZaakTypeTemplatesMappings(
-          this.zaakTypeUuid,
-        ),
+        this.smartDocumentsService.getTemplatesMapping(this.zaakTypeUuid),
       ),
   }));
 
   informationObjectTypesQuery = injectQuery(() => ({
     queryKey: ["informationObjectTypesQuery", this.zaakTypeUuid],
+    refetchOnWindowFocus: false,
     queryFn: () =>
       firstValueFrom(
         this.informatieObjectenService.listInformatieobjecttypes(
@@ -98,7 +142,7 @@ export class SmartDocumentsFormComponent {
     return {
       id: node.id,
       name: node.name,
-      parentId: node.parentId,
+      parentGroupId: node.parentGroupId,
       informatieObjectTypeUUID: node.informatieObjectTypeUUID,
       level: level,
       expandable: !!node.templates && node.templates.length > 0,
@@ -131,29 +175,28 @@ export class SmartDocumentsFormComponent {
 
   onNodeChange(node: any): void {
     const id = node.id;
-    const parentId = node.parentId;
+    const parentGroupId = node.parentGroupId;
     const informatieObjectTypeUUID = node.informatieObjectTypeUUID;
 
-    const findAndUpdateNode = (
+    const adjustFlatNode = (
       _nodes: any[],
       _parentId: string | null,
     ): boolean => {
       for (const currentNode of _nodes) {
-        if (currentNode.id === id && currentNode.parentId === _parentId) {
+        if (currentNode.id === id && currentNode.parentGroupId === _parentId) {
           currentNode.informatieObjectTypeUUID = informatieObjectTypeUUID;
           return true;
         } else if (currentNode.templates) {
-          if (findAndUpdateNode(currentNode.templates, _parentId)) return true;
+          if (adjustFlatNode(currentNode.templates, _parentId)) return true;
         }
       }
       return false;
     };
 
-    if (findAndUpdateNode(this.dataSource.data, parentId)) {
-      // this.dataSource.data = [...this.dataSource.data]; // Trigger re-render
+    if (adjustFlatNode(this.dataSource.data, parentGroupId)) {
       console.log("Tree updated", this.dataSource.data);
     } else {
-      console.error("Node not found:", { id, parentId });
+      console.error("Node not found:", { id, parentGroupId });
     }
   }
 
@@ -165,46 +208,72 @@ export class SmartDocumentsFormComponent {
     );
   }
 
-  private mergeSelectedTemplates = (
-    allTemplatesObject: SmartDocumentsTemplateGroup[],
-    selectedTemplatesObject: DocumentsTemplateGroup[],
-  ) => {
-    return allTemplatesObject.map((smartDocumentTemplateGroup) => {
-      const templates = smartDocumentTemplateGroup.templates.map(
-        (smartDocumentTemplate) => {
-          const selectedTemplates =
-            selectedTemplatesObject.find(
-              ({ id }) => id === smartDocumentTemplateGroup.id,
-            )?.templates ?? [];
-
-          const informatieObjectTypeUUID =
-            selectedTemplates.find(({ id }) => id === smartDocumentTemplate.id)
-              ?.informatieObjectTypeUUID ?? "";
-
-          return {
-            ...smartDocumentTemplate,
-            informatieObjectTypeUUID,
-          } satisfies GeneratedType<"RestMappedSmartDocumentsTemplate">;
-        },
-      );
-
-      return {
-        ...smartDocumentTemplateGroup,
-        templates,
+  private flattenGroupsToRoot = (data) => {
+    return data.flatMap((item) => {
+      const rootGroup = {
+        id: item.id,
+        name: item.name,
+        templates: item.templates.map((template) => ({
+          ...template,
+          parentGroupId: item.id,
+        })),
       };
+
+      const flattenedGroups = item.groups.flatMap((group) => ({
+        ...group,
+        templates: group.templates.map((template) => ({
+          ...template,
+          parentGroupId: group.id,
+        })),
+      }));
+
+      return [rootGroup, ...flattenedGroups];
     });
   };
 
-  private addParentIds(nodes: any[], parentId: string | null = null): any[] {
-    return nodes.map((node) => {
-      const newNode = {
-        ...node, // Spread the original node to keep other properties
-        parentId: parentId, // Add the parentId (for the root it's null, for children, it's the parent's id)
-        templates: node.templates
-          ? this.addParentIds(node.templates, node.id)
-          : [], // Recursively assign parentId to children
-      };
-      return newNode;
-    });
-  }
+  private addObjectUUIDsToTemplate = (data, UUIDsToAdd) => {
+    const assignInformatieObjectTypeUUID = (items) =>
+      items.map((item) => ({
+        ...item,
+        templates: item.templates?.map((template) => ({
+          ...template,
+          informatieObjectTypeUUID: UUIDsToAdd.find(
+            (uuidItem) =>
+              uuidItem.id === template.id &&
+              uuidItem.parentGroupId === template.parentGroupId,
+          )?.informatieObjectTypeUUID,
+        })),
+        groups: item.groups
+          ? assignInformatieObjectTypeUUID(item.groups)
+          : undefined,
+      }));
+
+    return assignInformatieObjectTypeUUID(data);
+  };
+
+  private convertToIdAndUUIDArray = (data) => {
+    return data.flatMap((item) =>
+      item.groups.flatMap((group) =>
+        group.templates.map((template) => ({
+          id: template.id,
+          parentGroupId: template.parentGroupId,
+          informatieObjectTypeUUID: template.informatieObjectTypeUUID,
+        })),
+      ),
+    );
+  };
+
+  private addParentIdToTemplates = (data) => {
+    const assignParentGroupId = (items) =>
+      items.map((item) => ({
+        ...item,
+        templates: item.templates?.map((template) => ({
+          ...template,
+          parentGroupId: item.id,
+        })),
+        groups: item.groups ? assignParentGroupId(item.groups) : undefined,
+      }));
+
+    return assignParentGroupId(data);
+  };
 }
