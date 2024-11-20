@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package net.atos.zac.app.zaak.converter.historie
 
 import jakarta.inject.Inject
@@ -30,9 +34,9 @@ private const val ZAAK = "zaak"
 private const val ZAAKINFORMATIEOBJECT = "zaakinformatieobject"
 private const val ZAAKOBJECT = "zaakobject"
 
-class RESTZaakHistorieRegelConverter @Inject constructor(
+class RestZaakHistorieRegelConverter @Inject constructor(
     private val ztcClientService: ZtcClientService,
-    private val restZaakHistoriePartialUpdateConverter: RESTZaakHistoriePartialUpdateConverter
+    private val restZaakHistoriePartialUpdateConverter: RestZaakHistoriePartialUpdateConverter
 ) {
     fun convertZaakRESTHistorieRegel(auditTrail: ZRCAuditTrailRegel): List<RESTHistorieRegel> {
         val old = (auditTrail.wijzigingen.oud as? Map<*, *>)?.asMapWithKeyOfString()

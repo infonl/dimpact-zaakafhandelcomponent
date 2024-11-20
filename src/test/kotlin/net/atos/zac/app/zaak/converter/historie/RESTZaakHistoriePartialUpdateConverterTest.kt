@@ -24,7 +24,7 @@ class RESTZaakHistoriePartialUpdateConverterTest : BehaviorSpec({
     val userView = "view"
     val description = "description"
 
-    val restZaakHistoriePartialUpdateConverter = RESTZaakHistoriePartialUpdateConverter(zrcClientService)
+    val restZaakHistoriePartialUpdateConverter = RestZaakHistoriePartialUpdateConverter(zrcClientService)
 
     Given("audit trail contains changes for start, completion and target dates") {
         every { auditTrail.aanmaakdatum } returns creationDate
