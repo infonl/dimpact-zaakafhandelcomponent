@@ -1,5 +1,5 @@
 ### Create runtime image fase
-FROM docker.io/eclipse-temurin:21.0.5_11-jre-ubi9-minimal@sha256:cba199ee5623602c6cfb2a2b8cbf014b4425a7d5611834eeae348b8b9af4050f AS runtime
+FROM docker.io/eclipse-temurin:21.0.5_11-jre-ubi9-minimal@sha256:8c7d056a7a9ef018eeb98863c9526191892d9f30fdced55bbbd94366e1dc1285 AS runtime
 ARG branchName
 ARG commitHash
 ARG versionNumber
