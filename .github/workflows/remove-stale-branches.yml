@@ -1,0 +1,26 @@
+name: Remove stale branches
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+
+  # Allow workflow to be manually run from the GitHub UI
+  workflow_dispatch:
+
+jobs:
+  remove_stale_branches:
+    runs-on: ubuntu-latest
+    name: remove stale branches
+    steps:
+      - name: remove stale branches
+        uses: drew-dectech/github-action-inactive-branches@7aca3178001bdbff984c3eeb3eeb0f972bd75ae4 # v1.2.1
+        id: deleted_branches
+        with:
+          github_token: ${{ github.token }}
+          last_commit_age_days: 100
+          github_base_url: https://github.mycompany.com/infonl/dimpact-zaakafhandelcomponent
+          dry_run: yes
+
+      - name: Get output
+        run: "echo 'Deleted branches: ${{ steps.deleted_branches.outputs.deleted_branches }}'"
+
