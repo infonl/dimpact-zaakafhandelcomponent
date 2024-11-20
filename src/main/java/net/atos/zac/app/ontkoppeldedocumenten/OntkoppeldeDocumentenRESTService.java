@@ -93,7 +93,7 @@ public class OntkoppeldeDocumentenRESTService {
         final OntkoppeldDocumentListParameters listParameters = listParametersConverter.convert(restListParameters);
         final OntkoppeldeDocumentenResultaat resultaat = ontkoppeldeDocumentenService.getResultaat(listParameters);
         final RESTOntkoppeldDocumentResultaat restOntkoppeldDocumentResultaat = new RESTOntkoppeldDocumentResultaat(
-                ontkoppeldDocumentConverter.convert(resultaat.items), resultaat.count);
+                ontkoppeldDocumentConverter.convert(resultaat.getItems()), resultaat.getCount());
         final List<String> ontkoppeldDoor = resultaat.getOntkoppeldDoorFilter();
         if (CollectionUtils.isEmpty(ontkoppeldDoor)) {
             if (restListParameters.ontkoppeldDoor != null) {

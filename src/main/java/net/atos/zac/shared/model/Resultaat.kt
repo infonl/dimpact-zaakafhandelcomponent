@@ -4,4 +4,4 @@
  */
 package net.atos.zac.shared.model
 
-open class Resultaat<TYPE>(val items: List<TYPE?>?, val count: Long)
+open class Resultaat<TYPE>(val items: List<TYPE?>, val count: Long)

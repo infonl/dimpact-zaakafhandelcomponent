@@ -11,11 +11,11 @@ import java.util.List;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
-import net.atos.zac.shared.model.SorteerRichtingKt;
 import org.apache.commons.lang3.BooleanUtils;
 
 import net.atos.zac.app.zoeken.model.RESTZoekParameters;
 import net.atos.zac.authentication.LoggedInUser;
+import net.atos.zac.shared.model.SorteerRichtingKt;
 import net.atos.zac.zoeken.model.DatumRange;
 import net.atos.zac.zoeken.model.ZoekParameters;
 import net.atos.zac.zoeken.model.ZoekVeld;

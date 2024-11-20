@@ -5,11 +5,11 @@
 
 package net.atos.zac.app.shared;
 
-import net.atos.zac.shared.model.SorteerRichtingKt;
 import org.apache.commons.lang3.StringUtils;
 
 import net.atos.zac.shared.model.ListParameters;
-import net.atos.zac.shared.model.Paging;;
+import net.atos.zac.shared.model.Paging;
+import net.atos.zac.shared.model.SorteerRichtingKt;
 import net.atos.zac.shared.model.Sorting;
 
 public abstract class RESTListParametersConverter<LP extends ListParameters, RLP extends RESTListParameters> {

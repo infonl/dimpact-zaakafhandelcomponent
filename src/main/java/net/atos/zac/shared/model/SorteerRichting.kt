@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils
 import java.util.function.Supplier
 import java.util.stream.Stream
 
-enum class SorteerRichting(private val value: String) {
+enum class SorteerRichting(val value: String) {
     /** Oplopend  */
     ASCENDING("asc"),
 
