@@ -90,10 +90,10 @@ private fun convertTemplateGroupToModel(
     val jpaGroup = createModelTemplateGroup(group, parent, zaakafhandelParameterId)
 
     jpaGroup.templates = group.templates?.map {
-        createModelTemplate(it as RestMappedSmartDocumentsTemplate, jpaGroup, zaakafhandelParameterId)
+        createModelTemplate(it, jpaGroup, zaakafhandelParameterId)
     }?.ifEmpty { null }?.toMutableSet()
     jpaGroup.children = group.groups?.map {
-        convertTemplateGroupToModel(it as RestMappedSmartDocumentsTemplateGroup, jpaGroup, zaakafhandelParameterId)
+        convertTemplateGroupToModel(it, jpaGroup, zaakafhandelParameterId)
     }?.ifEmpty { null }?.toMutableSet()
 
     return jpaGroup
