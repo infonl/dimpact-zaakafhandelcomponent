@@ -121,19 +121,6 @@ export class SmartDocumentsFormComponent {
 
   hasChild = (_: number, node: { expandable: boolean }) => node.expandable;
 
-  addParentIds(nodes: any[], parentId: string | null = null): any[] {
-    return nodes.map((node) => {
-      const newNode = {
-        ...node, // Spread the original node to keep other properties
-        parentId: parentId, // Add the parentId (for the root it's null, for children, it's the parent's id)
-        templates: node.templates
-          ? this.addParentIds(node.templates, node.id)
-          : [], // Recursively assign parentId to children
-      };
-      return newNode;
-    });
-  }
-
   hasSelectedInformationObjectType(id: any): boolean {
     const nodeHasSelectedInformationObjectType = this.dataSource.data
       .find((node) => node.id === id)
@@ -170,6 +157,14 @@ export class SmartDocumentsFormComponent {
     }
   }
 
+  public storeSmartDocumentsConfig(): Observable<never> {
+    console.log("Saving storeSmartDocumentsConfig", this.dataSource.data);
+    return this.smartDocumentsService.storeTemplatesMapping(
+      this.zaakTypeUuid,
+      this.dataSource.data,
+    );
+  }
+
   private mergeSelectedTemplates = (
     allTemplatesObject: SmartDocumentsTemplateGroup[],
     selectedTemplatesObject: DocumentsTemplateGroup[],
@@ -200,11 +195,16 @@ export class SmartDocumentsFormComponent {
     });
   };
 
-  public storeSmartDocumentsConfig(): Observable<never> {
-    console.log("Saving storeSmartDocumentsConfig", this.dataSource.data);
-    return this.smartDocumentsService.storeTemplatesMapping(
-      this.zaakTypeUuid,
-      this.dataSource.data,
-    );
+  private addParentIds(nodes: any[], parentId: string | null = null): any[] {
+    return nodes.map((node) => {
+      const newNode = {
+        ...node, // Spread the original node to keep other properties
+        parentId: parentId, // Add the parentId (for the root it's null, for children, it's the parent's id)
+        templates: node.templates
+          ? this.addParentIds(node.templates, node.id)
+          : [], // Recursively assign parentId to children
+      };
+      return newNode;
+    });
   }
 }
