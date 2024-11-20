@@ -6,6 +6,7 @@
 package net.atos.zac.datatable;
 
 import net.atos.zac.shared.model.SorteerRichting;
+import net.atos.zac.shared.model.SorteerRichtingKt;
 
 public class Sort {
 
@@ -28,7 +29,7 @@ public class Sort {
     }
 
     public SorteerRichting getDirection() {
-        return SorteerRichting.fromValue(direction);
+        return SorteerRichtingKt.fromValue(direction);
     }
 
     public void setDirection(final String direction) {

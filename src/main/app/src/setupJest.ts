@@ -1,3 +1,6 @@
 // setupJest.ts
-import "jest-preset-angular/setup-jest";
 import "whatwg-fetch";
+
+import { setupZoneTestEnv } from "jest-preset-angular/setup-env/zone";
+
+setupZoneTestEnv();

@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package net.atos.zac.app.zaak.converter.historie
 
 import jakarta.inject.Inject
@@ -24,7 +28,7 @@ private const val RESOURCE_UITERLIJKE_EINDDATUM_AFDOENING = "uiterlijkeEinddatum
 private const val RESOURCE_EXTENSION = "verlenging"
 private const val RESOURCE_ZAAKGEOMETRIE = "zaakgeometrie"
 
-class RESTZaakHistoriePartialUpdateConverter @Inject constructor(
+class RestZaakHistoriePartialUpdateConverter @Inject constructor(
     private val zrcClientService: ZrcClientService
 ) {
     fun convertPartialUpdate(

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -38,7 +38,7 @@ export class TakenVrijgevenDialogComponent implements OnInit {
   }
 
   close() {
-    this.dialogRef.close();
+    this.dialogRef.close(false);
   }
 
   vrijgeven() {
@@ -53,7 +53,7 @@ export class TakenVrijgevenDialogComponent implements OnInit {
         this.data.screenEventResourceId,
       )
       .subscribe(() => {
-        this.dialogRef.close({});
+        this.dialogRef.close(reden);
       });
   }
 }

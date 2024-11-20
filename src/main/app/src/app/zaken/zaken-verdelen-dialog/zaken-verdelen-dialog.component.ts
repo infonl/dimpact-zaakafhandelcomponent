@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -33,7 +33,7 @@ export class ZakenVerdelenDialogComponent implements OnInit {
   ) {}
 
   close(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(false);
   }
 
   ngOnInit(): void {
