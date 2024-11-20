@@ -2,14 +2,14 @@
  * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.audit.converter
+package net.atos.zac.history.converter
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Geometry
-import net.atos.zac.app.audit.model.RESTHistorieActie
-import net.atos.zac.app.audit.model.RESTHistorieRegel
+import net.atos.zac.history.model.HistoryAction
+import net.atos.zac.history.model.HistoryLine
 import net.atos.zac.util.time.LocalDateUtil
 import nl.lifely.zac.util.asMapWithKeyOfString
 import nl.lifely.zac.util.diff
@@ -33,7 +33,7 @@ class ZaakHistoryPartialUpdateConverter @Inject constructor(
 ) {
     fun convertPartialUpdate(
         auditTrail: ZRCAuditTrailRegel,
-        actie: RESTHistorieActie?,
+        actie: HistoryAction?,
         old: Map<String, *>,
         new: Map<String, *>
     ) =
@@ -41,10 +41,10 @@ class ZaakHistoryPartialUpdateConverter @Inject constructor(
 
     private fun convertLine(
         auditTrail: ZRCAuditTrailRegel,
-        actie: RESTHistorieActie?,
+        actie: HistoryAction?,
         change: Map.Entry<String, Pair<*, *>>
-    ): RESTHistorieRegel =
-        RESTHistorieRegel(
+    ): HistoryLine =
+        HistoryLine(
             attribuutLabel = change.key,
             oudeWaarde = change.value.first?.let { convertValue(change.key, it) },
             nieuweWaarde = change.value.second?.let { convertValue(change.key, it) },

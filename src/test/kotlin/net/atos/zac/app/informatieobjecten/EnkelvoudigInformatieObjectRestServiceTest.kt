@@ -27,7 +27,7 @@ import net.atos.client.zgw.zrc.model.createZaakInformatieobject
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createBesluitType
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
-import net.atos.zac.app.audit.converter.ZaakHistoryLineConverter
+import net.atos.zac.history.converter.ZaakHistoryLineConverter
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
 import net.atos.zac.app.informatieobjecten.converter.RestZaakInformatieobjectConverter

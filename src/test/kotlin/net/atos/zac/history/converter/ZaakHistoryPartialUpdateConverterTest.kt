@@ -1,4 +1,8 @@
-package net.atos.zac.app.zaak.converter.historie
+/*
+ * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package net.atos.zac.history.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -7,15 +11,14 @@ import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.zac.app.audit.converter.ZaakHistoryPartialUpdateConverter
-import net.atos.zac.app.audit.model.RESTHistorieActie
+import net.atos.zac.history.model.HistoryAction
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 
-class RestZaakHistoriePartialUpdateConverterTest : BehaviorSpec({
+class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val auditTrail = mockk<ZRCAuditTrailRegel>()
-    val actie = mockk<RESTHistorieActie>()
+    val actie = mockk<HistoryAction>()
     val creationDate = ZonedDateTime.now()
     val userView = "view"
     val description = "description"

@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.audit.model
+package net.atos.zac.history.model
 
 import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
@@ -10,12 +10,12 @@ import net.atos.client.zgw.shared.util.HistorieUtil
 import java.time.LocalDate
 import java.time.ZonedDateTime
 
-class RESTHistorieRegel(val attribuutLabel: String, val oudeWaarde: String?, val nieuweWaarde: String?) {
+class HistoryLine(val attribuutLabel: String, val oudeWaarde: String?, val nieuweWaarde: String?) {
     var datumTijd: ZonedDateTime? = null
     var door: String? = null
     var applicatie: String? = null
     var toelichting: String? = null
-    var actie: RESTHistorieActie? = null
+    var actie: HistoryAction? = null
 
     constructor(attribuutLabel: String, oudeWaarde: LocalDate?, nieuweWaarde: LocalDate?) : this(
         attribuutLabel,

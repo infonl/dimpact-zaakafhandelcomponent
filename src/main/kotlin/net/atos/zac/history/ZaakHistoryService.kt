@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.audit
+package net.atos.zac.history
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel
@@ -13,19 +13,19 @@ import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.zac.app.audit.model.RESTHistorieActie
-import net.atos.zac.app.audit.model.RESTHistorieRegel
-import net.atos.zac.app.audit.converter.ZaakHistoryPartialUpdateConverter
+import net.atos.zac.history.model.HistoryAction
+import net.atos.zac.history.model.HistoryLine
+import net.atos.zac.history.converter.ZaakHistoryPartialUpdateConverter
 import nl.lifely.zac.util.asMapWithKeyOfString
 import nl.lifely.zac.util.getTypedValue
 import nl.lifely.zac.util.stringProperty
 import java.net.URI
 import java.util.UUID
 
-private const val CREATE = "create"
-private const val DESTROY = "destroy"
-private const val UPDATE = "update"
-private const val PARTIAL_UPDATE = "partial_update"
+private const val ACTION_CREATE = "create"
+private const val ACTION_DESTROY = "destroy"
+private const val ACTION_UPDATE = "update"
+private const val ACTION_PARTIAL_UPDATE = "partial_update"
 
 private const val IDENTIFICATIE = "identificatie"
 private const val KLANTCONTACT = "klantcontact"
@@ -45,18 +45,18 @@ class ZaakHistoryService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zaakHistoryPartialUpdateConverter: ZaakHistoryPartialUpdateConverter
 ) {
-    fun getZaakHistory(zaakUUID: UUID): List<RESTHistorieRegel> {
+    fun getZaakHistory(zaakUUID: UUID): List<HistoryLine> {
         val auditTrail = zrcClientService.listAuditTrail(zaakUUID)
         return auditTrail
-            .flatMap(::convertZaakRESTHistorieRegel)
+            .flatMap(::convertZaakHistoryLine)
             .sortedByDescending { it.datumTijd }
     }
 
-    fun convertZaakRESTHistorieRegel(auditTrail: ZRCAuditTrailRegel): List<RESTHistorieRegel> {
+    private fun convertZaakHistoryLine(auditTrail: ZRCAuditTrailRegel): List<HistoryLine> {
         val old = (auditTrail.wijzigingen.oud as? Map<*, *>)?.asMapWithKeyOfString()
         val new = (auditTrail.wijzigingen.nieuw as? Map<*, *>)?.asMapWithKeyOfString()
         return when {
-            auditTrail.actie == PARTIAL_UPDATE &&
+            auditTrail.actie == ACTION_PARTIAL_UPDATE &&
                 old != null &&
                 new != null
             -> zaakHistoryPartialUpdateConverter.convertPartialUpdate(
@@ -66,9 +66,9 @@ class ZaakHistoryService @Inject constructor(
                 new
             )
 
-            auditTrail.actie == CREATE ||
-                auditTrail.actie == UPDATE ||
-                auditTrail.actie == DESTROY
+            auditTrail.actie == ACTION_CREATE ||
+                auditTrail.actie == ACTION_UPDATE ||
+                auditTrail.actie == ACTION_DESTROY
             -> listOfNotNull(convertLine(auditTrail, old, new))
 
             else -> emptyList()
@@ -76,11 +76,11 @@ class ZaakHistoryService @Inject constructor(
     }
 
     private fun convertLine(auditTrail: ZRCAuditTrailRegel, old: Map<String, *>?, new: Map<String, *>?):
-        RESTHistorieRegel? =
+        HistoryLine? =
         (old ?: new)
             ?.let { convertResource(auditTrail.resource, it) }
             ?.let { resource ->
-                RESTHistorieRegel(
+                HistoryLine(
                     resource,
                     old?.let { convertValue(auditTrail.resource, it, auditTrail.resourceWeergave) },
                     new?.let { convertValue(auditTrail.resource, it, auditTrail.resourceWeergave) }
@@ -128,12 +128,12 @@ class ZaakHistoryService @Inject constructor(
             else -> null
         }
 
-    private fun convertActie(resource: String?, action: String?): RESTHistorieActie? = when {
-        resource == ZAAK && action == CREATE -> RESTHistorieActie.AANGEMAAKT
-        resource == STATUS -> RESTHistorieActie.GEWIJZIGD
-        action == CREATE -> RESTHistorieActie.GEKOPPELD
-        action == DESTROY -> RESTHistorieActie.ONTKOPPELD
-        action == UPDATE || action == PARTIAL_UPDATE -> RESTHistorieActie.GEWIJZIGD
+    private fun convertActie(resource: String?, action: String?): HistoryAction? = when {
+        resource == ZAAK && action == ACTION_CREATE -> HistoryAction.AANGEMAAKT
+        resource == STATUS -> HistoryAction.GEWIJZIGD
+        action == ACTION_CREATE -> HistoryAction.GEKOPPELD
+        action == ACTION_DESTROY -> HistoryAction.ONTKOPPELD
+        action == ACTION_UPDATE || action == ACTION_PARTIAL_UPDATE -> HistoryAction.GEWIJZIGD
         else -> null
     }
 

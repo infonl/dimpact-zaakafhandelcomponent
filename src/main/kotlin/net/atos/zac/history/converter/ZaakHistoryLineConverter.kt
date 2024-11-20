@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.audit.converter
+package net.atos.zac.history.converter
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.brc.model.generated.Besluit
@@ -15,12 +15,12 @@ import net.atos.client.zgw.shared.model.ObjectType.GEBRUIKSRECHTEN
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
 import net.atos.client.zgw.shared.model.audit.AuditWijziging
 import net.atos.client.zgw.shared.model.audit.besluiten.BesluitInformatieobjectWijziging
-import net.atos.zac.app.audit.converter.besluiten.AuditBesluitConverter
-import net.atos.zac.app.audit.converter.documenten.AuditBesluitInformatieobjectConverter
-import net.atos.zac.app.audit.converter.documenten.AuditEnkelvoudigInformatieobjectConverter
-import net.atos.zac.app.audit.converter.documenten.AuditGebruiksrechtenWijzigingConverter
-import net.atos.zac.app.audit.model.RESTHistorieActie
-import net.atos.zac.app.audit.model.RESTHistorieRegel
+import net.atos.zac.history.converter.besluiten.AuditBesluitConverter
+import net.atos.zac.history.converter.documenten.AuditBesluitInformatieobjectConverter
+import net.atos.zac.history.converter.documenten.AuditEnkelvoudigInformatieobjectConverter
+import net.atos.zac.history.converter.documenten.AuditGebruiksrechtenWijzigingConverter
+import net.atos.zac.history.model.HistoryAction
+import net.atos.zac.history.model.HistoryLine
 
 private const val CREATE = "create"
 private const val DESTROY = "destroy"
@@ -31,13 +31,13 @@ class ZaakHistoryLineConverter @Inject constructor(
     private val auditEnkelvoudigInformatieobjectConverter: AuditEnkelvoudigInformatieobjectConverter,
     private val auditBesluitInformatieobjectConverter: AuditBesluitInformatieobjectConverter
 ) {
-    fun convert(auditTrail: List<AuditTrailRegel>): List<RESTHistorieRegel> =
+    fun convert(auditTrail: List<AuditTrailRegel>): List<HistoryLine> =
         auditTrail.sortedByDescending { it.aanmaakdatum }
             .flatMap { it.toRestHistorieRegelList() }
             .toList()
 
     @Suppress("UNCHECKED_CAST")
-    private fun AuditTrailRegel.toRestHistorieRegelList(): List<RESTHistorieRegel> =
+    private fun AuditTrailRegel.toRestHistorieRegelList(): List<HistoryLine> =
         with(this.wijzigingen) {
             when (this.objectType) {
                 BESLUIT ->
@@ -54,7 +54,7 @@ class ZaakHistoryLineConverter @Inject constructor(
             }
         }.map { convertAuditTrailBasis(it, this) }
 
-    private fun convertAuditTrailBasis(historieRegel: RESTHistorieRegel, auditTrailRegel: AuditTrailRegel) =
+    private fun convertAuditTrailBasis(historieRegel: HistoryLine, auditTrailRegel: AuditTrailRegel) =
         historieRegel.apply {
             actie = convertActie(auditTrailRegel.actie)
             applicatie = auditTrailRegel.applicatieWeergave
@@ -63,11 +63,11 @@ class ZaakHistoryLineConverter @Inject constructor(
             toelichting = auditTrailRegel.toelichting
         }
 
-    private fun convertActie(auditTrailActie: String): RESTHistorieActie? =
+    private fun convertActie(auditTrailActie: String): HistoryAction? =
         when (auditTrailActie) {
-            CREATE -> RESTHistorieActie.GEKOPPELD
-            UPDATE, PARTIAL_UPDATE -> RESTHistorieActie.GEWIJZIGD
-            DESTROY -> RESTHistorieActie.ONTKOPPELD
+            CREATE -> HistoryAction.GEKOPPELD
+            UPDATE, PARTIAL_UPDATE -> HistoryAction.GEWIJZIGD
+            DESTROY -> HistoryAction.ONTKOPPELD
             else -> null
         }
 }

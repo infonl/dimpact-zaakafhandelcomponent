@@ -3,15 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.audit.converter.documenten
+package net.atos.zac.history.converter.documenten
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.generated.Ondertekening
 import net.atos.client.zgw.shared.model.audit.AuditWijziging
 import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.zac.app.audit.converter.addHistorieRegel
-import net.atos.zac.app.audit.model.RESTHistorieRegel
+import net.atos.zac.history.converter.addHistorieRegel
+import net.atos.zac.history.model.HistoryLine
 import org.apache.commons.lang3.ObjectUtils
 import java.net.URI
 import java.time.LocalDate
@@ -19,15 +19,15 @@ import java.time.LocalDate
 class AuditEnkelvoudigInformatieobjectConverter @Inject constructor(
     private val ztcClientService: ZtcClientService
 ) {
-    fun convert(wijziging: AuditWijziging<EnkelvoudigInformatieObject>): List<RESTHistorieRegel> {
+    fun convert(wijziging: AuditWijziging<EnkelvoudigInformatieObject>): List<HistoryLine> {
         val oud = wijziging.oud
         val nieuw = wijziging.nieuw
 
         if (oud == null || nieuw == null) {
-            return listOf(RESTHistorieRegel("informatieobject", toWaarde(oud), toWaarde(nieuw)))
+            return listOf(HistoryLine("informatieobject", toWaarde(oud), toWaarde(nieuw)))
         }
 
-        return mutableListOf<RESTHistorieRegel>().apply {
+        return mutableListOf<HistoryLine>().apply {
             addHistorieRegel("titel", oud.titel, nieuw.titel)
             addHistorieRegel("identificatie", oud.identificatie, nieuw.identificatie)
             addHistorieRegel(
@@ -56,13 +56,13 @@ class AuditEnkelvoudigInformatieobjectConverter @Inject constructor(
         }
     }
 
-    private fun MutableList<RESTHistorieRegel>.addHistorieRegel(
+    private fun MutableList<HistoryLine>.addHistorieRegel(
         label: String,
         oud: URI,
         nieuw: URI
     ) {
         if (ObjectUtils.notEqual(oud, nieuw)) {
-            this.add(RESTHistorieRegel(label, informatieobjecttypeToWaarde(oud), informatieobjecttypeToWaarde(nieuw)))
+            this.add(HistoryLine(label, informatieobjecttypeToWaarde(oud), informatieobjecttypeToWaarde(nieuw)))
         }
     }
 
