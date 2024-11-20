@@ -5,9 +5,6 @@
 package net.atos.zac.shared.model
 
 import net.atos.zac.shared.model.SorteerRichting.DESCENDING
-import org.apache.commons.lang3.StringUtils
-import java.util.function.Supplier
-import java.util.stream.Stream
 
 enum class SorteerRichting(val value: String) {
     /** Oplopend  */
