@@ -96,7 +96,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                                     "naam": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                                 },
                                 {
-                                    "aantal": 10,
+                                    "aantal": 11,
                                     "naam": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                                 }                                
                             ],
@@ -191,7 +191,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                             ],
                             "DOCUMENT_STATUS": [
                                 {
-                                    "aantal": 4,
+                                    "aantal": 5,
                                     "naam": "definitief"
                                 },
                                 {
@@ -203,18 +203,26 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                                 {
                                     "aantal": 6,
                                     "naam": "bijlage"
+                                },
+                                {
+                                    "aantal": 1,
+                                    "naam": "e-mail"
                                 }
                             ],
                             "DOCUMENT_VERGRENDELD_DOOR": [],
                             "DOCUMENT_INDICATIES": [
                                 {
-                                    "aantal": 5,
+                                    "aantal": 6,
                                     "naam": "GEBRUIKSRECHT"
                                 },
                                 {
-                                    "aantal": 6,
+                                    "aantal": 7,
                                     "naam": "ONDERTEKEND"
-                                }                  
+                                },
+                                {
+                                    "aantal": 1,
+                                    "naam": "VERZONDEN"
+                                }
                             ]
                         }
                     }

@@ -59,9 +59,16 @@ class ZaakHistorieTest : BehaviorSpec({
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "zaakinformatieobject",
                     "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "$SMART_DOCUMENTS_FILE_TITLE",
+                    "nieuweWaarde": "subject",
                     "toelichting": ""
                   },
+                  {
+                    "actie": "GEKOPPELD",
+                    "attribuutLabel": "zaakinformatieobject",
+                    "door": "$TEST_USER_1_NAME",
+                    "nieuweWaarde": "$SMART_DOCUMENTS_FILE_TITLE",
+                    "toelichting": ""
+                  },                
                   {
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "zaakinformatieobject",
