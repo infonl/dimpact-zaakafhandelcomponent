@@ -73,11 +73,11 @@ export class SmartDocumentsFormComponent {
         this.currentStoredZaakTypeTemplateGroups,
       );
 
-      const uuidArry = this.convertToIdAndUUIDArray(
+      const uuidArray = this.convertToIdAndUUIDMestedGroupsArray(
         this.currentStoredZaakTypeTemplateGroups,
       );
 
-      console.log("this.convertToIdAndUUIDArray", uuidArry);
+      console.log("this.convertToIdAndUUIDMestedGroupsArray", uuidArray);
 
       this.newStoredZaakTypeTemplateGroups = JSON.parse(
         JSON.stringify(this.allSmartDocumentTemplateGroups),
@@ -85,7 +85,7 @@ export class SmartDocumentsFormComponent {
 
       this.newStoredZaakTypeTemplateGroups = this.addObjectUUIDsToTemplate(
         this.newStoredZaakTypeTemplateGroups,
-        uuidArry,
+        uuidArray,
       );
 
       console.log(
@@ -200,6 +200,29 @@ export class SmartDocumentsFormComponent {
     }
   }
 
+  testArray() {
+    const justUUIDs = this.convertToIdAndUUIDArrayFlat(this.dataSource.data);
+    console.log("testArray", justUUIDs);
+
+    console.log(
+      "newStoredZaakTypeTemplateGroupsnewStoredZaakTypeTemplateGroupsnewStoredZaakTypeTemplateGroups",
+      this.addObjectUUIDsToTemplate(
+        this.newStoredZaakTypeTemplateGroups,
+        justUUIDs,
+      ),
+    );
+
+    console.log(
+      "filterOutUnselectedfilterOutUnselected",
+      this.stripUndefinedTemplates(
+        this.addObjectUUIDsToTemplate(
+          this.newStoredZaakTypeTemplateGroups,
+          justUUIDs,
+        ),
+      ),
+    );
+  }
+
   public storeSmartDocumentsConfig(): Observable<never> {
     console.log("Saving storeSmartDocumentsConfig", this.dataSource.data);
     return this.smartDocumentsService.storeTemplatesMapping(
@@ -207,6 +230,31 @@ export class SmartDocumentsFormComponent {
       this.dataSource.data,
     );
   }
+
+  private stripUndefinedTemplates = (data) => {
+    return data
+      .map((group) => {
+        const templates = group.templates
+          ?.filter((template) => template.informatieObjectTypeUUID)
+          .map(({ parentGroupId, ...template }) => template);
+
+        const groups = group.groups
+          ? this.stripUndefinedTemplates(group.groups)
+          : [];
+
+        if (templates?.length || groups?.length) {
+          const { parentGroupId, ...cleanedGroup } = group;
+          return {
+            ...cleanedGroup,
+            templates,
+            groups,
+          };
+        }
+
+        return undefined;
+      })
+      .filter(Boolean);
+  };
 
   private flattenGroupsToRoot = (data) => {
     return data.flatMap((item) => {
@@ -251,7 +299,17 @@ export class SmartDocumentsFormComponent {
     return assignInformatieObjectTypeUUID(data);
   };
 
-  private convertToIdAndUUIDArray = (data) => {
+  private convertToIdAndUUIDArrayFlat = (data) => {
+    return data.flatMap((item) =>
+      item.templates.map((template) => ({
+        id: template.id,
+        parentGroupId: template.parentGroupId,
+        informatieObjectTypeUUID: template.informatieObjectTypeUUID,
+      })),
+    );
+  };
+
+  private convertToIdAndUUIDMestedGroupsArray = (data) => {
     return data.flatMap((item) =>
       item.groups.flatMap((group) =>
         group.templates.map((template) => ({
