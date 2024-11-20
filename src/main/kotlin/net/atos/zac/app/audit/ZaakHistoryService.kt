@@ -1,8 +1,9 @@
-package net.atos.zac.app.zaak.converter.historie
+package net.atos.zac.app.audit
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import net.atos.client.zgw.shared.util.URIUtil
+import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Objecttype
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
@@ -10,7 +11,12 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.audit.model.RESTHistorieActie
 import net.atos.zac.app.audit.model.RESTHistorieRegel
+import net.atos.zac.app.zaak.converter.historie.RESTZaakHistoriePartialUpdateConverter
+import nl.lifely.zac.util.asMapWithKeyOfString
+import nl.lifely.zac.util.getTypedValue
+import nl.lifely.zac.util.stringProperty
 import java.net.URI
+import java.util.UUID
 
 private const val CREATE = "create"
 private const val DESTROY = "destroy"
@@ -30,10 +36,18 @@ private const val ZAAK = "zaak"
 private const val ZAAKINFORMATIEOBJECT = "zaakinformatieobject"
 private const val ZAAKOBJECT = "zaakobject"
 
-class RESTZaakHistorieRegelConverter @Inject constructor(
+class ZaakHistoryService @Inject constructor(
+    private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
     private val restZaakHistoriePartialUpdateConverter: RESTZaakHistoriePartialUpdateConverter
 ) {
+    fun getZaakHistory(zaakUUID: UUID): List<RESTHistorieRegel> {
+        val auditTrail = zrcClientService.listAuditTrail(zaakUUID)
+        return auditTrail
+            .flatMap(::convertZaakRESTHistorieRegel)
+            .sortedByDescending { it.datumTijd }
+    }
+
     fun convertZaakRESTHistorieRegel(auditTrail: ZRCAuditTrailRegel): List<RESTHistorieRegel> {
         val old = (auditTrail.wijzigingen.oud as? Map<*, *>)?.asMapWithKeyOfString()
         val new = (auditTrail.wijzigingen.nieuw as? Map<*, *>)?.asMapWithKeyOfString()

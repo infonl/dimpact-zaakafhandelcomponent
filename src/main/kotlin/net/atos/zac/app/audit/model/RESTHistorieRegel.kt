@@ -12,13 +12,9 @@ import java.time.ZonedDateTime
 
 class RESTHistorieRegel(val attribuutLabel: String, val oudeWaarde: String?, val nieuweWaarde: String?) {
     var datumTijd: ZonedDateTime? = null
-
     var door: String? = null
-
     var applicatie: String? = null
-
     var toelichting: String? = null
-
     var actie: RESTHistorieActie? = null
 
     constructor(attribuutLabel: String, oudeWaarde: LocalDate?, nieuweWaarde: LocalDate?) : this(

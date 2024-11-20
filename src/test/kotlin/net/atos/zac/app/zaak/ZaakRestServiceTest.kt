@@ -41,6 +41,7 @@ import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.createZaakafhandelParameters
+import net.atos.zac.app.audit.ZaakHistoryService
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.besluit.BesluitService
@@ -50,7 +51,6 @@ import net.atos.zac.app.zaak.converter.RestGeometryConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
-import net.atos.zac.app.zaak.converter.historie.RESTZaakHistorieRegelConverter
 import net.atos.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestZaaktype
@@ -130,7 +130,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val zgwApiService = mockk<ZGWApiService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
-    val restZaakHistorieRegelConverter = mockk<RESTZaakHistorieRegelConverter>()
+    val zaakHistoryService = mockk<ZaakHistoryService>()
 
     val zaakRestService = ZaakRestService(
         besluitService = besluitService,
@@ -164,7 +164,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         signaleringService = signaleringService,
         flowableTaskService = flowableTaskService,
         restZaaktypeConverter = restZaaktypeConverter,
-        restZaakHistorieRegelConverter = restZaakHistorieRegelConverter,
+        zaakHistoryService = zaakHistoryService,
         zgwApiService = zgwApiService
     )
 

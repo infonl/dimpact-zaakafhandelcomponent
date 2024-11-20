@@ -52,6 +52,7 @@ import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
 import net.atos.zac.app.admin.model.RESTZaakAfzender
+import net.atos.zac.app.audit.ZaakHistoryService
 import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.audit.model.RESTHistorieRegel
 import net.atos.zac.app.bag.converter.RESTBAGConverter
@@ -63,7 +64,6 @@ import net.atos.zac.app.zaak.converter.RestGeometryConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
-import net.atos.zac.app.zaak.converter.historie.RESTZaakHistorieRegelConverter
 import net.atos.zac.app.zaak.model.RESTDocumentOntkoppelGegevens
 import net.atos.zac.app.zaak.model.RESTReden
 import net.atos.zac.app.zaak.model.RESTZaakAanmaakGegevens
@@ -173,7 +173,7 @@ class ZaakRestService @Inject constructor(
     private val healthCheckService: HealthCheckService,
     private val opschortenZaakHelper: SuspensionZaakHelper,
     private val zaakService: ZaakService,
-    private val restZaakHistorieRegelConverter: RESTZaakHistorieRegelConverter
+    private val zaakHistoryService: ZaakHistoryService
 ) {
     companion object {
         private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
@@ -751,12 +751,9 @@ class ZaakRestService @Inject constructor(
 
     @GET
     @Path("zaak/{uuid}/historie")
-    fun listHistorie(@PathParam("uuid") zaakUUID: UUID): List<RESTHistorieRegel> {
+    fun listHistory(@PathParam("uuid") zaakUUID: UUID): List<RESTHistorieRegel> {
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen)
-        val auditTrail = zrcClientService.listAuditTrail(zaakUUID)
-        return auditTrail
-            .flatMap(restZaakHistorieRegelConverter::convertZaakRESTHistorieRegel)
-            .sortedByDescending { it.datumTijd }
+        return zaakHistoryService.getZaakHistory(zaakUUID)
     }
 
     @GET
