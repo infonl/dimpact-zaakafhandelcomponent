@@ -63,7 +63,7 @@ import net.atos.zac.app.zaak.converter.RestGeometryConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
-import net.atos.zac.app.zaak.converter.historie.RestZaakHistorieRegelConverter
+import net.atos.zac.app.zaak.converter.historie.ZaakHistoryService
 import net.atos.zac.app.zaak.model.RESTDocumentOntkoppelGegevens
 import net.atos.zac.app.zaak.model.RESTReden
 import net.atos.zac.app.zaak.model.RESTZaakAanmaakGegevens
@@ -173,7 +173,7 @@ class ZaakRestService @Inject constructor(
     private val healthCheckService: HealthCheckService,
     private val opschortenZaakHelper: SuspensionZaakHelper,
     private val zaakService: ZaakService,
-    private val restZaakHistorieRegelConverter: RestZaakHistorieRegelConverter
+    private val zaakHistoryService: ZaakHistoryService
 ) {
     companion object {
         private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
@@ -753,7 +753,7 @@ class ZaakRestService @Inject constructor(
     @Path("zaak/{uuid}/historie")
     fun listHistory(@PathParam("uuid") zaakUUID: UUID): List<RESTHistorieRegel> {
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen)
-        return restZaakHistorieRegelConverter.getZaakHistory(zaakUUID)
+        return zaakHistoryService.getZaakHistory(zaakUUID)
     }
 
     @GET

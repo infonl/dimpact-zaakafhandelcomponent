@@ -23,7 +23,7 @@ import java.util.UUID
 class RestZaakHistorieRegelConverterTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val restZaakHistorieRegelConverter = RestZaakHistorieRegelConverter(
+    val zaakHistoryService = ZaakHistoryService(
         zrcClientService,
         ztcClientService,
         RestZaakHistoriePartialUpdateConverter(zrcClientService)
@@ -50,7 +50,7 @@ class RestZaakHistorieRegelConverterTest : BehaviorSpec({
         )
 
         When("converted to REST historie regel") {
-            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+            val listRestRegel = zaakHistoryService.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
 
             Then("it should return correct data") {
                 listRestRegel.size shouldBe 1
@@ -104,7 +104,7 @@ class RestZaakHistorieRegelConverterTest : BehaviorSpec({
         )
 
         When("converted to REST historie regel") {
-            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+            val listRestRegel = zaakHistoryService.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
 
             Then("it should return correct data") {
                 listRestRegel.size shouldBe 1
@@ -138,7 +138,7 @@ class RestZaakHistorieRegelConverterTest : BehaviorSpec({
         )
 
         When("converted to REST historie regel") {
-            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+            val listRestRegel = zaakHistoryService.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
 
             Then("it should return correct data") {
                 listRestRegel.size shouldBe 1
@@ -172,7 +172,7 @@ class RestZaakHistorieRegelConverterTest : BehaviorSpec({
         )
 
         When("converted to REST historie regel") {
-            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+            val listRestRegel = zaakHistoryService.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
 
             Then("it should return correct data") {
                 listRestRegel.size shouldBe 1
@@ -210,7 +210,7 @@ class RestZaakHistorieRegelConverterTest : BehaviorSpec({
         }
 
         When("converted to REST historie regel") {
-            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+            val listRestRegel = zaakHistoryService.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
 
             Then("it should return correct data") {
                 listRestRegel.size shouldBe 1
@@ -248,7 +248,7 @@ class RestZaakHistorieRegelConverterTest : BehaviorSpec({
         }
 
         When("converted to REST historie regel") {
-            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+            val listRestRegel = zaakHistoryService.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
 
             Then("it should return correct data") {
                 listRestRegel.size shouldBe 1
@@ -293,7 +293,7 @@ class RestZaakHistorieRegelConverterTest : BehaviorSpec({
         )
 
         When("converted to REST historie regel") {
-            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+            val listRestRegel = zaakHistoryService.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
 
             Then("it should return correct data") {
                 listRestRegel.size shouldBe 1
@@ -344,7 +344,7 @@ class RestZaakHistorieRegelConverterTest : BehaviorSpec({
         )
 
         When("converted to REST historie regel") {
-            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+            val listRestRegel = zaakHistoryService.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
 
             Then("it should return correct data") {
                 listRestRegel.size shouldBe 1
@@ -379,7 +379,7 @@ class RestZaakHistorieRegelConverterTest : BehaviorSpec({
         )
 
         When("converted to REST historie regel") {
-            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+            val listRestRegel = zaakHistoryService.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
 
             Then("it should return correct data") {
                 listRestRegel.size shouldBe 1
@@ -414,7 +414,7 @@ class RestZaakHistorieRegelConverterTest : BehaviorSpec({
         )
 
         When("converted to REST historie regel") {
-            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+            val listRestRegel = zaakHistoryService.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
 
             Then("it should not throw an exception") {
                 listRestRegel.size shouldBe 1
@@ -439,7 +439,7 @@ class RestZaakHistorieRegelConverterTest : BehaviorSpec({
         )
 
         When("converted to REST historie regel") {
-            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+            val listRestRegel = zaakHistoryService.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
 
             Then("it should not throw an exception") {
                 listRestRegel.size shouldBe 1
@@ -464,7 +464,7 @@ class RestZaakHistorieRegelConverterTest : BehaviorSpec({
         )
 
         When("converted to REST historie regel") {
-            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+            val listRestRegel = zaakHistoryService.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
 
             Then("it should not contain lines") {
                 listRestRegel.size shouldBe 0
@@ -489,7 +489,7 @@ class RestZaakHistorieRegelConverterTest : BehaviorSpec({
         )
 
         When("converted to REST historie regel") {
-            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+            val listRestRegel = zaakHistoryService.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
 
             Then("it should contain a line") {
                 listRestRegel.size shouldBe 1
@@ -511,7 +511,7 @@ class RestZaakHistorieRegelConverterTest : BehaviorSpec({
         )
 
         When("converted to REST historie regel") {
-            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+            val listRestRegel = zaakHistoryService.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
 
             Then("it should contain no lines") {
                 listRestRegel.size shouldBe 0
@@ -535,7 +535,7 @@ class RestZaakHistorieRegelConverterTest : BehaviorSpec({
         )
 
         When("converted to REST historie regel") {
-            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+            val listRestRegel = zaakHistoryService.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
 
             Then("it should return correct data, with null values for oudeWaarde and nieuweWaarde") {
                 listRestRegel.size shouldBe 1
@@ -579,7 +579,7 @@ class RestZaakHistorieRegelConverterTest : BehaviorSpec({
         )
 
         When("converted to REST historie regel") {
-            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+            val listRestRegel = zaakHistoryService.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
 
             Then("it should return correct data") {
                 listRestRegel.size shouldBe 1
@@ -642,7 +642,7 @@ class RestZaakHistorieRegelConverterTest : BehaviorSpec({
         )
 
         When("converted to REST historie regel") {
-            val listRestRegel = restZaakHistorieRegelConverter.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
+            val listRestRegel = zaakHistoryService.convertZaakRESTHistorieRegel(zrcAuditTrailRegel)
 
             Then("it should return correct data") {
                 listRestRegel.size shouldBe 1

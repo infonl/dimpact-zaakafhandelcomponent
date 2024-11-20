@@ -39,7 +39,7 @@ private const val ZAAK = "zaak"
 private const val ZAAKINFORMATIEOBJECT = "zaakinformatieobject"
 private const val ZAAKOBJECT = "zaakobject"
 
-class RestZaakHistorieRegelConverter @Inject constructor(
+class ZaakHistoryService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
     private val restZaakHistoriePartialUpdateConverter: RestZaakHistoriePartialUpdateConverter
