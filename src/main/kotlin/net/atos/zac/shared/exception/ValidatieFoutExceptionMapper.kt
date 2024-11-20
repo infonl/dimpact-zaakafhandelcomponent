@@ -10,8 +10,8 @@ import jakarta.ws.rs.ext.Provider
 import net.atos.client.zgw.shared.exception.ValidatieFoutException
 
 /**
- * Exceptionmapper om [ValidatieFoutException] die gegooit zijn op te vangen en om te zetten
- * naar een [Response] welke teruggeven wordt naar de frontend voor verdere afwerking.
+ * Exception mapper to catch [ValidatieFoutException] thrown and convert them to a [Response] which is returned to
+ * the frontend for further processing.
  */
 @Provider
 class ValidatieFoutExceptionMapper : ExceptionMapper<ValidatieFoutException?> {

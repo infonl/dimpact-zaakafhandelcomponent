@@ -9,8 +9,8 @@ import jakarta.ws.rs.ext.ExceptionMapper
 import jakarta.ws.rs.ext.Provider
 
 /**
- * Exceptionmapper om [FoutmeldingException] die gegooit zijn op te vangen en om te zetten
- * naar een [Response] welke teruggeven wordt naar de frontend voor verdere afwerking.
+ * Exception mapper to catch [FoutmeldingException] thrown and convert them to a [Response] which is returned to
+ * the frontend for further processing.
  */
 @Provider
 class FoutMeldingExceptionMapper : ExceptionMapper<FoutmeldingException?> {

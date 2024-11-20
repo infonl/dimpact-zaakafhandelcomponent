@@ -8,10 +8,7 @@ import net.atos.zac.shared.model.SorteerRichting.ASCENDING
 import net.atos.zac.shared.model.SorteerRichting.DESCENDING
 
 enum class SorteerRichting(val value: String) {
-    /** Oplopend  */
     ASCENDING("asc"),
-
-    /** Aflopend  */
     DESCENDING("desc")
 }
 
