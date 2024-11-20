@@ -44,9 +44,9 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                 nieuw = mapOf("identificatie" to zaakIdentificatie)
             }
         )
-        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+        val restZaakHistorieRegelConverter = RestZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(zrcClientService)
+            RestZaakHistoriePartialUpdateConverter(zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -104,9 +104,9 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                 )
             }
         )
-        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+        val restZaakHistorieRegelConverter = RestZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(zrcClientService)
+            RestZaakHistoriePartialUpdateConverter(zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -145,9 +145,9 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                 nieuw = mapOf("titel" to "title")
             }
         )
-        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+        val restZaakHistorieRegelConverter = RestZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(zrcClientService)
+            RestZaakHistoriePartialUpdateConverter(zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -186,9 +186,9 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                 nieuw = mapOf("titel" to "title")
             }
         )
-        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+        val restZaakHistorieRegelConverter = RestZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(zrcClientService)
+            RestZaakHistoriePartialUpdateConverter(zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -232,9 +232,9 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
             omschrijving = "description"
         }
 
-        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+        val restZaakHistorieRegelConverter = RestZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(zrcClientService)
+            RestZaakHistoriePartialUpdateConverter(zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -278,9 +278,9 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
             omschrijving = "description"
         }
 
-        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+        val restZaakHistorieRegelConverter = RestZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(zrcClientService)
+            RestZaakHistoriePartialUpdateConverter(zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -330,9 +330,9 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                 )
             }
         )
-        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+        val restZaakHistorieRegelConverter = RestZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(zrcClientService)
+            RestZaakHistoriePartialUpdateConverter(zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -388,9 +388,9 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                 )
             }
         )
-        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+        val restZaakHistorieRegelConverter = RestZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(zrcClientService)
+            RestZaakHistoriePartialUpdateConverter(zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -430,9 +430,9 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
             }
         )
 
-        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+        val restZaakHistorieRegelConverter = RestZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(zrcClientService)
+            RestZaakHistoriePartialUpdateConverter(zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -473,9 +473,9 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
             }
         )
 
-        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+        val restZaakHistorieRegelConverter = RestZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(zrcClientService)
+            RestZaakHistoriePartialUpdateConverter(zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -506,9 +506,9 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
             }
         )
 
-        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+        val restZaakHistorieRegelConverter = RestZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(zrcClientService)
+            RestZaakHistoriePartialUpdateConverter(zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -539,9 +539,9 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
             }
         )
 
-        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+        val restZaakHistorieRegelConverter = RestZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(zrcClientService)
+            RestZaakHistoriePartialUpdateConverter(zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -572,9 +572,9 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
             }
         )
 
-        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+        val restZaakHistorieRegelConverter = RestZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(zrcClientService)
+            RestZaakHistoriePartialUpdateConverter(zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -602,9 +602,9 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
             wijzigingen = Wijzigingen()
         )
 
-        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+        val restZaakHistorieRegelConverter = RestZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(zrcClientService)
+            RestZaakHistoriePartialUpdateConverter(zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -634,9 +634,9 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
             }
         )
 
-        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+        val restZaakHistorieRegelConverter = RestZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(zrcClientService)
+            RestZaakHistoriePartialUpdateConverter(zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -687,9 +687,9 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                 nieuw = mapOf("hoofdzaak" to zaak2.url.toString())
             }
         )
-        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+        val restZaakHistorieRegelConverter = RestZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(zrcClientService)
+            RestZaakHistoriePartialUpdateConverter(zrcClientService)
         )
 
         When("converted to REST historie regel") {
@@ -760,9 +760,9 @@ class RESTZaakHistorieRegelConverterTest : BehaviorSpec({
                 )
             }
         )
-        val restZaakHistorieRegelConverter = RESTZaakHistorieRegelConverter(
+        val restZaakHistorieRegelConverter = RestZaakHistorieRegelConverter(
             ztcClientService,
-            RESTZaakHistoriePartialUpdateConverter(zrcClientService)
+            RestZaakHistoriePartialUpdateConverter(zrcClientService)
         )
 
         When("converted to REST historie regel") {

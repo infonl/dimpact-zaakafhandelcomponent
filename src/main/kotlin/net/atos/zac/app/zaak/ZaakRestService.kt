@@ -63,7 +63,7 @@ import net.atos.zac.app.zaak.converter.RestGeometryConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
-import net.atos.zac.app.zaak.converter.historie.RESTZaakHistorieRegelConverter
+import net.atos.zac.app.zaak.converter.historie.RestZaakHistorieRegelConverter
 import net.atos.zac.app.zaak.model.RESTDocumentOntkoppelGegevens
 import net.atos.zac.app.zaak.model.RESTReden
 import net.atos.zac.app.zaak.model.RESTZaakAanmaakGegevens
@@ -173,7 +173,7 @@ class ZaakRestService @Inject constructor(
     private val healthCheckService: HealthCheckService,
     private val opschortenZaakHelper: SuspensionZaakHelper,
     private val zaakService: ZaakService,
-    private val restZaakHistorieRegelConverter: RESTZaakHistorieRegelConverter
+    private val restZaakHistorieRegelConverter: RestZaakHistorieRegelConverter
 ) {
     companion object {
         private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"

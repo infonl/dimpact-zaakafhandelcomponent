@@ -50,7 +50,7 @@ import net.atos.zac.app.zaak.converter.RestGeometryConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
-import net.atos.zac.app.zaak.converter.historie.RESTZaakHistorieRegelConverter
+import net.atos.zac.app.zaak.converter.historie.RestZaakHistorieRegelConverter
 import net.atos.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestZaaktype
@@ -130,7 +130,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val zgwApiService = mockk<ZGWApiService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
-    val restZaakHistorieRegelConverter = mockk<RESTZaakHistorieRegelConverter>()
+    val restZaakHistorieRegelConverter = mockk<RestZaakHistorieRegelConverter>()
 
     val zaakRestService = ZaakRestService(
         besluitService = besluitService,

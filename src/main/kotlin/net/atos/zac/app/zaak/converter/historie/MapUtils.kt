@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package net.atos.zac.app.zaak.converter.historie
 
 import net.atos.client.zgw.shared.util.JsonbUtil
