@@ -256,7 +256,7 @@ export class ZakenWerkvoorraadComponent
     multipleToken: string,
   ) {
     const zaken = this.selection.selected;
-    this.batchProcessService.start({
+    this.batchProcessService.subscribe({
       ids: zaken.map(({ id }) => id),
       progressSubscription: {
         opcode: Opcode.ANY,
@@ -271,11 +271,6 @@ export class ZakenWerkvoorraadComponent
             zaak.behandelaarGebruikersnaam = this.toekenning.medewerker?.id;
             zaak.behandelaarNaam = this.toekenning.medewerker?.naam;
           }
-        },
-      },
-      processTimeout: {
-        onTimeout: () => {
-          this.utilService.openSnackbar("msg.error.timeout");
         },
       },
       finally: () =>
@@ -301,7 +296,11 @@ export class ZakenWerkvoorraadComponent
             : this.translateService.instant(multipleToken, {
                 aantal: zaken.length,
               });
-        this.batchProcessService.showProgress(message);
+        this.batchProcessService.showProgress(message, {
+          onTimeout: () => {
+            this.utilService.openSnackbar("msg.error.timeout");
+          },
+        });
         const notChanged = zaken
           .filter(
             (x) =>

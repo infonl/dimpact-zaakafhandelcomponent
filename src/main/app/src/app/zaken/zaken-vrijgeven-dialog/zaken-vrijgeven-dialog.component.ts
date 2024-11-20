@@ -35,7 +35,7 @@ export class ZakenVrijgevenDialogComponent implements OnInit {
   }
 
   close(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(false);
   }
 
   vrijgeven(): void {
@@ -48,7 +48,7 @@ export class ZakenVrijgevenDialogComponent implements OnInit {
         this.redenFormField.formControl.value,
       )
       .subscribe(() => {
-        this.dialogRef.close({});
+        this.dialogRef.close(true);
       });
   }
 }

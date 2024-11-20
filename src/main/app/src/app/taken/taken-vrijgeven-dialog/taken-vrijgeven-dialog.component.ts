@@ -38,7 +38,7 @@ export class TakenVrijgevenDialogComponent implements OnInit {
   }
 
   close() {
-    this.dialogRef.close();
+    this.dialogRef.close(false);
   }
 
   vrijgeven() {
@@ -53,7 +53,7 @@ export class TakenVrijgevenDialogComponent implements OnInit {
         this.data.screenEventResourceId,
       )
       .subscribe(() => {
-        this.dialogRef.close({});
+        this.dialogRef.close(reden);
       });
   }
 }

@@ -33,7 +33,7 @@ export class ZakenVerdelenDialogComponent implements OnInit {
   ) {}
 
   close(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(false);
   }
 
   ngOnInit(): void {
