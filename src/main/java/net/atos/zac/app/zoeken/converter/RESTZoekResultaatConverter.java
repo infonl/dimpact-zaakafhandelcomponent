@@ -36,8 +36,9 @@ public class RESTZoekResultaatConverter {
             final RESTZoekParameters zoekParameters
     ) {
 
-        final RESTZoekResultaat<? extends AbstractRESTZoekObject> restZoekResultaat = new RESTZoekResultaat<>(zoekResultaat.getItems()
-                .stream().map(this::convert).toList(), zoekResultaat.getCount());
+        final RESTZoekResultaat<? extends AbstractRESTZoekObject> restZoekResultaat = new RESTZoekResultaat<>(
+                zoekResultaat.getItems().stream().map(this::convert).toList(), zoekResultaat.getCount()
+        );
         restZoekResultaat.filters.putAll(zoekResultaat.getFilters());
 
         // indien geen resultaten, de huidige filters laten staan
