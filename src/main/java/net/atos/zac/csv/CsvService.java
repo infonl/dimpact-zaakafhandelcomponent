@@ -45,7 +45,7 @@ public class CsvService {
         final AtomicInteger headerCounter = new AtomicInteger();
         final List<String> headers = new ArrayList<>();
         final List<String[]> records = new ArrayList<>();
-        zoekResultaat.getItems().forEach(zoekObject -> {
+        zoekResultaat.items.forEach(zoekObject -> {
             try {
                 final List<String> record = new ArrayList<>();
                 final BeanInfo beanInfo = Introspector.getBeanInfo(zoekObject.getClass());

@@ -69,7 +69,7 @@ public class InboxProductaanvragenRESTService {
         final InboxProductaanvraagListParameters listParameters = listParametersConverter.convert(restListParameters);
         final InboxProductaanvraagResultaat resultaat = inboxProductaanvraagService.list(listParameters);
         final RESTInboxProductaanvraagResultaat restInboxProductaanvraagResultaat = new RESTInboxProductaanvraagResultaat(
-                inboxProductaanvraagConverter.convert(resultaat.getItems()), resultaat.getCount());
+                inboxProductaanvraagConverter.convert(resultaat.items), resultaat.count);
         final List<String> types = resultaat.getTypeFilter();
         if (CollectionUtils.isEmpty(types)) {
             if (restListParameters.type != null) {

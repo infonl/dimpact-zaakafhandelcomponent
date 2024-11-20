@@ -1,26 +1,9 @@
-package net.atos.zac.shared.model;
+package net.atos.zac.shared.model
 
-public class ListParameters {
-    private Sorting sorting;
+import nl.lifely.zac.util.AllOpen
 
-    private Paging paging;
-
-    public ListParameters() {
-    }
-
-    public Sorting getSorting() {
-        return sorting;
-    }
-
-    public void setSorting(final Sorting sorting) {
-        this.sorting = sorting;
-    }
-
-    public Paging getPaging() {
-        return paging;
-    }
-
-    public void setPaging(final Paging paging) {
-        this.paging = paging;
-    }
+@AllOpen
+class ListParameters {
+    var sorting: Sorting? = null
+    var paging: Paging? = null
 }
