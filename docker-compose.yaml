@@ -416,7 +416,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: docker.io/grafana/grafana:11.3.0@sha256:a0f881232a6fb71a0554a47d0fe2203b6888fe77f4cefb7ea62bed7eb54e13c3
+    image: docker.io/grafana/grafana:11.3.1@sha256:fa801ab6e1ae035135309580891e09f7eb94d1abdbd2106bdc288030b028158c
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
