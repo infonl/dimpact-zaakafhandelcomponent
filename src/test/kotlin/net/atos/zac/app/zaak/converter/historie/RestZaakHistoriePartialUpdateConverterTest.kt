@@ -7,6 +7,7 @@ import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.zac.app.audit.converter.ZaakHistoryPartialUpdateConverter
 import net.atos.zac.app.audit.model.RESTHistorieActie
 import java.math.BigDecimal
 import java.time.ZonedDateTime
@@ -18,7 +19,7 @@ class RestZaakHistoriePartialUpdateConverterTest : BehaviorSpec({
     val creationDate = ZonedDateTime.now()
     val userView = "view"
     val description = "description"
-    val restZaakHistoriePartialUpdateConverter = RestZaakHistoriePartialUpdateConverter(zrcClientService)
+    val zaakHistoryPartialUpdateConverter = ZaakHistoryPartialUpdateConverter(zrcClientService)
 
     beforeEach {
         checkUnnecessaryStub()
@@ -49,7 +50,7 @@ class RestZaakHistoriePartialUpdateConverterTest : BehaviorSpec({
         )
 
         When("history is requested") {
-            val history = restZaakHistoriePartialUpdateConverter.convertPartialUpdate(
+            val history = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
                 auditTrail,
                 actie,
                 emptyMap<String, String>(),

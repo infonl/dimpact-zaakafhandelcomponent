@@ -27,7 +27,7 @@ private const val DESTROY = "destroy"
 private const val UPDATE = "update"
 private const val PARTIAL_UPDATE = "partial_update"
 
-class RESTHistorieRegelConverter @Inject constructor(
+class ZaakHistoryLineConverter @Inject constructor(
     private val auditEnkelvoudigInformatieobjectConverter: AuditEnkelvoudigInformatieobjectConverter,
     private val auditBesluitInformatieobjectConverter: AuditBesluitInformatieobjectConverter
 ) {

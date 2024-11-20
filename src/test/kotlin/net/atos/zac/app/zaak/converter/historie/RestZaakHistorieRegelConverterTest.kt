@@ -14,6 +14,8 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createResultaatType
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createStatusType
+import net.atos.zac.app.audit.ZaakHistoryService
+import net.atos.zac.app.audit.converter.ZaakHistoryPartialUpdateConverter
 import net.atos.zac.app.audit.model.RESTHistorieActie
 import java.math.BigDecimal
 import java.net.URI
@@ -26,7 +28,7 @@ class RestZaakHistorieRegelConverterTest : BehaviorSpec({
     val zaakHistoryService = ZaakHistoryService(
         zrcClientService,
         ztcClientService,
-        RestZaakHistoriePartialUpdateConverter(zrcClientService)
+        ZaakHistoryPartialUpdateConverter(zrcClientService)
     )
 
     beforeEach {

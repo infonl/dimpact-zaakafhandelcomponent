@@ -33,7 +33,7 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.extensions.isNuGeldig
-import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
+import net.atos.zac.app.audit.converter.ZaakHistoryLineConverter
 import net.atos.zac.app.audit.model.RESTHistorieRegel
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
@@ -88,7 +88,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val zaakInformatieobjectConverter: RestZaakInformatieobjectConverter,
     private val restInformatieobjectConverter: RestInformatieobjectConverter,
     private val restInformatieobjecttypeConverter: RestInformatieobjecttypeConverter,
-    private val restHistorieRegelConverter: RESTHistorieRegelConverter,
+    private val zaakHistoryLineConverter: ZaakHistoryLineConverter,
     private val restGerelateerdeZaakConverter: RestGerelateerdeZaakConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>,
     private val webdavHelper: WebdavHelper,
@@ -469,7 +469,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             )
         }
         .let(drcClientService::listAuditTrail)
-        .let(restHistorieRegelConverter::convert)
+        .let(zaakHistoryLineConverter::convert)
 
     @GET
     @Path("informatieobject/{informatieObjectUuid}/zaakidentificaties")

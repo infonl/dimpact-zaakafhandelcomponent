@@ -28,7 +28,7 @@ class RESTHistorieRegelConverterTest : BehaviorSpec({
     val auditEnkelvoudigInformatieobjectConverter = AuditEnkelvoudigInformatieobjectConverter(ztcClientService)
     val auditBesluitInformatieobjectConverter = AuditBesluitInformatieobjectConverter(brcClientService)
 
-    val converter = RESTHistorieRegelConverter(
+    val converter = ZaakHistoryLineConverter(
         auditEnkelvoudigInformatieobjectConverter,
         auditBesluitInformatieobjectConverter
     )

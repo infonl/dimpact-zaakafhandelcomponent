@@ -41,7 +41,7 @@ import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.createZaakafhandelParameters
-import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
+import net.atos.zac.app.audit.converter.ZaakHistoryLineConverter
 import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.besluit.BesluitService
 import net.atos.zac.app.zaak.ZaakRestService.Companion.AANVULLENDE_INFORMATIE_TASK_NAME
@@ -50,7 +50,7 @@ import net.atos.zac.app.zaak.converter.RestGeometryConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
-import net.atos.zac.app.zaak.converter.historie.ZaakHistoryService
+import net.atos.zac.app.audit.ZaakHistoryService
 import net.atos.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestZaaktype
@@ -121,7 +121,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val restZaakConverter = mockk<RestZaakConverter>()
     val restZaakOverzichtConverter = mockk<RestZaakOverzichtConverter>()
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
-    val restHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
+    val zaakHistoryLineConverter = mockk<ZaakHistoryLineConverter>()
     val signaleringService = mockk<SignaleringService>()
     val flowableTaskService = mockk<FlowableTaskService>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
@@ -149,7 +149,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         ztcClientService = ztcClientService,
         zaakService = zaakService,
         indexingService = indexingService,
-        restHistorieRegelConverter = restHistorieRegelConverter,
+        zaakHistoryLineConverter = zaakHistoryLineConverter,
         restBesluitConverter = restBesluitConverter,
         bpmnService = bpmnService,
         brcClientService = brcClientService,

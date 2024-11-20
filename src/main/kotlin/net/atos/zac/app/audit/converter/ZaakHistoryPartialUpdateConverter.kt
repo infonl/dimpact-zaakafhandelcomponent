@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.zaak.converter.historie
+package net.atos.zac.app.audit.converter
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel
@@ -28,7 +28,7 @@ private const val RESOURCE_UITERLIJKE_EINDDATUM_AFDOENING = "uiterlijkeEinddatum
 private const val RESOURCE_EXTENSION = "verlenging"
 private const val RESOURCE_ZAAKGEOMETRIE = "zaakgeometrie"
 
-class RestZaakHistoriePartialUpdateConverter @Inject constructor(
+class ZaakHistoryPartialUpdateConverter @Inject constructor(
     private val zrcClientService: ZrcClientService
 ) {
     fun convertPartialUpdate(

@@ -52,7 +52,7 @@ import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
 import net.atos.zac.app.admin.model.RESTZaakAfzender
-import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
+import net.atos.zac.app.audit.converter.ZaakHistoryLineConverter
 import net.atos.zac.app.audit.model.RESTHistorieRegel
 import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.besluit.BesluitService
@@ -63,7 +63,7 @@ import net.atos.zac.app.zaak.converter.RestGeometryConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
-import net.atos.zac.app.zaak.converter.historie.ZaakHistoryService
+import net.atos.zac.app.audit.ZaakHistoryService
 import net.atos.zac.app.zaak.model.RESTDocumentOntkoppelGegevens
 import net.atos.zac.app.zaak.model.RESTReden
 import net.atos.zac.app.zaak.model.RESTZaakAanmaakGegevens
@@ -167,7 +167,7 @@ class ZaakRestService @Inject constructor(
     private val restBesluitConverter: RestBesluitConverter,
     private val restZaakOverzichtConverter: RestZaakOverzichtConverter,
     private val restBAGConverter: RESTBAGConverter,
-    private val restHistorieRegelConverter: RESTHistorieRegelConverter,
+    private val zaakHistoryLineConverter: ZaakHistoryLineConverter,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val restGeometryConverter: RestGeometryConverter,
     private val healthCheckService: HealthCheckService,
@@ -905,7 +905,7 @@ class ZaakRestService @Inject constructor(
     @Path("besluit/{uuid}/historie")
     fun listBesluitHistorie(@PathParam("uuid") uuid: UUID): List<RESTHistorieRegel> =
         brcClientService.listAuditTrail(uuid).let {
-            restHistorieRegelConverter.convert(it)
+            zaakHistoryLineConverter.convert(it)
         }
 
     @GET

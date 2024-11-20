@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.zaak.converter.historie
+package net.atos.zac.app.audit
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel
@@ -15,6 +15,7 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.audit.model.RESTHistorieActie
 import net.atos.zac.app.audit.model.RESTHistorieRegel
+import net.atos.zac.app.audit.converter.ZaakHistoryPartialUpdateConverter
 import nl.lifely.zac.util.asMapWithKeyOfString
 import nl.lifely.zac.util.getTypedValue
 import nl.lifely.zac.util.stringProperty
@@ -42,7 +43,7 @@ private const val ZAAKOBJECT = "zaakobject"
 class ZaakHistoryService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
-    private val restZaakHistoriePartialUpdateConverter: RestZaakHistoriePartialUpdateConverter
+    private val zaakHistoryPartialUpdateConverter: ZaakHistoryPartialUpdateConverter
 ) {
     fun getZaakHistory(zaakUUID: UUID): List<RESTHistorieRegel> {
         val auditTrail = zrcClientService.listAuditTrail(zaakUUID)
@@ -58,7 +59,7 @@ class ZaakHistoryService @Inject constructor(
             auditTrail.actie == PARTIAL_UPDATE &&
                 old != null &&
                 new != null
-            -> restZaakHistoriePartialUpdateConverter.convertPartialUpdate(
+            -> zaakHistoryPartialUpdateConverter.convertPartialUpdate(
                 auditTrail,
                 convertActie(auditTrail.resource, auditTrail.actie),
                 old,
