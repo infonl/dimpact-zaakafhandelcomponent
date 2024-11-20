@@ -13,9 +13,9 @@ import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.zac.history.converter.ZaakHistoryPartialUpdateConverter
 import net.atos.zac.history.model.HistoryAction
 import net.atos.zac.history.model.HistoryLine
-import net.atos.zac.history.converter.ZaakHistoryPartialUpdateConverter
 import nl.lifely.zac.util.asMapWithKeyOfString
 import nl.lifely.zac.util.getTypedValue
 import nl.lifely.zac.util.stringProperty
@@ -75,8 +75,7 @@ class ZaakHistoryService @Inject constructor(
         }
     }
 
-    private fun convertLine(auditTrail: ZRCAuditTrailRegel, old: Map<String, *>?, new: Map<String, *>?):
-        HistoryLine? =
+    private fun convertLine(auditTrail: ZRCAuditTrailRegel, old: Map<String, *>?, new: Map<String, *>?): HistoryLine? =
         (old ?: new)
             ?.let { convertResource(auditTrail.resource, it) }
             ?.let { resource ->

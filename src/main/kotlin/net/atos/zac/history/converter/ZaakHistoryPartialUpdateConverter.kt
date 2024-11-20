@@ -36,24 +36,22 @@ class ZaakHistoryPartialUpdateConverter @Inject constructor(
         actie: HistoryAction?,
         old: Map<String, *>,
         new: Map<String, *>
-    ) =
-        old.diff(new).map { convertLine(auditTrail, actie, it) }
+    ) = old.diff(new).map { convertLine(auditTrail, actie, it) }
 
     private fun convertLine(
         auditTrail: ZRCAuditTrailRegel,
         actie: HistoryAction?,
         change: Map.Entry<String, Pair<*, *>>
-    ): HistoryLine =
-        HistoryLine(
-            attribuutLabel = change.key,
-            oudeWaarde = change.value.first?.let { convertValue(change.key, it) },
-            nieuweWaarde = change.value.second?.let { convertValue(change.key, it) },
-        ).apply {
-            datumTijd = auditTrail.aanmaakdatum
-            door = auditTrail.gebruikersWeergave
-            toelichting = auditTrail.toelichting
-            this.actie = actie
-        }
+    ) = HistoryLine(
+        attribuutLabel = change.key,
+        oudeWaarde = change.value.first?.let { convertValue(change.key, it) },
+        nieuweWaarde = change.value.second?.let { convertValue(change.key, it) },
+    ).apply {
+        datumTijd = auditTrail.aanmaakdatum
+        door = auditTrail.gebruikersWeergave
+        toelichting = auditTrail.toelichting
+        this.actie = actie
+    }
 
     @Suppress("CyclomaticComplexMethod")
     private fun convertValue(resource: String, item: Any): String? =
