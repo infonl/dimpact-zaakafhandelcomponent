@@ -4,7 +4,4 @@
  */
 package net.atos.zac.shared.model
 
-data class Sorting(
-    val field: String,
-    val direction: SorteerRichting
-)
+data class Sorting(val field: String, val direction: SorteerRichting)
