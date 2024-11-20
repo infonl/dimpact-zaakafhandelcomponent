@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { Injectable, computed, effect, signal } from "@angular/core";
 import { UtilService } from "src/app/core/service/util.service";
 import { ObjectType } from "src/app/core/websocket/model/object-type";
