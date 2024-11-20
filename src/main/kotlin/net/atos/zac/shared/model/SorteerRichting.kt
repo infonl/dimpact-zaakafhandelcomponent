@@ -4,6 +4,7 @@
  */
 package net.atos.zac.shared.model
 
+import net.atos.zac.shared.model.SorteerRichting.ASCENDING
 import net.atos.zac.shared.model.SorteerRichting.DESCENDING
 
 enum class SorteerRichting(val value: String) {
@@ -16,7 +17,7 @@ enum class SorteerRichting(val value: String) {
 
 fun fromValue(waarde: String?): SorteerRichting =
     when {
-        waarde.isNullOrBlank() -> DESCENDING
-        else -> SorteerRichting.entries.toTypedArray().firstOrNull { it.value.toString() == waarde }
-            ?: throw IllegalArgumentException("Onbekende waarde '$waarde'")
+        DESCENDING.value == waarde -> DESCENDING
+        ASCENDING.value == waarde -> ASCENDING
+        else -> throw IllegalArgumentException("Onbekende waarde '$waarde'")
     }
