@@ -6,6 +6,7 @@
 package net.atos.zac.smartdocuments.templates
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import net.atos.client.smartdocuments.model.createsmartDocumentsTemplatesResponse
 import net.atos.zac.admin.model.createZaakafhandelParameters
@@ -147,7 +148,7 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                         }
 
                         parent!!.name shouldBe "root"
-                        children shouldBe null
+                        children.shouldBeEmpty()
                     }
                     with(children!!.last()) {
                         name shouldBe "group 2"
@@ -167,7 +168,7 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                         }
 
                         parent!!.name shouldBe "root"
-                        children shouldBe null
+                        children.shouldBeEmpty()
                     }
                 }
             }
@@ -225,7 +226,7 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                         templates!!.size shouldBe 2
                         templates!!.first().name shouldBe "template 1"
                         templates!!.last().name shouldBe "template 2"
-                        groups shouldBe null
+                        groups.shouldBeEmpty()
                     }
                     with(groups!!.last()) {
                         id shouldBe jpaGroups.last().smartDocumentsId
@@ -233,7 +234,7 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                         templates!!.size shouldBe 2
                         templates!!.first().name shouldBe "template 1"
                         templates!!.last().name shouldBe "template 2"
-                        groups shouldBe null
+                        groups.shouldBeEmpty()
                     }
                 }
             }
