@@ -39,12 +39,8 @@ private const val ZAAK = "zaak"
 private const val ZAAKINFORMATIEOBJECT = "zaakinformatieobject"
 private const val ZAAKOBJECT = "zaakobject"
 
-<<<<<<< HEAD:src/main/kotlin/net/atos/zac/app/zaak/converter/historie/RESTZaakHistorieRegelConverter.kt
-class RESTZaakHistorieRegelConverter @Inject constructor(
-    private val zrcClientService: ZrcClientService,
-=======
 class RestZaakHistorieRegelConverter @Inject constructor(
->>>>>>> main:src/main/kotlin/net/atos/zac/app/zaak/converter/historie/RestZaakHistorieRegelConverter.kt
+    private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
     private val restZaakHistoriePartialUpdateConverter: RestZaakHistoriePartialUpdateConverter
 ) {

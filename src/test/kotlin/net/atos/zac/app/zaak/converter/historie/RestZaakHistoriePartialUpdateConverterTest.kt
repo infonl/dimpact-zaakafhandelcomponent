@@ -11,14 +11,14 @@ import net.atos.zac.app.audit.model.RESTHistorieActie
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 
-class RESTZaakHistoriePartialUpdateConverterTest : BehaviorSpec({
+class RestZaakHistoriePartialUpdateConverterTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val auditTrail = mockk<ZRCAuditTrailRegel>()
     val actie = mockk<RESTHistorieActie>()
     val creationDate = ZonedDateTime.now()
     val userView = "view"
     val description = "description"
-    val restZaakHistoriePartialUpdateConverter = RESTZaakHistoriePartialUpdateConverter(zrcClientService)
+    val restZaakHistoriePartialUpdateConverter = RestZaakHistoriePartialUpdateConverter(zrcClientService)
 
     beforeEach {
         checkUnnecessaryStub()
