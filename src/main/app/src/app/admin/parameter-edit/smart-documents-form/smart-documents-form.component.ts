@@ -48,10 +48,14 @@ export class SmartDocumentsFormComponent {
       this.zaakTypeTemplateMappings =
         this.zaakTypeTemplateMappingsQuery.data() || [];
 
-      this.dataSource.data = this.mergeSelectedTemplates(
-        this.allSmartDocumentTemplateGroup,
-        this.zaakTypeTemplateMappings,
+      this.dataSource.data = this.addParentIds(
+        this.mergeSelectedTemplates(
+          this.allSmartDocumentTemplateGroup,
+          this.zaakTypeTemplateMappings,
+        ),
       );
+
+      console.log("Tree data", this.dataSource.data);
     });
   }
 
@@ -90,10 +94,14 @@ export class SmartDocumentsFormComponent {
       ),
   }));
 
-  private _transformer = (node: any, level: number) => {
-    console.log(node);
+  private _transformer = (
+    node: any,
+    level: number,
+    parentId: string | null = null,
+  ) => {
     return {
       id: node.id,
+      parentId: node.parentId,
       name: node.name,
       informatieObjectTypeUUID: node.informatieObjectTypeUUID,
       level: level,
@@ -116,6 +124,57 @@ export class SmartDocumentsFormComponent {
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
   hasChild = (_: number, node: { expandable: boolean }) => node.expandable;
+
+  addParentIds(nodes: any[], parentId: string | null = null): any[] {
+    return nodes.map((node) => {
+      const newNode = {
+        ...node, // Spread the original node to keep other properties
+        parentId: parentId, // Add the parentId (for the root it's null, for children, it's the parent's id)
+        templates: node.templates
+          ? this.addParentIds(node.templates, node.id)
+          : [], // Recursively assign parentId to children
+      };
+      return newNode;
+    });
+  }
+
+  hasSelectedInformationObjectType(id: any): boolean {
+    const currentNode = this.dataSource.data.find(
+      (dataNode) => dataNode.id === id,
+    );
+
+    return currentNode.templates.some(
+      (node) => node.informatieObjectTypeUUID !== "",
+    );
+  }
+
+  onNodeChange(node: any): void {
+    const id = node.id;
+    const parentId = node.parentId;
+    const informatieObjectTypeUUID = node.informatieObjectTypeUUID;
+
+    const findAndUpdateNode = (
+      _nodes: any[],
+      _parentId: string | null,
+    ): boolean => {
+      for (const currentNode of _nodes) {
+        if (currentNode.id === id && currentNode.parentId === _parentId) {
+          currentNode.informatieObjectTypeUUID = informatieObjectTypeUUID;
+          return true;
+        } else if (currentNode.templates) {
+          if (findAndUpdateNode(currentNode.templates, _parentId)) return true;
+        }
+      }
+      return false;
+    };
+
+    if (findAndUpdateNode(this.dataSource.data, parentId)) {
+      // this.dataSource.data = [...this.dataSource.data]; // Trigger re-render
+      console.log("Tree updated", this.dataSource.data);
+    } else {
+      console.error("Node not found:", { id, parentId });
+    }
+  }
 
   private mergeSelectedTemplates = (
     allTemplatesObject: SmartDocumentsTemplateGroup[],
