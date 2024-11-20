@@ -24,7 +24,7 @@ jobs:
         run: docker pull ${{ env.ZAC_IMAGE_URL }}
 
       - name: Run Trivy Vulnerability Scanner
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.29.0
         with:
           image-ref: ${{ env.ZAC_IMAGE_URL }}
           format: 'sarif'
