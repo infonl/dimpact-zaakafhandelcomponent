@@ -218,28 +218,23 @@ export class SmartDocumentsFormComponent {
       const rootGroup = {
         id: item.id,
         name: item.name,
-        templates: item.templates.map((template) => ({
-          ...template,
-          parentGroupId: item.id,
-        })),
+        templates: item.templates || [],
       };
 
-      const flattenedGroups = item.groups.flatMap((group) => {
-        const flattenedSubGroups = group.groups
-          ? this.flattenGroupsToRoot(group.groups)
-          : [];
+      const flattenedGroups =
+        item.groups?.flatMap((group) => {
+          const flattenedSubGroups = group.groups
+            ? this.flattenGroupsToRoot(group.groups)
+            : [];
 
-        return [
-          {
-            ...group,
-            templates: group.templates.map((template) => ({
-              ...template,
-              parentGroupId: group.id,
-            })),
-          },
-          ...flattenedSubGroups,
-        ];
-      });
+          return [
+            {
+              ...group,
+              templates: group.templates || [],
+            },
+            ...flattenedSubGroups,
+          ];
+        }) || [];
 
       return [rootGroup, ...flattenedGroups];
     });
