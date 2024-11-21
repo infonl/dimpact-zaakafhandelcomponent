@@ -6,13 +6,17 @@
 
 @import "../../../../variables";
 
-.border-top {
+.group {
   &.mat-tree-node {
-    border-bottom: 1px solid #d8d8d8; /* Adjust the color as needed */
+    border-bottom: 1px solid #d8d8d8;
   }
 
   &.mat-tree-node:first-child {
-    border-top: 1px solid #d8d8d8; /* Apply top border to the first row */
+    border-top: 1px solid #d8d8d8;
+  }
+
+  &:hover {
+    background-color: #fafafa;
   }
 }
 
