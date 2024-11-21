@@ -32,7 +32,7 @@ permissions:
 
 jobs:
   paths-ignore:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       skip: ${{ steps.paths-ignore.outputs.skip }}
     steps:

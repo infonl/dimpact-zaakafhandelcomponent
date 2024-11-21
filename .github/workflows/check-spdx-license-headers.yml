@@ -1,0 +1,20 @@
+#
+# SPDX-FileCopyrightText: 2022 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Check SPDX License Headers
+
+on:
+  pull_request
+
+jobs:
+  check-spdx-license-headers:
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Check License Header
+      uses: apache/skywalking-eyes/header@v0.6.0
+      with:
+        log: info
+        config: .licenserc.yaml
+        token: ${{ github.token }}
+        mode: check

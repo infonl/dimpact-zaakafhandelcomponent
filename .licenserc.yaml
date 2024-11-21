@@ -1,17 +1,15 @@
+# Configuration file for https://github.com/apache/skywalking-eyes
+# to perform checks (and optionally fixes) on SPDX copyright headers in source files
 header:
   license:
-    content: |
-      /*
-       * SPDX-FileCopyrightText: 2024 Lifely
-       * SPDX-License-Identifier: EUPL-1.2+
-       */
+    content: |      
+       SPDX-FileCopyrightText: 2024 Lifely
+       SPDX-License-Identifier: EUPL-1.2+
     pattern: |
-      \/\*
-       \* SPDX\-FileCopyrightText: .*$
-       \* SPDX\-License\-Identifier: EUPL\-1\.2\+
-       \*\/
+       SPDX-FileCopyrightText: .*
+       SPDX-License-Identifier: EUPL-1\.2\+
   paths:
-    # for now check Kotlin files only
+    # for now check Kotlin src/main files only; later on expand
     - 'src/main/kotlin/**'
   paths-ignore:
     - 'build'
