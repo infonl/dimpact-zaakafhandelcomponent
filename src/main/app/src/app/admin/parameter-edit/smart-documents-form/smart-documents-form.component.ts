@@ -76,18 +76,15 @@ export class SmartDocumentsFormComponent {
         onlyInformationTypeUUIDs,
       );
 
-      console.log(
-        "addObjectUUIDsToTemplate to newStoredZaakTypeTemplateGroups",
-        this.newStoredZaakTypeTemplateGroups,
-      );
-
       this.dataSource.data = JSON.parse(
         JSON.stringify(
           this.flattenGroupsToRoot(this.newStoredZaakTypeTemplateGroups),
         ),
       );
 
-      console.log("Tree data", this.dataSource.data);
+      if (this.dataSource.data.length) {
+        console.log("Current Tree Data", this.dataSource.data);
+      }
     });
   }
 
@@ -182,19 +179,21 @@ export class SmartDocumentsFormComponent {
     };
 
     if (adjustFlatNode(this.dataSource.data, parentGroupId)) {
-      console.log("Tree updated", this.dataSource.data);
+      console.log("Tree updated; Template: '", node.name, this.dataSource.data);
     } else {
-      console.error("Node not found:", { id, parentGroupId });
+      console.error("Node not found !!!!", { id, parentGroupId });
     }
   }
 
-  public storeSmartDocumentsConfig(): Observable<never> {
+  public saveSmartDocumentsMapping(): Observable<never> {
     const justUUIDs = this.convertToIdAndUUIDArrayFlat(this.dataSource.data);
     const newStoreWithInformationObjectTypeUUIDs =
       this.addObjectUUIDsToTemplate(
         this.newStoredZaakTypeTemplateGroups,
         justUUIDs,
       );
+
+    console.log(newStoreWithInformationObjectTypeUUIDs);
     const selectedTemplates = this.stripUndefinedTemplates(
       this.addObjectUUIDsToTemplate(
         this.newStoredZaakTypeTemplateGroups,
@@ -202,7 +201,7 @@ export class SmartDocumentsFormComponent {
       ),
     );
 
-    console.log("Saving storeSmartDocumentsConfig", selectedTemplates);
+    console.log("Storing SmartDocuments Mapping", selectedTemplates);
     return this.smartDocumentsService.storeTemplatesMapping(
       this.zaakTypeUuid,
       selectedTemplates,
@@ -288,15 +287,30 @@ export class SmartDocumentsFormComponent {
   };
 
   private convertToIdAndUUIDMestedGroupsArray = (data) => {
-    return data.flatMap((item) =>
-      item.groups.flatMap((group) =>
-        group.templates.map((template) => ({
-          id: template.id,
-          parentGroupId: template.parentGroupId,
-          informatieObjectTypeUUID: template.informatieObjectTypeUUID,
-        })),
-      ),
-    );
+    return data.flatMap((item) => {
+      // Check if 'groups' exists
+      const groupTemplates = item.groups
+        ? item.groups.flatMap((group) =>
+            group.templates.map((template) => ({
+              id: template.id,
+              parentGroupId: template.parentGroupId,
+              informatieObjectTypeUUID: template.informatieObjectTypeUUID,
+            })),
+          )
+        : []; // If 'groups' is not present, return an empty array
+
+      // Handle 'templates' directly at the item level
+      const itemTemplates = item.templates
+        ? item.templates.map((template) => ({
+            id: template.id,
+            parentGroupId: template.parentGroupId,
+            informatieObjectTypeUUID: template.informatieObjectTypeUUID,
+          }))
+        : []; // If 'templates' is not present, return an empty array
+
+      // Combine both arrays
+      return [...groupTemplates, ...itemTemplates];
+    });
   };
 
   private addParentIdToTemplates = (data) => {

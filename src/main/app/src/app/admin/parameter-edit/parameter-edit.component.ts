@@ -185,7 +185,7 @@ export class ParameterEditComponent
   ngAfterViewInit(): void {
     this.cdr.detectChanges();
     if (this.smartDocsFormGroup) {
-      this.smartDocsFormGroup.storeSmartDocumentsConfig();
+      this.smartDocsFormGroup.saveSmartDocumentsMapping();
       this.smartDocsFormGroup.formValidityChanged.subscribe((valid) => {
         this.isSmartDocumentsStepValid = valid;
       });
@@ -677,15 +677,15 @@ export class ParameterEditComponent
     );
 
     console.log("about to opslaan.");
-    this.smartDocsFormGroup?.storeSmartDocumentsConfig().subscribe(
+    this.smartDocsFormGroup?.saveSmartDocumentsMapping().subscribe(
       () => {
-        console.log("storeSmartDocumentsConfig successful");
+        console.log("saveSmartDocumentsMapping successful");
       },
       (error) => {
-        console.error("storeSmartDocumentsConfig failed", error);
+        console.error("saveSmartDocumentsMapping failed", error);
       },
       () => {
-        console.log("storeSmartDocumentsConfig completed");
+        console.log("saveSmartDocumentsMapping completed");
       },
     );
   }
