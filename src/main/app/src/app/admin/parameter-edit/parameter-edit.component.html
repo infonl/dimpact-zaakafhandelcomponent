@@ -715,6 +715,7 @@
             [formGroup]="smartDocumentsForm"
             (formValidityChanged)="isSmartDocumentsStepValid = $event"
             [zaakTypeUuid]="parameters.zaaktype.uuid"
+            #smartDocumentsFormRef
           >
           </smart-documents-form>
           <div class="button-group flex-row flex-wrap">
