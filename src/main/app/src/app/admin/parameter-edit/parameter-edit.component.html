@@ -709,9 +709,7 @@
         [stepControl]="smartDocumentsForm"
         [hasError]="!isSmartDocumentsStepValid"
       >
-        <ng-template matStepLabel>{{
-          "gegevens.smart-documents" | translate
-        }}</ng-template>
+        <ng-template matStepLabel>SmartDocuments</ng-template>
         <ng-template matStepContent>
           <smart-documents-form
             [formGroup]="smartDocumentsForm"
