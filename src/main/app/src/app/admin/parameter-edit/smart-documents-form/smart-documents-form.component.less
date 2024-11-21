@@ -6,6 +6,16 @@
 
 @import "../../../../variables";
 
+.border-top {
+  &.mat-tree-node {
+    border-bottom: 1px solid #d8d8d8; /* Adjust the color as needed */
+  }
+
+  &.mat-tree-node:first-child {
+    border-top: 1px solid #d8d8d8; /* Apply top border to the first row */
+  }
+}
+
 .template-group-status-label {
   text-align: center;
   padding: 2px 5px;

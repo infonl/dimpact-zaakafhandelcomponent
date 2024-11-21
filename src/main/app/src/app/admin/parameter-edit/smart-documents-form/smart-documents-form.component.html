@@ -14,7 +14,11 @@
         (selectionChange)="handleNodeChange($event)"
       ></smart-documents-form-item>
     </mat-tree-node>
-    <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodeToggle>
+    <mat-tree-node
+      *matTreeNodeDef="let node; when: hasChild"
+      class="border-top"
+      matTreeNodeToggle
+    >
       <button
         mat-icon-button
         matTreeNodeToggle
