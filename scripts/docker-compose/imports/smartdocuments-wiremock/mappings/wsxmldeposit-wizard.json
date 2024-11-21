@@ -56,6 +56,7 @@
             "status": "Wacht op aanvullende informatie",
             "toelichting": "dummyZaakToelichting",
             "uiterlijkeEinddatumAfdoening": "${json-unit.any-string}",
+            "verlengingReden" : "dummyReason",
             "vertrouwelijkheidaanduiding": "openbaar",
             "zaaktype": "Melding evenement organiseren behandelen"
           }
