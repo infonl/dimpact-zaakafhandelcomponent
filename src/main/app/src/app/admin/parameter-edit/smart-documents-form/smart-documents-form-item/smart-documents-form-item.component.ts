@@ -40,8 +40,6 @@ export class SmartDocumentsFormItemComponent implements OnInit {
   }
 
   updateFormControls() {
-    console.log("updateFormControls NODE ......", this.node);
-
     const { informatieObjectTypeUUID } = this.node;
 
     const confidentiality = this.informationObjectTypes.find(
