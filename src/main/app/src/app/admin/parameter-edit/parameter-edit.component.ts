@@ -675,14 +675,7 @@ export class ParameterEditComponent
       },
     );
 
-    this.smartDocsFormGroup?.saveSmartDocumentsMapping().subscribe(
-      () => {
-        console.log("saveSmartDocumentsMapping successful");
-      },
-      (error) => {
-        console.error("saveSmartDocumentsMapping failed", error);
-      },
-    );
+    this.smartDocsFormGroup?.saveSmartDocumentsMapping().subscribe();
   }
 
   compareObject(object1: any, object2: any): boolean {
