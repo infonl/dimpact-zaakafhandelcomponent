@@ -1,0 +1,29 @@
+header:
+  license:
+    content: |
+      /*
+       * SPDX-FileCopyrightText: 2024 Lifely
+       * SPDX-License-Identifier: EUPL-1.2+
+       */
+    pattern: |
+      \/\*
+       \* SPDX\-FileCopyrightText: .*$
+       \* SPDX\-License\-Identifier: EUPL\-1\.2\+
+       \*\/
+  paths:
+    # for now check Kotlin files only
+    - 'src/main/kotlin/**'
+  paths-ignore:
+    - 'build'
+    - 'certificates'
+    - 'config'
+    - 'docs'
+    - 'gradle'
+    - 'helm'
+    - 'scripts'
+    - 'target'
+    - 'wildfly-*'
+    - '**/*.md'
+    - '**/node_modules'
+
+  comment: on-failure
