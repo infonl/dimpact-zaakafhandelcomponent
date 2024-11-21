@@ -4,7 +4,13 @@
  */
 
 import { SelectionModel } from "@angular/cdk/collections";
-import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
 import {
   FormBuilder,
   FormControl,
@@ -63,8 +69,8 @@ export class ParameterEditComponent
   @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
   @ViewChild("menuSidenav") menuSidenav: MatSidenav;
 
-  @ViewChild("SmartDocumentsFormComponent")
-  smartDocsFormGroup: SmartDocumentsFormComponent;
+  @ViewChild("smartDocumentsFormRef")
+  smartDocsFormGroup!: SmartDocumentsFormComponent;
 
   smartDocumentsForm: FormGroup;
   isSmartDocumentsStepValid: boolean = true;
@@ -111,6 +117,7 @@ export class ParameterEditComponent
     private referentieTabelService: ReferentieTabelService,
     private mailtemplateBeheerService: MailtemplateBeheerService,
     private fb: FormBuilder,
+    private cdr: ChangeDetectorRef,
   ) {
     super(utilService, configuratieService);
     this.route.data.subscribe((data) => {
@@ -176,8 +183,9 @@ export class ParameterEditComponent
   }
 
   ngAfterViewInit(): void {
-    // Listen for validity changes after the view initializes
+    this.cdr.detectChanges();
     if (this.smartDocsFormGroup) {
+      this.smartDocsFormGroup.storeSmartDocumentsConfig();
       this.smartDocsFormGroup.formValidityChanged.subscribe((valid) => {
         this.isSmartDocumentsStepValid = valid;
       });
@@ -274,11 +282,7 @@ export class ParameterEditComponent
     this.createMailForm();
     this.createZaakbeeindigForm();
 
-    this.smartDocumentsForm = this.fb.group({
-      // remove
-    });
-
-    // Update isSmartDocumentsStepValid based on form validity
+    this.smartDocumentsForm = this.fb.group({});
     this.smartDocumentsForm.statusChanges.subscribe(() => {
       this.isSmartDocumentsStepValid = this.smartDocumentsForm.valid;
     });

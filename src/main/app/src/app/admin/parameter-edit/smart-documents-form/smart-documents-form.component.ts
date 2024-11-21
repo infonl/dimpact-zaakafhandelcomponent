@@ -63,21 +63,9 @@ export class SmartDocumentsFormComponent {
       this.informationObjectTypes =
         this.informationObjectTypesQuery.data() || [];
 
-      console.log(
-        "this.allSmartDocumentTemplateGroups",
-        this.allSmartDocumentTemplateGroups,
-      );
-
-      console.log(
-        "this.currentStoredZaakTypeTemplateGroups",
+      const onlyInformationTypeUUIDs = this.convertToIdAndUUIDMestedGroupsArray(
         this.currentStoredZaakTypeTemplateGroups,
       );
-
-      const uuidArray = this.convertToIdAndUUIDMestedGroupsArray(
-        this.currentStoredZaakTypeTemplateGroups,
-      );
-
-      console.log("this.convertToIdAndUUIDMestedGroupsArray", uuidArray);
 
       this.newStoredZaakTypeTemplateGroups = JSON.parse(
         JSON.stringify(this.allSmartDocumentTemplateGroups),
@@ -85,7 +73,7 @@ export class SmartDocumentsFormComponent {
 
       this.newStoredZaakTypeTemplateGroups = this.addObjectUUIDsToTemplate(
         this.newStoredZaakTypeTemplateGroups,
-        uuidArray,
+        onlyInformationTypeUUIDs,
       );
 
       console.log(
@@ -104,7 +92,7 @@ export class SmartDocumentsFormComponent {
   }
 
   ngOnInit() {
-    this.formGroup.statusChanges.subscribe((status) => {
+    this.formGroup.statusChanges.subscribe(() => {
       this.formValidityChanged.emit(this.formGroup.valid);
     });
   }
@@ -200,34 +188,24 @@ export class SmartDocumentsFormComponent {
     }
   }
 
-  testArray() {
+  public storeSmartDocumentsConfig(): Observable<never> {
     const justUUIDs = this.convertToIdAndUUIDArrayFlat(this.dataSource.data);
-    console.log("testArray", justUUIDs);
-
-    console.log(
-      "newStoredZaakTypeTemplateGroupsnewStoredZaakTypeTemplateGroupsnewStoredZaakTypeTemplateGroups",
+    const newStoreWithInformationObjectTypeUUIDs =
+      this.addObjectUUIDsToTemplate(
+        this.newStoredZaakTypeTemplateGroups,
+        justUUIDs,
+      );
+    const selectedTemplates = this.stripUndefinedTemplates(
       this.addObjectUUIDsToTemplate(
         this.newStoredZaakTypeTemplateGroups,
         justUUIDs,
       ),
     );
 
-    console.log(
-      "filterOutUnselectedfilterOutUnselected",
-      this.stripUndefinedTemplates(
-        this.addObjectUUIDsToTemplate(
-          this.newStoredZaakTypeTemplateGroups,
-          justUUIDs,
-        ),
-      ),
-    );
-  }
-
-  public storeSmartDocumentsConfig(): Observable<never> {
-    console.log("Saving storeSmartDocumentsConfig", this.dataSource.data);
+    console.log("Saving storeSmartDocumentsConfig", selectedTemplates);
     return this.smartDocumentsService.storeTemplatesMapping(
       this.zaakTypeUuid,
-      this.dataSource.data,
+      selectedTemplates,
     );
   }
 
