@@ -2,9 +2,10 @@
  * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.zaak.converter.historie
+package nl.lifely.zac.util
 
 import net.atos.client.zgw.shared.util.JsonbUtil
+import kotlin.collections.get
 
 fun Map<*, *>.asMapWithKeyOfString(): Map<String, *> = this
     .mapNotNull { (key, value) -> (key as? String)?.let { it to value } }

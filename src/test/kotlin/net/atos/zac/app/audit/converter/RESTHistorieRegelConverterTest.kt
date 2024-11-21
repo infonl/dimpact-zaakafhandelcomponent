@@ -14,9 +14,10 @@ import net.atos.client.zgw.shared.model.audit.AuditWijziging
 import net.atos.client.zgw.shared.model.audit.besluiten.BesluitInformatieobjectWijziging
 import net.atos.client.zgw.shared.model.audit.createAuditTrailRegel
 import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.zac.app.audit.converter.documenten.AuditBesluitInformatieobjectConverter
-import net.atos.zac.app.audit.converter.documenten.AuditEnkelvoudigInformatieobjectConverter
-import net.atos.zac.app.audit.model.RESTHistorieActie
+import net.atos.zac.history.converter.ZaakHistoryLineConverter
+import net.atos.zac.history.converter.documenten.AuditBesluitInformatieobjectConverter
+import net.atos.zac.history.converter.documenten.AuditEnkelvoudigInformatieobjectConverter
+import net.atos.zac.history.model.HistoryAction
 import java.net.URI
 
 class RESTHistorieRegelConverterTest : BehaviorSpec({
@@ -28,7 +29,7 @@ class RESTHistorieRegelConverterTest : BehaviorSpec({
     val auditEnkelvoudigInformatieobjectConverter = AuditEnkelvoudigInformatieobjectConverter(ztcClientService)
     val auditBesluitInformatieobjectConverter = AuditBesluitInformatieobjectConverter(brcClientService)
 
-    val converter = RESTHistorieRegelConverter(
+    val converter = ZaakHistoryLineConverter(
         auditEnkelvoudigInformatieobjectConverter,
         auditBesluitInformatieobjectConverter
     )
@@ -75,7 +76,7 @@ class RESTHistorieRegelConverterTest : BehaviorSpec({
             Then("it should return a correct regel list") {
                 restHistorieRegel.size shouldBe 2
                 with(restHistorieRegel[1]) {
-                    actie shouldBe RESTHistorieActie.GEKOPPELD
+                    actie shouldBe HistoryAction.GEKOPPELD
                     attribuutLabel shouldBe "Besluit"
                     oudeWaarde shouldBe null
                     nieuweWaarde shouldBe "dummyIdentificatie"
@@ -84,7 +85,7 @@ class RESTHistorieRegelConverterTest : BehaviorSpec({
                     toelichting shouldBe "description"
                 }
                 with(restHistorieRegel[0]) {
-                    actie shouldBe RESTHistorieActie.GEKOPPELD
+                    actie shouldBe HistoryAction.GEKOPPELD
                     attribuutLabel shouldBe "informatieobject"
                     oudeWaarde shouldBe null
                     nieuweWaarde shouldBe "dummyIdentificatie"

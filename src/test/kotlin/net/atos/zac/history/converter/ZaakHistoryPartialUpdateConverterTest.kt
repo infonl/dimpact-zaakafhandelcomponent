@@ -1,4 +1,8 @@
-package net.atos.zac.app.zaak.converter.historie
+/*
+ * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package net.atos.zac.history.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -7,26 +11,29 @@ import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.zac.app.audit.model.RESTHistorieActie
+import net.atos.zac.history.model.HistoryAction
+import java.math.BigDecimal
 import java.time.ZonedDateTime
 
-class RESTZaakHistoriePartialUpdateConverterTest : BehaviorSpec({
+class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
+    val zrcClientService = mockk<ZrcClientService>()
+    val auditTrail = mockk<ZRCAuditTrailRegel>()
+    val actie = mockk<HistoryAction>()
+    val creationDate = ZonedDateTime.now()
+    val userView = "view"
+    val description = "description"
+    val zaakHistoryPartialUpdateConverter = ZaakHistoryPartialUpdateConverter(zrcClientService)
 
     beforeEach {
         checkUnnecessaryStub()
     }
 
-    val zrcClientService = mockk<ZrcClientService>()
-    val auditTrail = mockk<ZRCAuditTrailRegel>()
-    val actie = mockk<RESTHistorieActie>()
-
-    val creationDate = ZonedDateTime.now()
-    val userView = "view"
-    val description = "description"
-
-    val restZaakHistoriePartialUpdateConverter = RestZaakHistoriePartialUpdateConverter(zrcClientService)
-
-    Given("audit trail contains changes for start, completion and target dates") {
+    Given(
+        """
+           An audit trail with changes for start, completion and target dates, zaak geometry,
+           and a dummy key-value pair
+        """.trimIndent()
+    ) {
         every { auditTrail.aanmaakdatum } returns creationDate
         every { auditTrail.gebruikersWeergave } returns userView
         every { auditTrail.toelichting } returns description
@@ -34,11 +41,19 @@ class RESTZaakHistoriePartialUpdateConverterTest : BehaviorSpec({
         val newValues = mapOf(
             "startdatum" to "2024-10-30",
             "uiterlijkeEinddatumAfdoening" to "2024-11-30",
-            "einddatumGepland" to "2024-12-30"
+            "einddatumGepland" to "2024-12-30",
+            "zaakgeometrie" to mapOf(
+                "type" to "Point",
+                "coordinates" to listOf(
+                    BigDecimal("53.602182801494195"),
+                    BigDecimal("5.363728969647492")
+                )
+            ),
+            "dummyKey" to "dummyValue"
         )
 
         When("history is requested") {
-            val history = restZaakHistoriePartialUpdateConverter.convertPartialUpdate(
+            val history = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
                 auditTrail,
                 actie,
                 emptyMap<String, String>(),
@@ -46,7 +61,7 @@ class RESTZaakHistoriePartialUpdateConverterTest : BehaviorSpec({
             )
 
             Then("it is converted correctly") {
-                history.size shouldBe 3
+                history.size shouldBe 5
                 with(history[0]) {
                     datumTijd shouldBe creationDate
                     door shouldBe userView
@@ -70,6 +85,22 @@ class RESTZaakHistoriePartialUpdateConverterTest : BehaviorSpec({
                     attribuutLabel shouldBe "einddatumGepland"
                     oudeWaarde shouldBe null
                     nieuweWaarde shouldBe "30-12-2024"
+                }
+                with(history[3]) {
+                    datumTijd shouldBe creationDate
+                    door shouldBe userView
+                    toelichting shouldBe description
+                    attribuutLabel shouldBe "zaakgeometrie"
+                    oudeWaarde shouldBe null
+                    nieuweWaarde shouldBe "POINT(53.602182801494195 5.363728969647492)"
+                }
+                with(history[4]) {
+                    datumTijd shouldBe creationDate
+                    door shouldBe userView
+                    toelichting shouldBe description
+                    attribuutLabel shouldBe "dummyKey"
+                    oudeWaarde shouldBe null
+                    nieuweWaarde shouldBe "dummyValue"
                 }
             }
         }
