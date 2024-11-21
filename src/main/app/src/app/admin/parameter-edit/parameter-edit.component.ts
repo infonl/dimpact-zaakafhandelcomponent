@@ -56,7 +56,6 @@ import { ZaaknietontvankelijkReden } from "../model/zaaknietontvankelijk-reden";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
-import { SmartDocumentsTreeComponent } from "./smart-documents/smart-documents-tree.component";
 
 @Component({
   templateUrl: "./parameter-edit.component.html",

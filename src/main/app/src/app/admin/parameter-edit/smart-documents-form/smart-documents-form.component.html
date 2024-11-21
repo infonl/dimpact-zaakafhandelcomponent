@@ -27,8 +27,7 @@
       <div class="node-name flex-1">{{ node.name }}</div>
       <mat-chip
         [ngClass]="{ 'active-chip': hasSelectedInformationObjectType(node.id) }"
-        >{{
-          hasSelectedInformationObjectType(node.id) ? "actief" : "inactief"
+        >{{ hasSelectedInformationObjectType(node.id) ? "actief" : "inactief"
         }}</mat-chip
       >
     </mat-tree-node>

@@ -9,13 +9,13 @@ import { MatTreeNestedDataSource } from "@angular/material/tree";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { Observable, firstValueFrom } from "rxjs";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import {
   DocumentsTemplateGroup,
   SmartDocumentsService,
   SmartDocumentsTemplate,
   SmartDocumentsTemplateGroup,
 } from "../../smart-documents.service";
-import { GeneratedType } from "../../../shared/utils/generated-types";
 
 function getSelectableGroup(
   original: SmartDocumentsTemplateGroup,
