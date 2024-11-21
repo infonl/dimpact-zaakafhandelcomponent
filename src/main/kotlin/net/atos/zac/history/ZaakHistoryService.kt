@@ -27,49 +27,61 @@ private const val ACTION_DESTROY = "destroy"
 private const val ACTION_UPDATE = "update"
 private const val ACTION_PARTIAL_UPDATE = "partial_update"
 
-private const val IDENTIFICATIE = "identificatie"
-private const val KLANTCONTACT = "klantcontact"
-private const val RESULTAAT = "resultaat"
-private const val RESULTAATTYPE = "resultaattype"
-private const val ROL = "rol"
-private const val ROLTYPE = "roltype"
-private const val STATUS = "status"
-private const val STATUSTYPE = "statustype"
-private const val TITEL = "titel"
-private const val ZAAK = "zaak"
-private const val ZAAKINFORMATIEOBJECT = "zaakinformatieobject"
-private const val ZAAKOBJECT = "zaakobject"
+private const val RESOURCE_IDENTIFICATIE = "identificatie"
+private const val RESOURCE_KLANTCONTACT = "klantcontact"
+private const val RESOURCE_RESULTAAT = "resultaat"
+private const val RESOURCE_RESULTAATTYPE = "resultaattype"
+private const val RESOURCE_ROL = "rol"
+private const val RESOURCE_ROLTYPE = "roltype"
+private const val RESOURCE_STATUS = "status"
+private const val RESOURCE_STATUSTYPE = "statustype"
+private const val RESOURCE_ITEL = "titel"
+private const val RESOURCE_ZAAK = "zaak"
+private const val RESOURCE_ZAAKINFORMATIEOBJECT = "zaakinformatieobject"
+private const val RESOURCE_ZAAKOBJECT = "zaakobject"
+private const val RESOURCE_EXTENSION = "verlenging"
+private const val RESOURCE_SUSPENSION = "opschorting"
 
 class ZaakHistoryService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
     private val zaakHistoryPartialUpdateConverter: ZaakHistoryPartialUpdateConverter
 ) {
+    /**
+     * Retrieves the zaak history ('audit trail') using the ZGW ZRC API.
+     * Note that the contents of the audit trail lines are not defined by the ZGW ZRC API.
+     * While our code to interpret these audit trail lines tries to be lenient,
+     * the code is currently dependent on the specific implementation of the audit trail ZGW ZRC API endpoints
+     * by [OpenZaak](https://open-zaak.readthedocs.io/).
+     */
     fun getZaakHistory(zaakUUID: UUID): List<HistoryLine> {
         val auditTrail = zrcClientService.listAuditTrail(zaakUUID)
         return auditTrail
             .flatMap(::convertZaakHistoryLine)
+            // we filter out certain audit trail lines because they add no value
+            // and are confusing for the end-user
+            .filter { it.attribuutLabel != RESOURCE_EXTENSION && it.attribuutLabel != RESOURCE_SUSPENSION }
             .sortedByDescending { it.datumTijd }
     }
 
-    private fun convertZaakHistoryLine(auditTrail: ZRCAuditTrailRegel): List<HistoryLine> {
-        val old = (auditTrail.wijzigingen.oud as? Map<*, *>)?.asMapWithKeyOfString()
-        val new = (auditTrail.wijzigingen.nieuw as? Map<*, *>)?.asMapWithKeyOfString()
+    private fun convertZaakHistoryLine(auditTrailLine: ZRCAuditTrailRegel): List<HistoryLine> {
+        val old = (auditTrailLine.wijzigingen.oud as? Map<*, *>)?.asMapWithKeyOfString()
+        val new = (auditTrailLine.wijzigingen.nieuw as? Map<*, *>)?.asMapWithKeyOfString()
         return when {
-            auditTrail.actie == ACTION_PARTIAL_UPDATE &&
+            auditTrailLine.actie == ACTION_PARTIAL_UPDATE &&
                 old != null &&
                 new != null
             -> zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                auditTrail,
-                convertActie(auditTrail.resource, auditTrail.actie),
+                auditTrailLine,
+                convertActie(auditTrailLine.resource, auditTrailLine.actie),
                 old,
                 new
             )
 
-            auditTrail.actie == ACTION_CREATE ||
-                auditTrail.actie == ACTION_UPDATE ||
-                auditTrail.actie == ACTION_DESTROY
-            -> listOfNotNull(convertLine(auditTrail, old, new))
+            auditTrailLine.actie == ACTION_CREATE ||
+                auditTrailLine.actie == ACTION_UPDATE ||
+                auditTrailLine.actie == ACTION_DESTROY
+            -> listOfNotNull(convertLine(auditTrailLine, old, new))
 
             else -> emptyList()
         }
@@ -93,12 +105,12 @@ class ZaakHistoryService @Inject constructor(
             }
 
     private fun convertResource(resource: String, obj: Map<String, *>): String? = when (resource) {
-        ROL -> obj.stringProperty(ROLTYPE)
+        RESOURCE_ROL -> obj.stringProperty(RESOURCE_ROLTYPE)
             ?.let(URI::create)
             ?.let(URIUtil::parseUUIDFromResourceURI)
             ?.let(ztcClientService::readRoltype)
             ?.omschrijving
-        ZAAKOBJECT -> obj.getTypedValue(Zaakobject::class.java)
+        RESOURCE_ZAAKOBJECT -> obj.getTypedValue(Zaakobject::class.java)
             ?.let(::getObjectType)
             ?.let { "objecttype.$it" }
         else -> resource
@@ -106,19 +118,19 @@ class ZaakHistoryService @Inject constructor(
 
     private fun convertValue(resource: String, obj: Map<String, *>, resourceWeergave: String?): String? =
         when (resource) {
-            ZAAK -> obj.stringProperty(IDENTIFICATIE)
-            ROL -> obj.getTypedValue(Rol::class.java)?.naam
-            ZAAKINFORMATIEOBJECT -> obj.stringProperty(TITEL)
-            KLANTCONTACT -> resourceWeergave
-            RESULTAAT -> obj.stringProperty(RESULTAATTYPE)
+            RESOURCE_ZAAK -> obj.stringProperty(RESOURCE_IDENTIFICATIE)
+            RESOURCE_ROL -> obj.getTypedValue(Rol::class.java)?.naam
+            RESOURCE_ZAAKINFORMATIEOBJECT -> obj.stringProperty(RESOURCE_ITEL)
+            RESOURCE_KLANTCONTACT -> resourceWeergave
+            RESOURCE_RESULTAAT -> obj.stringProperty(RESOURCE_RESULTAATTYPE)
                 ?.let(URI::create)
                 ?.let(ztcClientService::readResultaattype)
                 ?.omschrijving
-            STATUS -> obj.stringProperty(STATUSTYPE)
+            RESOURCE_STATUS -> obj.stringProperty(RESOURCE_STATUSTYPE)
                 ?.let(URI::create)
                 ?.let(ztcClientService::readStatustype)
                 ?.omschrijving
-            ZAAKOBJECT -> obj.getTypedValue(Zaakobject::class.java).let {
+            RESOURCE_ZAAKOBJECT -> obj.getTypedValue(Zaakobject::class.java).let {
                 when {
                     it is ZaakobjectProductaanvraag -> null
                     else -> it?.waarde
@@ -128,8 +140,8 @@ class ZaakHistoryService @Inject constructor(
         }
 
     private fun convertActie(resource: String?, action: String?): HistoryAction? = when {
-        resource == ZAAK && action == ACTION_CREATE -> HistoryAction.AANGEMAAKT
-        resource == STATUS -> HistoryAction.GEWIJZIGD
+        resource == RESOURCE_ZAAK && action == ACTION_CREATE -> HistoryAction.AANGEMAAKT
+        resource == RESOURCE_STATUS -> HistoryAction.GEWIJZIGD
         action == ACTION_CREATE -> HistoryAction.GEKOPPELD
         action == ACTION_DESTROY -> HistoryAction.ONTKOPPELD
         action == ACTION_UPDATE || action == ACTION_PARTIAL_UPDATE -> HistoryAction.GEWIJZIGD

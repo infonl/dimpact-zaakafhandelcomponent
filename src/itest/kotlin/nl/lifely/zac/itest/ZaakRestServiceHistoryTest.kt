@@ -26,12 +26,12 @@ import nl.lifely.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.lifely.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 
 @Order(TEST_SPEC_ORDER_LAST)
-class ZaakHistorieTest : BehaviorSpec({
+class ZaakRestServiceHistoryTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
     Given("A zaak exists for which there is an audit trail in OpenZaak") {
-        When("zaakhistorie is requested") {
+        When("zaak history is requested") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraag1Uuid/historie"
             )

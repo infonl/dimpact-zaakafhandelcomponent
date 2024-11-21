@@ -16,6 +16,7 @@ import nl.lifely.zac.util.diff
 import nl.lifely.zac.util.getTypedValue
 import nl.lifely.zac.util.stringProperty
 import java.net.URI
+import java.time.ZonedDateTime
 
 private const val KEY_URL = "url"
 private const val RESOURCE_COMMUNICATION_CHANNEL = "communicatiekanaal"
@@ -32,14 +33,24 @@ class ZaakHistoryPartialUpdateConverter @Inject constructor(
     private val zrcClientService: ZrcClientService
 ) {
     fun convertPartialUpdate(
-        auditTrail: ZRCAuditTrailRegel,
-        actie: HistoryAction?,
-        old: Map<String, *>,
-        new: Map<String, *>
-    ) = old.diff(new).map { convertLine(auditTrail, actie, it) }
+        auditTrailLine: ZRCAuditTrailRegel,
+        historyAction: HistoryAction?,
+        oldValues: Map<String, *>,
+        newValues: Map<String, *>
+    ) = oldValues.diff(newValues).map {
+        convertLine(
+            aanmaakdatum = auditTrailLine.aanmaakdatum,
+            gebruikersWeergave = auditTrailLine.gebruikersWeergave,
+            toelichting = auditTrailLine.toelichting,
+            actie = historyAction,
+            change = it
+        )
+    }
 
     private fun convertLine(
-        auditTrail: ZRCAuditTrailRegel,
+        aanmaakdatum: ZonedDateTime,
+        gebruikersWeergave: String?,
+        toelichting: String?,
         actie: HistoryAction?,
         change: Map.Entry<String, Pair<*, *>>
     ) = HistoryLine(
@@ -47,9 +58,9 @@ class ZaakHistoryPartialUpdateConverter @Inject constructor(
         oudeWaarde = change.value.first?.let { convertValue(change.key, it) },
         nieuweWaarde = change.value.second?.let { convertValue(change.key, it) },
     ).apply {
-        datumTijd = auditTrail.aanmaakdatum
-        door = auditTrail.gebruikersWeergave
-        toelichting = auditTrail.toelichting
+        datumTijd = aanmaakdatum
+        door = gebruikersWeergave
+        this.toelichting = toelichting
         this.actie = actie
     }
 

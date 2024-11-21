@@ -7,20 +7,21 @@ package net.atos.zac.history.converter
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel
+import net.atos.client.zgw.shared.model.Bron
+import net.atos.client.zgw.shared.model.audit.createZRCAuditTrailRegel
 import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.model.generated.Wijzigingen
 import net.atos.zac.history.model.HistoryAction
 import java.math.BigDecimal
+import java.net.URI
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
+import java.util.UUID
 
 class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
-    val auditTrail = mockk<ZRCAuditTrailRegel>()
-    val actie = mockk<HistoryAction>()
-    val creationDate = ZonedDateTime.now()
-    val userView = "view"
+    val userName = "dummyUserName"
     val description = "description"
     val zaakHistoryPartialUpdateConverter = ZaakHistoryPartialUpdateConverter(zrcClientService)
 
@@ -30,14 +31,40 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
     Given(
         """
-           An audit trail with changes for start, completion and target dates, zaak geometry,
-           and a dummy key-value pair
+           An audit trail with action 'create' and new values for various resources
         """.trimIndent()
     ) {
-        every { auditTrail.aanmaakdatum } returns creationDate
-        every { auditTrail.gebruikersWeergave } returns userView
-        every { auditTrail.toelichting } returns description
-
+        val rolTypeUri = "https://example.com/roltype/${UUID.randomUUID()}"
+        val creationDate = ZonedDateTime.of(2024, 10, 30, 0, 0, 0, 0, ZoneOffset.UTC)
+        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+            aanmaakdatum = creationDate,
+            gebruikersWeergave = userName,
+            bron = Bron.ZAKEN_API,
+            actie = "create",
+            actieWeergave = "Object aangemaakt",
+            resultaat = 201,
+            hoofdObject = URI("https://example.com/somePath"),
+            resource = "zaak",
+            resourceUrl = URI("https://example.com/somePath"),
+            toelichting = description,
+            wijzigingen = Wijzigingen().apply {
+                nieuw = mapOf(
+                    "roltype" to rolTypeUri,
+                    "roltoelichting" to "",
+                    "omschrijving" to "dummyOmschrijving",
+                    "betrokkeneIdentificatie" to mapOf(
+                        "achternaam" to "dummyAchternaam",
+                        "identificatie" to "dummyIdentificatie",
+                        "voorletters" to "dummyVoorletters"
+                    ),
+                    "betrokkeneType" to "medewerker",
+                    "zaak" to "https://example.com/zaak",
+                    "identificatienummer" to "dummyIdentificatie",
+                    "naam" to "dummyVoorletters dummyAchternaam",
+                    "omschrijvingGeneriek" to "initiator"
+                )
+            }
+        )
         val newValues = mapOf(
             "startdatum" to "2024-10-30",
             "uiterlijkeEinddatumAfdoening" to "2024-11-30",
@@ -54,8 +81,8 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
 
         When("history is requested") {
             val history = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
-                auditTrail,
-                actie,
+                zrcAuditTrailRegel,
+                HistoryAction.AANGEMAAKT,
                 emptyMap<String, String>(),
                 newValues
             )
@@ -64,7 +91,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
                 history.size shouldBe 5
                 with(history[0]) {
                     datumTijd shouldBe creationDate
-                    door shouldBe userView
+                    door shouldBe userName
                     toelichting shouldBe description
                     attribuutLabel shouldBe "startdatum"
                     oudeWaarde shouldBe null
@@ -72,7 +99,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
                 }
                 with(history[1]) {
                     datumTijd shouldBe creationDate
-                    door shouldBe userView
+                    door shouldBe userName
                     toelichting shouldBe description
                     attribuutLabel shouldBe "uiterlijkeEinddatumAfdoening"
                     oudeWaarde shouldBe null
@@ -80,7 +107,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
                 }
                 with(history[2]) {
                     datumTijd shouldBe creationDate
-                    door shouldBe userView
+                    door shouldBe userName
                     toelichting shouldBe description
                     attribuutLabel shouldBe "einddatumGepland"
                     oudeWaarde shouldBe null
@@ -88,7 +115,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
                 }
                 with(history[3]) {
                     datumTijd shouldBe creationDate
-                    door shouldBe userView
+                    door shouldBe userName
                     toelichting shouldBe description
                     attribuutLabel shouldBe "zaakgeometrie"
                     oudeWaarde shouldBe null
@@ -96,7 +123,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
                 }
                 with(history[4]) {
                     datumTijd shouldBe creationDate
-                    door shouldBe userView
+                    door shouldBe userName
                     toelichting shouldBe description
                     attribuutLabel shouldBe "dummyKey"
                     oudeWaarde shouldBe null
