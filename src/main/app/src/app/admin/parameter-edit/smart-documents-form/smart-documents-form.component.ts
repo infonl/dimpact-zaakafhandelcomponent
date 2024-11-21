@@ -29,6 +29,7 @@ interface FlatNode {
 @Component({
   selector: "smart-documents-form",
   templateUrl: "./smart-documents-form.component.html",
+  styleUrl: "./smart-documents-form.component.less",
 })
 export class SmartDocumentsFormComponent {
   @Input() formGroup: FormGroup;
@@ -136,15 +137,19 @@ export class SmartDocumentsFormComponent {
 
   hasChild = (_: number, node: { expandable: boolean }) => node.expandable;
 
-  hasSelectedInformationObjectType(id: any): boolean {
+  hasSelected(id: string): boolean {
     const nodeHasSelectedInformationObjectType = this.dataSource.data
       .find((node) => node.id === id)
-      ?.templates.some((_node) => _node.informatieObjectTypeUUID !== "");
+      ?.templates.some((_node) => _node.informatieObjectTypeUUID);
 
     return !!nodeHasSelectedInformationObjectType;
   }
 
-  onNodeChange(node: any): void {
+  getSelectedClass(node: string): string {
+    return this.hasSelected(node) ? "active" : "default";
+  }
+
+  handleNodeChange(node: any): void {
     const id = node.id;
     const parentGroupId = node.parentGroupId;
     const informatieObjectTypeUUID = node.informatieObjectTypeUUID;
