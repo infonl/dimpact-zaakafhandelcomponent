@@ -675,16 +675,12 @@ export class ParameterEditComponent
       },
     );
 
-    console.log("about to opslaan.");
     this.smartDocsFormGroup?.saveSmartDocumentsMapping().subscribe(
       () => {
         console.log("saveSmartDocumentsMapping successful");
       },
       (error) => {
         console.error("saveSmartDocumentsMapping failed", error);
-      },
-      () => {
-        console.log("saveSmartDocumentsMapping completed");
       },
     );
   }
