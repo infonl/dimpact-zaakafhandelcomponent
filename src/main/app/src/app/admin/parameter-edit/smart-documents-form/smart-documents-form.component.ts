@@ -11,7 +11,7 @@ import {
   MatTreeFlattener,
 } from "@angular/material/tree";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { Observable, firstValueFrom } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
@@ -36,62 +36,58 @@ export class SmartDocumentsFormComponent {
   @Output() formValidityChanged = new EventEmitter<boolean>();
 
   allSmartDocumentTemplateGroups: SmartDocumentsTemplateGroup[] = [];
-  currentStoredZaakTypeTemplateGroups: DocumentsTemplateGroup[] = [];
+  currentTemplateMappings: DocumentsTemplateGroup[] = [];
   informationObjectTypes: GeneratedType<"RestInformatieobjecttype">[] = [];
 
-  newStoredZaakTypeTemplateGroups: any[] = [];
+  newTemplateMappings: any[] = [];
 
   constructor(
     private smartDocumentsService: SmartDocumentsService,
     private informatieObjectenService: InformatieObjectenService,
   ) {
-    effect(() => {
-      this.allSmartDocumentTemplateGroups =
-        this.allSmartDocumentTemplateGroupsQuery.data()
-          ? this.addParentIdToTemplates(
-              this.allSmartDocumentTemplateGroupsQuery.data(),
-            )
-          : [];
-
-      this.currentStoredZaakTypeTemplateGroups =
-        this.zaakTypeTemplateMappingsQuery.data()
-          ? this.addParentIdToTemplates(
-              this.zaakTypeTemplateMappingsQuery.data(),
-            )
-          : [];
-
-      this.informationObjectTypes =
-        this.informationObjectTypesQuery.data() || [];
-
-      const onlyInformationTypeUUIDs = this.convertToIdAndUUIDMestedGroupsArray(
-        this.currentStoredZaakTypeTemplateGroups,
-      );
-
-      this.newStoredZaakTypeTemplateGroups = JSON.parse(
-        JSON.stringify(this.allSmartDocumentTemplateGroups),
-      );
-
-      this.newStoredZaakTypeTemplateGroups = this.addObjectUUIDsToTemplate(
-        this.newStoredZaakTypeTemplateGroups,
-        onlyInformationTypeUUIDs,
-      );
-
-      this.dataSource.data = JSON.parse(
-        JSON.stringify(
-          this.flattenGroupsToRoot(this.newStoredZaakTypeTemplateGroups),
-        ),
-      );
-
-      if (this.dataSource.data.length) {
-        console.log("Current Tree Data", this.dataSource.data);
-      }
-    });
+    effect(() => this.prepareDatasource());
   }
 
   ngOnInit() {
     this.formGroup.statusChanges.subscribe(() => {
       this.formValidityChanged.emit(this.formGroup.valid);
     });
+  }
+
+  private prepareDatasource() {
+    this.allSmartDocumentTemplateGroups =
+      this.allSmartDocumentTemplateGroupsQuery.data()
+        ? this.addParentIdToTemplates(
+            this.allSmartDocumentTemplateGroupsQuery.data(),
+          )
+        : [];
+
+    this.currentTemplateMappings = this.currentTemplateMappingsQuery.data()
+      ? this.addParentIdToTemplates(this.currentTemplateMappingsQuery.data())
+      : [];
+
+    this.informationObjectTypes = this.informationObjectTypesQuery.data() || [];
+
+    const onlyInformationTypeUUIDs = this.convertToIdAndUUIDMestedGroupsArray(
+      this.currentTemplateMappings,
+    );
+
+    this.newTemplateMappings = JSON.parse(
+      JSON.stringify(this.allSmartDocumentTemplateGroups),
+    );
+
+    this.newTemplateMappings = this.addObjectUUIDsToTemplate(
+      this.newTemplateMappings,
+      onlyInformationTypeUUIDs,
+    );
+
+    this.dataSource.data = JSON.parse(
+      JSON.stringify(this.flattenGroupsToRoot(this.newTemplateMappings)),
+    );
+
+    if (this.dataSource.data.length) {
+      console.log("Current Tree Data", this.dataSource.data);
+    }
   }
 
   allSmartDocumentTemplateGroupsQuery = injectQuery(() => ({
@@ -103,8 +99,8 @@ export class SmartDocumentsFormComponent {
       ),
   }));
 
-  zaakTypeTemplateMappingsQuery = injectQuery(() => ({
-    queryKey: ["zaakTypeTemplateMappingsQuery", this.zaakTypeUuid],
+  currentTemplateMappingsQuery = injectQuery(() => ({
+    queryKey: ["currentTemplateMappingsQuery", this.zaakTypeUuid],
     refetchOnWindowFocus: false,
     queryFn: () =>
       firstValueFrom(
@@ -188,17 +184,11 @@ export class SmartDocumentsFormComponent {
   public saveSmartDocumentsMapping(): Observable<never> {
     const justUUIDs = this.convertToIdAndUUIDArrayFlat(this.dataSource.data);
     const newStoreWithInformationObjectTypeUUIDs =
-      this.addObjectUUIDsToTemplate(
-        this.newStoredZaakTypeTemplateGroups,
-        justUUIDs,
-      );
+      this.addObjectUUIDsToTemplate(this.newTemplateMappings, justUUIDs);
 
     console.log(newStoreWithInformationObjectTypeUUIDs);
     const selectedTemplates = this.stripUndefinedTemplates(
-      this.addObjectUUIDsToTemplate(
-        this.newStoredZaakTypeTemplateGroups,
-        justUUIDs,
-      ),
+      this.addObjectUUIDsToTemplate(this.newTemplateMappings, justUUIDs),
     );
 
     console.log("Storing SmartDocuments Mapping", selectedTemplates);

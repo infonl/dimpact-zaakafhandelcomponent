@@ -10,9 +10,7 @@
     [checked]="node.informatieObjectTypeUUID !== ''"
     (change)="clearSelectedDocumentType()"
   ></mat-checkbox>
-  <div class="flex-1">
-    {{ node.name }}
-  </div>
+  <div class="flex-1">{{ node.name }}</div>
   <mat-form-field subscriptSizing="dynamic">
     <mat-label>{{ "informatieobjectTypeOmschrijving" | translate }}</mat-label>
     <mat-select
