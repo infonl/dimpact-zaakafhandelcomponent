@@ -48,7 +48,7 @@ class ZaakHistoryService @Inject constructor(
     private val zaakHistoryPartialUpdateConverter: ZaakHistoryPartialUpdateConverter
 ) {
     /**
-     * Retrieves the zaak history ('audit trail') us ing the ZGW ZRC API.
+     * Retrieves the zaak history ('audit trail') using the ZGW ZRC API.
      * Note that the contents of the audit trail lines are not defined by the ZGW ZRC API.
      * While our code to interpret these audit trail lines tries to be lenient,
      * the code is currently dependent on the specific implementation of the audit trail ZGW ZRC API endpoints
