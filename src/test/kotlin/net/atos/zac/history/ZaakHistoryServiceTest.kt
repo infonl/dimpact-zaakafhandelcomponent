@@ -31,6 +31,9 @@ class ZaakHistoryServiceTest : BehaviorSpec({
     val zaakHistoryService = ZaakHistoryService(
         zrcClientService,
         ztcClientService,
+        // this unit test currently also tests the ZaakHistoryPartialUpdateConverter class,
+        // but we have a separate unit test for that already.
+        // better to mock this dependency in the future
         ZaakHistoryPartialUpdateConverter(zrcClientService)
     )
 

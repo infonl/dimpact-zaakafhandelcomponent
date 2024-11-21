@@ -1,4 +1,8 @@
-package net.atos.zac.app.audit.converter
+/*
+ * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package net.atos.zac.history.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -14,13 +18,12 @@ import net.atos.client.zgw.shared.model.audit.AuditWijziging
 import net.atos.client.zgw.shared.model.audit.besluiten.BesluitInformatieobjectWijziging
 import net.atos.client.zgw.shared.model.audit.createAuditTrailRegel
 import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.zac.history.converter.ZaakHistoryLineConverter
 import net.atos.zac.history.converter.documenten.AuditBesluitInformatieobjectConverter
 import net.atos.zac.history.converter.documenten.AuditEnkelvoudigInformatieobjectConverter
 import net.atos.zac.history.model.HistoryAction
 import java.net.URI
 
-class RESTHistorieRegelConverterTest : BehaviorSpec({
+class ZaakHistoryLineConverterTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val brcClientService = mockk<BrcClientService>()
     val besluitWijziging = mockk<AuditWijziging<Besluit>>()
