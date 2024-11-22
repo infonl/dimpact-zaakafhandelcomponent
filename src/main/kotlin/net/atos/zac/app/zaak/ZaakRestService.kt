@@ -52,8 +52,6 @@ import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
 import net.atos.zac.app.admin.model.RESTZaakAfzender
-import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
-import net.atos.zac.app.audit.model.RESTHistorieRegel
 import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.besluit.BesluitService
 import net.atos.zac.app.klant.model.klant.IdentificatieType
@@ -63,7 +61,6 @@ import net.atos.zac.app.zaak.converter.RestGeometryConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
-import net.atos.zac.app.zaak.converter.historie.RESTZaakHistorieRegelConverter
 import net.atos.zac.app.zaak.model.RESTDocumentOntkoppelGegevens
 import net.atos.zac.app.zaak.model.RESTReden
 import net.atos.zac.app.zaak.model.RESTZaakAanmaakGegevens
@@ -106,6 +103,9 @@ import net.atos.zac.flowable.bpmn.BPMNService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.healthcheck.HealthCheckService
+import net.atos.zac.history.ZaakHistoryService
+import net.atos.zac.history.converter.ZaakHistoryLineConverter
+import net.atos.zac.history.model.HistoryLine
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
@@ -167,13 +167,13 @@ class ZaakRestService @Inject constructor(
     private val restBesluitConverter: RestBesluitConverter,
     private val restZaakOverzichtConverter: RestZaakOverzichtConverter,
     private val restBAGConverter: RESTBAGConverter,
-    private val restHistorieRegelConverter: RESTHistorieRegelConverter,
+    private val zaakHistoryLineConverter: ZaakHistoryLineConverter,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val restGeometryConverter: RestGeometryConverter,
     private val healthCheckService: HealthCheckService,
     private val opschortenZaakHelper: SuspensionZaakHelper,
     private val zaakService: ZaakService,
-    private val restZaakHistorieRegelConverter: RESTZaakHistorieRegelConverter
+    private val zaakHistoryService: ZaakHistoryService
 ) {
     companion object {
         private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
@@ -751,12 +751,9 @@ class ZaakRestService @Inject constructor(
 
     @GET
     @Path("zaak/{uuid}/historie")
-    fun listHistorie(@PathParam("uuid") zaakUUID: UUID): List<RESTHistorieRegel> {
+    fun listHistory(@PathParam("uuid") zaakUUID: UUID): List<HistoryLine> {
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen)
-        val auditTrail = zrcClientService.listAuditTrail(zaakUUID)
-        return auditTrail
-            .flatMap(restZaakHistorieRegelConverter::convertZaakRESTHistorieRegel)
-            .sortedByDescending { it.datumTijd }
+        return zaakHistoryService.getZaakHistory(zaakUUID)
     }
 
     @GET
@@ -906,9 +903,9 @@ class ZaakRestService @Inject constructor(
 
     @GET
     @Path("besluit/{uuid}/historie")
-    fun listBesluitHistorie(@PathParam("uuid") uuid: UUID): List<RESTHistorieRegel> =
+    fun listBesluitHistorie(@PathParam("uuid") uuid: UUID): List<HistoryLine> =
         brcClientService.listAuditTrail(uuid).let {
-            restHistorieRegelConverter.convert(it)
+            zaakHistoryLineConverter.convert(it)
         }
 
     @GET

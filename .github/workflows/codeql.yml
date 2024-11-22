@@ -21,7 +21,7 @@ jobs:
       skip: ${{ steps.paths-ignore.outputs.skip }}
     steps:
       - name: Skip job when only Markdown files are changed
-        uses: kunitsucom/github-actions-paths-ignore-alternative@v0.0.4
+        uses: kunitsucom/github-actions-paths-ignore-alternative@3800eba25a9d716029cd1db0439cb9194431cc5c # v0.0.4
         id: paths-ignore
         with:
           paths-ignore: |-
@@ -42,29 +42,29 @@ jobs:
         language: ["java-kotlin", "javascript-typescript"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup JDK
         if: matrix.language == 'java-kotlin'
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b # v4.5.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: "temurin"
 
       - name: Setup Gradle
         if: matrix.language == 'java-kotlin'
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@cc4fc85e6b35bafd578d5ffbc76a5518407e1af0 # v4.2.1
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@f09c1c0a94de965c15400f5634aa42fac8fb8f88 # v3.27.5
         with:
           languages: ${{ matrix.language }}
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+        uses: github/codeql-action/autobuild@f09c1c0a94de965c15400f5634aa42fac8fb8f88 # v3.27.5
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@f09c1c0a94de965c15400f5634aa42fac8fb8f88 # v3.27.5
         with:
           category: "/language:${{matrix.language}}"
 
@@ -81,7 +81,7 @@ jobs:
     if: ${{ needs.paths-ignore.outputs.skip != 'true' && github.event_name == 'pull_request' }}
     steps:
       - name: Check CodeQL Status
-        uses: eldrick19/code-scanning-status-checker@v2
+        uses: eldrick19/code-scanning-status-checker@868f78ef588214f12e365604583b7673d18941ce # v2.0.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           pr_number: ${{ github.event.pull_request.number }}

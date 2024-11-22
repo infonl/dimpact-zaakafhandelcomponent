@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2023 Lifely, 2024 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.zaak
 
 import io.kotest.assertions.throwables.shouldThrow
@@ -41,7 +40,6 @@ import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.createZaakafhandelParameters
-import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
 import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.besluit.BesluitService
 import net.atos.zac.app.zaak.ZaakRestService.Companion.AANVULLENDE_INFORMATIE_TASK_NAME
@@ -50,7 +48,6 @@ import net.atos.zac.app.zaak.converter.RestGeometryConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
-import net.atos.zac.app.zaak.converter.historie.RESTZaakHistorieRegelConverter
 import net.atos.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestZaaktype
@@ -71,6 +68,8 @@ import net.atos.zac.flowable.bpmn.BPMNService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.healthcheck.HealthCheckService
+import net.atos.zac.history.ZaakHistoryService
+import net.atos.zac.history.converter.ZaakHistoryLineConverter
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.createGroup
 import net.atos.zac.identity.model.createUser
@@ -121,7 +120,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val restZaakConverter = mockk<RestZaakConverter>()
     val restZaakOverzichtConverter = mockk<RestZaakOverzichtConverter>()
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
-    val restHistorieRegelConverter = mockk<RESTHistorieRegelConverter>()
+    val zaakHistoryLineConverter = mockk<ZaakHistoryLineConverter>()
     val signaleringService = mockk<SignaleringService>()
     val flowableTaskService = mockk<FlowableTaskService>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
@@ -130,7 +129,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val zgwApiService = mockk<ZGWApiService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
-    val restZaakHistorieRegelConverter = mockk<RESTZaakHistorieRegelConverter>()
+    val zaakHistoryService = mockk<ZaakHistoryService>()
 
     val zaakRestService = ZaakRestService(
         besluitService = besluitService,
@@ -149,7 +148,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         ztcClientService = ztcClientService,
         zaakService = zaakService,
         indexingService = indexingService,
-        restHistorieRegelConverter = restHistorieRegelConverter,
+        zaakHistoryLineConverter = zaakHistoryLineConverter,
         restBesluitConverter = restBesluitConverter,
         bpmnService = bpmnService,
         brcClientService = brcClientService,
@@ -164,7 +163,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         signaleringService = signaleringService,
         flowableTaskService = flowableTaskService,
         restZaaktypeConverter = restZaaktypeConverter,
-        restZaakHistorieRegelConverter = restZaakHistorieRegelConverter,
+        zaakHistoryService = zaakHistoryService,
         zgwApiService = zgwApiService
     )
 

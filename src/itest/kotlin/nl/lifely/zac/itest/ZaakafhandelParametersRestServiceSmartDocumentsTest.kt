@@ -100,6 +100,7 @@ class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
                     "name": "$SMART_DOCUMENTS_ROOT_GROUP_NAME",
                     "groups": [
                       {
+                        "groups": [],
                         "id": "$SMART_DOCUMENTS_GROUP_1_ID",
                         "name": "$SMART_DOCUMENTS_GROUP_1_NAME",
                         "templates": [
@@ -116,6 +117,7 @@ class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
                         ]
                       },
                       {
+                        "groups": [],
                         "id": "$SMART_DOCUMENTS_GROUP_2_ID",
                         "name": "$SMART_DOCUMENTS_GROUP_2_NAME",
                         "templates": [
@@ -178,6 +180,7 @@ class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
                     "name": "$SMART_DOCUMENTS_ROOT_GROUP_NAME",
                     "groups": [
                       {
+                        "groups": [],
                         "id": "$SMART_DOCUMENTS_GROUP_1_ID",
                         "name": "group A",
                         "templates": [

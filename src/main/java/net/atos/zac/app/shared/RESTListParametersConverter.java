@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import net.atos.zac.shared.model.ListParameters;
 import net.atos.zac.shared.model.Paging;
-import net.atos.zac.shared.model.SorteerRichting;
+import net.atos.zac.shared.model.SorteerRichtingKt;
 import net.atos.zac.shared.model.Sorting;
 
 public abstract class RESTListParametersConverter<LP extends ListParameters, RLP extends RESTListParameters> {
@@ -20,7 +20,7 @@ public abstract class RESTListParametersConverter<LP extends ListParameters, RLP
             return listParameters;
         }
         if (StringUtils.isNotBlank(restListParameters.sort)) {
-            listParameters.setSorting(new Sorting(restListParameters.sort, SorteerRichting.fromValue(restListParameters.order)));
+            listParameters.setSorting(new Sorting(restListParameters.sort, SorteerRichtingKt.fromValue(restListParameters.order)));
         }
         listParameters.setPaging(new Paging(restListParameters.page, restListParameters.maxResults));
         doConvert(listParameters, restListParameters);

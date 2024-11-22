@@ -46,6 +46,6 @@ private fun convertTemplateGroupResponseToRest(
     RestSmartDocumentsTemplateGroup(
         id = group.id,
         name = group.name,
-        groups = group.templateGroups?.map { convertTemplateGroupResponseToRest(it) }?.ifEmpty { null }?.toSet(),
-        templates = group.templates?.map { RestSmartDocumentsTemplate(it.id, it.name) }?.ifEmpty { null }?.toSet()
+        groups = group.templateGroups?.map { convertTemplateGroupResponseToRest(it) }?.toSet(),
+        templates = group.templates?.map { RestSmartDocumentsTemplate(it.id, it.name) }?.toSet()
     )

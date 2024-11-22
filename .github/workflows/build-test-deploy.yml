@@ -32,12 +32,12 @@ permissions:
 
 jobs:
   paths-ignore:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       skip: ${{ steps.paths-ignore.outputs.skip }}
     steps:
       - name: Skip job when only Markdown files are changed
-        uses: kunitsucom/github-actions-paths-ignore-alternative@v0.0.4
+        uses: kunitsucom/github-actions-paths-ignore-alternative@3800eba25a9d716029cd1db0439cb9194431cc5c # v0.0.4
         id: paths-ignore
         with:
           paths-ignore: |-
@@ -53,7 +53,7 @@ jobs:
       build_number: ${{ steps.gen_build_number.outputs.BUILD_NUMBER }}
       zac_docker_image: ${{ steps.gen_tag.outputs.ZAC_DOCKER_IMAGE }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set branch name
         id: gen_branch_name
@@ -68,7 +68,7 @@ jobs:
         run: echo "ZAC_DOCKER_IMAGE=${{ env.CONTAINER_REGISTRY_URL }}/${{ env.APPLICATION_NAME }}:${{ steps.gen_build_number.outputs.BUILD_NUMBER }}" >> $GITHUB_OUTPUT
 
       - name: Setup JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b # v4.5.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
@@ -76,10 +76,10 @@ jobs:
           cache: 'maven'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@cc4fc85e6b35bafd578d5ffbc76a5518407e1af0 # v4.2.1
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v4
+        uses: gradle/actions/wrapper-validation@cc4fc85e6b35bafd578d5ffbc76a5518407e1af0 # v4.2.1
 
       # The Gradle build also executes a Maven command to build the WildFly bootable JAR.
       # Disable the Gradle Configuration Cache for now because we sometimes run into a similar issue to:
@@ -88,21 +88,21 @@ jobs:
         run: ./gradlew build -x test --info --no-configuration-cache
 
       - name: Cache Gradle build artefacts
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: |
             build
           key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Cache generated Java clients
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: |
             src/generated
           key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Cache built frontend artefacts
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: |
             src/main/app/dist/zaakafhandelcomponent
@@ -110,7 +110,7 @@ jobs:
           key: built-frontend-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Cache built ZAC JAR
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: |
             target/zaakafhandelcomponent.jar
@@ -125,33 +125,33 @@ jobs:
       READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
       READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b # v4.5.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@cc4fc85e6b35bafd578d5ffbc76a5518407e1af0 # v4.2.1
 
       - name: Restore Gradle build artefacts
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: |
             build
           key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Restore built frontend artefacts
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: |
             build
           key: built-frontend-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Restore generated Java clients
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: |
             src/generated
@@ -161,7 +161,7 @@ jobs:
         run: ./gradlew -x processResources -x classes test --info
 
       - name: Publish unit test results
-        uses: EnricoMi/publish-unit-test-result-action@v2
+        uses: EnricoMi/publish-unit-test-result-action@170bf24d20d201b842d7a52403b73ed297e6645b # v2.18.0
         if: always()
         with:
           check_name: unit-test-results
@@ -173,7 +173,7 @@ jobs:
         run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x test -x itest -x npmRunBuild npmRunTestCoverage jacocoTestReport --info
 
       - name: Upload unit test coverage report to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
         with:
           flags: unittests
         env:
@@ -194,7 +194,7 @@ jobs:
     steps:
       # workaround to avoid 'No space left on device' error
       - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@v1.3.1
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
         with:
           tool-cache: true
           # do not clean up Docker images since we need them
@@ -202,29 +202,29 @@ jobs:
           # disable cleaning up large packages since this takes a long time
           large-packages: false
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b # v4.5.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@cc4fc85e6b35bafd578d5ffbc76a5518407e1af0 # v4.2.1
 
       - name: Restore built ZAC JAR
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: |
             target/zaakafhandelcomponent.jar
           key: zac-jar-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3.7.1
 
       - name: Build Docker image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
         with:
           tags: ${{ env.ZAC_DOCKER_IMAGE }}
           build-args: |
@@ -242,7 +242,7 @@ jobs:
       # we do not want the ZAC Docker image to be cached.
       # See: https://github.com/ScribeMD/docker-cache/issues/532
       - name: Cache Docker images
-        uses: ScribeMD/docker-cache@0.5.0
+        uses: ScribeMD/docker-cache@fb28c93772363301b8d0a6072ce850224b73f74e # 0.5.0
         with:
           key: docker-${{ runner.os }}-${{ hashFiles('docker-compose.yaml') }}
 
@@ -253,7 +253,7 @@ jobs:
             itest --info
 
       - name: Publish integration test results
-        uses: EnricoMi/publish-unit-test-result-action@v2
+        uses: EnricoMi/publish-unit-test-result-action@170bf24d20d201b842d7a52403b73ed297e6645b # v2.18.0
         if: always()
         with:
           check_name: integration-test-results
@@ -263,7 +263,7 @@ jobs:
       # JaCoCo requires our Java class files to be able to generate a report
       # so restore the Gradle build artefacts from the cache
       - name: Restore Gradle build artefacts
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: |
             build
@@ -273,14 +273,14 @@ jobs:
         run: ./gradlew jacocoIntegrationTestReport -x itest --info
 
       - name: Upload integration test coverage report to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
         with:
           flags: integrationtests
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.29.0
+        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # 0.29.0
         with:
           image-ref: '${{ env.ZAC_DOCKER_IMAGE }}'
           format: 'sarif'
@@ -296,7 +296,7 @@ jobs:
           TRIVY_SKIP_JAVA_DB_UPDATE: true
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@f09c1c0a94de965c15400f5634aa42fac8fb8f88 # v3.27.5
         with:
           sarif_file: 'trivy-results.sarif'
 
@@ -306,7 +306,7 @@ jobs:
 
       - name: Cache ZAC Docker Image
         if: github.ref == 'refs/heads/main'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: docker-image.tar
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
@@ -319,7 +319,7 @@ jobs:
       pull-requests: write
       contents: write
     steps:
-      - uses: fastify/github-action-merge-dependabot@v3
+      - uses: fastify/github-action-merge-dependabot@c3bde0759d4f24db16f7b250b2122bc2df57e817 # v3.11.0
         with:
           # Our Dependabot PRs are not merged automatically because an automatically merged PR
           # does not trigger our push workflow (and so no release would be made).
@@ -336,13 +336,13 @@ jobs:
     steps:
       # Checkout the repository including tags
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
       # Determine the next semantic version based on the commit message tags
       - name: Get next tag
         id: get-tag
-        uses: anothrNick/github-tag-action@1.71.0
+        uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297 # 1.71.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PRERELEASE: false
@@ -351,7 +351,7 @@ jobs:
           RELEASE_BRANCHES: main
       - name: Get next version
         id: get-version
-        uses: frabert/replace-string-action@v2.5
+        uses: frabert/replace-string-action@b6828c5a4cb6371753ff873b0d1c4c4fbd9a63cb # v2.5
         with:
           pattern: 'v(.*)'
           string: ${{ steps.get-tag.outputs.new_tag }}
@@ -371,14 +371,14 @@ jobs:
       NEXT_VERSION: ${{ needs.next-version.outputs.version }}
     steps:
       - name: Docker Login
-        uses: docker/login-action@v3
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_URL }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Restore Docker Image
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: docker-image.tar
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
@@ -405,11 +405,11 @@ jobs:
       NEXT_VERSION_TAG: ${{ needs.next-version.outputs.tag }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
       - name: Create or update GitHub release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ env.NEXT_VERSION_TAG }}
@@ -429,7 +429,7 @@ jobs:
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/github-script@v7
+      - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           github-token: ${{ secrets.PROVISION_TOKEN }}
           script: |

@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { Injectable, computed, effect, signal } from "@angular/core";
 import { UtilService } from "src/app/core/service/util.service";
 import { ObjectType } from "src/app/core/websocket/model/object-type";
@@ -13,7 +18,7 @@ type SubscriptionType = {
 
 const DEFAULT_PROCESS_TIMEOUT_IN_MS = 1000 * 30;
 
-type ProcessTimeout = {
+type ProgressTimeout = {
   durationInMs?: number;
   onTimeout: () => void;
 };
@@ -23,7 +28,6 @@ type Options = {
   progressSubscription: SubscriptionType & {
     onNotification?: (id: string, event: ScreenEvent) => void;
   };
-  processTimeout?: ProcessTimeout;
   finalSubscription?: SubscriptionType & { screenEventResourceId: string };
   finally: () => void | Promise<void>;
 };
@@ -41,8 +45,9 @@ export class BatchProcessService {
       : undefined;
   });
   private subscriptions: WebsocketListener[] = [];
-  private options: Options;
+  private options?: Options;
   private timeout?: ReturnType<typeof setTimeout>;
+  private progressTimeout?: ProgressTimeout;
 
   constructor(
     private websocketService: WebsocketService,
@@ -55,7 +60,7 @@ export class BatchProcessService {
     });
   }
 
-  start(options: Options) {
+  subscribe(options: Options) {
     this.stop();
     this.options = options;
     this.state.set(Object.fromEntries(options.ids.map((x) => [x, false])));
@@ -65,7 +70,7 @@ export class BatchProcessService {
         options.progressSubscription.objectType,
         id,
         (event) => {
-          this.clearAndSetTimeout(options.processTimeout);
+          this.clearAndSetTimeout(this.progressTimeout);
           this.removeSubscription(subscription);
           this.state.update((state) => ({
             ...state,
@@ -81,19 +86,19 @@ export class BatchProcessService {
         options.finalSubscription.opcode,
         options.finalSubscription.objectType,
         options.finalSubscription.screenEventResourceId,
-        () =>
-          Promise.resolve(this.options.finally()).finally(() => this.stop()),
+        () => Promise.resolve(options.finally()).finally(() => this.stop()),
       );
       this.subscriptions.push(finalSubscription);
     }
-    this.clearAndSetTimeout(options.processTimeout);
   }
 
-  showProgress(message: string) {
+  showProgress(message: string, progressTimeout?: ProgressTimeout) {
     this.utilService.openProgressDialog({
       progressPercentage: this.progress,
       message,
     });
+    this.progressTimeout = progressTimeout;
+    this.clearAndSetTimeout(this.progressTimeout);
   }
 
   stop() {
@@ -114,15 +119,15 @@ export class BatchProcessService {
     this.subscriptions = [];
   }
 
-  private clearAndSetTimeout(options?: ProcessTimeout) {
+  private clearAndSetTimeout(timeout?: ProgressTimeout) {
     clearTimeout(this.timeout);
 
-    if (!options) return;
+    if (!timeout) return;
 
     this.timeout = setTimeout(() => {
-      options.onTimeout();
-      Promise.resolve(this.options.finally()).finally(() => this.stop());
-    }, options.durationInMs ?? DEFAULT_PROCESS_TIMEOUT_IN_MS);
+      timeout.onTimeout();
+      Promise.resolve(this.options?.finally()).finally(() => this.stop());
+    }, timeout.durationInMs ?? DEFAULT_PROCESS_TIMEOUT_IN_MS);
   }
 
   private removeSubscription(subscription: WebsocketListener) {

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -242,7 +242,7 @@ export class TakenWerkvoorraadComponent
     const screenEventResourceId = uuidv4();
     const taken = this.selection.selected;
 
-    this.batchProcessService.start({
+    this.batchProcessService.subscribe({
       ids: taken.map(({ id }) => id),
       progressSubscription: {
         opcode: Opcode.ANY,
@@ -256,11 +256,6 @@ export class TakenWerkvoorraadComponent
           taak.groepID = this.toekenning.groep?.id || taak.groepID;
           taak.behandelaarGebruikersnaam = this.toekenning.medewerker?.id;
           taak.behandelaarNaam = this.toekenning.medewerker?.naam;
-        },
-      },
-      processTimeout: {
-        onTimeout: () => {
-          this.utilService.openSnackbar("msg.error.timeout");
         },
       },
       finalSubscription: {
@@ -291,7 +286,11 @@ export class TakenWerkvoorraadComponent
             : this.translateService.instant(multipleToken, {
                 aantal: taken.length,
               });
-        this.batchProcessService.showProgress(message);
+        this.batchProcessService.showProgress(message, {
+          onTimeout: () => {
+            this.utilService.openSnackbar("msg.error.timeout");
+          },
+        });
       } else {
         this.batchProcessService.stop();
       }

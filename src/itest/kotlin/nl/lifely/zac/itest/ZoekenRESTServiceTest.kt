@@ -150,7 +150,12 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                                 "naam": "Toegekend"
                               }
                             ],
-                            "ZAAK_INDICATIES": [],
+                            "ZAAK_INDICATIES": [
+                                {
+                                    "aantal": 1,
+                                    "naam": "VERLENGD"
+                                }
+                            ],
                             "ZAAK_COMMUNICATIEKANAAL": [
                                 {
                                     "aantal": 5,

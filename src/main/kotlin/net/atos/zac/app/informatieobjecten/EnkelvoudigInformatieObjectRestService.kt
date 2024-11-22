@@ -33,8 +33,6 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.extensions.isNuGeldig
-import net.atos.zac.app.audit.converter.RESTHistorieRegelConverter
-import net.atos.zac.app.audit.model.RESTHistorieRegel
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
 import net.atos.zac.app.informatieobjecten.converter.RestZaakInformatieobjectConverter
@@ -54,6 +52,8 @@ import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import net.atos.zac.event.EventingService
+import net.atos.zac.history.converter.ZaakHistoryLineConverter
+import net.atos.zac.history.model.HistoryLine
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.util.MediaTypes
@@ -88,7 +88,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val zaakInformatieobjectConverter: RestZaakInformatieobjectConverter,
     private val restInformatieobjectConverter: RestInformatieobjectConverter,
     private val restInformatieobjecttypeConverter: RestInformatieobjecttypeConverter,
-    private val restHistorieRegelConverter: RESTHistorieRegelConverter,
+    private val zaakHistoryLineConverter: ZaakHistoryLineConverter,
     private val restGerelateerdeZaakConverter: RestGerelateerdeZaakConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>,
     private val webdavHelper: WebdavHelper,
@@ -462,14 +462,14 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     @GET
     @Path("informatieobject/{uuid}/historie")
-    fun listHistorie(@PathParam("uuid") uuid: UUID?): List<RESTHistorieRegel> = uuid
+    fun listHistorie(@PathParam("uuid") uuid: UUID?): List<HistoryLine> = uuid
         .apply {
             assertPolicy(
                 policyService.readDocumentRechten(drcClientService.readEnkelvoudigInformatieobject(uuid)).lezen
             )
         }
         .let(drcClientService::listAuditTrail)
-        .let(restHistorieRegelConverter::convert)
+        .let(zaakHistoryLineConverter::convert)
 
     @GET
     @Path("informatieobject/{informatieObjectUuid}/zaakidentificaties")

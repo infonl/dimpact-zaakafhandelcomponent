@@ -18,7 +18,7 @@ jobs:
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d-%H-%M')"
       - name: login to azure and allow pssessions
-        uses: azure/login@v2
+        uses: azure/login@a65d910e8af852a8061c627c456678983e180302 # v2.2.0
         with:
           creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
           enable-AzPSSession: true
@@ -27,13 +27,13 @@ jobs:
           my_ip=$(curl https://api.ipify.org)
           echo "my_ip=$my_ip" >> $GITHUB_ENV
       - name: add ip to nsg
-        uses: azure/CLI@v2
+        uses: azure/CLI@089eac9d8cc39f5d003e94f8b65efc51076c9cbd # v2.1.0
         with:
           azcliversion: "latest"
           inlineScript: |
             az network nsg rule create -g zac-infra --nsg-name k8s-test-nsg -n allow_github_runner --priority 295 --source-address-prefixes ${{ env.my_ip }} --destination-port-ranges '*' --direction Inbound --access allow --protocol '*' --destination-address-prefixes '*'
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: 20
       - name: Install dependencies
@@ -48,7 +48,7 @@ jobs:
       - name: copy report to seperate folder
         if: always()
         run: "cd src/e2e && mv reports ${{ steps.date.outputs.date }} && mkdir reports && mv ${{ steps.date.outputs.date }} reports/"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         if: always()
         with:
           name: playwright-report
@@ -56,7 +56,7 @@ jobs:
           retention-days: 7
       - name: Deploy to GitHub Pages
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # v4.0.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./src/e2e/reports/ # directory of your reports
@@ -64,7 +64,7 @@ jobs:
           keep_files: true # retains files that are not part of the current publish
       - name: Notify Slack
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
-        uses: 8398a7/action-slack@v3
+        uses: 8398a7/action-slack@28ba43ae48961b90635b50953d216767a6bea486 # v3.16.2
         with:
           status: custom
           fields: workflow,job,status
@@ -148,7 +148,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       - name: remove nsg rule by name
         if: always()
-        uses: azure/CLI@v2
+        uses: azure/CLI@089eac9d8cc39f5d003e94f8b65efc51076c9cbd # v2.1.0
         with:
           azcliversion: "latest"
           inlineScript: |

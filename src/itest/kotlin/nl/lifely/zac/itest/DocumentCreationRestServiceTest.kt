@@ -56,7 +56,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     )
                 ).toString()
             )
-            Then("the response should be OK and the response should contain a redirect URL to Smartdocuments") {
+            Then("the response should be OK and the response should contain a redirect URL to SmartDocuments") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK

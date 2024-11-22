@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Dimpact
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Dimpact, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -11,7 +11,6 @@ import {
   ViewChild,
 } from "@angular/core";
 import { FormGroup } from "@angular/forms";
-import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
@@ -28,7 +27,6 @@ import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-for
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { IdentityService } from "../../identity/identity.service";
 import { User } from "../../identity/model/user";
-import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { EnkelvoudigInformatieobject } from "../../informatie-objecten/model/enkelvoudig-informatieobject";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
 import { TextIcon } from "../../shared/edit/text-icon";
@@ -99,9 +97,7 @@ export class TaakViewComponent
     private route: ActivatedRoute,
     private takenService: TakenService,
     private zakenService: ZakenService,
-    private informatieObjectenService: InformatieObjectenService,
     public utilService: UtilService,
-    private dialog: MatDialog,
     private websocketService: WebsocketService,
     private taakFormulierenService: TaakFormulierenService,
     private identityService: IdentityService,
@@ -494,7 +490,17 @@ export class TaakViewComponent
 
   documentCreated(): void {
     this.action = null;
-    this.actionsSidenav.close();
+    void this.actionsSidenav.close();
+
+    const listener = this.websocketService.addListener(
+      Opcode.UPDATED,
+      ObjectType.ZAAK_INFORMATIEOBJECTEN,
+      this.taak.zaakUuid,
+      () => {
+        this.websocketService.removeListener(listener);
+        this.formulier.refreshTaakdocumentenEnBijlagen();
+      },
+    );
   }
 
   /**

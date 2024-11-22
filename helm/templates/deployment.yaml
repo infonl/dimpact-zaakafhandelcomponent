@@ -84,6 +84,18 @@ spec:
             - -jar
             - zaakafhandelcomponent.jar
           {{- end }}
+      {{- if .Values.opa.enabled }}
+      {{- if not .Values.opa.sidecar }}
+      initContainers:
+      - name: check-opa-ready
+        image: curlimages/curl:latest
+        {{- if .Values.opa.url }}
+        command: ['sh','-c','until curl {{ .Values.opa.url }};do echo waiting for opa;sleep 5;done;']
+        {{- else }}
+        command: ['sh','-c','until curl {{ printf "http://%s-%s.%s:8181" .Release.Name .Values.opa.name .Release.Namespace }};do echo waiting for opa;sleep 5;done;']
+        {{- end }}
+      {{- end }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -6,7 +6,7 @@ name: Clean up old ZAC Docker Images
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *"  # every night at midnight, utc
+    - cron: "0 0 * * *" # every night at midnight, utc
 
 permissions:
   packages: write
@@ -16,10 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Delete ZAC Docker Images older than 8 weeks
     steps:
-      - uses: snok/container-retention-policy@v3.0.0
+      - uses: snok/container-retention-policy@4f22ef80902ad409ed55a99dc5133cc1250a0d03 # v3.0.0
         with:
           account: infonl
-          token:  ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           image-names: "zaakafhandelcomponent"
           image-tags: "!latest"
           cut-off: 8weeks

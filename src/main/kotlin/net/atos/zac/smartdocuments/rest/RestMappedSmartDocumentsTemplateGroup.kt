@@ -76,25 +76,22 @@ private fun convertTemplateGroupToRest(
     RestMappedSmartDocumentsTemplateGroup(
         id = group.smartDocumentsId,
         name = group.name,
-        groups = group.children?.map { convertTemplateGroupToRest(it) }?.ifEmpty { null }?.toSet(),
+        groups = group.children?.map { convertTemplateGroupToRest(it) }?.toSet(),
         templates = group.templates?.map {
             RestMappedSmartDocumentsTemplate(it.smartDocumentsId, it.name, it.informatieObjectTypeUUID)
-        }?.ifEmpty { null }?.toSet()
+        }?.toSet()
     )
 
 private fun convertTemplateGroupToModel(
     group: RestMappedSmartDocumentsTemplateGroup,
     parent: SmartDocumentsTemplateGroup?,
     zaakafhandelParameterId: ZaakafhandelParameters
-): SmartDocumentsTemplateGroup {
-    val jpaGroup = createModelTemplateGroup(group, parent, zaakafhandelParameterId)
-
-    jpaGroup.templates = group.templates?.map {
-        createModelTemplate(it as RestMappedSmartDocumentsTemplate, jpaGroup, zaakafhandelParameterId)
-    }?.ifEmpty { null }?.toMutableSet()
-    jpaGroup.children = group.groups?.map {
-        convertTemplateGroupToModel(it as RestMappedSmartDocumentsTemplateGroup, jpaGroup, zaakafhandelParameterId)
-    }?.ifEmpty { null }?.toMutableSet()
-
-    return jpaGroup
-}
+): SmartDocumentsTemplateGroup =
+    createModelTemplateGroup(group, parent, zaakafhandelParameterId).apply {
+        templates = group.templates?.map {
+            createModelTemplate(it, this, zaakafhandelParameterId)
+        }?.toMutableSet()
+        children = group.groups?.map {
+            convertTemplateGroupToModel(it, this, zaakafhandelParameterId)
+        }?.toMutableSet()
+    }
