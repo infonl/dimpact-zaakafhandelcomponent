@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package org.flowable.task.service.impl.persistence.entity
 
 import org.flowable.task.api.history.HistoricTaskLogEntryType
