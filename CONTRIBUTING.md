@@ -71,6 +71,15 @@ on the top of the file by adding a `, <YYYY> Lifely` to the `SPDX-FileCopyrightT
 Note that each contributor should only be mentioned once in an SPDX header, where we use the convention that the year 
 indicates the _initial_ year when a contribution was made by that contributor.
 
+### Checking for SPDX license identifiers and (optionally) adding them in bulk
+
+We automatically check for SPDX license identifiers in our source code with a GitHub workflow that uses the
+[Skywalking Eyes](https://github.com/apache/skywalking-eyes) GitHub Action.
+
+Using the Skywalking Eyes configuration file in our codebase you can also run this check locally, and optionally
+add SPDX license identifiers to files that are missing them.
+Please see https://github.com/apache/skywalking-eyes for instructions.
+
 ## Conventional Commits
 
 We use [Conventional Commits](https://www.conventionalcommits.org) for our commit messages.

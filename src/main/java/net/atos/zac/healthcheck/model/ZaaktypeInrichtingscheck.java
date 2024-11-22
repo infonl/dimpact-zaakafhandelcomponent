@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package net.atos.zac.healthcheck.model;
 
 import java.util.ArrayList;
@@ -13,35 +17,20 @@ import net.atos.client.zgw.ztc.model.generated.ZaakType;
  * indien zaak besluit heeft, Besluittype
  */
 public class ZaaktypeInrichtingscheck {
-
     private final ZaakType zaaktype;
-
     private boolean statustypeIntakeAanwezig;
-
     private boolean statustypeInBehandelingAanwezig;
-
     private boolean statustypeHeropendAanwezig;
-
     private boolean statustypeAanvullendeInformatieVereist;
-
     private boolean statustypeAfgerondAanwezig;
-
     private boolean statustypeAfgerondLaatsteVolgnummer;
-
     private boolean resultaattypeAanwezig;
-
     private boolean rolInitiatorAanwezig;
-
     private boolean rolBehandelaarAanwezig;
-
     private boolean rolOverigeAanwezig;
-
     private boolean informatieobjecttypeEmailAanwezig;
-
     private boolean besluittypeAanwezig;
-
     private final List<String> resultaattypesMetVerplichtBesluit = new ArrayList<>();
-
     private boolean zaakafhandelParametersValide;
 
     public ZaaktypeInrichtingscheck(final ZaakType zaaktype) {

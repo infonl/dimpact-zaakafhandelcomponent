@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package net.atos.zac.mailtemplates;
 
 import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
@@ -105,7 +109,6 @@ public class MailTemplateHelper {
         this.zgwApiService = zgwApiService;
         this.zrcClientService = zrcClientService;
         this.ztcClientService = ztcClientService;
-
     }
 
     /**

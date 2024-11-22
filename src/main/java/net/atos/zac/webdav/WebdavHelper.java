@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package net.atos.zac.webdav;
 
 import static java.lang.String.format;
@@ -24,18 +28,14 @@ import net.atos.zac.util.MediaTypes;
 @Singleton
 public class WebdavHelper {
     public static final String FOLDER = "folder";
-
-    private static final String WEBDAV_CONTEXT_PATH = "/webdav";
     private static final Set<String> WEBDAV_WORD = Set.of(
             MediaTypes.Application.MS_WORD.getMediaType(),
             MediaTypes.Application.MS_WORD_OPEN_XML.getMediaType()
     );
-
     private static final Set<String> WEBDAV_POWERPOINT = Set.of(
             MediaTypes.Application.MS_POWER_POINT.getMediaType(),
             MediaTypes.Application.MS_POWER_POINT_OPEN_XML.getMediaType()
     );
-
     private static final Set<String> WEBDAV_EXCEL = Set.of(
             MediaTypes.Application.MS_EXCEL.getMediaType(),
             MediaTypes.Application.MS_EXCEL_OPEN_XML.getMediaType()
