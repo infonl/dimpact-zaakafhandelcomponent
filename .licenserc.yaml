@@ -15,6 +15,7 @@ header:
   paths:
     # for now check Kotlin src/main files only; later on expand
     - 'src/main/kotlin/**'
+    - 'src/main/java/**'
   paths-ignore:
     - 'build'
     - 'certificates'
