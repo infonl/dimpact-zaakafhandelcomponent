@@ -81,6 +81,8 @@ if os.environ.get('ORGANISATION_URL'):
     data['organisation']['url'] = os.environ['ORGANISATION_URL']
 if os.environ.get('ORGANISATION_DESCRIPTION'):
     data['organisation']['description'] = os.environ['ORGANISATION_DESCRIPTION']
+if os.environ.get('SOFTWARE_VERSION'):
+    data['softwareVersion'] = os.environ['SOFTWARE_VERSION']
 
 
 # Write updated publiccode.yaml

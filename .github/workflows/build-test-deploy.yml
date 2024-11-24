@@ -194,6 +194,7 @@ jobs:
           echo "ORGANISATION_DESCRIPTION=Business Innovation Partner" >> $GITHUB_ENV
           echo "ORGANISATION_URL=https://github.com/infonl" >> $GITHUB_ENV
           echo "ORGANISATION_AVATAR=${{ github.event.organization.avatar_url }}" >> $GITHUB_ENV
+          echo "SOFTWARE_VERSION=${{ needs.next-version.outputs.version }}" >> $GITHUB_ENV        
           
           echo "Installing PyYAML..."
           pip install PyYAML
