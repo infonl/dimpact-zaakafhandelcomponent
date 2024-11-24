@@ -176,9 +176,36 @@ jobs:
           allowUpdates: true
           makeLatest: true
           generateReleaseNotes: true
-      - name: Update publiccode.yaml
-        uses: OpenCatalogi/publiccode-action@latest
-        with:
-          git_name: github-actions
-          git_mail: github-actions@github.com
-          federlize: false
+            # Install Python
+            - name: Set up Python
+              uses: actions/setup-python@v2
+              with:
+                python-version: '3.x'
+            # Transfer the repossitory data to the container
+            - name: Transfer the repossitory data to the container
+              run: |
+                echo "REPO_NAME=${{ github.event.repository.name }}" >> $GITHUB_ENV
+                echo "REPO_DESC=${{ github.event.repository.description }}" >> $GITHUB_ENV
+                echo "REPO_URL=${{ github.event.repository.html_url }}" >> $GITHUB_ENV
+                echo "REPO_HOMEPAGE=${{ github.event.repository.homepage }}" >> $GITHUB_ENV
+                echo "REPO_LICENSE=${{ github.event.repository.license.key }}" >> $GITHUB_ENV
+                echo "REPO_CREATED_AT=${{ github.event.repository.created_at }}" >> $GITHUB_ENV
+                
+                echo "ORGANISATION_NAME=${{ github.event.organization.login }}" >> $GITHUB_ENV
+                echo "ORGANISATION_DESCRIPTION=${{ github.event.organization.description }}" >> $GITHUB_ENV
+                echo "ORGANISATION_GITID=${{ github.event.organization.id}}" >> $GITHUB_ENV
+                echo "ORGANISATION_URL=${{ github.event.organization.login }}" >> $GITHUB_ENV
+                echo "ORGANISATION_AVATAR=${{ github.event.organization.avatar_url }}" >> $GITHUB_ENV
+                
+                echo "Installing PyYAML..."
+                pip install PyYAML
+      - name: Create or update the publiccode file
+        run: python update_publiccode.py
+        shell: bash
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add publiccode.yaml
+          git commit -m "${{ github.workflow }}" || echo "No changes to commit"
+          git push
