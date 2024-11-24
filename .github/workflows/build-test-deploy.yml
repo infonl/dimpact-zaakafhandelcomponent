@@ -179,5 +179,5 @@ jobs:
       - name: Update publiccode.yaml
         uses: OpenCatalogi/publiccode-action@latest
         with:
-          git-name: github-actions
-          git-mail: github-actions@github.com
+          git_name: github-actions
+          git_mail: github-actions@github.com
