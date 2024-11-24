@@ -18,7 +18,7 @@ legal:
   mainCopyrightOwner: Lifely
   repoOwner: INFO
 localisation:
-  availableLanguages: '[nl],[en]'
+  availableLanguages: '[nl,en]'
   localisationReady: 'True'
 maintenance:
   contacts: []
@@ -33,8 +33,8 @@ platforms:
 - web
 publiccodeYmlVersion: '0.4'
 releaseDate: '2024-11-24'
-roadmap: ''
+roadmap: https://dimpact.atlassian.net/jira/software/c/projects/PZ/boards/246
 softwareType: standalone/web
-softwareVersion: 0.1.10
+softwareVersion: 0.1.11
 url: https://github.com/edgarvonk/dimpact-zaakafhandelcomponent
 usedBy: []
