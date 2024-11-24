@@ -6,11 +6,13 @@ publiccodeYmlVersion: "0.4"
 
 name: Dimpact Zaakafhandelcomponent (ZAC)
 url: "https://github.com/edgarvonk/dimpact-zaakafhandelcomponent"
-softwareVersion: "0.1.21"
-releaseDate: TODO
+softwareVersion: "0.1.22"
+releaseDate: "1729157439"
 
 platforms:
 - web
+
+roadmap: "https://dimpact.atlassian.net/jira/software/c/projects/PZ/boards/246"
 
 developmentStatus: development
 
