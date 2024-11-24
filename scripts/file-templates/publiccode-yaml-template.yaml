@@ -28,6 +28,14 @@ legal:
   mainCopyrightOwner: Lifely
   repoOwner: INFO
 
+maintenance:
+  type: "contract"
+
+  contractors:
+    - name: "INFO"
+      email: "contact@info.nl"
+      website: "https://www.info.nl/"
+
 localisation:
   localisationReady: true
   availableLanguages:

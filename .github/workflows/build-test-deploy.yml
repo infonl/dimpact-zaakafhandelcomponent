@@ -103,6 +103,9 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
       - uses: elieahd/templater@v1
         with:
             template: 'scripts/file-templates/publiccode-yaml-template.yaml'
@@ -110,7 +113,7 @@ jobs:
             variables: 'REPO_DESC=${{ github.event.repository.description }} 
               REPO_URL=${{ github.event.repository.html_url }} 
               SOFTWARE_VERSION=${{ needs.next-version.outputs.version }}
-              REPO_CREATED_AT=${{ github.event.repository.created_at }}'
+              REPO_CREATED_AT=${{ steps.date.outputs.date }}'
 
 #      - name: Set up Python
 #        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
