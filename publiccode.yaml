@@ -35,6 +35,6 @@ publiccodeYmlVersion: '0.4'
 releaseDate: '2024-11-24'
 roadmap: https://dimpact.atlassian.net/jira/software/c/projects/PZ/boards/246
 softwareType: standalone/web
-softwareVersion: 0.1.11
+softwareVersion: 0.1.12
 url: https://github.com/edgarvonk/dimpact-zaakafhandelcomponent
 usedBy: []
