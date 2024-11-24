@@ -79,6 +79,8 @@ if os.environ.get('ORGANISATION_DESCRIPTION'):
     data['organisation']['description'] = os.environ['ORGANISATION_DESCRIPTION']
 if os.environ.get('SOFTWARE_VERSION'):
     data['softwareVersion'] = os.environ['SOFTWARE_VERSION']
+if os.environ.get('ROADMAP'):
+    data['roadmap'] = os.environ['ROADMAP']
 if os.environ.get('LOCALISATION_READY'):
     data['localisation']['localisationReady'] = os.environ['LOCALISATION_READY']
 if os.environ.get('AVAILABLE_LANGUAGES'):

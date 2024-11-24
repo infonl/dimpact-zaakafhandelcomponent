@@ -209,7 +209,7 @@ jobs:
           echo "ROADMAP=https://dimpact.atlassian.net/jira/software/c/projects/PZ/boards/246" >> $GITHUB_ENV
           echo "SOFTWARE_VERSION=${{ needs.next-version.outputs.version }}" >> $GITHUB_ENV
           echo "LOCALISATION_READY=True" >> $GITHUB_ENV
-          echo "AVAILABLE_LANGUAGES=["nl"],["en"]" >> $GITHUB_ENV                        
+          echo "AVAILABLE_LANGUAGES=["nl","en"]" >> $GITHUB_ENV                        
           
           echo "Installing PyYAML..."
           pip install PyYAML
