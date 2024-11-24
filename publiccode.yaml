@@ -41,6 +41,6 @@ publiccodeYmlVersion: '0.4'
 releaseDate: '2024-11-24'
 roadmap: ''
 softwareType: standalone/web
-softwareVersion: ''
+softwareVersion: 0.1.9
 url: https://github.com/edgarvonk/dimpact-zaakafhandelcomponent
 usedBy: []
