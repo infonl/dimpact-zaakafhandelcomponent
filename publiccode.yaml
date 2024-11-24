@@ -6,11 +6,17 @@ publiccodeYmlVersion: "0.4"
 
 name: Dimpact Zaakafhandelcomponent (ZAC)
 url: "https://github.com/edgarvonk/dimpact-zaakafhandelcomponent"
-softwareVersion: "0.1.23"
+softwareVersion: "0.1.24"
 releaseDate: "2024-11-24"
 
 platforms:
 - web
+
+categories:
+  - business-process-management
+  - it-development
+  - task-management
+  - workflow-management
 
 roadmap: "https://dimpact.atlassian.net/jira/software/c/projects/PZ/boards/246"
 
