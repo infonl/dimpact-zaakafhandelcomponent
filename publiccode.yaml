@@ -1,40 +1,18 @@
-categories:
-- it-development
-description:
-  en:
-    apiDocumentation: ''
-    awards: []
-    documentation: ''
-    features: []
-    localisedName: ''
-    longDescription: ''
-    screenshots: []
-    shortDescription: Edgar's ZAC fork for testing only.
-    videos: []
-developmentStatus: development
-legal:
-  authorsFile: ''
-  license: EUPL-1.2+
-  mainCopyrightOwner: Lifely
-  repoOwner: INFO
-localisation:
-  availableLanguages: '["nl","en"]'
-  localisationReady: 'true'
-maintenance:
-  contacts: []
-  contractors: []
-  type: none
+# This repository adheres to the publiccode.yml standard by including this
+# metadata file that makes public software easily discoverable.
+# More info at https://github.com/italia/publiccode.yml
+
+publiccodeYmlVersion: '0.4'
+
 name: edgarvonk/dimpact-zaakafhandelcomponent
-organisation:
-  description: Business Innovation Partner
-  name: INFO
-  url: https://github.com/infonl
+url: 'TODO'
 platforms:
 - web
-publiccodeYmlVersion: '0.4'
-releaseDate: '2024-11-24'
-roadmap: https://dimpact.atlassian.net/jira/software/c/projects/PZ/boards/246
-softwareType: standalone/web
-softwareVersion: 0.1.13
-url: https://github.com/edgarvonk/dimpact-zaakafhandelcomponent
-usedBy: []
+
+developmentStatus: development
+
+softwareType: "standalone/web"
+
+description:
+  en:
+    shortDescription: {{REPO_DESC}}
