@@ -27,7 +27,7 @@ maintenance:
   contacts: []
   contractors: []
   type: none
-name: dimpact-zaakafhandelcomponent
+name: edgarvonk/dimpact-zaakafhandelcomponent
 nl:
   vng:
     commonground: []
