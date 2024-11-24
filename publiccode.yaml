@@ -1,0 +1,44 @@
+categories:
+- it-development
+description:
+  en:
+    apiDocumentation: ''
+    awards: []
+    documentation: ''
+    features: []
+    genericName: Edgar's ZAC fork for testing only.
+    localisedName: ''
+    longDescription: ''
+    screenshots: []
+    shortDescription: ''
+    videos: []
+developmentStatus: development
+landingURL: ''
+legal:
+  authorsFile: ''
+  license: other
+  mainCopyrightOwner: ''
+  repoOwner: ''
+localisation:
+  availableLanguages:
+  - en
+  localisationReady: false
+maintenance:
+  contacts: []
+  contractors: []
+  type: none
+name: dimpact-zaakafhandelcomponent
+nl:
+  vng:
+    commonground: []
+    gemma: []
+organisation: {}
+platforms:
+- web
+publiccodeYmlVersion: '0.2'
+releaseDate: '2024-11-24'
+roadmap: ''
+softwareType: standalone/web
+softwareVersion: ''
+url: https://github.com/edgarvonk/dimpact-zaakafhandelcomponent
+usedBy: []
