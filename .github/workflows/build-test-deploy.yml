@@ -178,3 +178,6 @@ jobs:
           generateReleaseNotes: true
       - name: Update publiccode.yaml
         uses: OpenCatalogi/publiccode-action@latest
+        with:
+          git-name: github-actions
+          git-mail: github-actions@github.com
