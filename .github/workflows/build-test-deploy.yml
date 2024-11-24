@@ -31,91 +31,6 @@ permissions:
   security-events: write
 
 jobs:
-  paths-ignore:
-    runs-on: ubuntu-22.04
-    outputs:
-      skip: ${{ steps.paths-ignore.outputs.skip }}
-    steps:
-      - name: Skip job when only Markdown files are changed
-        uses: kunitsucom/github-actions-paths-ignore-alternative@3800eba25a9d716029cd1db0439cb9194431cc5c # v0.0.4
-        id: paths-ignore
-        with:
-          paths-ignore: |-
-            ^.*\.md$
-
-  build:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 30
-    needs: paths-ignore
-    if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
-    outputs:
-      branch_name: ${{ steps.gen_branch_name.outputs.BRANCH_NAME }}
-      build_number: ${{ steps.gen_build_number.outputs.BUILD_NUMBER }}
-      zac_docker_image: ${{ steps.gen_tag.outputs.ZAC_DOCKER_IMAGE }}
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Set branch name
-        id: gen_branch_name
-        run: echo "BRANCH_NAME=${{ github.ref_name }}" | sed 's/\//_/g; s/(//g; s/)//g' >> $GITHUB_OUTPUT
-
-      - name: Set build number
-        id: gen_build_number
-        run: echo "BUILD_NUMBER=${{ steps.gen_branch_name.outputs.BRANCH_NAME }}-${{ github.run_number }}" >> $GITHUB_OUTPUT
-
-      - name: Set Docker image tag
-        id: gen_tag
-        run: echo "ZAC_DOCKER_IMAGE=${{ env.CONTAINER_REGISTRY_URL }}/${{ env.APPLICATION_NAME }}:${{ steps.gen_build_number.outputs.BUILD_NUMBER }}" >> $GITHUB_OUTPUT
-
-      - name: Setup JDK
-        uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b # v4.5.0
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'temurin'
-          # Use the Maven cache here so that Maven artefacts (Maven build is triggered from the Gradle build) are cached.
-          cache: 'maven'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@cc4fc85e6b35bafd578d5ffbc76a5518407e1af0 # v4.2.1
-
-      - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@cc4fc85e6b35bafd578d5ffbc76a5518407e1af0 # v4.2.1
-
-      # The Gradle build also executes a Maven command to build the WildFly bootable JAR.
-      # Disable the Gradle Configuration Cache for now because we sometimes run into a similar issue to:
-      # https://github.com/diffplug/spotless/issues/651
-      - name: Gradle build
-        run: ./gradlew build -x test --info --no-configuration-cache
-
-      - name: Cache Gradle build artefacts
-        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
-        with:
-          path: |
-            build
-          key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
-      - name: Cache generated Java clients
-        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
-        with:
-          path: |
-            src/generated
-          key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
-      - name: Cache built frontend artefacts
-        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
-        with:
-          path: |
-            src/main/app/dist/zaakafhandelcomponent
-            src/main/app/src/generated/types
-          key: built-frontend-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
-      - name: Cache built ZAC JAR
-        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
-        with:
-          path: |
-            target/zaakafhandelcomponent.jar
-          key: zac-jar-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
   next-version:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
@@ -206,10 +121,10 @@ jobs:
           echo "ORGANISATION_DESCRIPTION=Business Innovation Partner" >> $GITHUB_ENV
           echo "ORGANISATION_URL=https://github.com/infonl" >> $GITHUB_ENV
           echo "ORGANISATION_AVATAR=${{ github.event.organization.avatar_url }}" >> $GITHUB_ENV
-          echo "ROADMAP=https://dimpact.atlassian.net/jira/software/c/projects/PZ/boards/246" >> $GITHUB_ENV
+          echo "ROADMAP="https://dimpact.atlassian.net/jira/software/c/projects/PZ/boards/246"" >> $GITHUB_ENV
           echo "SOFTWARE_VERSION=${{ needs.next-version.outputs.version }}" >> $GITHUB_ENV
-          echo "LOCALISATION_READY=True" >> $GITHUB_ENV
-          echo "AVAILABLE_LANGUAGES=["nl","en"]" >> $GITHUB_ENV                        
+          echo "LOCALISATION_READY=true" >> $GITHUB_ENV
+          echo "AVAILABLE_LANGUAGES=[\"nl\",\"en\"]" >> $GITHUB_ENV                        
           
           echo "Installing PyYAML..."
           pip install PyYAML

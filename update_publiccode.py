@@ -50,8 +50,8 @@ set_default(data['maintenance'], 'type', "none")
 set_default(data['maintenance'], 'contractors', [])
 set_default(data['maintenance'], 'contacts', [])
 set_default(data, 'localisation', {})
-set_default(data['localisation'], 'localisationReady', True)
-set_default(data['localisation'], 'availableLanguages', ["nl","en"])
+set_default(data['localisation'], 'localisationReady', False)
+set_default(data['localisation'], 'availableLanguages', ["en"])
 set_default(data, 'organisation', {})
 
 # Update or append values
@@ -81,10 +81,10 @@ if os.environ.get('SOFTWARE_VERSION'):
     data['softwareVersion'] = os.environ['SOFTWARE_VERSION']
 if os.environ.get('ROADMAP'):
     data['roadmap'] = os.environ['ROADMAP']
-# if os.environ.get('LOCALISATION_READY'):
-#     data['localisation']['localisationReady'] = os.environ['LOCALISATION_READY']
-# if os.environ.get('AVAILABLE_LANGUAGES'):
-#     data['localisation']['availableLanguages'] = os.environ['AVAILABLE_LANGUAGES']
+if os.environ.get('LOCALISATION_READY'):
+    data['localisation']['localisationReady'] = os.environ['LOCALISATION_READY']
+if os.environ.get('AVAILABLE_LANGUAGES'):
+    data['localisation']['availableLanguages'] = os.environ['AVAILABLE_LANGUAGES']
 
 
 # Write updated publiccode.yaml
