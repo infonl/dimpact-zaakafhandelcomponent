@@ -92,7 +92,7 @@ jobs:
           makeLatest: true
           generateReleaseNotes: true
 
-  update-publiccode:
+  update-publiccode-yml:
       needs: [ next-version, create-release ]
       if: github.ref == 'refs/heads/main'
       runs-on: ubuntu-22.04
@@ -105,7 +105,7 @@ jobs:
           fetch-depth: 0
       - uses: elieahd/templater@v1
         with:
-            template: 'file-templates/publiccode-yml-template.md'
+            template: 'scripts/file-templates/publiccode-yml-template.md'
             file: 'publiccode.yaml'
             variables: 'REPO_NAME=${{  github.repository }} REPO_DESC=${{ github.event.repository.description }}'
 
