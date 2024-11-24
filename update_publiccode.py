@@ -22,7 +22,6 @@ created_at_date = datetime.now().strftime('%Y-%m-%d')
 set_default(data, 'publiccodeYmlVersion', "0.4")
 set_default(data, 'name', "")
 set_default(data, 'url', "")
-set_default(data, 'landingURL', "")
 set_default(data, 'softwareVersion', "")
 set_default(data, 'releaseDate', created_at_date)
 set_default(data, 'platforms', ["web"])
@@ -41,9 +40,6 @@ set_default(data['description']['en'], 'features', [])
 set_default(data['description']['en'], 'screenshots', [])
 set_default(data['description']['en'], 'videos', [])
 set_default(data['description']['en'], 'awards', [])
-set_default(data, 'nl', {'vng': {}})
-set_default(data['nl']['vng'], 'gemma', [])
-set_default(data['nl']['vng'], 'commonground', [])
 set_default(data, 'legal', {})
 set_default(data['legal'], 'license', "")
 set_default(data['legal'], 'mainCopyrightOwner', "")
@@ -83,6 +79,10 @@ if os.environ.get('ORGANISATION_DESCRIPTION'):
     data['organisation']['description'] = os.environ['ORGANISATION_DESCRIPTION']
 if os.environ.get('SOFTWARE_VERSION'):
     data['softwareVersion'] = os.environ['SOFTWARE_VERSION']
+if os.environ.get('LOCALISATION_READY'):
+    data['localisation']['localisationReady'] = os.environ['LOCALISATION_READY']
+if os.environ.get('AVAILABLE_LANGUAGES'):
+    data['localisation']['availableLanguages'] = os.environ['AVAILABLE_LANGUAGES']
 
 
 # Write updated publiccode.yaml
