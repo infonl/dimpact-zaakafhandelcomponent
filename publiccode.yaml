@@ -1,0 +1,46 @@
+categories:
+- it-development
+description:
+  en:
+    apiDocumentation: ''
+    awards: []
+    documentation: ''
+    features: []
+    localisedName: ''
+    longDescription: ''
+    screenshots: []
+    shortDescription: Edgar's ZAC fork for testing only.
+    videos: []
+developmentStatus: development
+landingURL: ''
+legal:
+  authorsFile: ''
+  license: EUPL-1.2+
+  mainCopyrightOwner: Lifely
+  repoOwner: INFO
+localisation:
+  availableLanguages:
+  - en
+  localisationReady: false
+maintenance:
+  contacts: []
+  contractors: []
+  type: none
+name: edgarvonk/dimpact-zaakafhandelcomponent
+nl:
+  vng:
+    commonground: []
+    gemma: []
+organisation:
+  description: Business Innovation Partner
+  name: INFO
+  url: https://github.com/infonl
+platforms:
+- web
+publiccodeYmlVersion: '0.4'
+releaseDate: '2024-11-24'
+roadmap: ''
+softwareType: standalone/web
+softwareVersion: ''
+url: https://github.com/edgarvonk/dimpact-zaakafhandelcomponent
+usedBy: []
