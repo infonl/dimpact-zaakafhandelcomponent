@@ -6,8 +6,8 @@ publiccodeYmlVersion: "0.4"
 
 name: Dimpact Zaakafhandelcomponent (ZAC)
 url: "https://github.com/edgarvonk/dimpact-zaakafhandelcomponent"
-softwareVersion: "0.1.22"
-releaseDate: "1729157439"
+softwareVersion: "0.1.23"
+releaseDate: "2024-11-24"
 
 platforms:
 - web
@@ -27,6 +27,14 @@ legal:
   license: EUPL-1.2+
   mainCopyrightOwner: Lifely
   repoOwner: INFO
+
+maintenance:
+  type: "contract"
+
+  contractors:
+    - name: "INFO"
+      email: "contact@info.nl"
+      website: "https://www.info.nl/"
 
 localisation:
   localisationReady: true
