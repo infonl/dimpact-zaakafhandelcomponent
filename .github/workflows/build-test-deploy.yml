@@ -181,10 +181,10 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.x'
-      # Transfer the repossitory data to the container
+      # Transfer the repository data to the container
       - name: Transfer the repossitory data to the container
         run: |
-          echo "REPO_NAME=${{ github.event.repository.name }}" >> $GITHUB_ENV
+          echo "REPO_NAME=${{  github.repository }}" >> $GITHUB_ENV
           echo "REPO_DESC=${{ github.event.repository.description }}" >> $GITHUB_ENV
           echo "REPO_URL=${{ github.event.repository.html_url }}" >> $GITHUB_ENV
           echo "REPO_HOMEPAGE=${{ github.event.repository.homepage }}" >> $GITHUB_ENV

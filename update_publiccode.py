@@ -19,7 +19,7 @@ except FileNotFoundError:
 created_at_date = datetime.now().strftime('%Y-%m-%d')
 
 # Initialize missing keys with default values
-set_default(data, 'publiccodeYmlVersion', "0.2")
+set_default(data, 'publiccodeYmlVersion', "0.4")
 set_default(data, 'name', "")
 set_default(data, 'url', "")
 set_default(data, 'landingURL', "")
@@ -56,7 +56,7 @@ set_default(data['maintenance'], 'contractors', [])
 set_default(data['maintenance'], 'contacts', [])
 set_default(data, 'localisation', {})
 set_default(data['localisation'], 'localisationReady', False)
-set_default(data['localisation'], 'availableLanguages', ["en"])
+set_default(data['localisation'], 'availableLanguages', ["nl","en"])
 set_default(data, 'organisation', {})
 
 # Update or append values
