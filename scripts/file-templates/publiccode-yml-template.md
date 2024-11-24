@@ -1,0 +1,18 @@
+# This repository adheres to the publiccode.yml standard by including this
+# metadata file that makes public software easily discoverable.
+# More info at https://github.com/italia/publiccode.yml
+
+publiccodeYmlVersion: '0.4'
+
+name: {{REPO_NAME}}
+url: 'TODO'
+platforms:
+- web
+
+developmentStatus: development
+
+softwareType: "standalone/web"
+
+description:
+  en:
+    shortDescription: {{REPO_DESC}}

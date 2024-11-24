@@ -103,34 +103,40 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
-      - name: Set up Python
-        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+      - uses: elieahd/templater@v1
         with:
-          python-version: '3.x'
-      - name: Set environment variables for the 'update publiccode' Python script
-        run: |
-          echo "REPO_NAME=${{  github.repository }}" >> $GITHUB_ENV
-          echo "REPO_DESC=${{ github.event.repository.description }}" >> $GITHUB_ENV
-          echo "REPO_URL=${{ github.event.repository.html_url }}" >> $GITHUB_ENV
-          echo "REPO_HOMEPAGE=${{ github.event.repository.homepage }}" >> $GITHUB_ENV
-          echo "REPO_LICENSE=EUPL-1.2+" >> $GITHUB_ENV
-          echo "REPO_CREATED_AT=${{ github.event.repository.created_at }}" >> $GITHUB_ENV
-          echo "MAIN_COPYRIGHT_OWNER=Lifely" >> $GITHUB_ENV        
-          echo "REPO_OWNER=INFO" >> $GITHUB_ENV            
-          echo "ORGANISATION_NAME=INFO" >> $GITHUB_ENV
-          echo "ORGANISATION_DESCRIPTION=Business Innovation Partner" >> $GITHUB_ENV
-          echo "ORGANISATION_URL=https://github.com/infonl" >> $GITHUB_ENV
-          echo "ORGANISATION_AVATAR=${{ github.event.organization.avatar_url }}" >> $GITHUB_ENV
-          echo "ROADMAP="https://dimpact.atlassian.net/jira/software/c/projects/PZ/boards/246"" >> $GITHUB_ENV
-          echo "SOFTWARE_VERSION=${{ needs.next-version.outputs.version }}" >> $GITHUB_ENV
-          echo "LOCALISATION_READY=true" >> $GITHUB_ENV
-          echo "AVAILABLE_LANGUAGES=[\"nl\",\"en\"]" >> $GITHUB_ENV                        
-          
-          echo "Installing PyYAML..."
-          pip install PyYAML
-      - name: Create or update the publiccode.yml file
-        run: python update_publiccode.py
-        shell: bash
+            template: 'file-templates/publiccode-yml-template.md'
+            file: 'publiccode.yaml'
+            variables: 'REPO_NAME=${{  github.repository }} REPO_DESC=${{ github.event.repository.description }}'
+
+#      - name: Set up Python
+#        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+#        with:
+#          python-version: '3.x'
+#      - name: Set environment variables for the 'update publiccode' Python script
+#        run: |
+#          echo "REPO_NAME=${{  github.repository }}" >> $GITHUB_ENV
+#          echo "REPO_DESC=${{ github.event.repository.description }}" >> $GITHUB_ENV
+#          echo "REPO_URL=${{ github.event.repository.html_url }}" >> $GITHUB_ENV
+#          echo "REPO_HOMEPAGE=${{ github.event.repository.homepage }}" >> $GITHUB_ENV
+#          echo "REPO_LICENSE=EUPL-1.2+" >> $GITHUB_ENV
+#          echo "REPO_CREATED_AT=${{ github.event.repository.created_at }}" >> $GITHUB_ENV
+#          echo "MAIN_COPYRIGHT_OWNER=Lifely" >> $GITHUB_ENV
+#          echo "REPO_OWNER=INFO" >> $GITHUB_ENV
+#          echo "ORGANISATION_NAME=INFO" >> $GITHUB_ENV
+#          echo "ORGANISATION_DESCRIPTION=Business Innovation Partner" >> $GITHUB_ENV
+#          echo "ORGANISATION_URL=https://github.com/infonl" >> $GITHUB_ENV
+#          echo "ORGANISATION_AVATAR=${{ github.event.organization.avatar_url }}" >> $GITHUB_ENV
+#          echo "ROADMAP="https://dimpact.atlassian.net/jira/software/c/projects/PZ/boards/246"" >> $GITHUB_ENV
+#          echo "SOFTWARE_VERSION=${{ needs.next-version.outputs.version }}" >> $GITHUB_ENV
+#          echo "LOCALISATION_READY=true" >> $GITHUB_ENV
+#          echo "AVAILABLE_LANGUAGES=[\"nl\",\"en\"]" >> $GITHUB_ENV
+#
+#          echo "Installing PyYAML..."
+#          pip install PyYAML
+#      - name: Create or update the publiccode.yml file
+#        run: python update_publiccode.py
+#        shell: bash
       - name: Commit changes
         run: |
           git config --local user.email "action@github.com"
