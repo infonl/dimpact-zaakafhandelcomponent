@@ -188,10 +188,10 @@ jobs:
           echo "REPO_HOMEPAGE=${{ github.event.repository.homepage }}" >> $GITHUB_ENV
           echo "REPO_LICENSE=EUPL-1.2+" >> $GITHUB_ENV
           echo "REPO_CREATED_AT=${{ github.event.repository.created_at }}" >> $GITHUB_ENV
-          
+          echo "MAIN_COPYRIGHT_OWNER=Lifely" >> $GITHUB_ENV        
+          echo "REPO_OWNER=INFO" >> $GITHUB_ENV            
           echo "ORGANISATION_NAME=INFO" >> $GITHUB_ENV
           echo "ORGANISATION_DESCRIPTION=Business Innovation Partner" >> $GITHUB_ENV
-          echo "ORGANISATION_GITID=${{ github.event.organization.id}}" >> $GITHUB_ENV
           echo "ORGANISATION_URL=https://github.com/infonl" >> $GITHUB_ENV
           echo "ORGANISATION_AVATAR=${{ github.event.organization.avatar_url }}" >> $GITHUB_ENV
           

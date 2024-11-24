@@ -33,7 +33,6 @@ set_default(data, 'developmentStatus', "development")
 set_default(data, 'softwareType', "standalone/web")
 set_default(data, 'description', {'en': {}})
 set_default(data['description']['en'], 'localisedName', "")
-set_default(data['description']['en'], 'genericName', "")
 set_default(data['description']['en'], 'shortDescription', "")
 set_default(data['description']['en'], 'longDescription', "")
 set_default(data['description']['en'], 'documentation', "")
@@ -65,11 +64,15 @@ if os.environ.get('REPO_NAME'):
 if os.environ.get('REPO_URL'):
     data['url'] = os.environ['REPO_URL']
 if os.environ.get('REPO_DESC'):
-    data['description']['en']['genericName'] = os.environ['REPO_DESC']
+    data['description']['en']['shortDescription'] = os.environ['REPO_DESC']
 if os.environ.get('REPO_HOMEPAGE'):
     data['url'] = os.environ['REPO_HOMEPAGE']
 if os.environ.get('REPO_LICENSE'):
     data['legal']['license'] = os.environ['REPO_LICENSE']
+if os.environ.get('MAIN_COPYRIGHT_OWNER'):
+    data['legal']['mainCopyrightOwner'] = os.environ['MAIN_COPYRIGHT_OWNER']
+if os.environ.get('REPO_OWNER'):
+    data['legal']['repoOwner'] = os.environ['REPO_OWNER']
 if os.environ.get('ORGANISATION_NAME'):
     data['organisation']['name'] = os.environ['ORGANISATION_NAME']
 if os.environ.get('ORGANISATION_AVATAR'):
