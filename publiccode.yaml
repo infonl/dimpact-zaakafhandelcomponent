@@ -18,4 +18,16 @@ softwareType: "standalone/web"
 
 description:
   en:
+    localisedName: Dimpact Zaakafhandelcomponent (ZAC)
     shortDescription: Edgar
+
+legal:
+  license: EUPL-1.2+
+  mainCopyrightOwner: Lifely
+  repoOwner: INFO
+
+localisation:
+  localisationReady: true
+  availableLanguages:
+    - nl
+    - en

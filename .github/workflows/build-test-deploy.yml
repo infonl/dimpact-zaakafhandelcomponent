@@ -105,9 +105,12 @@ jobs:
           fetch-depth: 0
       - uses: elieahd/templater@v1
         with:
-            template: 'scripts/file-templates/publiccode.yaml'
+            template: 'scripts/file-templates/publiccode-yaml-template.yaml'
             file: 'publiccode.yaml'
-            variables: 'REPO_DESC=${{ github.event.repository.description }} REPO_URL=${{ github.event.repository.html_url }} SOFTWARE_VERSION=${{ needs.next-version.outputs.version }}'
+            variables: 'REPO_DESC=${{ github.event.repository.description }} 
+              REPO_URL=${{ github.event.repository.html_url }} 
+              SOFTWARE_VERSION=${{ needs.next-version.outputs.version }}
+              REPO_CREATED_AT=${{ github.event.repository.created_at }}'
 
 #      - name: Set up Python
 #        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
@@ -115,22 +118,13 @@ jobs:
 #          python-version: '3.x'
 #      - name: Set environment variables for the 'update publiccode' Python script
 #        run: |
-#          echo "REPO_NAME=${{  github.repository }}" >> $GITHUB_ENV
-#          echo "REPO_DESC=${{ github.event.repository.description }}" >> $GITHUB_ENV
-#          echo "REPO_URL=${{ github.event.repository.html_url }}" >> $GITHUB_ENV
-#          echo "REPO_HOMEPAGE=${{ github.event.repository.homepage }}" >> $GITHUB_ENV
-#          echo "REPO_LICENSE=EUPL-1.2+" >> $GITHUB_ENV
+#
 #          echo "REPO_CREATED_AT=${{ github.event.repository.created_at }}" >> $GITHUB_ENV
-#          echo "MAIN_COPYRIGHT_OWNER=Lifely" >> $GITHUB_ENV
-#          echo "REPO_OWNER=INFO" >> $GITHUB_ENV
 #          echo "ORGANISATION_NAME=INFO" >> $GITHUB_ENV
 #          echo "ORGANISATION_DESCRIPTION=Business Innovation Partner" >> $GITHUB_ENV
 #          echo "ORGANISATION_URL=https://github.com/infonl" >> $GITHUB_ENV
 #          echo "ORGANISATION_AVATAR=${{ github.event.organization.avatar_url }}" >> $GITHUB_ENV
 #          echo "ROADMAP="https://dimpact.atlassian.net/jira/software/c/projects/PZ/boards/246"" >> $GITHUB_ENV
-#          echo "SOFTWARE_VERSION=${{ needs.next-version.outputs.version }}" >> $GITHUB_ENV
-#          echo "LOCALISATION_READY=true" >> $GITHUB_ENV
-#          echo "AVAILABLE_LANGUAGES=[\"nl\",\"en\"]" >> $GITHUB_ENV
 #
 #          echo "Installing PyYAML..."
 #          pip install PyYAML

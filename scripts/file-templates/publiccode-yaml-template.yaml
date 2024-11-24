@@ -7,10 +7,12 @@ publiccodeYmlVersion: "0.4"
 name: Dimpact Zaakafhandelcomponent (ZAC)
 url: "{{REPO_URL}}"
 softwareVersion: "{{SOFTWARE_VERSION}}"
-releaseDate: TODO
+releaseDate: "{{REPO_CREATED_AT}}"
 
 platforms:
 - web
+
+roadmap: "https://dimpact.atlassian.net/jira/software/c/projects/PZ/boards/246"
 
 developmentStatus: development
 
@@ -18,4 +20,16 @@ softwareType: "standalone/web"
 
 description:
   en:
+    localisedName: Dimpact Zaakafhandelcomponent (ZAC)
     shortDescription: {{REPO_DESC}}
+
+legal:
+  license: EUPL-1.2+
+  mainCopyrightOwner: Lifely
+  repoOwner: INFO
+
+localisation:
+  localisationReady: true
+  availableLanguages:
+    - nl
+    - en
