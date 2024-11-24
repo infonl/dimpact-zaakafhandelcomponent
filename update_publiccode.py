@@ -56,7 +56,7 @@ set_default(data['maintenance'], 'contractors', [])
 set_default(data['maintenance'], 'contacts', [])
 set_default(data, 'localisation', {})
 set_default(data['localisation'], 'localisationReady', False)
-set_default(data['localisation'], 'availableLanguages', ["nl","en"])
+set_default(data['localisation'], 'availableLanguages', ["en"])
 set_default(data, 'organisation', {})
 
 # Update or append values
@@ -78,6 +78,7 @@ if os.environ.get('ORGANISATION_URL'):
     data['organisation']['url'] = os.environ['ORGANISATION_URL']
 if os.environ.get('ORGANISATION_DESCRIPTION'):
     data['organisation']['description'] = os.environ['ORGANISATION_DESCRIPTION']
+
 
 # Write updated publiccode.yaml
 with open("publiccode.yaml", "w") as f:
