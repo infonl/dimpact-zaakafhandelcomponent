@@ -109,7 +109,8 @@ jobs:
             file: 'publiccode.yaml'
             variables: |
               REPO_NAME=${{ github.repository }}
-              REPO_DESC=${{ github.event.repository.description }}
+              REPO_URL=${{ github.event.repository.html_url }}
+            #REPO_DESC=${{ github.event.repository.description }}
 
 #      - name: Set up Python
 #        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
