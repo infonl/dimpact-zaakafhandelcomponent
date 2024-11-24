@@ -105,11 +105,9 @@ jobs:
           fetch-depth: 0
       - uses: elieahd/templater@v1
         with:
-            template: 'scripts/file-templates/publiccode-yml-template.md'
+            template: 'scripts/file-templates/publiccode.yaml'
             file: 'publiccode.yaml'
-            variables: |
-              REPO_NAME=${{ github.repository }}
-              REPO_URL=${{ github.event.repository.html_url }}
+            variables: 'REPO_NAME=${{ github.repository }} REPO_URL=${{ github.event.repository.html_url }}'
             #REPO_DESC=${{ github.event.repository.description }}
 
 #      - name: Set up Python
