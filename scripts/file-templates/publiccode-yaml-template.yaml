@@ -1,6 +1,10 @@
-# This repository adheres to the publiccode.yml standard by including this
-# metadata file that makes public software easily discoverable.
-# More info at https://github.com/italia/publiccode.yml
+#
+# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
+
+# This repository adheres to the publiccode.yml standard to make public software easily discoverable.
+# More info at https://yml.publiccode.tools/ and https://community.developer.overheid.nl/t/publiccode-yml/311.
 
 publiccodeYmlVersion: "0.4"
 
@@ -36,11 +40,19 @@ legal:
 
 maintenance:
   type: "contract"
-
   contractors:
     - name: "INFO"
       email: "contact@info.nl"
       website: "https://www.info.nl/"
+
+intendedAudience:
+  countries:
+    - nl
+  scope:
+    - government
+
+isBasedOn:
+  - 'https://github.com/VNG-Realisatie/gemma-zaken'
 
 localisation:
   localisationReady: true

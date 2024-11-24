@@ -101,12 +101,10 @@ jobs:
       steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          fetch-depth: 0
       - name: Get current date
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
-      - uses: elieahd/templater@v1
+      - uses: elieahd/templater@f802bfce98073a045ad327cdc2c9857564fdfc07 # v1
         with:
             template: 'scripts/file-templates/publiccode-yaml-template.yaml'
             file: 'publiccode.yaml'
@@ -114,26 +112,6 @@ jobs:
               REPO_URL=${{ github.event.repository.html_url }} 
               SOFTWARE_VERSION=${{ needs.next-version.outputs.version }}
               REPO_CREATED_AT=${{ steps.date.outputs.date }}'
-
-#      - name: Set up Python
-#        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
-#        with:
-#          python-version: '3.x'
-#      - name: Set environment variables for the 'update publiccode' Python script
-#        run: |
-#
-#          echo "REPO_CREATED_AT=${{ github.event.repository.created_at }}" >> $GITHUB_ENV
-#          echo "ORGANISATION_NAME=INFO" >> $GITHUB_ENV
-#          echo "ORGANISATION_DESCRIPTION=Business Innovation Partner" >> $GITHUB_ENV
-#          echo "ORGANISATION_URL=https://github.com/infonl" >> $GITHUB_ENV
-#          echo "ORGANISATION_AVATAR=${{ github.event.organization.avatar_url }}" >> $GITHUB_ENV
-#          echo "ROADMAP="https://dimpact.atlassian.net/jira/software/c/projects/PZ/boards/246"" >> $GITHUB_ENV
-#
-#          echo "Installing PyYAML..."
-#          pip install PyYAML
-#      - name: Create or update the publiccode.yml file
-#        run: python update_publiccode.py
-#        shell: bash
       - name: Commit changes
         run: |
           git config --local user.email "action@github.com"
