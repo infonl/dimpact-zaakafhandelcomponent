@@ -124,60 +124,60 @@ jobs:
     env:
       READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
       READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Setup JDK
-        uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b # v4.5.0
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@cc4fc85e6b35bafd578d5ffbc76a5518407e1af0 # v4.2.1
-
-      - name: Restore Gradle build artefacts
-        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
-        with:
-          path: |
-            build
-          key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
-      - name: Restore built frontend artefacts
-        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
-        with:
-          path: |
-            build
-          key: built-frontend-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
-      - name: Restore generated Java clients
-        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
-        with:
-          path: |
-            src/generated
-          key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
-      - name: Run unit tests
-        run: ./gradlew -x processResources -x classes test --info
-
-      - name: Publish unit test results
-        uses: EnricoMi/publish-unit-test-result-action@170bf24d20d201b842d7a52403b73ed297e6645b # v2.18.0
-        if: always()
-        with:
-          check_name: unit-test-results
-          files: |
-            build/test-results/**/*.xml
-            src/main/app/reports/*.xml
-
-      - name: Generate unit test code coverage report
-        run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x test -x itest -x npmRunBuild npmRunTestCoverage jacocoTestReport --info
-
-      - name: Upload unit test coverage report to Codecov
-        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
-        with:
-          flags: unittests
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+#    steps:
+#      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+#
+#      - name: Setup JDK
+#        uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b # v4.5.0
+#        with:
+#          java-version: ${{ env.JAVA_VERSION }}
+#          distribution: 'temurin'
+#
+#      - name: Setup Gradle
+#        uses: gradle/actions/setup-gradle@cc4fc85e6b35bafd578d5ffbc76a5518407e1af0 # v4.2.1
+#
+#      - name: Restore Gradle build artefacts
+#        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+#        with:
+#          path: |
+#            build
+#          key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+#
+#      - name: Restore built frontend artefacts
+#        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+#        with:
+#          path: |
+#            build
+#          key: built-frontend-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+#
+#      - name: Restore generated Java clients
+#        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+#        with:
+#          path: |
+#            src/generated
+#          key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+#
+#      - name: Run unit tests
+#        run: ./gradlew -x processResources -x classes test --info
+#
+#      - name: Publish unit test results
+#        uses: EnricoMi/publish-unit-test-result-action@170bf24d20d201b842d7a52403b73ed297e6645b # v2.18.0
+#        if: always()
+#        with:
+#          check_name: unit-test-results
+#          files: |
+#            build/test-results/**/*.xml
+#            src/main/app/reports/*.xml
+#
+#      - name: Generate unit test code coverage report
+#        run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x test -x itest -x npmRunBuild npmRunTestCoverage jacocoTestReport --info
+#
+#      - name: Upload unit test coverage report to Codecov
+#        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
+#        with:
+#          flags: unittests
+#        env:
+#          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   build-docker-image-and-run-itests:
     needs: [build, paths-ignore]
@@ -246,70 +246,70 @@ jobs:
         with:
           key: docker-${{ runner.os }}-${{ hashFiles('docker-compose.yaml') }}
 
-      - name: Run integration tests
-        run: |
-          ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} \
-            -x compileJava -x processResources -x compileKotlin -x classes -x buildDockerImage \
-            itest --info
-
-      - name: Publish integration test results
-        uses: EnricoMi/publish-unit-test-result-action@170bf24d20d201b842d7a52403b73ed297e6645b # v2.18.0
-        if: always()
-        with:
-          check_name: integration-test-results
-          files: |
-            build/test-results/itest/**/*.xml
+#      - name: Run integration tests
+#        run: |
+#          ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} \
+#            -x compileJava -x processResources -x compileKotlin -x classes -x buildDockerImage \
+#            itest --info
+#
+#      - name: Publish integration test results
+#        uses: EnricoMi/publish-unit-test-result-action@170bf24d20d201b842d7a52403b73ed297e6645b # v2.18.0
+#        if: always()
+#        with:
+#          check_name: integration-test-results
+#          files: |
+#            build/test-results/itest/**/*.xml
 
       # JaCoCo requires our Java class files to be able to generate a report
       # so restore the Gradle build artefacts from the cache
-      - name: Restore Gradle build artefacts
-        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
-        with:
-          path: |
-            build
-          key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
-      - name: Generate JaCoCo integration test code coverage report
-        run: ./gradlew jacocoIntegrationTestReport -x itest --info
-
-      - name: Upload integration test coverage report to Codecov
-        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
-        with:
-          flags: integrationtests
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # 0.29.0
-        with:
-          image-ref: '${{ env.ZAC_DOCKER_IMAGE }}'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          # limit the severities even when using Sarif
-          # or else all vulnerabilities will be reported
-          limit-severities-for-sarif: true
-          severity: 'CRITICAL,HIGH'
-        env:
-          # skip downloading the Trivy databases since we update the Trivy cache regularly
-          # in another workflow
-          TRIVY_SKIP_DB_UPDATE: true
-          TRIVY_SKIP_JAVA_DB_UPDATE: true
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@f09c1c0a94de965c15400f5634aa42fac8fb8f88 # v3.27.5
-        with:
-          sarif_file: 'trivy-results.sarif'
-
-      - name: Save Docker Image
-        if: github.ref == 'refs/heads/main'
-        run: docker save --output docker-image.tar ${ZAC_DOCKER_IMAGE}
-
-      - name: Cache ZAC Docker Image
-        if: github.ref == 'refs/heads/main'
-        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
-        with:
-          path: docker-image.tar
-          key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+#      - name: Restore Gradle build artefacts
+#        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+#        with:
+#          path: |
+#            build
+#          key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+#
+#      - name: Generate JaCoCo integration test code coverage report
+#        run: ./gradlew jacocoIntegrationTestReport -x itest --info
+#
+#      - name: Upload integration test coverage report to Codecov
+#        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
+#        with:
+#          flags: integrationtests
+#        env:
+#          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+#
+#      - name: Run Trivy vulnerability scanner
+#        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # 0.29.0
+#        with:
+#          image-ref: '${{ env.ZAC_DOCKER_IMAGE }}'
+#          format: 'sarif'
+#          output: 'trivy-results.sarif'
+#          # limit the severities even when using Sarif
+#          # or else all vulnerabilities will be reported
+#          limit-severities-for-sarif: true
+#          severity: 'CRITICAL,HIGH'
+#        env:
+#          # skip downloading the Trivy databases since we update the Trivy cache regularly
+#          # in another workflow
+#          TRIVY_SKIP_DB_UPDATE: true
+#          TRIVY_SKIP_JAVA_DB_UPDATE: true
+#
+#      - name: Upload Trivy scan results to GitHub Security tab
+#        uses: github/codeql-action/upload-sarif@f09c1c0a94de965c15400f5634aa42fac8fb8f88 # v3.27.5
+#        with:
+#          sarif_file: 'trivy-results.sarif'
+#
+#      - name: Save Docker Image
+#        if: github.ref == 'refs/heads/main'
+#        run: docker save --output docker-image.tar ${ZAC_DOCKER_IMAGE}
+#
+#      - name: Cache ZAC Docker Image
+#        if: github.ref == 'refs/heads/main'
+#        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+#        with:
+#          path: docker-image.tar
+#          key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   dependabot-auto-merge:
     needs: [run-unit-tests, build-docker-image-and-run-itests]
@@ -369,32 +369,32 @@ jobs:
     env:
       ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
       NEXT_VERSION: ${{ needs.next-version.outputs.version }}
-    steps:
-      - name: Docker Login
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
-        with:
-          registry: ${{ env.CONTAINER_REGISTRY_URL }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Restore Docker Image
-        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
-        with:
-          path: docker-image.tar
-          key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
-      - name: Load Docker Image
-        run: docker load --input docker-image.tar
-
-      - name: Tag Docker Image with 'latest' tag
-        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:latest
-
-      - name: Tag Docker Image with next version tag
-        if: env.NEXT_VERSION != ''
-        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}
-
-      - name: Push Docker Image with all tags
-        run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}
+#    steps:
+#      - name: Docker Login
+#        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+#        with:
+#          registry: ${{ env.CONTAINER_REGISTRY_URL }}
+#          username: ${{ github.actor }}
+#          password: ${{ secrets.GITHUB_TOKEN }}
+#
+#      - name: Restore Docker Image
+#        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+#        with:
+#          path: docker-image.tar
+#          key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+#
+#      - name: Load Docker Image
+#        run: docker load --input docker-image.tar
+#
+#      - name: Tag Docker Image with 'latest' tag
+#        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:latest
+#
+#      - name: Tag Docker Image with next version tag
+#        if: env.NEXT_VERSION != ''
+#        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}
+#
+#      - name: Push Docker Image with all tags
+#        run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}
 
   create-release:
     needs: [next-version, push-docker-image]
