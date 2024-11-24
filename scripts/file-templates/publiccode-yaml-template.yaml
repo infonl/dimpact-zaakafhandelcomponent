@@ -12,6 +12,12 @@ releaseDate: "{{REPO_CREATED_AT}}"
 platforms:
 - web
 
+categories:
+  - business-process-management
+  - it-development
+  - task-management
+  - workflow-management
+
 roadmap: "https://dimpact.atlassian.net/jira/software/c/projects/PZ/boards/246"
 
 developmentStatus: development
