@@ -1,9 +1,11 @@
-name: Generates and updates a publiccode.yaml file
+name: Generate a publiccode.yaml file
 
 permissions:
   contents: write
 
 on:
+  # TEST only
+  pull_request:
   push:
     branches:
       - main
