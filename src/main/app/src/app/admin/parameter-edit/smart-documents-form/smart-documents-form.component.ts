@@ -66,8 +66,7 @@ export class SmartDocumentsFormComponent {
   currentTemplateMappings: MappedSmartDocumentsTemplateGroupWithParentId[] = [];
   informationObjectTypes: GeneratedType<"RestInformatieobjecttype">[] = [];
 
-  newTemplateMappings: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] =
-    [];
+  newTemplateMappings: MappedSmartDocumentsTemplateGroupWithParentId[] = [];
 
   constructor(
     private smartDocumentsService: SmartDocumentsService,
@@ -269,68 +268,60 @@ export class SmartDocumentsFormComponent {
     });
   };
 
-  private addTemplateMappings = (data, uuidsToAdd) => {
-    const assignInformatieObjectTypeUUID = (items) =>
-      items.map((item) => {
-        const updatedItem = {
-          ...item,
-          templates: (item.templates || []).map((template) => {
-            const matchedUUID = uuidsToAdd.find(
-              (uuidItem) =>
-                uuidItem.id === template.id &&
-                uuidItem.parentGroupId === template.parentGroupId,
-            );
+  private addTemplateMappings = (
+    groups: GeneratedType<"RestSmartDocumentsTemplateGroup">[],
+    uuidsToAdd: PlainTemplateMappings[],
+  ): MappedSmartDocumentsTemplateGroupWithParentId[] => {
+    const updateTemplate = (template, uuidsToAdd) => {
+      const matchedUUID = uuidsToAdd.find(
+        (uuidItem) =>
+          uuidItem.id === template.id &&
+          uuidItem.parentGroupId === template.parentGroupId,
+      );
 
-            return {
-              ...template,
-              informatieObjectTypeUUID: matchedUUID?.informatieObjectTypeUUID,
-            };
-          }),
-          groups: item.groups
-            ? assignInformatieObjectTypeUUID(item.groups)
-            : [],
-        };
+      return {
+        ...template,
+        informatieObjectTypeUUID: matchedUUID?.informatieObjectTypeUUID,
+      };
+    };
 
-        return updatedItem;
-      });
+    const updateGroup = (group) => ({
+      ...group,
+      templates: (group.templates || []).map((template) =>
+        updateTemplate(template, uuidsToAdd),
+      ),
+      groups: group.groups ? assignInformatieObjectTypeUUID(group.groups) : [],
+    });
 
-    return assignInformatieObjectTypeUUID(data);
+    const assignInformatieObjectTypeUUID = (groups) => groups.map(updateGroup);
+
+    return assignInformatieObjectTypeUUID(groups);
   };
 
   private getAllTemplateMappingFromTree = (
-    data: MappedSmartDocumentsTemplateGroupWithParentId[] | [],
-  ) => {
-    return data.flatMap(
-      (item: MappedSmartDocumentsTemplateGroupWithParentId) => {
-        const itemTemplates = item.templates
-          ? item.templates.map(
-              (template: MappedSmartDocumentsTemplateWithParentId) => ({
-                id: template.id,
-                parentGroupId: template.parentGroupId,
-                informatieObjectTypeUUID: template.informatieObjectTypeUUID,
-              }),
-            )
-          : [];
+    data: MappedSmartDocumentsTemplateGroupWithParentId[],
+  ): PlainTemplateMappings[] => {
+    return data.flatMap((item) => {
+      const itemTemplates =
+        item.templates?.map((template) => ({
+          id: template.id,
+          parentGroupId: template.parentGroupId,
+          informatieObjectTypeUUID: template.informatieObjectTypeUUID,
+        })) ?? [];
 
-        const groupTemplates = item.groups
-          ? item.groups.flatMap(
-              (group: MappedSmartDocumentsTemplateGroupWithParentId) => [
-                ...group.templates.map(
-                  (template: MappedSmartDocumentsTemplateWithParentId) => ({
-                    id: template.id,
-                    parentGroupId: template.parentGroupId,
-                    informatieObjectTypeUUID: template.informatieObjectTypeUUID,
-                  }),
-                ),
+      const groupTemplates =
+        item.groups?.flatMap((group) => [
+          ...group.templates.map((template) => ({
+            id: template.id,
+            parentGroupId: template.parentGroupId,
+            informatieObjectTypeUUID: template.informatieObjectTypeUUID,
+          })),
 
-                ...this.getAllTemplateMappingFromTree(group.groups || []),
-              ],
-            )
-          : [];
+          ...this.getAllTemplateMappingFromTree(group.groups || []),
+        ]) ?? [];
 
-        return [...itemTemplates, ...groupTemplates];
-      },
-    );
+      return [...itemTemplates, ...groupTemplates];
+    });
   };
 
   private addParentIdToTemplates = <
