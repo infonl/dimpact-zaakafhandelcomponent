@@ -108,10 +108,6 @@ export class SmartDocumentsFormComponent {
     );
 
     this.dataSource.data = this.flattenGroupsToRoot(this.newTemplateMappings);
-
-    if (this.dataSource.data.length) {
-      console.log("Current Tree Data", this.dataSource.data);
-    }
   }
 
   allSmartDocumentTemplateGroupsQuery = injectQuery(() => ({
@@ -286,30 +282,22 @@ export class SmartDocumentsFormComponent {
     groups: GeneratedType<"RestSmartDocumentsTemplateGroup">[],
     uuidsToAdd: PlainTemplateMappings[],
   ): MappedSmartDocumentsTemplateGroupWithParentId[] => {
-    const updateTemplate = (template, uuidsToAdd) => {
-      const matchedUUID = uuidsToAdd.find(
-        (uuidItem) =>
-          uuidItem.id === template.id &&
-          uuidItem.parentGroupId === template.parentGroupId,
-      );
-
-      return {
-        ...template,
-        informatieObjectTypeUUID: matchedUUID?.informatieObjectTypeUUID,
-      };
-    };
-
-    const updateGroup = (group) => ({
+    const updateGroup = (
+      group: MappedSmartDocumentsTemplateGroupWithParentId,
+    ): MappedSmartDocumentsTemplateGroupWithParentId => ({
       ...group,
-      templates: (group.templates || []).map((template) =>
-        updateTemplate(template, uuidsToAdd),
-      ),
-      groups: group.groups ? assignInformatieObjectTypeUUID(group.groups) : [],
+      templates: (group.templates || []).map((template) => ({
+        ...template,
+        informatieObjectTypeUUID: uuidsToAdd.find(
+          (uuidItem) =>
+            uuidItem.id === template.id &&
+            uuidItem.parentGroupId === template.parentGroupId,
+        )?.informatieObjectTypeUUID,
+      })),
+      groups: group.groups ? group.groups.map(updateGroup) : [],
     });
 
-    const assignInformatieObjectTypeUUID = (groups) => groups.map(updateGroup);
-
-    return assignInformatieObjectTypeUUID(groups);
+    return groups.map(updateGroup);
   };
 
   private getAllTemplateMappingsFromTree = (
@@ -317,7 +305,6 @@ export class SmartDocumentsFormComponent {
       | MappedSmartDocumentsTemplateGroupWithParentId[]
       | MappedSmartDocumentsTemplateFlattenedGroupWithParentId[],
   ): PlainTemplateMappings[] => {
-    console.log("data", data);
     return data.flatMap((item) => {
       const itemTemplates =
         item.templates?.map((template) => ({
