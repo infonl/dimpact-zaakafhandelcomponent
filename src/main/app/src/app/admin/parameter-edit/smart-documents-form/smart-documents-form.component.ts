@@ -16,26 +16,37 @@ import { InformatieObjectenService } from "src/app/informatie-objecten/informati
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
   SmartDocumentsService,
-  SmartDocumentsTemplate,
-  SmartDocumentsTemplateGroup,
-  MappedSmartDocumentsTemplate,
-  MappedSmartDocumentsTemplateGroup,
+  GeneratedSmartDocumentsTemplate,
+  GeneratedSmartDocumentsTemplateGroup,
+  GeneratedMappedSmartDocumentsTemplate,
+  GeneratedMappedSmartDocumentsTemplateGroup,
 } from "../../smart-documents.service";
 
-type SmartDocumentsTemplateGroupWithParentId = SmartDocumentsTemplateGroup & {
-  parentGroupId: string;
-};
-type SmartDocumentsTemplateWithParentId = SmartDocumentsTemplate & {
+type SmartDocumentsTemplateGroupWithParentId =
+  GeneratedSmartDocumentsTemplateGroup & {
+    parentGroupId: string;
+  };
+type SmartDocumentsTemplateWithParentId = GeneratedSmartDocumentsTemplate & {
   parentGroupId: string;
 };
 
-type MappedSmartDocumentsTemplateGroupWithParentId =
-  MappedSmartDocumentsTemplateGroup & {
-    parentGroupId: string;
+type MappedSmartDocumentsTemplateWithParentId =
+  GeneratedMappedSmartDocumentsTemplate & {
+    parentGroupId?: string | null;
   };
-type MappedSmartDocumentsTemplateWithParentId = MappedSmartDocumentsTemplate & {
-  parentGroupId: string;
+type MappedSmartDocumentsTemplateGroupWithParentId = Omit<
+  GeneratedMappedSmartDocumentsTemplateGroup,
+  "groups" | "templates"
+> & {
+  groups?: MappedSmartDocumentsTemplateGroupWithParentId[] | null;
+  templates?: MappedSmartDocumentsTemplateWithParentId[] | null;
 };
+
+type PlainTemplateMappings = Omit<
+  MappedSmartDocumentsTemplateWithParentId,
+  "name"
+>;
+
 interface FlatNode {
   expandable: boolean;
   name: string;
@@ -52,11 +63,11 @@ export class SmartDocumentsFormComponent {
   @Input() zaakTypeUuid: string;
   @Output() formValidityChanged = new EventEmitter<boolean>();
 
-  allSmartDocumentTemplateGroups: SmartDocumentsTemplateGroup[] = [];
+  allSmartDocumentTemplateGroups: GeneratedSmartDocumentsTemplateGroup[] = [];
   currentTemplateMappings: MappedSmartDocumentsTemplateGroupWithParentId[] = [];
   informationObjectTypes: GeneratedType<"RestInformatieobjecttype">[] = [];
 
-  newTemplateMappings: MappedSmartDocumentsTemplateGroup[] = [];
+  newTemplateMappings: GeneratedMappedSmartDocumentsTemplateGroup[] = [];
 
   constructor(
     private smartDocumentsService: SmartDocumentsService,
@@ -287,28 +298,34 @@ export class SmartDocumentsFormComponent {
   };
 
   private getAllTemplateMappingFromTree = (
-    data: MappedSmartDocumentsTemplateGroupWithParentId[],
+    data: MappedSmartDocumentsTemplateGroupWithParentId[] | [],
   ) => {
     return data.flatMap(
       (item: MappedSmartDocumentsTemplateGroupWithParentId) => {
         const itemTemplates = item.templates
-          ? item.templates.map((template: any) => ({
-              id: template.id,
-              parentGroupId: template.parentGroupId,
-              informatieObjectTypeUUID: template.informatieObjectTypeUUID,
-            }))
-          : [];
-
-        const groupTemplates = item.groups
-          ? item.groups.flatMap((group: any) => [
-              ...group.templates.map((template) => ({
+          ? item.templates.map(
+              (template: MappedSmartDocumentsTemplateWithParentId) => ({
                 id: template.id,
                 parentGroupId: template.parentGroupId,
                 informatieObjectTypeUUID: template.informatieObjectTypeUUID,
-              })),
+              }),
+            )
+          : [];
 
-              ...this.getAllTemplateMappingFromTree(group.groups || []),
-            ])
+        const groupTemplates = item.groups
+          ? item.groups.flatMap(
+              (group: MappedSmartDocumentsTemplateGroupWithParentId) => [
+                ...group.templates.map(
+                  (template: MappedSmartDocumentsTemplateWithParentId) => ({
+                    id: template.id,
+                    parentGroupId: template.parentGroupId,
+                    informatieObjectTypeUUID: template.informatieObjectTypeUUID,
+                  }),
+                ),
+
+                ...this.getAllTemplateMappingFromTree(group.groups || []),
+              ],
+            )
           : [];
 
         return [...itemTemplates, ...groupTemplates];
@@ -317,54 +334,74 @@ export class SmartDocumentsFormComponent {
   };
 
   private addParentIdToTemplates = <
-    T extends SmartDocumentsTemplateGroup | MappedSmartDocumentsTemplateGroup,
+    T extends
+      | GeneratedSmartDocumentsTemplateGroup
+      | GeneratedMappedSmartDocumentsTemplateGroup,
   >(
     data: T[],
   ):
     | SmartDocumentsTemplateGroupWithParentId[]
-    | MappedSmartDocumentsTemplateGroupWithParentId[] => {
-    return data.map((item: T) => {
-      const templates =
-        item.templates?.map(
-          (
-            template: SmartDocumentsTemplate | MappedSmartDocumentsTemplate,
-          ) => ({
-            ...template,
-            parentGroupId: item.id,
-          }),
-        ) ||
-        ([] as
-          | SmartDocumentsTemplateWithParentId[]
-          | MappedSmartDocumentsTemplateWithParentId[]);
+    | MappedSmartDocumentsTemplateGroupWithParentId[]
+    | [] => {
+    return (
+      data.map((item: T) => {
+        const templates =
+          item.templates?.map(
+            (
+              template:
+                | GeneratedSmartDocumentsTemplate
+                | GeneratedMappedSmartDocumentsTemplate,
+            ) => ({
+              ...template,
+              parentGroupId: item.id,
+            }),
+          ) ||
+          ([] as
+            | SmartDocumentsTemplateWithParentId[]
+            | MappedSmartDocumentsTemplateWithParentId[]);
 
-      const groups =
-        item.groups?.map((group: SmartDocumentsTemplateGroup) => ({
-          ...group,
-          templates:
-            group.templates?.map(
-              (
-                template: SmartDocumentsTemplate | MappedSmartDocumentsTemplate,
-              ) => ({
-                ...template,
-                parentGroupId: group.id,
-              }),
-            ) ||
-            ([] as
-              | SmartDocumentsTemplateWithParentId[]
-              | MappedSmartDocumentsTemplateWithParentId[]),
-          groups: group.groups ? this.addParentIdToTemplates(group.groups) : [],
-        })) ||
-        ([] as
-          | SmartDocumentsTemplateGroupWithParentId[]
-          | MappedSmartDocumentsTemplateGroupWithParentId);
+        const groups =
+          item.groups?.map(
+            (
+              group:
+                | GeneratedSmartDocumentsTemplateGroup
+                | GeneratedMappedSmartDocumentsTemplateGroup,
+            ) => ({
+              ...group,
+              templates:
+                group.templates?.map(
+                  (
+                    template:
+                      | GeneratedSmartDocumentsTemplate
+                      | GeneratedMappedSmartDocumentsTemplate,
+                  ) => ({
+                    ...template,
+                    parentGroupId: group.id,
+                  }),
+                ) ||
+                ([] as
+                  | SmartDocumentsTemplateWithParentId[]
+                  | MappedSmartDocumentsTemplateWithParentId[]),
+              groups: group.groups
+                ? this.addParentIdToTemplates(group.groups)
+                : [],
+            }),
+          ) ||
+          ([] as
+            | SmartDocumentsTemplateGroupWithParentId[]
+            | MappedSmartDocumentsTemplateGroupWithParentId[]);
 
-      return {
-        ...item,
-        templates,
-        groups,
-      } as unknown as
-        | SmartDocumentsTemplateGroupWithParentId
-        | MappedSmartDocumentsTemplateGroupWithParentId;
-    });
+        return {
+          ...item,
+          templates,
+          groups,
+        } as
+          | SmartDocumentsTemplateGroupWithParentId
+          | MappedSmartDocumentsTemplateGroupWithParentId;
+      }) ||
+      ([] as
+        | SmartDocumentsTemplateGroupWithParentId[]
+        | MappedSmartDocumentsTemplateGroupWithParentId[])
+    );
   };
 }
