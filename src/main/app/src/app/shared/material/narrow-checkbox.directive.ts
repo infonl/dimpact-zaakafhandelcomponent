@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { Directive, ElementRef, OnInit, Renderer2 } from "@angular/core";
 
 @Directive({

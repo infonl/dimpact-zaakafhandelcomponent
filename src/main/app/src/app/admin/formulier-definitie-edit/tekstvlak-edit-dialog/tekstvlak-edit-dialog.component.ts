@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { Component, Inject } from "@angular/core";
 import { MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { DialogData } from "../../../shared/dialog/dialog-data";

@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { TranslateService } from "@ngx-translate/core";
 import { DateFormFieldBuilder } from "../../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { HeadingLevel } from "../../../shared/material-form-builder/form-components/heading/heading-form-field";

@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { Injectable } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { MeldingKleinEvenement } from "./model/melding-klein-evenement";

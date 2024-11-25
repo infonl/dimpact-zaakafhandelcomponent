@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { PlanItem } from "../../plan-items/model/plan-item";
 import { Zaak } from "../../zaken/model/zaak";
 import { AbstractProcessFormulier } from "./abstract-process-formulier";

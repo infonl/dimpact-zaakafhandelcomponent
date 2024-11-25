@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { AsyncPipe } from "@angular/common";
 import {
   ChangeDetectorRef,
