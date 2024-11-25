@@ -92,7 +92,7 @@ describe(TaakViewComponent.name, () => {
       expect(addListener).toHaveBeenCalledWith(
         Opcode.UPDATED,
         ObjectType.ZAAK_INFORMATIEOBJECTEN,
-        expect.any(String),
+        taak.zaakUuid,
         expect.any(Function),
       );
     });
@@ -105,11 +105,11 @@ describe(TaakViewComponent.name, () => {
       websocketService["onMessage"]({
         opcode: Opcode.UPDATED,
         objectType: ObjectType.ZAAK_INFORMATIEOBJECTEN,
-        objectId: new ScreenEventId("test-zaakUuid"),
+        objectId: new ScreenEventId(taak.zaakUuid),
       });
 
       expect(readTaak).toHaveBeenCalledTimes(1);
-      expect(readTaak).toHaveBeenCalledWith("test-id");
+      expect(readTaak).toHaveBeenCalledWith(taak.id);
     });
   });
 });
