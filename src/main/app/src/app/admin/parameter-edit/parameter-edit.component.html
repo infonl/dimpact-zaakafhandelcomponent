@@ -658,8 +658,10 @@
       >
         <ng-template matStepLabel>SmartDocuments</ng-template>
         <ng-template matStepContent>
-            <h2>{{ "title.admin.parameters.step.smart-documents" | translate}}</h2>
-            <smart-documents-form
+          <h2>
+            {{ "title.admin.parameters.step.smart-documents" | translate}}
+          </h2>
+          <smart-documents-form
             [formGroup]="smartDocumentsForm"
             (formValidityChanged)="isSmartDocumentsStepValid = $event"
             [zaakTypeUuid]="parameters.zaaktype.uuid"
