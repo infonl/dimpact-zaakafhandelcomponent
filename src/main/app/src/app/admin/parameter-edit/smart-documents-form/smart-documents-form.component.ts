@@ -211,16 +211,9 @@ export class SmartDocumentsFormComponent {
   }
 
   public saveSmartDocumentsMapping(): Observable<never> {
-    const onlyMaopedTemplates = this.getMappedTemplates(
-      this.addTemplateMappings(
-        this.newTemplateMappings,
-        this.getTemplateMappings(this.dataSource.data),
-      ),
-    );
-
     return this.smartDocumentsService.storeTemplatesMapping(
       this.zaakTypeUuid,
-      onlyMaopedTemplates,
+      this.getMappedTemplates(this.newTemplateMappings),
     );
   }
 
