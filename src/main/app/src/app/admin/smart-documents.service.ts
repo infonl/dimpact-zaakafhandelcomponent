@@ -21,16 +21,6 @@ import { GeneratedType } from "../shared/utils/generated-types";
 //   templates?: T[];
 // }
 
-export type GeneratedSmartDocumentsTemplateGroup =
-  GeneratedType<"RestSmartDocumentsTemplateGroup">;
-export type GeneratedSmartDocumentsTemplate =
-  GeneratedType<"RestSmartDocumentsTemplate">;
-
-export type GeneratedMappedSmartDocumentsTemplateGroup =
-  GeneratedType<"RestMappedSmartDocumentsTemplateGroup">;
-export type GeneratedMappedSmartDocumentsTemplate =
-  GeneratedType<"RestMappedSmartDocumentsTemplate">;
-
 @Injectable({ providedIn: "root" })
 export class SmartDocumentsService {
   constructor(
@@ -39,7 +29,7 @@ export class SmartDocumentsService {
   ) {}
 
   getAllSmartDocumentsTemplateGroups(): Observable<
-    GeneratedSmartDocumentsTemplateGroup[]
+    GeneratedType<"RestSmartDocumentsTemplateGroup">[]
   > {
     return this.zacHttp
       .GET("/rest/zaakafhandelparameters/document-templates")
@@ -49,7 +39,7 @@ export class SmartDocumentsService {
   }
 
   getAllSmartDocumentsTemplateGroupsFlat(): Observable<
-    GeneratedSmartDocumentsTemplateGroup[]
+    GeneratedType<"RestSmartDocumentsTemplateGroup">[]
   > {
     return this.zacHttp
       .GET("/rest/zaakafhandelparameters/document-templates")
@@ -61,7 +51,7 @@ export class SmartDocumentsService {
 
   getTemplatesMapping(
     zaakafhandelUUID: string,
-  ): Observable<GeneratedMappedSmartDocumentsTemplateGroup[]> {
+  ): Observable<GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[]> {
     return this.zacHttp
       .GET(
         "/rest/zaakafhandelparameters/{zaakafhandelUUID}/document-templates",
@@ -80,7 +70,7 @@ export class SmartDocumentsService {
 
   getZaakTypeTemplatesMappingsFlat(
     zaakafhandelUUID: string,
-  ): Observable<GeneratedMappedSmartDocumentsTemplateGroup[]> {
+  ): Observable<GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[]> {
     return this.zacHttp
       .GET(
         "/rest/zaakafhandelparameters/{zaakafhandelUUID}/document-templates",
@@ -103,7 +93,7 @@ export class SmartDocumentsService {
 
   storeTemplatesMapping(
     zaakafhandelUUID: string,
-    templates: GeneratedMappedSmartDocumentsTemplate[],
+    templates: GeneratedType<"RestMappedSmartDocumentsTemplate">[],
   ) {
     return this.zacHttp
       .POST(
@@ -123,20 +113,22 @@ export class SmartDocumentsService {
   }
 
   /**
-   * Flattens a nested RootObject (GeneratedMappedSmartDocumentsTemplateGroup) into an array of group objects,
+   * Flattens a nested RootObject (GeneratedType<"RestMappedSmartDocumentsTemplateGroup">) into an array of group objects,
    * omitting nested groups, and preserving templates.
-   * @param {GeneratedMappedSmartDocumentsTemplateGroup} obj - The root object to flatten.
-   * @returns {Array<Omit<GeneratedMappedSmartDocumentsTemplateGroup, "groups">>} - The flattened array of groups with templates, excluding nested groups.
+   * @param {GeneratedType<"RestMappedSmartDocumentsTemplateGroup">} obj - The root object to flatten.
+   * @returns {Array<Omit<GeneratedType<"RestMappedSmartDocumentsTemplateGroup">, "groups">>} - The flattened array of groups with templates, excluding nested groups.
    */
   flattenDocumentsTemplateGroup(
-    obj: GeneratedMappedSmartDocumentsTemplateGroup,
-  ): Array<Omit<GeneratedMappedSmartDocumentsTemplateGroup, "groups">> {
+    obj: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">,
+  ): Array<
+    Omit<GeneratedType<"RestMappedSmartDocumentsTemplateGroup">, "groups">
+  > {
     const result: Array<
-      Omit<GeneratedMappedSmartDocumentsTemplateGroup, "groups">
+      Omit<GeneratedType<"RestMappedSmartDocumentsTemplateGroup">, "groups">
     > = [];
 
     function flattenDocumentsTemplateGroup(
-      group: GeneratedMappedSmartDocumentsTemplateGroup,
+      group: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">,
     ) {
       result.push({
         id: group.id,
