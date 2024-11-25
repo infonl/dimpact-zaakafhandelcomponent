@@ -13,10 +13,15 @@ import net.atos.zac.smartdocuments.SmartDocumentsException
  * In other words we validate if groups and templates have the same IDs, names and hierarchy as in superset
  *
  * @param supersetTemplates set of RESTSmartDocumentsTemplateGroup to validate against
+ * @throws SmartDocumentsException when there are no templates to validate against, or unknown templates are detected
  */
 infix fun Set<RestMappedSmartDocumentsTemplateGroup>.isSubsetOf(
     supersetTemplates: Set<RestSmartDocumentsTemplateGroup>
 ) {
+    if (supersetTemplates.isEmpty()) {
+        throw SmartDocumentsException("Validation failed. No SmartDocuments templates available")
+    }
+
     val superset = supersetTemplates.toStringRepresentation()
     val subset = this.toStringRepresentation()
 

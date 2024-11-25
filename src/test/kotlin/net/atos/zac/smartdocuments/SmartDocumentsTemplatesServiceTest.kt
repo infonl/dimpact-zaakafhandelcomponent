@@ -23,6 +23,8 @@ import jakarta.persistence.criteria.Root
 import net.atos.client.smartdocuments.model.createsmartDocumentsTemplatesResponse
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.smartdocuments.rest.createRESTMappedTemplate
+import net.atos.zac.smartdocuments.rest.createRESTMappedTemplateGroup
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplate
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
 import java.util.UUID
@@ -41,9 +43,10 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A list of SmartDocuments templates") {
+    Given("SmartDocuments is enabled and contains a list of templates") {
         val smartDocumentsTemplatesResponse = createsmartDocumentsTemplatesResponse()
         every { smartDocumentsService.listTemplates() } returns smartDocumentsTemplatesResponse
+        every { smartDocumentsService.isEnabled() } returns true
 
         When("a list of template is requested") {
             val restSmartDocumentsTemplateGroupSet = smartDocumentsTemplatesService.listTemplates()
@@ -210,6 +213,26 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
 
             Then("exception is thrown") {
                 exception.message shouldContain "123abc"
+            }
+        }
+    }
+
+    Given("SmartDocuments is disabled") {
+        every { smartDocumentsService.isEnabled() } returns false
+
+        When("templates are listed") {
+            val templates = smartDocumentsTemplatesService.listTemplates()
+
+            Then("it returns an empty set") {
+                 templates shouldBe emptySet()
+            }
+        }
+
+        When("mapping is listed") {
+            val mappings = smartDocumentsTemplatesService.getTemplatesMapping(UUID.randomUUID())
+
+            Then("it returns an empty set") {
+                mappings shouldBe emptySet()
             }
         }
     }

@@ -14,6 +14,11 @@ import net.atos.client.smartdocuments.model.document.Deposit
 import net.atos.client.smartdocuments.model.document.Document
 import net.atos.client.smartdocuments.model.document.File
 import net.atos.client.smartdocuments.model.document.SmartDocument
+import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseDocumentsStructure
+import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseGroupsAccess
+import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseHeadersStructure
+import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseTemplatesStructure
+import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseUsersStructure
 import net.atos.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.documentcreation.model.DocumentCreationAttendedResponse
@@ -34,6 +39,9 @@ class SmartDocumentsService @Inject constructor(
     @RestClient
     private val smartDocumentsClient: SmartDocumentsClient,
 
+    @ConfigProperty(name = "SD_ENABLED", defaultValue = "false")
+    private val enabled: Boolean,
+
     @ConfigProperty(name = "SD_CLIENT_MP_REST_URL")
     private val smartDocumentsURL: String,
 
@@ -48,6 +56,8 @@ class SmartDocumentsService @Inject constructor(
     companion object {
         private val LOG = Logger.getLogger(SmartDocumentsService::class.java.name)
     }
+
+    fun isEnabled() = enabled
 
     /**
      * Sends a request to SmartDocuments to create a document using the Smart Documents wizard (= attended mode).

@@ -21,7 +21,10 @@ import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.policy.PolicyService
+import net.atos.zac.smartdocuments.SmartDocumentsException
+import net.atos.zac.smartdocuments.SmartDocumentsService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
+import java.util.UUID
 
 class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
@@ -33,6 +36,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
     val zaakafhandelParametersConverter = mockk<RestZaakafhandelParametersConverter>()
     val caseDefinitionConverter = mockk<RESTCaseDefinitionConverter>()
     val resultaattypeConverter = mockk<RestResultaattypeConverter>()
+    val smartDocumentsService = mockk<SmartDocumentsService>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val policyService = mockk<PolicyService>()
 
@@ -201,6 +205,24 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
                 verify(exactly = 0) {
                     zaakafhandelParameterBeheerService.createZaakafhandelParameters(zaakafhandelParameters)
                 }
+            }
+        }
+    }
+
+    Given("SmartDocuments is disabled and empty set of templates is returned") {
+        every { policyService.readOverigeRechten().beheren } returns true
+        every { smartDocumentsTemplatesService.listTemplates() } returns emptySet()
+
+        When("storing templates mapping") {
+            val exception = shouldThrow<SmartDocumentsException> {
+                zaakafhandelParametersRestService.storeTemplatesMapping(
+                    UUID.randomUUID(),
+                    emptySet()
+                )
+            }
+
+            Then("exception is thrown") {
+                exception.message shouldBe "Validation failed. No SmartDocuments templates available"
             }
         }
     }
