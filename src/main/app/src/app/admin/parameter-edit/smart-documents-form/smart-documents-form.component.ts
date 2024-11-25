@@ -104,10 +104,12 @@ export class SmartDocumentsFormComponent {
 
     this.newTemplateMappings = this.addTemplateMappings(
       this.allSmartDocumentTemplateGroups,
-      this.getAllTemplateMappingsFromTree(this.currentTemplateMappings),
+      this.getTemplateMappings(this.currentTemplateMappings),
     );
 
-    this.dataSource.data = this.flattenGroupsToRoot(this.newTemplateMappings);
+    this.dataSource.data = this.flattenNestedGroupsToRootGroups(
+      this.newTemplateMappings,
+    );
   }
 
   allSmartDocumentTemplateGroupsQuery = injectQuery(() => ({
@@ -167,18 +169,18 @@ export class SmartDocumentsFormComponent {
   hasChild = (_: number, node: { expandable: boolean }) => node.expandable;
 
   hasSelected(id: string): boolean {
-    const nodeHasSelectedInformationObjectType = this.dataSource.data
+    const hasInformationObjectType = this.dataSource.data
       .find((node) => node.id === id)
       ?.templates.some((_node) => _node.informatieObjectTypeUUID);
 
-    return !!nodeHasSelectedInformationObjectType;
+    return !!hasInformationObjectType;
   }
 
   getSelectedClass(node: string): string {
     return this.hasSelected(node) ? "active" : "default";
   }
 
-  handleNodeChange({
+  handleMatTreeNodeChange({
     id,
     parentGroupId,
     informatieObjectTypeUUID,
@@ -209,10 +211,10 @@ export class SmartDocumentsFormComponent {
   }
 
   public saveSmartDocumentsMapping(): Observable<never> {
-    const onlyMaopedTemplates = this.onlyMappedTemplates(
+    const onlyMaopedTemplates = this.getMappedTemplates(
       this.addTemplateMappings(
         this.newTemplateMappings,
-        this.getAllTemplateMappingsFromTree(this.dataSource.data),
+        this.getTemplateMappings(this.dataSource.data),
       ),
     );
 
@@ -222,7 +224,7 @@ export class SmartDocumentsFormComponent {
     );
   }
 
-  private onlyMappedTemplates = (
+  private getMappedTemplates = (
     data: MappedSmartDocumentsTemplateGroupWithParentId[],
   ): GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] => {
     return data
@@ -232,7 +234,7 @@ export class SmartDocumentsFormComponent {
           .map(({ parentGroupId, ...template }) => template);
 
         const groups = group.groups
-          ? this.onlyMappedTemplates(group.groups)
+          ? this.getMappedTemplates(group.groups)
           : [];
 
         if (templates.length || groups.length) {
@@ -249,7 +251,7 @@ export class SmartDocumentsFormComponent {
       .filter(Boolean);
   };
 
-  private flattenGroupsToRoot = (
+  private flattenNestedGroupsToRootGroups = (
     data: MappedSmartDocumentsTemplateGroupWithParentId[],
   ): MappedSmartDocumentsTemplateFlattenedGroupWithParentId[] => {
     return data.flatMap((item) => {
@@ -262,7 +264,7 @@ export class SmartDocumentsFormComponent {
       const flattenedGroups =
         item.groups?.flatMap((group) => {
           const flattenedSubGroups = group.groups
-            ? this.flattenGroupsToRoot(group.groups)
+            ? this.flattenNestedGroupsToRootGroups(group.groups)
             : [];
 
           return [
@@ -300,7 +302,7 @@ export class SmartDocumentsFormComponent {
     return groups.map(updateGroup);
   };
 
-  private getAllTemplateMappingsFromTree = (
+  private getTemplateMappings = (
     data:
       | MappedSmartDocumentsTemplateGroupWithParentId[]
       | MappedSmartDocumentsTemplateFlattenedGroupWithParentId[],
@@ -321,7 +323,7 @@ export class SmartDocumentsFormComponent {
             informatieObjectTypeUUID: template.informatieObjectTypeUUID,
           })),
 
-          ...this.getAllTemplateMappingsFromTree(group.groups || []),
+          ...this.getTemplateMappings(group.groups || []),
         ]) ?? [];
 
       return [...itemTemplates, ...groupTemplates];
