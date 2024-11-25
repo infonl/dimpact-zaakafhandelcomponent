@@ -16,8 +16,8 @@ header:
     # for now check specific folders/file types only; later on expand to '**'
     - 'src/main/kotlin/**'
     - 'src/main/java/**'
-    - 'src/test/**'
     - 'src/main/app/**'
+    - 'src/test/**'
     - 'src/itest/**'
     - 'src/e2e/**'
   paths-ignore:
@@ -32,10 +32,9 @@ header:
     - 'wildfly-*'
     - '**/*.md'
     - '**/node_modules'
-    - '**/dist'
     # SPDX license headers cannot be added to JSON files so we ignore them
     # there are ways to link licensing information to JSON files however; see e.g. https://reuse.software/faq/
     - '**/**.json'
     - '**/**.txt'
-
+    - '**/dist'
   comment: on-failure
