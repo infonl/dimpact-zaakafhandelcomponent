@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import NodeFS from "fs";
 
 type Keys = "caseNumber" | "open-forms-testid";

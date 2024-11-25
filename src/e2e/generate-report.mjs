@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { generate } from "cucumber-html-reporter";
 import { readdir, stat, writeFile } from "fs/promises";
 

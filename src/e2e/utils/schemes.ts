@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { ICreateAttachment } from "@cucumber/cucumber/lib/runtime/attachment_manager";
 import { z } from "zod";
 
