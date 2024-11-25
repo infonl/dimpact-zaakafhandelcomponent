@@ -9,11 +9,6 @@ import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.ser
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
-export type SmartDocumentsTemplate = Omit<
-  GeneratedType<"RestMappedSmartDocumentsTemplate">,
-  "informatieObjectTypeUUID"
->;
-
 interface BaseGroup<
   T extends Omit<
     GeneratedType<"RestMappedSmartDocumentsTemplate">,
@@ -26,9 +21,14 @@ interface BaseGroup<
   templates?: T[];
 }
 
-export type SmartDocumentsTemplateGroup = BaseGroup<SmartDocumentsTemplate>;
+export type SmartDocumentsTemplateGroup =
+  GeneratedType<"RestSmartDocumentsTemplateGroup">;
+export type SmartDocumentsTemplate =
+  GeneratedType<"RestSmartDocumentsTemplate">;
 
-export type DocumentsTemplateGroup = BaseGroup<
+export type MappedSmartDocumentsTemplateGroup =
+  GeneratedType<"RestMappedSmartDocumentsTemplateGroup">;
+export type MappedSmartDocumentsTemplate = BaseGroup<
   GeneratedType<"RestMappedSmartDocumentsTemplate">
 >;
 
@@ -62,7 +62,7 @@ export class SmartDocumentsService {
 
   getTemplatesMapping(
     zaakafhandelUUID: string,
-  ): Observable<DocumentsTemplateGroup[]> {
+  ): Observable<MappedSmartDocumentsTemplateGroup[]> {
     return this.zacHttp
       .GET(
         "/rest/zaakafhandelparameters/{zaakafhandelUUID}/document-templates",
@@ -81,7 +81,7 @@ export class SmartDocumentsService {
 
   getZaakTypeTemplatesMappingsFlat(
     zaakafhandelUUID: string,
-  ): Observable<DocumentsTemplateGroup[]> {
+  ): Observable<MappedSmartDocumentsTemplateGroup[]> {
     return this.zacHttp
       .GET(
         "/rest/zaakafhandelparameters/{zaakafhandelUUID}/document-templates",
@@ -104,7 +104,7 @@ export class SmartDocumentsService {
 
   storeTemplatesMapping(
     zaakafhandelUUID: string,
-    templates: DocumentsTemplateGroup[],
+    templates: MappedSmartDocumentsTemplate[],
   ) {
     return this.zacHttp
       .POST(
@@ -124,17 +124,19 @@ export class SmartDocumentsService {
   }
 
   /**
-   * Flattens a nested RootObject (DocumentsTemplateGroup) into an array of group objects,
+   * Flattens a nested RootObject (MappedSmartDocumentsTemplateGroup) into an array of group objects,
    * omitting nested groups, and preserving templates.
-   * @param {DocumentsTemplateGroup} obj - The root object to flatten.
-   * @returns {Array<Omit<DocumentsTemplateGroup, "groups">>} - The flattened array of groups with templates, excluding nested groups.
+   * @param {MappedSmartDocumentsTemplateGroup} obj - The root object to flatten.
+   * @returns {Array<Omit<MappedSmartDocumentsTemplateGroup, "groups">>} - The flattened array of groups with templates, excluding nested groups.
    */
   flattenDocumentsTemplateGroup(
-    obj: DocumentsTemplateGroup,
-  ): Array<Omit<DocumentsTemplateGroup, "groups">> {
-    const result: Array<Omit<DocumentsTemplateGroup, "groups">> = [];
+    obj: MappedSmartDocumentsTemplateGroup,
+  ): Array<Omit<MappedSmartDocumentsTemplateGroup, "groups">> {
+    const result: Array<Omit<MappedSmartDocumentsTemplateGroup, "groups">> = [];
 
-    function flattenDocumentsTemplateGroup(group: DocumentsTemplateGroup) {
+    function flattenDocumentsTemplateGroup(
+      group: MappedSmartDocumentsTemplateGroup,
+    ) {
       result.push({
         id: group.id,
         name: group.name,
