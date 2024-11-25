@@ -45,6 +45,11 @@ type PlainTemplateMappings = Omit<
   "name"
 >;
 
+type MappedSmartDocumentsTemplateFlattenedGroupWithParentId = Omit<
+  MappedSmartDocumentsTemplateGroupWithParentId,
+  "groups"
+>;
+
 interface FlatNode {
   expandable: boolean;
   name: string;
@@ -99,7 +104,7 @@ export class SmartDocumentsFormComponent {
 
     this.newTemplateMappings = this.addTemplateMappings(
       this.allSmartDocumentTemplateGroups,
-      this.getAllTemplateMappingFromTree(this.currentTemplateMappings),
+      this.getAllTemplateMappingsFromTree(this.currentTemplateMappings),
     );
 
     this.dataSource.data = this.flattenGroupsToRoot(this.newTemplateMappings);
@@ -205,7 +210,7 @@ export class SmartDocumentsFormComponent {
     const onlyMaopedTemplates = this.onlyMappedTemplates(
       this.addTemplateMappings(
         this.newTemplateMappings,
-        this.getAllTemplateMappingFromTree(this.dataSource.data),
+        this.getAllTemplateMappingsFromTree(this.dataSource.data),
       ),
     );
 
@@ -216,7 +221,9 @@ export class SmartDocumentsFormComponent {
     );
   }
 
-  private onlyMappedTemplates = (data) => {
+  private onlyMappedTemplates = (
+    data: MappedSmartDocumentsTemplateGroupWithParentId[],
+  ): any => {
     return data
       .map((group) => {
         const templates = (group.templates || [])
@@ -228,7 +235,7 @@ export class SmartDocumentsFormComponent {
           : [];
 
         if (templates.length || groups.length) {
-          const { parentGroupId, ...cleanedGroup } = group;
+          const { ...cleanedGroup } = group;
           return {
             ...cleanedGroup,
             templates,
@@ -241,7 +248,9 @@ export class SmartDocumentsFormComponent {
       .filter(Boolean);
   };
 
-  private flattenGroupsToRoot = (data) => {
+  private flattenGroupsToRoot = (
+    data: MappedSmartDocumentsTemplateGroupWithParentId[],
+  ): MappedSmartDocumentsTemplateFlattenedGroupWithParentId[] => {
     return data.flatMap((item) => {
       const rootGroup = {
         id: item.id,
@@ -298,9 +307,12 @@ export class SmartDocumentsFormComponent {
     return assignInformatieObjectTypeUUID(groups);
   };
 
-  private getAllTemplateMappingFromTree = (
-    data: MappedSmartDocumentsTemplateGroupWithParentId[],
+  private getAllTemplateMappingsFromTree = (
+    data:
+      | MappedSmartDocumentsTemplateGroupWithParentId[]
+      | MappedSmartDocumentsTemplateFlattenedGroupWithParentId[],
   ): PlainTemplateMappings[] => {
+    console.log("data", data);
     return data.flatMap((item) => {
       const itemTemplates =
         item.templates?.map((template) => ({
@@ -317,7 +329,7 @@ export class SmartDocumentsFormComponent {
             informatieObjectTypeUUID: template.informatieObjectTypeUUID,
           })),
 
-          ...this.getAllTemplateMappingFromTree(group.groups || []),
+          ...this.getAllTemplateMappingsFromTree(group.groups || []),
         ]) ?? [];
 
       return [...itemTemplates, ...groupTemplates];
@@ -330,32 +342,17 @@ export class SmartDocumentsFormComponent {
       | GeneratedType<"RestMappedSmartDocumentsTemplateGroup">,
   >(
     data: T[],
-  ): (
-    | SmartDocumentsTemplateGroupWithParentId
-    | MappedSmartDocumentsTemplateGroupWithParentId
-  )[] => {
-    return data.map((item) => {
-      const templates =
-        item.templates?.map((template) => ({
-          ...template,
-          parentGroupId: item.id,
-        })) ?? [];
-
-      const groups =
-        item.groups?.map((group) => ({
-          ...group,
-          templates:
-            group.templates?.map((template) => ({
-              ...template,
-              parentGroupId: group.id,
-            })) ?? [],
-          groups: group.groups ? this.addParentIdToTemplates(group.groups) : [],
-        })) ?? [];
-
+  ): (Omit<T, "templates"> & {
+    templates: (T["templates"][number] & { parentGroupId: string })[];
+  })[] => {
+    return data.map((group) => {
       return {
-        ...item,
-        templates,
-        groups,
+        ...group,
+        templates: group.templates?.map((template: T["templates"][number]) => ({
+          ...template,
+          parentGroupId: group.id,
+        })),
+        groups: group.groups ? this.addParentIdToTemplates(group.groups) : [],
       };
     });
   };
