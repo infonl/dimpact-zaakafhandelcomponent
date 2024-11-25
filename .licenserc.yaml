@@ -18,6 +18,7 @@ header:
     - 'src/main/java/**'
     - 'src/test/**'
     - 'src/main/app/**'
+    - 'src/itest/**'
   paths-ignore:
     - 'build'
     - 'certificates'
@@ -31,9 +32,6 @@ header:
     - '**/*.md'
     - '**/node_modules'
     - '**/dist'
-    - '**/.gitignore'
-    - '**/.gitattributes'
-    - '**/.prettierignore'
     # SPDX license headers cannot be added to JSON files so we ignore them
     # there are ways to link licensing information to JSON files however; see e.g. https://reuse.software/faq/
     - '**/**.json'
