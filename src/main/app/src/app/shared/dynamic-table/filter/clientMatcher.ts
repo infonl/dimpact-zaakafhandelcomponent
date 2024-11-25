@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2023 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import moment from "moment";
 import { DatumRange } from "../../../zoeken/model/datum-range";
 

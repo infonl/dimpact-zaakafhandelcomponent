@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { Component, Input } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { FileIcon } from "../../informatie-objecten/model/file-icon";

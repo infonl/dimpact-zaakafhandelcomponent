@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 type FormCompatible = string | Blob | { toString: () => string };
 
 type FormDataMappingFunction<T> = (
