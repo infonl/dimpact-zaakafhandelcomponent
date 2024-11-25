@@ -93,7 +93,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   openzaak.local:
-    image: docker.io/openzaak/open-zaak:1.15.0@sha256:281450b155d7bd5dc3f910a329f50ae76f49b7db3762e699183921787b724650
+    image: docker.io/openzaak/open-zaak:1.16.0@sha256:0f3c8668c29aefb2da416250ee25b627a98f60dbfcf83f1363da8a008864f33e
     platform: linux/amd64
     environment:
       - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local
