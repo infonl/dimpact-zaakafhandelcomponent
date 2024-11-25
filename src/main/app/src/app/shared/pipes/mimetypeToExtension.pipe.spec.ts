@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { FileFormat } from "src/app/informatie-objecten/model/file-format";
 import { MimetypeToExtensionPipe } from "./mimetypeToExtension.pipe";
 

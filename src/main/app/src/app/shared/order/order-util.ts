@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2023 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 export class OrderUtil {
   static orderBy(sortKey?: string): { (a: any, b: any) } {
     return (a: any, b: any): number => {

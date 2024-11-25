@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { FormControl } from "@angular/forms";
 import moment from "moment";
 import { DateConditionals } from "./date-conditionals";

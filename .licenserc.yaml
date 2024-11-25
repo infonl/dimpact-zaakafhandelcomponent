@@ -13,9 +13,10 @@ header:
        SPDX-FileCopyrightText: .*
        SPDX-License-Identifier: EUPL-1\.2\+
   paths:
-    # for now check specific folders/file types only; later on expand
+    # for now check specific folders/file types only; later on expand to '**'
     - 'src/main/kotlin/**'
     - 'src/main/java/**'
+    - 'src/main/app/**'
   paths-ignore:
     - 'build'
     - 'certificates'
@@ -28,5 +29,12 @@ header:
     - 'wildfly-*'
     - '**/*.md'
     - '**/node_modules'
+    - '**/dist'
+    - '**/.gitignore'
+    - '**/.gitattributes'
+    - '**/.prettierignore'
+    # SPDX license headers cannot be added to JSON files so we ignore them
+    # there are ways to link licensing information to JSON files however; see e.g. https://reuse.software/faq/
+    - '**/**.json'
 
   comment: on-failure

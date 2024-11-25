@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { Directive } from "@angular/core";
 import { MatFormFieldControl } from "@angular/material/form-field";
 import {
