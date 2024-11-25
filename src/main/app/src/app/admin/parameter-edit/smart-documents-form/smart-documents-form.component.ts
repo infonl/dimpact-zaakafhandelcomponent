@@ -214,7 +214,6 @@ export class SmartDocumentsFormComponent {
       ),
     );
 
-    console.log("Storing SmartDocuments Mapping", onlyMaopedTemplates);
     return this.smartDocumentsService.storeTemplatesMapping(
       this.zaakTypeUuid,
       onlyMaopedTemplates,
@@ -223,7 +222,7 @@ export class SmartDocumentsFormComponent {
 
   private onlyMappedTemplates = (
     data: MappedSmartDocumentsTemplateGroupWithParentId[],
-  ): any => {
+  ): GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] => {
     return data
       .map((group) => {
         const templates = (group.templates || [])

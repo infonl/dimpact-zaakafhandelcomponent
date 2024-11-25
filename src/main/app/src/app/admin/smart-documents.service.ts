@@ -9,18 +9,6 @@ import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.ser
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
-// interface BaseGroup<
-//   T extends Omit<
-//     GeneratedType<"RestMappedSmartDocumentsTemplate">,
-//     "informatieObjectTypeUUID"
-//   >,
-// > {
-//   id: string;
-//   name: string;
-//   groups?: BaseGroup<T>[];
-//   templates?: T[];
-// }
-
 @Injectable({ providedIn: "root" })
 export class SmartDocumentsService {
   constructor(
@@ -93,7 +81,7 @@ export class SmartDocumentsService {
 
   storeTemplatesMapping(
     zaakafhandelUUID: string,
-    templates: GeneratedType<"RestMappedSmartDocumentsTemplate">[],
+    templates: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[],
   ) {
     return this.zacHttp
       .POST(
