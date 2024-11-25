@@ -182,27 +182,33 @@ export class SmartDocumentsFormComponent {
     return this.hasSelected(node) ? "active" : "default";
   }
 
-  handleNodeChange(node: any): void {
-    const id = node.id;
-    const parentGroupId = node.parentGroupId;
-    const informatieObjectTypeUUID = node.informatieObjectTypeUUID;
+  handleNodeChange({
+    id,
+    parentGroupId,
+    informatieObjectTypeUUID,
+  }: FlatNode & MappedSmartDocumentsTemplateWithParentId): void {
+    let nodeUpdated = false;
 
-    const adjustFlatNode = (_nodes: any[], _parentId: string | null): boolean =>
-      _nodes.some((currentNode) => {
-        if (currentNode.id === id && currentNode.parentGroupId === _parentId) {
-          currentNode.informatieObjectTypeUUID = informatieObjectTypeUUID;
-          return true;
-        }
+    this.dataSource.data.forEach(
+      (
+        node: FlatNode & MappedSmartDocumentsTemplateFlattenedGroupWithParentId,
+      ) => {
+        node.templates.forEach((templateNode) => {
+          if (
+            templateNode.id === id &&
+            templateNode.parentGroupId === parentGroupId
+          ) {
+            templateNode.informatieObjectTypeUUID = informatieObjectTypeUUID;
+            nodeUpdated = true;
+          }
+        });
+      },
+    );
 
-        return currentNode.templates
-          ? adjustFlatNode(currentNode.templates, _parentId)
-          : false;
-      });
-
-    if (adjustFlatNode(this.dataSource.data, parentGroupId)) {
-      console.log("Tree updated; Template: '", node.name, this.dataSource.data);
-    } else {
-      console.error("Node not found !!!!", { id, parentGroupId });
+    if (!nodeUpdated) {
+      throw new Error(
+        `Node not found: ${JSON.stringify({ id, parentGroupId })}`,
+      );
     }
   }
 
