@@ -430,7 +430,7 @@ jobs:
     env:
       NEXT_VERSION: ${{ needs.next-version.outputs.version }}
     steps:
-      # create GitHub App token so that we can later on push to the protected 'main branch
+      # create GitHub App token so that we can later on force push to the protected 'main branch
       # see: https://github.com/orgs/community/discussions/25305#discussioncomment-8256560
       - name: Create 'INFO push to protected branch' GitHub App token
         uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1.11.0
@@ -459,7 +459,7 @@ jobs:
           git config --local user.name "GitHub Action"
           git add publiccode.yaml
           git commit -m "${{ github.workflow }}" || echo "No changes to commit"
-          git push        
+          git push --force      
 
   trigger-provision:
     needs: [push-docker-image]
