@@ -14,11 +14,6 @@ import net.atos.client.smartdocuments.model.document.Deposit
 import net.atos.client.smartdocuments.model.document.Document
 import net.atos.client.smartdocuments.model.document.File
 import net.atos.client.smartdocuments.model.document.SmartDocument
-import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseDocumentsStructure
-import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseGroupsAccess
-import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseHeadersStructure
-import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseTemplatesStructure
-import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseUsersStructure
 import net.atos.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.documentcreation.model.DocumentCreationAttendedResponse

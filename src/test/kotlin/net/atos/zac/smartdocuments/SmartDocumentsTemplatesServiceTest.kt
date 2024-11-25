@@ -23,8 +23,6 @@ import jakarta.persistence.criteria.Root
 import net.atos.client.smartdocuments.model.createsmartDocumentsTemplatesResponse
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
-import net.atos.zac.smartdocuments.rest.createRESTMappedTemplate
-import net.atos.zac.smartdocuments.rest.createRESTMappedTemplateGroup
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplate
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
 import java.util.UUID
@@ -224,7 +222,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
             val templates = smartDocumentsTemplatesService.listTemplates()
 
             Then("it returns an empty set") {
-                 templates shouldBe emptySet()
+                templates shouldBe emptySet()
             }
         }
 
