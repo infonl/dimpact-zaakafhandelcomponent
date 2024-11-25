@@ -459,7 +459,7 @@ jobs:
           git config --local user.name "GitHub Action"
           git add publiccode.yaml
           git commit -m "${{ github.workflow }}" || echo "No changes to commit"
-          git push        
+          git push --force      
 
   trigger-provision:
     needs: [push-docker-image]
