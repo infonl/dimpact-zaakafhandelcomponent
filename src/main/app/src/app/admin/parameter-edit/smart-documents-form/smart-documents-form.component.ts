@@ -14,28 +14,26 @@ import { injectQuery } from "@tanstack/angular-query-experimental";
 import { firstValueFrom, Observable } from "rxjs";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
-import {
-  SmartDocumentsService,
-  GeneratedSmartDocumentsTemplate,
-  GeneratedSmartDocumentsTemplateGroup,
-  GeneratedMappedSmartDocumentsTemplate,
-  GeneratedMappedSmartDocumentsTemplateGroup,
-} from "../../smart-documents.service";
+import { SmartDocumentsService } from "../../smart-documents.service";
 
-type SmartDocumentsTemplateGroupWithParentId =
-  GeneratedSmartDocumentsTemplateGroup & {
+type SmartDocumentsTemplateWithParentId =
+  GeneratedType<"RestSmartDocumentsTemplate"> & {
     parentGroupId: string;
   };
-type SmartDocumentsTemplateWithParentId = GeneratedSmartDocumentsTemplate & {
-  parentGroupId: string;
+type SmartDocumentsTemplateGroupWithParentId = Omit<
+  GeneratedType<"RestSmartDocumentsTemplateGroup">,
+  "groups" | "templates"
+> & {
+  groups?: SmartDocumentsTemplateGroupWithParentId[] | null;
+  templates?: SmartDocumentsTemplateWithParentId[] | null;
 };
 
 type MappedSmartDocumentsTemplateWithParentId =
-  GeneratedMappedSmartDocumentsTemplate & {
+  GeneratedType<"RestMappedSmartDocumentsTemplate"> & {
     parentGroupId?: string | null;
   };
 type MappedSmartDocumentsTemplateGroupWithParentId = Omit<
-  GeneratedMappedSmartDocumentsTemplateGroup,
+  GeneratedType<"RestMappedSmartDocumentsTemplateGroup">,
   "groups" | "templates"
 > & {
   groups?: MappedSmartDocumentsTemplateGroupWithParentId[] | null;
@@ -63,11 +61,13 @@ export class SmartDocumentsFormComponent {
   @Input() zaakTypeUuid: string;
   @Output() formValidityChanged = new EventEmitter<boolean>();
 
-  allSmartDocumentTemplateGroups: GeneratedSmartDocumentsTemplateGroup[] = [];
+  allSmartDocumentTemplateGroups: GeneratedType<"RestSmartDocumentsTemplateGroup">[] =
+    [];
   currentTemplateMappings: MappedSmartDocumentsTemplateGroupWithParentId[] = [];
   informationObjectTypes: GeneratedType<"RestInformatieobjecttype">[] = [];
 
-  newTemplateMappings: GeneratedMappedSmartDocumentsTemplateGroup[] = [];
+  newTemplateMappings: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] =
+    [];
 
   constructor(
     private smartDocumentsService: SmartDocumentsService,
@@ -335,73 +335,37 @@ export class SmartDocumentsFormComponent {
 
   private addParentIdToTemplates = <
     T extends
-      | GeneratedSmartDocumentsTemplateGroup
-      | GeneratedMappedSmartDocumentsTemplateGroup,
+      | GeneratedType<"RestSmartDocumentsTemplateGroup">
+      | GeneratedType<"RestMappedSmartDocumentsTemplateGroup">,
   >(
     data: T[],
-  ):
-    | SmartDocumentsTemplateGroupWithParentId[]
-    | MappedSmartDocumentsTemplateGroupWithParentId[]
-    | [] => {
-    return (
-      data.map((item: T) => {
-        const templates =
-          item.templates?.map(
-            (
-              template:
-                | GeneratedSmartDocumentsTemplate
-                | GeneratedMappedSmartDocumentsTemplate,
-            ) => ({
+  ): (
+    | SmartDocumentsTemplateGroupWithParentId
+    | MappedSmartDocumentsTemplateGroupWithParentId
+  )[] => {
+    return data.map((item) => {
+      const templates =
+        item.templates?.map((template) => ({
+          ...template,
+          parentGroupId: item.id,
+        })) ?? [];
+
+      const groups =
+        item.groups?.map((group) => ({
+          ...group,
+          templates:
+            group.templates?.map((template) => ({
               ...template,
-              parentGroupId: item.id,
-            }),
-          ) ||
-          ([] as
-            | SmartDocumentsTemplateWithParentId[]
-            | MappedSmartDocumentsTemplateWithParentId[]);
+              parentGroupId: group.id,
+            })) ?? [],
+          groups: group.groups ? this.addParentIdToTemplates(group.groups) : [],
+        })) ?? [];
 
-        const groups =
-          item.groups?.map(
-            (
-              group:
-                | GeneratedSmartDocumentsTemplateGroup
-                | GeneratedMappedSmartDocumentsTemplateGroup,
-            ) => ({
-              ...group,
-              templates:
-                group.templates?.map(
-                  (
-                    template:
-                      | GeneratedSmartDocumentsTemplate
-                      | GeneratedMappedSmartDocumentsTemplate,
-                  ) => ({
-                    ...template,
-                    parentGroupId: group.id,
-                  }),
-                ) ||
-                ([] as
-                  | SmartDocumentsTemplateWithParentId[]
-                  | MappedSmartDocumentsTemplateWithParentId[]),
-              groups: group.groups
-                ? this.addParentIdToTemplates(group.groups)
-                : [],
-            }),
-          ) ||
-          ([] as
-            | SmartDocumentsTemplateGroupWithParentId[]
-            | MappedSmartDocumentsTemplateGroupWithParentId[]);
-
-        return {
-          ...item,
-          templates,
-          groups,
-        } as
-          | SmartDocumentsTemplateGroupWithParentId
-          | MappedSmartDocumentsTemplateGroupWithParentId;
-      }) ||
-      ([] as
-        | SmartDocumentsTemplateGroupWithParentId[]
-        | MappedSmartDocumentsTemplateGroupWithParentId[])
-    );
+      return {
+        ...item,
+        templates,
+        groups,
+      };
+    });
   };
 }
