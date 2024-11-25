@@ -1,7 +1,7 @@
-#
+# 
 # SPDX-FileCopyrightText: 2024 Lifely
 # SPDX-License-Identifier: EUPL-1.2+
-#
+# 
 Feature: Zaken verdelen / vrijgeven
 
   Scenario: Bob distributes zaken to a group
