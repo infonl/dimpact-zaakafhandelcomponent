@@ -498,7 +498,7 @@ export class TaakViewComponent
       this.taak.zaakUuid,
       () => {
         this.websocketService.removeListener(listener);
-        this.formulier.refreshTaakdocumentenEnBijlagen();
+        this.reloadTaak();
       },
     );
   }
