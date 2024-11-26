@@ -31,9 +31,9 @@
       <div class="node-name flex-1">{{ node.name }}</div>
       <div
         class="template-group-status-label default"
-        [ngClass]="getSelectedClass(node.id)"
+        [attr.data-selected]="hasSelected(node.id)"
       >
-        {{ hasSelected(node.id) ? "actief" : "inactief" }}
+        {{ hasSelected(node.id) ? "actief" : ("inactief" | translate) }}
       </div>
     </mat-tree-node>
   </mat-tree>

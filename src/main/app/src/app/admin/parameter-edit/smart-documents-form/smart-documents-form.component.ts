@@ -164,10 +164,6 @@ export class SmartDocumentsFormComponent {
     return !!hasInformationObjectType;
   }
 
-  getSelectedClass(node: string): string {
-    return this.hasSelected(node) ? "active" : "default";
-  }
-
   handleMatTreeNodeChange({
     id,
     parentGroupId,
