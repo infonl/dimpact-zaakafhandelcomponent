@@ -33,7 +33,7 @@
         class="template-group-status-label default"
         [attr.data-selected]="hasSelected(node.id)"
       >
-        {{ hasSelected(node.id) ? "actief" : ("inactief" | translate) }}
+        {{ (hasSelected(node.id) ? "actief" : "inactief") | translate }}
       </div>
     </mat-tree-node>
   </mat-tree>

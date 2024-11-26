@@ -75,23 +75,19 @@ export class SmartDocumentsFormComponent {
   }
 
   private prepareDatasource() {
-    this.allSmartDocumentTemplateGroups =
-      this.allSmartDocumentTemplateGroupsQuery.data()
-        ? this.addParentIdToTemplates(
-            this.allSmartDocumentTemplateGroupsQuery.data(),
-          )
-        : [];
+    const allSmartDocumentTemplateGroups: GeneratedType<"RestSmartDocumentsTemplateGroup">[] =
+      this.addParentIdToTemplates(
+        this.allSmartDocumentTemplateGroupsQuery.data(),
+      );
 
-    this.currentTemplateMappings = this.currentTemplateMappingsQuery.data()
-      ? (this.addParentIdToTemplates(
-          this.currentTemplateMappingsQuery.data(),
-        ) as MappedSmartDocumentsTemplateGroupWithParentId[])
-      : [];
+    this.currentTemplateMappings = this.addParentIdToTemplates(
+      this.currentTemplateMappingsQuery.data(),
+    );
 
     this.informationObjectTypes = this.informationObjectTypesQuery.data();
 
     this.newTemplateMappings = this.addTemplateMappings(
-      this.allSmartDocumentTemplateGroups,
+      allSmartDocumentTemplateGroups,
       this.getTemplateMappings(this.currentTemplateMappings),
     );
 
@@ -304,10 +300,14 @@ export class SmartDocumentsFormComponent {
       | GeneratedType<"RestSmartDocumentsTemplateGroup">
       | GeneratedType<"RestMappedSmartDocumentsTemplateGroup">,
   >(
-    data: T[],
+    data?: T[],
   ): (Omit<T, "templates"> & {
     templates: (T["templates"][number] & { parentGroupId: string })[];
   })[] => {
+    if (!data) {
+      return [];
+    }
+
     return data.map((group) => {
       return {
         ...group,
