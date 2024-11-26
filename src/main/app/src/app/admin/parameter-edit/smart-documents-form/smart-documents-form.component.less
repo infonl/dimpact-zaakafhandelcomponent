@@ -21,23 +21,15 @@
   }
 }
 
-.template-group-status-label {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.template-group-chip {
   height: 24px;
-  padding: 2px 5px;
   border-radius: 3px;
-
   font-variant: all-small-caps;
   font-weight: bold;
-  letter-spacing: 1px;
-  line-height: normal;
-
   background-color: @default-background-color;
 
   &[data-selected="true"] {
     background: @primary-background-color;
-    color: @primary-text-color !important;
+    color: @primary-text-color;
   }
 }

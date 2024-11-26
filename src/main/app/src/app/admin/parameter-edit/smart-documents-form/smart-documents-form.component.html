@@ -29,12 +29,12 @@
         </mat-icon>
       </button>
       <div class="node-name flex-1">{{ node.name }}</div>
-      <div
-        class="template-group-status-label default"
+      <mat-chip
+        class="template-group-chip"
         [attr.data-selected]="hasSelected(node.id)"
       >
         {{ (hasSelected(node.id) ? "aktief" : "inaktief") | translate }}
-      </div>
+      </mat-chip>
     </mat-tree-node>
   </mat-tree>
 </form>
