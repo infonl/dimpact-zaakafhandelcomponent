@@ -44,7 +44,6 @@ class RestZaakConverterTest : BehaviorSpec({
     val restUserConverter = mockk<RestUserConverter>()
     val restBesluitConverter = mockk<RestBesluitConverter>()
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
-    val restGeometryConverter = mockk<RestGeometryConverter>()
     val policyService = mockk<PolicyService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val bpmnService = mockk<BPMNService>()
@@ -60,7 +59,6 @@ class RestZaakConverterTest : BehaviorSpec({
         restUserConverter = restUserConverter,
         restBesluitConverter = restBesluitConverter,
         restZaaktypeConverter = restZaaktypeConverter,
-        restGeometryConverter = restGeometryConverter,
         policyService = policyService,
         zaakVariabelenService = zaakVariabelenService,
         bpmnService = bpmnService

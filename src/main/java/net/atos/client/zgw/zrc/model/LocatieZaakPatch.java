@@ -14,7 +14,8 @@ import jakarta.json.bind.annotation.JsonbProperty;
  */
 public class LocatieZaakPatch extends Zaak {
 
-    @JsonbProperty(nillable = true)
+    @JsonbProperty
+    @JsonbNillable
     private final Geometry zaakgeometrie;
 
     public LocatieZaakPatch(final Geometry zaakgeometrie) {
