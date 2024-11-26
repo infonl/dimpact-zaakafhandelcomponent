@@ -4,6 +4,7 @@
  */
 package net.atos.zac.app.informatieobjecten
 
+import com.google.common.util.concurrent.Striped
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
@@ -53,6 +54,9 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
     companion object {
         private const val VERZEND_TOELICHTING_PREFIX = "Per post"
         private const val ONDERTEKENEN_TOELICHTING = "Door ondertekenen"
+
+        private const val CONCURRENCY_LEVEL = 20
+        private val stripes = Striped.lazyWeakLock(CONCURRENCY_LEVEL)
     }
 
     fun createZaakInformatieobjectForZaak(
@@ -75,17 +79,23 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
         taskId: String,
         zaakInformatieobject: ZaakInformatieobject
     ) {
-        val task = flowableTaskService.findOpenTask(taskId)
-            ?: throw WebApplicationException(
-                "No open task found with task id: '$taskId'",
-                Response.Status.CONFLICT
-            )
-        assertPolicy(policyService.readTaakRechten(task).toevoegenDocument)
+        val lock = stripes.get(taskId).also { it.lock() }
+        try {
+            val task = flowableTaskService.findOpenTask(taskId)
+                ?: throw WebApplicationException(
+                    "No open task found with task id: '$taskId'",
+                    Response.Status.CONFLICT
+                )
+            assertPolicy(policyService.readTaakRechten(task).toevoegenDocument)
 
-        mutableListOf<UUID>().let {
-            it.addAll(readTaskDocuments(task))
-            it.add(uuidFromURI(zaakInformatieobject.informatieobject))
-            taakVariabelenService.setTaakdocumenten(task, it)
+            mutableListOf<UUID>().apply {
+                addAll(readTaskDocuments(task))
+                add(uuidFromURI(zaakInformatieobject.informatieobject))
+            }.let {
+                taakVariabelenService.setTaakdocumenten(task, it)
+            }
+        } finally {
+            lock.unlock()
         }
     }
 
