@@ -31,7 +31,7 @@ softwareType: "standalone/web"
 description:
   en:
     localisedName: Dimpact Zaakafhandelcomponent (ZAC)
-    shortDescription: {{REPO_DESC}}
+    shortDescription: "{{REPO_DESC}}"
 
 legal:
   license: EUPL-1.2+
