@@ -36,12 +36,13 @@ jobs:
     outputs:
       skip: ${{ steps.paths-ignore.outputs.skip }}
     steps:
-      - name: Skip job when only Markdown files are changed
+      - name: Skip job when only Markdown files are changed or when our publiccode.yaml file is updated
         uses: kunitsucom/github-actions-paths-ignore-alternative@3800eba25a9d716029cd1db0439cb9194431cc5c # v0.0.4
         id: paths-ignore
         with:
           paths-ignore: |-
             ^.*\.md$
+            ^publiccode.yaml$
 
   build:
     runs-on: ubuntu-22.04
@@ -438,8 +439,8 @@ jobs:
         with:
           ssh-key: ${{ secrets.DEPLOY_KEY_BYPASS_RULESET_MAIN_PRIVATE_KEY }}
       - name: Get current date
-        id: date
-        run: echo "{date}={$(date +'%Y-%m-%d')}" >> $GITHUB_OUTPUT
+        id: set-current-date
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
       - uses: elieahd/templater@f802bfce98073a045ad327cdc2c9857564fdfc07 # v1
         with:
           template: 'scripts/file-templates/publiccode-yaml-template.yaml'
@@ -447,7 +448,7 @@ jobs:
           variables: '
               REPO_URL=${{ github.repositoryUrl }} 
               SOFTWARE_VERSION=${{ needs.next-version.outputs.version }}
-              REPO_CREATED_AT=${{ steps.date.outputs.date }}'
+              REPO_CREATED_AT=${{ steps.set-current-date.outputs.date }}'
       - name: Commit changes
         run: |
           git config --local user.email "action@github.com"
