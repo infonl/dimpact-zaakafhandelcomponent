@@ -11,6 +11,9 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      # ignore pushes to the publiccode.yaml file or else we would trigger an endless build loop
+      - 'publiccode.yaml'
 
 # cancel any previous runs of this workflow for this branch that are still in progress
 concurrency:
@@ -36,13 +39,12 @@ jobs:
     outputs:
       skip: ${{ steps.paths-ignore.outputs.skip }}
     steps:
-      - name: Skip job when only Markdown files are changed or when our publiccode.yaml file is updated
+      - name: Skip job when only Markdown files are changed
         uses: kunitsucom/github-actions-paths-ignore-alternative@3800eba25a9d716029cd1db0439cb9194431cc5c # v0.0.4
         id: paths-ignore
         with:
           paths-ignore: |-
             ^.*\.md$
-            ^publiccode\.yaml$
 
   build:
     runs-on: ubuntu-22.04
@@ -330,7 +332,7 @@ jobs:
 
   next-version:
     needs: paths-ignore
-    if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
+    if: ${{ github.ref == 'refs/heads/main'}}
     runs-on: ubuntu-22.04
     outputs:
       version: ${{ steps.get-version.outputs.replaced }}
