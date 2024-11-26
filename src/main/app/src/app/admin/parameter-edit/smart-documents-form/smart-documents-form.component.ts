@@ -4,7 +4,7 @@
  */
 
 import { FlatTreeControl } from "@angular/cdk/tree";
-import { Component, effect, EventEmitter, Input, Output } from "@angular/core";
+import { Component, effect, Input } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import {
   MatTreeFlatDataSource,
