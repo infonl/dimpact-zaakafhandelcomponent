@@ -26,6 +26,8 @@ import net.atos.zac.app.zaak.model.RESTZaakVerlengGegevens
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestGerelateerdeZaak
 import net.atos.zac.app.zaak.model.RestZaak
+import net.atos.zac.app.zaak.model.toGeometry
+import net.atos.zac.app.zaak.model.toRestGeometry
 import net.atos.zac.app.zaak.model.toRestZaakStatus
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -52,7 +54,6 @@ class RestZaakConverter @Inject constructor(
     private val restUserConverter: RestUserConverter,
     private val restBesluitConverter: RestBesluitConverter,
     private val restZaaktypeConverter: RestZaaktypeConverter,
-    private val restGeometryConverter: RestGeometryConverter,
     private val policyService: PolicyService,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val bpmnService: BPMNService
@@ -104,7 +105,7 @@ class RestZaakConverter @Inject constructor(
             duurVerlenging = if (zaak.isVerlengd) PeriodUtil.format(zaak.verlenging.duur) else null,
             redenVerlenging = if (zaak.isVerlengd) zaak.verlenging.reden else null,
             gerelateerdeZaken = toRestGerelateerdeZaken(zaak),
-            zaakgeometrie = zaak.zaakgeometrie?.let { restGeometryConverter.convert(zaak.zaakgeometrie) },
+            zaakgeometrie = zaak.zaakgeometrie?.toRestGeometry(),
             kenmerken = zaak.kenmerken?.map { RESTZaakKenmerk(it.kenmerk, it.bron) },
             communicatiekanaal = zaak.communicatiekanaalNaam,
             // use the name because the frontend expects this value to be in uppercase
@@ -162,7 +163,7 @@ class RestZaakConverter @Inject constructor(
             // convert this enum to uppercase in case the client sends it in lowercase
             VertrouwelijkheidaanduidingEnum.valueOf(it.uppercase())
         }
-        this.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometryConverter.convert(it) }
+        this.zaakgeometrie = restZaak.zaakgeometrie?.toGeometry()
     }
 
     fun convertToPatch(restZaak: RestZaak): Zaak {
@@ -177,7 +178,7 @@ class RestZaakConverter @Inject constructor(
             VertrouwelijkheidaanduidingEnum.valueOf(it.uppercase())
         }
         zaak.communicatiekanaalNaam = restZaak.communicatiekanaal
-        zaak.zaakgeometrie = restZaak.zaakgeometrie?.let { restGeometryConverter.convert(it) }
+        zaak.zaakgeometrie = restZaak.zaakgeometrie?.toGeometry()
         return zaak
     }
 

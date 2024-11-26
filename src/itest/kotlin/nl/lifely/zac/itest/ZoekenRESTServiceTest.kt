@@ -10,6 +10,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
+import nl.lifely.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_2
 import nl.lifely.zac.itest.config.ItestConfiguration.DATE_2024_01_01
 import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.lifely.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
@@ -158,8 +159,12 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                             ],
                             "ZAAK_COMMUNICATIEKANAAL": [
                                 {
-                                    "aantal": 5,
+                                    "aantal": 4,
                                     "naam": "$COMMUNICATIEKANAAL_TEST_1"
+                                },
+                                {
+                                    "aantal": 1,
+                                    "naam": "$COMMUNICATIEKANAAL_TEST_2"
                                 },
                                 {
                                     "aantal": 2,

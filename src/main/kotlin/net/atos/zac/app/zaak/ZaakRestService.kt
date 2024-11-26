@@ -57,7 +57,6 @@ import net.atos.zac.app.besluit.BesluitService
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import net.atos.zac.app.zaak.converter.RestBesluitConverter
-import net.atos.zac.app.zaak.converter.RestGeometryConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
@@ -70,7 +69,6 @@ import net.atos.zac.app.zaak.model.RESTZaakBetrokkeneGegevens
 import net.atos.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import net.atos.zac.app.zaak.model.RESTZaakHeropenenGegevens
 import net.atos.zac.app.zaak.model.RESTZaakKoppelGegevens
-import net.atos.zac.app.zaak.model.RESTZaakLocatieGegevens
 import net.atos.zac.app.zaak.model.RESTZaakOntkoppelGegevens
 import net.atos.zac.app.zaak.model.RESTZaakOpschortGegevens
 import net.atos.zac.app.zaak.model.RESTZaakOpschorting
@@ -88,8 +86,10 @@ import net.atos.zac.app.zaak.model.RestZaak
 import net.atos.zac.app.zaak.model.RestZaakAssignmentData
 import net.atos.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
 import net.atos.zac.app.zaak.model.RestZaakBetrokkene
+import net.atos.zac.app.zaak.model.RestZaakLocatieGegevens
 import net.atos.zac.app.zaak.model.RestZaakOverzicht
 import net.atos.zac.app.zaak.model.RestZaaktype
+import net.atos.zac.app.zaak.model.toGeometry
 import net.atos.zac.app.zaak.model.toRestBesluittypes
 import net.atos.zac.app.zaak.model.toRestResultaatTypes
 import net.atos.zac.app.zaak.model.toRestZaakBetrokkenen
@@ -169,7 +169,6 @@ class ZaakRestService @Inject constructor(
     private val restBAGConverter: RESTBAGConverter,
     private val zaakHistoryLineConverter: ZaakHistoryLineConverter,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
-    private val restGeometryConverter: RestGeometryConverter,
     private val healthCheckService: HealthCheckService,
     private val opschortenZaakHelper: SuspensionZaakHelper,
     private val zaakService: ZaakService,
@@ -335,19 +334,17 @@ class ZaakRestService @Inject constructor(
     @PATCH
     @Path("{uuid}/zaaklocatie")
     fun updateZaakLocatie(
-        @PathParam("uuid") zaakUUID: UUID?,
-        locatieGegevens: RESTZaakLocatieGegevens
+        @PathParam("uuid") zaakUUID: UUID,
+        restZaakLocatieGegevens: RestZaakLocatieGegevens
     ): RestZaak {
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).wijzigen)
-        val locatieZaakPatch = LocatieZaakPatch(
-            locatieGegevens.geometrie?.let {
-                restGeometryConverter.convert(it)
-            }
-        )
+        val locatieZaakPatch = restZaakLocatieGegevens.geometrie?.let {
+            LocatieZaakPatch(it.toGeometry())
+        } ?: LocatieZaakPatch(null)
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID,
             locatieZaakPatch,
-            locatieGegevens.reden
+            restZaakLocatieGegevens.reden
         )
         return restZaakConverter.toRestZaak(updatedZaak)
     }
