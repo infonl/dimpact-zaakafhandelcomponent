@@ -16,18 +16,6 @@ import { InformatieObjectenService } from "src/app/informatie-objecten/informati
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { SmartDocumentsService } from "../../smart-documents.service";
 
-type SmartDocumentsTemplateWithParentId =
-  GeneratedType<"RestSmartDocumentsTemplate"> & {
-    parentGroupId: string;
-  };
-type SmartDocumentsTemplateGroupWithParentId = Omit<
-  GeneratedType<"RestSmartDocumentsTemplateGroup">,
-  "groups" | "templates"
-> & {
-  groups?: SmartDocumentsTemplateGroupWithParentId[] | null;
-  templates?: SmartDocumentsTemplateWithParentId[] | null;
-};
-
 type MappedSmartDocumentsTemplateWithParentId =
   GeneratedType<"RestMappedSmartDocumentsTemplate"> & {
     parentGroupId?: string | null;
@@ -100,7 +88,7 @@ export class SmartDocumentsFormComponent {
         ) as MappedSmartDocumentsTemplateGroupWithParentId[])
       : [];
 
-    this.informationObjectTypes = this.informationObjectTypesQuery.data() || [];
+    this.informationObjectTypes = this.informationObjectTypesQuery.data();
 
     this.newTemplateMappings = this.addTemplateMappings(
       this.allSmartDocumentTemplateGroups,
@@ -248,28 +236,22 @@ export class SmartDocumentsFormComponent {
     data: MappedSmartDocumentsTemplateGroupWithParentId[],
   ): MappedSmartDocumentsTemplateFlattenedGroupWithParentId[] => {
     return data.flatMap((item) => {
-      const rootGroup = {
+      const rootItemWithoutGroups = {
         id: item.id,
         name: item.name,
-        templates: item.templates || [],
+        templates: item.templates,
       };
 
       const flattenedGroups =
         item.groups?.flatMap((group) => {
-          const flattenedSubGroups = group.groups
-            ? this.flattenNestedGroupsToRootGroups(group.groups)
-            : [];
+          const flattenedSubGroups = this.flattenNestedGroupsToRootGroups(
+            group.groups ?? [],
+          );
 
-          return [
-            {
-              ...group,
-              templates: group.templates || [],
-            },
-            ...flattenedSubGroups,
-          ];
+          return [group, ...flattenedSubGroups];
         }) || [];
 
-      return [rootGroup, ...flattenedGroups];
+      return [rootItemWithoutGroups, ...flattenedGroups];
     });
   };
 
@@ -296,9 +278,7 @@ export class SmartDocumentsFormComponent {
   };
 
   private getTemplateMappings = (
-    data:
-      | MappedSmartDocumentsTemplateGroupWithParentId[]
-      | MappedSmartDocumentsTemplateFlattenedGroupWithParentId[],
+    data: MappedSmartDocumentsTemplateGroupWithParentId[],
   ): PlainTemplateMappings[] => {
     return data.flatMap((item) => {
       const itemTemplates =
