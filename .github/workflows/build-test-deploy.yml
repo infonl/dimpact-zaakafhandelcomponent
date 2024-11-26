@@ -105,7 +105,7 @@ jobs:
           ssh-key: ${{ secrets.DEPLOY_KEY }}
       - name: Get current date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+        run: echo "{date}=$(date +'%Y-%m-%d')"
       - uses: elieahd/templater@f802bfce98073a045ad327cdc2c9857564fdfc07 # v1
         with:
             template: 'scripts/file-templates/publiccode-yaml-template.yaml'
