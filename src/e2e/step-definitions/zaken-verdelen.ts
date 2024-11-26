@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { Given, Then, When } from "@cucumber/cucumber";
 import { CustomWorld } from "support/worlds/world";
 

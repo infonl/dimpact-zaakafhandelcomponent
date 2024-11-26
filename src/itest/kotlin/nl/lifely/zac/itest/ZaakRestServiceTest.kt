@@ -7,6 +7,7 @@ package nl.lifely.zac.itest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
+import io.kotest.assertions.json.shouldNotContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
@@ -20,6 +21,7 @@ import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_ROL_TOEVOEGEN_RE
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_TYPE_NATUURLIJK_PERSOON
 import nl.lifely.zac.itest.config.ItestConfiguration.BRON_ORGANISATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
+import nl.lifely.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_2
 import nl.lifely.zac.itest.config.ItestConfiguration.DATE_2020_01_01
 import nl.lifely.zac.itest.config.ItestConfiguration.DATE_2020_01_15
 import nl.lifely.zac.itest.config.ItestConfiguration.DATE_2023_09_21
@@ -380,18 +382,26 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
         }
-        When("the 'update zaak' endpoint is called where the start and fatal dates are changed") {
+        When(
+            """"
+            the 'update zaak' endpoint is called where the start and fatal dates are changed,
+            and also the communication channel is changed
+            """
+        ) {
             val startDateNew = LocalDate.now()
             val fatalDateNew = startDateNew.plusDays(1)
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID",
-                requestBodyAsString = "{\n" +
-                    "\"zaak\":{\n" +
-                    "  \"startdatum\":\"$startDateNew\",\n" +
-                    "  \"uiterlijkeEinddatumAfdoening\":\"$fatalDateNew\"\n" +
-                    "  },\n" +
-                    "  \"reden\":\"dummyReason\"\n" +
-                    "}\n"
+                requestBodyAsString = """
+                    { 
+                        "zaak": {
+                            "startdatum": "$startDateNew",
+                            "uiterlijkeEinddatumAfdoening": "$fatalDateNew",
+                            "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_2"
+                        },
+                        "reden": "dummyReason"
+                    }
+                """.trimIndent()
             )
             Then("the response should be a 200 HTTP response with the changed zaak data") {
                 val responseBody = response.body!!.string()
@@ -401,17 +411,20 @@ class ZaakRestServiceTest : BehaviorSpec({
                     shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
                     shouldContainJsonKeyValue("startdatum", startDateNew.toString())
                     shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", fatalDateNew.toString())
+                    shouldContainJsonKeyValue("communicatiekanaal", COMMUNICATIEKANAAL_TEST_2)
                 }
             }
         }
         When("the 'assign to zaak' endpoint is called with a group") {
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/toekennen",
-                requestBodyAsString = "{\n" +
-                    "  \"zaakUUID\": \"$zaakProductaanvraag1Uuid\",\n" +
-                    "  \"groepId\": \"$TEST_GROUP_A_ID\",\n" +
-                    "  \"reden\": \"dummyReason\"\n" +
-                    "}"
+                requestBodyAsString = """
+                    {
+                        "zaakUUID": "$zaakProductaanvraag1Uuid",
+                        "groepId": "$TEST_GROUP_A_ID",
+                        "reden": "dummyReason"
+                    }
+                """.trimIndent()
             )
             Then("the group should be assigned to the zaak") {
                 val responseBody = response.body!!.string()
@@ -469,7 +482,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                                 },
                                 "type": "Point"
                             },
-                            "reden": "hier is het"
+                            "reden": "dummyReason"
                         }
                 """.trimIndent()
             )
@@ -498,14 +511,17 @@ class ZaakRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                         {
                             "geometrie": null,
-                            "reden": "hier is het niet meer"
+                            "reden": "dummyReason"
                         }
                 """.trimIndent()
             )
-            Then("the response should be a 200 HTTP response with the changed zaak data, so without zaakgeometrie") {
+            Then("the response should be a 200 HTTP response with the changed zaak data without zaakgeometrie") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK
+                with(responseBody) {
+                    shouldNotContainJsonKey("zaakgeometrie")
+                }
             }
         }
     }

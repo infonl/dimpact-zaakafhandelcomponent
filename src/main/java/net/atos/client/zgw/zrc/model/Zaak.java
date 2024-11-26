@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import jakarta.json.bind.annotation.JsonbDateFormat;
+import jakarta.json.bind.annotation.JsonbNillable;
 import jakarta.json.bind.annotation.JsonbTransient;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -311,6 +312,7 @@ public class Zaak {
         this.toelichting = toelichting;
     }
 
+    @JsonbNillable
     public Geometry getZaakgeometrie() {
         return zaakgeometrie;
     }

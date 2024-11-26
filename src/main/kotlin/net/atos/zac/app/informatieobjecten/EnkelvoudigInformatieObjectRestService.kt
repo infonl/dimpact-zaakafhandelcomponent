@@ -521,8 +521,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         ).use { documentInputStream ->
             officeConverterClientService.convertToPDF(
                 documentInputStream,
-                document
-                    .bestandsnaam
+                document.bestandsnaam
             ).use { pdfInputStream ->
                 val pdf = EnkelvoudigInformatieObjectWithLockRequest()
                 val inhoud = pdfInputStream.readAllBytes()

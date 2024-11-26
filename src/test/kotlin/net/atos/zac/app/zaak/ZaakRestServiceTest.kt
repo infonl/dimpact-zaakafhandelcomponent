@@ -7,6 +7,7 @@ package net.atos.zac.app.zaak
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
@@ -26,6 +27,7 @@ import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Medewerker
+import net.atos.client.zgw.zrc.model.Point
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.Zaak
@@ -44,7 +46,6 @@ import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.besluit.BesluitService
 import net.atos.zac.app.zaak.ZaakRestService.Companion.AANVULLENDE_INFORMATIE_TASK_NAME
 import net.atos.zac.app.zaak.converter.RestBesluitConverter
-import net.atos.zac.app.zaak.converter.RestGeometryConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
@@ -52,12 +53,14 @@ import net.atos.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestZaaktype
 import net.atos.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
+import net.atos.zac.app.zaak.model.createRESTGeometry
 import net.atos.zac.app.zaak.model.createRESTZaakAanmaakGegevens
 import net.atos.zac.app.zaak.model.createRESTZaakKoppelGegevens
 import net.atos.zac.app.zaak.model.createRESTZaakToekennenGegevens
 import net.atos.zac.app.zaak.model.createRESTZakenVerdeelGegevens
 import net.atos.zac.app.zaak.model.createRestGroup
 import net.atos.zac.app.zaak.model.createRestZaak
+import net.atos.zac.app.zaak.model.createRestZaakLocatieGegevens
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
@@ -116,7 +119,6 @@ class ZaakRestServiceTest : BehaviorSpec({
     val productaanvraagService = mockk<ProductaanvraagService>()
     val restBAGConverter = mockk<RESTBAGConverter>()
     val restBesluitConverter = mockk<RestBesluitConverter>()
-    val restGeometryConverter = mockk<RestGeometryConverter>()
     val restZaakConverter = mockk<RestZaakConverter>()
     val restZaakOverzichtConverter = mockk<RestZaakOverzichtConverter>()
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
@@ -158,7 +160,6 @@ class ZaakRestServiceTest : BehaviorSpec({
         healthCheckService = healthCheckService,
         ontkoppeldeDocumentenService = ontkoppeldeDocumentenService,
         opschortenZaakHelper = opschortenZaakHelper,
-        restGeometryConverter = restGeometryConverter,
         restZaakOverzichtConverter = restZaakOverzichtConverter,
         signaleringService = signaleringService,
         flowableTaskService = flowableTaskService,
@@ -479,6 +480,41 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             Then("it fails") {
                 exception.message shouldBe null
+            }
+        }
+    }
+
+    Given("An existing zaak") {
+        val zaak = createZaak()
+        val restGeometry = createRESTGeometry()
+        val reason = "dummyReason"
+        val restZaakLocatieGegevens = createRestZaakLocatieGegevens(
+            restGeometry = restGeometry,
+            reason = reason
+        )
+        val updatedZaak = createZaak()
+        val updatedRestZaak = createRestZaak()
+        val patchZaakSlot = slot<Zaak>()
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { zrcClientService.patchZaak(zaak.uuid, capture(patchZaakSlot), reason) } returns updatedZaak
+        every { restZaakConverter.toRestZaak(updatedZaak) } returns updatedRestZaak
+
+        When("zaaklocatie is added to the zaak") {
+            val restZaak = zaakRestService.updateZaakLocatie(zaak.uuid, restZaakLocatieGegevens)
+
+            Then("the zaak is updated correctly") {
+                verify(exactly = 0) {
+                    zrcClientService.patchZaak(zaak.uuid, any())
+                }
+                restZaak shouldBe updatedRestZaak
+                with(patchZaakSlot.captured) {
+                    zaakgeometrie.shouldBeInstanceOf<Point>()
+                    with((zaakgeometrie as Point).coordinates) {
+                        latitude.toDouble() shouldBe restGeometry.point!!.latitude
+                        longitude.toDouble() shouldBe restGeometry.point!!.longitude
+                    }
+                }
             }
         }
     }

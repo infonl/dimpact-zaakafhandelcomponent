@@ -1,3 +1,7 @@
+# 
+# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+# 
 Feature: Resident submits form in open-forms
 
   @live-env-only

@@ -57,9 +57,11 @@ fun createRESTBesluitVastleggenGegevens(
 fun createRESTGerelateerdeZaak() = RestGerelateerdeZaak()
 
 fun createRESTGeometry(
-    type: String = "dummyType",
+    type: String = "Point",
+    point: RestCoordinates = createRestCoordinates()
 ) = RestGeometry(
-    type = type
+    type = type,
+    point = point
 )
 
 fun createRestGroup(
@@ -247,3 +249,19 @@ fun createRESTZaakOverzicht(
 ) = RestZaakOverzicht().apply {
     this.uuid = uuid
 }
+
+fun createRestZaakLocatieGegevens(
+    restGeometry: RestGeometry = createRESTGeometry(),
+    reason: String = "dummyReden"
+) = RestZaakLocatieGegevens(
+    geometrie = restGeometry,
+    reden = reason
+)
+
+fun createRestCoordinates(
+    latitude: Double = 52.378,
+    longitude: Double = 4.900
+) = RestCoordinates(
+    latitude = latitude,
+    longitude = longitude
+)

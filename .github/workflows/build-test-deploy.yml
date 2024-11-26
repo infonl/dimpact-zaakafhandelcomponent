@@ -430,18 +430,13 @@ jobs:
     env:
       NEXT_VERSION: ${{ needs.next-version.outputs.version }}
     steps:
-      # create GitHub App token so that we can later on force push to the protected 'main branch
-      # see: https://github.com/orgs/community/discussions/25305#discussioncomment-8256560
-      - name: Create 'INFO push to protected branch' GitHub App token
-        uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1.11.0
-        id: app-token
-        with:
-          app-id: ${{ vars.PUSH_TO_PROTECTED_BRANCH_APP_ID }}
-          private-key: ${{ secrets.PUSH_TO_PROTECTED_BRANCH_PRIVATE_KEY }}
+      # check out the repository with the private SSH key of the deploy key so that
+      # we can bypass the ruleset for the main branch
+      # see: https://github.com/sbellone/release-workflow-example for details
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          token: ${{ steps.app-token.outputs.token }}
+          ssh-key: ${{ secrets.DEPLOY_KEY_BYPASS_RULESET_MAIN_PRIVATE_KEY }}
       - name: Get current date
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
@@ -459,7 +454,7 @@ jobs:
           git config --local user.name "GitHub Action"
           git add publiccode.yaml
           git commit -m "${{ github.workflow }}" || echo "No changes to commit"
-          git push --force      
+          git push    
 
   trigger-provision:
     needs: [push-docker-image]
