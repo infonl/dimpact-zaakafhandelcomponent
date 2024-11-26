@@ -439,13 +439,13 @@ jobs:
           ssh-key: ${{ secrets.DEPLOY_KEY_BYPASS_RULESET_MAIN_PRIVATE_KEY }}
       - name: Get current date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+        run: echo "{date}={$(date +'%Y-%m-%d')}"
       - uses: elieahd/templater@f802bfce98073a045ad327cdc2c9857564fdfc07 # v1
         with:
           template: 'scripts/file-templates/publiccode-yaml-template.yaml'
           file: 'publiccode.yaml'
-          variables: 'REPO_DESC=${{ github.event.repository.description }} 
-              REPO_URL=${{ github.event.repository.html_url }} 
+          variables: '
+              REPO_URL=${{ github.repositoryUrl }} 
               SOFTWARE_VERSION=${{ needs.next-version.outputs.version }}
               REPO_CREATED_AT=${{ steps.date.outputs.date }}'
       - name: Commit changes
