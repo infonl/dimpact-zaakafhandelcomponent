@@ -31,7 +31,11 @@ softwareType: "standalone/web"
 description:
   en:
     localisedName: Dimpact Zaakafhandelcomponent (ZAC)
-    shortDescription: {{REPO_DESC}}
+    shortDescription: An open-source component for managing 'zaken' in the context of zaakgericht werken.
+    longDescription: >
+      The Zaakafhandelcomponent (ZAC) is an open-source, generic, workflow-based component for 
+      managing 'zaken' in the context of zaakgericht werken, a Dutch approach to case management. 
+      It is developed for Dimpact and used by Dutch municipalities.
 
 legal:
   license: EUPL-1.2+

@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Get current date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d-%H-%M')"
+        run: echo "date=$(date +'%Y-%m-%d-%H-%M')" >> $GITHUB_OUTPUT
       - name: login to azure and allow pssessions
         uses: azure/login@a65d910e8af852a8061c627c456678983e180302 # v2.2.0
         with:
