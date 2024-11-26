@@ -185,9 +185,6 @@ export class ParameterEditComponent
     this.cdr.detectChanges();
     if (this.smartDocsFormGroup) {
       this.smartDocsFormGroup.saveSmartDocumentsMapping();
-      this.smartDocsFormGroup.formValidityChanged.subscribe((valid) => {
-        this.isSmartDocumentsStepValid = valid;
-      });
     }
   }
 
@@ -552,11 +549,6 @@ export class ParameterEditComponent
     return this.zaakbeeindigFormGroup.get(
       `${parameter.zaakbeeindigReden.id}__${field}`,
     ) as FormControl;
-  }
-
-  onFormValidityChanged(isValid: boolean) {
-    console.log("Form validity changed:", isValid);
-    // handle form validity logic here
   }
 
   isValid(): boolean {

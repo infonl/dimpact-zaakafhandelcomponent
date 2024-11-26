@@ -52,7 +52,6 @@ interface FlatNode {
 export class SmartDocumentsFormComponent {
   @Input() formGroup: FormGroup;
   @Input() zaakTypeUuid: string;
-  @Output() formValidityChanged = new EventEmitter<boolean>();
 
   allSmartDocumentTemplateGroups: GeneratedType<"RestSmartDocumentsTemplateGroup">[] =
     [];
@@ -66,12 +65,6 @@ export class SmartDocumentsFormComponent {
     private informatieObjectenService: InformatieObjectenService,
   ) {
     effect(() => this.prepareDatasource());
-  }
-
-  ngOnInit() {
-    this.formGroup.statusChanges.subscribe(() => {
-      this.formValidityChanged.emit(this.formGroup.valid);
-    });
   }
 
   private prepareDatasource() {
