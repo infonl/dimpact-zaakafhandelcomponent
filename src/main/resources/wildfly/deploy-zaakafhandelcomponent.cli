@@ -1,2 +1,7 @@
+#
+# SPDX-FileCopyrightText: 2023 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
+
 # WildFly script to deploy the zaakafhandelcomponent WAR archive into Wildfly
 deploy build/libs/zaakafhandelcomponent.war --force
