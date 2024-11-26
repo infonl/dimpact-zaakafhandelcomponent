@@ -17,6 +17,9 @@ header:
     - 'src/main/kotlin/**'
     - 'src/main/java/**'
     - 'src/main/app/**'
+    - 'src/test/**'
+    - 'src/itest/**'
+    - 'src/e2e/**'
   paths-ignore:
     - 'build'
     - 'certificates'
@@ -29,12 +32,9 @@ header:
     - 'wildfly-*'
     - '**/*.md'
     - '**/node_modules'
-    - '**/dist'
-    - '**/.gitignore'
-    - '**/.gitattributes'
-    - '**/.prettierignore'
     # SPDX license headers cannot be added to JSON files so we ignore them
     # there are ways to link licensing information to JSON files however; see e.g. https://reuse.software/faq/
     - '**/**.json'
-
+    - '**/**.txt'
+    - '**/dist'
   comment: on-failure
