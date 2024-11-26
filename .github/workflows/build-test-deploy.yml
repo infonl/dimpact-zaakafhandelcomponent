@@ -439,7 +439,7 @@ jobs:
           ssh-key: ${{ secrets.DEPLOY_KEY_BYPASS_RULESET_MAIN_PRIVATE_KEY }}
       - name: Get current date
         id: date
-        run: echo "{date}={$(date +'%Y-%m-%d')}"
+        run: echo "{date}={$(date +'%Y-%m-%d')}" >> $GITHUB_OUTPUT
       - uses: elieahd/templater@f802bfce98073a045ad327cdc2c9857564fdfc07 # v1
         with:
           template: 'scripts/file-templates/publiccode-yaml-template.yaml'
