@@ -1,0 +1,38 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2024 Lifely
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  ~
+  -->
+
+<fieldset>
+  <mat-checkbox
+    [formControl]="checkbox"
+    [checked]="node.informatieObjectTypeUUID !== ''"
+    (change)="clearSelectedDocumentType()"
+  ></mat-checkbox>
+  <div class="flex-1">{{ node.name }}</div>
+  <mat-form-field subscriptSizing="dynamic">
+    <mat-label>{{ "informatieobjectTypeOmschrijving" | translate }}</mat-label>
+    <mat-select
+      [(value)]="node.informatieObjectTypeUUID"
+      (valueChange)="updateFormControls()"
+      placeholder="{{ 'informatieobjectType.-kies-' | translate }}"
+    >
+      <mat-option
+        *ngFor="let informationObjectType of informationObjectTypes"
+        [value]="informationObjectType.uuid"
+        >{{ informationObjectType.omschrijving }}</mat-option
+      >
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field subscriptSizing="dynamic">
+    <mat-label>{{ "vertrouwelijkheidaanduiding" | translate }}</mat-label>
+    <input
+      matInput
+      [formControl]="confidentiality"
+      translate="{{
+        'vertrouwelijkheidaanduiding.' + confidentiality.getRawValue()
+      }}"
+    />
+  </mat-form-field>
+</fieldset>

@@ -18,7 +18,8 @@ import { InrichtingscheckComponent } from "./inrichtingscheck/inrichtingscheck.c
 import { MailtemplateComponent } from "./mailtemplate/mailtemplate.component";
 import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component";
 import { ParameterEditComponent } from "./parameter-edit/parameter-edit.component";
-import { SmartDocumentsTreeComponent } from "./parameter-edit/smart-documents/smart-documents-tree.component";
+import { SmartDocumentsFormItemComponent } from "./parameter-edit/smart-documents-form/smart-documents-form-item/smart-documents-form-item.component";
+import { SmartDocumentsFormComponent } from "./parameter-edit/smart-documents-form/smart-documents-form.component";
 import { ParametersComponent } from "./parameters/parameters.component";
 import { ProcessDefinitionsComponent } from "./process-definitions/process-definitions.component";
 import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
@@ -37,7 +38,8 @@ import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-ta
     MailtemplatesComponent,
     MailtemplateComponent,
     TekstvlakEditDialogComponent,
-    SmartDocumentsTreeComponent,
+    SmartDocumentsFormComponent,
+    SmartDocumentsFormItemComponent,
     ProcessDefinitionsComponent,
     FormioFormulierenComponent,
   ],

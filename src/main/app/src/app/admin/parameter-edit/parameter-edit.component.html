@@ -25,7 +25,7 @@
     >
       <mat-step [stepControl]="algemeenFormGroup">
         <ng-template matStepLabel
-          >{{"gegevens.algemeen" | translate}}</ng-template
+          >{{ "gegevens.algemeen" | translate }}</ng-template
         >
         <form [formGroup]="algemeenFormGroup" class="flex-col">
           <div class="flex-row flex-wrap gap-20">
@@ -54,9 +54,9 @@
           </div>
           <div class="flex-row flex-wrap gap-20">
             <mat-form-field class="w33 w100-md" floatLabel="always">
-              <mat-label>{{'caseDefinition' | translate}}</mat-label>
+              <mat-label>{{ "caseDefinition" | translate }}</mat-label>
               <mat-select
-                placeholder="{{'model.-kies-' | translate}}"
+                placeholder="{{ 'model.-kies-' | translate }}"
                 (selectionChange)="caseDefinitionChanged($event)"
                 formControlName="caseDefinition"
                 [compareWith]="compareObject"
@@ -67,14 +67,14 @@
               </mat-select>
             </mat-form-field>
             <mat-form-field class="w33 w100-md" floatLabel="always">
-              <mat-label>{{'domein' | translate}}</mat-label>
+              <mat-label>{{ "domein" | translate }}</mat-label>
               <mat-select
-                placeholder="{{'domein.-geen-' | translate}}"
+                placeholder="{{ 'domein.-geen-' | translate }}"
                 formControlName="domein"
                 [compareWith]="compareObject"
               >
                 <mat-option [value]=""
-                  >{{'domein.-geen-' | translate}}</mat-option
+                  >{{ "domein.-geen-" | translate }}</mat-option
                 >
                 <mat-option *ngFor="let domein of domeinen" [value]="domein"
                   >{{ domein }}</mat-option
@@ -84,9 +84,9 @@
           </div>
           <div class="flex-row flex-wrap gap-20">
             <mat-form-field class="w33 w100-md" floatLabel="always">
-              <mat-label>{{'groep' | translate}}</mat-label>
+              <mat-label>{{ "groep" | translate }}</mat-label>
               <mat-select
-                placeholder="{{'groep.-kies-' | translate}}"
+                placeholder="{{ 'groep.-kies-' | translate }}"
                 formControlName="defaultGroepId"
                 [compareWith]="compareObject"
               >
@@ -96,14 +96,14 @@
               </mat-select>
             </mat-form-field>
             <mat-form-field class="w33 w100-md" floatLabel="always">
-              <mat-label>{{'behandelaar' | translate}}</mat-label>
+              <mat-label>{{ "behandelaar" | translate }}</mat-label>
               <mat-select
-                placeholder="{{'behandelaar.-geen-' | translate}}"
+                placeholder="{{ 'behandelaar.-geen-' | translate }}"
                 formControlName="defaultBehandelaarId"
                 [compareWith]="compareObject"
               >
                 <mat-option [value]=""
-                  >{{'behandelaar.-geen-' | translate}}</mat-option
+                  >{{ "behandelaar.-geen-" | translate }}</mat-option
                 >
                 <mat-option *ngFor="let b of medewerkers" [value]="b.id"
                   >{{ b.naam }}</mat-option
@@ -118,7 +118,7 @@
               floatLabel="always"
             >
               <mat-label
-                >{{'einddatumGeplandWaarschuwing' | translate}}</mat-label
+                >{{ "einddatumGeplandWaarschuwing" | translate }}</mat-label
               >
               <input
                 matInput
@@ -127,12 +127,12 @@
                 max="31"
                 formControlName="einddatumGeplandWaarschuwing"
               />
-              <span matSuffix>{{'kalenderdagen' | translate}}</span>
+              <span matSuffix>{{ "kalenderdagen" | translate }}</span>
             </mat-form-field>
             <mat-form-field class="w33 w100-md" floatLabel="always">
               <mat-label
-                >{{'uiterlijkeEinddatumAfdoeningWaarschuwing' |
-                translate}}</mat-label
+                >{{ "uiterlijkeEinddatumAfdoeningWaarschuwing" | translate
+                }}</mat-label
               >
               <input
                 matInput
@@ -141,12 +141,12 @@
                 max="31"
                 formControlName="uiterlijkeEinddatumAfdoeningWaarschuwing"
               />
-              <span matSuffix>{{'kalenderdagen' | translate}}</span>
+              <span matSuffix>{{ "kalenderdagen" | translate }}</span>
             </mat-form-field>
           </div>
           <div class="flex-row flex-wrap gap-20">
             <mat-form-field class="w33 w100-md" floatLabel="always">
-              <mat-label>{{'productaanvraagtype' | translate}}</mat-label>
+              <mat-label>{{ "productaanvraagtype" | translate }}</mat-label>
               <input matInput formControlName="productaanvraagtype" />
             </mat-form-field>
           </div>
@@ -154,12 +154,13 @@
           <div class="flex-row flex-wrap gap-5">
             <mat-icon color="warn">warning</mat-icon>
             <small
-              >{{'msg.zaakafhandelparameters.waarschuwing' | translate}}</small
+              >{{ "msg.zaakafhandelparameters.waarschuwing" | translate
+              }}</small
             >
           </div>
           <div class="button-group flex-row flex-wrap">
             <button mat-raised-button matStepperNext>
-              {{"actie.volgende" | translate}}
+              {{ "actie.volgende" | translate }}
             </button>
             <button
               mat-raised-button
@@ -167,14 +168,14 @@
               [disabled]="!isValid() || loading"
               (click)="opslaan()"
             >
-              {{"actie.opslaan" | translate}}
+              {{ "actie.opslaan" | translate }}
             </button>
           </div>
         </form>
       </mat-step>
       <mat-step [stepControl]="humanTasksFormGroup">
         <ng-template matStepLabel
-          >{{"gegevens.humantasks" | translate}}</ng-template
+          >{{ "gegevens.humantasks" | translate }}</ng-template
         >
         <ng-template matStepContent>
           <form [formGroup]="humanTasksFormGroup" class="flex-col">
@@ -202,9 +203,14 @@
                       error
                     </mat-icon>
                     <span
-                      [ngClass]="{'disabled': !getHumanTaskControl(humanTaskParameter, 'actief').value}"
+                      [ngClass]="{
+                        disabled: !getHumanTaskControl(
+                          humanTaskParameter,
+                          'actief'
+                        ).value
+                      }"
                     >
-                      {{humanTaskParameter.planItemDefinition.naam}}
+                      {{ humanTaskParameter.planItemDefinition.naam }}
                     </span>
                   </mat-panel-title>
                   <mat-slide-toggle
@@ -215,17 +221,28 @@
                 </mat-expansion-panel-header>
                 <div class="flex-row flex-wrap">
                   <mat-form-field class="w33 w100-md" floatLabel="always">
-                    <mat-label>{{'formulierDefinitie' | translate}}</mat-label>
+                    <mat-label
+                      >{{ "formulierDefinitie" | translate }}</mat-label
+                    >
                     <mat-select
-                      placeholder="{{'formulierDefinitie.-kies-' | translate}}"
-                      (selectionChange)="formulierDefinitieChanged($event, humanTaskParameter)"
-                      [formControl]="getHumanTaskControl(humanTaskParameter, 'formulierDefinitie')"
+                      placeholder="{{
+                        'formulierDefinitie.-kies-' | translate
+                      }}"
+                      (selectionChange)="
+                        formulierDefinitieChanged($event, humanTaskParameter)
+                      "
+                      [formControl]="
+                        getHumanTaskControl(
+                          humanTaskParameter,
+                          'formulierDefinitie'
+                        )
+                      "
                       [compareWith]="compareObject"
                     >
                       <mat-option
                         *ngFor="let formDef of formulierDefinities"
                         [value]="formDef.id"
-                        >{{ 'formulierDefinitie.' + formDef.id | translate
+                        >{{ "formulierDefinitie." + formDef.id | translate
                         }}</mat-option
                       >
                     </mat-select>
@@ -233,14 +250,14 @@
                 </div>
                 <div class="flex-row flex-wrap">
                   <mat-form-field class="w33 w100-md" floatLabel="always">
-                    <mat-label>{{'groep' | translate}}</mat-label>
+                    <mat-label>{{ "groep" | translate }}</mat-label>
                     <mat-select
-                      placeholder="{{'groep.-geen-' | translate}}"
+                      placeholder="{{ 'groep.-geen-' | translate }}"
                       formControlName="defaultGroep"
                       [compareWith]="compareObject"
                     >
                       <mat-option [value]=""
-                        >{{'groep.-geen-' | translate}}</mat-option
+                        >{{ "groep.-geen-" | translate }}</mat-option
                       >
                       <mat-option
                         *ngFor="let groep of groepen"
@@ -252,7 +269,7 @@
                 </div>
                 <div class="flex-row flex-wrap">
                   <mat-form-field class="w33 w100-md" floatLabel="always">
-                    <mat-label>{{'doorlooptijd' | translate}}</mat-label>
+                    <mat-label>{{ "doorlooptijd" | translate }}</mat-label>
                     <input
                       matInput
                       type="number"
@@ -260,20 +277,25 @@
                       min="0"
                       max="2147483647"
                     />
-                    <span matSuffix>{{'kalenderdagen' | translate}}</span>
+                    <span matSuffix>{{ "kalenderdagen" | translate }}</span>
                   </mat-form-field>
                 </div>
                 <div
                   class="flex-row flex-wrap"
-                  *ngFor="let veld of getVeldDefinities(humanTaskParameter.formulierDefinitieId)"
+                  *ngFor="
+                    let veld of getVeldDefinities(
+                      humanTaskParameter.formulierDefinitieId
+                    )
+                  "
                 >
                   <mat-form-field class="w33 w100-md" floatLabel="always">
                     <mat-label
-                      >{{'referentietabel.' + veld.naam | translate}}</mat-label
+                      >{{ "referentietabel." + veld.naam | translate
+                      }}</mat-label
                     >
                     <mat-select
-                      placeholder="{{'referentietabel.-geen-' | translate}}"
-                      [formControlName]="'referentieTabel'+veld.naam"
+                      placeholder="{{ 'referentietabel.-geen-' | translate }}"
+                      [formControlName]="'referentieTabel' + veld.naam"
                       [compareWith]="compareObject"
                     >
                       <mat-option
@@ -288,10 +310,10 @@
             </mat-accordion>
             <div class="button-group flex-row flex-wrap">
               <button mat-raised-button matStepperPrevious>
-                {{"actie.terug" | translate}}
+                {{ "actie.terug" | translate }}
               </button>
               <button mat-raised-button matStepperNext>
-                {{"actie.volgende" | translate}}
+                {{ "actie.volgende" | translate }}
               </button>
               <button
                 mat-raised-button
@@ -299,7 +321,7 @@
                 [disabled]="!isValid() || loading"
                 (click)="opslaan()"
               >
-                {{"actie.opslaan" | translate}}
+                {{ "actie.opslaan" | translate }}
               </button>
             </div>
           </form>
@@ -310,7 +332,7 @@
         [hasError]="userEventListenersFormGroup.invalid"
       >
         <ng-template matStepLabel
-          >{{"gegevens.acties" | translate}}</ng-template
+          >{{ "gegevens.acties" | translate }}</ng-template
         >
         <ng-template matStepContent>
           <form [formGroup]="userEventListenersFormGroup" class="flex-col">
@@ -321,11 +343,11 @@
                 *ngFor="let actieParameter of userEventListenerParameters"
               >
                 <mat-expansion-panel-header>
-                  <mat-panel-title> {{actieParameter.naam}} </mat-panel-title>
+                  <mat-panel-title> {{ actieParameter.naam }} </mat-panel-title>
                 </mat-expansion-panel-header>
                 <div class="flex-row flex-wrap">
                   <mat-form-field class="w33 w100-md" floatLabel="always">
-                    <mat-label>{{'toelichting' | translate}}</mat-label>
+                    <mat-label>{{ "toelichting" | translate }}</mat-label>
                     <textarea
                       matInput
                       class="toelichting"
@@ -338,10 +360,10 @@
             </mat-accordion>
             <div class="button-group flex-row flex-wrap">
               <button mat-raised-button matStepperPrevious>
-                {{"actie.terug" | translate}}
+                {{ "actie.terug" | translate }}
               </button>
               <button mat-raised-button matStepperNext>
-                {{"actie.volgende" | translate}}
+                {{ "actie.volgende" | translate }}
               </button>
               <button
                 mat-raised-button
@@ -349,7 +371,7 @@
                 [disabled]="!isValid() || loading"
                 (click)="opslaan()"
               >
-                {{"actie.opslaan" | translate}}
+                {{ "actie.opslaan" | translate }}
               </button>
             </div>
           </form>
@@ -359,7 +381,9 @@
         [stepControl]="mailFormGroup"
         [hasError]="mailFormGroup.invalid"
       >
-        <ng-template matStepLabel>{{"gegevens.mail" | translate}}</ng-template>
+        <ng-template matStepLabel
+          >{{ "gegevens.mail" | translate }}</ng-template
+        >
         <ng-template matStepContent>
           <form [formGroup]="mailFormGroup" class="flex-col">
             <mat-card>
@@ -370,7 +394,7 @@
                     floatLabel="always"
                   >
                     <mat-label
-                      >{{'statusmail.type.intake' | translate}}</mat-label
+                      >{{ "statusmail.type.intake" | translate }}</mat-label
                     >
                     <mat-select
                       formControlName="intakeMail"
@@ -386,7 +410,7 @@
                     floatLabel="always"
                   >
                     <mat-label
-                      >{{'statusmail.type.afronden' | translate}}</mat-label
+                      >{{ "statusmail.type.afronden" | translate }}</mat-label
                     >
                     <mat-select
                       formControlName="afrondenMail"
@@ -403,7 +427,7 @@
             <mat-card>
               <mat-card-header>
                 <mat-card-title>
-                  {{'gegevens.mail.afzenders' | translate}}
+                  {{ "gegevens.mail.afzenders" | translate }}
                 </mat-card-title>
               </mat-card-header>
               <mat-card-content>
@@ -411,11 +435,11 @@
                   <table mat-table [dataSource]="zaakAfzendersDataSource">
                     <ng-container matColumnDef="default">
                       <th mat-header-cell *matHeaderCellDef>
-                        {{'default' | translate}}
+                        {{ "default" | translate }}
                       </th>
                       <td mat-cell *matCellDef="let afzender">
                         <mat-radio-button
-                          (click)="updateZaakAfzenders(afzender.mail);"
+                          (click)="updateZaakAfzenders(afzender.mail)"
                           [checked]="afzender.defaultMail"
                         >
                         </mat-radio-button>
@@ -428,7 +452,7 @@
                         translate="mail.afzender"
                       ></th>
                       <td mat-cell *matCellDef="let afzender">
-                        {{ afzender.speciaal ? ('gegevens.mail.afzender.' +
+                        {{ afzender.speciaal ? ("gegevens.mail.afzender." +
                         afzender.mail | translate) : afzender.mail }}
                       </td>
                     </ng-container>
@@ -440,18 +464,20 @@
                       ></th>
                       <td mat-cell *matCellDef="let afzender">
                         <mat-select
-                          placeholder="{{'verzender.-geen-' | translate}}"
-                          [formControl]="getZaakAfzenderControl(afzender,'replyTo')"
+                          placeholder="{{ 'verzender.-geen-' | translate }}"
+                          [formControl]="
+                            getZaakAfzenderControl(afzender, 'replyTo')
+                          "
                           [compareWith]="compareObject"
                         >
                           <mat-option
-                            >{{'verzender.-geen-' | translate }}</mat-option
+                            >{{ "verzender.-geen-" | translate }}</mat-option
                           >
                           <mat-option
                             *ngFor="let replyTo of replyTos"
                             [value]="replyTo.mail"
                           >
-                            {{ replyTo.speciaal ? ('gegevens.mail.afzender.' +
+                            {{ replyTo.speciaal ? ("gegevens.mail.afzender." +
                             replyTo.mail | translate) : replyTo.mail }}
                           </mat-option>
                         </mat-select>
@@ -461,9 +487,9 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <button
                           mat-icon-button
-                          *ngIf="0<zaakAfzenders.length"
+                          *ngIf="0 < zaakAfzenders.length"
                           id="afzender-toevoegen"
-                          title="{{ 'actie.toevoegen' | translate}}"
+                          title="{{ 'actie.toevoegen' | translate }}"
                           aria-label="Afzender toevoegen"
                           [matMenuTriggerFor]="afzendersMenu"
                         >
@@ -490,7 +516,7 @@
                           mat-icon-button
                           *ngIf="!row.speciaal"
                           id="afzender-verwijderen"
-                          title="{{ 'actie.verwijderen' | translate}}"
+                          title="{{ 'actie.verwijderen' | translate }}"
                           (click)="removeZaakAfzender(row.mail)"
                         >
                           <mat-icon>delete</mat-icon>
@@ -499,11 +525,14 @@
                     </ng-container>
                     <tr
                       mat-header-row
-                      *matHeaderRowDef="['default', 'mail', 'replyto', 'id'];"
+                      *matHeaderRowDef="['default', 'mail', 'replyto', 'id']"
                     ></tr>
                     <tr
                       mat-row
-                      *matRowDef="let row; columns: ['default', 'mail', 'replyto', 'id'];"
+                      *matRowDef="
+                        let row;
+                        columns: ['default', 'mail', 'replyto', 'id']
+                      "
                     ></tr>
                   </table>
                 </div>
@@ -512,7 +541,7 @@
             <mat-card>
               <mat-card-header>
                 <mat-card-title>
-                  {{'gegevens.mail.templates' | translate}}
+                  {{ "gegevens.mail.templates" | translate }}
                 </mat-card-title>
               </mat-card-header>
               <mat-card-content>
@@ -524,7 +553,7 @@
                   >
                     <mat-expansion-panel-header>
                       <mat-panel-title>
-                        {{'mail.' + mailtemplate | translate}}
+                        {{ "mail." + mailtemplate | translate }}
                       </mat-panel-title>
                     </mat-expansion-panel-header>
                     <div class="flex-row flex-wrap">
@@ -533,15 +562,24 @@
                         floatLabel="always"
                       >
                         <mat-label
-                          >{{'title.mailtemplate' | translate}}</mat-label
+                          >{{ "title.mailtemplate" | translate }}</mat-label
                         >
                         <mat-select
-                          placeholder="{{'mailtemplate.-kies-' | translate}}"
-                          [formControl]="getMailtemplateKoppelingControl(mailtemplate, 'mailtemplate')"
+                          placeholder="{{ 'mailtemplate.-kies-' | translate }}"
+                          [formControl]="
+                            getMailtemplateKoppelingControl(
+                              mailtemplate,
+                              'mailtemplate'
+                            )
+                          "
                           [compareWith]="compareObject"
                         >
                           <mat-option
-                            *ngFor="let template of getBeschikbareMailtemplates(mailtemplate)"
+                            *ngFor="
+                              let template of getBeschikbareMailtemplates(
+                                mailtemplate
+                              )
+                            "
                             [value]="template.id"
                             >{{ template.mailTemplateNaam }}</mat-option
                           >
@@ -554,10 +592,10 @@
             </mat-card>
             <div class="button-group flex-row flex-wrap">
               <button mat-raised-button matStepperPrevious>
-                {{"actie.terug" | translate}}
+                {{ "actie.terug" | translate }}
               </button>
               <button mat-raised-button matStepperNext>
-                {{"actie.volgende" | translate}}
+                {{ "actie.volgende" | translate }}
               </button>
               <button
                 mat-raised-button
@@ -565,7 +603,7 @@
                 [disabled]="!isValid() || loading"
                 (click)="opslaan()"
               >
-                {{"actie.opslaan" | translate}}
+                {{ "actie.opslaan" | translate }}
               </button>
             </div>
           </form>
@@ -576,7 +614,7 @@
         [hasError]="zaakbeeindigFormGroup.invalid"
       >
         <ng-template matStepLabel
-          >{{"gegevens.beeindiging" | translate}}</ng-template
+          >{{ "gegevens.beeindiging" | translate }}</ng-template
         >
         <ng-template matStepContent>
           <form [formGroup]="zaakbeeindigFormGroup" class="flex-col">
@@ -608,8 +646,10 @@
                   ></th>
                   <td mat-cell *matCellDef="let parameter">
                     <mat-select
-                      placeholder="{{'resultaat.-kies-' | translate}}"
-                      [formControl]="getZaakbeeindigControl(parameter,'beeindigResultaat')"
+                      placeholder="{{ 'resultaat.-kies-' | translate }}"
+                      [formControl]="
+                        getZaakbeeindigControl(parameter, 'beeindigResultaat')
+                      "
                       [compareWith]="compareObject"
                     >
                       <mat-option
@@ -626,19 +666,22 @@
                 ></tr>
                 <tr
                   mat-row
-                  *matRowDef="let row; columns: ['select', 'reden', 'resultaat'];"
+                  *matRowDef="
+                    let row;
+                    columns: ['select', 'reden', 'resultaat']
+                  "
                 ></tr>
               </table>
               <p *ngIf="zaakbeeindigParameters.length == 0">
-                {{'msg.geen.gegevens.gevonden' | translate}}
+                {{ "msg.geen.gegevens.gevonden" | translate }}
               </p>
             </div>
             <div class="button-group flex-row flex-wrap">
               <button mat-raised-button matStepperPrevious>
-                {{"actie.terug" | translate}}
+                {{ "actie.terug" | translate }}
               </button>
               <button mat-raised-button matStepperNext>
-                {{"actie.volgende" | translate}}
+                {{ "actie.volgende" | translate }}
               </button>
               <button
                 mat-raised-button
@@ -646,22 +689,30 @@
                 [disabled]="!isValid() || loading"
                 (click)="opslaan()"
               >
-                {{"actie.opslaan" | translate}}
+                {{ "actie.opslaan" | translate }}
               </button>
             </div>
           </form>
         </ng-template>
       </mat-step>
-      <mat-step>
-        <ng-template matStepLabel>Smart documents</ng-template>
+      <mat-step
+        [stepControl]="smartDocumentsForm"
+        [hasError]="!isSmartDocumentsStepValid"
+      >
+        <ng-template matStepLabel>SmartDocuments</ng-template>
         <ng-template matStepContent>
-          <smart-documents-tree
-            [zaaktypeUuid]="parameters.zaaktype.uuid"
-            #smartDocumentsTree
-          />
+          <h2>
+            {{ "title.admin.parameters.step.smart-documents" | translate }}
+          </h2>
+          <smart-documents-form
+            [formGroup]="smartDocumentsForm"
+            [zaakTypeUuid]="parameters.zaaktype.uuid"
+            #smartDocumentsFormRef
+          >
+          </smart-documents-form>
           <div class="button-group flex-row flex-wrap">
             <button mat-raised-button matStepperPrevious>
-              {{"actie.terug" | translate}}
+              {{ "actie.terug" | translate }}
             </button>
             <button
               mat-raised-button
@@ -669,7 +720,7 @@
               [disabled]="!isValid() || loading"
               (click)="opslaan()"
             >
-              {{"actie.opslaan" | translate}}
+              {{ "actie.opslaan" | translate }}
             </button>
           </div>
         </ng-template>
