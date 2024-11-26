@@ -135,7 +135,7 @@ export class InformatieObjectCreateAttendedComponent
 
     const author = new InputFormFieldBuilder(this.ingelogdeMedewerker.naam)
       .id("author")
-      .label("author")
+      .label("auteur")
       .validators(Validators.required, Validators.pattern("\\S.*"))
       .maxlength(50)
       .build();
