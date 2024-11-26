@@ -1,14 +1,14 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.github.gradle.node.npm.task.NpmTask
 import io.gitlab.arturbosch.detekt.Detekt
 import io.smallrye.openapi.api.OpenApiConfig
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 import java.util.Locale
-
-/*
- * SPDX-FileCopyrightText: 2024 Lifely
- * SPDX-License-Identifier: EUPL-1.2+
- */
 
 plugins {
     java

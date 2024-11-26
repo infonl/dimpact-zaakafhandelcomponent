@@ -1,4 +1,8 @@
-### Create runtime image fase
+#
+# SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
+
 FROM docker.io/eclipse-temurin:21.0.5_11-jre-ubi9-minimal@sha256:8c7d056a7a9ef018eeb98863c9526191892d9f30fdced55bbbd94366e1dc1285 AS runtime
 ARG branchName
 ARG commitHash

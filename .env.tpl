@@ -1,3 +1,8 @@
+#
+# SPDX-FileCopyrightText: <YYYY> Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
+
 # This file contains a list of environment variables that need to be set when running ZAC locally.
 
 # To use this file you need to use the 1Password CLI extensions.

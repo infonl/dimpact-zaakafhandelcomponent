@@ -13,13 +13,7 @@ header:
        SPDX-FileCopyrightText: .*
        SPDX-License-Identifier: EUPL-1\.2\+
   paths:
-    # for now check specific folders/file types only; later on expand to '**'
-    - 'src/main/kotlin/**'
-    - 'src/main/java/**'
-    - 'src/main/app/**'
-    - 'src/test/**'
-    - 'src/itest/**'
-    - 'src/e2e/**'
+    - '**'
   paths-ignore:
     - 'build'
     - 'certificates'
@@ -37,4 +31,15 @@ header:
     - '**/**.json'
     - '**/**.txt'
     - '**/dist'
+    - 'gradlew'
+    - 'gradlew.bat'
+    - '.kotlin/**'
+    - '.github/CODEOWNERS'
+    - '.mvn/**'
+    - 'mvnw.cmd'
+    - 'mvnw'
+    - 'src/main/resources/api-specs/**'
+    - 'src/main/resources/cmmn/**'
+    - 'src/main/resources/openapi-generator-templates/**'
+    - 'src/main/resources/policies/policies'
   comment: on-failure

@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 UPDATE ${schema}.mail_template
 SET body=REPLACE(body, 'Klik om de zaak te bekijken {ZAAKURL}', '{DOCUMENTLINK}');
 UPDATE ${schema}.mail_template
