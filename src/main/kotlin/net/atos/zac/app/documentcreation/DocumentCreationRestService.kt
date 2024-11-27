@@ -30,7 +30,6 @@ import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.util.UriUtil.uuidFromURI
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
-import org.apache.solr.common.util.URLUtil
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Level
