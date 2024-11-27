@@ -18,6 +18,7 @@ import nl.lifely.zac.util.NoArgConstructor
 
 @AllOpen
 @NoArgConstructor
+@Suppress("LongParameterList")
 class RestZaakafhandelParametersConverter @Inject constructor(
     val caseDefinitionConverter: RESTCaseDefinitionConverter,
     val resultaattypeConverter: RestResultaattypeConverter,
@@ -51,7 +52,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             productaanvraagtype = zaakafhandelParameters.productaanvraagtype,
             domein = zaakafhandelParameters.domein,
             documentCreation = RestDocumentCreationParameters(
-                enabledGlobally = smartDocumentsService.is,
+                enabledGlobally = smartDocumentsService.isEnabled(),
                 enabledForZaaktype = zaakafhandelParameters.isDocumentMakenIngeschakeld
             )
         )
@@ -73,7 +74,9 @@ class RestZaakafhandelParametersConverter @Inject constructor(
                     caseDefinition.userEventListenerDefinitions
                 )
             restZaakafhandelParameters.zaakbeeindigParameters =
-                zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaakafhandelParameters.zaakbeeindigParameters)
+                zaakbeeindigParameterConverter.convertZaakbeeindigParameters(
+                    zaakafhandelParameters.zaakbeeindigParameters
+                )
             restZaakafhandelParameters.mailtemplateKoppelingen = RESTMailtemplateKoppelingConverter.convert(
                 zaakafhandelParameters.mailtemplateKoppelingen
             )
@@ -95,7 +98,8 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             zaaktypeOmschrijving = restZaakafhandelParameters.zaaktype.omschrijving
             caseDefinitionID = restZaakafhandelParameters.caseDefinition!!.key
             groepID = restZaakafhandelParameters.defaultGroepId
-            uiterlijkeEinddatumAfdoeningWaarschuwing = restZaakafhandelParameters.uiterlijkeEinddatumAfdoeningWaarschuwing
+            uiterlijkeEinddatumAfdoeningWaarschuwing =
+                restZaakafhandelParameters.uiterlijkeEinddatumAfdoeningWaarschuwing
             nietOntvankelijkResultaattype = restZaakafhandelParameters.zaakNietOntvankelijkResultaattype!!.id
             intakeMail = restZaakafhandelParameters.intakeMail?.name
             afrondenMail = restZaakafhandelParameters.afrondenMail?.name
