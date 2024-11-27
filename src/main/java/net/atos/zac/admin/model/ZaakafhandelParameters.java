@@ -92,6 +92,9 @@ public class ZaakafhandelParameters {
     @Column(name = "domein")
     private String domein;
 
+    @Column(name = "document_maken_ingeschakeld")
+    private boolean documentMakenIngeschakeld;
+
     // The set is necessary for Hibernate when you have more than one eager collection on an entity.
     @OneToMany(mappedBy = "zaakafhandelParameters", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private Set<HumanTaskParameters> humanTaskParametersCollection;
@@ -314,6 +317,14 @@ public class ZaakafhandelParameters {
 
     public void setDomein(final String domein) {
         this.domein = domein;
+    }
+
+    public boolean isDocumentMakenIngeschakeld() {
+        return documentMakenIngeschakeld;
+    }
+
+    public void setDocumentMakenIngeschakeld(boolean documentMakenIngeschakeld) {
+        this.documentMakenIngeschakeld = documentMakenIngeschakeld;
     }
 
     /**

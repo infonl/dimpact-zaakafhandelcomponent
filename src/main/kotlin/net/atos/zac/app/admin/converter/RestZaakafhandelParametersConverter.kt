@@ -8,9 +8,11 @@ import jakarta.inject.Inject
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.app.admin.model.RestDocumentCreationParameters
 import net.atos.zac.app.admin.model.RestZaakafhandelParameters
 import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.app.zaak.model.RESTZaakStatusmailOptie
+import net.atos.zac.smartdocuments.SmartDocumentsService
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 
@@ -22,7 +24,8 @@ class RestZaakafhandelParametersConverter @Inject constructor(
     val zaakbeeindigParameterConverter: RESTZaakbeeindigParameterConverter,
     val humanTaskParametersConverter: RESTHumanTaskParametersConverter,
     val ztcClientService: ZtcClientService,
-    val zaakafhandelParameterService: ZaakafhandelParameterService
+    val zaakafhandelParameterService: ZaakafhandelParameterService,
+    val smartDocumentsService: SmartDocumentsService
 ) {
     fun toRestZaakafhandelParameters(
         zaakafhandelParameters: ZaakafhandelParameters,
@@ -46,7 +49,11 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             intakeMail = zaakafhandelParameters.intakeMail?.let { RESTZaakStatusmailOptie.valueOf(it) },
             afrondenMail = zaakafhandelParameters.afrondenMail?.let { RESTZaakStatusmailOptie.valueOf(it) },
             productaanvraagtype = zaakafhandelParameters.productaanvraagtype,
-            domein = zaakafhandelParameters.domein
+            domein = zaakafhandelParameters.domein,
+            documentCreation = RestDocumentCreationParameters(
+                enabledGlobally = smartDocumentsService.is,
+                enabledForZaaktype = zaakafhandelParameters.isDocumentMakenIngeschakeld
+            )
         )
         restZaakafhandelParameters.caseDefinition?.takeIf { inclusiefRelaties }?.let { caseDefinition ->
             zaakafhandelParameters.nietOntvankelijkResultaattype?.let {
