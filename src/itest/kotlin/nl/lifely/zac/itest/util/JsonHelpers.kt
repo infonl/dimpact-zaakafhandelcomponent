@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 package nl.lifely.zac.itest.util
 
 import io.kotest.assertions.json.ArrayOrder

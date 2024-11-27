@@ -1,3 +1,7 @@
+#
+# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
 name: Remove stale branches
 
 on:
@@ -19,6 +23,7 @@ jobs:
           github_token: ${{ github.token }}
           last_commit_age_days: 100
           dry_run: yes
+          ignore_suffix: _keep_me
 
       - name: Get output
         run: "echo 'Deleted branches: ${{ steps.deleted_branches.outputs.deleted_branches }}'"

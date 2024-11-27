@@ -1,3 +1,7 @@
+# 
+# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+# 
 Feature: Taken verdelen / vrijgeven
 
   Scenario: Bob distributes taken to a group

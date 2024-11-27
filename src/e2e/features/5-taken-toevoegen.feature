@@ -1,3 +1,7 @@
+# 
+# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+# 
 Feature: Taken
 
   Scenario: Employee "Bob" does not have enough information to finish Intake and assigns a task to Employee "Oscar"

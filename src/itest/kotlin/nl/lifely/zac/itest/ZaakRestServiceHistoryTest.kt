@@ -11,6 +11,8 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE
+import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_TITLE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_PERSON_2_BSN
@@ -124,6 +126,13 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "$TEST_USER_2_NAME",
                     "toelichting": "dummyLijstVerdelenReason"
+                  },
+                  {
+                    "actie": "GEWIJZIGD",
+                    "attribuutLabel": "zaakgeometrie",
+                    "door": "$TEST_USER_1_NAME",
+                    "oudeWaarde": "POINT($PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE $PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE)",
+                    "toelichting": "Aanvullende informatie opgevraagd"
                   },
                   {
                     "actie": "GEWIJZIGD",

@@ -13,10 +13,7 @@ header:
        SPDX-FileCopyrightText: .*
        SPDX-License-Identifier: EUPL-1\.2\+
   paths:
-    # for now check specific folders/file types only; later on expand to '**'
-    - 'src/main/kotlin/**'
-    - 'src/main/java/**'
-    - 'src/main/app/**'
+    - '**'
   paths-ignore:
     - 'build'
     - 'certificates'
@@ -29,12 +26,26 @@ header:
     - 'wildfly-*'
     - '**/*.md'
     - '**/node_modules'
-    - '**/dist'
-    - '**/.gitignore'
-    - '**/.gitattributes'
-    - '**/.prettierignore'
     # SPDX license headers cannot be added to JSON files so we ignore them
     # there are ways to link licensing information to JSON files however; see e.g. https://reuse.software/faq/
     - '**/**.json'
-
+    - '**/**.txt'
+    - '**/dist'
+    - 'gradlew'
+    - 'gradlew.bat'
+    - '.kotlin/**'
+    - '.github/CODEOWNERS'
+    - '.mvn/**'
+    - 'mvnw.cmd'
+    - 'mvnw'
+    - 'src/main/resources/api-specs/**'
+    - 'src/main/resources/cmmn/**'
+    - 'src/main/resources/openapi-generator-templates/**'
+    - 'src/main/resources/policies/policies'
+    # ignore Flyway DB migration files without SPDX headers
+    # adding SPDX headers to these files would break the migration on existing databases
+    - 'src/main/resources/schemas/V34__*.sql'
+    - 'src/main/resources/schemas/V38__*.sql'
+    - 'src/main/resources/schemas/V39__*.sql'
+    - 'src/main/resources/schemas/V40__*.sql'
   comment: on-failure

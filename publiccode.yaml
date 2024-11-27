@@ -1,0 +1,65 @@
+#
+# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
+
+# This repository adheres to the publiccode.yml standard to make public software easily discoverable.
+# More info at https://yml.publiccode.tools/ and https://community.developer.overheid.nl/t/publiccode-yml/311.
+
+publiccodeYmlVersion: "0.4"
+
+name: Dimpact Zaakafhandelcomponent (ZAC)
+url: "git://github.com/infonl/dimpact-zaakafhandelcomponent.git"
+softwareVersion: "1.11.46"
+releaseDate: "2024-11-27"
+
+platforms:
+- web
+
+categories:
+  - business-process-management
+  - it-development
+  - task-management
+  - workflow-management
+
+roadmap: "https://dimpact.atlassian.net/jira/software/c/projects/PZ/boards/246"
+
+developmentStatus: development
+
+softwareType: "standalone/web"
+
+description:
+  en:
+    localisedName: Dimpact Zaakafhandelcomponent (ZAC)
+    shortDescription: An open-source component for managing 'zaken' in the context of zaakgericht werken.
+    longDescription: >
+      The Zaakafhandelcomponent (ZAC) is an open-source, generic, workflow-based component for 
+      managing 'zaken' in the context of zaakgericht werken, a Dutch approach to case management. 
+      It is developed for Dimpact and used by Dutch municipalities.
+
+legal:
+  license: EUPL-1.2+
+  mainCopyrightOwner: Lifely
+  repoOwner: INFO
+
+maintenance:
+  type: "contract"
+  contractors:
+    - name: "INFO"
+      email: "contact@info.nl"
+      website: "https://www.info.nl/"
+
+intendedAudience:
+  countries:
+    - nl
+  scope:
+    - government
+
+isBasedOn:
+  - 'https://github.com/VNG-Realisatie/gemma-zaken'
+
+localisation:
+  localisationReady: true
+  availableLanguages:
+    - nl
+    - en

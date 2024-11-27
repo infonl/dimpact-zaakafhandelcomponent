@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { After, AfterAll, AfterStep, Before, Status } from "@cucumber/cucumber";
 import fs from "fs";
 import { CustomWorld, authFile } from "../support/worlds/world";

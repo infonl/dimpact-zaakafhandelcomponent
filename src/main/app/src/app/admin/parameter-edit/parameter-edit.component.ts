@@ -4,7 +4,13 @@
  */
 
 import { SelectionModel } from "@angular/cdk/collections";
-import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
 import {
   FormBuilder,
   FormControl,
@@ -49,7 +55,7 @@ import { ZaaknietontvankelijkParameter } from "../model/zaaknietontvankelijk-par
 import { ZaaknietontvankelijkReden } from "../model/zaaknietontvankelijk-reden";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
-import { SmartDocumentsTreeComponent } from "./smart-documents/smart-documents-tree.component";
+import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
 
 @Component({
   templateUrl: "./parameter-edit.component.html",
@@ -61,8 +67,12 @@ export class ParameterEditComponent
 {
   @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
   @ViewChild("menuSidenav") menuSidenav: MatSidenav;
-  @ViewChild("smartDocumentsTree")
-  smartDocumentsTree: SmartDocumentsTreeComponent;
+
+  @ViewChild("smartDocumentsFormRef")
+  smartDocsFormGroup!: SmartDocumentsFormComponent;
+
+  smartDocumentsForm: FormGroup;
+  isSmartDocumentsStepValid: boolean = true;
 
   parameters: ZaakafhandelParameters;
   humanTaskParameters: HumanTaskParameter[] = [];
@@ -79,6 +89,7 @@ export class ParameterEditComponent
   userEventListenersFormGroup: FormGroup;
   mailFormGroup: FormGroup;
   zaakbeeindigFormGroup: FormGroup;
+  smartDocumentsFormGroup: FormGroup;
 
   mailOpties: { label: string; value: string }[];
 
@@ -104,6 +115,8 @@ export class ParameterEditComponent
     private formBuilder: FormBuilder,
     private referentieTabelService: ReferentieTabelService,
     private mailtemplateBeheerService: MailtemplateBeheerService,
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef,
   ) {
     super(utilService, configuratieService);
     this.route.data.subscribe((data) => {
@@ -166,6 +179,13 @@ export class ParameterEditComponent
       ZaakStatusmailOptie,
     );
     this.setupMenu("title.parameters.wijzigen");
+  }
+
+  ngAfterViewInit(): void {
+    this.cdr.detectChanges();
+    if (this.smartDocsFormGroup) {
+      this.smartDocsFormGroup.saveSmartDocumentsMapping();
+    }
   }
 
   ngOnDestroy(): void {
@@ -257,6 +277,11 @@ export class ParameterEditComponent
     this.createUserEventListenerForm();
     this.createMailForm();
     this.createZaakbeeindigForm();
+
+    this.smartDocumentsForm = this.fb.group({});
+    this.smartDocumentsForm.statusChanges.subscribe(() => {
+      this.isSmartDocumentsStepValid = this.smartDocumentsForm.valid;
+    });
   }
 
   isHumanTaskParameterValid(humanTaskParameter: HumanTaskParameter): boolean {
@@ -530,7 +555,8 @@ export class ParameterEditComponent
     return (
       this.algemeenFormGroup.valid &&
       this.humanTasksFormGroup.valid &&
-      this.zaakbeeindigFormGroup.valid
+      this.zaakbeeindigFormGroup.valid &&
+      this.isSmartDocumentsStepValid
     );
   }
 
@@ -641,7 +667,7 @@ export class ParameterEditComponent
       },
     );
 
-    this.smartDocumentsTree?.save().subscribe();
+    this.smartDocsFormGroup?.saveSmartDocumentsMapping().subscribe();
   }
 
   compareObject(object1: any, object2: any): boolean {

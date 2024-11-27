@@ -11,6 +11,9 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      # ignore pushes to the publiccode.yaml file or else we would trigger an endless build loop
+      - 'publiccode.yaml'
 
 # cancel any previous runs of this workflow for this branch that are still in progress
 concurrency:
@@ -224,7 +227,7 @@ jobs:
         uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3.7.1
 
       - name: Build Docker image
-        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+        uses: docker/build-push-action@48aba3b46d1b1fec4febb7c5d0c644b249a11355 # v6.10.0
         with:
           tags: ${{ env.ZAC_DOCKER_IMAGE }}
           build-args: |
@@ -328,7 +331,7 @@ jobs:
           target: minor
 
   next-version:
-    if: github.ref == 'refs/heads/main'
+    if: ${{ github.ref == 'refs/heads/main'}}
     runs-on: ubuntu-22.04
     outputs:
       version: ${{ steps.get-version.outputs.replaced }}
@@ -430,36 +433,31 @@ jobs:
     env:
       NEXT_VERSION: ${{ needs.next-version.outputs.version }}
     steps:
-      # create GitHub App token so that we can later on force push to the protected 'main branch
-      # see: https://github.com/orgs/community/discussions/25305#discussioncomment-8256560
-      - name: Create 'INFO push to protected branch' GitHub App token
-        uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1.11.0
-        id: app-token
-        with:
-          app-id: ${{ vars.PUSH_TO_PROTECTED_BRANCH_APP_ID }}
-          private-key: ${{ secrets.PUSH_TO_PROTECTED_BRANCH_PRIVATE_KEY }}
+      # check out the repository with the private SSH key of the deploy key so that
+      # we can bypass the ruleset for the main branch
+      # see: https://github.com/sbellone/release-workflow-example for details
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          token: ${{ steps.app-token.outputs.token }}
+          ssh-key: ${{ secrets.DEPLOY_KEY_BYPASS_RULESET_MAIN_PRIVATE_KEY }}
       - name: Get current date
-        id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+        id: set-current-date
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
       - uses: elieahd/templater@f802bfce98073a045ad327cdc2c9857564fdfc07 # v1
         with:
           template: 'scripts/file-templates/publiccode-yaml-template.yaml'
           file: 'publiccode.yaml'
-          variables: 'REPO_DESC=${{ github.event.repository.description }} 
-              REPO_URL=${{ github.event.repository.html_url }} 
+          variables: '
+              REPO_URL=${{ github.repositoryUrl }} 
               SOFTWARE_VERSION=${{ needs.next-version.outputs.version }}
-              REPO_CREATED_AT=${{ steps.date.outputs.date }}'
+              REPO_CREATED_AT=${{ steps.set-current-date.outputs.date }}'
       - name: Commit changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add publiccode.yaml
           git commit -m "${{ github.workflow }}" || echo "No changes to commit"
-          git push --force      
+          git push    
 
   trigger-provision:
     needs: [push-docker-image]
