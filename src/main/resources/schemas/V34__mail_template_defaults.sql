@@ -1,8 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2022 Atos
- * SPDX-License-Identifier: EUPL-1.2+
- */
-
 INSERT INTO ${schema}.mail_template(id_mail_template, mail_template_naam, onderwerp, body, mail_template_enum)
 VALUES (nextval('${schema}.sq_mail_template'), 'Zaak ontvankelijk', 'Wij hebben uw verzoek in behandeling genomen (zaaknummer: {zaaknummer})',
         '<p>Beste klant,</p><p></p><p>Uw verzoek over {zaaktypenaam} met zaaknummer {zaaknummer} is in behandeling genomen. Voor meer informatie gaat u naar Mijn Loket.</p><p></p><p>Met vriendelijke groet,</p><p>Gemeente</p>',
