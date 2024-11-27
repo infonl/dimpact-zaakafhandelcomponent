@@ -6,16 +6,15 @@
 import { HttpClientTestingModule } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
+import isEqual from "lodash/isEqual";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
+import { GeneratedType } from "../shared/utils/generated-types";
 import {
-  SmartDocumentsTemplateGroupWithParentId,
   MappedSmartDocumentsTemplateGroupWithParentId,
-  MappedSmartDocumentsTemplateWithParentId,
   PlainTemplateMappings,
   SmartDocumentsService,
+  SmartDocumentsTemplateGroupWithParentId,
 } from "./smart-documents.service";
-import { GeneratedType } from "../shared/utils/generated-types";
-import isEqual from "lodash/isEqual";
 
 const TEST_INPUT_SMARTDOCUMENTS_LIST: GeneratedType<"RestSmartDocumentsTemplateGroup">[] =
   [
