@@ -42,4 +42,10 @@ header:
     - 'src/main/resources/cmmn/**'
     - 'src/main/resources/openapi-generator-templates/**'
     - 'src/main/resources/policies/policies'
+    # ignore Flyway DB migration files without SPDX headers
+    # adding SPDX headers to these files would break the migration on existing databases
+    - 'src/main/resources/db/migration/V34__*.sql'
+    - 'src/main/resources/db/migration/V38__*.sql'
+    - 'src/main/resources/db/migration/V39__*.sql'
+    - 'src/main/resources/db/migration/V40__*.sql'
   comment: on-failure
