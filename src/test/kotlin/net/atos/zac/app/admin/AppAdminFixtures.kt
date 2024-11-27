@@ -68,7 +68,9 @@ fun createRestZaakAfhandelParameters(
     domein = domein,
     zaaktype = restZaaktypeOverzicht,
     productaanvraagtype = productaanvraagtype,
-    documentCreation = RestDocumentCreationParameters()
+    documentCreation = RestDocumentCreationParameters(
+        enabledGlobally = true
+    )
 )
 
 @Suppress("LongParameterList")
