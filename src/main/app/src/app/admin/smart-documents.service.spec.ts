@@ -13,32 +13,11 @@ import {
   SOME_UNMAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
   MAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
   MAPPINGS_ONLY_FLAT_ARRAY,
-  ALL_GROUPS_FLATTENED,
+  FLATTENED_GROUPS,
   PREPPED_FOR_REST_REQUEST_MAPPED_SMARTDOCUMENTS,
   SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
   SMARTDOCUMENTS_TEMPLATE_GROUPS,
 } from "./smart-documents.service.test-data";
-
-const log = (test, result, expected) => {
-  const _isEqual = isEqual(result, expected);
-
-  if (!_isEqual) {
-    const resultStr = JSON.stringify(result);
-    const expectedStr = JSON.stringify(expected);
-    for (let i = 0; i < Math.max(resultStr.length, expectedStr.length); i++) {
-      if (resultStr[i] !== expectedStr[i]) {
-        console.log(`Difference at index ${i}:`);
-        console.log(`Result: ${resultStr.substring(i, i + 40)}`);
-        console.log(`Expected: ${expectedStr.substring(i, i + 40)}`);
-        break;
-      }
-    }
-  }
-  if (!_isEqual) {
-    console.log("RESULT: ", test, JSON.stringify(result));
-    console.log("EXPECT: ", test, JSON.stringify(expected));
-  }
-};
 
 describe("SmartDocumentsService.flattenDocumentsTemplateGroup", () => {
   let smartDocumentsService: SmartDocumentsService;
@@ -208,11 +187,6 @@ describe("SmartDocumentsService service functions tests", () => {
     const result = smartDocumentsService.addParentIdsToMakeTemplatesUnique(
       SMARTDOCUMENTS_TEMPLATE_GROUPS,
     );
-    log(
-      "addParentIdsToMakeTemplatesUnique",
-      result,
-      SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
-    );
 
     expect(
       isEqual(result, SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS),
@@ -223,7 +197,6 @@ describe("SmartDocumentsService service functions tests", () => {
     const result = smartDocumentsService.getTemplateMappings(
       MAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
     );
-    log("getTemplateMappings", result, MAPPINGS_ONLY_FLAT_ARRAY);
 
     expect(isEqual(result, MAPPINGS_ONLY_FLAT_ARRAY)).toBe(true);
   });
@@ -232,11 +205,6 @@ describe("SmartDocumentsService service functions tests", () => {
     const result = smartDocumentsService.addTemplateMappings(
       SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
       MAPPINGS_ONLY_FLAT_ARRAY,
-    );
-    log(
-      "addTemplateMappings",
-      result,
-      MAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
     );
 
     expect(
@@ -248,19 +216,13 @@ describe("SmartDocumentsService service functions tests", () => {
     const result = smartDocumentsService.flattenNestedGroups(
       MAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
     );
-    log("flattenDocumentsTemplateGroup", result, ALL_GROUPS_FLATTENED);
 
-    expect(isEqual(result, ALL_GROUPS_FLATTENED)).toBe(true);
+    expect(isEqual(result, FLATTENED_GROUPS)).toBe(true);
   });
 
   it("getOnlyMappedTemplates - Should strip all unmapped branches from the mapped SmartDocuments with parents id's", () => {
     const result = smartDocumentsService.getOnlyMappedTemplates(
       SOME_UNMAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
-    );
-    log(
-      "getOnlyMappedTemplates",
-      result,
-      PREPPED_FOR_REST_REQUEST_MAPPED_SMARTDOCUMENTS,
     );
 
     expect(
