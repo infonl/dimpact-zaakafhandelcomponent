@@ -8,355 +8,16 @@ import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
 import isEqual from "lodash/isEqual";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { GeneratedType } from "../shared/utils/generated-types";
+import { SmartDocumentsService } from "./smart-documents.service";
 import {
-  MappedSmartDocumentsTemplateGroupWithParentId,
-  PlainTemplateMappings,
-  SmartDocumentsService,
-  SmartDocumentsTemplateGroupWithParentId,
-} from "./smart-documents.service";
-
-const TEST_INPUT_SMARTDOCUMENTS_LIST: GeneratedType<"RestSmartDocumentsTemplateGroup">[] =
-  [
-    {
-      id: "id-group-level-root",
-      name: "Dimpact",
-      groups: [
-        {
-          id: "id-group-level-1",
-          name: "level1 group",
-          groups: [
-            {
-              id: "id-group-level-2",
-              name: "level2 group",
-              groups: [
-                {
-                  id: "id-group-level-3",
-                  name: "level3 group",
-                  groups: [],
-                  templates: [
-                    {
-                      id: "id-template-level-3",
-                      name: "level 1 template",
-                    },
-                  ],
-                },
-              ],
-              templates: [
-                {
-                  id: "id-template-level-2",
-                  name: "level 1 template",
-                },
-              ],
-            },
-          ],
-          templates: [
-            {
-              id: "id-template-level-1",
-              name: "level 1 template",
-            },
-          ],
-        },
-      ],
-      templates: [
-        {
-          id: "id-template-level-root",
-          name: "root level template",
-        },
-      ],
-    },
-  ];
-
-const SMARTDOCUMENTS_WITH_PARENT_IDS: SmartDocumentsTemplateGroupWithParentId[] =
-  [
-    {
-      id: "id-group-level-root",
-      name: "Dimpact",
-      groups: [
-        {
-          id: "id-group-level-1",
-          name: "level1 group",
-          groups: [
-            {
-              id: "id-group-level-2",
-              name: "level2 group",
-              groups: [
-                {
-                  id: "id-group-level-3",
-                  name: "level3 group",
-                  groups: [],
-                  templates: [
-                    {
-                      id: "id-template-level-3",
-                      name: "level 1 template",
-                      parentGroupId: "id-group-level-3",
-                    },
-                  ],
-                },
-              ],
-              templates: [
-                {
-                  id: "id-template-level-2",
-                  name: "level 1 template",
-                  parentGroupId: "id-group-level-2",
-                },
-              ],
-            },
-          ],
-          templates: [
-            {
-              id: "id-template-level-1",
-              name: "level 1 template",
-              parentGroupId: "id-group-level-1",
-            },
-          ],
-        },
-      ],
-      templates: [
-        {
-          id: "id-template-level-root",
-          name: "root level template",
-          parentGroupId: "id-group-level-root",
-        },
-      ],
-    },
-  ];
-
-const MAPPED_SMARTDOCUMENTS_WITH_PARENT_IDS: MappedSmartDocumentsTemplateGroupWithParentId[] =
-  [
-    {
-      id: "id-group-level-root",
-      name: "Dimpact",
-      groups: [
-        {
-          id: "id-group-level-1",
-          name: "level1 group",
-          groups: [
-            {
-              id: "id-group-level-2",
-              name: "level2 group",
-              groups: [
-                {
-                  id: "id-group-level-3",
-                  name: "level3 group",
-                  groups: [],
-                  templates: [
-                    {
-                      id: "id-template-level-3",
-                      name: "level 1 template",
-                      informatieObjectTypeUUID: "info-object-type-id-level-3",
-                      parentGroupId: "id-group-level-3",
-                    },
-                  ],
-                },
-              ],
-              templates: [
-                {
-                  id: "id-template-level-2",
-                  name: "level 1 template",
-                  informatieObjectTypeUUID: "info-object-type-id-level-2",
-                  parentGroupId: "id-group-level-2",
-                },
-              ],
-            },
-          ],
-          templates: [
-            {
-              id: "id-template-level-1",
-              name: "level 1 template",
-              informatieObjectTypeUUID: "info-object-type-id-level-1",
-              parentGroupId: "id-group-level-1",
-            },
-          ],
-        },
-      ],
-      templates: [
-        {
-          id: "id-template-level-root",
-          name: "root level template",
-          informatieObjectTypeUUID: "info-object-type-id-level-root",
-          parentGroupId: "id-group-level-root",
-        },
-      ],
-    },
-  ];
-
-const INPUT_SOME_UNMAPPED_SMARTDOCUMENTS_WITH_PARENT_IDS: MappedSmartDocumentsTemplateGroupWithParentId[] =
-  [
-    {
-      id: "id-group-level-root",
-      name: "Dimpact",
-      groups: [
-        {
-          id: "id-group-level-1",
-          name: "level1 group",
-          groups: [
-            {
-              id: "id-group-level-2",
-              name: "level2 group",
-              groups: [
-                {
-                  id: "id-group-level-3",
-                  name: "level3 group",
-                  groups: [],
-                  templates: [
-                    {
-                      id: "id-template-level-3",
-                      name: "level 1 template",
-                      informatieObjectTypeUUID: "info-object-type-id-level-3",
-                      parentGroupId: "id-group-level-3",
-                    },
-                  ],
-                },
-              ],
-              templates: [
-                {
-                  id: "id-template-level-2",
-                  name: "level 1 template",
-                  informatieObjectTypeUUID: "", // unmapped
-                  parentGroupId: "id-group-level-2",
-                },
-              ],
-            },
-          ],
-          templates: [
-            {
-              id: "id-template-level-1",
-              name: "level 1 template",
-              informatieObjectTypeUUID: "info-object-type-id-level-1",
-              parentGroupId: "id-group-level-1",
-            },
-          ],
-        },
-      ],
-      templates: [
-        {
-          id: "id-template-level-root",
-          name: "root level template",
-          informatieObjectTypeUUID: "", // unmapped
-          parentGroupId: "id-group-level-root",
-        },
-      ],
-    },
-  ];
-
-const RESULT_ONLY_MAPPED_SMARTDOCUMENTS_WITH_PARENT_IDS: MappedSmartDocumentsTemplateGroupWithParentId[] =
-  [
-    {
-      id: "id-group-level-root",
-      name: "Dimpact",
-      groups: [
-        {
-          id: "id-group-level-1",
-          name: "level1 group",
-          groups: [
-            {
-              id: "id-group-level-2",
-              name: "level2 group",
-              groups: [
-                {
-                  id: "id-group-level-3",
-                  name: "level3 group",
-                  groups: [],
-                  templates: [
-                    {
-                      id: "id-template-level-3",
-                      name: "level 1 template",
-                      informatieObjectTypeUUID: "info-object-type-id-level-3",
-                    },
-                  ],
-                },
-              ],
-              templates: [],
-            },
-          ],
-          templates: [
-            {
-              id: "id-template-level-1",
-              name: "level 1 template",
-              informatieObjectTypeUUID: "info-object-type-id-level-1",
-            },
-          ],
-        },
-      ],
-      templates: [],
-    },
-  ];
-
-const MAPPINGS_ONLY_FLAT_ARRAY: PlainTemplateMappings[] = [
-  {
-    id: "id-template-level-root",
-    parentGroupId: "id-group-level-root",
-    informatieObjectTypeUUID: "info-object-type-id-level-root",
-  },
-  {
-    id: "id-template-level-1",
-    parentGroupId: "id-group-level-1",
-    informatieObjectTypeUUID: "info-object-type-id-level-1",
-  },
-  {
-    id: "id-template-level-2",
-    parentGroupId: "id-group-level-2",
-    informatieObjectTypeUUID: "info-object-type-id-level-2",
-  },
-  {
-    id: "id-template-level-3",
-    parentGroupId: "id-group-level-3",
-    informatieObjectTypeUUID: "info-object-type-id-level-3",
-  },
-];
-
-const RESULT_FLATTENED_GROUPS: MappedSmartDocumentsTemplateGroupWithParentId[] =
-  [
-    {
-      id: "id-group-level-root",
-      name: "Dimpact",
-      templates: [
-        {
-          id: "id-template-level-root",
-          name: "root level template",
-          informatieObjectTypeUUID: "info-object-type-id-level-root",
-          parentGroupId: "id-group-level-root",
-        },
-      ],
-    },
-    {
-      id: "id-group-level-1",
-      name: "level1 group",
-      templates: [
-        {
-          id: "id-template-level-1",
-          name: "level 1 template",
-          informatieObjectTypeUUID: "info-object-type-id-level-1",
-          parentGroupId: "id-group-level-1",
-        },
-      ],
-    },
-    {
-      id: "id-group-level-2",
-      name: "level2 group",
-      templates: [
-        {
-          id: "id-template-level-2",
-          name: "level 1 template",
-          informatieObjectTypeUUID: "info-object-type-id-level-2",
-          parentGroupId: "id-group-level-2",
-        },
-      ],
-    },
-    {
-      id: "id-group-level-3",
-      name: "level3 group",
-      templates: [
-        {
-          id: "id-template-level-3",
-          name: "level 1 template",
-          informatieObjectTypeUUID: "info-object-type-id-level-3",
-          parentGroupId: "id-group-level-3",
-        },
-      ],
-    },
-  ];
+  SOME_UNMAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
+  MAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
+  MAPPINGS_ONLY_FLAT_ARRAY,
+  ALL_GROUPS_FLATTENED,
+  PREPPED_FOR_REST_REQUEST_MAPPED_SMARTDOCUMENTS,
+  SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
+  SMARTDOCUMENTS_TEMPLATE_GROUPS,
+} from "./smart-documents.service.test-data";
 
 const log = (test, result, expected) => {
   const _isEqual = isEqual(result, expected);
@@ -373,12 +34,9 @@ const log = (test, result, expected) => {
       }
     }
   }
-
-  console.log("result: ", test, _isEqual);
-
   if (!_isEqual) {
-    console.log("RESULT:", JSON.stringify(result));
-    console.log("EXPECT:", JSON.stringify(expected));
+    console.log("RESULT: ", test, JSON.stringify(result));
+    console.log("EXPECT: ", test, JSON.stringify(expected));
   }
 };
 
@@ -548,20 +206,22 @@ describe("SmartDocumentsService service functions tests", () => {
 
   it("addParentIdsToMakeTemplatesUnique - Should add parentGroupId to all templates", () => {
     const result = smartDocumentsService.addParentIdsToMakeTemplatesUnique(
-      TEST_INPUT_SMARTDOCUMENTS_LIST,
+      SMARTDOCUMENTS_TEMPLATE_GROUPS,
     );
     log(
       "addParentIdsToMakeTemplatesUnique",
       result,
-      SMARTDOCUMENTS_WITH_PARENT_IDS,
+      SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
     );
 
-    expect(isEqual(result, SMARTDOCUMENTS_WITH_PARENT_IDS)).toBe(true);
+    expect(
+      isEqual(result, SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS),
+    ).toBe(true);
   });
 
   it("getTemplateMappings - Should put all mappings from mapped SmartDocuments with parent id's into a flat array", () => {
     const result = smartDocumentsService.getTemplateMappings(
-      MAPPED_SMARTDOCUMENTS_WITH_PARENT_IDS,
+      MAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
     );
     log("getTemplateMappings", result, MAPPINGS_ONLY_FLAT_ARRAY);
 
@@ -570,35 +230,41 @@ describe("SmartDocumentsService service functions tests", () => {
 
   it("addTemplateMappings - Should add all the mappings from flat array into SmartDocuments with parent id's", () => {
     const result = smartDocumentsService.addTemplateMappings(
-      SMARTDOCUMENTS_WITH_PARENT_IDS,
+      SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
       MAPPINGS_ONLY_FLAT_ARRAY,
     );
-    log("addTemplateMappings", result, MAPPED_SMARTDOCUMENTS_WITH_PARENT_IDS);
+    log(
+      "addTemplateMappings",
+      result,
+      MAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
+    );
 
-    expect(isEqual(result, MAPPED_SMARTDOCUMENTS_WITH_PARENT_IDS)).toBe(true);
+    expect(
+      isEqual(result, MAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS),
+    ).toBe(true);
   });
 
   it("flattenNestedGroupsToRootGroups - Should flatten mapped SmartDocuments with parents id's nested array into flat groups array", () => {
     const result = smartDocumentsService.flattenNestedGroups(
-      MAPPED_SMARTDOCUMENTS_WITH_PARENT_IDS,
+      MAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
     );
-    log("flattenDocumentsTemplateGroup", result, RESULT_FLATTENED_GROUPS);
+    log("flattenDocumentsTemplateGroup", result, ALL_GROUPS_FLATTENED);
 
-    expect(isEqual(result, RESULT_FLATTENED_GROUPS)).toBe(true);
+    expect(isEqual(result, ALL_GROUPS_FLATTENED)).toBe(true);
   });
 
   it("getOnlyMappedTemplates - Should strip all unmapped branches from the mapped SmartDocuments with parents id's", () => {
     const result = smartDocumentsService.getOnlyMappedTemplates(
-      INPUT_SOME_UNMAPPED_SMARTDOCUMENTS_WITH_PARENT_IDS,
+      SOME_UNMAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
     );
     log(
       "getOnlyMappedTemplates",
       result,
-      RESULT_ONLY_MAPPED_SMARTDOCUMENTS_WITH_PARENT_IDS,
+      PREPPED_FOR_REST_REQUEST_MAPPED_SMARTDOCUMENTS,
     );
 
     expect(
-      isEqual(result, RESULT_ONLY_MAPPED_SMARTDOCUMENTS_WITH_PARENT_IDS),
+      isEqual(result, PREPPED_FOR_REST_REQUEST_MAPPED_SMARTDOCUMENTS),
     ).toBe(true);
   });
 });
