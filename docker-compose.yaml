@@ -492,7 +492,7 @@ services:
       - OPA_API_CLIENT_MP_REST_URL=http://opa:8181
       - OPEN_FORMS_URL=http://localhost:9999 # dummy for now
       - OPEN_NOTIFICATIONS_API_SECRET_KEY=openNotificatiesApiSecretKey
-      - SD_ENABLED=true
+      - SD_ENABLED=${SD_ENABLED:-false}
       - SD_AUTHENTICATION=${SD_AUTHENTICATION:-dummySmartDocumentsAuthentication}
       - SD_CLIENT_MP_REST_URL=${SD_CLIENT_MP_REST_URL:-http://smartdocuments-wiremock:8080}
       - SD_FIXED_USER_NAME=${SD_FIXED_USER_NAME:-}

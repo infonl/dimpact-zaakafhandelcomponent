@@ -58,6 +58,7 @@ class ProjectConfig : AbstractProjectConfig() {
     private val dockerComposeEnvironment = mapOf(
         "KVK_API_CLIENT_MP_REST_URL" to KVK_MOCK_BASE_URI,
         "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to OFFICE_CONVERTER_BASE_URI,
+        "SD_ENABLED" to "true",
         "SD_CLIENT_MP_REST_URL" to SMART_DOCUMENTS_MOCK_BASE_URI,
         "SMTP_SERVER" to "greenmail",
         "SMTP_PORT" to SMTP_SERVER_PORT.toString(),
