@@ -9,6 +9,18 @@ import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.ser
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
+export type SmartDocumentsTemplateWithParentId =
+  GeneratedType<"RestSmartDocumentsTemplate"> & {
+    parentGroupId?: string | null;
+  };
+export type SmartDocumentsTemplateGroupWithParentId = Omit<
+  GeneratedType<"RestSmartDocumentsTemplateGroup">,
+  "groups" | "templates"
+> & {
+  groups?: SmartDocumentsTemplateGroupWithParentId[] | null;
+  templates?: SmartDocumentsTemplateWithParentId[] | null;
+};
+
 export type MappedSmartDocumentsTemplateWithParentId =
   GeneratedType<"RestMappedSmartDocumentsTemplate"> & {
     parentGroupId?: string | null;
