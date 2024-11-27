@@ -112,13 +112,16 @@ class SmartDocumentsTemplatesService @Inject constructor(
      */
     fun getTemplatesMapping(
         zaakafhandelParametersUUID: UUID
-    ): Set<RestMappedSmartDocumentsTemplateGroup> {
+    ): Set<RestMappedSmartDocumentsTemplateGroup> =
         if (!smartDocumentsService.isEnabled()) {
-            LOG.fine { "Smart documents is disabled" }
-            return emptySet()
+            LOG.fine { "Smart documents is disabled. Returning empty set of template groups" }
+            emptySet()
+        } else {
+            LOG.fine { "Fetching template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID" }
+            fetchTemplatesMapping(zaakafhandelParametersUUID)
         }
 
-        LOG.fine { "Fetching template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID" }
+    private fun fetchTemplatesMapping(zaakafhandelParametersUUID: UUID): Set<RestMappedSmartDocumentsTemplateGroup> =
         entityManager.criteriaBuilder.let { builder ->
             builder.createQuery(SmartDocumentsTemplateGroup::class.java).let { query ->
                 query.from(SmartDocumentsTemplateGroup::class.java).let { root ->
@@ -140,7 +143,6 @@ class SmartDocumentsTemplatesService @Inject constructor(
                 }
             }
         }
-    }
 
     /**
      * Get the information object type UUID for a pair of group-template in a zaakafhandelparameters
