@@ -10,13 +10,13 @@ import isEqual from "lodash/isEqual";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { SmartDocumentsService } from "./smart-documents.service";
 import {
-  SOME_UNMAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
+  FLATTENED_GROUPS,
   MAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
   MAPPINGS_ONLY_FLAT_ARRAY,
-  FLATTENED_GROUPS,
   PREPPED_FOR_REST_REQUEST_MAPPED_SMARTDOCUMENTS,
-  SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
   SMARTDOCUMENTS_TEMPLATE_GROUPS,
+  SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
+  SOME_UNMAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
 } from "./smart-documents.service.test-data";
 
 describe("SmartDocumentsService.flattenDocumentsTemplateGroup", () => {
