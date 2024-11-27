@@ -547,7 +547,7 @@ describe("SmartDocumentsService service functions tests", () => {
   });
 
   it("flattenNestedGroupsToRootGroups - Should add the mappings to original ", () => {
-    const result = smartDocumentsService.flattenNestedGroupsToRootGroups(
+    const result = smartDocumentsService.flattenNestedGroups(
       INTERMEDIATE_RESULT_MAPPED_SMARTDOCUMENTS_WITH_PARENT_IDS,
     );
     log(

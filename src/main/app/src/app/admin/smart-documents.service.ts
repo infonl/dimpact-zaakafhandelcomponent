@@ -204,28 +204,24 @@ export class SmartDocumentsService {
       .filter(Boolean);
   };
 
-  flattenNestedGroupsToRootGroups = (
-    data: MappedSmartDocumentsTemplateGroupWithParentId[],
-  ): MappedSmartDocumentsTemplateFlattenedGroupWithParentId[] => {
-    return data.flatMap((item) => {
-      const rootItemWithoutGroups = {
-        id: item.id,
-        name: item.name,
-        templates: item.templates,
-      };
+  flattenNestedGroups(
+    groups: MappedSmartDocumentsTemplateGroupWithParentId[],
+  ): MappedSmartDocumentsTemplateFlattenedGroupWithParentId[] {
+    const result = [];
 
-      const flattenedGroups =
-        item.groups?.flatMap((group) => {
-          const flattenedSubGroups = this.flattenNestedGroupsToRootGroups(
-            group.groups ?? [],
-          );
+    function traverse(group) {
+      const { id, name, templates = [] } = group;
+      result.push({ id, name, templates });
 
-          return [group, ...flattenedSubGroups];
-        }) || [];
+      if (group.groups) {
+        group.groups.forEach(traverse);
+      }
+    }
 
-      return [rootItemWithoutGroups, ...flattenedGroups];
-    });
-  };
+    groups.forEach(traverse);
+
+    return result;
+  }
 
   addTemplateMappings = (
     groups: GeneratedType<"RestSmartDocumentsTemplateGroup">[],

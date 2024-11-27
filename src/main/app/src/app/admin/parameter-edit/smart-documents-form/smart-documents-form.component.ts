@@ -70,10 +70,9 @@ export class SmartDocumentsFormComponent {
       ),
     );
 
-    this.dataSource.data =
-      this.smartDocumentsService.flattenNestedGroupsToRootGroups(
-        this.newTemplateMappings,
-      );
+    this.dataSource.data = this.smartDocumentsService.flattenNestedGroups(
+      this.newTemplateMappings,
+    );
   }
 
   allSmartDocumentTemplateGroupsQuery = injectQuery(() => ({
