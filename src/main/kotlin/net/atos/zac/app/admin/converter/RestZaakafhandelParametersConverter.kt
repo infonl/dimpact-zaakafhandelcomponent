@@ -108,7 +108,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             domein = restZaakafhandelParameters.domein
             gebruikersnaamMedewerker = restZaakafhandelParameters.defaultBehandelaarId
             einddatumGeplandWaarschuwing = restZaakafhandelParameters.einddatumGeplandWaarschuwing
-            isDocumentMakenIngeschakeld = restZaakafhandelParameters.documentCreation.enabledForZaaktype != false
+            isDocumentMakenIngeschakeld = restZaakafhandelParameters.documentCreation.enabledForZaaktype
         }.also {
             it.setHumanTaskParametersCollection(
                 humanTaskParametersConverter.convertRESTHumanTaskParameters(
