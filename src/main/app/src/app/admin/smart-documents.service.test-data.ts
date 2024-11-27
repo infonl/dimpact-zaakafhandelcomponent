@@ -300,7 +300,7 @@ export const MAPPINGS_ONLY_FLAT_ARRAY: PlainTemplateMappings[] = [
   },
 ];
 
-export const ALL_GROUPS_FLATTENED: MappedSmartDocumentsTemplateGroupWithParentId[] =
+export const GROUPS_FLATTENED: MappedSmartDocumentsTemplateGroupWithParentId[] =
   [
     {
       id: "id-group-level-root",

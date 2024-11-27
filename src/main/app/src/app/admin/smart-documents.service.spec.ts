@@ -10,7 +10,7 @@ import isEqual from "lodash/isEqual";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { SmartDocumentsService } from "./smart-documents.service";
 import {
-  FLATTENED_GROUPS,
+  GROUPS_FLATTENED,
   MAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
   MAPPINGS_ONLY_FLAT_ARRAY,
   PREPPED_FOR_REST_REQUEST_MAPPED_SMARTDOCUMENTS,
@@ -217,7 +217,7 @@ describe("SmartDocumentsService service functions tests", () => {
       MAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
     );
 
-    expect(isEqual(result, FLATTENED_GROUPS)).toBe(true);
+    expect(isEqual(result, GROUPS_FLATTENED)).toBe(true);
   });
 
   it("getOnlyMappedTemplates - Should strip all unmapped branches from the mapped SmartDocuments with parents id's", () => {
