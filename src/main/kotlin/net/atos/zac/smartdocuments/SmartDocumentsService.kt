@@ -34,6 +34,9 @@ class SmartDocumentsService @Inject constructor(
     @RestClient
     private val smartDocumentsClient: SmartDocumentsClient,
 
+    @ConfigProperty(name = "SD_ENABLED", defaultValue = "false")
+    private val enabled: Boolean,
+
     @ConfigProperty(name = "SD_CLIENT_MP_REST_URL")
     private val smartDocumentsURL: String,
 
@@ -48,6 +51,8 @@ class SmartDocumentsService @Inject constructor(
     companion object {
         private val LOG = Logger.getLogger(SmartDocumentsService::class.java.name)
     }
+
+    fun isEnabled() = enabled
 
     /**
      * Sends a request to SmartDocuments to create a document using the Smart Documents wizard (= attended mode).
