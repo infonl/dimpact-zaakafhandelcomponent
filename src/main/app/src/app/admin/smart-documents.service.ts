@@ -60,17 +60,6 @@ export class SmartDocumentsService {
       );
   }
 
-  getAllSmartDocumentsTemplateGroupsFlat(): Observable<
-    GeneratedType<"RestSmartDocumentsTemplateGroup">[]
-  > {
-    return this.zacHttp
-      .GET("/rest/zaakafhandelparameters/document-templates")
-      .pipe(
-        map((data) => data.map(this.flattenDocumentsTemplateGroup).flat()),
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
-  }
-
   getTemplatesMapping(
     zaakafhandelUUID: string,
   ): Observable<GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[]> {
