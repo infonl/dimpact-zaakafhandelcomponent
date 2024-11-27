@@ -177,7 +177,7 @@ export class SmartDocumentsService {
     return result;
   }
 
-  getMappedTemplates = (
+  getOnlyMappedTemplates = (
     data: MappedSmartDocumentsTemplateGroupWithParentId[],
   ): GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] => {
     return data
@@ -187,7 +187,7 @@ export class SmartDocumentsService {
           .map(({ parentGroupId, ...template }) => template);
 
         const groups = group.groups
-          ? this.getMappedTemplates(group.groups)
+          ? this.getOnlyMappedTemplates(group.groups)
           : [];
 
         if (templates.length || groups.length) {
@@ -271,7 +271,7 @@ export class SmartDocumentsService {
     });
   };
 
-  addParentIdToTemplates = <
+  addParentIdsToMakeTemplatesUnique = <
     T extends
       | GeneratedType<"RestSmartDocumentsTemplateGroup">
       | GeneratedType<"RestMappedSmartDocumentsTemplateGroup">,
@@ -291,7 +291,9 @@ export class SmartDocumentsService {
           ...template,
           parentGroupId: group.id,
         })),
-        groups: group.groups ? this.addParentIdToTemplates(group.groups) : [],
+        groups: group.groups
+          ? this.addParentIdsToMakeTemplatesUnique(group.groups)
+          : [],
       };
     });
   };

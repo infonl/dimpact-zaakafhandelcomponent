@@ -52,12 +52,12 @@ export class SmartDocumentsFormComponent {
 
   private prepareDatasource() {
     const allSmartDocumentTemplateGroups: GeneratedType<"RestSmartDocumentsTemplateGroup">[] =
-      this.smartDocumentsService.addParentIdToTemplates(
+      this.smartDocumentsService.addParentIdsToMakeTemplatesUnique(
         this.allSmartDocumentTemplateGroupsQuery.data(),
       );
 
     this.currentTemplateMappings =
-      this.smartDocumentsService.addParentIdToTemplates(
+      this.smartDocumentsService.addParentIdsToMakeTemplatesUnique(
         this.currentTemplateMappingsQuery.data(),
       );
 
@@ -172,7 +172,9 @@ export class SmartDocumentsFormComponent {
   public saveSmartDocumentsMapping(): Observable<never> {
     return this.smartDocumentsService.storeTemplatesMapping(
       this.zaakTypeUuid,
-      this.smartDocumentsService.getMappedTemplates(this.newTemplateMappings),
+      this.smartDocumentsService.getOnlyMappedTemplates(
+        this.newTemplateMappings,
+      ),
     );
   }
 }
