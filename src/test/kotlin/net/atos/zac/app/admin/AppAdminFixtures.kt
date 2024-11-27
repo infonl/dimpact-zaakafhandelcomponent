@@ -69,7 +69,8 @@ fun createRestZaakAfhandelParameters(
     zaaktype = restZaaktypeOverzicht,
     productaanvraagtype = productaanvraagtype,
     documentCreation = RestDocumentCreationParameters(
-        enabledGlobally = true
+        enabledGlobally = true,
+        enabledForZaaktype = true
     )
 )
 
