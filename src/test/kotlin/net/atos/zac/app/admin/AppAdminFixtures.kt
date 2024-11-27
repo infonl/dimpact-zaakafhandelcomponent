@@ -7,6 +7,7 @@ package net.atos.zac.app.admin
 
 import net.atos.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.zac.app.admin.model.RESTZaaktypeOverzicht
+import net.atos.zac.app.admin.model.RestDocumentCreationParameters
 import net.atos.zac.app.admin.model.RestReferenceTable
 import net.atos.zac.app.admin.model.RestReferenceTableUpdate
 import net.atos.zac.app.admin.model.RestReferenceTableValue
@@ -66,7 +67,8 @@ fun createRestZaakAfhandelParameters(
     id = id,
     domein = domein,
     zaaktype = restZaaktypeOverzicht,
-    productaanvraagtype = productaanvraagtype
+    productaanvraagtype = productaanvraagtype,
+    documentCreation = RestDocumentCreationParameters()
 )
 
 @Suppress("LongParameterList")
