@@ -4,7 +4,6 @@
  */
 package net.atos.zac.app.admin.model
 
-import jakarta.annotation.Nullable
 import net.atos.zac.app.zaak.model.RESTZaakStatusmailOptie
 import net.atos.zac.app.zaak.model.RestResultaattype
 import nl.lifely.zac.util.AllOpen

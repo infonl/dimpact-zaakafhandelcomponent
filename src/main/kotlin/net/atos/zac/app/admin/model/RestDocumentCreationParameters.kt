@@ -9,7 +9,7 @@ import nl.lifely.zac.util.NoArgConstructor
 
 @NoArgConstructor
 data class RestDocumentCreationParameters(
-    val enabledGlobally: Boolean?,
+    val enabledGlobally: Boolean? = false,
 
     @Nullable
     val enabledForZaaktype: Boolean? = false
