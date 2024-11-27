@@ -27,7 +27,6 @@ import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.smartdocuments.SmartDocumentsException
-import net.atos.zac.smartdocuments.SmartDocumentsService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import java.util.UUID
 
@@ -41,7 +40,6 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
     val zaakafhandelParametersConverter = mockk<RestZaakafhandelParametersConverter>()
     val caseDefinitionConverter = mockk<RESTCaseDefinitionConverter>()
     val resultaattypeConverter = mockk<RestResultaattypeConverter>()
-    val smartDocumentsService = mockk<SmartDocumentsService>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val policyService = mockk<PolicyService>()
 
@@ -96,9 +94,10 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         } returns updatedRestZaakafhandelParameters
 
         When("the zaakafhandelparameters are updated with a different domein") {
-            val returnedRestZaakafhandelParameters = zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
-                restZaakafhandelParameters
-            )
+            val returnedRestZaakafhandelParameters =
+                zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
+                    restZaakafhandelParameters
+                )
 
             Then(
                 """
@@ -141,7 +140,9 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
             zaakafhandelParametersConverter.toZaakafhandelParameters(restZaakafhandelParameters)
         } returns zaakafhandelParameters
         every {
-            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(productaanvraagtype)
+            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                productaanvraagtype
+            )
         } returns
             emptyList()
         every {
@@ -152,9 +153,10 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         } returns updatedRestZaakafhandelParameters
 
         When("the zaakafhandelparameters are created") {
-            val returnedRestZaakafhandelParameters = zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
-                restZaakafhandelParameters
-            )
+            val returnedRestZaakafhandelParameters =
+                zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
+                    restZaakafhandelParameters
+                )
 
             Then(
                 """
@@ -190,7 +192,9 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         )
         every { policyService.readOverigeRechten().beheren } returns true
         every {
-            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(productaanvraagtype)
+            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                productaanvraagtype
+            )
         } returns
             listOf(activeZaakafhandelParametersForThisProductaanvraagtype)
 
