@@ -71,7 +71,7 @@ class DocumentCreationRestService @Inject constructor(
                 title = restDocumentCreationAttendedData.title,
                 description = restDocumentCreationAttendedData.description,
                 author = restDocumentCreationAttendedData.author,
-                creationDate = restDocumentCreationAttendedData.creationDate ?: ZonedDateTime.now()
+                creationDate = restDocumentCreationAttendedData.creationDate
             )
                 .let(documentCreationService::createDocumentAttended)
                 .let { response -> RestDocumentCreationAttendedResponse(response.redirectUrl, response.message) }

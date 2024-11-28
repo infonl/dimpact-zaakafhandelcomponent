@@ -21,9 +21,11 @@ data class RestDocumentCreationAttendedData(
 
     var description: String? = null,
 
-    var author: String? = null,
+    @field:NotNull
+    var author: String,
 
-    var creationDate: ZonedDateTime? = null,
+    @field:NotNull
+    var creationDate: ZonedDateTime,
 
     @field:NotNull
     var smartDocumentsTemplateGroupId: String,
