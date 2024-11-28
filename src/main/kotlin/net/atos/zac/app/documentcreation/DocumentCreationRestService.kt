@@ -19,8 +19,8 @@ import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.zac.app.documentcreation.rest.RestDocumentCreationAttendedData
-import net.atos.zac.app.documentcreation.rest.RestDocumentCreationAttendedResponse
+import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
+import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
