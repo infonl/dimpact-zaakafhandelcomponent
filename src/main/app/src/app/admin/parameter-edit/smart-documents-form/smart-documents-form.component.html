@@ -31,9 +31,9 @@
       <div class="node-name flex-1">{{ node.name }}</div>
       <mat-chip
         class="template-group-chip"
-        [attr.data-selected]="hasSelected(node.id)"
+        [highlighted]="hasSelected(node.id)"
       >
-        {{ (hasSelected(node.id) ? "aktief" : "inaktief") | translate }}
+        {{ (hasSelected(node.id) ? "actief" : "inactief") | translate }}
       </mat-chip>
     </mat-tree-node>
   </mat-tree>

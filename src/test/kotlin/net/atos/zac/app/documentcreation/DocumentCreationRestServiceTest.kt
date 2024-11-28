@@ -17,7 +17,7 @@ import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.app.documentcreation.rest.RestDocumentCreationAttendedData
+import net.atos.zac.app.documentcreation.model.createRestDocumentCreationAttendedData
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
@@ -50,7 +50,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         val zaak = createZaak(
             zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
         )
-        val restDocumentCreationAttendedData = RestDocumentCreationAttendedData(
+        val restDocumentCreationAttendedData = createRestDocumentCreationAttendedData(
             zaakUuid = zaak.uuid,
             taskId = "dummyTaskId",
             smartDocumentsTemplateGroupId = "groupId",

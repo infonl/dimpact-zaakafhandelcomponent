@@ -10,6 +10,6 @@ export class DocumentCreationData {
   public smartDocumentsTemplateId: string;
   public title: string;
   public description?: string;
-  public author?: string;
-  public creationDate?: string;
+  public author: string;
+  public creationDate: string;
 }
