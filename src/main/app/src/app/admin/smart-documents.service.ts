@@ -75,29 +75,7 @@ export class SmartDocumentsService {
         },
       )
       .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
-  }
-
-  getZaakTypeTemplatesMappingsFlat(
-    zaakafhandelUUID: string,
-  ): Observable<GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[]> {
-    return this.zacHttp
-      .GET(
-        "/rest/zaakafhandelparameters/{zaakafhandelUUID}/document-templates",
-        {
-          pathParams: {
-            path: {
-              zaakafhandelUUID,
-            },
-          },
-        },
-      )
-      .pipe(
-        map((data) => {
-          const flattened = data.map(this.flattenDocumentsTemplateGroup).flat();
-          return flattened;
-        }),
+        map((data) => this.flattenNestedGroups(data)),
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
@@ -121,49 +99,6 @@ export class SmartDocumentsService {
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
-  }
-
-  /**
-   * Flattens a nested RootObject (GeneratedType<"RestMappedSmartDocumentsTemplateGroup">) into an array of group objects,
-   * omitting nested groups, and preserving templates.
-   * @param {GeneratedType<"RestMappedSmartDocumentsTemplateGroup">} obj - The root object to flatten.
-   * @returns {Array<Omit<GeneratedType<"RestMappedSmartDocumentsTemplateGroup">, "groups">>} - The flattened array of groups with templates, excluding nested groups.
-   */
-  flattenDocumentsTemplateGroup(
-    obj: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">,
-  ): Array<
-    Omit<GeneratedType<"RestMappedSmartDocumentsTemplateGroup">, "groups">
-  > {
-    const result: Array<
-      Omit<GeneratedType<"RestMappedSmartDocumentsTemplateGroup">, "groups">
-    > = [];
-
-    function flattenDocumentsTemplateGroup(
-      group: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">,
-    ) {
-      result.push({
-        id: group.id,
-        name: group.name,
-        templates: group.templates || [],
-      });
-
-      if (group.groups) {
-        group.groups.forEach(flattenDocumentsTemplateGroup);
-      }
-    }
-
-    // Flatten the root object itself
-    result.push({
-      id: obj.id,
-      name: obj.name,
-      templates: obj.templates || [],
-    });
-
-    if (obj.groups) {
-      obj.groups.forEach(flattenDocumentsTemplateGroup);
-    }
-
-    return result;
   }
 
   getOnlyMappedTemplates = (
@@ -200,7 +135,7 @@ export class SmartDocumentsService {
 
     function traverse(group) {
       const { id, name, templates = [] } = group;
-      result.push({ id, name, templates });
+      if (templates.length) result.push({ id, name, templates });
 
       if (group.groups) {
         group.groups.forEach(traverse);
