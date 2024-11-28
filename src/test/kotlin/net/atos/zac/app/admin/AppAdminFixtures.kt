@@ -6,7 +6,6 @@
 package net.atos.zac.app.admin
 
 import net.atos.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
-import net.atos.zac.app.admin.model.RESTCaseDefinition
 import net.atos.zac.app.admin.model.RESTZaaktypeOverzicht
 import net.atos.zac.app.admin.model.RestDocumentCreationParameters
 import net.atos.zac.app.admin.model.RestReferenceTable
