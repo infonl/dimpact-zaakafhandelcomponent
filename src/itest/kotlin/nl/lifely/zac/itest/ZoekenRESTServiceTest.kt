@@ -14,6 +14,8 @@ import nl.lifely.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_2
 import nl.lifely.zac.itest.config.ItestConfiguration.DATE_2024_01_01
 import nl.lifely.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.lifely.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
+import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
+import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.lifely.zac.itest.config.ItestConfiguration.TAAK_1_FATAL_DATE
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.lifely.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
@@ -462,7 +464,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                                 "status": "NIET_TOEGEKEND",
                                 "zaakIdentificatie": "$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
                                 "zaakOmschrijving": "$ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING",
-                                "zaakToelichting": "$ZAAK_PRODUCTAANVRAAG_1_TOELICHTING",
+                                "zaakToelichting": "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM met kenmerk '$OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK' $ZAAK_PRODUCTAANVRAAG_1_TOELICHTING",
                                 "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                             }
                         ],
