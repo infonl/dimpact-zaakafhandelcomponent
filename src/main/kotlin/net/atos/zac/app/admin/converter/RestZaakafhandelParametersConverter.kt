@@ -108,7 +108,10 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             domein = restZaakafhandelParameters.domein
             gebruikersnaamMedewerker = restZaakafhandelParameters.defaultBehandelaarId
             einddatumGeplandWaarschuwing = restZaakafhandelParameters.einddatumGeplandWaarschuwing
-            isDocumentMakenIngeschakeld = restZaakafhandelParameters.documentCreation.enabledForZaaktype
+            // Since we don't have switch in UI @ 28.11.2024 the document creation is enabled by default.
+            // When switch on/off functionality is in the UI we need to change the below line to:
+            // isDocumentMakenIngeschakeld = restZaakafhandelParameters.documentCreation.enabledForZaaktype
+            isDocumentMakenIngeschakeld = true
         }.also {
             it.setHumanTaskParametersCollection(
                 humanTaskParametersConverter.convertRESTHumanTaskParameters(

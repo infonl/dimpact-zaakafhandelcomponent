@@ -6,6 +6,7 @@
 package net.atos.zac.app.admin
 
 import net.atos.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
+import net.atos.zac.app.admin.model.RESTCaseDefinition
 import net.atos.zac.app.admin.model.RESTZaaktypeOverzicht
 import net.atos.zac.app.admin.model.RestDocumentCreationParameters
 import net.atos.zac.app.admin.model.RestReferenceTable
@@ -61,7 +62,7 @@ fun createRestReferenceTableValue(
 fun createRestZaakAfhandelParameters(
     id: Long? = 1234L,
     domein: String = "dummyDomein",
-    restZaaktypeOverzicht: RESTZaaktypeOverzicht = createRESTZaaktypeOverzicht(),
+    restZaaktypeOverzicht: RESTZaaktypeOverzicht = createRestZaaktypeOverzicht(),
     productaanvraagtype: String? = null
 ) = RestZaakafhandelParameters(
     id = id,
@@ -70,12 +71,12 @@ fun createRestZaakAfhandelParameters(
     productaanvraagtype = productaanvraagtype,
     documentCreation = RestDocumentCreationParameters(
         enabledGlobally = true,
-        enabledForZaaktype = true
+        enabledForZaaktype = false
     )
 )
 
 @Suppress("LongParameterList")
-fun createRESTZaaktypeOverzicht(
+fun createRestZaaktypeOverzicht(
     uuid: UUID = UUID.randomUUID(),
     identificatie: String = "dummyIdentificatie",
     doel: String = "dummyDoel",

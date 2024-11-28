@@ -180,7 +180,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         val restZaakafhandelParameters = createRestZaakAfhandelParameters(
             id = null,
             productaanvraagtype = productaanvraagtype,
-            restZaaktypeOverzicht = createRESTZaaktypeOverzicht(omschrijving = "dummyZaaktypeOmschrijving2")
+            restZaaktypeOverzicht = createRestZaaktypeOverzicht(omschrijving = "dummyZaaktypeOmschrijving2")
         )
         val zaakafhandelParameters = createZaakafhandelParameters(
             id = null
