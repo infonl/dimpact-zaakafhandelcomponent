@@ -95,4 +95,22 @@ describe("SmartDocumentsService service functions tests", () => {
       isEqual(result, PREPPED_FOR_REST_REQUEST_MAPPED_SMARTDOCUMENTS),
     ).toBe(true);
   });
+
+  it("All functions - Should handle empty array", () => {
+    expect(
+      isEqual(smartDocumentsService.addParentIdsToMakeTemplatesUnique([]), []),
+    ).toBe(true);
+    expect(isEqual(smartDocumentsService.getTemplateMappings([]), [])).toBe(
+      true,
+    );
+    expect(isEqual(smartDocumentsService.addTemplateMappings([], []), [])).toBe(
+      true,
+    );
+    expect(isEqual(smartDocumentsService.flattenNestedGroups([]), [])).toBe(
+      true,
+    );
+    expect(isEqual(smartDocumentsService.getOnlyMappedTemplates([]), [])).toBe(
+      true,
+    );
+  });
 });
