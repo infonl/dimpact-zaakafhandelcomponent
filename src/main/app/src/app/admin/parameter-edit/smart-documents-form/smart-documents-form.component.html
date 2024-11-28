@@ -28,11 +28,8 @@
           {{ treeControl.isExpanded(node) ? "expand_more" : "chevron_right" }}
         </mat-icon>
       </button>
-      <div class="node-name flex-1">{{ node.name }}</div>
-      <mat-chip
-        class="template-group-chip"
-        [highlighted]="hasSelected(node.id)"
-      >
+      <div class="flex-1">{{ node.name }}</div>
+      <mat-chip [highlighted]="hasSelected(node.id)">
         {{ (hasSelected(node.id) ? "actief" : "inactief") | translate }}
       </mat-chip>
     </mat-tree-node>
