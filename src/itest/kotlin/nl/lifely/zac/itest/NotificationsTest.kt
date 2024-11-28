@@ -136,7 +136,7 @@ class NotificationsTest : BehaviorSpec({
                         getString("communicatiekanaal") shouldBe "E-formulier"
                         getString("omschrijving") shouldBe ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
                         getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
-                                "met kenmerk '$OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK' $ZAAK_PRODUCTAANVRAAG_1_TOELICHTING"
+                            "met kenmerk '$OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK' $ZAAK_PRODUCTAANVRAAG_1_TOELICHTING"
                         getString("uiterlijkeEinddatumAfdoening") shouldBe ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
                         with(getJSONObject("zaakgeometrie").getJSONObject("point")) {
                             getBigDecimal("latitude") shouldBe PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE.toBigDecimal()
