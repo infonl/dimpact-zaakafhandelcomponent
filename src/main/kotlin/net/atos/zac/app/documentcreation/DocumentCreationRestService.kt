@@ -65,7 +65,7 @@ class DocumentCreationRestService @Inject constructor(
     ): RestDocumentCreationAttendedResponse =
         zrcClientService.readZaak(restDocumentCreationAttendedData.zaakUuid).also {
             assertPolicy(policyService.readZaakRechten(it).creeerenDocument)
-            assertPolicy(zaakafhandelParameterService.isDocumentCreationEnabled(uuidFromURI(it.zaaktype)))
+            assertPolicy(zaakafhandelParameterService.isSmartDocumentsEnabled(uuidFromURI(it.zaaktype)))
         }.let {
             DocumentCreationDataAttended(
                 zaak = it,

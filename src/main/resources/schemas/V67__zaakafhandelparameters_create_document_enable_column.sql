@@ -4,5 +4,5 @@
  */
 
 ALTER TABLE ${schema}.zaakafhandelparameters
-    ADD COLUMN document_maken_ingeschakeld BOOL default false;
-COMMENT ON COLUMN ${schema}.zaakafhandelparameters.document_maken_ingeschakeld IS 'Maak het aanmaken van documenten voor dit zaaktype mogelijk';
+    ADD COLUMN smartdocuments_ingeschakeld BOOL default false;
+COMMENT ON COLUMN ${schema}.zaakafhandelparameters.smartdocuments_ingeschakeld IS 'Maak het aanmaken van documenten via SmartDocuments mogelijk voor dit casetype';

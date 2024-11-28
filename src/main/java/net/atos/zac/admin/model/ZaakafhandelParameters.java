@@ -92,8 +92,8 @@ public class ZaakafhandelParameters {
     @Column(name = "domein")
     private String domein;
 
-    @Column(name = "document_maken_ingeschakeld")
-    private boolean documentMakenIngeschakeld;
+    @Column(name = "smartdocuments_ingeschakeld")
+    private boolean smartDocumentsIngeschakeld;
 
     // The set is necessary for Hibernate when you have more than one eager collection on an entity.
     @OneToMany(mappedBy = "zaakafhandelParameters", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
@@ -319,12 +319,12 @@ public class ZaakafhandelParameters {
         this.domein = domein;
     }
 
-    public boolean isDocumentMakenIngeschakeld() {
-        return documentMakenIngeschakeld;
+    public boolean isSmartDocumentsIngeschakeld() {
+        return smartDocumentsIngeschakeld;
     }
 
-    public void setDocumentMakenIngeschakeld(boolean documentMakenIngeschakeld) {
-        this.documentMakenIngeschakeld = documentMakenIngeschakeld;
+    public void setSmartDocumentsIngeschakeld(boolean smartDocumentsIngeschakeld) {
+        this.smartDocumentsIngeschakeld = smartDocumentsIngeschakeld;
     }
 
     /**

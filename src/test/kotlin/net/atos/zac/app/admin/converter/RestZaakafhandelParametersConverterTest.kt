@@ -18,7 +18,7 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.app.admin.createRestZaakAfhandelParameters
 import net.atos.zac.app.admin.model.RESTCaseDefinition
-import net.atos.zac.app.admin.model.RestDocumentCreationParameters
+import net.atos.zac.app.admin.model.RestSmartDocuments
 import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.app.zaak.model.toRestResultaatType
 import net.atos.zac.smartdocuments.SmartDocumentsService
@@ -89,7 +89,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     mailtemplateKoppelingen shouldBe emptyList()
                     zaakbeeindigParameters shouldBe emptyList()
                     zaakAfzenders shouldBe emptyList()
-                    documentCreation shouldBe RestDocumentCreationParameters(
+                    smartDocuments shouldBe RestSmartDocuments(
                         enabledGlobally = true,
                         enabledForZaaktype = false
                     )
@@ -133,7 +133,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     productaanvraagtype shouldBe null
                     domein shouldBe "dummyDomein"
                     // true by default until UI switch is implemented
-                    isDocumentMakenIngeschakeld shouldBe true
+                    isSmartDocumentsIngeschakeld shouldBe true
                 }
             }
         }

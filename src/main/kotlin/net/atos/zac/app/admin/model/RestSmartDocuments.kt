@@ -7,7 +7,7 @@ package net.atos.zac.app.admin.model
 import nl.lifely.zac.util.NoArgConstructor
 
 @NoArgConstructor
-data class RestDocumentCreationParameters(
+data class RestSmartDocuments(
     var enabledGlobally: Boolean,
     var enabledForZaaktype: Boolean
 )

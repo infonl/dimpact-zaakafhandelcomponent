@@ -8,7 +8,7 @@ import jakarta.inject.Inject
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
-import net.atos.zac.app.admin.model.RestDocumentCreationParameters
+import net.atos.zac.app.admin.model.RestSmartDocuments
 import net.atos.zac.app.admin.model.RestZaakafhandelParameters
 import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.app.zaak.model.RESTZaakStatusmailOptie
@@ -51,9 +51,9 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             afrondenMail = zaakafhandelParameters.afrondenMail?.let { RESTZaakStatusmailOptie.valueOf(it) },
             productaanvraagtype = zaakafhandelParameters.productaanvraagtype,
             domein = zaakafhandelParameters.domein,
-            documentCreation = RestDocumentCreationParameters(
+            smartDocuments = RestSmartDocuments(
                 enabledGlobally = smartDocumentsService.isEnabled(),
-                enabledForZaaktype = zaakafhandelParameters.isDocumentMakenIngeschakeld
+                enabledForZaaktype = zaakafhandelParameters.isSmartDocumentsIngeschakeld
             )
         )
         restZaakafhandelParameters.caseDefinition?.takeIf { inclusiefRelaties }?.let { caseDefinition ->
@@ -110,8 +110,8 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             einddatumGeplandWaarschuwing = restZaakafhandelParameters.einddatumGeplandWaarschuwing
             // Since we don't have switch in UI @ 28.11.2024 the document creation is enabled by default.
             // When switch on/off functionality is in the UI we need to change the below line to:
-            // isDocumentMakenIngeschakeld = restZaakafhandelParameters.documentCreation.enabledForZaaktype
-            isDocumentMakenIngeschakeld = true
+            // isSmartDocumentsIngeschakeld = restZaakafhandelParameters.smartDocuments.enabledForZaaktype
+            isSmartDocumentsIngeschakeld = true
         }.also {
             it.setHumanTaskParametersCollection(
                 humanTaskParametersConverter.convertRESTHumanTaskParameters(

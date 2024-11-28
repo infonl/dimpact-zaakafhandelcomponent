@@ -68,8 +68,8 @@ public class ZaakafhandelParameterService implements Caching {
         );
     }
 
-    public boolean isDocumentCreationEnabled(final UUID zaaktypeUUID) {
-        return readZaakafhandelParameters(zaaktypeUUID).isDocumentMakenIngeschakeld();
+    public boolean isSmartDocumentsEnabled(final UUID zaaktypeUUID) {
+        return readZaakafhandelParameters(zaaktypeUUID).isSmartDocumentsIngeschakeld();
     }
 
     public void cacheRemoveZaakafhandelParameters(final UUID zaaktypeUUID) {

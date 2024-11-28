@@ -72,7 +72,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
                 creeerenDocument = true
             )
-            every { zaakafhandelParameterService.isDocumentCreationEnabled(zaakTypeUUID) } returns true
+            every { zaakafhandelParameterService.isSmartDocumentsEnabled(zaakTypeUUID) } returns true
 
             val restDocumentCreationResponse = documentCreationRestService.createDocumentAttended(
                 restDocumentCreationAttendedData
@@ -106,7 +106,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
                 creeerenDocument = true
             )
-            every { zaakafhandelParameterService.isDocumentCreationEnabled(zaakTypeUUID) } returns false
+            every { zaakafhandelParameterService.isSmartDocumentsEnabled(zaakTypeUUID) } returns false
 
             val exception = shouldThrow<PolicyException> {
                 documentCreationRestService.createDocumentAttended(restDocumentCreationAttendedData)

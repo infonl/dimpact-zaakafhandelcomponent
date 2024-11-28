@@ -22,7 +22,7 @@ import net.atos.client.smartdocuments.rest.DownloadedFile
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 
-@RegisterRestClient(configKey = "SD-Client")
+@RegisterRestClient(configKey = "SMARTDOCUMENTS-Client")
 @RegisterProvider(SmartDocumentsBadRequestResponseExceptionMapper::class)
 @RegisterProvider(SmartDocumentsResponseExceptionMapper::class)
 @Produces(MediaType.APPLICATION_JSON)

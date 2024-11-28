@@ -48,5 +48,5 @@ data class RestZaakafhandelParameters(
      */
     var zaakAfzenders: List<RESTZaakAfzender> = emptyList(),
 
-    var documentCreation: RestDocumentCreationParameters
+    var smartDocuments: RestSmartDocuments
 )

@@ -34,16 +34,16 @@ class SmartDocumentsService @Inject constructor(
     @RestClient
     private val smartDocumentsClient: SmartDocumentsClient,
 
-    @ConfigProperty(name = "SD_ENABLED", defaultValue = "false")
+    @ConfigProperty(name = "SMARTDOCUMENTS_ENABLED", defaultValue = "false")
     private val enabled: Boolean,
 
-    @ConfigProperty(name = "SD_CLIENT_MP_REST_URL")
+    @ConfigProperty(name = "SMARTDOCUMENTS_CLIENT_MP_REST_URL")
     private val smartDocumentsURL: String,
 
-    @ConfigProperty(name = "SD_AUTHENTICATION")
+    @ConfigProperty(name = "SMARTDOCUMENTS_AUTHENTICATION")
     private val authenticationToken: String,
 
-    @ConfigProperty(name = "SD_FIXED_USER_NAME")
+    @ConfigProperty(name = "SMARTDOCUMENTS_FIXED_USER_NAME")
     private val fixedUserName: Optional<String>,
 
     private val loggedInUserInstance: Instance<LoggedInUser>,
