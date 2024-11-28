@@ -93,6 +93,7 @@ openForms:
 
 # smartDocuments Configuration of the SmartDocuments connection
 smartDocuments:
+  enabled: false
   url: "" # https://partners.smartdocuments.com
   authentication: ""
   fixedUserName: ""
