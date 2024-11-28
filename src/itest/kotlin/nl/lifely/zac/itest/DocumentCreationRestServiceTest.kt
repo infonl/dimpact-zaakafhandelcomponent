@@ -52,7 +52,9 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                         "zaakUuid" to zaakProductaanvraag1Uuid,
                         "smartDocumentsTemplateGroupId" to SMART_DOCUMENTS_ROOT_GROUP_ID,
                         "smartDocumentsTemplateId" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID,
-                        "title" to SMART_DOCUMENTS_FILE_TITLE
+                        "title" to SMART_DOCUMENTS_FILE_TITLE,
+                        "creationDate" to ZonedDateTime.now(),
+                        "author" to TEST_USER_1_NAME
                     )
                 ).toString()
             )

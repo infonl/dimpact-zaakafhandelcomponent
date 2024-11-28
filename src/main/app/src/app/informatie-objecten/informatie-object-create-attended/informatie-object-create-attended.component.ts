@@ -126,7 +126,7 @@ export class InformatieObjectCreateAttendedComponent
       .build();
 
     const beginRegistratie = new DateFormFieldBuilder(moment())
-      .id("creatiedatum")
+      .id("creationDate")
       .label("creatiedatum")
       .validators(Validators.required)
       .build();

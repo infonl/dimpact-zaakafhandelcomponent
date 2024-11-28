@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.documentcreation.rest
+package net.atos.zac.app.documentcreation.model
 
 import jakarta.validation.constraints.NotNull
 import nl.lifely.zac.util.NoArgConstructor
@@ -21,9 +21,11 @@ data class RestDocumentCreationAttendedData(
 
     var description: String? = null,
 
-    var author: String? = null,
+    @field:NotNull
+    var author: String,
 
-    var creationDate: ZonedDateTime? = null,
+    @field:NotNull
+    var creationDate: ZonedDateTime,
 
     @field:NotNull
     var smartDocumentsTemplateGroupId: String,
