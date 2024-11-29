@@ -88,9 +88,7 @@ export class InformatieObjectCreateAttendedComponent
       .optionLabel("name")
       .validators(Validators.required)
       .options(
-        this.smartDocumentsService.getZaakTypeTemplatesMappingsFlat(
-          this.zaak.zaaktype.uuid,
-        ),
+        this.smartDocumentsService.getTemplatesMapping(this.zaak.zaaktype.uuid),
       )
       .build();
 

@@ -9,6 +9,18 @@ import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.ser
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
+export type SmartDocumentsTemplateWithParentId =
+  GeneratedType<"RestSmartDocumentsTemplate"> & {
+    parentGroupId?: string | null;
+  };
+export type SmartDocumentsTemplateGroupWithParentId = Omit<
+  GeneratedType<"RestSmartDocumentsTemplateGroup">,
+  "groups" | "templates"
+> & {
+  groups?: SmartDocumentsTemplateGroupWithParentId[] | null;
+  templates?: SmartDocumentsTemplateWithParentId[] | null;
+};
+
 export type MappedSmartDocumentsTemplateWithParentId =
   GeneratedType<"RestMappedSmartDocumentsTemplate"> & {
     parentGroupId?: string | null;
@@ -48,17 +60,6 @@ export class SmartDocumentsService {
       );
   }
 
-  getAllSmartDocumentsTemplateGroupsFlat(): Observable<
-    GeneratedType<"RestSmartDocumentsTemplateGroup">[]
-  > {
-    return this.zacHttp
-      .GET("/rest/zaakafhandelparameters/document-templates")
-      .pipe(
-        map((data) => data.map(this.flattenDocumentsTemplateGroup).flat()),
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
-  }
-
   getTemplatesMapping(
     zaakafhandelUUID: string,
   ): Observable<GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[]> {
@@ -74,29 +75,7 @@ export class SmartDocumentsService {
         },
       )
       .pipe(
-        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-      );
-  }
-
-  getZaakTypeTemplatesMappingsFlat(
-    zaakafhandelUUID: string,
-  ): Observable<GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[]> {
-    return this.zacHttp
-      .GET(
-        "/rest/zaakafhandelparameters/{zaakafhandelUUID}/document-templates",
-        {
-          pathParams: {
-            path: {
-              zaakafhandelUUID,
-            },
-          },
-        },
-      )
-      .pipe(
-        map((data) => {
-          const flattened = data.map(this.flattenDocumentsTemplateGroup).flat();
-          return flattened;
-        }),
+        map((data) => this.flattenNestedGroups(data)),
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
@@ -122,50 +101,7 @@ export class SmartDocumentsService {
       );
   }
 
-  /**
-   * Flattens a nested RootObject (GeneratedType<"RestMappedSmartDocumentsTemplateGroup">) into an array of group objects,
-   * omitting nested groups, and preserving templates.
-   * @param {GeneratedType<"RestMappedSmartDocumentsTemplateGroup">} obj - The root object to flatten.
-   * @returns {Array<Omit<GeneratedType<"RestMappedSmartDocumentsTemplateGroup">, "groups">>} - The flattened array of groups with templates, excluding nested groups.
-   */
-  flattenDocumentsTemplateGroup(
-    obj: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">,
-  ): Array<
-    Omit<GeneratedType<"RestMappedSmartDocumentsTemplateGroup">, "groups">
-  > {
-    const result: Array<
-      Omit<GeneratedType<"RestMappedSmartDocumentsTemplateGroup">, "groups">
-    > = [];
-
-    function flattenDocumentsTemplateGroup(
-      group: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">,
-    ) {
-      result.push({
-        id: group.id,
-        name: group.name,
-        templates: group.templates || [],
-      });
-
-      if (group.groups) {
-        group.groups.forEach(flattenDocumentsTemplateGroup);
-      }
-    }
-
-    // Flatten the root object itself
-    result.push({
-      id: obj.id,
-      name: obj.name,
-      templates: obj.templates || [],
-    });
-
-    if (obj.groups) {
-      obj.groups.forEach(flattenDocumentsTemplateGroup);
-    }
-
-    return result;
-  }
-
-  getMappedTemplates = (
+  getOnlyMappedTemplates = (
     data: MappedSmartDocumentsTemplateGroupWithParentId[],
   ): GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] => {
     return data
@@ -175,7 +111,7 @@ export class SmartDocumentsService {
           .map(({ parentGroupId, ...template }) => template);
 
         const groups = group.groups
-          ? this.getMappedTemplates(group.groups)
+          ? this.getOnlyMappedTemplates(group.groups)
           : [];
 
         if (templates.length || groups.length) {
@@ -192,28 +128,24 @@ export class SmartDocumentsService {
       .filter(Boolean);
   };
 
-  flattenNestedGroupsToRootGroups = (
-    data: MappedSmartDocumentsTemplateGroupWithParentId[],
-  ): MappedSmartDocumentsTemplateFlattenedGroupWithParentId[] => {
-    return data.flatMap((item) => {
-      const rootItemWithoutGroups = {
-        id: item.id,
-        name: item.name,
-        templates: item.templates,
-      };
+  flattenNestedGroups(
+    groups: MappedSmartDocumentsTemplateGroupWithParentId[],
+  ): MappedSmartDocumentsTemplateFlattenedGroupWithParentId[] {
+    const result = [];
 
-      const flattenedGroups =
-        item.groups?.flatMap((group) => {
-          const flattenedSubGroups = this.flattenNestedGroupsToRootGroups(
-            group.groups ?? [],
-          );
+    function traverse(group) {
+      const { id, name, templates = [] } = group;
+      if (templates.length) result.push({ id, name, templates });
 
-          return [group, ...flattenedSubGroups];
-        }) || [];
+      if (group.groups) {
+        group.groups.forEach(traverse);
+      }
+    }
 
-      return [rootItemWithoutGroups, ...flattenedGroups];
-    });
-  };
+    groups.forEach(traverse);
+
+    return result;
+  }
 
   addTemplateMappings = (
     groups: GeneratedType<"RestSmartDocumentsTemplateGroup">[],
@@ -263,7 +195,7 @@ export class SmartDocumentsService {
     });
   };
 
-  addParentIdToTemplates = <
+  addParentIdsToMakeTemplatesUnique = <
     T extends
       | GeneratedType<"RestSmartDocumentsTemplateGroup">
       | GeneratedType<"RestMappedSmartDocumentsTemplateGroup">,
@@ -283,7 +215,9 @@ export class SmartDocumentsService {
           ...template,
           parentGroupId: group.id,
         })),
-        groups: group.groups ? this.addParentIdToTemplates(group.groups) : [],
+        groups: group.groups
+          ? this.addParentIdsToMakeTemplatesUnique(group.groups)
+          : [],
       };
     });
   };

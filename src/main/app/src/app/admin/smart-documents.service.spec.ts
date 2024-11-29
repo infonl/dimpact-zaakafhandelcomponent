@@ -6,125 +6,34 @@
 import { HttpClientTestingModule } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
-import { UtilService } from "../core/service/util.service";
+import isEqual from "lodash/isEqual";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { SmartDocumentsService } from "./smart-documents.service";
+import {
+  GROUPS_FLATTENED,
+  MAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
+  MAPPINGS_ONLY_FLAT_ARRAY,
+  PREPPED_FOR_REST_REQUEST_MAPPED_SMARTDOCUMENTS,
+  SMARTDOCUMENTS_TEMPLATE_GROUPS,
+  SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
+  SOME_UNMAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
+} from "./smart-documents.service.test-data";
 
-describe("SmartDocumentsService", () => {
+describe("SmartDocumentsService service functions tests", () => {
   let smartDocumentsService: SmartDocumentsService;
 
-  // Mock the dependencies
   const mockTranslateService = {
     translate: jest.fn(),
-  };
-  const mockUtilService = {
-    someUtilFunction: jest.fn(),
   };
   const mockFoutAfhandelingService = {
     handleError: jest.fn(),
   };
 
-  const objInput = {
-    id: "id-group-level-root",
-    name: "Dimpact",
-    groups: [
-      {
-        id: "id-group-level-1",
-        name: "level1 group",
-        groups: [
-          {
-            id: "id-group-level-2",
-            name: "level2 group",
-            groups: [
-              {
-                id: "id-group-level-3",
-                name: "level3 group",
-                groups: [],
-                templates: [
-                  {
-                    id: "id-template-level-3",
-                    name: "level 1 template",
-                    informatieObjectTypeUUID: "info-object-type-id-level-3",
-                  },
-                ],
-              },
-            ],
-            templates: [
-              {
-                id: "id-template-level-2",
-                name: "level 1 template",
-                informatieObjectTypeUUID: "info-object-type-id-level-2",
-              },
-            ],
-          },
-        ],
-        templates: [
-          {
-            id: "id-template-level-1",
-            name: "level 1 template",
-            informatieObjectTypeUUID: "info-object-type-id-level-1",
-          },
-        ],
-      },
-    ],
-    templates: [
-      {
-        id: "id-template-level-root",
-        name: "root level template",
-        informatieObjectTypeUUID: "info-object-type-id-level-3",
-      },
-    ],
-  };
-
-  // Expected flattened output
-  const expectedOutput = [
-    {
-      id: "id-group-level-root",
-      name: "Dimpact",
-      templates: [
-        {
-          id: "id-template-level-root",
-          name: "root level template",
-          informatieObjectTypeUUID: "info-object-type-id-level-3",
-        },
-      ],
-    },
-    {
-      id: "id-group-level-1",
-      name: "level1 group",
-      templates: [
-        {
-          id: "id-template-level-1",
-          name: "level 1 template",
-          informatieObjectTypeUUID: "info-object-type-id-level-1",
-        },
-      ],
-    },
-    {
-      id: "id-group-level-2",
-      name: "level2 group",
-      templates: [
-        {
-          id: "id-template-level-2",
-          name: "level 1 template",
-          informatieObjectTypeUUID: "info-object-type-id-level-2",
-        },
-      ],
-    },
-    {
-      id: "id-group-level-3",
-      name: "level3 group",
-      templates: [
-        {
-          id: "id-template-level-3",
-          name: "level 1 template",
-          informatieObjectTypeUUID: "info-object-type-id-level-3",
-        },
-      ],
-    },
-  ];
-
   beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [SmartDocumentsService],
+    });
+
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
@@ -133,7 +42,6 @@ describe("SmartDocumentsService", () => {
           provide: FoutAfhandelingService,
           useValue: mockFoutAfhandelingService,
         },
-        { provide: UtilService, useValue: mockUtilService },
         { provide: TranslateService, useValue: mockTranslateService },
       ],
     });
@@ -141,10 +49,68 @@ describe("SmartDocumentsService", () => {
     smartDocumentsService = TestBed.inject(SmartDocumentsService);
   });
 
-  it("should flatten the document groups and return expected output", () => {
-    const result =
-      smartDocumentsService.flattenDocumentsTemplateGroup(objInput);
+  it("addParentIdsToMakeTemplatesUnique - Should add parentGroupId to all templates", () => {
+    const result = smartDocumentsService.addParentIdsToMakeTemplatesUnique(
+      SMARTDOCUMENTS_TEMPLATE_GROUPS,
+    );
 
-    expect(result).toEqual(expectedOutput);
+    expect(
+      isEqual(result, SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS),
+    ).toBe(true);
+  });
+
+  it("getTemplateMappings - Should put all mappings from mapped SmartDocuments with parent id's into a flat array", () => {
+    const result = smartDocumentsService.getTemplateMappings(
+      MAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
+    );
+
+    expect(isEqual(result, MAPPINGS_ONLY_FLAT_ARRAY)).toBe(true);
+  });
+
+  it("addTemplateMappings - Should add all the mappings from flat array into SmartDocuments with parent id's", () => {
+    const result = smartDocumentsService.addTemplateMappings(
+      SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
+      MAPPINGS_ONLY_FLAT_ARRAY,
+    );
+
+    expect(
+      isEqual(result, MAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS),
+    ).toBe(true);
+  });
+
+  it("flattenNestedGroupsToRootGroups - Should flatten mapped SmartDocuments with parents id's nested array into flat groups array", () => {
+    const result = smartDocumentsService.flattenNestedGroups(
+      MAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
+    );
+
+    expect(isEqual(result, GROUPS_FLATTENED)).toBe(true);
+  });
+
+  it("getOnlyMappedTemplates - Should strip all unmapped branches from the mapped SmartDocuments with parents id's", () => {
+    const result = smartDocumentsService.getOnlyMappedTemplates(
+      SOME_UNMAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
+    );
+
+    expect(
+      isEqual(result, PREPPED_FOR_REST_REQUEST_MAPPED_SMARTDOCUMENTS),
+    ).toBe(true);
+  });
+
+  it("All functions - Should handle empty array", () => {
+    expect(
+      isEqual(smartDocumentsService.addParentIdsToMakeTemplatesUnique([]), []),
+    ).toBe(true);
+    expect(isEqual(smartDocumentsService.getTemplateMappings([]), [])).toBe(
+      true,
+    );
+    expect(isEqual(smartDocumentsService.addTemplateMappings([], []), [])).toBe(
+      true,
+    );
+    expect(isEqual(smartDocumentsService.flattenNestedGroups([]), [])).toBe(
+      true,
+    );
+    expect(isEqual(smartDocumentsService.getOnlyMappedTemplates([]), [])).toBe(
+      true,
+    );
   });
 });
