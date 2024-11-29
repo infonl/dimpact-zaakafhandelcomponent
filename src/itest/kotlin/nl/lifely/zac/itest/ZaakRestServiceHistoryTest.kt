@@ -11,6 +11,8 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.lifely.zac.itest.client.ItestHttpClient
+import nl.lifely.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
+import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE
 import nl.lifely.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE
 import nl.lifely.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_TITLE
@@ -203,7 +205,7 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                     "attribuutLabel": "zaak",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
-                    "toelichting": "$ZAAK_PRODUCTAANVRAAG_1_TOELICHTING"
+                    "toelichting": "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM met kenmerk '$OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK' $ZAAK_PRODUCTAANVRAAG_1_TOELICHTING"
                   }]
                 """.trimIndent()
 
