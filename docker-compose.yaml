@@ -439,7 +439,7 @@ services:
     profiles: [ "metrics" ]
 
   greenmail:
-    image: docker.io/greenmail/standalone:2.1.1@sha256:972ec5e0a7a6713e858adb1881fd7e1bcfd5a12cc213048383921edc6462fb59
+    image: docker.io/greenmail/standalone:2.1.2@sha256:572d22796908375678119a13fabfcdc5416c9003404ab975fe824692fe02ba03
     environment:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0
