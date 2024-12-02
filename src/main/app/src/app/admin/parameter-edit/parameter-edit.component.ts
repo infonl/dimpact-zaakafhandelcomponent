@@ -89,7 +89,7 @@ export class ParameterEditComponent
   userEventListenersFormGroup: FormGroup;
   mailFormGroup: FormGroup;
   zaakbeeindigFormGroup: FormGroup;
-  smartDocumentsFormGroup: FormGroup;
+  smartDocumentsEneabledFormGroup: FormGroup;
 
   mailOpties: { label: string; value: string }[];
 
@@ -112,10 +112,9 @@ export class ParameterEditComponent
     public configuratieService: ConfiguratieService,
     private identityService: IdentityService,
     private route: ActivatedRoute,
-    private formBuilder: FormBuilder,
     private referentieTabelService: ReferentieTabelService,
     private mailtemplateBeheerService: MailtemplateBeheerService,
-    private fb: FormBuilder,
+    private formBuilder: FormBuilder,
     private cdr: ChangeDetectorRef,
   ) {
     super(utilService, configuratieService);
@@ -277,8 +276,9 @@ export class ParameterEditComponent
     this.createUserEventListenerForm();
     this.createMailForm();
     this.createZaakbeeindigForm();
+    this.createSmartDocumentsEnabledForm();
 
-    this.smartDocumentsForm = this.fb.group({});
+    this.smartDocumentsForm = this.formBuilder.group({});
     this.smartDocumentsForm.statusChanges.subscribe(() => {
       this.isSmartDocumentsStepValid = this.smartDocumentsForm.valid;
     });
@@ -378,6 +378,12 @@ export class ParameterEditComponent
     for (const reden of this.zaakbeeindigRedenen) {
       this.addZaakbeeindigParameter(this.getZaakbeeindigParameter(reden));
     }
+  }
+
+  createSmartDocumentsEnabledForm() {
+    this.smartDocumentsEneabledFormGroup = this.formBuilder.group({
+      enabledForZaaktype: this.parameters.smartDocuments.enabledForZaaktype,
+    });
   }
 
   isZaaknietontvankelijkParameter(parameter): boolean {
@@ -648,9 +654,17 @@ export class ParameterEditComponent
       afzender.replyTo = this.getZaakAfzenderControl(afzender, "replyTo").value;
     }
 
+    this.parameters.smartDocuments.enabledForZaaktype =
+      this.smartDocumentsEneabledFormGroup.value.enabledForZaaktype;
+    console.log(
+      "this.smartDocumentsEneabledFormGroup.value.enabledForZaaktype",
+      this.smartDocumentsEneabledFormGroup.value.enabledForZaaktype,
+    );
+    console.log("this.parameters", this.parameters);
+
     this.adminService.updateZaakafhandelparameters(this.parameters).subscribe(
       (data) => {
-        this.loading = false;
+        this.loading = true;
         this.utilService.openSnackbar("msg.zaakafhandelparameters.opgeslagen");
         this.parameters = data;
         for (const afzender of this.parameters.zaakAfzenders) {
@@ -667,7 +681,12 @@ export class ParameterEditComponent
       },
     );
 
-    this.smartDocsFormGroup?.saveSmartDocumentsMapping().subscribe();
+    if (
+      this.parameters.smartDocuments.enabledGlobally &&
+      this.parameters.smartDocuments.enabledForZaaktype
+    ) {
+      this.smartDocsFormGroup?.saveSmartDocumentsMapping().subscribe();
+    }
   }
 
   compareObject(object1: any, object2: any): boolean {
@@ -713,5 +732,9 @@ export class ParameterEditComponent
     return this.mailtemplates.filter(
       (template) => template.mail === mailtemplate,
     );
+  }
+
+  showSmartDocumentsStep() {
+    return this.parameters.smartDocuments.enabledGlobally;
   }
 }
