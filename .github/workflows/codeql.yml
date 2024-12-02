@@ -26,6 +26,7 @@ jobs:
         with:
           paths-ignore: |-
             ^.*\.md$
+            ^helm/
 
   analyze:
     name: Analyze
