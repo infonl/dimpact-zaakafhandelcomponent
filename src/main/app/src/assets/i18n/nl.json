@@ -286,6 +286,7 @@
   "enkelvoudigInformatieObjecten": "Documenten",
   "informatieobjectType": "Documenttype",
   "informatieobjectType.-kies-": "- Kies een documenttype -",
+  "informatieobjectType.-geen-": "- Geen documenttype -",
   "informatieobjectTypeOmschrijving": "Documenttype",
   "document.preview": "Documentvoorbeeld",
   "document": "Document",
