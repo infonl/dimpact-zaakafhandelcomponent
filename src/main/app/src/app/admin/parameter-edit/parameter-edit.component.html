@@ -696,7 +696,7 @@
         </ng-template>
       </mat-step>
       <mat-step
-        *ngIf="showSmartDocumentsStep()"
+        *ngIf="parameters.smartDocuments.enabledGlobally"
         [stepControl]="smartDocumentsEneabledFormGroup"
         [hasError]="!isSmartDocumentsStepValid"
       >
@@ -715,11 +715,22 @@
             </div>
           </form>
           <smart-documents-form
+            *ngIf="
+              smartDocumentsEneabledFormGroup.get('enabledForZaaktype').value
+            "
             [formGroup]="smartDocumentsForm"
             [zaakTypeUuid]="parameters.zaaktype.uuid"
             #smartDocumentsFormRef
           >
           </smart-documents-form>
+          <div
+            *ngIf="
+              !smartDocumentsEneabledFormGroup.get('enabledForZaaktype').value
+            "
+            class="no-form-feedback"
+          >
+            {{ "msg.smartdocuments.form.disabled" | translate }}
+          </div>
           <div class="button-group flex-row flex-wrap">
             <button mat-raised-button matStepperPrevious>
               {{ "actie.terug" | translate }}

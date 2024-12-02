@@ -733,8 +733,4 @@ export class ParameterEditComponent
       (template) => template.mail === mailtemplate,
     );
   }
-
-  showSmartDocumentsStep() {
-    return this.parameters.smartDocuments.enabledGlobally;
-  }
 }
