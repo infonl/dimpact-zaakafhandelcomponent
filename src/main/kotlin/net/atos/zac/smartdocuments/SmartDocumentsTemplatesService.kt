@@ -197,7 +197,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
                                 ?.get(namePath)
                         }.takeIf { it != null } ?: throw SmartDocumentsConfigurationException(
                             "No information object type mapped for template group id " +
-                                    "$templateGroupId and template id $templateId"
+                                "$templateGroupId and template id $templateId"
                         )
                     }
                 }

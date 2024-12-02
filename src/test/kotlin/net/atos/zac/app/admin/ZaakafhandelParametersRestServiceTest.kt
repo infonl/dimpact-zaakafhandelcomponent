@@ -26,8 +26,8 @@ import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
+import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import java.util.UUID
 
 class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
