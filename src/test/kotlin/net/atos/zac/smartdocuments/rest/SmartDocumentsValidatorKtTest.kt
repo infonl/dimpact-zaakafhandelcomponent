@@ -8,7 +8,7 @@ package net.atos.zac.smartdocuments.rest
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.string.shouldContain
-import net.atos.zac.smartdocuments.SmartDocumentsException
+import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import java.util.UUID
 
 class SmartDocumentsValidatorKtTest : BehaviorSpec({
@@ -115,7 +115,7 @@ class SmartDocumentsValidatorKtTest : BehaviorSpec({
         )
 
         When("validating invalid rest request") {
-            val exception = shouldThrow<SmartDocumentsException> {
+            val exception = shouldThrow<SmartDocumentsConfigurationException> {
                 invalidRestTemplateRequest isSubsetOf smartDocumentsTemplates
             }
 

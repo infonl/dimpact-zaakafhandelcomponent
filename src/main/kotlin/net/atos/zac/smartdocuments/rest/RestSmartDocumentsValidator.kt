@@ -4,7 +4,7 @@
  */
 package net.atos.zac.smartdocuments.rest
 
-import net.atos.zac.smartdocuments.SmartDocumentsException
+import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 
 /**
  * Validates that all elements in a templates group set are part of a templates group superset.
@@ -13,13 +13,13 @@ import net.atos.zac.smartdocuments.SmartDocumentsException
  * In other words we validate if groups and templates have the same IDs, names and hierarchy as in superset
  *
  * @param supersetTemplates set of RESTSmartDocumentsTemplateGroup to validate against
- * @throws SmartDocumentsException when there are no templates to validate against, or unknown templates are detected
+ * @throws SmartDocumentsConfigurationException when there are no templates to validate against, or unknown templates are detected
  */
 infix fun Set<RestMappedSmartDocumentsTemplateGroup>.isSubsetOf(
     supersetTemplates: Set<RestSmartDocumentsTemplateGroup>
 ) {
     if (supersetTemplates.isEmpty()) {
-        throw SmartDocumentsException("Validation failed. No SmartDocuments templates available")
+        throw SmartDocumentsConfigurationException("Validation failed. No SmartDocuments templates available")
     }
 
     val superset = supersetTemplates.toStringRepresentation()
@@ -27,6 +27,6 @@ infix fun Set<RestMappedSmartDocumentsTemplateGroup>.isSubsetOf(
 
     val errors = subset.filterNot { superset.contains(it) }
     if (errors.isNotEmpty()) {
-        throw SmartDocumentsException("Validation failed. Unknown entities: $errors")
+        throw SmartDocumentsConfigurationException("Validation failed. Unknown entities: $errors")
     }
 }

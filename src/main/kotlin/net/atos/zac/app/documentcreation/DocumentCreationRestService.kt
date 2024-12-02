@@ -27,6 +27,7 @@ import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
+import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import net.atos.zac.util.UriUtil.uuidFromURI
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -65,7 +66,11 @@ class DocumentCreationRestService @Inject constructor(
     ): RestDocumentCreationAttendedResponse =
         zrcClientService.readZaak(restDocumentCreationAttendedData.zaakUuid).also {
             assertPolicy(policyService.readZaakRechten(it).creeerenDocument)
-            assertPolicy(zaakafhandelParameterService.isSmartDocumentsEnabled(uuidFromURI(it.zaaktype)))
+            uuidFromURI(it.zaaktype).let {
+                if (!zaakafhandelParameterService.isSmartDocumentsEnabled(it)) {
+                    throw SmartDocumentsDisabledException("SmartDocuments is disabled")
+                }
+            }
         }.let {
             DocumentCreationDataAttended(
                 zaak = it,

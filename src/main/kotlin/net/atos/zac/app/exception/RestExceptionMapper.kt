@@ -27,6 +27,8 @@ import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
 import net.atos.zac.policy.exception.PolicyException
+import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
+import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import net.atos.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import java.net.ConnectException
 import java.net.UnknownHostException
@@ -69,6 +71,16 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             exception is PolicyException -> generateResponse(
                 responseStatus = Response.Status.FORBIDDEN,
                 errorCode = ERROR_CODE_FORBIDDEN,
+                exception = exception
+            )
+            exception is SmartDocumentsDisabledException -> generateResponse(
+                responseStatus = Response.Status.BAD_REQUEST,
+                errorCode = ERROR_CODE_SMARTDOCUMENTS_DISABLED,
+                exception = exception
+            )
+            exception is SmartDocumentsConfigurationException -> generateResponse(
+                responseStatus = Response.Status.BAD_REQUEST,
+                errorCode = ERROR_CODE_SMARTDOCUMENTS_CONFIGURATION,
                 exception = exception
             )
             exception is BetrokkeneIsAlreadyAddedToZaakException -> generateResponse(

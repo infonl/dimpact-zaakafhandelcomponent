@@ -29,3 +29,5 @@ const val ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKAFHANDELPARAMETERS =
 const val ERROR_CODE_SYSTEM_REFERENCE_TABLE_CANNOT_BE_DELETED = "msg.error.system.reference.table.cannot.be.deleted"
 const val ERROR_CODE_ZRC_CLIENT = "msg.error.zrc.client.exception"
 const val ERROR_CODE_ZTC_CLIENT = "msg.error.ztc.client.exception"
+const val ERROR_CODE_SMARTDOCUMENTS_CONFIGURATION = "msg.error.smartdocuments.configuration"
+const val ERROR_CODE_SMARTDOCUMENTS_DISABLED = "msg.error.smartdocuments.disabled"
