@@ -70,7 +70,7 @@ testcontainers = "1.20.4"
 json-json = "20240303"
 slf4j-simple = "2.0.16"
 
-github-kotlin-logging = "7.0.0"
+github-kotlin-logging = "7.0.3"
 okhttp = "4.12.0"
 
 [libraries]
