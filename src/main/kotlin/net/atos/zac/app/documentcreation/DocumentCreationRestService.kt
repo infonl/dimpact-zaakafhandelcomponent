@@ -25,6 +25,8 @@ import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedRespo
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
+import net.atos.zac.flowable.task.FlowableTaskService
+import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.util.UriUtil.uuidFromURI
@@ -45,7 +47,8 @@ class DocumentCreationRestService @Inject constructor(
     private val documentCreationService: DocumentCreationService,
     private val zrcClientService: ZrcClientService,
     private val configurationService: ConfiguratieService,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService
+    private val zaakafhandelParameterService: ZaakafhandelParameterService,
+    private val flowableTaskService: FlowableTaskService
 ) {
     companion object {
         enum class SmartDocumentsWizardResult {
@@ -65,6 +68,11 @@ class DocumentCreationRestService @Inject constructor(
     ): RestDocumentCreationAttendedResponse =
         zrcClientService.readZaak(restDocumentCreationAttendedData.zaakUuid).also {
             assertPolicy(policyService.readZaakRechten(it).creeerenDocument)
+            restDocumentCreationAttendedData.taskId?.let {
+                val task = flowableTaskService.findOpenTask(it)
+                    ?: throw TaskNotFoundException("No open task found with task id: '$it'")
+                assertPolicy(policyService.readTaakRechten(task).toevoegenDocument)
+            }
             assertPolicy(zaakafhandelParameterService.isSmartDocumentsEnabled(uuidFromURI(it.zaaktype)))
         }.let {
             DocumentCreationDataAttended(
