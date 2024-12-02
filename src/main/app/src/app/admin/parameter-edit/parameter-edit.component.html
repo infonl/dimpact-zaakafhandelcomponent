@@ -697,12 +697,12 @@
       </mat-step>
       <mat-step
         *ngIf="parameters.smartDocuments.enabledGlobally"
-        [stepControl]="smartDocumentsEneabledFormGroup"
+        [stepControl]="smartDocumentsEnabledFormGroup"
         [hasError]="!isSmartDocumentsStepValid"
       >
         <ng-template matStepLabel>SmartDocuments</ng-template>
         <ng-template matStepContent>
-          <form [formGroup]="smartDocumentsEneabledFormGroup" class="flex-col">
+          <form [formGroup]="smartDocumentsEnabledFormGroup" class="flex-col">
             <div class="flex-row items-center">
               <h2 class="flex-1">
                 {{ "title.admin.parameters.step.smart-documents" | translate }}
@@ -716,7 +716,7 @@
           </form>
           <smart-documents-form
             *ngIf="
-              smartDocumentsEneabledFormGroup.get('enabledForZaaktype').value
+              smartDocumentsEnabledFormGroup.get('enabledForZaaktype').value
             "
             [zaakTypeUuid]="parameters.zaaktype.uuid"
             #smartDocumentsFormRef
@@ -724,9 +724,9 @@
           </smart-documents-form>
           <div
             *ngIf="
-              !smartDocumentsEneabledFormGroup.get('enabledForZaaktype').value
+              !smartDocumentsEnabledFormGroup.get('enabledForZaaktype').value
             "
-            class="no-form-feedback"
+            class="form-disabled-feedback"
           >
             {{ "msg.smartdocuments.form.disabled" | translate }}
           </div>

@@ -88,7 +88,7 @@ export class ParameterEditComponent
   userEventListenersFormGroup: FormGroup;
   mailFormGroup: FormGroup;
   zaakbeeindigFormGroup: FormGroup;
-  smartDocumentsEneabledFormGroup: FormGroup;
+  smartDocumentsEnabledFormGroup: FormGroup;
 
   mailOpties: { label: string; value: string }[];
 
@@ -375,7 +375,7 @@ export class ParameterEditComponent
   }
 
   createSmartDocumentsEnabledForm() {
-    this.smartDocumentsEneabledFormGroup = this.formBuilder.group({
+    this.smartDocumentsEnabledFormGroup = this.formBuilder.group({
       enabledForZaaktype: this.parameters.smartDocuments.enabledForZaaktype,
     });
   }
@@ -649,12 +649,7 @@ export class ParameterEditComponent
     }
 
     this.parameters.smartDocuments.enabledForZaaktype =
-      this.smartDocumentsEneabledFormGroup.value.enabledForZaaktype;
-    console.log(
-      "this.smartDocumentsEneabledFormGroup.value.enabledForZaaktype",
-      this.smartDocumentsEneabledFormGroup.value.enabledForZaaktype,
-    );
-    console.log("this.parameters", this.parameters);
+      this.smartDocumentsEnabledFormGroup.value.enabledForZaaktype;
 
     this.adminService.updateZaakafhandelparameters(this.parameters).subscribe(
       (data) => {
