@@ -54,7 +54,7 @@ data:
   SUBSYSTEM_OPENTELEMETRY__ENDPOINT: {{ ((.Values.opentelemetry_zaakafhandelcomponent).endpoint) | default (printf "http://%s-opentelemetry-collector:4317" .Release.Name) }}
   {{- end }}
   SMARTDOCUMENTS_ENABLED: {{ required "Valid .Values.smartDocuments.enabled entry required!" .Values.smartDocuments.enabled }}
-  SMARTDOCUMENTS_CLIENT_MP_REST_URL: {{ "Valid .Values.smartDocuments.url entry required!" .Values.smartDocuments.url }}
+  SMARTDOCUMENTS_CLIENT_MP_REST_URL: {{ required "Valid .Values.smartDocuments.url entry required!" .Values.smartDocuments.url }}
   {{- if .Values.smartDocuments.fixedUserName }}
   SMARTDOCUMENTS_FIXED_USER_NAME: {{ .Values.smartDocuments.fixedUserName }}
   {{- end}}
