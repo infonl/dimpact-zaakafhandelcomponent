@@ -31,19 +31,12 @@ class SmartDocumentsServiceTest : BehaviorSpec({
     val fixedUserName = Optional.of("dummyFixedUserName")
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val smartDocumentsClient = mockk<SmartDocumentsClient>()
-    val smartDocumentsService = SmartDocumentsService(
-        smartDocumentsClient = smartDocumentsClient,
-        smartDocumentsURL = smartDocumentsURL,
-        authenticationToken = authenticationToken,
-        loggedInUserInstance = loggedInUserInstance,
-        fixedUserName = fixedUserName
-    )
 
     beforeEach {
         checkUnnecessaryStub()
     }
 
-    Given("Document creation data with a zaak") {
+    Given("SmartDocuments is enabled") {
         val loggedInUser = createLoggedInUser()
         val data = createData()
         val variables = Variables(
@@ -55,6 +48,15 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         val attendedResponse = createAttendedResponse()
         every { loggedInUserInstance.get() } returns loggedInUser
         every { smartDocumentsClient.attendedDeposit(any(), any(), any()) } returns attendedResponse
+
+        val smartDocumentsService = SmartDocumentsService(
+            smartDocumentsClient = smartDocumentsClient,
+            enabled = true,
+            smartDocumentsURL = smartDocumentsURL,
+            authenticationToken = authenticationToken,
+            loggedInUserInstance = loggedInUserInstance,
+            fixedUserName = fixedUserName
+        )
 
         When("the 'create document attended' method is called") {
             val documentCreationResponse = smartDocumentsService.createDocumentAttended(
@@ -77,7 +79,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Document is generated and ready for download") {
+    Given("SmartDocuments is enabled and a document is generated and ready for download") {
         val downloadedFile = mockk<DownloadedFile>()
 
         val fileName = "abcd.docx"
@@ -86,6 +88,15 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         every { smartDocumentsClient.downloadFile(any(), any()) } returns downloadedFile
         every { downloadedFile.body() } returns body
         every { downloadedFile.contentDisposition() } returns "attachment; filename=\"$fileName\""
+
+        val smartDocumentsService = SmartDocumentsService(
+            smartDocumentsClient = smartDocumentsClient,
+            enabled = true,
+            smartDocumentsURL = smartDocumentsURL,
+            authenticationToken = authenticationToken,
+            loggedInUserInstance = loggedInUserInstance,
+            fixedUserName = fixedUserName
+        )
 
         When("the 'download file' method is called") {
             val file = smartDocumentsService.downloadDocument("sdId")
@@ -100,7 +111,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         }
     }
 
-    Given("SmartDocuments contains templates") {
+    Given("SmartDocuments is enabled and contains templates") {
         val loggedInUser = createLoggedInUser()
         every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -108,6 +119,15 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         every {
             smartDocumentsClient.listTemplates(any(), any())
         } returns templatesResponse
+
+        val smartDocumentsService = SmartDocumentsService(
+            smartDocumentsClient = smartDocumentsClient,
+            enabled = true,
+            smartDocumentsURL = smartDocumentsURL,
+            authenticationToken = authenticationToken,
+            loggedInUserInstance = loggedInUserInstance,
+            fixedUserName = fixedUserName
+        )
 
         When("list templates is called") {
             val templatesList = smartDocumentsService.listTemplates()
@@ -123,6 +143,23 @@ class SmartDocumentsServiceTest : BehaviorSpec({
                         templates!!.first().name shouldBe "Aanvullende informatie nieuw"
                     }
                 }
+            }
+        }
+    }
+
+    Given("SmartDocuments is disabled") {
+        val smartDocumentsService = SmartDocumentsService(
+            smartDocumentsClient = smartDocumentsClient,
+            enabled = false,
+            smartDocumentsURL = smartDocumentsURL,
+            authenticationToken = authenticationToken,
+            loggedInUserInstance = loggedInUserInstance,
+            fixedUserName = fixedUserName
+        )
+
+        When("checking if enabled") {
+            Then("it returns `false`") {
+                smartDocumentsService.isEnabled() shouldBe false
             }
         }
     }

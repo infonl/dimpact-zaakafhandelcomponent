@@ -19,6 +19,7 @@ import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
 import net.atos.zac.configuratie.ConfiguratieService
@@ -26,6 +27,7 @@ import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
+import net.atos.zac.util.UriUtil.uuidFromURI
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
@@ -42,7 +44,8 @@ class DocumentCreationRestService @Inject constructor(
     private val policyService: PolicyService,
     private val documentCreationService: DocumentCreationService,
     private val zrcClientService: ZrcClientService,
-    private val configurationService: ConfiguratieService
+    private val configurationService: ConfiguratieService,
+    private val zaakafhandelParameterService: ZaakafhandelParameterService
 ) {
     companion object {
         enum class SmartDocumentsWizardResult {
@@ -62,6 +65,7 @@ class DocumentCreationRestService @Inject constructor(
     ): RestDocumentCreationAttendedResponse =
         zrcClientService.readZaak(restDocumentCreationAttendedData.zaakUuid).also {
             assertPolicy(policyService.readZaakRechten(it).creeerenDocument)
+            assertPolicy(zaakafhandelParameterService.isSmartDocumentsEnabled(uuidFromURI(it.zaaktype)))
         }.let {
             DocumentCreationDataAttended(
                 zaak = it,

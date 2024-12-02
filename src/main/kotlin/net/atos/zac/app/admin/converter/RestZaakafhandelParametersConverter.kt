@@ -8,21 +8,25 @@ import jakarta.inject.Inject
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.app.admin.model.RestSmartDocuments
 import net.atos.zac.app.admin.model.RestZaakafhandelParameters
 import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.app.zaak.model.RESTZaakStatusmailOptie
+import net.atos.zac.smartdocuments.SmartDocumentsService
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 
 @AllOpen
 @NoArgConstructor
+@Suppress("LongParameterList")
 class RestZaakafhandelParametersConverter @Inject constructor(
     val caseDefinitionConverter: RESTCaseDefinitionConverter,
     val resultaattypeConverter: RestResultaattypeConverter,
     val zaakbeeindigParameterConverter: RESTZaakbeeindigParameterConverter,
     val humanTaskParametersConverter: RESTHumanTaskParametersConverter,
     val ztcClientService: ZtcClientService,
-    val zaakafhandelParameterService: ZaakafhandelParameterService
+    val zaakafhandelParameterService: ZaakafhandelParameterService,
+    val smartDocumentsService: SmartDocumentsService
 ) {
     fun toRestZaakafhandelParameters(
         zaakafhandelParameters: ZaakafhandelParameters,
@@ -46,7 +50,11 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             intakeMail = zaakafhandelParameters.intakeMail?.let { RESTZaakStatusmailOptie.valueOf(it) },
             afrondenMail = zaakafhandelParameters.afrondenMail?.let { RESTZaakStatusmailOptie.valueOf(it) },
             productaanvraagtype = zaakafhandelParameters.productaanvraagtype,
-            domein = zaakafhandelParameters.domein
+            domein = zaakafhandelParameters.domein,
+            smartDocuments = RestSmartDocuments(
+                enabledGlobally = smartDocumentsService.isEnabled(),
+                enabledForZaaktype = zaakafhandelParameters.isSmartDocumentsIngeschakeld
+            )
         )
         restZaakafhandelParameters.caseDefinition?.takeIf { inclusiefRelaties }?.let { caseDefinition ->
             zaakafhandelParameters.nietOntvankelijkResultaattype?.let {
@@ -66,7 +74,9 @@ class RestZaakafhandelParametersConverter @Inject constructor(
                     caseDefinition.userEventListenerDefinitions
                 )
             restZaakafhandelParameters.zaakbeeindigParameters =
-                zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaakafhandelParameters.zaakbeeindigParameters)
+                zaakbeeindigParameterConverter.convertZaakbeeindigParameters(
+                    zaakafhandelParameters.zaakbeeindigParameters
+                )
             restZaakafhandelParameters.mailtemplateKoppelingen = RESTMailtemplateKoppelingConverter.convert(
                 zaakafhandelParameters.mailtemplateKoppelingen
             )
@@ -88,7 +98,8 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             zaaktypeOmschrijving = restZaakafhandelParameters.zaaktype.omschrijving
             caseDefinitionID = restZaakafhandelParameters.caseDefinition!!.key
             groepID = restZaakafhandelParameters.defaultGroepId
-            uiterlijkeEinddatumAfdoeningWaarschuwing = restZaakafhandelParameters.uiterlijkeEinddatumAfdoeningWaarschuwing
+            uiterlijkeEinddatumAfdoeningWaarschuwing =
+                restZaakafhandelParameters.uiterlijkeEinddatumAfdoeningWaarschuwing
             nietOntvankelijkResultaattype = restZaakafhandelParameters.zaakNietOntvankelijkResultaattype!!.id
             intakeMail = restZaakafhandelParameters.intakeMail?.name
             afrondenMail = restZaakafhandelParameters.afrondenMail?.name
@@ -97,6 +108,10 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             domein = restZaakafhandelParameters.domein
             gebruikersnaamMedewerker = restZaakafhandelParameters.defaultBehandelaarId
             einddatumGeplandWaarschuwing = restZaakafhandelParameters.einddatumGeplandWaarschuwing
+            // Since we don't have switch in UI @ 28.11.2024 the document creation is enabled by default.
+            // When switch on/off functionality is in the UI we need to change the below line to:
+            // isSmartDocumentsIngeschakeld = restZaakafhandelParameters.smartDocuments.enabledForZaaktype
+            isSmartDocumentsIngeschakeld = true
         }.also {
             it.setHumanTaskParametersCollection(
                 humanTaskParametersConverter.convertRESTHumanTaskParameters(

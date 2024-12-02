@@ -16,6 +16,7 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
+import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.app.documentcreation.model.createRestDocumentCreationAttendedData
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.DocumentCreationService
@@ -24,6 +25,8 @@ import net.atos.zac.documentcreation.model.createDocumentCreationAttendedRespons
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
+import java.net.URI
+import java.util.UUID
 
 class DocumentCreationRestServiceTest : BehaviorSpec({
     val documentCreationService = mockk<DocumentCreationService>()
@@ -31,17 +34,22 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val configurationService = mockk<ConfiguratieService>()
+    val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val documentCreationRestService = DocumentCreationRestService(
         policyService = policyService,
         documentCreationService = documentCreationService,
         zrcClientService = zrcClientService,
-        configurationService = configurationService
+        configurationService = configurationService,
+        zaakafhandelParameterService = zaakafhandelParameterService
     )
 
     isolationMode = IsolationMode.InstancePerTest
 
     Given("document creation data is provided and zaaktype can use the 'bijlage' informatieobjecttype") {
-        val zaak = createZaak()
+        val zaakTypeUUID = UUID.randomUUID()
+        val zaak = createZaak(
+            zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
+        )
         val restDocumentCreationAttendedData = createRestDocumentCreationAttendedData(
             zaakUuid = zaak.uuid,
             taskId = "dummyTaskId",
@@ -64,6 +72,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
                 creeerenDocument = true
             )
+            every { zaakafhandelParameterService.isSmartDocumentsEnabled(zaakTypeUUID) } returns true
 
             val restDocumentCreationResponse = documentCreationRestService.createDocumentAttended(
                 restDocumentCreationAttendedData
@@ -83,6 +92,21 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
         When("createDocument is called by a user that has no access") {
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny()
+
+            val exception = shouldThrow<PolicyException> {
+                documentCreationRestService.createDocumentAttended(restDocumentCreationAttendedData)
+            }
+
+            Then("it throws exception with no message") {
+                exception.message shouldBe null
+            }
+        }
+
+        When("createDocument is called with disabled document creation") {
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+                creeerenDocument = true
+            )
+            every { zaakafhandelParameterService.isSmartDocumentsEnabled(zaakTypeUUID) } returns false
 
             val exception = shouldThrow<PolicyException> {
                 documentCreationRestService.createDocumentAttended(restDocumentCreationAttendedData)

@@ -10,6 +10,7 @@ import net.atos.zac.app.admin.model.RESTZaaktypeOverzicht
 import net.atos.zac.app.admin.model.RestReferenceTable
 import net.atos.zac.app.admin.model.RestReferenceTableUpdate
 import net.atos.zac.app.admin.model.RestReferenceTableValue
+import net.atos.zac.app.admin.model.RestSmartDocuments
 import net.atos.zac.app.admin.model.RestZaakafhandelParameters
 import java.time.LocalDate
 import java.util.UUID
@@ -60,17 +61,21 @@ fun createRestReferenceTableValue(
 fun createRestZaakAfhandelParameters(
     id: Long? = 1234L,
     domein: String = "dummyDomein",
-    restZaaktypeOverzicht: RESTZaaktypeOverzicht = createRESTZaaktypeOverzicht(),
+    restZaaktypeOverzicht: RESTZaaktypeOverzicht = createRestZaaktypeOverzicht(),
     productaanvraagtype: String? = null
 ) = RestZaakafhandelParameters(
     id = id,
     domein = domein,
     zaaktype = restZaaktypeOverzicht,
-    productaanvraagtype = productaanvraagtype
+    productaanvraagtype = productaanvraagtype,
+    smartDocuments = RestSmartDocuments(
+        enabledGlobally = true,
+        enabledForZaaktype = false
+    )
 )
 
 @Suppress("LongParameterList")
-fun createRESTZaaktypeOverzicht(
+fun createRestZaaktypeOverzicht(
     uuid: UUID = UUID.randomUUID(),
     identificatie: String = "dummyIdentificatie",
     doel: String = "dummyDoel",

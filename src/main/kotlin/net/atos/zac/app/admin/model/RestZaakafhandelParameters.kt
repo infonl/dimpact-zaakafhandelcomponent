@@ -46,5 +46,7 @@ data class RestZaakafhandelParameters(
     /**
      * The frontend currently requires this field to be non-null
      */
-    var zaakAfzenders: List<RESTZaakAfzender> = emptyList()
+    var zaakAfzenders: List<RESTZaakAfzender> = emptyList(),
+
+    var smartDocuments: RestSmartDocuments
 )
