@@ -18,9 +18,9 @@
       (valueChange)="updateFormControls()"
       placeholder="{{ 'informatieobjectType.-kies-' | translate }}"
     >
-      <mat-option [value]="">{{
-        "informatieobjectType.-geen-" | translate
-      }}</mat-option>
+      <mat-option [value]=""
+        >{{ "informatieobjectType.-geen-" | translate }}</mat-option
+      >
       <mat-option
         *ngFor="let informationObjectType of informationObjectTypes"
         [value]="informationObjectType.uuid"
