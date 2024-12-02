@@ -124,6 +124,7 @@ class DocumentCreationService @Inject constructor(
                     zaak = zaak,
                     enkelvoudigInformatieObjectCreateLockRequest = it,
                     taskId = taskId,
+                    skipPolicyCheck = true
                 )
             }
         }
