@@ -464,7 +464,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                                 "status": "NIET_TOEGEKEND",
                                 "zaakIdentificatie": "$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
                                 "zaakOmschrijving": "$ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING",
-                                "zaakToelichting": "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM met kenmerk '$OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK' $ZAAK_PRODUCTAANVRAAG_1_TOELICHTING",
+                                "zaakToelichting": "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM met kenmerk '$OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK'. $ZAAK_PRODUCTAANVRAAG_1_TOELICHTING",
                                 "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                             }
                         ],

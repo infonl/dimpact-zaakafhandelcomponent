@@ -54,7 +54,7 @@
             "registratiedatum": "${json-unit.any-string}",
             "startdatum": "01-01-1970",
             "status": "Wacht op aanvullende informatie",
-            "toelichting": "Aangemaakt vanuit open-forms met kenmerk 'f8534f13-0669-4d4d-a364-6b6c4ad3d243' dummyZaakToelichting",
+            "toelichting": "Aangemaakt vanuit open-forms met kenmerk 'f8534f13-0669-4d4d-a364-6b6c4ad3d243'. dummyZaakToelichting",
             "uiterlijkeEinddatumAfdoening": "${json-unit.any-string}",
             "verlengingReden" : "dummyReason",
             "vertrouwelijkheidaanduiding": "openbaar",

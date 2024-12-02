@@ -205,7 +205,7 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                     "attribuutLabel": "zaak",
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
-                    "toelichting": "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM met kenmerk '$OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK' $ZAAK_PRODUCTAANVRAAG_1_TOELICHTING"
+                    "toelichting": "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM met kenmerk '$OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK'. $ZAAK_PRODUCTAANVRAAG_1_TOELICHTING"
                   }]
                 """.trimIndent()
 
