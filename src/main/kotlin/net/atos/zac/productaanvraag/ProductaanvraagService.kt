@@ -501,7 +501,7 @@ class ProductaanvraagService @Inject constructor(
 
     private fun generateZaakExplanationFromProductaanvraag(productaanvraag: ProductaanvraagDimpact): String =
         (
-            "Aangemaakt vanuit ${productaanvraag.bron.naam} met kenmerk '${productaanvraag.bron.kenmerk}'" +
+            "Aangemaakt vanuit ${productaanvraag.bron.naam} met kenmerk '${productaanvraag.bron.kenmerk}'." +
                 (productaanvraag.zaakgegevens?.toelichting?.let { " $it" } ?: "")
             )
             // truncate to maximum length allowed by the ZGW APIs

@@ -286,7 +286,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     // the provided zaak explanation should be appended to the default explanation but truncated
                     // to the maximum length allowed
                     toelichting.length shouldBe 1000
-                    toelichting shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}' $zaakExplanation"
+                    toelichting shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'. $zaakExplanation"
                         .take(1000)
                     with(zaakgeometrie) {
                         type.toValue() shouldBe Geometry.Type.POINT.value()
@@ -381,7 +381,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     communicatiekanaalNaam shouldBe "E-formulier"
                     bronorganisatie shouldBe "123443210"
                     omschrijving shouldBe null
-                    toelichting shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'"
+                    toelichting shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'."
                 }
                 with(roleToBeCreated.captured) {
                     betrokkeneType shouldBe BetrokkeneType.VESTIGING
@@ -465,7 +465,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     communicatiekanaalNaam shouldBe "E-formulier"
                     bronorganisatie shouldBe "123443210"
                     omschrijving shouldBe null
-                    toelichting shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'"
+                    toelichting shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'."
                 }
             }
         }
@@ -534,7 +534,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     communicatiekanaalNaam shouldBe "E-formulier"
                     bronorganisatie shouldBe "123443210"
                     omschrijving shouldBe null
-                    toelichting shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'"
+                    toelichting shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'."
                 }
             }
         }
@@ -695,7 +695,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     communicatiekanaalNaam shouldBe "E-formulier"
                     bronorganisatie shouldBe "123443210"
                     omschrijving shouldBe null
-                    toelichting shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'"
+                    toelichting shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'."
                 }
                 rolesToBeCreated.forEach {
                     it.roltoelichting shouldBe "Overgenomen vanuit de product aanvraag"
