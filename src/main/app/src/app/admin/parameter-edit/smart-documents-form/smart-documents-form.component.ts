@@ -5,7 +5,7 @@
 
 import { FlatTreeControl } from "@angular/cdk/tree";
 import { Component, effect, Input } from "@angular/core";
-import { FormGroup } from "@angular/forms";
+import { FormBuilder, FormGroup } from "@angular/forms";
 import {
   MatTreeFlatDataSource,
   MatTreeFlattener,
@@ -46,8 +46,11 @@ export class SmartDocumentsFormComponent {
   constructor(
     private smartDocumentsService: SmartDocumentsService,
     private informatieObjectenService: InformatieObjectenService,
+    private formBuilder: FormBuilder,
   ) {
     effect(() => this.prepareDatasource());
+
+    this.formGroup = this.formBuilder.group({});
   }
 
   private prepareDatasource() {

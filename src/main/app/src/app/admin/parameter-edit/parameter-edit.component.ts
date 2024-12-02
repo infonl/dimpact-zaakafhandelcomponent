@@ -71,7 +71,6 @@ export class ParameterEditComponent
   @ViewChild("smartDocumentsFormRef")
   smartDocsFormGroup!: SmartDocumentsFormComponent;
 
-  smartDocumentsForm: FormGroup;
   isSmartDocumentsStepValid: boolean = true;
 
   parameters: ZaakafhandelParameters;
@@ -277,11 +276,6 @@ export class ParameterEditComponent
     this.createMailForm();
     this.createZaakbeeindigForm();
     this.createSmartDocumentsEnabledForm();
-
-    this.smartDocumentsForm = this.formBuilder.group({});
-    this.smartDocumentsForm.statusChanges.subscribe(() => {
-      this.isSmartDocumentsStepValid = this.smartDocumentsForm.valid;
-    });
   }
 
   isHumanTaskParameterValid(humanTaskParameter: HumanTaskParameter): boolean {
