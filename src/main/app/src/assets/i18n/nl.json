@@ -835,6 +835,7 @@
   "msg.smartdocuments.wizard.subtext.failure": "Sluit het tabblad en probeer het opnieuw",
   "msg.smartdocuments.wizard.subtext.cancelled": "Sluit het tabblad en probeer het opnieuw",
   "msg.smartdocuments.wizard.subtext.unknown": "Sluit het tabblad en probeer het opnieuw",
+  "msg.smartdocuments.form.disabled": "De koppeling met SmartDocuments staat uit voor dit zaaktype.",
   "msg.taak.aanvullendeInformatie.fataleDatumZaak.leeg": "Zaak heeft geen fatale datum!",
   "msg.taak.aanvullendeInformatie.fataleDatumTaak.overschreden": "Bij deze aanpassing of het kiezen van opschorten wordt de fatale datum van de zaak overschreden en aangepast.",
   "msg.taak.aanvullendeInformatie.fataleDatumTaak.overschreden.opgeschort": "Bij deze aanpassing wordt de fatale datum van de zaak overschreden en aangepast.",

@@ -835,6 +835,7 @@
   "msg.smartdocuments.wizard.subtext.failure": "Close the tab and try again please",
   "msg.smartdocuments.wizard.subtext.cancelled": "Close the tab and try again please",
   "msg.smartdocuments.wizard.subtext.unknown": "Close the tab and try again please",
+  "msg.smartdocuments.form.disabled": "For this case type there is no mapping for SmartDocuments.",
   "msg.taak.aanvullendeInformatie.fataleDatumZaak.leeg": "Case has no fatal date!",
   "msg.taak.aanvullendeInformatie.fataleDatumTaak.overschreden": "With this adjustment or the choice to suspend, the fatal date of the case will be exceeded and adjusted.",
   "msg.taak.aanvullendeInformatie.fataleDatumTaak.overschreden.opgeschort": "With this adjustment, the fatal date of the case will be exceeded and adjusted.",

@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { Resultaattype } from "../../zaken/model/resultaattype";
 import { ZaakStatusmailOptie } from "../../zaken/model/zaak-statusmail-optie";
 import { Zaaktype } from "../../zaken/model/zaaktype";
@@ -32,4 +33,5 @@ export class ZaakafhandelParameters {
   afrondenMail: ZaakStatusmailOptie;
   productaanvraagtype: string;
   valide: boolean;
+  smartDocuments: GeneratedType<"RestSmartDocuments">;
 }
