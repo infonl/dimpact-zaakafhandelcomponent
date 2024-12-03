@@ -16,7 +16,7 @@ import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeUUID
 import net.atos.zac.flowable.util.TaskUtil.getTaakStatus
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.getFullName
-import net.atos.zac.util.uuidFromURI
+import net.atos.zac.util.extractUuid
 import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import org.flowable.identitylink.api.IdentityLinkInfo
@@ -46,7 +46,7 @@ class TaakZoekObjectConverter @Inject constructor(
             setStatus(getTaakStatus(taskInfo))
             zaaktypeIdentificatie = zaaktype.identificatie
             zaaktypeOmschrijving = zaaktype.omschrijving
-            zaaktypeUuid = uuidFromURI(zaaktype.url).toString()
+            zaaktypeUuid = zaaktype.url.extractUuid().toString()
             this.zaakUUID = zaakUUID.toString()
             zaakIdentificatie = readZaakIdentificatie(taskInfo)
             zaakOmschrijving = zaak.omschrijving

@@ -17,7 +17,7 @@ import static net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.VAR_TRANS
 import static net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.VAR_TRANSIENT_TAAKDATA;
 import static net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.VAR_TRANSIENT_ZAAK_UUID;
 import static net.atos.zac.flowable.task.CreateUserTaskInterceptor.VAR_PROCESS_OWNER;
-import static net.atos.zac.util.UriUtilsKt.uuidFromURI;
+import static net.atos.zac.util.UriUtilsKt.extractUuid;
 import static org.flowable.cmmn.api.runtime.PlanItemDefinitionType.HUMAN_TASK;
 import static org.flowable.cmmn.api.runtime.PlanItemDefinitionType.PROCESS_TASK;
 import static org.flowable.cmmn.api.runtime.PlanItemDefinitionType.USER_EVENT_LISTENER;
@@ -113,7 +113,7 @@ public class CMMNService {
                     .businessKey(zaak.getUuid().toString())
                     .variable(VAR_ZAAK_UUID, zaak.getUuid())
                     .variable(VAR_ZAAK_IDENTIFICATIE, zaak.getIdentificatie())
-                    .variable(VAR_ZAAKTYPE_UUUID, uuidFromURI(zaaktype.getUrl()))
+                    .variable(VAR_ZAAKTYPE_UUUID, extractUuid(zaaktype.getUrl()))
                     .variable(VAR_ZAAKTYPE_OMSCHRIJVING, zaaktype.getOmschrijving());
             if (zaakData != null) {
                 caseInstanceBuilder.variables(zaakData);

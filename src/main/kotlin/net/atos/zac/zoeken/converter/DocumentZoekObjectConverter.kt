@@ -14,8 +14,8 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.getFullName
+import net.atos.zac.util.extractUuid
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
-import net.atos.zac.util.uuidFromURI
 import net.atos.zac.zoeken.model.DocumentIndicatie
 import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
@@ -46,7 +46,7 @@ class DocumentZoekObjectConverter @Inject constructor(
         val zaak = zrcClientService.readZaak(gekoppeldeZaakInformatieobject.zaakUUID)
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val informatieobjecttype = ztcClientService.readInformatieobjecttype(informatieobject.informatieobjecttype)
-        val informatieobjectUUID = uuidFromURI(informatieobject.url)
+        val informatieobjectUUID = informatieobject.url.extractUuid()
         return DocumentZoekObject(
             id = informatieobjectUUID.toString(),
             type = ZoekObjectType.DOCUMENT.name
@@ -55,7 +55,7 @@ class DocumentZoekObjectConverter @Inject constructor(
             titel = informatieobject.titel
             beschrijving = informatieobject.beschrijving
             zaaktypeOmschrijving = zaaktype.omschrijving
-            zaaktypeUuid = uuidFromURI(zaaktype.url).toString()
+            zaaktypeUuid = zaaktype.url.extractUuid().toString()
             zaaktypeIdentificatie = zaaktype.identificatie
             zaakIdentificatie = zaak.identificatie
             zaakUuid = zaak.uuid.toString()

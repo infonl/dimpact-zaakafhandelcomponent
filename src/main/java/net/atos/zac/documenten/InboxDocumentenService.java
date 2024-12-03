@@ -5,7 +5,7 @@
 
 package net.atos.zac.documenten;
 
-import static net.atos.zac.util.UriUtilsKt.uuidFromURI;
+import static net.atos.zac.util.UriUtilsKt.extractUuid;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -104,7 +104,7 @@ public class InboxDocumentenService {
     public void delete(final UUID zaakinformatieobjectUUID) {
         final ZaakInformatieobject zaakInformatieobject = zrcClientService.readZaakinformatieobject(
                 zaakinformatieobjectUUID);
-        final UUID enkelvoudiginformatieobjectUUID = uuidFromURI(zaakInformatieobject.getInformatieobject());
+        final UUID enkelvoudiginformatieobjectUUID = extractUuid(zaakInformatieobject.getInformatieobject());
         find(enkelvoudiginformatieobjectUUID).ifPresent(entityManager::remove);
     }
 

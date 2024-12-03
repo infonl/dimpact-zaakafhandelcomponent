@@ -11,7 +11,7 @@ import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake;
 import static net.atos.zac.enkelvoudiginformatieobject.util.EnkelvoudigInformatieObjectCheckersKt.isSigned;
 import static net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving;
 import static net.atos.zac.flowable.util.TaskUtil.isOpen;
-import static net.atos.zac.util.UriUtilsKt.uuidFromURI;
+import static net.atos.zac.util.UriUtilsKt.extractUuid;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
@@ -128,7 +128,7 @@ public class PolicyService {
     public DocumentRechten readDocumentRechten(final EnkelvoudigInformatieObject enkelvoudigInformatieobject, final Zaak zaak) {
         return readDocumentRechten(
                 enkelvoudigInformatieobject,
-                lockService.findLock(uuidFromURI(enkelvoudigInformatieobject.getUrl())),
+                lockService.findLock(extractUuid(enkelvoudigInformatieobject.getUrl())),
                 zaak
         );
     }

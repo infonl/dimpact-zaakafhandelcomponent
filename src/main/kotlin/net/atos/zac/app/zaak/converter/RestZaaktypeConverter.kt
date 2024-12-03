@@ -14,8 +14,8 @@ import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestZaaktype
 import net.atos.zac.app.zaak.model.RestZaaktypeRelatie
 import net.atos.zac.app.zaak.model.toRestZaaktypeRelatie
+import net.atos.zac.util.extractUuid
 import net.atos.zac.util.time.PeriodUtil
-import net.atos.zac.util.uuidFromURI
 import java.time.Period
 
 class RestZaaktypeConverter @Inject constructor(
@@ -36,7 +36,7 @@ class RestZaaktypeConverter @Inject constructor(
         }
 
         return RestZaaktype(
-            uuid = uuidFromURI(zaaktype.url),
+            uuid = zaaktype.url.extractUuid(),
             identificatie = zaaktype.identificatie,
             doel = zaaktype.doel,
             omschrijving = zaaktype.omschrijving,
@@ -56,12 +56,10 @@ class RestZaaktypeConverter @Inject constructor(
                 null
             },
             zaaktypeRelaties = zaaktypeRelaties,
-            informatieobjecttypes = zaaktype.informatieobjecttypen.stream().map { uri ->
-                uuidFromURI(uri)
-            }.toList(),
+            informatieobjecttypes = zaaktype.informatieobjecttypen.map { it.extractUuid() },
             referentieproces = zaaktype.referentieproces?.naam,
             zaakafhandelparameters = zaakafhandelParametersConverter.toRestZaakafhandelParameters(
-                zaakafhandelParameterService.readZaakafhandelParameters(uuidFromURI(zaaktype.url)),
+                zaakafhandelParameterService.readZaakafhandelParameters(zaaktype.url.extractUuid()),
                 true
             )
         )

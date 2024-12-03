@@ -4,7 +4,7 @@
  */
 package net.atos.zac.app.mailtemplate;
 
-import static net.atos.zac.util.UriUtilsKt.uuidFromURI;
+import static net.atos.zac.util.UriUtilsKt.extractUuid;
 
 import java.util.UUID;
 
@@ -48,7 +48,7 @@ public class MailtemplateRESTService {
             @PathParam("zaakUUID") final UUID zaakUUID
     ) {
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(uuidFromURI(
+        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(extractUuid(
                 zaak.getZaaktype()));
 
         return zaakafhandelParameters.getMailtemplateKoppelingen().stream()

@@ -47,7 +47,7 @@ import net.atos.zac.productaanvraag.util.IndicatieMachtigingEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.convertToZgwPoint
 import net.atos.zac.util.JsonbUtil
-import net.atos.zac.util.uuidFromURI
+import net.atos.zac.util.extractUuid
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.net.URI
@@ -434,14 +434,14 @@ class ProductaanvraagService @Inject constructor(
                 .let { inboxProductaanvraag.initiatorID = it.inpBsn }
         }
         productaanvraag.pdf?.let { pdfUri ->
-            uuidFromURI(pdfUri).let {
+            pdfUri.extractUuid().let {
                 inboxProductaanvraag.aanvraagdocumentUUID = it
                 deleteInboxDocument(it)
             }
         }
         productaanvraag.bijlagen?.let { bijlagen ->
             inboxProductaanvraag.aantalBijlagen = bijlagen.size
-            bijlagen.forEach { deleteInboxDocument(uuidFromURI(it)) }
+            bijlagen.forEach { deleteInboxDocument(it.extractUuid()) }
         }
 
         inboxProductaanvraagService.create(inboxProductaanvraag)

@@ -20,7 +20,7 @@ import net.atos.zac.signalering.model.SignaleringTarget
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringVerzendInfo
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
-import net.atos.zac.util.uuidFromURI
+import net.atos.zac.util.extractUuid
 import net.atos.zac.zoeken.ZoekenService
 import net.atos.zac.zoeken.model.DatumRange
 import net.atos.zac.zoeken.model.DatumVeld
@@ -88,7 +88,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .map { zaaktype ->
                 zaakafhandelParameterService.readZaakafhandelParameters(
-                    uuidFromURI(zaaktype.url)
+                    zaaktype.url.extractUuid()
                 ).let { parameters ->
                     parameters.einddatumGeplandWaarschuwing?.let {
                         signaleringVerzendInfo.streefdatumVerzonden += zaakEinddatumGeplandVerzenden(
@@ -234,7 +234,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
 
     private fun getOpenZaakMetBehandelaarZoekParameters(zaaktype: ZaakType): ZoekParameters {
         val parameters = ZoekParameters(ZoekObjectType.ZAAK)
-        parameters.addFilter(FilterVeld.ZAAK_ZAAKTYPE_UUID, uuidFromURI(zaaktype.url).toString())
+        parameters.addFilter(FilterVeld.ZAAK_ZAAKTYPE_UUID, zaaktype.url.extractUuid().toString())
         parameters.addFilter(FilterVeld.ZAAK_BEHANDELAAR, FilterWaarde.NIET_LEEG.toString())
         parameters.addFilterQuery(ZAAK_AFGEHANDELD_QUERY, "false")
         parameters.rows = TabelInstellingen.AANTAL_PER_PAGINA_MAX

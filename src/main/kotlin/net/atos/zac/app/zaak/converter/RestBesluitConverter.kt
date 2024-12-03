@@ -17,7 +17,7 @@ import net.atos.zac.app.zaak.model.RestBesluit
 import net.atos.zac.app.zaak.model.RestBesluitVastleggenGegevens
 import net.atos.zac.app.zaak.model.toRestBesluitType
 import net.atos.zac.configuratie.ConfiguratieService
-import net.atos.zac.util.uuidFromURI
+import net.atos.zac.util.extractUuid
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate
 
@@ -29,7 +29,7 @@ class RestBesluitConverter @Inject constructor(
     private val ztcClientService: ZtcClientService
 ) {
     fun convertToRestBesluit(besluit: Besluit) = RestBesluit(
-        uuid = uuidFromURI(besluit.url),
+        uuid = besluit.url.extractUuid(),
         besluittype = ztcClientService.readBesluittype(besluit.besluittype).toRestBesluitType(),
         datum = besluit.datum,
         identificatie = besluit.identificatie,

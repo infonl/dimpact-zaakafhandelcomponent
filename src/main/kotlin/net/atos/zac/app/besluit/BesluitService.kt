@@ -11,7 +11,7 @@ import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
 import net.atos.client.zgw.brc.model.generated.VervalredenEnum
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.app.zaak.model.RestBesluitIntrekkenGegevens
-import net.atos.zac.util.uuidFromURI
+import net.atos.zac.util.extractUuid
 import org.apache.commons.collections4.CollectionUtils
 import java.util.UUID
 import java.util.logging.Logger
@@ -40,20 +40,20 @@ class BesluitService @Inject constructor(
 
     fun updateBesluitInformatieobjecten(
         besluit: Besluit,
-        nieuweDocumenten: List<UUID>
+        newDocumentUuids: List<UUID>
     ) {
         val besluitInformatieobjecten = brcClientService.listBesluitInformatieobjecten(besluit.url)
-        val huidigeDocumenten = besluitInformatieobjecten
-            .map { uuidFromURI(it.informatieobject) }
+        val currentDocumentUuids = besluitInformatieobjecten
+            .map { it.informatieobject.extractUuid() }
             .toList()
-        val verwijderen = CollectionUtils.subtract(huidigeDocumenten, nieuweDocumenten)
-        val toevoegen = CollectionUtils.subtract(nieuweDocumenten, huidigeDocumenten)
-        verwijderen.forEach { teVerwijderenInformatieobject ->
+        val documentUuidsToRemove = CollectionUtils.subtract(currentDocumentUuids, newDocumentUuids)
+        val documentUuidsToAdd = CollectionUtils.subtract(newDocumentUuids, currentDocumentUuids)
+        documentUuidsToRemove.forEach { teVerwijderenInformatieobject ->
             besluitInformatieobjecten
-                .filter { uuidFromURI(it.informatieobject) == teVerwijderenInformatieobject }
-                .forEach { brcClientService.deleteBesluitinformatieobject(uuidFromURI(it.url)) }
+                .filter { it.informatieobject.extractUuid() == teVerwijderenInformatieobject }
+                .forEach { brcClientService.deleteBesluitinformatieobject(it.url.extractUuid()) }
         }
-        toevoegen.forEach { documentUri ->
+        documentUuidsToAdd.forEach { documentUri ->
             drcClientService.readEnkelvoudigInformatieobject(documentUri).let { enkelvoudigInformatieObject ->
                 BesluitInformatieObject().apply {
                     this.informatieobject = enkelvoudigInformatieObject.url

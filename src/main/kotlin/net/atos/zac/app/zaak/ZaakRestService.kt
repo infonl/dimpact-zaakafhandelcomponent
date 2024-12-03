@@ -114,10 +114,10 @@ import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
+import net.atos.zac.util.extractUuid
 import net.atos.zac.util.extractedUuidIsEqual
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.util.time.LocalDateUtil
-import net.atos.zac.util.uuidFromURI
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
@@ -287,7 +287,7 @@ class ZaakRestService @Inject constructor(
                 zaak,
                 zaaktype,
                 zaakafhandelParameterService.readZaakafhandelParameters(
-                    uuidFromURI(zaaktype.url)
+                    zaaktype.url.extractUuid()
                 ),
                 null
             )
@@ -449,7 +449,7 @@ class ZaakRestService @Inject constructor(
             }
         )
         if (zrcClientService.listZaakinformatieobjecten(informatieobject).isEmpty()) {
-            indexingService.removeInformatieobject(uuidFromURI(informatieobject.url))
+            indexingService.removeInformatieobject(informatieobject.url.extractUuid())
             ontkoppeldeDocumentenService.create(informatieobject, zaak, ontkoppelGegevens.reden)
         }
     }
@@ -627,7 +627,7 @@ class ZaakRestService @Inject constructor(
         assertPolicy(zaak.isOpen && !StatusTypeUtil.isHeropend(statustype))
         policyService.checkZaakAfsluitbaar(zaak)
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-            uuidFromURI(zaak.zaaktype)
+            zaak.zaaktype.extractUuid()
         )
         val zaakbeeindigParameter: ZaakbeeindigParameter = zaakafhandelParameters.readZaakbeeindigParameter(
             afbrekenGegevens.zaakbeeindigRedenId
@@ -656,7 +656,7 @@ class ZaakRestService @Inject constructor(
             heropenenGegevens.reden
         )
         zaak.resultaat?.let {
-            zrcClientService.deleteResultaat(uuidFromURI(it))
+            zrcClientService.deleteResultaat(it.extractUuid())
         }
     }
 
@@ -774,9 +774,7 @@ class ZaakRestService @Inject constructor(
         return sortAndRemoveDuplicateAfzenders(
             resolveZaakAfzenderMail(
                 RESTZaakAfzenderConverter.convertZaakAfzenders(
-                    zaakafhandelParameterService.readZaakafhandelParameters(
-                        uuidFromURI(zaak.zaaktype)
-                    ).zaakAfzenders
+                    zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid()).zaakAfzenders
                 ).stream()
             )
         )
@@ -793,9 +791,7 @@ class ZaakRestService @Inject constructor(
     fun readDefaultAfzenderVoorZaak(@PathParam("uuid") zaakUUID: UUID?): RESTZaakAfzender? {
         val zaak = zrcClientService.readZaak(zaakUUID)
         return resolveZaakAfzenderMail(
-            zaakafhandelParameterService.readZaakafhandelParameters(
-                uuidFromURI(zaak.zaaktype)
-            ).zaakAfzenders
+            zaakafhandelParameterService.readZaakafhandelParameters(zaak.zaaktype.extractUuid()).zaakAfzenders
                 .filter { it.isDefault }
                 .map(RESTZaakAfzenderConverter::convertZaakAfzender)
                 .stream()
@@ -1026,7 +1022,7 @@ class ZaakRestService @Inject constructor(
         einddatumGeplandWaarschuwing: Map<UUID, LocalDate>,
         uiterlijkeEinddatumAfdoeningWaarschuwing: Map<UUID, LocalDate>
     ): Boolean {
-        val zaaktypeUUID = uuidFromURI(zaak.zaaktype)
+        val zaaktypeUUID = zaak.zaaktype.extractUuid()
         return (
             zaak.einddatumGepland != null &&
                 isWaarschuwing(

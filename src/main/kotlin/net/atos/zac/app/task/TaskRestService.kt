@@ -62,8 +62,8 @@ import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.task.TaskService
+import net.atos.zac.util.extractUuid
 import net.atos.zac.util.time.DateTimeConverterUtil
-import net.atos.zac.util.uuidFromURI
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexingService
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
@@ -339,7 +339,7 @@ class TaskRestService @Inject constructor(
                             )
                             taakdata.replace(
                                 key,
-                                uuidFromURI(zaakInformatieobject.informatieobject).toString()
+                                zaakInformatieobject.informatieobject.extractUuid().toString()
                             )
                         } catch (jsonProcessingException: JsonProcessingException) {
                             throw IllegalArgumentException(
@@ -376,7 +376,7 @@ class TaskRestService @Inject constructor(
                             ) && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
                     )
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
-                        uuidFromURI(enkelvoudigInformatieobject.url)
+                        enkelvoudigInformatieobject.url.extractUuid()
                     )
                 }
         }
@@ -421,7 +421,7 @@ class TaskRestService @Inject constructor(
     ) {
         val informatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid)
         enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
-            uuidFromURI(informatieobject.url),
+            informatieobject.url.extractUuid(),
             verzenddatum,
             toelichting
         )

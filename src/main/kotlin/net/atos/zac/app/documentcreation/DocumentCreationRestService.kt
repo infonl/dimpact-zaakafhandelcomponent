@@ -30,7 +30,7 @@ import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
-import net.atos.zac.util.uuidFromURI
+import net.atos.zac.util.extractUuid
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
@@ -74,7 +74,7 @@ class DocumentCreationRestService @Inject constructor(
                     ?: throw TaskNotFoundException("No open task found with task id: '$it'")
                 assertPolicy(policyService.readTaakRechten(task).creeerenDocument)
             }
-            uuidFromURI(it.zaaktype).let {
+            it.zaaktype.extractUuid().let {
                 if (!zaakafhandelParameterService.isSmartDocumentsEnabled(it)) {
                     throw SmartDocumentsDisabledException("SmartDocuments is disabled")
                 }

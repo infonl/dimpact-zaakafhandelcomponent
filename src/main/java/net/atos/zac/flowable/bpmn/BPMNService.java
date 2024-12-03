@@ -6,7 +6,7 @@
 package net.atos.zac.flowable.bpmn;
 
 import static net.atos.zac.flowable.ZaakVariabelenService.*;
-import static net.atos.zac.util.UriUtilsKt.uuidFromURI;
+import static net.atos.zac.util.UriUtilsKt.extractUuid;
 
 import java.io.InputStream;
 import java.util.Collections;
@@ -98,7 +98,7 @@ public class BPMNService {
                 .businessKey(zaak.getUuid().toString())
                 .variable(VAR_ZAAK_UUID, zaak.getUuid())
                 .variable(VAR_ZAAK_IDENTIFICATIE, zaak.getIdentificatie())
-                .variable(VAR_ZAAKTYPE_UUUID, uuidFromURI(zaaktype.getUrl()))
+                .variable(VAR_ZAAKTYPE_UUUID, extractUuid(zaaktype.getUrl()))
                 .variable(VAR_ZAAKTYPE_OMSCHRIJVING, zaaktype.getOmschrijving())
                 .variables(zaakData)
                 .start();

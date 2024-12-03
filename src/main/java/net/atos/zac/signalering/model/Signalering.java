@@ -11,7 +11,7 @@ import static net.atos.zac.signalering.model.SignaleringSubject.ZAAK;
 import static net.atos.zac.signalering.model.SignaleringTarget.GROUP;
 import static net.atos.zac.signalering.model.SignaleringTarget.USER;
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
-import static net.atos.zac.util.UriUtilsKt.uuidFromURI;
+import static net.atos.zac.util.UriUtilsKt.extractUuid;
 
 import java.time.ZonedDateTime;
 
@@ -129,7 +129,7 @@ public class Signalering {
 
     public void setSubject(final EnkelvoudigInformatieObject subject) {
         validSubjecttype(DOCUMENT);
-        this.subject = uuidFromURI(subject.getUrl()).toString();
+        this.subject = extractUuid(subject.getUrl()).toString();
     }
 
     private void validSubjecttype(final SignaleringSubject subjecttype) {
@@ -148,7 +148,7 @@ public class Signalering {
     }
 
     public void setDetailFromZaakInformatieobject(final ZaakInformatieobject zaakInformatieobject) {
-        this.detail = uuidFromURI(zaakInformatieobject.getInformatieobject()).toString();
+        this.detail = extractUuid(zaakInformatieobject.getInformatieobject()).toString();
     }
 
     public ZonedDateTime getTijdstip() {

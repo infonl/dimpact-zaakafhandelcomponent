@@ -19,7 +19,7 @@ import static net.atos.zac.notificaties.Resource.ZAAK;
 import static net.atos.zac.notificaties.Resource.ZAAKINFORMATIEOBJECT;
 import static net.atos.zac.notificaties.Resource.ZAAKOBJECT;
 import static net.atos.zac.notificaties.Resource.ZAAKTYPE;
-import static net.atos.zac.util.UriUtilsKt.uuidFromURI;
+import static net.atos.zac.util.UriUtilsKt.extractUuid;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.util.logging.Level;
@@ -119,7 +119,7 @@ public class NotificatieReceiver {
         // only attempt to handle productaanvraag if the notification resource is an object with 'CREATE' action
         // and has an object type defined
         if (notificatie.getResource() == OBJECT && notificatie.getAction() == CREATE && !isEmpty(objecttypeUri)) {
-            productaanvraagService.handleProductaanvraag(uuidFromURI(notificatie.getResourceUrl()));
+            productaanvraagService.handleProductaanvraag(extractUuid(notificatie.getResourceUrl()));
         }
     }
 
@@ -157,25 +157,25 @@ public class NotificatieReceiver {
                 if (notificatie.getResource() == ZAAK) {
                     if (notificatie.getAction() == CREATE || notificatie.getAction() == UPDATE) {
                         // Updaten van taak is nodig bij afsluiten zaak
-                        indexingService.addOrUpdateZaak(uuidFromURI(notificatie.getResourceUrl()),
+                        indexingService.addOrUpdateZaak(extractUuid(notificatie.getResourceUrl()),
                                 notificatie.getAction() == UPDATE);
                     } else if (notificatie.getAction() == DELETE) {
-                        indexingService.removeZaak(uuidFromURI(notificatie.getResourceUrl()));
+                        indexingService.removeZaak(extractUuid(notificatie.getResourceUrl()));
                     }
                 } else if (notificatie.getResource() == STATUS || notificatie.getResource() == RESULTAAT ||
                            notificatie.getResource() == ROL || notificatie.getResource() == ZAAKOBJECT) {
-                    indexingService.addOrUpdateZaak(uuidFromURI(notificatie.getMainResourceUrl()), false);
+                    indexingService.addOrUpdateZaak(extractUuid(notificatie.getMainResourceUrl()), false);
                 } else if (notificatie.getResource() == ZAAKINFORMATIEOBJECT && notificatie.getAction() == CREATE) {
                     indexingService.addOrUpdateInformatieobjectByZaakinformatieobject(
-                            uuidFromURI(notificatie.getResourceUrl()));
+                            extractUuid(notificatie.getResourceUrl()));
                 }
             }
             if (notificatie.getChannel() == Channel.INFORMATIEOBJECTEN) {
                 if (notificatie.getResource() == INFORMATIEOBJECT) {
                     if (notificatie.getAction() == CREATE || notificatie.getAction() == UPDATE) {
-                        indexingService.addOrUpdateInformatieobject(uuidFromURI(notificatie.getResourceUrl()));
+                        indexingService.addOrUpdateInformatieobject(extractUuid(notificatie.getResourceUrl()));
                     } else if (notificatie.getAction() == DELETE) {
-                        indexingService.removeInformatieobject(uuidFromURI(notificatie.getResourceUrl()));
+                        indexingService.removeInformatieobject(extractUuid(notificatie.getResourceUrl()));
                     }
                 }
             }
@@ -188,9 +188,9 @@ public class NotificatieReceiver {
         try {
             if (notificatie.getAction() == CREATE) {
                 if (notificatie.getResource() == INFORMATIEOBJECT) {
-                    inboxDocumentenService.create(uuidFromURI(notificatie.getResourceUrl()));
+                    inboxDocumentenService.create(extractUuid(notificatie.getResourceUrl()));
                 } else if (notificatie.getResource() == ZAAKINFORMATIEOBJECT) {
-                    inboxDocumentenService.delete(uuidFromURI(notificatie.getResourceUrl()));
+                    inboxDocumentenService.delete(extractUuid(notificatie.getResourceUrl()));
                 }
             }
         } catch (RuntimeException ex) {

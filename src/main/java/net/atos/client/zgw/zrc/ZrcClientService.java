@@ -7,7 +7,7 @@ package net.atos.client.zgw.zrc;
 
 import static java.lang.String.format;
 import static net.atos.zac.configuratie.ConfiguratieService.ENV_VAR_ZGW_API_CLIENT_MP_REST_URL;
-import static net.atos.zac.util.UriUtilsKt.uuidFromURI;
+import static net.atos.zac.util.UriUtilsKt.extractUuid;
 
 import java.net.URI;
 import java.util.Collection;
@@ -405,7 +405,7 @@ public class ZrcClientService {
         if (zaakInformatieobjecten.isEmpty()) {
             throw new NotFoundException(String.format("Geen ZaakInformatieobject gevonden voor Zaak: '%s' en InformatieObject: '%s'",
                     oudeZaak.getIdentificatie(),
-                    uuidFromURI(informatieobject.getInhoud())));
+                    extractUuid(informatieobject.getInhoud())));
         }
 
         final ZaakInformatieobject oudeZaakInformatieobject = zaakInformatieobjecten.getFirst();
@@ -428,7 +428,7 @@ public class ZrcClientService {
     ) {
         List<ZaakInformatieobject> zaakInformatieobjecten = listZaakinformatieobjecten(informatieobject);
         if (!zaakInformatieobjecten.isEmpty()) {
-            final UUID zaakUuid = uuidFromURI(zaakInformatieobjecten.getFirst().getZaak());
+            final UUID zaakUuid = extractUuid(zaakInformatieobjecten.getFirst().getZaak());
             throw new IllegalStateException(String.format("Informatieobject is reeds gekoppeld aan zaak '%s'", zaakUuid));
         }
         final ZaakInformatieobject nieuweZaakInformatieObject = new ZaakInformatieobject();

@@ -21,7 +21,7 @@ import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.app.task.model.TaakSortering
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.shared.model.SorteerRichting
-import net.atos.zac.util.uuidFromURI
+import net.atos.zac.util.extractUuid
 import net.atos.zac.zoeken.converter.AbstractZoekObjectConverter
 import net.atos.zac.zoeken.model.zoekobject.ZoekObject
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
@@ -133,7 +133,7 @@ class IndexingService @Inject constructor(
 
     fun addOrUpdateInformatieobjectByZaakinformatieobject(zaakinformatieobjectUUID: UUID) =
         addOrUpdateInformatieobject(
-            uuidFromURI(zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID).informatieobject)
+            zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID).informatieobject.extractUuid()
         )
 
     fun addOrUpdateTaak(taskID: String) = indexeerDirect(taskID, ZoekObjectType.TAAK, false)
@@ -279,7 +279,7 @@ class IndexingService @Inject constructor(
         val informationObjectsResults = drcClientService.listEnkelvoudigInformatieObjecten(
             EnkelvoudigInformatieobjectListParameters().apply { page = ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS }
         )
-        val ids = informationObjectsResults.results.map { uuidFromURI(it.url).toString() }
+        val ids = informationObjectsResults.results.map { it.url.extractUuid().toString() }
         indexeerDirect(
             objectIds = ids,
             objectType = ZoekObjectType.DOCUMENT,

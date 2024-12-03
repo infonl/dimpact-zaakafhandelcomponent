@@ -42,7 +42,7 @@ import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.RestSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.isSubsetOf
-import net.atos.zac.util.uuidFromURI
+import net.atos.zac.util.extractUuid
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.util.UUID
@@ -107,7 +107,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
     fun listZaakafhandelParameters(): List<RestZaakafhandelParameters> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
-            .map { uuidFromURI(it.url) }
+            .map { it.url.extractUuid() }
             .map(zaakafhandelParameterService::readZaakafhandelParameters)
             .map { zaakafhandelParametersConverter.toRestZaakafhandelParameters(it, false) }
     }

@@ -12,7 +12,7 @@ import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.zac.util.uuidFromURI
+import net.atos.zac.util.extractUuid
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
@@ -38,7 +38,7 @@ class BrcClientService @Inject constructor(
 
     fun updateBesluit(besluit: Besluit, toelichting: String?): Besluit {
         toelichting?.let { zgwClientHeadersFactory.setAuditToelichting(it) }
-        return brcClient.besluitUpdate(uuidFromURI(besluit.url), besluit)
+        return brcClient.besluitUpdate(besluit.url.extractUuid(), besluit)
     }
 
     fun listAuditTrail(besluitUuid: UUID): List<AuditTrailRegel> = brcClient.listAuditTrail(besluitUuid)

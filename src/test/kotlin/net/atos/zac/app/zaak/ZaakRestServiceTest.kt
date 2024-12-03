@@ -86,7 +86,7 @@ import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.productaanvraag.createProductaanvraagDimpact
 import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.signalering.SignaleringService
-import net.atos.zac.util.uuidFromURI
+import net.atos.zac.util.extractUuid
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
@@ -179,7 +179,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         val productaanvraagDimpact = createProductaanvraagDimpact()
         val restZaak = createRestZaak()
         val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
-        val zaakTypeUUID = uuidFromURI(zaakType.url)
+        val zaakTypeUUID = zaakType.url.extractUuid()
         val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
             zaak = createRestZaak(
                 restZaakType = RestZaaktype(

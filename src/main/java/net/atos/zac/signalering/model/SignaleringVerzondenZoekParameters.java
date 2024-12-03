@@ -10,7 +10,7 @@ import static net.atos.zac.signalering.model.SignaleringSubject.TAAK;
 import static net.atos.zac.signalering.model.SignaleringSubject.ZAAK;
 import static net.atos.zac.signalering.model.SignaleringTarget.GROUP;
 import static net.atos.zac.signalering.model.SignaleringTarget.USER;
-import static net.atos.zac.util.UriUtilsKt.uuidFromURI;
+import static net.atos.zac.util.UriUtilsKt.extractUuid;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -95,7 +95,7 @@ public class SignaleringVerzondenZoekParameters {
     }
 
     public SignaleringVerzondenZoekParameters subject(final EnkelvoudigInformatieObject subject) {
-        return subjectInformatieobject(uuidFromURI(subject.getUrl()));
+        return subjectInformatieobject(extractUuid(subject.getUrl()));
     }
 
     public SignaleringVerzondenZoekParameters subjectZaak(final UUID zaakId) {

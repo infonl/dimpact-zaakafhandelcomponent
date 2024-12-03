@@ -47,7 +47,7 @@ import net.atos.zac.policy.output.createDocumentRechten
 import net.atos.zac.policy.output.createDocumentRechtenAllDeny
 import net.atos.zac.policy.output.createZaakRechten
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
-import net.atos.zac.util.uuidFromURI
+import net.atos.zac.util.extractUuid
 import net.atos.zac.webdav.WebdavHelper
 import java.net.URI
 import java.util.UUID
@@ -290,7 +290,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns enkelvoudigInformatieObjectWithLockData
         every {
             enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                uuidFromURI(enkelvoudigInformatieObject.url),
+                enkelvoudigInformatieObject.url.extractUuid(),
                 enkelvoudigInformatieObjectWithLockData,
                 null
             )
@@ -316,7 +316,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                         restEnkelvoudigInformatieObjectVersieGegevens.uuid
                     )
                     enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                        uuidFromURI(enkelvoudigInformatieObject.url),
+                        enkelvoudigInformatieObject.url.extractUuid(),
                         enkelvoudigInformatieObjectWithLockData,
                         null
                     )

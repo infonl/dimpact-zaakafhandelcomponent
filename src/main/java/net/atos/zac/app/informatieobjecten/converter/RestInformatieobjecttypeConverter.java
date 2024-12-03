@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
-import static net.atos.zac.util.UriUtilsKt.uuidFromURI;
+import static net.atos.zac.util.UriUtilsKt.extractUuid;
 
 import java.net.URI;
 import java.util.List;
@@ -24,7 +24,7 @@ public class RestInformatieobjecttypeConverter {
 
     public RestInformatieobjecttype convert(final InformatieObjectType type) {
         final RestInformatieobjecttype restType = new RestInformatieobjecttype();
-        restType.uuid = uuidFromURI(type.getUrl());
+        restType.uuid = extractUuid(type.getUrl());
         restType.concept = type.getConcept();
         restType.omschrijving = type.getOmschrijving();
         // we use the uppercase version of this enum in the ZAC backend API

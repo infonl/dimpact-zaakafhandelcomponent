@@ -41,7 +41,7 @@ import net.atos.zac.identity.model.getFullName
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.util.StringUtil
-import net.atos.zac.util.uuidFromURI
+import net.atos.zac.util.extractUuid
 import nl.lifely.zac.util.NoArgConstructor
 import nl.lifely.zac.util.decodedBase64StringLength
 import java.net.URI
@@ -189,7 +189,7 @@ class DocumentCreationDataConverter @Inject constructor(
             .singleOrNull()
 
     private fun convertToStartformulierData(zaakobject: Zaakobject) =
-        objectsClientService.readObject(uuidFromURI(zaakobject.getObject())).let { productAaanvraagObject ->
+        objectsClientService.readObject(zaakobject.getObject().extractUuid()).let { productAaanvraagObject ->
             StartformulierData(
                 productAanvraagtype = productaanvraagService.getProductaanvraag(productAaanvraagObject).type,
                 data = productaanvraagService.getAanvraaggegevens(productAaanvraagObject)
@@ -225,7 +225,7 @@ class DocumentCreationDataConverter @Inject constructor(
         status = StatusEnum.IN_BEWERKING
         vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
         informatieobjecttype = smartDocumentsTemplatesService.getInformationObjectTypeUUID(
-            zaakafhandelParametersUUID = uuidFromURI(zaak.zaaktype),
+            zaakafhandelParametersUUID = zaak.zaaktype.extractUuid(),
             templateGroupId = smartDocumentsTemplateGroupId,
             templateId = smartDocumentsTemplateId
         ).let {

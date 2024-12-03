@@ -31,7 +31,7 @@ import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.ZAAK_TOELI
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.ZAAK_TYPE;
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.ZAAK_URL;
 import static net.atos.zac.util.StringUtil.joinNonBlankWith;
-import static net.atos.zac.util.UriUtilsKt.uuidFromURI;
+import static net.atos.zac.util.UriUtilsKt.extractUuid;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
@@ -258,7 +258,7 @@ public class MailTemplateHelper {
     private MailLink createMailLinkFromDocument(final EnkelvoudigInformatieObject document) {
         return new MailLink(
                 document.getTitel(),
-                configuratieService.informatieobjectTonenUrl(uuidFromURI(document.getUrl())),
+                configuratieService.informatieobjectTonenUrl(extractUuid(document.getUrl())),
                 "het document",
                 null
         );

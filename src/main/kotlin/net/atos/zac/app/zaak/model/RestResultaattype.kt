@@ -6,8 +6,8 @@ package net.atos.zac.app.zaak.model
 
 import net.atos.client.zgw.ztc.model.Afleidingswijze
 import net.atos.client.zgw.ztc.model.generated.ResultaatType
+import net.atos.zac.util.extractUuid
 import net.atos.zac.util.time.PeriodUtil
-import net.atos.zac.util.uuidFromURI
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.Period
@@ -37,7 +37,7 @@ data class RestResultaattype(
 )
 
 fun ResultaatType.toRestResultaatType() = RestResultaattype(
-    id = uuidFromURI(this.url),
+    id = this.url.extractUuid(),
     naam = this.omschrijving,
     toelichting = this.toelichting,
     archiefNominatie = this.archiefnominatie.name,
