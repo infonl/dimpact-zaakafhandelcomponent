@@ -10,7 +10,6 @@ import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_STATUS_BAD_REQUEST
 import nl.lifely.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
@@ -212,12 +211,7 @@ class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
                 logger.info { "Response: $storeResponseBody" }
 
                 storeResponse.code shouldBe HTTP_STATUS_BAD_REQUEST
-                storeResponseBody shouldContain
-                    "group.$SMART_DOCUMENTS_ROOT_GROUP_ID.$SMART_DOCUMENTS_ROOT_GROUP_NAME." +
-                    "group.$SMART_DOCUMENTS_GROUP_1_ID.group A"
-                storeResponseBody shouldContain
-                    "group.$SMART_DOCUMENTS_ROOT_GROUP_ID.$SMART_DOCUMENTS_ROOT_GROUP_NAME." +
-                    "group.$SMART_DOCUMENTS_GROUP_1_ID.group A.template.4.group A template 1"
+                storeResponseBody shouldBe """{"message":"msg.error.smartdocuments.configuration"}"""
             }
         }
     }
