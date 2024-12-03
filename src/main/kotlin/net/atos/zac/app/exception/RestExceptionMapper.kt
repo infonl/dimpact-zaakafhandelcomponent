@@ -49,6 +49,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
     /**
      * Converts an exception to a JAX-RS response depending on the exception type.
      */
+    @Suppress("CyclomaticComplexMethod")
     override fun toResponse(exception: Exception): Response =
         when {
             exception is WebApplicationException &&
