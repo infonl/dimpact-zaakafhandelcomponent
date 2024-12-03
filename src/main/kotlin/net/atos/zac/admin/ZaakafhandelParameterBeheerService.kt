@@ -40,7 +40,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
     private val zaakafhandelParameterService: ZaakafhandelParameterService
 ) {
     /**
-     * Retrieves the zaakafhandelparameters for a given zaaktype UUID.
+     * Retrieves the most recent zaakafhandelparameters for a given zaaktype UUID.
      * Note that a zaaktype UUID uniquely identifies a _version_ of a zaaktype, and therefore also
      * a specific version of the corresponding zaakafhandelparameters.
      */
@@ -126,47 +126,50 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
     }
 
     /**
-     * Zaaktype is aangepast, indien geen concept, dan de zaakafhandelparameters van de vorige versie zoveel mogelijk overnemen
+     * Zaaktype has been changed. If it is not a concept, and we do not already have zaakafhandelparameters for this
+     * exact zaaktype (identified by the uuid) then this indicates that a 'new version' of the zaaktype
+     * was created. Therefore, we create new zaakafhandelparameters with values which are copied from the previous
+     * zaakafhandelparameters 'version' for this zaaktype.
+     * Note that when a zaaktype is republished in the ZGW APIs technically a new zaaktype is created with its own
+     * unique zaaktype UUID. A new zaaktype relates to the previous 'version' of this zaaktype only by zaaktype description.
      *
-     * @param zaaktypeUri uri van het nieuwe zaaktype
+     * @param zaaktypeUri uri of the new zaaktype
      */
-    fun zaaktypeAangepast(zaaktypeUri: URI) {
-        zaakafhandelParameterService.clearListCache()
-        ztcClientService.clearZaaktypeCache()
-        val zaaktype = ztcClientService.readZaaktype(zaaktypeUri)
-        if (!zaaktype.concept) {
-            val omschrijving = zaaktype.omschrijving
-            val vorigeZaakafhandelparameters = readRecentsteZaakafhandelParameters(omschrijving)
-            val nieuweZaakafhandelParameters = ZaakafhandelParameters().apply {
+    fun createNewZaakafhandelParametersOnZaakTypeChange(zaaktypeUri: URI) {
+        ztcClientService.readZaaktype(zaaktypeUri).takeIf { !it.concept }?.let { zaaktype ->
+            zaakafhandelParameterService.clearListCache()
+            ztcClientService.clearZaaktypeCache()
+            val currentZaakafhandelParameters = readMostRecentZaakafhandelParametersForZaaktypeDescription(
+                zaaktype.omschrijving
+            )
+            val newZaakafhandelParameters = ZaakafhandelParameters().apply {
                 zaakTypeUUID = UriUtil.uuidFromURI(zaaktype.url)
                 zaaktypeOmschrijving = zaaktype.omschrijving
-                caseDefinitionID = vorigeZaakafhandelparameters.caseDefinitionID
-                groepID = vorigeZaakafhandelparameters.groepID
-                gebruikersnaamMedewerker = vorigeZaakafhandelparameters.gebruikersnaamMedewerker
-                einddatumGeplandWaarschuwing = zaaktype.servicenorm?.let {
-                    vorigeZaakafhandelparameters.einddatumGeplandWaarschuwing
-                }
-                uiterlijkeEinddatumAfdoeningWaarschuwing = vorigeZaakafhandelparameters.uiterlijkeEinddatumAfdoeningWaarschuwing
-                intakeMail = vorigeZaakafhandelparameters.intakeMail
-                afrondenMail = vorigeZaakafhandelparameters.afrondenMail
-                productaanvraagtype = vorigeZaakafhandelparameters.productaanvraagtype
-                domein = vorigeZaakafhandelparameters.domein
+                caseDefinitionID = currentZaakafhandelParameters.caseDefinitionID
+                groepID = currentZaakafhandelParameters.groepID
+                gebruikersnaamMedewerker = currentZaakafhandelParameters.gebruikersnaamMedewerker
+                einddatumGeplandWaarschuwing = zaaktype.servicenorm?.let { currentZaakafhandelParameters.einddatumGeplandWaarschuwing }
+                uiterlijkeEinddatumAfdoeningWaarschuwing = currentZaakafhandelParameters.uiterlijkeEinddatumAfdoeningWaarschuwing
+                intakeMail = currentZaakafhandelParameters.intakeMail
+                afrondenMail = currentZaakafhandelParameters.afrondenMail
+                productaanvraagtype = currentZaakafhandelParameters.productaanvraagtype
+                domein = currentZaakafhandelParameters.domein
             }
-            mapHumanTaskParameters(vorigeZaakafhandelparameters, nieuweZaakafhandelParameters)
-            mapUserEventListenerParameters(vorigeZaakafhandelparameters, nieuweZaakafhandelParameters)
-            mapZaakbeeindigGegevens(vorigeZaakafhandelparameters, nieuweZaakafhandelParameters, zaaktype)
-            mapMailtemplateKoppelingen(vorigeZaakafhandelparameters, nieuweZaakafhandelParameters)
-            createZaakafhandelParameters(nieuweZaakafhandelParameters)
+            mapHumanTaskParameters(currentZaakafhandelParameters, newZaakafhandelParameters)
+            mapUserEventListenerParameters(currentZaakafhandelParameters, newZaakafhandelParameters)
+            mapZaakbeeindigGegevens(currentZaakafhandelParameters, newZaakafhandelParameters, zaaktype)
+            mapMailtemplateKoppelingen(currentZaakafhandelParameters, newZaakafhandelParameters)
+            createZaakafhandelParameters(newZaakafhandelParameters)
         }
     }
 
-    private fun readRecentsteZaakafhandelParameters(zaaktypeOmschrijving: String): ZaakafhandelParameters {
+    private fun readMostRecentZaakafhandelParametersForZaaktypeDescription(zaaktypeDescription: String): ZaakafhandelParameters {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(ZaakafhandelParameters::class.java)
         val root = query.from(ZaakafhandelParameters::class.java)
         query.select(root)
-            .where(builder.equal(root.get<Any>(ZaakafhandelParameters.ZAAKTYPE_OMSCHRIJVING), zaaktypeOmschrijving))
-        query.orderBy(builder.desc(root.get<Any>(ZaakafhandelParameters.CREATIEDATUM)))
+            .where(builder.equal(root.get<Any>(ZAAKTYPE_OMSCHRIJVING), zaaktypeDescription))
+        query.orderBy(builder.desc(root.get<Any>(CREATIEDATUM)))
         val resultList = entityManager.createQuery(query).setMaxResults(1).resultList
         return if (resultList.isNotEmpty()) {
             resultList.first()
