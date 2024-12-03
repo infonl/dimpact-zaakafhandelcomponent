@@ -251,10 +251,8 @@ class ZaakafhandelParametersRestService @Inject constructor(
     @Path("{zaakafhandelUUID}/document-templates")
     fun getTemplatesMapping(
         @PathParam("zaakafhandelUUID") zaakafhandelUUID: UUID
-    ): Set<RestMappedSmartDocumentsTemplateGroup> {
-        assertPolicy(policyService.readOverigeRechten().beheren)
-        return smartDocumentsTemplatesService.getTemplatesMapping(zaakafhandelUUID)
-    }
+    ): Set<RestMappedSmartDocumentsTemplateGroup> =
+        smartDocumentsTemplatesService.getTemplatesMapping(zaakafhandelUUID)
 
     @POST
     @Path("{zaakafhandelUUID}/document-templates")
