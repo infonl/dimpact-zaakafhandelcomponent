@@ -71,7 +71,7 @@ class DocumentCreationRestService @Inject constructor(
             restDocumentCreationAttendedData.taskId?.let {
                 val task = flowableTaskService.findOpenTask(it)
                     ?: throw TaskNotFoundException("No open task found with task id: '$it'")
-                assertPolicy(policyService.readTaakRechten(task).toevoegenDocument)
+                assertPolicy(policyService.readTaakRechten(task).creeerenDocument)
             }
             assertPolicy(zaakafhandelParameterService.isSmartDocumentsEnabled(uuidFromURI(it.zaaktype)))
         }.let {
