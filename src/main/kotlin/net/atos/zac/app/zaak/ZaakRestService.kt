@@ -115,7 +115,7 @@ import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
-import net.atos.zac.util.isEqual
+import net.atos.zac.util.extractedUuidIsEqual
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.util.time.LocalDateUtil
 import net.atos.zac.util.uuidFromURI
@@ -862,7 +862,7 @@ class ZaakRestService @Inject constructor(
         zaak.resultaat?.let {
             zrcClientService.readResultaat(it).let { zaakresultaat ->
                 val resultaattype = ztcClientService.readResultaattype(restBesluitWijzigenGegevens.resultaattypeUuid)
-                if (!isEqual(zaakresultaat.resultaattype, resultaattype.url)) {
+                if (!extractedUuidIsEqual(zaakresultaat.resultaattype, resultaattype.url)) {
                     zrcClientService.deleteResultaat(zaakresultaat.uuid)
                     zgwApiService.createResultaatForZaak(
                         zaak,

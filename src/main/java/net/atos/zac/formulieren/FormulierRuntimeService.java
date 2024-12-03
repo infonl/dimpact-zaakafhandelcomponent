@@ -7,7 +7,7 @@ package net.atos.zac.formulieren;
 import static jakarta.json.JsonValue.ValueType.STRING;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static net.atos.zac.util.UriUtilKt.uuidFromURI;
+import static net.atos.zac.util.UriUtilsKt.uuidFromURI;
 import static net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate;
 import static org.apache.commons.lang3.StringUtils.*;
 

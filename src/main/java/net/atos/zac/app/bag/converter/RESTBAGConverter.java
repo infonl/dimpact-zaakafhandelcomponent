@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.bag.converter;
 
-import static net.atos.zac.util.UriUtilKt.uuidFromURI;
+import static net.atos.zac.util.UriUtilsKt.uuidFromURI;
 
 import java.math.BigDecimal;
 import java.util.List;

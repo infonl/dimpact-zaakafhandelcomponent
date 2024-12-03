@@ -5,7 +5,7 @@
 
 package net.atos.zac.signalering.event;
 
-import static net.atos.zac.util.UriUtilKt.uuidFromURI;
+import static net.atos.zac.util.UriUtilsKt.uuidFromURI;
 
 import java.net.URI;
 import java.util.Optional;

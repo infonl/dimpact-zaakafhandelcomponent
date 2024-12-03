@@ -26,9 +26,9 @@ public final class URIUtil {
         return UUID.fromString(parseUUIDAsStringFromResourceURI(resourceURI));
     }
 
-    private static String parseUUIDAsStringFromResourceURI(final URI resourceURI) {
-        final String resourceURIString = resourceURI.toString();
-        return contains(resourceURIString, "/") ? substringAfterLast(resourceURIString, "/") : resourceURIString;
+    private static String parseUUIDAsStringFromResourceURI(final URI uri) {
+        final String uriString = uri.toString();
+        return contains(uriString, "/") ? substringAfterLast(uriString, "/") : uriString;
     }
 
     private URIUtil() {

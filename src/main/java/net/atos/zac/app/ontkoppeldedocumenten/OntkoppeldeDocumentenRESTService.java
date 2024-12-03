@@ -6,7 +6,7 @@
 package net.atos.zac.app.ontkoppeldedocumenten;
 
 import static net.atos.zac.policy.PolicyService.assertPolicy;
-import static net.atos.zac.util.UriUtilKt.uuidFromURI;
+import static net.atos.zac.util.UriUtilsKt.uuidFromURI;
 
 import java.util.List;
 import java.util.Optional;
