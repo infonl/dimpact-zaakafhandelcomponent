@@ -748,7 +748,7 @@
   "msg.error.reference.table.with.same.code.already.exists": "Een referentietabel met deze code bestaat al. Gebruik s.v.p. een unieke code.",
   "msg.error.zrc.client.exception": "Er heeft zich helaas een technische fout voor gedaan. Er kunnen geen zaken worden opgehaald.",
   "msg.error.ztc.client.exception": "Er heeft zich helaas een technische fout voor gedaan. Er kunnen geen zaaktypes worden opgehaald.",
-  "msg.error.smartdocuments.configuration": "SmartDocuments is niet geconfigureerd",
+  "msg.error.smartdocuments.not.configured": "SmartDocuments is niet geconfigureerd",
   "msg.error.smartdocuments.disabled": "SmartDocuments is uitgeschakeld",
   "msg.email.verstuurd": "E-mail is verstuurd",
   "msg.extern.advies.vastleggen.behandelen": "Er is een extern advies aangevraagd. Hieronder kan het antwoord worden vastgelegd.",

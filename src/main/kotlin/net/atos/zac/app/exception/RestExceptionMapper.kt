@@ -81,7 +81,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             )
             exception is SmartDocumentsConfigurationException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
-                errorCode = ERROR_CODE_SMARTDOCUMENTS_CONFIGURATION,
+                errorCode = ERROR_CODE_SMARTDOCUMENTS_NOT_CONFIGURED,
                 exception = exception
             )
             exception is BetrokkeneIsAlreadyAddedToZaakException -> generateResponse(

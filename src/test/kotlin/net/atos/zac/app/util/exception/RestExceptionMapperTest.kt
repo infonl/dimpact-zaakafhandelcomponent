@@ -261,7 +261,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             Then("it should return the proper error code and no exception message") {
                 checkResponse(
                     response = response,
-                    errorMessage = "msg.error.smartdocuments.configuration",
+                    errorMessage = "msg.error.smartdocuments.not.configured",
                     expectedStatus = HttpStatus.SC_BAD_REQUEST
                 )
             }
