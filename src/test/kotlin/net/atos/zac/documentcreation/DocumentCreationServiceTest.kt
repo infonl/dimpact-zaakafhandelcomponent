@@ -140,9 +140,10 @@ class DocumentCreationServiceTest : BehaviorSpec({
         } returns enkelvoudigInformatieObjectLockRequest
         every {
             enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-                zaak,
-                enkelvoudigInformatieObjectLockRequest,
-                taakId
+                zaak = zaak,
+                enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectLockRequest,
+                taskId = taakId,
+                skipPolicyCheck = true
             )
         } returns zaakInformatieobject
 
@@ -164,9 +165,10 @@ class DocumentCreationServiceTest : BehaviorSpec({
 
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-                        zaak,
-                        enkelvoudigInformatieObjectLockRequest,
-                        taakId
+                        zaak = zaak,
+                        enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectLockRequest,
+                        taskId = taakId,
+                        skipPolicyCheck = true
                     )
                 }
             }

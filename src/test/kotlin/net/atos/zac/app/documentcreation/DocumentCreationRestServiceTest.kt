@@ -22,6 +22,9 @@ import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
 import net.atos.zac.documentcreation.model.createDocumentCreationAttendedResponse
+import net.atos.zac.flowable.createTestTask
+import net.atos.zac.flowable.task.FlowableTaskService
+import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
@@ -35,12 +38,14 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val configurationService = mockk<ConfiguratieService>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
+    val flowableTaskService = mockk<FlowableTaskService>()
     val documentCreationRestService = DocumentCreationRestService(
         policyService = policyService,
         documentCreationService = documentCreationService,
         zrcClientService = zrcClientService,
         configurationService = configurationService,
-        zaakafhandelParameterService = zaakafhandelParameterService
+        zaakafhandelParameterService = zaakafhandelParameterService,
+        flowableTaskService = flowableTaskService
     )
 
     isolationMode = IsolationMode.InstancePerTest
@@ -50,9 +55,11 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         val zaak = createZaak(
             zaakTypeURI = URI("https://example.com/$zaakTypeUUID"),
         )
+        val taskId = "dummyTaskId"
+        val task = createTestTask()
         val restDocumentCreationAttendedData = createRestDocumentCreationAttendedData(
             zaakUuid = zaak.uuid,
-            taskId = "dummyTaskId",
+            taskId = taskId,
             smartDocumentsTemplateGroupId = "groupId",
             smartDocumentsTemplateId = "templateId",
             title = "Title",
@@ -72,6 +79,8 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
                 creeerenDocument = true
             )
+            every { flowableTaskService.findOpenTask(taskId) } returns task
+            every { policyService.readTaakRechten(task).creeerenDocument } returns true
             every { zaakafhandelParameterService.isSmartDocumentsEnabled(zaakTypeUUID) } returns true
 
             val restDocumentCreationResponse = documentCreationRestService.createDocumentAttended(
@@ -87,6 +96,37 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     templateId shouldBe restDocumentCreationAttendedData.smartDocumentsTemplateId
                     templateGroupId shouldBe restDocumentCreationAttendedData.smartDocumentsTemplateGroupId
                 }
+            }
+        }
+
+        When("createDocument is called by a role that is not allowed to create documents for tasks") {
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+                creeerenDocument = true
+            )
+            every { flowableTaskService.findOpenTask(taskId) } returns task
+            every { policyService.readTaakRechten(task).creeerenDocument } returns false
+
+            val exception = shouldThrow<PolicyException> {
+                documentCreationRestService.createDocumentAttended(restDocumentCreationAttendedData)
+            }
+
+            Then("it throws exception with no message") {
+                exception.message shouldBe null
+            }
+        }
+
+        When("createDocument is called for a task that is not opened") {
+            every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
+                creeerenDocument = true
+            )
+            every { flowableTaskService.findOpenTask(taskId) } returns null
+
+            val exception = shouldThrow<TaskNotFoundException> {
+                documentCreationRestService.createDocumentAttended(restDocumentCreationAttendedData)
+            }
+
+            Then("it throws exception with message that mentions the task id") {
+                exception.message shouldBe "No open task found with task id: 'dummyTaskId'"
             }
         }
 
@@ -106,6 +146,8 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
                 creeerenDocument = true
             )
+            every { flowableTaskService.findOpenTask(taskId) } returns task
+            every { policyService.readTaakRechten(task).creeerenDocument } returns true
             every { zaakafhandelParameterService.isSmartDocumentsEnabled(zaakTypeUUID) } returns false
 
             val exception = shouldThrow<PolicyException> {

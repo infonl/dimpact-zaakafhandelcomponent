@@ -4,6 +4,7 @@
  */
 package net.atos.zac.app.informatieobjecten
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -23,6 +24,7 @@ import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockS
 import net.atos.zac.flowable.createTestTask
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
+import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.createTaakRechten
 import java.util.UUID
@@ -46,13 +48,13 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
         zgwApiService
     )
 
-    Given("Zaak, lock request and a task") {
-        val zaak = Zaak()
-        val enkelvoudigInformatieObjectCreateLockRequest = createEnkelvoudigInformatieObjectCreateLockRequest()
-        val zaakInformatieObject = createZaakInformatieobject()
-        val taskId = "1234"
-        val task = createTestTask()
+    val zaak = Zaak()
+    val enkelvoudigInformatieObjectCreateLockRequest = createEnkelvoudigInformatieObjectCreateLockRequest()
+    val zaakInformatieObject = createZaakInformatieobject()
+    val taskId = "1234"
+    val task = createTestTask()
 
+    Given("Zaak, lock request and an open task") {
         every {
             zgwApiService.createZaakInformatieobjectForZaak(
                 zaak,
@@ -63,14 +65,15 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
             )
         } returns zaakInformatieObject
         every { flowableTaskService.findOpenTask(taskId) } returns task
-        every { policyService.readTaakRechten(task) } returns createTaakRechten()
         every { taakVariabelenService.setTaakdocumenten(task, any<List<UUID>>()) } just runs
 
         When("creating information object for a task is called") {
+            every { policyService.readTaakRechten(task) } returns createTaakRechten()
+
             val zaakInfo = enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-                zaak,
-                enkelvoudigInformatieObjectCreateLockRequest,
-                taskId
+                zaak = zaak,
+                enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
+                taskId = taskId
             )
 
             Then("correct zaak info object is returned") {
@@ -80,6 +83,63 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
             And("task document is set") {
                 verify(exactly = 1) {
                     taakVariabelenService.setTaakdocumenten(task, any<List<UUID>>())
+                }
+            }
+        }
+    }
+
+    Given("Zaak, lock request and non-eligible task") {
+        every {
+            zgwApiService.createZaakInformatieobjectForZaak(
+                zaak,
+                enkelvoudigInformatieObjectCreateLockRequest,
+                enkelvoudigInformatieObjectCreateLockRequest.titel,
+                enkelvoudigInformatieObjectCreateLockRequest.beschrijving,
+                ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+            )
+        } returns zaakInformatieObject
+        every { flowableTaskService.findOpenTask(taskId) } returns null
+        every { taakVariabelenService.setTaakdocumenten(task, any<List<UUID>>()) } just runs
+
+        When("creating information object for a non-open task") {
+            val exception = shouldThrow<TaskNotFoundException> {
+                enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
+                    zaak = zaak,
+                    enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
+                    taskId = taskId,
+                )
+            }
+
+            Then("thrown exception mentions the task id") {
+                exception.message shouldBe "No open task found with task id: '$taskId'"
+            }
+        }
+    }
+
+    Given("Zaak, lock request and internal (pre-authenticated) call") {
+        every {
+            zgwApiService.createZaakInformatieobjectForZaak(
+                zaak,
+                enkelvoudigInformatieObjectCreateLockRequest,
+                enkelvoudigInformatieObjectCreateLockRequest.titel,
+                enkelvoudigInformatieObjectCreateLockRequest.beschrijving,
+                ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+            )
+        } returns zaakInformatieObject
+        every { flowableTaskService.findOpenTask(taskId) } returns task
+        every { taakVariabelenService.setTaakdocumenten(task, any<List<UUID>>()) } just runs
+
+        When("creating information object for a non-open task") {
+            enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
+                zaak = zaak,
+                enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
+                taskId = taskId,
+                skipPolicyCheck = true
+            )
+
+            Then("policy check is skipped") {
+                verify(exactly = 0) {
+                    policyService.readTaakRechten(task)
                 }
             }
         }
