@@ -211,7 +211,7 @@ class ZaakafhandelParametersRestServiceSmartDocumentsTest : BehaviorSpec({
                 logger.info { "Response: $storeResponseBody" }
 
                 storeResponse.code shouldBe HTTP_STATUS_BAD_REQUEST
-                storeResponseBody shouldBe """{"message":"msg.error.smartdocuments.configuration"}"""
+                storeResponseBody shouldBe """{"message":"msg.error.smartdocuments.not.configured"}"""
             }
         }
     }
