@@ -5,6 +5,7 @@
 package net.atos.zac.app.zaak.converter
 
 import jakarta.inject.Inject
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.ztc.model.extensions.isNuGeldig
 import net.atos.client.zgw.ztc.model.extensions.isServicenormBeschikbaar
 import net.atos.client.zgw.ztc.model.generated.ZaakType
@@ -14,7 +15,6 @@ import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestZaaktype
 import net.atos.zac.app.zaak.model.RestZaaktypeRelatie
 import net.atos.zac.app.zaak.model.toRestZaaktypeRelatie
-import net.atos.client.zgw.util.extractUuid
 import net.atos.zac.util.time.PeriodUtil
 import java.time.Period
 

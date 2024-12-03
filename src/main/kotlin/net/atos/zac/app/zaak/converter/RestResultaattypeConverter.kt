@@ -5,11 +5,11 @@
 package net.atos.zac.app.zaak.converter
 
 import jakarta.inject.Inject
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.Afleidingswijze
 import net.atos.client.zgw.ztc.model.generated.ResultaatType
 import net.atos.zac.app.zaak.model.RestResultaattype
-import net.atos.client.zgw.util.extractUuid
 import net.atos.zac.util.time.PeriodUtil
 import java.net.URI
 import java.time.Period
