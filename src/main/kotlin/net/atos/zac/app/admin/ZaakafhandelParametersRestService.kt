@@ -42,7 +42,7 @@ import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.RestSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.isSubsetOf
-import net.atos.zac.util.extractUuid
+import net.atos.client.zgw.util.extractUuid
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.util.UUID

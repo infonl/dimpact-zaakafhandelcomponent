@@ -11,7 +11,7 @@ import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
 import net.atos.client.zgw.brc.model.generated.VervalredenEnum
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.app.zaak.model.RestBesluitIntrekkenGegevens
-import net.atos.zac.util.extractUuid
+import net.atos.client.zgw.util.extractUuid
 import org.apache.commons.collections4.CollectionUtils
 import java.util.UUID
 import java.util.logging.Logger

@@ -17,7 +17,7 @@ import net.atos.zac.app.zaak.model.RestBesluit
 import net.atos.zac.app.zaak.model.RestBesluitVastleggenGegevens
 import net.atos.zac.app.zaak.model.toRestBesluitType
 import net.atos.zac.configuratie.ConfiguratieService
-import net.atos.zac.util.extractUuid
+import net.atos.client.zgw.util.extractUuid
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate
 

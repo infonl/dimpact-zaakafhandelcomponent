@@ -20,7 +20,7 @@ import net.atos.zac.signalering.model.SignaleringTarget
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringVerzendInfo
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
-import net.atos.zac.util.extractUuid
+import net.atos.client.zgw.util.extractUuid
 import net.atos.zac.zoeken.ZoekenService
 import net.atos.zac.zoeken.model.DatumRange
 import net.atos.zac.zoeken.model.DatumVeld

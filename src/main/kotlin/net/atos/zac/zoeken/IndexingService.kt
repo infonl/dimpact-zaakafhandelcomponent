@@ -21,7 +21,7 @@ import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.app.task.model.TaakSortering
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.shared.model.SorteerRichting
-import net.atos.zac.util.extractUuid
+import net.atos.client.zgw.util.extractUuid
 import net.atos.zac.zoeken.converter.AbstractZoekObjectConverter
 import net.atos.zac.zoeken.model.zoekobject.ZoekObject
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType

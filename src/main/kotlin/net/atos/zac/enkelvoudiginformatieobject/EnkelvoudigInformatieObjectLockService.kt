@@ -15,7 +15,7 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
-import net.atos.zac.util.extractUuid
+import net.atos.client.zgw.util.extractUuid
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.util.UUID

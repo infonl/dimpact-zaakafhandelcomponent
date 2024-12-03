@@ -21,7 +21,7 @@ import net.atos.zac.app.admin.model.RestSmartDocuments
 import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.app.zaak.model.toRestResultaatType
 import net.atos.zac.smartdocuments.SmartDocumentsService
-import net.atos.zac.util.extractUuid
+import net.atos.client.zgw.util.extractUuid
 import java.time.LocalDate
 
 class RestZaakafhandelParametersConverterTest : BehaviorSpec({

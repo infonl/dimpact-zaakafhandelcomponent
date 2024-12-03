@@ -16,7 +16,7 @@ import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
 import net.atos.zac.identity.model.getFullName
-import net.atos.zac.util.extractUuid
+import net.atos.client.zgw.util.extractUuid
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
 import net.atos.zac.zoeken.model.ZaakIndicatie
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject

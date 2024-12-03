@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.inboxdocumenten;
 
-import static net.atos.zac.util.UriUtilsKt.extractUuid;
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 
 import java.util.List;
 import java.util.Optional;

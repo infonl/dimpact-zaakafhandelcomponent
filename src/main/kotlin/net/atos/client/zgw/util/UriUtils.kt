@@ -2,13 +2,14 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.util
+package net.atos.client.zgw.util
 
 import java.net.URI
 import java.util.UUID
 
 /**
- * Extracts the UUID from the last part of the path of the URI.
+ * Extracts the UUID from the last part of the path of the ZGW resource URI (i.e. after the last '/').
+ * If the last part of the path cannot be converted to a UUID, an IllegalArgumentException will be thrown.
  */
 fun URI.extractUuid(): UUID = extractUuid(this.path).let(UUID::fromString)
 

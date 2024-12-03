@@ -6,7 +6,7 @@ package net.atos.zac.app.zaak.model
 
 import net.atos.client.zgw.ztc.model.Afleidingswijze
 import net.atos.client.zgw.ztc.model.generated.ResultaatType
-import net.atos.zac.util.extractUuid
+import net.atos.client.zgw.util.extractUuid
 import net.atos.zac.util.time.PeriodUtil
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor

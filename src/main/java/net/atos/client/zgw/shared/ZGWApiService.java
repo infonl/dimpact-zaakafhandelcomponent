@@ -6,7 +6,7 @@
 package net.atos.client.zgw.shared;
 
 import static net.atos.client.zgw.shared.util.DateTimeUtil.convertToDateTime;
-import static net.atos.zac.util.UriUtilsKt.extractUuid;
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 
 import java.net.URI;
 import java.time.LocalDate;

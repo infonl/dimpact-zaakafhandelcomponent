@@ -5,11 +5,11 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 import static net.atos.zac.app.configuratie.model.RestTaalKt.toRestTaal;
 import static net.atos.zac.app.identity.model.RestUserKt.toRestUser;
 import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
 import static net.atos.zac.identity.model.UserKt.getFullName;
-import static net.atos.zac.util.UriUtilsKt.extractUuid;
 import static nl.lifely.zac.util.Base64ConvertersKt.toBase64String;
 
 import java.time.LocalDate;

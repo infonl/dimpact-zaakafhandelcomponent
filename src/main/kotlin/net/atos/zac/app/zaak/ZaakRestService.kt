@@ -114,8 +114,8 @@ import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
-import net.atos.zac.util.extractUuid
-import net.atos.zac.util.extractedUuidIsEqual
+import net.atos.client.zgw.util.extractUuid
+import net.atos.client.zgw.util.extractedUuidIsEqual
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.util.time.LocalDateUtil
 import net.atos.zac.websocket.event.ScreenEventType

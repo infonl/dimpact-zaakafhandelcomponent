@@ -6,8 +6,8 @@
 package net.atos.client.zgw.zrc;
 
 import static java.lang.String.format;
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 import static net.atos.zac.configuratie.ConfiguratieService.ENV_VAR_ZGW_API_CLIENT_MP_REST_URL;
-import static net.atos.zac.util.UriUtilsKt.extractUuid;
 
 import java.net.URI;
 import java.util.Collection;

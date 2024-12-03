@@ -14,7 +14,7 @@ import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestZaaktype
 import net.atos.zac.app.zaak.model.RestZaaktypeRelatie
 import net.atos.zac.app.zaak.model.toRestZaaktypeRelatie
-import net.atos.zac.util.extractUuid
+import net.atos.client.zgw.util.extractUuid
 import net.atos.zac.util.time.PeriodUtil
 import java.time.Period
 

@@ -5,8 +5,8 @@
 
 package net.atos.zac.flowable.bpmn;
 
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 import static net.atos.zac.flowable.ZaakVariabelenService.*;
-import static net.atos.zac.util.UriUtilsKt.extractUuid;
 
 import java.io.InputStream;
 import java.util.Collections;

@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
-import static net.atos.zac.util.UriUtilsKt.extractUuid;
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 
 import java.net.URI;
 import java.util.List;

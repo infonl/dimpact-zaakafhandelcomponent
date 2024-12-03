@@ -6,6 +6,7 @@
 package net.atos.zac.notificaties;
 
 import static jakarta.ws.rs.core.Response.noContent;
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 import static net.atos.zac.authentication.SecurityUtilKt.setFunctioneelGebruiker;
 import static net.atos.zac.notificaties.Action.CREATE;
 import static net.atos.zac.notificaties.Action.DELETE;
@@ -19,7 +20,6 @@ import static net.atos.zac.notificaties.Resource.ZAAK;
 import static net.atos.zac.notificaties.Resource.ZAAKINFORMATIEOBJECT;
 import static net.atos.zac.notificaties.Resource.ZAAKOBJECT;
 import static net.atos.zac.notificaties.Resource.ZAAKTYPE;
-import static net.atos.zac.util.UriUtilsKt.extractUuid;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.util.logging.Level;

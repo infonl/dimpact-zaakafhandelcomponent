@@ -4,6 +4,7 @@
  */
 package net.atos.zac.mailtemplates;
 
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 import static net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie;
 import static net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving;
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.DOCUMENT_LINK;
@@ -31,7 +32,6 @@ import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.ZAAK_TOELI
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.ZAAK_TYPE;
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.ZAAK_URL;
 import static net.atos.zac.util.StringUtil.joinNonBlankWith;
-import static net.atos.zac.util.UriUtilsKt.extractUuid;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;

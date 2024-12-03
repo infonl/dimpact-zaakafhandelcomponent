@@ -41,7 +41,7 @@ import net.atos.zac.identity.model.getFullName
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.util.StringUtil
-import net.atos.zac.util.extractUuid
+import net.atos.client.zgw.util.extractUuid
 import nl.lifely.zac.util.NoArgConstructor
 import nl.lifely.zac.util.decodedBase64StringLength
 import java.net.URI

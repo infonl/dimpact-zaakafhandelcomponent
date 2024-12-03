@@ -5,13 +5,13 @@
 
 package net.atos.zac.signalering.model;
 
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 import static net.atos.zac.signalering.model.SignaleringSubject.DOCUMENT;
 import static net.atos.zac.signalering.model.SignaleringSubject.TAAK;
 import static net.atos.zac.signalering.model.SignaleringSubject.ZAAK;
 import static net.atos.zac.signalering.model.SignaleringTarget.GROUP;
 import static net.atos.zac.signalering.model.SignaleringTarget.USER;
 import static net.atos.zac.util.FlywayIntegrator.SCHEMA;
-import static net.atos.zac.util.UriUtilsKt.extractUuid;
 
 import java.time.ZonedDateTime;
 

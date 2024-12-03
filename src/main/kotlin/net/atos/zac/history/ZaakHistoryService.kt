@@ -15,7 +15,7 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.history.converter.ZaakHistoryPartialUpdateConverter
 import net.atos.zac.history.model.HistoryAction
 import net.atos.zac.history.model.HistoryLine
-import net.atos.zac.util.extractUuid
+import net.atos.client.zgw.util.extractUuid
 import nl.lifely.zac.util.asMapWithKeyOfString
 import nl.lifely.zac.util.getTypedValue
 import nl.lifely.zac.util.stringProperty

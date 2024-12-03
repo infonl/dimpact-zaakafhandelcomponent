@@ -5,9 +5,9 @@
 package net.atos.zac.healthcheck;
 
 import static java.nio.file.Files.readAllLines;
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 import static net.atos.client.zgw.ztc.model.extensions.InformatieObjectTypeExtensionsKt.isNuGeldig;
 import static net.atos.zac.admin.model.ReferenceTable.Systeem.COMMUNICATIEKANAAL;
-import static net.atos.zac.util.UriUtilsKt.extractUuid;
 import static net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDateTime;
 
 import java.io.File;
