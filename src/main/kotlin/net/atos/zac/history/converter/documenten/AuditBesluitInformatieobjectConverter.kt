@@ -6,11 +6,11 @@
 package net.atos.zac.history.converter.documenten
 
 import jakarta.inject.Inject
-import net.atos.client.or.shared.util.URIUtil
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
 import net.atos.client.zgw.shared.model.audit.besluiten.BesluitInformatieobjectWijziging
 import net.atos.zac.history.model.HistoryLine
+import net.atos.zac.util.UriUtil.uuidFromURI
 
 class AuditBesluitInformatieobjectConverter @Inject constructor(
     private val brcClientService: BrcClientService
@@ -21,6 +21,6 @@ class AuditBesluitInformatieobjectConverter @Inject constructor(
 
     private fun toWaarde(besluitInformatieObject: BesluitInformatieObject?): String? =
         besluitInformatieObject?.let {
-            brcClientService.readBesluit(URIUtil.getUUID(it.besluit)).identificatie
+            brcClientService.readBesluit(uuidFromURI(it.besluit)).identificatie
         }
 }

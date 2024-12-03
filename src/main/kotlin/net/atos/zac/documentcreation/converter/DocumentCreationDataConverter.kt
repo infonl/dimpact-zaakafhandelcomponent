@@ -12,7 +12,6 @@ import net.atos.client.brp.model.generated.VerblijfadresBinnenland
 import net.atos.client.kvk.KvkClientService
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem
 import net.atos.client.or.`object`.ObjectsClientService
-import net.atos.client.or.shared.util.URIUtil
 import net.atos.client.smartdocuments.model.document.AanvragerData
 import net.atos.client.smartdocuments.model.document.Data
 import net.atos.client.smartdocuments.model.document.File
@@ -190,7 +189,7 @@ class DocumentCreationDataConverter @Inject constructor(
             .singleOrNull()
 
     private fun convertToStartformulierData(zaakobject: Zaakobject) =
-        objectsClientService.readObject(URIUtil.getUUID(zaakobject.getObject())).let { productAaanvraagObject ->
+        objectsClientService.readObject(uuidFromURI(zaakobject.getObject())).let { productAaanvraagObject ->
             StartformulierData(
                 productAanvraagtype = productaanvraagService.getProductaanvraag(productAaanvraagObject).type,
                 data = productaanvraagService.getAanvraaggegevens(productAaanvraagObject)
