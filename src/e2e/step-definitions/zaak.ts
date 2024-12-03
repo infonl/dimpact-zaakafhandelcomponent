@@ -113,7 +113,7 @@ When(
 
     await this.expect(
       this.page.getByText(
-        `Document "Aanvullende informatie nodig voor zaak ${zaakNumber}" is toegevoegd aan de zaak`,
+        `Aanvullende informatie nodig voor zaak ${zaakNumber}`,
       ),
     ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
     await checkZaakAssignment.call(this, zaakNumber, user2Profile);
