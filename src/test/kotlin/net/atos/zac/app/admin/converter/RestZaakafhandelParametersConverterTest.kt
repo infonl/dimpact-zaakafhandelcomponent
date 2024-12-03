@@ -132,8 +132,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     afrondenMail shouldBe null
                     productaanvraagtype shouldBe null
                     domein shouldBe "dummyDomein"
-                    // true by default until UI switch is implemented
-                    isSmartDocumentsIngeschakeld shouldBe true
+                    isSmartDocumentsIngeschakeld shouldBe false
                 }
             }
         }
