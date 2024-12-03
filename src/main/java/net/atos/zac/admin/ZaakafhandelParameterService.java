@@ -31,7 +31,7 @@ public class ZaakafhandelParameterService implements Caching {
     private static final int EXPIRATION_TIME_HOURS = 1;
 
     @Inject
-    private ZaakafhandelParameterBeheerService beheerService;
+    private ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService;
 
     private static final Map<String, Cache<?, ?>> CACHES = new HashMap<>();
 
@@ -57,14 +57,14 @@ public class ZaakafhandelParameterService implements Caching {
     public ZaakafhandelParameters readZaakafhandelParameters(final UUID zaaktypeUUID) {
         return uuidToZaakafhandelParametersCache.get(
                 zaaktypeUUID,
-                uuid -> beheerService.readZaakafhandelParameters(zaaktypeUUID)
+                uuid -> zaakafhandelParameterBeheerService.readZaakafhandelParameters(zaaktypeUUID)
         );
     }
 
     public List<ZaakafhandelParameters> listZaakafhandelParameters() {
         return stringToZaakafhandelParametersListCache.get(
                 ZAC_ZAAKAFHANDELPARAMETERS,
-                s -> beheerService.listZaakafhandelParameters()
+                s -> zaakafhandelParameterBeheerService.listZaakafhandelParameters()
         );
     }
 

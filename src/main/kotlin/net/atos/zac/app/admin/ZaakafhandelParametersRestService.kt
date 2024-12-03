@@ -99,9 +99,9 @@ class ZaakafhandelParametersRestService @Inject constructor(
     }
 
     /**
-     * Retrieve all ZAAKAFHANDELPARAMETERS for overview
+     * Retrieve all zaakafhandelparameters for all available zaaktypes in the zaakregister.
      *
-     * @return LIST of ZAAKAFHANDELPARAMETERS
+     * @return list of all zaakafhandelparameters
      */
     @GET
     fun listZaakafhandelParameters(): List<RestZaakafhandelParameters> {

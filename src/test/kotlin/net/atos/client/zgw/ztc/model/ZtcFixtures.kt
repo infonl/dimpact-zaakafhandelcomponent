@@ -65,26 +65,29 @@ fun createRolType(
     this.omschrijvingGeneriek = omschrijvingGeneriek
 }
 
+@Suppress("LongParameterList")
 fun createZaakType(
     uri: URI = URI("https://example.com/zaaktypes/${UUID.randomUUID()}"),
     omschrijving: String = "dummyZaakTypeOmschrijving",
     informatieObjectTypen: List<URI>? = listOf(URI("dummyInformatieObjectType1"), URI("dummyInformatieObjectType2")),
-    identifactie: String = "dummyIdentificatie",
+    identification: String = "dummyIdentificatie",
     besluittypen: List<URI>? = null,
+    resultTypes: List<URI>? = listOf(URI("dummyResultaatType1"), URI("dummyResultaatType2")),
+    concept: Boolean = false
 ) = ZaakType(
     uri,
-    false,
+    concept,
     null,
     null,
     listOf(URI("dummyStatusType1"), URI("dummyStatusType2")),
-    listOf(URI("dummyResultaatType1"), URI("dummyResultaatType2")),
+    resultTypes,
     listOf(URI("dummyEigenschap1"), URI("dummyEigenschap2")), informatieObjectTypen,
     listOf(URI("dummyRolType1"), URI("dummyRolType2")),
     null
 ).apply {
     this.omschrijving = omschrijving
     this.besluittypen = besluittypen
-    this.identificatie = identifactie
+    this.identificatie = identification
 }
 
 fun createInformatieObjectType(
