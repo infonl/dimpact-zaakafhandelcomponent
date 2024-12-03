@@ -124,6 +124,10 @@ class DocumentCreationService @Inject constructor(
                     zaak = zaak,
                     enkelvoudigInformatieObjectCreateLockRequest = it,
                     taskId = taskId,
+                    // We open SmartDocuments in a new tab. This means that authorization token we have from Keycloak
+                    // will expire in some time (60-90 seconds usually). After this time no policy checks can be done,
+                    // as we no longer have a valid token. All policy checks need to be performed on document creation
+                    // request time.
                     skipPolicyCheck = true
                 )
             }
