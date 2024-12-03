@@ -696,20 +696,36 @@
         </ng-template>
       </mat-step>
       <mat-step
-        [stepControl]="smartDocumentsForm"
+        *ngIf="parameters.smartDocuments.enabledGlobally"
+        [stepControl]="smartDocumentsEnabledForm"
         [hasError]="!isSmartDocumentsStepValid"
       >
         <ng-template matStepLabel>SmartDocuments</ng-template>
         <ng-template matStepContent>
-          <h2>
-            {{ "title.admin.parameters.step.smart-documents" | translate }}
-          </h2>
+          <form [formGroup]="smartDocumentsEnabledForm" class="flex-col">
+            <div class="flex-row items-center">
+              <h2 class="flex-1">
+                {{ "title.admin.parameters.step.smart-documents" | translate }}
+              </h2>
+              <mat-slide-toggle
+                formControlName="enabledForZaaktype"
+                (click)="$event.stopPropagation()"
+                color="primary"
+              ></mat-slide-toggle>
+            </div>
+          </form>
           <smart-documents-form
-            [formGroup]="smartDocumentsForm"
+            *ngIf="smartDocumentsEnabledForm.get('enabledForZaaktype').value"
             [zaakTypeUuid]="parameters.zaaktype.uuid"
             #smartDocumentsFormRef
           >
           </smart-documents-form>
+          <div
+            *ngIf="!smartDocumentsEnabledForm.get('enabledForZaaktype').value"
+            class="form-disabled-feedback"
+          >
+            {{ "msg.smartdocuments.form.disabled" | translate }}
+          </div>
           <div class="button-group flex-row flex-wrap">
             <button mat-raised-button matStepperPrevious>
               {{ "actie.terug" | translate }}
