@@ -20,7 +20,6 @@ import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLock
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRequest
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.model.Archiefnominatie
-import net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakInformatieobject
@@ -48,6 +47,7 @@ import net.atos.zac.policy.output.createDocumentRechten
 import net.atos.zac.policy.output.createDocumentRechtenAllDeny
 import net.atos.zac.policy.output.createZaakRechten
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
+import net.atos.zac.util.uuidFromURI
 import net.atos.zac.webdav.WebdavHelper
 import java.net.URI
 import java.util.UUID
@@ -290,7 +290,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns enkelvoudigInformatieObjectWithLockData
         every {
             enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                parseUUIDFromResourceURI(enkelvoudigInformatieObject.url),
+                uuidFromURI(enkelvoudigInformatieObject.url),
                 enkelvoudigInformatieObjectWithLockData,
                 null
             )
@@ -316,7 +316,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                         restEnkelvoudigInformatieObjectVersieGegevens.uuid
                     )
                     enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                        parseUUIDFromResourceURI(enkelvoudigInformatieObject.url),
+                        uuidFromURI(enkelvoudigInformatieObject.url),
                         enkelvoudigInformatieObjectWithLockData,
                         null
                     )

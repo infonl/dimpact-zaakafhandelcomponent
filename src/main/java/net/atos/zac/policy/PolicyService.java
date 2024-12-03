@@ -6,12 +6,12 @@
 package net.atos.zac.policy;
 
 import static net.atos.client.zgw.drc.model.generated.StatusEnum.DEFINITIEF;
-import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
 import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake;
 import static net.atos.zac.enkelvoudiginformatieobject.util.EnkelvoudigInformatieObjectCheckersKt.isSigned;
 import static net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving;
 import static net.atos.zac.flowable.util.TaskUtil.isOpen;
+import static net.atos.zac.util.UriUtilsKt.uuidFromURI;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
@@ -128,7 +128,7 @@ public class PolicyService {
     public DocumentRechten readDocumentRechten(final EnkelvoudigInformatieObject enkelvoudigInformatieobject, final Zaak zaak) {
         return readDocumentRechten(
                 enkelvoudigInformatieobject,
-                lockService.findLock(parseUUIDFromResourceURI(enkelvoudigInformatieobject.getUrl())),
+                lockService.findLock(uuidFromURI(enkelvoudigInformatieobject.getUrl())),
                 zaak
         );
     }

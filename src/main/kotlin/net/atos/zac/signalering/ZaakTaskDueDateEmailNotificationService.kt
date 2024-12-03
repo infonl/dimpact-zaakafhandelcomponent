@@ -7,7 +7,6 @@ package net.atos.zac.signalering
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.ZaakType
@@ -89,7 +88,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .map { zaaktype ->
                 zaakafhandelParameterService.readZaakafhandelParameters(
-                    parseUUIDFromResourceURI(zaaktype.url)
+                    uuidFromURI(zaaktype.url)
                 ).let { parameters ->
                     parameters.einddatumGeplandWaarschuwing?.let {
                         signaleringVerzendInfo.streefdatumVerzonden += zaakEinddatumGeplandVerzenden(

@@ -10,7 +10,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createResultaatType
 import net.atos.client.zgw.ztc.model.createZaakType
@@ -22,6 +21,7 @@ import net.atos.zac.app.admin.model.RestSmartDocuments
 import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.app.zaak.model.toRestResultaatType
 import net.atos.zac.smartdocuments.SmartDocumentsService
+import net.atos.zac.util.uuidFromURI
 import java.time.LocalDate
 
 class RestZaakafhandelParametersConverterTest : BehaviorSpec({
@@ -61,7 +61,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                 with(restZaakafhandelParameters) {
                     id shouldBe zaakafhandelParameters.id
                     with(zaaktype) {
-                        uuid shouldBe URIUtil.parseUUIDFromResourceURI(zaakType.url)
+                        uuid shouldBe uuidFromURI(zaakType.url)
                         identificatie shouldBe zaakType.identificatie
                         doel shouldBe zaakType.doel
                         omschrijving shouldBe zaakType.omschrijving

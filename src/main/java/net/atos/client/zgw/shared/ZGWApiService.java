@@ -6,7 +6,7 @@
 package net.atos.client.zgw.shared;
 
 import static net.atos.client.zgw.shared.util.DateTimeUtil.convertToDateTime;
-import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
+import static net.atos.zac.util.UriUtilsKt.uuidFromURI;
 
 import java.net.URI;
 import java.time.LocalDate;
@@ -258,7 +258,7 @@ public class ZGWApiService {
         // If the EnkelvoudigInformatieobject has no relationship(s) with other zaken it can be deleted.
         if (zaakInformatieobjecten.stream()
                 .allMatch(zaakInformatieobject -> zaakInformatieobject.getZaakUUID().equals(zaakUUID))) {
-            drcClientService.deleteEnkelvoudigInformatieobject(parseUUIDFromResourceURI(enkelvoudigInformatieobject.getUrl()));
+            drcClientService.deleteEnkelvoudigInformatieobject(uuidFromURI(enkelvoudigInformatieobject.getUrl()));
         }
     }
 

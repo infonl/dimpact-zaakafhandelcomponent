@@ -5,9 +5,9 @@
 
 package net.atos.zac.app.admin.converter;
 
-import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 import static net.atos.client.zgw.ztc.model.extensions.ZaakTypeExtensionsKt.isNuGeldig;
 import static net.atos.client.zgw.ztc.model.extensions.ZaakTypeExtensionsKt.isServicenormBeschikbaar;
+import static net.atos.zac.util.UriUtilsKt.uuidFromURI;
 
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.app.admin.model.RESTZaaktypeOverzicht;
@@ -16,7 +16,7 @@ public final class RESTZaaktypeOverzichtConverter {
 
     public static RESTZaaktypeOverzicht convert(final ZaakType zaaktype) {
         final RESTZaaktypeOverzicht restZaaktype = new RESTZaaktypeOverzicht();
-        restZaaktype.uuid = parseUUIDFromResourceURI(zaaktype.getUrl());
+        restZaaktype.uuid = uuidFromURI(zaaktype.getUrl());
         restZaaktype.identificatie = zaaktype.getIdentificatie();
         restZaaktype.doel = zaaktype.getDoel();
         restZaaktype.omschrijving = zaaktype.getOmschrijving();

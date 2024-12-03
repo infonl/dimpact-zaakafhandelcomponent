@@ -29,7 +29,6 @@ import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.BetrokkeneType
@@ -288,7 +287,7 @@ class ZaakRestService @Inject constructor(
                 zaak,
                 zaaktype,
                 zaakafhandelParameterService.readZaakafhandelParameters(
-                    parseUUIDFromResourceURI(zaaktype.url)
+                    uuidFromURI(zaaktype.url)
                 ),
                 null
             )
@@ -450,7 +449,7 @@ class ZaakRestService @Inject constructor(
             }
         )
         if (zrcClientService.listZaakinformatieobjecten(informatieobject).isEmpty()) {
-            indexingService.removeInformatieobject(parseUUIDFromResourceURI(informatieobject.url))
+            indexingService.removeInformatieobject(uuidFromURI(informatieobject.url))
             ontkoppeldeDocumentenService.create(informatieobject, zaak, ontkoppelGegevens.reden)
         }
     }

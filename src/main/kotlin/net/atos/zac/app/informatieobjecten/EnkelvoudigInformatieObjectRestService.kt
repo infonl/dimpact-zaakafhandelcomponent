@@ -28,7 +28,6 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLo
 import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
@@ -186,7 +185,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         }
         informatieobjecten.forEach {
             enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
-                parseUUIDFromResourceURI(it.url),
+                uuidFromURI(it.url),
                 gegevens.verzenddatum,
                 gegevens.toelichting
             )
@@ -424,7 +423,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         enkelvoudigInformatieObjectWithLockRequest: EnkelvoudigInformatieObjectWithLockRequest
     ): RestEnkelvoudigInformatieobject =
         enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-            parseUUIDFromResourceURI(enkelvoudigInformatieObject.url),
+            uuidFromURI(enkelvoudigInformatieObject.url),
             enkelvoudigInformatieObjectWithLockRequest,
             enkelvoudigInformatieObjectVersieGegevens.toelichting
         ).let(restInformatieobjectConverter::convertToREST)
@@ -530,7 +529,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 pdf.bestandsnaam = StringUtils.substringBeforeLast(document.bestandsnaam, ".") + ".pdf"
                 pdf.bestandsomvang = inhoud.size
                 enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                    parseUUIDFromResourceURI(document.url),
+                    uuidFromURI(document.url),
                     pdf,
                     TOELICHTING_PDF
                 )

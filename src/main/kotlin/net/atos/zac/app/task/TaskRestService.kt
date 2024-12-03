@@ -27,7 +27,6 @@ import kotlinx.coroutines.launch
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.SoortEnum
 import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
@@ -377,7 +376,7 @@ class TaskRestService @Inject constructor(
                             ) && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
                     )
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
-                        parseUUIDFromResourceURI(enkelvoudigInformatieobject.url)
+                        uuidFromURI(enkelvoudigInformatieobject.url)
                     )
                 }
         }
@@ -422,7 +421,7 @@ class TaskRestService @Inject constructor(
     ) {
         val informatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid)
         enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
-            parseUUIDFromResourceURI(informatieobject.url),
+            uuidFromURI(informatieobject.url),
             verzenddatum,
             toelichting
         )

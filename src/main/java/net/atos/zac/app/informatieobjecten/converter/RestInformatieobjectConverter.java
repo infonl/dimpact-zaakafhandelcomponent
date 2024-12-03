@@ -5,7 +5,6 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
-import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
 import static net.atos.zac.app.configuratie.model.RestTaalKt.toRestTaal;
 import static net.atos.zac.app.identity.model.RestUserKt.toRestUser;
 import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
@@ -119,7 +118,7 @@ public class RestInformatieobjectConverter {
             final EnkelvoudigInformatieObject enkelvoudigInformatieObject,
             final Zaak zaak
     ) {
-        final UUID enkelvoudigInformatieObjectUUID = parseUUIDFromResourceURI(enkelvoudigInformatieObject.getUrl());
+        final UUID enkelvoudigInformatieObjectUUID = uuidFromURI(enkelvoudigInformatieObject.getUrl());
         final EnkelvoudigInformatieObjectLock lock = enkelvoudigInformatieObject.getLocked() ?
                 enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID) : null;
         final DocumentRechten rechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak);
@@ -190,7 +189,7 @@ public class RestInformatieobjectConverter {
                 enkelvoudigInformatieObject.getBestandsomvang().longValue() : 0;
         restEnkelvoudigInformatieobject.informatieobjectTypeOmschrijving = ztcClientService.readInformatieobjecttype(
                 enkelvoudigInformatieObject.getInformatieobjecttype()).getOmschrijving();
-        restEnkelvoudigInformatieobject.informatieobjectTypeUUID = parseUUIDFromResourceURI(enkelvoudigInformatieObject
+        restEnkelvoudigInformatieobject.informatieobjectTypeUUID = uuidFromURI(enkelvoudigInformatieObject
                 .getInformatieobjecttype());
     }
 
@@ -419,7 +418,7 @@ public class RestInformatieobjectConverter {
     ) {
         final EnkelvoudigInformatieObject enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
                 zaakInformatieObject.getInformatieobject());
-        final UUID enkelvoudigInformatieObjectUUID = parseUUIDFromResourceURI(enkelvoudigInformatieObject.getUrl());
+        final UUID enkelvoudigInformatieObjectUUID = uuidFromURI(enkelvoudigInformatieObject.getUrl());
         final EnkelvoudigInformatieObjectLock lock = enkelvoudigInformatieObject.getLocked() ?
                 enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID) : null;
         final DocumentRechten rechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak);

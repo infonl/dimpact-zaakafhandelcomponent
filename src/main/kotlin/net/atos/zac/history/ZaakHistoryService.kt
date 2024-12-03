@@ -6,7 +6,6 @@ package net.atos.zac.history
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel
-import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Objecttype
 import net.atos.client.zgw.zrc.model.Rol
@@ -16,6 +15,7 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.history.converter.ZaakHistoryPartialUpdateConverter
 import net.atos.zac.history.model.HistoryAction
 import net.atos.zac.history.model.HistoryLine
+import net.atos.zac.util.uuidFromURI
 import nl.lifely.zac.util.asMapWithKeyOfString
 import nl.lifely.zac.util.getTypedValue
 import nl.lifely.zac.util.stringProperty
@@ -107,7 +107,7 @@ class ZaakHistoryService @Inject constructor(
     private fun convertResource(resource: String, obj: Map<String, *>): String? = when (resource) {
         RESOURCE_ROL -> obj.stringProperty(RESOURCE_ROLTYPE)
             ?.let(URI::create)
-            ?.let(URIUtil::parseUUIDFromResourceURI)
+            ?.let(::uuidFromURI)
             ?.let(ztcClientService::readRoltype)
             ?.omschrijving
         RESOURCE_ZAAKOBJECT -> obj.getTypedValue(Zaakobject::class.java)
