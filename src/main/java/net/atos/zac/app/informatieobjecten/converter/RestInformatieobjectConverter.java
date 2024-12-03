@@ -10,6 +10,7 @@ import static net.atos.zac.app.configuratie.model.RestTaalKt.toRestTaal;
 import static net.atos.zac.app.identity.model.RestUserKt.toRestUser;
 import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
 import static net.atos.zac.identity.model.UserKt.getFullName;
+import static net.atos.zac.util.UriUtilKt.uuidFromURI;
 import static nl.lifely.zac.util.Base64ConvertersKt.toBase64String;
 
 import java.time.LocalDate;
@@ -51,7 +52,6 @@ import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjec
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.policy.output.DocumentRechten;
-import net.atos.zac.util.UriUtil;
 
 public class RestInformatieobjectConverter {
     private static final Logger LOG = Logger.getLogger(RestInformatieobjectConverter.class.getName());
@@ -299,7 +299,7 @@ public class RestInformatieobjectConverter {
     ) {
         final RestEnkelvoudigInformatieObjectVersieGegevens restEnkelvoudigInformatieObjectVersieGegevens = new RestEnkelvoudigInformatieObjectVersieGegevens();
 
-        restEnkelvoudigInformatieObjectVersieGegevens.uuid = UriUtil.uuidFromURI(informatieobject.getUrl());
+        restEnkelvoudigInformatieObjectVersieGegevens.uuid = uuidFromURI(informatieobject.getUrl());
 
         if (informatieobject.getStatus() != null) {
             restEnkelvoudigInformatieObjectVersieGegevens.status = informatieobject.getStatus();
@@ -320,7 +320,7 @@ public class RestInformatieobjectConverter {
             restEnkelvoudigInformatieObjectVersieGegevens.taal = toRestTaal(taal);
         }
         restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam = informatieobject.getInhoud().toString();
-        restEnkelvoudigInformatieObjectVersieGegevens.informatieobjectTypeUUID = UriUtil.uuidFromURI(informatieobject
+        restEnkelvoudigInformatieObjectVersieGegevens.informatieobjectTypeUUID = uuidFromURI(informatieobject
                 .getInformatieobjecttype());
 
         return restEnkelvoudigInformatieObjectVersieGegevens;

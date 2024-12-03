@@ -6,7 +6,7 @@
 package net.atos.client.zgw.zrc.model;
 
 import static net.atos.client.zgw.shared.util.DateTimeUtil.DATE_TIME_FORMAT_WITH_MILLISECONDS;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
+import static net.atos.zac.util.UriUtilKt.uuidFromURI;
 
 import java.net.URI;
 import java.time.ZonedDateTime;

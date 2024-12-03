@@ -29,7 +29,7 @@ import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
-import net.atos.zac.util.UriUtil.uuidFromURI
+import net.atos.zac.util.uuidFromURI
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate

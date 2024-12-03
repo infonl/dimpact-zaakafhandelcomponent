@@ -19,7 +19,7 @@ import static net.atos.zac.notificaties.Resource.ZAAK;
 import static net.atos.zac.notificaties.Resource.ZAAKINFORMATIEOBJECT;
 import static net.atos.zac.notificaties.Resource.ZAAKOBJECT;
 import static net.atos.zac.notificaties.Resource.ZAAKTYPE;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
+import static net.atos.zac.util.UriUtilKt.uuidFromURI;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.util.logging.Level;

@@ -5,7 +5,7 @@
 package net.atos.zac.app.zaak.model
 
 import net.atos.client.zgw.ztc.model.generated.BesluitType
-import net.atos.zac.util.UriUtil
+import net.atos.zac.util.uuidFromURI
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.net.URI
@@ -24,7 +24,7 @@ data class RestBesluittype(
 )
 
 fun BesluitType.toRestBesluitType() = RestBesluittype(
-    id = UriUtil.uuidFromURI(this.url),
+    id = uuidFromURI(this.url),
     naam = this.omschrijving,
     toelichting = this.toelichting,
     informatieobjecttypen = this.informatieobjecttypen.toList()

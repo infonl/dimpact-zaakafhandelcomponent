@@ -9,8 +9,8 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.Afleidingswijze
 import net.atos.client.zgw.ztc.model.generated.ResultaatType
 import net.atos.zac.app.zaak.model.RestResultaattype
-import net.atos.zac.util.UriUtil
 import net.atos.zac.util.time.PeriodUtil
+import net.atos.zac.util.uuidFromURI
 import java.net.URI
 import java.time.Period
 import java.util.Locale
@@ -20,7 +20,7 @@ class RestResultaattypeConverter @Inject constructor(
 ) {
     fun convertResultaattype(resultaattype: ResultaatType) =
         RestResultaattype(
-            id = UriUtil.uuidFromURI(resultaattype.url),
+            id = uuidFromURI(resultaattype.url),
             naam = resultaattype.omschrijving,
             toelichting = resultaattype.toelichting,
             archiefNominatie = resultaattype.archiefnominatie.name,

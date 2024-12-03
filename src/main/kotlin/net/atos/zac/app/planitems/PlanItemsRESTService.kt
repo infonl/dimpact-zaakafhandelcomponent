@@ -42,8 +42,8 @@ import net.atos.zac.mailtemplates.model.Mail
 import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.shared.helper.SuspensionZaakHelper
-import net.atos.zac.util.UriUtil
 import net.atos.zac.util.time.DateTimeConverterUtil
+import net.atos.zac.util.uuidFromURI
 import net.atos.zac.zoeken.IndexingService
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -143,9 +143,7 @@ class PlanItemsRESTService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUUID)
         val taakdata = humanTaskData.taakdata
         PolicyService.assertPolicy(policyService.readZaakRechten(zaak).startenTaak)
-        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-            UriUtil.uuidFromURI(zaak.zaaktype)
-        )
+        val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(uuidFromURI(zaak.zaaktype))
 
         val fatalDate = calculateFatalDate(humanTaskData, zaakafhandelParameters, planItem, zaak)?.also {
             if (TaakVariabelenService.isZaakOpschorten(taakdata)) {
@@ -228,7 +226,7 @@ class PlanItemsRESTService @Inject constructor(
                 if (!userEventListenerData.zaakOntvankelijk) {
                     policyService.checkZaakAfsluitbaar(zaak)
                     val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-                        UriUtil.uuidFromURI(zaak.zaaktype)
+                        uuidFromURI(zaak.zaaktype)
                     )
                     zgwApiService.createResultaatForZaak(
                         zaak,

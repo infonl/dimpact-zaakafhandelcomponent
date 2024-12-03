@@ -20,8 +20,8 @@ import net.atos.zac.admin.model.ZaakafhandelParameters.PRODUCTAANVRAAGTYYPE
 import net.atos.zac.admin.model.ZaakafhandelParameters.ZAAKTYPE_OMSCHRIJVING
 import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.admin.model.ZaakbeeindigReden
-import net.atos.zac.util.UriUtil
 import net.atos.zac.util.ValidationUtil
+import net.atos.zac.util.uuidFromURI
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.net.URI
@@ -136,7 +136,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
      */
     fun createNewZaakafhandelParametersOnZaakTypeChange(zaaktypeUri: URI) {
         // if we already have a zaakafhandelparameters for this zaaktype UUID, so do not attempt to create a new one
-        if (listZaakafhandelParametersForZaaktypeUuid(UriUtil.uuidFromURI(zaaktypeUri)).isNotEmpty()) return
+        if (listZaakafhandelParametersForZaaktypeUuid(uuidFromURI(zaaktypeUri)).isNotEmpty()) return
 
         ztcClientService.readZaaktype(zaaktypeUri).takeIf { !it.concept }?.let { zaaktype ->
             zaakafhandelParameterService.clearListCache()
@@ -145,7 +145,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
                 zaaktype.omschrijving
             )
             val newZaakafhandelParameters = ZaakafhandelParameters().apply {
-                zaakTypeUUID = UriUtil.uuidFromURI(zaaktype.url)
+                zaakTypeUUID = uuidFromURI(zaaktype.url)
                 zaaktypeOmschrijving = zaaktype.omschrijving
                 caseDefinitionID = currentZaakafhandelParameters.caseDefinitionID
                 groepID = currentZaakafhandelParameters.groepID
@@ -265,7 +265,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         ztcClientService.readResultaattype(vorigResultaattypeUUID).let { resultaattype ->
             nieuweResultaattypen
                 .firstOrNull { it.omschrijving == resultaattype.omschrijving }
-                ?.let { UriUtil.uuidFromURI(it.url) }
+                ?.let { uuidFromURI(it.url) }
         }
 
     private fun listZaakafhandelParametersForZaaktypeUuid(zaaktypeUUID: UUID): List<ZaakafhandelParameters> {

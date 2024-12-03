@@ -6,6 +6,7 @@
 package net.atos.zac.app.ontkoppeldedocumenten;
 
 import static net.atos.zac.policy.PolicyService.assertPolicy;
+import static net.atos.zac.util.UriUtilKt.uuidFromURI;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +43,6 @@ import net.atos.zac.documenten.model.OntkoppeldDocument;
 import net.atos.zac.documenten.model.OntkoppeldDocumentListParameters;
 import net.atos.zac.documenten.model.OntkoppeldeDocumentenResultaat;
 import net.atos.zac.policy.PolicyService;
-import net.atos.zac.util.UriUtil;
 
 @Singleton
 @Path("ontkoppeldedocumenten")
@@ -128,7 +128,7 @@ public class OntkoppeldeDocumentenRESTService {
             final List<ZaakInformatieobject> zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
                     enkelvoudigInformatieobject);
             if (!zaakInformatieobjecten.isEmpty()) {
-                final UUID zaakUuid = UriUtil.uuidFromURI(zaakInformatieobjecten.getFirst().getZaak());
+                final UUID zaakUuid = uuidFromURI(zaakInformatieobjecten.getFirst().getZaak());
                 throw new IllegalStateException(String.format("Informatieobject is gekoppeld aan zaak '%s'", zaakUuid));
             }
             drcClientService.deleteEnkelvoudigInformatieobject(documentUUID);

@@ -10,6 +10,7 @@ import static net.atos.zac.signalering.model.SignaleringSubject.TAAK;
 import static net.atos.zac.signalering.model.SignaleringSubject.ZAAK;
 import static net.atos.zac.signalering.model.SignaleringTarget.GROUP;
 import static net.atos.zac.signalering.model.SignaleringTarget.USER;
+import static net.atos.zac.util.UriUtilKt.uuidFromURI;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,7 +24,6 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.identity.model.Group;
 import net.atos.zac.identity.model.User;
-import net.atos.zac.util.UriUtil;
 
 public class SignaleringZoekParameters {
     private final SignaleringTarget targettype;
@@ -112,7 +112,7 @@ public class SignaleringZoekParameters {
     }
 
     public SignaleringZoekParameters subject(final EnkelvoudigInformatieObject subject) {
-        return subjectInformatieobject(UriUtil.uuidFromURI(subject.getUrl()));
+        return subjectInformatieobject(uuidFromURI(subject.getUrl()));
     }
 
     public SignaleringZoekParameters subjectZaak(final UUID zaakId) {

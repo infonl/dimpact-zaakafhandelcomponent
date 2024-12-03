@@ -11,7 +11,7 @@ import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
 import net.atos.client.zgw.brc.model.generated.VervalredenEnum
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.app.zaak.model.RestBesluitIntrekkenGegevens
-import net.atos.zac.util.UriUtil
+import net.atos.zac.util.uuidFromURI
 import org.apache.commons.collections4.CollectionUtils
 import java.util.UUID
 import java.util.logging.Logger
@@ -44,14 +44,14 @@ class BesluitService @Inject constructor(
     ) {
         val besluitInformatieobjecten = brcClientService.listBesluitInformatieobjecten(besluit.url)
         val huidigeDocumenten = besluitInformatieobjecten
-            .map { UriUtil.uuidFromURI(it.informatieobject) }
+            .map { uuidFromURI(it.informatieobject) }
             .toList()
         val verwijderen = CollectionUtils.subtract(huidigeDocumenten, nieuweDocumenten)
         val toevoegen = CollectionUtils.subtract(nieuweDocumenten, huidigeDocumenten)
         verwijderen.forEach { teVerwijderenInformatieobject ->
             besluitInformatieobjecten
-                .filter { UriUtil.uuidFromURI(it.informatieobject) == teVerwijderenInformatieobject }
-                .forEach { brcClientService.deleteBesluitinformatieobject(UriUtil.uuidFromURI(it.url)) }
+                .filter { uuidFromURI(it.informatieobject) == teVerwijderenInformatieobject }
+                .forEach { brcClientService.deleteBesluitinformatieobject(uuidFromURI(it.url)) }
         }
         toevoegen.forEach { documentUri ->
             drcClientService.readEnkelvoudigInformatieobject(documentUri).let { enkelvoudigInformatieObject ->

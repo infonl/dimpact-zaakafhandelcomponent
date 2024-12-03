@@ -10,7 +10,7 @@ import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
 import net.atos.client.zgw.shared.model.audit.besluiten.BesluitInformatieobjectWijziging
 import net.atos.zac.history.model.HistoryLine
-import net.atos.zac.util.UriUtil.uuidFromURI
+import net.atos.zac.util.uuidFromURI
 
 class AuditBesluitInformatieobjectConverter @Inject constructor(
     private val brcClientService: BrcClientService

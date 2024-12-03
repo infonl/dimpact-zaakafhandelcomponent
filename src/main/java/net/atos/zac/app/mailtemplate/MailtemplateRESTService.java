@@ -4,6 +4,8 @@
  */
 package net.atos.zac.app.mailtemplate;
 
+import static net.atos.zac.util.UriUtilKt.uuidFromURI;
+
 import java.util.UUID;
 
 import jakarta.inject.Inject;
@@ -23,7 +25,6 @@ import net.atos.zac.app.admin.converter.RESTMailtemplateConverter;
 import net.atos.zac.app.admin.model.RESTMailtemplate;
 import net.atos.zac.mailtemplates.MailTemplateService;
 import net.atos.zac.mailtemplates.model.Mail;
-import net.atos.zac.util.UriUtil;
 
 @Singleton
 @Path("mailtemplates")
@@ -47,7 +48,7 @@ public class MailtemplateRESTService {
             @PathParam("zaakUUID") final UUID zaakUUID
     ) {
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(UriUtil.uuidFromURI(
+        final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(uuidFromURI(
                 zaak.getZaaktype()));
 
         return zaakafhandelParameters.getMailtemplateKoppelingen().stream()

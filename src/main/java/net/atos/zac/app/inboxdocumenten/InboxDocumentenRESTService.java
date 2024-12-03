@@ -5,6 +5,8 @@
 
 package net.atos.zac.app.inboxdocumenten;
 
+import static net.atos.zac.util.UriUtilKt.uuidFromURI;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,7 +35,6 @@ import net.atos.zac.documenten.InboxDocumentenService;
 import net.atos.zac.documenten.model.InboxDocument;
 import net.atos.zac.documenten.model.InboxDocumentListParameters;
 import net.atos.zac.policy.PolicyService;
-import net.atos.zac.util.UriUtil;
 
 @Singleton
 @Path("inboxdocumenten")
@@ -83,7 +84,7 @@ public class InboxDocumentenRESTService {
         final List<ZaakInformatieobject> zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
                 enkelvoudigInformatieobject);
         if (!zaakInformatieobjecten.isEmpty()) {
-            final UUID zaakUuid = UriUtil.uuidFromURI(zaakInformatieobjecten.getFirst().getZaak());
+            final UUID zaakUuid = uuidFromURI(zaakInformatieobjecten.getFirst().getZaak());
             LOG.warning(
                     String.format(
                             "Het inbox-document is verwijderd maar het informatieobject is niet verwijderd. Reden: informatieobject '%s' is gekoppeld aan zaak '%s'.",

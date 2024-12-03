@@ -29,7 +29,7 @@ import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.shared.util.URIUtil
+import net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.BetrokkeneType
@@ -115,9 +115,10 @@ import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
-import net.atos.zac.util.UriUtil
+import net.atos.zac.util.isEqual
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.util.time.LocalDateUtil
+import net.atos.zac.util.uuidFromURI
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
@@ -287,7 +288,7 @@ class ZaakRestService @Inject constructor(
                 zaak,
                 zaaktype,
                 zaakafhandelParameterService.readZaakafhandelParameters(
-                    URIUtil.parseUUIDFromResourceURI(zaaktype.url)
+                    parseUUIDFromResourceURI(zaaktype.url)
                 ),
                 null
             )
@@ -449,7 +450,7 @@ class ZaakRestService @Inject constructor(
             }
         )
         if (zrcClientService.listZaakinformatieobjecten(informatieobject).isEmpty()) {
-            indexingService.removeInformatieobject(URIUtil.parseUUIDFromResourceURI(informatieobject.url))
+            indexingService.removeInformatieobject(parseUUIDFromResourceURI(informatieobject.url))
             ontkoppeldeDocumentenService.create(informatieobject, zaak, ontkoppelGegevens.reden)
         }
     }
@@ -627,7 +628,7 @@ class ZaakRestService @Inject constructor(
         assertPolicy(zaak.isOpen && !StatusTypeUtil.isHeropend(statustype))
         policyService.checkZaakAfsluitbaar(zaak)
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
-            UriUtil.uuidFromURI(zaak.zaaktype)
+            uuidFromURI(zaak.zaaktype)
         )
         val zaakbeeindigParameter: ZaakbeeindigParameter = zaakafhandelParameters.readZaakbeeindigParameter(
             afbrekenGegevens.zaakbeeindigRedenId
@@ -656,7 +657,7 @@ class ZaakRestService @Inject constructor(
             heropenenGegevens.reden
         )
         zaak.resultaat?.let {
-            zrcClientService.deleteResultaat(UriUtil.uuidFromURI(it))
+            zrcClientService.deleteResultaat(uuidFromURI(it))
         }
     }
 
@@ -775,7 +776,7 @@ class ZaakRestService @Inject constructor(
             resolveZaakAfzenderMail(
                 RESTZaakAfzenderConverter.convertZaakAfzenders(
                     zaakafhandelParameterService.readZaakafhandelParameters(
-                        UriUtil.uuidFromURI(zaak.zaaktype)
+                        uuidFromURI(zaak.zaaktype)
                     ).zaakAfzenders
                 ).stream()
             )
@@ -794,7 +795,7 @@ class ZaakRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUUID)
         return resolveZaakAfzenderMail(
             zaakafhandelParameterService.readZaakafhandelParameters(
-                UriUtil.uuidFromURI(zaak.zaaktype)
+                uuidFromURI(zaak.zaaktype)
             ).zaakAfzenders
                 .filter { it.isDefault }
                 .map(RESTZaakAfzenderConverter::convertZaakAfzender)
@@ -861,7 +862,7 @@ class ZaakRestService @Inject constructor(
         zaak.resultaat?.let {
             zrcClientService.readResultaat(it).let { zaakresultaat ->
                 val resultaattype = ztcClientService.readResultaattype(restBesluitWijzigenGegevens.resultaattypeUuid)
-                if (!UriUtil.isEqual(zaakresultaat.resultaattype, resultaattype.url)) {
+                if (!isEqual(zaakresultaat.resultaattype, resultaattype.url)) {
                     zrcClientService.deleteResultaat(zaakresultaat.uuid)
                     zgwApiService.createResultaatForZaak(
                         zaak,
@@ -1026,7 +1027,7 @@ class ZaakRestService @Inject constructor(
         einddatumGeplandWaarschuwing: Map<UUID, LocalDate>,
         uiterlijkeEinddatumAfdoeningWaarschuwing: Map<UUID, LocalDate>
     ): Boolean {
-        val zaaktypeUUID = UriUtil.uuidFromURI(zaak.zaaktype)
+        val zaaktypeUUID = uuidFromURI(zaak.zaaktype)
         return (
             zaak.einddatumGepland != null &&
                 isWaarschuwing(

@@ -7,7 +7,7 @@ package net.atos.zac.signalering
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import net.atos.client.zgw.shared.util.URIUtil
+import net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.ZaakType
@@ -21,7 +21,7 @@ import net.atos.zac.signalering.model.SignaleringTarget
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringVerzendInfo
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
-import net.atos.zac.util.UriUtil
+import net.atos.zac.util.uuidFromURI
 import net.atos.zac.zoeken.ZoekenService
 import net.atos.zac.zoeken.model.DatumRange
 import net.atos.zac.zoeken.model.DatumVeld
@@ -89,7 +89,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .map { zaaktype ->
                 zaakafhandelParameterService.readZaakafhandelParameters(
-                    URIUtil.parseUUIDFromResourceURI(zaaktype.url)
+                    parseUUIDFromResourceURI(zaaktype.url)
                 ).let { parameters ->
                     parameters.einddatumGeplandWaarschuwing?.let {
                         signaleringVerzendInfo.streefdatumVerzonden += zaakEinddatumGeplandVerzenden(
@@ -235,7 +235,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
 
     private fun getOpenZaakMetBehandelaarZoekParameters(zaaktype: ZaakType): ZoekParameters {
         val parameters = ZoekParameters(ZoekObjectType.ZAAK)
-        parameters.addFilter(FilterVeld.ZAAK_ZAAKTYPE_UUID, UriUtil.uuidFromURI(zaaktype.url).toString())
+        parameters.addFilter(FilterVeld.ZAAK_ZAAKTYPE_UUID, uuidFromURI(zaaktype.url).toString())
         parameters.addFilter(FilterVeld.ZAAK_BEHANDELAAR, FilterWaarde.NIET_LEEG.toString())
         parameters.addFilterQuery(ZAAK_AFGEHANDELD_QUERY, "false")
         parameters.rows = TabelInstellingen.AANTAL_PER_PAGINA_MAX

@@ -5,13 +5,14 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
+import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
+
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 
-import net.atos.client.zgw.shared.util.URIUtil;
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType;
 import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype;
@@ -23,7 +24,7 @@ public class RestInformatieobjecttypeConverter {
 
     public RestInformatieobjecttype convert(final InformatieObjectType type) {
         final RestInformatieobjecttype restType = new RestInformatieobjecttype();
-        restType.uuid = URIUtil.parseUUIDFromResourceURI(type.getUrl());
+        restType.uuid = parseUUIDFromResourceURI(type.getUrl());
         restType.concept = type.getConcept();
         restType.omschrijving = type.getOmschrijving();
         // we use the uppercase version of this enum in the ZAC backend API

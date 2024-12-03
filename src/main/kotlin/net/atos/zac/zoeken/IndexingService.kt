@@ -16,13 +16,13 @@ import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.exception.ZgwRuntimeException
 import net.atos.client.zgw.shared.model.Results
-import net.atos.client.zgw.shared.util.URIUtil
+import net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.app.task.model.TaakSortering
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.shared.model.SorteerRichting
-import net.atos.zac.util.UriUtil.uuidFromURI
+import net.atos.zac.util.uuidFromURI
 import net.atos.zac.zoeken.converter.AbstractZoekObjectConverter
 import net.atos.zac.zoeken.model.zoekobject.ZoekObject
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
@@ -280,7 +280,7 @@ class IndexingService @Inject constructor(
         val informationObjectsResults = drcClientService.listEnkelvoudigInformatieObjecten(
             EnkelvoudigInformatieobjectListParameters().apply { page = ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS }
         )
-        val ids = informationObjectsResults.results.map { URIUtil.parseUUIDFromResourceURI(it.url).toString() }
+        val ids = informationObjectsResults.results.map { parseUUIDFromResourceURI(it.url).toString() }
         indexeerDirect(
             objectIds = ids,
             objectType = ZoekObjectType.DOCUMENT,
