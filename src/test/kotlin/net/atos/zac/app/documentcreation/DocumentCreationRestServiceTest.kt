@@ -17,6 +17,7 @@ import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.app.documentcreation.model.createRestDocumentCreationAttendedData
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.DocumentCreationService
@@ -28,6 +29,7 @@ import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
+import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import java.net.URI
 import java.util.UUID
 
@@ -143,19 +145,23 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         }
 
         When("createDocument is called with disabled document creation") {
+            val zaakafhandelParameters = createZaakafhandelParameters()
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
                 creeerenDocument = true
             )
             every { flowableTaskService.findOpenTask(taskId) } returns task
             every { policyService.readTaakRechten(task).creeerenDocument } returns true
             every { zaakafhandelParameterService.isSmartDocumentsEnabled(zaakTypeUUID) } returns false
+            every {
+                zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
+            } returns zaakafhandelParameters
 
-            val exception = shouldThrow<PolicyException> {
+            val exception = shouldThrow<SmartDocumentsDisabledException> {
                 documentCreationRestService.createDocumentAttended(restDocumentCreationAttendedData)
             }
 
-            Then("it throws exception with no message") {
-                exception.message shouldBe null
+            Then("it throws exception with correct message") {
+                exception.message shouldBe "SmartDocuments is disabled"
             }
         }
     }

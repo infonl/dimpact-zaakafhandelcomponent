@@ -748,6 +748,8 @@
   "msg.error.reference.table.with.same.code.already.exists": "A reference table with this code already exists. Please use a unique code.",
   "msg.error.zrc.client.exception": "Unfortunately a technical error has occurred. No zaken could be retrieved.",
   "msg.error.ztc.client.exception": "Unfortunately a technical error has occurred. No zaaktypes could be retrieved.",
+  "msg.error.smartdocuments.not.configured": "SmartDocuments is not configured",
+  "msg.error.smartdocuments.disabled": "SmartDocuments is disabled",
   "msg.email.verstuurd": "E-mail has been sent",
   "msg.extern.advies.vastleggen.behandelen": "An external advice has been requested. The answer can be recorded below.",
   "msg.formioformulier.verwijderen.bevestigen": "Delete form '{{naam}}'?",

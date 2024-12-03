@@ -40,6 +40,7 @@ import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
 import java.net.SocketException
+import kotlin.jvm.optionals.getOrNull
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
@@ -133,10 +134,10 @@ class ProjectConfig : AbstractProjectConfig() {
 
     override suspend fun afterProject() {
         // stop ZAC Docker Container gracefully to give JaCoCo a change to generate the code coverage report
-        with(dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).get()) {
+        dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).getOrNull()?.let { zacContaner ->
             logger.info { "Stopping ZAC Docker container" }
-            dockerClient
-                .stopContainerCmd(containerId)
+            zacContaner.dockerClient
+                .stopContainerCmd(zacContaner.containerId)
                 .withTimeout(30.seconds.inWholeSeconds.toInt())
                 .exec()
             logger.info { "Stopped ZAC Docker container" }

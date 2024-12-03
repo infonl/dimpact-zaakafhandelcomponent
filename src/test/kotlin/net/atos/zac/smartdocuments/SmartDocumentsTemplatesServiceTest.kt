@@ -23,6 +23,7 @@ import jakarta.persistence.criteria.Root
 import net.atos.client.smartdocuments.model.createsmartDocumentsTemplatesResponse
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplate
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
 import java.util.UUID
@@ -108,7 +109,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         every { tuple.get(namePath) } returns null
 
         When("information object UUID is requested") {
-            val exception = shouldThrow<SmartDocumentsException> {
+            val exception = shouldThrow<SmartDocumentsConfigurationException> {
                 smartDocumentsTemplatesService.getInformationObjectTypeUUID(
                     zaakafhandelParametersUUID,
                     templateGroupId,
@@ -159,7 +160,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         every { tuple.get(stringPath) } returns null
 
         When("template group name query is started") {
-            val exception = shouldThrow<SmartDocumentsException> {
+            val exception = shouldThrow<SmartDocumentsConfigurationException> {
                 smartDocumentsTemplatesService.getTemplateGroupName(templateGroupId)
             }
 
@@ -205,7 +206,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         every { tuple.get(stringPath) } returns null
 
         When("template name query is started") {
-            val exception = shouldThrow<SmartDocumentsException> {
+            val exception = shouldThrow<SmartDocumentsConfigurationException> {
                 smartDocumentsTemplatesService.getTemplateName(templateId)
             }
 
