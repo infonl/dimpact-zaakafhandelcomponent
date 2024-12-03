@@ -9,7 +9,8 @@ import java.util.UUID
 
 /**
  * Extracts the UUID from the last part of the path of the ZGW resource URI (i.e. after the last '/').
- * If the last part of the path cannot be converted to a UUID, an IllegalArgumentException will be thrown.
+ *
+ * @throws IllegalArgumentException if the last part of the path cannot be converted to a UUID
  */
 fun URI.extractUuid(): UUID = extractUuid(this.path).let(UUID::fromString)
 
