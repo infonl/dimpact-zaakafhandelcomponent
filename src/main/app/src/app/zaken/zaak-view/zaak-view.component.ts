@@ -1483,4 +1483,15 @@ export class ZaakViewComponent
   hasZaakData() {
     return this.zaak.zaakdata && Object.keys(this.zaak.zaakdata).length > 0;
   }
+
+  protected taskStatusChipColor(status: TaakStatus) {
+    switch (status) {
+      case TaakStatus.Afgerond:
+        return "success";
+      case TaakStatus.Toegekend:
+        return "primary";
+      default:
+        return "";
+    }
+  }
 }

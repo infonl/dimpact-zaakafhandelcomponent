@@ -465,3 +465,15 @@ mat-icon[outlined] {
 .mat-mdc-icon-button.mat-mdc-button-disabled .mat-icon {
   display: none; /* Hides the icon */
 }
+
+.mat-mdc-chip.mat-success {
+  .mat-mdc-chip-action {
+    &:before {
+      background-color: @success-background-color;
+    }
+
+    .mat-mdc-chip-action-label {
+      color: @success-text-color;
+    }
+  }
+}
