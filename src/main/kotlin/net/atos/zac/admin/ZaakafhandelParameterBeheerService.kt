@@ -135,7 +135,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
      * @param zaaktypeUri uri of the new zaaktype
      */
     fun createNewZaakafhandelParametersOnZaakTypeChange(zaaktypeUri: URI) {
-        // if we already have a zaakafhandelparameters for this zaaktype UUID, so do not attempt to create a new one
+        // if we already have a zaakafhandelparameters for this zaaktype UUID, do not attempt to create a new one
         if (listZaakafhandelParametersForZaaktypeUuid(zaaktypeUri.extractUuid()).isNotEmpty()) return
 
         ztcClientService.readZaaktype(zaaktypeUri).takeIf { !it.concept }?.let { zaaktype ->
@@ -169,8 +169,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(ZaakafhandelParameters::class.java)
         val root = query.from(ZaakafhandelParameters::class.java)
-        query.select(root)
-            .where(builder.equal(root.get<Any>(ZAAKTYPE_OMSCHRIJVING), zaaktypeDescription))
+        query.select(root).where(builder.equal(root.get<Any>(ZAAKTYPE_OMSCHRIJVING), zaaktypeDescription))
         query.orderBy(builder.desc(root.get<Any>(CREATIEDATUM)))
         val resultList = entityManager.createQuery(query).setMaxResults(1).resultList
         return if (resultList.isNotEmpty()) {
