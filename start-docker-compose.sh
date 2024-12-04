@@ -11,7 +11,7 @@ help()
 {
    echo "Starts the ZAC Docker Compose environment using the 1Password CLI tools to retrieve secrets."
    echo
-   echo "Syntax: $0 [-d|m|t|z|b|l|h]"
+   echo "Syntax: $0 [-d|m|t|z|b|l|o|h]"
    echo "options:"
    echo "-d     Delete local Docker volume data before starting Docker Compose."
    echo "-m     Also enable tracing and start the containers used for handling metrics and traces"
@@ -19,6 +19,7 @@ help()
    echo "-z     Also start last-known-good ZAC Docker container as part of the Docker Compose environment."
    echo "-b     Build and start local ZAC Docker image in the Docker Compose environment."
    echo "-l     Start local ZAC Docker image in the Docker Compose environment."
+   echo "-o     Also start OpenNotificaties in the Docker Compose environment."
    echo "-h     Print this Help."
    echo
 }
@@ -38,7 +39,7 @@ profiles=()
 
 [ -f fix-permissions.sh ] && ./fix-permissions.sh
 
-while getopts ':dmtzblh' OPTION; do
+while getopts ':dmtzbloh' OPTION; do
   case $OPTION in
     d)
       echo "Deleting local Docker volume data folder: '$volumeDataFolder'.."
@@ -68,6 +69,10 @@ while getopts ':dmtzblh' OPTION; do
     l)
       profiles+=("zac")
       localZac=true
+      ;;
+    o)
+      echo "Also starting OpenNotificaties"
+      profiles+=("opennotificaties")
       ;;
     \?)
       echoerr "Error: Invalid option"
