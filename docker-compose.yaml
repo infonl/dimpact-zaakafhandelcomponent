@@ -468,6 +468,9 @@ services:
       - POSTGRES_USER=opennotificaties
       - POSTGRES_PASSWORD=opennotificaties
       - POSTGRES_DB=opennotificaties
+    volumes:
+      - ./scripts/docker-compose/imports/opennotificaties-database:/docker-entrypoint-initdb.d
+      - ./scripts/docker-compose/volume-data/opennotificaties-database-data:/var/lib/postgresql/data
     profiles: [ "opennotificaties" ]
 
   opennotificaties:
