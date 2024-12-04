@@ -30,7 +30,6 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.util.extractUuid
-import net.atos.client.zgw.util.extractedUuidIsEqual
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.BetrokkeneType
@@ -848,19 +847,6 @@ class ZaakRestService @Inject constructor(
         }
         besluit.updateBesluitWithBesluitWijzigenGegevens(restBesluitWijzigenGegevens).also {
             brcClientService.updateBesluit(it, restBesluitWijzigenGegevens.reden)
-        }
-        zaak.resultaat?.let {
-            zrcClientService.readResultaat(it).let { zaakresultaat ->
-                val resultaattype = ztcClientService.readResultaattype(restBesluitWijzigenGegevens.resultaattypeUuid)
-                if (!extractedUuidIsEqual(zaakresultaat.resultaattype, resultaattype.url)) {
-                    zrcClientService.deleteResultaat(zaakresultaat.uuid)
-                    zgwApiService.createResultaatForZaak(
-                        zaak,
-                        restBesluitWijzigenGegevens.resultaattypeUuid,
-                        null
-                    )
-                }
-            }
         }
         restBesluitWijzigenGegevens.informatieobjecten?.let {
             besluitService.updateBesluitInformatieobjecten(besluit, it)

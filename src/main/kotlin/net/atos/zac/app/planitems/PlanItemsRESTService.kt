@@ -238,17 +238,11 @@ class PlanItemsRESTService @Inject constructor(
 
             UserEventListenerActie.ZAAK_AFHANDELEN -> {
                 policyService.checkZaakAfsluitbaar(zaak)
-                zaak.resultaat?.let {
-                    val resultaat = zrcClientService.readResultaat(zaak.resultaat)
-                    resultaat.toelichting = userEventListenerData.resultaatToelichting
-                    zrcClientService.updateResultaat(resultaat)
-                } ?: run {
-                    zgwApiService.createResultaatForZaak(
-                        zaak,
-                        userEventListenerData.resultaattypeUuid,
-                        userEventListenerData.resultaatToelichting
-                    )
-                }
+                zgwApiService.createResultaatForZaak(
+                    zaak,
+                    userEventListenerData.resultaattypeUuid,
+                    userEventListenerData.resultaatToelichting
+                )
             }
         }
         cmmnService.startUserEventListenerPlanItem(userEventListenerData.planItemInstanceId)
