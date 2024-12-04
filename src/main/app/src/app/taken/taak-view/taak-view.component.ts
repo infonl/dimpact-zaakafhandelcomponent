@@ -141,7 +141,6 @@ export class TaakViewComponent
   }
 
   private initTaakGegevens(taak: Taak): void {
-    this.menu = [];
     this.taak = taak;
     this.loadHistorie();
     this.setEditableFormFields();
@@ -154,6 +153,7 @@ export class TaakViewComponent
       this.zakenService.readZaak(this.taak.zaakUuid).subscribe((zaak) => {
         this.zaak = zaak;
         this.initialized = true;
+        this.setupMenu();
         this.createTaakForm(taak, zaak);
       });
     } else {
@@ -324,19 +324,28 @@ export class TaakViewComponent
   }
 
   private setupMenu(): void {
+    this.menu = [];
     this.menu.push(new HeaderMenuItem("taak"));
 
     if (this.taak.rechten.toevoegenDocument) {
-      this.menu.push(
-        new ButtonMenuItem(
-          "actie.document.maken",
-          () => {
-            this.actionsSidenav.open();
-            this.action = SideNavAction.DOCUMENT_MAKEN;
-          },
-          "note_add",
-        ),
-      );
+      if (
+        this.zaak.zaaktype.zaakafhandelparameters?.smartDocuments
+          .enabledGlobally &&
+        this.zaak.zaaktype?.zaakafhandelparameters.smartDocuments
+          .enabledForZaaktype
+      ) {
+        this.menu.push(
+          new ButtonMenuItem(
+            "actie.document.maken",
+            () => {
+              this.actionsSidenav.open();
+              this.action = SideNavAction.DOCUMENT_MAKEN;
+            },
+            "note_add",
+          ),
+        );
+      }
+
       this.menu.push(
         new ButtonMenuItem(
           "actie.document.toevoegen",
