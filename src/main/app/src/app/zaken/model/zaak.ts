@@ -8,7 +8,6 @@ import { User } from "../../identity/model/user";
 import { ZaakRechten } from "../../policy/model/zaak-rechten";
 import { ZaakIndicatie } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { Besluit } from "./besluit";
 import { Geometry } from "./geometry";
 import { GerelateerdeZaak } from "./gerelateerde-zaak";
 import { ZaakKenmerk } from "./zaak-kenmerk";
@@ -24,7 +23,7 @@ export class Zaak {
   zaaktype: Zaaktype;
   status: ZaakStatus;
   resultaat: ZaakResultaat;
-  besluiten: Besluit[];
+  besluiten: GeneratedType<"RestBesluit">[];
   bronorganisatie: string;
   verantwoordelijkeOrganisatie: string;
   registratiedatum: string;

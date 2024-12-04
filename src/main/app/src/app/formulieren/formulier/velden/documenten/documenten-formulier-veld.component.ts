@@ -11,8 +11,8 @@ import { MatTableDataSource } from "@angular/material/table";
 import { Observable, of } from "rxjs";
 import { FormulierVeldDefinitie } from "../../../../admin/model/formulieren/formulier-veld-definitie";
 import { InformatieObjectenService } from "../../../../informatie-objecten/informatie-objecten.service";
-import { EnkelvoudigInformatieobject } from "../../../../informatie-objecten/model/enkelvoudig-informatieobject";
 import { InformatieobjectZoekParameters } from "../../../../informatie-objecten/model/informatieobject-zoek-parameters";
+import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { Zaak } from "../../../../zaken/model/zaak";
 
 @Component({
@@ -38,9 +38,12 @@ export class DocumentenFormulierVeldComponent implements OnInit {
   ];
   loading = false;
 
-  dataSource: MatTableDataSource<EnkelvoudigInformatieobject> =
-    new MatTableDataSource<EnkelvoudigInformatieobject>();
-  selection = new SelectionModel<EnkelvoudigInformatieobject>(true, []);
+  dataSource = new MatTableDataSource<
+    GeneratedType<"RestEnkelvoudigInformatieobject">
+  >();
+  selection = new SelectionModel<
+    GeneratedType<"RestEnkelvoudigInformatieobject">
+  >(true, []);
 
   constructor(public informatieObjectenService: InformatieObjectenService) {}
 
@@ -49,7 +52,9 @@ export class DocumentenFormulierVeldComponent implements OnInit {
   }
 
   ophalenDocumenten() {
-    let observable: Observable<EnkelvoudigInformatieobject[]>;
+    let observable: Observable<
+      GeneratedType<"RestEnkelvoudigInformatieobject">[]
+    >;
     if (this.veldDefinitie.meerkeuzeOpties === "ZAAK_VERZENDBAAR") {
       observable =
         this.informatieObjectenService.listInformatieobjectenVoorVerzenden(
@@ -75,7 +80,10 @@ export class DocumentenFormulierVeldComponent implements OnInit {
     });
   }
 
-  toggleCheckbox($event: MatCheckboxChange, document): void {
+  toggleCheckbox(
+    $event: MatCheckboxChange,
+    document: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ): void {
     this.selection.toggle(document);
     this.control.setValue(
       this.selection.selected.map((value) => value.uuid).join(";"),
@@ -90,7 +98,9 @@ export class DocumentenFormulierVeldComponent implements OnInit {
     return this.selection.isSelected(document);
   }
 
-  getDocumentenVariable(): Observable<EnkelvoudigInformatieobject[]> {
+  getDocumentenVariable(): Observable<
+    GeneratedType<"RestEnkelvoudigInformatieobject">[]
+  > {
     const uuids: string =
       this.zaak.zaakdata[this.veldDefinitie.meerkeuzeOpties];
     if (uuids) {

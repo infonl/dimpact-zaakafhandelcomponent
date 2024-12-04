@@ -14,9 +14,9 @@ import { UtilService } from "../core/service/util.service";
 import { ViewResourceUtil } from "../locatie/view-resource.util";
 import { ActionIcon } from "../shared/edit/action-icon";
 import { SessionStorageUtil } from "../shared/storage/session-storage.util";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { InformatieObjectenService } from "./informatie-objecten.service";
 import { DocumentVerplaatsGegevens } from "./model/document-verplaats-gegevens";
-import { EnkelvoudigInformatieobject } from "./model/enkelvoudig-informatieobject";
 
 @Injectable({
   providedIn: "root",
@@ -29,7 +29,7 @@ export class InformatieObjectVerplaatsService {
   ) {}
 
   addTeVerplaatsenDocument(
-    informatieobject: EnkelvoudigInformatieobject,
+    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
     bron: string,
   ): void {
     if (!this.isReedsTeVerplaatsen(informatieobject.uuid)) {

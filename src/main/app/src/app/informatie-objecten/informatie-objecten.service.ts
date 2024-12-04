@@ -11,13 +11,13 @@ import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { HistorieRegel } from "../shared/historie/model/historie-regel";
 import { createFormData } from "../shared/utils/form-data";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { DocumentCreationData } from "./model/document-creation-data";
 import { DocumentCreationResponse } from "./model/document-creation-response";
 import { DocumentVerplaatsGegevens } from "./model/document-verplaats-gegevens";
 import { DocumentVerwijderenGegevens } from "./model/document-verwijderen-gegevens";
 import { DocumentVerzendGegevens } from "./model/document-verzend-gegevens";
 import { EnkelvoudigInformatieObjectVersieGegevens } from "./model/enkelvoudig-informatie-object-versie-gegevens";
-import { EnkelvoudigInformatieobject } from "./model/enkelvoudig-informatieobject";
 import { InformatieobjectZoekParameters } from "./model/informatieobject-zoek-parameters";
 import { Informatieobjecttype } from "./model/informatieobjecttype";
 import { ZaakInformatieobject } from "./model/zaak-informatieobject";
@@ -37,30 +37,21 @@ export class InformatieObjectenService {
   ) {}
 
   // Het EnkelvoudigInformatieobject kan opgehaald worden binnen de context van een specifieke zaak.
-  readEnkelvoudigInformatieobject(
-    uuid: string,
-    zaakUuid?: string,
-  ): Observable<EnkelvoudigInformatieobject> {
+  readEnkelvoudigInformatieobject(uuid: string, zaakUuid?: string) {
     return this.http
-      .get<EnkelvoudigInformatieobject>(
-        InformatieObjectenService.addZaakParameter(
-          `${this.basepath}/informatieobject/${uuid}`,
-          zaakUuid,
-        ),
-      )
+      .get<
+        GeneratedType<"RestEnkelvoudigInformatieobject">
+      >(InformatieObjectenService.addZaakParameter(`${this.basepath}/informatieobject/${uuid}`, zaakUuid))
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
-  readEnkelvoudigInformatieobjectVersie(
-    uuid: string,
-    versie: number,
-  ): Observable<EnkelvoudigInformatieobject> {
+  readEnkelvoudigInformatieobjectVersie(uuid: string, versie: number) {
     return this.http
-      .get<EnkelvoudigInformatieobject>(
-        `${this.basepath}/informatieobject/versie/${uuid}/${versie}`,
-      )
+      .get<
+        GeneratedType<"RestEnkelvoudigInformatieobject">
+      >(`${this.basepath}/informatieobject/versie/${uuid}/${versie}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -91,9 +82,11 @@ export class InformatieObjectenService {
   createEnkelvoudigInformatieobject(
     zaakUuid: string,
     documentReferentieId: string,
-    infoObject: EnkelvoudigInformatieobject,
+    infoObject: GeneratedType<"RestEnkelvoudigInformatieobject"> & {
+      bestand: File;
+    },
     taakObject: boolean,
-  ): Observable<EnkelvoudigInformatieobject> {
+  ) {
     const formData = createFormData(infoObject, {
       bestandsnaam: true,
       titel: true,
@@ -110,7 +103,7 @@ export class InformatieObjectenService {
     });
 
     return this.http
-      .post<EnkelvoudigInformatieobject>(
+      .post<GeneratedType<"RestEnkelvoudigInformatieobject">>(
         `${this.basepath}/informatieobject/${zaakUuid}/${documentReferentieId}`,
         formData,
         {
@@ -156,7 +149,7 @@ export class InformatieObjectenService {
     uuid: string,
     zaakUuid: string,
     infoObject: EnkelvoudigInformatieObjectVersieGegevens,
-  ): Observable<EnkelvoudigInformatieobject> {
+  ) {
     const mergedInfoObject = {
       ...infoObject,
       uuid,
@@ -181,7 +174,7 @@ export class InformatieObjectenService {
     });
 
     return this.http
-      .post<EnkelvoudigInformatieobject>(
+      .post<GeneratedType<"RestEnkelvoudigInformatieobject">>(
         `${this.basepath}/informatieobject/update`,
         formData,
         {
@@ -197,23 +190,21 @@ export class InformatieObjectenService {
 
   listEnkelvoudigInformatieobjecten(
     zoekParameters: InformatieobjectZoekParameters,
-  ): Observable<EnkelvoudigInformatieobject[]> {
+  ) {
     return this.http
       .put<
-        EnkelvoudigInformatieobject[]
+        GeneratedType<"RestEnkelvoudigInformatieobject">[]
       >(`${this.basepath}/informatieobjectenList`, zoekParameters)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
-  readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(
-    uuid: string,
-  ): Observable<EnkelvoudigInformatieobject> {
+  readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(uuid: string) {
     return this.http
-      .get<EnkelvoudigInformatieobject>(
-        `${this.basepath}/zaakinformatieobject/${uuid}/informatieobject`,
-      )
+      .get<
+        GeneratedType<"RestEnkelvoudigInformatieobject">
+      >(`${this.basepath}/zaakinformatieobject/${uuid}/informatieobject`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -229,12 +220,10 @@ export class InformatieObjectenService {
       );
   }
 
-  listInformatieobjectenVoorVerzenden(
-    zaakUuid: string,
-  ): Observable<EnkelvoudigInformatieobject[]> {
+  listInformatieobjectenVoorVerzenden(zaakUuid: string) {
     return this.http
       .get<
-        EnkelvoudigInformatieobject[]
+        GeneratedType<"RestEnkelvoudigInformatieobject">[]
       >(`${this.basepath}/informatieobjecten/zaak/${zaakUuid}/teVerzenden`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),

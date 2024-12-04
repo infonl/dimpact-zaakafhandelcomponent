@@ -6,7 +6,7 @@
 import { Component } from "@angular/core";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
-import { EnkelvoudigInformatieobject } from "../../informatie-objecten/model/enkelvoudig-informatieobject";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { SignaleringenService } from "../../signaleringen.service";
 import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 
@@ -18,7 +18,9 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     "./informatieobjecten-card.component.less",
   ],
 })
-export class InformatieobjectenCardComponent extends DashboardCardComponent<EnkelvoudigInformatieobject> {
+export class InformatieobjectenCardComponent extends DashboardCardComponent<
+  GeneratedType<"RestEnkelvoudigInformatieobject">
+> {
   columns: string[] = [
     "titel",
     "registratiedatumTijd",

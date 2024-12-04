@@ -5,15 +5,14 @@
 
 import { FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { Observable } from "rxjs";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { EnkelvoudigInformatieobject } from "../../informatie-objecten/model/enkelvoudig-informatieobject";
 import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { HumanTaskData } from "../../plan-items/model/human-task-data";
 import { TaakStuurGegevens } from "../../plan-items/model/taak-stuur-gegevens";
 import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { Taak } from "../../taken/model/taak";
 import { Taakinformatie } from "../../taken/model/taakinformatie";
 import { Zaak } from "../../zaken/model/zaak";
@@ -40,7 +39,7 @@ export abstract class AbstractTaakFormulier {
   readonly: boolean;
   form: AbstractFormField[][];
   disablePartialSave = false;
-  taakDocumenten: EnkelvoudigInformatieobject[];
+  taakDocumenten: GeneratedType<"RestEnkelvoudigInformatieobject">[];
 
   protected constructor(
     protected translate: TranslateService,
@@ -129,9 +128,7 @@ export abstract class AbstractTaakFormulier {
     });
   }
 
-  private getTaakdocumentenEnBijlagen(
-    bijlagen: string,
-  ): Observable<EnkelvoudigInformatieobject[]> {
+  private getTaakdocumentenEnBijlagen(bijlagen: string) {
     const zoekParameters = new InformatieobjectZoekParameters();
     zoekParameters.zaakUUID = this.zaak.uuid;
     zoekParameters.informatieobjectUUIDs = [];

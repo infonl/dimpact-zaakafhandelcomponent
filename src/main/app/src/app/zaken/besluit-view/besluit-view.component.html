@@ -1,8 +1,8 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
-<mat-accordion class="mat-accordion">
+<mat-accordion>
   <mat-expansion-panel
     (afterExpand)="loadBesluitData(besluit.uuid)"
     *ngFor="let besluit of besluiten; first as isFirst"
@@ -41,6 +41,11 @@
           {{'gegevens.algemeen' | translate}}
         </ng-template>
         <div class="content flex-row flex-wrap">
+          <zac-static-text
+            class="flex-1"
+            [label]="'resultaat' | translate"
+            [value]="result.resultaattype.naam"
+          ></zac-static-text>
           <zac-static-text
             class="flex-1"
             [label]="'besluit' | translate"

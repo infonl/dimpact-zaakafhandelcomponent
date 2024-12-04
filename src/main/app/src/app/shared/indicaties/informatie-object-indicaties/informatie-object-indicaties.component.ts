@@ -6,12 +6,12 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { EnkelvoudigInformatieobject } from "../../../informatie-objecten/model/enkelvoudig-informatieobject";
 import { DocumentZoekObject } from "../../../zoeken/model/documenten/document-zoek-object";
 import { MaterialModule } from "../../material/material.module";
 import { Indicatie } from "../../model/indicatie";
 import { DatumPipe } from "../../pipes/datum.pipe";
 import { PipesModule } from "../../pipes/pipes.module";
+import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
 
 export enum InformatieobjectIndicatie {
@@ -35,7 +35,7 @@ export class InformatieObjectIndicatiesComponent
 {
   datumPipe = new DatumPipe("nl");
 
-  @Input() document: EnkelvoudigInformatieobject;
+  @Input() document: GeneratedType<"RestEnkelvoudigInformatieobject">;
   @Input() documentZoekObject: DocumentZoekObject;
 
   constructor(private translateService: TranslateService) {
@@ -53,7 +53,7 @@ export class InformatieObjectIndicatiesComponent
     const indicaties = this.documentZoekObject
       ? this.documentZoekObject.indicaties
       : this.document.indicaties;
-    indicaties.forEach((indicatie) => {
+    indicaties.forEach((indicatie: InformatieobjectIndicatie) => {
       switch (indicatie) {
         case InformatieobjectIndicatie.VERGRENDELD:
           this.indicaties.push(

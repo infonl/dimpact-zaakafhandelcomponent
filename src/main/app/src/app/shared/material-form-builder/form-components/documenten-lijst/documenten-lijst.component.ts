@@ -10,9 +10,9 @@ import { MatTableDataSource } from "@angular/material/table";
 import { TranslateService } from "@ngx-translate/core";
 import { Observable } from "rxjs";
 import { InformatieObjectenService } from "../../../../informatie-objecten/informatie-objecten.service";
-import { EnkelvoudigInformatieobject } from "../../../../informatie-objecten/model/enkelvoudig-informatieobject";
 import { IndicatiesLayout } from "../../../indicaties/indicaties.component";
 import { DatumPipe } from "../../../pipes/datum.pipe";
+import { GeneratedType } from "../../../utils/generated-types";
 import { FormComponent } from "../../model/form-component";
 import { DocumentenLijstFormField } from "./documenten-lijst-form-field";
 
@@ -26,10 +26,13 @@ export class DocumentenLijstComponent
 {
   readonly indicatiesLayout = IndicatiesLayout;
   data: DocumentenLijstFormField;
-  documenten: Observable<EnkelvoudigInformatieobject[]>;
-  selection = new SelectionModel<EnkelvoudigInformatieobject>(true, []);
-  dataSource: MatTableDataSource<EnkelvoudigInformatieobject> =
-    new MatTableDataSource<EnkelvoudigInformatieobject>();
+  documenten: Observable<GeneratedType<"RestEnkelvoudigInformatieobject">[]>;
+  selection = new SelectionModel<
+    GeneratedType<"RestEnkelvoudigInformatieobject">
+  >(true, []);
+  dataSource = new MatTableDataSource<
+    GeneratedType<"RestEnkelvoudigInformatieobject">
+  >();
   datumPipe = new DatumPipe("nl");
   loading = false;
 
@@ -76,7 +79,10 @@ export class DocumentenLijstComponent
     }
   }
 
-  updateSelected($event: MatCheckboxChange, document): void {
+  updateSelected(
+    $event: MatCheckboxChange,
+    document: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ): void {
     if ($event) {
       this.selection.toggle(document);
       this.data.formControl.setValue(
@@ -92,11 +98,15 @@ export class DocumentenLijstComponent
     }
   }
 
-  selectDisabled(document): boolean {
+  selectDisabled(
+    document: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ): boolean {
     return this.data.readonly;
   }
 
-  isSelected(document): boolean {
+  isSelected(
+    document: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ): boolean {
     return this.selection.isSelected(document);
   }
 }

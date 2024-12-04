@@ -7,12 +7,12 @@ import { Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { Observable, of } from "rxjs";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
-import { EnkelvoudigInformatieobject } from "../../../informatie-objecten/model/enkelvoudig-informatieobject";
 import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { DateFormFieldBuilder } from "../../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { DocumentenLijstFieldBuilder } from "../../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { ParagraphFormFieldBuilder } from "../../../shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
 import { TextareaFormFieldBuilder } from "../../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { TakenService } from "../../../taken/taken.service";
 import { AbstractTaakFormulier } from "../abstract-taak-formulier";
 
@@ -99,7 +99,7 @@ export class DocumentVerzendenPost extends AbstractTaakFormulier {
 
   private getDocumenten$(
     field: string,
-  ): Observable<EnkelvoudigInformatieobject[]> {
+  ): Observable<GeneratedType<"RestEnkelvoudigInformatieobject">[]> {
     const dataElement = this.getDataElement(field);
     if (dataElement) {
       const zoekParameters = new InformatieobjectZoekParameters();

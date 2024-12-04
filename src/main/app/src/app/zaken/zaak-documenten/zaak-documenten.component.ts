@@ -30,7 +30,6 @@ import { WebsocketListener } from "../../core/websocket/model/websocket-listener
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { InformatieObjectVerplaatsService } from "../../informatie-objecten/informatie-object-verplaats.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { EnkelvoudigInformatieobject } from "../../informatie-objecten/model/enkelvoudig-informatieobject";
 import {
   FileFormat,
   FileFormatUtil,
@@ -43,6 +42,7 @@ import { DialogData } from "../../shared/dialog/dialog-data";
 import { DialogComponent } from "../../shared/dialog/dialog.component";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { Zaak } from "../model/zaak";
 import { ZakenService } from "../zaken.service";
 
@@ -79,11 +79,13 @@ export class ZaakDocumentenComponent
   @ViewChild("documentenTable", { read: MatSort, static: true })
   docSort: MatSort;
 
-  enkelvoudigInformatieObjecten: MatTableDataSource<GekoppeldeZaakEnkelvoudigInformatieobject> =
-    new MatTableDataSource<GekoppeldeZaakEnkelvoudigInformatieobject>();
-  documentPreviewRow: EnkelvoudigInformatieobject | null;
-  downloadAlsZipSelection =
-    new SelectionModel<GekoppeldeZaakEnkelvoudigInformatieobject>(true, []);
+  enkelvoudigInformatieObjecten = new MatTableDataSource<
+    GeneratedType<"RestEnkelvoudigInformatieobject">
+  >();
+  documentPreviewRow: GeneratedType<"RestEnkelvoudigInformatieobject"> | null;
+  downloadAlsZipSelection = new SelectionModel<
+    GeneratedType<"RestEnkelvoudigInformatieobject">
+  >(true, []);
 
   private websocketListeners: WebsocketListener[] = [];
 
@@ -183,19 +185,24 @@ export class ZaakDocumentenComponent
     this.informatieObjectenService
       .listEnkelvoudigInformatieobjecten(zoekParameters)
       .subscribe((objecten) => {
-        this.enkelvoudigInformatieObjecten.data = objecten;
+        this.enkelvoudigInformatieObjecten.data =
+          objecten as unknown as GekoppeldeZaakEnkelvoudigInformatieobject[];
         this.isLoadingResults = false;
       });
   }
 
-  documentVerplaatsen(informatieobject: EnkelvoudigInformatieobject): void {
+  documentVerplaatsen(
+    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ): void {
     this.informatieObjectVerplaatsService.addTeVerplaatsenDocument(
       informatieobject,
       this.zaakIdentificatie,
     );
   }
 
-  documentOntkoppelen(informatieobject: EnkelvoudigInformatieobject): void {
+  documentOntkoppelen(
+    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ): void {
     informatieobject["loading"] = true;
     this.utilService.setLoading(true);
     this.informatieObjectenService
@@ -256,7 +263,7 @@ export class ZaakDocumentenComponent
   }
 
   isDocumentVerplaatsenDisabled(
-    informatieobject: EnkelvoudigInformatieobject,
+    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
   ): boolean {
     return this.informatieObjectVerplaatsService.isReedsTeVerplaatsen(
       informatieobject.uuid,
@@ -264,7 +271,7 @@ export class ZaakDocumentenComponent
   }
 
   isOntkoppelenDisabled(
-    informatieobject: EnkelvoudigInformatieobject,
+    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
   ): boolean {
     return (
       informatieobject["loading"] ||
@@ -368,14 +375,18 @@ export class ZaakDocumentenComponent
     });
   }
 
-  isBewerkenToegestaan(enkelvoudigInformatieobject): boolean {
+  isBewerkenToegestaan(
+    enkelvoudigInformatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ): boolean {
     return (
       enkelvoudigInformatieobject.rechten.wijzigen &&
-      FileFormatUtil.isOffice(enkelvoudigInformatieobject.formaat)
+      FileFormatUtil.isOffice(enkelvoudigInformatieobject.formaat as FileFormat)
     );
   }
 
-  bewerken(enkelvoudigInformatieobject) {
+  bewerken(
+    enkelvoudigInformatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ) {
     this.informatieObjectenService
       .editEnkelvoudigInformatieObjectInhoud(
         enkelvoudigInformatieobject.uuid,
