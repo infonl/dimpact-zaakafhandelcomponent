@@ -45,32 +45,48 @@ jobs:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           payload-templated: true
           payload: |
-            text: Stale branches detected
-            blocks:
-              - type: section
-                text:
-                  type: mrkdwn
-                  text: 'Hi :wave:'
-              - type: section
-                text:
-                  type: mrkdwn
-                  text: 'I have identified some branches on the ZAC repository that seem stale and could probably be removed:'
-              - type: section
-                text:
-                  type: mrkdwn
-                  text: |8
-                    ```${{ env.formatted_branches }}```
-              - type: context
-                elements:
-                  - type: mrkdwn
-                    text: >-
-                      I will only alert for an unprotected branch that has been abandonded for over a 100 days and without an open PR. If you want to keep a branch you might consider to add a `_keep_me` suffix to the branch name so I will ignore it.
-              - type: divider
-              - type: context
-                elements:
-                  - type: mrkdwn
-                    text: >-
-                      Powered by GitHub Actions |
-                      <https://github.com/infonl/dimpact-provisioning|View Workflow>
-
-
+            "text": "Stale branches detected",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "Hi :wave:"
+                }
+              },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "I have identified some branches on the ZAC repository that seem stale and could probably be removed:"
+                }
+              },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "```${{ env.formatted_branches }}```"
+                }
+              },
+              {
+                "type": "context",
+                "elements": [
+                  {
+                    "type": "mrkdwn",
+                    "text": "I will only alert for an unprotected branch that has been abandonded for over a 100 days and without an open PR. If you want to keep a branch you might consider to add a `_keep_me` suffix to the branch name so I will ignore it."
+                  }
+                ]
+              },
+              {
+                "type": "divider"
+              },
+              {
+                "type": "context",
+                "elements": [
+                  {
+                    "type": "mrkdwn",
+                    "text": "Powered by GitHub Actions | <https://github.com/infonl/dimpact-provisioning|View Workflow>"
+                  }
+                ]
+              }
+            ]
