@@ -5,43 +5,6 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
-    directory: "/src/main/app/"
-    schedule:
-      interval: "daily"
-      time: "04:00"
-      timezone: "Europe/Amsterdam"
-    reviewers:
-      - "infonl/dimpact"
-    groups:
-      # group minor and patch Angular updates together
-      angular:
-        patterns:
-          - "@angular/*"
-          - "@angular-eslint/*"
-        update-types:
-          - "minor"
-          - "patch"
-      # group all updates for ESLint including major, minor, and patch
-      eslint:
-        patterns:
-          - "@typescript-eslint/*"
-          - eslint
-        update-types:
-          - "major"
-          - "minor"
-          - "patch"
-    ignore:
-      # ignore major Angular updates since they require manual steps
-      - dependency-name: "@angular/*"
-        update-types: ["version-update:semver-major"]
-      # ignore major Node.js updates. We want to use LTS version
-      - dependency-name: "@types/node"
-        update-types: ["version-update:semver-major"]
-      # ignore major Bootstrap updates. Version 5 breaks our BPMN functionality
-      - dependency-name: "bootstrap"
-        update-types: ["version-update:semver-major"]
-
-  - package-ecosystem: "npm"
     directory: "/src/e2e/"
     schedule:
       interval: "daily"
