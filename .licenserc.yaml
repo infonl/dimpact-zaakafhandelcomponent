@@ -20,7 +20,6 @@ header:
     - 'config'
     - 'docs'
     - 'gradle'
-    - 'helm'
     - 'scripts'
     - 'target'
     - 'wildfly-*'
