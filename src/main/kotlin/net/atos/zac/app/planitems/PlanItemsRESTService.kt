@@ -14,7 +14,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
@@ -67,7 +66,6 @@ class PlanItemsRESTService @Inject constructor(
     private var zaakVariabelenService: ZaakVariabelenService,
     private var cmmnService: CMMNService,
     private var zrcClientService: ZrcClientService,
-    private var brcClientService: BrcClientService,
     private var zaakafhandelParameterService: ZaakafhandelParameterService,
     private var planItemConverter: RESTPlanItemConverter,
     private var zgwApiService: ZGWApiService,

@@ -15,12 +15,9 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.client.zgw.brc.BrcClientService
-import net.atos.client.zgw.brc.model.generated.Besluit
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
-import net.atos.client.zgw.zrc.model.generated.Resultaat
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.FormulierDefinitie
 import net.atos.zac.admin.model.ZaakafhandelParameters
@@ -28,7 +25,7 @@ import net.atos.zac.admin.model.createHumanTaskParameters
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.app.exception.InputValidationFailedException
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
-import net.atos.zac.app.mail.model.createRESTMailGegevens
+import net.atos.zac.app.mail.model.createRestMailGegevens
 import net.atos.zac.app.planitems.converter.RESTPlanItemConverter
 import net.atos.zac.app.planitems.model.UserEventListenerActie
 import net.atos.zac.app.planitems.model.createRESTHumanTaskData
@@ -56,7 +53,6 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val cmmnService = mockk<CMMNService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val brcClientService = mockk<BrcClientService>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val planItemConverter = mockk<RESTPlanItemConverter>()
     val zgwApiService = mockk<ZGWApiService>()
@@ -72,7 +68,6 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         zaakVariabelenService,
         cmmnService,
         zrcClientService,
-        brcClientService,
         zaakafhandelParameterService,
         planItemConverter,
         zgwApiService,
@@ -354,7 +349,12 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         val zaak = createZaak()
 
         val mailGegevens = createMailGegevens()
-        val resultaat = Resultaat()
+        val restMailGegevens = createRestMailGegevens()
+        val restUserEventListenerData = createRESTUserEventListenerData(
+            zaakUuid = zaak.uuid,
+            actie = UserEventListenerActie.ZAAK_AFHANDELEN,
+            restMailGegevens = restMailGegevens
+        )
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(
@@ -362,21 +362,18 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
             versturenEmail = true
         )
         every { policyService.checkZaakAfsluitbaar(zaak) } just runs
-        every { brcClientService.listBesluiten(zaak) } returns listOf(Besluit())
-        every { zrcClientService.readResultaat(zaak.resultaat) } returns resultaat
-        every { zrcClientService.updateResultaat(any<Resultaat>()) } returns resultaat
+        every { restMailGegevensConverter.convert(restMailGegevens) } returns mailGegevens
+        every { cmmnService.startUserEventListenerPlanItem(restUserEventListenerData.planItemInstanceId) } just runs
+        every {
+            zgwApiService.createResultaatForZaak(
+                zaak,
+                restUserEventListenerData.resultaattypeUuid,
+                restUserEventListenerData.resultaatToelichting
+            )
+        } just runs
         every { mailService.sendMail(mailGegevens, any<Bronnen>()) } returns mailGegevens.body
 
         When("A user event to settle the zaak and send a corresponding email is planned") {
-            val restMailGegevens = createRESTMailGegevens()
-            val restUserEventListenerData = createRESTUserEventListenerData(
-                zaakUuid = zaak.uuid,
-                actie = UserEventListenerActie.ZAAK_AFHANDELEN,
-                restMailGegevens = restMailGegevens
-            )
-            every { restMailGegevensConverter.convert(restMailGegevens) } returns mailGegevens
-            every { cmmnService.startUserEventListenerPlanItem(restUserEventListenerData.planItemInstanceId) } just runs
-
             planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
 
             Then("the zaak is settled and the email is sent") {

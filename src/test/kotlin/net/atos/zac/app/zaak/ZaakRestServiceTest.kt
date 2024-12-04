@@ -27,7 +27,7 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.model.Archiefnominatie
-import net.atos.client.zgw.shared.util.URIUtil
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Medewerker
@@ -60,13 +60,13 @@ import net.atos.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
 import net.atos.zac.app.zaak.model.createRestBesluit
 import net.atos.zac.app.zaak.model.createRestBesluitVastleggenGegevens
 import net.atos.zac.app.zaak.model.createRestGeometry
-import net.atos.zac.app.zaak.model.createRestZaakAanmaakGegevens
-import net.atos.zac.app.zaak.model.createRestZaakKoppelGegevens
-import net.atos.zac.app.zaak.model.createRestZaakToekennenGegevens
-import net.atos.zac.app.zaak.model.createRestZakenVerdeelGegevens
 import net.atos.zac.app.zaak.model.createRestGroup
 import net.atos.zac.app.zaak.model.createRestZaak
+import net.atos.zac.app.zaak.model.createRestZaakAanmaakGegevens
+import net.atos.zac.app.zaak.model.createRestZaakKoppelGegevens
 import net.atos.zac.app.zaak.model.createRestZaakLocatieGegevens
+import net.atos.zac.app.zaak.model.createRestZaakToekennenGegevens
+import net.atos.zac.app.zaak.model.createRestZakenVerdeelGegevens
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
@@ -94,7 +94,6 @@ import net.atos.zac.productaanvraag.createProductaanvraagDimpact
 import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.websocket.event.ScreenEvent
-import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
@@ -187,7 +186,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         val productaanvraagDimpact = createProductaanvraagDimpact()
         val restZaak = createRestZaak()
         val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
-        val zaakTypeUUID = URIUtil.parseUUIDFromResourceURI(zaakType.url)
+        val zaakTypeUUID = zaakType.url.extractUuid()
         val restZaakAanmaakGegevens = createRestZaakAanmaakGegevens(
             zaak = createRestZaak(
                 restZaakType = RestZaaktype(
