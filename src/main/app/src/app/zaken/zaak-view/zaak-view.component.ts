@@ -571,16 +571,23 @@ export class ZaakViewComponent
     }
 
     if (this.zaak.rechten.creeerenDocument) {
-      this.menu.push(
-        new ButtonMenuItem(
-          "actie.document.maken",
-          () => {
-            this.actionsSidenav.open();
-            this.action = SideNavAction.DOCUMENT_MAKEN;
-          },
-          "note_add",
-        ),
-      );
+      if (
+        this.zaak.zaaktype.zaakafhandelparameters.smartDocuments
+          .enabledGlobally &&
+        this.zaak.zaaktype.zaakafhandelparameters.smartDocuments
+          .enabledForZaaktype
+      ) {
+        this.menu.push(
+          new ButtonMenuItem(
+            "actie.document.maken",
+            () => {
+              this.actionsSidenav.open();
+              this.action = SideNavAction.DOCUMENT_MAKEN;
+            },
+            "note_add",
+          ),
+        );
+      }
 
       this.menu.push(
         new ButtonMenuItem(
@@ -1482,5 +1489,16 @@ export class ZaakViewComponent
 
   hasZaakData() {
     return this.zaak.zaakdata && Object.keys(this.zaak.zaakdata).length > 0;
+  }
+
+  protected taskStatusChipColor(status: TaakStatus) {
+    switch (status) {
+      case TaakStatus.Afgerond:
+        return "success";
+      case TaakStatus.Toegekend:
+        return "primary";
+      default:
+        return "";
+    }
   }
 }

@@ -44,7 +44,6 @@ import { VertrouwelijkaanduidingToTranslationKeyPipe } from "./pipes/vertrouweli
 import { ReadMoreComponent } from "./read-more/read-more.component";
 import { SideNavComponent } from "./side-nav/side-nav.component";
 import { StaticTextComponent } from "./static-text/static-text.component";
-import { StatusLabelComponent } from "./status-label/status-label.component";
 import { DateRangeFilterComponent } from "./table-zoek-filters/date-range-filter/date-range-filter.component";
 import { FacetFilterComponent } from "./table-zoek-filters/facet-filter/facet-filter.component";
 import { TekstFilterComponent } from "./table-zoek-filters/tekst-filter/tekst-filter.component";
@@ -57,7 +56,6 @@ import { VersionComponent } from "./version/version.component";
     BackButtonDirective,
     StaticTextComponent,
     ReadMoreComponent,
-    StatusLabelComponent,
     OutsideClickDirective,
     EditBehandelaarComponent,
     EditGroepComponent,
@@ -109,7 +107,6 @@ import { VersionComponent } from "./version/version.component";
     PipesModule,
     MaterialModule,
     MaterialFormBuilderModule,
-    StatusLabelComponent,
     EditBehandelaarComponent,
     EditGroepComponent,
     EditGroepBehandelaarComponent,
