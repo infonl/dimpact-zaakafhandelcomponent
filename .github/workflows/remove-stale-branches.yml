@@ -33,7 +33,8 @@ jobs:
         run: |
           {
             echo 'formatted_branches<<EOF'
-            echo -e "${{ steps.deleted_branches.outputs.deleted_branches }}" | tr \' \" | jq -r .[] | awk '{printf("%s\\n", $0)}'
+            echo "${{ steps.deleted_branches.outputs.deleted_branches }}" | tr \' \" | jq -r .[] | awk '{printf("%s\\n", $0)}'
+            echo ""
             echo EOF
           } >> $GITHUB_ENV
 
