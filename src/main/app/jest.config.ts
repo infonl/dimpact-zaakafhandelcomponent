@@ -18,6 +18,13 @@ const config: Config = {
     ["github-actions", { silent: false }],
     ["jest-junit", { outputDirectory: "reports", outputName: "report.xml" }],
     "summary",
+    [
+      "jest-html-reporter",
+      {
+        pageTitle: "Test Report",
+        outputPath: "reports/test-report.html",
+      },
+    ],
   ],
 };
 

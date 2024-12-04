@@ -255,7 +255,7 @@ node {
     version.set(libs.versions.nodejs.get())
     distBaseUrl.set("https://nodejs.org/dist")
     nodeProjectDir.set(srcMainApp.asFile)
-    if (System.getenv("CI") != null) {
+    if (isCiBuild()) {
         npmInstallCommand.set("ci")
     } else {
         npmInstallCommand.set("install")
@@ -353,9 +353,10 @@ configure<SpotlessExtension> {
         targetExclude(
             "src/e2e/node_modules/**",
             "src/e2e/reports/**",
-            "src/main/app/node_modules/**",
-            "src/main/app/dist/**",
             "src/main/app/.angular/**",
+            "src/main/app/dist/**",
+            "src/main/app/node_modules/**",
+            "src/main/app/reports/**",
         )
 
         prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "html"))
@@ -404,11 +405,6 @@ tasks {
 
     jacocoTestReport {
         dependsOn(test)
-
-        reports {
-            xml.required = true
-            html.required = false
-        }
     }
 
     processResources {
@@ -439,6 +435,10 @@ tasks {
     }
 
     withType<JacocoReport> {
+        reports {
+            xml.required = true
+            html.required = isCiBuild()
+        }
         // exclude Java client code that was auto generated at build time
         afterEvaluate {
             classDirectories.setFrom(
@@ -449,6 +449,8 @@ tasks {
                 }
             )
         }
+        // do not use the Gradle build cache for this task
+        outputs.cacheIf { false }
     }
 
     withType<Test> {
@@ -693,18 +695,12 @@ tasks {
         dependsOn("itest")
 
         description = "Generates code coverage report for the integration tests"
-        val resultFile = layout.buildDirectory.file("jacoco/itest/jacoco-report/jacoco-it.exec").orNull
+        val resultFile = layout.buildDirectory.file("jacoco/itest.exec").orNull
         inputs.files(resultFile)
         executionData.setFrom(resultFile)
         // tell JaCoCo to report on our code base
         sourceSets(sourceSets["main"])
-        reports {
-            xml.required = true
-            html.required = false
-        }
-        // do not use the Gradle build cache for this task
-        outputs.cacheIf { false }
-        outputs.dir(layout.buildDirectory.dir("reports/jacoco/jacocoIntegrationTestReport"))
+        outputs.dir(layout.buildDirectory.dir("reports/jacoco/itest"))
     }
 
     register<Maven>("generateWildflyBootableJar") {
@@ -737,3 +733,5 @@ abstract class Maven : Exec() {
         *args
     )
 }
+
+fun isCiBuild() = System.getenv("CI") != null

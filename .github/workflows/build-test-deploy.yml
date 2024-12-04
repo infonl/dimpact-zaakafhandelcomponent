@@ -24,6 +24,8 @@ env:
   JAVA_VERSION: '21'
   CONTAINER_REGISTRY_URL: 'ghcr.io/infonl'
   APPLICATION_NAME: 'zaakafhandelcomponent'
+  PROJECT_TITLE: 'Dimpact Zaakafhandelcomponent (ZAC)'
+  CACHE_UNIQUE_ID: '${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}'
 
 permissions:
   contents: write
@@ -32,6 +34,9 @@ permissions:
   pull-requests: write
   # Required for uploading SARIF reports
   security-events: write
+  # Required for Pages deployment
+  pages: write
+  id-token: write
 
 jobs:
   paths-ignore:
@@ -95,14 +100,14 @@ jobs:
         with:
           path: |
             build
-          key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+          key: build-${{ env.CACHE_UNIQUE_ID }}
 
       - name: Cache generated Java clients
         uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: |
             src/generated
-          key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+          key: generated-java-clients-${{ env.CACHE_UNIQUE_ID }}
 
       - name: Cache built frontend artefacts
         uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
@@ -110,17 +115,17 @@ jobs:
           path: |
             src/main/app/dist/zaakafhandelcomponent
             src/main/app/src/generated/types
-          key: built-frontend-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+          key: built-frontend-artefacts-${{ env.CACHE_UNIQUE_ID }}
 
       - name: Cache built ZAC JAR
         uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: |
             target/zaakafhandelcomponent.jar
-          key: zac-jar-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+          key: zac-jar-${{ env.CACHE_UNIQUE_ID }}
 
   run-unit-tests:
-    needs: [build, paths-ignore]
+    needs: [ build, paths-ignore ]
     if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
     runs-on: ubuntu-22.04
     timeout-minutes: 30
@@ -144,21 +149,21 @@ jobs:
         with:
           path: |
             build
-          key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+          key: build-${{ env.CACHE_UNIQUE_ID }}
 
       - name: Restore built frontend artefacts
         uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: |
             build
-          key: built-frontend-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+          key: built-frontend-artefacts-${{ env.CACHE_UNIQUE_ID }}
 
       - name: Restore generated Java clients
         uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: |
             src/generated
-          key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+          key: generated-java-clients-${{ env.CACHE_UNIQUE_ID }}
 
       - name: Run unit tests
         run: ./gradlew -x processResources -x classes test --info
@@ -182,8 +187,23 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+      - name: Update Gradle build artefacts
+        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        with:
+          path: |
+            build
+          key: build-${{ env.CACHE_UNIQUE_ID }}
+
+      - name: Update built frontend artefacts
+        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        with:
+          path: |
+            src/main/app/dist/zaakafhandelcomponent
+            src/main/app/src/generated/types
+          key: built-frontend-artefacts-${{ env.CACHE_UNIQUE_ID }}
+
   build-docker-image-and-run-itests:
-    needs: [build, paths-ignore]
+    needs: [ build, paths-ignore ]
     if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
     runs-on: ubuntu-22.04
     timeout-minutes: 30
@@ -221,7 +241,7 @@ jobs:
         with:
           path: |
             target/zaakafhandelcomponent.jar
-          key: zac-jar-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+          key: zac-jar-${{ env.CACHE_UNIQUE_ID }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3.7.1
@@ -270,7 +290,7 @@ jobs:
         with:
           path: |
             build
-          key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+          key: build-${{ env.CACHE_UNIQUE_ID }}
 
       - name: Generate JaCoCo integration test code coverage report
         run: ./gradlew jacocoIntegrationTestReport -x itest --info
@@ -281,6 +301,13 @@ jobs:
           flags: integrationtests
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Update Gradle build artefacts
+        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        with:
+          path: |
+            build
+          key: build-${{ env.CACHE_UNIQUE_ID }}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # 0.29.0
@@ -298,6 +325,13 @@ jobs:
           TRIVY_SKIP_DB_UPDATE: true
           TRIVY_SKIP_JAVA_DB_UPDATE: true
 
+      - name: Update Gradle build artefacts
+        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        with:
+          path: |
+            build
+          key: build-${{ env.CACHE_UNIQUE_ID }}
+
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@f09c1c0a94de965c15400f5634aa42fac8fb8f88 # v3.27.5
         with:
@@ -312,10 +346,10 @@ jobs:
         uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: docker-image.tar
-          key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+          key: docker-image-${{ env.CACHE_UNIQUE_ID }}
 
   dependabot-auto-merge:
-    needs: [run-unit-tests, build-docker-image-and-run-itests]
+    needs: [ run-unit-tests, build-docker-image-and-run-itests ]
     runs-on: ubuntu-22.04
     if: github.actor == 'dependabot[bot]'
     permissions:
@@ -365,7 +399,7 @@ jobs:
           echo "Next version tag: ${{ steps.get-tag.outputs.new_tag }}"
 
   push-docker-image:
-    needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version]
+    needs: [ build, run-unit-tests, build-docker-image-and-run-itests, next-version ]
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     if: ${{ github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'update ghcr.io/infonl/zaakafhandelcomponent docker tag') }}
@@ -384,7 +418,7 @@ jobs:
         uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: docker-image.tar
-          key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+          key: docker-image-${{ env.CACHE_UNIQUE_ID }}
 
       - name: Load Docker Image
         run: docker load --input docker-image.tar
@@ -400,7 +434,7 @@ jobs:
         run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}
 
   create-release:
-    needs: [next-version, push-docker-image]
+    needs: [ next-version, push-docker-image ]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     env:
@@ -448,6 +482,7 @@ jobs:
           template: 'scripts/file-templates/publiccode-yaml-template.yaml'
           file: 'publiccode.yaml'
           variables: '
+              PROJECT_TITLE=${{ env.PROJECT_TITLE }}
               REPO_URL=${{ github.repositoryUrl }} 
               SOFTWARE_VERSION=${{ needs.next-version.outputs.version }}
               REPO_CREATED_AT=${{ steps.set-current-date.outputs.date }}'
@@ -459,8 +494,92 @@ jobs:
           git commit -m "${{ github.workflow }}" || echo "No changes to commit"
           git push    
 
+
+  prepare-github-page:
+    needs: [ run-unit-tests, build-docker-image-and-run-itests, create-release ]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-22.04
+    env:
+      PAGES_BUILD_DIR: "build/pages"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Restore Gradle build artefacts
+        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        with:
+          path: |
+            build
+          key: build-${{ env.CACHE_UNIQUE_ID }}
+
+      - name: Restore built frontend artefacts
+        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        with:
+          path: |
+            build
+          key: built-frontend-artefacts-${{ env.CACHE_UNIQUE_ID }}
+
+      - name: Process build output for Pages
+        run: ./srcipts/pages/process-build-output.sh
+
+      - name: Process build configuration for Pages
+        uses: elieahd/templater@f802bfce98073a045ad327cdc2c9857564fdfc07 # v1
+        with:
+          template: 'src/pages/_config.yml'
+          file: '${{ env.PAGES_BUILD_DIR }}/_config.yml'
+          variables: '
+              PROJECT_TITLE=${{ env.PROJECT_TITLE }}
+              REPO_URL=${{ github.repositoryUrl }} 
+              '
+
+      - name: Checkout e2e-test-report
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages/dimpact-e2e-test-report
+          path: |
+            ${{ env.PAGES_BUILD_DIR }}/_reports/end-to-end-tests
+
+      - name: Trim e2e-test-report files tree
+        run: |
+          cd '${{ env.PAGES_BUILD_DIR }}/_reports/end-to-end-tests'
+          rm -rf .git
+          rm -rf 202*
+          rm -f .nojekyl
+          rm -f e2e-report.json 
+
+      - name: Save Pages to Cache
+        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        with:
+          path: |
+            ${{ env.PAGES_BUILD_DIR }}
+          key: pages-${{ env.CACHE_UNIQUE_ID }}
+
+  build-github-page:
+    needs: [ prepare-github-page ]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Restore Pages from Cache 
+        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        with:
+          path: build/pages
+          key: pages-${{ env.CACHE_UNIQUE_ID }}
+
+      - name: Build Pages with Jekyll
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./build/pages
+          destination: ./_site
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
   trigger-provision:
-    needs: [push-docker-image]
+    needs: [ push-docker-image ]
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'

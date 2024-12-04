@@ -1,0 +1,56 @@
+github:
+  build_revision: "1234567890abcdef"
+  environment: "development"
+  hostname: "github.com"
+  pages_hostname: "github.io"
+  repository_url: https://github.com/infonl/dimpact-zaakafhandelcomponent
+  api_url: "https://api.github.com"
+  project_title: "Dimpact Zaakafhandelcomponent (ZAC)"
+  project_tagline: "The zaakafhandelcomponent is an open-source, generic, workflow-based component for managing 'zaken' in the context of zaakgericht werken, a Dutch approach to case management. It is developed for Dimpact and used by Dutch municipalities."
+  owner_name: "INFO.nl"
+  owner_url: https://github.com/infonl
+  repository_nwo: infonl/dimpact-zaakafhandelcomponent
+  zip_url: https://github.com/infonl/dimpact-zaakafhandelcomponent/zipball/master
+  tar_url: https://github.com/infonl/dimpact-zaakafhandelcomponent/tarball/master
+  clone_url: https://github.com/infonl/dimpact-zaakafhandelcomponent.git
+  releases_url: https://github.com/infonl/dimpact-zaakafhandelcomponent/releases
+  issues_url: https://github.com/infonl/dimpact-zaakafhandelcomponent/issues
+  wiki_url: https://github.com/infonl/dimpact-zaakafhandelcomponent/wiki
+  language: "Markdown"
+  is_user_page: false
+  is_project_page: true
+  show_downloads: true
+  url: https://infonl.github.io/dimpact-zaakafhandelcomponent
+  baseurl: "/dimpact-zaakafhandelcomponent"
+  public_repositories: 42
+  public_gists: 0
+  followers: 4
+  following: 0
+  owner_gravatar_url: "https://github.com/infonl.png"
+  repository_description: "This is a mock repository for testing purposes."
+  repository_created_at: "2020-01-01T00:00:00Z"
+  repository_updated_at: "2024-01-01T00:00:00Z"
+  repository_pushed_at: "2024-12-01T00:00:00Z"
+  releases:
+    - tag_name: "v1.11.53"
+      name: "This release contains the docker image zaakafhandelcomponent 1.11.53, which is available at ghcr.io/infonl/zaakafhandelcomponent:1.11.53"
+      url: "https://github.com/infonl/dimpact-zaakafhandelcomponent/releases/tag/v1.11.53"
+    - tag_name: "v1.11.54"
+      name: "This release contains the docker image zaakafhandelcomponent 1.11.54, which is available at ghcr.io/infonl/zaakafhandelcomponent:1.11.54"
+      url: "https://github.com/infonl/dimpact-zaakafhandelcomponent/releases/tag/v1.11.54"
+    - tag_name: "v1.11.55"
+      name: "This release contains the docker image zaakafhandelcomponent 1.11.55, which is available at ghcr.io/infonl/zaakafhandelcomponent:1.11.55"
+      url: "https://github.com/infonl/dimpact-zaakafhandelcomponent/releases/tag/v1.11.55"
+  latest_release:
+    tag_name: "v1.11.55"
+    name: "This release contains the docker image zaakafhandelcomponent 1.11.55, which is available at ghcr.io/infonl/zaakafhandelcomponent:1.11.55"
+    url: "https://github.com/infonl/dimpact-zaakafhandelcomponent/releases/tag/v1.11.55"
+    published_at: "2021-01-01T00:00:00Z"
+  contributors:
+    - login: "contributor1"
+      contributions: 10
+    - login: "contributor2"
+      contributions: 5
+  organization_members:
+    - login: "member1"
+    - login: "member2"
