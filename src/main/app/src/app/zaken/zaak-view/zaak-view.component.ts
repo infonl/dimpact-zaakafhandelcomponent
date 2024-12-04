@@ -254,8 +254,6 @@ export class ZaakViewComponent
     };
 
     this.toonAfgerondeTaken = SessionStorageUtil.getItem("toonAfgerondeTaken");
-
-    console.log("zaak", this.zaak);
   }
 
   init(zaak: Zaak): void {
