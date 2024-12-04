@@ -20,10 +20,14 @@ import kotlinx.coroutines.test.runTest
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.zgw.brc.BrcClientService
+import net.atos.client.zgw.brc.model.createBesluit
+import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
+import net.atos.client.zgw.brc.model.generated.createBesluitInformatieObject
 import net.atos.client.zgw.drc.DrcClientService
+import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.model.Archiefnominatie
-import net.atos.client.zgw.util.extractUuid
+import net.atos.client.zgw.shared.util.URIUtil
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Medewerker
@@ -53,11 +57,13 @@ import net.atos.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestZaaktype
 import net.atos.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
-import net.atos.zac.app.zaak.model.createRESTGeometry
-import net.atos.zac.app.zaak.model.createRESTZaakAanmaakGegevens
-import net.atos.zac.app.zaak.model.createRESTZaakKoppelGegevens
-import net.atos.zac.app.zaak.model.createRESTZaakToekennenGegevens
-import net.atos.zac.app.zaak.model.createRESTZakenVerdeelGegevens
+import net.atos.zac.app.zaak.model.createRestBesluit
+import net.atos.zac.app.zaak.model.createRestBesluitVastleggenGegevens
+import net.atos.zac.app.zaak.model.createRestGeometry
+import net.atos.zac.app.zaak.model.createRestZaakAanmaakGegevens
+import net.atos.zac.app.zaak.model.createRestZaakKoppelGegevens
+import net.atos.zac.app.zaak.model.createRestZaakToekennenGegevens
+import net.atos.zac.app.zaak.model.createRestZakenVerdeelGegevens
 import net.atos.zac.app.zaak.model.createRestGroup
 import net.atos.zac.app.zaak.model.createRestZaak
 import net.atos.zac.app.zaak.model.createRestZaakLocatieGegevens
@@ -88,10 +94,12 @@ import net.atos.zac.productaanvraag.createProductaanvraagDimpact
 import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.websocket.event.ScreenEvent
+import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import org.flowable.task.api.Task
+import java.net.URI
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Date
@@ -179,8 +187,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         val productaanvraagDimpact = createProductaanvraagDimpact()
         val restZaak = createRestZaak()
         val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
-        val zaakTypeUUID = zaakType.url.extractUuid()
-        val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
+        val zaakTypeUUID = URIUtil.parseUUIDFromResourceURI(zaakType.url)
+        val restZaakAanmaakGegevens = createRestZaakAanmaakGegevens(
             zaak = createRestZaak(
                 restZaakType = RestZaaktype(
                     uuid = zaakTypeUUID
@@ -291,7 +299,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Given("a zaak exists, no one is assigned and zaak toekennen gegevens are provided") {
-        val restZaakToekennenGegevens = createRESTZaakToekennenGegevens()
+        val restZaakToekennenGegevens = createRestZaakToekennenGegevens()
         val zaak = createZaak()
         val user = createLoggedInUser()
         val rolSlot = slot<Rol<*>>()
@@ -335,7 +343,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         val zaakUUIDs = listOf(UUID.randomUUID(), UUID.randomUUID())
         val group = createGroup()
         val user = createUser()
-        val restZakenVerdeelGegevens = createRESTZakenVerdeelGegevens(
+        val restZakenVerdeelGegevens = createRestZakenVerdeelGegevens(
             uuids = zaakUUIDs,
             groepId = group.id,
             behandelaarGebruikersnaam = user.id,
@@ -369,7 +377,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     Given("Two open zaken") {
         val zaak = createZaak()
         val teKoppelenZaak = createZaak()
-        val restZakenVerdeelGegevens = createRESTZaakKoppelGegevens(
+        val restZakenVerdeelGegevens = createRestZaakKoppelGegevens(
             zaakUuid = zaak.uuid,
             teKoppelenZaakUuid = teKoppelenZaak.uuid,
             relatieType = RelatieType.BIJDRAGE,
@@ -396,7 +404,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     Given("An open zaak and a closed zaak") {
         val zaak = createZaak()
         val teKoppelenZaak = createZaak(archiefnominatie = Archiefnominatie.BLIJVEND_BEWAREN)
-        val restZakenVerdeelGegevens = createRESTZaakKoppelGegevens(
+        val restZakenVerdeelGegevens = createRestZaakKoppelGegevens(
             zaakUuid = zaak.uuid,
             teKoppelenZaakUuid = teKoppelenZaak.uuid,
             relatieType = RelatieType.BIJDRAGE,
@@ -484,9 +492,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An existing zaak") {
+    Given("an existing zaak") {
         val zaak = createZaak()
-        val restGeometry = createRESTGeometry()
+        val restGeometry = createRestGeometry()
         val reason = "dummyReason"
         val restZaakLocatieGegevens = createRestZaakLocatieGegevens(
             restGeometry = restGeometry,
@@ -515,6 +523,57 @@ class ZaakRestServiceTest : BehaviorSpec({
                         longitude.toDouble() shouldBe restGeometry.point!!.longitude
                     }
                 }
+            }
+        }
+    }
+
+    Given("a zaak with a result") {
+        val zaakResult = "https://example.com/initialResult"
+        val besluitType = "https://example.com/besluitType"
+
+        val zaak = createZaak(resultaat = URI(zaakResult))
+        val zaakType = createZaakType(besluittypen = listOf(URI(besluitType)))
+        val restBesluitVastleggenGegevens = createRestBesluitVastleggenGegevens(zaakUuid = zaak.uuid)
+        val besluit = createBesluit()
+        val restBesluit = createRestBesluit()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every { policyService.readZaakRechten(zaak, zaakType).vastleggenBesluit } returns true
+        every { restBesluitConverter.convertToBesluit(zaak, restBesluitVastleggenGegevens) } returns besluit
+        every { brcClientService.createBesluit(besluit) } returns besluit
+        every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
+        every {
+            drcClientService.readEnkelvoudigInformatieobject(restBesluitVastleggenGegevens.informatieobjecten!!.first())
+        } returns enkelvoudigInformatieObject
+        every {
+            brcClientService.createBesluitInformatieobject(any<BesluitInformatieObject>(), "Aanmaken besluit")
+        } returns createBesluitInformatieObject()
+        every { eventingService.send(any<ScreenEvent>()) } just runs
+
+        When("decision is created") {
+            val createdRestBesluit = zaakRestService.createBesluit(restBesluitVastleggenGegevens)
+
+            Then("it is created correctly") {
+                with(createdRestBesluit) {
+                    url shouldBe restBesluit.url
+                    uuid shouldBe restBesluit.uuid
+                    identificatie shouldBe null
+                    datum shouldBe null
+                    besluittype shouldBe null
+                    ingangsdatum shouldBe null
+                    vervaldatum shouldBe null
+                    vervalreden shouldBe null
+                    isIngetrokken shouldBe false
+                    toelichting shouldBe null
+                    zaakUuid shouldBe null
+                    informatieobjecten shouldBe null
+                }
+            }
+
+            And("zaak result is not changed") {
+                zaak.resultaat.toString() shouldBe zaakResult
             }
         }
     }

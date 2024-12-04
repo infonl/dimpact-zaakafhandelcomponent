@@ -816,11 +816,6 @@ class ZaakRestService @Inject constructor(
         assertPolicy(CollectionUtils.isNotEmpty(zaaktype.besluittypen))
 
         val besluit = restBesluitConverter.convertToBesluit(zaak, besluitToevoegenGegevens)
-        zaak.resultaat?.let {
-            zgwApiService.updateResultaatForZaak(zaak, besluitToevoegenGegevens.resultaattypeUuid, null)
-        } ?: run {
-            zgwApiService.createResultaatForZaak(zaak, besluitToevoegenGegevens.resultaattypeUuid, null)
-        }
         val restBesluit = brcClientService.createBesluit(besluit).let { restBesluitConverter.convertToRestBesluit(it) }
         besluitToevoegenGegevens.informatieobjecten?.forEach { informatieobjectUuid ->
             drcClientService.readEnkelvoudigInformatieobject(informatieobjectUuid).let { informatieobject ->

@@ -17,9 +17,6 @@ data class RestBesluitVastleggenGegevens(
     var zaakUuid: UUID,
 
     @field:NotNull
-    var resultaattypeUuid: UUID,
-
-    @field:NotNull
     var besluittypeUuid: UUID,
 
     var toelichting: String? = null,

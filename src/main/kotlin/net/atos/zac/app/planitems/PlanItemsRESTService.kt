@@ -240,11 +240,11 @@ class PlanItemsRESTService @Inject constructor(
 
             UserEventListenerActie.ZAAK_AFHANDELEN -> {
                 policyService.checkZaakAfsluitbaar(zaak)
-                if (!brcClientService.listBesluiten(zaak).isEmpty()) {
+                zaak.resultaat?.let {
                     val resultaat = zrcClientService.readResultaat(zaak.resultaat)
                     resultaat.toelichting = userEventListenerData.resultaatToelichting
                     zrcClientService.updateResultaat(resultaat)
-                } else {
+                } ?: run {
                     zgwApiService.createResultaatForZaak(
                         zaak,
                         userEventListenerData.resultaattypeUuid,
