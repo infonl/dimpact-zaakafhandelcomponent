@@ -1,4 +1,9 @@
 {{/*
+ SPDX-FileCopyrightText: 2024 Lifely
+ SPDX-License-Identifier: EUPL-1.2+
+*/}}
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "zaakafhandelcomponent.name" -}}
