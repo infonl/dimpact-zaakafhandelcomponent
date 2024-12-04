@@ -69,7 +69,6 @@ import { Taak } from "../../taken/model/taak";
 import { TaakStatus } from "../../taken/model/taak-status.enum";
 import { TakenService } from "../../taken/taken.service";
 import { IntakeAfrondenDialogComponent } from "../intake-afronden-dialog/intake-afronden-dialog.component";
-import { BesluitIntrekkenGegevens } from "../model/besluit-intrekken-gegevens";
 import { GeometryGegevens } from "../model/geometry-gegevens";
 import { GerelateerdeZaak } from "../model/gerelateerde-zaak";
 import { Zaak } from "../model/zaak";
@@ -1382,11 +1381,12 @@ export class ZaakViewComponent
   }
 
   doIntrekking($event): void {
-    const gegevens = new BesluitIntrekkenGegevens();
-    gegevens.besluitUuid = $event.uuid;
-    gegevens.vervaldatum = $event.vervaldatum;
-    gegevens.vervalreden = $event.vervalreden.value;
-    gegevens.reden = $event.toelichting;
+    const gegevens: GeneratedType<"RestBesluitIntrekkenGegevens"> = {
+      besluitUuid: $event.uuid,
+      vervaldatum: $event.vervaldatum,
+      vervalreden: $event.vervalreden.value,
+      reden: $event.toelichting,
+    };
     this.zakenService.intrekkenBesluit(gegevens).subscribe(() => {
       this.utilService.openSnackbar("msg.besluit.ingetrokken");
     });

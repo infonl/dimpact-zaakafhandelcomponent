@@ -238,11 +238,11 @@ export class ZaakDocumentenComponent
               .build(),
           ],
           (results: any[]) =>
-            this.zakenService.ontkoppelInformatieObject(
-              this.zaakUUID,
-              informatieobject.uuid,
-              results["reden"],
-            ),
+            this.zakenService.ontkoppelInformatieObject({
+              zaakUUID: this.zaakUUID,
+              documentUUID: informatieobject.uuid,
+              reden: results["reden"],
+            }),
           melding,
         );
         this.dialog

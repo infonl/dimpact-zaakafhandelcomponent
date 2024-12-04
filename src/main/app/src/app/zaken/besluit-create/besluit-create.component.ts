@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -27,8 +27,7 @@ import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/for
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { BesluitVastleggenGegevens } from "../model/besluit-vastleggen-gegevens";
-import { Besluittype } from "../model/besluittype";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { Resultaattype } from "../model/resultaattype";
 import { Zaak } from "../model/zaak";
 import { ZakenService } from "../zaken.service";
@@ -134,20 +133,23 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
 
   onFormSubmit(formGroup: FormGroup): void {
     if (formGroup) {
-      const gegevens = new BesluitVastleggenGegevens();
-      gegevens.zaakUuid = this.zaak.uuid;
-      gegevens.resultaattypeUuid = (
-        formGroup.controls["resultaattype"].value as Resultaattype
-      ).id;
-      gegevens.besluittypeUuid = (
-        formGroup.controls["besluittype"].value as Besluittype
-      ).id;
-      gegevens.toelichting = formGroup.controls["toelichting"].value;
-      gegevens.ingangsdatum = formGroup.controls["ingangsdatum"].value;
-      gegevens.vervaldatum = formGroup.controls["vervaldatum"].value;
-      gegevens.informatieobjecten = formGroup.controls["documenten"].value
-        ? formGroup.controls["documenten"].value.split(";")
-        : [];
+      const gegevens: GeneratedType<"RestBesluitVastleggenGegevens"> = {
+        zaakUuid: this.zaak.uuid,
+        resultaattypeUuid: (
+          formGroup.controls["resultaattype"].value as Resultaattype
+        ).id,
+        besluittypeUuid: (
+          formGroup.controls["besluittype"]
+            .value as GeneratedType<"RestBesluittype">
+        ).id,
+        toelichting: formGroup.controls["toelichting"].value,
+        ingangsdatum: formGroup.controls["ingangsdatum"].value,
+        vervaldatum: formGroup.controls["vervaldatum"].value,
+        informatieobjecten: formGroup.controls["documenten"].value
+          ? formGroup.controls["documenten"].value.split(";")
+          : [],
+      };
+
       this.zakenService.createBesluit(gegevens).subscribe(() => {
         this.utilService.openSnackbar("msg.besluit.vastgelegd");
         this.besluitVastgelegd.emit(true);

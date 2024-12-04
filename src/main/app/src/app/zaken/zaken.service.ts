@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -18,11 +18,6 @@ import { TableRequest } from "../shared/dynamic-table/datasource/table-request";
 import { HistorieRegel } from "../shared/historie/model/historie-regel";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { ZaakZoekObject } from "../zoeken/model/zaken/zaak-zoek-object";
-import { BesluitIntrekkenGegevens } from "./model/besluit-intrekken-gegevens";
-import { BesluitVastleggenGegevens } from "./model/besluit-vastleggen-gegevens";
-import { BesluitWijzigenGegevens } from "./model/besluit-wijzigen-gegevens";
-import { Besluittype } from "./model/besluittype";
-import { DocumentOntkoppelGegevens } from "./model/document-ontkoppel-gegevens";
 import { Geometry } from "./model/geometry";
 import { Resultaattype } from "./model/resultaattype";
 import { Zaak } from "./model/zaak";
@@ -38,7 +33,6 @@ import { ZaakLocatieGegevens } from "./model/zaak-locatie-gegevens";
 import { ZaakOntkoppelGegevens } from "./model/zaak-ontkoppel-gegevens";
 import { ZaakOpschortGegevens } from "./model/zaak-opschort-gegevens";
 import { ZaakOpschorting } from "./model/zaak-opschorting";
-import { ZaakOverzicht } from "./model/zaak-overzicht";
 import { ZaakToekennenGegevens } from "./model/zaak-toekennen-gegevens";
 import { ZaakVerlengGegevens } from "./model/zaak-verleng-gegevens";
 import { Zaaktype } from "./model/zaaktype";
@@ -130,9 +124,11 @@ export class ZakenService {
       );
   }
 
-  listZaakWaarschuwingen(): Observable<ZaakOverzicht[]> {
+  listZaakWaarschuwingen() {
     return this.http
-      .get<ZaakOverzicht[]>(`${this.basepath}/waarschuwing`)
+      .get<
+        GeneratedType<"RestZaakOverzicht">[]
+      >(`${this.basepath}/waarschuwing`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -284,16 +280,7 @@ export class ZakenService {
       );
   }
 
-  ontkoppelInformatieObject(
-    zaakUUID: string,
-    documentUUID: string,
-    reden: string,
-  ): Observable<void> {
-    const gegevens = new DocumentOntkoppelGegevens(
-      zaakUUID,
-      documentUUID,
-      reden,
-    );
+  ontkoppelInformatieObject(gegevens: GeneratedType<'RESTDocumentOntkoppelGegevens'>): Observable<void> {
     return this.http
       .put<void>(`${this.basepath}/zaakinformatieobjecten/ontkoppel`, gegevens)
       .pipe(
@@ -304,17 +291,16 @@ export class ZakenService {
   toekennenAanIngelogdeMedewerkerVanuitLijst(
     zaak: ZaakZoekObject,
     reden?: string,
-  ): Observable<ZaakOverzicht> {
+  ) {
     const toekennenGegevens: ZaakToekennenGegevens =
       new ZaakToekennenGegevens();
     toekennenGegevens.zaakUUID = zaak.id;
     toekennenGegevens.reden = reden;
 
     return this.http
-      .put<ZaakOverzicht>(
-        `${this.basepath}/lijst/toekennen/mij`,
-        toekennenGegevens,
-      )
+      .put<
+        GeneratedType<"RestZaakOverzicht">
+      >(`${this.basepath}/lijst/toekennen/mij`, toekennenGegevens)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -389,7 +375,9 @@ export class ZakenService {
       );
   }
 
-  createBesluit(besluitVestleggenGegevens: BesluitVastleggenGegevens) {
+  createBesluit(
+    besluitVestleggenGegevens: GeneratedType<"RestBesluitVastleggenGegevens">,
+  ) {
     return this.http
       .post<
         GeneratedType<"RestBesluit">
@@ -399,7 +387,9 @@ export class ZakenService {
       );
   }
 
-  updateBesluit(besluitWijzigenGegevens: BesluitWijzigenGegevens) {
+  updateBesluit(
+    besluitWijzigenGegevens: GeneratedType<"RestBesluitWijzigenGegevens">,
+  ) {
     return this.http
       .put<
         GeneratedType<"RestBesluit">
@@ -409,7 +399,9 @@ export class ZakenService {
       );
   }
 
-  intrekkenBesluit(besluitIntrekkenGegevens: BesluitIntrekkenGegevens) {
+  intrekkenBesluit(
+    besluitIntrekkenGegevens: GeneratedType<"RestBesluitIntrekkenGegevens">,
+  ) {
     return this.http
       .put<
         GeneratedType<"RestBesluit">
@@ -419,9 +411,11 @@ export class ZakenService {
       );
   }
 
-  listBesluittypes(zaaktypeUuid: string): Observable<Besluittype[]> {
+  listBesluittypes(zaaktypeUuid: string) {
     return this.http
-      .get<Besluittype[]>(`${this.basepath}/besluittypes/${zaaktypeUuid}`)
+      .get<
+        GeneratedType<"RestBesluittype">[]
+      >(`${this.basepath}/besluittypes/${zaaktypeUuid}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

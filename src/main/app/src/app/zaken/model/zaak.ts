@@ -11,7 +11,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { Geometry } from "./geometry";
 import { GerelateerdeZaak } from "./gerelateerde-zaak";
 import { ZaakKenmerk } from "./zaak-kenmerk";
-import { ZaakResultaat } from "./zaak-resultaat";
 import { ZaakStatus } from "./zaak-status";
 import { Zaaktype } from "./zaaktype";
 
@@ -22,7 +21,7 @@ export class Zaak {
   toelichting: string;
   zaaktype: Zaaktype;
   status: ZaakStatus;
-  resultaat: ZaakResultaat;
+  resultaat: GeneratedType<"RestZaakResultaat">;
   besluiten: GeneratedType<"RestBesluit">[];
   bronorganisatie: string;
   verantwoordelijkeOrganisatie: string;
