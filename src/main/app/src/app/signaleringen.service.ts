@@ -9,9 +9,9 @@ import { BehaviorSubject, Observable } from "rxjs";
 import { catchError, switchMap } from "rxjs/operators";
 import { WebsocketService } from "./core/websocket/websocket.service";
 import { FoutAfhandelingService } from "./fout-afhandeling/fout-afhandeling.service";
-import { EnkelvoudigInformatieobject } from "./informatie-objecten/model/enkelvoudig-informatieobject";
 import { Resultaat } from "./shared/model/resultaat";
 import { SignaleringType } from "./shared/signaleringen/signalering-type";
+import { GeneratedType } from "./shared/utils/generated-types";
 import { SignaleringTaakSummary } from "./signaleringen/model/signalering-taak-summary";
 import { ZaakOverzichtDashboard } from "./zaken/model/zaak-overzicht-dashboard";
 
@@ -76,12 +76,10 @@ export class SignaleringenService {
       );
   }
 
-  listInformatieobjectenSignalering(
-    signaleringType: SignaleringType,
-  ): Observable<EnkelvoudigInformatieobject[]> {
+  listInformatieobjectenSignalering(signaleringType: SignaleringType) {
     return this.http
       .get<
-        EnkelvoudigInformatieobject[]
+        GeneratedType<"RestEnkelvoudigInformatieobject">[]
       >(`${this.basepath}/informatieobjecten/${signaleringType}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),

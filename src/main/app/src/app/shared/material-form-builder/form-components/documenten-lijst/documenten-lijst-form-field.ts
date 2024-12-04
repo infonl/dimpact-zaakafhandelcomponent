@@ -4,13 +4,13 @@
  */
 
 import { Observable } from "rxjs";
-import { EnkelvoudigInformatieobject } from "../../../../informatie-objecten/model/enkelvoudig-informatieobject";
+import { GeneratedType } from "../../../utils/generated-types";
 import { AbstractFormControlField } from "../../model/abstract-form-control-field";
 import { FieldType } from "../../model/field-type.enum";
 
 export class DocumentenLijstFormField extends AbstractFormControlField {
   fieldType = FieldType.DOCUMENTEN_LIJST;
-  documenten: Observable<EnkelvoudigInformatieobject[]>;
+  documenten: Observable<GeneratedType<"RestEnkelvoudigInformatieobject">[]>;
   documentenChecked: string[];
   columns: string[] = [
     "select",
@@ -35,7 +35,9 @@ export class DocumentenLijstFormField extends AbstractFormControlField {
     return true;
   }
 
-  updateDocumenten(documenten: Observable<EnkelvoudigInformatieobject[]>) {
+  updateDocumenten(
+    documenten: Observable<GeneratedType<"RestEnkelvoudigInformatieobject">[]>,
+  ) {
     this.documenten = documenten;
   }
 

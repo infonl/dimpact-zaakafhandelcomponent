@@ -9,17 +9,15 @@ import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { ZaakAfzender } from "../admin/model/zaakafzender";
 import { ZaakbeeindigReden } from "../admin/model/zaakbeeindig-reden";
-import { WebsocketService } from "../core/websocket/websocket.service";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { Group } from "../identity/model/group";
 import { User } from "../identity/model/user";
-import { EnkelvoudigInformatieobject } from "../informatie-objecten/model/enkelvoudig-informatieobject";
 import { Klant } from "../klanten/model/klanten/klant";
 import { Roltype } from "../klanten/model/klanten/roltype";
 import { TableRequest } from "../shared/dynamic-table/datasource/table-request";
 import { HistorieRegel } from "../shared/historie/model/historie-regel";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { ZaakZoekObject } from "../zoeken/model/zaken/zaak-zoek-object";
-import { Besluit } from "./model/besluit";
 import { BesluitIntrekkenGegevens } from "./model/besluit-intrekken-gegevens";
 import { BesluitVastleggenGegevens } from "./model/besluit-vastleggen-gegevens";
 import { BesluitWijzigenGegevens } from "./model/besluit-wijzigen-gegevens";
@@ -53,7 +51,6 @@ export class ZakenService {
   constructor(
     private http: HttpClient,
     private foutAfhandelingService: FoutAfhandelingService,
-    private websocketService: WebsocketService,
   ) {}
 
   private basepath = "/rest/zaken";
@@ -392,34 +389,31 @@ export class ZakenService {
       );
   }
 
-  createBesluit(
-    besluitVestleggenGegevens: BesluitVastleggenGegevens,
-  ): Observable<Besluit> {
+  createBesluit(besluitVestleggenGegevens: BesluitVastleggenGegevens) {
     return this.http
-      .post<Besluit>(`${this.basepath}/besluit`, besluitVestleggenGegevens)
+      .post<
+        GeneratedType<"RestBesluit">
+      >(`${this.basepath}/besluit`, besluitVestleggenGegevens)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
-  updateBesluit(
-    besluitWijzigenGegevens: BesluitWijzigenGegevens,
-  ): Observable<Besluit> {
+  updateBesluit(besluitWijzigenGegevens: BesluitWijzigenGegevens) {
     return this.http
-      .put<Besluit>(`${this.basepath}/besluit`, besluitWijzigenGegevens)
+      .put<
+        GeneratedType<"RestBesluit">
+      >(`${this.basepath}/besluit`, besluitWijzigenGegevens)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
-  intrekkenBesluit(
-    besluitIntrekkenGegevens: BesluitIntrekkenGegevens,
-  ): Observable<Besluit> {
+  intrekkenBesluit(besluitIntrekkenGegevens: BesluitIntrekkenGegevens) {
     return this.http
-      .put<Besluit>(
-        `${this.basepath}/besluit/intrekken`,
-        besluitIntrekkenGegevens,
-      )
+      .put<
+        GeneratedType<"RestBesluit">
+      >(`${this.basepath}/besluit/intrekken`, besluitIntrekkenGegevens)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -459,21 +453,21 @@ export class ZakenService {
       );
   }
 
-  listBesluitInformatieobjecten(
-    besluitUuid: string,
-  ): Observable<EnkelvoudigInformatieobject[]> {
+  listBesluitInformatieobjecten(besluitUuid: string) {
     return this.http
       .get<
-        EnkelvoudigInformatieobject[]
+        GeneratedType<"RestEnkelvoudigInformatieobject">[]
       >(`${this.basepath}/listBesluitInformatieobjecten/${besluitUuid}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
-  listBesluitenForZaak(zaakUuid: string): Observable<Besluit[]> {
+  listBesluitenForZaak(zaakUuid: string) {
     return this.http
-      .get<Besluit[]>(`${this.basepath}/besluit/zaakUuid/${zaakUuid}`)
+      .get<
+        GeneratedType<"RestBesluit">[]
+      >(`${this.basepath}/besluit/zaakUuid/${zaakUuid}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

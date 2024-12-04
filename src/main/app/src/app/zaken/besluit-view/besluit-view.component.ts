@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -19,7 +19,6 @@ import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
 import { Observable, of } from "rxjs";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
-import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { DialogData } from "../../shared/dialog/dialog-data";
 import { DialogComponent } from "../../shared/dialog/dialog.component";
@@ -39,7 +38,7 @@ import { MessageFormFieldBuilder } from "../../shared/material-form-builder/form
 import { MessageLevel } from "../../shared/material-form-builder/form-components/message/message-level.enum";
 import { SelectFormField } from "../../shared/material-form-builder/form-components/select/select-form-field";
 import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
-import { Besluit } from "../model/besluit";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { VervalReden } from "../model/vervalReden";
 import { ZakenService } from "../zaken.service";
 
@@ -49,9 +48,10 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./besluit-view.component.less"],
 })
 export class BesluitViewComponent implements OnInit, OnChanges {
-  @Input() besluiten: Besluit[];
+  @Input() besluiten: GeneratedType<"RestBesluit">[];
+  @Input() result: GeneratedType<"RestZaakResultaat">;
   @Input() readonly: boolean;
-  @Output() besluitWijzigen = new EventEmitter<Besluit>();
+  @Output() besluitWijzigen = new EventEmitter<GeneratedType<"RestBesluit">>();
   @Output() doIntrekking: EventEmitter<any> = new EventEmitter<any>();
   readonly indicatiesLayout = IndicatiesLayout;
   histories: Record<string, MatTableDataSource<HistorieRegel>> = {};
@@ -69,7 +69,6 @@ export class BesluitViewComponent implements OnInit, OnChanges {
   constructor(
     private zakenService: ZakenService,
     private dialog: MatDialog,
-    private configuratieService: ConfiguratieService,
     private translate: TranslateService,
     private utilService: UtilService,
   ) {}
@@ -96,7 +95,7 @@ export class BesluitViewComponent implements OnInit, OnChanges {
     }
   }
 
-  loadBesluitData(uuid) {
+  loadBesluitData(uuid: string) {
     if (!this.histories[uuid]) {
       this.loadHistorie(uuid);
     }
@@ -113,22 +112,22 @@ export class BesluitViewComponent implements OnInit, OnChanges {
     }
   }
 
-  private loadHistorie(uuid) {
+  private loadHistorie(uuid: string) {
     this.zakenService.listBesluitHistorie(uuid).subscribe((historie) => {
       this.histories[uuid] = new MatTableDataSource<HistorieRegel>();
       this.histories[uuid].data = historie;
     });
   }
 
-  private getBesluit(uuid: string): Besluit {
+  private getBesluit(uuid: string) {
     return this.besluiten.find((value) => value.uuid === uuid);
   }
 
-  isReadonly(besluit: Besluit) {
+  isReadonly(besluit: GeneratedType<"RestBesluit">) {
     return this.readonly || besluit.isIngetrokken;
   }
 
-  intrekken(besluit: Besluit) {
+  intrekken(besluit: GeneratedType<"RestBesluit">) {
     const dialogData = new DialogData(
       [
         this.maakIdField(besluit),
@@ -151,11 +150,13 @@ export class BesluitViewComponent implements OnInit, OnChanges {
     return of(null);
   }
 
-  private maakIdField(besluit: Besluit): HiddenFormField {
+  private maakIdField(besluit: GeneratedType<"RestBesluit">): HiddenFormField {
     return new HiddenFormFieldBuilder(besluit.uuid).id("uuid").build();
   }
 
-  private maakVervaldatumField(besluit: Besluit): DateFormField {
+  private maakVervaldatumField(
+    besluit: GeneratedType<"RestBesluit">,
+  ): DateFormField {
     return new DateFormFieldBuilder(besluit.vervaldatum)
       .id("vervaldatum")
       .label("vervaldatum")
@@ -164,7 +165,9 @@ export class BesluitViewComponent implements OnInit, OnChanges {
       .build();
   }
 
-  private maakVervalredenField(besluit: Besluit): SelectFormField {
+  private maakVervalredenField(
+    besluit: GeneratedType<"RestBesluit">,
+  ): SelectFormField {
     const vervalRedenen = this.utilService.getEnumAsSelectListExceptFor(
       "besluit.vervalreden",
       VervalReden,
@@ -195,7 +198,9 @@ export class BesluitViewComponent implements OnInit, OnChanges {
       .build();
   }
 
-  private maakMessageField(besluit: Besluit): MessageFormField {
+  private maakMessageField(
+    besluit: GeneratedType<"RestBesluit">,
+  ): MessageFormField {
     const documentenVerstuurd: boolean = besluit.informatieobjecten.some(
       (document) => {
         return document.verzenddatum != null;

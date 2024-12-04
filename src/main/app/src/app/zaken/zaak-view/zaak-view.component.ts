@@ -64,11 +64,11 @@ import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 import { SideNavAction } from "../../shared/side-nav/side-nav-action";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { Taak } from "../../taken/model/taak";
 import { TaakStatus } from "../../taken/model/taak-status.enum";
 import { TakenService } from "../../taken/taken.service";
 import { IntakeAfrondenDialogComponent } from "../intake-afronden-dialog/intake-afronden-dialog.component";
-import { Besluit } from "../model/besluit";
 import { BesluitIntrekkenGegevens } from "../model/besluit-intrekken-gegevens";
 import { GeometryGegevens } from "../model/geometry-gegevens";
 import { GerelateerdeZaak } from "../model/gerelateerde-zaak";
@@ -99,7 +99,7 @@ export class ZaakViewComponent
   menu: MenuItem[];
   readonly sideNavAction = SideNavAction;
   action: SideNavAction;
-  teWijzigenBesluit: Besluit;
+  teWijzigenBesluit: GeneratedType<"RestBesluit">;
 
   takenDataSource: MatTableDataSource<ExpandableTableData<Taak>> =
     new MatTableDataSource<ExpandableTableData<Taak>>();

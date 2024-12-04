@@ -5,8 +5,8 @@
 
 import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { Besluit } from "../../../zaken/model/besluit";
 import { Indicatie } from "../../model/indicatie";
+import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
 
 export enum BesluitIndicatie {
@@ -22,7 +22,7 @@ export class BesluitIndicatiesComponent
   extends IndicatiesComponent
   implements OnChanges
 {
-  @Input() besluit: Besluit;
+  @Input() besluit: GeneratedType<"RestBesluit">;
 
   constructor(private translate: TranslateService) {
     super();

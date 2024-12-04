@@ -40,12 +40,12 @@ import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item
 import { HrefMenuItem } from "../../shared/side-nav/menu-item/href-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 import { SideNavAction } from "../../shared/side-nav/side-nav-action";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { Zaak } from "../../zaken/model/zaak";
 import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { EnkelvoudigInformatieObjectVersieGegevens } from "../model/enkelvoudig-informatie-object-versie-gegevens";
-import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobject";
-import { FileFormatUtil } from "../model/file-format";
+import { FileFormat, FileFormatUtil } from "../model/file-format";
 import { FileIcon } from "../model/file-icon";
 import { ZaakInformatieobject } from "../model/zaak-informatieobject";
 
@@ -58,8 +58,8 @@ export class InformatieObjectViewComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   readonly indicatiesLayout = IndicatiesLayout;
-  infoObject: EnkelvoudigInformatieobject;
-  laatsteVersieInfoObject: EnkelvoudigInformatieobject;
+  infoObject: GeneratedType<"RestEnkelvoudigInformatieobject">;
+  laatsteVersieInfoObject: GeneratedType<"RestEnkelvoudigInformatieobject">;
   zaakInformatieObjecten: ZaakInformatieobject[];
   zaak: Zaak;
   documentNieuweVersieGegevens: EnkelvoudigInformatieObjectVersieGegevens;
@@ -117,7 +117,7 @@ export class InformatieObjectViewComponent
             this.loadZaakInformatieobjecten();
           });
         this.documentPreviewBeschikbaar = FileFormatUtil.isPreviewAvailable(
-          this.infoObject.formaat,
+          this.infoObject.formaat as FileFormat,
         );
         this.utilService.setTitle("title.document", {
           document: this.infoObject.identificatie,
@@ -196,7 +196,7 @@ export class InformatieObjectViewComponent
 
     if (
       this.laatsteVersieInfoObject.rechten.wijzigen &&
-      FileFormatUtil.isOffice(this.infoObject.formaat)
+      FileFormatUtil.isOffice(this.infoObject.formaat as FileFormat)
     ) {
       this.menu.push(
         new ButtonMenuItem(
@@ -292,7 +292,7 @@ export class InformatieObjectViewComponent
 
     if (
       this.laatsteVersieInfoObject.rechten.wijzigen &&
-      FileFormatUtil.isOffice(this.infoObject.formaat)
+      FileFormatUtil.isOffice(this.infoObject.formaat as FileFormat)
     ) {
       this.menu.push(
         new AsyncButtonMenuItem(
@@ -334,7 +334,7 @@ export class InformatieObjectViewComponent
         this.toevoegenActies();
         this.updateVersieInformatie();
         this.documentPreviewBeschikbaar = FileFormatUtil.isPreviewAvailable(
-          this.infoObject.formaat,
+          this.infoObject.formaat as FileFormat,
         );
       });
   }
@@ -349,11 +349,13 @@ export class InformatieObjectViewComponent
     ]);
   }
 
-  versieToegevoegd(informatieobject: EnkelvoudigInformatieobject): void {
+  versieToegevoegd(
+    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ): void {
     this.haalVersieOp(informatieobject.versie);
   }
 
-  getFileIcon(filename) {
+  getFileIcon(filename: string) {
     return FileIcon.getIconByBestandsnaam(filename);
   }
 

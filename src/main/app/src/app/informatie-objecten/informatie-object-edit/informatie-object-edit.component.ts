@@ -31,9 +31,9 @@ import { AbstractFormField } from "../../shared/material-form-builder/model/abst
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { OrderUtil } from "../../shared/order/order-util";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { EnkelvoudigInformatieObjectVersieGegevens } from "../model/enkelvoudig-informatie-object-versie-gegevens";
-import { EnkelvoudigInformatieobject } from "../model/enkelvoudig-informatieobject";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 
@@ -46,7 +46,9 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
   @Input() infoObject: EnkelvoudigInformatieObjectVersieGegevens;
   @Input() sideNav: MatDrawer;
   @Input() zaakUuid: string;
-  @Output() document = new EventEmitter<EnkelvoudigInformatieobject>();
+  @Output() document = new EventEmitter<
+    GeneratedType<"RestEnkelvoudigInformatieobject">
+  >();
 
   @ViewChild(FormComponent) form: FormComponent;
 

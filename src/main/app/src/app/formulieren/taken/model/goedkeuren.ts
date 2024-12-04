@@ -7,7 +7,6 @@ import { Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { Observable, of } from "rxjs";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
-import { EnkelvoudigInformatieobject } from "../../../informatie-objecten/model/enkelvoudig-informatieobject";
 import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { DocumentenLijstFieldBuilder } from "../../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
 import { DocumentenOndertekenenFieldBuilder } from "../../../shared/material-form-builder/form-components/documenten-ondertekenen/documenten-ondertekenen-field-builder";
@@ -15,6 +14,7 @@ import { ParagraphFormFieldBuilder } from "../../../shared/material-form-builder
 import { RadioFormFieldBuilder } from "../../../shared/material-form-builder/form-components/radio/radio-form-field-builder";
 import { ReadonlyFormFieldBuilder } from "../../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
 import { TextareaFormFieldBuilder } from "../../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { TakenService } from "../../../taken/taken.service";
 import { AbstractTaakFormulier } from "../abstract-taak-formulier";
 import { Goedkeuring } from "../goedkeuring.enum";
@@ -116,7 +116,7 @@ export class Goedkeuren extends AbstractTaakFormulier {
 
   private getDocumenten$(
     field: string,
-  ): Observable<EnkelvoudigInformatieobject[]> {
+  ): Observable<GeneratedType<"RestEnkelvoudigInformatieobject">[]> {
     const dataElement = this.getDataElement(field);
     if (dataElement) {
       const zoekParameters = new InformatieobjectZoekParameters();

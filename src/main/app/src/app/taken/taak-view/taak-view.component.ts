@@ -27,7 +27,6 @@ import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-for
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { IdentityService } from "../../identity/identity.service";
 import { User } from "../../identity/model/user";
-import { EnkelvoudigInformatieobject } from "../../informatie-objecten/model/enkelvoudig-informatieobject";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { TaakHistorieRegel } from "../../shared/historie/model/taak-historie-regel";
@@ -42,6 +41,7 @@ import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 import { SideNavAction } from "../../shared/side-nav/side-nav-action";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { Zaak } from "../../zaken/model/zaak";
 import { Zaaktype } from "../../zaken/model/zaaktype";
 import { ZakenService } from "../../zaken/zaken.service";
@@ -488,7 +488,9 @@ export class TaakViewComponent
       });
   }
 
-  updateTaakdocumenten(informatieobject: EnkelvoudigInformatieobject) {
+  updateTaakdocumenten(
+    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ) {
     if (!this.taak.taakdocumenten) {
       this.taak.taakdocumenten = [];
     }

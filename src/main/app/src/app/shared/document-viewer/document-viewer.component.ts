@@ -12,11 +12,11 @@ import {
 } from "@angular/core";
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { EnkelvoudigInformatieobject } from "../../informatie-objecten/model/enkelvoudig-informatieobject";
 import {
   FileFormat,
   FileFormatUtil,
 } from "../../informatie-objecten/model/file-format";
+import { GeneratedType } from "../utils/generated-types";
 
 @Component({
   selector: "zac-document-viewer",
@@ -24,7 +24,7 @@ import {
   styleUrls: ["./document-viewer.component.less"],
 })
 export class DocumentViewerComponent implements OnInit, OnChanges {
-  @Input() document: EnkelvoudigInformatieobject;
+  @Input() document: GeneratedType<"RestEnkelvoudigInformatieobject">;
 
   previewSrc: SafeUrl = null;
   showPreview = false;
@@ -46,7 +46,9 @@ export class DocumentViewerComponent implements OnInit, OnChanges {
   }
 
   private loadDocument(): void {
-    if (FileFormatUtil.isPreviewAvailable(this.document.formaat)) {
+    if (
+      FileFormatUtil.isPreviewAvailable(this.document.formaat as FileFormat)
+    ) {
       this.showPreview = true;
       const url = this.informatieObjectenService.getPreviewUrl(
         this.document.uuid,
@@ -60,7 +62,7 @@ export class DocumentViewerComponent implements OnInit, OnChanges {
   }
 
   isImage(): boolean {
-    return FileFormatUtil.isImage(this.document.formaat);
+    return FileFormatUtil.isImage(this.document.formaat as FileFormat);
   }
 
   isPDF(): boolean {

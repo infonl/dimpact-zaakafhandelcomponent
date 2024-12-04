@@ -13,11 +13,10 @@ import {
 } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
-import { Observable, Subject } from "rxjs";
+import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { EnkelvoudigInformatieobject } from "../../informatie-objecten/model/enkelvoudig-informatieobject";
 import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { DateFormField } from "../../shared/material-form-builder/form-components/date/date-form-field";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
@@ -28,7 +27,7 @@ import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/for
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { Besluit } from "../model/besluit";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { BesluitWijzigenGegevens } from "../model/besluit-wijzigen-gegevens";
 import { Resultaattype } from "../model/resultaattype";
 import { Zaak } from "../model/zaak";
@@ -41,7 +40,7 @@ import { ZakenService } from "../zaken.service";
 })
 export class BesluitEditComponent implements OnInit, OnDestroy {
   formConfig: FormConfig;
-  @Input() besluit: Besluit;
+  @Input() besluit: GeneratedType<"RestBesluit">;
   @Input() zaak: Zaak;
   @Input() sideNav: MatDrawer;
   @Output() besluitGewijzigd = new EventEmitter<boolean>();
@@ -143,9 +142,7 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
       });
   }
 
-  listInformatieObjecten(
-    besluittypeUUID: string,
-  ): Observable<EnkelvoudigInformatieobject[]> {
+  listInformatieObjecten(besluittypeUUID: string) {
     const zoekparameters = new InformatieobjectZoekParameters();
     zoekparameters.zaakUUID = this.zaak.uuid;
     zoekparameters.besluittypeUUID = besluittypeUUID;

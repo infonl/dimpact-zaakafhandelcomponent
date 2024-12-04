@@ -4,7 +4,7 @@
  */
 
 import { Observable } from "rxjs";
-import { EnkelvoudigInformatieobject } from "../../../../informatie-objecten/model/enkelvoudig-informatieobject";
+import { GeneratedType } from "../../../utils/generated-types";
 import { AbstractFormFieldBuilder } from "../../model/abstract-form-field-builder";
 import { DocumentenLijstFormField } from "./documenten-lijst-form-field";
 
@@ -17,7 +17,9 @@ export class DocumentenLijstFieldBuilder extends AbstractFormFieldBuilder {
     this.formField.initControl();
   }
 
-  documenten(documenten: Observable<EnkelvoudigInformatieobject[]>): this {
+  documenten(
+    documenten: Observable<GeneratedType<"RestEnkelvoudigInformatieobject">[]>,
+  ): this {
     this.formField.documenten = documenten;
     return this;
   }
