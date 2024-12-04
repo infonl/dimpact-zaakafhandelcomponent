@@ -254,7 +254,7 @@ export class ParameterEditComponent
       defaultGroepId: [this.parameters.defaultGroepId, [Validators.required]],
       defaultBehandelaarId: [this.parameters.defaultBehandelaarId],
       einddatumGeplandWaarschuwing: [
-        this.parameters.uiterlijkeEinddatumAfdoeningWaarschuwing,
+        this.parameters.einddatumGeplandWaarschuwing,
       ],
       uiterlijkeEinddatumAfdoeningWaarschuwing: [
         this.parameters.uiterlijkeEinddatumAfdoeningWaarschuwing,
