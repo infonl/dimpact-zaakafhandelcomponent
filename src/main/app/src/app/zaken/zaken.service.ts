@@ -19,7 +19,6 @@ import { HistorieRegel } from "../shared/historie/model/historie-regel";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { ZaakZoekObject } from "../zoeken/model/zaken/zaak-zoek-object";
 import { Geometry } from "./model/geometry";
-import { Resultaattype } from "./model/resultaattype";
 import { Zaak } from "./model/zaak";
 import { ZaakAanmaakGegevens } from "./model/zaak-aanmaak-gegevens";
 import { ZaakAfbrekenGegevens } from "./model/zaak-afbreken-gegevens";
@@ -421,9 +420,9 @@ export class ZakenService {
       );
   }
 
-  listResultaattypes(zaaktypeUuid: string): Observable<Resultaattype[]> {
+  listResultaattypes(zaaktypeUuid: string) {
     return this.http
-      .get<Resultaattype[]>(`${this.basepath}/resultaattypes/${zaaktypeUuid}`)
+      .get<GeneratedType<'RestResultaattype'>[]>(`${this.basepath}/resultaattypes/${zaaktypeUuid}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

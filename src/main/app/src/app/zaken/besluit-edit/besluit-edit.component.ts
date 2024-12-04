@@ -28,7 +28,6 @@ import { AbstractFormField } from "../../shared/material-form-builder/model/abst
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { Resultaattype } from "../model/resultaattype";
 import { Zaak } from "../model/zaak";
 import { ZakenService } from "../zaken.service";
 
@@ -124,7 +123,7 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
       .subscribe((value) => {
         if (value) {
           vervaldatumField.required = (
-            value as Resultaattype
+            value as GeneratedType<'RestResultaattype'>
           ).vervaldatumBesluitVerplicht;
         }
       });
@@ -155,7 +154,7 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
       const gegevens: GeneratedType<"RestBesluitWijzigenGegevens"> = {
         besluitUuid: this.besluit.uuid,
         resultaattypeUuid: (
-          formGroup.controls["resultaattype"].value as Resultaattype
+          formGroup.controls["resultaattype"].value as GeneratedType<'RestResultaattype'>
         ).id,
         toelichting: formGroup.controls["toelichting"].value,
         ingangsdatum: formGroup.controls["ingangsdatum"].value,

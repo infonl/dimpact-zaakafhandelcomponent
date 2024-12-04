@@ -8,12 +8,12 @@ import { Injectable } from "@angular/core";
 import { Observable, throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { Resultaattype } from "../zaken/model/resultaattype";
 import { CaseDefinition } from "./model/case-definition";
 import { FormulierDefinitie } from "./model/formulier-definitie";
 import { ReplyTo } from "./model/replyto";
 import { ZaakafhandelParameters } from "./model/zaakafhandel-parameters";
 import { ZaakbeeindigReden } from "./model/zaakbeeindig-reden";
+import {GeneratedType} from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
@@ -64,9 +64,9 @@ export class ZaakafhandelParametersService {
       );
   }
 
-  listResultaattypes(zaaktypeUuid: string): Observable<Resultaattype[]> {
+  listResultaattypes(zaaktypeUuid: string) {
     return this.http
-      .get<Resultaattype[]>(`${this.basepath}/resultaattypes/${zaaktypeUuid}`)
+      .get<GeneratedType<'RestResultaattype'>[]>(`${this.basepath}/resultaattypes/${zaaktypeUuid}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

@@ -1,10 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { GeneratedType } from "src/app/shared/utils/generated-types";
-import { Resultaattype } from "../../zaken/model/resultaattype";
 import { ZaakStatusmailOptie } from "../../zaken/model/zaak-statusmail-optie";
 import { Zaaktype } from "../../zaken/model/zaaktype";
 import { CaseDefinition } from "./case-definition";
@@ -23,7 +22,7 @@ export class ZaakafhandelParameters {
   creatiedatum: string;
   einddatumGeplandWaarschuwing: number;
   uiterlijkeEinddatumAfdoeningWaarschuwing: number;
-  zaakNietOntvankelijkResultaattype: Resultaattype;
+  zaakNietOntvankelijkResultaattype: GeneratedType<'RestResultaattype'>;
   humanTaskParameters: HumanTaskParameter[];
   userEventListenerParameters: UserEventListenerParameter[];
   mailtemplateKoppelingen: MailtemplateKoppeling[];

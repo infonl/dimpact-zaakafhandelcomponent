@@ -29,7 +29,6 @@ import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { Group } from "../../identity/model/group";
 import { User } from "../../identity/model/user";
-import { Resultaattype } from "../../zaken/model/resultaattype";
 import { ZaakStatusmailOptie } from "../../zaken/model/zaak-statusmail-optie";
 import { AdminComponent } from "../admin/admin.component";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
@@ -56,6 +55,7 @@ import { ZaaknietontvankelijkReden } from "../model/zaaknietontvankelijk-reden";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
+import {GeneratedType} from "../../shared/utils/generated-types";
 
 @Component({
   templateUrl: "./parameter-edit.component.html",
@@ -96,7 +96,7 @@ export class ParameterEditComponent
   domeinen: string[];
   groepen: Group[];
   medewerkers: User[];
-  resultaattypes: Resultaattype[];
+  resultaattypes: GeneratedType<'RestResultaattype'>[];
   referentieTabellen: ReferentieTabel[];
   formulierDefinities: FormulierDefinitie[];
   zaakbeeindigRedenen: ZaakbeeindigReden[];
