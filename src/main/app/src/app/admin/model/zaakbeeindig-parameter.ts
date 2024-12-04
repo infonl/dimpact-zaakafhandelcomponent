@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakbeeindigReden } from "./zaakbeeindig-reden";
-import {GeneratedType} from "../../shared/utils/generated-types";
 
 export class ZaakbeeindigParameter {
   id: string;
   zaakbeeindigReden: ZaakbeeindigReden;
-  resultaattype: GeneratedType<'RestResultaattype'>;
+  resultaattype: GeneratedType<"RestResultaattype">;
 }

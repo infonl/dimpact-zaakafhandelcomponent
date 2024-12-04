@@ -123,7 +123,7 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
       .subscribe((value) => {
         if (value) {
           vervaldatumField.required = (
-            value as GeneratedType<'RestResultaattype'>
+            value as GeneratedType<"RestResultaattype">
           ).vervaldatumBesluitVerplicht;
         }
       });
@@ -154,7 +154,8 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
       const gegevens: GeneratedType<"RestBesluitWijzigenGegevens"> = {
         besluitUuid: this.besluit.uuid,
         resultaattypeUuid: (
-          formGroup.controls["resultaattype"].value as GeneratedType<'RestResultaattype'>
+          formGroup.controls["resultaattype"]
+            .value as GeneratedType<"RestResultaattype">
         ).id,
         toelichting: formGroup.controls["toelichting"].value,
         ingangsdatum: formGroup.controls["ingangsdatum"].value,

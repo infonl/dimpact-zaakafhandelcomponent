@@ -22,7 +22,7 @@ export class ZaakafhandelParameters {
   creatiedatum: string;
   einddatumGeplandWaarschuwing: number;
   uiterlijkeEinddatumAfdoeningWaarschuwing: number;
-  zaakNietOntvankelijkResultaattype: GeneratedType<'RestResultaattype'>;
+  zaakNietOntvankelijkResultaattype: GeneratedType<"RestResultaattype">;
   humanTaskParameters: HumanTaskParameter[];
   userEventListenerParameters: UserEventListenerParameter[];
   mailtemplateKoppelingen: MailtemplateKoppeling[];

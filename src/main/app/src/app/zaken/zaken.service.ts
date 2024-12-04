@@ -29,7 +29,6 @@ import { ZaakEditMetRedenGegevens } from "./model/zaak-edit-met-reden-gegevens";
 import { ZaakHeropenenGegevens } from "./model/zaak-heropenen-gegevens";
 import { ZaakKoppelGegevens } from "./model/zaak-koppel-gegevens";
 import { ZaakLocatieGegevens } from "./model/zaak-locatie-gegevens";
-import { ZaakOntkoppelGegevens } from "./model/zaak-ontkoppel-gegevens";
 import { ZaakOpschortGegevens } from "./model/zaak-opschort-gegevens";
 import { ZaakOpschorting } from "./model/zaak-opschorting";
 import { ZaakToekennenGegevens } from "./model/zaak-toekennen-gegevens";
@@ -279,7 +278,9 @@ export class ZakenService {
       );
   }
 
-  ontkoppelInformatieObject(gegevens: GeneratedType<'RESTDocumentOntkoppelGegevens'>): Observable<void> {
+  ontkoppelInformatieObject(
+    gegevens: GeneratedType<"RESTDocumentOntkoppelGegevens">,
+  ): Observable<void> {
     return this.http
       .put<void>(`${this.basepath}/zaakinformatieobjecten/ontkoppel`, gegevens)
       .pipe(
@@ -422,7 +423,9 @@ export class ZakenService {
 
   listResultaattypes(zaaktypeUuid: string) {
     return this.http
-      .get<GeneratedType<'RestResultaattype'>[]>(`${this.basepath}/resultaattypes/${zaaktypeUuid}`)
+      .get<
+        GeneratedType<"RestResultaattype">[]
+      >(`${this.basepath}/resultaattypes/${zaaktypeUuid}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -437,7 +440,7 @@ export class ZakenService {
   }
 
   ontkoppelZaak(
-    zaakOntkoppelGegevens: ZaakOntkoppelGegevens,
+    zaakOntkoppelGegevens: GeneratedType<"RESTZaakOntkoppelGegevens">,
   ): Observable<void> {
     return this.http
       .patch<void>(`${this.basepath}/zaak/ontkoppel`, zaakOntkoppelGegevens)
