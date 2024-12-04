@@ -5,6 +5,8 @@
 
 package net.atos.zac.signalering.event;
 
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
+
 import java.net.URI;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -36,7 +38,6 @@ import net.atos.zac.identity.model.User;
 import net.atos.zac.signalering.SignaleringService;
 import net.atos.zac.signalering.model.Signalering;
 import net.atos.zac.signalering.model.SignaleringInstellingen;
-import net.atos.zac.util.UriUtil;
 
 /**
  * This bean listens for SignaleringEvents and handles them.
@@ -176,7 +177,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
             case ZAAK_DOCUMENT_TOEGEVOEGD -> {
                 final Zaak subject = zrcClientService.readZaak((URI) event.getObjectId().resource());
                 final ZaakInformatieobject detail = zrcClientService.readZaakinformatieobject(
-                        UriUtil.uuidFromURI((URI) event.getObjectId().detail()));
+                        extractUuid((URI) event.getObjectId().detail()));
                 return getSignaleringVoorBehandelaar(event, subject, detail);
             }
             case ZAAK_OP_NAAM -> {

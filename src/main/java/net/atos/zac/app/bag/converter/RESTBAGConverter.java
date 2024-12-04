@@ -5,6 +5,8 @@
 
 package net.atos.zac.app.bag.converter;
 
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -32,7 +34,6 @@ import net.atos.zac.app.bag.model.RESTPand;
 import net.atos.zac.app.bag.model.RESTWoonplaats;
 import net.atos.zac.app.zaak.model.RestCoordinates;
 import net.atos.zac.app.zaak.model.RestGeometry;
-import net.atos.zac.util.UriUtil;
 
 public class RESTBAGConverter {
 
@@ -77,7 +78,7 @@ public class RESTBAGConverter {
         final RESTBAGObjectGegevens restZaakobject = new RESTBAGObjectGegevens();
         restZaakobject.zaakobject = convertToRESTBAGObject(zaakobject);
         restZaakobject.uuid = zaakobject.getUuid();
-        restZaakobject.zaakUuid = UriUtil.uuidFromURI(zaakobject.getZaak());
+        restZaakobject.zaakUuid = extractUuid(zaakobject.getZaak());
         return restZaakobject;
     }
 

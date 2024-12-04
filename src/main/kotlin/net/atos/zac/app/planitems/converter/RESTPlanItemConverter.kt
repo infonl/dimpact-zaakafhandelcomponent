@@ -5,6 +5,7 @@
 package net.atos.zac.app.planitems.converter
 
 import jakarta.inject.Inject
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.FormulierDefinitie
@@ -13,7 +14,6 @@ import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.app.planitems.model.PlanItemType
 import net.atos.zac.app.planitems.model.RESTPlanItem
 import net.atos.zac.app.planitems.model.UserEventListenerActie
-import net.atos.zac.util.UriUtil
 import org.flowable.cmmn.api.runtime.PlanItemDefinitionType
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.time.LocalDate
@@ -22,9 +22,8 @@ import java.util.UUID
 class RESTPlanItemConverter @Inject constructor(
     val zaakafhandelParameterService: ZaakafhandelParameterService
 ) {
-
     fun convertPlanItems(planItems: List<PlanItemInstance>, zaak: Zaak): List<RESTPlanItem> =
-        UriUtil.uuidFromURI(zaak.zaaktype).let { zaaktypeUUID ->
+        zaak.zaaktype.extractUuid().let { zaaktypeUUID ->
             zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID).let { zaakafhandelParameters ->
                 planItems.map { convertPlanItem(it, zaak.uuid, zaakafhandelParameters) }.toList()
             }

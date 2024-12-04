@@ -17,6 +17,7 @@ import net.atos.client.zgw.drc.model.generated.OndertekeningRequest
 import net.atos.client.zgw.drc.model.generated.SoortEnum
 import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.shared.ZGWApiService
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.authentication.LoggedInUser
@@ -29,7 +30,6 @@ import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
-import net.atos.zac.util.UriUtil.uuidFromURI
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate
@@ -88,7 +88,7 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
 
             mutableListOf<UUID>().apply {
                 addAll(readTaskDocuments(task))
-                add(uuidFromURI(zaakInformatieobject.informatieobject))
+                add(zaakInformatieobject.informatieobject.extractUuid())
             }.let {
                 taakVariabelenService.setTaakdocumenten(task, it)
             }

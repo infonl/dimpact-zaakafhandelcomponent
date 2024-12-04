@@ -4,7 +4,7 @@
  */
 package net.atos.zac.app.klant.model.klant
 
-import net.atos.client.zgw.shared.util.URIUtil
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.client.zgw.ztc.model.generated.RolType
 import nl.lifely.zac.util.AllOpen
@@ -22,7 +22,7 @@ data class RestRoltype(
 fun List<RolType>.toRestRoltypes(): List<RestRoltype> = this.map { it.toRestRoltype() }
 
 fun RolType.toRestRoltype() = RestRoltype(
-    uuid = URIUtil.parseUUIDFromResourceURI(this.url),
+    uuid = this.url.extractUuid(),
     naam = this.omschrijving,
     omschrijvingGeneriekEnum = this.omschrijvingGeneriek
 )

@@ -12,7 +12,6 @@ import net.atos.client.brp.model.generated.VerblijfadresBinnenland
 import net.atos.client.kvk.KvkClientService
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem
 import net.atos.client.or.`object`.ObjectsClientService
-import net.atos.client.or.shared.util.URIUtil
 import net.atos.client.smartdocuments.model.document.AanvragerData
 import net.atos.client.smartdocuments.model.document.Data
 import net.atos.client.smartdocuments.model.document.File
@@ -24,6 +23,7 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreate
 import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.ZGWApiService
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Objecttype
@@ -42,7 +42,6 @@ import net.atos.zac.identity.model.getFullName
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.util.StringUtil
-import net.atos.zac.util.UriUtil.uuidFromURI
 import nl.lifely.zac.util.NoArgConstructor
 import nl.lifely.zac.util.decodedBase64StringLength
 import java.net.URI
@@ -190,7 +189,7 @@ class DocumentCreationDataConverter @Inject constructor(
             .singleOrNull()
 
     private fun convertToStartformulierData(zaakobject: Zaakobject) =
-        objectsClientService.readObject(URIUtil.getUUID(zaakobject.getObject())).let { productAaanvraagObject ->
+        objectsClientService.readObject(zaakobject.getObject().extractUuid()).let { productAaanvraagObject ->
             StartformulierData(
                 productAanvraagtype = productaanvraagService.getProductaanvraag(productAaanvraagObject).type,
                 data = productaanvraagService.getAanvraaggegevens(productAaanvraagObject)
@@ -226,7 +225,7 @@ class DocumentCreationDataConverter @Inject constructor(
         status = StatusEnum.IN_BEWERKING
         vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
         informatieobjecttype = smartDocumentsTemplatesService.getInformationObjectTypeUUID(
-            zaakafhandelParametersUUID = uuidFromURI(zaak.zaaktype),
+            zaakafhandelParametersUUID = zaak.zaaktype.extractUuid(),
             templateGroupId = smartDocumentsTemplateGroupId,
             templateId = smartDocumentsTemplateId
         ).let {

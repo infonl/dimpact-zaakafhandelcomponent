@@ -10,7 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.zgw.shared.util.URIUtil
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createResultaatType
 import net.atos.client.zgw.ztc.model.createZaakType
@@ -61,7 +61,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                 with(restZaakafhandelParameters) {
                     id shouldBe zaakafhandelParameters.id
                     with(zaaktype) {
-                        uuid shouldBe URIUtil.parseUUIDFromResourceURI(zaakType.url)
+                        uuid shouldBe zaakType.url.extractUuid()
                         identificatie shouldBe zaakType.identificatie
                         doel shouldBe zaakType.doel
                         omschrijving shouldBe zaakType.omschrijving

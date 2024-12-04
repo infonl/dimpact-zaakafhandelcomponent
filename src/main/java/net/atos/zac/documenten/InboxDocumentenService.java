@@ -5,6 +5,8 @@
 
 package net.atos.zac.documenten;
 
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
+
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +34,6 @@ import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.zac.documenten.model.InboxDocument;
 import net.atos.zac.documenten.model.InboxDocumentListParameters;
 import net.atos.zac.shared.model.SorteerRichting;
-import net.atos.zac.util.UriUtil;
 import net.atos.zac.zoeken.model.DatumRange;
 
 @ApplicationScoped
@@ -103,7 +104,7 @@ public class InboxDocumentenService {
     public void delete(final UUID zaakinformatieobjectUUID) {
         final ZaakInformatieobject zaakInformatieobject = zrcClientService.readZaakinformatieobject(
                 zaakinformatieobjectUUID);
-        final UUID enkelvoudiginformatieobjectUUID = UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject());
+        final UUID enkelvoudiginformatieobjectUUID = extractUuid(zaakInformatieobject.getInformatieobject());
         find(enkelvoudiginformatieobjectUUID).ifPresent(entityManager::remove);
     }
 

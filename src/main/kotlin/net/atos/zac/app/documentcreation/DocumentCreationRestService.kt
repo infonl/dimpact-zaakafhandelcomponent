@@ -18,6 +18,7 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
@@ -30,7 +31,6 @@ import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
-import net.atos.zac.util.UriUtil.uuidFromURI
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
@@ -74,7 +74,7 @@ class DocumentCreationRestService @Inject constructor(
                     ?: throw TaskNotFoundException("No open task found with task id: '$it'")
                 assertPolicy(policyService.readTaakRechten(task).creeerenDocument)
             }
-            uuidFromURI(it.zaaktype).let {
+            it.zaaktype.extractUuid().let {
                 if (!zaakafhandelParameterService.isSmartDocumentsEnabled(it)) {
                     throw SmartDocumentsDisabledException("SmartDocuments is disabled")
                 }
