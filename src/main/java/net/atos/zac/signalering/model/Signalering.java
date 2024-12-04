@@ -5,6 +5,7 @@
 
 package net.atos.zac.signalering.model;
 
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 import static net.atos.zac.signalering.model.SignaleringSubject.DOCUMENT;
 import static net.atos.zac.signalering.model.SignaleringSubject.TAAK;
 import static net.atos.zac.signalering.model.SignaleringSubject.ZAAK;
@@ -35,7 +36,6 @@ import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.zac.identity.model.Group;
 import net.atos.zac.identity.model.User;
-import net.atos.zac.util.UriUtil;
 
 /**
  * Construction is easiest with the factory method in SignaleringService.
@@ -129,7 +129,7 @@ public class Signalering {
 
     public void setSubject(final EnkelvoudigInformatieObject subject) {
         validSubjecttype(DOCUMENT);
-        this.subject = UriUtil.uuidFromURI(subject.getUrl()).toString();
+        this.subject = extractUuid(subject.getUrl()).toString();
     }
 
     private void validSubjecttype(final SignaleringSubject subjecttype) {
@@ -148,7 +148,7 @@ public class Signalering {
     }
 
     public void setDetailFromZaakInformatieobject(final ZaakInformatieobject zaakInformatieobject) {
-        this.detail = UriUtil.uuidFromURI(zaakInformatieobject.getInformatieobject()).toString();
+        this.detail = extractUuid(zaakInformatieobject.getInformatieobject()).toString();
     }
 
     public ZonedDateTime getTijdstip() {

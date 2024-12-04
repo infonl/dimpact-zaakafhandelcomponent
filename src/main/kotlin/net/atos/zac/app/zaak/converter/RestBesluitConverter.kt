@@ -10,6 +10,7 @@ import net.atos.client.zgw.brc.model.generated.Besluit
 import net.atos.client.zgw.brc.model.generated.VervalredenEnum
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
@@ -17,7 +18,6 @@ import net.atos.zac.app.zaak.model.RestBesluit
 import net.atos.zac.app.zaak.model.RestBesluitVastleggenGegevens
 import net.atos.zac.app.zaak.model.toRestBesluitType
 import net.atos.zac.configuratie.ConfiguratieService
-import net.atos.zac.util.UriUtil
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate
 
@@ -29,7 +29,7 @@ class RestBesluitConverter @Inject constructor(
     private val ztcClientService: ZtcClientService
 ) {
     fun convertToRestBesluit(besluit: Besluit) = RestBesluit(
-        uuid = UriUtil.uuidFromURI(besluit.url),
+        uuid = besluit.url.extractUuid(),
         besluittype = ztcClientService.readBesluittype(besluit.besluittype).toRestBesluitType(),
         datum = besluit.datum,
         identificatie = besluit.identificatie,

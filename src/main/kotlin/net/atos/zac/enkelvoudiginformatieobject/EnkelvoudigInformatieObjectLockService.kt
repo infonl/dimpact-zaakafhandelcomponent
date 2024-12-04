@@ -12,10 +12,10 @@ import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.client.zgw.drc.DrcClientService
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
-import net.atos.zac.util.UriUtil
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.util.UUID
@@ -65,7 +65,7 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
 
     fun hasLockedInformatieobjecten(zaak: Zaak): Boolean {
         val informationObjectUUIDs = zrcClientService.listZaakinformatieobjecten(zaak)
-            .map { UriUtil.uuidFromURI(it.informatieobject) }
+            .map { it.informatieobject.extractUuid() }
             .toList()
         if (informationObjectUUIDs.isEmpty()) {
             return false

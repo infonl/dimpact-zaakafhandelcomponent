@@ -23,7 +23,7 @@ import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.model.Archiefnominatie
-import net.atos.client.zgw.shared.util.URIUtil
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Medewerker
@@ -179,7 +179,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         val productaanvraagDimpact = createProductaanvraagDimpact()
         val restZaak = createRestZaak()
         val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
-        val zaakTypeUUID = URIUtil.parseUUIDFromResourceURI(zaakType.url)
+        val zaakTypeUUID = zaakType.url.extractUuid()
         val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
             zaak = createRestZaak(
                 restZaakType = RestZaaktype(

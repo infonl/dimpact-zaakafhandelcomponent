@@ -6,6 +6,7 @@ package net.atos.zac.zoeken.converter
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.shared.ZGWApiService
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
@@ -16,7 +17,6 @@ import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
 import net.atos.zac.identity.model.getFullName
-import net.atos.zac.util.UriUtil.uuidFromURI
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
 import net.atos.zac.zoeken.model.ZaakIndicatie
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
@@ -86,7 +86,7 @@ class ZaakZoekObjectConverter @Inject constructor(
         ztcClientService.readZaaktype(zaak.zaaktype).let {
             zaakZoekObject.zaaktypeIdentificatie = it.identificatie
             zaakZoekObject.zaaktypeOmschrijving = it.omschrijving
-            zaakZoekObject.zaaktypeUuid = uuidFromURI(it.url).toString()
+            zaakZoekObject.zaaktypeUuid = it.url.extractUuid().toString()
         }
         zaak.status?.let {
             val status = zrcClientService.readStatus(it)

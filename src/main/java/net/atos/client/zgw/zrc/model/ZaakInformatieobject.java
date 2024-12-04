@@ -6,7 +6,7 @@
 package net.atos.client.zgw.zrc.model;
 
 import static net.atos.client.zgw.shared.util.DateTimeUtil.DATE_TIME_FORMAT_WITH_MILLISECONDS;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 
 import java.net.URI;
 import java.time.ZonedDateTime;
@@ -148,7 +148,7 @@ public class ZaakInformatieobject {
 
     @JsonbTransient
     public UUID getZaakUUID() {
-        return uuidFromURI(zaak);
+        return extractUuid(zaak);
     }
 
     @Override

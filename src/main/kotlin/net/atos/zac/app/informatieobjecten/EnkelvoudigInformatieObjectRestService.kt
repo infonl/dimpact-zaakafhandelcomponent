@@ -28,7 +28,7 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLo
 import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.shared.util.URIUtil
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
@@ -57,7 +57,6 @@ import net.atos.zac.history.model.HistoryLine
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.util.MediaTypes
-import net.atos.zac.util.UriUtil
 import net.atos.zac.webdav.WebdavHelper
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.lifely.zac.util.AllOpen
@@ -149,7 +148,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             }
             zoekParameters.besluittypeUUID?.let { besluittypeUuid ->
                 val besluittype = ztcClientService.readBesluittype(besluittypeUuid)
-                val compareList = besluittype.informatieobjecttypen.map { UriUtil.uuidFromURI(it) }.toList()
+                val compareList = besluittype.informatieobjecttypen.map { it.extractUuid() }.toList()
                 enkelvoudigInformatieobjectenVoorZaak = enkelvoudigInformatieobjectenVoorZaak.filter {
                     compareList.contains(it.informatieobjectTypeUUID)
                 }.toMutableList()
@@ -186,7 +185,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         }
         informatieobjecten.forEach {
             enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
-                URIUtil.parseUUIDFromResourceURI(it.url),
+                it.url.extractUuid(),
                 gegevens.verzenddatum,
                 gegevens.toelichting
             )
@@ -424,7 +423,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         enkelvoudigInformatieObjectWithLockRequest: EnkelvoudigInformatieObjectWithLockRequest
     ): RestEnkelvoudigInformatieobject =
         enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-            URIUtil.parseUUIDFromResourceURI(enkelvoudigInformatieObject.url),
+            enkelvoudigInformatieObject.url.extractUuid(),
             enkelvoudigInformatieObjectWithLockRequest,
             enkelvoudigInformatieObjectVersieGegevens.toelichting
         ).let(restInformatieobjectConverter::convertToREST)
@@ -530,7 +529,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 pdf.bestandsnaam = StringUtils.substringBeforeLast(document.bestandsnaam, ".") + ".pdf"
                 pdf.bestandsomvang = inhoud.size
                 enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                    URIUtil.parseUUIDFromResourceURI(document.url),
+                    document.url.extractUuid(),
                     pdf,
                     TOELICHTING_PDF
                 )

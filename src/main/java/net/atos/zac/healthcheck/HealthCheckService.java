@@ -5,6 +5,7 @@
 package net.atos.zac.healthcheck;
 
 import static java.nio.file.Files.readAllLines;
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 import static net.atos.client.zgw.ztc.model.extensions.InformatieObjectTypeExtensionsKt.isNuGeldig;
 import static net.atos.zac.admin.model.ReferenceTable.Systeem.COMMUNICATIEKANAAL;
 import static net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDateTime;
@@ -23,7 +24,6 @@ import jakarta.inject.Singleton;
 import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import net.atos.client.zgw.shared.util.URIUtil;
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.Afleidingswijze;
 import net.atos.client.zgw.ztc.model.generated.*;
@@ -85,7 +85,7 @@ public class HealthCheckService {
         ztcClientService.resetCacheTimeToNow();
         final ZaakType zaaktype = ztcClientService.readZaaktype(zaaktypeUrl);
         final ZaakafhandelParameters zaakafhandelParameters = zaakafhandelParameterBeheerService.readZaakafhandelParameters(
-                URIUtil.parseUUIDFromResourceURI(zaaktype.getUrl())
+                extractUuid(zaaktype.getUrl())
         );
         final ZaaktypeInrichtingscheck zaaktypeInrichtingscheck = new ZaaktypeInrichtingscheck(zaaktype);
         zaaktypeInrichtingscheck.setZaakafhandelParametersValide(zaakafhandelParameters.isValide());

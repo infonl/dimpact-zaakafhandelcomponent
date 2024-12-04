@@ -12,6 +12,7 @@ import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.ORObject
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.ZGWApiService
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.NatuurlijkPersoon
@@ -47,7 +48,6 @@ import net.atos.zac.productaanvraag.util.IndicatieMachtigingEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.convertToZgwPoint
 import net.atos.zac.util.JsonbUtil
-import net.atos.zac.util.UriUtil.uuidFromURI
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.net.URI
@@ -434,14 +434,14 @@ class ProductaanvraagService @Inject constructor(
                 .let { inboxProductaanvraag.initiatorID = it.inpBsn }
         }
         productaanvraag.pdf?.let { pdfUri ->
-            uuidFromURI(pdfUri).let {
+            pdfUri.extractUuid().let {
                 inboxProductaanvraag.aanvraagdocumentUUID = it
                 deleteInboxDocument(it)
             }
         }
         productaanvraag.bijlagen?.let { bijlagen ->
             inboxProductaanvraag.aantalBijlagen = bijlagen.size
-            bijlagen.forEach { deleteInboxDocument(uuidFromURI(it)) }
+            bijlagen.forEach { deleteInboxDocument(it.extractUuid()) }
         }
 
         inboxProductaanvraagService.create(inboxProductaanvraag)

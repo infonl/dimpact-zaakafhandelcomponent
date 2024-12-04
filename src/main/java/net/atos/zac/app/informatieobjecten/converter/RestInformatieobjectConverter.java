@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
-import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 import static net.atos.zac.app.configuratie.model.RestTaalKt.toRestTaal;
 import static net.atos.zac.app.identity.model.RestUserKt.toRestUser;
 import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
@@ -51,7 +51,6 @@ import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjec
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.policy.output.DocumentRechten;
-import net.atos.zac.util.UriUtil;
 
 public class RestInformatieobjectConverter {
     private static final Logger LOG = Logger.getLogger(RestInformatieobjectConverter.class.getName());
@@ -119,7 +118,7 @@ public class RestInformatieobjectConverter {
             final EnkelvoudigInformatieObject enkelvoudigInformatieObject,
             final Zaak zaak
     ) {
-        final UUID enkelvoudigInformatieObjectUUID = parseUUIDFromResourceURI(enkelvoudigInformatieObject.getUrl());
+        final UUID enkelvoudigInformatieObjectUUID = extractUuid(enkelvoudigInformatieObject.getUrl());
         final EnkelvoudigInformatieObjectLock lock = enkelvoudigInformatieObject.getLocked() ?
                 enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID) : null;
         final DocumentRechten rechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak);
@@ -190,7 +189,7 @@ public class RestInformatieobjectConverter {
                 enkelvoudigInformatieObject.getBestandsomvang().longValue() : 0;
         restEnkelvoudigInformatieobject.informatieobjectTypeOmschrijving = ztcClientService.readInformatieobjecttype(
                 enkelvoudigInformatieObject.getInformatieobjecttype()).getOmschrijving();
-        restEnkelvoudigInformatieobject.informatieobjectTypeUUID = parseUUIDFromResourceURI(enkelvoudigInformatieObject
+        restEnkelvoudigInformatieobject.informatieobjectTypeUUID = extractUuid(enkelvoudigInformatieObject
                 .getInformatieobjecttype());
     }
 
@@ -299,7 +298,7 @@ public class RestInformatieobjectConverter {
     ) {
         final RestEnkelvoudigInformatieObjectVersieGegevens restEnkelvoudigInformatieObjectVersieGegevens = new RestEnkelvoudigInformatieObjectVersieGegevens();
 
-        restEnkelvoudigInformatieObjectVersieGegevens.uuid = UriUtil.uuidFromURI(informatieobject.getUrl());
+        restEnkelvoudigInformatieObjectVersieGegevens.uuid = extractUuid(informatieobject.getUrl());
 
         if (informatieobject.getStatus() != null) {
             restEnkelvoudigInformatieObjectVersieGegevens.status = informatieobject.getStatus();
@@ -320,7 +319,7 @@ public class RestInformatieobjectConverter {
             restEnkelvoudigInformatieObjectVersieGegevens.taal = toRestTaal(taal);
         }
         restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam = informatieobject.getInhoud().toString();
-        restEnkelvoudigInformatieObjectVersieGegevens.informatieobjectTypeUUID = UriUtil.uuidFromURI(informatieobject
+        restEnkelvoudigInformatieObjectVersieGegevens.informatieobjectTypeUUID = extractUuid(informatieobject
                 .getInformatieobjecttype());
 
         return restEnkelvoudigInformatieObjectVersieGegevens;
@@ -419,7 +418,7 @@ public class RestInformatieobjectConverter {
     ) {
         final EnkelvoudigInformatieObject enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
                 zaakInformatieObject.getInformatieobject());
-        final UUID enkelvoudigInformatieObjectUUID = parseUUIDFromResourceURI(enkelvoudigInformatieObject.getUrl());
+        final UUID enkelvoudigInformatieObjectUUID = extractUuid(enkelvoudigInformatieObject.getUrl());
         final EnkelvoudigInformatieObjectLock lock = enkelvoudigInformatieObject.getLocked() ?
                 enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID) : null;
         final DocumentRechten rechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak);

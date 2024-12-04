@@ -5,7 +5,7 @@
 package net.atos.zac.zoeken.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -46,7 +46,7 @@ class TaakZoekObjectConverter @Inject constructor(
             setStatus(getTaakStatus(taskInfo))
             zaaktypeIdentificatie = zaaktype.identificatie
             zaaktypeOmschrijving = zaaktype.omschrijving
-            zaaktypeUuid = parseUUIDFromResourceURI(zaaktype.url).toString()
+            zaaktypeUuid = zaaktype.url.extractUuid().toString()
             this.zaakUUID = zaakUUID.toString()
             zaakIdentificatie = readZaakIdentificatie(taskInfo)
             zaakOmschrijving = zaak.omschrijving

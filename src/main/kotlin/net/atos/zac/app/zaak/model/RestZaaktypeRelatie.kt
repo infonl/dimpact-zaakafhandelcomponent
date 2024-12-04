@@ -4,8 +4,8 @@
  */
 package net.atos.zac.app.zaak.model
 
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.ztc.model.generated.ZaakTypenRelatie
-import net.atos.zac.util.UriUtil
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.net.URI
@@ -21,12 +21,12 @@ data class RestZaaktypeRelatie(
 
 fun RelatieType.toRestZaaktypeRelatie(zaaktypUri: URI) =
     RestZaaktypeRelatie(
-        zaaktypeUuid = UriUtil.uuidFromURI(zaaktypUri),
+        zaaktypeUuid = zaaktypUri.extractUuid(),
         relatieType = this
     )
 
 fun ZaakTypenRelatie.toRestZaaktypeRelatie() =
     RestZaaktypeRelatie(
-        zaaktypeUuid = UriUtil.uuidFromURI(this.zaaktype),
+        zaaktypeUuid = this.zaaktype.extractUuid(),
         relatieType = RelatieType.valueOf(this.aardRelatie.name)
     )

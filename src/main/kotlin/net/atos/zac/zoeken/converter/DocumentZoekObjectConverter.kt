@@ -8,7 +8,7 @@ import jakarta.inject.Inject
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.ztc.ZtcClientService
@@ -46,7 +46,7 @@ class DocumentZoekObjectConverter @Inject constructor(
         val zaak = zrcClientService.readZaak(gekoppeldeZaakInformatieobject.zaakUUID)
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val informatieobjecttype = ztcClientService.readInformatieobjecttype(informatieobject.informatieobjecttype)
-        val informatieobjectUUID = parseUUIDFromResourceURI(informatieobject.url)
+        val informatieobjectUUID = informatieobject.url.extractUuid()
         return DocumentZoekObject(
             id = informatieobjectUUID.toString(),
             type = ZoekObjectType.DOCUMENT.name
@@ -55,7 +55,7 @@ class DocumentZoekObjectConverter @Inject constructor(
             titel = informatieobject.titel
             beschrijving = informatieobject.beschrijving
             zaaktypeOmschrijving = zaaktype.omschrijving
-            zaaktypeUuid = parseUUIDFromResourceURI(zaaktype.url).toString()
+            zaaktypeUuid = zaaktype.url.extractUuid().toString()
             zaaktypeIdentificatie = zaaktype.identificatie
             zaakIdentificatie = zaak.identificatie
             zaakUuid = zaak.uuid.toString()
