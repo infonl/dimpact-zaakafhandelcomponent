@@ -58,7 +58,8 @@ jobs:
               - type: section
                 text:
                   type: mrkdwn
-                  text: ```${{ env.formatted_branches }}```
+                  text: |
+                    ```${{ env.formatted_branches }}```
               - type: context
                 elements:
                   - type: mrkdwn
