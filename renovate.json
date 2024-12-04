@@ -7,12 +7,6 @@
     "docker:pinDigests",
     "docker:enableMajor"
   ],
-  "enabledManagers": [
-    "docker-compose",
-    "maven-wrapper",
-    "gradle-wrapper",
-    "npm"
-  ],
   "packageRules": [
     {
       "matchDatasources": [
@@ -98,63 +92,11 @@
         "npm"
       ],
       "schedule": [
-        {
-          "interval": "daily",
-          "time": "04:00",
-          "timezone": "Europe/Amsterdam"
-        }
+        "daily at 04:00"
       ],
       "reviewers": [
         "infonl/dimpact"
       ]
-    },
-    {
-      "groupName": "angular",
-      "matchPackagePatterns": [
-        "^@angular/", "^@angular-eslint/"
-      ],
-      "matchUpdateTypes": [
-        "minor", "patch"
-      ]
-    },
-    {
-      "groupName": "eslint",
-      "matchPackagePatterns": [
-        "^@typescript-eslint/", "^eslint$"
-      ],
-      "matchUpdateTypes": [
-        "major", "minor", "patch"
-      ]
-    },
-    {
-      "matchPackageNames": [
-        "@angular/*"
-      ],
-      "matchUpdateTypes": [
-        "major"
-      ],
-      "enabled": false,
-      "description": "Ignore major Angular updates since they require manual steps"
-    },
-    {
-      "matchPackageNames": [
-        "@types/node"
-      ],
-      "matchUpdateTypes": [
-        "major"
-      ],
-      "enabled": false,
-      "description": "Ignore major Node.js updates. We want to use LTS version"
-    },
-    {
-      "matchPackageNames": [
-        "bootstrap"
-      ],
-      "matchUpdateTypes": [
-        "major"
-      ],
-      "enabled": false,
-      "description": "Ignore major Bootstrap updates. Version 5 breaks our BPMN functionality"
     }
   ]
 }
