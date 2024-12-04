@@ -5,10 +5,10 @@
 
 package net.atos.zac.websocket.event;
 
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 import static net.atos.zac.event.Opcode.DELETED;
 import static net.atos.zac.event.Opcode.SKIPPED;
 import static net.atos.zac.event.Opcode.UPDATED;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
 
 import java.net.URI;
 import java.util.EnumSet;
@@ -162,7 +162,7 @@ public enum ScreenEventType {
             final URI url,
             final URI detail
     ) {
-        return instance(opcode, type, uuidFromURI(url), detail != null ? uuidFromURI(detail) : null);
+        return instance(opcode, type, extractUuid(url), detail != null ? extractUuid(detail) : null);
     }
 
     // These methods determine what is used as an id, so that it is the same everywhere

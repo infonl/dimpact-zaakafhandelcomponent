@@ -7,7 +7,7 @@ package net.atos.zac.formulieren;
 import static jakarta.json.JsonValue.ValueType.STRING;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static net.atos.zac.util.UriUtil.uuidFromURI;
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 import static net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate;
 import static org.apache.commons.lang3.StringUtils.*;
 
@@ -259,7 +259,7 @@ public class FormulierRuntimeService {
                     .map(UUID::fromString)
                     .map(drcClientService::readEnkelvoudigInformatieobject)
                     .forEach(enkelvoudigInformatieObject -> enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
-                            uuidFromURI(enkelvoudigInformatieObject.getUrl()),
+                            extractUuid(enkelvoudigInformatieObject.getUrl()),
                             formulierData.documentenVerzendenDatum,
                             formulierData.toelichting));
         }
@@ -272,7 +272,7 @@ public class FormulierRuntimeService {
                     .map(drcClientService::readEnkelvoudigInformatieobject)
                     .filter(enkelvoudigInformatieobject -> enkelvoudigInformatieobject.getOndertekening() == null)
                     .forEach(enkelvoudigInformatieobject -> enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
-                            uuidFromURI(enkelvoudigInformatieobject.getUrl())));
+                            extractUuid(enkelvoudigInformatieobject.getUrl())));
         }
     }
 }

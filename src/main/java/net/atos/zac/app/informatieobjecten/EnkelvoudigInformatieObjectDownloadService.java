@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.informatieobjecten;
 
-import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -78,7 +78,7 @@ public class EnkelvoudigInformatieObjectDownloadService {
         final ZipEntry zipEntry = new ZipEntry(pad);
         try {
             zipOutputStream.putNextEntry(zipEntry);
-            zipOutputStream.write(getInformatieObjectInhoud(parseUUIDFromResourceURI(informatieobject.getUrl())));
+            zipOutputStream.write(getInformatieObjectInhoud(extractUuid(informatieobject.getUrl())));
             zipOutputStream.closeEntry();
         } catch (final IOException e) {
             throw new RuntimeException(e);

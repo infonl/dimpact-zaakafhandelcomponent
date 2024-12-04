@@ -8,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.ResultaatType
 import net.atos.client.zgw.ztc.model.generated.ZaakType
@@ -20,7 +21,6 @@ import net.atos.zac.admin.model.ZaakafhandelParameters.PRODUCTAANVRAAGTYYPE
 import net.atos.zac.admin.model.ZaakafhandelParameters.ZAAKTYPE_OMSCHRIJVING
 import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.admin.model.ZaakbeeindigReden
-import net.atos.zac.util.UriUtil
 import net.atos.zac.util.ValidationUtil
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -136,7 +136,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
      */
     fun createNewZaakafhandelParametersOnZaakTypeChange(zaaktypeUri: URI) {
         // if we already have a zaakafhandelparameters for this zaaktype UUID, so do not attempt to create a new one
-        if (listZaakafhandelParametersForZaaktypeUuid(UriUtil.uuidFromURI(zaaktypeUri)).isNotEmpty()) return
+        if (listZaakafhandelParametersForZaaktypeUuid(zaaktypeUri.extractUuid()).isNotEmpty()) return
 
         ztcClientService.readZaaktype(zaaktypeUri).takeIf { !it.concept }?.let { zaaktype ->
             zaakafhandelParameterService.clearListCache()
@@ -145,7 +145,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
                 zaaktype.omschrijving
             )
             val newZaakafhandelParameters = ZaakafhandelParameters().apply {
-                zaakTypeUUID = UriUtil.uuidFromURI(zaaktype.url)
+                zaakTypeUUID = zaaktype.url.extractUuid()
                 zaaktypeOmschrijving = zaaktype.omschrijving
                 caseDefinitionID = currentZaakafhandelParameters.caseDefinitionID
                 groepID = currentZaakafhandelParameters.groepID
@@ -264,8 +264,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
     ): UUID? =
         ztcClientService.readResultaattype(vorigResultaattypeUUID).let { resultaattype ->
             nieuweResultaattypen
-                .firstOrNull { it.omschrijving == resultaattype.omschrijving }
-                ?.let { UriUtil.uuidFromURI(it.url) }
+                .firstOrNull { it.omschrijving == resultaattype.omschrijving }?.url?.extractUuid()
         }
 
     private fun listZaakafhandelParametersForZaaktypeUuid(zaaktypeUUID: UUID): List<ZaakafhandelParameters> {

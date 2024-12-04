@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.SoortEnum
 import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.shared.util.URIUtil
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
@@ -63,7 +63,6 @@ import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.task.TaskService
-import net.atos.zac.util.UriUtil
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexingService
@@ -340,7 +339,7 @@ class TaskRestService @Inject constructor(
                             )
                             taakdata.replace(
                                 key,
-                                UriUtil.uuidFromURI(zaakInformatieobject.informatieobject).toString()
+                                zaakInformatieobject.informatieobject.extractUuid().toString()
                             )
                         } catch (jsonProcessingException: JsonProcessingException) {
                             throw IllegalArgumentException(
@@ -377,7 +376,7 @@ class TaskRestService @Inject constructor(
                             ) && policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen
                     )
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
-                        URIUtil.parseUUIDFromResourceURI(enkelvoudigInformatieobject.url)
+                        enkelvoudigInformatieobject.url.extractUuid()
                     )
                 }
         }
@@ -422,7 +421,7 @@ class TaskRestService @Inject constructor(
     ) {
         val informatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid)
         enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
-            URIUtil.parseUUIDFromResourceURI(informatieobject.url),
+            informatieobject.url.extractUuid(),
             verzenddatum,
             toelichting
         )

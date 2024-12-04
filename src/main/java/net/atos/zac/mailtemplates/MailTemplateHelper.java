@@ -4,7 +4,7 @@
  */
 package net.atos.zac.mailtemplates;
 
-import static net.atos.client.zgw.shared.util.URIUtil.parseUUIDFromResourceURI;
+import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 import static net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie;
 import static net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving;
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.DOCUMENT_LINK;
@@ -258,7 +258,7 @@ public class MailTemplateHelper {
     private MailLink createMailLinkFromDocument(final EnkelvoudigInformatieObject document) {
         return new MailLink(
                 document.getTitel(),
-                configuratieService.informatieobjectTonenUrl(parseUUIDFromResourceURI(document.getUrl())),
+                configuratieService.informatieobjectTonenUrl(extractUuid(document.getUrl())),
                 "het document",
                 null
         );
