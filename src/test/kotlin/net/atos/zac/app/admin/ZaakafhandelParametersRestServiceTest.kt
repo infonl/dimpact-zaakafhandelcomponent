@@ -27,6 +27,8 @@ import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
+import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
+import java.util.UUID
 
 class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
@@ -92,9 +94,10 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         } returns updatedRestZaakafhandelParameters
 
         When("the zaakafhandelparameters are updated with a different domein") {
-            val returnedRestZaakafhandelParameters = zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
-                restZaakafhandelParameters
-            )
+            val returnedRestZaakafhandelParameters =
+                zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
+                    restZaakafhandelParameters
+                )
 
             Then(
                 """
@@ -137,7 +140,9 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
             zaakafhandelParametersConverter.toZaakafhandelParameters(restZaakafhandelParameters)
         } returns zaakafhandelParameters
         every {
-            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(productaanvraagtype)
+            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                productaanvraagtype
+            )
         } returns
             emptyList()
         every {
@@ -148,9 +153,10 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         } returns updatedRestZaakafhandelParameters
 
         When("the zaakafhandelparameters are created") {
-            val returnedRestZaakafhandelParameters = zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
-                restZaakafhandelParameters
-            )
+            val returnedRestZaakafhandelParameters =
+                zaakafhandelParametersRestService.createOrUpdateZaakafhandelparameters(
+                    restZaakafhandelParameters
+                )
 
             Then(
                 """
@@ -174,7 +180,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         val restZaakafhandelParameters = createRestZaakAfhandelParameters(
             id = null,
             productaanvraagtype = productaanvraagtype,
-            restZaaktypeOverzicht = createRESTZaaktypeOverzicht(omschrijving = "dummyZaaktypeOmschrijving2")
+            restZaaktypeOverzicht = createRestZaaktypeOverzicht(omschrijving = "dummyZaaktypeOmschrijving2")
         )
         val zaakafhandelParameters = createZaakafhandelParameters(
             id = null
@@ -186,7 +192,9 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         )
         every { policyService.readOverigeRechten().beheren } returns true
         every {
-            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(productaanvraagtype)
+            zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                productaanvraagtype
+            )
         } returns
             listOf(activeZaakafhandelParametersForThisProductaanvraagtype)
 
@@ -206,6 +214,24 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
                 verify(exactly = 0) {
                     zaakafhandelParameterBeheerService.createZaakafhandelParameters(zaakafhandelParameters)
                 }
+            }
+        }
+    }
+
+    Given("SmartDocuments is disabled and empty set of templates is returned") {
+        every { policyService.readOverigeRechten().beheren } returns true
+        every { smartDocumentsTemplatesService.listTemplates() } returns emptySet()
+
+        When("storing templates mapping") {
+            val exception = shouldThrow<SmartDocumentsConfigurationException> {
+                zaakafhandelParametersRestService.storeTemplatesMapping(
+                    UUID.randomUUID(),
+                    emptySet()
+                )
+            }
+
+            Then("exception is thrown") {
+                exception.message shouldBe "Validation failed. No SmartDocuments templates available"
             }
         }
     }

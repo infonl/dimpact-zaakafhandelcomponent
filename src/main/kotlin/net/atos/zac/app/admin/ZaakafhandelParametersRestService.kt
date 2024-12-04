@@ -99,9 +99,9 @@ class ZaakafhandelParametersRestService @Inject constructor(
     }
 
     /**
-     * Retrieve all ZAAKAFHANDELPARAMETERS for overview
+     * Retrieve all zaakafhandelparameters for all available zaaktypes in the zaakregister.
      *
-     * @return LIST of ZAAKAFHANDELPARAMETERS
+     * @return list of all zaakafhandelparameters
      */
     @GET
     fun listZaakafhandelParameters(): List<RestZaakafhandelParameters> {
@@ -250,16 +250,14 @@ class ZaakafhandelParametersRestService @Inject constructor(
     @GET
     @Path("{zaakafhandelUUID}/document-templates")
     fun getTemplatesMapping(
-        @PathParam("zaakafhandelUUID") zaakafhandelUUID: UUID
-    ): Set<RestMappedSmartDocumentsTemplateGroup> {
-        assertPolicy(policyService.readOverigeRechten().beheren)
-        return smartDocumentsTemplatesService.getTemplatesMapping(zaakafhandelUUID)
-    }
+        @PathParam("zaakafhandelUUID") zaakafhandelParameterUUID: UUID
+    ): Set<RestMappedSmartDocumentsTemplateGroup> =
+        smartDocumentsTemplatesService.getTemplatesMapping(zaakafhandelParameterUUID)
 
     @POST
     @Path("{zaakafhandelUUID}/document-templates")
     fun storeTemplatesMapping(
-        @PathParam("zaakafhandelUUID") zaakafhandelUUID: UUID,
+        @PathParam("zaakafhandelUUID") zaakafhandelParameterUUID: UUID,
         restTemplateGroups: Set<RestMappedSmartDocumentsTemplateGroup>
     ) {
         assertPolicy(policyService.readOverigeRechten().beheren)
@@ -267,7 +265,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
         val smartDocumentsTemplates = smartDocumentsTemplatesService.listTemplates()
         restTemplateGroups isSubsetOf smartDocumentsTemplates
 
-        smartDocumentsTemplatesService.storeTemplatesMapping(restTemplateGroups, zaakafhandelUUID)
+        smartDocumentsTemplatesService.storeTemplatesMapping(restTemplateGroups, zaakafhandelParameterUUID)
     }
 
     private fun checkIfProductaanvraagtypeIsNotAlreadyInUse(

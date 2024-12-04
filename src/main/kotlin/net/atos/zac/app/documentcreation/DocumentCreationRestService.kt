@@ -19,13 +19,18 @@ import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.zac.app.documentcreation.rest.RestDocumentCreationAttendedData
-import net.atos.zac.app.documentcreation.rest.RestDocumentCreationAttendedResponse
+import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
+import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
+import net.atos.zac.flowable.task.FlowableTaskService
+import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
+import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
+import net.atos.zac.util.UriUtil.uuidFromURI
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
@@ -42,7 +47,9 @@ class DocumentCreationRestService @Inject constructor(
     private val policyService: PolicyService,
     private val documentCreationService: DocumentCreationService,
     private val zrcClientService: ZrcClientService,
-    private val configurationService: ConfiguratieService
+    private val configurationService: ConfiguratieService,
+    private val zaakafhandelParameterService: ZaakafhandelParameterService,
+    private val flowableTaskService: FlowableTaskService
 ) {
     companion object {
         enum class SmartDocumentsWizardResult {
@@ -62,6 +69,16 @@ class DocumentCreationRestService @Inject constructor(
     ): RestDocumentCreationAttendedResponse =
         zrcClientService.readZaak(restDocumentCreationAttendedData.zaakUuid).also {
             assertPolicy(policyService.readZaakRechten(it).creeerenDocument)
+            restDocumentCreationAttendedData.taskId?.let {
+                val task = flowableTaskService.findOpenTask(it)
+                    ?: throw TaskNotFoundException("No open task found with task id: '$it'")
+                assertPolicy(policyService.readTaakRechten(task).creeerenDocument)
+            }
+            uuidFromURI(it.zaaktype).let {
+                if (!zaakafhandelParameterService.isSmartDocumentsEnabled(it)) {
+                    throw SmartDocumentsDisabledException("SmartDocuments is disabled")
+                }
+            }
         }.let {
             DocumentCreationDataAttended(
                 zaak = it,
@@ -71,7 +88,7 @@ class DocumentCreationRestService @Inject constructor(
                 title = restDocumentCreationAttendedData.title,
                 description = restDocumentCreationAttendedData.description,
                 author = restDocumentCreationAttendedData.author,
-                creationDate = restDocumentCreationAttendedData.creationDate ?: ZonedDateTime.now()
+                creationDate = restDocumentCreationAttendedData.creationDate
             )
                 .let(documentCreationService::createDocumentAttended)
                 .let { response -> RestDocumentCreationAttendedResponse(response.redirectUrl, response.message) }

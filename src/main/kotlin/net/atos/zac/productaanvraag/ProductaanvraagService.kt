@@ -22,7 +22,7 @@ import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolVestiging
 import net.atos.client.zgw.zrc.model.Vestiging
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.zrc.model.Zaak.OMSCHRIJVING_MAX_LENGTH
+import net.atos.client.zgw.zrc.model.Zaak.TOELICHTING_MAX_LENGTH
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.client.zgw.ztc.ZtcClientService
@@ -184,12 +184,15 @@ class ProductaanvraagService @Inject constructor(
                 Betrokkene.RolOmschrijvingGeneriek.ADVISEUR -> {
                     addBetrokkene(it, OmschrijvingGeneriekEnum.ADVISEUR, zaak)
                 }
+
                 Betrokkene.RolOmschrijvingGeneriek.BELANGHEBBENDE -> {
                     addBetrokkene(it, OmschrijvingGeneriekEnum.BELANGHEBBENDE, zaak)
                 }
+
                 Betrokkene.RolOmschrijvingGeneriek.BESLISSER -> {
                     addBetrokkene(it, OmschrijvingGeneriekEnum.BESLISSER, zaak)
                 }
+
                 Betrokkene.RolOmschrijvingGeneriek.INITIATOR -> {
                     if (initiatorAdded) {
                         LOG.warning(
@@ -202,15 +205,19 @@ class ProductaanvraagService @Inject constructor(
                         initiatorAdded = true
                     }
                 }
+
                 Betrokkene.RolOmschrijvingGeneriek.KLANTCONTACTER -> {
                     addBetrokkene(it, OmschrijvingGeneriekEnum.KLANTCONTACTER, zaak)
                 }
+
                 Betrokkene.RolOmschrijvingGeneriek.MEDE_INITIATOR -> {
                     addBetrokkene(it, OmschrijvingGeneriekEnum.MEDE_INITIATOR, zaak)
                 }
+
                 Betrokkene.RolOmschrijvingGeneriek.ZAAKCOORDINATOR -> {
                     addBetrokkene(it, OmschrijvingGeneriekEnum.ZAAKCOORDINATOR, zaak)
                 }
+
                 else -> {
                     LOG.warning(
                         "Betrokkene with role '${it.rolOmschrijvingGeneriek}' is not supported in the mapping " +
@@ -222,7 +229,11 @@ class ProductaanvraagService @Inject constructor(
         }
     }
 
-    private fun addBetrokkene(betrokkene: Betrokkene, roltypeOmschrijvingGeneriek: OmschrijvingGeneriekEnum, zaak: Zaak) {
+    private fun addBetrokkene(
+        betrokkene: Betrokkene,
+        roltypeOmschrijvingGeneriek: OmschrijvingGeneriekEnum,
+        zaak: Zaak
+    ) {
         ztcClientService.findRoltypen(zaak.zaaktype, roltypeOmschrijvingGeneriek)
             .also {
                 if (it.isEmpty()) {
@@ -247,6 +258,7 @@ class ProductaanvraagService @Inject constructor(
                             zaak.url
                         )
                     }
+
                     betrokkene.vestigingsNummer != null -> {
                         addVestigingRole(
                             it,
@@ -254,6 +266,7 @@ class ProductaanvraagService @Inject constructor(
                             zaak.url
                         )
                     }
+
                     else -> {
                         LOG.warning(
                             "Betrokkene with generic roletype description `$roltypeOmschrijvingGeneriek` " +
@@ -338,20 +351,6 @@ class ProductaanvraagService @Inject constructor(
     private fun findZaaktypeByIdentificatie(zaaktypeIdentificatie: String) =
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .firstOrNull { it.identificatie == zaaktypeIdentificatie }
-
-    private fun getZaakOmschrijving(productaanvraag: ProductaanvraagDimpact): String =
-        "Aangemaakt vanuit ${productaanvraag.bron.naam} met kenmerk '${productaanvraag.bron.kenmerk}'".let {
-            return if (it.length > OMSCHRIJVING_MAX_LENGTH) {
-                // we truncate the zaak description to the maximum length allowed by the ZGW ZRC API
-                // or else it will not be accepted by the ZGW API implementation component
-                LOG.warning(
-                    "Truncating zaak description '$it' to the maximum length allowed by the ZGW ZRC API"
-                )
-                it.substring(0, OMSCHRIJVING_MAX_LENGTH)
-            } else {
-                it
-            }
-        }
 
     @Suppress("TooGenericExceptionCaught", "NestedBlockDepth")
     private fun handleProductaanvraagDimpact(productaanvraagObject: ORObject) {
@@ -488,10 +487,9 @@ class ProductaanvraagService @Inject constructor(
                 zaakgegevens.geometry?.takeIf { it.type == Geometry.Type.POINT }?.let {
                     zaakgeometrie = it.convertToZgwPoint()
                 }
-                zaakgegevens.toelichting?.let { toelichting = it }
+                zaakgegevens.omschrijving?.let { omschrijving = it }
             }
-            // if omschrijving is not set in the productaanvraag we generate a default one
-            omschrijving = productaanvraag.zaakgegevens?.omschrijving ?: getZaakOmschrijving(productaanvraag)
+            toelichting = generateZaakExplanationFromProductaanvraag(productaanvraag)
         }.let(zgwApiService::createZaak)
 
         LOG.fine("Creating zaak using the ZGW API: $createdZaak")
@@ -500,6 +498,14 @@ class ProductaanvraagService @Inject constructor(
         pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, createdZaak)
         cmmnService.startCase(createdZaak, zaaktype, zaakafhandelParameters, formulierData)
     }
+
+    private fun generateZaakExplanationFromProductaanvraag(productaanvraag: ProductaanvraagDimpact): String =
+        (
+            "Aangemaakt vanuit ${productaanvraag.bron.naam} met kenmerk '${productaanvraag.bron.kenmerk}'." +
+                (productaanvraag.zaakgegevens?.toelichting?.let { " $it" } ?: "")
+            )
+            // truncate to maximum length allowed by the ZGW APIs
+            .take(TOELICHTING_MAX_LENGTH)
 
     private fun logZaakCouldNotBeCreatedWarning(
         processType: String,

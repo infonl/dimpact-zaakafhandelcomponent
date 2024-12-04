@@ -126,7 +126,7 @@ services:
         condition: service_started
 
   redis:
-    image: redis:7.4.1@sha256:a06cea905344470eb49c972f3d030e22f28f632c1b4f43bbe4a26a4329dd6be5
+    image: redis:7.4.1@sha256:af0be38eb8e43191bae9b03fe5c928803930b6f93e2dde3a7ad1165c04b1ce22
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -260,7 +260,7 @@ services:
       - "8181:8181"
 
   openldap:
-    image: docker.io/bitnami/openldap:2.6.8@sha256:34a15789d00b5d6a576068ebb24cac5f28c4ee61bc2c166706adf66ad6fde116
+    image: docker.io/bitnami/openldap:2.6.8@sha256:ef16af5f5565168fd77b3f728b3e4dc51538f80ea4c736af2c288eb55900b5c6
     ports:
       - "1389:1389"
       - "1636:1636"
@@ -337,7 +337,7 @@ services:
         condition: service_started
 
   smartdocuments-wiremock:
-    image: docker.io/wiremock/wiremock:3.9.2@sha256:d13997cd7b52583528a766019cfe7d4e91c4d224a67bdaa6f60efbb532f32176
+    image: docker.io/wiremock/wiremock:3.10.0@sha256:052f7d05b585d5cc956ecf2f1543b1a721858ec83baf0d11b507a113e3b023ee
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
@@ -348,7 +348,7 @@ services:
     profiles: [ "itest" ]
 
   kvk-wiremock:
-    image: docker.io/wiremock/wiremock:3.9.2@sha256:d13997cd7b52583528a766019cfe7d4e91c4d224a67bdaa6f60efbb532f32176
+    image: docker.io/wiremock/wiremock:3.10.0@sha256:052f7d05b585d5cc956ecf2f1543b1a721858ec83baf0d11b507a113e3b023ee
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/kvk-wiremock/mappings:/home/wiremock/mappings
@@ -403,7 +403,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: docker.io/prom/prometheus:v3.0.0@sha256:3b9b2a15d376334da8c286d995777d3b9315aa666d2311170ada6059a517b74f
+    image: docker.io/prom/prometheus:v3.0.1@sha256:565ee86501224ebbb98fc10b332fa54440b100469924003359edf49cbce374bd
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -439,7 +439,7 @@ services:
     profiles: [ "metrics" ]
 
   greenmail:
-    image: docker.io/greenmail/standalone:2.1.1@sha256:972ec5e0a7a6713e858adb1881fd7e1bcfd5a12cc213048383921edc6462fb59
+    image: docker.io/greenmail/standalone:2.1.2@sha256:572d22796908375678119a13fabfcdc5416c9003404ab975fe824692fe02ba03
     environment:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0
@@ -492,9 +492,10 @@ services:
       - OPA_API_CLIENT_MP_REST_URL=http://opa:8181
       - OPEN_FORMS_URL=http://localhost:9999 # dummy for now
       - OPEN_NOTIFICATIONS_API_SECRET_KEY=openNotificatiesApiSecretKey
-      - SD_AUTHENTICATION=${SD_AUTHENTICATION:-dummySmartDocumentsAuthentication}
-      - SD_CLIENT_MP_REST_URL=${SD_CLIENT_MP_REST_URL:-http://smartdocuments-wiremock:8080}
-      - SD_FIXED_USER_NAME=${SD_FIXED_USER_NAME:-}
+      - SMARTDOCUMENTS_ENABLED=${SMARTDOCUMENTS_ENABLED:-false}
+      - SMARTDOCUMENTS_AUTHENTICATION=${SMARTDOCUMENTS_AUTHENTICATION:-dummySmartDocumentsAuthentication}
+      - SMARTDOCUMENTS_CLIENT_MP_REST_URL=${SMARTDOCUMENTS_CLIENT_MP_REST_URL:-http://smartdocuments-wiremock:8080}
+      - SMARTDOCUMENTS_FIXED_USER_NAME=${SMARTDOCUMENTS_FIXED_USER_NAME:-}
       - SIGNALERINGEN_DELETE_OLDER_THAN_DAYS=${SIGNALERINGEN_DELETE_OLDER_THAN_DAYS:-14}
       - SOLR_URL=http://solr:8983
       # Turn off the Open Telemetry sampler by default because it is not always needed

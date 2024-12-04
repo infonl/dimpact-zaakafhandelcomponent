@@ -23,6 +23,7 @@ import jakarta.persistence.criteria.Root
 import net.atos.client.smartdocuments.model.createsmartDocumentsTemplatesResponse
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplate
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
 import java.util.UUID
@@ -41,9 +42,10 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A list of SmartDocuments templates") {
+    Given("SmartDocuments is enabled and contains a list of templates") {
         val smartDocumentsTemplatesResponse = createsmartDocumentsTemplatesResponse()
         every { smartDocumentsService.listTemplates() } returns smartDocumentsTemplatesResponse
+        every { smartDocumentsService.isEnabled() } returns true
 
         When("a list of template is requested") {
             val restSmartDocumentsTemplateGroupSet = smartDocumentsTemplatesService.listTemplates()
@@ -107,7 +109,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         every { tuple.get(namePath) } returns null
 
         When("information object UUID is requested") {
-            val exception = shouldThrow<SmartDocumentsException> {
+            val exception = shouldThrow<SmartDocumentsConfigurationException> {
                 smartDocumentsTemplatesService.getInformationObjectTypeUUID(
                     zaakafhandelParametersUUID,
                     templateGroupId,
@@ -158,7 +160,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         every { tuple.get(stringPath) } returns null
 
         When("template group name query is started") {
-            val exception = shouldThrow<SmartDocumentsException> {
+            val exception = shouldThrow<SmartDocumentsConfigurationException> {
                 smartDocumentsTemplatesService.getTemplateGroupName(templateGroupId)
             }
 
@@ -204,12 +206,32 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         every { tuple.get(stringPath) } returns null
 
         When("template name query is started") {
-            val exception = shouldThrow<SmartDocumentsException> {
+            val exception = shouldThrow<SmartDocumentsConfigurationException> {
                 smartDocumentsTemplatesService.getTemplateName(templateId)
             }
 
             Then("exception is thrown") {
                 exception.message shouldContain "123abc"
+            }
+        }
+    }
+
+    Given("SmartDocuments is disabled") {
+        every { smartDocumentsService.isEnabled() } returns false
+
+        When("templates are listed") {
+            val templates = smartDocumentsTemplatesService.listTemplates()
+
+            Then("it returns an empty set") {
+                templates shouldBe emptySet()
+            }
+        }
+
+        When("mapping is listed") {
+            val mappings = smartDocumentsTemplatesService.getTemplatesMapping(UUID.randomUUID())
+
+            Then("it returns an empty set") {
+                mappings shouldBe emptySet()
             }
         }
     }

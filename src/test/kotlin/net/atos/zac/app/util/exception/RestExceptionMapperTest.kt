@@ -21,6 +21,8 @@ import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
 import net.atos.zac.app.exception.RestExceptionMapper
+import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
+import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import org.apache.http.HttpHost
 import org.apache.http.HttpStatus
 import org.apache.http.conn.HttpHostConnectException
@@ -38,11 +40,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
 
-            Then(
-                """
-                    it should return the generic server error code and the exception message
-                   """
-            ) {
+            Then("it should return the generic server error code and the exception message") {
                 checkResponse(response, "msg.error.server.generic", exceptionMessage)
             }
         }
@@ -54,11 +52,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
 
-            Then(
-                """
-                    it should return the ZTC server error code
-                   """
-            ) {
+            Then("it should return the ZTC server error code") {
                 checkResponse(response, "msg.error.brc.client.exception")
             }
         }
@@ -70,11 +64,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
 
-            Then(
-                """
-                    it should return the DRC server error code
-                   """
-            ) {
+            Then("it should return the DRC server error code") {
                 checkResponse(response, "msg.error.drc.client.exception")
             }
         }
@@ -86,11 +76,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
 
-            Then(
-                """
-                    it should return the ZRC server error code
-                   """
-            ) {
+            Then("it should return the ZRC server error code") {
                 checkResponse(response, "msg.error.zrc.client.exception")
             }
         }
@@ -102,11 +88,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
 
-            Then(
-                """
-                    it should return the generic server error code and the exception message
-                   """
-            ) {
+            Then("it should return the generic server error code and the exception message") {
                 checkResponse(response, "msg.error.server.generic", exceptionMessage)
             }
         }
@@ -118,11 +100,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
 
-            Then(
-                """
-                    it should return the ZTC server error code and the exception message
-                   """
-            ) {
+            Then("it should return the ZTC server error code and the exception message") {
                 checkResponse(response, "msg.error.ztc.client.exception")
             }
         }
@@ -145,11 +123,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
 
-            Then(
-                """
-                    it should return the BAG server error code and no exception message
-                   """
-            ) {
+            Then("it should return the BAG server error code and no exception message") {
                 checkResponse(response, "msg.error.bag.client.exception")
             }
         }
@@ -172,11 +146,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
 
-            Then(
-                """
-                    it should return the BRC server error code and no exception message
-                   """
-            ) {
+            Then("it should return the BRC server error code and no exception message") {
                 checkResponse(response, "msg.error.brc.client.exception")
             }
         }
@@ -199,11 +169,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
 
-            Then(
-                """
-                    it should return the Klanten server error code and no exception message
-                   """
-            ) {
+            Then("it should return the Klanten server error code and no exception message") {
                 checkResponse(response, "msg.error.klanten.client.exception")
             }
         }
@@ -226,11 +192,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
 
-            Then(
-                """
-                    it should return the Objecten server error code and no exception message
-                   """
-            ) {
+            Then("it should return the Objecten server error code and no exception message") {
                 checkResponse(response, "msg.error.objects.client.exception")
             }
         }
@@ -244,19 +206,13 @@ class RestExceptionMapperTest : BehaviorSpec({
         val exceptionMessage = "DummyProcessingException"
         val exception = ProcessingException(
             exceptionMessage,
-            UnknownHostException(
-                "Something terrible happened in the ${ZtcClientService::class.simpleName}!"
-            )
+            UnknownHostException("Something terrible happened in the ${ZtcClientService::class.simpleName}!")
         )
 
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
 
-            Then(
-                """
-                    it should return the ZTC server error code and no exception message
-                   """
-            ) {
+            Then("it should return the ZTC server error code and no exception message") {
                 checkResponse(response, "msg.error.ztc.client.exception")
             }
         }
@@ -270,29 +226,58 @@ class RestExceptionMapperTest : BehaviorSpec({
         val exceptionMessage = "DummyProcessingException"
         val exception = ProcessingException(
             exceptionMessage,
-            RuntimeException(
-                "Something terrible happened in the ${ZtcClientService::class.simpleName}!"
-            )
+            RuntimeException("Something terrible happened in the ${ZtcClientService::class.simpleName}!")
         )
 
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
 
-            Then(
-                """
-                    it should return the general server error error code with an exception message
-                   """
-            ) {
+            Then("it should return the general server error error code with an exception message") {
                 checkResponse(response, "msg.error.server.generic", exceptionMessage)
+            }
+        }
+    }
+    Given("A SmartDocumentsDisabled exception") {
+        val exception = SmartDocumentsDisabledException("disabled")
+
+        When("the exception is mapped to a response") {
+            val response = restExceptionMapper.toResponse(exception)
+
+            Then("it should return the proper error code and no exception message") {
+                checkResponse(
+                    response = response,
+                    errorMessage = "msg.error.smartdocuments.disabled",
+                    expectedStatus = HttpStatus.SC_BAD_REQUEST
+                )
+            }
+        }
+    }
+    Given("A SmartDocumentsConfiguration exception") {
+        val exception = SmartDocumentsConfigurationException("error")
+
+        When("the exception is mapped to a response") {
+            val response = restExceptionMapper.toResponse(exception)
+
+            Then("it should return the proper error code and no exception message") {
+                checkResponse(
+                    response = response,
+                    errorMessage = "msg.error.smartdocuments.not.configured",
+                    expectedStatus = HttpStatus.SC_BAD_REQUEST
+                )
             }
         }
     }
 })
 
-fun checkResponse(response: Response, errorMessage: String, exceptionMessage: String? = null): Unit =
+fun checkResponse(
+    response: Response,
+    errorMessage: String,
+    exceptionMessage: String? = null,
+    expectedStatus: Int = HttpStatus.SC_INTERNAL_SERVER_ERROR
+): Unit =
     with(response) {
         mediaType shouldBe MediaType.APPLICATION_JSON_TYPE
-        status shouldBe HttpStatus.SC_INTERNAL_SERVER_ERROR
+        status shouldBe expectedStatus
         val entityAsJson = JSONObject(readEntity(String::class.java))
         with(entityAsJson) {
             getString("message") shouldBe errorMessage

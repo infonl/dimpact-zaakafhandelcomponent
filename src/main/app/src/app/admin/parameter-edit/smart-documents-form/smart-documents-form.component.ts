@@ -5,7 +5,7 @@
 
 import { FlatTreeControl } from "@angular/cdk/tree";
 import { Component, effect, Input } from "@angular/core";
-import { FormGroup } from "@angular/forms";
+import { FormBuilder, FormGroup } from "@angular/forms";
 import {
   MatTreeFlatDataSource,
   MatTreeFlattener,
@@ -46,18 +46,21 @@ export class SmartDocumentsFormComponent {
   constructor(
     private smartDocumentsService: SmartDocumentsService,
     private informatieObjectenService: InformatieObjectenService,
+    private formBuilder: FormBuilder,
   ) {
     effect(() => this.prepareDatasource());
+
+    this.formGroup = this.formBuilder.group({});
   }
 
   private prepareDatasource() {
     const allSmartDocumentTemplateGroups: GeneratedType<"RestSmartDocumentsTemplateGroup">[] =
-      this.smartDocumentsService.addParentIdToTemplates(
+      this.smartDocumentsService.addParentIdsToMakeTemplatesUnique(
         this.allSmartDocumentTemplateGroupsQuery.data(),
       );
 
     this.currentTemplateMappings =
-      this.smartDocumentsService.addParentIdToTemplates(
+      this.smartDocumentsService.addParentIdsToMakeTemplatesUnique(
         this.currentTemplateMappingsQuery.data(),
       );
 
@@ -70,10 +73,9 @@ export class SmartDocumentsFormComponent {
       ),
     );
 
-    this.dataSource.data =
-      this.smartDocumentsService.flattenNestedGroupsToRootGroups(
-        this.newTemplateMappings,
-      );
+    this.dataSource.data = this.smartDocumentsService.flattenNestedGroups(
+      this.newTemplateMappings,
+    );
   }
 
   allSmartDocumentTemplateGroupsQuery = injectQuery(() => ({
@@ -173,7 +175,9 @@ export class SmartDocumentsFormComponent {
   public saveSmartDocumentsMapping(): Observable<never> {
     return this.smartDocumentsService.storeTemplatesMapping(
       this.zaakTypeUuid,
-      this.smartDocumentsService.getMappedTemplates(this.newTemplateMappings),
+      this.smartDocumentsService.getOnlyMappedTemplates(
+        this.newTemplateMappings,
+      ),
     );
   }
 }

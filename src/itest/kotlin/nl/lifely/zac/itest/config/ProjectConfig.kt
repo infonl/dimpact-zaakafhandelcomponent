@@ -40,6 +40,7 @@ import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
 import java.net.SocketException
+import kotlin.jvm.optionals.getOrNull
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
@@ -58,7 +59,8 @@ class ProjectConfig : AbstractProjectConfig() {
     private val dockerComposeEnvironment = mapOf(
         "KVK_API_CLIENT_MP_REST_URL" to KVK_MOCK_BASE_URI,
         "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to OFFICE_CONVERTER_BASE_URI,
-        "SD_CLIENT_MP_REST_URL" to SMART_DOCUMENTS_MOCK_BASE_URI,
+        "SMARTDOCUMENTS_ENABLED" to "true",
+        "SMARTDOCUMENTS_CLIENT_MP_REST_URL" to SMART_DOCUMENTS_MOCK_BASE_URI,
         "SMTP_SERVER" to "greenmail",
         "SMTP_PORT" to SMTP_SERVER_PORT.toString(),
         "SIGNALERINGEN_DELETE_OLDER_THAN_DAYS" to "0",
@@ -132,10 +134,10 @@ class ProjectConfig : AbstractProjectConfig() {
 
     override suspend fun afterProject() {
         // stop ZAC Docker Container gracefully to give JaCoCo a change to generate the code coverage report
-        with(dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).get()) {
+        dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).getOrNull()?.let { zacContaner ->
             logger.info { "Stopping ZAC Docker container" }
-            dockerClient
-                .stopContainerCmd(containerId)
+            zacContaner.dockerClient
+                .stopContainerCmd(zacContaner.containerId)
                 .withTimeout(30.seconds.inWholeSeconds.toInt())
                 .exec()
             logger.info { "Stopped ZAC Docker container" }

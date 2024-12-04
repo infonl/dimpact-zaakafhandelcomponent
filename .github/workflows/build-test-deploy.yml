@@ -45,6 +45,7 @@ jobs:
         with:
           paths-ignore: |-
             ^.*\.md$
+            ^helm/
 
   build:
     runs-on: ubuntu-22.04

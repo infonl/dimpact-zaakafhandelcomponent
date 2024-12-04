@@ -4,12 +4,11 @@
  */
 package net.atos.zac.app.informatieobjecten
 
+import com.google.common.util.concurrent.Striped
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import jakarta.ws.rs.WebApplicationException
-import jakarta.ws.rs.core.Response
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
@@ -27,6 +26,7 @@ import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjec
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
+import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.util.UriUtil.uuidFromURI
@@ -53,12 +53,16 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
     companion object {
         private const val VERZEND_TOELICHTING_PREFIX = "Per post"
         private const val ONDERTEKENEN_TOELICHTING = "Door ondertekenen"
+
+        private const val CONCURRENCY_LEVEL = 20
+        private val stripes = Striped.lazyWeakLock(CONCURRENCY_LEVEL)
     }
 
     fun createZaakInformatieobjectForZaak(
         zaak: Zaak,
         enkelvoudigInformatieObjectCreateLockRequest: EnkelvoudigInformatieObjectCreateLockRequest,
-        taskId: String? = null
+        taskId: String? = null,
+        skipPolicyCheck: Boolean = false,
     ) = zgwApiService.createZaakInformatieobjectForZaak(
         zaak,
         enkelvoudigInformatieObjectCreateLockRequest,
@@ -67,25 +71,29 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
         ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
     ).also {
         if (taskId != null) {
-            addZaakInformatieobjectToTaak(taskId, it)
+            addZaakInformatieobjectToTaak(taskId, it, skipPolicyCheck)
         }
     }
 
     private fun addZaakInformatieobjectToTaak(
         taskId: String,
-        zaakInformatieobject: ZaakInformatieobject
+        zaakInformatieobject: ZaakInformatieobject,
+        skipPolicyCheck: Boolean,
     ) {
-        val task = flowableTaskService.findOpenTask(taskId)
-            ?: throw WebApplicationException(
-                "No open task found with task id: '$taskId'",
-                Response.Status.CONFLICT
-            )
-        assertPolicy(policyService.readTaakRechten(task).toevoegenDocument)
+        val lock = stripes.get(taskId).also { it.lock() }
+        try {
+            val task = flowableTaskService.findOpenTask(taskId)
+                ?: throw TaskNotFoundException("No open task found with task id: '$taskId'")
+            assertPolicy(skipPolicyCheck || policyService.readTaakRechten(task).toevoegenDocument)
 
-        mutableListOf<UUID>().let {
-            it.addAll(readTaskDocuments(task))
-            it.add(uuidFromURI(zaakInformatieobject.informatieobject))
-            taakVariabelenService.setTaakdocumenten(task, it)
+            mutableListOf<UUID>().apply {
+                addAll(readTaskDocuments(task))
+                add(uuidFromURI(zaakInformatieobject.informatieobject))
+            }.let {
+                taakVariabelenService.setTaakdocumenten(task, it)
+            }
+        } finally {
+            lock.unlock()
         }
     }
 

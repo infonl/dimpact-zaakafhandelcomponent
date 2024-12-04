@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.smartdocuments
 
 import jakarta.enterprise.context.ApplicationScoped
@@ -14,6 +13,7 @@ import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.documentcreation.DocumentCreationService
+import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroupSet
@@ -41,7 +41,12 @@ class SmartDocumentsTemplatesService @Inject constructor(
     /**
      * Lists all SmartDocuments template available
      */
-    fun listTemplates() = smartDocumentsService.listTemplates().toRestSmartDocumentsTemplateGroupSet()
+    fun listTemplates() =
+        if (smartDocumentsService.isEnabled()) {
+            smartDocumentsService.listTemplates().toRestSmartDocumentsTemplateGroupSet()
+        } else {
+            emptySet()
+        }
 
     /**
      * Stores template mapping for zaakafhandelparameters
@@ -107,9 +112,16 @@ class SmartDocumentsTemplatesService @Inject constructor(
      */
     fun getTemplatesMapping(
         zaakafhandelParametersUUID: UUID
-    ): Set<RestMappedSmartDocumentsTemplateGroup> {
-        LOG.fine { "Fetching template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID" }
+    ): Set<RestMappedSmartDocumentsTemplateGroup> =
+        if (!smartDocumentsService.isEnabled()) {
+            LOG.fine { "Smart documents is disabled. Returning empty set of template groups" }
+            emptySet()
+        } else {
+            LOG.fine { "Fetching template mapping for zaakafhandelParameters UUID $zaakafhandelParametersUUID" }
+            fetchTemplatesMapping(zaakafhandelParametersUUID)
+        }
 
+    private fun fetchTemplatesMapping(zaakafhandelParametersUUID: UUID): Set<RestMappedSmartDocumentsTemplateGroup> =
         entityManager.criteriaBuilder.let { builder ->
             builder.createQuery(SmartDocumentsTemplateGroup::class.java).let { query ->
                 query.from(SmartDocumentsTemplateGroup::class.java).let { root ->
@@ -131,7 +143,6 @@ class SmartDocumentsTemplatesService @Inject constructor(
                 }
             }
         }
-    }
 
     /**
      * Get the information object type UUID for a pair of group-template in a zaakafhandelparameters
@@ -184,7 +195,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
                                 .setMaxResults(1)
                                 .resultList.firstOrNull()
                                 ?.get(namePath)
-                        }.takeIf { it != null } ?: throw SmartDocumentsException(
+                        }.takeIf { it != null } ?: throw SmartDocumentsConfigurationException(
                             "No information object type mapped for template group id " +
                                 "$templateGroupId and template id $templateId"
                         )
@@ -218,7 +229,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
                                 .setMaxResults(1)
                                 .resultList.firstOrNull()
                                 ?.get(namePath)
-                        }.takeIf { it != null } ?: throw SmartDocumentsException(
+                        }.takeIf { it != null } ?: throw SmartDocumentsConfigurationException(
                             "Template group with id $templateGroupId is not configured"
                         )
                     }
@@ -251,7 +262,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
                                 .setMaxResults(1)
                                 .resultList.firstOrNull()
                                 ?.get(namePath)
-                        }.takeIf { it != null } ?: throw SmartDocumentsException(
+                        }.takeIf { it != null } ?: throw SmartDocumentsConfigurationException(
                             "Template with id $templateId is not configured"
                         )
                     }

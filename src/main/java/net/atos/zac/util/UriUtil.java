@@ -11,9 +11,7 @@ import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 import java.net.URI;
 import java.util.UUID;
 
-/**
- *
- */
+
 public final class UriUtil {
 
     private UriUtil() {
