@@ -66,8 +66,8 @@ class RestBesluitConverter @Inject constructor(
                 besluitToevoegenGegevens.vervaldatum?.apply {
                     vervalreden = VervalredenEnum.TIJDELIJK
                 }
-                publicatiedatum = besluitToevoegenGegevens.publicatiedatum
-                uiterlijkeReactiedatum = besluitToevoegenGegevens.uiterlijkeReactiedatum
+                publicatiedatum = besluitToevoegenGegevens.publicationDate
+                uiterlijkeReactiedatum = besluitToevoegenGegevens.lastResponseDate
                 verantwoordelijkeOrganisatie = ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE
                 toelichting = besluitToevoegenGegevens.toelichting
             }

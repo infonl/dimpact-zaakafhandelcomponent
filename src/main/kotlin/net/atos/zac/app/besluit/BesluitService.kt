@@ -35,7 +35,7 @@ class BesluitService @Inject constructor(
     private val restBesluitConverter: RestBesluitConverter,
 ) {
     companion object {
-        private val LOG = Logger.getLogger(BrcClientService::class.java.name)
+        private val LOG = Logger.getLogger(BesluitService::class.java.name)
 
         private const val AANMAKEN_BESLUIT_TOELICHTING = "Aanmaken besluit"
         private const val WIJZIGEN_BESLUIT_TOELICHTING = "Wijzigen besluit"
@@ -50,8 +50,8 @@ class BesluitService @Inject constructor(
     fun createBesluit(zaak: Zaak, besluitToevoegenGegevens: RestBesluitVastleggenGegevens): Besluit {
         validateBesluitData(
             besluitToevoegenGegevens.besluittypeUuid,
-            besluitToevoegenGegevens.publicatiedatum,
-            besluitToevoegenGegevens.uiterlijkeReactiedatum
+            besluitToevoegenGegevens.publicationDate,
+            besluitToevoegenGegevens.lastResponseDate
         )
 
         val besluitToCreate = restBesluitConverter.convertToBesluit(zaak, besluitToevoegenGegevens)
@@ -69,13 +69,13 @@ class BesluitService @Inject constructor(
     private fun validateBesluitData(
         besluitTypeUUID: UUID,
         publicationDate: LocalDate?,
-        reactionDate: LocalDate?
+        responseDate: LocalDate?
     ) =
         ztcClientService.readBesluittype(besluitTypeUUID).run {
-            if (publicatieIndicatie && (publicationDate != null || reactionDate != null)) {
+            if (publicatieIndicatie && (publicationDate != null || responseDate != null)) {
                 throw BesluitException(
                     "Besluit type with UUID '${url.extractUuid()}' and name " +
-                        "'$omschrijving' cannot have publication or reaction dates"
+                        "'$omschrijving' cannot have publication or response dates"
                 )
             }
         }
@@ -90,10 +90,7 @@ class BesluitService @Inject constructor(
                     this.informatieobject = informatieobject.url
                     this.besluit = createdBesluit.url
                 }.let {
-                    brcClientService.createBesluitInformatieobject(
-                        it,
-                        AANMAKEN_BESLUIT_TOELICHTING
-                    )
+                    brcClientService.createBesluitInformatieobject(it, AANMAKEN_BESLUIT_TOELICHTING)
                 }
             }
         }
@@ -103,8 +100,8 @@ class BesluitService @Inject constructor(
         val besluit = brcClientService.readBesluit(restBesluitWijzigenGegevens.besluitUuid)
         validateBesluitData(
             besluit.besluittype.extractUuid(),
-            restBesluitWijzigenGegevens.publicatiedatum,
-            restBesluitWijzigenGegevens.uiterlijkeReactiedatum
+            restBesluitWijzigenGegevens.publicationDate,
+            restBesluitWijzigenGegevens.lastResponseDate
         )
 
         besluit.updateBesluitWithBesluitWijzigenGegevens(restBesluitWijzigenGegevens).also {
@@ -115,11 +112,7 @@ class BesluitService @Inject constructor(
                 val resultaattype = ztcClientService.readResultaattype(restBesluitWijzigenGegevens.resultaattypeUuid)
                 if (!extractedUuidIsEqual(zaakresultaat.resultaattype, resultaattype.url)) {
                     zrcClientService.deleteResultaat(zaakresultaat.uuid)
-                    zgwApiService.createResultaatForZaak(
-                        zaak,
-                        restBesluitWijzigenGegevens.resultaattypeUuid,
-                        null
-                    )
+                    zgwApiService.createResultaatForZaak(zaak, restBesluitWijzigenGegevens.resultaattypeUuid, null)
                 }
             }
         }
@@ -150,10 +143,7 @@ class BesluitService @Inject constructor(
                     this.besluit = besluit.url
                 }
             }.let {
-                brcClientService.createBesluitInformatieobject(
-                    it,
-                    WIJZIGEN_BESLUIT_TOELICHTING
-                )
+                brcClientService.createBesluitInformatieobject(it, WIJZIGEN_BESLUIT_TOELICHTING)
             }
         }
     }

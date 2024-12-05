@@ -25,8 +25,8 @@ class RestBesluitWijzigenGegevensTest : BehaviorSpec({
                     ingangsdatum shouldBe restBesluitWijzigenGegevens.ingangsdatum
                     vervaldatum shouldBe restBesluitWijzigenGegevens.vervaldatum
                     vervalreden shouldBe VervalredenEnum.TIJDELIJK
-                    publicatiedatum shouldBe restBesluitWijzigenGegevens.publicatiedatum
-                    uiterlijkeReactiedatum shouldBe restBesluitWijzigenGegevens.uiterlijkeReactiedatum
+                    publicatiedatum shouldBe restBesluitWijzigenGegevens.publicationDate
+                    uiterlijkeReactiedatum shouldBe restBesluitWijzigenGegevens.lastResponseDate
                 }
             }
         }

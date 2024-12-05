@@ -62,8 +62,8 @@ class RestBesluitConverterTest : BehaviorSpec({
                     toelichting shouldBe besluitToevoegenGegevens.toelichting
                     vervaldatum shouldBe besluitToevoegenGegevens.vervaldatum
                     vervalreden shouldBe VervalredenEnum.TIJDELIJK
-                    publicatiedatum shouldBe besluitToevoegenGegevens.publicatiedatum
-                    uiterlijkeReactiedatum shouldBe besluitToevoegenGegevens.uiterlijkeReactiedatum
+                    publicatiedatum shouldBe besluitToevoegenGegevens.publicationDate
+                    uiterlijkeReactiedatum shouldBe besluitToevoegenGegevens.lastResponseDate
                 }
             }
         }
@@ -100,9 +100,11 @@ class RestBesluitConverterTest : BehaviorSpec({
                         naam shouldBe besluitType.omschrijving
                         toelichting shouldBe besluitType.toelichting
                         informatieobjecttypen shouldBe besluitType.informatieobjecttypen
-                        publicatieIndicatie shouldBe true
-                        publicatietermijn shouldBe "10 dagen"
-                        reactietermijn shouldBe "2 dagen"
+                        with(publications) {
+                            enabled shouldBe true
+                            publicationTerm shouldBe "10 dagen"
+                            responseTerm shouldBe "2 dagen"
+                        }
                     }
                     datum shouldBe besluit.datum
                     ingangsdatum shouldBe besluit.datum

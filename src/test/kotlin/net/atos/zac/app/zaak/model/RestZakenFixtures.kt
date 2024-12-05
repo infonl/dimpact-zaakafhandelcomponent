@@ -54,8 +54,8 @@ fun createRESTBesluitVastleggenGegevens(
         toelichting = toelichting,
         vervaldatum = vervaldatum,
         zaakUuid = zaakUuid,
-        publicatiedatum = publicatiedatum,
-        uiterlijkeReactiedatum = uiterlijkeReactiedatum
+        publicationDate = publicatiedatum,
+        lastResponseDate = uiterlijkeReactiedatum
     )
 
 @Suppress("LongParameterList")
@@ -66,7 +66,7 @@ fun createRestBesluitWijzigenGegevens(
     effectiveDate: LocalDate = LocalDate.of(2023, 9, 14),
     expirationDate: LocalDate = LocalDate.of(2023, 11, 14),
     publicationDate: LocalDate = LocalDate.of(2023, 10, 14),
-    latestResponseDate: LocalDate = LocalDate.of(2023, 11, 1),
+    lastResponseDate: LocalDate = LocalDate.of(2023, 11, 1),
     informationObjects: List<UUID> = listOf(UUID.randomUUID()),
     reason: String = "dummyReason"
 ) = RestBesluitWijzigenGegevens(
@@ -75,8 +75,8 @@ fun createRestBesluitWijzigenGegevens(
     toelichting = description,
     ingangsdatum = effectiveDate,
     vervaldatum = expirationDate,
-    publicatiedatum = publicationDate,
-    uiterlijkeReactiedatum = latestResponseDate,
+    publicationDate = publicationDate,
+    lastResponseDate = lastResponseDate,
     informatieobjecten = informationObjects,
     reden = reason
 )
