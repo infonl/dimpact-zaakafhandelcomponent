@@ -18,20 +18,20 @@ data class AanvragerData(
 )
 
 data class Data(
-    @field:JsonbProperty("aanvrager")
-    val aanvragerData: AanvragerData? = null,
-
-    @field:JsonbProperty("gebruiker")
-    val gebruikerData: GebruikerData,
-
     @field:JsonbProperty("startformulier")
     val startformulierData: StartformulierData? = null,
+
+    @field:JsonbProperty("zaak")
+    val zaakData: ZaakData,
 
     @field:JsonbProperty("taak")
     val taakData: TaakData? = null,
 
-    @field:JsonbProperty("zaak")
-    val zaakData: ZaakData
+    @field:JsonbProperty("gebruiker")
+    val gebruikerData: GebruikerData,
+
+    @field:JsonbProperty("aanvrager")
+    val aanvragerData: AanvragerData? = null
 )
 
 data class Deposit(
@@ -95,43 +95,44 @@ data class Variables(
 )
 
 data class ZaakData(
-    val behandelaar: String? = null,
-
-    val besluit: String? = null,
-
-    val communicatiekanaal: String? = null,
-
-    @field:JsonbDateFormat(DATE_FORMAT)
-    val einddatum: LocalDate? = null,
-
-    @field:JsonbDateFormat(DATE_FORMAT)
-    val einddatumGepland: LocalDate? = null,
-
-    val groep: String? = null,
+    val zaaktype: String? = null,
 
     val identificatie: String? = null,
 
     val omschrijving: String? = null,
 
-    val opschortingReden: String? = null,
+    val toelichting: String? = null,
 
     @field:JsonbDateFormat(DATE_FORMAT)
     val registratiedatum: LocalDate? = null,
 
-    val resultaat: String? = null,
-
     @field:JsonbDateFormat(DATE_FORMAT)
     val startdatum: LocalDate? = null,
 
-    val status: String? = null,
+    @field:JsonbDateFormat(DATE_FORMAT)
+    val einddatumGepland: LocalDate? = null,
 
-    val toelichting: String? = null,
     @field:JsonbDateFormat(DATE_FORMAT)
     val uiterlijkeEinddatumAfdoening: LocalDate? = null,
+
+    @field:JsonbDateFormat(DATE_FORMAT)
+    val einddatum: LocalDate? = null,
+
+    val communicatiekanaal: String? = null,
 
     val vertrouwelijkheidaanduiding: String? = null,
 
     val verlengingReden: String? = null,
 
-    val zaaktype: String? = null
+    val opschortingReden: String? = null,
+
+    val resultaat: String? = null,
+
+    val status: String? = null,
+
+    val besluit: String? = null,
+
+    val groep: String? = null,
+
+    val behandelaar: String? = null
 )
