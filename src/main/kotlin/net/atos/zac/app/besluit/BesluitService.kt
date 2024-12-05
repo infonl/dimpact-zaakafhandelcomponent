@@ -96,8 +96,11 @@ class BesluitService @Inject constructor(
         }
     }
 
-    fun updateBesluit(zaak: Zaak, restBesluitWijzigenGegevens: RestBesluitWijzigenGegevens) {
-        val besluit = brcClientService.readBesluit(restBesluitWijzigenGegevens.besluitUuid)
+    fun updateBesluit(
+        zaak: Zaak,
+        besluit: Besluit,
+        restBesluitWijzigenGegevens: RestBesluitWijzigenGegevens
+    ) {
         validateBesluitData(
             besluit.besluittype.extractUuid(),
             restBesluitWijzigenGegevens.publicationDate,
