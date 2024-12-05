@@ -15,6 +15,9 @@ INSERT INTO zgw_consumers_service (label, api_type, api_root, client_id, secret,
 -- Set up the OpenNotificaties service configuration.
 INSERT INTO zgw_consumers_service (label, api_type, api_root, client_id, secret, auth_type, header_key, header_value, oas, nlx, user_id, user_representation, oas_file, client_certificate_id, server_certificate_id, uuid) VALUES('Open Notificaties', 'nrc', 'http://opennotificaties:8000/api/v1/', 'open-zaak-zac-local', 'openNotificatiesApiSecretKey', 'zgw', '', '', 'http://opennotificaties:8000/api/v1/schema/openapi.yaml', '', 'open-zaak-zac-local', 'Open Zaak', '', NULL, NULL, '031fe099-095b-4091-9f99-f81ef30561be');
 
+-- Set up the Notificatiescomponentconfiguratie
+INSERT INTO notifications_api_common_notificationsconfig (notifications_api_service_id, notification_delivery_max_retries, notification_delivery_retry_backoff, notification_delivery_retry_backoff_max) VALUES((SELECT id FROM zgw_consumers_service WHERE label = 'Open Notificaties'), 5, 3, 48);
+
 -- Update the primary key sequences for the tables in which we previously inserted data using fixed primary key values
 -- so that new records inserted manually via the OpenZaak UI do not conflict with the records we inserted.
 ALTER SEQUENCE catalogi_zaaktype_id_seq RESTART WITH 100;
