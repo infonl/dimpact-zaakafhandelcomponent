@@ -100,7 +100,6 @@ import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import org.flowable.task.api.Task
 import java.net.URI
 import java.time.LocalDate
-import java.time.Month
 import java.time.ZoneId
 import java.util.Date
 import java.util.Optional
