@@ -30,7 +30,10 @@ fun createBesluitType(
     eindeObject: LocalDate = LocalDate.now().plusDays(1),
     informatieobjecttypen: List<URI>? = listOf(URI("dummyInformatieObjectType1"), URI("dummyInformatieObjectType2")),
     description: String = "description",
-    explanation: String = "explanation"
+    explanation: String = "explanation",
+    publicatieIndicatie: Boolean = false,
+    publicationPeriod: String? = null,
+    reactionPeriod: String? = null
 ) =
     BesluitType(
         url,
@@ -45,6 +48,9 @@ fun createBesluitType(
         setInformatieobjecttypen(informatieobjecttypen)
         omschrijving = description
         toelichting = explanation
+        setPublicatieIndicatie(publicatieIndicatie)
+        publicatietermijn = publicationPeriod
+        reactietermijn = reactionPeriod
     }
 
 @Suppress("LongParameterList")

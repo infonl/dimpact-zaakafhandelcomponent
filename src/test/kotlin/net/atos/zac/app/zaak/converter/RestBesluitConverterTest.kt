@@ -71,7 +71,11 @@ class RestBesluitConverterTest : BehaviorSpec({
 
     Given("Besluit") {
         val besluit = createBesluit()
-        val besluitType = createBesluitType()
+        val besluitType = createBesluitType(
+            publicatieIndicatie = true,
+            publicationPeriod = "P10D",
+            reactionPeriod = "P2D"
+        )
         val besluitInformatieObject = createBesluitInformatieObject()
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
@@ -96,6 +100,9 @@ class RestBesluitConverterTest : BehaviorSpec({
                         naam shouldBe besluitType.omschrijving
                         toelichting shouldBe besluitType.toelichting
                         informatieobjecttypen shouldBe besluitType.informatieobjecttypen
+                        publicatieIndicatie shouldBe true
+                        publicatietermijn shouldBe "10 dagen"
+                        reactietermijn shouldBe "2 dagen"
                     }
                     datum shouldBe besluit.datum
                     ingangsdatum shouldBe besluit.datum

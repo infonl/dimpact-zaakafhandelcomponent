@@ -26,6 +26,7 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
+import net.atos.zac.app.besluit.BesluitException
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
@@ -82,6 +83,11 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             exception is SmartDocumentsConfigurationException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
                 errorCode = ERROR_CODE_SMARTDOCUMENTS_NOT_CONFIGURED,
+                exception = exception
+            )
+            exception is BesluitException -> generateResponse(
+                responseStatus = Response.Status.BAD_REQUEST,
+                errorCode = ERROR_CODE_BESLUIT_TYPE,
                 exception = exception
             )
             exception is BetrokkeneIsAlreadyAddedToZaakException -> generateResponse(

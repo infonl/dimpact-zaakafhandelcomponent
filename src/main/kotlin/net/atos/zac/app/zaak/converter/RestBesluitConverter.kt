@@ -28,44 +28,49 @@ class RestBesluitConverter @Inject constructor(
     private val restInformatieobjectConverter: RestInformatieobjectConverter,
     private val ztcClientService: ZtcClientService
 ) {
-    fun convertToRestBesluit(besluit: Besluit) = RestBesluit(
-        uuid = besluit.url.extractUuid(),
-        besluittype = ztcClientService.readBesluittype(besluit.besluittype).toRestBesluitType(),
-        datum = besluit.datum,
-        identificatie = besluit.identificatie,
-        url = besluit.url,
-        toelichting = besluit.toelichting,
-        ingangsdatum = besluit.ingangsdatum,
-        vervaldatum = besluit.vervaldatum,
-        vervalreden = besluit.vervalreden,
-        publicatiedatum = besluit.publicatiedatum,
-        uiterlijkeReactiedatum = besluit.uiterlijkeReactiedatum,
-        isIngetrokken = besluit.vervaldatum != null && (
-            besluit.vervalreden == VervalredenEnum.INGETROKKEN_BELANGHEBBENDE ||
-                besluit.vervalreden == VervalredenEnum.INGETROKKEN_OVERHEID
-            ),
-        informatieobjecten = restInformatieobjectConverter.convertInformatieobjectenToREST(
-            listBesluitInformatieobjecten(besluit)
-        )
-    )
+    fun convertToRestBesluit(besluit: Besluit) =
+        ztcClientService.readBesluittype(besluit.besluittype).let { besluitType ->
+            RestBesluit(
+                uuid = besluit.url.extractUuid(),
+                besluittype = besluitType.toRestBesluitType(),
+                datum = besluit.datum,
+                identificatie = besluit.identificatie,
+                url = besluit.url,
+                toelichting = besluit.toelichting,
+                ingangsdatum = besluit.ingangsdatum,
+                vervaldatum = besluit.vervaldatum,
+                vervalreden = besluit.vervalreden,
+                publicatiedatum = besluit.publicatiedatum,
+                uiterlijkeReactiedatum = besluit.uiterlijkeReactiedatum,
+                isIngetrokken = besluit.vervaldatum != null && (
+                    besluit.vervalreden == VervalredenEnum.INGETROKKEN_BELANGHEBBENDE ||
+                        besluit.vervalreden == VervalredenEnum.INGETROKKEN_OVERHEID
+                    ),
+                informatieobjecten = restInformatieobjectConverter.convertInformatieobjectenToREST(
+                    listBesluitInformatieobjecten(besluit)
+                )
+            )
+        }
 
     fun convertBesluitenToRestBesluit(besluiten: List<Besluit>): List<RestBesluit> = besluiten
         .map { convertToRestBesluit(it) }
 
     fun convertToBesluit(zaak: Zaak, besluitToevoegenGegevens: RestBesluitVastleggenGegevens) =
-        Besluit().apply {
-            this.zaak = zaak.url
-            besluittype = ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid).url
-            datum = LocalDate.now()
-            ingangsdatum = besluitToevoegenGegevens.ingangsdatum
-            vervaldatum = besluitToevoegenGegevens.vervaldatum
-            besluitToevoegenGegevens.vervaldatum?.apply {
-                vervalreden = VervalredenEnum.TIJDELIJK
+        ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid).let { besluitType ->
+            Besluit().apply {
+                this.zaak = zaak.url
+                besluittype = besluitType.url
+                datum = LocalDate.now()
+                ingangsdatum = besluitToevoegenGegevens.ingangsdatum
+                vervaldatum = besluitToevoegenGegevens.vervaldatum
+                besluitToevoegenGegevens.vervaldatum?.apply {
+                    vervalreden = VervalredenEnum.TIJDELIJK
+                }
+                publicatiedatum = besluitToevoegenGegevens.publicatiedatum
+                uiterlijkeReactiedatum = besluitToevoegenGegevens.uiterlijkeReactiedatum
+                verantwoordelijkeOrganisatie = ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE
+                toelichting = besluitToevoegenGegevens.toelichting
             }
-            publicatiedatum = besluitToevoegenGegevens.publicatiedatum
-            uiterlijkeReactiedatum = besluitToevoegenGegevens.uiterlijkeReactiedatum
-            verantwoordelijkeOrganisatie = ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE
-            toelichting = besluitToevoegenGegevens.toelichting
         }
 
     private fun listBesluitInformatieobjecten(besluit: Besluit): List<EnkelvoudigInformatieObject> =
