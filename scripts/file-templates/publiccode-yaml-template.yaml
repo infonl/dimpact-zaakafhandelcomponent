@@ -8,7 +8,7 @@
 
 publiccodeYmlVersion: "0.4"
 
-name: Dimpact Zaakafhandelcomponent (ZAC)
+name: {{PROJECT_TITLE}}
 url: "{{REPO_URL}}"
 softwareVersion: "{{SOFTWARE_VERSION}}"
 releaseDate: "{{REPO_CREATED_AT}}"
