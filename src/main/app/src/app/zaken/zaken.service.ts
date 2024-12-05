@@ -6,7 +6,7 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { catchError } from "rxjs/operators";
+import { catchError, map } from "rxjs/operators";
 import { ZaakAfzender } from "../admin/model/zaakafzender";
 import { ZaakbeeindigReden } from "../admin/model/zaakbeeindig-reden";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
@@ -416,9 +416,21 @@ export class ZakenService {
   listBesluittypes(zaaktypeUuid: string) {
     return this.http
       .get<
-        GeneratedType<"RestBesluittype">[]
+        (GeneratedType<"RestBesluittype"> & {
+          publicatieIndicatie: { active: boolean };
+        })[]
       >(`${this.basepath}/besluittypes/${zaaktypeUuid}`)
       .pipe(
+        map((result) =>
+          result.map((item, index) => ({
+            ...item,
+            publicatieIndicatie: {
+              active: true || Math.random() < 0.5,
+              publicatietermijn: 7 * (index + 1),
+              reactietermijn: 14 * (index + 1),
+            },
+          })),
+        ),
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
