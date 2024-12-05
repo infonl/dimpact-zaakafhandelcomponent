@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -8,7 +8,7 @@ import { Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { ZaakOntkoppelGegevens } from "../model/zaak-ontkoppel-gegevens";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -20,7 +20,8 @@ export class ZaakOntkoppelenDialogComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<ZaakOntkoppelenDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ZaakOntkoppelGegevens,
+    @Inject(MAT_DIALOG_DATA)
+    public data: GeneratedType<"RESTZaakOntkoppelGegevens">,
     private zakenService: ZakenService,
   ) {}
 

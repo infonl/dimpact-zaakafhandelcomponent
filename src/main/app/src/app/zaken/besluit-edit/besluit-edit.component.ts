@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -28,8 +28,6 @@ import { AbstractFormField } from "../../shared/material-form-builder/model/abst
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { BesluitWijzigenGegevens } from "../model/besluit-wijzigen-gegevens";
-import { Resultaattype } from "../model/resultaattype";
 import { Zaak } from "../model/zaak";
 import { ZakenService } from "../zaken.service";
 
@@ -125,7 +123,7 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
       .subscribe((value) => {
         if (value) {
           vervaldatumField.required = (
-            value as Resultaattype
+            value as GeneratedType<"RestResultaattype">
           ).vervaldatumBesluitVerplicht;
         }
       });
@@ -153,18 +151,21 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
 
   onFormSubmit(formGroup: FormGroup): void {
     if (formGroup) {
-      const gegevens = new BesluitWijzigenGegevens();
-      gegevens.besluitUuid = this.besluit.uuid;
-      gegevens.resultaattypeUuid = (
-        formGroup.controls["resultaattype"].value as Resultaattype
-      ).id;
-      gegevens.toelichting = formGroup.controls["toelichting"].value;
-      gegevens.ingangsdatum = formGroup.controls["ingangsdatum"].value;
-      gegevens.vervaldatum = formGroup.controls["vervaldatum"].value;
-      gegevens.informatieobjecten = formGroup.controls["documenten"].value
-        ? formGroup.controls["documenten"].value.split(";")
-        : [];
-      gegevens.reden = formGroup.controls["reden"].value;
+      const gegevens: GeneratedType<"RestBesluitWijzigenGegevens"> = {
+        besluitUuid: this.besluit.uuid,
+        resultaattypeUuid: (
+          formGroup.controls["resultaattype"]
+            .value as GeneratedType<"RestResultaattype">
+        ).id,
+        toelichting: formGroup.controls["toelichting"].value,
+        ingangsdatum: formGroup.controls["ingangsdatum"].value,
+        vervaldatum: formGroup.controls["vervaldatum"].value,
+        informatieobjecten: formGroup.controls["documenten"].value
+          ? formGroup.controls["documenten"].value.split(";")
+          : [],
+        reden: formGroup.controls["reden"].value,
+      };
+
       this.zakenService.updateBesluit(gegevens).subscribe(() => {
         this.utilService.openSnackbar("msg.besluit.gewijzigd");
         this.besluitGewijzigd.emit(true);

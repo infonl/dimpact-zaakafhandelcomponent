@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -25,8 +25,8 @@ import { UserEventListenerActie } from "../../plan-items/model/user-event-listen
 import { UserEventListenerData } from "../../plan-items/model/user-event-listener-data";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { ActionIcon } from "../../shared/edit/action-icon";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
-import { Resultaattype } from "../model/resultaattype";
 import { Zaak } from "../model/zaak";
 import { ZaakStatusmailOptie } from "../model/zaak-statusmail-optie";
 import { ZakenService } from "../zaken.service";
@@ -50,7 +50,7 @@ export class ZaakAfhandelenDialogComponent implements OnInit, OnDestroy {
     "actie.initiator.email.toevoegen",
     new Subject<void>(),
   );
-  resultaattypes: Observable<Resultaattype[]>;
+  resultaattypes: Observable<GeneratedType<"RestResultaattype">[]>;
   afzenders: Observable<ZaakAfzender[]>;
   private ngDestroy = new Subject<void>();
 
@@ -134,7 +134,7 @@ export class ZaakAfhandelenDialogComponent implements OnInit, OnDestroy {
     this.formGroup
       .get("resultaattype")
       .valueChanges.pipe(takeUntil(this.ngDestroy))
-      .subscribe((value: Resultaattype) => {
+      .subscribe((value: GeneratedType<"RestResultaattype">) => {
         this.besluitVastleggen = value.besluitVerplicht;
         if (this.besluitVastleggen) {
           this.formGroup.get("toelichting").disable();
