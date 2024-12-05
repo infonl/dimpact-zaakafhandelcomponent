@@ -147,9 +147,6 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
   addPublicationIndicationFields(publicatieIndicatie): void {
     if (!publicatieIndicatie.active) return;
 
-    console.log("publicatieIndicatie: ", publicatieIndicatie);
-    const today = new Date();
-
     this.fields = this.fields.filter(
       (fieldGroup) =>
         !fieldGroup.includes(this.publicatieDatumField) &&
@@ -159,14 +156,13 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
     this.publicatieDatumField = new DateFormFieldBuilder(moment())
       .id("publicatiedatum")
       .label("publicatiedatum")
-      .minDate(today)
       .build();
+
     this.uiterlijkeReactieDatumField = new DateFormFieldBuilder(
       moment().add(publicatieIndicatie.publicatietermijn, "days"),
     )
       .id("uiterlijkereactiedatum")
       .label("uiterlijkereactiedatum")
-      .minDate(today)
       .build();
 
     this.fields.push([
