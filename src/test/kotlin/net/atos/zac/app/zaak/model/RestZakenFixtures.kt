@@ -58,6 +58,7 @@ fun createRESTBesluitVastleggenGegevens(
         uiterlijkeReactiedatum = uiterlijkeReactiedatum
     )
 
+@Suppress("LongParameterList")
 fun createRestBesluitWijzigenGegevens(
     besluitUUID: UUID = UUID.randomUUID(),
     resultTypeUUID: UUID = UUID.randomUUID(),
