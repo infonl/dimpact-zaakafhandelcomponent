@@ -68,11 +68,11 @@ class DocumentCreationDataConverter @Inject constructor(
 
     fun createData(loggedInUser: LoggedInUser, zaak: Zaak, taskId: String? = null) =
         Data(
-            gebruikerData = createGebruikerData(loggedInUser),
-            zaakData = createZaakData(zaak),
             aanvragerData = createAanvragerData(zaak),
+            gebruikerData = createGebruikerData(loggedInUser),
             startformulierData = createStartformulierData(zaak.url),
-            taakData = taskId?.let { createTaakData(it) }
+            taakData = taskId?.let { createTaakData(it) },
+            zaakData = createZaakData(zaak)
         )
 
     private fun createGebruikerData(loggedInUser: LoggedInUser) =
@@ -109,8 +109,8 @@ class DocumentCreationDataConverter @Inject constructor(
             },
             toelichting = zaak.toelichting,
             uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
-            verlengingReden = if (zaak.isVerlengd) { zaak.verlenging.reden } else null,
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding?.toString(),
+            verlengingReden = if (zaak.isVerlengd) { zaak.verlenging.reden } else null,
             zaaktype = ztcClientService.readZaaktype(zaak.zaaktype).omschrijving
         )
 
