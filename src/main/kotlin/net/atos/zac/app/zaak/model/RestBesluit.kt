@@ -32,9 +32,9 @@ data class RestBesluit(
 
     var vervalreden: VervalredenEnum? = null,
 
-    var publicatiedatum: LocalDate? = null,
+    var publicationDate: LocalDate? = null,
 
-    var uiterlijkeReactiedatum: LocalDate? = null,
+    var lastResponseDate: LocalDate? = null,
 
     @get:JsonbProperty("isIngetrokken")
     var isIngetrokken: Boolean = false,

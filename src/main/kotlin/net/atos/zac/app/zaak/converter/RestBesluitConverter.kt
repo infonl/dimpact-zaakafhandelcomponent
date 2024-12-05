@@ -40,8 +40,8 @@ class RestBesluitConverter @Inject constructor(
                 ingangsdatum = besluit.ingangsdatum,
                 vervaldatum = besluit.vervaldatum,
                 vervalreden = besluit.vervalreden,
-                publicatiedatum = besluit.publicatiedatum,
-                uiterlijkeReactiedatum = besluit.uiterlijkeReactiedatum,
+                publicationDate = besluit.publicatiedatum,
+                lastResponseDate = besluit.uiterlijkeReactiedatum,
                 isIngetrokken = besluit.vervaldatum != null && (
                     besluit.vervalreden == VervalredenEnum.INGETROKKEN_BELANGHEBBENDE ||
                         besluit.vervalreden == VervalredenEnum.INGETROKKEN_OVERHEID

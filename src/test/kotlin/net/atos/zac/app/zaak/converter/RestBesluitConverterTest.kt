@@ -111,8 +111,8 @@ class RestBesluitConverterTest : BehaviorSpec({
                     toelichting shouldBe "dummyReason"
                     vervaldatum shouldBe besluit.vervaldatum
                     vervalreden shouldBe besluit.vervalreden
-                    publicatiedatum shouldBe besluit.publicatiedatum
-                    uiterlijkeReactiedatum shouldBe besluit.uiterlijkeReactiedatum
+                    publicationDate shouldBe besluit.publicatiedatum
+                    lastResponseDate shouldBe besluit.uiterlijkeReactiedatum
                     informatieobjecten!! shouldContain restEnkelvoudigInformatieobject
                 }
             }
