@@ -108,11 +108,14 @@ services:
       - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
       - DJANGO_SUPERUSER_PASSWORD=admin
       - LOG_LEVEL=DEBUG
-      - NOTIFICATIONS_DISABLED=true
+      - NOTIFICATIONS_DISABLED=false
       - OPENZAAK_SUPERUSER_USERNAME=admin
       - OPENZAAK_SUPERUSER_EMAIL=noreply@example.com
       - SECRET_KEY=openZaakSecretKey
       - SENDFILE_BACKEND=django_sendfile.backends.simple
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - CELERY_LOGLEVEL=DEBUG
     ports:
       - "8001:8000"
     volumes:
