@@ -28,5 +28,9 @@ data class RestBesluitVastleggenGegevens(
 
     var vervaldatum: LocalDate? = null,
 
+    var publicationDate: LocalDate? = null,
+
+    var lastResponseDate: LocalDate? = null,
+
     var informatieobjecten: List<UUID>? = null
 )
