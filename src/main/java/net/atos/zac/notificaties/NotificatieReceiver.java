@@ -202,7 +202,7 @@ public class NotificatieReceiver {
         try {
             if (notificatie.getResource() == ZAAKTYPE) {
                 if (notificatie.getAction() == CREATE || notificatie.getAction() == UPDATE) {
-                    zaakafhandelParameterBeheerService.createNewZaakafhandelParametersOnZaakTypeChange(notificatie.getResourceUrl());
+                    zaakafhandelParameterBeheerService.zaaktypeAangepast(notificatie.getResourceUrl());
                 }
             }
         } catch (RuntimeException ex) {

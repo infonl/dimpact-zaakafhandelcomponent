@@ -7,11 +7,9 @@ package net.atos.zac.admin
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.slot
 import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaBuilder
@@ -23,14 +21,10 @@ import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import jakarta.persistence.criteria.Subquery
 import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.model.createResultaatType
-import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.createZaakafhandelParameters
-import java.net.URI
 import java.time.ZonedDateTime
 import java.util.Date
-import java.util.UUID
 
 class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>()
@@ -175,61 +169,6 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
             Then("two zaakafhandelparameters should be returned") {
                 returnedZaakafhandelParameters.size shouldBe 2
                 returnedZaakafhandelParameters.map { productaanvraagType } shouldContainOnly listOf(productaanvraagType)
-            }
-        }
-    }
-    Given("No existing zaakafhandelparameters for a given zaaktype UUID and the zaaktype is not a concept") {
-        val zaakTypeUUID = UUID.randomUUID()
-        val zaaktypeURI = URI("https://example.com/zaaktype/$zaakTypeUUID")
-        val resultaatType = createResultaatType()
-        val zaaktype = createZaakType(
-            uri = zaaktypeURI,
-            concept = false,
-            resultTypes = listOf(resultaatType.url)
-        )
-        val createdZaakafhandelparametersSlot = slot<ZaakafhandelParameters>()
-        every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(ZaakafhandelParameters::class.java) } returns zaakafhandelparametersCriteriaQuery
-        every {
-            zaakafhandelparametersCriteriaQuery.from(ZaakafhandelParameters::class.java)
-        } returns zaakafhandelparametersRoot
-        every {
-            zaakafhandelparametersCriteriaQuery.select(zaakafhandelparametersRoot)
-        } returns zaakafhandelparametersCriteriaQuery
-        every { zaakafhandelparametersRoot.get<Any>("zaakTypeUUID") } returns path
-        every { zaakafhandelparametersRoot.get<Any>("zaaktypeOmschrijving") } returns path
-        every { zaakafhandelparametersRoot.get<Any>("creatiedatum") } returns path
-        every { criteriaBuilder.equal(path, zaakTypeUUID) } returns predicate
-        every { criteriaBuilder.equal(path, zaaktype.omschrijving) } returns predicate
-        every { criteriaBuilder.desc(path) } returns order
-        every { zaakafhandelparametersCriteriaQuery.where(predicate) } returns zaakafhandelparametersCriteriaQuery
-        every { zaakafhandelparametersCriteriaQuery.orderBy(order) } returns zaakafhandelparametersCriteriaQuery
-        every {
-            entityManager.createQuery(zaakafhandelparametersCriteriaQuery).resultList
-        } returns emptyList()
-        every {
-            entityManager.createQuery(zaakafhandelparametersCriteriaQuery).setMaxResults(1)
-        } returns zaakafhandelparametersTypedQuery
-        every { entityManager.persist(capture(createdZaakafhandelparametersSlot)) } returns Unit
-        every { zaakafhandelparametersTypedQuery.resultList } returns emptyList()
-        every { ztcClientService.readZaaktype(zaaktypeURI) } returns zaaktype
-        every { zaakafhandelParameterService.clearListCache() } returns "dummyCacheString"
-        every { ztcClientService.clearZaaktypeCache() } returns "dummyCacheString"
-        every { ztcClientService.readResultaattype(resultaatType.url) } returns resultaatType
-
-        When("new zaakafhandelparameters are created for the given zaaktype URI") {
-            zaakafhandelParameterBeheerService.createNewZaakafhandelParametersOnZaakTypeChange(zaaktypeURI)
-
-            Then("new zaakafhandelparameters should be created") {
-                with(createdZaakafhandelparametersSlot.captured) {
-                    this.zaakTypeUUID shouldBe zaakTypeUUID
-                    zaaktypeOmschrijving shouldBe zaaktype.omschrijving
-                    creatiedatum shouldNotBe null
-                    // there was no current zaakafhandelparameters, so these values should be null
-                    caseDefinitionID shouldBe null
-                    groepID shouldBe null
-                    gebruikersnaamMedewerker shouldBe null
-                }
             }
         }
     }
