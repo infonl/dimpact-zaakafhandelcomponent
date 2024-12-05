@@ -894,16 +894,6 @@ class ZaakRestService @Inject constructor(
     }
 
     @GET
-    @Path("besluit/{zaakUuid}/langste-bewaartermijn")
-    fun listBesluitenWithLongestRetentionForZaakUUID(@PathParam("zaakUuid") zaakUuid: UUID): List<RestBesluit> =
-        zrcClientService.readZaak(zaakUuid)
-            .let { brcClientService.listBesluiten(it) }
-            .sortedWith(compareBy(nullsFirst(reverseOrder())) { it.vervaldatum })
-            .groupBy { it.vervaldatum }
-            .firstNotNullOf { it.value }
-            .map { restBesluitConverter.convertToRestBesluit(it) }
-
-    @GET
     @Path("resultaattypes/{zaaktypeUUID}")
     fun listResultaattypes(
         @PathParam("zaaktypeUUID") zaaktypeUUID: UUID
