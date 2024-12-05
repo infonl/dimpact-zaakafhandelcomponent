@@ -5,6 +5,7 @@
 
 package net.atos.zac.app.zaak.model
 
+import jakarta.validation.constraints.NotNull
 import net.atos.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.zac.app.admin.createRestZaakAfhandelParameters
 import net.atos.zac.app.bag.model.RESTBAGObject
@@ -42,6 +43,8 @@ fun createRESTBesluitVastleggenGegevens(
     toelichting: String = "dummyToelichting",
     ingangsdatum: LocalDate = LocalDate.of(2023, 9, 14),
     vervaldatum: LocalDate = LocalDate.of(2023, 10, 5),
+    publicatiedatum: LocalDate = LocalDate.of(2023, 11, 1),
+    uiterlijkeReactiedatum: LocalDate = LocalDate.of(2023, 12, 20),
     informatieobjecten: List<UUID> = listOf(UUID.randomUUID())
 ) =
     RestBesluitVastleggenGegevens(
@@ -51,8 +54,32 @@ fun createRESTBesluitVastleggenGegevens(
         resultaattypeUuid = resultaattypeUuid,
         toelichting = toelichting,
         vervaldatum = vervaldatum,
-        zaakUuid = zaakUuid
+        zaakUuid = zaakUuid,
+        publicatiedatum = publicatiedatum,
+        uiterlijkeReactiedatum = uiterlijkeReactiedatum
     )
+
+fun createRestBesluitWijzigenGegevens(
+    besluitUUID: UUID = UUID.randomUUID(),
+    resultTypeUUID: UUID = UUID.randomUUID(),
+    description: String = "besluitDummyDescription",
+    effectiveDate: LocalDate = LocalDate.of(2023, 9, 14),
+    expirationDate: LocalDate = LocalDate.of(2023, 11, 14),
+    publicationDate: LocalDate = LocalDate.of(2023, 10, 14),
+    latestResponseDate: LocalDate = LocalDate.of(2023, 11, 1),
+    informationObjects: List<UUID> = listOf(UUID.randomUUID()),
+    reason: String = "dummyReason"
+) = RestBesluitWijzigenGegevens(
+    besluitUuid = besluitUUID,
+    resultaattypeUuid = resultTypeUUID,
+    toelichting = description,
+    ingangsdatum = effectiveDate,
+    vervaldatum = expirationDate,
+    publicatiedatum = publicationDate,
+    uiterlijkeReactiedatum = latestResponseDate,
+    informatieobjecten = informationObjects,
+    reden = reason
+)
 
 fun createRESTGerelateerdeZaak() = RestGerelateerdeZaak()
 

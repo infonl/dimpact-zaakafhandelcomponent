@@ -27,6 +27,10 @@ data class RestBesluitWijzigenGegevens(
 
     var vervaldatum: LocalDate? = null,
 
+    var publicatiedatum: LocalDate? = null,
+
+    var uiterlijkeReactiedatum: LocalDate? = null,
+
     var informatieobjecten: List<UUID>? = null,
 
     var reden: String? = null
@@ -40,4 +44,6 @@ fun Besluit.updateBesluitWithBesluitWijzigenGegevens(besluitWijzigenGegevens: Re
         vervaldatum?.apply {
             vervalreden = VervalredenEnum.TIJDELIJK
         }
+        publicatiedatum = besluitWijzigenGegevens.publicatiedatum
+        uiterlijkeReactiedatum = besluitWijzigenGegevens.uiterlijkeReactiedatum
     }
