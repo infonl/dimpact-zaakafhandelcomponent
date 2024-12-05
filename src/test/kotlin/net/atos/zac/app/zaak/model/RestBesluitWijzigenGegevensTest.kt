@@ -10,7 +10,7 @@ import io.kotest.matchers.shouldBe
 import net.atos.client.zgw.brc.model.createBesluit
 import net.atos.client.zgw.brc.model.generated.VervalredenEnum
 
-class RestBesluitWijzigenGegevensTest: BehaviorSpec({
+class RestBesluitWijzigenGegevensTest : BehaviorSpec({
 
     Given("Besluit") {
         val besluit = createBesluit()
@@ -20,7 +20,7 @@ class RestBesluitWijzigenGegevensTest: BehaviorSpec({
             val updatedBesluit = besluit.updateBesluitWithBesluitWijzigenGegevens(restBesluitWijzigenGegevens)
 
             Then("update is correct") {
-                with (updatedBesluit) {
+                with(updatedBesluit) {
                     toelichting shouldBe restBesluitWijzigenGegevens.toelichting
                     ingangsdatum shouldBe restBesluitWijzigenGegevens.ingangsdatum
                     vervaldatum shouldBe restBesluitWijzigenGegevens.vervaldatum
@@ -31,5 +31,4 @@ class RestBesluitWijzigenGegevensTest: BehaviorSpec({
             }
         }
     }
-
 })

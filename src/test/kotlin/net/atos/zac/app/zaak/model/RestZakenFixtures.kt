@@ -5,7 +5,6 @@
 
 package net.atos.zac.app.zaak.model
 
-import jakarta.validation.constraints.NotNull
 import net.atos.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.zac.app.admin.createRestZaakAfhandelParameters
 import net.atos.zac.app.bag.model.RESTBAGObject
