@@ -378,6 +378,8 @@ export class ZakenService {
   createBesluit(
     besluitVestleggenGegevens: GeneratedType<"RestBesluitVastleggenGegevens">,
   ) {
+    console.log("besluitVestleggenGegevens", besluitVestleggenGegevens);
+
     return this.http
       .post<
         GeneratedType<"RestBesluit">

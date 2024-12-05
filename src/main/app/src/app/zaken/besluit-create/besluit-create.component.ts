@@ -10,6 +10,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  ViewChild,
 } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
@@ -30,6 +31,8 @@ import { FormConfigBuilder } from "../../shared/material-form-builder/model/form
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { Zaak } from "../model/zaak";
 import { ZakenService } from "../zaken.service";
+import { View } from "ol";
+import { FormComponent } from "src/app/shared/material-form-builder/form/form/form.component";
 
 @Component({
   selector: "zac-besluit-create",
@@ -41,6 +44,8 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
   @Input() zaak: Zaak;
   @Input() sideNav: MatDrawer;
   @Output() besluitVastgelegd = new EventEmitter<boolean>();
+  @ViewChild(FormComponent) formComponent!: FormComponent;
+
   fields: Array<AbstractFormField[]>;
 
   publicatieDatumField: AbstractFormField;
@@ -168,6 +173,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
           !fieldGroup.includes(this.uiterlijkeReactieDatumField),
       );
     }
+    this.formComponent.refreshFormfields(this.fields);
   }
 
   onFormSubmit(formGroup: FormGroup): void {
@@ -184,7 +190,8 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
           : [],
       };
 
-      console.log("gegevens", formGroup.controls, {
+      console.log("formGroup.controls", formGroup.controls);
+      console.log("added", {
         ...(this.hasPublicatieDatum
           ? {
               publicatie: {
