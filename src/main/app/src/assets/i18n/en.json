@@ -83,6 +83,8 @@
   "toekenningsdatumTijd": "Time assigned",
   "startdatum": "Start date",
   "vervaldatum": "Expiration date",
+  "publicatiedatum": "Publication date",
+  "uiterlijkereactiedatum": "Final response date",
   "einddatum": "End date",
   "zaak.einddatum": "Case end date",
   "streefdatum": "Due date",
