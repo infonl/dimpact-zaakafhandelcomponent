@@ -100,6 +100,7 @@ import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import org.flowable.task.api.Task
 import java.net.URI
 import java.time.LocalDate
+import java.time.Month
 import java.time.ZoneId
 import java.util.Date
 import java.util.Optional
@@ -573,6 +574,104 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             And("zaak result is not changed") {
                 zaak.resultaat.toString() shouldBe zaakResult
+            }
+        }
+    }
+
+    Given("a zaak with several decisions with different expiration dates") {
+        val zaakResult = "https://example.com/initialResult"
+
+        val zaak = createZaak(resultaat = URI(zaakResult))
+        val restBesluit = createRestBesluit()
+        val besluit1 = createBesluit(expirationDate = LocalDate.of(2020, Month.JANUARY, 8))
+        val besluit2 = createBesluit(expirationDate = LocalDate.of(2020, Month.FEBRUARY, 8))
+        val besluit3 = createBesluit(expirationDate = LocalDate.of(2020, Month.MARCH, 8))
+
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { brcClientService.listBesluiten(zaak) } returns listOf(besluit1, besluit2, besluit3)
+        every { restBesluitConverter.convertToRestBesluit(besluit3) } returns restBesluit
+
+        When("a list of longest waiting period is requested") {
+            val list = zaakRestService.listBesluitenWithLongestRetentionForZaakUUID(zaak.uuid)
+
+            Then("the decision with longest expiration date is returned") {
+                list.size shouldBe 1
+                list.first() shouldBe restBesluit
+            }
+        }
+    }
+
+    Given("a zaak with several decisions, two of which with same expiration dates") {
+        val zaakResult = "https://example.com/initialResult"
+
+        val zaak = createZaak(resultaat = URI(zaakResult))
+        val restBesluit = createRestBesluit()
+        val besluit1 = createBesluit(expirationDate = LocalDate.of(2020, Month.JANUARY, 8))
+        val besluit2 = createBesluit(expirationDate = LocalDate.of(2020, Month.FEBRUARY, 8))
+        val besluit3 = createBesluit(expirationDate = LocalDate.of(2020, Month.FEBRUARY, 8))
+
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { brcClientService.listBesluiten(zaak) } returns listOf(besluit1, besluit2, besluit3)
+        every { restBesluitConverter.convertToRestBesluit(besluit2) } returns restBesluit
+        every { restBesluitConverter.convertToRestBesluit(besluit3) } returns restBesluit
+
+        When("a list of longest waiting period is requested") {
+            val list = zaakRestService.listBesluitenWithLongestRetentionForZaakUUID(zaak.uuid)
+
+            Then("the two decisions with longest expiration date are returned") {
+                list.size shouldBe 2
+                list.first() shouldBe restBesluit
+                list.last() shouldBe restBesluit
+            }
+        }
+    }
+
+    Given("a zaak with several decisions, one of which with no expiration dates") {
+        val zaakResult = "https://example.com/initialResult"
+
+        val zaak = createZaak(resultaat = URI(zaakResult))
+        val restBesluit = createRestBesluit()
+        val besluit1 = createBesluit(expirationDate = LocalDate.of(2020, Month.JANUARY, 8))
+        val besluit2 = createBesluit(expirationDate = LocalDate.of(2020, Month.FEBRUARY, 8))
+        val besluit3 = createBesluit(expirationDate = LocalDate.of(2020, Month.FEBRUARY, 8))
+        val besluit4 = createBesluit(expirationDate = null)
+
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { brcClientService.listBesluiten(zaak) } returns listOf(besluit1, besluit2, besluit3, besluit4)
+        every { restBesluitConverter.convertToRestBesluit(besluit4) } returns restBesluit
+
+        When("a list of longest waiting period is requested") {
+            val list = zaakRestService.listBesluitenWithLongestRetentionForZaakUUID(zaak.uuid)
+
+            Then("the decision with no expiration date is returned") {
+                list.size shouldBe 1
+                list.first() shouldBe restBesluit
+            }
+        }
+    }
+
+    Given("a zaak with several decisions, two of which with no expiration dates") {
+        val zaakResult = "https://example.com/initialResult"
+
+        val zaak = createZaak(resultaat = URI(zaakResult))
+        val restBesluit = createRestBesluit()
+        val besluit1 = createBesluit(expirationDate = null)
+        val besluit2 = createBesluit(expirationDate = LocalDate.of(2020, Month.FEBRUARY, 8))
+        val besluit3 = createBesluit(expirationDate = LocalDate.of(2020, Month.FEBRUARY, 8))
+        val besluit4 = createBesluit(expirationDate = null)
+
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { brcClientService.listBesluiten(zaak) } returns listOf(besluit1, besluit2, besluit3, besluit4)
+        every { restBesluitConverter.convertToRestBesluit(besluit1) } returns restBesluit
+        every { restBesluitConverter.convertToRestBesluit(besluit4) } returns restBesluit
+
+        When("a list of longest waiting period is requested") {
+            val list = zaakRestService.listBesluitenWithLongestRetentionForZaakUUID(zaak.uuid)
+
+            Then("the two decisions with no expiration date are returned") {
+                list.size shouldBe 2
+                list.first() shouldBe restBesluit
+                list.last() shouldBe restBesluit
             }
         }
     }
