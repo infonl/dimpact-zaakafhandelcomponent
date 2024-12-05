@@ -83,6 +83,8 @@
   "toekenningsdatumTijd": "Toekenningstijdstip",
   "startdatum": "Startdatum",
   "vervaldatum": "Vervaldatum",
+  "publicatiedatum": "Publicatiedatum",
+  "uiterlijkereactiedatum": "Uiterlijke reactiedatum",
   "einddatum": "Einddatum",
   "zaak.einddatum": "Zaak einddatum",
   "streefdatum": "Streefdatum",
