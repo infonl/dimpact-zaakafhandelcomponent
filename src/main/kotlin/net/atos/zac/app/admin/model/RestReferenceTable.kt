@@ -14,7 +14,7 @@ import nl.lifely.zac.util.NoArgConstructor
 @NoArgConstructor
 class RestReferenceTable(
     /**
-     * Unique ID of the table value. Is null when adding a new table value.
+     * Unique ID of the table. Is null when adding a new table.
      */
     var id: Long? = null,
 
