@@ -7,11 +7,6 @@
     "docker:pinDigests",
     "docker:enableMajor"
   ],
-  "enabledManagers": [
-    "docker-compose",
-    "maven-wrapper",
-    "gradle-wrapper"
-  ],
   "packageRules": [
     {
       "matchDatasources": [
@@ -88,6 +83,20 @@
       ],
       "enabled": false,
       "description": "The version of the ZAC Docker image in our Docker Compose file is set to 'latest' and is only used for local development"
+    },
+    {
+      "matchPaths": [
+        "/src/main/app/**"
+      ],
+      "matchManagers": [
+        "npm"
+      ],
+      "schedule": [
+        "daily at 04:00"
+      ],
+      "reviewers": [
+        "infonl/dimpact"
+      ]
     }
   ]
 }
