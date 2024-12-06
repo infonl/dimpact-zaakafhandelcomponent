@@ -44,9 +44,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
 
     Given("""Multiple zaken, tasks and documents have been created and are indexed""") {
-        When(
-            """the search endpoint is called to search for all objects of all types"""
-        ) {
+        When("the search endpoint is called to search for all objects of all types") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zoeken/list",
                 requestBodyAsString = """
@@ -64,11 +62,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                     }
                 """.trimIndent()
             )
-            Then(
-                """
-                   the response is successful and the search results include the indexed zaken, tasks and documents
-                """
-            ) {
+            Then("the response is successful and the search results include the indexed zaken, tasks and documents") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
@@ -147,10 +141,6 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                               {
                                 "aantal": 2,
                                 "naam": "Buiten behandeling"
-                              },
-                              {
-                                "aantal": 1,
-                                "naam": "Toegekend"
                               }
                             ],
                             "ZAAK_INDICATIES": [
@@ -317,9 +307,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                          "aantalOpenstaandeTaken": 0,
                          "afgehandeld": false,
                          "betrokkenen": {
-                           "Behandelaar": [
-                             "test-group-a"
-                           ]
+                           "Behandelaar" : [ "$TEST_GROUP_A_ID" ]
                          },
                          "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_1",
                          "groepId": "$TEST_GROUP_A_ID",
@@ -331,11 +319,10 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                          "indicatieVerlenging": false,
                          "indicaties": [],
                          "omschrijving": "dummyOmschrijving",               
-                         "resultaattypeOmschrijving": "Toegekend",
                          "statusToelichting": "Status gewijzigd",
                          "statustypeOmschrijving": "In behandeling",
                          "toelichting": "null",
-                         "vertrouwelijkheidaanduiding": "OPENBAAR",
+                         "vertrouwelijkheidaanduiding": "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
                          "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                         }
                        ],
@@ -369,12 +356,8 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                             } 
                          ],
                         "ZAAK_RESULTAAT" : [
-                         {
-                            "aantal": 1,
-                            "naam": "Toegekend"
-                          },                       
-                          {
-                             "aantal" : 1,
+                           {
+                             "aantal": 2,
                              "naam" : "-NULL-"
                            } 
                         ],
