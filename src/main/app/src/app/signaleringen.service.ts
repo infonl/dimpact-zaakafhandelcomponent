@@ -9,7 +9,6 @@ import { BehaviorSubject, Observable } from "rxjs";
 import { catchError, switchMap } from "rxjs/operators";
 import { FoutAfhandelingService } from "./fout-afhandeling/fout-afhandeling.service";
 import { Resultaat } from "./shared/model/resultaat";
-import { SignaleringType } from "./shared/signaleringen/signalering-type";
 import { GeneratedType } from "./shared/utils/generated-types";
 import { ZaakOverzichtDashboard } from "./zaken/model/zaak-overzicht-dashboard";
 
@@ -34,16 +33,18 @@ export class SignaleringenService {
     this.latestSignaleringSubject.next();
   }
 
-  listDashboardSignaleringTypen(): Observable<SignaleringType[]> {
+  listDashboardSignaleringTypen() {
     return this.http
-      .get<SignaleringType[]>(`${this.basepath}/typen/dashboard`)
+      .get<
+        GeneratedType<"RestSignaleringInstellingen">["type"][]
+      >(`${this.basepath}/typen/dashboard`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
   listZakenSignalering(params: {
-    signaleringType: SignaleringType;
+    signaleringType: GeneratedType<"RestSignaleringInstellingen">["type"];
     page: number;
     rows: number;
   }): Observable<Resultaat<ZaakOverzichtDashboard>> {
@@ -61,7 +62,9 @@ export class SignaleringenService {
       );
   }
 
-  listTakenSignalering(signaleringType: SignaleringType) {
+  listTakenSignalering(
+    signaleringType: GeneratedType<"RestSignaleringInstellingen">["type"],
+  ) {
     return this.http
       .get<
         GeneratedType<"RestSignaleringTaskSummary">[]
@@ -71,7 +74,9 @@ export class SignaleringenService {
       );
   }
 
-  listInformatieobjectenSignalering(signaleringType: SignaleringType) {
+  listInformatieobjectenSignalering(
+    signaleringType: GeneratedType<"RestSignaleringInstellingen">["type"],
+  ) {
     return this.http
       .get<
         GeneratedType<"RestEnkelvoudigInformatieobject">[]
