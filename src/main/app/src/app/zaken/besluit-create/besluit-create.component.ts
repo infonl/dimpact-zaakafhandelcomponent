@@ -39,13 +39,15 @@ import { ZakenService } from "../zaken.service";
 // waits for backend PR
 // waits for backend PR
 // waits for backend PR
-type RestBesluitType = GeneratedType<"RestBesluittype"> & {
+export type TempRestBesluitTypePublication = {
   publication: {
-    active: boolean;
+    enabled: boolean;
     publicationTermDays: number;
     responseTermDays: number;
   };
 };
+export type TempRestBesluitType = GeneratedType<"RestBesluittype"> &
+  TempRestBesluitTypePublication;
 //
 //
 //
@@ -163,8 +165,8 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
       });
   }
 
-  updatePublicationsFormPart({ publication }: RestBesluitType): void {
-    if (!publication.active) return;
+  updatePublicationsFormPart({ publication }: TempRestBesluitType): void {
+    if (!publication.enabled) return;
 
     this.fields = this.fields.filter(
       (fieldGroup) =>
