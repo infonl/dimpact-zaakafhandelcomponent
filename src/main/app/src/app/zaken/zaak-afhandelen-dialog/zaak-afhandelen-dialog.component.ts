@@ -18,7 +18,6 @@ import { Mail } from "../../admin/model/mail";
 import { Mailtemplate } from "../../admin/model/mailtemplate";
 import { ZaakAfzender } from "../../admin/model/zaakafzender";
 import { KlantenService } from "../../klanten/klanten.service";
-import { MailGegevens } from "../../mail/model/mail-gegevens";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { PlanItem } from "../../plan-items/model/plan-item";
 import { UserEventListenerActie } from "../../plan-items/model/user-event-listener-actie-enum";
@@ -169,13 +168,15 @@ export class ZaakAfhandelenDialogComponent implements OnInit, OnDestroy {
     userEventListenerData.resultaatToelichting = values.toelichting;
 
     if (values.sendMail && this.mailtemplate) {
-      const restMailGegevens: MailGegevens = new MailGegevens();
-      restMailGegevens.verzender = values.verzender.mail;
-      restMailGegevens.replyTo = values.verzender.replyTo;
-      restMailGegevens.ontvanger = values.ontvanger;
-      restMailGegevens.onderwerp = this.mailtemplate.onderwerp;
-      restMailGegevens.body = this.mailtemplate.body;
-      restMailGegevens.createDocumentFromMail = true;
+      const restMailGegevens: GeneratedType<"RESTMailGegevens"> = {
+        verzender: values.verzender.mail,
+        replyTo: values.verzender.replyTo,
+        ontvanger: values.ontvanger,
+        onderwerp: this.mailtemplate.onderwerp,
+        body: this.mailtemplate.body,
+        createDocumentFromMail: true,
+      };
+
       Object.assign(userEventListenerData, { restMailGegevens });
     }
 

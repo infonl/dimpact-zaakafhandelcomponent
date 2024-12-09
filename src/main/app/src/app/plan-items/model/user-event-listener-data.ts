@@ -1,9 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { MailGegevens } from "src/app/mail/model/mail-gegevens";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { UserEventListenerActie } from "./user-event-listener-actie-enum";
 
 export class UserEventListenerData {
@@ -13,7 +13,7 @@ export class UserEventListenerData {
   zaakOntvankelijk: boolean;
   resultaatToelichting: string;
   resultaattypeUuid: string;
-  restMailGegevens: MailGegevens;
+  restMailGegevens: GeneratedType<"RESTMailGegevens">;
 
   constructor(
     actie: UserEventListenerActie,
