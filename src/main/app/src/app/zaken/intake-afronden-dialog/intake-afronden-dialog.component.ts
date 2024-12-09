@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -18,14 +18,13 @@ import { Mail } from "../../admin/model/mail";
 import { Mailtemplate } from "../../admin/model/mailtemplate";
 import { ZaakAfzender } from "../../admin/model/zaakafzender";
 import { KlantenService } from "../../klanten/klanten.service";
-import { MailService } from "../../mail/mail.service";
-import { MailGegevens } from "../../mail/model/mail-gegevens";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { PlanItem } from "../../plan-items/model/plan-item";
 import { UserEventListenerActie } from "../../plan-items/model/user-event-listener-actie-enum";
 import { UserEventListenerData } from "../../plan-items/model/user-event-listener-data";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { ActionIcon } from "../../shared/edit/action-icon";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { Zaak } from "../model/zaak";
 import { ZaakStatusmailOptie } from "../model/zaak-statusmail-optie";
@@ -57,7 +56,6 @@ export class IntakeAfrondenDialogComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private translateService: TranslateService,
     private planItemsService: PlanItemsService,
-    private mailService: MailService,
     private mailtemplateService: MailtemplateService,
     private klantenService: KlantenService,
     private zakenService: ZakenService,
@@ -168,13 +166,15 @@ export class IntakeAfrondenDialogComponent implements OnInit, OnDestroy {
       ? this.zaakOntvankelijkMail
       : this.zaakNietOntvankelijkMail;
     if (values.sendMail && mailtemplate) {
-      const restMailGegevens: MailGegevens = new MailGegevens();
-      restMailGegevens.verzender = values.verzender.mail;
-      restMailGegevens.replyTo = values.verzender.replyTo;
-      restMailGegevens.ontvanger = values.ontvanger;
-      restMailGegevens.onderwerp = mailtemplate.onderwerp;
-      restMailGegevens.body = mailtemplate.body;
-      restMailGegevens.createDocumentFromMail = true;
+      const restMailGegevens: GeneratedType<"RESTMailGegevens"> = {
+        verzender: values.verzender.mail,
+        replyTo: values.verzender.replyTo,
+        ontvanger: values.ontvanger,
+        onderwerp: mailtemplate.onderwerp,
+        body: mailtemplate.body,
+        createDocumentFromMail: true,
+      };
+
       Object.assign(userEventListenerData, { restMailGegevens });
     }
 

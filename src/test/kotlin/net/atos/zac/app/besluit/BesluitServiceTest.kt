@@ -106,7 +106,6 @@ class BesluitServiceTest : BehaviorSpec({
         When("Besluit creation is requested for type that cannot have publications, but publication date is supplied") {
             besluitType.publicatieIndicatie(false)
 
-            val exception = shouldThrow<BesluitPublicationDisabledException> {
                 besluitService.createBesluit(zaak, restBesluitVastleggenGegevens)
             }
 

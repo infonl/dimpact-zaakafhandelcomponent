@@ -29,7 +29,7 @@ import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { Group } from "../../identity/model/group";
 import { User } from "../../identity/model/user";
-import { Resultaattype } from "../../zaken/model/resultaattype";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakStatusmailOptie } from "../../zaken/model/zaak-statusmail-optie";
 import { AdminComponent } from "../admin/admin.component";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
@@ -96,7 +96,7 @@ export class ParameterEditComponent
   domeinen: string[];
   groepen: Group[];
   medewerkers: User[];
-  resultaattypes: Resultaattype[];
+  resultaattypes: GeneratedType<"RestResultaattype">[];
   referentieTabellen: ReferentieTabel[];
   formulierDefinities: FormulierDefinitie[];
   zaakbeeindigRedenen: ZaakbeeindigReden[];

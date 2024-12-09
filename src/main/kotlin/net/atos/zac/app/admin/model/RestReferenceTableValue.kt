@@ -13,7 +13,10 @@ import nl.lifely.zac.util.NoArgConstructor
 @AllOpen
 @NoArgConstructor
 class RestReferenceTableValue(
-    var id: Long,
+    /**
+     * Unique ID of the table value. Is null when adding a new table value.
+     */
+    var id: Long? = null,
 
     @field:NotBlank
     var naam: String,

@@ -9,9 +9,7 @@ import { ZaakRechten } from "../../policy/model/zaak-rechten";
 import { ZaakIndicatie } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { Geometry } from "./geometry";
-import { GerelateerdeZaak } from "./gerelateerde-zaak";
 import { ZaakKenmerk } from "./zaak-kenmerk";
-import { ZaakResultaat } from "./zaak-resultaat";
 import { ZaakStatus } from "./zaak-status";
 import { Zaaktype } from "./zaaktype";
 
@@ -22,7 +20,7 @@ export class Zaak {
   toelichting: string;
   zaaktype: Zaaktype;
   status: ZaakStatus;
-  resultaat: ZaakResultaat;
+  resultaat: GeneratedType<"RestZaakResultaat">;
   besluiten: GeneratedType<"RestBesluit">[];
   bronorganisatie: string;
   verantwoordelijkeOrganisatie: string;
@@ -44,7 +42,7 @@ export class Zaak {
   duurVerlenging: string;
   groep: Group;
   behandelaar: User;
-  gerelateerdeZaken: GerelateerdeZaak[];
+  gerelateerdeZaken: GeneratedType<"RestGerelateerdeZaak">[];
   kenmerken: ZaakKenmerk[];
   initiatorIdentificatieType: GeneratedType<"IdentificatieType">;
   initiatorIdentificatie: string;

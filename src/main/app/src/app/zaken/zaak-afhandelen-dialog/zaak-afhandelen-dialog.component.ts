@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -18,15 +18,14 @@ import { Mail } from "../../admin/model/mail";
 import { Mailtemplate } from "../../admin/model/mailtemplate";
 import { ZaakAfzender } from "../../admin/model/zaakafzender";
 import { KlantenService } from "../../klanten/klanten.service";
-import { MailGegevens } from "../../mail/model/mail-gegevens";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { PlanItem } from "../../plan-items/model/plan-item";
 import { UserEventListenerActie } from "../../plan-items/model/user-event-listener-actie-enum";
 import { UserEventListenerData } from "../../plan-items/model/user-event-listener-data";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { ActionIcon } from "../../shared/edit/action-icon";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
-import { Resultaattype } from "../model/resultaattype";
 import { Zaak } from "../model/zaak";
 import { ZaakStatusmailOptie } from "../model/zaak-statusmail-optie";
 import { ZakenService } from "../zaken.service";
@@ -50,7 +49,7 @@ export class ZaakAfhandelenDialogComponent implements OnInit, OnDestroy {
     "actie.initiator.email.toevoegen",
     new Subject<void>(),
   );
-  resultaattypes: Observable<Resultaattype[]>;
+  resultaattypes: Observable<GeneratedType<"RestResultaattype">[]>;
   afzenders: Observable<ZaakAfzender[]>;
   private ngDestroy = new Subject<void>();
 
@@ -134,7 +133,7 @@ export class ZaakAfhandelenDialogComponent implements OnInit, OnDestroy {
     this.formGroup
       .get("resultaattype")
       .valueChanges.pipe(takeUntil(this.ngDestroy))
-      .subscribe((value: Resultaattype) => {
+      .subscribe((value: GeneratedType<"RestResultaattype">) => {
         this.besluitVastleggen = value.besluitVerplicht;
         if (this.besluitVastleggen) {
           this.formGroup.get("toelichting").disable();
@@ -169,13 +168,15 @@ export class ZaakAfhandelenDialogComponent implements OnInit, OnDestroy {
     userEventListenerData.resultaatToelichting = values.toelichting;
 
     if (values.sendMail && this.mailtemplate) {
-      const restMailGegevens: MailGegevens = new MailGegevens();
-      restMailGegevens.verzender = values.verzender.mail;
-      restMailGegevens.replyTo = values.verzender.replyTo;
-      restMailGegevens.ontvanger = values.ontvanger;
-      restMailGegevens.onderwerp = this.mailtemplate.onderwerp;
-      restMailGegevens.body = this.mailtemplate.body;
-      restMailGegevens.createDocumentFromMail = true;
+      const restMailGegevens: GeneratedType<"RESTMailGegevens"> = {
+        verzender: values.verzender.mail,
+        replyTo: values.verzender.replyTo,
+        ontvanger: values.ontvanger,
+        onderwerp: this.mailtemplate.onderwerp,
+        body: this.mailtemplate.body,
+        createDocumentFromMail: true,
+      };
+
       Object.assign(userEventListenerData, { restMailGegevens });
     }
 
