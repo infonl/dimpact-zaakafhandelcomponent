@@ -15,11 +15,13 @@ import net.atos.client.klant.KlantClientService
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.brc.exception.BrcRuntimeException
+import net.atos.client.zgw.brc.model.generated.Besluit
 import net.atos.client.zgw.drc.exception.DrcRuntimeException
 import net.atos.client.zgw.shared.exception.ZgwRuntimeException
 import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
+import net.atos.zac.app.besluit.BesluitException
 import net.atos.zac.app.exception.RestExceptionMapper
 import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
@@ -262,6 +264,21 @@ class RestExceptionMapperTest : BehaviorSpec({
                 checkResponse(
                     response = response,
                     errorMessage = "msg.error.smartdocuments.not.configured",
+                    expectedStatus = HttpStatus.SC_BAD_REQUEST
+                )
+            }
+        }
+    }
+    Given("A BesluitException exception") {
+        val exception = BesluitException("error")
+
+        When("the exception is mapped to a response") {
+            val response = restExceptionMapper.toResponse(exception)
+
+            Then("it should return the proper error code and no exception message") {
+                checkResponse(
+                    response = response,
+                    errorMessage = "msg.error.besluit.type",
                     expectedStatus = HttpStatus.SC_BAD_REQUEST
                 )
             }
