@@ -103,7 +103,9 @@ class RestBesluitConverterTest : BehaviorSpec({
                         with(publication) {
                             enabled shouldBe true
                             publicationTerm shouldBe "10 dagen"
+                            publicationTermDays shouldBe 10
                             responseTerm shouldBe "2 dagen"
+                            responseTermDays shouldBe 2
                         }
                     }
                     datum shouldBe besluit.datum

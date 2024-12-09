@@ -35,7 +35,9 @@ fun BesluitType.toRestBesluitType() = RestBesluittype(
     publication = RestBesluittypePublication(
         enabled = this.publicatieIndicatie,
         publicationTerm = this.publicatietermijn?.let { PeriodUtil.format(Period.parse(it)) },
-        responseTerm = this.reactietermijn?.let { PeriodUtil.format(Period.parse(it)) }
+        publicationTermDays = this.publicatietermijn?.let { PeriodUtil.numberOfDaysFromToday(Period.parse(it)) },
+        responseTerm = this.reactietermijn?.let { PeriodUtil.format(Period.parse(it)) },
+        responseTermDays = this.reactietermijn?.let { PeriodUtil.numberOfDaysFromToday(Period.parse(it)) }
     )
 )
 
