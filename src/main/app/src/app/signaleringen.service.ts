@@ -7,12 +7,10 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
 import { catchError, switchMap } from "rxjs/operators";
-import { WebsocketService } from "./core/websocket/websocket.service";
 import { FoutAfhandelingService } from "./fout-afhandeling/fout-afhandeling.service";
 import { Resultaat } from "./shared/model/resultaat";
 import { SignaleringType } from "./shared/signaleringen/signalering-type";
 import { GeneratedType } from "./shared/utils/generated-types";
-import { SignaleringTaakSummary } from "./signaleringen/model/signalering-taak-summary";
 import { ZaakOverzichtDashboard } from "./zaken/model/zaak-overzicht-dashboard";
 
 @Injectable({
@@ -30,7 +28,6 @@ export class SignaleringenService {
   constructor(
     private http: HttpClient,
     private foutAfhandelingService: FoutAfhandelingService,
-    private websocketService: WebsocketService,
   ) {}
 
   updateSignaleringen(): void {
@@ -64,12 +61,10 @@ export class SignaleringenService {
       );
   }
 
-  listTakenSignalering(
-    signaleringType: SignaleringType,
-  ): Observable<SignaleringTaakSummary[]> {
+  listTakenSignalering(signaleringType: SignaleringType) {
     return this.http
       .get<
-        SignaleringTaakSummary[]
+        GeneratedType<"RestSignaleringTaskSummary">[]
       >(`${this.basepath}/taken/${signaleringType}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
