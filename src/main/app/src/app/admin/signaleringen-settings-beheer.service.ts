@@ -5,7 +5,6 @@
 
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -34,7 +33,7 @@ export class SignaleringenSettingsBeheerService {
   put(
     groupId: string,
     instellingen: GeneratedType<"RestSignaleringInstellingen">,
-  ): Observable<void> {
+  ) {
     return this.http
       .put<void>(`${this.basepath}/group/${groupId}/instellingen`, instellingen)
       .pipe(
