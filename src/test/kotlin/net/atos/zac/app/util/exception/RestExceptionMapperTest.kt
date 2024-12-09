@@ -20,7 +20,6 @@ import net.atos.client.zgw.shared.exception.ZgwRuntimeException
 import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
-import net.atos.zac.app.besluit.BesluitException
 import net.atos.zac.app.besluit.BesluitPublicationDateMissingException
 import net.atos.zac.app.besluit.BesluitPublicationDisabledException
 import net.atos.zac.app.besluit.BesluitResponseDateInvalidException

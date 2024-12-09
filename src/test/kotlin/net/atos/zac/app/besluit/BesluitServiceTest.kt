@@ -140,8 +140,8 @@ class BesluitServiceTest : BehaviorSpec({
 
             Then("it throws exception") {
                 exception.message shouldBe "Response date ${restBesluitVastleggenGegevens.lastResponseDate}" +
-                        " is before calculated response date " +
-                        "${restBesluitVastleggenGegevens.publicationDate!!.plusDays(reactionPeriodDays)}"
+                    " is before calculated response date " +
+                    "${restBesluitVastleggenGegevens.publicationDate!!.plusDays(reactionPeriodDays)}"
             }
         }
     }
@@ -213,10 +213,9 @@ class BesluitServiceTest : BehaviorSpec({
 
             Then("it throws exception") {
                 exception.message shouldBe "Response date ${restBesluitWijzigenGegevens.lastResponseDate}" +
-                        " is before calculated response date " +
-                        "${restBesluitWijzigenGegevens.publicationDate!!.plusDays(reactionPeriodDays)}"
+                    " is before calculated response date " +
+                    "${restBesluitWijzigenGegevens.publicationDate!!.plusDays(reactionPeriodDays)}"
             }
         }
-
     }
 })

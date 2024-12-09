@@ -79,7 +79,7 @@ class BesluitService @Inject constructor(
                 if (publicationDate != null || responseDate != null) {
                     throw BesluitPublicationDisabledException(
                         "Besluit type with UUID '${url.extractUuid()}' and name " +
-                                "'$omschrijving' cannot have publication or response dates"
+                            "'$omschrijving' cannot have publication or response dates"
                     )
                 }
             }
@@ -87,18 +87,18 @@ class BesluitService @Inject constructor(
                 throw BesluitPublicationDateMissingException("Missing publication date")
             }
             responseDate?.let {
-                    PeriodUtil.numberOfDaysFromToday(Period.parse(reactietermijn)).toLong().let { responseDays ->
-                        publicationDate.plusDays(responseDays).let { calculatedLatestResponseDate ->
-                            if (it.isBefore(calculatedLatestResponseDate)) {
-                                throw BesluitResponseDateInvalidException(
-                                    "Response date $responseDate is before " +
-                                        "calculated response date $calculatedLatestResponseDate"
-                                )
-                            }
+                PeriodUtil.numberOfDaysFromToday(Period.parse(reactietermijn)).toLong().let { responseDays ->
+                    publicationDate.plusDays(responseDays).let { calculatedLatestResponseDate ->
+                        if (it.isBefore(calculatedLatestResponseDate)) {
+                            throw BesluitResponseDateInvalidException(
+                                "Response date $responseDate is before " +
+                                    "calculated response date $calculatedLatestResponseDate"
+                            )
                         }
                     }
                 }
             }
+        }
 
     private fun createBesluitInformationObjects(
         besluitToevoegenGegevens: RestBesluitVastleggenGegevens,
