@@ -126,6 +126,12 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
         }
       });
 
+    ingangsDatumField.formControl.valueChanges
+      .pipe(takeUntil(this.ngDestroy))
+      .subscribe((value) => {
+        (vervaldatumField as DateFormField).minDate = value;
+      });
+
     this.besluitTypeField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
@@ -141,12 +147,6 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
 
           this.updatePublicationsFormPart(value);
         }
-      });
-
-    ingangsDatumField.formControl.valueChanges
-      .pipe(takeUntil(this.ngDestroy))
-      .subscribe((value) => {
-        (vervaldatumField as DateFormField).minDate = value;
       });
   }
 
@@ -164,13 +164,10 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
 
     this.publicationParagraph = new ParagraphFormFieldBuilder()
       .text(
-        this.translate.instant(
-          `besluit.publicatie.indicatie ${publicatieIndicatie.publicationTerm} ${publicatieIndicatie.responseTerm}`,
-          {
-            publicationTerm: publicatieIndicatie.publicationTerm,
-            responseTerm: publicatieIndicatie.responseTerm,
-          },
-        ),
+        this.translate.instant(`besluit.publicatie.indicatie`, {
+          publicationTerm: publicatieIndicatie.publicationTerm,
+          responseTerm: publicatieIndicatie.responseTerm,
+        }),
       )
       .build();
 

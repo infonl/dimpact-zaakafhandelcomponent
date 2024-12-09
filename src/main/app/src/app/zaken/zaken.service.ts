@@ -421,6 +421,9 @@ export class ZakenService {
         })[]
       >(`${this.basepath}/besluittypes/${zaaktypeUuid}`)
       .pipe(
+        // just for developing sake
+        // just for developing sake
+        // just for developing sake
         map((result) =>
           result.map((item, index) => ({
             ...item,
@@ -431,6 +434,9 @@ export class ZakenService {
             },
           })),
         ),
+        //
+        //
+        //
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
