@@ -25,12 +25,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.brc.BrcClientService
-import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.util.extractUuid
-import net.atos.client.zgw.util.extractedUuidIsEqual
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.BetrokkeneType
@@ -94,7 +92,6 @@ import net.atos.zac.app.zaak.model.toGeometry
 import net.atos.zac.app.zaak.model.toRestBesluittypes
 import net.atos.zac.app.zaak.model.toRestResultaatTypes
 import net.atos.zac.app.zaak.model.toRestZaakBetrokkenen
-import net.atos.zac.app.zaak.model.updateBesluitWithBesluitWijzigenGegevens
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
@@ -179,7 +176,6 @@ class ZaakRestService @Inject constructor(
         private const val ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
         private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
         private const val VERLENGING = "Verlenging"
-        private const val AANMAKEN_BESLUIT_TOELICHTING = "Aanmaken besluit"
         const val AANVULLENDE_INFORMATIE_TASK_NAME = "Aanvullende informatie"
     }
 
@@ -809,90 +805,55 @@ class ZaakRestService @Inject constructor(
 
     @POST
     @Path("besluit")
-    fun createBesluit(@Valid besluitToevoegenGegevens: RestBesluitVastleggenGegevens): RestBesluit {
-        val zaak = zrcClientService.readZaak(besluitToevoegenGegevens.zaakUuid)
-        val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
-        assertPolicy(policyService.readZaakRechten(zaak, zaaktype).vastleggenBesluit)
-        assertPolicy(CollectionUtils.isNotEmpty(zaaktype.besluittypen))
+    fun createBesluit(@Valid besluitToevoegenGegevens: RestBesluitVastleggenGegevens) =
+        zrcClientService.readZaak(besluitToevoegenGegevens.zaakUuid).let { zaak ->
+            ztcClientService.readZaaktype(zaak.zaaktype).let { zaaktype ->
+                assertPolicy(policyService.readZaakRechten(zaak, zaaktype).vastleggenBesluit)
+                assertPolicy(CollectionUtils.isNotEmpty(zaaktype.besluittypen))
+            }
 
-        val besluit = restBesluitConverter.convertToBesluit(zaak, besluitToevoegenGegevens)
-        zaak.resultaat?.let {
-            zgwApiService.updateResultaatForZaak(zaak, besluitToevoegenGegevens.resultaattypeUuid, null)
-        } ?: run {
-            zgwApiService.createResultaatForZaak(zaak, besluitToevoegenGegevens.resultaattypeUuid, null)
-        }
-        val restBesluit = brcClientService.createBesluit(besluit).let { restBesluitConverter.convertToRestBesluit(it) }
-        besluitToevoegenGegevens.informatieobjecten?.forEach { informatieobjectUuid ->
-            drcClientService.readEnkelvoudigInformatieobject(informatieobjectUuid).let { informatieobject ->
-                BesluitInformatieObject().apply {
-                    this.informatieobject = informatieobject.url
-                    this.besluit = restBesluit.url
-                }.let {
-                    brcClientService.createBesluitInformatieobject(
-                        it,
-                        AANMAKEN_BESLUIT_TOELICHTING
-                    )
+            besluitService.createBesluit(zaak, besluitToevoegenGegevens).let {
+                restBesluitConverter.convertToRestBesluit(it).also {
+                    // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
+                    // but open_zaak does not send that one, so emulate it here.
+                    eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))
                 }
             }
         }
-
-        // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
-        // but open_zaak does not send that one, so emulate it here.
-        eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))
-        return restBesluit
-    }
 
     @PUT
     @Path("besluit")
-    fun updateBesluit(
-        @Valid restBesluitWijzigenGegevens: RestBesluitWijzigenGegevens
-    ): RestBesluit {
-        val besluit = brcClientService.readBesluit(restBesluitWijzigenGegevens.besluitUuid)
-        val zaak = zrcClientService.readZaak(besluit.zaak).also {
-            assertPolicy(policyService.readZaakRechten(it).vastleggenBesluit)
-        }
-        besluit.updateBesluitWithBesluitWijzigenGegevens(restBesluitWijzigenGegevens).also {
-            brcClientService.updateBesluit(it, restBesluitWijzigenGegevens.reden)
-        }
-        zaak.resultaat?.let {
-            zrcClientService.readResultaat(it).let { zaakresultaat ->
-                val resultaattype = ztcClientService.readResultaattype(restBesluitWijzigenGegevens.resultaattypeUuid)
-                if (!extractedUuidIsEqual(zaakresultaat.resultaattype, resultaattype.url)) {
-                    zrcClientService.deleteResultaat(zaakresultaat.uuid)
-                    zgwApiService.createResultaatForZaak(
-                        zaak,
-                        restBesluitWijzigenGegevens.resultaattypeUuid,
-                        null
-                    )
+    fun updateBesluit(@Valid restBesluitWijzigenGegevens: RestBesluitWijzigenGegevens) =
+        brcClientService.readBesluit(restBesluitWijzigenGegevens.besluitUuid).let { besluit ->
+            zrcClientService.readZaak(besluit.zaak).let { zaak ->
+                assertPolicy(policyService.readZaakRechten(zaak).vastleggenBesluit)
+
+                besluitService.updateBesluit(zaak, besluit, restBesluitWijzigenGegevens).let {
+                    restBesluitConverter.convertToRestBesluit(besluit).also {
+                        // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
+                        // but open_zaak does not send that one, so emulate it here.
+                        eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))
+                    }
                 }
             }
         }
-        restBesluitWijzigenGegevens.informatieobjecten?.let {
-            besluitService.updateBesluitInformatieobjecten(besluit, it)
-        }
-        // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
-        // but open_zaak does not send that one, so emulate it here.
-        eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))
-        return restBesluitConverter.convertToRestBesluit(besluit)
-    }
 
     @PUT
     @Path("besluit/intrekken")
-    fun intrekkenBesluit(
-        @Valid restBesluitIntrekkenGegevens: RestBesluitIntrekkenGegevens
-    ): RestBesluit {
-        val besluit = besluitService.readBesluit(restBesluitIntrekkenGegevens)
-        val zaak = zrcClientService.readZaak(besluit.zaak).also {
-            assertPolicy(it.isOpen && policyService.readZaakRechten(it).behandelen)
+    fun intrekkenBesluit(@Valid restBesluitIntrekkenGegevens: RestBesluitIntrekkenGegevens) =
+        besluitService.readBesluit(restBesluitIntrekkenGegevens).let { besluit ->
+            zrcClientService.readZaak(besluit.zaak).let { zaak ->
+                assertPolicy(zaak.isOpen && policyService.readZaakRechten(zaak).behandelen)
+
+                besluitService.withdrawBesluit(besluit, restBesluitIntrekkenGegevens.reden).let {
+                    restBesluitConverter.convertToRestBesluit(it).also {
+                        // This event should result from a ZAAKBESLUIT UPDATED notification on the ZAKEN channel
+                        // but open_zaak does not send that one, so emulate it here.
+                        eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))
+                    }
+                }
+            }
         }
-        return besluitService.withdrawBesluit(besluit, restBesluitIntrekkenGegevens.reden).also {
-            // This event should result from a ZAAKBESLUIT UPDATED notification on the ZAKEN channel
-            // but open_zaak does not send that one, so emulate it here.
-            eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))
-        }.let {
-            restBesluitConverter.convertToRestBesluit(it)
-        }
-    }
 
     @GET
     @Path("besluit/{uuid}/historie")

@@ -28,7 +28,12 @@ fun createBesluitType(
     vastgelegdIn: List<String> = listOf("dummyVastgelegdIn1", "dummyVastgelegdIn2"),
     beginObject: LocalDate = LocalDate.now(),
     eindeObject: LocalDate = LocalDate.now().plusDays(1),
-    informatieobjecttypen: List<URI>? = listOf(URI("dummyInformatieObjectType1"), URI("dummyInformatieObjectType2"))
+    informatieobjecttypen: List<URI>? = listOf(URI("dummyInformatieObjectType1"), URI("dummyInformatieObjectType2")),
+    description: String = "description",
+    explanation: String = "explanation",
+    publicationEnabled: Boolean = false,
+    publicationPeriod: String? = null,
+    reactionPeriod: String? = null
 ) =
     BesluitType(
         url,
@@ -41,6 +46,11 @@ fun createBesluitType(
         eindeObject
     ).apply {
         setInformatieobjecttypen(informatieobjecttypen)
+        omschrijving = description
+        toelichting = explanation
+        setPublicatieIndicatie(publicationEnabled)
+        publicatietermijn = publicationPeriod
+        reactietermijn = reactionPeriod
     }
 
 @Suppress("LongParameterList")

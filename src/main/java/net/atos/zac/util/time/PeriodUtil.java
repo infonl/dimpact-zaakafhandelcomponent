@@ -55,7 +55,7 @@ public final class PeriodUtil {
         }
     }
 
-    public static int aantalDagenVanafHeden(Period period) {
+    public static int numberOfDaysFromToday(Period period) {
         if (period == null) {
             return 0;
         }

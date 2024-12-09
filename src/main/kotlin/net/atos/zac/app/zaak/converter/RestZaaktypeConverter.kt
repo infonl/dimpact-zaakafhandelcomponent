@@ -49,7 +49,7 @@ class RestZaaktypeConverter @Inject constructor(
             opschortingMogelijk = zaaktype.opschortingEnAanhoudingMogelijk,
             verlengingMogelijk = zaaktype.verlengingMogelijk,
             verlengingstermijn = if (zaaktype.verlengingMogelijk) {
-                PeriodUtil.aantalDagenVanafHeden(
+                PeriodUtil.numberOfDaysFromToday(
                     Period.parse(zaaktype.verlengingstermijn)
                 )
             } else {

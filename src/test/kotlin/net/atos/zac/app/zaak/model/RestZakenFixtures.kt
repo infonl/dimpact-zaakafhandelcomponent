@@ -35,13 +35,15 @@ fun createRestBesluit(
 )
 
 @Suppress("LongParameterList")
-fun createRESTBesluitVastleggenGegevens(
+fun createRestBesluitVastleggenGegevens(
     zaakUuid: UUID = UUID.randomUUID(),
     resultaattypeUuid: UUID = UUID.randomUUID(),
     besluittypeUuid: UUID = UUID.randomUUID(),
     toelichting: String = "dummyToelichting",
     ingangsdatum: LocalDate = LocalDate.of(2023, 9, 14),
     vervaldatum: LocalDate = LocalDate.of(2023, 10, 5),
+    publicationDate: LocalDate? = null,
+    lastResponseDate: LocalDate? = null,
     informatieobjecten: List<UUID> = listOf(UUID.randomUUID())
 ) =
     RestBesluitVastleggenGegevens(
@@ -51,8 +53,33 @@ fun createRESTBesluitVastleggenGegevens(
         resultaattypeUuid = resultaattypeUuid,
         toelichting = toelichting,
         vervaldatum = vervaldatum,
-        zaakUuid = zaakUuid
+        zaakUuid = zaakUuid,
+        publicationDate = publicationDate,
+        lastResponseDate = lastResponseDate
     )
+
+@Suppress("LongParameterList")
+fun createRestBesluitWijzigenGegevens(
+    besluitUUID: UUID = UUID.randomUUID(),
+    resultTypeUUID: UUID = UUID.randomUUID(),
+    description: String = "besluitDummyDescription",
+    effectiveDate: LocalDate = LocalDate.of(2023, 9, 14),
+    expirationDate: LocalDate = LocalDate.of(2023, 11, 14),
+    publicationDate: LocalDate = LocalDate.of(2023, 10, 14),
+    lastResponseDate: LocalDate = LocalDate.of(2023, 11, 1),
+    informationObjects: List<UUID> = listOf(UUID.randomUUID()),
+    reason: String = "dummyReason"
+) = RestBesluitWijzigenGegevens(
+    besluitUuid = besluitUUID,
+    resultaattypeUuid = resultTypeUUID,
+    toelichting = description,
+    ingangsdatum = effectiveDate,
+    vervaldatum = expirationDate,
+    publicationDate = publicationDate,
+    lastResponseDate = lastResponseDate,
+    informatieobjecten = informationObjects,
+    reden = reason
+)
 
 fun createRESTGerelateerdeZaak() = RestGerelateerdeZaak()
 

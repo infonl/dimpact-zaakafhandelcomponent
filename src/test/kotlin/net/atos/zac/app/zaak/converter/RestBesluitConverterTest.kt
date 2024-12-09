@@ -6,17 +6,23 @@
 package net.atos.zac.app.zaak.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.zgw.brc.BrcClientService
+import net.atos.client.zgw.brc.model.createBesluit
 import net.atos.client.zgw.brc.model.generated.VervalredenEnum
+import net.atos.client.zgw.brc.model.generated.createBesluitInformatieObject
 import net.atos.client.zgw.drc.DrcClientService
+import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createBesluitType
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
-import net.atos.zac.app.zaak.model.createRESTBesluitVastleggenGegevens
+import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
+import net.atos.zac.app.zaak.model.createRestBesluitVastleggenGegevens
 import java.time.LocalDate
 
 class RestBesluitConverterTest : BehaviorSpec({
@@ -33,9 +39,11 @@ class RestBesluitConverterTest : BehaviorSpec({
 
     Given("Besluit toevoegen data with a vervaldatum") {
         val zaak = createZaak()
-        val besluitToevoegenGegevens = createRESTBesluitVastleggenGegevens(
+        val besluitToevoegenGegevens = createRestBesluitVastleggenGegevens(
             ingangsdatum = LocalDate.now().plusDays(1),
-            vervaldatum = LocalDate.now().plusDays(2)
+            vervaldatum = LocalDate.now().plusDays(2),
+            publicationDate = LocalDate.now().plusDays(3),
+            lastResponseDate = LocalDate.now().plusDays(4)
         )
         val besluittype = createBesluitType()
 
@@ -54,6 +62,60 @@ class RestBesluitConverterTest : BehaviorSpec({
                     toelichting shouldBe besluitToevoegenGegevens.toelichting
                     vervaldatum shouldBe besluitToevoegenGegevens.vervaldatum
                     vervalreden shouldBe VervalredenEnum.TIJDELIJK
+                    publicatiedatum shouldBe besluitToevoegenGegevens.publicationDate
+                    uiterlijkeReactiedatum shouldBe besluitToevoegenGegevens.lastResponseDate
+                }
+            }
+        }
+    }
+
+    Given("Besluit") {
+        val besluit = createBesluit()
+        val besluitType = createBesluitType(
+            publicationEnabled = true,
+            publicationPeriod = "P10D",
+            reactionPeriod = "P2D"
+        )
+        val besluitInformatieObject = createBesluitInformatieObject()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
+
+        every { ztcClientService.readBesluittype(besluit.besluittype) } returns besluitType
+        every { brcClientService.listBesluitInformatieobjecten(besluit.url) } returns listOf(besluitInformatieObject)
+        every {
+            drcClientService.readEnkelvoudigInformatieobject(besluitInformatieObject.informatieobject)
+        } returns enkelvoudigInformatieObject
+        every {
+            restInformatieobjectConverter.convertInformatieobjectenToREST(listOf(enkelvoudigInformatieObject))
+        } returns listOf(restEnkelvoudigInformatieobject)
+
+        When("it is converted to a rest representation") {
+            val restBesluit = restBesluitConverter.convertToRestBesluit(besluit)
+
+            Then("the conversion is correct") {
+                with(restBesluit) {
+                    uuid shouldBe besluit.url.extractUuid()
+                    with(besluittype!!) {
+                        id shouldBe besluitType.url.extractUuid()
+                        naam shouldBe besluitType.omschrijving
+                        toelichting shouldBe besluitType.toelichting
+                        informatieobjecttypen shouldBe besluitType.informatieobjecttypen
+                        with(publication) {
+                            enabled shouldBe true
+                            publicationTerm shouldBe "10 dagen"
+                            publicationTermDays shouldBe 10
+                            responseTerm shouldBe "2 dagen"
+                            responseTermDays shouldBe 2
+                        }
+                    }
+                    datum shouldBe besluit.datum
+                    ingangsdatum shouldBe besluit.datum
+                    toelichting shouldBe "dummyReason"
+                    vervaldatum shouldBe besluit.vervaldatum
+                    vervalreden shouldBe besluit.vervalreden
+                    publicationDate shouldBe besluit.publicatiedatum
+                    lastResponseDate shouldBe besluit.uiterlijkeReactiedatum
+                    informatieobjecten!! shouldContain restEnkelvoudigInformatieobject
                 }
             }
         }
