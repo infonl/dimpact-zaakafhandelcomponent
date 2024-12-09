@@ -26,7 +26,9 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
-import net.atos.zac.app.besluit.BesluitException
+import net.atos.zac.app.besluit.BesluitPublicationDateMissingException
+import net.atos.zac.app.besluit.BesluitPublicationDisabledException
+import net.atos.zac.app.besluit.BesluitResponseDateInvalidException
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
@@ -85,9 +87,19 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 errorCode = ERROR_CODE_SMARTDOCUMENTS_NOT_CONFIGURED,
                 exception = exception
             )
-            exception is BesluitException -> generateResponse(
+            exception is BesluitPublicationDisabledException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
-                errorCode = ERROR_CODE_BESLUIT_TYPE,
+                errorCode = ERROR_CODE_BESLUIT_PUBLICATION_DISABLED_TYPE,
+                exception = exception
+            )
+            exception is BesluitPublicationDateMissingException -> generateResponse(
+                responseStatus = Response.Status.BAD_REQUEST,
+                errorCode = ERROR_CODE_BESLUIT_PUBLICATION_DATE_MISSING_TYPE,
+                exception = exception
+            )
+            exception is BesluitResponseDateInvalidException -> generateResponse(
+                responseStatus = Response.Status.BAD_REQUEST,
+                errorCode = ERROR_CODE_BESLUIT_RESPONSE_DATE_INVALID_TYPE,
                 exception = exception
             )
             exception is BetrokkeneIsAlreadyAddedToZaakException -> generateResponse(

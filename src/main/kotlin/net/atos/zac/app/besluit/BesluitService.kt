@@ -21,8 +21,10 @@ import net.atos.zac.app.zaak.model.RestBesluitIntrekkenGegevens
 import net.atos.zac.app.zaak.model.RestBesluitVastleggenGegevens
 import net.atos.zac.app.zaak.model.RestBesluitWijzigenGegevens
 import net.atos.zac.app.zaak.model.updateBesluitWithBesluitWijzigenGegevens
+import net.atos.zac.util.time.PeriodUtil
 import org.apache.commons.collections4.CollectionUtils
 import java.time.LocalDate
+import java.time.Period
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -48,7 +50,7 @@ class BesluitService @Inject constructor(
         }
 
     fun createBesluit(zaak: Zaak, besluitToevoegenGegevens: RestBesluitVastleggenGegevens): Besluit {
-        validateBesluitData(
+        validateBesluitPublicationDates(
             besluitToevoegenGegevens.besluittypeUuid,
             besluitToevoegenGegevens.publicationDate,
             besluitToevoegenGegevens.lastResponseDate
@@ -66,19 +68,37 @@ class BesluitService @Inject constructor(
         }
     }
 
-    private fun validateBesluitData(
+    @Suppress("NestedBlockDepth")
+    private fun validateBesluitPublicationDates(
         besluitTypeUUID: UUID,
         publicationDate: LocalDate?,
         responseDate: LocalDate?
     ) =
         ztcClientService.readBesluittype(besluitTypeUUID).run {
-            if (!publicatieIndicatie && (publicationDate != null || responseDate != null)) {
-                throw BesluitException(
-                    "Besluit type with UUID '${url.extractUuid()}' and name " +
-                        "'$omschrijving' cannot have publication or response dates"
-                )
+            if (!publicatieIndicatie) {
+                if (publicationDate != null || responseDate != null) {
+                    throw BesluitPublicationDisabledException(
+                        "Besluit type with UUID '${url.extractUuid()}' and name " +
+                                "'$omschrijving' cannot have publication or response dates"
+                    )
+                }
             }
-        }
+            if (publicationDate == null) {
+                throw BesluitPublicationDateMissingException("Missing publication date")
+            }
+            responseDate?.let {
+                    PeriodUtil.numberOfDaysFromToday(Period.parse(reactietermijn)).toLong().let { responseDays ->
+                        publicationDate.plusDays(responseDays).let { calculatedLatestResponseDate ->
+                            if (it.isBefore(calculatedLatestResponseDate)) {
+                                throw BesluitResponseDateInvalidException(
+                                    "Response date $responseDate is before " +
+                                        "calculated response date $calculatedLatestResponseDate"
+                                )
+                            }
+                        }
+                    }
+                }
+            }
 
     private fun createBesluitInformationObjects(
         besluitToevoegenGegevens: RestBesluitVastleggenGegevens,
@@ -101,7 +121,7 @@ class BesluitService @Inject constructor(
         besluit: Besluit,
         restBesluitWijzigenGegevens: RestBesluitWijzigenGegevens
     ) {
-        validateBesluitData(
+        validateBesluitPublicationDates(
             besluit.besluittype.extractUuid(),
             restBesluitWijzigenGegevens.publicationDate,
             restBesluitWijzigenGegevens.lastResponseDate

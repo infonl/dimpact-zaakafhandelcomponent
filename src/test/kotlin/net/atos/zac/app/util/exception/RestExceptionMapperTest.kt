@@ -21,6 +21,9 @@ import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
 import net.atos.zac.app.besluit.BesluitException
+import net.atos.zac.app.besluit.BesluitPublicationDateMissingException
+import net.atos.zac.app.besluit.BesluitPublicationDisabledException
+import net.atos.zac.app.besluit.BesluitResponseDateInvalidException
 import net.atos.zac.app.exception.RestExceptionMapper
 import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
@@ -268,8 +271,8 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
-    Given("A BesluitException exception") {
-        val exception = BesluitException("error")
+    Given("A BesluitPublicationDisabledException exception") {
+        val exception = BesluitPublicationDisabledException("error")
 
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
@@ -277,7 +280,37 @@ class RestExceptionMapperTest : BehaviorSpec({
             Then("it should return the proper error code and no exception message") {
                 checkResponse(
                     response = response,
-                    errorMessage = "msg.error.besluit.type",
+                    errorMessage = "msg.error.besluit.publication.disabled",
+                    expectedStatus = HttpStatus.SC_BAD_REQUEST
+                )
+            }
+        }
+    }
+    Given("A BesluitPublicationDateMissingException exception") {
+        val exception = BesluitPublicationDateMissingException("error")
+
+        When("the exception is mapped to a response") {
+            val response = restExceptionMapper.toResponse(exception)
+
+            Then("it should return the proper error code and no exception message") {
+                checkResponse(
+                    response = response,
+                    errorMessage = "msg.error.besluit.publication.date.missing",
+                    expectedStatus = HttpStatus.SC_BAD_REQUEST
+                )
+            }
+        }
+    }
+    Given("A BesluitResponseDateInvalidException exception") {
+        val exception = BesluitResponseDateInvalidException("error")
+
+        When("the exception is mapped to a response") {
+            val response = restExceptionMapper.toResponse(exception)
+
+            Then("it should return the proper error code and no exception message") {
+                checkResponse(
+                    response = response,
+                    errorMessage = "msg.error.besluit.response.date.invalid",
                     expectedStatus = HttpStatus.SC_BAD_REQUEST
                 )
             }

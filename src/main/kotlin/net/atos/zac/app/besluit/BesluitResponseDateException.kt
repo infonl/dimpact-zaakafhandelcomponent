@@ -5,4 +5,4 @@
 
 package net.atos.zac.app.besluit
 
-open class BesluitException(message: String) : RuntimeException(message)
+class BesluitResponseDateException(message: String) : RuntimeException(message)
