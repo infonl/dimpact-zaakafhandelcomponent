@@ -750,7 +750,7 @@
   "msg.error.ztc.client.exception": "Er heeft zich helaas een technische fout voor gedaan. Er kunnen geen zaaktypes worden opgehaald.",
   "msg.error.smartdocuments.not.configured": "SmartDocuments is niet geconfigureerd",
   "msg.error.smartdocuments.disabled": "SmartDocuments is uitgeschakeld",
-  "msg.error.besluit.type": "Verkeerde besluittype",
+  "msg.error.besluit.type": "Verkeerd besluittype",
   "msg.email.verstuurd": "E-mail is verstuurd",
   "msg.extern.advies.vastleggen.behandelen": "Er is een extern advies aangevraagd. Hieronder kan het antwoord worden vastgelegd.",
   "msg.formioformulier.verwijderen.bevestigen": "Formulier '{{naam}}' verwijderen?",
