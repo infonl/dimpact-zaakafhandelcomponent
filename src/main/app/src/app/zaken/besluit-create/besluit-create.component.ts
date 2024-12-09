@@ -50,7 +50,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
 
   fields: Array<AbstractFormField[]>;
 
-  besluitTypeField: AbstractFormField;
+  besluittypeField: AbstractFormField;
   divider: AbstractFormField;
   publicationParagraph: AbstractFormField;
   publicationDateField: AbstractFormField;
@@ -71,7 +71,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
       .cancelText("actie.annuleren")
       .build();
 
-    const resultaatTypeField = new SelectFormFieldBuilder(
+    const resultaattypeField = new SelectFormFieldBuilder(
       this.zaak.resultaat?.resultaattype,
     )
       .id("resultaattype")
@@ -80,7 +80,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
       .optionLabel("naam")
       .options(this.zakenService.listResultaattypes(this.zaak.zaaktype.uuid))
       .build();
-    this.besluitTypeField = new SelectFormFieldBuilder()
+    this.besluittypeField = new SelectFormFieldBuilder()
       .id("besluittype")
       .label("besluit")
       .validators(Validators.required)
@@ -92,7 +92,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
       .label("toelichting")
       .maxlength(1000)
       .build();
-    const ingangsDatumField = new DateFormFieldBuilder(moment())
+    const ingangsdatumField = new DateFormFieldBuilder(moment())
       .id("ingangsdatum")
       .label("ingangsdatum")
       .validators(Validators.required)
@@ -100,7 +100,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
     const vervaldatumField = new DateFormFieldBuilder()
       .id("vervaldatum")
       .label("vervaldatum")
-      .minDate(ingangsDatumField.formControl.value)
+      .minDate(ingangsdatumField.formControl.value)
       .build();
     const documentenField = new DocumentenLijstFieldBuilder()
       .id("documenten")
@@ -108,15 +108,15 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
       .build();
 
     this.fields = [
-      [resultaatTypeField],
-      [this.besluitTypeField],
-      [ingangsDatumField],
+      [resultaattypeField],
+      [this.besluittypeField],
+      [ingangsdatumField],
       [vervaldatumField],
       [toelichtingField],
       [documentenField],
     ];
 
-    resultaatTypeField.formControl.valueChanges
+    resultaattypeField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
         if (value) {
@@ -126,13 +126,13 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
         }
       });
 
-    ingangsDatumField.formControl.valueChanges
+    ingangsdatumField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
         (vervaldatumField as DateFormField).minDate = value;
       });
 
-    this.besluitTypeField.formControl.valueChanges
+    this.besluittypeField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
         if (value) {
@@ -201,7 +201,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
     const lastResponseDate: Moment = publicationDate
       .clone()
       .add(
-        this.besluitTypeField.formControl.value.publicatieIndicatie
+        this.besluittypeField.formControl.value.publicatieIndicatie
           .responseTerm,
         "days",
       );
