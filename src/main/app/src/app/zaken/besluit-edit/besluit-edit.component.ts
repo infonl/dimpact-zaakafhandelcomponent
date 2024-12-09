@@ -70,8 +70,8 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
     )
       .id("besluittype")
       .label("besluit")
+      .disabled()
       .build();
-    besluittypeField.formControl.disable();
     const toelichtingField = new TextareaFormFieldBuilder(
       this.besluit.toelichting,
     )

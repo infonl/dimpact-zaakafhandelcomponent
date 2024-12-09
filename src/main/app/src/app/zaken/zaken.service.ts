@@ -378,8 +378,6 @@ export class ZakenService {
   createBesluit(
     besluitVestleggenGegevens: GeneratedType<"RestBesluitVastleggenGegevens">,
   ) {
-    console.log("besluitVestleggenGegevens", besluitVestleggenGegevens);
-
     return this.http
       .post<
         GeneratedType<"RestBesluit">
@@ -422,8 +420,8 @@ export class ZakenService {
         (GeneratedType<"RestBesluittype"> & {
           publication: {
             active: boolean;
-            publicationTerm: number;
-            responseTerm: number;
+            publicationTermDays: number;
+            responseTermDays: number;
           };
         })[]
         //
@@ -439,8 +437,8 @@ export class ZakenService {
             ...item,
             publication: {
               active: Math.random() < 0.5,
-              publicationTerm: 7 * (index + 1),
-              responseTerm: 14 * (index + 1),
+              publicationTermDays: 7 * (index + 1),
+              responseTermDays: 14 * (index + 1),
             },
           })),
         ),

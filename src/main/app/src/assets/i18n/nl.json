@@ -282,7 +282,7 @@
   "zaakOpschorten": "De zaak opschorten",
   "actief": "Actief",
   "inactief": "Inactief",
-  "besluit.publicatie.indicatie": "Publicatiegegevens (publicatietermijn: {{publicationTerm}} dagen / uiterlijke reactietermijn: {{responseTerm}} dagen)",
+  "besluit.publicatie.indicatie": "Publicatiegegevens (publicatietermijn: {{publicationTermDays}} dagen / uiterlijke reactietermijn: {{responseTermDays}} dagen)",
   " 4 ": ">>--> ENTITEITEN <--<<",
   "-geen-": "- Geen -",
   "informatieobject": "Document",
