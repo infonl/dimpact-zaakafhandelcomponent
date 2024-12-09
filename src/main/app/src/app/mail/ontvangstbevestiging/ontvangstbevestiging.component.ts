@@ -3,11 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient } from "@angular/common/http";
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
-import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { Mail } from "../../admin/model/mail";
@@ -24,13 +22,12 @@ import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
-import { NavigationService } from "../../shared/navigation/navigation.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { TakenService } from "../../taken/taken.service";
 import { Zaak } from "../../zaken/model/zaak";
 import { ZakenService } from "../../zaken/zaken.service";
 import { MailService } from "../mail.service";
-import { MailGegevens } from "../model/mail-gegevens";
 
 @Component({
   selector: "zac-ontvangstbevestiging",
@@ -47,10 +44,6 @@ export class OntvangstbevestigingComponent implements OnInit {
   constructor(
     private zakenService: ZakenService,
     private informatieObjectenService: InformatieObjectenService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private navigation: NavigationService,
-    private http: HttpClient,
     private mailService: MailService,
     private mailtemplateService: MailtemplateService,
     public takenService: TakenService,
@@ -139,14 +132,15 @@ export class OntvangstbevestigingComponent implements OnInit {
 
   onFormSubmit(formGroup: FormGroup): void {
     if (formGroup) {
-      const mailGegevens = new MailGegevens();
-      mailGegevens.verzender = formGroup.controls["verzender"].value.mail;
-      mailGegevens.replyTo = formGroup.controls["verzender"].value.replyTo;
-      mailGegevens.ontvanger = formGroup.controls["ontvanger"].value;
-      mailGegevens.onderwerp = formGroup.controls["onderwerp"].value;
-      mailGegevens.body = formGroup.controls["body"].value;
-      mailGegevens.bijlagen = formGroup.controls["bijlagen"].value;
-      mailGegevens.createDocumentFromMail = true;
+      const mailGegevens: GeneratedType<"RESTMailGegevens"> = {
+        verzender: formGroup.controls["verzender"].value.mail,
+        replyTo: formGroup.controls["verzender"].value.replyTo,
+        ontvanger: formGroup.controls["ontvanger"].value,
+        onderwerp: formGroup.controls["onderwerp"].value,
+        body: formGroup.controls["body"].value,
+        bijlagen: formGroup.controls["bijlagen"].value,
+        createDocumentFromMail: true,
+      };
 
       this.mailService
         .sendAcknowledgeReceipt(this.zaak.uuid, mailGegevens)

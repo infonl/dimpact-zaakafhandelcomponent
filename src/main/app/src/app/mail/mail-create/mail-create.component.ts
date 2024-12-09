@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -29,12 +29,12 @@ import { AbstractFormField } from "../../shared/material-form-builder/model/abst
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { NavigationService } from "../../shared/navigation/navigation.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { TakenService } from "../../taken/taken.service";
 import { Zaak } from "../../zaken/model/zaak";
 import { ZakenService } from "../../zaken/zaken.service";
 import { MailService } from "../mail.service";
-import { MailGegevens } from "../model/mail-gegevens";
 
 @Component({
   selector: "zac-mail-create",
@@ -168,14 +168,15 @@ export class MailCreateComponent implements OnInit {
 
   onFormSubmit(formGroup: FormGroup): void {
     if (formGroup?.valid) {
-      const mailGegevens = new MailGegevens();
-      mailGegevens.verzender = this.verzenderFormField.formControl.value.mail;
-      mailGegevens.replyTo = this.verzenderFormField.formControl.value.replyTo;
-      mailGegevens.ontvanger = this.ontvangerFormField.formControl.value;
-      mailGegevens.onderwerp = this.onderwerpFormField.formControl.value;
-      mailGegevens.body = this.bodyFormField.formControl.value;
-      mailGegevens.bijlagen = this.bijlagenFormField.formControl.value;
-      mailGegevens.createDocumentFromMail = true;
+      const mailGegevens: GeneratedType<"RESTMailGegevens"> = {
+        verzender: this.verzenderFormField.formControl.value.mail,
+        replyTo: this.verzenderFormField.formControl.value.replyTo,
+        ontvanger: this.ontvangerFormField.formControl.value,
+        onderwerp: this.onderwerpFormField.formControl.value,
+        body: this.bodyFormField.formControl.value,
+        bijlagen: this.bijlagenFormField.formControl.value,
+        createDocumentFromMail: true,
+      };
 
       this.mailService.sendMail(this.zaak.uuid, mailGegevens).subscribe(() => {
         this.utilService.openSnackbar("msg.email.verstuurd");
