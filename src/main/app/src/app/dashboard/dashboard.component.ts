@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -15,7 +15,6 @@ import moment from "moment";
 import { forkJoin } from "rxjs";
 import { UtilService } from "../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { SignaleringType } from "../shared/signaleringen/signalering-type";
 import { SessionStorageUtil } from "../shared/storage/session-storage.util";
 import { SignaleringenService } from "../signaleringen.service";
 import { DashboardCard } from "./model/dashboard-card";
@@ -39,7 +38,7 @@ export class DashboardComponent implements OnInit {
     new DashboardCard(
       DashboardCardId.MIJN_TAKEN_NIEUW,
       DashboardCardType.TAKEN,
-      SignaleringType.TAAK_OP_NAAM,
+      "TAAK_OP_NAAM",
     ),
     new DashboardCard(
       DashboardCardId.MIJN_ZAKEN,
@@ -48,17 +47,17 @@ export class DashboardComponent implements OnInit {
     new DashboardCard(
       DashboardCardId.MIJN_ZAKEN_NIEUW,
       DashboardCardType.ZAKEN,
-      SignaleringType.ZAAK_OP_NAAM,
+      "ZAAK_OP_NAAM",
     ),
     new DashboardCard(
       DashboardCardId.MIJN_DOCUMENTEN_NIEUW,
       DashboardCardType.ZAKEN,
-      SignaleringType.ZAAK_DOCUMENT_TOEGEVOEGD,
+      "ZAAK_DOCUMENT_TOEGEVOEGD",
     ),
     new DashboardCard(
       DashboardCardId.MIJN_ZAKEN_WAARSCHUWING,
       DashboardCardType.ZAAK_WAARSCHUWINGEN,
-      SignaleringType.ZAAK_VERLOPEND,
+      "ZAAK_VERLOPEND",
     ),
   ];
 
