@@ -19,7 +19,7 @@ fun createBesluit(
     date: LocalDate = LocalDate.now(),
     reason: String = "dummyReason",
     startDate: LocalDate = LocalDate.now(),
-    fatalDate: LocalDate = LocalDate.now().plusDays(1),
+    expirationDate: LocalDate? = LocalDate.now().plusDays(1),
     url: URI = URI("http://localhost/besluit/${UUID.randomUUID()}"),
     vervalredenWeergave: String = "dummyVervalredenWeergave"
 ) = Besluit(url, vervalredenWeergave).apply {
@@ -30,5 +30,5 @@ fun createBesluit(
     this.datum = date
     this.toelichting = reason
     this.ingangsdatum = startDate
-    this.vervaldatum = fatalDate
+    this.vervaldatum = expirationDate
 }

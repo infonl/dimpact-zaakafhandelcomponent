@@ -14,7 +14,7 @@ import jakarta.enterprise.inject.Instance
 import net.atos.zac.app.shared.RestPageParameters
 import net.atos.zac.app.signalering.converter.RestSignaleringInstellingenConverter
 import net.atos.zac.app.signalering.exception.SignaleringException
-import net.atos.zac.app.zaak.model.createRESTZaakOverzicht
+import net.atos.zac.app.zaak.model.createRestZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.signalering.SignaleringService
@@ -38,7 +38,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         val pageNumber = 0
         val pageSize = 5
         val numberOfElements = 11
-        val restZaakOverzichtList = List(numberOfElements) { createRESTZaakOverzicht() }
+        val restZaakOverzichtList = List(numberOfElements) { createRestZaakOverzicht() }
         val restPageParameters = RestPageParameters(pageNumber, pageSize)
 
         every { signaleringService.countZakenSignaleringen(signaleringType) } returns numberOfElements.toLong()

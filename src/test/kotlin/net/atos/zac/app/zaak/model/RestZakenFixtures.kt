@@ -35,9 +35,8 @@ fun createRestBesluit(
 )
 
 @Suppress("LongParameterList")
-fun createRESTBesluitVastleggenGegevens(
+fun createRestBesluitVastleggenGegevens(
     zaakUuid: UUID = UUID.randomUUID(),
-    resultaattypeUuid: UUID = UUID.randomUUID(),
     besluittypeUuid: UUID = UUID.randomUUID(),
     toelichting: String = "dummyToelichting",
     ingangsdatum: LocalDate = LocalDate.of(2023, 9, 14),
@@ -48,15 +47,14 @@ fun createRESTBesluitVastleggenGegevens(
         besluittypeUuid = besluittypeUuid,
         informatieobjecten = informatieobjecten,
         ingangsdatum = ingangsdatum,
-        resultaattypeUuid = resultaattypeUuid,
         toelichting = toelichting,
         vervaldatum = vervaldatum,
         zaakUuid = zaakUuid
     )
 
-fun createRESTGerelateerdeZaak() = RestGerelateerdeZaak()
+fun createRestGerelateerdeZaak() = RestGerelateerdeZaak()
 
-fun createRESTGeometry(
+fun createRestGeometry(
     type: String = "Point",
     point: RestCoordinates = createRestCoordinates()
 ) = RestGeometry(
@@ -72,7 +70,7 @@ fun createRestGroup(
     naam = name
 )
 
-fun createRESTInboxProductaanvraag(
+fun createRestInboxProductaanvraag(
     id: Long = 1234L,
     productaanvraagObjectUUID: UUID = UUID.randomUUID(),
     aanvraagdocumentUUID: UUID = UUID.randomUUID()
@@ -86,9 +84,9 @@ fun createRESTInboxProductaanvraag(
     initiatorID = null
 }
 
-fun createRESTOpenbareRuimte() = RESTOpenbareRuimte()
+fun createRestOpenbareRuimte() = RESTOpenbareRuimte()
 
-fun createRESTPand() = RESTPand()
+fun createRestPand() = RESTPand()
 
 fun createRestUser(
     id: String = "dummyId",
@@ -125,7 +123,7 @@ fun createRestZaak(
     archiefNominatie = "Sample Archief Nominatie",
     communicatiekanaal = "dummyCommunicatiekanaal",
     vertrouwelijkheidaanduiding = "Sample Vertrouwelijkheidaanduiding",
-    zaakgeometrie = createRESTGeometry(),
+    zaakgeometrie = createRestGeometry(),
     isOpgeschort = true,
     redenOpschorting = "Sample Reden Opschorting",
     isVerlengd = true,
@@ -133,8 +131,8 @@ fun createRestZaak(
     duurVerlenging = "Sample Duur Verlenging",
     groep = restGroup,
     behandelaar = behandelaar,
-    gerelateerdeZaken = listOf(createRESTGerelateerdeZaak()),
-    kenmerken = listOf(createRESTZaakKenmerk()),
+    gerelateerdeZaken = listOf(createRestGerelateerdeZaak()),
+    kenmerken = listOf(createRestZaakKenmerk()),
     zaakdata = createZaakData(),
     indicaties = indicaties,
     initiatorIdentificatieType = IdentificatieType.BSN,
@@ -150,7 +148,7 @@ fun createRestZaak(
     rechten = createRestZaakRechten()
 )
 
-fun createRESTZaakAanmaakGegevens(
+fun createRestZaakAanmaakGegevens(
     zaakTypeUUID: UUID = UUID.randomUUID(),
     zaak: RestZaak = createRestZaak(
         restZaakType = RestZaaktype(
@@ -158,17 +156,17 @@ fun createRESTZaakAanmaakGegevens(
             uuid = zaakTypeUUID
         )
     ),
-    inboxProductaanvraag: RESTInboxProductaanvraag = createRESTInboxProductaanvraag(),
-    bagObjecten: List<RESTBAGObject> = listOf(createRESTPand(), createRESTOpenbareRuimte())
+    inboxProductaanvraag: RESTInboxProductaanvraag = createRestInboxProductaanvraag(),
+    bagObjecten: List<RESTBAGObject> = listOf(createRestPand(), createRestOpenbareRuimte())
 ) = RESTZaakAanmaakGegevens(
     zaak = zaak,
     inboxProductaanvraag = inboxProductaanvraag,
     bagObjecten = bagObjecten
 )
 
-fun createRESTZaakKenmerk() = RESTZaakKenmerk("Sample kenmerk", "Sample bron")
+fun createRestZaakKenmerk() = RESTZaakKenmerk("Sample kenmerk", "Sample bron")
 
-fun createRESTZaakToekennenGegevens(
+fun createRestZaakToekennenGegevens(
     zaakUUID: UUID = UUID.randomUUID(),
     groepId: String = "dummyGroupId",
     behandelaarGebruikersnaam: String = "dummyBehandelaarGebruikersnaam",
@@ -180,7 +178,7 @@ fun createRESTZaakToekennenGegevens(
     reason = reden
 )
 
-fun createRESTZakenVerdeelGegevens(
+fun createRestZakenVerdeelGegevens(
     uuids: List<UUID> = emptyList(),
     groepId: String = "dummyGroupId",
     behandelaarGebruikersnaam: String? = null,
@@ -194,7 +192,7 @@ fun createRESTZakenVerdeelGegevens(
     screenEventResourceId = screenEventResourceId
 )
 
-fun createRESTZaakKoppelGegevens(
+fun createRestZaakKoppelGegevens(
     zaakUuid: UUID = UUID.randomUUID(),
     teKoppelenZaakUuid: UUID = UUID.randomUUID(),
     relatieType: RelatieType,
@@ -244,14 +242,14 @@ private fun createZaakData() = mapOf(
     "key3" to LocalDate.of(2023, 9, 14)
 )
 
-fun createRESTZaakOverzicht(
+fun createRestZaakOverzicht(
     uuid: UUID = UUID.randomUUID()
 ) = RestZaakOverzicht().apply {
     this.uuid = uuid
 }
 
 fun createRestZaakLocatieGegevens(
-    restGeometry: RestGeometry = createRESTGeometry(),
+    restGeometry: RestGeometry = createRestGeometry(),
     reason: String = "dummyReden"
 ) = RestZaakLocatieGegevens(
     geometrie = restGeometry,

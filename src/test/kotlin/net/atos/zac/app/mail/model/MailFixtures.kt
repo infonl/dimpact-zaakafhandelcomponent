@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.mail.model
 
-fun createRESTMailGegevens(
+fun createRestMailGegevens(
     verzender: String = "from@example.com",
     ontvanger: String = "to@example.com",
 ) = RESTMailGegevens().apply {

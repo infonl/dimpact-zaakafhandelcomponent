@@ -41,8 +41,6 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
 
     Given("A zaak has been created that has finished the intake phase with the status 'admissible'") {
         lateinit var zaakUUID: UUID
-        lateinit var resultaatType1Uuid: UUID
-        lateinit var resultaatType2Uuid: UUID
         lateinit var besluitType1Uuid: UUID
         lateinit var besluitUuid: UUID
         val intakeId: Int
@@ -94,8 +92,6 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             with(JSONArray(body!!.string())) {
                 // we expect 4 resultaat types for this zaak type
                 shouldHaveSize(4)
-                resultaatType1Uuid = getJSONObject(0).getString("id").let(UUID::fromString)
-                resultaatType2Uuid = getJSONObject(1).getString("id").let(UUID::fromString)
             }
         }
         itestHttpClient.performGetRequest(
@@ -114,7 +110,6 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                 requestBodyAsString = """
             {
                 "zaakUuid":"$zaakUUID",
-                "resultaattypeUuid":"$resultaatType1Uuid",
                 "besluittypeUuid":"$besluitType1Uuid",
                 "toelichting":"dummyToelichting",
                 "ingangsdatum":"${LocalDate.now()}",
@@ -153,7 +148,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             }
         }
 
-        When("the besluit is updated with a new result type, start date, end date, and reason") {
+        When("the besluit is updated with a new start date, end date, and reason") {
             val startDate = LocalDate.now().plusDays(1)
             val fatalDate = LocalDate.now().plusDays(2)
             val updateReason = "dummyBesluitUpdateToelichting"
@@ -162,7 +157,6 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                 requestBodyAsString = """
             {
                 "besluitUuid":"$besluitUuid",
-                "resultaattypeUuid":"$resultaatType2Uuid",
                 "toelichting":"$updateReason",
                 "ingangsdatum":"$startDate",
                 "vervaldatum":"$fatalDate"                

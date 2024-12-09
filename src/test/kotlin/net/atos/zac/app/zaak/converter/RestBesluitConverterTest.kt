@@ -16,7 +16,7 @@ import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createBesluitType
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
-import net.atos.zac.app.zaak.model.createRESTBesluitVastleggenGegevens
+import net.atos.zac.app.zaak.model.createRestBesluitVastleggenGegevens
 import java.time.LocalDate
 
 class RestBesluitConverterTest : BehaviorSpec({
@@ -33,7 +33,7 @@ class RestBesluitConverterTest : BehaviorSpec({
 
     Given("Besluit toevoegen data with a vervaldatum") {
         val zaak = createZaak()
-        val besluitToevoegenGegevens = createRESTBesluitVastleggenGegevens(
+        val besluitToevoegenGegevens = createRestBesluitVastleggenGegevens(
             ingangsdatum = LocalDate.now().plusDays(1),
             vervaldatum = LocalDate.now().plusDays(2)
         )

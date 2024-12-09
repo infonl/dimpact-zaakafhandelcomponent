@@ -30,7 +30,6 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.util.extractUuid
-import net.atos.client.zgw.util.extractedUuidIsEqual
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.BetrokkeneType
@@ -816,11 +815,6 @@ class ZaakRestService @Inject constructor(
         assertPolicy(CollectionUtils.isNotEmpty(zaaktype.besluittypen))
 
         val besluit = restBesluitConverter.convertToBesluit(zaak, besluitToevoegenGegevens)
-        zaak.resultaat?.let {
-            zgwApiService.updateResultaatForZaak(zaak, besluitToevoegenGegevens.resultaattypeUuid, null)
-        } ?: run {
-            zgwApiService.createResultaatForZaak(zaak, besluitToevoegenGegevens.resultaattypeUuid, null)
-        }
         val restBesluit = brcClientService.createBesluit(besluit).let { restBesluitConverter.convertToRestBesluit(it) }
         besluitToevoegenGegevens.informatieobjecten?.forEach { informatieobjectUuid ->
             drcClientService.readEnkelvoudigInformatieobject(informatieobjectUuid).let { informatieobject ->
@@ -853,19 +847,6 @@ class ZaakRestService @Inject constructor(
         }
         besluit.updateBesluitWithBesluitWijzigenGegevens(restBesluitWijzigenGegevens).also {
             brcClientService.updateBesluit(it, restBesluitWijzigenGegevens.reden)
-        }
-        zaak.resultaat?.let {
-            zrcClientService.readResultaat(it).let { zaakresultaat ->
-                val resultaattype = ztcClientService.readResultaattype(restBesluitWijzigenGegevens.resultaattypeUuid)
-                if (!extractedUuidIsEqual(zaakresultaat.resultaattype, resultaattype.url)) {
-                    zrcClientService.deleteResultaat(zaakresultaat.uuid)
-                    zgwApiService.createResultaatForZaak(
-                        zaak,
-                        restBesluitWijzigenGegevens.resultaattypeUuid,
-                        null
-                    )
-                }
-            }
         }
         restBesluitWijzigenGegevens.informatieobjecten?.let {
             besluitService.updateBesluitInformatieobjecten(besluit, it)

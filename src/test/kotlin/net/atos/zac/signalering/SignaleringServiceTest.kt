@@ -32,7 +32,7 @@ import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.shared.RestPageParameters
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
-import net.atos.zac.app.zaak.model.createRESTZaakOverzicht
+import net.atos.zac.app.zaak.model.createRestZaakOverzicht
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.createTestTask
@@ -173,7 +173,7 @@ class SignaleringServiceTest : BehaviorSpec({
         val id = "id"
         val signalering = createSignalering()
         val zaak = createZaak()
-        val restZaakOverzicht = createRESTZaakOverzicht()
+        val restZaakOverzicht = createRestZaakOverzicht()
         val pageNumber = 0
         val pageSize = 5
         val restPageParameters = RestPageParameters(pageNumber, pageSize)
