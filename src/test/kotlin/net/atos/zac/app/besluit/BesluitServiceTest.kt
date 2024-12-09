@@ -7,7 +7,6 @@ package net.atos.zac.app.besluit
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.be
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -29,11 +28,9 @@ import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createBesluitType
 import net.atos.zac.app.zaak.converter.RestBesluitConverter
-import net.atos.zac.app.zaak.model.RestBesluitWijzigenGegevens
 import net.atos.zac.app.zaak.model.createRestBesluitVastleggenGegevens
 import net.atos.zac.app.zaak.model.createRestBesluitWijzigenGegevens
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 class BesluitServiceTest : BehaviorSpec({
@@ -151,7 +148,7 @@ class BesluitServiceTest : BehaviorSpec({
 
             Then("it throws exception") {
                 exception.message shouldBe "Besluit type with UUID '${besluitType.url.extractUuid()}' " +
-                        "and name '${besluitType.omschrijving}' cannot have publication or response dates"
+                    "and name '${besluitType.omschrijving}' cannot have publication or response dates"
             }
         }
     }

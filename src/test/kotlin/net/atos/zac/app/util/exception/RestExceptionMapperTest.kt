@@ -15,7 +15,6 @@ import net.atos.client.klant.KlantClientService
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.brc.exception.BrcRuntimeException
-import net.atos.client.zgw.brc.model.generated.Besluit
 import net.atos.client.zgw.drc.exception.DrcRuntimeException
 import net.atos.client.zgw.shared.exception.ZgwRuntimeException
 import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
