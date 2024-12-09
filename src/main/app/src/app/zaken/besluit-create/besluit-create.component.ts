@@ -36,21 +36,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { Zaak } from "../model/zaak";
 import { ZakenService } from "../zaken.service";
 
-// waits for backend PR
-// waits for backend PR
-// waits for backend PR
-export type TempRestBesluitTypePublication = {
-  publication: {
-    enabled: boolean;
-    publicationTermDays: number;
-    responseTermDays: number;
-  };
-};
-export type TempRestBesluitType = GeneratedType<"RestBesluittype"> &
-  TempRestBesluitTypePublication;
-//
-//
-//
 @Component({
   selector: "zac-besluit-create",
   templateUrl: "./besluit-create.component.html",
@@ -165,7 +150,9 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
       });
   }
 
-  updatePublicationsFormPart({ publication }: TempRestBesluitType): void {
+  updatePublicationsFormPart({
+    publication,
+  }: GeneratedType<"RestBesluittype">): void {
     if (!publication.enabled) return;
 
     this.fields = this.fields.filter(
@@ -244,7 +231,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
           formGroup.controls["besluittype"]
             .value as GeneratedType<"RestBesluittype">
         ).id,
-        ...(formGroup.controls["besluittype"].value.publication.active
+        ...(formGroup.controls["besluittype"].value.publication.enabled
           ? {
               publicationDate: formGroup.controls["publicationDate"].value,
               lastResponseDate: formGroup.controls["lastResponseDate"].value,

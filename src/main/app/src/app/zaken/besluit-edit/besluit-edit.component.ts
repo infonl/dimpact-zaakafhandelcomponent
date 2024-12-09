@@ -32,7 +32,6 @@ import { AbstractFormField } from "../../shared/material-form-builder/model/abst
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { TempRestBesluitTypePublication } from "../besluit-create/besluit-create.component";
 import { Zaak } from "../model/zaak";
 import { ZakenService } from "../zaken.service";
 
@@ -125,15 +124,9 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
       .text(
         this.translate.instant(`besluit.publicatie.indicatie`, {
           publicationTermDays:
-            (
-              this.besluit
-                .besluittype as unknown as TempRestBesluitTypePublication
-            )?.publication?.publicationTermDays || 11,
+            this.besluit.besluittype.publication.publicationTermDays,
           responseTermDays:
-            (
-              this.besluit
-                .besluittype as unknown as TempRestBesluitTypePublication
-            )?.publication?.responseTermDays || 22,
+            this.besluit.besluittype.publication.responseTermDays,
         }),
       )
       .build();
@@ -160,9 +153,7 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
       [vervaldatumField],
       [toelichtingField],
       [documentenField],
-      ...(true ||
-      (this.besluit.besluittype as unknown as TempRestBesluitTypePublication)
-        .publication.enabled
+      ...(this.besluit.besluittype.publication.enabled
         ? [
             [this.divider],
             [this.publicationParagraph],
@@ -201,13 +192,7 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
         if (value) {
           const adjustedLastResponseDate: Moment = value
             .clone()
-            .add(
-              (
-                this.besluit
-                  .besluittype as unknown as TempRestBesluitTypePublication
-              )?.publication?.responseTermDays || 22,
-              "days",
-            );
+            .add(this.besluit.besluittype.publication.responseTermDays, "days");
 
           this.lastResponseDateField.formControl.setValue(
             adjustedLastResponseDate,
@@ -241,12 +226,12 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
         informatieobjecten: formGroup.controls["documenten"].value
           ? formGroup.controls["documenten"].value.split(";")
           : [],
-        // ...(formGroup.controls["besluittype"].value.publication.enabled
-        //   ? {
-        //       publicationDate: formGroup.controls["publicationDate"].value,
-        //       lastResponseDate: formGroup.controls["lastResponseDate"].value,
-        //     }
-        //   : {}),
+        ...(this.besluit.besluittype.publication.enabled
+          ? {
+              publicationDate: formGroup.controls["publicationDate"].value,
+              lastResponseDate: formGroup.controls["lastResponseDate"].value,
+            }
+          : {}),
         reden: formGroup.controls["reden"].value,
       };
 

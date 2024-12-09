@@ -414,37 +414,9 @@ export class ZakenService {
   listBesluittypes(zaaktypeUuid: string) {
     return this.http
       .get<
-        // waits for backend PR
-        // waits for backend PR
-        // waits for backend PR
-        (GeneratedType<"RestBesluittype"> & {
-          publication: {
-            active: boolean;
-            publicationTermDays: number;
-            responseTermDays: number;
-          };
-        })[]
-        //
-        //
-        //
+        GeneratedType<"RestBesluittype">[]
       >(`${this.basepath}/besluittypes/${zaaktypeUuid}`)
       .pipe(
-        // just for developing sake
-        // just for developing sake
-        // just for developing sake
-        map((result) =>
-          result.map((item, index) => ({
-            ...item,
-            publication: {
-              active: Math.random() < 0.5,
-              publicationTermDays: 7 * (index + 1),
-              responseTermDays: 14 * (index + 1),
-            },
-          })),
-        ),
-        //
-        //
-        //
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
