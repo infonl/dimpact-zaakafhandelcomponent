@@ -752,6 +752,7 @@
   "msg.error.smartdocuments.disabled": "SmartDocuments is uitgeschakeld",
   "msg.error.besluit.publication.disabled": "Publicatie niet ingeschakeld voor dit besluittype",
   "msg.error.besluit.publication.date.missing": "Ontbrekende publicatiedatum van besluit",
+  "msg.error.besluit.response.date.missing": "Ontbrekende uiterlijke reactiedatum van besluit",
   "msg.error.besluit.response.date.invalid": "De uiterlijke reactiedatum voor het besluit mag niet vóór de publicatiedatum liggen",
   "msg.email.verstuurd": "E-mail is verstuurd",
   "msg.extern.advies.vastleggen.behandelen": "Er is een extern advies aangevraagd. Hieronder kan het antwoord worden vastgelegd.",

@@ -34,4 +34,5 @@ const val ERROR_CODE_SMARTDOCUMENTS_NOT_CONFIGURED = "msg.error.smartdocuments.n
 const val ERROR_CODE_SMARTDOCUMENTS_DISABLED = "msg.error.smartdocuments.disabled"
 const val ERROR_CODE_BESLUIT_PUBLICATION_DISABLED_TYPE = "msg.error.besluit.publication.disabled"
 const val ERROR_CODE_BESLUIT_PUBLICATION_DATE_MISSING_TYPE = "msg.error.besluit.publication.date.missing"
+const val ERROR_CODE_BESLUIT_RESPONSE_DATE_MISSING_TYPE = "msg.error.besluit.response.date.missing"
 const val ERROR_CODE_BESLUIT_RESPONSE_DATE_INVALID_TYPE = "msg.error.besluit.response.date.invalid"

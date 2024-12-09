@@ -752,6 +752,7 @@
   "msg.error.smartdocuments.disabled": "SmartDocuments is disabled",
   "msg.error.besluit.publication.disabled": "Publication not enabled for this decision type",
   "msg.error.besluit.publication.date.missing": "Missing decision publication date",
+  "msg.error.besluit.response.date.missing": "Missing decision response date",
   "msg.error.besluit.response.date.invalid": "Response date for decision should not be before publication date",
   "msg.email.verstuurd": "E-mail has been sent",
   "msg.extern.advies.vastleggen.behandelen": "An external advice has been requested. The answer can be recorded below.",

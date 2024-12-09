@@ -29,6 +29,7 @@ import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
 import net.atos.zac.app.besluit.BesluitPublicationDateMissingException
 import net.atos.zac.app.besluit.BesluitPublicationDisabledException
 import net.atos.zac.app.besluit.BesluitResponseDateInvalidException
+import net.atos.zac.app.besluit.BesluitResponseDateMissingException
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
@@ -95,6 +96,11 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             exception is BesluitPublicationDateMissingException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
                 errorCode = ERROR_CODE_BESLUIT_PUBLICATION_DATE_MISSING_TYPE,
+                exception = exception
+            )
+            exception is BesluitResponseDateMissingException -> generateResponse(
+                responseStatus = Response.Status.BAD_REQUEST,
+                errorCode = ERROR_CODE_BESLUIT_RESPONSE_DATE_MISSING_TYPE,
                 exception = exception
             )
             exception is BesluitResponseDateInvalidException -> generateResponse(

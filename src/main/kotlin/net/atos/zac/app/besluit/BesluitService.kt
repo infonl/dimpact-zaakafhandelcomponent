@@ -83,12 +83,15 @@ class BesluitService @Inject constructor(
                     )
                 }
             }
-            if (publicationDate == null) {
+            if (publicationDate == null && responseDate != null) {
                 throw BesluitPublicationDateMissingException("Missing publication date")
+            }
+            if (publicationDate != null && responseDate == null) {
+                throw BesluitResponseDateMissingException("Missing response date")
             }
             responseDate?.let {
                 PeriodUtil.numberOfDaysFromToday(Period.parse(reactietermijn)).toLong().let { responseDays ->
-                    publicationDate.plusDays(responseDays).let { calculatedLatestResponseDate ->
+                    publicationDate?.plusDays(responseDays).let { calculatedLatestResponseDate ->
                         if (it.isBefore(calculatedLatestResponseDate)) {
                             throw BesluitResponseDateInvalidException(
                                 "Response date $responseDate is before " +
