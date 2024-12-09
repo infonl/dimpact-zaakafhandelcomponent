@@ -1,12 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { AfterViewInit, Component, OnInit } from "@angular/core";
 import { MatTableDataSource } from "@angular/material/table";
 import { UtilService } from "../../core/service/util.service";
-import { SignaleringSettings } from "../model/signalering-settings";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { SignaleringenSettingsService } from "../signaleringen-settings.service";
 
 @Component({
@@ -16,8 +16,9 @@ import { SignaleringenSettingsService } from "../signaleringen-settings.service"
 export class SignaleringenSettingsComponent implements OnInit, AfterViewInit {
   isLoadingResults = true;
   columns: string[] = ["subjecttype", "type", "dashboard", "mail"];
-  dataSource: MatTableDataSource<SignaleringSettings> =
-    new MatTableDataSource<SignaleringSettings>();
+  dataSource = new MatTableDataSource<
+    GeneratedType<"RestSignaleringInstellingen">
+  >();
 
   constructor(
     private service: SignaleringenSettingsService,
@@ -35,7 +36,11 @@ export class SignaleringenSettingsComponent implements OnInit, AfterViewInit {
     });
   }
 
-  changed(row: SignaleringSettings, column: string, checked: boolean): void {
+  changed(
+    row: GeneratedType<"RestSignaleringInstellingen">,
+    column: string,
+    checked: boolean,
+  ): void {
     this.utilService.setLoading(true);
     row[column] = checked;
     this.service.put(row).subscribe(() => {

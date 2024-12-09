@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 20242 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -8,7 +8,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { SignaleringSettings } from "../signaleringen/model/signalering-settings";
+import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
@@ -21,17 +21,20 @@ export class SignaleringenSettingsBeheerService {
     private foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
-  list(groupId: string): Observable<SignaleringSettings[]> {
+  list(groupId: string) {
     return this.http
       .get<
-        SignaleringSettings[]
+        GeneratedType<"RestSignaleringInstellingen">[]
       >(`${this.basepath}/group/${groupId}/instellingen`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
-  put(groupId: string, instellingen: SignaleringSettings): Observable<void> {
+  put(
+    groupId: string,
+    instellingen: GeneratedType<"RestSignaleringInstellingen">,
+  ): Observable<void> {
     return this.http
       .put<void>(`${this.basepath}/group/${groupId}/instellingen`, instellingen)
       .pipe(
