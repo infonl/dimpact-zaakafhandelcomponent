@@ -282,7 +282,7 @@
   "zaakOpschorten": "Suspend the case",
   "actief": "Active",
   "inactief": "Inactive",
-  "besluit.publicatie.indicatie": "Publication details (publication term: {{publicationTerm}} days / last response term: {{responseTerm}} months)",
+  "besluit.publicatie.indicatie": "Publication details (publication term: {{publicationTermDays}} days / last response term: {{responseTermDays}} months)",
   " 4 ": ">>--> ENTITEITEN <--<<",
   "-geen-": "- None -",
   "informatieobject": "Document",

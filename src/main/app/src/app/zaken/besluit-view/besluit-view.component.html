@@ -75,8 +75,20 @@
             [label]="'besluitToelichting' | translate"
             [value]="besluit.toelichting"
           ></zac-static-text>
-          <mfb-form-field
+          <zac-static-text
             class="flex"
+            *ngIf="!besluit.publicationDate"
+            [label]="'publicatiedatum' | translate"
+            [value]="besluit.publicationDate | datum"
+          ></zac-static-text>
+          <zac-static-text
+            class="flex"
+            *ngIf="!besluit.uiterlijkereactiedatum"
+            [label]="'uiterlijkereactiedatum' | translate"
+            [value]="besluit.uiterlijkereactiedatum | datum"
+          ></zac-static-text>
+          <mfb-form-field
+            class="w100 flex"
             *ngIf="besluitInformatieobjecten[besluit.uuid]"
             [field]="besluitInformatieobjecten[besluit.uuid]"
           ></mfb-form-field>

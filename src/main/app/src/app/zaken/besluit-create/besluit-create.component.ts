@@ -14,9 +14,13 @@ import {
 } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
+import { TranslateService } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
+import { DividerFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/divider/divider-form-field-builder";
+import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
+import { FormComponent } from "src/app/shared/material-form-builder/form/form/form.component";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
@@ -31,10 +35,6 @@ import { FormConfigBuilder } from "../../shared/material-form-builder/model/form
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { Zaak } from "../model/zaak";
 import { ZakenService } from "../zaken.service";
-import { FormComponent } from "src/app/shared/material-form-builder/form/form/form.component";
-import { DividerFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/divider/divider-form-field-builder";
-import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
-import { TranslateService } from "@ngx-translate/core";
 
 // waits for backend PR
 // waits for backend PR
@@ -42,8 +42,8 @@ import { TranslateService } from "@ngx-translate/core";
 type RestBesluitType = GeneratedType<"RestBesluittype"> & {
   publication: {
     active: boolean;
-    publicationTerm: number;
-    responseTerm: number;
+    publicationTermDays: number;
+    responseTermDays: number;
   };
 };
 //
@@ -178,8 +178,8 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
     this.publicationParagraph = new ParagraphFormFieldBuilder()
       .text(
         this.translate.instant(`besluit.publicatie.indicatie`, {
-          publicationTerm: publication.publicationTerm,
-          responseTerm: publication.responseTerm,
+          publicationTermDays: publication.publicationTermDays,
+          responseTermDays: publication.responseTermDays,
         }),
       )
       .build();
@@ -190,7 +190,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
       .build();
 
     const lastResponseDate: Moment = moment().add(
-      this.besluittypeField.formControl.value.publication.responseTerm,
+      this.besluittypeField.formControl.value.publication.responseTermDays,
       "days",
     );
 
@@ -216,7 +216,8 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
           const adjustedLastResponseDate: Moment = value
             .clone()
             .add(
-              this.besluittypeField.formControl.value.publication.responseTerm,
+              this.besluittypeField.formControl.value.publication
+                .responseTermDays,
               "days",
             );
 
