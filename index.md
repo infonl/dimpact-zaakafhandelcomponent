@@ -14,6 +14,7 @@ On a scheduled basis, and sometimes ad-hoc, we run end-to-end tests on the Lifel
 
 | Report date & time                                   | Result |
 |------------------------------------------------------|--------|
+| [2024-12-09 21:01](2024-12-09-21-01/e2e-report.html) | ✅      |
 | [2024-12-06 21:01](2024-12-06-21-01/e2e-report.html) | ✅      |
 | [2024-12-05 21:01](2024-12-05-21-01/e2e-report.html) | ✅      |
 | [2024-12-05 17:35](2024-12-05-17-35/e2e-report.html) | ✅      |
