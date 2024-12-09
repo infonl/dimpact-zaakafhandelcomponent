@@ -223,20 +223,26 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
     if (formGroup) {
       const gegevens: GeneratedType<"RestBesluitVastleggenGegevens"> = {
         zaakUuid: this.zaak.uuid,
-        resultaattypeUuid: formGroup.controls["resultaattype"].value.id,
-        toelichting: formGroup.controls["toelichting"].value,
-        ingangsdatum: formGroup.controls["ingangsdatum"].value,
-        vervaldatum: formGroup.controls["vervaldatum"].value,
-        informatieobjecten: formGroup.controls["documenten"].value
-          ? formGroup.controls["documenten"].value.split(";")
-          : [],
-        besluittypeUuid: formGroup.controls["besluittype"].value.id,
+        resultaattypeUuid: (
+          formGroup.controls["resultaattype"]
+            .value as GeneratedType<"RestResultaattype">
+        ).id,
+        besluittypeUuid: (
+          formGroup.controls["besluittype"]
+            .value as GeneratedType<"RestBesluittype">
+        ).id,
         ...(formGroup.controls["besluittype"].value.publicatieIndicatie.active
           ? {
               publicationDate: formGroup.controls["publicationDate"].value,
               lastResponseDate: formGroup.controls["lastResponseDate"].value,
             }
           : {}),
+        toelichting: formGroup.controls["toelichting"].value,
+        ingangsdatum: formGroup.controls["ingangsdatum"].value,
+        vervaldatum: formGroup.controls["vervaldatum"].value,
+        informatieobjecten: formGroup.controls["documenten"].value
+          ? formGroup.controls["documenten"].value.split(";")
+          : [],
       };
 
       this.zakenService.createBesluit(gegevens).subscribe(() => {
