@@ -35,15 +35,15 @@ fun createRestBesluit(
 )
 
 @Suppress("LongParameterList")
-fun createRESTBesluitVastleggenGegevens(
+fun createRestBesluitVastleggenGegevens(
     zaakUuid: UUID = UUID.randomUUID(),
     resultaattypeUuid: UUID = UUID.randomUUID(),
     besluittypeUuid: UUID = UUID.randomUUID(),
     toelichting: String = "dummyToelichting",
     ingangsdatum: LocalDate = LocalDate.of(2023, 9, 14),
     vervaldatum: LocalDate = LocalDate.of(2023, 10, 5),
-    publicatiedatum: LocalDate = LocalDate.of(2023, 11, 1),
-    uiterlijkeReactiedatum: LocalDate = LocalDate.of(2023, 12, 20),
+    publicationDate: LocalDate? = null,
+    lastResponseDate: LocalDate? = null,
     informatieobjecten: List<UUID> = listOf(UUID.randomUUID())
 ) =
     RestBesluitVastleggenGegevens(
@@ -54,8 +54,8 @@ fun createRESTBesluitVastleggenGegevens(
         toelichting = toelichting,
         vervaldatum = vervaldatum,
         zaakUuid = zaakUuid,
-        publicationDate = publicatiedatum,
-        lastResponseDate = uiterlijkeReactiedatum
+        publicationDate = publicationDate,
+        lastResponseDate = lastResponseDate
     )
 
 @Suppress("LongParameterList")

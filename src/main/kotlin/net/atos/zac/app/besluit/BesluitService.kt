@@ -72,11 +72,13 @@ class BesluitService @Inject constructor(
         responseDate: LocalDate?
     ) =
         ztcClientService.readBesluittype(besluitTypeUUID).run {
-            if (publicatieIndicatie && (publicationDate != null || responseDate != null)) {
-                throw BesluitException(
-                    "Besluit type with UUID '${url.extractUuid()}' and name " +
-                        "'$omschrijving' cannot have publication or response dates"
-                )
+            if (!publicatieIndicatie) {
+                if (publicationDate != null || responseDate != null) {
+                    throw BesluitException(
+                        "Besluit type with UUID '${url.extractUuid()}' and name " +
+                            "'$omschrijving' cannot have publication or response dates"
+                    )
+                }
             }
         }
 
@@ -139,8 +141,8 @@ class BesluitService @Inject constructor(
                 .filter { it.informatieobject.extractUuid() == teVerwijderenInformatieobject }
                 .forEach { brcClientService.deleteBesluitinformatieobject(it.url.extractUuid()) }
         }
-        documentUuidsToAdd.forEach { documentUri ->
-            drcClientService.readEnkelvoudigInformatieobject(documentUri).let { enkelvoudigInformatieObject ->
+        documentUuidsToAdd.forEach { documentUUID ->
+            drcClientService.readEnkelvoudigInformatieobject(documentUUID).let { enkelvoudigInformatieObject ->
                 BesluitInformatieObject().apply {
                     this.informatieobject = enkelvoudigInformatieObject.url
                     this.besluit = besluit.url

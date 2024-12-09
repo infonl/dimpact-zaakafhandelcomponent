@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.zaak.model
 
-data class RestBesluittypePublications(
+data class RestBesluittypePublication(
     val enabled: Boolean,
     val publicationTerm: String?,
     val responseTerm: String?

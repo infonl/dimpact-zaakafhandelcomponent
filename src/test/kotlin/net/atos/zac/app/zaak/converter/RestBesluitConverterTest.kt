@@ -22,7 +22,7 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createBesluitType
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
-import net.atos.zac.app.zaak.model.createRESTBesluitVastleggenGegevens
+import net.atos.zac.app.zaak.model.createRestBesluitVastleggenGegevens
 import java.time.LocalDate
 
 class RestBesluitConverterTest : BehaviorSpec({
@@ -39,11 +39,11 @@ class RestBesluitConverterTest : BehaviorSpec({
 
     Given("Besluit toevoegen data with a vervaldatum") {
         val zaak = createZaak()
-        val besluitToevoegenGegevens = createRESTBesluitVastleggenGegevens(
+        val besluitToevoegenGegevens = createRestBesluitVastleggenGegevens(
             ingangsdatum = LocalDate.now().plusDays(1),
             vervaldatum = LocalDate.now().plusDays(2),
-            publicatiedatum = LocalDate.now().plusDays(3),
-            uiterlijkeReactiedatum = LocalDate.now().plusDays(4)
+            publicationDate = LocalDate.now().plusDays(3),
+            lastResponseDate = LocalDate.now().plusDays(4)
         )
         val besluittype = createBesluitType()
 
@@ -72,7 +72,7 @@ class RestBesluitConverterTest : BehaviorSpec({
     Given("Besluit") {
         val besluit = createBesluit()
         val besluitType = createBesluitType(
-            publicatieIndicatie = true,
+            publicationEnabled = true,
             publicationPeriod = "P10D",
             reactionPeriod = "P2D"
         )
@@ -100,7 +100,7 @@ class RestBesluitConverterTest : BehaviorSpec({
                         naam shouldBe besluitType.omschrijving
                         toelichting shouldBe besluitType.toelichting
                         informatieobjecttypen shouldBe besluitType.informatieobjecttypen
-                        with(publications) {
+                        with(publication) {
                             enabled shouldBe true
                             publicationTerm shouldBe "10 dagen"
                             responseTerm shouldBe "2 dagen"

@@ -24,7 +24,7 @@ data class RestBesluittype(
 
     var informatieobjecttypen: List<URI>,
 
-    var publications: RestBesluittypePublications,
+    var publication: RestBesluittypePublication,
 )
 
 fun BesluitType.toRestBesluitType() = RestBesluittype(
@@ -32,7 +32,7 @@ fun BesluitType.toRestBesluitType() = RestBesluittype(
     naam = this.omschrijving,
     toelichting = this.toelichting,
     informatieobjecttypen = this.informatieobjecttypen.toList(),
-    publications = RestBesluittypePublications(
+    publication = RestBesluittypePublication(
         enabled = this.publicatieIndicatie,
         publicationTerm = this.publicatietermijn?.let { PeriodUtil.format(Period.parse(it)) },
         responseTerm = this.reactietermijn?.let { PeriodUtil.format(Period.parse(it)) }

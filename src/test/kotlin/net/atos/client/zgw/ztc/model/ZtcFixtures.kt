@@ -31,7 +31,7 @@ fun createBesluitType(
     informatieobjecttypen: List<URI>? = listOf(URI("dummyInformatieObjectType1"), URI("dummyInformatieObjectType2")),
     description: String = "description",
     explanation: String = "explanation",
-    publicatieIndicatie: Boolean = false,
+    publicationEnabled: Boolean = false,
     publicationPeriod: String? = null,
     reactionPeriod: String? = null
 ) =
@@ -48,7 +48,7 @@ fun createBesluitType(
         setInformatieobjecttypen(informatieobjecttypen)
         omschrijving = description
         toelichting = explanation
-        setPublicatieIndicatie(publicatieIndicatie)
+        setPublicatieIndicatie(publicationEnabled)
         publicatietermijn = publicationPeriod
         reactietermijn = reactionPeriod
     }
