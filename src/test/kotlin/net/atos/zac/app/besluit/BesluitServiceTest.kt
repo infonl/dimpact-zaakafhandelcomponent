@@ -159,7 +159,7 @@ class BesluitServiceTest : BehaviorSpec({
 
             Then("it throws exception") {
                 exception.message shouldBe "Besluit type with UUID '${besluitType.url.extractUuid()}' " +
-                        "and name '${besluitType.omschrijving}' cannot have publication or response dates"
+                    "and name '${besluitType.omschrijving}' cannot have publication or response dates"
             }
         }
     }
@@ -302,7 +302,7 @@ class BesluitServiceTest : BehaviorSpec({
 
             Then("it throws exception") {
                 exception.message shouldBe "Besluit type with UUID '${besluitType.url.extractUuid()}' " +
-                        "and name '${besluitType.omschrijving}' cannot have publication or response dates"
+                    "and name '${besluitType.omschrijving}' cannot have publication or response dates"
             }
         }
     }
