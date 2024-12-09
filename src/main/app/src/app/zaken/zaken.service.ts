@@ -425,9 +425,9 @@ export class ZakenService {
           result.map((item, index) => ({
             ...item,
             publicatieIndicatie: {
-              active: true || Math.random() < 0.5,
-              publicatietermijn: 7 * (index + 1),
-              reactietermijn: 14 * (index + 1),
+              active: Math.random() < 0.5,
+              publicationTerm: 7 * (index + 1),
+              responseTerm: 14 * (index + 1),
             },
           })),
         ),

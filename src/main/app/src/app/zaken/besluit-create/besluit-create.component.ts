@@ -139,7 +139,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
             ),
           );
 
-          this.handleUpdatedBesluitType(value);
+          this.updatePublicationsFormPart(value);
         }
       });
 
@@ -150,17 +150,14 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
       });
   }
 
-  handleUpdatedBesluitType({ publicatieIndicatie }): void {
-    console.log(publicatieIndicatie);
-
+  updatePublicationsFormPart({ publicatieIndicatie }): void {
     if (!publicatieIndicatie.active) return;
 
     this.fields = this.fields.filter(
       (fieldGroup) =>
         !fieldGroup.includes(this.divider) &&
         !fieldGroup.includes(this.publicationParagraph) &&
-        !fieldGroup.includes(this.publicationDateField) &&
-        !fieldGroup.includes(this.publicationReactionDateField),
+        !fieldGroup.includes(this.publicationDateField),
     );
 
     this.divider = new DividerFormFieldBuilder().id("divider").build();
@@ -168,44 +165,32 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
     this.publicationParagraph = new ParagraphFormFieldBuilder()
       .text(
         this.translate.instant(
-          `besluit.publicatie.indicatie ${publicatieIndicatie.publicatietermijn} ${publicatieIndicatie.reactietermijn}`,
+          `besluit.publicatie.indicatie ${publicatieIndicatie.publicationTerm} ${publicatieIndicatie.responseTerm}`,
           {
-            publicatietermijn: publicatieIndicatie.publicatietermijn,
-            reactietermijn: publicatieIndicatie.reactietermijn,
+            publicationTerm: publicatieIndicatie.publicationTerm,
+            responseTerm: publicatieIndicatie.responseTerm,
           },
         ),
       )
       .build();
 
     this.publicationDateField = new DateFormFieldBuilder(moment())
-      .id("publicatiedatum")
+      .id("publicationDate")
       .label("publicatiedatum")
-      .build();
-
-    this.publicationReactionDateField = new DateFormFieldBuilder(
-      moment().add(publicatieIndicatie.reactietermijn, "days"),
-    )
-      .id("uiterlijkereactiedatum")
-      .label("uiterlijkereactiedatum")
-      .minDate(
-        moment().add(publicatieIndicatie.reactietermijn, "days").toDate(),
-      )
       .build();
 
     this.fields.push(
       [this.divider],
       [this.publicationParagraph],
       [this.publicationDateField],
-      [this.publicationReactionDateField],
     );
 
-    this.formComponent.refreshFormfields(this.fields);
+    this.updatePublicationReactionDateField(moment());
 
     this.publicationDateField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
         if (value) {
-          console.log("moment entered: ", moment.toLocaleString());
           this.updatePublicationReactionDateField(value);
         }
       });
@@ -220,12 +205,12 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
       .clone()
       .add(
         this.besluitTypeField.formControl.value.publicatieIndicatie
-          .reactietermijn,
+          .responseTerm,
         "days",
       );
 
     this.publicationReactionDateField = new DateFormFieldBuilder(reactionDate)
-      .id("uiterlijkereactiedatum")
+      .id("lastResponseDate")
       .label("uiterlijkereactiedatum")
       .minDate(reactionDate.toDate())
       .build();
@@ -240,30 +225,20 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
       const gegevens: GeneratedType<"RestBesluitVastleggenGegevens"> = {
         zaakUuid: this.zaak.uuid,
         resultaattypeUuid: formGroup.controls["resultaattype"].value.id,
-        besluittypeUuid: formGroup.controls["besluittype"].value.id,
         toelichting: formGroup.controls["toelichting"].value,
         ingangsdatum: formGroup.controls["ingangsdatum"].value,
         vervaldatum: formGroup.controls["vervaldatum"].value,
         informatieobjecten: formGroup.controls["documenten"].value
           ? formGroup.controls["documenten"].value.split(";")
           : [],
+        besluittypeUuid: formGroup.controls["besluittype"].value.id,
+        ...(formGroup.controls["besluittype"].value.publicatieIndicatie.active
+          ? {
+              publicationDate: formGroup.controls["publicationDate"].value,
+              lastResponseDate: formGroup.controls["lastResponseDate"].value,
+            }
+          : {}),
       };
-
-      console.log(
-        "formGroup.controls[besluittype].value.publicatieIndicatie.actief: ",
-        formGroup.controls["besluittype"].value.publicatieIndicatie.actief,
-        {
-          ...(formGroup.controls["besluittype"].value.publicatieIndicatie.actief
-            ? {
-                publicatie: {
-                  publicatiedatum: formGroup.controls["publicatiedatum"],
-                  uiterlijkereactiedatum:
-                    formGroup.controls["uiterlijkereactiedatum"],
-                },
-              }
-            : {}),
-        },
-      );
 
       this.zakenService.createBesluit(gegevens).subscribe(() => {
         this.utilService.openSnackbar("msg.besluit.vastgelegd");
