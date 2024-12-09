@@ -14,7 +14,7 @@ import {
 } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
-import moment from "moment";
+import moment, { Moment } from "moment";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -31,8 +31,10 @@ import { FormConfigBuilder } from "../../shared/material-form-builder/model/form
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { Zaak } from "../model/zaak";
 import { ZakenService } from "../zaken.service";
-import { View } from "ol";
 import { FormComponent } from "src/app/shared/material-form-builder/form/form/form.component";
+import { DividerFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/divider/divider-form-field-builder";
+import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
   selector: "zac-besluit-create",
@@ -48,8 +50,11 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
 
   fields: Array<AbstractFormField[]>;
 
-  publicatieDatumField: AbstractFormField;
-  uiterlijkeReactieDatumField: AbstractFormField;
+  besluitTypeField: AbstractFormField;
+  divider: AbstractFormField;
+  publicationParagraph: AbstractFormField;
+  publicationDateField: AbstractFormField;
+  publicationReactionDateField: AbstractFormField;
 
   private ngDestroy = new Subject<void>();
 
@@ -57,6 +62,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
     private zakenService: ZakenService,
     public utilService: UtilService,
     private informatieObjectenService: InformatieObjectenService,
+    protected translate: TranslateService,
   ) {}
 
   ngOnInit(): void {
@@ -74,7 +80,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
       .optionLabel("naam")
       .options(this.zakenService.listResultaattypes(this.zaak.zaaktype.uuid))
       .build();
-    const besluitTypeField = new SelectFormFieldBuilder()
+    this.besluitTypeField = new SelectFormFieldBuilder()
       .id("besluittype")
       .label("besluit")
       .validators(Validators.required)
@@ -103,7 +109,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
 
     this.fields = [
       [resultaatTypeField],
-      [besluitTypeField],
+      [this.besluitTypeField],
       [ingangsDatumField],
       [vervaldatumField],
       [toelichtingField],
@@ -119,7 +125,8 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
           ).vervaldatumBesluitVerplicht;
         }
       });
-    besluitTypeField.formControl.valueChanges
+
+    this.besluitTypeField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
         if (value) {
@@ -132,8 +139,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
             ),
           );
 
-          console.log(value.publicatieIndicatie);
-          this.addPublicationIndicationFields(value.publicatieIndicatie);
+          this.handleUpdatedBesluitType(value);
         }
       });
 
@@ -144,31 +150,87 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
       });
   }
 
-  addPublicationIndicationFields(publicatieIndicatie): void {
+  handleUpdatedBesluitType({ publicatieIndicatie }): void {
+    console.log(publicatieIndicatie);
+
     if (!publicatieIndicatie.active) return;
 
     this.fields = this.fields.filter(
       (fieldGroup) =>
-        !fieldGroup.includes(this.publicatieDatumField) &&
-        !fieldGroup.includes(this.uiterlijkeReactieDatumField),
+        !fieldGroup.includes(this.divider) &&
+        !fieldGroup.includes(this.publicationParagraph) &&
+        !fieldGroup.includes(this.publicationDateField) &&
+        !fieldGroup.includes(this.publicationReactionDateField),
     );
 
-    this.publicatieDatumField = new DateFormFieldBuilder(moment())
+    this.divider = new DividerFormFieldBuilder().id("divider").build();
+
+    this.publicationParagraph = new ParagraphFormFieldBuilder()
+      .text(
+        this.translate.instant(
+          `besluit.publicatie.indicatie ${publicatieIndicatie.publicatietermijn} ${publicatieIndicatie.reactietermijn}`,
+          {
+            publicatietermijn: publicatieIndicatie.publicatietermijn,
+            reactietermijn: publicatieIndicatie.reactietermijn,
+          },
+        ),
+      )
+      .build();
+
+    this.publicationDateField = new DateFormFieldBuilder(moment())
       .id("publicatiedatum")
       .label("publicatiedatum")
       .build();
 
-    this.uiterlijkeReactieDatumField = new DateFormFieldBuilder(
-      moment().add(publicatieIndicatie.publicatietermijn, "days"),
+    this.publicationReactionDateField = new DateFormFieldBuilder(
+      moment().add(publicatieIndicatie.reactietermijn, "days"),
     )
       .id("uiterlijkereactiedatum")
       .label("uiterlijkereactiedatum")
+      .minDate(
+        moment().add(publicatieIndicatie.reactietermijn, "days").toDate(),
+      )
       .build();
 
-    this.fields.push([
-      this.publicatieDatumField,
-      this.uiterlijkeReactieDatumField,
-    ]);
+    this.fields.push(
+      [this.divider],
+      [this.publicationParagraph],
+      [this.publicationDateField],
+      [this.publicationReactionDateField],
+    );
+
+    this.formComponent.refreshFormfields(this.fields);
+
+    this.publicationDateField.formControl.valueChanges
+      .pipe(takeUntil(this.ngDestroy))
+      .subscribe((value) => {
+        if (value) {
+          console.log("moment entered: ", moment.toLocaleString());
+          this.updatePublicationReactionDateField(value);
+        }
+      });
+  }
+
+  updatePublicationReactionDateField(publicationDate: Moment): void {
+    this.fields = this.fields.filter(
+      (fieldGroup) => !fieldGroup.includes(this.publicationReactionDateField),
+    );
+
+    const reactionDate: Moment = publicationDate
+      .clone()
+      .add(
+        this.besluitTypeField.formControl.value.publicatieIndicatie
+          .reactietermijn,
+        "days",
+      );
+
+    this.publicationReactionDateField = new DateFormFieldBuilder(reactionDate)
+      .id("uiterlijkereactiedatum")
+      .label("uiterlijkereactiedatum")
+      .minDate(reactionDate.toDate())
+      .build();
+
+    this.fields.push([this.publicationReactionDateField]);
 
     this.formComponent.refreshFormfields(this.fields);
   }
