@@ -1,25 +1,15 @@
-<!--
-  ~ SPDX-FileCopyrightText: 2024 Lifely
-  ~ SPDX-License-Identifier: EUPL-1.2+
-  -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Dimpact Zaakafhandelcomponent (ZAC)</title>
-</head>
-<body>
-<h2>Dimpact Zaakafhandelcomponent (ZAC)</h2>
+
+# Dimpact Zaakafhandelcomponent (ZAC)
+
+## Dimpact Zaakafhandelcomponent (ZAC)
 This repository contains the source code of the "zaakafhandelcomponent" (ZAC) developed for Dimpact. The zaakafhandelcomponent is an open-source, generic, workflow-based component for managing 'zaken' in the context of zaakgericht werken, a Dutch approach to case management. It is developed for Dimpact and used by Dutch municipalities.
 
 ZAC was initially developed by Atos. Starting July 2023 the development of ZAC was taken over by Lifely and INFO, where INFO is a partner of Lifely.
 
-Please refer to <a href="https://github.com/infonl/dimpact-zaakafhandelcomponent">GitHub repository</a> for details.
+Please refer to [GitHub repository](https://github.com/infonl/dimpact-zaakafhandelcomponent) for details.
 
-<h2>End-to-end testing</h2>
+
+## End-to-end testing
 On a scheduled basis, we run end-to-end tests on a the Lifely Test Environment.
 The results are stored in github, and can be found there.
 
-The latest end-to-end test results are available <a href="e2e-report.html">here</a>.
-</body>
-</html>
