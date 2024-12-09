@@ -185,23 +185,23 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
       [this.publicationDateField],
     );
 
-    this.updatePublicationReactionDateField(moment());
+    this.updateLastResponseDateField(moment());
 
     this.publicationDateField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
         if (value) {
-          this.updatePublicationReactionDateField(value);
+          this.updateLastResponseDateField(value);
         }
       });
   }
 
-  updatePublicationReactionDateField(publicationDate: Moment): void {
+  updateLastResponseDateField(publicationDate: Moment): void {
     this.fields = this.fields.filter(
       (fieldGroup) => !fieldGroup.includes(this.publicationReactionDateField),
     );
 
-    const reactionDate: Moment = publicationDate
+    const lastResponseDate: Moment = publicationDate
       .clone()
       .add(
         this.besluitTypeField.formControl.value.publicatieIndicatie
@@ -209,10 +209,12 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
         "days",
       );
 
-    this.publicationReactionDateField = new DateFormFieldBuilder(reactionDate)
+    this.publicationReactionDateField = new DateFormFieldBuilder(
+      lastResponseDate,
+    )
       .id("lastResponseDate")
       .label("uiterlijkereactiedatum")
-      .minDate(reactionDate.toDate())
+      .minDate(lastResponseDate.toDate())
       .build();
 
     this.fields.push([this.publicationReactionDateField]);
