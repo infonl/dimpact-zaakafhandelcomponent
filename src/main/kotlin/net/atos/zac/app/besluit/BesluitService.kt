@@ -72,101 +72,99 @@ class BesluitService @Inject constructor(
         responseDate: LocalDate?
     ) =
         ztcClientService.readBesluittype(besluitTypeUUID).run {
-            if (!publicatieIndicatie) {
-                if (publicationDate != null || responseDate != null) {
-                    throw BesluitException(
-                        "Besluit type with UUID '${url.extractUuid()}' and name " +
-                            "'$omschrijving' cannot have publication or response dates"
-                    )
+            if (!publicatieIndicatie && (publicationDate != null || responseDate != null)) {
+                throw BesluitException(
+                    "Besluit type with UUID '${url.extractUuid()}' and name " +
+                        "'$omschrijving' cannot have publication or response dates"
+                )
+            }
+        }
+
+    private fun createBesluitInformationObjects(
+        besluitToevoegenGegevens: RestBesluitVastleggenGegevens,
+        createdBesluit: Besluit
+    ) {
+        besluitToevoegenGegevens.informatieobjecten?.forEach { informatieobjectUuid ->
+            drcClientService.readEnkelvoudigInformatieobject(informatieobjectUuid).let { informatieobject ->
+                BesluitInformatieObject().apply {
+                    this.informatieobject = informatieobject.url
+                    this.besluit = createdBesluit.url
+                }.let {
+                    brcClientService.createBesluitInformatieobject(it, AANMAKEN_BESLUIT_TOELICHTING)
                 }
             }
         }
+    }
 
-private fun createBesluitInformationObjects(
-    besluitToevoegenGegevens: RestBesluitVastleggenGegevens,
-    createdBesluit: Besluit
-) {
-    besluitToevoegenGegevens.informatieobjecten?.forEach { informatieobjectUuid ->
-        drcClientService.readEnkelvoudigInformatieobject(informatieobjectUuid).let { informatieobject ->
-            BesluitInformatieObject().apply {
-                this.informatieobject = informatieobject.url
-                this.besluit = createdBesluit.url
+    fun updateBesluit(
+        zaak: Zaak,
+        besluit: Besluit,
+        restBesluitWijzigenGegevens: RestBesluitWijzigenGegevens
+    ) {
+        validateBesluitData(
+            besluit.besluittype.extractUuid(),
+            restBesluitWijzigenGegevens.publicationDate,
+            restBesluitWijzigenGegevens.lastResponseDate
+        )
+
+        besluit.updateBesluitWithBesluitWijzigenGegevens(restBesluitWijzigenGegevens).also {
+            brcClientService.updateBesluit(it, restBesluitWijzigenGegevens.reden)
+        }
+        zaak.resultaat?.let {
+            zrcClientService.readResultaat(it).let { zaakresultaat ->
+                val resultaattype = ztcClientService.readResultaattype(restBesluitWijzigenGegevens.resultaattypeUuid)
+                if (!extractedUuidIsEqual(zaakresultaat.resultaattype, resultaattype.url)) {
+                    zrcClientService.deleteResultaat(zaakresultaat.uuid)
+                    zgwApiService.createResultaatForZaak(zaak, restBesluitWijzigenGegevens.resultaattypeUuid, null)
+                }
+            }
+        }
+        restBesluitWijzigenGegevens.informatieobjecten?.let {
+            updateBesluitInformatieobjecten(besluit, it)
+        }
+    }
+
+    private fun updateBesluitInformatieobjecten(
+        besluit: Besluit,
+        newDocumentUuids: List<UUID>
+    ) {
+        val besluitInformatieobjecten = brcClientService.listBesluitInformatieobjecten(besluit.url)
+        val currentDocumentUuids = besluitInformatieobjecten
+            .map { it.informatieobject.extractUuid() }
+            .toList()
+        val documentUuidsToRemove = CollectionUtils.subtract(currentDocumentUuids, newDocumentUuids)
+        val documentUuidsToAdd = CollectionUtils.subtract(newDocumentUuids, currentDocumentUuids)
+        documentUuidsToRemove.forEach { teVerwijderenInformatieobject ->
+            besluitInformatieobjecten
+                .filter { it.informatieobject.extractUuid() == teVerwijderenInformatieobject }
+                .forEach { brcClientService.deleteBesluitinformatieobject(it.url.extractUuid()) }
+        }
+        documentUuidsToAdd.forEach { documentUUID ->
+            drcClientService.readEnkelvoudigInformatieobject(documentUUID).let { enkelvoudigInformatieObject ->
+                BesluitInformatieObject().apply {
+                    this.informatieobject = enkelvoudigInformatieObject.url
+                    this.besluit = besluit.url
+                }
             }.let {
-                brcClientService.createBesluitInformatieobject(it, AANMAKEN_BESLUIT_TOELICHTING)
+                brcClientService.createBesluitInformatieobject(it, WIJZIGEN_BESLUIT_TOELICHTING)
             }
         }
     }
-}
 
-fun updateBesluit(
-    zaak: Zaak,
-    besluit: Besluit,
-    restBesluitWijzigenGegevens: RestBesluitWijzigenGegevens
-) {
-    validateBesluitData(
-        besluit.besluittype.extractUuid(),
-        restBesluitWijzigenGegevens.publicationDate,
-        restBesluitWijzigenGegevens.lastResponseDate
-    )
+    fun withdrawBesluit(besluit: Besluit, reden: String): Besluit =
+        brcClientService.updateBesluit(
+            besluit,
+            getBesluitWithdrawalExplanation(besluit.vervalreden)?.let { String.format(it, reden) }
+        )
 
-    besluit.updateBesluitWithBesluitWijzigenGegevens(restBesluitWijzigenGegevens).also {
-        brcClientService.updateBesluit(it, restBesluitWijzigenGegevens.reden)
-    }
-    zaak.resultaat?.let {
-        zrcClientService.readResultaat(it).let { zaakresultaat ->
-            val resultaattype = ztcClientService.readResultaattype(restBesluitWijzigenGegevens.resultaattypeUuid)
-            if (!extractedUuidIsEqual(zaakresultaat.resultaattype, resultaattype.url)) {
-                zrcClientService.deleteResultaat(zaakresultaat.uuid)
-                zgwApiService.createResultaatForZaak(zaak, restBesluitWijzigenGegevens.resultaattypeUuid, null)
+    private fun getBesluitWithdrawalExplanation(withdrawalReason: VervalredenEnum): String? {
+        return when (withdrawalReason) {
+            VervalredenEnum.INGETROKKEN_OVERHEID -> "Overheid: %s"
+            VervalredenEnum.INGETROKKEN_BELANGHEBBENDE -> "Belanghebbende: %s"
+            else -> {
+                LOG.info("Unknown besluit withdrawal reason: '$withdrawalReason'. Returning 'null'.")
+                null
             }
         }
     }
-    restBesluitWijzigenGegevens.informatieobjecten?.let {
-        updateBesluitInformatieobjecten(besluit, it)
-    }
-}
-
-private fun updateBesluitInformatieobjecten(
-    besluit: Besluit,
-    newDocumentUuids: List<UUID>
-) {
-    val besluitInformatieobjecten = brcClientService.listBesluitInformatieobjecten(besluit.url)
-    val currentDocumentUuids = besluitInformatieobjecten
-        .map { it.informatieobject.extractUuid() }
-        .toList()
-    val documentUuidsToRemove = CollectionUtils.subtract(currentDocumentUuids, newDocumentUuids)
-    val documentUuidsToAdd = CollectionUtils.subtract(newDocumentUuids, currentDocumentUuids)
-    documentUuidsToRemove.forEach { teVerwijderenInformatieobject ->
-        besluitInformatieobjecten
-            .filter { it.informatieobject.extractUuid() == teVerwijderenInformatieobject }
-            .forEach { brcClientService.deleteBesluitinformatieobject(it.url.extractUuid()) }
-    }
-    documentUuidsToAdd.forEach { documentUUID ->
-        drcClientService.readEnkelvoudigInformatieobject(documentUUID).let { enkelvoudigInformatieObject ->
-            BesluitInformatieObject().apply {
-                this.informatieobject = enkelvoudigInformatieObject.url
-                this.besluit = besluit.url
-            }
-        }.let {
-            brcClientService.createBesluitInformatieobject(it, WIJZIGEN_BESLUIT_TOELICHTING)
-        }
-    }
-}
-
-fun withdrawBesluit(besluit: Besluit, reden: String): Besluit =
-    brcClientService.updateBesluit(
-        besluit,
-        getBesluitWithdrawalExplanation(besluit.vervalreden)?.let { String.format(it, reden) }
-    )
-
-private fun getBesluitWithdrawalExplanation(withdrawalReason: VervalredenEnum): String? {
-    return when (withdrawalReason) {
-        VervalredenEnum.INGETROKKEN_OVERHEID -> "Overheid: %s"
-        VervalredenEnum.INGETROKKEN_BELANGHEBBENDE -> "Belanghebbende: %s"
-        else -> {
-            LOG.info("Unknown besluit withdrawal reason: '$withdrawalReason'. Returning 'null'.")
-            null
-        }
-    }
-}
 }

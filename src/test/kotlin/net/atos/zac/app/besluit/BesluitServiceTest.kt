@@ -51,7 +51,7 @@ class BesluitServiceTest : BehaviorSpec({
     )
 
     val zaak = createZaak()
-    val besluitType = createBesluitType(publicationEnabled = true)
+    val besluitType = createBesluitType()
     val besluit = createBesluit()
     val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
     val besluitInformatieObject = createBesluitInformatieObject()
@@ -61,6 +61,8 @@ class BesluitServiceTest : BehaviorSpec({
     }
 
     Given("Zaak") {
+        besluitType.publicatieIndicatie(true)
+
         val restBesluitVastleggenGegevens = createRestBesluitVastleggenGegevens(
             publicationDate = LocalDate.now(),
             lastResponseDate = LocalDate.now()
@@ -111,6 +113,8 @@ class BesluitServiceTest : BehaviorSpec({
     }
 
     Given("Zaak and besluit") {
+        besluitType.publicatieIndicatie(true)
+
         val restBesluitWijzigenGegevens = createRestBesluitWijzigenGegevens(
             publicationDate = LocalDate.now().plusDays(2),
             lastResponseDate = LocalDate.now().plusDays(1)
