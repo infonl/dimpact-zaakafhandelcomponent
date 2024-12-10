@@ -71,7 +71,6 @@ import { TakenService } from "../../taken/taken.service";
 import { IntakeAfrondenDialogComponent } from "../intake-afronden-dialog/intake-afronden-dialog.component";
 import { GeometryGegevens } from "../model/geometry-gegevens";
 import { Zaak } from "../model/zaak";
-import { ZaakBetrokkene } from "../model/zaak-betrokkene";
 import { ZaakOpschortGegevens } from "../model/zaak-opschort-gegevens";
 import { ZaakOpschorting } from "../model/zaak-opschorting";
 import { ZaakVerlengGegevens } from "../model/zaak-verleng-gegevens";
@@ -125,8 +124,8 @@ export class ZaakViewComponent
     "nieuweWaarde",
     "toelichting",
   ];
-  betrokkenen: MatTableDataSource<ZaakBetrokkene> =
-    new MatTableDataSource<ZaakBetrokkene>();
+  betrokkenen =
+    new MatTableDataSource<GeneratedType<'RestZaakBetrokkene'>>();
   betrokkenenColumns: string[] = [
     "roltype",
     "betrokkenegegevens",
@@ -1228,7 +1227,7 @@ export class ZaakViewComponent
       });
   }
 
-  deleteBetrokkene(betrokkene: ZaakBetrokkene): void {
+  deleteBetrokkene(betrokkene: GeneratedType<'RestZaakBetrokkene'>): void {
     this.websocketService.suspendListener(this.zaakRollenListener);
     const betrokkeneIdentificatie: string =
       betrokkene.roltype + " " + betrokkene.identificatie;
@@ -1390,7 +1389,7 @@ export class ZaakViewComponent
     });
   }
 
-  betrokkeneGegevensOphalen(betrokkene: ZaakBetrokkene): void {
+  betrokkeneGegevensOphalen(betrokkene: GeneratedType<'RestZaakBetrokkene'>): void {
     betrokkene["gegevens"] = "LOADING";
     switch (betrokkene.type) {
       case "NATUURLIJK_PERSOON":

@@ -23,7 +23,6 @@ import { Zaak } from "./model/zaak";
 import { ZaakAanmaakGegevens } from "./model/zaak-aanmaak-gegevens";
 import { ZaakAfbrekenGegevens } from "./model/zaak-afbreken-gegevens";
 import { ZaakAfsluitenGegevens } from "./model/zaak-afsluiten-gegevens";
-import { ZaakBetrokkene } from "./model/zaak-betrokkene";
 import { ZaakBetrokkeneGegevens } from "./model/zaak-betrokkene-gegevens";
 import { ZaakEditMetRedenGegevens } from "./model/zaak-edit-met-reden-gegevens";
 import { ZaakHeropenenGegevens } from "./model/zaak-heropenen-gegevens";
@@ -314,9 +313,11 @@ export class ZakenService {
       );
   }
 
-  listBetrokkenenVoorZaak(uuid: string): Observable<ZaakBetrokkene[]> {
+  listBetrokkenenVoorZaak(uuid: string) {
     return this.http
-      .get<ZaakBetrokkene[]>(`${this.basepath}/zaak/${uuid}/betrokkene`)
+      .get<
+        GeneratedType<"RestZaakBetrokkene">[]
+      >(`${this.basepath}/zaak/${uuid}/betrokkene`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
