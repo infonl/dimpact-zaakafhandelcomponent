@@ -52,13 +52,6 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
 
   fields: Array<AbstractFormField[]>;
 
-  besluittypeField: AbstractFormField;
-  divider: AbstractFormField;
-  publicationParagraph: AbstractFormField;
-  publicationDateField: AbstractFormField;
-  publicationMessageField: AbstractFormField;
-  lastResponseDateField: AbstractFormField;
-
   private subscription: Subscription;
   private ngDestroy = new Subject<void>();
 
@@ -84,7 +77,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
       .optionLabel("naam")
       .options(this.zakenService.listResultaattypes(this.zaak.zaaktype.uuid))
       .build();
-    this.besluittypeField = new SelectFormFieldBuilder()
+    const besluittypeField = new SelectFormFieldBuilder()
       .id("besluittype")
       .label("besluit")
       .validators(Validators.required)
@@ -113,7 +106,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
 
     this.fields = [
       [resultaattypeField],
-      [this.besluittypeField],
+      [besluittypeField],
       [ingangsdatumField],
       [vervaldatumField],
       [toelichtingField],
@@ -136,7 +129,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
         (vervaldatumField as DateFormField).minDate = value;
       });
 
-    this.besluittypeField.formControl.valueChanges
+    besluittypeField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
         if (value) {
@@ -157,13 +150,17 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
   updatePublicationsFormPart({
     publication,
   }: GeneratedType<"RestBesluittype">): void {
-    this.fields = this.fields.filter(
-      (fieldGroup) =>
-        !fieldGroup.includes(this.divider) &&
-        !fieldGroup.includes(this.publicationParagraph) &&
-        !fieldGroup.includes(this.publicationDateField) &&
-        !fieldGroup.includes(this.publicationMessageField) &&
-        !fieldGroup.includes(this.lastResponseDateField),
+    this.fields = this.fields.filter((fieldGroup) =>
+      fieldGroup.every(
+        (group) =>
+          ![
+            "divider",
+            "publicationParagraph",
+            "publicationDate",
+            "messageField",
+            "lastResponseDate",
+          ].includes(group.id),
+      ),
     );
 
     if (this.subscription) {
@@ -171,18 +168,19 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
     }
 
     if (publication.enabled) {
-      this.divider = new DividerFormFieldBuilder().id("divider").build();
+      const divider = new DividerFormFieldBuilder().id("divider").build();
 
-      this.publicationParagraph = new ParagraphFormFieldBuilder()
+      const publicationParagraph = new ParagraphFormFieldBuilder()
+        .id("publicationParagraph")
         .text(`besluit.publicatie.indicatie.koptitel`)
         .build();
 
-      this.publicationDateField = new DateFormFieldBuilder(moment())
+      const publicationDateField = new DateFormFieldBuilder(moment())
         .id("publicationDate")
         .label("publicatiedatum")
         .build();
 
-      this.publicationMessageField = new MessageFormFieldBuilder()
+      const publicationMessageField = new MessageFormFieldBuilder()
         .id("messageField")
         .text(
           this.translate.instant(
@@ -196,46 +194,53 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
         .build();
 
       const lastResponseDate: Moment = moment().add(
-        this.besluittypeField.formControl.value.publication.responseTermDays,
+        this.getFormField("besluittype").formControl.value.publication
+          .responseTermDays,
         "days",
       );
 
-      this.lastResponseDateField = new DateFormFieldBuilder(lastResponseDate)
+      const lastResponseDateField = new DateFormFieldBuilder(lastResponseDate)
         .id("lastResponseDate")
         .label("uiterlijkereactiedatum")
         .minDate(lastResponseDate.toDate())
         .build();
 
       this.fields.push(
-        [this.divider],
-        [this.publicationParagraph],
-        [this.publicationDateField],
-        [this.publicationMessageField],
-        [this.lastResponseDateField],
+        [divider],
+        [publicationParagraph],
+        [publicationDateField],
+        [publicationMessageField],
+        [lastResponseDateField],
       );
 
-      this.subscription = this.publicationDateField.formControl.valueChanges
+      this.subscription = publicationDateField.formControl.valueChanges
         .pipe(takeUntil(this.ngDestroy))
         .subscribe((value: Moment | null) => {
           if (value) {
             const adjustedLastResponseDate: Moment = value
               .clone()
               .add(
-                this.besluittypeField.formControl.value.publication
+                this.getFormField("besluittype").formControl.value.publication
                   .responseTermDays,
                 "days",
               );
 
-            this.lastResponseDateField.formControl.setValue(
+            lastResponseDateField.formControl.setValue(
               adjustedLastResponseDate,
             );
-            (this.lastResponseDateField as DateFormField).minDate =
+            (lastResponseDateField as DateFormField).minDate =
               adjustedLastResponseDate.toDate();
           }
         });
     }
 
     this.formComponent.refreshFormfields(this.fields);
+  }
+
+  private getFormField(id: string) {
+    return this.fields.find((fields) =>
+      fields.find((group) => group.id === id),
+    )[0];
   }
 
   onFormSubmit(formGroup: FormGroup): void {

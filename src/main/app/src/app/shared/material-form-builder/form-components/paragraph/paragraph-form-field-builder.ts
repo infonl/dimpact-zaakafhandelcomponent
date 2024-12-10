@@ -23,6 +23,11 @@ export class ParagraphFormFieldBuilder {
     return this;
   }
 
+  id(id: string): this {
+    this.formField.id = id;
+    return this
+  }
+
   build() {
     this.validate();
     return this.formField;
