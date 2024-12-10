@@ -474,7 +474,6 @@ services:
     volumes:
       - ./scripts/docker-compose/imports/opennotificaties-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/opennotificaties-database-data:/var/lib/postgresql/data
-    profiles: [ "opennotificaties" ]
 
   opennotificaties:
     image: docker.io/openzaak/open-notificaties:1.7.1@sha256:feaf6f1da046bd4a8beb727563deda171fc66bc68371fd6f9192cbb1ceee9e6f
@@ -498,7 +497,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-    profiles: [ "opennotificaties" ]
 
   zac:
     # By default, we use the most recent ZAC Docker Image. Change this if you wish to use a specific version.
