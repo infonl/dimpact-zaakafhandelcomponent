@@ -42,27 +42,27 @@
         </ng-template>
         <div class="content flex-row flex-wrap">
           <zac-static-text
-            class="flex-1"
+            class="w25 w50-md"
             [label]="'resultaat' | translate"
             [value]="result.resultaattype.naam"
           ></zac-static-text>
           <zac-static-text
-            class="flex-1"
+            class="w25 w50-md"
             [label]="'besluit' | translate"
             [value]="besluit.besluittype.naam"
           ></zac-static-text>
           <zac-static-text
-            class="flex-1"
+            class="w25 w50-md"
             [label]="'datum' | translate"
             [value]="besluit.datum | datum "
           ></zac-static-text>
           <zac-static-text
-            class="flex-1"
+            class="w25 w50-md"
             [label]="'ingangsdatum' | translate"
             [value]="besluit.ingangsdatum | datum"
           ></zac-static-text>
           <zac-static-text
-            class="flex-1"
+            class="w25 w50-md"
             [label]="'vervaldatum' | translate"
             [value]="besluit.vervaldatum | datum"
             [icon]="besluit.vervalreden ? toolTipIcon : null"
@@ -71,12 +71,24 @@
             [attr.aria-label]="besluit.vervalreden ? ('besluit.vervalreden.' + besluit.vervalreden | translate) : null"
           ></zac-static-text>
           <zac-static-text
-            class="w100 flex-1"
+            class="w25 w50-md"
+            *ngIf="besluit.besluittype.publication.enabled"
+            [label]="'publicatiedatum' | translate"
+            [value]="besluit.publicationDate | datum"
+          ></zac-static-text>
+          <zac-static-text
+            class="w25 w50-md"
+            *ngIf="besluit.besluittype.publication.enabled"
+            [label]="'uiterlijkereactiedatum' | translate"
+            [value]="besluit.lastResponseDate | datum"
+          ></zac-static-text>
+          <zac-static-text
+            class="flex-fill-row"
             [label]="'besluitToelichting' | translate"
             [value]="besluit.toelichting"
           ></zac-static-text>
           <mfb-form-field
-            class="flex"
+            class="flex-fill-row"
             *ngIf="besluitInformatieobjecten[besluit.uuid]"
             [field]="besluitInformatieobjecten[besluit.uuid]"
           ></mfb-form-field>

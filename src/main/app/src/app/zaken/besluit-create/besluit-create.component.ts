@@ -10,12 +10,19 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  ViewChild,
 } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
-import moment from "moment";
-import { Subject } from "rxjs";
+import { TranslateService } from "@ngx-translate/core";
+import moment, { Moment } from "moment";
+import { Subject, Subscription } from "rxjs";
 import { takeUntil } from "rxjs/operators";
+import { DividerFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/divider/divider-form-field-builder";
+import { MessageFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/message/message-form-field-builder";
+import { MessageLevel } from "src/app/shared/material-form-builder/form-components/message/message-level.enum";
+import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
+import { FormComponent } from "src/app/shared/material-form-builder/form/form/form.component";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
@@ -41,13 +48,18 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
   @Input() zaak: Zaak;
   @Input() sideNav: MatDrawer;
   @Output() besluitVastgelegd = new EventEmitter<boolean>();
+  @ViewChild(FormComponent) formComponent!: FormComponent;
+
   fields: Array<AbstractFormField[]>;
+
+  private subscription: Subscription;
   private ngDestroy = new Subject<void>();
 
   constructor(
     private zakenService: ZakenService,
     public utilService: UtilService,
     private informatieObjectenService: InformatieObjectenService,
+    protected translate: TranslateService,
   ) {}
 
   ngOnInit(): void {
@@ -91,6 +103,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
       .id("documenten")
       .label("documenten")
       .build();
+
     this.fields = [
       [resultaattypeField],
       [besluittypeField],
@@ -109,11 +122,13 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
           ).vervaldatumBesluitVerplicht;
         }
       });
+
     ingangsdatumField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
         (vervaldatumField as DateFormField).minDate = value;
       });
+
     besluittypeField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
@@ -126,8 +141,106 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
               zoekparameters,
             ),
           );
+
+          this.updatePublicationsFormPart(value);
         }
       });
+  }
+
+  updatePublicationsFormPart({
+    publication,
+  }: GeneratedType<"RestBesluittype">): void {
+    this.fields = this.fields.filter((fieldGroup) =>
+      fieldGroup.every(
+        (group) =>
+          ![
+            "divider",
+            "publicationParagraph",
+            "publicationDate",
+            "messageField",
+            "lastResponseDate",
+          ].includes(group.id),
+      ),
+    );
+
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+
+    if (publication.enabled) {
+      const divider = new DividerFormFieldBuilder().id("divider").build();
+
+      const publicationParagraph = new ParagraphFormFieldBuilder()
+        .id("publicationParagraph")
+        .text(`besluit.publicatie.indicatie.koptitel`)
+        .build();
+
+      const publicationDateField = new DateFormFieldBuilder(moment())
+        .id("publicationDate")
+        .label("publicatiedatum")
+        .build();
+
+      const publicationMessageField = new MessageFormFieldBuilder()
+        .id("messageField")
+        .text(
+          this.translate.instant(
+            `besluit.publicatie.indicatie.onderschrift${publication.publicationTermDays > 1 ? ".meervoud" : ""}`,
+            {
+              publicationTermDays: publication.publicationTermDays,
+            },
+          ),
+        )
+        .level(MessageLevel.INFO)
+        .build();
+
+      const lastResponseDate: Moment = moment().add(
+        this.getFormField("besluittype").formControl.value.publication
+          .responseTermDays,
+        "days",
+      );
+
+      const lastResponseDateField = new DateFormFieldBuilder(lastResponseDate)
+        .id("lastResponseDate")
+        .label("uiterlijkereactiedatum")
+        .minDate(lastResponseDate.toDate())
+        .build();
+
+      this.fields.push(
+        [divider],
+        [publicationParagraph],
+        [publicationDateField],
+        [publicationMessageField],
+        [lastResponseDateField],
+      );
+
+      this.subscription = publicationDateField.formControl.valueChanges
+        .pipe(takeUntil(this.ngDestroy))
+        .subscribe((value: Moment | null) => {
+          if (value) {
+            const adjustedLastResponseDate: Moment = value
+              .clone()
+              .add(
+                this.getFormField("besluittype").formControl.value.publication
+                  .responseTermDays,
+                "days",
+              );
+
+            lastResponseDateField.formControl.setValue(
+              adjustedLastResponseDate,
+            );
+            (lastResponseDateField as DateFormField).minDate =
+              adjustedLastResponseDate.toDate();
+          }
+        });
+    }
+
+    this.formComponent.refreshFormfields(this.fields);
+  }
+
+  private getFormField(id: string) {
+    return this.fields.find((fields) =>
+      fields.find((group) => group.id === id),
+    )[0];
   }
 
   onFormSubmit(formGroup: FormGroup): void {
@@ -142,6 +255,12 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
           formGroup.controls["besluittype"]
             .value as GeneratedType<"RestDecisionType">
         ).id,
+        ...(formGroup.controls["besluittype"].value.publication.enabled
+          ? {
+              publicationDate: formGroup.controls["publicationDate"].value,
+              lastResponseDate: formGroup.controls["lastResponseDate"].value,
+            }
+          : {}),
         toelichting: formGroup.controls["toelichting"].value,
         ingangsdatum: formGroup.controls["ingangsdatum"].value,
         vervaldatum: formGroup.controls["vervaldatum"].value,
