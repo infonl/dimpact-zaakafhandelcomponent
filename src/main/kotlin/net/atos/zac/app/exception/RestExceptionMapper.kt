@@ -26,10 +26,10 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
-import net.atos.zac.app.besluit.BesluitPublicationDateMissingException
-import net.atos.zac.app.besluit.BesluitPublicationDisabledException
-import net.atos.zac.app.besluit.BesluitResponseDateInvalidException
-import net.atos.zac.app.besluit.BesluitResponseDateMissingException
+import net.atos.zac.app.decision.DecisionPublicationDateMissingException
+import net.atos.zac.app.decision.DecisionPublicationDisabledException
+import net.atos.zac.app.decision.DecisionResponseDateInvalidException
+import net.atos.zac.app.decision.DecisionResponseDateMissingException
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
@@ -88,22 +88,22 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 errorCode = ERROR_CODE_SMARTDOCUMENTS_NOT_CONFIGURED,
                 exception = exception
             )
-            exception is BesluitPublicationDisabledException -> generateResponse(
+            exception is DecisionPublicationDisabledException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
                 errorCode = ERROR_CODE_BESLUIT_PUBLICATION_DISABLED_TYPE,
                 exception = exception
             )
-            exception is BesluitPublicationDateMissingException -> generateResponse(
+            exception is DecisionPublicationDateMissingException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
                 errorCode = ERROR_CODE_BESLUIT_PUBLICATION_DATE_MISSING_TYPE,
                 exception = exception
             )
-            exception is BesluitResponseDateMissingException -> generateResponse(
+            exception is DecisionResponseDateMissingException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
                 errorCode = ERROR_CODE_BESLUIT_RESPONSE_DATE_MISSING_TYPE,
                 exception = exception
             )
-            exception is BesluitResponseDateInvalidException -> generateResponse(
+            exception is DecisionResponseDateInvalidException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
                 errorCode = ERROR_CODE_BESLUIT_RESPONSE_DATE_INVALID_TYPE,
                 exception = exception

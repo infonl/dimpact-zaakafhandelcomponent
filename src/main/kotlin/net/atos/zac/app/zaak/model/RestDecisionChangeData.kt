@@ -14,7 +14,7 @@ import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
-data class RestBesluitWijzigenGegevens(
+data class RestDecisionChangeData(
     @field:NotNull
     var besluitUuid: UUID,
 
@@ -36,7 +36,7 @@ data class RestBesluitWijzigenGegevens(
     var reden: String? = null
 )
 
-fun Besluit.updateBesluitWithBesluitWijzigenGegevens(besluitWijzigenGegevens: RestBesluitWijzigenGegevens) =
+fun Besluit.updateDecisionWithDecisionChangeData(besluitWijzigenGegevens: RestDecisionChangeData) =
     this.apply {
         toelichting = besluitWijzigenGegevens.toelichting
         ingangsdatum = besluitWijzigenGegevens.ingangsdatum

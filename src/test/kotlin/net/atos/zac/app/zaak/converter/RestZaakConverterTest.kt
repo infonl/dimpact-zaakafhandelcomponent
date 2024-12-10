@@ -42,7 +42,7 @@ class RestZaakConverterTest : BehaviorSpec({
     val restGroupConverter = mockk<RestGroupConverter>()
     val restGerelateerdeZaakConverter = mockk<RestGerelateerdeZaakConverter>()
     val restUserConverter = mockk<RestUserConverter>()
-    val restBesluitConverter = mockk<RestBesluitConverter>()
+    val restDecisionConverter = mockk<RestDecisionConverter>()
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
     val policyService = mockk<PolicyService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
@@ -57,7 +57,7 @@ class RestZaakConverterTest : BehaviorSpec({
         restGroupConverter = restGroupConverter,
         restGerelateerdeZaakConverter = restGerelateerdeZaakConverter,
         restUserConverter = restUserConverter,
-        restBesluitConverter = restBesluitConverter,
+        restDecisionConverter = restDecisionConverter,
         restZaaktypeConverter = restZaaktypeConverter,
         policyService = policyService,
         zaakVariabelenService = zaakVariabelenService,
@@ -96,7 +96,7 @@ class RestZaakConverterTest : BehaviorSpec({
         }
         every { restGroupConverter.convertGroupId(rolOrganistorischeEenheid.get().identificatienummer) } returns restGroup
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
-        every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
+        every { restDecisionConverter.convertToRestBesluit(besluit) } returns restBesluit
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isProcesGestuurd(zaak.uuid) } returns false

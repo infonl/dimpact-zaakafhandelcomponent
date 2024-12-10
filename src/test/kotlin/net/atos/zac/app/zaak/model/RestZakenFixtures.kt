@@ -29,7 +29,7 @@ const val ZAAK_TYPE_2_OMSCHRIJVING = "zaaktype2"
 fun createRestBesluit(
     url: URI = URI("http://localhost:8080/${UUID.randomUUID()}"),
     uuid: UUID = UUID.randomUUID()
-) = RestBesluit(
+) = RestDecision(
     url = url,
     uuid = uuid
 )
@@ -46,7 +46,7 @@ fun createRestBesluitVastleggenGegevens(
     lastResponseDate: LocalDate? = null,
     informatieobjecten: List<UUID> = listOf(UUID.randomUUID())
 ) =
-    RestBesluitVastleggenGegevens(
+    RestDecisionCreateData(
         besluittypeUuid = besluittypeUuid,
         informatieobjecten = informatieobjecten,
         ingangsdatum = ingangsdatum,
@@ -69,7 +69,7 @@ fun createRestBesluitWijzigenGegevens(
     lastResponseDate: LocalDate = LocalDate.of(2023, 11, 1),
     informationObjects: List<UUID> = listOf(UUID.randomUUID()),
     reason: String = "dummyReason"
-) = RestBesluitWijzigenGegevens(
+) = RestDecisionChangeData(
     besluitUuid = besluitUUID,
     resultaattypeUuid = resultTypeUUID,
     toelichting = description,

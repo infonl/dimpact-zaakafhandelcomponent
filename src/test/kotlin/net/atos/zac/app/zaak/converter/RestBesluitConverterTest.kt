@@ -30,7 +30,7 @@ class RestBesluitConverterTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
     val restInformatieobjectConverter = mockk<RestInformatieobjectConverter>()
     val ztcClientService = mockk<ZtcClientService>()
-    val restBesluitConverter = RestBesluitConverter(
+    val restDecisionConverter = RestDecisionConverter(
         brcClientService,
         drcClientService,
         restInformatieobjectConverter,
@@ -51,7 +51,7 @@ class RestBesluitConverterTest : BehaviorSpec({
 
         When("this data is converted to a besluit") {
             val dateNow = LocalDate.now()
-            val besluit = restBesluitConverter.convertToBesluit(zaak, besluitToevoegenGegevens)
+            val besluit = restDecisionConverter.convertToBesluit(zaak, besluitToevoegenGegevens)
 
             Then("the besluit is correctly converted and should have a vervalreden of type 'tijdelijk'") {
                 with(besluit) {
@@ -90,7 +90,7 @@ class RestBesluitConverterTest : BehaviorSpec({
         } returns listOf(restEnkelvoudigInformatieobject)
 
         When("it is converted to a rest representation") {
-            val restBesluit = restBesluitConverter.convertToRestBesluit(besluit)
+            val restBesluit = restDecisionConverter.convertToRestBesluit(besluit)
 
             Then("the conversion is correct") {
                 with(restBesluit) {

@@ -15,7 +15,7 @@ import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
-data class RestBesluittype(
+data class RestDecisionType(
     var id: UUID,
 
     var naam: String,
@@ -24,15 +24,15 @@ data class RestBesluittype(
 
     var informatieobjecttypen: List<URI>,
 
-    var publication: RestBesluittypePublication,
+    var publication: RestDecisionTypePublication,
 )
 
-fun BesluitType.toRestBesluitType() = RestBesluittype(
+fun BesluitType.toRestBesluitType() = RestDecisionType(
     id = this.url.extractUuid(),
     naam = this.omschrijving,
     toelichting = this.toelichting,
     informatieobjecttypen = this.informatieobjecttypen.toList(),
-    publication = RestBesluittypePublication(
+    publication = RestDecisionTypePublication(
         enabled = this.publicatieIndicatie,
         publicationTerm = this.publicatietermijn?.let { PeriodUtil.format(Period.parse(it)) },
         publicationTermDays = this.publicatietermijn?.let { PeriodUtil.numberOfDaysFromToday(Period.parse(it)) },

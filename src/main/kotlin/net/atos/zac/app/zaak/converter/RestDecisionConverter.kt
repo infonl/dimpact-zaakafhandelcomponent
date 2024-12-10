@@ -14,15 +14,15 @@ import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
-import net.atos.zac.app.zaak.model.RestBesluit
-import net.atos.zac.app.zaak.model.RestBesluitVastleggenGegevens
+import net.atos.zac.app.zaak.model.RestDecision
+import net.atos.zac.app.zaak.model.RestDecisionCreateData
 import net.atos.zac.app.zaak.model.toRestBesluitType
 import net.atos.zac.configuratie.ConfiguratieService
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate
 
 @NoArgConstructor
-class RestBesluitConverter @Inject constructor(
+class RestDecisionConverter @Inject constructor(
     private val brcClientService: BrcClientService,
     private val drcClientService: DrcClientService,
     private val restInformatieobjectConverter: RestInformatieobjectConverter,
@@ -30,7 +30,7 @@ class RestBesluitConverter @Inject constructor(
 ) {
     fun convertToRestBesluit(besluit: Besluit) =
         ztcClientService.readBesluittype(besluit.besluittype).let { besluitType ->
-            RestBesluit(
+            RestDecision(
                 uuid = besluit.url.extractUuid(),
                 besluittype = besluitType.toRestBesluitType(),
                 datum = besluit.datum,
@@ -52,10 +52,10 @@ class RestBesluitConverter @Inject constructor(
             )
         }
 
-    fun convertBesluitenToRestBesluit(besluiten: List<Besluit>): List<RestBesluit> = besluiten
+    fun convertBesluitenToRestBesluit(besluiten: List<Besluit>): List<RestDecision> = besluiten
         .map { convertToRestBesluit(it) }
 
-    fun convertToBesluit(zaak: Zaak, besluitToevoegenGegevens: RestBesluitVastleggenGegevens) =
+    fun convertToBesluit(zaak: Zaak, besluitToevoegenGegevens: RestDecisionCreateData) =
         ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid).let { besluitType ->
             Besluit().apply {
                 this.zaak = zaak.url

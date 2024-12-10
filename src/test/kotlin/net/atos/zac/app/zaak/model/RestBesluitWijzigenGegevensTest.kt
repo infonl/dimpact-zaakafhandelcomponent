@@ -17,7 +17,7 @@ class RestBesluitWijzigenGegevensTest : BehaviorSpec({
         val restBesluitWijzigenGegevens = createRestBesluitWijzigenGegevens()
 
         When("updated with change data") {
-            val updatedBesluit = besluit.updateBesluitWithBesluitWijzigenGegevens(restBesluitWijzigenGegevens)
+            val updatedBesluit = besluit.updateDecisionWithDecisionChangeData(restBesluitWijzigenGegevens)
 
             Then("update is correct") {
                 with(updatedBesluit) {
