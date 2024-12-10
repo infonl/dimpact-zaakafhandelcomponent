@@ -27,7 +27,7 @@ data class RestDecisionType(
     var publication: RestDecisionTypePublication,
 )
 
-fun BesluitType.toRestBesluitType() = RestDecisionType(
+fun BesluitType.toRestDecisionType() = RestDecisionType(
     id = this.url.extractUuid(),
     naam = this.omschrijving,
     toelichting = this.toelichting,
@@ -41,5 +41,5 @@ fun BesluitType.toRestBesluitType() = RestDecisionType(
     )
 )
 
-fun List<BesluitType>.toRestBesluittypes() = this
-    .map { it.toRestBesluitType() }
+fun List<BesluitType>.toRestDecisionTypes() =
+    this.map { it.toRestDecisionType() }

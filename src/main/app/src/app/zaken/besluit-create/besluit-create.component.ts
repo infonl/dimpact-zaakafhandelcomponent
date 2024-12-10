@@ -149,7 +149,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
 
   updatePublicationsFormPart({
     publication,
-  }: GeneratedType<"RestBesluittype">): void {
+  }: GeneratedType<"RestDecisionType">): void {
     this.fields = this.fields.filter((fieldGroup) =>
       fieldGroup.every(
         (group) =>

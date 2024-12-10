@@ -89,7 +89,7 @@ import net.atos.zac.app.zaak.model.RestZaakLocatieGegevens
 import net.atos.zac.app.zaak.model.RestZaakOverzicht
 import net.atos.zac.app.zaak.model.RestZaaktype
 import net.atos.zac.app.zaak.model.toGeometry
-import net.atos.zac.app.zaak.model.toRestBesluittypes
+import net.atos.zac.app.zaak.model.toRestDecisionTypes
 import net.atos.zac.app.zaak.model.toRestResultaatTypes
 import net.atos.zac.app.zaak.model.toRestZaakBetrokkenen
 import net.atos.zac.authentication.LoggedInUser
@@ -870,7 +870,7 @@ class ZaakRestService @Inject constructor(
         assertPolicy(policyService.readWerklijstRechten().zakenTaken)
         return ztcClientService.readBesluittypen(ztcClientService.readZaaktype(zaaktypeUUID).url)
             .filter { LocalDateUtil.dateNowIsBetween(it) }
-            .toRestBesluittypes()
+            .toRestDecisionTypes()
     }
 
     @GET

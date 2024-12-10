@@ -16,7 +16,7 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.zaak.model.RestDecision
 import net.atos.zac.app.zaak.model.RestDecisionCreateData
-import net.atos.zac.app.zaak.model.toRestBesluitType
+import net.atos.zac.app.zaak.model.toRestDecisionType
 import net.atos.zac.configuratie.ConfiguratieService
 import nl.lifely.zac.util.NoArgConstructor
 import java.time.LocalDate
@@ -32,7 +32,7 @@ class RestDecisionConverter @Inject constructor(
         ztcClientService.readBesluittype(besluit.besluittype).let { besluitType ->
             RestDecision(
                 uuid = besluit.url.extractUuid(),
-                besluittype = besluitType.toRestBesluitType(),
+                besluittype = besluitType.toRestDecisionType(),
                 datum = besluit.datum,
                 identificatie = besluit.identificatie,
                 url = besluit.url,
