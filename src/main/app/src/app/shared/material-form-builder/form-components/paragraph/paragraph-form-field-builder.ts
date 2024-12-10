@@ -25,7 +25,7 @@ export class ParagraphFormFieldBuilder {
 
   id(id: string): this {
     this.formField.id = id;
-    return this
+    return this;
   }
 
   build() {

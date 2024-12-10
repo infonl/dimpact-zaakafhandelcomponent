@@ -18,6 +18,8 @@ import moment, { Moment } from "moment";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { DividerFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/divider/divider-form-field-builder";
+import { MessageFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/message/message-form-field-builder";
+import { MessageLevel } from "src/app/shared/material-form-builder/form-components/message/message-level.enum";
 import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
@@ -48,10 +50,6 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
   @Output() besluitGewijzigd = new EventEmitter<boolean>();
 
   fields: Array<AbstractFormField[]>;
-  divider: AbstractFormField;
-  publicationParagraph: AbstractFormField;
-  publicationDateField: AbstractFormField;
-  lastResponseDateField: AbstractFormField;
 
   private ngDestroy = new Subject<void>();
 
@@ -119,26 +117,33 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
       .validators(Validators.required)
       .build();
 
-    this.divider = new DividerFormFieldBuilder().id("divider").build();
-    this.publicationParagraph = new ParagraphFormFieldBuilder()
-      .text(
-        this.translate.instant(`besluit.publicatie.indicatie.koptitel`, {
-          publicationTermDays:
-            this.besluit.besluittype.publication.publicationTermDays,
-          responseTermDays:
-            this.besluit.besluittype.publication.responseTermDays,
-        }),
-      )
+    const divider = new DividerFormFieldBuilder().id("divider").build();
+    const publicationParagraph = new ParagraphFormFieldBuilder()
+      .text(this.translate.instant(`besluit.publicatie.indicatie.koptitel`))
       .build();
 
-    this.publicationDateField = new DateFormFieldBuilder(
+    const publicationMessageField = new MessageFormFieldBuilder()
+      .id("messageField")
+      .text(
+        this.translate.instant(
+          `besluit.publicatie.indicatie.onderschrift${this.besluit.besluittype.publication.publicationTermDays > 1 ? ".meervoud" : ""}`,
+          {
+            publicationTermDays:
+              this.besluit.besluittype.publication.publicationTermDays,
+          },
+        ),
+      )
+      .level(MessageLevel.INFO)
+      .build();
+
+    const publicationDateField = new DateFormFieldBuilder(
       this.besluit.vervaldatum || null,
     )
       .id("publicationDate")
       .label("publicatiedatum")
       .build();
 
-    this.lastResponseDateField = new DateFormFieldBuilder(
+    const lastResponseDateField = new DateFormFieldBuilder(
       this.besluit.vervaldatum || null,
     )
       .id("lastResponseDate")
@@ -155,11 +160,11 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
       [documentenField],
       ...(this.besluit.besluittype.publication.enabled
         ? [
-            [this.divider],
-            [this.publicationParagraph],
-            [this.publicationDateField],
-            [this.lastResponseDateField],
-            [this.divider],
+            [divider],
+            [publicationParagraph],
+            [publicationDateField],
+            [lastResponseDateField],
+            [divider],
           ]
         : []),
       [redenField],
@@ -186,7 +191,7 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
         documentenField.updateDocumenten(this.listInformatieObjecten(value.id));
       });
 
-    this.publicationDateField.formControl.valueChanges
+    publicationDateField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value: Moment | null) => {
         if (value) {
@@ -194,10 +199,8 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
             .clone()
             .add(this.besluit.besluittype.publication.responseTermDays, "days");
 
-          this.lastResponseDateField.formControl.setValue(
-            adjustedLastResponseDate,
-          );
-          (this.lastResponseDateField as DateFormField).minDate =
+          lastResponseDateField.formControl.setValue(adjustedLastResponseDate);
+          (lastResponseDateField as DateFormField).minDate =
             adjustedLastResponseDate.toDate();
         }
       });
