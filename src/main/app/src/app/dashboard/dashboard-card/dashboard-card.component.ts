@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -20,7 +20,7 @@ import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
-import { SignaleringType } from "../../shared/signaleringen/signalering-type";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { DashboardCard } from "../model/dashboard-card";
 
 @Component({
@@ -81,9 +81,9 @@ export abstract class DashboardCardComponent<T>
   }
 
   protected refreshOnSignalering(
-    signaleringType: SignaleringType,
+    signaleringType: GeneratedType<"RestSignaleringInstellingen">["type"],
   ): Observable<void> {
-    const reload$: Subject<void> = new Subject<void>();
+    const reload$ = new Subject<void>();
     this.identityService.readLoggedInUser().subscribe((medewerker) => {
       this.websocketService.addListener(
         Opcode.UPDATED,

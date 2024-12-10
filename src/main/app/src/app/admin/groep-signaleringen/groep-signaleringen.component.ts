@@ -11,7 +11,7 @@ import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { Group } from "../../identity/model/group";
-import { SignaleringSettings } from "../../signaleringen/model/signalering-settings";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { SignaleringenSettingsBeheerService } from "../signaleringen-settings-beheer.service";
 
@@ -30,8 +30,9 @@ export class GroepSignaleringenComponent
   groepen: Observable<Group[]>;
   groepId: string;
   columns: string[] = ["subjecttype", "type", "dashboard", "mail"];
-  dataSource: MatTableDataSource<SignaleringSettings> =
-    new MatTableDataSource<SignaleringSettings>();
+  dataSource = new MatTableDataSource<
+    GeneratedType<"RestSignaleringInstellingen">
+  >();
 
   constructor(
     public utilService: UtilService,
@@ -56,7 +57,11 @@ export class GroepSignaleringenComponent
     });
   }
 
-  changed(row: SignaleringSettings, column: string, checked: boolean): void {
+  changed(
+    row: GeneratedType<"RestSignaleringInstellingen">,
+    column: string,
+    checked: boolean,
+  ): void {
     this.utilService.setLoading(true);
     row[column] = checked;
     this.service.put(this.groepId, row).subscribe(() => {
