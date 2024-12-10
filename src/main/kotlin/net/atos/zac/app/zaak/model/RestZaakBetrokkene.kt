@@ -23,7 +23,7 @@ data class RestZaakBetrokkene(
 
     var roltoelichting: String?,
 
-    var type: String,
+    var type: BetrokkeneType,
 
     var identificatie: String
 )
@@ -33,7 +33,7 @@ fun Rol<*>.toRestZaakBetrokkene() = RestZaakBetrokkene(
     rolid = this.uuid.toString(),
     roltype = this.omschrijving,
     roltoelichting = this.roltoelichting,
-    type = this.betrokkeneType.name,
+    type = this.betrokkeneType,
     identificatie = when (this.betrokkeneType) {
         BetrokkeneType.NATUURLIJK_PERSOON -> (this as RolNatuurlijkPersoon).betrokkeneIdentificatie.inpBsn
         BetrokkeneType.NIET_NATUURLIJK_PERSOON -> (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie.innNnpId
