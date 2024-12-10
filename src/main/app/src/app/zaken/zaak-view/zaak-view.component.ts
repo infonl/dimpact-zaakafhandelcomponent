@@ -124,8 +124,7 @@ export class ZaakViewComponent
     "nieuweWaarde",
     "toelichting",
   ];
-  betrokkenen =
-    new MatTableDataSource<GeneratedType<'RestZaakBetrokkene'>>();
+  betrokkenen = new MatTableDataSource<GeneratedType<"RestZaakBetrokkene">>();
   betrokkenenColumns: string[] = [
     "roltype",
     "betrokkenegegevens",
@@ -1227,7 +1226,7 @@ export class ZaakViewComponent
       });
   }
 
-  deleteBetrokkene(betrokkene: GeneratedType<'RestZaakBetrokkene'>): void {
+  deleteBetrokkene(betrokkene: GeneratedType<"RestZaakBetrokkene">): void {
     this.websocketService.suspendListener(this.zaakRollenListener);
     const betrokkeneIdentificatie: string =
       betrokkene.roltype + " " + betrokkene.identificatie;
@@ -1389,7 +1388,9 @@ export class ZaakViewComponent
     });
   }
 
-  betrokkeneGegevensOphalen(betrokkene: GeneratedType<'RestZaakBetrokkene'>): void {
+  betrokkeneGegevensOphalen(
+    betrokkene: GeneratedType<"RestZaakBetrokkene">,
+  ): void {
     betrokkene["gegevens"] = "LOADING";
     switch (betrokkene.type) {
       case "NATUURLIJK_PERSOON":
