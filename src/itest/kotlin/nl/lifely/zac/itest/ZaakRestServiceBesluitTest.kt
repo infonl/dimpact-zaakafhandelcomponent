@@ -111,7 +111,8 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
         When("a besluit is added to the zaak") {
             val today = LocalDate.now()
             val tomorrow = today.plusDays(1)
-            val responseDate = today.plusDays(3)
+            val publicationDate = today.plusMonths(2)
+            val responseDate = today.plusMonths(3)
 
             itestHttpClient.performJSONPostRequest(
                 "$ZAC_API_URI/zaken/besluit",
@@ -123,7 +124,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                     "toelichting":"dummyToelichting",
                     "ingangsdatum":"$today",
                     "vervaldatum":"$tomorrow",
-                    "publicationDate": "$today",
+                    "publicationDate": "$publicationDate",
                     "lastResponseDate": "$responseDate"
                 }
                 """.trimIndent()
@@ -146,7 +147,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                         getString("toelichting") shouldBe "dummyToelichting"
                         getString("ingangsdatum") shouldBe today.toString()
                         getString("vervaldatum") shouldBe tomorrow.toString()
-                        getString("publicationDate") shouldBe today.toString()
+                        getString("publicationDate") shouldBe publicationDate.toString()
                         getString("lastResponseDate") shouldBe responseDate.toString()
                         getBoolean("isIngetrokken") shouldBe false
                         getJSONArray("informatieobjecten").shouldHaveSize(0)
@@ -164,7 +165,8 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
         When("the besluit is updated with a new result type, start date, end date, last response date and reason") {
             val startDate = LocalDate.now().plusDays(1)
             val fatalDate = LocalDate.now().plusDays(2)
-            val newResponseDate = LocalDate.now().plusDays(3)
+            val newPublicationDate = LocalDate.now().plusMonths(3)
+            val newResponseDate = LocalDate.now().plusMonths(4)
             val updateReason = "dummyBesluitUpdateToelichting"
             itestHttpClient.performPutRequest(
                 "$ZAC_API_URI/zaken/besluit",
@@ -175,7 +177,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                     "toelichting":"$updateReason",
                     "ingangsdatum":"$startDate",
                     "vervaldatum":"$fatalDate",
-                    "publicationDate":"$startDate",
+                    "publicationDate":"$newPublicationDate",
                     "lastResponseDate": "$newResponseDate"         
                 }
                 """.trimIndent()
@@ -203,7 +205,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                         getString("toelichting") shouldBe updateReason
                         getString("ingangsdatum") shouldBe startDate.toString()
                         getString("vervaldatum") shouldBe fatalDate.toString()
-                        getString("publicationDate") shouldBe startDate.toString()
+                        getString("publicationDate") shouldBe newPublicationDate.toString()
                         getString("lastResponseDate") shouldBe newResponseDate.toString()
                         getBoolean("isIngetrokken") shouldBe false
                         getJSONArray("informatieobjecten").shouldHaveSize(0)
