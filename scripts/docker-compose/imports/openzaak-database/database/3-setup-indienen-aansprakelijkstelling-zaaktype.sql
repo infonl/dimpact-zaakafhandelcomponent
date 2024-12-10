@@ -927,7 +927,7 @@ VALUES
   'P22D', -- 22 days
   true,
   '00:00:00',
-  'P11D', -- 11 day
+  'P11D', -- 11 days
   'Besluit na heroverweging',
   (SELECT id FROM catalogi_catalogus WHERE naam = 'zac'),
   '_etag'
