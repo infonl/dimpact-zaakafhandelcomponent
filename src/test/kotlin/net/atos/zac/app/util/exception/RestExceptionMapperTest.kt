@@ -271,7 +271,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
-    Given("A BesluitPublicationDisabledException exception") {
+    Given("A DecisionPublicationDisabledException exception") {
         val exception = DecisionPublicationDisabledException("error")
 
         When("the exception is mapped to a response") {
@@ -286,7 +286,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
-    Given("A BesluitPublicationDateMissingException exception") {
+    Given("A DecisionPublicationDateMissingException exception") {
         val exception = DecisionPublicationDateMissingException("error")
 
         When("the exception is mapped to a response") {
@@ -301,7 +301,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
-    Given("A BesluitResponseDateMissingException exception") {
+    Given("A DecisionResponseDateMissingException exception") {
         val exception = DecisionResponseDateMissingException("error")
 
         When("the exception is mapped to a response") {
@@ -316,7 +316,7 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
-    Given("A BesluitResponseDateInvalidException exception") {
+    Given("A DecisionResponseDateInvalidException exception") {
         val exception = DecisionResponseDateInvalidException("error")
 
         When("the exception is mapped to a response") {
