@@ -13,8 +13,14 @@ import {
 } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
+import { TranslateService } from "@ngx-translate/core";
+import moment, { Moment } from "moment";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
+import { DividerFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/divider/divider-form-field-builder";
+import { MessageFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/message/message-form-field-builder";
+import { MessageLevel } from "src/app/shared/material-form-builder/form-components/message/message-level.enum";
+import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
@@ -42,12 +48,15 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
   @Input() zaak: Zaak;
   @Input() sideNav: MatDrawer;
   @Output() besluitGewijzigd = new EventEmitter<boolean>();
+
   fields: Array<AbstractFormField[]>;
+
   private ngDestroy = new Subject<void>();
 
   constructor(
     private zakenService: ZakenService,
     private informatieObjectenService: InformatieObjectenService,
+    protected translate: TranslateService,
     public utilService: UtilService,
   ) {}
 
@@ -70,8 +79,8 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
     )
       .id("besluittype")
       .label("besluit")
+      .disabled()
       .build();
-    besluittypeField.formControl.disable();
     const toelichtingField = new TextareaFormFieldBuilder(
       this.besluit.toelichting,
     )
@@ -108,6 +117,40 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
       .validators(Validators.required)
       .build();
 
+    const divider = new DividerFormFieldBuilder().id("divider").build();
+    const publicationParagraph = new ParagraphFormFieldBuilder()
+      .text(this.translate.instant(`besluit.publicatie.indicatie.koptitel`))
+      .build();
+
+    const publicationMessageField = new MessageFormFieldBuilder()
+      .id("messageField")
+      .text(
+        this.translate.instant(
+          `besluit.publicatie.indicatie.onderschrift${this.besluit.besluittype.publication.publicationTermDays > 1 ? ".meervoud" : ""}`,
+          {
+            publicationTermDays:
+              this.besluit.besluittype.publication.publicationTermDays,
+          },
+        ),
+      )
+      .level(MessageLevel.INFO)
+      .build();
+
+    const publicationDateField = new DateFormFieldBuilder(
+      this.besluit.vervaldatum || null,
+    )
+      .id("publicationDate")
+      .label("publicatiedatum")
+      .build();
+
+    const lastResponseDateField = new DateFormFieldBuilder(
+      this.besluit.vervaldatum || null,
+    )
+      .id("lastResponseDate")
+      .label("uiterlijkereactiedatum")
+      .minDate(moment(this.besluit.vervaldatum).toDate())
+      .build();
+
     this.fields = [
       [resultaattypeField],
       [besluittypeField],
@@ -115,6 +158,15 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
       [vervaldatumField],
       [toelichtingField],
       [documentenField],
+      ...(this.besluit.besluittype.publication.enabled
+        ? [
+            [divider],
+            [publicationParagraph],
+            [publicationDateField],
+            [lastResponseDateField],
+            [divider],
+          ]
+        : []),
       [redenField],
     ];
 
@@ -137,6 +189,20 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
         documentenField.updateDocumenten(this.listInformatieObjecten(value.id));
+      });
+
+    publicationDateField.formControl.valueChanges
+      .pipe(takeUntil(this.ngDestroy))
+      .subscribe((value: Moment | null) => {
+        if (value) {
+          const adjustedLastResponseDate: Moment = value
+            .clone()
+            .add(this.besluit.besluittype.publication.responseTermDays, "days");
+
+          lastResponseDateField.formControl.setValue(adjustedLastResponseDate);
+          (lastResponseDateField as DateFormField).minDate =
+            adjustedLastResponseDate.toDate();
+        }
       });
   }
 
@@ -163,6 +229,12 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
         informatieobjecten: formGroup.controls["documenten"].value
           ? formGroup.controls["documenten"].value.split(";")
           : [],
+        ...(this.besluit.besluittype.publication.enabled
+          ? {
+              publicationDate: formGroup.controls["publicationDate"].value,
+              lastResponseDate: formGroup.controls["lastResponseDate"].value,
+            }
+          : {}),
         reden: formGroup.controls["reden"].value,
       };
 
