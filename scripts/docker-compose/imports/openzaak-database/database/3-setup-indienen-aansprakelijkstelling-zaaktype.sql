@@ -902,10 +902,10 @@ VALUES
   'Besluit aansprakelijkstelling',
   'besluit-aansprakelijkstelling',
   'besluit',
-  'P2D',
+  'P2D', -- 2 days
   true,
   '00:00:00',
-  'P1D',
+  'P1D', -- 1 day
   'Besluit aansprakelijkstelling',
   (SELECT id FROM catalogi_catalogus WHERE naam = 'zac'),
   '_etag'
@@ -924,10 +924,10 @@ VALUES
   'Besluit na heroverweging',
   'besluit-na-heroverweging',
   'besluit',
-  'P2D',
+  'P2D', -- 2 days
   true,
   '00:00:00',
-  'P1D',
+  'P1D', -- 1 day
   'Besluit na heroverweging',
   (SELECT id FROM catalogi_catalogus WHERE naam = 'zac'),
   '_etag'
