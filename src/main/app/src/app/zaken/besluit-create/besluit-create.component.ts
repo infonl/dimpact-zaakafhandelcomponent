@@ -149,7 +149,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
 
   updatePublicationsFormPart({
     publication,
-  }: GeneratedType<"RestBesluittype">): void {
+  }: GeneratedType<"RestDecisionType">): void {
     this.fields = this.fields.filter((fieldGroup) =>
       fieldGroup.every(
         (group) =>
@@ -245,7 +245,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
 
   onFormSubmit(formGroup: FormGroup): void {
     if (formGroup) {
-      const gegevens: GeneratedType<"RestBesluitVastleggenGegevens"> = {
+      const data: GeneratedType<"RestDecisionCreateData"> = {
         zaakUuid: this.zaak.uuid,
         resultaattypeUuid: (
           formGroup.controls["resultaattype"]
@@ -253,7 +253,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
         ).id,
         besluittypeUuid: (
           formGroup.controls["besluittype"]
-            .value as GeneratedType<"RestBesluittype">
+            .value as GeneratedType<"RestDecisionType">
         ).id,
         ...(formGroup.controls["besluittype"].value.publication.enabled
           ? {
@@ -269,7 +269,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
           : [],
       };
 
-      this.zakenService.createBesluit(gegevens).subscribe(() => {
+      this.zakenService.createBesluit(data).subscribe(() => {
         this.utilService.openSnackbar("msg.besluit.vastgelegd");
         this.besluitVastgelegd.emit(true);
       });

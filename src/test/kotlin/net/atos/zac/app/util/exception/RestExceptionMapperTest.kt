@@ -20,10 +20,10 @@ import net.atos.client.zgw.shared.exception.ZgwRuntimeException
 import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
-import net.atos.zac.app.besluit.BesluitPublicationDateMissingException
-import net.atos.zac.app.besluit.BesluitPublicationDisabledException
-import net.atos.zac.app.besluit.BesluitResponseDateInvalidException
-import net.atos.zac.app.besluit.BesluitResponseDateMissingException
+import net.atos.zac.app.decision.DecisionPublicationDateMissingException
+import net.atos.zac.app.decision.DecisionPublicationDisabledException
+import net.atos.zac.app.decision.DecisionResponseDateInvalidException
+import net.atos.zac.app.decision.DecisionResponseDateMissingException
 import net.atos.zac.app.exception.RestExceptionMapper
 import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
@@ -271,8 +271,8 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
-    Given("A BesluitPublicationDisabledException exception") {
-        val exception = BesluitPublicationDisabledException("error")
+    Given("A DecisionPublicationDisabledException exception") {
+        val exception = DecisionPublicationDisabledException("error")
 
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
@@ -286,8 +286,8 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
-    Given("A BesluitPublicationDateMissingException exception") {
-        val exception = BesluitPublicationDateMissingException("error")
+    Given("A DecisionPublicationDateMissingException exception") {
+        val exception = DecisionPublicationDateMissingException("error")
 
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
@@ -301,8 +301,8 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
-    Given("A BesluitResponseDateMissingException exception") {
-        val exception = BesluitResponseDateMissingException("error")
+    Given("A DecisionResponseDateMissingException exception") {
+        val exception = DecisionResponseDateMissingException("error")
 
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
@@ -316,8 +316,8 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
-    Given("A BesluitResponseDateInvalidException exception") {
-        val exception = BesluitResponseDateInvalidException("error")
+    Given("A DecisionResponseDateInvalidException exception") {
+        val exception = DecisionResponseDateInvalidException("error")
 
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)

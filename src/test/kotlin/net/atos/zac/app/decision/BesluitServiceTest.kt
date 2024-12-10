@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.besluit
+package net.atos.zac.app.decision
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -26,9 +26,9 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createBesluitType
-import net.atos.zac.app.zaak.converter.RestBesluitConverter
-import net.atos.zac.app.zaak.model.createRestBesluitVastleggenGegevens
-import net.atos.zac.app.zaak.model.createRestBesluitWijzigenGegevens
+import net.atos.zac.app.zaak.converter.RestDecisionConverter
+import net.atos.zac.app.zaak.model.createRestDecisionChangeData
+import net.atos.zac.app.zaak.model.createRestDecisionCreateData
 import java.time.LocalDate
 import java.util.UUID
 
@@ -38,15 +38,15 @@ class BesluitServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
     val zgwApiService = mockk<ZGWApiService>()
-    val restBesluitConverter = mockk<RestBesluitConverter>()
+    val restDecisionConverter = mockk<RestDecisionConverter>()
 
-    val besluitService = BesluitService(
+    val decisionService = DecisionService(
         brcClientService,
         drcClientService,
         ztcClientService,
         zrcClientService,
         zgwApiService,
-        restBesluitConverter
+        restDecisionConverter
     )
 
     val reactionPeriodDays = 2L
@@ -66,7 +66,7 @@ class BesluitServiceTest : BehaviorSpec({
 
     Given("Zaak, besluit creation data with publication and response dates") {
         besluitType.publicatieIndicatie(true)
-        val restBesluitVastleggenGegevens = createRestBesluitVastleggenGegevens(
+        val restBesluitVastleggenGegevens = createRestDecisionCreateData(
             publicationDate = LocalDate.now(),
             lastResponseDate = LocalDate.now().plusDays(3)
         )
@@ -74,7 +74,7 @@ class BesluitServiceTest : BehaviorSpec({
         every {
             ztcClientService.readBesluittype(restBesluitVastleggenGegevens.besluittypeUuid)
         } returns besluitType
-        every { restBesluitConverter.convertToBesluit(zaak, restBesluitVastleggenGegevens) } returns besluit
+        every { restDecisionConverter.convertToBesluit(zaak, restBesluitVastleggenGegevens) } returns besluit
         every {
             zgwApiService.createResultaatForZaak(zaak, restBesluitVastleggenGegevens.resultaattypeUuid, null)
         } just runs
@@ -89,7 +89,7 @@ class BesluitServiceTest : BehaviorSpec({
         } returns besluitInformatieObject
 
         When("Besluit creation is triggered") {
-            val besluit = besluitService.createBesluit(zaak, restBesluitVastleggenGegevens)
+            val besluit = decisionService.createDecision(zaak, restBesluitVastleggenGegevens)
 
             Then("it creates besluit and information object") {
                 besluit shouldBe besluit
@@ -106,12 +106,12 @@ class BesluitServiceTest : BehaviorSpec({
 
     Given("Zaak, besluit creation data without publication and response dates") {
         besluitType.publicatieIndicatie(true)
-        val restBesluitVastleggenGegevens = createRestBesluitVastleggenGegevens()
+        val restBesluitVastleggenGegevens = createRestDecisionCreateData()
 
         every {
             ztcClientService.readBesluittype(restBesluitVastleggenGegevens.besluittypeUuid)
         } returns besluitType
-        every { restBesluitConverter.convertToBesluit(zaak, restBesluitVastleggenGegevens) } returns besluit
+        every { restDecisionConverter.convertToBesluit(zaak, restBesluitVastleggenGegevens) } returns besluit
         every {
             zgwApiService.createResultaatForZaak(zaak, restBesluitVastleggenGegevens.resultaattypeUuid, null)
         } just runs
@@ -126,7 +126,7 @@ class BesluitServiceTest : BehaviorSpec({
         } returns besluitInformatieObject
 
         When("Besluit creation is requested") {
-            val besluit = besluitService.createBesluit(zaak, restBesluitVastleggenGegevens)
+            val besluit = decisionService.createDecision(zaak, restBesluitVastleggenGegevens)
 
             Then("it creates besluit and information object") {
                 besluit shouldBe besluit
@@ -143,7 +143,7 @@ class BesluitServiceTest : BehaviorSpec({
 
     Given("Zaak, besluit type with disabled publication and creation data with publication date") {
         besluitType.publicatieIndicatie(false)
-        val restBesluitVastleggenGegevens = createRestBesluitVastleggenGegevens(
+        val restBesluitVastleggenGegevens = createRestDecisionCreateData(
             publicationDate = LocalDate.now(),
             lastResponseDate = LocalDate.now().plusDays(3)
         )
@@ -153,8 +153,8 @@ class BesluitServiceTest : BehaviorSpec({
         } returns besluitType
 
         When("Besluit creation is requested") {
-            val exception = shouldThrow<BesluitPublicationDisabledException> {
-                besluitService.createBesluit(zaak, restBesluitVastleggenGegevens)
+            val exception = shouldThrow<DecisionPublicationDisabledException> {
+                decisionService.createDecision(zaak, restBesluitVastleggenGegevens)
             }
 
             Then("it throws exception") {
@@ -166,7 +166,7 @@ class BesluitServiceTest : BehaviorSpec({
 
     Given("Zaak, besluit type with enabled publication and creation data with only publication date") {
         besluitType.publicatieIndicatie(true)
-        val restBesluitVastleggenGegevens = createRestBesluitVastleggenGegevens(
+        val restBesluitVastleggenGegevens = createRestDecisionCreateData(
             publicationDate = LocalDate.now()
         )
 
@@ -175,8 +175,8 @@ class BesluitServiceTest : BehaviorSpec({
         } returns besluitType
 
         When("Besluit creation is requested") {
-            val exception = shouldThrow<BesluitResponseDateMissingException> {
-                besluitService.createBesluit(zaak, restBesluitVastleggenGegevens)
+            val exception = shouldThrow<DecisionResponseDateMissingException> {
+                decisionService.createDecision(zaak, restBesluitVastleggenGegevens)
             }
 
             Then("it throws exception") {
@@ -187,7 +187,7 @@ class BesluitServiceTest : BehaviorSpec({
 
     Given("Zaak, besluit type with enabled publication and creation data with only response date") {
         besluitType.publicatieIndicatie(true)
-        val restBesluitVastleggenGegevens = createRestBesluitVastleggenGegevens(
+        val restBesluitVastleggenGegevens = createRestDecisionCreateData(
             lastResponseDate = LocalDate.now()
         )
 
@@ -196,8 +196,8 @@ class BesluitServiceTest : BehaviorSpec({
         } returns besluitType
 
         When("Besluit creation is requested") {
-            val exception = shouldThrow<BesluitPublicationDateMissingException> {
-                besluitService.createBesluit(zaak, restBesluitVastleggenGegevens)
+            val exception = shouldThrow<DecisionPublicationDateMissingException> {
+                decisionService.createDecision(zaak, restBesluitVastleggenGegevens)
             }
 
             Then("it throws exception") {
@@ -208,7 +208,7 @@ class BesluitServiceTest : BehaviorSpec({
 
     Given("Zaak, enabled publication and response date before calculated response date") {
         besluitType.publicatieIndicatie(true)
-        val restBesluitVastleggenGegevens = createRestBesluitVastleggenGegevens(
+        val restBesluitVastleggenGegevens = createRestDecisionCreateData(
             publicationDate = LocalDate.now(),
             lastResponseDate = LocalDate.now().plusDays(1)
         )
@@ -218,8 +218,8 @@ class BesluitServiceTest : BehaviorSpec({
         } returns besluitType
 
         When("Besluit creation is requested") {
-            val exception = shouldThrow<BesluitResponseDateInvalidException> {
-                besluitService.createBesluit(zaak, restBesluitVastleggenGegevens)
+            val exception = shouldThrow<DecisionResponseDateInvalidException> {
+                decisionService.createDecision(zaak, restBesluitVastleggenGegevens)
             }
 
             Then("it throws exception") {
@@ -231,7 +231,7 @@ class BesluitServiceTest : BehaviorSpec({
     }
 
     Given("Zaak, besluit and creation data with publication and response dates") {
-        val restBesluitWijzigenGegevens = createRestBesluitWijzigenGegevens(
+        val restBesluitWijzigenGegevens = createRestDecisionChangeData(
             publicationDate = LocalDate.now(),
             lastResponseDate = LocalDate.now().plusDays(3)
         )
@@ -249,7 +249,7 @@ class BesluitServiceTest : BehaviorSpec({
 
         When("update is requested") {
             besluitType.publicatieIndicatie(true)
-            besluitService.updateBesluit(zaak, besluit, restBesluitWijzigenGegevens)
+            decisionService.updateDecision(zaak, besluit, restBesluitWijzigenGegevens)
 
             Then("update is executed correctly") {
                 besluit shouldBe besluit
@@ -263,7 +263,7 @@ class BesluitServiceTest : BehaviorSpec({
 
     Given("Zaak, besluit and creation data without publication and response dates") {
         besluitType.publicatieIndicatie(true)
-        val restBesluitWijzigenGegevens = createRestBesluitWijzigenGegevens()
+        val restBesluitWijzigenGegevens = createRestDecisionChangeData()
 
         every { ztcClientService.readBesluittype(besluit.besluittype.extractUuid()) } returns besluitType
         every { brcClientService.updateBesluit(any<Besluit>(), restBesluitWijzigenGegevens.reden) } returns besluit
@@ -277,7 +277,7 @@ class BesluitServiceTest : BehaviorSpec({
         } returns besluitInformatieObject
 
         When("update is requested") {
-            besluitService.updateBesluit(zaak, besluit, restBesluitWijzigenGegevens)
+            decisionService.updateDecision(zaak, besluit, restBesluitWijzigenGegevens)
 
             Then("update is executed correctly") {
                 besluit shouldBe besluit
@@ -291,13 +291,13 @@ class BesluitServiceTest : BehaviorSpec({
 
     Given("Zaak, besluit and type that cannot have publications, but publication date is supplied") {
         besluitType.publicatieIndicatie(false)
-        val restBesluitWijzigenGegevens = createRestBesluitWijzigenGegevens()
+        val restBesluitWijzigenGegevens = createRestDecisionChangeData()
 
         every { ztcClientService.readBesluittype(besluit.besluittype.extractUuid()) } returns besluitType
 
         When("Besluit update is requested") {
-            val exception = shouldThrow<BesluitPublicationDisabledException> {
-                besluitService.updateBesluit(zaak, besluit, restBesluitWijzigenGegevens)
+            val exception = shouldThrow<DecisionPublicationDisabledException> {
+                decisionService.updateDecision(zaak, besluit, restBesluitWijzigenGegevens)
             }
 
             Then("it throws exception") {
@@ -309,7 +309,7 @@ class BesluitServiceTest : BehaviorSpec({
 
     Given("Zaak, besluit and type with enabled publications, but without publication date") {
         besluitType.publicatieIndicatie(true)
-        val restBesluitWijzigenGegevens = createRestBesluitWijzigenGegevens(
+        val restBesluitWijzigenGegevens = createRestDecisionChangeData(
             lastResponseDate = LocalDate.now()
         )
 
@@ -319,8 +319,8 @@ class BesluitServiceTest : BehaviorSpec({
             besluitType.publicatieIndicatie(true)
             restBesluitWijzigenGegevens.publicationDate = null
 
-            val exception = shouldThrow<BesluitPublicationDateMissingException> {
-                besluitService.updateBesluit(zaak, besluit, restBesluitWijzigenGegevens)
+            val exception = shouldThrow<DecisionPublicationDateMissingException> {
+                decisionService.updateDecision(zaak, besluit, restBesluitWijzigenGegevens)
             }
 
             Then("it throws exception") {
@@ -331,7 +331,7 @@ class BesluitServiceTest : BehaviorSpec({
 
     Given("Zaak, besluit and type with enabled publications, but without response date") {
         besluitType.publicatieIndicatie(true)
-        val restBesluitWijzigenGegevens = createRestBesluitWijzigenGegevens(
+        val restBesluitWijzigenGegevens = createRestDecisionChangeData(
             publicationDate = LocalDate.now()
         )
 
@@ -341,8 +341,8 @@ class BesluitServiceTest : BehaviorSpec({
             besluitType.publicatieIndicatie(true)
             restBesluitWijzigenGegevens.publicationDate = null
 
-            val exception = shouldThrow<BesluitPublicationDateMissingException> {
-                besluitService.updateBesluit(zaak, besluit, restBesluitWijzigenGegevens)
+            val exception = shouldThrow<DecisionPublicationDateMissingException> {
+                decisionService.updateDecision(zaak, besluit, restBesluitWijzigenGegevens)
             }
 
             Then("it throws exception") {
@@ -353,7 +353,7 @@ class BesluitServiceTest : BehaviorSpec({
 
     Given("Zaak, besluit and type with enabled publications, response date before calculated response date") {
         besluitType.publicatieIndicatie(true)
-        val restBesluitWijzigenGegevens = createRestBesluitWijzigenGegevens(
+        val restBesluitWijzigenGegevens = createRestDecisionChangeData(
             publicationDate = LocalDate.now().plusDays(1),
             lastResponseDate = LocalDate.now().plusDays(1)
         )
@@ -361,8 +361,8 @@ class BesluitServiceTest : BehaviorSpec({
         every { ztcClientService.readBesluittype(besluit.besluittype.extractUuid()) } returns besluitType
 
         When("Besluit update is requested") {
-            val exception = shouldThrow<BesluitResponseDateInvalidException> {
-                besluitService.updateBesluit(zaak, besluit, restBesluitWijzigenGegevens)
+            val exception = shouldThrow<DecisionResponseDateInvalidException> {
+                decisionService.updateDecision(zaak, besluit, restBesluitWijzigenGegevens)
             }
 
             Then("it throws exception") {

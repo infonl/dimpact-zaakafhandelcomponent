@@ -22,15 +22,15 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createBesluitType
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
-import net.atos.zac.app.zaak.model.createRestBesluitVastleggenGegevens
+import net.atos.zac.app.zaak.model.createRestDecisionCreateData
 import java.time.LocalDate
 
-class RestBesluitConverterTest : BehaviorSpec({
+class RestDecisionConverterTest : BehaviorSpec({
     val brcClientService = mockk<BrcClientService>()
     val drcClientService = mockk<DrcClientService>()
     val restInformatieobjectConverter = mockk<RestInformatieobjectConverter>()
     val ztcClientService = mockk<ZtcClientService>()
-    val restBesluitConverter = RestBesluitConverter(
+    val restDecisionConverter = RestDecisionConverter(
         brcClientService,
         drcClientService,
         restInformatieobjectConverter,
@@ -39,7 +39,7 @@ class RestBesluitConverterTest : BehaviorSpec({
 
     Given("Besluit toevoegen data with a vervaldatum") {
         val zaak = createZaak()
-        val besluitToevoegenGegevens = createRestBesluitVastleggenGegevens(
+        val decisionCreateData = createRestDecisionCreateData(
             ingangsdatum = LocalDate.now().plusDays(1),
             vervaldatum = LocalDate.now().plusDays(2),
             publicationDate = LocalDate.now().plusDays(3),
@@ -47,23 +47,23 @@ class RestBesluitConverterTest : BehaviorSpec({
         )
         val besluittype = createBesluitType()
 
-        every { ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid) } returns besluittype
+        every { ztcClientService.readBesluittype(decisionCreateData.besluittypeUuid) } returns besluittype
 
         When("this data is converted to a besluit") {
             val dateNow = LocalDate.now()
-            val besluit = restBesluitConverter.convertToBesluit(zaak, besluitToevoegenGegevens)
+            val besluit = restDecisionConverter.convertToBesluit(zaak, decisionCreateData)
 
             Then("the besluit is correctly converted and should have a vervalreden of type 'tijdelijk'") {
                 with(besluit) {
                     this.zaak shouldBe zaak.url
                     this.besluittype shouldBe besluittype.url
                     datum shouldBe dateNow
-                    ingangsdatum shouldBe besluitToevoegenGegevens.ingangsdatum
-                    toelichting shouldBe besluitToevoegenGegevens.toelichting
-                    vervaldatum shouldBe besluitToevoegenGegevens.vervaldatum
+                    ingangsdatum shouldBe decisionCreateData.ingangsdatum
+                    toelichting shouldBe decisionCreateData.toelichting
+                    vervaldatum shouldBe decisionCreateData.vervaldatum
                     vervalreden shouldBe VervalredenEnum.TIJDELIJK
-                    publicatiedatum shouldBe besluitToevoegenGegevens.publicationDate
-                    uiterlijkeReactiedatum shouldBe besluitToevoegenGegevens.lastResponseDate
+                    publicatiedatum shouldBe decisionCreateData.publicationDate
+                    uiterlijkeReactiedatum shouldBe decisionCreateData.lastResponseDate
                 }
             }
         }
@@ -90,10 +90,10 @@ class RestBesluitConverterTest : BehaviorSpec({
         } returns listOf(restEnkelvoudigInformatieobject)
 
         When("it is converted to a rest representation") {
-            val restBesluit = restBesluitConverter.convertToRestBesluit(besluit)
+            val restDecision = restDecisionConverter.convertToRestDecision(besluit)
 
             Then("the conversion is correct") {
-                with(restBesluit) {
+                with(restDecision) {
                     uuid shouldBe besluit.url.extractUuid()
                     with(besluittype!!) {
                         id shouldBe besluitType.url.extractUuid()

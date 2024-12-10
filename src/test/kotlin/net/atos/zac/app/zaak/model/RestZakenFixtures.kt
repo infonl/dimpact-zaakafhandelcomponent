@@ -26,16 +26,16 @@ import java.util.UUID
 const val ZAAK_TYPE_1_OMSCHRIJVING = "zaaktype1"
 const val ZAAK_TYPE_2_OMSCHRIJVING = "zaaktype2"
 
-fun createRestBesluit(
+fun createRestDecision(
     url: URI = URI("http://localhost:8080/${UUID.randomUUID()}"),
     uuid: UUID = UUID.randomUUID()
-) = RestBesluit(
+) = RestDecision(
     url = url,
     uuid = uuid
 )
 
 @Suppress("LongParameterList")
-fun createRestBesluitVastleggenGegevens(
+fun createRestDecisionCreateData(
     zaakUuid: UUID = UUID.randomUUID(),
     resultaattypeUuid: UUID = UUID.randomUUID(),
     besluittypeUuid: UUID = UUID.randomUUID(),
@@ -46,7 +46,7 @@ fun createRestBesluitVastleggenGegevens(
     lastResponseDate: LocalDate? = null,
     informatieobjecten: List<UUID> = listOf(UUID.randomUUID())
 ) =
-    RestBesluitVastleggenGegevens(
+    RestDecisionCreateData(
         besluittypeUuid = besluittypeUuid,
         informatieobjecten = informatieobjecten,
         ingangsdatum = ingangsdatum,
@@ -59,7 +59,7 @@ fun createRestBesluitVastleggenGegevens(
     )
 
 @Suppress("LongParameterList")
-fun createRestBesluitWijzigenGegevens(
+fun createRestDecisionChangeData(
     besluitUUID: UUID = UUID.randomUUID(),
     resultTypeUUID: UUID = UUID.randomUUID(),
     description: String = "besluitDummyDescription",
@@ -69,7 +69,7 @@ fun createRestBesluitWijzigenGegevens(
     lastResponseDate: LocalDate = LocalDate.of(2023, 11, 1),
     informationObjects: List<UUID> = listOf(UUID.randomUUID()),
     reason: String = "dummyReason"
-) = RestBesluitWijzigenGegevens(
+) = RestDecisionChangeData(
     besluitUuid = besluitUUID,
     resultaattypeUuid = resultTypeUUID,
     toelichting = description,
@@ -139,7 +139,7 @@ fun createRestZaak(
     zaaktype = restZaakType,
     status = createRestZaakStatus(),
     resultaat = createRestZaakResultaat(),
-    besluiten = listOf(createRestBesluit()),
+    besluiten = listOf(createRestDecision()),
     bronorganisatie = "Sample Bronorganisatie",
     verantwoordelijkeOrganisatie = "Sample Verantwoordelijke Organisatie",
     registratiedatum = LocalDate.of(2023, 9, 14),

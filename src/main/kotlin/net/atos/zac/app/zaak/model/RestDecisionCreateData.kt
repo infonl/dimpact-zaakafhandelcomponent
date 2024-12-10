@@ -12,7 +12,7 @@ import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
-data class RestBesluitVastleggenGegevens(
+data class RestDecisionCreateData(
     @field:NotNull
     var zaakUuid: UUID,
 

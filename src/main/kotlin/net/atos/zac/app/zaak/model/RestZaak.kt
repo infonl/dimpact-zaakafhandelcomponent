@@ -26,7 +26,7 @@ data class RestZaak(
     var archiefActiedatum: LocalDate?,
     var archiefNominatie: String?,
     var behandelaar: RestUser?,
-    var besluiten: List<RestBesluit>?,
+    var besluiten: List<RestDecision>?,
     var bronorganisatie: String?,
     var communicatiekanaal: String?,
     var duurVerlenging: String?,
