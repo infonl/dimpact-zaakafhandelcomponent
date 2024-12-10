@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.zaak.model
 
-data class RestBesluittypePublication(
+data class RestDecisionTypePublication(
     val enabled: Boolean,
     val publicationTerm: String?,
     val publicationTermDays: Int?,

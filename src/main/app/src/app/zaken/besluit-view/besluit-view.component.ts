@@ -48,10 +48,10 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./besluit-view.component.less"],
 })
 export class BesluitViewComponent implements OnInit, OnChanges {
-  @Input() besluiten: GeneratedType<"RestBesluit">[];
+  @Input() besluiten: GeneratedType<"RestDecision">[];
   @Input() result: GeneratedType<"RestZaakResultaat">;
   @Input() readonly: boolean;
-  @Output() besluitWijzigen = new EventEmitter<GeneratedType<"RestBesluit">>();
+  @Output() besluitWijzigen = new EventEmitter<GeneratedType<"RestDecision">>();
   @Output() doIntrekking: EventEmitter<any> = new EventEmitter<any>();
   readonly indicatiesLayout = IndicatiesLayout;
   histories: Record<string, MatTableDataSource<HistorieRegel>> = {};
@@ -123,11 +123,11 @@ export class BesluitViewComponent implements OnInit, OnChanges {
     return this.besluiten.find((value) => value.uuid === uuid);
   }
 
-  isReadonly(besluit: GeneratedType<"RestBesluit">) {
+  isReadonly(besluit: GeneratedType<"RestDecision">) {
     return this.readonly || besluit.isIngetrokken;
   }
 
-  intrekken(besluit: GeneratedType<"RestBesluit">) {
+  intrekken(besluit: GeneratedType<"RestDecision">) {
     const dialogData = new DialogData(
       [
         this.maakIdField(besluit),
@@ -150,12 +150,12 @@ export class BesluitViewComponent implements OnInit, OnChanges {
     return of(null);
   }
 
-  private maakIdField(besluit: GeneratedType<"RestBesluit">): HiddenFormField {
+  private maakIdField(besluit: GeneratedType<"RestDecision">): HiddenFormField {
     return new HiddenFormFieldBuilder(besluit.uuid).id("uuid").build();
   }
 
   private maakVervaldatumField(
-    besluit: GeneratedType<"RestBesluit">,
+    besluit: GeneratedType<"RestDecision">,
   ): DateFormField {
     return new DateFormFieldBuilder(besluit.vervaldatum)
       .id("vervaldatum")
@@ -166,7 +166,7 @@ export class BesluitViewComponent implements OnInit, OnChanges {
   }
 
   private maakVervalredenField(
-    besluit: GeneratedType<"RestBesluit">,
+    besluit: GeneratedType<"RestDecision">,
   ): SelectFormField {
     const vervalRedenen = this.utilService.getEnumAsSelectListExceptFor(
       "besluit.vervalreden",
@@ -199,7 +199,7 @@ export class BesluitViewComponent implements OnInit, OnChanges {
   }
 
   private maakMessageField(
-    besluit: GeneratedType<"RestBesluit">,
+    besluit: GeneratedType<"RestDecision">,
   ): MessageFormField {
     const documentenVerstuurd: boolean = besluit.informatieobjecten.some(
       (document) => {

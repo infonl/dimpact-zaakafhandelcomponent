@@ -23,7 +23,7 @@ import net.atos.client.zgw.ztc.model.createStatusType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.app.identity.converter.RestGroupConverter
 import net.atos.zac.app.identity.converter.RestUserConverter
-import net.atos.zac.app.zaak.model.createRestBesluit
+import net.atos.zac.app.zaak.model.createRestDecision
 import net.atos.zac.app.zaak.model.createRestGroup
 import net.atos.zac.app.zaak.model.createRestUser
 import net.atos.zac.app.zaak.model.createRestZaaktype
@@ -42,7 +42,7 @@ class RestZaakConverterTest : BehaviorSpec({
     val restGroupConverter = mockk<RestGroupConverter>()
     val restGerelateerdeZaakConverter = mockk<RestGerelateerdeZaakConverter>()
     val restUserConverter = mockk<RestUserConverter>()
-    val restBesluitConverter = mockk<RestBesluitConverter>()
+    val restDecisionConverter = mockk<RestDecisionConverter>()
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
     val policyService = mockk<PolicyService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
@@ -57,7 +57,7 @@ class RestZaakConverterTest : BehaviorSpec({
         restGroupConverter = restGroupConverter,
         restGerelateerdeZaakConverter = restGerelateerdeZaakConverter,
         restUserConverter = restUserConverter,
-        restBesluitConverter = restBesluitConverter,
+        restDecisionConverter = restDecisionConverter,
         restZaaktypeConverter = restZaaktypeConverter,
         policyService = policyService,
         zaakVariabelenService = zaakVariabelenService,
@@ -72,7 +72,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val rolOrganistorischeEenheid = Optional.of(createRolOrganisatorischeEenheid())
         val restGroup = createRestGroup()
         val besluit = createBesluit()
-        val restBesluit = createRestBesluit()
+        val restBesluit = createRestDecision()
         val rolMedewerker = createRolMedewerker()
         val restUser = createRestUser()
         val rol = createRolNatuurlijkPersoon()
@@ -96,7 +96,7 @@ class RestZaakConverterTest : BehaviorSpec({
         }
         every { restGroupConverter.convertGroupId(rolOrganistorischeEenheid.get().identificatienummer) } returns restGroup
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
-        every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
+        every { restDecisionConverter.convertToRestDecision(besluit) } returns restBesluit
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.isProcesGestuurd(zaak.uuid) } returns false

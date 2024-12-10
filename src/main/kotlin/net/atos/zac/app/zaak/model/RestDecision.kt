@@ -15,7 +15,7 @@ import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
-data class RestBesluit(
+data class RestDecision(
     var url: URI,
 
     var uuid: UUID,
@@ -24,7 +24,7 @@ data class RestBesluit(
 
     var datum: LocalDate? = null,
 
-    var besluittype: RestBesluittype? = null,
+    var besluittype: RestDecisionType? = null,
 
     var ingangsdatum: LocalDate? = null,
 

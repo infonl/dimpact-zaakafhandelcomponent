@@ -13,7 +13,7 @@ import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
-data class RestBesluitIntrekkenGegevens(
+data class RestDecisionWithdrawalData(
     @field:NotNull
     var besluitUuid: UUID,
 

@@ -376,11 +376,11 @@ export class ZakenService {
   }
 
   createBesluit(
-    besluitVestleggenGegevens: GeneratedType<"RestBesluitVastleggenGegevens">,
+    besluitVestleggenGegevens: GeneratedType<"RestDecisionCreateData">,
   ) {
     return this.http
       .post<
-        GeneratedType<"RestBesluit">
+        GeneratedType<"RestDecision">
       >(`${this.basepath}/besluit`, besluitVestleggenGegevens)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
@@ -388,11 +388,11 @@ export class ZakenService {
   }
 
   updateBesluit(
-    besluitWijzigenGegevens: GeneratedType<"RestBesluitWijzigenGegevens">,
+    besluitWijzigenGegevens: GeneratedType<"RestDecisionChangeData">,
   ) {
     return this.http
       .put<
-        GeneratedType<"RestBesluit">
+        GeneratedType<"RestDecision">
       >(`${this.basepath}/besluit`, besluitWijzigenGegevens)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
@@ -400,11 +400,11 @@ export class ZakenService {
   }
 
   intrekkenBesluit(
-    besluitIntrekkenGegevens: GeneratedType<"RestBesluitIntrekkenGegevens">,
+    besluitIntrekkenGegevens: GeneratedType<"RestDecisionWithdrawalData">,
   ) {
     return this.http
       .put<
-        GeneratedType<"RestBesluit">
+        GeneratedType<"RestDecision">
       >(`${this.basepath}/besluit/intrekken`, besluitIntrekkenGegevens)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
@@ -414,7 +414,7 @@ export class ZakenService {
   listBesluittypes(zaaktypeUuid: string) {
     return this.http
       .get<
-        GeneratedType<"RestBesluittype">[]
+        GeneratedType<"RestDecisionType">[]
       >(`${this.basepath}/besluittypes/${zaaktypeUuid}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
@@ -462,7 +462,7 @@ export class ZakenService {
   listBesluitenForZaak(zaakUuid: string) {
     return this.http
       .get<
-        GeneratedType<"RestBesluit">[]
+        GeneratedType<"RestDecision">[]
       >(`${this.basepath}/besluit/zaakUuid/${zaakUuid}`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),

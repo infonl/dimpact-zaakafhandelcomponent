@@ -43,9 +43,9 @@ import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.app.bag.converter.RESTBAGConverter
-import net.atos.zac.app.besluit.BesluitService
+import net.atos.zac.app.decision.DecisionService
 import net.atos.zac.app.zaak.ZaakRestService.Companion.AANVULLENDE_INFORMATIE_TASK_NAME
-import net.atos.zac.app.zaak.converter.RestBesluitConverter
+import net.atos.zac.app.zaak.converter.RestDecisionConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
@@ -100,7 +100,7 @@ import java.util.UUID
 
 @Suppress("LongParameterList")
 class ZaakRestServiceTest : BehaviorSpec({
-    val besluitService = mockk<BesluitService>()
+    val decisionService = mockk<DecisionService>()
     val bpmnService = mockk<BPMNService>()
     val brcClientService = mockk<BrcClientService>()
     val configuratieService = mockk<ConfiguratieService>()
@@ -118,7 +118,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
     val restBAGConverter = mockk<RESTBAGConverter>()
-    val restBesluitConverter = mockk<RestBesluitConverter>()
+    val restDecisionConverter = mockk<RestDecisionConverter>()
     val restZaakConverter = mockk<RestZaakConverter>()
     val restZaakOverzichtConverter = mockk<RestZaakOverzichtConverter>()
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
@@ -134,7 +134,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val zaakHistoryService = mockk<ZaakHistoryService>()
 
     val zaakRestService = ZaakRestService(
-        besluitService = besluitService,
+        decisionService = decisionService,
         cmmnService = cmmnService,
         identityService = identityService,
         inboxProductaanvraagService = inboxProductaanvraagService,
@@ -151,7 +151,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         zaakService = zaakService,
         indexingService = indexingService,
         zaakHistoryLineConverter = zaakHistoryLineConverter,
-        restBesluitConverter = restBesluitConverter,
+        restDecisionConverter = restDecisionConverter,
         bpmnService = bpmnService,
         brcClientService = brcClientService,
         configuratieService = configuratieService,

@@ -21,7 +21,7 @@ export class Zaak {
   zaaktype: Zaaktype;
   status: ZaakStatus;
   resultaat: GeneratedType<"RestZaakResultaat">;
-  besluiten: GeneratedType<"RestBesluit">[];
+  besluiten: GeneratedType<"RestDecision">[];
   bronorganisatie: string;
   verantwoordelijkeOrganisatie: string;
   registratiedatum: string;
