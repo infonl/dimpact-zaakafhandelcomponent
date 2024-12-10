@@ -116,16 +116,16 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             itestHttpClient.performJSONPostRequest(
                 "$ZAC_API_URI/zaken/besluit",
                 requestBodyAsString = """
-            {
-                "zaakUuid":"$zaakUUID",
-                "resultaattypeUuid":"$resultaatType1Uuid",
-                "besluittypeUuid":"$besluitType1Uuid",
-                "toelichting":"dummyToelichting",
-                "ingangsdatum":"$today",
-                "vervaldatum":"$tomorrow",
-                "publicationDate": "$today",
-                "lastResponseDate": "$responseDate",
-            }
+                {
+                    "zaakUuid":"$zaakUUID",
+                    "resultaattypeUuid":"$resultaatType1Uuid",
+                    "besluittypeUuid":"$besluitType1Uuid",
+                    "toelichting":"dummyToelichting",
+                    "ingangsdatum":"$today",
+                    "vervaldatum":"$tomorrow",
+                    "publicationDate": "$today",
+                    "lastResponseDate": "$responseDate"
+                }
                 """.trimIndent()
             ).run {
                 logger.info { "Response: ${body!!.string()}" }
@@ -146,7 +146,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                         getString("toelichting") shouldBe "dummyToelichting"
                         getString("ingangsdatum") shouldBe today.toString()
                         getString("vervaldatum") shouldBe tomorrow.toString()
-                        getString("publicationDate") shouldBe tomorrow.toString()
+                        getString("publicationDate") shouldBe today.toString()
                         getString("lastResponseDate") shouldBe responseDate.toString()
                         getBoolean("isIngetrokken") shouldBe false
                         getJSONArray("informatieobjecten").shouldHaveSize(0)
@@ -169,14 +169,15 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             itestHttpClient.performPutRequest(
                 "$ZAC_API_URI/zaken/besluit",
                 requestBodyAsString = """
-            {
-                "besluitUuid":"$besluitUuid",
-                "resultaattypeUuid":"$resultaatType2Uuid",
-                "toelichting":"$updateReason",
-                "ingangsdatum":"$startDate",
-                "vervaldatum":"$fatalDate"
-                "lastResponseDate": "$newResponseDate",                
-            }
+                {
+                    "besluitUuid":"$besluitUuid",
+                    "resultaattypeUuid":"$resultaatType2Uuid",
+                    "toelichting":"$updateReason",
+                    "ingangsdatum":"$startDate",
+                    "vervaldatum":"$fatalDate",
+                    "publicationDate":"$startDate",
+                    "lastResponseDate": "$newResponseDate"         
+                }
                 """.trimIndent()
             ).use { response ->
                 val responseBody = response.body!!.string()
@@ -202,7 +203,8 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                         getString("toelichting") shouldBe updateReason
                         getString("ingangsdatum") shouldBe startDate.toString()
                         getString("vervaldatum") shouldBe fatalDate.toString()
-                        getString("publicationDate") shouldBe newResponseDate.toString()
+                        getString("publicationDate") shouldBe startDate.toString()
+                        getString("lastResponseDate") shouldBe newResponseDate.toString()
                         getBoolean("isIngetrokken") shouldBe false
                         getJSONArray("informatieobjecten").shouldHaveSize(0)
                         getJSONObject("besluittype").run {
