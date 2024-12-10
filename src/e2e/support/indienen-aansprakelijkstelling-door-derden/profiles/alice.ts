@@ -15,7 +15,7 @@ export const Alice: DamageReport = {
   },
   incidentDetails: {
     description:
-      "Achterstallig onderhoudt aan de weg heeft schade aan mijn auto aangebracht",
+      "Achterstallig onderhoud aan de weg heeft schade aan mijn auto aangebracht",
     date: "10-10-2024 00:00_",
     damageType: "materiële schade aan een voertuig",
     witnesses: true,
@@ -25,7 +25,7 @@ export const Alice: DamageReport = {
       street: "teststraat",
       furtherDescription: "teststraat heeft behoorlijke gaten in de weg",
     },
-    reasonForMunicipalityLiability: "Achterstallig onderhoudt aan de weg",
+    reasonForMunicipalityLiability: "Achterstallig onderhoud aan de weg",
   },
   damageDetails: {
     description: "klapband door gaten met scherpe randen in de weg",
