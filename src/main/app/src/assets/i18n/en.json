@@ -283,7 +283,7 @@
   "actief": "Active",
   "inactief": "Inactive",
   "besluit.publicatie.indicatie.koptitel": "Publication",
-  "besluit.publicatie.indicatie.onderschrift": " Publication term: {{publicationTermDays}} day",
+  "besluit.publicatie.indicatie.onderschrift": "Publication term: {{publicationTermDays}} day",
   "besluit.publicatie.indicatie.onderschrift.meervoud": " Publication term: {{publicationTermDays}} days",
   " 4 ": ">>--> ENTITEITEN <--<<",
   "-geen-": "- None -",
