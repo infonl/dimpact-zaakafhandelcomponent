@@ -109,6 +109,10 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
         }
 
         When("a besluit is added to the zaak") {
+            val today = LocalDate.now()
+            val tomorrow = today.plusDays(1)
+            val responseDate = today.plusDays(3)
+
             itestHttpClient.performJSONPostRequest(
                 "$ZAC_API_URI/zaken/besluit",
                 requestBodyAsString = """
@@ -117,8 +121,10 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                 "resultaattypeUuid":"$resultaatType1Uuid",
                 "besluittypeUuid":"$besluitType1Uuid",
                 "toelichting":"dummyToelichting",
-                "ingangsdatum":"${LocalDate.now()}",
-                "vervaldatum":"${LocalDate.now().plusDays(1)}"                
+                "ingangsdatum":"$today",
+                "vervaldatum":"$tomorrow",
+                "publicationDate": "$today",
+                "lastResponseDate": "$responseDate",
             }
                 """.trimIndent()
             ).run {
@@ -138,8 +144,10 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                     besluiten.getJSONObject(0).run {
                         getString("uuid") shouldNotBe null
                         getString("toelichting") shouldBe "dummyToelichting"
-                        getString("ingangsdatum") shouldBe LocalDate.now().toString()
-                        getString("vervaldatum") shouldBe LocalDate.now().plusDays(1).toString()
+                        getString("ingangsdatum") shouldBe today.toString()
+                        getString("vervaldatum") shouldBe tomorrow.toString()
+                        getString("publicationDate") shouldBe tomorrow.toString()
+                        getString("lastResponseDate") shouldBe responseDate.toString()
                         getBoolean("isIngetrokken") shouldBe false
                         getJSONArray("informatieobjecten").shouldHaveSize(0)
                         getJSONObject("besluittype").run {
@@ -153,9 +161,10 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             }
         }
 
-        When("the besluit is updated with a new result type, start date, end date, and reason") {
+        When("the besluit is updated with a new result type, start date, end date, last response date and reason") {
             val startDate = LocalDate.now().plusDays(1)
             val fatalDate = LocalDate.now().plusDays(2)
+            val newResponseDate = LocalDate.now().plusDays(3)
             val updateReason = "dummyBesluitUpdateToelichting"
             itestHttpClient.performPutRequest(
                 "$ZAC_API_URI/zaken/besluit",
@@ -165,7 +174,8 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                 "resultaattypeUuid":"$resultaatType2Uuid",
                 "toelichting":"$updateReason",
                 "ingangsdatum":"$startDate",
-                "vervaldatum":"$fatalDate"                
+                "vervaldatum":"$fatalDate"
+                "lastResponseDate": "$newResponseDate",                
             }
                 """.trimIndent()
             ).use { response ->
@@ -178,7 +188,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                 }
             }
 
-            Then("the besluit should be succesfully updated") {
+            Then("the besluit should be successfully updated") {
                 itestHttpClient.performGetRequest(
                     "$ZAC_API_URI/zaken/besluit/zaakUuid/$zaakUUID"
                 ).use { response ->
@@ -192,6 +202,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                         getString("toelichting") shouldBe updateReason
                         getString("ingangsdatum") shouldBe startDate.toString()
                         getString("vervaldatum") shouldBe fatalDate.toString()
+                        getString("publicationDate") shouldBe newResponseDate.toString()
                         getBoolean("isIngetrokken") shouldBe false
                         getJSONArray("informatieobjecten").shouldHaveSize(0)
                         getJSONObject("besluittype").run {
