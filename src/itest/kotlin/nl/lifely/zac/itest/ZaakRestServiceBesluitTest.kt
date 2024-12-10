@@ -109,17 +109,24 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
         }
 
         When("a besluit is added to the zaak") {
+            val today = LocalDate.now()
+            val tomorrow = today.plusDays(1)
+            val publicationDate = today.plusMonths(2)
+            val responseDate = today.plusMonths(3)
+
             itestHttpClient.performJSONPostRequest(
                 "$ZAC_API_URI/zaken/besluit",
                 requestBodyAsString = """
-            {
-                "zaakUuid":"$zaakUUID",
-                "resultaattypeUuid":"$resultaatType1Uuid",
-                "besluittypeUuid":"$besluitType1Uuid",
-                "toelichting":"dummyToelichting",
-                "ingangsdatum":"${LocalDate.now()}",
-                "vervaldatum":"${LocalDate.now().plusDays(1)}"                
-            }
+                {
+                    "zaakUuid":"$zaakUUID",
+                    "resultaattypeUuid":"$resultaatType1Uuid",
+                    "besluittypeUuid":"$besluitType1Uuid",
+                    "toelichting":"dummyToelichting",
+                    "ingangsdatum":"$today",
+                    "vervaldatum":"$tomorrow",
+                    "publicationDate": "$publicationDate",
+                    "lastResponseDate": "$responseDate"
+                }
                 """.trimIndent()
             ).run {
                 logger.info { "Response: ${body!!.string()}" }
@@ -138,8 +145,10 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                     besluiten.getJSONObject(0).run {
                         getString("uuid") shouldNotBe null
                         getString("toelichting") shouldBe "dummyToelichting"
-                        getString("ingangsdatum") shouldBe LocalDate.now().toString()
-                        getString("vervaldatum") shouldBe LocalDate.now().plusDays(1).toString()
+                        getString("ingangsdatum") shouldBe today.toString()
+                        getString("vervaldatum") shouldBe tomorrow.toString()
+                        getString("publicationDate") shouldBe publicationDate.toString()
+                        getString("lastResponseDate") shouldBe responseDate.toString()
                         getBoolean("isIngetrokken") shouldBe false
                         getJSONArray("informatieobjecten").shouldHaveSize(0)
                         getJSONObject("besluittype").run {
@@ -153,20 +162,24 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             }
         }
 
-        When("the besluit is updated with a new result type, start date, end date, and reason") {
+        When("the besluit is updated with a new result type, start date, end date, last response date and reason") {
             val startDate = LocalDate.now().plusDays(1)
             val fatalDate = LocalDate.now().plusDays(2)
+            val newPublicationDate = LocalDate.now().plusMonths(3)
+            val newResponseDate = LocalDate.now().plusMonths(4)
             val updateReason = "dummyBesluitUpdateToelichting"
             itestHttpClient.performPutRequest(
                 "$ZAC_API_URI/zaken/besluit",
                 requestBodyAsString = """
-            {
-                "besluitUuid":"$besluitUuid",
-                "resultaattypeUuid":"$resultaatType2Uuid",
-                "toelichting":"$updateReason",
-                "ingangsdatum":"$startDate",
-                "vervaldatum":"$fatalDate"                
-            }
+                {
+                    "besluitUuid":"$besluitUuid",
+                    "resultaattypeUuid":"$resultaatType2Uuid",
+                    "toelichting":"$updateReason",
+                    "ingangsdatum":"$startDate",
+                    "vervaldatum":"$fatalDate",
+                    "publicationDate":"$newPublicationDate",
+                    "lastResponseDate": "$newResponseDate"         
+                }
                 """.trimIndent()
             ).use { response ->
                 val responseBody = response.body!!.string()
@@ -178,7 +191,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                 }
             }
 
-            Then("the besluit should be succesfully updated") {
+            Then("the besluit should be successfully updated") {
                 itestHttpClient.performGetRequest(
                     "$ZAC_API_URI/zaken/besluit/zaakUuid/$zaakUUID"
                 ).use { response ->
@@ -192,6 +205,8 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                         getString("toelichting") shouldBe updateReason
                         getString("ingangsdatum") shouldBe startDate.toString()
                         getString("vervaldatum") shouldBe fatalDate.toString()
+                        getString("publicationDate") shouldBe newPublicationDate.toString()
+                        getString("lastResponseDate") shouldBe newResponseDate.toString()
                         getBoolean("isIngetrokken") shouldBe false
                         getJSONArray("informatieobjecten").shouldHaveSize(0)
                         getJSONObject("besluittype").run {

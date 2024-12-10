@@ -924,10 +924,10 @@ VALUES
   'Besluit na heroverweging',
   'besluit-na-heroverweging',
   'besluit',
-  'P2D', -- 2 days
+  'P22D', -- 22 days
   true,
   '00:00:00',
-  'P1D', -- 1 day
+  'P11D', -- 11 days
   'Besluit na heroverweging',
   (SELECT id FROM catalogi_catalogus WHERE naam = 'zac'),
   '_etag'
