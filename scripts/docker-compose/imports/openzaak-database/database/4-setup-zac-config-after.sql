@@ -16,9 +16,6 @@ INSERT INTO zgw_consumers_service (label, api_type, api_root, client_id, secret,
 -- TODO: it seems we need to use 'host.docker.internal' here
 INSERT INTO zgw_consumers_service (label, api_type, api_root, client_id, secret, auth_type, header_key, header_value, oas, nlx, user_id, user_representation, oas_file, client_certificate_id, server_certificate_id, uuid) VALUES('Open Notificaties', 'nrc', 'http://host.docker.internal:8003/api/v1/', 'open-zaak-autorisaties', 'openZaakAutorisatiesApiSecretKey', 'zgw', '', '', 'http://opennotificaties:8000/api/v1/schema/openapi.yaml', '', 'open-zaak-notificaties', 'Open Zaak - Notificaties', '', NULL, NULL, '031fe099-095b-4091-9f99-f81ef30561be');
 
--- Set up the Autorisatiecomponentconfiguratie
-INSERT INTO authorizations_authorizationsconfig (api_root, component) VALUES('http://openzaak.local:8000/api/v1/', 'ac');
-
 -- Set up the Notificatiescomponentconfiguratie
 INSERT INTO notifications_api_common_notificationsconfig (notifications_api_service_id, notification_delivery_max_retries, notification_delivery_retry_backoff, notification_delivery_retry_backoff_max) VALUES((SELECT id FROM zgw_consumers_service WHERE label = 'Open Notificaties'), 5, 3, 48);
 
