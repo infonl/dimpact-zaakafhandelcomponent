@@ -16,7 +16,7 @@ import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
-import { Subject } from "rxjs";
+import { Subject, Subscription } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { DividerFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/divider/divider-form-field-builder";
 import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
@@ -56,6 +56,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
   publicationDateField: AbstractFormField;
   lastResponseDateField: AbstractFormField;
 
+  private subscription: Subscription;
   private ngDestroy = new Subject<void>();
 
   constructor(
@@ -153,70 +154,75 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
   updatePublicationsFormPart({
     publication,
   }: GeneratedType<"RestBesluittype">): void {
-    if (!publication.enabled) return;
-
     this.fields = this.fields.filter(
       (fieldGroup) =>
         !fieldGroup.includes(this.divider) &&
         !fieldGroup.includes(this.publicationParagraph) &&
-        !fieldGroup.includes(this.publicationDateField),
+        !fieldGroup.includes(this.publicationDateField) &&
+        !fieldGroup.includes(this.lastResponseDateField),
     );
 
-    this.divider = new DividerFormFieldBuilder().id("divider").build();
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
 
-    this.publicationParagraph = new ParagraphFormFieldBuilder()
-      .text(
-        this.translate.instant(`besluit.publicatie.indicatie`, {
-          publicationTermDays: publication.publicationTermDays,
-          responseTermDays: publication.responseTermDays,
-        }),
-      )
-      .build();
+    if (publication.enabled) {
+      this.divider = new DividerFormFieldBuilder().id("divider").build();
 
-    this.publicationDateField = new DateFormFieldBuilder(moment())
-      .id("publicationDate")
-      .label("publicatiedatum")
-      .build();
+      this.publicationParagraph = new ParagraphFormFieldBuilder()
+        .text(
+          this.translate.instant(`besluit.publicatie.indicatie`, {
+            publicationTermDays: publication.publicationTermDays,
+            responseTermDays: publication.responseTermDays,
+          }),
+        )
+        .build();
 
-    const lastResponseDate: Moment = moment().add(
-      this.besluittypeField.formControl.value.publication.responseTermDays,
-      "days",
-    );
+      this.publicationDateField = new DateFormFieldBuilder(moment())
+        .id("publicationDate")
+        .label("publicatiedatum")
+        .build();
 
-    this.lastResponseDateField = new DateFormFieldBuilder(lastResponseDate)
-      .id("lastResponseDate")
-      .label("uiterlijkereactiedatum")
-      .minDate(lastResponseDate.toDate())
-      .build();
+      const lastResponseDate: Moment = moment().add(
+        this.besluittypeField.formControl.value.publication.responseTermDays,
+        "days",
+      );
+
+      this.lastResponseDateField = new DateFormFieldBuilder(lastResponseDate)
+        .id("lastResponseDate")
+        .label("uiterlijkereactiedatum")
+        .minDate(lastResponseDate.toDate())
+        .build();
+
+      this.fields.push(
+        [this.divider],
+        [this.publicationParagraph],
+        [this.publicationDateField],
+        [this.lastResponseDateField],
+      );
+
+      this.subscription = this.publicationDateField.formControl.valueChanges
+        .pipe(takeUntil(this.ngDestroy))
+        .subscribe((value: Moment | null) => {
+          if (value) {
+            const adjustedLastResponseDate: Moment = value
+              .clone()
+              .add(
+                this.besluittypeField.formControl.value.publication
+                  .responseTermDays,
+                "days",
+              );
+
+            this.lastResponseDateField.formControl.setValue(
+              adjustedLastResponseDate,
+            );
+            (this.lastResponseDateField as DateFormField).minDate =
+              adjustedLastResponseDate.toDate();
+          }
+        });
+    }
 
     this.formComponent.refreshFormfields(this.fields);
-
-    this.fields.push(
-      [this.divider],
-      [this.publicationParagraph],
-      [this.publicationDateField],
-      [this.lastResponseDateField],
-    );
-
-    this.publicationDateField.formControl.valueChanges
-      .pipe(takeUntil(this.ngDestroy))
-      .subscribe((value: Moment | null) => {
-        if (value) {
-          const adjustedLastResponseDate: Moment = value
-            .clone()
-            .add(
-              this.besluittypeField.formControl.value.publication
-                .responseTermDays,
-              "days",
-            );
-
-          this.lastResponseDateField.formControl.setValue(
-            adjustedLastResponseDate,
-          );
-          (this.lastResponseDateField as DateFormField).minDate =
-            adjustedLastResponseDate.toDate();
-        }
-      });
   }
 
   onFormSubmit(formGroup: FormGroup): void {

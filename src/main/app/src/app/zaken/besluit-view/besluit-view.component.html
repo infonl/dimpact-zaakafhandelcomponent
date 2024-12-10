@@ -72,15 +72,15 @@
           ></zac-static-text>
           <zac-static-text
             class="w25 w50-md"
-            *ngIf="!besluit.publicationDate"
+            *ngIf="besluit.besluittype.publication.enabled"
             [label]="'publicatiedatum' | translate"
             [value]="besluit.publicationDate | datum"
           ></zac-static-text>
           <zac-static-text
             class="w25 w50-md"
-            *ngIf="!besluit.uiterlijkereactiedatum"
+            *ngIf="besluit.besluittype.publication.enabled"
             [label]="'uiterlijkereactiedatum' | translate"
-            [value]="besluit.uiterlijkereactiedatum | datum"
+            [value]="besluit.lastResponseDate | datum"
           ></zac-static-text>
           <zac-static-text
             class="flex-fill-row"
