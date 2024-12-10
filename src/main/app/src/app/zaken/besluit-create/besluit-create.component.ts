@@ -19,6 +19,8 @@ import moment, { Moment } from "moment";
 import { Subject, Subscription } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { DividerFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/divider/divider-form-field-builder";
+import { MessageFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/message/message-form-field-builder";
+import { MessageLevel } from "src/app/shared/material-form-builder/form-components/message/message-level.enum";
 import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
 import { FormComponent } from "src/app/shared/material-form-builder/form/form/form.component";
 import { UtilService } from "../../core/service/util.service";
@@ -35,8 +37,6 @@ import { FormConfigBuilder } from "../../shared/material-form-builder/model/form
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { Zaak } from "../model/zaak";
 import { ZakenService } from "../zaken.service";
-import { MessageFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/message/message-form-field-builder";
-import { MessageLevel } from "src/app/shared/material-form-builder/form-components/message/message-level.enum";
 
 @Component({
   selector: "zac-besluit-create",
