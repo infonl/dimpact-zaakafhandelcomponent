@@ -122,7 +122,7 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
     this.divider = new DividerFormFieldBuilder().id("divider").build();
     this.publicationParagraph = new ParagraphFormFieldBuilder()
       .text(
-        this.translate.instant(`besluit.publicatie.indicatie`, {
+        this.translate.instant(`besluit.publicatie.indicatie.koptitel`, {
           publicationTermDays:
             this.besluit.besluittype.publication.publicationTermDays,
           responseTermDays:

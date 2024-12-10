@@ -35,6 +35,8 @@ import { FormConfigBuilder } from "../../shared/material-form-builder/model/form
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { Zaak } from "../model/zaak";
 import { ZakenService } from "../zaken.service";
+import { MessageFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/message/message-form-field-builder";
+import { MessageLevel } from "src/app/shared/material-form-builder/form-components/message/message-level.enum";
 
 @Component({
   selector: "zac-besluit-create",
@@ -54,6 +56,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
   divider: AbstractFormField;
   publicationParagraph: AbstractFormField;
   publicationDateField: AbstractFormField;
+  publicationMessageField: AbstractFormField;
   lastResponseDateField: AbstractFormField;
 
   private subscription: Subscription;
@@ -159,6 +162,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
         !fieldGroup.includes(this.divider) &&
         !fieldGroup.includes(this.publicationParagraph) &&
         !fieldGroup.includes(this.publicationDateField) &&
+        !fieldGroup.includes(this.publicationMessageField) &&
         !fieldGroup.includes(this.lastResponseDateField),
     );
 
@@ -170,17 +174,25 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
       this.divider = new DividerFormFieldBuilder().id("divider").build();
 
       this.publicationParagraph = new ParagraphFormFieldBuilder()
-        .text(
-          this.translate.instant(`besluit.publicatie.indicatie`, {
-            publicationTermDays: publication.publicationTermDays,
-            responseTermDays: publication.responseTermDays,
-          }),
-        )
+        .text(`besluit.publicatie.indicatie.koptitel`)
         .build();
 
       this.publicationDateField = new DateFormFieldBuilder(moment())
         .id("publicationDate")
         .label("publicatiedatum")
+        .build();
+
+      this.publicationMessageField = new MessageFormFieldBuilder()
+        .id("messageField")
+        .text(
+          this.translate.instant(
+            `besluit.publicatie.indicatie.onderschrift${publication.publicationTermDays > 1 ? ".meervoud" : ""}`,
+            {
+              publicationTermDays: publication.publicationTermDays,
+            },
+          ),
+        )
+        .level(MessageLevel.INFO)
         .build();
 
       const lastResponseDate: Moment = moment().add(
@@ -198,6 +210,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
         [this.divider],
         [this.publicationParagraph],
         [this.publicationDateField],
+        [this.publicationMessageField],
         [this.lastResponseDateField],
       );
 
