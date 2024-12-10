@@ -96,7 +96,7 @@ export class ZaakViewComponent
   menu: MenuItem[];
   readonly sideNavAction = SideNavAction;
   action: SideNavAction;
-  teWijzigenBesluit: GeneratedType<"RestBesluit">;
+  teWijzigenBesluit: GeneratedType<"RestDecision">;
 
   takenDataSource: MatTableDataSource<ExpandableTableData<Taak>> =
     new MatTableDataSource<ExpandableTableData<Taak>>();
@@ -1379,7 +1379,7 @@ export class ZaakViewComponent
   }
 
   doIntrekking($event): void {
-    const gegevens: GeneratedType<"RestBesluitIntrekkenGegevens"> = {
+    const gegevens: GeneratedType<"RestDecisionWithdrawalData"> = {
       besluitUuid: $event.uuid,
       vervaldatum: $event.vervaldatum,
       vervalreden: $event.vervalreden.value,

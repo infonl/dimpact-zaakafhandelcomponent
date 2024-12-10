@@ -76,10 +76,10 @@ import net.atos.zac.app.zaak.model.RESTZakenVerdeelGegevens
 import net.atos.zac.app.zaak.model.RESTZakenVrijgevenGegevens
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestDecision
-import net.atos.zac.app.zaak.model.RestBesluitIntrekkenGegevens
-import net.atos.zac.app.zaak.model.RestDecisionCreateData
 import net.atos.zac.app.zaak.model.RestDecisionChangeData
+import net.atos.zac.app.zaak.model.RestDecisionCreateData
 import net.atos.zac.app.zaak.model.RestDecisionType
+import net.atos.zac.app.zaak.model.RestDecisionWithdrawalData
 import net.atos.zac.app.zaak.model.RestResultaattype
 import net.atos.zac.app.zaak.model.RestZaak
 import net.atos.zac.app.zaak.model.RestZaakAssignmentData
@@ -801,7 +801,7 @@ class ZaakRestService @Inject constructor(
     fun listBesluitenForZaakUUID(@PathParam("zaakUuid") zaakUuid: UUID): List<RestDecision> =
         zrcClientService.readZaak(zaakUuid)
             .let { brcClientService.listBesluiten(it) }
-            .map { restDecisionConverter.convertToRestBesluit(it) }
+            .map { restDecisionConverter.convertToRestDecision(it) }
 
     @POST
     @Path("besluit")
@@ -813,7 +813,7 @@ class ZaakRestService @Inject constructor(
             }
 
             decisionService.createDecision(zaak, besluitToevoegenGegevens).let {
-                restDecisionConverter.convertToRestBesluit(it).also {
+                restDecisionConverter.convertToRestDecision(it).also {
                     // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
                     // but open_zaak does not send that one, so emulate it here.
                     eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))
@@ -829,7 +829,7 @@ class ZaakRestService @Inject constructor(
                 assertPolicy(policyService.readZaakRechten(zaak).vastleggenBesluit)
 
                 decisionService.updateDecision(zaak, besluit, restDecisionChangeData).let {
-                    restDecisionConverter.convertToRestBesluit(besluit).also {
+                    restDecisionConverter.convertToRestDecision(besluit).also {
                         // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
                         // but open_zaak does not send that one, so emulate it here.
                         eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))
@@ -840,13 +840,13 @@ class ZaakRestService @Inject constructor(
 
     @PUT
     @Path("besluit/intrekken")
-    fun intrekkenBesluit(@Valid restBesluitIntrekkenGegevens: RestBesluitIntrekkenGegevens) =
-        decisionService.readDecision(restBesluitIntrekkenGegevens).let { besluit ->
+    fun intrekkenBesluit(@Valid restDecisionWithdrawalData: RestDecisionWithdrawalData) =
+        decisionService.readDecision(restDecisionWithdrawalData).let { besluit ->
             zrcClientService.readZaak(besluit.zaak).let { zaak ->
                 assertPolicy(zaak.isOpen && policyService.readZaakRechten(zaak).behandelen)
 
-                decisionService.withdrawDecision(besluit, restBesluitIntrekkenGegevens.reden).let {
-                    restDecisionConverter.convertToRestBesluit(it).also {
+                decisionService.withdrawDecision(besluit, restDecisionWithdrawalData.reden).let {
+                    restDecisionConverter.convertToRestDecision(it).also {
                         // This event should result from a ZAAKBESLUIT UPDATED notification on the ZAKEN channel
                         // but open_zaak does not send that one, so emulate it here.
                         eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))

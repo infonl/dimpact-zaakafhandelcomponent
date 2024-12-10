@@ -10,11 +10,11 @@ import io.kotest.matchers.shouldBe
 import net.atos.client.zgw.brc.model.createBesluit
 import net.atos.client.zgw.brc.model.generated.VervalredenEnum
 
-class RestBesluitWijzigenGegevensTest : BehaviorSpec({
+class RestDecisionChangeDataTest : BehaviorSpec({
 
     Given("Besluit") {
         val besluit = createBesluit()
-        val restBesluitWijzigenGegevens = createRestBesluitWijzigenGegevens()
+        val restBesluitWijzigenGegevens = createRestDecisionChangeData()
 
         When("updated with change data") {
             val updatedBesluit = besluit.updateDecisionWithDecisionChangeData(restBesluitWijzigenGegevens)

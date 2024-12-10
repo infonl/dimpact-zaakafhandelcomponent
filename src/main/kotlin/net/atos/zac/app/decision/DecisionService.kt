@@ -17,9 +17,9 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.zaak.converter.RestDecisionConverter
-import net.atos.zac.app.zaak.model.RestBesluitIntrekkenGegevens
-import net.atos.zac.app.zaak.model.RestDecisionCreateData
 import net.atos.zac.app.zaak.model.RestDecisionChangeData
+import net.atos.zac.app.zaak.model.RestDecisionCreateData
+import net.atos.zac.app.zaak.model.RestDecisionWithdrawalData
 import net.atos.zac.app.zaak.model.updateDecisionWithDecisionChangeData
 import net.atos.zac.util.time.PeriodUtil
 import org.apache.commons.collections4.CollectionUtils
@@ -43,10 +43,10 @@ class DecisionService @Inject constructor(
         private const val CHANGE_DECISION_EXPLANATION = "Wijzigen besluit"
     }
 
-    fun readDecision(restBesluitIntrekkenGegevens: RestBesluitIntrekkenGegevens): Besluit =
-        brcClientService.readBesluit(restBesluitIntrekkenGegevens.besluitUuid).apply {
-            vervaldatum = restBesluitIntrekkenGegevens.vervaldatum
-            vervalreden = VervalredenEnum.fromValue(restBesluitIntrekkenGegevens.vervalreden.lowercase())
+    fun readDecision(restDecisionWithdrawalData: RestDecisionWithdrawalData): Besluit =
+        brcClientService.readBesluit(restDecisionWithdrawalData.besluitUuid).apply {
+            vervaldatum = restDecisionWithdrawalData.vervaldatum
+            vervalreden = VervalredenEnum.fromValue(restDecisionWithdrawalData.vervalreden.lowercase())
         }
 
     fun createDecision(zaak: Zaak, besluitToevoegenGegevens: RestDecisionCreateData): Besluit {

@@ -132,7 +132,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
 
   onFormSubmit(formGroup: FormGroup): void {
     if (formGroup) {
-      const gegevens: GeneratedType<"RestBesluitVastleggenGegevens"> = {
+      const data: GeneratedType<"RestDecisionCreateData"> = {
         zaakUuid: this.zaak.uuid,
         resultaattypeUuid: (
           formGroup.controls["resultaattype"]
@@ -140,7 +140,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
         ).id,
         besluittypeUuid: (
           formGroup.controls["besluittype"]
-            .value as GeneratedType<"RestBesluittype">
+            .value as GeneratedType<"RestDecisionType">
         ).id,
         toelichting: formGroup.controls["toelichting"].value,
         ingangsdatum: formGroup.controls["ingangsdatum"].value,
@@ -150,7 +150,7 @@ export class BesluitCreateComponent implements OnInit, OnDestroy {
           : [],
       };
 
-      this.zakenService.createBesluit(gegevens).subscribe(() => {
+      this.zakenService.createBesluit(data).subscribe(() => {
         this.utilService.openSnackbar("msg.besluit.vastgelegd");
         this.besluitVastgelegd.emit(true);
       });

@@ -28,7 +28,7 @@ class RestDecisionConverter @Inject constructor(
     private val restInformatieobjectConverter: RestInformatieobjectConverter,
     private val ztcClientService: ZtcClientService
 ) {
-    fun convertToRestBesluit(besluit: Besluit) =
+    fun convertToRestDecision(besluit: Besluit) =
         ztcClientService.readBesluittype(besluit.besluittype).let { besluitType ->
             RestDecision(
                 uuid = besluit.url.extractUuid(),
@@ -47,13 +47,10 @@ class RestDecisionConverter @Inject constructor(
                         besluit.vervalreden == VervalredenEnum.INGETROKKEN_OVERHEID
                     ),
                 informatieobjecten = restInformatieobjectConverter.convertInformatieobjectenToREST(
-                    listBesluitInformatieobjecten(besluit)
+                    listDecisionInformationObjects(besluit)
                 )
             )
         }
-
-    fun convertBesluitenToRestBesluit(besluiten: List<Besluit>): List<RestDecision> = besluiten
-        .map { convertToRestBesluit(it) }
 
     fun convertToBesluit(zaak: Zaak, besluitToevoegenGegevens: RestDecisionCreateData) =
         ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid).let { besluitType ->
@@ -73,7 +70,7 @@ class RestDecisionConverter @Inject constructor(
             }
         }
 
-    private fun listBesluitInformatieobjecten(besluit: Besluit): List<EnkelvoudigInformatieObject> =
+    private fun listDecisionInformationObjects(besluit: Besluit): List<EnkelvoudigInformatieObject> =
         brcClientService.listBesluitInformatieobjecten(besluit.url)
             .map { drcClientService.readEnkelvoudigInformatieobject(it.informatieobject) }
 }

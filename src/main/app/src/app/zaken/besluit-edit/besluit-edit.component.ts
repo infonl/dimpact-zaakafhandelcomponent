@@ -38,7 +38,7 @@ import { ZakenService } from "../zaken.service";
 })
 export class BesluitEditComponent implements OnInit, OnDestroy {
   formConfig: FormConfig;
-  @Input() besluit: GeneratedType<"RestBesluit">;
+  @Input() besluit: GeneratedType<"RestDecision">;
   @Input() zaak: Zaak;
   @Input() sideNav: MatDrawer;
   @Output() besluitGewijzigd = new EventEmitter<boolean>();
@@ -151,7 +151,7 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
 
   onFormSubmit(formGroup: FormGroup): void {
     if (formGroup) {
-      const gegevens: GeneratedType<"RestBesluitWijzigenGegevens"> = {
+      const gegevens: GeneratedType<"RestDecisionChangeData"> = {
         besluitUuid: this.besluit.uuid,
         resultaattypeUuid: (
           formGroup.controls["resultaattype"]
