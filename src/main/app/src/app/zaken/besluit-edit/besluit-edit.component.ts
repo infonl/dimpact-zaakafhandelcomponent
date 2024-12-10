@@ -137,14 +137,14 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
       .build();
 
     const publicationDateField = new DateFormFieldBuilder(
-      this.besluit.vervaldatum || null,
+      this.besluit.publicationDate || null,
     )
       .id("publicationDate")
       .label("publicatiedatum")
       .build();
 
     const lastResponseDateField = new DateFormFieldBuilder(
-      this.besluit.vervaldatum || null,
+      this.besluit.lastResponseDate || null,
     )
       .id("lastResponseDate")
       .label("uiterlijkereactiedatum")
