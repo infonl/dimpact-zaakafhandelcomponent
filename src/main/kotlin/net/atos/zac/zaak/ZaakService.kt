@@ -31,7 +31,7 @@ import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
-import net.atos.zac.zaak.exception.CaseHasLockedDocumentsException
+import net.atos.zac.zaak.exception.CaseHasLockedInformationObjectsException
 import net.atos.zac.zaak.exception.CaseHasOpenSubcasesException
 import net.atos.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import nl.lifely.zac.util.AllOpen
@@ -257,7 +257,7 @@ class ZaakService @Inject constructor(
             throw CaseHasOpenSubcasesException("Case ${zaak.uuid} has open subcases")
         }
         if (lockService.hasLockedInformatieobjecten(zaak)) {
-            throw CaseHasLockedDocumentsException("Case ${zaak.uuid} has locked information objects")
+            throw CaseHasLockedInformationObjectsException("Case ${zaak.uuid} has locked information objects")
         }
     }
 }
