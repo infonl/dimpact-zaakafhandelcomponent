@@ -483,6 +483,10 @@ services:
       - "18083:8080"
     profiles: [ "itest" ]
 
+  rabbitmq:
+    image: rabbitmq:3.12.2-alpine
+    profiles: [ "opennotificaties" ]
+
   opennotificaties-database:
     image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
     ports:
@@ -506,7 +510,7 @@ services:
   opennotificaties:
     image: docker.io/openzaak/open-notificaties:1.7.1@sha256:feaf6f1da046bd4a8beb727563deda171fc66bc68371fd6f9192cbb1ceee9e6f
     platform: linux/amd64
-    environment:
+    environment: &opennotificaties-env
       - ALLOWED_HOSTS=localhost,host.docker.internal
       - DB_HOST=opennotificaties-database
       - DB_NAME=opennotificaties
@@ -514,16 +518,33 @@ services:
       - DB_USER=opennotificaties
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
+      - RABBITMQ_HOST=rabbitmq
+      - PUBLISH_BROKER_URL=amqp://guest:guest@rabbitmq:5672/%2F
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - CELERY_LOGLEVEL=DEBUG
       - DEBUG=true
       - DISABLE_2FA=true
       - LOG_LEVEL=DEBUG
+      - LOG_NOTIFICATIONS_IN_DB=true
       - SECRET_KEY=opennotificatiesApiSecretKey
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # This should allow for enough time for migrations to run before the max
+      # retries have passed. This healthcheck in turn allows other containers
+      # to wait for the database migrations.
+      start_period: 30s
     ports:
       - "8003:8000"
     depends_on:
       opennotificaties-database:
         condition: service_healthy
       redis:
+        condition: service_started
+      rabbitmq:
         condition: service_started
     profiles: [ "opennotificaties" ]
 

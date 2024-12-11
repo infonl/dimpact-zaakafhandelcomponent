@@ -18,7 +18,15 @@ INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES('open-zaak-auto
 -- Set up the kanalen
 INSERT INTO datamodel_kanaal (uuid, naam, documentatie_link, filters) VALUES('493002ad-e5d5-4747-93b2-1853e78889f5', 'zaaktypen', 'http://open-zaak-zac-dev.westeurope.cloudapp.azure.com/ref/kanalen/#zaaktypen', '{catalogus}');
 INSERT INTO datamodel_kanaal (uuid, naam, documentatie_link, filters) VALUES('3ad6676c-98cc-4664-babb-02bda0c886d8', 'zaken', 'http://open-zaak-zac-dev.westeurope.cloudapp.azure.com/ref/kanalen/#zaken', '{bronorganisatie,zaaktype,vertrouwelijkheidaanduiding}');
-INSERT INTO datamodel_kanaal (uuid, naam, documentatie_link, filters) VALUES('ff0470a0-1f4c-41dd-933c-abde3a37f9e3', 'informatieobjecttypen', 'http://open-zaak-zac-dev.westeurope.cloudapp.azure.com/ref/kanalen/#informatieobjecttypen', '{catalogus}');
 INSERT INTO datamodel_kanaal (uuid, naam, documentatie_link, filters) VALUES('97d7d649-0979-422a-8880-a0aee37cc6ea', 'documenten', 'http://open-zaak-zac-dev.westeurope.cloudapp.azure.com/ref/kanalen/#documenten', '{bronorganisatie,informatieobjecttype,vertrouwelijkheidaanduiding}');
 INSERT INTO datamodel_kanaal (uuid, naam, documentatie_link, filters) VALUES('93179f23-965e-4720-964f-d09be3bc2790', 'besluittypen', 'http://open-zaak-zac-dev.westeurope.cloudapp.azure.com/ref/kanalen/#besluittypen', '{catalogus}');
 INSERT INTO datamodel_kanaal (uuid, naam, documentatie_link, filters) VALUES('c4f52cb5-07e7-44cb-b4b7-2539bce684f9', 'besluiten', 'http://open-zaak-zac-dev.westeurope.cloudapp.azure.com/ref/kanalen/#besluiten', '{verantwoordelijke_organisatie,besluittype}');
+
+-- Set up the abonnement to ZAC
+-- This assumes ZAC is running on localhost:8080
+INSERT INTO datamodel_abonnement (uuid, callback_url, auth, client_id) VALUES('fb4e3474-18c8-474b-94ae-980850ea4a7f', 'http://localhost:8080/rest/notificaties', 'openNotificatiesApiSecretKey', 'opennotificaties');
+INSERT INTO datamodel_filtergroup (abonnement_id, kanaal_id) VALUES((SELECT ID FROM datamodel_abonnement where client_id = 'opennotificaties'), (SELECT ID FROM datamodel_kanaal where naam = 'zaaktypen'));
+INSERT INTO datamodel_filtergroup (abonnement_id, kanaal_id) VALUES((SELECT ID FROM datamodel_abonnement where client_id = 'opennotificaties'), (SELECT ID FROM datamodel_kanaal where naam = 'zaken'));
+INSERT INTO datamodel_filtergroup (abonnement_id, kanaal_id) VALUES((SELECT ID FROM datamodel_abonnement where client_id = 'opennotificaties'), (SELECT ID FROM datamodel_kanaal where naam = 'documenten'));
+INSERT INTO datamodel_filtergroup (abonnement_id, kanaal_id) VALUES((SELECT ID FROM datamodel_abonnement where client_id = 'opennotificaties'), (SELECT ID FROM datamodel_kanaal where naam = 'besluittypen'));
+INSERT INTO datamodel_filtergroup (abonnement_id, kanaal_id) VALUES((SELECT ID FROM datamodel_abonnement where client_id = 'opennotificaties'), (SELECT ID FROM datamodel_kanaal where naam = 'besluiten'));
