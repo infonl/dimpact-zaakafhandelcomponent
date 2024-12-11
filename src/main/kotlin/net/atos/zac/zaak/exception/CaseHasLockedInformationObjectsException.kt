@@ -6,4 +6,4 @@
 
 package net.atos.zac.zaak.exception
 
-class CaseHasLockedDocumentsException(message: String) : RuntimeException(message)
+class CaseHasLockedInformationObjectsException(message: String) : RuntimeException(message)
