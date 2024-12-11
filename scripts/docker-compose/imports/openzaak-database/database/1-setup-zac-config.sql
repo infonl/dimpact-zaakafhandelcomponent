@@ -12,4 +12,4 @@ INSERT INTO authorizations_applicatie (uuid, client_ids, label, heeft_alle_autor
 INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('zac_client', 'openzaakZaakafhandelcomponentClientSecret');
 INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('open-zaak-autorisaties', 'openZaakAutorisatiesApiSecretKey');
 INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('opennotificaties', 'openNotificatiesApiSecretKey');
---INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('openformulieren', 'openFormulierenApiSecretKey');
+INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('openformulieren', 'openFormulierenApiSecretKey');
