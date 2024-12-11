@@ -17,7 +17,7 @@ UPDATE notifications_api_common_notificationsconfig SET notifications_api_servic
 INSERT INTO vng_api_common_apicredential (api_root, client_id, secret, label, user_id, user_representation) VALUES('http://openzaak.local:8000/autorisaties/api/v1/', 'open-zaak-autorisaties', 'openZaakAutorisatiesApiSecretKey', 'Open Zaak - Autorisaties', 'open-zaak-autorisaties', 'Open Zaak - Autorisaties');
 
 -- Set up the Autorisatiegegevens
-INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES(1, 'open-zaak-autorisaties', 'openZaakAutorisatiesApiSecretKey');
+INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES('open-zaak-autorisaties', 'openZaakAutorisatiesApiSecretKey');
 
 -- Set up the kanalen
 INSERT INTO datamodel_kanaal (uuid, naam, documentatie_link, filters) VALUES('493002ad-e5d5-4747-93b2-1853e78889f5', 'zaaktypen', 'http://open-zaak-zac-dev.westeurope.cloudapp.azure.com/ref/kanalen/#zaaktypen', '{catalogus}');
