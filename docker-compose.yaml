@@ -548,6 +548,22 @@ services:
         condition: service_started
     profiles: [ "opennotificaties" ]
 
+  opennotificaties-celery:
+    image: docker.io/openzaak/open-notificaties:1.7.1@sha256:feaf6f1da046bd4a8beb727563deda171fc66bc68371fd6f9192cbb1ceee9e6f
+    platform: linux/amd64
+    environment: *opennotificaties-env
+    command: /celery_worker.sh
+    healthcheck:
+      test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    depends_on:
+        opennotificaties:
+            condition: service_healthy
+    profiles: [ "opennotificaties" ]
+
   zac:
     # By default, we use the most recent ZAC Docker Image. Change this if you wish to use a specific version.
     image: ${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:latest}

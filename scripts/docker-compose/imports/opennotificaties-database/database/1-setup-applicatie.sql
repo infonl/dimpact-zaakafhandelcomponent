@@ -23,8 +23,9 @@ INSERT INTO datamodel_kanaal (uuid, naam, documentatie_link, filters) VALUES('93
 INSERT INTO datamodel_kanaal (uuid, naam, documentatie_link, filters) VALUES('c4f52cb5-07e7-44cb-b4b7-2539bce684f9', 'besluiten', 'http://open-zaak-zac-dev.westeurope.cloudapp.azure.com/ref/kanalen/#besluiten', '{verantwoordelijke_organisatie,besluittype}');
 
 -- Set up the abonnement to ZAC
--- This assumes ZAC is running on localhost:8080
-INSERT INTO datamodel_abonnement (uuid, callback_url, auth, client_id) VALUES('fb4e3474-18c8-474b-94ae-980850ea4a7f', 'http://localhost:8080/rest/notificaties', 'openNotificatiesApiSecretKey', 'opennotificaties');
+-- This assumes ZAC is running on host.docker.internal:8080
+-- TODO: should be openNotificatiesApiSecretKey ?
+INSERT INTO datamodel_abonnement (uuid, callback_url, auth, client_id) VALUES('fb4e3474-18c8-474b-94ae-980850ea4a7f', 'http://host.docker.internal:8080/rest/notificaties', 'opennotificaties', 'opennotificaties');
 INSERT INTO datamodel_filtergroup (abonnement_id, kanaal_id) VALUES((SELECT ID FROM datamodel_abonnement where client_id = 'opennotificaties'), (SELECT ID FROM datamodel_kanaal where naam = 'zaaktypen'));
 INSERT INTO datamodel_filtergroup (abonnement_id, kanaal_id) VALUES((SELECT ID FROM datamodel_abonnement where client_id = 'opennotificaties'), (SELECT ID FROM datamodel_kanaal where naam = 'zaken'));
 INSERT INTO datamodel_filtergroup (abonnement_id, kanaal_id) VALUES((SELECT ID FROM datamodel_abonnement where client_id = 'opennotificaties'), (SELECT ID FROM datamodel_kanaal where naam = 'documenten'));
