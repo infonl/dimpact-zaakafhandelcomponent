@@ -95,7 +95,7 @@ services:
   openzaak.local:
     image: docker.io/openzaak/open-zaak:1.15.0@sha256:281450b155d7bd5dc3f910a329f50ae76f49b7db3762e699183921787b724650
     platform: linux/amd64
-    environment:
+    environment: &openzaak-env
       - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local
       - DB_HOST=openzaak-database
       - DB_NAME=openzaak
@@ -127,6 +127,11 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+
+#  openzaak.local:
+#    image: docker.io/openzaak/open-zaak:1.15.0@sha256:281450b155d7bd5dc3f910a329f50ae76f49b7db3762e699183921787b724650
+#    platform: linux/amd64
+# TODO
 
   redis:
     image: redis:7.4.1@sha256:ea96c435dc17b011f54c6a883c3c45e7726242b075de61c6fe40a10ae6ae0f83
@@ -474,6 +479,7 @@ services:
     volumes:
       - ./scripts/docker-compose/imports/opennotificaties-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/opennotificaties-database-data:/var/lib/postgresql/data
+    profiles: [ "opennotificaties" ]
 
   opennotificaties:
     image: docker.io/openzaak/open-notificaties:1.7.1@sha256:feaf6f1da046bd4a8beb727563deda171fc66bc68371fd6f9192cbb1ceee9e6f
@@ -497,6 +503,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+    profiles: [ "opennotificaties" ]
 
   zac:
     # By default, we use the most recent ZAC Docker Image. Change this if you wish to use a specific version.
