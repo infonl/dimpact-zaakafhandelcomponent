@@ -44,7 +44,6 @@ import net.atos.zac.policy.output.OverigeRechten;
 import net.atos.zac.policy.output.TaakRechten;
 import net.atos.zac.policy.output.WerklijstRechten;
 import net.atos.zac.policy.output.ZaakRechten;
-import net.atos.zac.shared.exception.FoutmeldingException;
 import net.atos.zac.zoeken.model.DocumentIndicatie;
 import net.atos.zac.zoeken.model.ZaakIndicatie;
 import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject;
@@ -187,15 +186,6 @@ public class PolicyService {
         return evaluationClient.readWerklijstRechten(
                 new RuleQuery<>(new UserInput(loggedInUserInstance.get()))
         ).getResult();
-    }
-
-    public void checkZaakAfsluitbaar(final Zaak zaak) {
-        if (zrcClientService.heeftOpenDeelzaken(zaak)) {
-            throw new FoutmeldingException("Deze hoofdzaak heeft open deelzaken en kan niet afgesloten worden.");
-        }
-        if (lockService.hasLockedInformatieobjecten(zaak)) {
-            throw new FoutmeldingException("Deze zaak heeft vergrendelde documenten en kan niet afgesloten worden.");
-        }
     }
 
     public static void assertPolicy(final boolean policy) {
