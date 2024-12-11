@@ -45,6 +45,7 @@ import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.util.time.DateTimeConverterUtil
+import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI
@@ -67,6 +68,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val suspensionZaakHelper = mockk<SuspensionZaakHelper>()
     val restMailGegevensConverter = mockk<RESTMailGegevensConverter>()
+    val zaakService = mockk<ZaakService>()
 
     val planItemsRESTService = PlanItemsRESTService(
         zaakVariabelenService,
@@ -82,7 +84,8 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
         mailTemplateService,
         policyService,
         suspensionZaakHelper,
-        restMailGegevensConverter
+        restMailGegevensConverter,
+        zaakService
     )
 
     val planItemInstanceId = "dummyPlanItemInstanceId"
@@ -361,7 +364,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
             startenTaak = true,
             versturenEmail = true
         )
-        every { policyService.checkZaakAfsluitbaar(zaak) } just runs
+        every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
         every { brcClientService.listBesluiten(zaak) } returns listOf(Besluit())
         every { zrcClientService.readResultaat(zaak.resultaat) } returns resultaat
         every { zrcClientService.updateResultaat(any<Resultaat>()) } returns resultaat

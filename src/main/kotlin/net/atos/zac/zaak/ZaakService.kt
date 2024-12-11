@@ -25,11 +25,14 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.zac.app.klant.model.klant.IdentificatieType
+import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import net.atos.zac.event.EventingService
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
+import net.atos.zac.zaak.exception.CaseHasLockedDocumentsException
+import net.atos.zac.zaak.exception.CaseHasOpenSubcasesException
 import net.atos.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import nl.lifely.zac.util.AllOpen
 import java.util.Locale
@@ -44,6 +47,7 @@ class ZaakService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
     private var eventingService: EventingService,
+    private val lockService: EnkelvoudigInformatieObjectLockService
 ) {
     fun addBetrokkeneToZaak(
         roleTypeUUID: UUID,
@@ -246,5 +250,14 @@ class ZaakService @Inject constructor(
                 )
         }
         zrcClientService.createRol(role, explanation)
+    }
+
+    fun checkZaakAfsluitbaar(zaak: Zaak) {
+        if (zrcClientService.heeftOpenDeelzaken(zaak)) {
+            throw CaseHasOpenSubcasesException("Case ${zaak.uuid} has open subcases")
+        }
+        if (lockService.hasLockedInformatieobjecten(zaak)) {
+            throw CaseHasLockedDocumentsException("Case ${zaak.uuid} has locked information objects")
+        }
     }
 }

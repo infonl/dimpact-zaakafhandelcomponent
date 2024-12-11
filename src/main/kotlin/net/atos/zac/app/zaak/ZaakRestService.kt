@@ -621,7 +621,7 @@ class ZaakRestService @Inject constructor(
         }
         assertPolicy(policyService.readZaakRechten(zaak).afbreken)
         assertPolicy(zaak.isOpen && !StatusTypeUtil.isHeropend(statustype))
-        policyService.checkZaakAfsluitbaar(zaak)
+        zaakService.checkZaakAfsluitbaar(zaak)
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
             zaak.zaaktype.extractUuid()
         )
@@ -664,7 +664,7 @@ class ZaakRestService @Inject constructor(
     ) {
         val zaak = zrcClientService.readZaak(zaakUUID)
         assertPolicy(zaak.isOpen && policyService.readZaakRechten(zaak).behandelen)
-        policyService.checkZaakAfsluitbaar(zaak)
+        zaakService.checkZaakAfsluitbaar(zaak)
         zgwApiService.updateResultaatForZaak(
             zaak,
             afsluitenGegevens.resultaattypeUuid,

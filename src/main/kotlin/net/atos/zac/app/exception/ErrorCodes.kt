@@ -36,3 +36,5 @@ const val ERROR_CODE_BESLUIT_PUBLICATION_DISABLED_TYPE = "msg.error.besluit.publ
 const val ERROR_CODE_BESLUIT_PUBLICATION_DATE_MISSING_TYPE = "msg.error.besluit.publication.date.missing"
 const val ERROR_CODE_BESLUIT_RESPONSE_DATE_MISSING_TYPE = "msg.error.besluit.response.date.missing"
 const val ERROR_CODE_BESLUIT_RESPONSE_DATE_INVALID_TYPE = "msg.error.besluit.response.date.invalid"
+const val ERROR_CODE_CASE_HAS_OPEN_SUBCASES = "msg.error.case.has.open.subs"
+const val ERROR_CODE_CASE_HAS_LOCKED_DOCUMENTS = "msg.error.case.has.locked.documents"
