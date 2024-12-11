@@ -11,6 +11,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.inspectors.forAtLeastOne
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
+import net.atos.client.zgw.zrc.model.BetrokkeneType
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
@@ -162,17 +163,17 @@ class NotificationsTest : BehaviorSpec({
                       "identificatie" : "999992958",
                       "roltoelichting" : "Overgenomen vanuit de product aanvraag",
                       "roltype" : "Bewindvoerder",
-                      "type" : "NATUURLIJK_PERSOON"
+                      "type" : "${BetrokkeneType.NATUURLIJK_PERSOON}"
                     }, {
                       "identificatie" : "999991838",
                       "roltoelichting" : "Overgenomen vanuit de product aanvraag",
                       "roltype" : "Bewindvoerder",
-                      "type" : "NATUURLIJK_PERSOON"
+                      "type" : "${BetrokkeneType.NATUURLIJK_PERSOON}"
                     }, {
                       "identificatie" : "999992958",
                       "roltoelichting" : "Overgenomen vanuit de product aanvraag",
                       "roltype" : "Medeaanvrager",
-                      "type" : "NATUURLIJK_PERSOON"
+                      "type" : "${BetrokkeneType.NATUURLIJK_PERSOON}"
                     } ]
                 """.trimIndent()
                 zaakProductaanvraag1Betrokkene1Uuid = JSONArray(responseBody).getJSONObject(0).getString("rolid").let(UUID::fromString)

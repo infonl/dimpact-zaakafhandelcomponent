@@ -36,7 +36,6 @@ object ItestConfiguration {
 
     const val ACTIE_INTAKE_AFRONDEN = "INTAKE_AFRONDEN"
     const val ACTIE_ZAAK_AFHANDELEN = "ZAAK_AFHANDELEN"
-    const val BETROKKENE_TYPE_NATUURLIJK_PERSOON = "NATUURLIJK_PERSOON"
     const val BETROKKENE_IDENTIFICATION_TYPE_BSN = "BSN"
     const val BETROKKENE_IDENTIFACTION_TYPE_VESTIGING = "VN"
     const val BETROKKENE_ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"

@@ -13,12 +13,12 @@ import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import net.atos.client.zgw.zrc.model.BetrokkeneType
 import nl.lifely.zac.itest.client.ItestHttpClient
 import nl.lifely.zac.itest.client.ZacClient
 import nl.lifely.zac.itest.config.ItestConfiguration
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
 import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_ROL_TOEVOEGEN_REDEN
-import nl.lifely.zac.itest.config.ItestConfiguration.BETROKKENE_TYPE_NATUURLIJK_PERSOON
 import nl.lifely.zac.itest.config.ItestConfiguration.BRON_ORGANISATIE
 import nl.lifely.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.lifely.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_2
@@ -540,7 +540,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         getString("rolid") shouldNotBe null
                         getString("roltype") shouldBe ROLTYPE_NAME_MEDEAANVRAGER
                         getString("roltoelichting") shouldBe "dummyToelichting"
-                        getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
+                        getString("type") shouldBe BetrokkeneType.NATUURLIJK_PERSOON
                         getString("identificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
                     }
                     getJSONObject(1).apply {
@@ -548,7 +548,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         getString("roltype") shouldBe ROLTYPE_NAME_BELANGHEBBENDE
                         // if no toelichting was provided, the default value should be used
                         getString("roltoelichting") shouldBe BETROKKENE_ROL_TOEVOEGEN_REDEN
-                        getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
+                        getString("type") shouldBe BetrokkeneType.NATUURLIJK_PERSOON
                         getString("identificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
                         zaakProductaanvraag1Betrokkene1Uuid = getString("rolid").let(UUID::fromString)
                     }
