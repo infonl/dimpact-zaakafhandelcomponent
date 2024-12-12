@@ -19,6 +19,7 @@ spotless-prettier-organize-imports = "3.2.4"
 microprofile-rest-client = "3.0"
 jacoco = "0.8.12"
 glassfish-expressly = "5.0.0"
+keycloak = "25.0.6"
 
 apache-commons-lang = "3.17.0"
 apache-commons-text = "1.13.0"
@@ -124,6 +125,7 @@ opentelemetry-instrumentation-annotations = { group = "io.opentelemetry.instrume
 opentelemetry-extension-kotlin = { group = "io.opentelemetry", name = "opentelemetry-extension-kotlin", version.ref = "opentelemetry" }
 
 glassfish-expressly = { group = "org.glassfish.expressly", name = "expressly", version.ref = "glassfish-expressly" }
+keycloak-admin-client = { group = "org.keycloak", name = "keycloak-admin-client", version.ref = "keycloak" }
 
 # dependencies provided by Wildfly
 # update these versions when upgrading WildFly
