@@ -512,21 +512,23 @@ services:
     platform: linux/amd64
     environment: &opennotificaties-env
       - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local,zac
+      - CACHE_DEFAULT=redis:6379/0
+      - CACHE_AXES=redis:6379/0
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - CELERY_LOGLEVEL=DEBUG
       - DB_HOST=opennotificaties-database
       - DB_NAME=opennotificaties
       - DB_PASSWORD=opennotificaties
       - DB_USER=opennotificaties
-      - CACHE_DEFAULT=redis:6379/0
-      - CACHE_AXES=redis:6379/0
-      - RABBITMQ_HOST=rabbitmq
-      - PUBLISH_BROKER_URL=amqp://guest:guest@rabbitmq:5672/%2F
-      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
-      - CELERY_RESULT_BACKEND=redis://redis:6379/1
-      - CELERY_LOGLEVEL=DEBUG
       - DEBUG=true
       - DISABLE_2FA=true
+      - DJANGO_SETTINGS_MODULE=nrc.conf.docker
+      - DJANGO_SUPERUSER_PASSWORD=admin
       - LOG_LEVEL=DEBUG
       - LOG_NOTIFICATIONS_IN_DB=true
+      - PUBLISH_BROKER_URL=amqp://guest:guest@rabbitmq:5672/%2F
+      - RABBITMQ_HOST=rabbitmq
       - SECRET_KEY=opennotificatiesApiSecretKey
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
