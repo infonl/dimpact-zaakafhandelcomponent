@@ -2,6 +2,8 @@
 INSERT INTO accounts_user (id, password, last_login, is_superuser, username, first_name, last_name, email, is_staff, is_active, date_joined) VALUES (1, 'pbkdf2_sha256$260000$gtIe19cI1vW9RzIsRDpriC$o8G6cItI5vXqbGFcXuu0pbullajpvMDc6Hze70mf+jE=', null, true, 'admin', '', '', 'admin@example.com', true, true, '2023-08-08 15:14:56.735552 +00:00');
 
 -- Set up the Autorisatiecomponentconfiguratie
+-- Unfortunately it seems that we need to use 'host.docker.internal' here to connect to Open Zaak. Not sure why.
+-- Please see our 'testing.md' document on how to set this up.
 INSERT INTO authorizations_authorizationsconfig (api_root, component) VALUES('http://host.docker.internal:8001/autorisaties/api/v1/', 'ac');
 
 -- Set up the Notificatiescomponentconfiguratie
@@ -9,7 +11,8 @@ INSERT INTO authorizations_authorizationsconfig (api_root, component) VALUES('ht
 UPDATE notifications_api_common_notificationsconfig SET notifications_api_service_id=(SELECT id FROM zgw_consumers_service WHERE label = 'notificaties-self'), notification_delivery_max_retries=5, notification_delivery_retry_backoff=3, notification_delivery_retry_backoff_max=48 WHERE id=1;
 
 -- Set up the External API credentials
--- TODO: it seems we need to use 'host.docker.internal' here
+-- Unfortunately it seems that we need to use 'host.docker.internal' here to connect to Open Zaak. Not sure why.
+-- Please see our 'testing.md' document on how to set this up.
 INSERT INTO vng_api_common_apicredential (api_root, client_id, secret, label, user_id, user_representation) VALUES('http://host.docker.internal:8001/autorisaties/api/v1/', 'open-zaak-autorisaties', 'openZaakAutorisatiesApiSecretKey', 'Open Zaak - Autorisaties', 'open-zaak-autorisaties', 'Open Zaak - Autorisaties');
 
 -- Set up the Autorisatiegegevens

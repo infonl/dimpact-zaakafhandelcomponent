@@ -96,7 +96,7 @@ services:
     image: docker.io/openzaak/open-zaak:1.15.0@sha256:281450b155d7bd5dc3f910a329f50ae76f49b7db3762e699183921787b724650
     platform: linux/amd64
     environment: &openzaak-env
-      - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local
+      - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local,opennotificaties
       - DB_HOST=openzaak-database
       - DB_NAME=openzaak
       - DB_PASSWORD=openzaak
@@ -511,7 +511,7 @@ services:
     image: docker.io/openzaak/open-notificaties:1.7.1@sha256:feaf6f1da046bd4a8beb727563deda171fc66bc68371fd6f9192cbb1ceee9e6f
     platform: linux/amd64
     environment: &opennotificaties-env
-      - ALLOWED_HOSTS=localhost,host.docker.internal
+      - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local,zac
       - DB_HOST=opennotificaties-database
       - DB_NAME=opennotificaties
       - DB_PASSWORD=opennotificaties

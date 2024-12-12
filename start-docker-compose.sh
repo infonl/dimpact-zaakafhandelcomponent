@@ -111,6 +111,7 @@ fi
 # Ensure that volume-data is created with current user
 mkdir -p $volumeDataFolder/openklant-database-data
 mkdir -p $volumeDataFolder/openzaak-database-data
+mkdir -p $volumeDataFolder/opennotificaties-database-data
 mkdir -p $volumeDataFolder/zac-keycloak-database-data
 mkdir -p $volumeDataFolder/solr-data
 mkdir -p $volumeDataFolder/zac-database-data
