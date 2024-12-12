@@ -1,9 +1,9 @@
 package net.atos.client.keycloak
 
-import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Produces
 import jakarta.inject.Inject
 import jakarta.inject.Named
+import jakarta.inject.Singleton
 import net.atos.zac.identity.IdentityService
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -15,7 +15,7 @@ import java.util.logging.Logger
 
 @AllOpen
 @NoArgConstructor
-@ApplicationScoped
+@Singleton
 class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
     @ConfigProperty(name = "AUTH_SERVER")
     private val keycloakUrl: String,
@@ -31,7 +31,6 @@ class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
 ){
     companion object {
         private val LOG = Logger.getLogger(IdentityService::class.java.name)
-        const val EMPLOYEES_REALM = "zaakafhandelcomponent"
     }
 
     @Produces
@@ -46,7 +45,7 @@ class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
         )
         return KeycloakBuilder.builder()
             .serverUrl(keycloakUrl)
-            .realm(EMPLOYEES_REALM)
+            .realm(realmName)
             .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
             .clientId(clientId)
             .clientSecret(clientSecret)
