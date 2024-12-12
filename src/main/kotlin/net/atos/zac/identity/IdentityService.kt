@@ -7,6 +7,8 @@ package net.atos.zac.identity
 import com.unboundid.ldap.sdk.Filter
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import jakarta.inject.Named
+import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.identity.exception.IdentityRuntimeException
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
@@ -15,7 +17,9 @@ import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
 import org.eclipse.microprofile.config.inject.ConfigProperty
+import org.keycloak.admin.client.Keycloak
 import java.util.Hashtable
+import java.util.logging.Logger
 import javax.naming.Context
 import javax.naming.NamingException
 import javax.naming.directory.Attributes
@@ -27,6 +31,9 @@ import javax.naming.directory.SearchControls
 @ApplicationScoped
 @Suppress("TooManyFunctions")
 class IdentityService @Inject constructor(
+    @Named("keycloakZacAdminClient")
+    private val keycloak: Keycloak,
+
     @ConfigProperty(name = "LDAP_DN")
     private val usersDN: String,
 
