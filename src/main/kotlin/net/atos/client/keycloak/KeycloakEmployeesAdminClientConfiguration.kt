@@ -1,0 +1,55 @@
+package net.atos.client.keycloak
+
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.inject.Produces
+import jakarta.inject.Inject
+import jakarta.inject.Named
+import net.atos.zac.identity.IdentityService
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import org.eclipse.microprofile.config.inject.ConfigProperty
+import org.keycloak.OAuth2Constants
+import org.keycloak.admin.client.Keycloak
+import org.keycloak.admin.client.KeycloakBuilder
+import java.util.logging.Logger
+
+@AllOpen
+@NoArgConstructor
+@ApplicationScoped
+class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
+    @ConfigProperty(name = "AUTH_SERVER")
+    private val keycloakUrl: String,
+
+    @ConfigProperty(name = "AUTH_RESOURCE")
+    private val clientId: String,
+
+    @ConfigProperty(name = "AUTH_SECRET")
+    private val clientSecret: String,
+
+    @ConfigProperty(name = "AUTH_REALM")
+    private val realmName: String,
+){
+    companion object {
+        private val LOG = Logger.getLogger(IdentityService::class.java.name)
+        const val EMPLOYEES_REALM = "zaakafhandelcomponent"
+    }
+
+    @Produces
+    @Named("keycloakZacAdminClient")
+    fun build(): Keycloak {
+        LOG.info(
+            "Building Keycloak admin client for employee realm using: \n" +
+                "\turl: $keycloakUrl" +
+                "\trealm: $realmName" +
+                "\tclientid: $clientId" +
+                "\tclientsecret: *******"
+        )
+        return KeycloakBuilder.builder()
+            .serverUrl(keycloakUrl)
+            .realm(EMPLOYEES_REALM)
+            .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
+            .clientId(clientId)
+            .clientSecret(clientSecret)
+            .build()
+    }
+}
