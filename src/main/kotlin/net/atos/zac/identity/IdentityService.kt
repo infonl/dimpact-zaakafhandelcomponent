@@ -8,7 +8,6 @@ import com.unboundid.ldap.sdk.Filter
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.inject.Named
-import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.identity.exception.IdentityRuntimeException
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
@@ -17,7 +16,7 @@ import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
 import org.eclipse.microprofile.config.inject.ConfigProperty
-import org.keycloak.admin.client.Keycloak
+import org.keycloak.admin.client.resource.RealmResource
 import java.util.Hashtable
 import java.util.logging.Logger
 import javax.naming.Context
@@ -31,8 +30,8 @@ import javax.naming.directory.SearchControls
 @ApplicationScoped
 @Suppress("TooManyFunctions")
 class IdentityService @Inject constructor(
-    @Named("keycloakZacAdminClient")
-    private val keycloak: Keycloak,
+    @Named("keycloakZacRealmResource")
+    private val keycloakZacRealmResource: RealmResource,
 
     @ConfigProperty(name = "LDAP_DN")
     private val usersDN: String,
@@ -50,6 +49,8 @@ class IdentityService @Inject constructor(
     private val ldapPassword: String
 ) {
     companion object {
+        private val LOG = Logger.getLogger(IdentityService::class.java.name)
+
         private const val USER_ID_ATTRIBUTE = "cn"
         private const val USER_FIRST_NAME_ATTRIBUTE = "givenName"
         private const val USER_LAST_NAME_ATTRIBUTE = "sn"
@@ -79,13 +80,15 @@ class IdentityService @Inject constructor(
         Context.SECURITY_CREDENTIALS to ldapPassword
     )
 
-    fun listUsers(): List<User> =
-        search(
+    fun listUsers(): List<User> {
+        LOG.info { "Keycloak users: ${keycloakZacRealmResource.users()}" }
+        return search(
             root = usersDN,
             filter = Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS)),
             attributesToReturn = USER_ATTRIBUTES
         ).map { it.toUser() }
             .sortedBy { it.getFullName() }
+    }
 
     fun listGroups(): List<Group> =
         search(
@@ -117,8 +120,10 @@ class IdentityService @Inject constructor(
         ).map { it.toGroup() }
             .firstOrNull() ?: Group(groupId)
 
-    fun listUsersInGroup(groupId: String): List<User> =
-        search(
+    fun listUsersInGroup(groupId: String): List<User> {
+        LOG.info { "All Keycloak users: ${keycloakZacRealmResource.users().list()}" }
+
+        return search(
             root = groupsDN,
             filter = Filter.createANDFilter(
                 Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
@@ -127,6 +132,7 @@ class IdentityService @Inject constructor(
             attributesToReturn = GROUP_MEMBERSHIP_ATTRIBUTES
         ).map { this.convertToMembers(it) }
             .flatMap { this.readUsers(it) }
+    }
 
     private fun readUsers(userIds: Collection<String>): List<User> =
         search(

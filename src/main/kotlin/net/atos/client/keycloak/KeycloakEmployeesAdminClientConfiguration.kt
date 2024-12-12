@@ -9,8 +9,8 @@ import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.keycloak.OAuth2Constants
-import org.keycloak.admin.client.Keycloak
 import org.keycloak.admin.client.KeycloakBuilder
+import org.keycloak.admin.client.resource.RealmResource
 import java.util.logging.Logger
 
 @AllOpen
@@ -20,10 +20,10 @@ class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
     @ConfigProperty(name = "AUTH_SERVER")
     private val keycloakUrl: String,
 
-    @ConfigProperty(name = "AUTH_RESOURCE")
+    @ConfigProperty(name = "KEYCLOAK_ADMIN_CLIENT_ID")
     private val clientId: String,
 
-    @ConfigProperty(name = "AUTH_SECRET")
+    @ConfigProperty(name = "KEYCLOAK_ADMIN_CLIENT_SECRET")
     private val clientSecret: String,
 
     @ConfigProperty(name = "AUTH_REALM")
@@ -34,14 +34,13 @@ class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
     }
 
     @Produces
-    @Named("keycloakZacAdminClient")
-    fun build(): Keycloak {
+    @Named("keycloakZacRealmResource")
+    fun build(): RealmResource {
         LOG.info(
-            "Building Keycloak admin client for employee realm using: \n" +
-                "\turl: $keycloakUrl" +
-                "\trealm: $realmName" +
-                "\tclientid: $clientId" +
-                "\tclientsecret: *******"
+            """
+                Building Keycloak admin client using: url: '$keycloakUrl', realm: '$realmName', 
+                clientid: '$clientId', clientsecret: '*******'
+            """.trimIndent()
         )
         return KeycloakBuilder.builder()
             .serverUrl(keycloakUrl)
@@ -50,5 +49,6 @@ class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
             .clientId(clientId)
             .clientSecret(clientSecret)
             .build()
+            .realm(realmName)
     }
 }
