@@ -108,7 +108,7 @@ services:
       - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
       - DJANGO_SUPERUSER_PASSWORD=admin
       - LOG_LEVEL=DEBUG
-      - NOTIFICATIONS_DISABLED=false
+      - NOTIFICATIONS_DISABLED=${OPENZAAK_NOTIFICATIONS_DISABLED:-true}
       - OPENZAAK_SUPERUSER_USERNAME=admin
       - OPENZAAK_SUPERUSER_EMAIL=noreply@example.com
       - SECRET_KEY=openZaakSecretKey
@@ -645,5 +645,7 @@ services:
           memory: 4G
     depends_on:
       zac-database:
+        condition: service_healthy
+      openzaak.local:
         condition: service_healthy
     profiles: ["zac"]

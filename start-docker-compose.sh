@@ -73,6 +73,7 @@ while getopts ':dmtzbloh' OPTION; do
     o)
       echo "Also starting OpenNotificaties"
       profiles+=("opennotificaties")
+      export OPENZAAK_NOTIFICATIONS_DISABLED=false
       ;;
     \?)
       echoerr "Error: Invalid option"
