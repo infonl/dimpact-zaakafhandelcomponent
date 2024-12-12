@@ -6,10 +6,7 @@ INSERT INTO catalogi_catalogus (naam, uuid, domein, rsin, contactpersoon_beheer_
 INSERT INTO authorizations_applicatie (uuid, client_ids, label, heeft_alle_autorisaties) VALUES (uuid_generate_v4(), '{zac_client}', 'ZAC', true);
 INSERT INTO authorizations_applicatie (uuid, client_ids, label, heeft_alle_autorisaties) VALUES (uuid_generate_v4(), '{open-zaak-autorisaties}', 'Open Zaak - Autorisaties', true);
 INSERT INTO authorizations_applicatie (uuid, client_ids, label, heeft_alle_autorisaties) VALUES (uuid_generate_v4(), '{opennotificaties}', 'Open notificaties', true);
--- Open Formulieren is not used yet in our Docker Compose set-up
---INSERT INTO authorizations_applicatie (uuid, client_ids, label, heeft_alle_autorisaties) VALUES (uuid_generate_v4(), '{openformulieren}', 'Open Formulieren', true);
 
 INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('zac_client', 'openzaakZaakafhandelcomponentClientSecret');
 INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('open-zaak-autorisaties', 'openZaakAutorisatiesApiSecretKey');
 INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('opennotificaties', 'openNotificatiesApiSecretKey');
-INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('openformulieren', 'openFormulierenApiSecretKey');
