@@ -12,6 +12,14 @@ INSERT INTO zgw_consumers_service (label, api_type, api_root, client_id, secret,
 -- Set up the Objecten service configuration.
 INSERT INTO zgw_consumers_service (label, api_type, api_root, client_id, secret, auth_type, header_key, header_value, oas, nlx, user_id, user_representation, oas_file, client_certificate_id, server_certificate_id, uuid) VALUES ('Objects API', 'orc', 'http://objecten-api.local:8000/api/v2/', '', '', 'api_key', 'Authorization', 'Token cd63e158f3aca276ef284e3033d020a22899c728', 'http://objecten-api.local:8000/api/v2/schema/openapi.yaml', '', '', '', '', NULL, NULL, '9fe5f3fb-a1f5-4ea5-a2fe-c5b1294da0f4');
 INSERT INTO zgw_consumers_service (label, api_type, api_root, client_id, secret, auth_type, header_key, header_value, oas, nlx, user_id, user_representation, oas_file, client_certificate_id, server_certificate_id, uuid) VALUES ('Objects API IntelliJ', 'orc', 'http://host.docker.internal:8010/api/v2/', '', '', 'api_key', 'Authorization', 'Token cd63e158f3aca276ef284e3033d020a22899c728', 'http://host.docker.internal:8010/api/v2/schema/openapi.yaml', '', '', '', '', NULL, NULL, '91a1cc84-7677-47b5-a6e2-f33aae89ff8f');
+-- Set up the OpenNotificaties service configuration.
+-- Unfortunately it seems that we need to use 'host.docker.internal' here to connect to Open Notificaties. Not sure why.
+-- Please see our 'testing.md' document on how to set this up.
+INSERT INTO zgw_consumers_service (label, api_type, api_root, client_id, secret, auth_type, header_key, header_value, oas, nlx, user_id, user_representation, oas_file, client_certificate_id, server_certificate_id, uuid) VALUES('Open Notificaties', 'nrc', 'http://host.docker.internal:8003/api/v1/', 'open-zaak-autorisaties', 'openZaakAutorisatiesApiSecretKey', 'zgw', '', '', 'http://host.docker.internal:8003/api/v1/schema/openapi.yaml', '', 'open-zaak-notificaties', 'Open Zaak - Notificaties', '', NULL, NULL, '031fe099-095b-4091-9f99-f81ef30561be');
+
+-- Set up the Notificatiescomponentconfiguratie
+-- we assume here that a record already exists with id=1 (this is provisioned by OpenNotificaties on startup)
+UPDATE notifications_api_common_notificationsconfig SET notifications_api_service_id=(SELECT id FROM zgw_consumers_service WHERE label = 'Open Notificaties'), notification_delivery_max_retries=5, notification_delivery_retry_backoff=3, notification_delivery_retry_backoff_max=48 WHERE id=1;
 
 -- Update the primary key sequences for the tables in which we previously inserted data using fixed primary key values
 -- so that new records inserted manually via the OpenZaak UI do not conflict with the records we inserted.
