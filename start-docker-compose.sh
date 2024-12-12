@@ -108,7 +108,7 @@ if [ "$pullZac" = "true" ]; then
     docker compose pull zac
 fi
 
-# Ensure that volume-data is created with current user
+# Ensure that Docker Compose volume-data directories are created with current user
 mkdir -p $volumeDataFolder/openklant-database-data
 mkdir -p $volumeDataFolder/openzaak-database-data
 mkdir -p $volumeDataFolder/opennotificaties-database-data
