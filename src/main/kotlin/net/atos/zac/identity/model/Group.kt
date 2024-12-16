@@ -26,7 +26,7 @@ data class Group(
 
 fun GroupRepresentation.toGroup(): Group =
     Group(
-        // TODO: there is also the Keycloak group id (= UUID). maybe we want to use that instead of the name
+        // better to rename 'id' field as 'name' and 'name' field as 'description'
         id = name,
         // maybe we want a separate description field in the Group class
         name = attributes?.get("description")?.single()?.toString() ?: name,
