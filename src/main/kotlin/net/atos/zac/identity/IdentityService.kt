@@ -37,20 +37,20 @@ class IdentityService @Inject constructor(
 
     fun readUser(userId: String): User = keycloakZacRealmResource.users()
         .search(userId).map { it.toUser() }.firstOrNull()
-        // TODO: is this fallback really needed? better to return null or throw a custom exception
+        // is this fallback really needed? better to return null or throw a custom exception
         ?: User(userId)
 
     fun readGroup(groupId: String): Group = keycloakZacRealmResource.groups()
         // retrieve groups with 'full representation' or else the group attributes will not be filled
         .groups(groupId, true, 0, 1, false)
         .firstOrNull()?.toGroup()
-        // TODO: is this fallback really needed? better to return null or throw a custom exception
+        // is this fallback really needed? better to return null or throw a custom exception
         ?: Group(groupId)
 
     fun listUsersInGroup(groupId: String): List<User> {
         val keycloakGroupId = keycloakZacRealmResource.groups()
             .groups(groupId, true, 0, 1, true)
-            // TODO: better throw a custom 'GroupNotFoundException' here
+            // better throw a custom 'GroupNotFoundException' here
             .firstOrNull()?.id ?: throw IdentityRuntimeException("Group with name '$groupId' not found in Keycloak")
         return keycloakZacRealmResource.groups()
             .group(keycloakGroupId)
