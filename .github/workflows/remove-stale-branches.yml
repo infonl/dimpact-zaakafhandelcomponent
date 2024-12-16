@@ -17,7 +17,7 @@ jobs:
     name: remove stale branches
     steps:
       - name: remove stale branches
-        uses: techdecember/github-action-inactive-branches@7aca3178001bdbff984c3eeb3eeb0f972bd75ae4 # v1.2.1
+        uses: techdecember/github-action-inactive-branches@7aca3178001bdbff984c3eeb3eeb0f972bd75ae4 # 1.2.1
         id: deleted_branches
         with:
           github_token: ${{ github.token }}
