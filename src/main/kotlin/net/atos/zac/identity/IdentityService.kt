@@ -11,7 +11,8 @@ import jakarta.inject.Named
 import net.atos.zac.identity.exception.IdentityRuntimeException
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
-import net.atos.zac.identity.model.getFullName
+import net.atos.zac.identity.model.toGroup
+import net.atos.zac.identity.model.toUser
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
@@ -80,31 +81,12 @@ class IdentityService @Inject constructor(
         Context.SECURITY_CREDENTIALS to ldapPassword
     )
 
-    fun listUsers(): List<User> {
-        LOG.info {
-            "Keycloak users in realm '${keycloakZacRealmResource.toRepresentation().realm}': " +
-                "${keycloakZacRealmResource.users().list().map { it.username }}"
-        }
-        return search(
-            root = usersDN,
-            filter = Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS)),
-            attributesToReturn = USER_ATTRIBUTES
-        ).map { it.toUser() }
-            .sortedBy { it.getFullName() }
-    }
+    fun listUsers(): List<User> = keycloakZacRealmResource.users().list().map { it.toUser() }
 
-    fun listGroups(): List<Group> {
-        LOG.info {
-            "Keycloak groups in realm '${keycloakZacRealmResource.toRepresentation().realm}': " +
-                "${keycloakZacRealmResource.groups().groups().map { it.name }}"
-        }
-        return search(
-            root = groupsDN,
-            filter = Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS)),
-            attributesToReturn = GROUP_ATTRIBUTES
-        ).map { it.toGroup() }
-            .sortedBy { it.name }
-    }
+    fun listGroups(): List<Group> = keycloakZacRealmResource.groups()
+            // retrieve groups with 'full representation' or else we will not have the group attributes
+            .groups("", 0, Integer.MAX_VALUE, false)
+            .map { it.toGroup() }
 
     fun readUser(userId: String): User =
         search(
@@ -128,40 +110,13 @@ class IdentityService @Inject constructor(
         ).map { it.toGroup() }
             .firstOrNull() ?: Group(groupId)
 
-    fun listUsersInGroup(groupName: String): List<User> {
+    fun listUsersInGroup(groupId: String): List<User> {
         val keycloakGroupId = keycloakZacRealmResource
             .groups()
             .groups()
-            .firstOrNull { it.name == groupName }?.id ?: throw IdentityRuntimeException("Group '$groupName' not found in Keycloak")
-        val keycloakUsersInGroup = keycloakZacRealmResource.groups().group(keycloakGroupId).members()
-        LOG.info { "Keycloak users in group '$groupName': ${keycloakUsersInGroup.map { it.username }}" }
-
-        return search(
-            root = groupsDN,
-            filter = Filter.createANDFilter(
-                Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
-                Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupName)
-            ),
-            attributesToReturn = GROUP_MEMBERSHIP_ATTRIBUTES
-        ).map { this.convertToMembers(it) }
-            .flatMap { this.readUsers(it) }
+            .firstOrNull { it.name == groupId }?.id ?: throw IdentityRuntimeException("Group with name '$groupId' not found in Keycloak")
+        return keycloakZacRealmResource.groups().group(keycloakGroupId).members().map { it.toUser() }
     }
-
-    private fun readUsers(userIds: Collection<String>): List<User> =
-        search(
-            root = usersDN,
-            filter = Filter.createANDFilter(
-                Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS),
-                Filter.createORFilter(
-                    userIds.map { Filter.createEqualityFilter(USER_ID_ATTRIBUTE, it) }
-                )
-            ),
-            attributesToReturn = USER_ATTRIBUTES
-        ).map { it.toUser() }
-
-    private fun convertToMembers(attributes: Attributes): List<String> =
-        readAttributeToListOfStrings(attributes)
-            .mapNotNull { StringUtils.substringBetween(it, "cn=", ",") }
 
     private fun search(
         root: String,
@@ -197,11 +152,6 @@ class IdentityService @Inject constructor(
         val attribute = attributes[attributeName]
         return attribute?.get()?.toString()
     }
-
-    private fun readAttributeToListOfStrings(attributes: Attributes): List<String> =
-        attributes[GROUP_MEMBER_ATTRIBUTE]?.all?.toList()?.map {
-            it.toString()
-        } ?: emptyList()
 
     private fun Attributes.toUser(): User {
         val userID = readAttributeToString(this, USER_ID_ATTRIBUTE)

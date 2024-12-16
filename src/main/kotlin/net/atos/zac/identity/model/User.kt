@@ -4,6 +4,8 @@
  */
 package net.atos.zac.identity.model
 
+import org.keycloak.representations.idm.UserRepresentation
+
 open class User(
     val id: String,
     val firstName: String? = null,
@@ -36,3 +38,14 @@ fun User.getFullName(): String =
         !lastName.isNullOrBlank() -> lastName
         else -> id
     }
+
+fun UserRepresentation.toUser(): User =
+    User(
+        // we use the username as the user id and not the internal Keycloak user id
+        id = username,
+        firstName = firstName,
+        lastName = lastName,
+        // note that we do not support infixes (tussenvoegsels) (yet)
+        fullName = "$firstName $lastName",
+        email = email
+    )
