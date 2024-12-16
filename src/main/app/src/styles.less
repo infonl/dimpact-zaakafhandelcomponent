@@ -478,12 +478,10 @@ mat-icon[outlined] {
   }
 }
 
-mat-form-field {
-  &:has(mat-hint) {
-    margin-bottom: 22px;
-  }
-}
+.zaak-create-form form > .flex-row > div.mfb-wrapper.autocomplete:first-child {
+  margin-bottom: 22px;
 
-mat-hint {
-  color: var(--mdc-filled-text-field-label-text-color);
+  & mat-hint {
+    color: var(--mdc-filled-text-field-label-text-color);
+  }
 }
