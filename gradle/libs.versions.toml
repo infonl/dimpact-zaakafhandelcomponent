@@ -37,7 +37,6 @@ flyway = "11.0.1"
 apache-solr = "9.7.0"
 webdav-servlet = "1.2.104"
 htmlcleaner = "2.29"
-unboundid = "7.0.2"
 swagger = "5.18.2"
 infinispan = "15.0.11.Final"
 apache-httpclient = "4.5.14"
@@ -98,7 +97,6 @@ flyway-postgresql = { group = "org.flywaydb", name = "flyway-database-postgresql
 apache-solr = { group = "org.apache.solr", name = "solr-solrj", version.ref = "apache-solr" }
 webdav-servlet = { group = "nl.info.webdav", name = "webdav-servlet", version.ref = "webdav-servlet" }
 htmlcleaner = { group = "net.sourceforge.htmlcleaner", name = "htmlcleaner", version.ref = "htmlcleaner" }
-unboundid-ldapsdk = { group = "com.unboundid", name = "unboundid-ldapsdk", version.ref = "unboundid" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlin-csv-jvm = { group = "com.github.doyaaaaaken", name = "kotlin-csv-jvm", version.ref = "kotlin-csv" }
 

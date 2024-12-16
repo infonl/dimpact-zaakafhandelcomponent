@@ -123,7 +123,6 @@ dependencies {
     implementation(libs.apache.solr)
     implementation(libs.webdav.servlet)
     implementation(libs.htmlcleaner)
-    implementation(libs.unboundid.ldapsdk)
     implementation(libs.caffeine)
     implementation(libs.jackson.core)
     implementation(libs.jackson.annotations)
