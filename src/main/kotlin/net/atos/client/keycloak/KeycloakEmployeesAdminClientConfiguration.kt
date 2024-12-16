@@ -36,12 +36,8 @@ class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
     @Produces
     @Named("keycloakZacRealmResource")
     fun build(): RealmResource {
-        LOG.info(
-            """
-                Building Keycloak admin client using: url: '$keycloakUrl', realm: '$realmName', 
-                clientid: '$clientId', clientsecret: '*******'
-            """.trimIndent()
-        )
+        LOG.info("Building Keycloak admin client using: url: '$keycloakUrl', realm: '$realmName', " +
+                "client id: '$clientId', client secret: '*******'")
         return KeycloakBuilder.builder()
             .serverUrl(keycloakUrl)
             .realm(realmName)

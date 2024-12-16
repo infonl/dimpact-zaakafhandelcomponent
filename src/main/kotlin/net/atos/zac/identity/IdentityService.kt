@@ -81,7 +81,7 @@ class IdentityService @Inject constructor(
     )
 
     fun listUsers(): List<User> {
-        LOG.info { "Keycloak users: ${keycloakZacRealmResource.users()}" }
+        LOG.info { "All Keycloak users: ${keycloakZacRealmResource.users().list().map { it.username }}" }
         return search(
             root = usersDN,
             filter = Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS)),
@@ -120,14 +120,19 @@ class IdentityService @Inject constructor(
         ).map { it.toGroup() }
             .firstOrNull() ?: Group(groupId)
 
-    fun listUsersInGroup(groupId: String): List<User> {
-        LOG.info { "All Keycloak users: ${keycloakZacRealmResource.users().list()}" }
+    fun listUsersInGroup(groupName: String): List<User> {
+        val keycloakGroupId = keycloakZacRealmResource
+            .groups()
+            .groups()
+            .firstOrNull { it.name == groupName }?.id ?: throw IdentityRuntimeException("Group '$groupName' not found in Keycloak")
+        val keycloakUsersInGroup = keycloakZacRealmResource.groups().group(keycloakGroupId).members()
+        LOG.info { "Keycloak users in group '$groupName': ${keycloakUsersInGroup.map { it.username }}" }
 
         return search(
             root = groupsDN,
             filter = Filter.createANDFilter(
                 Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS),
-                Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupId)
+                Filter.createEqualityFilter(GROUP_ID_ATTRIBUTE, groupName)
             ),
             attributesToReturn = GROUP_MEMBERSHIP_ATTRIBUTES
         ).map { this.convertToMembers(it) }
