@@ -30,9 +30,10 @@ FEATURE_FLAG_BPMN_SUPPORT=false
 GEMEENTE_CODE=password
 GEMEENTE_MAIL=op://Dimpact/ZAC-.env-$APP_ENV/GEMEENTE/MAIL
 GEMEENTE_NAAM=DummyGemeente
+# TODO: need to manually create this client in Keycloak first and then get the secret
+# provision realm with secret..
 KEYCLOAK_ADMIN_CLIENT_ID=zaakafhandelcomponent-admin-client
-# TODO: provision realm with secret..
-KEYCLOAK_ADMIN_CLIENT_SECRET=XXX
+KEYCLOAK_ADMIN_CLIENT_SECRET=Oe4nM5LwS6Q1m7H5nB3EvK3VdOmIXtFH
 KLANTINTERACTIES_API_CLIENT_MP_REST_URL=http://localhost:8002
 KLANTINTERACTIES_API_TOKEN=dummyToken
 KVK_API_CLIENT_MP_REST_URL=op://Dimpact/ZAC-.env-$APP_ENV/KVK/API_CLIENT_MP_REST_URL
