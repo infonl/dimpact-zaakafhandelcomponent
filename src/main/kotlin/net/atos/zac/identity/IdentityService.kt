@@ -24,27 +24,38 @@ class IdentityService @Inject constructor(
     @Named("keycloakZacRealmResource")
     private val keycloakZacRealmResource: RealmResource
 ) {
-    fun listUsers(): List<User> = keycloakZacRealmResource.users().list().map { it.toUser() }
+    fun listUsers(): List<User> = keycloakZacRealmResource.users()
+        .list()
+        .map { it.toUser() }
+        .sortedBy { it.fullName }
 
     fun listGroups(): List<Group> = keycloakZacRealmResource.groups()
         // retrieve groups with 'full representation' or else the group attributes will not be filled
         .groups("", 0, Integer.MAX_VALUE, false)
         .map { it.toGroup() }
+        .sortedBy { it.name }
 
     fun readUser(userId: String): User = keycloakZacRealmResource.users()
-        .search(userId).map { it.toUser() }.firstOrNull() ?: User(userId)
+        .search(userId).map { it.toUser() }.firstOrNull()
+        // TODO: is this fallback really needed? better to return null or throw a custom exception
+        ?: User(userId)
 
     fun readGroup(groupId: String): Group = keycloakZacRealmResource.groups()
+        // retrieve groups with 'full representation' or else the group attributes will not be filled
         .groups(groupId, true, 0, 1, false)
-        .firstOrNull()?.toGroup() ?: Group(groupId)
+        .firstOrNull()?.toGroup()
+        // TODO: is this fallback really needed? better to return null or throw a custom exception
+        ?: Group(groupId)
 
     fun listUsersInGroup(groupId: String): List<User> {
-        val keycloakGroupId = keycloakZacRealmResource
-            .groups()
-            .groups()
-            .firstOrNull {
-                it.name == groupId
-            }?.id ?: throw IdentityRuntimeException("Group with name '$groupId' not found in Keycloak")
-        return keycloakZacRealmResource.groups().group(keycloakGroupId).members().map { it.toUser() }
+        val keycloakGroupId = keycloakZacRealmResource.groups()
+            .groups(groupId, true, 0, 1, true)
+            // TODO: better throw a custom 'GroupNotFoundException' here
+            .firstOrNull()?.id ?: throw IdentityRuntimeException("Group with name '$groupId' not found in Keycloak")
+        return keycloakZacRealmResource.groups()
+            .group(keycloakGroupId)
+            .members()
+            .map { it.toUser() }
+            .sortedBy { it.fullName }
     }
 }
