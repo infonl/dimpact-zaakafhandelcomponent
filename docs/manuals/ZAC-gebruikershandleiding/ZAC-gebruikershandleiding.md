@@ -253,7 +253,7 @@ Deze werklijst geeft inzicht in alle afgehandelde zaken van de organisatie. Een 
 
 **_Mijn zaken_**
 
-Met de werklijst Mijn zaken' zijn alle lopende zaken die op naam van de ingelogde gebruiker staan in een overzicht in te zien.
+Met de werklijst 'Mijn zaken' zijn alle lopende zaken die op naam van de ingelogde gebruiker staan in een overzicht in te zien.
 
 Alle door een gebruiker afgehandelde zaken zijn in te zien door de werklijst ‘Afgehandelde zaken’ te gebruiken met daarin een filter op Behandelaar.
 
@@ -511,7 +511,7 @@ Het is ook mogelijk een locatie te verwijderen.
 
 Als de streef- en fatale datum van een zaak aanwezig zijn, kunnen deze eenmalig vanuit de zaakgegevenspagina opgeschort worden. De behandelaar kan zelf de verwachte duur (in kalenderdagen) van de opschorting invullen waarmee het systeem de nieuwe verwachte streef- en fatale datum berekent. De zaak kan daarna door de behandelaar hervat worden waarna het werkelijke aantal dagen dat de opschorting heeft geduurd bij de oorspronkelijke streef- en fatale datum wordt opgeteld.
 
-Merk op: een zaak kan ook opgeschort worden via het starten van de ‘Aanvullende informatie opvragen’ taak.
+Merk op: een zaak kan ook opgeschort worden via het starten van de ‘Aanvullende informatie opvragen’ taak, als niet eerder een opschort actie is uitgevoerd.
 
 De opschorten-knop bevindt zich in het datumblok van het tabblad ‘Gegevens’ en is herkenbaar aan het afspelen icoon (de zaakdoorlooptijd loopt en is aan het ‘afspelen’). Zodra met de muisaanwijzer boven de knop gezweefd wordt, verandert het icoon in de pauze en daarmee de opschorten-knop.
 ![Zaak opschorten](./images/zaak-opschorten.png)
@@ -532,7 +532,7 @@ Merk op: een zaak kan ook hervat worden bij het afronden van de ‘Aanvullende i
 
 **Stappen:**
 
-1 In een zaak in het tabblad ‘Gegevns’ ga je met je muisaanwijzer naar het pauze icoon. Deze verandert in het afspelen icoon zodra je erop staat, hier klik je op.
+1 In een zaak in het tabblad ‘Gegevens’ ga je met je muisaanwijzer naar het pauze icoon. Deze verandert in het afspelen icoon zodra je erop staat, hier klik je op.
 
 2 Vul de reden voor het hervatten in. Standaard wordt hier de reden die bij het opschorten was opgegeven al ingevuld.
 
