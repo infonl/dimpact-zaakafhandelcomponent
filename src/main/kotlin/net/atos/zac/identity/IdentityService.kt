@@ -81,7 +81,10 @@ class IdentityService @Inject constructor(
     )
 
     fun listUsers(): List<User> {
-        LOG.info { "All Keycloak users: ${keycloakZacRealmResource.users().list().map { it.username }}" }
+        LOG.info {
+            "Keycloak users in realm '${keycloakZacRealmResource.toRepresentation().realm}': " +
+                "${keycloakZacRealmResource.users().list().map { it.username }}"
+        }
         return search(
             root = usersDN,
             filter = Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, USER_OBJECT_CLASS)),
@@ -90,13 +93,18 @@ class IdentityService @Inject constructor(
             .sortedBy { it.getFullName() }
     }
 
-    fun listGroups(): List<Group> =
-        search(
+    fun listGroups(): List<Group> {
+        LOG.info {
+            "Keycloak groups in realm '${keycloakZacRealmResource.toRepresentation().realm}': " +
+                "${keycloakZacRealmResource.groups().groups().map { it.name }}"
+        }
+        return search(
             root = groupsDN,
             filter = Filter.createANDFilter(Filter.createEqualityFilter(OBJECT_CLASS_ATTRIBUTE, GROUP_OBJECT_CLASS)),
             attributesToReturn = GROUP_ATTRIBUTES
         ).map { it.toGroup() }
             .sortedBy { it.name }
+    }
 
     fun readUser(userId: String): User =
         search(
