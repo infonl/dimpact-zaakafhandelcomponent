@@ -4,7 +4,7 @@ This document describes how to update dependencies in ZAC and (OpenAPI) API spec
 
 ## Updating dependencies in ZAC
 
-This is normally done by GitHub Dependabot using the Dependabot workflows in the project.
+This is normally done by Renovate using the installed github app in in the project.
 This includes updating of backend (Java), frontend (TypeScript) as well as GitHub Action and Docker dependencies.
 
 ## Updating docker-compose images
@@ -83,9 +83,9 @@ and performing manual testing as well as by running our automated tests.
 
 ## Upgrading Angular
 
-Depandabot creates pull requests for all Angular dependencies that are behind, but Angular dependencies have to be updated in a specific order and angular provides migration tools with `ng update`.
+Renovate creates pull requests for all Angular dependencies that are behind, but Angular dependencies have to be updated in a specific order and angular provides migration tools with `ng update`.
 
-So for Angular dependencies we have to update them manually and commit them to the repository, then Dependabot will remove its pull requests.
+So for Angular dependencies we have to update them manually and commit them to the repository, then Renovate will remove its pull requests.
 
 ### Prerequisites
 
