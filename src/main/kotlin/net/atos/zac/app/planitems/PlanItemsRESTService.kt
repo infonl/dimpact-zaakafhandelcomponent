@@ -44,6 +44,7 @@ import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.util.time.DateTimeConverterUtil
+import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -78,6 +79,7 @@ class PlanItemsRESTService @Inject constructor(
     private var policyService: PolicyService,
     private var suspensionZaakHelper: SuspensionZaakHelper,
     private var restMailGegevensConverter: RESTMailGegevensConverter,
+    private var zaakService: ZaakService
 ) {
 
     companion object {
@@ -226,7 +228,7 @@ class PlanItemsRESTService @Inject constructor(
                 )
                 zaakVariabelenService.setOntvankelijk(planItemInstance, userEventListenerData.zaakOntvankelijk)
                 if (!userEventListenerData.zaakOntvankelijk) {
-                    policyService.checkZaakAfsluitbaar(zaak)
+                    zaakService.checkZaakAfsluitbaar(zaak)
                     val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
                         zaak.zaaktype.extractUuid()
                     )
@@ -239,7 +241,7 @@ class PlanItemsRESTService @Inject constructor(
             }
 
             UserEventListenerActie.ZAAK_AFHANDELEN -> {
-                policyService.checkZaakAfsluitbaar(zaak)
+                zaakService.checkZaakAfsluitbaar(zaak)
                 if (!brcClientService.listBesluiten(zaak).isEmpty()) {
                     val resultaat = zrcClientService.readResultaat(zaak.resultaat)
                     resultaat.toelichting = userEventListenerData.resultaatToelichting

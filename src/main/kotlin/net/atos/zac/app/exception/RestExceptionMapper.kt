@@ -34,6 +34,8 @@ import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import net.atos.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
+import net.atos.zac.zaak.exception.CaseHasLockedInformationObjectsException
+import net.atos.zac.zaak.exception.CaseHasOpenSubcasesException
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException
@@ -53,7 +55,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
     /**
      * Converts an exception to a JAX-RS response depending on the exception type.
      */
-    @Suppress("CyclomaticComplexMethod")
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
     override fun toResponse(exception: Exception): Response =
         when {
             exception is WebApplicationException &&
@@ -111,6 +113,16 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             exception is BetrokkeneIsAlreadyAddedToZaakException -> generateResponse(
                 responseStatus = Response.Status.CONFLICT,
                 errorCode = ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK,
+                exception = exception
+            )
+            exception is CaseHasLockedInformationObjectsException -> generateResponse(
+                responseStatus = Response.Status.BAD_REQUEST,
+                errorCode = ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS,
+                exception = exception
+            )
+            exception is CaseHasOpenSubcasesException -> generateResponse(
+                responseStatus = Response.Status.BAD_REQUEST,
+                errorCode = ERROR_CODE_CASE_HAS_OPEN_SUBCASES,
                 exception = exception
             )
             // fall back to generic server error

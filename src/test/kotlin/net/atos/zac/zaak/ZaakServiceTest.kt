@@ -27,6 +27,7 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.app.klant.model.klant.IdentificatieType
+import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.identity.model.createGroup
@@ -41,10 +42,13 @@ class ZaakServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
+    val lockService = mockk<EnkelvoudigInformatieObjectLockService>()
+
     val zaakService = ZaakService(
         eventingService = eventingService,
         zrcClientService = zrcClientService,
-        ztcClientService = ztcClientService
+        ztcClientService = ztcClientService,
+        lockService = lockService,
     )
     val explanation = "dummyExplanation"
     val screenEventResourceId = "dummyResourceId"
