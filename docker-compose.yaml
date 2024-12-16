@@ -95,8 +95,8 @@ services:
   openzaak.local:
     image: docker.io/openzaak/open-zaak:1.15.0@sha256:281450b155d7bd5dc3f910a329f50ae76f49b7db3762e699183921787b724650
     platform: linux/amd64
-    environment:
-      - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local
+    environment: &openzaak-env
+      - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local,opennotificaties
       - DB_HOST=openzaak-database
       - DB_NAME=openzaak
       - DB_PASSWORD=openzaak
@@ -108,22 +108,52 @@ services:
       - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
       - DJANGO_SUPERUSER_PASSWORD=admin
       - LOG_LEVEL=DEBUG
-      - NOTIFICATIONS_DISABLED=true
+      - NOTIFICATIONS_DISABLED=${OPENZAAK_NOTIFICATIONS_DISABLED:-true}
       - OPENZAAK_SUPERUSER_USERNAME=admin
       - OPENZAAK_SUPERUSER_EMAIL=noreply@example.com
       - SECRET_KEY=openZaakSecretKey
       - SENDFILE_BACKEND=django_sendfile.backends.simple
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - CELERY_LOGLEVEL=DEBUG
     ports:
       - "8001:8000"
     volumes:
       - ./scripts/docker-compose/imports/openzaak/zac-scripts:/zac-scripts
       - ./scripts/docker-compose/imports/openzaak/uploads/dummy-test-document.pdf:/dummy-test-document.pdf
     command: ["/zac-scripts/copy-test-pdf-and-start-openzaak.sh"]
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # This should allow for enough time for migrations to run before the max
+      # retries have passed. This healthcheck in turn allows other containers
+      # to wait for the database migrations.
+      start_period: 30s
     depends_on:
       openzaak-database:
         condition: service_healthy
       redis:
         condition: service_started
+
+  # Open Zaak Celery worker
+  # Used for sending notifications from Open Zaak to Open Notificaties
+  openzaak-celery:
+    image: docker.io/openzaak/open-zaak:1.15.0@sha256:281450b155d7bd5dc3f910a329f50ae76f49b7db3762e699183921787b724650
+    platform: linux/amd64
+    environment: *openzaak-env
+    command: /celery_worker.sh
+    healthcheck:
+      test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      openzaak.local:
+        condition: service_healthy
+    profiles: [ "opennotificaties" ]
 
   redis:
     image: redis:7.4.1@sha256:ea96c435dc17b011f54c6a883c3c45e7726242b075de61c6fe40a10ae6ae0f83
@@ -453,6 +483,94 @@ services:
       - "18083:8080"
     profiles: [ "itest" ]
 
+  rabbitmq:
+    image: rabbitmq:4.0.4-alpine@sha256:575de299f2c4f10006079e013987a5985b0cb8a6a450435fddfb7e60b248dcd1
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    profiles: [ "opennotificaties" ]
+
+  opennotificaties-database:
+    image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
+    ports:
+      - "54327:5432"
+    platform: linux/amd64
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    environment:
+      - POSTGRES_USER=opennotificaties
+      - POSTGRES_PASSWORD=opennotificaties
+      - POSTGRES_DB=opennotificaties
+    volumes:
+      - ./scripts/docker-compose/imports/opennotificaties-database:/docker-entrypoint-initdb.d
+      - ./scripts/docker-compose/volume-data/opennotificaties-database-data:/var/lib/postgresql/data
+    profiles: [ "opennotificaties" ]
+
+  opennotificaties:
+    image: docker.io/openzaak/open-notificaties:1.7.1@sha256:feaf6f1da046bd4a8beb727563deda171fc66bc68371fd6f9192cbb1ceee9e6f
+    platform: linux/amd64
+    environment: &opennotificaties-env
+      - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local,zac
+      - CACHE_DEFAULT=redis:6379/0
+      - CACHE_AXES=redis:6379/0
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - CELERY_LOGLEVEL=DEBUG
+      - DB_HOST=opennotificaties-database
+      - DB_NAME=opennotificaties
+      - DB_PASSWORD=opennotificaties
+      - DB_USER=opennotificaties
+      - DEBUG=true
+      - DISABLE_2FA=true
+      - DJANGO_SETTINGS_MODULE=nrc.conf.docker
+      - DJANGO_SUPERUSER_PASSWORD=admin
+      - LOG_LEVEL=DEBUG
+      - LOG_NOTIFICATIONS_IN_DB=true
+      - PUBLISH_BROKER_URL=amqp://guest:guest@rabbitmq:5672/%2F
+      - RABBITMQ_HOST=rabbitmq
+      - SECRET_KEY=opennotificatiesApiSecretKey
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # This should allow for enough time for migrations to run before the max
+      # retries have passed. This healthcheck in turn allows other containers
+      # to wait for the database migrations.
+      start_period: 30s
+    ports:
+      - "8003:8000"
+    depends_on:
+      opennotificaties-database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+    profiles: [ "opennotificaties" ]
+
+  opennotificaties-celery:
+    image: docker.io/openzaak/open-notificaties:1.7.1@sha256:feaf6f1da046bd4a8beb727563deda171fc66bc68371fd6f9192cbb1ceee9e6f
+    platform: linux/amd64
+    environment: *opennotificaties-env
+    command: /celery_worker.sh
+    healthcheck:
+      test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    depends_on:
+        opennotificaties:
+            condition: service_healthy
+    profiles: [ "opennotificaties" ]
+
   zac:
     # By default, we use the most recent ZAC Docker Image. Change this if you wish to use a specific version.
     image: ${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:latest}
@@ -532,5 +650,7 @@ services:
           memory: 4G
     depends_on:
       zac-database:
+        condition: service_healthy
+      openzaak.local:
         condition: service_healthy
     profiles: ["zac"]

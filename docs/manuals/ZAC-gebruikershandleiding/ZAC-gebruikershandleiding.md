@@ -1114,14 +1114,17 @@ Of een besluit kan worden vastgelegd is afhankelijk van of dit is ingesteld bij 
 
 4 Op basis van het gekozen resultaat bepaalt het systeem of de vervaldatum van het besluit verplicht moet worden ingevuld. Vul de ingangsdatum en, indien bekend, de vervaldatum van het besluit in.
 
-5 Selecteer het document waarin het besluit is opgenomen. Alleen documenttypen waarvan bij het besluittype is ingesteld dat deze gekozen mogen worden verschijnen in het overzicht.
+5 Op basis van het geselecteerde beslissingstype bepaalt het systeem of publicatie- en uiterlijke reactiedatum kunnen worden gebruikt en vult deze vooraf in. Vul de effectieve publicatie- en uiterlijke reactiedatum in, indien deze afwijken van de standaard. 
+>De uiterlijke reactiedatum van het besluit kan niet eerder worden ingesteld dan de gedefinieerde reactietermijn 
+
+6 Selecteer het document waarin het besluit is opgenomen. Alleen documenttypen waarvan bij het besluittype is ingesteld dat deze gekozen mogen worden verschijnen in het overzicht.
 ![Besluit vastleggen](./images/besluit-vastleggen.png)
 
 >Dit document is te koppelen omdat het documenttype ‘Besluit’ aan het besluittype ‘BesluitType1’ is gekoppeld!
 
-6 Klik op ‘Aanmaken’ om het besluit vast te leggen
+7 Klik op ‘Aanmaken’ om het besluit vast te leggen
 
-7 Om eventueel een volgend besluit vast te leggen herhaal je de voorgaande stappen. Bij een volgend besluit is het eerder vastgelegde resultaat al voor ingevuld.
+8 Om eventueel een volgend besluit vast te leggen herhaal je de voorgaande stappen. Bij een volgend besluit is het eerder vastgelegde resultaat al voor ingevuld.
 
 Nadat het besluit is aangemaakt wordt deze naast het blok met zaakgegevens weergegeven. Als er meerdere besluiten zijn toegevoegd dan is de meest recent toegevoegde opengeklapt en staan de oudere besluiten eronder. Deze kunnen opengeklapt worden door er op te klikken.
 

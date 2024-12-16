@@ -1,13 +1,9 @@
-#
-# SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
-# SPDX-License-Identifier: EUPL-1.2+
-#
 dependencies:
 - name: opentelemetry-collector
   repository: https://open-telemetry.github.io/opentelemetry-helm-charts
   version: 0.55.2
 - name: solr
   repository: https://charts.bitnami.com/bitnami
-  version: 9.1.3
-digest: sha256:3d37697e16224c88e9cddc31891d4dbc17dfa0177dd521efe3c63f987cbbad6f
-generated: "2024-07-16T11:09:16.302210768+02:00"
+  version: 9.1.6
+digest: sha256:ff78453ea899523dd5070afbd7fba46baa1513a9776af228883a88a4238a02f6
+generated: "2024-12-12T19:28:33.809169676Z"
