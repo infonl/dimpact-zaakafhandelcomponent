@@ -198,11 +198,6 @@ Voor nu worden de volgende onderdelen gecheckt:
   - Informatieobjecttype | er wordt voor de werking van de ZAC gecheckt of het zaaktype aan de vereiste informatieobjecttypen is gekoppeld. Dit is momenteel ‘e-mail’ dat gebruikt wordt voor het als document toevoegen van vanuit de ZAC verzonden e-mails.
   - Besluittype | er wordt gecheckt of aan het zaaktype een besluittype is gekoppeld. Dit gebeurt alleen als aan het zaaktype een resultaattype is toegevoegd dat als afleidingswijze de begin- of vervaldatum van een besluit heeft.
 
-### Referentielijsten en selectielijst inrichtingscheck
-Hier kan gecheckt worden of de voor de ZAC benodigde inrichting in de referentielijsten en selectielijsten correct is. Er wordt hier een validatie uitgevoerd tussen de ZAC en de referentielijsten en selectielijsten implementatie.
-Voor nu worden de volgende onderdelen gecheckt:
-  - Communicatiekanaal | er wordt gecheckt of het kanaal ‘E-formulier’ is toegevoegd. Deze is alleen vereist als er via Open Formulieren productaanvragen worden aangemaakt waarvoor de ZAC zaken voor aan moet maken.
-
 ## Signaleringen
 De ZAC heeft naast signaleringen voor gebruikers, die in de gebruikershandleiding worden beschreven, ook signaleringen voor groepen. Deze kunnen worden verstuurd wanneer een zaak niet op naam van een behandelaar maar alleen op naam van een groep staan.
 

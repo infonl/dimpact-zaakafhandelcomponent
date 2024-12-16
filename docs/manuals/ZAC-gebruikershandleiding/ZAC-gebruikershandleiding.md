@@ -6,8 +6,8 @@
 ***
 > **Colofon** <br>
 > Datum : 19-8-2024 <br>
-> Versie :   1.6.0 <br>
-> Verandering : vertaling naar Markdown <br>
+> Versie :   1.6.1 <br>
+> Verandering : Toevoeging indicaties voor personen <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -28,6 +28,7 @@ Versiegeschiedenis:
 | 1.5   | Update nav sprints opgeleverd van 10-2023 tot 27-05-2024                                                                                   |
 | 1.5.1 | Update zoekfunctie bedrijf en rechtspersoon                                                                                                |
 | 1.6.0 | Gebruikershandleiding geconverteerd naar Markdown                                                                                          |
+| 1.6.1 | Toevoeging indicaties voor personen |
 
 <div style="page-break-after: always"></div>
 
@@ -252,7 +253,7 @@ Deze werklijst geeft inzicht in alle afgehandelde zaken van de organisatie. Een 
 
 **_Mijn zaken_**
 
-Met de werklijst Mijn zaken' zijn alle lopende zaken die op naam van de ingelogde gebruiker staan in een overzicht in te zien.
+Met de werklijst 'Mijn zaken' zijn alle lopende zaken die op naam van de ingelogde gebruiker staan in een overzicht in te zien.
 
 Alle door een gebruiker afgehandelde zaken zijn in te zien door de werklijst ‘Afgehandelde zaken’ te gebruiken met daarin een filter op Behandelaar.
 
@@ -510,7 +511,7 @@ Het is ook mogelijk een locatie te verwijderen.
 
 Als de streef- en fatale datum van een zaak aanwezig zijn, kunnen deze eenmalig vanuit de zaakgegevenspagina opgeschort worden. De behandelaar kan zelf de verwachte duur (in kalenderdagen) van de opschorting invullen waarmee het systeem de nieuwe verwachte streef- en fatale datum berekent. De zaak kan daarna door de behandelaar hervat worden waarna het werkelijke aantal dagen dat de opschorting heeft geduurd bij de oorspronkelijke streef- en fatale datum wordt opgeteld.
 
-Merk op: een zaak kan ook opgeschort worden via het starten van de ‘Aanvullende informatie opvragen’ taak.
+Merk op: een zaak kan ook opgeschort worden via het starten van de ‘Aanvullende informatie opvragen’ taak, als niet eerder een opschortingsactie is uitgevoerd.
 
 De opschorten-knop bevindt zich in het datumblok van het tabblad ‘Gegevens’ en is herkenbaar aan het afspelen icoon (de zaakdoorlooptijd loopt en is aan het ‘afspelen’). Zodra met de muisaanwijzer boven de knop gezweefd wordt, verandert het icoon in de pauze en daarmee de opschorten-knop.
 ![Zaak opschorten](./images/zaak-opschorten.png)
@@ -531,7 +532,7 @@ Merk op: een zaak kan ook hervat worden bij het afronden van de ‘Aanvullende i
 
 **Stappen:**
 
-1 In een zaak in het tabblad ‘Gegevns’ ga je met je muisaanwijzer naar het pauze icoon. Deze verandert in het afspelen icoon zodra je erop staat, hier klik je op.
+1 In een zaak in het tabblad ‘Gegevens’ ga je met je muisaanwijzer naar het pauze icoon. Deze verandert in het afspelen icoon zodra je erop staat, hier klik je op.
 
 2 Vul de reden voor het hervatten in. Standaard wordt hier de reden die bij het opschorten was opgegeven al ingevuld.
 
@@ -707,6 +708,17 @@ De initiator bij een zaak is bovenaan het zaakgegevensscherm te vinden. Als er g
 
 Als een zaak wel een initiator heeft toegekend dan kan deze gewijzigd worden met het ‘Initiator wijzigen’ icoon, deze is dan beschikbaar in plaats van het ‘initiator toekennen’ icoon.
 ![Initiator wijzigen](./images/initiator-wijzigen.png)
+
+Als relevant voor de toegekende initiator zal er een inidicatie zichtbaar worden in de vorm van een icoon. De volgende indicatoren zijn er mogelijk:
+ - In onderzoek
+ - Geheimhouding op persoonsgegevens
+ - Overleden
+ - Niet-ingezetene
+ - Onder curatele
+ - Blokkering vanwege verhuizing
+ - Opschorten bijhouden
+ 
+![Initiator indicatie](./images/Inidicator-initiator.png)
 
 >Het telefoonnummer en e-mailadres van de initiator komen uit een andere bron dan de persoonsgegevens en zijn niet altijd aanwezig!
 
