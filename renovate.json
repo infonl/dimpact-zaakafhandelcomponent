@@ -1,17 +1,22 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended",
+    "config:best-practices",
+    "helpers:pinGitHubActionDigestsToSemver",
     ":separateMultipleMajorReleases",
+    ":separateMultipleMinorReleases",
+    ":separatePatchReleases",
+    ":pinDependencies",
+    ":maintainLockFilesWeekly",
     ":automergeDigest",
     "docker:pinDigests",
     "docker:enableMajor"
   ],
-  "enabledManagers": [
-    "docker-compose",
-    "maven-wrapper",
-    "gradle-wrapper"
+  "reviewers": [
+    "team:dimpact",
+    "hsiliev"
   ],
+  "prConcurrentLimit": 5,
   "packageRules": [
     {
       "matchDatasources": [
