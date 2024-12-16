@@ -28,7 +28,7 @@ class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
 
     @ConfigProperty(name = "AUTH_REALM")
     private val realmName: String,
-){
+) {
     companion object {
         private val LOG = Logger.getLogger(IdentityService::class.java.name)
     }
@@ -36,8 +36,10 @@ class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
     @Produces
     @Named("keycloakZacRealmResource")
     fun build(): RealmResource {
-        LOG.info("Building Keycloak admin client using: url: '$keycloakUrl', realm: '$realmName', " +
-                "client id: '$clientId', client secret: '*******'")
+        LOG.info(
+            "Building Keycloak admin client using: url: '$keycloakUrl', realm: '$realmName', " +
+                "client id: '$clientId', client secret: '*******'"
+        )
         return KeycloakBuilder.builder()
             .serverUrl(keycloakUrl)
             .realm(realmName)
