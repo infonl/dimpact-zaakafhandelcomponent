@@ -81,6 +81,16 @@
     },
     {
       "matchPackageNames": [
+        "docker.io/openzaak/open-notificaties"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "<= 1.7.1",
+      "description": "We currently focus on Dimpact PodiumD release 2.0 which pins this package to this version"
+    },
+    {
+      "matchPackageNames": [
         "ghcr.io/infonl/zaakafhandelcomponent"
       ],
       "matchDatasources": [
