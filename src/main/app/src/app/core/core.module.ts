@@ -49,7 +49,8 @@ export function HttpLoaderFactory(http: HttpClient) {
       provide: MAT_DIALOG_DEFAULT_OPTIONS,
       useValue: {
         ...new MatDialogConfig(),
-        minWidth: "500px",
+        width: "650px",
+        minHeight: "450px",
         autoFocus: "dialog",
       },
     },

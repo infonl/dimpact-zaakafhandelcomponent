@@ -1,7 +1,17 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
+
+<div class="sidenav-title">
+  <h3>
+    <mat-icon>thumbs_up_down</mat-icon>
+    {{ data.planItem.naam | translate }}
+  </h3>
+  <button mat-icon-button (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
 
 <div mat-dialog-content [formGroup]="formGroup">
   <p
@@ -20,12 +30,9 @@
       >
     </mat-radio-group>
   </div>
-  <div>
-    <mat-form-field
-      appearance="fill"
-      class="full-width"
-      *ngIf="formGroup.get('ontvankelijk').value === false"
-    >
+  <div *ngIf="formGroup.get('ontvankelijk').value === false">
+    <p class="readonly" [innerHTML]="'planitem.INTAKE_AFRONDEN.toelichting' | translate"></p>
+    <mat-form-field appearance="fill" class="full-width">
       <mat-label>{{'redenNietOntvankelijk'| translate}}</mat-label>
       <textarea
         id="redenNietOntvankelijk"
@@ -44,7 +51,7 @@
   </div>
   <div>
     <mat-checkbox
-      *ngIf="mailBeschikbaar"
+      *ngIf="mailBeschikbaar && formGroup.get('ontvankelijk').value !== null"
       id="sendMail"
       formControlName="sendMail"
       >{{'sendMail' | translate}}</mat-checkbox
@@ -108,17 +115,17 @@
     <mat-expansion-panel-header>
       {{'body' | translate }}
     </mat-expansion-panel-header>
-    <p
+    <div
       class="readonly"
       [innerHTML]="formGroup.get('ontvankelijk').value ? zaakOntvankelijkMail?.body : zaakNietOntvankelijkMail?.body"
-    ></p>
+    ></div>
   </mat-expansion-panel>
 </div>
 <div mat-dialog-actions>
   <button
-    [disabled]="loading || formGroup.invalid"
-    mat-button
+    mat-raised-button
     color="primary"
+    [disabled]="loading || formGroup.invalid"
     (click)="afronden()"
     id="intakeAfronden_button"
   >
@@ -127,7 +134,12 @@
     </mat-icon>
     {{'planitem.INTAKE_AFRONDEN' | translate}}
   </button>
-  <button [disabled]="loading" mat-button (click)="close()">
+  <button
+    mat-raised-button
+    [disabled]="loading"
+    (click)="close()"
+    type="button"
+  >
     {{'actie.annuleren' | translate}}
   </button>
 </div>
