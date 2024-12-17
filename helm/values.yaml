@@ -118,7 +118,7 @@ signaleringen:
   restartPolicy: Never
   image:
     repository: curlimages/curl
-    tag: latest@sha256:c1fe1679c34d9784c1b0d1e5f62ac0a79fca01fb6377cdd33e90473c6f9f9a69
+    tag: 8.11.1@sha256:c1fe1679c34d9784c1b0d1e5f62ac0a79fca01fb6377cdd33e90473c6f9f9a69
     pullPolicy: IfNotPresent
   imagePullSecrets: [ ]
   resources: { }
@@ -412,7 +412,7 @@ nginx:
   image:
     repository: nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: stable@sha256:4dc24adb9f46f6c5bbdea47e03a22343d515687c1c9077cf3df36dd9c0a97441
+    tag: 1.26.2@sha256:4dc24adb9f46f6c5bbdea47e03a22343d515687c1c9077cf3df36dd9c0a97441
   service:
     type: ClusterIP
     port: 80
