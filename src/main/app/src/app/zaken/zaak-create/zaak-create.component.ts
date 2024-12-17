@@ -135,7 +135,6 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
       .validators(Validators.required)
       .optionLabel("omschrijving")
       .options(this.zakenService.listZaaktypes())
-      .styleClass("this-class-is-not-wokrking-for-an-autocomplete")
       .hint("zaps.step.algemeen.zaaktype.hint", "start")
       .build();
 
