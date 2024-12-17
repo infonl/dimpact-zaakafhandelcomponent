@@ -33,13 +33,13 @@ fun createAanvragerData(
 fun createData(
     startformulier: StartformulierData = createStartformulierData(),
     zaakData: ZaakData = createZaakData(),
-    taakData: TaskData = createTaakData(),
+    taskData: TaskData = createTaskData(),
     gebruikerData: GebruikerData = createGebruikerData(),
     aanvragerData: AanvragerData = createAanvragerData(),
 ) = Data(
     startformulierData = startformulier,
     zaakData = zaakData,
-    taskData = taakData,
+    taskData = taskData,
     gebruikerData = gebruikerData,
     aanvragerData = aanvragerData
 )
@@ -85,7 +85,7 @@ fun createStartformulierData(
     data = data
 )
 
-fun createTaakData(
+fun createTaskData(
     naam: String = "dummyNaam",
     behandelaar: String = "dummyBehandelaar"
 ) = TaskData(
