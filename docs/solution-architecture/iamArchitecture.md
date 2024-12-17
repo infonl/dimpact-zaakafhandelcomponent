@@ -20,7 +20,7 @@ C4Context
     Rel(Employee, ZAC, "Uses")
     Rel(Employee, Keycloak, "Authenticates", "OIDC")
     Rel(ZAC, Keycloak, "Uses", "OIDC")
-    Rel(ZAC, OpenLDAP, "Get users and groups", "Keycloak")
+    Rel(ZAC, Keycloak, "Get users and groups", "Keycloak API")
     Rel(ZAC, OPA, "Manage policies", "REST")
 
     UpdateElementStyle(ZAC, $bgColor="red", $borderColor="red")
