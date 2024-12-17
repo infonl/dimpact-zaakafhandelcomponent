@@ -28,7 +28,7 @@ data class Data(
     val startformulierData: StartformulierData? = null,
 
     @field:JsonbProperty("taak")
-    val taakData: TaakData? = null,
+    val taskData: TaskData? = null,
 
     @field:JsonbProperty("zaak")
     val zaakData: ZaakData
@@ -77,10 +77,9 @@ data class StartformulierData(
     val data: Map<String, Any>
 )
 
-data class TaakData(
+data class TaskData(
     val naam: String,
-    var behandelaar: String? = null,
-    val data: Map<String, Any>
+    var behandelaar: String? = null
 )
 
 data class Variables(

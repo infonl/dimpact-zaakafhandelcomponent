@@ -9,7 +9,7 @@ import net.atos.client.smartdocuments.model.document.AanvragerData
 import net.atos.client.smartdocuments.model.document.Data
 import net.atos.client.smartdocuments.model.document.GebruikerData
 import net.atos.client.smartdocuments.model.document.StartformulierData
-import net.atos.client.smartdocuments.model.document.TaakData
+import net.atos.client.smartdocuments.model.document.TaskData
 import net.atos.client.smartdocuments.model.document.ZaakData
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createZaak
@@ -33,13 +33,13 @@ fun createAanvragerData(
 fun createData(
     startformulier: StartformulierData = createStartformulierData(),
     zaakData: ZaakData = createZaakData(),
-    taakData: TaakData = createTaakData(),
+    taakData: TaskData = createTaakData(),
     gebruikerData: GebruikerData = createGebruikerData(),
     aanvragerData: AanvragerData = createAanvragerData(),
 ) = Data(
     startformulierData = startformulier,
     zaakData = zaakData,
-    taakData = taakData,
+    taskData = taakData,
     gebruikerData = gebruikerData,
     aanvragerData = aanvragerData
 )
@@ -87,12 +87,10 @@ fun createStartformulierData(
 
 fun createTaakData(
     naam: String = "dummyNaam",
-    behandelaar: String = "dummyBehandelaar",
-    data: Map<String, String> = mapOf("dummyKey" to "dummyValue")
-) = TaakData(
+    behandelaar: String = "dummyBehandelaar"
+) = TaskData(
     naam = naam,
-    behandelaar = behandelaar,
-    data = data
+    behandelaar = behandelaar
 )
 
 fun createZaakData(
