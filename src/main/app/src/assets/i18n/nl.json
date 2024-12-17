@@ -285,6 +285,7 @@
   "besluit.publicatie.indicatie.koptitel": "Publicatiegegevens",
   "besluit.publicatie.indicatie.onderschrift": "Publicatie termijn: {{publicationTermDays}} dag",
   "besluit.publicatie.indicatie.onderschrift.meervoud": "Publicatie termijn: {{publicationTermDays}} dagen",
+  "zaps.step.algemeen.zaaktype.hint": "De groep en eventueel medewerker plus vertrouwelijkheidaanduiding worden gezet na het kiezen van het zaaktype",
   " 4 ": ">>--> ENTITEITEN <--<<",
   "-geen-": "- Geen -",
   "informatieobject": "Document",
