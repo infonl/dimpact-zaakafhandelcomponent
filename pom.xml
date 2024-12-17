@@ -19,7 +19,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- please follow the instructions in 'updatingDependencies.md' when upgrading WildFly -->
         <wildfly.version>34.0.1.Final</wildfly.version>
-        <wildfly-jar-maven-plugin.version>11.0.2.Final</wildfly-jar-maven-plugin.version>
+        <wildfly-maven-plugin.version>5.1.0.Final</wildfly-maven-plugin.version>
         <wildfly-datasources-galleon-pack.version>9.1.0.Final</wildfly-datasources-galleon-pack.version>
     </properties>
 
@@ -28,18 +28,22 @@
         <plugins>
             <plugin>
                 <groupId>org.wildfly.plugins</groupId>
-                <artifactId>wildfly-jar-maven-plugin</artifactId>
-                <version>${wildfly-jar-maven-plugin.version}</version>
+                <artifactId>wildfly-maven-plugin</artifactId>
+                <version>${wildfly-maven-plugin.version}</version>
                 <configuration>
+                    <bootableJar>true</bootableJar>
+                    <skipDeployment>true</skipDeployment>
+                    <bootableJarName>${project.artifactId}.jar</bootableJarName>
                     <featurePacks>
                         <featurePack>
                             <location>wildfly@maven(org.jboss.universe:community-universe)#${wildfly.version}</location>
                         </featurePack>
                         <featurePack>
-                            <groupId>org.wildfly</groupId>
-                            <artifactId>wildfly-datasources-galleon-pack</artifactId>
-                            <version>${wildfly-datasources-galleon-pack.version}</version>
+                            <location>org.wildfly:wildfly-galleon-pack:${wildfly.version}</location>
                         </featurePack>
+                        <feature-pack>
+                            <location>org.wildfly:wildfly-datasources-galleon-pack:${wildfly-datasources-galleon-pack.version}</location>
+                        </feature-pack>
                     </featurePacks>
                     <layers>
                         <layer>elytron-oidc-client</layer>
@@ -55,25 +59,14 @@
                     <excludedLayers>
                         <layer>deployment-scanner</layer>
                     </excludedLayers>
-                    <cliSessions>
-                        <cliSession>
-                            <scriptFiles>
+                    <packaging-scripts>
+                        <packaging-script>
+                            <scripts>
                                 <script>src/main/resources/wildfly/configure-wildfly.cli</script>
                                 <script>src/main/resources/wildfly/deploy-zaakafhandelcomponent.cli</script>
-                            </scriptFiles>
-                            <resolveExpressions>false</resolveExpressions>
-                        </cliSession>
-                    </cliSessions>
-                    <cloud>
-                        <type>kubernetes</type>
-                    </cloud>
-                    <jvmArguments>
-                        <!-- uncomment the following line to enable remote debugging -->
-                        <!-- <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8787</argument> -->
-                    </jvmArguments>
-                    <outputFileName>${project.artifactId}.jar</outputFileName>
-                    <jarFileName>${project.artifactId}.jar</jarFileName>
-                    <hollow-jar>true</hollow-jar>
+                            </scripts>
+                        </packaging-script>
+                    </packaging-scripts>
                 </configuration>
                 <executions>
                     <execution>

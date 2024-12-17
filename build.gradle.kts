@@ -709,7 +709,7 @@ tasks {
 
     register<Maven>("generateWildflyBootableJar") {
         dependsOn("war")
-        execGoal("wildfly-jar:package")
+        execGoal("wildfly:package")
 
         val wildflyResources = srcMainResources.dir("wildfly")
         inputs.files(wildflyResources.asFileTree)
