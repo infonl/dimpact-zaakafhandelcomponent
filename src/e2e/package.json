@@ -8,20 +8,20 @@
   },
   "private": true,
   "dependencies": {
-    "@cucumber/cucumber": "^11.1.1",
-    "@types/uniqid": "^5.3.4",
-    "cross-fetch": "^4.0.0",
-    "pdf-parse": "^1.1.1",
-    "uniqid": "^5.4.0",
-    "zod": "^3.24.1"
+    "@cucumber/cucumber": "11.1.1",
+    "@types/uniqid": "5.3.4",
+    "cross-fetch": "4.0.0",
+    "pdf-parse": "1.1.1",
+    "uniqid": "5.4.0",
+    "zod": "3.24.1"
   },
   "devDependencies": {
-    "@types/node": "^20.17.10",
-    "@playwright/test": "^1.49.1",
-    "cucumber-html-reporter": "^7.2.0",
-    "cucumber-pretty": "^6.0.1",
-    "ts-node": "~10.9.2",
-    "typescript": "~5.7.2"
+    "@types/node": "20.17.10",
+    "@playwright/test": "1.49.1",
+    "cucumber-html-reporter": "7.2.0",
+    "cucumber-pretty": "6.0.1",
+    "ts-node": "10.9.2",
+    "typescript": "5.7.2"
   },
   "cucumber.features": ["features/**/*.feature"]
 }

@@ -118,7 +118,7 @@ signaleringen:
   restartPolicy: Never
   image:
     repository: curlimages/curl
-    tag: latest
+    tag: latest@sha256:c1fe1679c34d9784c1b0d1e5f62ac0a79fca01fb6377cdd33e90473c6f9f9a69
     pullPolicy: IfNotPresent
   imagePullSecrets: [ ]
   resources: { }
@@ -263,7 +263,7 @@ opa:
     annotations: { }
   image:
     repository: openpolicyagent/opa
-    tag: "0.69.0-static"
+    tag: "0.69.0-static@sha256:eeba593a37823cd086b3e41f5b24da4bb0876d1a843776ae7792a68a0a950cc7"
     pullPolicy: IfNotPresent
   # The settings below will be ignored when running as a sidecar (the zac values will be used instead)
   autoscaling: 
@@ -346,7 +346,7 @@ office_converter:
   #url: ""
   image:
     repository: ghcr.io/eugenmayer/kontextwork-converter
-    tag: "1.6.1"
+    tag: "1.6.1@sha256:92ec2ee4390a7663bc9f5476d6d400bcbbbbc55630bf531d062919b6579295c5"
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1
@@ -412,7 +412,7 @@ nginx:
   image:
     repository: nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: stable
+    tag: stable@sha256:4dc24adb9f46f6c5bbdea47e03a22343d515687c1c9077cf3df36dd9c0a97441
   service:
     type: ClusterIP
     port: 80
