@@ -30,7 +30,7 @@
       >
     </mat-radio-group>
   </div>
-  <div *ngIf="formGroup.get('ontvankelijk').value === false">
+  <div *ngIf="formGroup.get('ontvankelijk').touched && !formGroup.get('ontvankelijk').value">
     <p
       class="readonly"
       [innerHTML]="'planitem.INTAKE_AFRONDEN.toelichting' | translate"
