@@ -21,6 +21,7 @@ import net.atos.zac.admin.model.ZaakafhandelParameters.PRODUCTAANVRAAGTYYPE
 import net.atos.zac.admin.model.ZaakafhandelParameters.ZAAKTYPE_OMSCHRIJVING
 import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.admin.model.ZaakbeeindigReden
+import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.util.ValidationUtil
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -37,7 +38,8 @@ import java.util.UUID
 class ZaakafhandelParameterBeheerService @Inject constructor(
     private val entityManager: EntityManager,
     private val ztcClientService: ZtcClientService,
-    private val zaakafhandelParameterService: ZaakafhandelParameterService
+    private val zaakafhandelParameterService: ZaakafhandelParameterService,
+    private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService
 ) {
     /**
      * Retrieves the zaakafhandelparameters for a given zaaktype UUID.
@@ -151,11 +153,13 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
                 afrondenMail = vorigeZaakafhandelparameters.afrondenMail
                 productaanvraagtype = vorigeZaakafhandelparameters.productaanvraagtype
                 domein = vorigeZaakafhandelparameters.domein
+                isSmartDocumentsIngeschakeld = vorigeZaakafhandelparameters.isSmartDocumentsIngeschakeld
             }
             mapHumanTaskParameters(vorigeZaakafhandelparameters, nieuweZaakafhandelParameters)
             mapUserEventListenerParameters(vorigeZaakafhandelparameters, nieuweZaakafhandelParameters)
             mapZaakbeeindigGegevens(vorigeZaakafhandelparameters, nieuweZaakafhandelParameters, zaaktype)
             mapMailtemplateKoppelingen(vorigeZaakafhandelparameters, nieuweZaakafhandelParameters)
+            mapSmartDocuments(vorigeZaakafhandelparameters.zaakTypeUUID, nieuweZaakafhandelParameters.zaakTypeUUID)
             createZaakafhandelParameters(nieuweZaakafhandelParameters)
         }
     }
@@ -227,12 +231,12 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         val nieuweResultaattypen = nieuwZaaktype.resultaattypen.map { ztcClientService.readResultaattype(it) }
         nieuweZaakafhandelParameters.nietOntvankelijkResultaattype =
             vorigeZaakafhandelparameters.nietOntvankelijkResultaattype?.let {
-                mapVorigResultaattypeOpNieuwResultaattype(nieuweResultaattypen, it)
+                mapVorigResultaattypeOpNieuwResultaattype(it, nieuweResultaattypen)
             }
         val zaakbeeindigParametersCollection = vorigeZaakafhandelparameters.zaakbeeindigParameters.mapNotNull {
                 zaakbeeindigParameter ->
             zaakbeeindigParameter.resultaattype
-                ?.let { mapVorigResultaattypeOpNieuwResultaattype(nieuweResultaattypen, it) }
+                ?.let { mapVorigResultaattypeOpNieuwResultaattype(it, nieuweResultaattypen) }
                 ?.let {
                     ZaakbeeindigParameter().apply {
                         zaakbeeindigReden = zaakbeeindigParameter.zaakbeeindigReden
@@ -254,10 +258,17 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
     }.toSet().let(nieuweZaakafhandelParameters::setMailtemplateKoppelingen)
 
     private fun mapVorigResultaattypeOpNieuwResultaattype(
+        vorigResultaattypeUUID: UUID,
         nieuweResultaattypen: List<ResultaatType>,
-        vorigResultaattypeUUID: UUID
     ): UUID? =
         ztcClientService.readResultaattype(vorigResultaattypeUUID).let { resultaattype ->
             nieuweResultaattypen.firstOrNull { it.omschrijving == resultaattype.omschrijving }?.url?.extractUuid()
         }
+
+    private fun mapSmartDocuments(
+        vorigeZaakafhandelparametersUUID: UUID,
+        nieuweZaakafhandelParametersUUID: UUID
+    ) = smartDocumentsTemplatesService.getTemplatesMapping(vorigeZaakafhandelparametersUUID).let {
+        smartDocumentsTemplatesService.storeTemplatesMapping(it, nieuweZaakafhandelParametersUUID)
+    }
 }
