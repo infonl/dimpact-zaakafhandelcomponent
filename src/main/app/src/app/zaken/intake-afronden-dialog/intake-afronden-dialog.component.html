@@ -30,7 +30,9 @@
       >
     </mat-radio-group>
   </div>
-  <div *ngIf="formGroup.get('ontvankelijk').touched && !formGroup.get('ontvankelijk').value">
+  <div
+    *ngIf="formGroup.get('ontvankelijk').touched && !formGroup.get('ontvankelijk').value"
+  >
     <p
       class="readonly"
       [innerHTML]="'planitem.INTAKE_AFRONDEN.toelichting' | translate"
@@ -118,8 +120,16 @@
     <mat-expansion-panel-header>
       {{'body' | translate }}
     </mat-expansion-panel-header>
-    <div *ngIf="formGroup.get('ontvankelijk').value" class="readonly" [innerHTML]="zaakOntvankelijkMail?.body"></div>
-    <div *ngIf="!formGroup.get('ontvankelijk').value" class="readonly" [innerHTML]="zaakNietOntvankelijkMail?.body"></div>
+    <div
+      *ngIf="formGroup.get('ontvankelijk').value"
+      class="readonly"
+      [innerHTML]="zaakOntvankelijkMail?.body"
+    ></div>
+    <div
+      *ngIf="!formGroup.get('ontvankelijk').value"
+      class="readonly"
+      [innerHTML]="zaakNietOntvankelijkMail?.body"
+    ></div>
   </mat-expansion-panel>
 </div>
 <div mat-dialog-actions>
@@ -135,11 +145,7 @@
     </mat-icon>
     {{'planitem.INTAKE_AFRONDEN' | translate}}
   </button>
-  <button
-    mat-raised-button
-    [disabled]="loading"
-    (click)="close()"
-  >
+  <button mat-raised-button [disabled]="loading" (click)="close()">
     {{'actie.annuleren' | translate}}
   </button>
 </div>
