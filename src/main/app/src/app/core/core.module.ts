@@ -50,7 +50,6 @@ export function HttpLoaderFactory(http: HttpClient) {
       useValue: {
         ...new MatDialogConfig(),
         width: "650px",
-        minHeight: "450px",
         autoFocus: "dialog",
       },
     },
