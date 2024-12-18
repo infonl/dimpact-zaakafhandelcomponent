@@ -31,7 +31,10 @@
     </mat-radio-group>
   </div>
   <div *ngIf="formGroup.get('ontvankelijk').value === false">
-    <p class="readonly" [innerHTML]="'planitem.INTAKE_AFRONDEN.toelichting' | translate"></p>
+    <p
+      class="readonly"
+      [innerHTML]="'planitem.INTAKE_AFRONDEN.toelichting' | translate"
+    ></p>
     <mat-form-field appearance="fill" class="full-width">
       <mat-label>{{'redenNietOntvankelijk'| translate}}</mat-label>
       <textarea
