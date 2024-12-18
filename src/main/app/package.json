@@ -31,7 +31,7 @@
     "@formio/angular": "7.0.0",
     "@ngx-translate/core": "16.0.3",
     "@ngx-translate/http-loader": "16.0.0",
-    "@tanstack/angular-query-experimental": "5.60.0",
+    "@tanstack/angular-query-experimental": "5.60.7",
     "@types/proj4": "2.5.5",
     "bootstrap": "^4.6.2",
     "moment": "2.30.1",
