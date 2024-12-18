@@ -118,10 +118,8 @@
     <mat-expansion-panel-header>
       {{'body' | translate }}
     </mat-expansion-panel-header>
-    <div
-      class="readonly"
-      [innerHTML]="formGroup.get('ontvankelijk').value ? zaakOntvankelijkMail?.body : zaakNietOntvankelijkMail?.body"
-    ></div>
+    <div *ngIf="formGroup.get('ontvankelijk').value" class="readonly" [innerHTML]="zaakOntvankelijkMail?.body"></div>
+    <div *ngIf="!formGroup.get('ontvankelijk').value" class="readonly" [innerHTML]="zaakNietOntvankelijkMail?.body"></div>
   </mat-expansion-panel>
 </div>
 <div mat-dialog-actions>
