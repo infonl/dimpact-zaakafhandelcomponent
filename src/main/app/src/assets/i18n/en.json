@@ -487,6 +487,7 @@
   "mailtemplate.variabele.ZAAK_TYPE": "The case type.",
   "mailtemplate.variabele.ZAAK_URL": "The zaakafhandelcomponent-URL of the case.",
   "planitem.INTAKE_AFRONDEN": "Finish intake",
+  "planitem.INTAKE_AFRONDEN.toelichting": "This case will be deemed inadmissible and will be closed immediately.",
   "planitem.ZAAK_AFHANDELEN": "Close case",
   "statusmail.optie.BESCHIKBAAR_AAN": "Available and default on",
   "statusmail.optie.BESCHIKBAAR_UIT": "Available and default off",
