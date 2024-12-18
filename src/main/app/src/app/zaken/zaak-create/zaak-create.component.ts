@@ -135,7 +135,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
       .validators(Validators.required)
       .optionLabel("omschrijving")
       .options(this.zakenService.listZaaktypes())
-      .hint("zaps.step.algemeen.zaaktype.hint", "start")
+      .hint("zaps.step.algemeen.zaaktype.hint")
       .build();
 
     zaaktype.formControl.valueChanges
