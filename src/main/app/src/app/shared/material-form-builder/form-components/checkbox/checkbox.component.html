@@ -1,11 +1,11 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Atos
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
 <mat-checkbox [formControl]="data.formControl" [id]="data.id + '_checkbox'"
   >{{ data.label | translate }}
 </mat-checkbox>
-<mat-hint *ngIf="data.hint" align="start"
+<mat-hint *ngIf="data.hint"
   >{{data.hint.label | translate}}</mat-hint
 >

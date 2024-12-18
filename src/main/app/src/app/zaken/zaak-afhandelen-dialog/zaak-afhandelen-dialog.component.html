@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -52,7 +52,7 @@
         maxlength="80"
         matInput
       />
-      <mat-hint align="end"
+      <mat-hint
         >{{formGroup.get('toelichting').value.length}}/80</mat-hint
       >
     </mat-form-field>
@@ -105,7 +105,7 @@
         maxlength="200"
         formControlName="ontvanger"
       />
-      <mat-hint align="end"
+      <mat-hint
         >{{formGroup.get('ontvanger').value.length}}/200</mat-hint
       >
       <mat-error

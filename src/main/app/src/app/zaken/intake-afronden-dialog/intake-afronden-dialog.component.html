@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -33,7 +33,7 @@
         maxlength="100"
         matInput
       ></textarea>
-      <mat-hint align="end"
+      <mat-hint
         >{{formGroup.get('reden').value.length}}/100</mat-hint
       >
       <mat-error
@@ -93,7 +93,7 @@
         maxlength="200"
         formControlName="ontvanger"
       />
-      <mat-hint align="end"
+      <mat-hint
         >{{formGroup.get('ontvanger').value.length}}/200</mat-hint
       >
       <mat-error
