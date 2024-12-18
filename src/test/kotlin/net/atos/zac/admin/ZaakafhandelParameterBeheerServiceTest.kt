@@ -21,8 +21,11 @@ import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import jakarta.persistence.criteria.Subquery
 import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.createZaakafhandelParameters
+import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
+import java.net.URI
 import java.time.ZonedDateTime
 import java.util.Date
 
@@ -40,11 +43,13 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
     val order = mockk<Order>()
     val expressionString = mockk<Expression<String>>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
+    val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
 
     val zaakafhandelParameterBeheerService = ZaakafhandelParameterBeheerService(
         entityManager = entityManager,
         ztcClientService = ztcClientService,
-        zaakafhandelParameterService = zaakafhandelParameterService
+        zaakafhandelParameterService = zaakafhandelParameterService,
+        smartDocumentsTemplatesService = smartDocumentsTemplatesService
     )
 
     beforeEach {
@@ -170,6 +175,32 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
                 returnedZaakafhandelParameters.size shouldBe 2
                 returnedZaakafhandelParameters.map { productaanvraagType } shouldContainOnly listOf(productaanvraagType)
             }
+        }
+    }
+
+    Given("A Zaak is aangepast") {
+        val zaaktypeUri = URI("test-url");
+
+        every { ztcClientService.readZaaktype(zaaktypeUri) } returns ZaakType()
+
+        Then("The HumanTaskParameters should get copied") {
+
+        }
+
+        And("The user event listener parameters should get copied") {
+
+        }
+
+        And("The zaakbeindiggegevens should get copied") {
+
+        }
+
+        And("The mailtemplate koppelingen should get copied") {
+
+        }
+
+        And("The smartdocuments settings should get copied") {
+
         }
     }
 })
