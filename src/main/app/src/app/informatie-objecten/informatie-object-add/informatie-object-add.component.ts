@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -185,7 +185,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
     const ontvangstDatum = new DateFormFieldBuilder()
       .id("ontvangstdatum")
       .label("ontvangstdatum")
-      .hint("msg.document.ontvangstdatum.hint", "start")
+      .hint("msg.document.ontvangstdatum.hint")
       .build();
 
     const verzendDatum = new DateFormFieldBuilder()

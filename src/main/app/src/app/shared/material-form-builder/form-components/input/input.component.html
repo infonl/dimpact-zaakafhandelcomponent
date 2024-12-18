@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos
+  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -47,7 +47,6 @@
     >{{data.hint.label | translate}}</mat-hint
   >
   <mat-hint
-    align="end"
     *ngIf="data.showCount && data.formControl.value && data.formControl.dirty"
     >{{data.formControl.value.length}} /{{data.maxlength}}</mat-hint
   >
