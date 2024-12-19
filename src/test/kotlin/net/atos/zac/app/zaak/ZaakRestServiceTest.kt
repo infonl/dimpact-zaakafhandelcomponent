@@ -6,6 +6,7 @@ package net.atos.zac.app.zaak
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.doubles.exactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.checkUnnecessaryStub
@@ -49,12 +50,14 @@ import net.atos.zac.app.zaak.converter.RestDecisionConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
+import net.atos.zac.app.zaak.model.RESTReden
 import net.atos.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestZaaktype
 import net.atos.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
 import net.atos.zac.app.zaak.model.createRESTGeometry
 import net.atos.zac.app.zaak.model.createRESTZaakAanmaakGegevens
+import net.atos.zac.app.zaak.model.createRESTZaakBetrokkeneGegevens
 import net.atos.zac.app.zaak.model.createRESTZaakKoppelGegevens
 import net.atos.zac.app.zaak.model.createRESTZaakToekennenGegevens
 import net.atos.zac.app.zaak.model.createRESTZakenVerdeelGegevens
@@ -513,6 +516,59 @@ class ZaakRestServiceTest : BehaviorSpec({
                         latitude.toDouble() shouldBe restGeometry.point!!.latitude
                         longitude.toDouble() shouldBe restGeometry.point!!.longitude
                     }
+                }
+            }
+        }
+    }
+    Given("A zaak with an initiator and rest zaak betrokkene gegevens") {
+        val zaak = createZaak()
+        val restZaakBetrokkenGegevens = createRESTZaakBetrokkeneGegevens()
+        val rolMedewerker = createRolMedewerker()
+        val restZaak = createRestZaak()
+        every { zrcClientService.readZaak(restZaakBetrokkenGegevens.zaakUUID) } returns zaak
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolMedewerker
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechten(toevoegenInitiatorPersoon = true)
+        every { zrcClientService.deleteRol(any(), any()) } just runs
+        every { zaakService.addInitiatorToZaak(any(), any(), any(), any()) } just runs
+        every { restZaakConverter.toRestZaak(zaak) } returns restZaak
+
+        When("an initiator is updated") {
+            val updatedRestZaak = zaakRestService.updateInitiator(restZaakBetrokkenGegevens)
+
+            Then("the old initiator should be removed and the new one should be added to the zaak") {
+                updatedRestZaak shouldBe restZaak
+                verify(exactly = 1) {
+                    zrcClientService.deleteRol(
+                        rolMedewerker,
+                        "Verwijderd door de medewerker tijdens het behandelen van de zaak"
+                    )
+                    zaakService.addInitiatorToZaak(
+                        restZaakBetrokkenGegevens.betrokkeneIdentificatieType,
+                        restZaakBetrokkenGegevens.betrokkeneIdentificatie,
+                        zaak,
+                        "Toegekend door de medewerker tijdens het behandelen van de zaak"
+                    )
+                }
+            }
+        }
+    }
+    Given("A zaak with an initiator") {
+        val zaak = createZaak()
+        val rolMedewerker = createRolMedewerker()
+        val restZaak = createRestZaak()
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolMedewerker
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechten(toevoegenInitiatorPersoon = true)
+        every { zrcClientService.deleteRol(any(), any()) } just runs
+        every { restZaakConverter.toRestZaak(zaak) } returns restZaak
+
+        When("the initiator is deleted") {
+            val updatedRestZaak = zaakRestService.deleteInitiator(zaak.uuid, RESTReden("dummy reason"))
+
+            Then("the initiator should be removed from the zaak") {
+                updatedRestZaak shouldBe restZaak
+                verify(exactly = 1) {
+                    zrcClientService.deleteRol(rolMedewerker, "dummy reason")
                 }
             }
         }
