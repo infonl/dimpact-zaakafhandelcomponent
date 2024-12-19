@@ -321,7 +321,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 with(rolSlot.captured) {
                     betrokkeneType shouldBe BetrokkeneType.MEDEWERKER
                     with(betrokkeneIdentificatie as Medewerker) {
-                        identificatie shouldBe rolMedewerker.betrokkeneIdentificatie.identificatie
+                        identificatie shouldBe rolMedewerker.betrokkeneIdentificatie!!.identificatie
                     }
                     this.zaak shouldBe rolMedewerker.zaak
                     omschrijving shouldBe rolType.omschrijving

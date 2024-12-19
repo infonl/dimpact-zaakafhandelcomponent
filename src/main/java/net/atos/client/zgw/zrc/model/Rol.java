@@ -12,6 +12,8 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.json.bind.annotation.JsonbTypeDeserializer;
 
@@ -172,6 +174,12 @@ public abstract class Rol<T> {
         this.indicatieMachtiging = indicatieMachtiging;
     }
 
+    /**
+     * Can be null according to the ZGW API and this does occur in practice in certain circumstances.
+     *
+     * @return the betrokkene identificatie; or null if there is none
+     */
+    @Nullable
     public T getBetrokkeneIdentificatie() {
         return betrokkeneIdentificatie;
     }
@@ -185,6 +193,9 @@ public abstract class Rol<T> {
             return false;
         }
         Rol<T> rol = (Rol<T>) o;
+        if (rol.getBetrokkeneIdentificatie() == null) {
+            return false;
+        }
         return equalBetrokkeneRol(rol) && equalBetrokkeneIdentificatie(rol.getBetrokkeneIdentificatie());
     }
 

@@ -10,11 +10,11 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import java.net.URI;
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.zgw.ztc.model.generated.RolType;
-
-import javax.annotation.Nullable;
 
 public class RolMedewerker extends Rol<Medewerker> {
 
@@ -27,8 +27,7 @@ public class RolMedewerker extends Rol<Medewerker> {
             final String roltoelichting,
             // it is possible in the ZGW API to have a RolMedewerker without a Medewerker
             // and this does occur in practice in certain circumstances
-            @Nullable
-            final Medewerker betrokkeneIdentificatie
+            @Nullable final Medewerker betrokkeneIdentificatie
     ) {
         super(zaak, roltype, BetrokkeneType.MEDEWERKER, betrokkeneIdentificatie, roltoelichting);
     }

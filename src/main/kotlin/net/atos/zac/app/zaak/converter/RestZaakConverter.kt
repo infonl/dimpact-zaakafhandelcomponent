@@ -70,13 +70,15 @@ class RestZaakConverter @Inject constructor(
     @Suppress("LongMethod", "CyclomaticComplexMethod")
     fun toRestZaak(zaak: Zaak, status: Status?, statustype: StatusType?): RestZaak {
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
-        val groep = zgwApiService.findGroepForZaak(zaak)?.let {
-            restGroupConverter.convertGroupId(it.betrokkeneIdentificatie.identificatie)
+        val groep = zgwApiService.findGroepForZaak(zaak)?.let { rolOrganisatorischeEenheid ->
+            rolOrganisatorischeEenheid.betrokkeneIdentificatie?.let {
+                restGroupConverter.convertGroupId(it.identificatie)
+            }
         }
         val besluiten = brcClientService.listBesluiten(zaak)
             .map { restDecisionConverter.convertToRestDecision(it) }
-        val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.let {
-            restUserConverter.convertUserId(it.betrokkeneIdentificatie.identificatie)
+        val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.let { rolMedewerker ->
+            rolMedewerker.betrokkeneIdentificatie?.let { restUserConverter.convertUserId(it.identificatie) }
         }
         val initiator = zgwApiService.findInitiatorRoleForZaak(zaak)
         return RestZaak(

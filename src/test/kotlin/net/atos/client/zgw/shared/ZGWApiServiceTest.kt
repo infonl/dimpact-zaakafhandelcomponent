@@ -199,7 +199,7 @@ class ZGWApiServiceTest : BehaviorSpec({
             }
         }
     }
-        Given("A zaak with a behandelaar medewerker role without a betrokkene identificatie") {
+    Given("A zaak with a behandelaar medewerker role without a betrokkene identificatie") {
         val zaak = createZaak()
         val rolMedewerker = createRolMedewerker(
             zaak = zaak.url,

@@ -116,13 +116,17 @@ class ZaakZoekObjectConverter @Inject constructor(
     }
 
     private fun findBehandelaar(zaak: Zaak): User? =
-        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.let {
-            identityService.readUser(it.betrokkeneIdentificatie.identificatie)
+        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.let { rolMedewerker ->
+            rolMedewerker.betrokkeneIdentificatie?.let {
+                identityService.readUser(it.identificatie)
+            }
         }
 
     private fun findGroup(zaak: Zaak): Group? =
-        zgwApiService.findGroepForZaak(zaak)?.let {
-            identityService.readGroup(it.betrokkeneIdentificatie.identificatie)
+        zgwApiService.findGroepForZaak(zaak)?.let { rolOrganisatorischeEenheid ->
+            rolOrganisatorischeEenheid.betrokkeneIdentificatie?.let {
+                identityService.readGroup(it.identificatie)
+            }
         }
 
     private fun getBagObjectIDs(zaak: Zaak): List<String> {

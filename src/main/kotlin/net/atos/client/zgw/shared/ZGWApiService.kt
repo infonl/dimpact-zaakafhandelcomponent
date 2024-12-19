@@ -282,7 +282,7 @@ class ZGWApiService @Inject constructor(
         // but in case there are multiple, we take the first one
         .firstOrNull()?.let {
             zrcClientService.listRollen(RolListParameters(zaak.url, it.url, betrokkeneType))
-                .getSingleResult().takeIf { it.isPresent }?.get()
+                .singleResult.takeIf { it.isPresent }?.get()
         }
 
     private fun createStatusForZaak(zaakURI: URI, statustypeURI: URI, toelichting: String?): Status {

@@ -55,13 +55,17 @@ class RestZaakOverzichtConverter @Inject constructor(
                 }
             },
             behandelaar = takeIf { zaakrechten.lezen }?.let {
-                zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.let {
-                    userConverter.convertUserId(it.betrokkeneIdentificatie.identificatie)
+                zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.let { rolMedewerker ->
+                    rolMedewerker.betrokkeneIdentificatie?.let {
+                        userConverter.convertUserId(it.identificatie)
+                    }
                 }
             },
             groep = takeIf { zaakrechten.lezen }?.let {
-                zgwApiService.findGroepForZaak(zaak)?.let {
-                    groupConverter.convertGroupId(it.betrokkeneIdentificatie.identificatie)
+                zgwApiService.findGroepForZaak(zaak)?.let { rolOrganisatorischeEenheid ->
+                    rolOrganisatorischeEenheid.betrokkeneIdentificatie?.let {
+                        groupConverter.convertGroupId(it.identificatie)
+                    }
                 }
             }
         )
