@@ -421,7 +421,7 @@ class ZaakServiceTest : BehaviorSpec({
                 rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BELANGHEBBENDE)
             ),
             createRolOrganisatorischeEenheid(
-                zaaktypeURI = zaak.zaaktype,
+                zaakURI = zaak.zaaktype,
                 rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BESLISSER)
             ),
             createRolNatuurlijkPersoon(

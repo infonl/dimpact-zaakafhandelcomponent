@@ -17,7 +17,7 @@ import net.atos.client.smartdocuments.model.document.Data
 import net.atos.client.smartdocuments.model.document.File
 import net.atos.client.smartdocuments.model.document.GebruikerData
 import net.atos.client.smartdocuments.model.document.StartformulierData
-import net.atos.client.smartdocuments.model.document.TaakData
+import net.atos.client.smartdocuments.model.document.TaskData
 import net.atos.client.smartdocuments.model.document.ZaakData
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import net.atos.client.zgw.drc.model.generated.StatusEnum
@@ -36,7 +36,6 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.getFullName
 import net.atos.zac.productaanvraag.ProductaanvraagService
@@ -71,7 +70,7 @@ class DocumentCreationDataConverter @Inject constructor(
             aanvragerData = createAanvragerData(zaak),
             gebruikerData = createGebruikerData(loggedInUser),
             startformulierData = createStartformulierData(zaak.url),
-            taakData = taskId?.let { createTaakData(it) },
+            taskData = taskId?.let { createTaskData(it) },
             zaakData = createZaakData(zaak)
         )
 
@@ -196,12 +195,11 @@ class DocumentCreationDataConverter @Inject constructor(
             )
         }
 
-    private fun createTaakData(taskId: String): TaakData =
+    private fun createTaskData(taskId: String): TaskData =
         flowableTaskService.readTask(taskId).let { taskInfo ->
-            TaakData(
+            TaskData(
                 naam = taskInfo.name,
-                behandelaar = taskInfo.assignee?.let { identityService.readUser(it).getFullName() },
-                data = TaakVariabelenService.readTaskData(taskInfo)
+                behandelaar = taskInfo.assignee?.let { identityService.readUser(it).getFullName() }
             )
         }
 

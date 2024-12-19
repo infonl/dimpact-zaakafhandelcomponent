@@ -6,6 +6,7 @@ package net.atos.client.zgw.shared
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -14,13 +15,22 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import net.atos.client.zgw.drc.DrcClientService
+import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.model.RolListParameters
+import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.createResultaat
+import net.atos.client.zgw.zrc.model.createRolMedewerker
+import net.atos.client.zgw.zrc.model.createRolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.generated.Resultaat
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createResultaatType
+import net.atos.client.zgw.ztc.model.createRolType
+import net.atos.client.zgw.ztc.model.createZaakType
+import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import java.net.URI
+import java.time.LocalDate
 import java.util.UUID
 
 class ZGWApiServiceTest : BehaviorSpec({
@@ -39,6 +49,66 @@ class ZGWApiServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
+    Given("Zaak input data and a zaaktype with a doorlooptijd but no servicenorm") {
+        val zaakType = createZaakType(doorloopTijd = "P5D")
+        val zaak = createZaak(
+            startDate = LocalDate.of(1975, 12, 5),
+            zaakTypeURI = zaakType.url
+        )
+        val createdZaak = createZaak()
+        val zaakSlot = slot<Zaak>()
+        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every { zrcClientService.createZaak(capture(zaakSlot)) } returns createdZaak
+
+        When("a zaak is created") {
+            val returnedZaak = zgwApiService.createZaak(zaak)
+
+            Then("the zaak is created in the ZGW API with the correct 'uiterlijke einddatum afdoening'") {
+                returnedZaak shouldBe createdZaak
+                with(zaakSlot.captured) {
+                    this.identificatie shouldBe zaak.identificatie
+                    this.zaaktype shouldBe zaakType.url
+                    // the doorlooptijd is 5 days, so the uiterlijkeEinddatumAfdoening should be 5 days
+                    // after the start date
+                    this.uiterlijkeEinddatumAfdoening shouldBe LocalDate.of(1975, 12, 10)
+                    // the zaaktype has no 'servicenorm' so the einddatumGepland should be null
+                    this.einddatumGepland shouldBe null
+                }
+            }
+        }
+    }
+    Given("Zaak input data and a zaaktype with a doorlooptijd and a servicenorm") {
+        val zaakType = createZaakType(
+            doorloopTijd = "P5D",
+            servicenorm = "P10D"
+        )
+        val zaak = createZaak(
+            startDate = LocalDate.of(1975, 12, 5),
+            zaakTypeURI = zaakType.url
+        )
+        val createdZaak = createZaak()
+        val zaakSlot = slot<Zaak>()
+        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every { zrcClientService.createZaak(capture(zaakSlot)) } returns createdZaak
+
+        When("a zaak is created") {
+            val returnedZaak = zgwApiService.createZaak(zaak)
+
+            Then("the zaak is created in the ZGW API with the correct 'uiterlijke einddatum afdoening'") {
+                returnedZaak shouldBe createdZaak
+                with(zaakSlot.captured) {
+                    this.identificatie shouldBe zaak.identificatie
+                    this.zaaktype shouldBe zaakType.url
+                    // the doorlooptijd is 5 days, so the uiterlijkeEinddatumAfdoening should be 5 days
+                    // after the start date
+                    this.uiterlijkeEinddatumAfdoening shouldBe LocalDate.of(1975, 12, 10)
+                    // the servicenorm is 10 days, so the einddatumGepland should be 10 days
+                    // after the start date
+                    this.einddatumGepland shouldBe LocalDate.of(1975, 12, 15)
+                }
+            }
+        }
+    }
     Given("A zaak with an existing result") {
         val dummyResultaat = URI("https://example.com/${UUID.randomUUID()}")
         val zaak = createZaak(
@@ -104,6 +174,62 @@ class ZGWApiServiceTest : BehaviorSpec({
                     this.resultaattype shouldBe resultaattType.url
                     this.toelichting shouldBe reason
                 }
+            }
+        }
+    }
+    Given("A zaak with a behandelaar medewerker role") {
+        val zaak = createZaak()
+        val rolMedewerker = createRolMedewerker(zaak = zaak.url)
+        every {
+            ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+        } returns listOf(createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR))
+        every { zrcClientService.listRollen(any<RolListParameters>()) } returns Results(listOf(rolMedewerker), 1)
+
+        When("the behandelaar medewerker rol is requested") {
+            val rolMedewerker = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+
+            Then("the behandelaar medewerker role should be returned") {
+                rolMedewerker.get() shouldNotBe null
+                with(rolMedewerker.get()) {
+                    this.zaak shouldBe zaak.url
+                    this.identificatienummer shouldBe rolMedewerker.get().identificatienummer
+                    this.naam shouldBe rolMedewerker.get().naam
+                }
+            }
+        }
+    }
+    Given("A zaak with a group") {
+        val zaak = createZaak()
+        val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid(zaakURI = zaak.url)
+        every {
+            ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+        } returns listOf(createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR))
+        every { zrcClientService.listRollen(any<RolListParameters>()) } returns Results(listOf(rolOrganisatorischeEenheid), 1)
+
+        When("the group is requested") {
+            val group = zgwApiService.findGroepForZaak(zaak)
+
+            Then("the group should be returned") {
+                group.isPresent shouldBe true
+                with(group.get()) {
+                    this.zaak shouldBe zaak.url
+                    this.identificatienummer shouldBe rolOrganisatorischeEenheid.identificatienummer
+                    this.naam shouldBe rolOrganisatorischeEenheid.naam
+                }
+            }
+        }
+    }
+    Given("A zaak without a group") {
+        val zaak = createZaak()
+        every {
+            ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+        } returns emptyList()
+
+        When("the group is requested") {
+            val group = zgwApiService.findGroepForZaak(zaak)
+
+            Then("no group should be returned") {
+                group.isEmpty shouldBe true
             }
         }
     }

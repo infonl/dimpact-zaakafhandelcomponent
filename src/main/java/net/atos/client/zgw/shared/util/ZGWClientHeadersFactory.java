@@ -55,12 +55,10 @@ public class ZGWClientHeadersFactory implements ClientHeadersFactory {
         return JWTTokenGenerator.generate(clientId, secret, loggedInUserInstance.get());
     }
 
-    public void setAuditToelichting(@Nullable final String toelichting) {
-        if (toelichting != null) {
-            final LoggedInUser loggedInUser = loggedInUserInstance.get();
-            if (loggedInUser != null) {
-                AUDIT_TOELICHTINGEN.put(loggedInUser.getId(), toelichting);
-            }
+    public void setAuditToelichting(final String toelichting) {
+        final LoggedInUser loggedInUser = loggedInUserInstance.get();
+        if (loggedInUser != null) {
+            AUDIT_TOELICHTINGEN.put(loggedInUser.getId(), toelichting);
         }
     }
 

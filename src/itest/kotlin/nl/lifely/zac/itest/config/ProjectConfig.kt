@@ -68,6 +68,8 @@ class ProjectConfig : AbstractProjectConfig() {
         "ZAC_DOCKER_ENTRYPOINT" to
             "java" +
             " -javaagent:/jacoco-agent/org.jacoco.agent-runtime.jar=destfile=/jacoco-report/jacoco-it.exec" +
+            // make sure that the WildFly management port is accessible from outside the container
+            " -Djboss.bind.address.management=0.0.0.0" +
             " -Xms1024m" +
             " -Xmx1024m" +
             " -jar zaakafhandelcomponent.jar",

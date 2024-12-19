@@ -659,7 +659,7 @@ class ZaakRestService @Inject constructor(
     @PATCH
     @Path("/zaak/{uuid}/afsluiten")
     fun afsluiten(
-        @PathParam("uuid") zaakUUID: UUID?,
+        @PathParam("uuid") zaakUUID: UUID,
         afsluitenGegevens: RESTZaakAfsluitenGegevens
     ) {
         val zaak = zrcClientService.readZaak(zaakUUID)

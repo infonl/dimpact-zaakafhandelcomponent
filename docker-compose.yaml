@@ -640,7 +640,7 @@ services:
       "sh",
       "-c",
       # entrypoint may be overridden by environment variable to pass on extra arguments
-      "${ZAC_DOCKER_ENTRYPOINT:-java -Xms1024m -Xmx1024m -Xlog:gc::time,uptime -jar zaakafhandelcomponent.jar}",
+      "${ZAC_DOCKER_ENTRYPOINT:-java -Djboss.bind.address.management=0.0.0.0 -Xms1024m -Xmx1024m -Xlog:gc::time,uptime -jar zaakafhandelcomponent.jar}"
     ]
     deploy:
       resources:

@@ -100,7 +100,9 @@ public class DrcClientService {
             final EnkelvoudigInformatieObjectWithLockRequest enkelvoudigInformatieObjectWithLockRequest,
             final String toelichting
     ) {
-        zgwClientHeadersFactory.setAuditToelichting(toelichting);
+        if (toelichting != null) {
+            zgwClientHeadersFactory.setAuditToelichting(toelichting);
+        }
         return drcClient.enkelvoudigInformatieobjectPartialUpdate(uuid, enkelvoudigInformatieObjectWithLockRequest);
     }
 

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -51,8 +51,8 @@ export abstract class AbstractFormFieldBuilder {
     return this;
   }
 
-  hint(hint: string, align?: "start" | "end"): this {
-    this.formField.hint = new FormFieldHint(hint, align ? align : "end");
+  hint(hint: string): this {
+    this.formField.hint = new FormFieldHint(hint, "start");
     return this;
   }
 

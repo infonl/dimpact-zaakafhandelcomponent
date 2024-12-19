@@ -20,7 +20,7 @@ data class RESTUserEventListenerData(
 
     var resultaatToelichting: String? = null,
 
-    var resultaattypeUuid: UUID? = null,
+    var resultaattypeUuid: UUID,
 
     var restMailGegevens: RESTMailGegevens? = null
 )
