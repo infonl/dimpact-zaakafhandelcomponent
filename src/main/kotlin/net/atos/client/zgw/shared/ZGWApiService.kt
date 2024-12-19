@@ -250,19 +250,21 @@ class ZGWApiService @Inject constructor(
      * @param zaak [Zaak]
      * @return [RolOrganisatorischeEenheid] or 'null'.
      */
-    fun findGroepForZaak(zaak: Zaak): Optional<RolOrganisatorischeEenheid> =
-        findBehandelaarRoleForZaak(zaak, BetrokkeneType.ORGANISATORISCHE_EENHEID)
-            .map { RolOrganisatorischeEenheid::class.java.cast(it) }
+    fun findGroepForZaak(zaak: Zaak): RolOrganisatorischeEenheid? =
+        findBehandelaarRoleForZaak(zaak, BetrokkeneType.ORGANISATORISCHE_EENHEID)?.let {
+            RolOrganisatorischeEenheid::class.java.cast(it)
+        }
 
     /**
      * Find [RolMedewerker] for [Zaak] with behandelaar [OmschrijvingGeneriekEnum].
      *
      * @param zaak [Zaak]
-     * @return [RolMedewerker] or 'null'.
+     * @return [RolMedewerker] or 'null' if the rol medewerker could not be found.
      */
-    fun findBehandelaarMedewerkerRoleForZaak(zaak: Zaak): Optional<RolMedewerker> =
-        findBehandelaarRoleForZaak(zaak, BetrokkeneType.MEDEWERKER)
-            .map { RolMedewerker::class.java.cast(it) }
+    fun findBehandelaarMedewerkerRoleForZaak(zaak: Zaak): RolMedewerker? =
+        findBehandelaarRoleForZaak(zaak, BetrokkeneType.MEDEWERKER)?.let {
+            RolMedewerker::class.java.cast(it)
+        }
 
     fun findInitiatorRoleForZaak(zaak: Zaak): Optional<Rol<*>> =
         ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
@@ -274,12 +276,13 @@ class ZGWApiService @Inject constructor(
     private fun findBehandelaarRoleForZaak(
         zaak: Zaak,
         betrokkeneType: BetrokkeneType
-    ): Optional<Rol<*>> =
-        ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
-            // there should be only one behandelaar role type but in case there are multiple, we take the first one
-            .firstOrNull()?.let {
-                zrcClientService.listRollen(RolListParameters(zaak.url, it.url, betrokkeneType)).getSingleResult()
-            } ?: Optional.empty()
+    ): Rol<*>? = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+        // there should be one and only one 'behandelaar' role type
+        // but in case there are multiple, we take the first one
+        .firstOrNull()?.let {
+            zrcClientService.listRollen(RolListParameters(zaak.url, it.url, betrokkeneType))
+                .getSingleResult().takeIf { it.isPresent }?.get()
+        }
 
     private fun createStatusForZaak(zaakURI: URI, statustypeURI: URI, toelichting: String?): Status {
         val status = Status(zaakURI, statustypeURI, ZonedDateTime.now())

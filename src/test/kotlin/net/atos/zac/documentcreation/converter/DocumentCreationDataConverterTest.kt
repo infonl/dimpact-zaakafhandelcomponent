@@ -75,8 +75,8 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns Optional.of(rolNatuurlijkPersoon)
         every { brpClientService.retrievePersoon(rolNatuurlijkPersoon.identificatienummer) } returns persoon
         every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns Optional.of(rolMedewerker)
-        every { zgwApiService.findGroepForZaak(zaak) } returns Optional.of(rolOrganisatorischeEenheid)
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
+        every { zgwApiService.findGroepForZaak(zaak) } returns rolOrganisatorischeEenheid
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
 
         When("SmartDocuments data is created") {

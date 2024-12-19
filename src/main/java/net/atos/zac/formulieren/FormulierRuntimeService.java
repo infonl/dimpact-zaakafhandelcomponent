@@ -16,6 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -201,13 +202,13 @@ public class FormulierRuntimeService {
     }
 
     private String getGroepForZaakDefaultValue(final Zaak zaak) {
-        return zgwApiService.findGroepForZaak(zaak)
+        return Optional.ofNullable(zgwApiService.findGroepForZaak(zaak))
                 .map(groep -> identityService.readGroup(groep.getBetrokkeneIdentificatie().getIdentificatie()).getName())
                 .orElse(null);
     }
 
     private String getBehandelaarForZaakDefaultValue(final Zaak zaak) {
-        return zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+        return Optional.ofNullable(zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak))
                 .map(behandelaar -> identityService.readUser(behandelaar.getIdentificatienummer()).getFullName())
                 .orElse(null);
     }

@@ -519,9 +519,9 @@ class ZaakRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(toekennenGegevens.zaakUUID).also {
             assertPolicy(policyService.readZaakRechten(it).toekennen)
         }
-        val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
-            .map { it.betrokkeneIdentificatie.identificatie }
-            .orElse(null)
+        val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(
+            zaak
+        )?.betrokkeneIdentificatie?.identificatie
         val isUpdated = AtomicBoolean(false)
         if (behandelaar != toekennenGegevens.assigneeUserName) {
             toekennenGegevens.assigneeUserName?.takeIf { it.isNotEmpty() }?.let {
@@ -532,7 +532,7 @@ class ZaakRestService @Inject constructor(
                 ?: zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER, toekennenGegevens.reason)
             isUpdated.set(true)
         }
-        zgwApiService.findGroepForZaak(zaak).ifPresent {
+        zgwApiService.findGroepForZaak(zaak)?.let {
             val groupId = toekennenGegevens.groupId
             if (it.betrokkeneIdentificatie.identificatie != groupId) {
                 val group = identityService.readGroup(groupId)
