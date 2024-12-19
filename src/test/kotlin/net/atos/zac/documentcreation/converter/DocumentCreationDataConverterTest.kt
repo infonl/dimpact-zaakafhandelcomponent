@@ -99,8 +99,8 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
                     }
                     with(zaakData) {
                         zaaktype shouldBe zaakType.omschrijving
-                        behandelaar shouldBe "${rolMedewerker.betrokkeneIdentificatie.voorletters} " +
-                            "${rolMedewerker.betrokkeneIdentificatie.achternaam}"
+                        behandelaar shouldBe "${rolMedewerker.betrokkeneIdentificatie!!.voorletters} " +
+                            "${rolMedewerker.betrokkeneIdentificatie!!.achternaam}"
                         groep shouldBe rolOrganisatorischeEenheid.naam
                     }
                     startformulierData shouldBe null
