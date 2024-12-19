@@ -18,6 +18,7 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { injectQuery } from "@tanstack/angular-query-experimental";
+import { $e } from "codelyzer/angular/styles/chars";
 import { Observable, lastValueFrom, merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -29,7 +30,6 @@ import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
 import { ZoekVeld } from "../../zoeken/model/zoek-veld";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { KlantenService } from "../klanten.service";
-import {$e} from "codelyzer/angular/styles/chars";
 
 @Component({
   selector: "zac-klant-zaken-tabel",
@@ -181,5 +181,5 @@ export class KlantZakenTabelComponent
     this.filtersChanged();
   }
 
-    protected readonly $e = $e;
+  protected readonly $e = $e;
 }

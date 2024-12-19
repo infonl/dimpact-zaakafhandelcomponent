@@ -3,7 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient, provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
+import {
+  HttpClient,
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { MatDialog } from "@angular/material/dialog";
@@ -25,8 +29,8 @@ describe(KlantenService.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-    imports: [TranslateModule.forRoot()],
-    providers: [
+      imports: [TranslateModule.forRoot()],
+      providers: [
         Router,
         MatDialog,
         UtilService,
@@ -34,8 +38,8 @@ describe(KlantenService.name, () => {
         FoutAfhandelingService,
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-    ]
-});
+      ],
+    });
 
     http = TestBed.inject(HttpClient);
     service = TestBed.inject(KlantenService);

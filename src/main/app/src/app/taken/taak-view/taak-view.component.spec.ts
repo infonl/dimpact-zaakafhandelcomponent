@@ -4,6 +4,10 @@
  *
  */
 
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { MatSidenav } from "@angular/material/sidenav";
@@ -18,7 +22,6 @@ import { WebsocketService } from "../../core/websocket/websocket.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../taken.service";
 import { TaakViewComponent } from "./taak-view.component";
-import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 
 describe(TaakViewComponent.name, () => {
   let component: TaakViewComponent;
@@ -55,22 +58,24 @@ describe(TaakViewComponent.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-    imports: [MatSidenav,
+      imports: [
+        MatSidenav,
         RouterModule.forRoot([]),
-        TranslateModule.forRoot()],
-    providers: [
+        TranslateModule.forRoot(),
+      ],
+      providers: [
         TaakViewComponent,
         WebsocketService,
         TakenService,
         provideAnimations(),
         {
-            provide: ActivatedRoute,
-            useValue: { data: of({ taak }) },
+          provide: ActivatedRoute,
+          useValue: { data: of({ taak }) },
         },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
-    ]
-}).compileComponents();
+      ],
+    }).compileComponents();
 
     component = TestBed.inject(TaakViewComponent);
     component.ngOnInit();
