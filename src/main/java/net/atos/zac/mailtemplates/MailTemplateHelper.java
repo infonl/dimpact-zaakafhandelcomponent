@@ -145,7 +145,9 @@ public class MailTemplateHelper {
                     zaak.getUiterlijkeEinddatumAfdoening().format(DATE_FORMATTER));
 
             if (resolvedTekst.contains(ZAAK_STATUS.getVariabele())) {
-                resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_STATUS,
+                resolvedTekst = replaceVariabele(
+                        resolvedTekst,
+                        ZAAK_STATUS,
                         Optional.of(zaak.getStatus())
                                 .map(zrcClientService::readStatus)
                                 .map(Status::getStatustype)
@@ -244,9 +246,12 @@ public class MailTemplateHelper {
 
     private MailLink createMailLinkFromZaak(final Zaak zaak) {
         final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
-        return new MailLink(zaak.getIdentificatie(),
+        return new MailLink(
+                zaak.getIdentificatie(),
                 configuratieService.zaakTonenUrl(zaak.getIdentificatie()),
-                "de zaak", "(%s)".formatted(zaaktype.getOmschrijving()));
+                "de zaak",
+                "(%s)".formatted(zaaktype.getOmschrijving())
+        );
     }
 
     private MailLink createMailLinkFromTask(final TaskInfo taskInfo) {
