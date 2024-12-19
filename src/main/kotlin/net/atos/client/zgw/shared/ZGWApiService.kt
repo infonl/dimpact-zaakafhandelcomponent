@@ -36,7 +36,6 @@ import java.net.URI
 import java.time.LocalDate
 import java.time.Period
 import java.time.ZonedDateTime
-import java.util.Optional
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -266,12 +265,14 @@ class ZGWApiService @Inject constructor(
             RolMedewerker::class.java.cast(it)
         }
 
-    fun findInitiatorRoleForZaak(zaak: Zaak): Optional<Rol<*>> =
+    fun findInitiatorRoleForZaak(zaak: Zaak): Rol<*>? =
         ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
-            // there should be only one initiator role type but in case there are multiple, we take the first one
+            // there should be only one initiator role type,
+            // but in case there are multiple, we take the first one
             .firstOrNull()?.let {
-                zrcClientService.listRollen(RolListParameters(zaak.url, it.url)).getSingleResult()
-            } ?: Optional.empty()
+                zrcClientService.listRollen(RolListParameters(zaak.url, it.url))
+                    .getSingleResult().takeIf { it.isPresent }?.get()
+            }
 
     private fun findBehandelaarRoleForZaak(
         zaak: Zaak,

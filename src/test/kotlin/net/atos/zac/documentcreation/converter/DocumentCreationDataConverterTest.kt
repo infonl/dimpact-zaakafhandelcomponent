@@ -32,7 +32,6 @@ import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
-import java.util.Optional
 
 class DocumentCreationDataConverterTest : BehaviorSpec({
     val zgwApiService = mockk<ZGWApiService>()
@@ -72,7 +71,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         val rolMedewerker = createRolMedewerker()
         val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid()
 
-        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns Optional.of(rolNatuurlijkPersoon)
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNatuurlijkPersoon
         every { brpClientService.retrievePersoon(rolNatuurlijkPersoon.identificatienummer) } returns persoon
         every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker

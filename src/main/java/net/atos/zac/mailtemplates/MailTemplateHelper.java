@@ -165,7 +165,7 @@ public class MailTemplateHelper {
                 resolvedTekst.contains(ZAAK_INITIATOR_ADRES.getVariabele())) {
                 resolvedTekst = replaceInitiatorVariabelen(
                         resolvedTekst,
-                        zgwApiService.findInitiatorRoleForZaak(zaak)
+                        Optional.ofNullable(zgwApiService.findInitiatorRoleForZaak(zaak))
                 );
             }
 
