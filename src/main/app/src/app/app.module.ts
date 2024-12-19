@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient, HttpClientModule } from "@angular/common/http";
+import { HttpClient, provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 import { Injector, NgModule } from "@angular/core";
 
 import {
@@ -41,42 +41,36 @@ import { ZoekenModule } from "./zoeken/zoeken.module";
 const httpLoaderFactory = (http: HttpClient) =>
   new TranslateHttpLoader(http, "./assets/i18n/", ".json");
 
-@NgModule({
-  declarations: [AppComponent, ToolbarComponent, ActionBarComponent],
-  imports: [
-    HttpClientModule,
-    CoreModule,
-    SharedModule,
-    DashboardModule,
-    FoutAfhandelingModule,
-    ZakenModule,
-    ZoekenModule,
-    InformatieObjectenModule,
-    DocumentenModule,
-    MailModule,
-    PlanItemsModule,
-    ProductaanvragenModule,
-    SignaleringenModule,
-    TakenModule,
-    AdminModule,
-    GebruikersvoorkeurenModule,
-    AppRoutingModule,
-    TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: httpLoaderFactory,
-        deps: [HttpClient],
-      },
-    }),
-  ],
-  exports: [ToolbarComponent],
-  providers: [
-    { provide: APP_BASE_HREF, useValue: "/" },
-    { provide: LocationStrategy, useClass: PathLocationStrategy },
-    provideAngularQuery(new QueryClient()),
-  ],
-  bootstrap: [AppComponent],
-})
+@NgModule({ declarations: [AppComponent, ToolbarComponent, ActionBarComponent],
+    exports: [ToolbarComponent],
+    bootstrap: [AppComponent], imports: [CoreModule,
+        SharedModule,
+        DashboardModule,
+        FoutAfhandelingModule,
+        ZakenModule,
+        ZoekenModule,
+        InformatieObjectenModule,
+        DocumentenModule,
+        MailModule,
+        PlanItemsModule,
+        ProductaanvragenModule,
+        SignaleringenModule,
+        TakenModule,
+        AdminModule,
+        GebruikersvoorkeurenModule,
+        AppRoutingModule,
+        TranslateModule.forRoot({
+            loader: {
+                provide: TranslateLoader,
+                useFactory: httpLoaderFactory,
+                deps: [HttpClient],
+            },
+        })], providers: [
+        { provide: APP_BASE_HREF, useValue: "/" },
+        { provide: LocationStrategy, useClass: PathLocationStrategy },
+        provideAngularQuery(new QueryClient()),
+        provideHttpClient(withInterceptorsFromDi()),
+    ] })
 export class AppModule {
   static injector: Injector;
 

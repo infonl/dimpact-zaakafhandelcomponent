@@ -3,12 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  HttpClient,
-  HttpEvent,
-  HttpEventType,
-  HttpHeaders,
-} from "@angular/common/http";
+import { HttpClient, HttpEvent, HttpEventType, HttpHeaders } from "@angular/common/http";
 import {
   ChangeDetectorRef,
   Component,
