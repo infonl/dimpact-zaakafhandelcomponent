@@ -99,12 +99,12 @@ fun createRolNatuurlijkPersoon(
 )
 
 fun createRolOrganisatorischeEenheid(
-    zaaktypeURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
-    rolType: RolType = createRolType(zaakTypeUri = zaaktypeURI),
+    zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    rolType: RolType = createRolType(),
     toelichting: String = "dummyToelichting",
     organisatorischeEenheid: OrganisatorischeEenheid = createOrganisatorischeEenheid()
 ) = RolOrganisatorischeEenheid(
-    zaaktypeURI,
+    zaakURI,
     rolType,
     toelichting,
     organisatorischeEenheid

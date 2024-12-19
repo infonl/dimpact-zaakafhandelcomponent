@@ -92,7 +92,9 @@ public class ZrcClientService {
      * @return Created {@link Rol}.
      */
     public Rol<?> createRol(final Rol<?> rol, final String toelichting) {
-        zgwClientHeadersFactory.setAuditToelichting(toelichting);
+        if (toelichting != null) {
+            zgwClientHeadersFactory.setAuditToelichting(toelichting);
+        }
         return zrcClient.rolCreate(rol);
     }
 
@@ -103,7 +105,9 @@ public class ZrcClientService {
      * @param toelichting de toelichting
      */
     public void deleteRol(final Rol<?> rol, final String toelichting) {
-        zgwClientHeadersFactory.setAuditToelichting(toelichting);
+        if (toelichting != null) {
+            zgwClientHeadersFactory.setAuditToelichting(toelichting);
+        }
         zrcClient.rolDelete(rol.getUuid());
     }
 
@@ -123,7 +127,9 @@ public class ZrcClientService {
      * @param zaakobject {@link Zaakobject}.
      */
     public void deleteZaakobject(final Zaakobject zaakobject, final String toelichting) {
-        zgwClientHeadersFactory.setAuditToelichting(toelichting);
+        if (toelichting != null) {
+            zgwClientHeadersFactory.setAuditToelichting(toelichting);
+        }
         zrcClient.zaakobjectDelete(zaakobject.getUuid());
     }
 
@@ -145,7 +151,9 @@ public class ZrcClientService {
      * @return ZaakInformatieobject
      */
     public ZaakInformatieobject createZaakInformatieobject(final ZaakInformatieobject zaakInformatieobject, final String toelichting) {
-        zgwClientHeadersFactory.setAuditToelichting(toelichting);
+        if (toelichting != null) {
+            zgwClientHeadersFactory.setAuditToelichting(toelichting);
+        }
         return zrcClient.zaakinformatieobjectCreate(zaakInformatieobject);
     }
 
@@ -304,7 +312,9 @@ public class ZrcClientService {
      * @return Updated {@link Zaak}
      */
     public Zaak patchZaak(final UUID zaakUUID, final Zaak zaak, final String toelichting) {
-        zgwClientHeadersFactory.setAuditToelichting(toelichting);
+        if (toelichting != null) {
+            zgwClientHeadersFactory.setAuditToelichting(toelichting);
+        }
         return patchZaak(zaakUUID, zaak);
     }
 
@@ -450,12 +460,16 @@ public class ZrcClientService {
     }
 
     public Resultaat createResultaat(final Resultaat resultaat) {
-        zgwClientHeadersFactory.setAuditToelichting(resultaat.getToelichting());
+        if (resultaat.getToelichting() != null) {
+            zgwClientHeadersFactory.setAuditToelichting(resultaat.getToelichting());
+        }
         return zrcClient.resultaatCreate(resultaat);
     }
 
     public Resultaat updateResultaat(final Resultaat resultaat) {
-        zgwClientHeadersFactory.setAuditToelichting(resultaat.getToelichting());
+        if (resultaat.getToelichting() != null) {
+            zgwClientHeadersFactory.setAuditToelichting(resultaat.getToelichting());
+        }
         return zrcClient.resultaatUpdate(resultaat.getUuid(), resultaat);
     }
 
@@ -464,12 +478,16 @@ public class ZrcClientService {
     }
 
     public Zaak createZaak(final Zaak zaak) {
-        zgwClientHeadersFactory.setAuditToelichting(zaak.getToelichting());
+        if (zaak.getToelichting() != null) {
+            zgwClientHeadersFactory.setAuditToelichting(zaak.getToelichting());
+        }
         return zrcClient.zaakCreate(zaak);
     }
 
     public Status createStatus(final Status status) {
-        zgwClientHeadersFactory.setAuditToelichting(status.getStatustoelichting());
+        if (status.getStatustoelichting() != null) {
+            zgwClientHeadersFactory.setAuditToelichting(status.getStatustoelichting());
+        }
         return zrcClient.statusCreate(status);
     }
 
