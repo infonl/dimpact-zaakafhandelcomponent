@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClientModule } from "@angular/common/http";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
@@ -14,12 +14,13 @@ describe("ZaakService", () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
+    imports: [],
+    providers: [
         { provide: FoutAfhandelingService, useValue: {} },
         { provide: TranslateService, useValue: {} },
-      ],
-      imports: [HttpClientModule],
-    });
+        provideHttpClient(withInterceptorsFromDi()),
+    ]
+});
 
     service = TestBed.inject(ZakenService);
   });

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClientTestingModule } from "@angular/common/http/testing";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
 import isEqual from "lodash/isEqual";
@@ -18,6 +18,7 @@ import {
   SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
   SOME_UNMAPPED_SMARTDOCUMENTS_TEMPLATE_GROUPS_WITH_PARENT_IDS,
 } from "./smart-documents.service.test-data";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 
 describe("SmartDocumentsService service functions tests", () => {
   let smartDocumentsService: SmartDocumentsService;
@@ -35,16 +36,18 @@ describe("SmartDocumentsService service functions tests", () => {
     });
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [
+    imports: [],
+    providers: [
         SmartDocumentsService,
         {
-          provide: FoutAfhandelingService,
-          useValue: mockFoutAfhandelingService,
+            provide: FoutAfhandelingService,
+            useValue: mockFoutAfhandelingService,
         },
         { provide: TranslateService, useValue: mockTranslateService },
-      ],
-    });
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+    ]
+});
 
     smartDocumentsService = TestBed.inject(SmartDocumentsService);
   });

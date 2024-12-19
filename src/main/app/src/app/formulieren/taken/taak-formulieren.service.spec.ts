@@ -5,7 +5,7 @@
 
 import { TestBed } from "@angular/core/testing";
 
-import { HttpClientModule } from "@angular/common/http";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 import { TranslateService } from "@ngx-translate/core";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { TaakFormulierenService } from "./taak-formulieren.service";
@@ -15,12 +15,13 @@ describe("TaakFormulierenService", () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
+    imports: [],
+    providers: [
         { provide: FoutAfhandelingService, useValue: {} },
         { provide: TranslateService, useValue: {} },
-      ],
-      imports: [HttpClientModule],
-    });
+        provideHttpClient(withInterceptorsFromDi()),
+    ]
+});
     service = TestBed.inject(TaakFormulierenService);
   });
 
