@@ -13,5 +13,5 @@ import java.util.UUID
 data class RESTZaakAfsluitenGegevens(
     var reden: String? = null,
 
-    var resultaattypeUuid: UUID? = null
+    var resultaattypeUuid: UUID
 )

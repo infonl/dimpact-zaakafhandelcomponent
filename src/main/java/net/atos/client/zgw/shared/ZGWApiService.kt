@@ -1,409 +1,363 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.client.zgw.shared
 
-package net.atos.client.zgw.shared;
-
-import static net.atos.client.zgw.shared.util.DateTimeUtil.convertToDateTime;
-import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
-
-import java.net.URI;
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.logging.Logger;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
-import org.apache.commons.lang3.StringUtils;
-
-import net.atos.client.zgw.drc.DrcClientService;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest;
-import net.atos.client.zgw.drc.model.generated.Gebruiksrechten;
-import net.atos.client.zgw.zrc.ZrcClientService;
-import net.atos.client.zgw.zrc.model.BetrokkeneType;
-import net.atos.client.zgw.zrc.model.Rol;
-import net.atos.client.zgw.zrc.model.RolListParameters;
-import net.atos.client.zgw.zrc.model.RolMedewerker;
-import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
-import net.atos.client.zgw.zrc.model.Status;
-import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
-import net.atos.client.zgw.zrc.model.generated.Resultaat;
-import net.atos.client.zgw.ztc.ZtcClientService;
-import net.atos.client.zgw.ztc.model.generated.AfleidingswijzeEnum;
-import net.atos.client.zgw.ztc.model.generated.BrondatumArchiefprocedure;
-import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
-import net.atos.client.zgw.ztc.model.generated.ResultaatType;
-import net.atos.client.zgw.ztc.model.generated.StatusType;
-import net.atos.client.zgw.ztc.model.generated.ZaakType;
-
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.inject.Inject
+import net.atos.client.zgw.drc.DrcClientService
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
+import net.atos.client.zgw.drc.model.generated.Gebruiksrechten
+import net.atos.client.zgw.shared.util.DateTimeUtil
+import net.atos.client.zgw.shared.util.DateTimeUtil.convertToDateTime
+import net.atos.client.zgw.util.extractUuid
+import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.model.BetrokkeneType
+import net.atos.client.zgw.zrc.model.Rol
+import net.atos.client.zgw.zrc.model.RolListParameters
+import net.atos.client.zgw.zrc.model.RolMedewerker
+import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
+import net.atos.client.zgw.zrc.model.Status
+import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.client.zgw.zrc.model.ZaakInformatieobject
+import net.atos.client.zgw.zrc.model.generated.Resultaat
+import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.client.zgw.ztc.model.generated.AfleidingswijzeEnum
+import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import net.atos.client.zgw.ztc.model.generated.ResultaatType
+import net.atos.client.zgw.ztc.model.generated.RolType
+import net.atos.client.zgw.ztc.model.generated.StatusType
+import nl.lifely.zac.util.AllOpen
+import nl.lifely.zac.util.NoArgConstructor
+import org.apache.commons.lang3.StringUtils
+import java.net.URI
+import java.time.LocalDate
+import java.time.Period
+import java.time.ZonedDateTime
+import java.util.Objects
+import java.util.Optional
+import java.util.UUID
+import java.util.function.Function
+import java.util.function.Supplier
+import java.util.logging.Logger
 
 /**
  * Service class for ZGW API's.
  */
 @ApplicationScoped
-public class ZGWApiService {
-    private static final Logger LOG = Logger.getLogger(ZGWApiService.class.getName());
+@Suppress("TooManyFunctions")
+@AllOpen
+@NoArgConstructor
+class ZGWApiService @Inject constructor(
+    val ztcClientService: ZtcClientService,
+    val zrcClientService: ZrcClientService,
+    val drcClientService: DrcClientService
+) {
+    companion object {
+        private val LOG: Logger = Logger.getLogger(ZGWApiService::class.java.getName())
 
-    // Page numbering in ZGW Api's starts with 1
-    public static final int FIRST_PAGE_NUMBER_ZGW_APIS = 1;
-
-    private ZtcClientService ztcClientService;
-    private ZrcClientService zrcClientService;
-    private DrcClientService drcClientService;
-
-    /**
-     * Default no-arg constructor, required by Weld.
-     */
-    public ZGWApiService() {
+        // Page numbering in ZGW APIs starts with 1
+        const val FIRST_PAGE_NUMBER_ZGW_APIS: Int = 1
     }
 
-    @Inject
-    public ZGWApiService(
-            final ZtcClientService ztcClientService,
-            final ZrcClientService zrcClientService,
-            final DrcClientService drcClientService
+    /**
+     * Create [Zaak] and calculate Doorlooptijden.
+     *
+     * @param zaak [Zaak]
+     * @return Created [Zaak]
+     */
+    fun createZaak(zaak: Zaak): Zaak {
+        calculateDoorlooptijden(zaak)
+        return zrcClientService.createZaak(zaak)
+    }
+
+    /**
+     * Create [Status] for a given [Zaak] based on [StatusType].omschrijving and with [Status].toelichting.
+     *
+     * @param zaak                   [Zaak]
+     * @param statusTypeOmschrijving Omschrijving of the [StatusType] of the required [Status].
+     * @param statusToelichting      Toelichting for thew [Status].
+     * @return Created [Status].
+     */
+    fun createStatusForZaak(
+        zaak: Zaak,
+        statusTypeOmschrijving: String,
+        statusToelichting: String?
+    ): Status {
+        val statustype = readStatustype(
+            statustypes = ztcClientService.readStatustypen(zaak.zaaktype),
+            omschrijving = statusTypeOmschrijving,
+            zaaktypeURI = zaak.zaaktype
+        )
+        return createStatusForZaak(zaak.url, statustype.url, statusToelichting)
+    }
+
+    /**
+     * Create [Resultaat] for a given [Zaak] based on [ResultaatType] .omschrijving and with
+     * [Resultaat].toelichting.
+     *
+     * @param zaak                      [Zaak]
+     * @param resultaattypeOmschrijving Omschrijving of the [ResultaatType] of the required [Resultaat].
+     * @param resultaatToelichting      Toelichting for thew [Resultaat].
+     */
+    fun createResultaatForZaak(
+        zaak: Zaak,
+        resultaattypeOmschrijving: String,
+        resultaatToelichting: String
     ) {
-        this.ztcClientService = ztcClientService;
-        this.zrcClientService = zrcClientService;
-        this.drcClientService = drcClientService;
+        val resultaattypen = ztcClientService.readResultaattypen(zaak.getZaaktype())
+        val resultaattype = filterResultaattype(
+            resultaattypen,
+            resultaattypeOmschrijving,
+            zaak.zaaktype
+        )
+        createResultaat(zaak.url, resultaattype.url, resultaatToelichting)
     }
 
     /**
-     * Create {@link Zaak} and calculate Doorlooptijden.
+     * Create [Resultaat] for a given [Zaak] based on [ResultaatType].UUID and with [Resultaat].toelichting.
      *
-     * @param zaak {@link Zaak}
-     * @return Created {@link Zaak}
+     * @param zaak                 [Zaak]
+     * @param resultaattypeUUID    UUID of the [ResultaatType] of the required [Resultaat].
+     * @param resultaatToelichting Toelichting for thew [Resultaat].
      */
-    public Zaak createZaak(final Zaak zaak) {
-        calculateDoorlooptijden(zaak);
-        return zrcClientService.createZaak(zaak);
-    }
-
-    /**
-     * Create {@link Status} for a given {@link Zaak} based on {@link StatusType}.omschrijving and with {@link Status}.toelichting.
-     *
-     * @param zaak                   {@link Zaak}
-     * @param statusTypeOmschrijving Omschrijving of the {@link StatusType} of the required {@link Status}.
-     * @param statusToelichting      Toelichting for thew {@link Status}.
-     * @return Created {@link Status}.
-     */
-    public Status createStatusForZaak(
-            final Zaak zaak,
-            final String statusTypeOmschrijving,
-            final String statusToelichting
+    fun createResultaatForZaak(
+        zaak: Zaak,
+        resultaattypeUUID: UUID,
+        resultaatToelichting: String?
     ) {
-        final StatusType statustype = readStatustype(ztcClientService.readStatustypen(zaak.getZaaktype()),
-                statusTypeOmschrijving, zaak.getZaaktype()
-        );
-        return createStatusForZaak(zaak.getUrl(), statustype.getUrl(), statusToelichting);
+        val resultaattype = ztcClientService.readResultaattype(resultaattypeUUID)
+        createResultaat(zaak.url, resultaattype.url, resultaatToelichting)
     }
 
     /**
-     * Create {@link Resultaat} for a given {@link Zaak} based on {@link ResultaatType} .omschrijving and with
-     * {@link Resultaat}.toelichting.
+     * Update [Resultaat] for a given [Zaak] based on [ResultaatType].UUID and with [Resultaat] .toelichting.
      *
-     * @param zaak                      {@link Zaak}
-     * @param resultaattypeOmschrijving Omschrijving of the {@link ResultaatType} of the required {@link Resultaat}.
-     * @param resultaatToelichting      Toelichting for thew {@link Resultaat}.
+     * @param zaak              [Zaak]
+     * @param resultaatTypeUuid Containing the UUID of the [ResultaatType] of the required [Resultaat].
+     * @param reden             Reason of setting the [ResultaatType]
      */
-    public void createResultaatForZaak(
-            final Zaak zaak,
-            final String resultaattypeOmschrijving,
-            final String resultaatToelichting
-    ) {
-        final List<ResultaatType> resultaattypen = ztcClientService.readResultaattypen(zaak.getZaaktype());
-        final ResultaatType resultaattype = filterResultaattype(
-                resultaattypen,
-                resultaattypeOmschrijving,
-                zaak.getZaaktype()
-        );
-        createResultaat(zaak.getUrl(), resultaattype.getUrl(), resultaatToelichting);
-    }
-
-    /**
-     * Create {@link Resultaat} for a given {@link Zaak} based on {@link ResultaatType}.UUID and with {@link Resultaat}.toelichting.
-     *
-     * @param zaak                 {@link Zaak}
-     * @param resultaattypeUUID    UUID of the {@link ResultaatType} of the required {@link Resultaat}.
-     * @param resultaatToelichting Toelichting for thew {@link Resultaat}.
-     */
-    public void createResultaatForZaak(
-            final Zaak zaak,
-            final UUID resultaattypeUUID,
-            final String resultaatToelichting
-    ) {
-        final ResultaatType resultaattype = ztcClientService.readResultaattype(resultaattypeUUID);
-        createResultaat(zaak.getUrl(), resultaattype.getUrl(), resultaatToelichting);
-    }
-
-    /**
-     * Update {@link Resultaat} for a given {@link Zaak} based on {@link ResultaatType}.UUID and with {@link Resultaat} .toelichting.
-     *
-     * @param zaak              {@link Zaak}
-     * @param resultaatTypeUuid Containing the UUID of the {@link ResultaatType} of the required {@link Resultaat}.
-     * @param reden             Reason of setting the {@link ResultaatType}
-     */
-    public void updateResultaatForZaak(final Zaak zaak, final UUID resultaatTypeUuid, final String reden) {
-        if (zaak.getResultaat() != null) {
-            final Resultaat resultaat = zrcClientService.readResultaat(zaak.getResultaat());
-            zrcClientService.deleteResultaat(resultaat.getUuid());
+    fun updateResultaatForZaak(zaak: Zaak, resultaatTypeUuid: UUID, reden: String?) {
+        zaak.resultaat?.let {
+            val resultaat = zrcClientService.readResultaat(it)
+            zrcClientService.deleteResultaat(resultaat.uuid)
         }
-        createResultaatForZaak(zaak, resultaatTypeUuid, reden);
+        createResultaatForZaak(zaak, resultaatTypeUuid, reden)
     }
 
     /**
-     * End {@link Zaak}. Creating a new Eind {@link Status} for the {@link Zaak}. And calculating the archiverings parameters
+     * End [Zaak]. Creating a new Eind [Status] for the [Zaak]. And calculating the archiverings parameters
      *
-     * @param zaak                  {@link Zaak}
-     * @param eindstatusToelichting Toelichting for thew Eind {@link Status}.
+     * @param zaak                  [Zaak]
+     * @param eindstatusToelichting Toelichting for thew Eind [Status].
      */
-    public void endZaak(final Zaak zaak, final String eindstatusToelichting) {
-        closeZaak(zaak, eindstatusToelichting);
-        berekenArchiveringsparameters(zaak.getUuid());
+    fun endZaak(zaak: Zaak, eindstatusToelichting: String) {
+        closeZaak(zaak, eindstatusToelichting)
+        berekenArchiveringsparameters(zaak.uuid)
     }
 
     /**
-     * End {@link Zaak}. Creating a new Eind {@link Status} for the {@link Zaak}. And calculating the archiverings parameters
+     * End [Zaak]. Creating a new Eind [Status] for the [Zaak]. And calculating the archiverings parameters
      *
-     * @param zaakUUID              UUID of the {@link Zaak}
-     * @param eindstatusToelichting Toelichting for thew Eind {@link Status}.
+     * @param zaakUUID              UUID of the [Zaak]
+     * @param eindstatusToelichting Toelichting for thew Eind [Status].
      */
-    public void endZaak(final UUID zaakUUID, final String eindstatusToelichting) {
-        final Zaak zaak = zrcClientService.readZaak(zaakUUID);
-        endZaak(zaak, eindstatusToelichting);
+    fun endZaak(zaakUUID: UUID, eindstatusToelichting: String) {
+        val zaak = zrcClientService.readZaak(zaakUUID)
+        endZaak(zaak, eindstatusToelichting)
     }
 
     /**
-     * Close {@link Zaak}. Creating a new Eind {@link Status} for the {@link Zaak}.
+     * Close [Zaak]. Creating a new Eind [Status] for the [Zaak].
      *
-     * @param zaak                  {@link Zaak} to be closed
-     * @param eindstatusToelichting Toelichting for thew Eind {@link Status}.
+     * @param zaak                  [Zaak] to be closed
+     * @param eindstatusToelichting Toelichting for thew Eind [Status].
      */
-    public void closeZaak(final Zaak zaak, final String eindstatusToelichting) {
-        final StatusType eindStatustype = readStatustypeEind(
-                ztcClientService.readStatustypen(zaak.getZaaktype()),
-                zaak.getZaaktype()
-        );
-        createStatusForZaak(zaak.getUrl(), eindStatustype.getUrl(), eindstatusToelichting);
+    fun closeZaak(zaak: Zaak, eindstatusToelichting: String?) {
+        val eindStatustype = readStatustypeEind(
+            ztcClientService.readStatustypen(zaak.zaaktype),
+            zaak.zaaktype
+        )
+        createStatusForZaak(zaak.url, eindStatustype.url, eindstatusToelichting)
     }
 
     /**
-     * Create {@link EnkelvoudigInformatieObject} and {@link ZaakInformatieobject} for {@link Zaak}.
+     * Create [EnkelvoudigInformatieObject] and [ZaakInformatieobject] for [Zaak].
      *
-     * @param zaak                                         {@link Zaak}.
-     * @param enkelvoudigInformatieObjectCreateLockRequest {@link EnkelvoudigInformatieObject} to be created.
-     * @param titel                                        Titel of the new {@link ZaakInformatieobject}.
-     * @param beschrijving                                 Beschrijving of the new {@link ZaakInformatieobject}.
-     * @param omschrijvingVoorwaardenGebruiksrechten       Used to create the {@link Gebruiksrechten} for the to be created
-     *                                                     {@link EnkelvoudigInformatieObject}
-     * @return Created {@link ZaakInformatieobject}.
+     * @param zaak                                         [Zaak].
+     * @param enkelvoudigInformatieObjectCreateLockRequest [EnkelvoudigInformatieObject] to be created.
+     * @param titel                                        Titel of the new [ZaakInformatieobject].
+     * @param beschrijving                                 Beschrijving of the new [ZaakInformatieobject].
+     * @param omschrijvingVoorwaardenGebruiksrechten       Used to create the [Gebruiksrechten] for the to be created
+     * [EnkelvoudigInformatieObject]
+     * @return Created [ZaakInformatieobject].
      */
-    public ZaakInformatieobject createZaakInformatieobjectForZaak(
-            final Zaak zaak,
-            final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieObjectCreateLockRequest,
-            final String titel,
-            final String beschrijving,
-            final String omschrijvingVoorwaardenGebruiksrechten
+    fun createZaakInformatieobjectForZaak(
+        zaak: Zaak,
+        enkelvoudigInformatieObjectCreateLockRequest: EnkelvoudigInformatieObjectCreateLockRequest?,
+        titel: String?,
+        beschrijving: String?,
+        omschrijvingVoorwaardenGebruiksrechten: String?
+    ): ZaakInformatieobject {
+        val newInformatieObjectData = drcClientService.createEnkelvoudigInformatieobject(
+            enkelvoudigInformatieObjectCreateLockRequest
+        )
+        val gebruiksrechten = Gebruiksrechten()
+        gebruiksrechten.informatieobject = newInformatieObjectData.url
+        gebruiksrechten.startdatum = convertToDateTime(newInformatieObjectData.creatiedatum).toOffsetDateTime()
+        gebruiksrechten.omschrijvingVoorwaarden = omschrijvingVoorwaardenGebruiksrechten
+        drcClientService.createGebruiksrechten(gebruiksrechten)
+
+        val zaakInformatieObject = ZaakInformatieobject()
+        zaakInformatieObject.zaak = zaak.url
+        zaakInformatieObject.informatieobject = newInformatieObjectData.url
+        zaakInformatieObject.titel = titel
+        zaakInformatieObject.beschrijving = beschrijving
+        return zrcClientService.createZaakInformatieobject(zaakInformatieObject, StringUtils.EMPTY)
+    }
+
+    /**
+     * Delete [ZaakInformatieobject] which relates [EnkelvoudigInformatieObject] and [Zaak] with zaakUUID. When the
+     * [EnkelvoudigInformatieObject] has no other related [ZaakInformatieobject]s then it is also deleted.
+     *
+     * @param enkelvoudigInformatieobject [EnkelvoudigInformatieObject]
+     * @param zaakUUID                    UUID of a [Zaak]
+     * @param toelichting                 Explanation why the [EnkelvoudigInformatieObject] is to be removed.
+     */
+    fun removeEnkelvoudigInformatieObjectFromZaak(
+        enkelvoudigInformatieobject: EnkelvoudigInformatieObject,
+        zaakUUID: UUID?,
+        toelichting: String?
     ) {
-        final EnkelvoudigInformatieObject newInformatieObjectData = drcClientService.createEnkelvoudigInformatieobject(
-                enkelvoudigInformatieObjectCreateLockRequest
-        );
-        final Gebruiksrechten gebruiksrechten = new Gebruiksrechten();
-        gebruiksrechten.setInformatieobject(newInformatieObjectData.getUrl());
-        gebruiksrechten.setStartdatum(convertToDateTime(newInformatieObjectData.getCreatiedatum()).toOffsetDateTime());
-        gebruiksrechten.setOmschrijvingVoorwaarden(omschrijvingVoorwaardenGebruiksrechten);
-        drcClientService.createGebruiksrechten(gebruiksrechten);
-
-        final ZaakInformatieobject zaakInformatieObject = new ZaakInformatieobject();
-        zaakInformatieObject.setZaak(zaak.getUrl());
-        zaakInformatieObject.setInformatieobject(newInformatieObjectData.getUrl());
-        zaakInformatieObject.setTitel(titel);
-        zaakInformatieObject.setBeschrijving(beschrijving);
-        return zrcClientService.createZaakInformatieobject(zaakInformatieObject, StringUtils.EMPTY);
-    }
-
-    /**
-     * Delete {@link ZaakInformatieobject} which relates {@link EnkelvoudigInformatieObject} and {@link Zaak} with zaakUUID. When the
-     * {@link EnkelvoudigInformatieObject} has no other related {@link ZaakInformatieobject}s then it is also deleted.
-     *
-     * @param enkelvoudigInformatieobject {@link EnkelvoudigInformatieObject}
-     * @param zaakUUID                    UUID of a {@link Zaak}
-     * @param toelichting                 Explanation why the {@link EnkelvoudigInformatieObject} is to be removed.
-     */
-    public void removeEnkelvoudigInformatieObjectFromZaak(
-            final EnkelvoudigInformatieObject enkelvoudigInformatieobject,
-            final UUID zaakUUID,
-            final String toelichting
-    ) {
-        final List<ZaakInformatieobject> zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
-                enkelvoudigInformatieobject);
+        val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
+            enkelvoudigInformatieobject
+        )
         // Delete the relationship of the EnkelvoudigInformatieobject with the zaak.
-        zaakInformatieobjecten.stream()
-                .filter(zaakInformatieobject -> zaakInformatieobject.getZaakUUID().equals(zaakUUID))
-                .forEach(zaakInformatieobject -> zrcClientService.deleteZaakInformatieobject(
-                        zaakInformatieobject.getUuid(),
-                        toelichting,
-                        "Verwijderd"
-                ));
+        zaakInformatieobjecten
+            .filter { it.zaakUUID == zaakUUID }
+            .forEach { zrcClientService.deleteZaakInformatieobject(it.uuid, toelichting, "Verwijderd") }
 
         // If the EnkelvoudigInformatieobject has no relationship(s) with other zaken it can be deleted.
-        if (zaakInformatieobjecten.stream()
-                .allMatch(zaakInformatieobject -> zaakInformatieobject.getZaakUUID().equals(zaakUUID))) {
-            drcClientService.deleteEnkelvoudigInformatieobject(extractUuid(enkelvoudigInformatieobject.getUrl()));
+        if (zaakInformatieobjecten.all { it.zaakUUID == zaakUUID }) {
+            drcClientService.deleteEnkelvoudigInformatieobject(enkelvoudigInformatieobject.getUrl().extractUuid())
         }
     }
 
     /**
-     * Find {@link RolOrganisatorischeEenheid} for {@link Zaak} with behandelaar {@link OmschrijvingGeneriekEnum}.
+     * Find [RolOrganisatorischeEenheid] for [Zaak] with behandelaar [OmschrijvingGeneriekEnum].
      *
-     * @param zaak {@link Zaak}
-     * @return {@link RolOrganisatorischeEenheid} or 'null'.
+     * @param zaak [Zaak]
+     * @return [RolOrganisatorischeEenheid] or 'null'.
      */
-    public Optional<RolOrganisatorischeEenheid> findGroepForZaak(final Zaak zaak) {
+    fun findGroepForZaak(zaak: Zaak): Optional<RolOrganisatorischeEenheid> {
         return findBehandelaarRoleForZaak(zaak, BetrokkeneType.ORGANISATORISCHE_EENHEID)
-                .map(RolOrganisatorischeEenheid.class::cast);
+            .map { RolOrganisatorischeEenheid::class.java.cast(it) }
     }
 
     /**
-     * Find {@link RolMedewerker} for {@link Zaak} with behandelaar {@link OmschrijvingGeneriekEnum}.
+     * Find [RolMedewerker] for [Zaak] with behandelaar [OmschrijvingGeneriekEnum].
      *
-     * @param zaak {@link Zaak}
-     * @return {@link RolMedewerker} or 'null'.
+     * @param zaak [Zaak]
+     * @return [RolMedewerker] or 'null'.
      */
-    public Optional<RolMedewerker> findBehandelaarMedewerkerRoleForZaak(final Zaak zaak) {
+    fun findBehandelaarMedewerkerRoleForZaak(zaak: Zaak): Optional<RolMedewerker> {
         return findBehandelaarRoleForZaak(zaak, BetrokkeneType.MEDEWERKER)
-                .map(RolMedewerker.class::cast);
+            .map { RolMedewerker::class.java.cast(it) }
     }
 
-    public Optional<Rol<?>> findInitiatorRoleForZaak(final Zaak zaak) {
-        return ztcClientService.findRoltypen(zaak.getZaaktype(), OmschrijvingGeneriekEnum.INITIATOR)
-                .stream()
-                // there should be only one initiator role type but in case there are multiple, we take the first one
-                .findFirst()
-                .flatMap(roltype -> zrcClientService.listRollen(
-                        new RolListParameters(zaak.getUrl(), roltype.getUrl())).getSingleResult()
-                );
+    fun findInitiatorRoleForZaak(zaak: Zaak): Optional<Rol<*>> =
+        ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
+            // there should be only one initiator role type but in case there are multiple, we take the first one
+            .firstOrNull()?.let {
+             zrcClientService.listRollen(RolListParameters(zaak.url, it.url)).getSingleResult()
+            } ?: Optional.empty()
+
+    private fun findBehandelaarRoleForZaak(
+        zaak: Zaak,
+        betrokkeneType: BetrokkeneType
+    ): Optional<Rol<*>> =
+         ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            // there should be only one behandelaar role type but in case there are multiple, we take the first one
+            .firstOrNull()?.let {
+                zrcClientService.listRollen(RolListParameters(zaak.url, it.url, betrokkeneType)).getSingleResult()
+            } ?: Optional.empty()
+
+    private fun createStatusForZaak(zaakURI: URI, statustypeURI: URI, toelichting: String?): Status {
+        val status = Status(zaakURI, statustypeURI, ZonedDateTime.now())
+        status.statustoelichting = toelichting
+        return zrcClientService.createStatus(status)
     }
 
-    private Optional<Rol<?>> findBehandelaarRoleForZaak(
-            final Zaak zaak,
-            final BetrokkeneType betrokkeneType
-    ) {
-        return ztcClientService.findRoltypen(zaak.getZaaktype(), OmschrijvingGeneriekEnum.BEHANDELAAR)
-                .stream()
-                // there should be only one behandelaar role type but in case there are multiple, we take the first one
-                .findFirst()
-                .flatMap(roltype -> zrcClientService.listRollen(
-                        new RolListParameters(zaak.getUrl(), roltype.getUrl(), betrokkeneType)).getSingleResult()
-                );
-    }
-
-    private Status createStatusForZaak(final URI zaakURI, final URI statustypeURI, final String toelichting) {
-        final Status status = new Status(zaakURI, statustypeURI, ZonedDateTime.now());
-        status.setStatustoelichting(toelichting);
-        return zrcClientService.createStatus(status);
-    }
-
-    private void calculateDoorlooptijden(final Zaak zaak) {
-        final ZaakType zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype());
-
-        if (zaaktype.getServicenorm() != null) {
-            zaak.setEinddatumGepland(zaak.getStartdatum().plus(Period.parse(zaaktype.getServicenorm())));
+    private fun calculateDoorlooptijden(zaak: Zaak) {
+        val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
+        zaaktype.servicenorm?.let {
+            zaak.einddatumGepland = zaak.startdatum.plus(Period.parse(it))
         }
-
-        zaak.setUiterlijkeEinddatumAfdoening(zaak.getStartdatum().plus(Period.parse(zaaktype.getDoorlooptijd())));
+        zaak.uiterlijkeEinddatumAfdoening = zaak.startdatum.plus(Period.parse(zaaktype.doorlooptijd))
     }
 
-    private void createResultaat(
-            final URI zaakURI,
-            final URI resultaattypeURI,
-            final String resultaatToelichting
-    ) {
-        final Resultaat resultaat = new Resultaat();
-        resultaat.setZaak(zaakURI);
-        resultaat.setResultaattype(resultaattypeURI);
-        resultaat.setToelichting(resultaatToelichting);
-        zrcClientService.createResultaat(resultaat);
-    }
+    private fun createResultaat(
+        zaakURI: URI,
+        resultaattypeURI: URI,
+        resultaatToelichting: String?
+    ) =
+        zrcClientService.createResultaat(
+            Resultaat().apply {
+            zaak = zaakURI
+            resultaattype = resultaattypeURI
+            toelichting = resultaatToelichting
+        }
+        )
 
-    private ResultaatType filterResultaattype(
-            List<ResultaatType> resultaattypes,
-            final String omschrijving,
-            final URI zaaktypeURI
-    ) {
-        return resultaattypes.stream()
-                .filter(resultaattype -> StringUtils.equals(resultaattype.getOmschrijving(), omschrijving))
-                .findAny()
-                .orElseThrow(
-                        () -> new RuntimeException(
-                                String.format("Zaaktype '%s': Resultaattype with omschrijving '%s' not found",
-                                        zaaktypeURI, omschrijving
-                                )));
-    }
+    private fun filterResultaattype(
+        resultaattypes: List<ResultaatType>,
+        omschrijving: String,
+        zaaktypeURI: URI
+    ): ResultaatType = resultaattypes
+            .firstOrNull { StringUtils.equals(it.omschrijving, omschrijving) }
+            ?: throw RuntimeException("Resultaattype with omschrijving '$omschrijving' not found for zaaktype with URI: '$zaaktypeURI'.")
 
-    private void berekenArchiveringsparameters(final UUID zaakUUID) {
-        final Zaak zaak = zrcClientService.readZaak(
-                zaakUUID); // refetch to get the einddatum (the archiefnominatie has also been set)
-        final ResultaatType resultaattype = ztcClientService.readResultaattype(
-                zrcClientService.readResultaat(zaak.getResultaat()).getResultaattype());
-        if (resultaattype.getArchiefactietermijn() != null) { // no idea what it means when there is no archiefactietermijn
-            final LocalDate brondatum = bepaalBrondatum(zaak, resultaattype);
-            if (brondatum != null) {
-                final Zaak zaakPatch = new Zaak();
-                zaakPatch.setArchiefactiedatum(brondatum.plus(Period.parse(resultaattype.getArchiefactietermijn())));
-                zrcClientService.patchZaak(zaakUUID, zaakPatch);
+    private fun berekenArchiveringsparameters(zaakUUID: UUID?) {
+        val zaak = zrcClientService.readZaak(zaakUUID)
+        // refetch to get the einddatum (the archiefnominatie has also been set)
+        val resultaattype = ztcClientService.readResultaattype(
+            zrcClientService.readResultaat(zaak.resultaat).resultaattype
+        )
+        resultaattype.archiefactietermijn?.let {
+            // no idea what it means when there is no archiefactietermijn
+            bepaalBrondatum(zaak, resultaattype)?.let { brondatum ->
+                val zaakPatch = Zaak().apply {
+                    archiefactiedatum = brondatum.plus(Period.parse(it))
+                }
+                zrcClientService.patchZaak(zaakUUID, zaakPatch)
             }
         }
     }
 
-    private LocalDate bepaalBrondatum(final Zaak zaak, final ResultaatType resultaattype) {
-        final BrondatumArchiefprocedure brondatumArchiefprocedure = resultaattype.getBrondatumArchiefprocedure();
-        if (brondatumArchiefprocedure != null) {
-            if (Objects.requireNonNull(brondatumArchiefprocedure.getAfleidingswijze()) == AfleidingswijzeEnum.AFGEHANDELD) {
-                return zaak.getEinddatum();
-            } else {
-                LOG.warning(
-                        String.format(
-                                "De brondatum bepaling voor afleidingswijze %s is nog niet geimplementeerd",
-                                brondatumArchiefprocedure.getAfleidingswijze()
-                        )
-                );
-            }
+    private fun bepaalBrondatum(zaak: Zaak, resultaattype: ResultaatType): LocalDate? {
+        val brondatumArchiefprocedure = resultaattype.brondatumArchiefprocedure ?: return null
+        return if (brondatumArchiefprocedure.afleidingswijze == AfleidingswijzeEnum.AFGEHANDELD) {
+            zaak.einddatum
+        } else {
+            LOG.warning("De brondatum bepaling voor afleidingswijze ${brondatumArchiefprocedure.afleidingswijze} is nog niet geimplementeerd")
+            null
         }
-        return null;
     }
 
-    private StatusType readStatustype(
-            final List<StatusType> statustypes,
-            final String omschrijving,
-            final URI zaaktypeURI
-    ) {
-        return statustypes.stream()
-                .filter(statustype -> omschrijving.equals(statustype.getOmschrijving()))
-                .findAny()
-                .orElseThrow(() -> new RuntimeException(
-                        String.format("Zaaktype '%s': Statustype with omschrijving '%s' not found", zaaktypeURI,
-                                omschrijving
-                        )));
-    }
+    private fun readStatustype(
+        statustypes: List<StatusType>,
+        omschrijving: String,
+        zaaktypeURI: URI
+    ): StatusType = statustypes
+            .firstOrNull { omschrijving == it.omschrijving }
+            ?: throw RuntimeException("Status type with description '$omschrijving' not found for zaaktype with URI: '$zaaktypeURI'.")
 
-    private StatusType readStatustypeEind(
-            final List<StatusType> statustypes,
-            final URI zaaktypeURI
-    ) {
-        return statustypes.stream()
-                .filter(StatusType::getIsEindstatus)
-                .findAny()
-                .orElseThrow(() -> new RuntimeException(
-                        String.format("Zaaktype '%s': No eind Status found for Zaaktype.", zaaktypeURI)));
-    }
+    private fun readStatustypeEind(
+        statustypes: List<StatusType>,
+        zaaktypeURI: URI
+    ): StatusType = statustypes
+            .firstOrNull { it.isEindstatus }
+            ?: throw RuntimeException("No 'eind Status' found for zaaktype with URI: '$zaaktypeURI'.")
 }

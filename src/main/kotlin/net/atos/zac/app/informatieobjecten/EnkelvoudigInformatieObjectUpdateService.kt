@@ -70,7 +70,7 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
         enkelvoudigInformatieObjectCreateLockRequest.beschrijving,
         ConfiguratieService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
     ).also {
-        if (taskId != null) {
+        taskId?.let { taskId ->
             addZaakInformatieobjectToTaak(taskId, it, skipPolicyCheck)
         }
     }

@@ -17,7 +17,6 @@ import io.mockk.verify
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolListParameters
 import net.atos.client.zgw.zrc.model.createResultaat
 import net.atos.client.zgw.zrc.model.createRolMedewerker
