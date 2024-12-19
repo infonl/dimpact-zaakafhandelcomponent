@@ -192,7 +192,35 @@ class ZGWApiServiceTest : BehaviorSpec({
                 rolMedewerker shouldNotBe null
                 with(rolMedewerker!!) {
                     this.zaak shouldBe zaak.url
+                    this.betrokkeneIdentificatie shouldBe rolMedewerker.betrokkeneIdentificatie
                     this.identificatienummer shouldBe rolMedewerker.identificatienummer
+                    this.naam shouldBe rolMedewerker.naam
+                }
+            }
+        }
+    }
+        Given("A zaak with a behandelaar medewerker role without a betrokkene identificatie") {
+        val zaak = createZaak()
+        val rolMedewerker = createRolMedewerker(
+            zaak = zaak.url,
+            // in the ZGW API it is possible (strangely enough) to have a rol-medewerker object
+            // without a medewerker and this also happens in practise in some circumstances
+            betrokkeneIdentificatie = null
+        )
+        every {
+            ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+        } returns listOf(createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR))
+        every { zrcClientService.listRollen(any<RolListParameters>()) } returns Results(listOf(rolMedewerker), 1)
+
+        When("the behandelaar medewerker rol is requested") {
+            val rolMedewerker = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+
+            Then("a behandelaar medewerker role without a betrokkene identificatie should be returned") {
+                rolMedewerker shouldNotBe null
+                with(rolMedewerker!!) {
+                    this.zaak shouldBe zaak.url
+                    this.betrokkeneIdentificatie shouldBe null
+                    this.identificatienummer shouldBe null
                     this.naam shouldBe rolMedewerker.naam
                 }
             }
