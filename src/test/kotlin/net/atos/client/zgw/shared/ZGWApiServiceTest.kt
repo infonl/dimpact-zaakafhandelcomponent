@@ -20,6 +20,7 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.RolListParameters
 import net.atos.client.zgw.zrc.model.createResultaat
 import net.atos.client.zgw.zrc.model.createRolMedewerker
+import net.atos.client.zgw.zrc.model.createRolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.generated.Resultaat
 import net.atos.client.zgw.ztc.ZtcClientService
@@ -131,6 +132,41 @@ class ZGWApiServiceTest : BehaviorSpec({
                     this.identificatienummer shouldBe rolMedewerker.get().identificatienummer
                     this.naam shouldBe rolMedewerker.get().naam
                 }
+            }
+        }
+    }
+    Given("A zaak with a group") {
+        val zaak = createZaak()
+        val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid(zaakURI = zaak.url)
+        every {
+            ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+        } returns listOf(createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR))
+        every { zrcClientService.listRollen(any<RolListParameters>()) } returns Results(listOf(rolOrganisatorischeEenheid), 1)
+
+        When("the group is requested") {
+            val group = zgwApiService.findGroepForZaak(zaak)
+
+            Then("the group should be returned") {
+                group.isPresent shouldBe true
+                with(group.get()) {
+                    this.zaak shouldBe zaak.url
+                    this.identificatienummer shouldBe rolOrganisatorischeEenheid.identificatienummer
+                    this.naam shouldBe rolOrganisatorischeEenheid.naam
+                }
+            }
+        }
+    }
+    Given("A zaak without a group") {
+        val zaak = createZaak()
+        every {
+            ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+        } returns emptyList()
+
+        When("the group is requested") {
+            val group = zgwApiService.findGroepForZaak(zaak)
+
+            Then("no group should be returned") {
+                group.isEmpty shouldBe true
             }
         }
     }

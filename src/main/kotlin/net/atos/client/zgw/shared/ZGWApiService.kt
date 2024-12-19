@@ -10,7 +10,8 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import net.atos.client.zgw.drc.model.generated.Gebruiksrechten
-import net.atos.client.zgw.shared.util.DateTimeUtil
+import net.atos.client.zgw.shared.exception.ResultTypeNotFoundException
+import net.atos.client.zgw.shared.exception.StatusTypeNotFoundException
 import net.atos.client.zgw.shared.util.DateTimeUtil.convertToDateTime
 import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
@@ -27,7 +28,6 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.client.zgw.ztc.model.generated.ResultaatType
-import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.client.zgw.ztc.model.generated.StatusType
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
@@ -36,11 +36,8 @@ import java.net.URI
 import java.time.LocalDate
 import java.time.Period
 import java.time.ZonedDateTime
-import java.util.Objects
 import java.util.Optional
 import java.util.UUID
-import java.util.function.Function
-import java.util.function.Supplier
 import java.util.logging.Logger
 
 /**
@@ -63,7 +60,7 @@ class ZGWApiService @Inject constructor(
     }
 
     /**
-     * Create [Zaak] and calculate Doorlooptijden.
+     * Creates a new [Zaak].
      *
      * @param zaak [Zaak]
      * @return Created [Zaak]
@@ -76,9 +73,9 @@ class ZGWApiService @Inject constructor(
     /**
      * Create [Status] for a given [Zaak] based on [StatusType].omschrijving and with [Status].toelichting.
      *
-     * @param zaak                   [Zaak]
+     * @param zaak [Zaak]
      * @param statusTypeOmschrijving Omschrijving of the [StatusType] of the required [Status].
-     * @param statusToelichting      Toelichting for thew [Status].
+     * @param statusToelichting Toelichting for thew [Status].
      * @return Created [Status].
      */
     fun createStatusForZaak(
@@ -98,9 +95,9 @@ class ZGWApiService @Inject constructor(
      * Create [Resultaat] for a given [Zaak] based on [ResultaatType] .omschrijving and with
      * [Resultaat].toelichting.
      *
-     * @param zaak                      [Zaak]
+     * @param zaak [Zaak]
      * @param resultaattypeOmschrijving Omschrijving of the [ResultaatType] of the required [Resultaat].
-     * @param resultaatToelichting      Toelichting for thew [Resultaat].
+     * @param resultaatToelichting Toelichting for thew [Resultaat].
      */
     fun createResultaatForZaak(
         zaak: Zaak,
@@ -119,8 +116,8 @@ class ZGWApiService @Inject constructor(
     /**
      * Create [Resultaat] for a given [Zaak] based on [ResultaatType].UUID and with [Resultaat].toelichting.
      *
-     * @param zaak                 [Zaak]
-     * @param resultaattypeUUID    UUID of the [ResultaatType] of the required [Resultaat].
+     * @param zaak [Zaak]
+     * @param resultaattypeUUID UUID of the [ResultaatType] of the required [Resultaat].
      * @param resultaatToelichting Toelichting for thew [Resultaat].
      */
     fun createResultaatForZaak(
@@ -135,9 +132,9 @@ class ZGWApiService @Inject constructor(
     /**
      * Update [Resultaat] for a given [Zaak] based on [ResultaatType].UUID and with [Resultaat] .toelichting.
      *
-     * @param zaak              [Zaak]
+     * @param zaak [Zaak]
      * @param resultaatTypeUuid Containing the UUID of the [ResultaatType] of the required [Resultaat].
-     * @param reden             Reason of setting the [ResultaatType]
+     * @param reden Reason of setting the [ResultaatType]
      */
     fun updateResultaatForZaak(zaak: Zaak, resultaatTypeUuid: UUID, reden: String?) {
         zaak.resultaat?.let {
@@ -150,7 +147,7 @@ class ZGWApiService @Inject constructor(
     /**
      * End [Zaak]. Creating a new Eind [Status] for the [Zaak]. And calculating the archiverings parameters
      *
-     * @param zaak                  [Zaak]
+     * @param zaak [Zaak]
      * @param eindstatusToelichting Toelichting for thew Eind [Status].
      */
     fun endZaak(zaak: Zaak, eindstatusToelichting: String) {
@@ -161,7 +158,7 @@ class ZGWApiService @Inject constructor(
     /**
      * End [Zaak]. Creating a new Eind [Status] for the [Zaak]. And calculating the archiverings parameters
      *
-     * @param zaakUUID              UUID of the [Zaak]
+     * @param zaakUUID UUID of the [Zaak]
      * @param eindstatusToelichting Toelichting for thew Eind [Status].
      */
     fun endZaak(zaakUUID: UUID, eindstatusToelichting: String) {
@@ -172,7 +169,7 @@ class ZGWApiService @Inject constructor(
     /**
      * Close [Zaak]. Creating a new Eind [Status] for the [Zaak].
      *
-     * @param zaak                  [Zaak] to be closed
+     * @param zaak [Zaak] to be closed
      * @param eindstatusToelichting Toelichting for thew Eind [Status].
      */
     fun closeZaak(zaak: Zaak, eindstatusToelichting: String?) {
@@ -186,11 +183,11 @@ class ZGWApiService @Inject constructor(
     /**
      * Create [EnkelvoudigInformatieObject] and [ZaakInformatieobject] for [Zaak].
      *
-     * @param zaak                                         [Zaak].
+     * @param zaak [Zaak].
      * @param enkelvoudigInformatieObjectCreateLockRequest [EnkelvoudigInformatieObject] to be created.
-     * @param titel                                        Titel of the new [ZaakInformatieobject].
-     * @param beschrijving                                 Beschrijving of the new [ZaakInformatieobject].
-     * @param omschrijvingVoorwaardenGebruiksrechten       Used to create the [Gebruiksrechten] for the to be created
+     * @param titel Titel of the new [ZaakInformatieobject].
+     * @param beschrijving Beschrijving of the new [ZaakInformatieobject].
+     * @param omschrijvingVoorwaardenGebruiksrechten Used to create the [Gebruiksrechten] for the to be created
      * [EnkelvoudigInformatieObject]
      * @return Created [ZaakInformatieobject].
      */
@@ -204,17 +201,19 @@ class ZGWApiService @Inject constructor(
         val newInformatieObjectData = drcClientService.createEnkelvoudigInformatieobject(
             enkelvoudigInformatieObjectCreateLockRequest
         )
-        val gebruiksrechten = Gebruiksrechten()
-        gebruiksrechten.informatieobject = newInformatieObjectData.url
-        gebruiksrechten.startdatum = convertToDateTime(newInformatieObjectData.creatiedatum).toOffsetDateTime()
-        gebruiksrechten.omschrijvingVoorwaarden = omschrijvingVoorwaardenGebruiksrechten
+        val gebruiksrechten = Gebruiksrechten().apply {
+            informatieobject = newInformatieObjectData.url
+            startdatum = convertToDateTime(newInformatieObjectData.creatiedatum).toOffsetDateTime()
+            omschrijvingVoorwaarden = omschrijvingVoorwaardenGebruiksrechten
+        }
         drcClientService.createGebruiksrechten(gebruiksrechten)
 
-        val zaakInformatieObject = ZaakInformatieobject()
-        zaakInformatieObject.zaak = zaak.url
-        zaakInformatieObject.informatieobject = newInformatieObjectData.url
-        zaakInformatieObject.titel = titel
-        zaakInformatieObject.beschrijving = beschrijving
+        val zaakInformatieObject = ZaakInformatieobject().apply {
+            this.zaak = zaak.url
+            informatieobject = newInformatieObjectData.url
+            this.titel = titel
+            this.beschrijving = beschrijving
+        }
         return zrcClientService.createZaakInformatieobject(zaakInformatieObject, StringUtils.EMPTY)
     }
 
@@ -223,25 +222,25 @@ class ZGWApiService @Inject constructor(
      * [EnkelvoudigInformatieObject] has no other related [ZaakInformatieobject]s then it is also deleted.
      *
      * @param enkelvoudigInformatieobject [EnkelvoudigInformatieObject]
-     * @param zaakUUID                    UUID of a [Zaak]
-     * @param toelichting                 Explanation why the [EnkelvoudigInformatieObject] is to be removed.
+     * @param zaakUUID UUID of a [Zaak]
+     * @param toelichting Explanation why the [EnkelvoudigInformatieObject] is to be removed; may be null.
      */
     fun removeEnkelvoudigInformatieObjectFromZaak(
         enkelvoudigInformatieobject: EnkelvoudigInformatieObject,
-        zaakUUID: UUID?,
+        zaakUUID: UUID,
         toelichting: String?
     ) {
         val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
             enkelvoudigInformatieobject
         )
-        // Delete the relationship of the EnkelvoudigInformatieobject with the zaak.
+        // delete the relationship of the EnkelvoudigInformatieobject with the zaak.
         zaakInformatieobjecten
             .filter { it.zaakUUID == zaakUUID }
             .forEach { zrcClientService.deleteZaakInformatieobject(it.uuid, toelichting, "Verwijderd") }
 
-        // If the EnkelvoudigInformatieobject has no relationship(s) with other zaken it can be deleted.
+        // if the EnkelvoudigInformatieobject has no relationship(s) with other zaken it can be deleted.
         if (zaakInformatieobjecten.all { it.zaakUUID == zaakUUID }) {
-            drcClientService.deleteEnkelvoudigInformatieobject(enkelvoudigInformatieobject.getUrl().extractUuid())
+            drcClientService.deleteEnkelvoudigInformatieobject(enkelvoudigInformatieobject.url.extractUuid())
         }
     }
 
@@ -251,10 +250,9 @@ class ZGWApiService @Inject constructor(
      * @param zaak [Zaak]
      * @return [RolOrganisatorischeEenheid] or 'null'.
      */
-    fun findGroepForZaak(zaak: Zaak): Optional<RolOrganisatorischeEenheid> {
-        return findBehandelaarRoleForZaak(zaak, BetrokkeneType.ORGANISATORISCHE_EENHEID)
+    fun findGroepForZaak(zaak: Zaak): Optional<RolOrganisatorischeEenheid> =
+        findBehandelaarRoleForZaak(zaak, BetrokkeneType.ORGANISATORISCHE_EENHEID)
             .map { RolOrganisatorischeEenheid::class.java.cast(it) }
-    }
 
     /**
      * Find [RolMedewerker] for [Zaak] with behandelaar [OmschrijvingGeneriekEnum].
@@ -262,23 +260,22 @@ class ZGWApiService @Inject constructor(
      * @param zaak [Zaak]
      * @return [RolMedewerker] or 'null'.
      */
-    fun findBehandelaarMedewerkerRoleForZaak(zaak: Zaak): Optional<RolMedewerker> {
-        return findBehandelaarRoleForZaak(zaak, BetrokkeneType.MEDEWERKER)
+    fun findBehandelaarMedewerkerRoleForZaak(zaak: Zaak): Optional<RolMedewerker> =
+        findBehandelaarRoleForZaak(zaak, BetrokkeneType.MEDEWERKER)
             .map { RolMedewerker::class.java.cast(it) }
-    }
 
     fun findInitiatorRoleForZaak(zaak: Zaak): Optional<Rol<*>> =
         ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
             // there should be only one initiator role type but in case there are multiple, we take the first one
             .firstOrNull()?.let {
-             zrcClientService.listRollen(RolListParameters(zaak.url, it.url)).getSingleResult()
+                zrcClientService.listRollen(RolListParameters(zaak.url, it.url)).getSingleResult()
             } ?: Optional.empty()
 
     private fun findBehandelaarRoleForZaak(
         zaak: Zaak,
         betrokkeneType: BetrokkeneType
     ): Optional<Rol<*>> =
-         ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+        ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
             // there should be only one behandelaar role type but in case there are multiple, we take the first one
             .firstOrNull()?.let {
                 zrcClientService.listRollen(RolListParameters(zaak.url, it.url, betrokkeneType)).getSingleResult()
@@ -305,19 +302,21 @@ class ZGWApiService @Inject constructor(
     ) =
         zrcClientService.createResultaat(
             Resultaat().apply {
-            zaak = zaakURI
-            resultaattype = resultaattypeURI
-            toelichting = resultaatToelichting
-        }
+                zaak = zaakURI
+                resultaattype = resultaattypeURI
+                toelichting = resultaatToelichting
+            }
         )
 
     private fun filterResultaattype(
         resultaattypes: List<ResultaatType>,
-        omschrijving: String,
+        description: String,
         zaaktypeURI: URI
     ): ResultaatType = resultaattypes
-            .firstOrNull { StringUtils.equals(it.omschrijving, omschrijving) }
-            ?: throw RuntimeException("Resultaattype with omschrijving '$omschrijving' not found for zaaktype with URI: '$zaaktypeURI'.")
+        .firstOrNull { StringUtils.equals(it.omschrijving, description) }
+        ?: throw ResultTypeNotFoundException(
+            "Resultaattype with description '$description' not found for zaaktype with URI: '$zaaktypeURI'."
+        )
 
     private fun berekenArchiveringsparameters(zaakUUID: UUID?) {
         val zaak = zrcClientService.readZaak(zaakUUID)
@@ -341,7 +340,10 @@ class ZGWApiService @Inject constructor(
         return if (brondatumArchiefprocedure.afleidingswijze == AfleidingswijzeEnum.AFGEHANDELD) {
             zaak.einddatum
         } else {
-            LOG.warning("De brondatum bepaling voor afleidingswijze ${brondatumArchiefprocedure.afleidingswijze} is nog niet geimplementeerd")
+            LOG.warning(
+                "Determining the 'brondatum' for 'afleidingswijze' " +
+                    "'${brondatumArchiefprocedure.afleidingswijze}' is not supported"
+            )
             null
         }
     }
@@ -351,13 +353,17 @@ class ZGWApiService @Inject constructor(
         omschrijving: String,
         zaaktypeURI: URI
     ): StatusType = statustypes
-            .firstOrNull { omschrijving == it.omschrijving }
-            ?: throw RuntimeException("Status type with description '$omschrijving' not found for zaaktype with URI: '$zaaktypeURI'.")
+        .firstOrNull { omschrijving == it.omschrijving }
+        ?: throw StatusTypeNotFoundException(
+            "Status type with description '$omschrijving' not found for zaaktype with URI: '$zaaktypeURI'."
+        )
 
     private fun readStatustypeEind(
         statustypes: List<StatusType>,
         zaaktypeURI: URI
     ): StatusType = statustypes
-            .firstOrNull { it.isEindstatus }
-            ?: throw RuntimeException("No 'eind Status' found for zaaktype with URI: '$zaaktypeURI'.")
+        .firstOrNull { it.isEindstatus }
+        ?: throw StatusTypeNotFoundException(
+            "No status type with 'end state' found for zaaktype with URI: '$zaaktypeURI'."
+        )
 }
