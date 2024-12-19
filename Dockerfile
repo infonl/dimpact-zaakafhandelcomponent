@@ -45,7 +45,7 @@ ENV WILDFLY_OVERRIDING_ENV_VARS=1
 
 # Start zaakafhandelcomponent
 # make sure that the WildFly management port is accessible from outside the container
-ENTRYPOINT ["java", "-jar", "zaakafhandelcomponent.jar", "-Djboss.bind.address.management=0.0.0.0"]
+ENTRYPOINT ["java", "-Djboss.bind.address.management=0.0.0.0", "-jar", "zaakafhandelcomponent.jar"]
 EXPOSE 8080 9990
 
 ENV BRANCH_NAME=$branchName COMMIT_HASH=$commitHash VERSION_NUMBER=$versionNumber
