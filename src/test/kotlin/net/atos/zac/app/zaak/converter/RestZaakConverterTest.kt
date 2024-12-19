@@ -88,7 +88,7 @@ class RestZaakConverterTest : BehaviorSpec({
         with(zgwApiService) {
             every { findGroepForZaak(zaak) } returns rolOrganistorischeEenheid
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
-            every { findInitiatorRoleForZaak(zaak) } returns Optional.of(rol)
+            every { findInitiatorRoleForZaak(zaak) } returns rol
         }
         with(zaakVariabelenService) {
             every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns Optional.of(false)

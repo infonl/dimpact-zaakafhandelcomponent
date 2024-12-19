@@ -55,7 +55,7 @@ class ZaakZoekObjectConverter @Inject constructor(
             // we use the name of this enum in the search index
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name
             isAfgehandeld = !zaak.isOpen
-            zgwApiService.findInitiatorRoleForZaak(zaak).ifPresent { setInitiator(it) }
+            zgwApiService.findInitiatorRoleForZaak(zaak)?.let(::setInitiator)
             // locatie is not yet supported
             locatie = null
             communicatiekanaal = zaak.communicatiekanaalNaam

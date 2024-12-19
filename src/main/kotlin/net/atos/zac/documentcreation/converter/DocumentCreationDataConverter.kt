@@ -110,9 +110,7 @@ class DocumentCreationDataConverter @Inject constructor(
         )
 
     private fun createAanvragerData(zaak: Zaak): AanvragerData? =
-        zgwApiService.findInitiatorRoleForZaak(zaak)
-            .map { convertToAanvragerData(it) }
-            .orElse(null)
+        zgwApiService.findInitiatorRoleForZaak(zaak)?.let(::convertToAanvragerData)
 
     private fun convertToAanvragerData(initiator: Rol<*>): AanvragerData? =
         when (initiator.betrokkeneType) {

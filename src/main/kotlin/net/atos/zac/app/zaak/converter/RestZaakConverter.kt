@@ -40,7 +40,6 @@ import java.time.Period
 import java.util.EnumSet
 import java.util.UUID
 import java.util.logging.Logger
-import kotlin.jvm.optionals.getOrNull
 
 @Suppress("LongParameterList")
 class RestZaakConverter @Inject constructor(
@@ -112,8 +111,8 @@ class RestZaakConverter @Inject constructor(
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name,
             groep = groep,
             behandelaar = behandelaar,
-            initiatorIdentificatie = initiator.getOrNull()?.identificatienummer,
-            initiatorIdentificatieType = when (val betrokkeneType = initiator.getOrNull()?.betrokkeneType) {
+            initiatorIdentificatie = initiator?.identificatienummer,
+            initiatorIdentificatieType = when (val betrokkeneType = initiator?.betrokkeneType) {
                 BetrokkeneType.NATUURLIJK_PERSOON -> IdentificatieType.BSN
                 BetrokkeneType.VESTIGING -> IdentificatieType.VN
                 BetrokkeneType.NIET_NATUURLIJK_PERSOON -> IdentificatieType.RSIN
