@@ -5,7 +5,10 @@
 
 import { TestBed } from "@angular/core/testing";
 
-import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { LocationService } from "./location.service";
 
@@ -14,9 +17,12 @@ describe("LocationService", () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-    imports: [],
-    providers: [{ provide: FoutAfhandelingService, useValue: {} }, provideHttpClient(withInterceptorsFromDi())]
-});
+      imports: [],
+      providers: [
+        { provide: FoutAfhandelingService, useValue: {} },
+        provideHttpClient(withInterceptorsFromDi()),
+      ],
+    });
 
     service = TestBed.inject(LocationService);
   });
