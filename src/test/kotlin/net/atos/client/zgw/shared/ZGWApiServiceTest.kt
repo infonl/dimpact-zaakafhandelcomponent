@@ -189,11 +189,11 @@ class ZGWApiServiceTest : BehaviorSpec({
             val rolMedewerker = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
 
             Then("the behandelaar medewerker role should be returned") {
-                rolMedewerker.get() shouldNotBe null
-                with(rolMedewerker.get()) {
+                rolMedewerker shouldNotBe null
+                with(rolMedewerker!!) {
                     this.zaak shouldBe zaak.url
-                    this.identificatienummer shouldBe rolMedewerker.get().identificatienummer
-                    this.naam shouldBe rolMedewerker.get().naam
+                    this.identificatienummer shouldBe rolMedewerker.identificatienummer
+                    this.naam shouldBe rolMedewerker.naam
                 }
             }
         }
@@ -210,8 +210,8 @@ class ZGWApiServiceTest : BehaviorSpec({
             val group = zgwApiService.findGroepForZaak(zaak)
 
             Then("the group should be returned") {
-                group.isPresent shouldBe true
-                with(group.get()) {
+                group shouldNotBe null
+                with(group!!) {
                     this.zaak shouldBe zaak.url
                     this.identificatienummer shouldBe rolOrganisatorischeEenheid.identificatienummer
                     this.naam shouldBe rolOrganisatorischeEenheid.naam
@@ -229,7 +229,7 @@ class ZGWApiServiceTest : BehaviorSpec({
             val group = zgwApiService.findGroepForZaak(zaak)
 
             Then("no group should be returned") {
-                group.isEmpty shouldBe true
+                group shouldBe null
             }
         }
     }

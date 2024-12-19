@@ -26,7 +26,7 @@ class RestZaakOverzichtConverter @Inject constructor(
     private val policyService: PolicyService,
     private val zrcClientService: ZrcClientService,
 ) {
-
+    @Suppress("CyclomaticComplexMethod")
     fun convert(zaak: Zaak): RestZaakOverzicht {
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val zaakrechten = policyService.readZaakRechten(zaak, zaaktype)
@@ -55,14 +55,14 @@ class RestZaakOverzichtConverter @Inject constructor(
                 }
             },
             behandelaar = takeIf { zaakrechten.lezen }?.let {
-                zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
-                    .map { userConverter.convertUserId(it.betrokkeneIdentificatie.identificatie) }
-                    .orElse(null)
+                zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.let {
+                    userConverter.convertUserId(it.betrokkeneIdentificatie.identificatie)
+                }
             },
             groep = takeIf { zaakrechten.lezen }?.let {
-                zgwApiService.findGroepForZaak(zaak)
-                    .map { groupConverter.convertGroupId(it.betrokkeneIdentificatie.identificatie) }
-                    .orElse(null)
+                zgwApiService.findGroepForZaak(zaak)?.let {
+                    groupConverter.convertGroupId(it.betrokkeneIdentificatie.identificatie)
+                }
             }
         )
     }

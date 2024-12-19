@@ -163,20 +163,24 @@ public class MailTemplateHelper {
 
             if (resolvedTekst.contains(ZAAK_INITIATOR.getVariabele()) ||
                 resolvedTekst.contains(ZAAK_INITIATOR_ADRES.getVariabele())) {
-                resolvedTekst = replaceInitiatorVariabelen(resolvedTekst,
-                        zgwApiService.findInitiatorRoleForZaak(zaak));
+                resolvedTekst = replaceInitiatorVariabelen(
+                        resolvedTekst,
+                        zgwApiService.findInitiatorRoleForZaak(zaak)
+                );
             }
 
             if (resolvedTekst.contains(ZAAK_BEHANDELAAR_GROEP.getVariabele())) {
-                resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_BEHANDELAAR_GROEP,
-                        zgwApiService.findGroepForZaak(zaak)
-                                .map(RolOrganisatorischeEenheid::getNaam));
+                String groupName = Optional.ofNullable(zgwApiService.findGroepForZaak(zaak))
+                        .map(RolOrganisatorischeEenheid::getNaam)
+                        .orElse(null);
+                resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_BEHANDELAAR_GROEP, groupName);
             }
 
             if (resolvedTekst.contains(ZAAK_BEHANDELAAR_MEDEWERKER.getVariabele())) {
-                resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_BEHANDELAAR_MEDEWERKER,
-                        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
-                                .map(RolMedewerker::getNaam));
+                String medewerkerName = Optional.ofNullable(zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak))
+                        .map(RolMedewerker::getNaam)
+                        .orElse(null);
+                resolvedTekst = replaceVariabele(resolvedTekst, ZAAK_BEHANDELAAR_MEDEWERKER, medewerkerName);
             }
         }
         return resolvedTekst;

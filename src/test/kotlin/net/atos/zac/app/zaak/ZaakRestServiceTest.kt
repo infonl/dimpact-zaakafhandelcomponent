@@ -95,7 +95,6 @@ import org.flowable.task.api.Task
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Date
-import java.util.Optional
 import java.util.UUID
 
 @Suppress("LongParameterList")
@@ -301,9 +300,9 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         every { zrcClientService.readZaak(restZaakToekennenGegevens.zaakUUID) } returns zaak
         every { zrcClientService.updateRol(zaak, capture(rolSlot), restZaakToekennenGegevens.reason) } just runs
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns Optional.empty()
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
         every { identityService.readUser(restZaakToekennenGegevens.assigneeUserName!!) } returns user
-        every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
+        every { zgwApiService.findGroepForZaak(zaak) } returns null
         every { restZaakConverter.toRestZaak(zaak) } returns restZaak
         every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
         every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
