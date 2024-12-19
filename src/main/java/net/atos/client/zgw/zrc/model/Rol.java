@@ -193,9 +193,6 @@ public abstract class Rol<T> {
             return false;
         }
         Rol<T> rol = (Rol<T>) o;
-        if (rol.getBetrokkeneIdentificatie() == null) {
-            return false;
-        }
         return equalBetrokkeneRol(rol) && equalBetrokkeneIdentificatie(rol.getBetrokkeneIdentificatie());
     }
 
