@@ -231,11 +231,8 @@ public class ZrcClientService {
 
     public void deleteRol(final Zaak zaak, final BetrokkeneType betrokkeneType, final String toelichting) {
         final List<Rol<?>> rollen = listRollen(zaak);
-
         final Optional<Rol<?>> rolMedewerker = rollen.stream().filter(rol -> rol.getBetrokkeneType() == betrokkeneType).findFirst();
-
         rolMedewerker.ifPresent(betrokkene -> rollen.removeIf(rol -> rol.equalBetrokkeneRol(betrokkene)));
-
         updateRollen(zaak, rollen, toelichting);
     }
 

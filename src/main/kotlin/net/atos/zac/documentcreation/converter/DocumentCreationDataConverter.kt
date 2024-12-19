@@ -82,15 +82,11 @@ class DocumentCreationDataConverter @Inject constructor(
 
     private fun createZaakData(zaak: Zaak) =
         ZaakData(
-            behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
-                .map { it.naam }
-                .orElse(null),
+            behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.naam,
             communicatiekanaal = zaak.communicatiekanaalNaam,
             einddatum = zaak.einddatum,
             einddatumGepland = zaak.einddatumGepland,
-            groep = zgwApiService.findGroepForZaak(zaak)
-                .map { it.naam }
-                .orElse(null),
+            groep = zgwApiService.findGroepForZaak(zaak)?.naam,
             identificatie = zaak.identificatie,
             omschrijving = zaak.omschrijving,
             opschortingReden = if (zaak.isOpgeschort) { zaak.opschorting.reden } else null,
@@ -114,9 +110,7 @@ class DocumentCreationDataConverter @Inject constructor(
         )
 
     private fun createAanvragerData(zaak: Zaak): AanvragerData? =
-        zgwApiService.findInitiatorRoleForZaak(zaak)
-            .map { convertToAanvragerData(it) }
-            .orElse(null)
+        zgwApiService.findInitiatorRoleForZaak(zaak)?.let(::convertToAanvragerData)
 
     private fun convertToAanvragerData(initiator: Rol<*>): AanvragerData? =
         when (initiator.betrokkeneType) {

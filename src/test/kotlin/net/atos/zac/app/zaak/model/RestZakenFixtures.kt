@@ -193,6 +193,20 @@ fun createRESTZaakAanmaakGegevens(
     bagObjecten = bagObjecten
 )
 
+fun createRESTZaakBetrokkeneGegevens(
+    zaakUUID: UUID = UUID.randomUUID(),
+    roltypeUUID: UUID = UUID.randomUUID(),
+    roltoelichting: String = "dummyRoltoelichting",
+    betrokkeneIdentificatieType: IdentificatieType = IdentificatieType.BSN,
+    betrokkeneIdentificatie: String = "dummyBetrokkeneIdentificatie"
+) = RESTZaakBetrokkeneGegevens(
+    zaakUUID = zaakUUID,
+    roltypeUUID = roltypeUUID,
+    roltoelichting = roltoelichting,
+    betrokkeneIdentificatieType = betrokkeneIdentificatieType,
+    betrokkeneIdentificatie = betrokkeneIdentificatie
+)
+
 fun createRESTZaakKenmerk() = RESTZaakKenmerk("Sample kenmerk", "Sample bron")
 
 fun createRESTZaakToekennenGegevens(

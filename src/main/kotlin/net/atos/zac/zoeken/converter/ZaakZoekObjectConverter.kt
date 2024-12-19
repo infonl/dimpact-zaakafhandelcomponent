@@ -55,7 +55,7 @@ class ZaakZoekObjectConverter @Inject constructor(
             // we use the name of this enum in the search index
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name
             isAfgehandeld = !zaak.isOpen
-            zgwApiService.findInitiatorRoleForZaak(zaak).ifPresent { setInitiator(it) }
+            zgwApiService.findInitiatorRoleForZaak(zaak)?.let(::setInitiator)
             // locatie is not yet supported
             locatie = null
             communicatiekanaal = zaak.communicatiekanaalNaam
@@ -116,14 +116,18 @@ class ZaakZoekObjectConverter @Inject constructor(
     }
 
     private fun findBehandelaar(zaak: Zaak): User? =
-        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
-            .map { identityService.readUser(it.betrokkeneIdentificatie.identificatie) }
-            .orElse(null)
+        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.let { rolMedewerker ->
+            rolMedewerker.betrokkeneIdentificatie?.let {
+                identityService.readUser(it.identificatie)
+            }
+        }
 
     private fun findGroup(zaak: Zaak): Group? =
-        zgwApiService.findGroepForZaak(zaak)
-            .map { identityService.readGroup(it.betrokkeneIdentificatie.identificatie) }
-            .orElse(null)
+        zgwApiService.findGroepForZaak(zaak)?.let { rolOrganisatorischeEenheid ->
+            rolOrganisatorischeEenheid.betrokkeneIdentificatie?.let {
+                identityService.readGroup(it.identificatie)
+            }
+        }
 
     private fun getBagObjectIDs(zaak: Zaak): List<String> {
         val zaakobjectListParameters = ZaakobjectListParameters().apply { this.zaak = zaak.url }
