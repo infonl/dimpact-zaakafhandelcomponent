@@ -54,7 +54,7 @@
     "@angular-eslint/template-parser": "17.5.3",
     "@angular/cli": "17.2.3",
     "@angular/compiler-cli": "17.3.12",
-    "@angular/language-service": "17.2.4",
+    "@angular/language-service": "17.3.12",
     "@types/jest": "29.5.14",
     "@types/node": "20.17.10",
     "@types/uuid": "10.0.0",
