@@ -6,6 +6,7 @@ package net.atos.client.zgw.shared
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -14,12 +15,18 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import net.atos.client.zgw.drc.DrcClientService
+import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.zrc.ZrcClientService
+import net.atos.client.zgw.zrc.model.Rol
+import net.atos.client.zgw.zrc.model.RolListParameters
 import net.atos.client.zgw.zrc.model.createResultaat
+import net.atos.client.zgw.zrc.model.createRolMedewerker
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.generated.Resultaat
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createResultaatType
+import net.atos.client.zgw.ztc.model.createRolType
+import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import java.net.URI
 import java.util.UUID
 
@@ -103,6 +110,27 @@ class ZGWApiServiceTest : BehaviorSpec({
                     this.zaak shouldBe zaak.url
                     this.resultaattype shouldBe resultaattType.url
                     this.toelichting shouldBe reason
+                }
+            }
+        }
+    }
+    Given("A zaak with a behandelaar medewerker role") {
+        val zaak = createZaak()
+        val rolMedewerker = createRolMedewerker(zaak = zaak.url)
+        every {
+            ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+        } returns listOf(createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR))
+        every { zrcClientService.listRollen(any<RolListParameters>()) } returns Results(listOf(rolMedewerker), 1)
+
+        When("the behandelaar medewerker rol is requested") {
+            val rolMedewerker = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+
+            Then("the behandelaar medewerker role should be returned") {
+                rolMedewerker.get() shouldNotBe null
+                with(rolMedewerker.get()) {
+                    this.zaak shouldBe zaak.url
+                    this.identificatienummer shouldBe rolMedewerker.get().identificatienummer
+                    this.naam shouldBe rolMedewerker.get().naam
                 }
             }
         }
