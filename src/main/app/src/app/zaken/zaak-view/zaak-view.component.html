@@ -736,7 +736,8 @@
           <mat-card-header>
             <mat-card-title>{{ "taken" | translate }}</mat-card-title>
             <mat-slide-toggle
-              [(ngModel)]="toonAfgerondeTaken"
+              [ngModel]="toonAfgerondeTaken"
+              (ngModelChange)="toonAfgerondeTaken = $event"
               color="primary"
               id="takenAfgerondeToon_toggle"
               (change)="filterTakenOpStatus()"

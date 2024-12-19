@@ -29,6 +29,7 @@ import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
 import { ZoekVeld } from "../../zoeken/model/zoek-veld";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { KlantenService } from "../klanten.service";
+import {$e} from "codelyzer/angular/styles/chars";
 
 @Component({
   selector: "zac-klant-zaken-tabel",
@@ -179,4 +180,6 @@ export class KlantZakenTabelComponent
     this.betrokkeneSelectControl.setValue(null);
     this.filtersChanged();
   }
+
+    protected readonly $e = $e;
 }

@@ -47,6 +47,7 @@
                     id="zaaktype_filter"
                     placeholder="{{ 'zaaktype.-kies-' | translate }}"
                     [(ngModel)]="filterParameters.zaaktype"
+                    (ngModelChange)="filterParameters.zaaktype = $event"
                   >
                     <mat-option>{{ "zaaktype.-kies-" | translate }}</mat-option>
                     <mat-option
@@ -70,6 +71,7 @@
                     id="caseDefinition_filter"
                     placeholder="{{ 'model.-kies-' | translate }}"
                     [(ngModel)]="filterParameters.caseDefinition"
+                    (ngModelChange)="filterParameters.caseDefinition = $event"
                   >
                     <mat-option>{{ "model.-kies-" | translate }}</mat-option>
                     <mat-option

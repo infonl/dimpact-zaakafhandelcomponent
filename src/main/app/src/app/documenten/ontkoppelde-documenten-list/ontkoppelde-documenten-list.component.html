@@ -48,6 +48,7 @@
               id="ontkoppeldDoor_filter"
               placeholder="{{ 'filter.-alle-' | translate }}"
               [(ngModel)]="listParameters.ontkoppeldDoor"
+              (ngModelChange)="listParameters.ontkoppeldDoor = $event"
             >
               <mat-option>{{ "filter.-alle-" | translate }}</mat-option>
               <mat-option

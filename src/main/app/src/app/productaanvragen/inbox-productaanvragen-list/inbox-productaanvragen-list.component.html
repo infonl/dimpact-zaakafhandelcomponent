@@ -40,6 +40,7 @@
               id="type_filter"
               placeholder="{{ 'filter.-alle-' | translate }}"
               [(ngModel)]="listParameters.type"
+              (ngModelChange)="listParameters.type = $event"
             >
               <mat-option>{{ "filter.-alle-" | translate }}</mat-option>
               <mat-option *ngFor="let value of filterType" [value]="value">{{
