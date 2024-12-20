@@ -23,5 +23,7 @@
     "ts-node": "10.9.2",
     "typescript": "5.7.2"
   },
-  "cucumber.features": ["features/**/*.feature"]
+  "cucumber.features": [
+    "features/**/*.feature"
+  ]
 }
