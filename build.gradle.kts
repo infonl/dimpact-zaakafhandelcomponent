@@ -142,7 +142,7 @@ dependencies {
     runtimeOnly(libs.infinispan.cdi.embedded)
 
     // declare dependencies that are required in the generated WAR; see war section below
-    // simply marking them as 'compileOnly' or 'implementation' does not work
+    // simply marking them as "compileOnly" or "implementation" does not work
     warLib(libs.apache.httpclient)
     warLib(libs.reactive.streams)
     // WildFly does already include the Jakarta Mail API lib so not sure why, but we need to
@@ -153,7 +153,7 @@ dependencies {
     // update these versions when upgrading WildFly
     // you can find most of these dependencies in the WildFly pom.xml file
     // of the WidFly version you are using on https://github.com/wildfly/wildfly
-    // for others you need to check the 'modules' directory of your local WildFly installation
+    // for others you need to check the "modules" directory of your local WildFly installation
     providedCompile(libs.jakarta.jakartaee)
     providedCompile(libs.eclipse.microprofile.rest.client.api)
     providedCompile(libs.eclipse.microprofile.config.api)
@@ -193,14 +193,14 @@ dependencies {
 }
 
 allOpen {
-    // enable all-open plugin for Kotlin so that WildFly's dependency injection framework (Weld)
+    // enable all-open plugin for Kotlin so that WildFly"s dependency injection framework (Weld)
     // can proxy our Kotlin classes when they have our custom annotation
     // because by default Kotlin classes are final
     annotation("nl.lifely.zac.util.AllOpen")
 }
 
 noArg {
-    // enable no-arg plugin for Kotlin so that WildFly's dependency injection framework (Weld)
+    // enable no-arg plugin for Kotlin so that WildFly"s dependency injection framework (Weld)
     // can instantiate our Kotlin classes without a no-arg constructor
     annotation("nl.lifely.zac.util.NoArgConstructor")
 }
@@ -295,6 +295,23 @@ configure<SpotlessExtension> {
         // https://github.com/diffplug/spotless/tree/main/lib-extra/src/main/resources/com/diffplug/spotless/extra/eclipse_wtp_formatter
         eclipse(libs.versions.spotless.eclipse.formatter.get()).configFile("config/zac.xml")
     }
+    sql {
+        target("**/*.sql")
+        dbeaver().configFile("config/sql-lint.properties")
+    }
+    yaml {
+        target("src/**/*.yaml")
+        targetExclude(
+            "src/main/app/node_modules/**",
+            "src/main/app/.angular/**",
+            "src/main/app/coverage/**",
+            "src/main/app/dist/**",
+            "src/main/app/reports/**",
+            "src/main/app/src/generated/**",
+        )
+
+        prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get()))
+    }
     format("e2e") {
         target("src/e2e/**/*.js", "src/e2e/**/*.ts")
         targetExclude("src/e2e/node_modules/**")
@@ -316,15 +333,11 @@ configure<SpotlessExtension> {
         target("src/main/app/**/*.js", "src/main/app/**/*.ts")
         targetExclude(
             "src/main/app/node_modules/**",
-            "src/main/app/dist/**",
-            "src/main/app/.angular/**"
-        )
-        targetExclude(
-            "src/main/app/node_modules/**",
             "src/main/app/src/generated/**",
             "src/main/app/coverage/**",
             "src/main/app/dist/**",
-            "src/main/app/.angular/**"
+            "src/main/app/reports/**",
+            "src/main/app/.angular/**",
         )
 
         prettier(
@@ -334,19 +347,20 @@ configure<SpotlessExtension> {
             )
         ).config(mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports")))
     }
-    format("json") {
+    json {
         target("src/**/*.json")
         targetExclude(
             "src/e2e/node_modules/**",
             "src/e2e/reports/**",
             "src/main/app/node_modules/**",
             "src/main/app/dist/**",
+            "src/main/app/reports/**",
             "src/main/app/.angular/**",
             "src/**/package-lock.json",
-            "src/main/app/coverage/**.json"
+            "src/main/app/coverage/**.json",
         )
 
-        prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "json"))
+        prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get()))
     }
     format("html") {
         target("src/**/*.html", "src/**/*.htm")
@@ -469,7 +483,7 @@ tasks {
         // add built frontend resources to WAR archive
         from("src/main/app/dist/zaakafhandelcomponent")
 
-        // explicitly add our 'warLib' 'transitive' dependencies that are required in the generated WAR
+        // explicitly add our "warLib" "transitive" dependencies that are required in the generated WAR
         classpath(files(configurations["warLib"]))
     }
 
