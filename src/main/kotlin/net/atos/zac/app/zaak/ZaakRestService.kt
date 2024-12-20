@@ -203,7 +203,7 @@ class ZaakRestService @Inject constructor(
     @Path("initiator")
     fun updateInitiator(gegevens: RESTZaakBetrokkeneGegevens): RestZaak {
         val zaak = zrcClientService.readZaak(gegevens.zaakUUID)
-        zgwApiService.findInitiatorRoleForZaak(zaak)?.let {
+        zgwApiService.findInitiatorRoleForZaak(zaak)?.also {
             removeInitiator(zaak, it, ROL_VERWIJDER_REDEN)
         }
         addInitiator(gegevens.betrokkeneIdentificatieType, gegevens.betrokkeneIdentificatie, zaak)
@@ -214,7 +214,9 @@ class ZaakRestService @Inject constructor(
     @Path("{uuid}/initiator")
     fun deleteInitiator(@PathParam("uuid") zaakUUID: UUID, reden: RESTReden): RestZaak {
         val zaak = zrcClientService.readZaak(zaakUUID)
-        zgwApiService.findInitiatorRoleForZaak(zaak)?.let { removeInitiator(zaak, it, reden.reden) }
+        zgwApiService.findInitiatorRoleForZaak(zaak)?.also {
+            removeInitiator(zaak, it, reden.reden)
+        }
         return restZaakConverter.toRestZaak(zaak)
     }
 

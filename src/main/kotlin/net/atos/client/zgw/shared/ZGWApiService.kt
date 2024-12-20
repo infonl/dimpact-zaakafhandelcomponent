@@ -38,6 +38,7 @@ import java.time.Period
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Logger
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * Service class for ZGW API's.
@@ -56,6 +57,7 @@ class ZGWApiService @Inject constructor(
 
         // Page numbering in ZGW APIs starts with 1
         const val FIRST_PAGE_NUMBER_ZGW_APIS: Int = 1
+        const val ZAAK_OBJECT_DELETION_PREFIX = "Verwijderd"
     }
 
     /**
@@ -235,7 +237,7 @@ class ZGWApiService @Inject constructor(
         // delete the relationship of the EnkelvoudigInformatieobject with the zaak.
         zaakInformatieobjecten
             .filter { it.zaakUUID == zaakUUID }
-            .forEach { zrcClientService.deleteZaakInformatieobject(it.uuid, toelichting, "Verwijderd") }
+            .forEach { zrcClientService.deleteZaakInformatieobject(it.uuid, toelichting, ZAAK_OBJECT_DELETION_PREFIX) }
 
         // if the EnkelvoudigInformatieobject has no relationship(s) with other zaken it can be deleted.
         if (zaakInformatieobjecten.all { it.zaakUUID == zaakUUID }) {
@@ -270,8 +272,7 @@ class ZGWApiService @Inject constructor(
             // there should be only one initiator role type,
             // but in case there are multiple, we take the first one
             .firstOrNull()?.let {
-                zrcClientService.listRollen(RolListParameters(zaak.url, it.url))
-                    .getSingleResult().takeIf { it.isPresent }?.get()
+                zrcClientService.listRollen(RolListParameters(zaak.url, it.url)).getSingleResult().getOrNull()
             }
 
     private fun findBehandelaarRoleForZaak(
@@ -281,8 +282,7 @@ class ZGWApiService @Inject constructor(
         // there should be one and only one 'behandelaar' role type
         // but in case there are multiple, we take the first one
         .firstOrNull()?.let {
-            zrcClientService.listRollen(RolListParameters(zaak.url, it.url, betrokkeneType))
-                .singleResult.takeIf { it.isPresent }?.get()
+            zrcClientService.listRollen(RolListParameters(zaak.url, it.url, betrokkeneType)).singleResult.getOrNull()
         }
 
     private fun createStatusForZaak(zaakURI: URI, statustypeURI: URI, toelichting: String?): Status {
