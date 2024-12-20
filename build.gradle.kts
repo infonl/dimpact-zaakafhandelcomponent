@@ -193,14 +193,14 @@ dependencies {
 }
 
 allOpen {
-    // enable all-open plugin for Kotlin so that WildFly"s dependency injection framework (Weld)
+    // enable all-open plugin for Kotlin so that Wildfly's dependency injection framework (Weld)
     // can proxy our Kotlin classes when they have our custom annotation
     // because by default Kotlin classes are final
     annotation("nl.lifely.zac.util.AllOpen")
 }
 
 noArg {
-    // enable no-arg plugin for Kotlin so that WildFly"s dependency injection framework (Weld)
+    // enable no-arg plugin for Kotlin so that Wildfly's dependency injection framework (Weld)
     // can instantiate our Kotlin classes without a no-arg constructor
     annotation("nl.lifely.zac.util.NoArgConstructor")
 }
