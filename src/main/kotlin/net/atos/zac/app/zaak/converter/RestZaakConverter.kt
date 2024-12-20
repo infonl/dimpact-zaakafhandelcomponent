@@ -77,9 +77,9 @@ class RestZaakConverter @Inject constructor(
         }
         val besluiten = brcClientService.listBesluiten(zaak)
             .map { restDecisionConverter.convertToRestDecision(it) }
-        val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.let { rolMedewerker ->
-            rolMedewerker.betrokkeneIdentificatie?.let { restUserConverter.convertUserId(it.identificatie) }
-        }
+        val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+            ?.betrokkeneIdentificatie
+            ?.let { restUserConverter.convertUserId(it.identificatie) }
         val initiator = zgwApiService.findInitiatorRoleForZaak(zaak)
         return RestZaak(
             identificatie = zaak.identificatie,
