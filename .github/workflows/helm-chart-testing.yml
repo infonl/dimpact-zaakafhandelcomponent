@@ -2,9 +2,9 @@ name: Helm chart linting and testing
 
 on:
   pull_request:
-#    branches: [main]
-#    paths:
-#      - 'helm/**'
+    branches: [main]
+    paths:
+      - 'helm/**'
   merge_group:
   workflow_dispatch:
 
@@ -20,22 +20,28 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@fe7b79cd5ee1e45176fcad797de68ecaf3ca4814 # v4.2.0
         with:
-          version: v3.14.4 # needs renovate version regex
+          version: v3.16.4 # needs renovate version regex
 
       - name: Set up chart-testing
         uses: helm/chart-testing-action@e6669bcd63d7cb57cb4380c33043eebe5d111992 # v2.6.1
 
+      - name: Add repositories
+        working-directory: ./helm
+        run: | 
+          helm dependency list | tail +2 | head -n -1 | awk '{ print "helm repo add " $1 " " $3 }' | while read cmd; do $cmd; done
+
       - name: Run chart-testing (list-changed)
+        working-directory: ./helm
         id: list-changed
         run: |
-          changed=$(ct list-changed --chart-dirs helm/ --target-branch ${{ github.event.repository.default_branch }})
+          changed=$(ct list-changed --chart-dirs . --target-branch ${{ github.event.repository.default_branch }})
           if [[ -n "$changed" ]]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Run chart-testing (lint)
         #if: steps.list-changed.outputs.changed == 'true'
-        run: ct lint --chart-dirs helm/ --target-branch ${{ github.event.repository.default_branch }}
+        run: ct lint --charts . --target-branch ${{ github.event.repository.default_branch }}
 
       - name: Create kind cluster
         #if: steps.list-changed.outputs.changed == 'true'
@@ -43,4 +49,4 @@ jobs:
 
       - name: Run chart-testing (install)
         #if: steps.list-changed.outputs.changed == 'true'
-        run: ct install --chart-dirs helm/ --target-branch ${{ github.event.repository.default_branch }}
+        run: ct install --charts . --target-branch ${{ github.event.repository.default_branch }}
