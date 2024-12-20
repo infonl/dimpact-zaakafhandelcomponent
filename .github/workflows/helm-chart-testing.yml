@@ -46,7 +46,6 @@ jobs:
 
       - name: Create kind cluster
         #if: steps.list-changed.outputs.changed == 'true'
-        working-directory: ./helm
         uses: helm/kind-action@ae94020eaf628e9b9b9f341a10cc0cdcf5c018fb # v1.11.0
 
       - name: Run chart-testing (install)
