@@ -253,7 +253,7 @@ class ZGWApiService @Inject constructor(
      */
     fun findGroepForZaak(zaak: Zaak): RolOrganisatorischeEenheid? =
         findBehandelaarRoleForZaak(zaak, BetrokkeneType.ORGANISATORISCHE_EENHEID)?.let {
-            RolOrganisatorischeEenheid::class.java.cast(it)
+            it as RolOrganisatorischeEenheid
         }
 
     /**
@@ -264,7 +264,7 @@ class ZGWApiService @Inject constructor(
      */
     fun findBehandelaarMedewerkerRoleForZaak(zaak: Zaak): RolMedewerker? =
         findBehandelaarRoleForZaak(zaak, BetrokkeneType.MEDEWERKER)?.let {
-            RolMedewerker::class.java.cast(it)
+            it as RolMedewerker
         }
 
     fun findInitiatorRoleForZaak(zaak: Zaak): Rol<*>? =
