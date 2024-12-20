@@ -17,3 +17,8 @@ dependencies:
     version: 9.1.6
     repository: https://charts.bitnami.com/bitnami
     condition: solr.enabled
+maintainers:
+  - name: Team Dimpact, info
+    email: teamdimpact@info.nl
+    url: https://www.info.nl
+
