@@ -2,9 +2,9 @@ name: Helm chart linting and testing
 
 on:
   pull_request:
-    branches: [main]
-    paths:
-      - 'helm/**'
+#    branches: [main]
+#    paths:
+#      - 'helm/**'
   merge_group:
   workflow_dispatch:
 
