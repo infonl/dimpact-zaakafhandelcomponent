@@ -318,7 +318,7 @@ configure<SpotlessExtension> {
             "src/main/app/dist/**",
             "src/main/app/reports/**",
             "src/main/app/src/generated/**",
-            "src/resources/bag/**",
+            "src/main/resources/api-specs/**",
         )
 
         prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get()))
