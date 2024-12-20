@@ -296,7 +296,17 @@ configure<SpotlessExtension> {
         eclipse(libs.versions.spotless.eclipse.formatter.get()).configFile("config/zac.xml")
     }
     sql {
-        target("**/*.sql")
+        target("src/**/*.sql")
+        targetExclude(
+            "src/main/app/node_modules/**",
+            "src/main/app/.angular/**",
+            "src/main/app/coverage/**",
+            "src/main/app/dist/**",
+            "src/main/app/reports/**",
+            "src/main/app/src/generated/**",
+            "src/main/e2e/node_modules/**",
+            "src/main/e2e/reports/**",
+        )
         dbeaver().configFile("config/sql-lint.properties")
     }
     yaml {
@@ -308,6 +318,7 @@ configure<SpotlessExtension> {
             "src/main/app/dist/**",
             "src/main/app/reports/**",
             "src/main/app/src/generated/**",
+            "src/resources/bag/**",
         )
 
         prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get()))
