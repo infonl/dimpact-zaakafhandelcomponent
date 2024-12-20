@@ -203,8 +203,9 @@ class ZaakRestService @Inject constructor(
     @Path("initiator")
     fun updateInitiator(gegevens: RESTZaakBetrokkeneGegevens): RestZaak {
         val zaak = zrcClientService.readZaak(gegevens.zaakUUID)
-        zgwApiService.findInitiatorRoleForZaak(zaak)
-            .ifPresent { removeInitiator(zaak, it, ROL_VERWIJDER_REDEN) }
+        zgwApiService.findInitiatorRoleForZaak(zaak)?.also {
+            removeInitiator(zaak, it, ROL_VERWIJDER_REDEN)
+        }
         addInitiator(gegevens.betrokkeneIdentificatieType, gegevens.betrokkeneIdentificatie, zaak)
         return restZaakConverter.toRestZaak(zaak)
     }
@@ -213,8 +214,9 @@ class ZaakRestService @Inject constructor(
     @Path("{uuid}/initiator")
     fun deleteInitiator(@PathParam("uuid") zaakUUID: UUID, reden: RESTReden): RestZaak {
         val zaak = zrcClientService.readZaak(zaakUUID)
-        zgwApiService.findInitiatorRoleForZaak(zaak)
-            .ifPresent { removeInitiator(zaak, it, reden.reden) }
+        zgwApiService.findInitiatorRoleForZaak(zaak)?.also {
+            removeInitiator(zaak, it, reden.reden)
+        }
         return restZaakConverter.toRestZaak(zaak)
     }
 
@@ -520,22 +522,18 @@ class ZaakRestService @Inject constructor(
             assertPolicy(policyService.readZaakRechten(it).toekennen)
         }
         val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
-            .map { it.betrokkeneIdentificatie.identificatie }
-            .orElse(null)
+            ?.betrokkeneIdentificatie?.identificatie
         val isUpdated = AtomicBoolean(false)
         if (behandelaar != toekennenGegevens.assigneeUserName) {
             toekennenGegevens.assigneeUserName?.takeIf { it.isNotEmpty() }?.let {
                 val user = identityService.readUser(it)
                 zrcClientService.updateRol(zaak, zaakService.bepaalRolMedewerker(user, zaak), toekennenGegevens.reason)
-            }
-                // no, or an empty behandelaarGebruikersnaam means the zaak should be unassigned
-                ?: zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER, toekennenGegevens.reason)
+            } ?: zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER, toekennenGegevens.reason)
             isUpdated.set(true)
         }
-        zgwApiService.findGroepForZaak(zaak).ifPresent {
-            val groupId = toekennenGegevens.groupId
-            if (it.betrokkeneIdentificatie.identificatie != groupId) {
-                val group = identityService.readGroup(groupId)
+        zgwApiService.findGroepForZaak(zaak)?.betrokkeneIdentificatie?.identificatie?.let { currentGroupId ->
+            if (currentGroupId != toekennenGegevens.groupId) {
+                val group = identityService.readGroup(toekennenGegevens.groupId)
                 val role = zaakService.bepaalRolGroep(group, zaak)
                 zrcClientService.updateRol(zaak, role, toekennenGegevens.reason)
                 isUpdated.set(true)
