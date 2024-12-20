@@ -528,20 +528,15 @@ class ZaakRestService @Inject constructor(
             toekennenGegevens.assigneeUserName?.takeIf { it.isNotEmpty() }?.let {
                 val user = identityService.readUser(it)
                 zrcClientService.updateRol(zaak, zaakService.bepaalRolMedewerker(user, zaak), toekennenGegevens.reason)
-            }
-                // no, or an empty behandelaarGebruikersnaam means the zaak should be unassigned
-                ?: zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER, toekennenGegevens.reason)
+            } ?: zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER, toekennenGegevens.reason)
             isUpdated.set(true)
         }
-        zgwApiService.findGroepForZaak(zaak)?.let { rolOrganisatorischeEenheid ->
-            val groupId = toekennenGegevens.groupId
-            rolOrganisatorischeEenheid.betrokkeneIdentificatie?.let {
-                if (it.identificatie != groupId) {
-                    val group = identityService.readGroup(groupId)
-                    val role = zaakService.bepaalRolGroep(group, zaak)
-                    zrcClientService.updateRol(zaak, role, toekennenGegevens.reason)
-                    isUpdated.set(true)
-                }
+        zgwApiService.findGroepForZaak(zaak)?.betrokkeneIdentificatie?.identificatie?.let { currentGroupId ->
+            if (currentGroupId != toekennenGegevens.groupId) {
+                val group = identityService.readGroup(toekennenGegevens.groupId)
+                val role = zaakService.bepaalRolGroep(group, zaak)
+                zrcClientService.updateRol(zaak, role, toekennenGegevens.reason)
+                isUpdated.set(true)
             }
         }
         if (isUpdated.get()) {

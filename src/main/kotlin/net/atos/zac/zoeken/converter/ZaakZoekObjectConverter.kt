@@ -55,7 +55,7 @@ class ZaakZoekObjectConverter @Inject constructor(
             // we use the name of this enum in the search index
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name
             isAfgehandeld = !zaak.isOpen
-            zgwApiService.findInitiatorRoleForZaak(zaak)?.let(::setInitiator)
+            zgwApiService.findInitiatorRoleForZaak(zaak)?.also(::setInitiator)
             // locatie is not yet supported
             locatie = null
             communicatiekanaal = zaak.communicatiekanaalNaam
@@ -99,10 +99,11 @@ class ZaakZoekObjectConverter @Inject constructor(
         }
         zaakZoekObject.aantalOpenstaandeTaken = flowableTaskService.countOpenTasksForZaak(zaak.uuid)
         zaak.resultaat?.let { zaakResultaat ->
-            zrcClientService.readResultaat(zaakResultaat)?.let {
-                val resultaattype = ztcClientService.readResultaattype(it.resultaattype)
-                zaakZoekObject.resultaattypeOmschrijving = resultaattype.omschrijving
-                zaakZoekObject.resultaatToelichting = it.toelichting
+            zrcClientService.readResultaat(zaakResultaat)?.let { resultaat ->
+                ztcClientService.readResultaattype(resultaat.resultaattype).let { resultaattype ->
+                    zaakZoekObject.resultaattypeOmschrijving = resultaattype.omschrijving
+                    zaakZoekObject.resultaatToelichting = resultaat.toelichting
+                }
             }
         }
         zaakZoekObject.bagObjectIDs = getBagObjectIDs(zaak)
@@ -116,25 +117,23 @@ class ZaakZoekObjectConverter @Inject constructor(
     }
 
     private fun findBehandelaar(zaak: Zaak): User? =
-        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.let { rolMedewerker ->
-            rolMedewerker.betrokkeneIdentificatie?.let {
-                identityService.readUser(it.identificatie)
-            }
-        }
+        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+            ?.betrokkeneIdentificatie
+            ?.identificatie
+            ?.let(identityService::readUser)
 
     private fun findGroup(zaak: Zaak): Group? =
-        zgwApiService.findGroepForZaak(zaak)?.let { rolOrganisatorischeEenheid ->
-            rolOrganisatorischeEenheid.betrokkeneIdentificatie?.let {
-                identityService.readGroup(it.identificatie)
-            }
-        }
+        zgwApiService.findGroepForZaak(zaak)
+            ?.betrokkeneIdentificatie
+            ?.identificatie
+            ?.let(identityService::readGroup)
 
     private fun getBagObjectIDs(zaak: Zaak): List<String> {
         val zaakobjectListParameters = ZaakobjectListParameters().apply { this.zaak = zaak.url }
-        val zaakobjecten = zrcClientService.listZaakobjecten(zaakobjectListParameters)
-        return zaakobjecten.results
+        return zrcClientService.listZaakobjecten(zaakobjectListParameters)
+            .results
             .filter { it.isBagObject }
             .map { it.waarde }
-            .takeIf { it.isNotEmpty() } ?: emptyList()
+            .let { if (it.isNotEmpty()) it else emptyList() }
     }
 }
