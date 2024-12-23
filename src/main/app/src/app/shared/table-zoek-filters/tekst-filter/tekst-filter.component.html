@@ -9,7 +9,8 @@
     placeholder="..."
     (blur)="change()"
     (keyup.enter)="change()"
-    [(ngModel)]="value"
+    [ngModel]="value"
+    (ngModelChange)="value = $event"
   />
   <mat-icon matSuffix (click)="change()">search</mat-icon>
 </mat-form-field>
