@@ -37,7 +37,6 @@ import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import java.net.URI
 import java.time.ZoneId
 import java.util.Date
-import java.util.Optional
 
 class ZaakZoekObjectConverterTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
@@ -95,11 +94,11 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         )
         every { zrcClientService.readResultaat(zaak.resultaat) } returns resultaat
 
-        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns Optional.of(rolInitiator)
-        every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns Optional.of(rolMedewerkerBehandelaar)
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolInitiator
+        every { zgwApiService.findGroepForZaak(zaak) } returns null
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerkerBehandelaar
         every {
-            identityService.readUser(rolMedewerkerBehandelaar.betrokkeneIdentificatie.identificatie)
+            identityService.readUser(rolMedewerkerBehandelaar.betrokkeneIdentificatie!!.identificatie)
         } returns userBehandelaar
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
         every { ztcClientService.readResultaattype(resultaat.resultaattype) } returns resultaatType
@@ -165,14 +164,13 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         val zaakStatusType = createStatusType().apply {
             omschrijving = ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND
         }
-
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns Optional.of(rolInitiator)
+        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolInitiator
         every { zrcClientService.listRollen(zaak) } returns rollenZaak
-        every { zgwApiService.findGroepForZaak(zaak) } returns Optional.empty()
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns Optional.of(rolMedewerkerBehandelaar)
+        every { zgwApiService.findGroepForZaak(zaak) } returns null
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerkerBehandelaar
         every {
-            identityService.readUser(rolMedewerkerBehandelaar.betrokkeneIdentificatie.identificatie)
+            identityService.readUser(rolMedewerkerBehandelaar.betrokkeneIdentificatie!!.identificatie)
         } returns userBehandelaar
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
         every { zrcClientService.readStatus(zaak.status) } returns zaakStatus

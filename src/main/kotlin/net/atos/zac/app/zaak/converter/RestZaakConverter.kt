@@ -40,7 +40,6 @@ import java.time.Period
 import java.util.EnumSet
 import java.util.UUID
 import java.util.logging.Logger
-import kotlin.jvm.optionals.getOrNull
 
 @Suppress("LongParameterList")
 class RestZaakConverter @Inject constructor(
@@ -71,14 +70,16 @@ class RestZaakConverter @Inject constructor(
     @Suppress("LongMethod", "CyclomaticComplexMethod")
     fun toRestZaak(zaak: Zaak, status: Status?, statustype: StatusType?): RestZaak {
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
-        val groep = zgwApiService.findGroepForZaak(zaak)
-            .map { restGroupConverter.convertGroupId(it.betrokkeneIdentificatie.identificatie) }
-            .orElse(null)
+        val groep = zgwApiService.findGroepForZaak(zaak)?.let { rolOrganisatorischeEenheid ->
+            rolOrganisatorischeEenheid.betrokkeneIdentificatie?.let {
+                restGroupConverter.convertGroupId(it.identificatie)
+            }
+        }
         val besluiten = brcClientService.listBesluiten(zaak)
             .map { restDecisionConverter.convertToRestDecision(it) }
         val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
-            .map { restUserConverter.convertUserId(it.betrokkeneIdentificatie.identificatie) }
-            .orElse(null)
+            ?.betrokkeneIdentificatie
+            ?.let { restUserConverter.convertUserId(it.identificatie) }
         val initiator = zgwApiService.findInitiatorRoleForZaak(zaak)
         return RestZaak(
             identificatie = zaak.identificatie,
@@ -112,8 +113,8 @@ class RestZaakConverter @Inject constructor(
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name,
             groep = groep,
             behandelaar = behandelaar,
-            initiatorIdentificatie = initiator.getOrNull()?.identificatienummer,
-            initiatorIdentificatieType = when (val betrokkeneType = initiator.getOrNull()?.betrokkeneType) {
+            initiatorIdentificatie = initiator?.identificatienummer,
+            initiatorIdentificatieType = when (val betrokkeneType = initiator?.betrokkeneType) {
                 BetrokkeneType.NATUURLIJK_PERSOON -> IdentificatieType.BSN
                 BetrokkeneType.VESTIGING -> IdentificatieType.VN
                 BetrokkeneType.NIET_NATUURLIJK_PERSOON -> IdentificatieType.RSIN
