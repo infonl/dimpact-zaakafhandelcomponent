@@ -7,27 +7,32 @@
 }
 
 .mat-mdc-checkbox {
-  margin-bottom: 10px;
+  margin: 20px 0 10px -7px;
 }
 
 mat-expansion-panel {
   background-color: rgba(0, 0, 0, 0.04);
 }
 
-button {
-  &.mat-mdc-button-base + button.mat-mdc-button-base {
-    margin: 0;
-  }
+.mat-expansion-panel-header,
+.mat-expansion-panel-content {
+  padding-left: 16px;
+  padding-right: 16px;
+}
 
-  mat-icon {
-    color: #0000008a;
-
-    &:hover {
-      color: inherit;
-    }
-  }
+.mat-expansion-panel,
+.mat-expansion-panel-header {
+  color: var(--mdc-filled-text-field-label-text-color);
+  font-family: var(--mdc-filled-text-field-label-text-font);
+  font-size: var(--mdc-filled-text-field-label-text-size);
+  font-weight: var(--mdc-filled-text-field-label-text-weight);
+  letter-spacing: var(--mdc-filled-text-field-label-text-tracking);
 }
 
 .suffix {
   float: right;
+}
+
+.mat-mdc-dialog-actions {
+  padding: var(--mat-dialog-with-actions-content-padding, 20px 24px);
 }
