@@ -132,9 +132,9 @@
   <button
     mat-raised-button
     color="primary"
+    id="intakeAfronden_button"
     [disabled]="loading || formGroup.invalid"
     (click)="afronden()"
-    id="intakeAfronden_button"
   >
     <mat-icon *ngIf="loading">
       <mat-spinner diameter="18"></mat-spinner>
