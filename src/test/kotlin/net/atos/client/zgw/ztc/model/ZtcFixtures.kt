@@ -83,7 +83,8 @@ fun createZaakType(
     identification: String = "dummyIdentificatie",
     besluittypen: List<URI>? = null,
     resultTypes: List<URI>? = listOf(URI("dummyResultaatType1"), URI("dummyResultaatType2")),
-    concept: Boolean = false
+    concept: Boolean = false,
+    serviceNorm: String? = null
 ) = ZaakType(
     uri,
     concept,
@@ -98,6 +99,7 @@ fun createZaakType(
     this.omschrijving = omschrijving
     this.besluittypen = besluittypen
     this.identificatie = identification
+    this.servicenorm = serviceNorm
 }
 
 fun createInformatieObjectType(

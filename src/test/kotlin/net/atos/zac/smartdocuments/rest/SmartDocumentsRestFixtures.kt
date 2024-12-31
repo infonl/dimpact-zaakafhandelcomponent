@@ -7,11 +7,11 @@ package net.atos.zac.smartdocuments.rest
 
 import java.util.UUID
 
-fun createRESTMappedTemplateGroup(
+fun createRestMappedSmartDocumentsTemplateGroup(
     id: String = UUID.randomUUID().toString(),
     name: String = "templateGroup1",
-    groups: Set<RestMappedSmartDocumentsTemplateGroup>,
-    templates: Set<RestMappedSmartDocumentsTemplate>
+    groups: Set<RestMappedSmartDocumentsTemplateGroup>? = null,
+    templates: Set<RestMappedSmartDocumentsTemplate>? = null
 ) = RestMappedSmartDocumentsTemplateGroup(
     id = id,
     name = name,
@@ -19,7 +19,7 @@ fun createRESTMappedTemplateGroup(
     templates = templates
 )
 
-fun createRESTMappedTemplate(
+fun createRestMappedSmartDocumentsTemplate(
     id: String = UUID.randomUUID().toString(),
     name: String = "template1",
     informatieObjectTypeUUID: UUID = UUID.randomUUID()
@@ -29,7 +29,7 @@ fun createRESTMappedTemplate(
     informatieObjectTypeUUID = informatieObjectTypeUUID
 )
 
-fun createRESTTemplateGroup(
+fun createRestSmartDocumentsTemplateGroup(
     id: String = UUID.randomUUID().toString(),
     name: String = "templateGroup1",
     groups: Set<RestSmartDocumentsTemplateGroup>,
@@ -41,7 +41,7 @@ fun createRESTTemplateGroup(
     templates = templates
 )
 
-fun createRESTTemplate(
+fun createRestSmartDocumentsTemplate(
     id: String = UUID.randomUUID().toString(),
     name: String = "template1"
 ) = RestSmartDocumentsTemplate(

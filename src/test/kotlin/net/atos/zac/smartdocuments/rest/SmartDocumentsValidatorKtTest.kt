@@ -14,50 +14,50 @@ import java.util.UUID
 class SmartDocumentsValidatorKtTest : BehaviorSpec({
 
     val smartDocumentsTemplates = setOf(
-        createRESTTemplateGroup(
+        createRestSmartDocumentsTemplateGroup(
             name = "root",
             groups = setOf(
-                createRESTTemplateGroup(
+                createRestSmartDocumentsTemplateGroup(
                     name = "group 1",
                     templates = setOf(
-                        createRESTTemplate(name = "group 1 template 1"),
-                        createRESTTemplate(name = "group 1 template 2")
+                        createRestSmartDocumentsTemplate(name = "group 1 template 1"),
+                        createRestSmartDocumentsTemplate(name = "group 1 template 2")
                     ),
                     groups = emptySet()
                 ),
-                createRESTTemplateGroup(
+                createRestSmartDocumentsTemplateGroup(
                     name = "group 2",
                     templates = setOf(
-                        createRESTTemplate(name = "group 2 template 1"),
-                        createRESTTemplate(name = "group 2 template 2")
+                        createRestSmartDocumentsTemplate(name = "group 2 template 1"),
+                        createRestSmartDocumentsTemplate(name = "group 2 template 2")
                     ),
                     groups = emptySet()
                 )
             ),
             templates = setOf(
-                createRESTTemplate(name = "root template 1"),
-                createRESTTemplate(name = "root template 2")
+                createRestSmartDocumentsTemplate(name = "root template 1"),
+                createRestSmartDocumentsTemplate(name = "root template 2")
             )
         )
     )
 
-    Given("a valid REST request") {
+    Given("a valid rest template request") {
         val expectedInformatieobjectTypeUUID = UUID.randomUUID()
         val restTemplateRequest = setOf(
-            createRESTMappedTemplateGroup(
+            createRestMappedSmartDocumentsTemplateGroup(
                 id = smartDocumentsTemplates.first().id,
                 name = "root",
                 groups = setOf(
-                    createRESTMappedTemplateGroup(
+                    createRestMappedSmartDocumentsTemplateGroup(
                         id = smartDocumentsTemplates.first().groups?.first()?.id!!,
                         name = "group 1",
                         templates = setOf(
-                            createRESTMappedTemplate(
+                            createRestMappedSmartDocumentsTemplate(
                                 id = smartDocumentsTemplates.first().groups?.first()?.templates?.first()?.id!!,
                                 name = "group 1 template 1",
                                 informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
                             ),
-                            createRESTMappedTemplate(
+                            createRestMappedSmartDocumentsTemplate(
                                 id = smartDocumentsTemplates.first().groups?.first()?.templates?.last()?.id!!,
                                 name = "group 1 template 2",
                                 informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
@@ -65,16 +65,16 @@ class SmartDocumentsValidatorKtTest : BehaviorSpec({
                         ),
                         groups = emptySet()
                     ),
-                    createRESTMappedTemplateGroup(
+                    createRestMappedSmartDocumentsTemplateGroup(
                         id = smartDocumentsTemplates.first().groups?.last()?.id!!,
                         name = "group 2",
                         templates = setOf(
-                            createRESTMappedTemplate(
+                            createRestMappedSmartDocumentsTemplate(
                                 id = smartDocumentsTemplates.first().groups?.last()?.templates?.first()?.id!!,
                                 name = "group 2 template 1",
                                 informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
                             ),
-                            createRESTMappedTemplate(
+                            createRestMappedSmartDocumentsTemplate(
                                 id = smartDocumentsTemplates.first().groups?.last()?.templates?.last()?.id!!,
                                 name = "group 2 template 2",
                                 informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
@@ -84,12 +84,12 @@ class SmartDocumentsValidatorKtTest : BehaviorSpec({
                     )
                 ),
                 templates = setOf(
-                    createRESTMappedTemplate(
+                    createRestMappedSmartDocumentsTemplate(
                         id = smartDocumentsTemplates.first().templates?.first()?.id!!,
                         name = "root template 1",
                         informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
                     ),
-                    createRESTMappedTemplate(
+                    createRestMappedSmartDocumentsTemplate(
                         id = smartDocumentsTemplates.first().templates?.last()?.id!!,
                         name = "root template 2",
                         informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
@@ -106,7 +106,7 @@ class SmartDocumentsValidatorKtTest : BehaviorSpec({
 
     Given("an invalid REST request") {
         val invalidRestTemplateRequest = setOf(
-            createRESTMappedTemplateGroup(
+            createRestMappedSmartDocumentsTemplateGroup(
                 id = "000-000",
                 name = "non-existing",
                 groups = emptySet(),
