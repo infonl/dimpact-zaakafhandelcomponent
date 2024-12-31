@@ -193,7 +193,7 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
     Given("A zaaktype that has been updated") {
         val zaaktypeUUID = UUID.randomUUID()
         val zaaktypeUri = URI("https://example.com/zaaktypes/$zaaktypeUUID")
-        val zaakType = createZaakType(uri = zaaktypeUri, serviceNorm = "dummyServiceNorm")
+        val zaakType = createZaakType(uri = zaaktypeUri, servicenorm = "dummyServiceNorm")
 
         every { zaakafhandelParameterService.clearListCache() } returns "Cache cleared"
 
