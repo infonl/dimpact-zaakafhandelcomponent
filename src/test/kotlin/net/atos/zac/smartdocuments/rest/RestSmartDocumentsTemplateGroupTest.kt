@@ -15,31 +15,31 @@ class RestSmartDocumentsTemplateGroupTest : BehaviorSpec({
     Given("a REST request") {
         val expectedInformatieobjectTypeUUID = UUID.randomUUID()
         val restTemplateRequest = setOf(
-            createRESTMappedTemplateGroup(
+            createRestMappedSmartDocumentsTemplateGroup(
                 name = "root",
                 groups = setOf(
-                    createRESTMappedTemplateGroup(
+                    createRestMappedSmartDocumentsTemplateGroup(
                         name = "group 1",
                         templates = setOf(
-                            createRESTMappedTemplate(
+                            createRestMappedSmartDocumentsTemplate(
                                 name = "group 1 template 1",
                                 informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
                             ),
-                            createRESTMappedTemplate(
+                            createRestMappedSmartDocumentsTemplate(
                                 name = "group 1 template 2",
                                 informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
                             )
                         ),
                         groups = emptySet()
                     ),
-                    createRESTMappedTemplateGroup(
+                    createRestMappedSmartDocumentsTemplateGroup(
                         name = "group 2",
                         templates = setOf(
-                            createRESTMappedTemplate(
+                            createRestMappedSmartDocumentsTemplate(
                                 name = "group 2 template 1",
                                 informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
                             ),
-                            createRESTMappedTemplate(
+                            createRestMappedSmartDocumentsTemplate(
                                 name = "group 2 template 2",
                                 informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
                             )
@@ -48,11 +48,11 @@ class RestSmartDocumentsTemplateGroupTest : BehaviorSpec({
                     )
                 ),
                 templates = setOf(
-                    createRESTMappedTemplate(
+                    createRestMappedSmartDocumentsTemplate(
                         name = "root template 1",
                         informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
                     ),
-                    createRESTMappedTemplate(
+                    createRestMappedSmartDocumentsTemplate(
                         name = "root template 2",
                         informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
                     )
