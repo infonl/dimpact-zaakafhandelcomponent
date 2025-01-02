@@ -9,7 +9,6 @@ import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_READ_TIMEOUT_SECONDS
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_PORT
 import okhttp3.Headers
 import okhttp3.JavaNetCookieJar
-import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
@@ -21,10 +20,6 @@ import java.net.CookieManager
 import java.net.CookiePolicy
 import java.net.URI
 import java.util.concurrent.TimeUnit
-
-private const val APPLICATION_JSON = "application/json"
-private val MEDIA_TYPE_APPLICATION_JSON = APPLICATION_JSON.toMediaType()
-private const val HEADER_AUTHORIZATION = "Authorization"
 
 @Suppress("TooManyFunctions")
 class ItestHttpClient {
@@ -111,7 +106,7 @@ class ItestHttpClient {
     ) = performPostRequest(
         url = url,
         headers = headers,
-        requestBody = requestBodyAsString.toRequestBody(MEDIA_TYPE_APPLICATION_JSON),
+        requestBody = requestBodyAsString.toRequestBody(MediaType.APPLICATION_JSON.toMediaType()),
         addAuthorizationHeader = addAuthorizationHeader
     )
 
@@ -131,7 +126,7 @@ class ItestHttpClient {
                 }
             )
             .url(url)
-            .patch(requestBodyAsString.toRequestBody(MEDIA_TYPE_APPLICATION_JSON))
+            .patch(requestBodyAsString.toRequestBody(MediaType.APPLICATION_JSON.toMediaType()))
             .build()
         return okHttpClient.newCall(request).execute()
     }
@@ -151,7 +146,7 @@ class ItestHttpClient {
                     headers
                 }
             ).url(url)
-            .put(requestBodyAsString.toRequestBody(MEDIA_TYPE_APPLICATION_JSON))
+            .put(requestBodyAsString.toRequestBody(MediaType.APPLICATION_JSON.toMediaType()))
             .build()
         return okHttpClient.newCall(request).execute()
     }
@@ -179,27 +174,12 @@ class ItestHttpClient {
         )
     }
 
-    fun shutdownClient() = okHttpClient.dispatcher.executorService.shutdown()
+    private fun cloneHeadersWithAuthorization(headers: Headers, url: String): Headers =
+        headers.newBuilder().add(Header.AUTHORIZATION.name, determineBearerToken(url)).build()
 
-    private fun cloneHeadersWithAuthorization(headers: Headers, url: String): Headers {
-        val token = if (URI(url).port == OPEN_ZAAK_EXTERNAL_PORT) {
-            generateToken()
-        } else {
-            KeycloakClient.requestAccessToken()
-        }
-        return headers.newBuilder().add(HEADER_AUTHORIZATION, "Bearer $token").build()
+    private fun determineBearerToken(url: String) = "Bearer " + if (URI(url).port == OPEN_ZAAK_EXTERNAL_PORT) {
+        generateToken()
+    } else {
+        KeycloakClient.requestAccessToken()
     }
 }
-
-private const val HEADER_CONTENT_TYPE = "Content-Type"
-private const val HEADER_ACCEPT = "Accept"
-
-fun buildHeaders(
-    contentType: String? = APPLICATION_JSON,
-    acceptType: String? = APPLICATION_JSON,
-    authorization: String? = null
-): Headers = Headers.Builder().also {
-    if (contentType != null) it.add(HEADER_CONTENT_TYPE, contentType)
-    if (acceptType != null) it.add(HEADER_ACCEPT, acceptType)
-    if (authorization != null) it.add(HEADER_AUTHORIZATION, authorization)
-}.build()
