@@ -22,6 +22,10 @@ import java.net.CookiePolicy
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
+private const val APPLICATION_JSON = "application/json"
+private val MEDIA_TYPE_APPLICATION_JSON = APPLICATION_JSON.toMediaType()
+private const val HEADER_AUTHORIZATION = "Authorization"
+
 @Suppress("TooManyFunctions")
 class ItestHttpClient {
     private var okHttpClient: OkHttpClient
@@ -40,7 +44,7 @@ class ItestHttpClient {
 
     fun performDeleteRequest(
         url: String,
-        headers: Headers = getDefaultJSONHeaders(),
+        headers: Headers = buildHeaders(),
         addAuthorizationHeader: Boolean = true
     ): Response {
         logger.info { "Performing DELETE request on: '$url'" }
@@ -60,7 +64,7 @@ class ItestHttpClient {
 
     fun performGetRequest(
         url: String,
-        headers: Headers = getDefaultJSONGETHeaders(),
+        headers: Headers = buildHeaders(acceptType = null),
         addAuthorizationHeader: Boolean = true
     ): Response {
         logger.info { "Performing GET request on: '$url'" }
@@ -80,7 +84,7 @@ class ItestHttpClient {
 
     fun performPostRequest(
         url: String,
-        headers: Headers = getDefaultJSONHeaders(),
+        headers: Headers = buildHeaders(),
         requestBody: RequestBody,
         addAuthorizationHeader: Boolean = true
     ): Response {
@@ -101,19 +105,19 @@ class ItestHttpClient {
 
     fun performJSONPostRequest(
         url: String,
-        headers: Headers = getDefaultJSONHeaders(),
+        headers: Headers = buildHeaders(),
         requestBodyAsString: String,
         addAuthorizationHeader: Boolean = true
     ) = performPostRequest(
         url = url,
         headers = headers,
-        requestBody = requestBodyAsString.toRequestBody("application/json".toMediaType()),
+        requestBody = requestBodyAsString.toRequestBody(MEDIA_TYPE_APPLICATION_JSON),
         addAuthorizationHeader = addAuthorizationHeader
     )
 
     fun performPatchRequest(
         url: String,
-        headers: Headers = getDefaultJSONHeaders(),
+        headers: Headers = buildHeaders(),
         requestBodyAsString: String,
         addAuthorizationHeader: Boolean = true
     ): Response {
@@ -127,14 +131,14 @@ class ItestHttpClient {
                 }
             )
             .url(url)
-            .patch(requestBodyAsString.toRequestBody("application/json".toMediaType()))
+            .patch(requestBodyAsString.toRequestBody(MEDIA_TYPE_APPLICATION_JSON))
             .build()
         return okHttpClient.newCall(request).execute()
     }
 
     fun performPutRequest(
         url: String,
-        headers: Headers = getDefaultJSONHeaders(),
+        headers: Headers = buildHeaders(),
         requestBodyAsString: String,
         addAuthorizationHeader: Boolean = true
     ): Response {
@@ -147,7 +151,7 @@ class ItestHttpClient {
                     headers
                 }
             ).url(url)
-            .put(requestBodyAsString.toRequestBody("application/json".toMediaType()))
+            .put(requestBodyAsString.toRequestBody(MEDIA_TYPE_APPLICATION_JSON))
             .build()
         return okHttpClient.newCall(request).execute()
     }
@@ -155,7 +159,7 @@ class ItestHttpClient {
     fun connectNewWebSocket(
         url: String,
         webSocketListener: WebSocketListener,
-        headers: Headers = getDefaultJSONGETHeaders(),
+        headers: Headers = buildHeaders(acceptType = null),
         addAuthorizationHeader: Boolean = true
     ): WebSocket {
         logger.info { "Connecting new websocket on: '$url'" }
@@ -177,23 +181,25 @@ class ItestHttpClient {
 
     fun shutdownClient() = okHttpClient.dispatcher.executorService.shutdown()
 
-    private fun getDefaultJSONGETHeaders() = Headers.headersOf(
-        "Accept",
-        "application/json"
-    )
-
-    private fun getDefaultJSONHeaders() =
-        getDefaultJSONGETHeaders()
-            .newBuilder()
-            .add("Content-Type", "application/json")
-            .build()
-
     private fun cloneHeadersWithAuthorization(headers: Headers, url: String): Headers {
         val token = if (URI(url).port == OPEN_ZAAK_EXTERNAL_PORT) {
             generateToken()
         } else {
             KeycloakClient.requestAccessToken()
         }
-        return headers.newBuilder().add("Authorization", "Bearer $token").build()
+        return headers.newBuilder().add(HEADER_AUTHORIZATION, "Bearer $token").build()
     }
 }
+
+private const val HEADER_CONTENT_TYPE = "Content-Type"
+private const val HEADER_ACCEPT = "Accept"
+
+fun buildHeaders(
+    contentType: String? = APPLICATION_JSON,
+    acceptType: String? = APPLICATION_JSON,
+    authorization: String? = null
+): Headers = Headers.Builder().also {
+    if (contentType != null) it.add(HEADER_CONTENT_TYPE, contentType)
+    if (acceptType != null) it.add(HEADER_ACCEPT, acceptType)
+    if (authorization != null) it.add(HEADER_AUTHORIZATION, authorization)
+}.build()
