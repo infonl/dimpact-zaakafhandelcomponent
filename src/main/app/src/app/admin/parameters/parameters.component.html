@@ -46,7 +46,8 @@
                     (selectionChange)="applyFilter()"
                     id="zaaktype_filter"
                     placeholder="{{'zaaktype.-kies-' | translate }}"
-                    [(ngModel)]="filterParameters.zaaktype"
+                    [ngModel]="filterParameters.zaaktype"
+                    (ngModelChange)="filterParameters.zaaktype = $event"
                   >
                     <mat-option>{{'zaaktype.-kies-' | translate }}</mat-option>
                     <mat-option *ngFor="let value of zaaktypes" [value]="value"
@@ -67,7 +68,8 @@
                     (selectionChange)="applyFilter()"
                     id="caseDefinition_filter"
                     placeholder="{{'model.-kies-' | translate }}"
-                    [(ngModel)]="filterParameters.caseDefinition"
+                    [ngModel]="filterParameters.caseDefinition"
+                    (ngModelChange)="filterParameters.caseDefinition = $event"
                   >
                     <mat-option>{{'model.-kies-' | translate }}</mat-option>
                     <mat-option
