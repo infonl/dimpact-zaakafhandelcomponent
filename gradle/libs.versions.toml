@@ -34,7 +34,7 @@ itextpdf = "9.0.0"
 itextpdf-html2pdf = "6.0.0"
 flyway = "11.0.1"
 apache-solr = "9.7.0"
-webdav-servlet = "1.2.104"
+webdav-servlet = "1.2.108"
 htmlcleaner = "2.29"
 unboundid = "7.0.2"
 swagger = "5.18.2"
@@ -63,7 +63,7 @@ eclipse-yasson = "3.0.4"
 
 kotest-runner-junit5 = "5.9.1"
 kotest-assertions-json = "5.9.1"
-mockk = "1.13.13"
+mockk = "1.13.14"
 
 testcontainers = "1.20.4"
 

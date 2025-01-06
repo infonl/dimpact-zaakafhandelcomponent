@@ -25,7 +25,7 @@ data class RestZaakBetrokkene(
 
     var type: String,
 
-    var identificatie: String
+    var identificatie: String?
 )
 
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
@@ -35,11 +35,11 @@ fun Rol<*>.toRestZaakBetrokkene() = RestZaakBetrokkene(
     roltoelichting = this.roltoelichting,
     type = this.betrokkeneType.name,
     identificatie = when (this.betrokkeneType) {
-        BetrokkeneType.NATUURLIJK_PERSOON -> (this as RolNatuurlijkPersoon).betrokkeneIdentificatie.inpBsn
-        BetrokkeneType.NIET_NATUURLIJK_PERSOON -> (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie.innNnpId
-        BetrokkeneType.VESTIGING -> (this as RolVestiging).betrokkeneIdentificatie.vestigingsNummer
-        BetrokkeneType.ORGANISATORISCHE_EENHEID -> (this as RolOrganisatorischeEenheid).betrokkeneIdentificatie.naam
-        BetrokkeneType.MEDEWERKER -> (this as RolMedewerker).betrokkeneIdentificatie.identificatie
+        BetrokkeneType.NATUURLIJK_PERSOON -> (this as RolNatuurlijkPersoon).betrokkeneIdentificatie?.inpBsn
+        BetrokkeneType.NIET_NATUURLIJK_PERSOON -> (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie?.innNnpId
+        BetrokkeneType.VESTIGING -> (this as RolVestiging).betrokkeneIdentificatie?.vestigingsNummer
+        BetrokkeneType.ORGANISATORISCHE_EENHEID -> (this as RolOrganisatorischeEenheid).betrokkeneIdentificatie?.naam
+        BetrokkeneType.MEDEWERKER -> (this as RolMedewerker).betrokkeneIdentificatie?.identificatie
     }
 )
 

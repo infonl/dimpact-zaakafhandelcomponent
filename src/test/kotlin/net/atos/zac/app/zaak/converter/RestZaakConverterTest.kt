@@ -69,7 +69,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val status = createZaakStatus()
         val statusType = createStatusType()
         val zaakType = createZaakType()
-        val rolOrganistorischeEenheid = Optional.of(createRolOrganisatorischeEenheid())
+        val rolOrganistorischeEenheid = createRolOrganisatorischeEenheid()
         val restGroup = createRestGroup()
         val besluit = createBesluit()
         val restBesluit = createRestDecision()
@@ -87,14 +87,14 @@ class RestZaakConverterTest : BehaviorSpec({
         }
         with(zgwApiService) {
             every { findGroepForZaak(zaak) } returns rolOrganistorischeEenheid
-            every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns Optional.of(rolMedewerker)
-            every { findInitiatorRoleForZaak(zaak) } returns Optional.of(rol)
+            every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
+            every { findInitiatorRoleForZaak(zaak) } returns rol
         }
         with(zaakVariabelenService) {
             every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns Optional.of(false)
             every { readZaakdata(zaak.uuid) } returns zaakdata
         }
-        every { restGroupConverter.convertGroupId(rolOrganistorischeEenheid.get().identificatienummer) } returns restGroup
+        every { restGroupConverter.convertGroupId(rolOrganistorischeEenheid.identificatienummer) } returns restGroup
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
         every { restDecisionConverter.convertToRestDecision(besluit) } returns restBesluit
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer) } returns restUser

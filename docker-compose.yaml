@@ -405,7 +405,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.115.1@sha256:f6842984eafb35be5198d080e40ca3f6b3b45c6c2456318a41ce7f2fa71ba973
+    image: docker.io/otel/opentelemetry-collector:0.116.1@sha256:6260c3c942f6abcb45f255ac67835600cfd2fc6ce8be65e0ee3af6da2dfb98fb
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -484,7 +484,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.0.4-alpine@sha256:575de299f2c4f10006079e013987a5985b0cb8a6a450435fddfb7e60b248dcd1
+    image: rabbitmq:4.0.5-alpine@sha256:f8b3601fba0bbda709a0ae23e5df9fc0155f301a0f515894fdbfd5bc229abb64
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 30s

@@ -189,11 +189,39 @@ class ZGWApiServiceTest : BehaviorSpec({
             val rolMedewerker = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
 
             Then("the behandelaar medewerker role should be returned") {
-                rolMedewerker.get() shouldNotBe null
-                with(rolMedewerker.get()) {
+                rolMedewerker shouldNotBe null
+                with(rolMedewerker!!) {
                     this.zaak shouldBe zaak.url
-                    this.identificatienummer shouldBe rolMedewerker.get().identificatienummer
-                    this.naam shouldBe rolMedewerker.get().naam
+                    this.betrokkeneIdentificatie shouldBe rolMedewerker.betrokkeneIdentificatie
+                    this.identificatienummer shouldBe rolMedewerker.identificatienummer
+                    this.naam shouldBe rolMedewerker.naam
+                }
+            }
+        }
+    }
+    Given("A zaak with a behandelaar medewerker role without a betrokkene identificatie") {
+        val zaak = createZaak()
+        val rolMedewerker = createRolMedewerker(
+            zaak = zaak.url,
+            // in the ZGW API it is possible (strangely enough) to have a rol-medewerker object
+            // without a medewerker and this also happens in practise in some circumstances
+            betrokkeneIdentificatie = null
+        )
+        every {
+            ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+        } returns listOf(createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR))
+        every { zrcClientService.listRollen(any<RolListParameters>()) } returns Results(listOf(rolMedewerker), 1)
+
+        When("the behandelaar medewerker rol is requested") {
+            val rolMedewerker = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+
+            Then("a behandelaar medewerker role without a betrokkene identificatie should be returned") {
+                rolMedewerker shouldNotBe null
+                with(rolMedewerker!!) {
+                    this.zaak shouldBe zaak.url
+                    this.betrokkeneIdentificatie shouldBe null
+                    this.identificatienummer shouldBe null
+                    this.naam shouldBe rolMedewerker.naam
                 }
             }
         }
@@ -210,8 +238,8 @@ class ZGWApiServiceTest : BehaviorSpec({
             val group = zgwApiService.findGroepForZaak(zaak)
 
             Then("the group should be returned") {
-                group.isPresent shouldBe true
-                with(group.get()) {
+                group shouldNotBe null
+                with(group!!) {
                     this.zaak shouldBe zaak.url
                     this.identificatienummer shouldBe rolOrganisatorischeEenheid.identificatienummer
                     this.naam shouldBe rolOrganisatorischeEenheid.naam
@@ -219,7 +247,7 @@ class ZGWApiServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("A zaak without a group") {
+    Given("A zaaktype without a behandelaar role type") {
         val zaak = createZaak()
         every {
             ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
@@ -229,7 +257,58 @@ class ZGWApiServiceTest : BehaviorSpec({
             val group = zgwApiService.findGroepForZaak(zaak)
 
             Then("no group should be returned") {
-                group.isEmpty shouldBe true
+                group shouldBe null
+            }
+        }
+    }
+    Given("A zaak without a group") {
+        val zaak = createZaak()
+        every {
+            ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+        } returns listOf(createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR))
+        every { zrcClientService.listRollen(any<RolListParameters>()) } returns Results(emptyList(), 0)
+
+        When("the group is requested") {
+            val group = zgwApiService.findGroepForZaak(zaak)
+
+            Then("no group should be returned") {
+                group shouldBe null
+            }
+        }
+    }
+    Given("A zaak with an initiator") {
+        val zaak = createZaak()
+        val rolMedewerker = createRolMedewerker(zaak = zaak.url)
+        every {
+            ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
+        } returns listOf(createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR))
+        every { zrcClientService.listRollen(any<RolListParameters>()) } returns Results(listOf(rolMedewerker), 1)
+
+        When("the initiator is requested") {
+            val initiator = zgwApiService.findInitiatorRoleForZaak(zaak)
+
+            Then("the initiator should be returned") {
+                initiator shouldNotBe null
+                with(initiator!!) {
+                    this.zaak shouldBe zaak.url
+                    this.identificatienummer shouldBe rolMedewerker.identificatienummer
+                    this.naam shouldBe rolMedewerker.naam
+                }
+            }
+        }
+    }
+    Given("A zaak without an initiator") {
+        val zaak = createZaak()
+        every {
+            ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
+        } returns listOf(createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR))
+        every { zrcClientService.listRollen(any<RolListParameters>()) } returns Results(emptyList(), 0)
+
+        When("the initiator is requested") {
+            val initiator = zgwApiService.findInitiatorRoleForZaak(zaak)
+
+            Then("the initiator should be returned") {
+                initiator shouldBe null
             }
         }
     }
