@@ -26,8 +26,6 @@ class AppContainerTest : BehaviorSpec({
                 }
             }
         }
-    }
-    Given("ZAC Docker container and all related Docker containers are running") {
         When("the metrics endpoint is called") {
             Then("the response should be ok and the the uptime var should be present") {
                 itestHttpClient.performGetRequest(

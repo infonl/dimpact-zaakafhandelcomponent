@@ -164,8 +164,8 @@ object ItestConfiguration {
     const val DOCUMENT_STATUS_IN_BEWERKING = "in_bewerking"
     const val TEXT_MIME_TYPE = "application/text"
     const val PDF_MIME_TYPE = "application/pdf"
-    const val DOCUMENT_1_IDENTIFICATION = "DOCUMENT-2024-0000000001"
-    const val DOCUMENT_2_IDENTIFICATION = "DOCUMENT-2024-0000000002"
+    val DOCUMENT_1_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000001"
+    val DOCUMENT_2_IDENTIFICATION = "DOCUMENT-${LocalDate.now().year}-0000000002"
 
     /**
      * Constants used in the KVK WireMock template response
