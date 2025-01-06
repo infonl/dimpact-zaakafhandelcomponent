@@ -96,7 +96,7 @@ export class ZakenService {
 
   opschortenZaak(
     uuid: string,
-    zaakOpschortGegevens: ZaakOpschortGegevens,
+    zaakOpschortGegevens: GeneratedType<"RESTZaakOpschortGegevens">,
   ): Observable<Zaak> {
     return this.http
       .patch<Zaak>(

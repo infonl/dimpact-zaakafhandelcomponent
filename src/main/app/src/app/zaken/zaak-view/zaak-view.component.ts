@@ -79,6 +79,7 @@ import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-af
 import { ZaakKoppelenService } from "../zaak-koppelen/zaak-koppelen.service";
 import { ZaakOntkoppelenDialogComponent } from "../zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
 import { ZakenService } from "../zaken.service";
+import { ZaakOpschortenDialogComponent } from "../zaak-opschorten-dialog/zaak-opschorten-dialog.component";
 
 @Component({
   templateUrl: "./zaak-view.component.html",
@@ -610,10 +611,27 @@ export class ZaakViewComponent
     }
 
     if (
+      this.zaak.isOpgeschort &&
+      this.zaak.rechten.behandelen &&
+      !this.zaak.isProcesGestuurd
+    ) {
+      this.menu.push(
+        new ButtonMenuItem(
+          "actie.zaak.hervatten",
+          () => {
+            this.actionsSidenav.open();
+            this.action = SideNavAction.BESLUIT_VASTLEGGEN;
+          },
+          "play-button",
+        ),
+      );
+    }
+
+    if (
       this.zaak.isOpen &&
+      this.zaak.rechten.behandelen &&
       !this.zaak.isInIntakeFase &&
       this.zaak.isBesluittypeAanwezig &&
-      this.zaak.rechten.behandelen &&
       !this.zaak.isProcesGestuurd
     ) {
       this.menu.push(
@@ -699,6 +717,30 @@ export class ZaakViewComponent
             ),
           );
         }
+
+        if (this.zaak.isOpen && this.zaak.rechten.behandelen) {
+          this.menu.push(new HeaderMenuItem("actie.zaak.acties"));
+          if (
+            this.zaak.zaaktype.opschortingMogelijk &&
+            !this.zaak.isHeropend &&
+            !this.zaak.isOpgeschort &&
+            !this.zaak.isProcesGestuurd
+          ) {
+            this.menu.push(
+              new ButtonMenuItem(
+                "actie.zaak.opschorten",
+                () => {
+                  this.actionsSidenav.close();
+                  this.dialog.open(ZaakOpschortenDialogComponent, {
+                    data: { zaak: this.zaak },
+                  });
+                },
+                "pause_circle",
+              ),
+            );
+          }
+        }
+
         if (this.zaak.rechten.behandelen && humanTaskPlanItems.length > 0) {
           this.menu.push(new HeaderMenuItem("actie.taak.starten"));
           this.menu = this.menu.concat(
@@ -707,6 +749,7 @@ export class ZaakViewComponent
             ),
           );
         }
+
         if (this.zaak.rechten.behandelen && processTaskPlanItems.length > 0) {
           this.menu.push(new HeaderMenuItem("actie.proces.starten"));
           this.menu = this.menu.concat(
@@ -715,6 +758,7 @@ export class ZaakViewComponent
             ),
           );
         }
+
         this.createKoppelingenMenuItems();
         this.updateMargins();
       },
