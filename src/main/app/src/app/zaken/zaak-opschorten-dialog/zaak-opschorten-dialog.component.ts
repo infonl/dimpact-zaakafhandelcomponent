@@ -141,7 +141,7 @@ export class ZaakOpschortenDialogComponent implements OnInit {
         { emitEvent: false },
       );
     } else {
-      this.resetFields;
+      this.resetFields();
     }
   }
 
