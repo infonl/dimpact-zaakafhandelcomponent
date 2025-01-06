@@ -5,7 +5,7 @@
 
 package nl.lifely.zac.itest.client
 
-import okhttp3.Headers
+import okhttp3.Headers.Companion.toHeaders
 import okhttp3.MediaType.Companion.toMediaType
 
 enum class MediaType(val value: String) {
@@ -24,8 +24,8 @@ fun buildHeaders(
     contentType: MediaType? = MediaType.APPLICATION_JSON,
     acceptType: MediaType? = MediaType.APPLICATION_JSON,
     authorization: String? = null
-): Headers = Headers.Builder().also {
-    if (contentType != null) it.add(Header.CONTENT_TYPE.value, contentType.value)
-    if (acceptType != null) it.add(Header.ACCEPT.value, acceptType.value)
-    if (authorization != null) it.add(Header.AUTHORIZATION.value, authorization)
-}.build()
+) = mutableMapOf<String, String>().apply {
+    contentType?.let { put(Header.CONTENT_TYPE.value, it.value) }
+    acceptType?.let { put(Header.ACCEPT.value, it.value) }
+    authorization?.let { put(Header.AUTHORIZATION.value, it) }
+}.toHeaders()
