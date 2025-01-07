@@ -123,6 +123,7 @@ opentelemetry-instrumentation-annotations = { group = "io.opentelemetry.instrume
 opentelemetry-extension-kotlin = { group = "io.opentelemetry", name = "opentelemetry-extension-kotlin", version.ref = "opentelemetry" }
 
 glassfish-expressly = { group = "org.glassfish.expressly", name = "expressly", version.ref = "glassfish-expressly" }
+# please keep the Keycloak admin client version in sync with the Keycloak version in our Docker Compose file
 keycloak-admin-client = { group = "org.keycloak", name = "keycloak-admin-client", version.ref = "keycloak" }
 
 # dependencies provided by Wildfly
