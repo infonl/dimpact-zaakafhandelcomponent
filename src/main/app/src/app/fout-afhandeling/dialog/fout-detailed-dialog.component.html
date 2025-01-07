@@ -1,20 +1,27 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<h1 mat-dialog-title>{{'title.fout' | translate}}</h1>
+<div mat-dialog-title>
+  <h3>{{ "title.fout" | translate }}</h3>
+  <button mat-icon-button (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
 <div mat-dialog-content>
-  <p *ngIf="data.error">{{data.error}}</p>
-  <p *ngIf="data.details">{{data.details}}</p>
+  <p *ngIf="data.error">{{ data.error }}</p>
+  <p *ngIf="data.details">{{ data.details }}</p>
   <ng-container *ngIf="data.showServerErrorTexts">
     <p *ngFor="let serverErrorText of serverErrorTexts | async">
-      {{serverErrorText}}
+      {{ serverErrorText }}
     </p>
   </ng-container>
 </div>
+
 <div mat-dialog-actions>
-  <button autofocus mat-button (click)="close()">
-    {{'actie.sluiten' | translate}}
+  <button autofocus mat-raised-button (click)="close()">
+    {{ "actie.sluiten" | translate }}
   </button>
 </div>
