@@ -611,23 +611,6 @@ export class ZaakViewComponent
     }
 
     if (
-      this.zaak.isOpgeschort &&
-      this.zaak.rechten.behandelen &&
-      !this.zaak.isProcesGestuurd
-    ) {
-      this.menu.push(
-        new ButtonMenuItem(
-          "actie.zaak.hervatten",
-          () => {
-            this.actionsSidenav.open();
-            this.action = SideNavAction.BESLUIT_VASTLEGGEN;
-          },
-          "play-button",
-        ),
-      );
-    }
-
-    if (
       this.zaak.isOpen &&
       this.zaak.rechten.behandelen &&
       !this.zaak.isInIntakeFase &&
