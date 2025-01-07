@@ -5,11 +5,16 @@
 package net.atos.zac.admin
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldBeSameSizeAs
 import io.kotest.matchers.collections.shouldContainOnly
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaBuilder
@@ -20,11 +25,21 @@ import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import jakarta.persistence.criteria.Subquery
+import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.client.zgw.ztc.model.createResultaatType
+import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.createZaakafhandelParameters
+import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
+import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplate
+import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
+import net.atos.zac.smartdocuments.rest.createRestMappedSmartDocumentsTemplate
+import net.atos.zac.smartdocuments.rest.createRestMappedSmartDocumentsTemplateGroup
+import java.net.URI
 import java.time.ZonedDateTime
 import java.util.Date
+import java.util.UUID
 
 class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>()
@@ -40,11 +55,13 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
     val order = mockk<Order>()
     val expressionString = mockk<Expression<String>>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
+    val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
 
     val zaakafhandelParameterBeheerService = ZaakafhandelParameterBeheerService(
         entityManager = entityManager,
         ztcClientService = ztcClientService,
-        zaakafhandelParameterService = zaakafhandelParameterService
+        zaakafhandelParameterService = zaakafhandelParameterService,
+        smartDocumentsTemplatesService = smartDocumentsTemplatesService
     )
 
     beforeEach {
@@ -172,4 +189,169 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("A zaaktype that has been updated") {
+        val zaaktypeUUID = UUID.randomUUID()
+        val zaaktypeUri = URI("https://example.com/zaaktypes/$zaaktypeUUID")
+        val zaakType = createZaakType(uri = zaaktypeUri, servicenorm = "dummyServiceNorm")
+
+        every { zaakafhandelParameterService.clearListCache() } returns "Cache cleared"
+
+        // ZtcClientService mocking
+        every { ztcClientService.clearZaaktypeCache() } returns "Cache cleared"
+        every { ztcClientService.readZaaktype(zaaktypeUri) } returns zaakType
+        every { ztcClientService.readResultaattype(any<URI>()) } returns createResultaatType()
+
+        // Relaxed entity manager mocking; criteria queries and persisting
+        val criteriaQuery = mockk<CriteriaQuery<ZaakafhandelParameters>>(relaxed = true)
+        every { entityManager.criteriaBuilder } returns mockk(relaxed = true) {
+            every { createQuery(ZaakafhandelParameters::class.java) } returns criteriaQuery
+        }
+        val originalZaakafhandelParameters = createZaakafhandelParameters(id = 100)
+        every { entityManager.createQuery(criteriaQuery) } returns mockk {
+            every { setMaxResults(1) } returns this
+            every { resultList } returns listOf(originalZaakafhandelParameters)
+        }
+        val slotPersistZaakafhandelParameters = slot<ZaakafhandelParameters>()
+        every { entityManager.persist(capture(slotPersistZaakafhandelParameters)) } answers { }
+
+        // SmartDocuments service mocking
+        val originalRestMappedSmartDocumentsTemplateGroups = setOf(
+            createRestMappedSmartDocumentsTemplateGroup(
+                templates = setOf(createRestMappedSmartDocumentsTemplate())
+            )
+        )
+        every {
+            smartDocumentsTemplatesService.getTemplatesMapping(any<UUID>())
+        } returns originalRestMappedSmartDocumentsTemplateGroups
+        val slotStoreTemplatesMapping = slot<Set<RestMappedSmartDocumentsTemplateGroup>>()
+        every {
+            smartDocumentsTemplatesService
+                .storeTemplatesMapping(capture(slotStoreTemplatesMapping), zaaktypeUUID)
+        } answers { }
+
+        When("Processing the updated zaaktype") {
+            zaakafhandelParameterBeheerService.zaaktypeAangepast(zaaktypeUri)
+
+            Then("The zaaktype is stored through the entity manager") {
+                verify {
+                    entityManager.persist(any<ZaakafhandelParameters>())
+                }
+                slotStoreTemplatesMapping.isCaptured shouldBe true
+                slotPersistZaakafhandelParameters.isCaptured shouldBe true
+            }
+
+            And("The zaaktype simple values have been copied from the original") {
+                with(slotPersistZaakafhandelParameters.captured) {
+                    zaakTypeUUID shouldBe zaakType.url.extractUuid()
+                    zaaktypeOmschrijving shouldBe zaakType.omschrijving
+                    caseDefinitionID shouldBe originalZaakafhandelParameters.caseDefinitionID
+                    groepID shouldBe originalZaakafhandelParameters.groepID
+                    gebruikersnaamMedewerker shouldBe originalZaakafhandelParameters.gebruikersnaamMedewerker
+                    einddatumGeplandWaarschuwing shouldBe originalZaakafhandelParameters.einddatumGeplandWaarschuwing
+                    uiterlijkeEinddatumAfdoeningWaarschuwing shouldBe originalZaakafhandelParameters
+                        .uiterlijkeEinddatumAfdoeningWaarschuwing
+                    intakeMail shouldBe originalZaakafhandelParameters.intakeMail
+                    afrondenMail shouldBe originalZaakafhandelParameters.afrondenMail
+                    productaanvraagtype shouldBe originalZaakafhandelParameters.productaanvraagtype
+                    domein shouldBe originalZaakafhandelParameters.domein
+                    isSmartDocumentsIngeschakeld shouldBe originalZaakafhandelParameters.isSmartDocumentsIngeschakeld
+                }
+            }
+
+            And("The human task parameters should have been cloned") {
+                slotPersistZaakafhandelParameters.captured.humanTaskParametersCollection.let {
+                    it shouldBeSameSizeAs originalZaakafhandelParameters.humanTaskParametersCollection
+                    it zip originalZaakafhandelParameters.humanTaskParametersCollection
+                }.forEach { (new, original) ->
+                    new.id shouldNotBe original.id
+                    new.zaakafhandelParameters shouldNotBe original.zaakafhandelParameters
+                    new.zaakafhandelParameters shouldBe slotPersistZaakafhandelParameters.captured
+                    new.groepID shouldNotBe original.groepID
+                    new.isActief shouldBe original.isActief
+                    new.doorlooptijd shouldBe original.doorlooptijd
+                    new.formulierDefinitieID shouldBe original.formulierDefinitieID
+                    new.doorlooptijd shouldBe original.doorlooptijd
+                    new.planItemDefinitionID shouldBe original.planItemDefinitionID
+                }
+            }
+
+            And("The user event listener parameters should get copied") {
+                slotPersistZaakafhandelParameters.captured.userEventListenerParametersCollection.let {
+                    it shouldBeSameSizeAs originalZaakafhandelParameters.userEventListenerParametersCollection
+                    it zip originalZaakafhandelParameters.userEventListenerParametersCollection
+                }.forEach { (new, original) ->
+                    new.id shouldNotBe original.id
+                    new.zaakafhandelParameters shouldNotBe original.zaakafhandelParameters
+                    new.zaakafhandelParameters shouldBe slotPersistZaakafhandelParameters.captured
+                    new.planItemDefinitionID shouldBe original.planItemDefinitionID
+                    new.toelichting shouldBe original.toelichting
+                }
+            }
+
+            And("The zaakbeindiggegevens should get copied") {
+                slotPersistZaakafhandelParameters.captured.zaakbeeindigParameters.let {
+                    it shouldBeSameSizeAs originalZaakafhandelParameters.zaakbeeindigParameters
+                    it zip originalZaakafhandelParameters.zaakbeeindigParameters
+                }.forEach { (new, original) ->
+                    new.id shouldNotBe original.id
+                    new.zaakafhandelParameters shouldNotBe original.zaakafhandelParameters
+                    new.zaakafhandelParameters shouldBe slotPersistZaakafhandelParameters.captured
+                    new.resultaattype shouldBe original.resultaattype
+                    new.zaakbeeindigReden shouldBe original.zaakbeeindigReden
+                }
+            }
+
+            And("The mailtemplate koppelingen should get copied") {
+                slotPersistZaakafhandelParameters.captured.mailtemplateKoppelingen.let {
+                    it shouldBeSameSizeAs originalZaakafhandelParameters.mailtemplateKoppelingen
+                    it zip originalZaakafhandelParameters.mailtemplateKoppelingen
+                }.forEach { (new, original) ->
+                    new.id shouldNotBe original.id
+                    new.zaakafhandelParameters shouldNotBe original.zaakafhandelParameters
+                    new.zaakafhandelParameters shouldBe slotPersistZaakafhandelParameters.captured
+                    new.mailTemplate shouldBe original.mailTemplate
+                }
+            }
+
+            And("The smartdocuments settings should get copied") {
+                slotStoreTemplatesMapping.captured should matchGroups(originalRestMappedSmartDocumentsTemplateGroups)
+            }
+        }
+    }
 })
+
+private fun matchGroups(
+    originalRestMappedSmartDocumentsTemplateGroups: Set<RestMappedSmartDocumentsTemplateGroup>?
+): (Set<RestMappedSmartDocumentsTemplateGroup>?) -> Unit = { groups: Set<RestMappedSmartDocumentsTemplateGroup>? ->
+    if (groups == null) {
+        originalRestMappedSmartDocumentsTemplateGroups shouldBe null
+    } else {
+        groups.run {
+            this shouldBeSameSizeAs originalRestMappedSmartDocumentsTemplateGroups!!
+            this zip originalRestMappedSmartDocumentsTemplateGroups
+        }.forEach { (stored, original) ->
+            stored.id shouldBe original.id
+            stored.name shouldBe original.name
+            stored.groups should matchGroups(original.groups)
+            stored.templates should matchTemplates(original.templates)
+        }
+    }
+}
+
+private fun matchTemplates(
+    originalTemplates: Set<RestMappedSmartDocumentsTemplate>?
+): (Set<RestMappedSmartDocumentsTemplate>?) -> Unit = { templates: Set<RestMappedSmartDocumentsTemplate>? ->
+    if (templates == null) {
+        originalTemplates shouldBe null
+    } else {
+        templates.run {
+            this shouldBeSameSizeAs originalTemplates!!
+            this zip originalTemplates
+        }.forEach { (stored, original) ->
+            stored.id shouldBe original.id
+            stored.name shouldBe original.name
+            stored.informatieObjectTypeUUID shouldBe original.informatieObjectTypeUUID
+        }
+    }
+}
