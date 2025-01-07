@@ -1,7 +1,14 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
+
+<div mat-dialog-title>
+  <h3></h3>
+  <button mat-icon-button (click)="cancel()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
 
 <div mat-dialog-content>
   <p *ngIf="data.melding" [innerHTML]="data.melding"></p>
@@ -13,11 +20,11 @@
 <div mat-dialog-actions>
   <button
     *ngIf="data.confirmButtonActionKey"
-    [disabled]="disabled()"
-    mat-button
+    mat-raised-button
     color="primary"
-    (click)="confirm()"
     id="confirmButton"
+    [disabled]="disabled()"
+    (click)="confirm()"
   >
     <mat-icon *ngIf="loading">
       <mat-spinner diameter="18"></mat-spinner>
@@ -26,10 +33,10 @@
   </button>
   <button
     *ngIf="data.cancelButtonActionKey"
-    [disabled]="loading"
-    mat-button
-    (click)="cancel()"
+    mat-raised-button
     id="cancelButton"
+    [disabled]="loading"
+    (click)="cancel()"
   >
     {{ data.cancelButtonActionKey | translate }}
   </button>

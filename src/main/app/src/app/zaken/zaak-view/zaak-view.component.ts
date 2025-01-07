@@ -17,7 +17,7 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { forkJoin } from "rxjs";
+import { forkJoin, of } from "rxjs";
 import { map, tap } from "rxjs/operators";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
@@ -80,6 +80,7 @@ import { ZaakKoppelenService } from "../zaak-koppelen/zaak-koppelen.service";
 import { ZaakOntkoppelenDialogComponent } from "../zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
 import { ZakenService } from "../zaken.service";
 import { ZaakOpschortenDialogComponent } from "../zaak-opschorten-dialog/zaak-opschorten-dialog.component";
+import moment from "moment";
 
 @Component({
   templateUrl: "./zaak-view.component.html",
@@ -701,27 +702,10 @@ export class ZaakViewComponent
           );
         }
 
-        if (this.zaak.isOpen && this.zaak.rechten.behandelen) {
+        const actionMenuItems = this.collectActionMenuItems();
+        if (actionMenuItems.length > 0) {
           this.menu.push(new HeaderMenuItem("actie.zaak.acties"));
-          if (
-            this.zaak.zaaktype.opschortingMogelijk &&
-            !this.zaak.isHeropend &&
-            !this.zaak.isOpgeschort &&
-            !this.zaak.isProcesGestuurd
-          ) {
-            this.menu.push(
-              new ButtonMenuItem(
-                "actie.zaak.opschorten",
-                () => {
-                  this.actionsSidenav.close();
-                  this.dialog.open(ZaakOpschortenDialogComponent, {
-                    data: { zaak: this.zaak },
-                  });
-                },
-                "pause_circle",
-              ),
-            );
-          }
+          this.menu = this.menu.concat(actionMenuItems);
         }
 
         if (this.zaak.rechten.behandelen && humanTaskPlanItems.length > 0) {
@@ -790,6 +774,48 @@ export class ZaakViewComponent
         );
       }
     }
+  }
+
+  private collectActionMenuItems(): MenuItem[] {
+    const collectedActionMenuItems: MenuItem[] = [];
+
+    if (this.zaak.isOpen && this.zaak.rechten.behandelen) {
+      if (
+        this.zaak.zaaktype.opschortingMogelijk &&
+        !this.zaak.isHeropend &&
+        !this.zaak.isOpgeschort &&
+        !this.zaak.isProcesGestuurd
+      ) {
+        collectedActionMenuItems.push(
+          new ButtonMenuItem(
+            "actie.zaak.opschorten",
+            () => {
+              this.actionsSidenav.close();
+              this.dialog.open(ZaakOpschortenDialogComponent, {
+                data: { zaak: this.zaak },
+              });
+            },
+            "pause_circle",
+          ),
+        );
+      }
+    }
+
+    if (
+      this.zaak.isOpgeschort &&
+      this.zaak.rechten.behandelen &&
+      !this.zaak.isProcesGestuurd
+    ) {
+      collectedActionMenuItems.push(
+        new ButtonMenuItem(
+          "actie.zaak.hervatten",
+          () => this.openZaakHervattenDialog(),
+          "play_circle",
+        ),
+      );
+    }
+
+    return collectedActionMenuItems;
   }
 
   openPlanItemStartenDialog(planItem: PlanItem): void {
@@ -964,6 +990,69 @@ export class ZaakViewComponent
           this.updateZaak();
           this.loadTaken();
           this.utilService.openSnackbar("msg.zaak.afgesloten");
+        }
+      });
+  }
+
+  private openZaakHervattenDialog(): void {
+    this.actionsSidenav.close();
+
+    const werkelijkeOpschortDuur = moment().diff(
+      moment(this.zaakOpschorting?.vanafDatumTijd),
+      "days",
+    );
+    const duurVerkortingOpschorting: number =
+      werkelijkeOpschortDuur - this.zaakOpschorting.duurDagen;
+
+    const dialogData = new DialogData(
+      [
+        new InputFormFieldBuilder()
+          .id("redenOpschortingField")
+          .label("reden")
+          .validators(Validators.required)
+          .build(),
+      ],
+      (results: any[]) => {
+        const zaakOpschortGegevens: GeneratedType<"RESTZaakOpschortGegevens"> =
+          {};
+        zaakOpschortGegevens.indicatieOpschorting = false;
+        zaakOpschortGegevens.duurDagen = werkelijkeOpschortDuur;
+        zaakOpschortGegevens.uiterlijkeEinddatumAfdoening = moment(
+          this.zaak.uiterlijkeEinddatumAfdoening,
+        )
+          .add(duurVerkortingOpschorting, "days")
+          .format("YYYY-MM-DD");
+        zaakOpschortGegevens.redenOpschorting =
+          results["redenOpschortingField"];
+
+        if (this.zaak.einddatumGepland) {
+          zaakOpschortGegevens.einddatumGepland = moment(
+            this.zaak.einddatumGepland,
+          )
+            .add(duurVerkortingOpschorting, "days")
+            .format("YYYY-MM-DD");
+        }
+
+        return this.zakenService.opschortenZaak(
+          this.zaak.uuid,
+          zaakOpschortGegevens,
+        );
+      },
+      this.translate.instant("msg.zaak.hervatten", {
+        duur: werkelijkeOpschortDuur,
+        verwachteDuur: this.zaakOpschorting.duurDagen,
+      }),
+    );
+    dialogData.confirmButtonActionKey = "actie.zaak.hervatten";
+
+    this.dialog
+      .open(DialogComponent, { data: dialogData })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) {
+          this.updateZaak();
+          this.loadTaken();
+          // this.utilService.openSnackbar("msg.zaak.afgebroken");
         }
       });
   }

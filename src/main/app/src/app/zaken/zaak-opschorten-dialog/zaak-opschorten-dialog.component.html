@@ -33,7 +33,7 @@
     </mat-icon>
     {{ "actie.zaak.opschorten" | translate }}
   </button>
-  <button [disabled]="loading" autofocus mat-button (click)="close()">
+  <button autofocus mat-raised-button [disabled]="loading" (click)="close()">
     {{ "actie.annuleren" | translate }}
   </button>
 </div>
