@@ -45,7 +45,7 @@ fun UserRepresentation.toUser(): User =
         id = username,
         firstName = firstName,
         lastName = lastName,
-        // note that we do not support infixes (tussenvoegsels) (yet)
+        // note that we do not support an infix (tussenvoegsel)
         fullName = "$firstName $lastName",
         email = email
     )
