@@ -6,18 +6,18 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZakenService } from "../zaken.service";
-import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
-import { DateFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/date/date-form-field-builder";
-import { Zaak } from "../model/zaak";
-import { HiddenFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/hidden/hidden-form-field-builder";
-import { InputFormField } from "src/app/shared/material-form-builder/form-components/input/input-form-field";
-import { DateFormField } from "src/app/shared/material-form-builder/form-components/date/date-form-field";
-import { HiddenFormField } from "src/app/shared/material-form-builder/form-components/hidden/hidden-form-field";
 import moment from "moment";
 import { Subject, takeUntil } from "rxjs";
+import { DateFormField } from "src/app/shared/material-form-builder/form-components/date/date-form-field";
+import { DateFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/date/date-form-field-builder";
+import { HiddenFormField } from "src/app/shared/material-form-builder/form-components/hidden/hidden-form-field";
+import { HiddenFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/hidden/hidden-form-field-builder";
+import { InputFormField } from "src/app/shared/material-form-builder/form-components/input/input-form-field";
+import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
+import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
+import { GeneratedType } from "../../shared/utils/generated-types";
+import { Zaak } from "../model/zaak";
+import { ZakenService } from "../zaken.service";
 
 @Component({
   templateUrl: "zaak-opschorten-dialog.component.html",
@@ -42,7 +42,6 @@ export class ZaakOpschortenDialogComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log("zaak", this.data.zaak);
     this.initFormFields();
 
     this.dialogRef.afterOpened().subscribe(() => {
@@ -175,19 +174,15 @@ export class ZaakOpschortenDialogComponent implements OnInit {
     this.zakenService
       .opschortenZaak(this.data.zaak.uuid, zaakOpschortGegevens)
       .subscribe({
-        next: () => {
+        next: (result) => {
           this.loading = false;
-          this.dialogRef.close(true);
-          this.zakenService.readOpschortingZaak(this.data.zaak.uuid);
+          this.dialogRef.close(result);
         },
         error: (err) => {
-          console.error("Error while suspending case:", err);
           this.loading = false;
           this.dialogRef.disableClose = false;
         },
       });
-
-    this.dialogRef.close(true);
   }
 
   close(): void {

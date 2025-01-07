@@ -828,6 +828,8 @@
   "msg.zaak.hervatten": "De werkelijke duur van de opschorting is {{duur}} dagen (verwachte duur {{verwachteDuur}} dagen).",
   "msg.zaak.opschorten": "Geef aan wat de verwachte duur van de opschorting is.",
   "msg.zaak.opschorten.niet.toegestaan": "Deze zaak is al eens opgeschort en hervat met als reden '{{reden}}'. De zaak mag niet nogmaals opgeschort worden.",
+  "msg.zaak.opgeschort": "Zaak is opgeschort.",
+  "msg.zaak.hervat": "Zaak is hervat.",
   "msg.zaak.ontkoppelen.bevestigen": "Zaak ontkoppelen",
   "msg.zaak.ontkoppelen.uitgevoerd": "Zaak is ontkoppeld",
   "msg.zaak.koppelen.niet.toegestaan": "Er is geen koppeling mogelijk.",

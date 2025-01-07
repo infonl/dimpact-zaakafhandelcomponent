@@ -17,7 +17,8 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { forkJoin, of } from "rxjs";
+import moment from "moment";
+import { forkJoin } from "rxjs";
 import { map, tap } from "rxjs/operators";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
@@ -73,14 +74,12 @@ import { GeometryGegevens } from "../model/geometry-gegevens";
 import { Zaak } from "../model/zaak";
 import { ZaakBetrokkene } from "../model/zaak-betrokkene";
 import { ZaakOpschortGegevens } from "../model/zaak-opschort-gegevens";
-import { ZaakOpschorting } from "../model/zaak-opschorting";
 import { ZaakVerlengGegevens } from "../model/zaak-verleng-gegevens";
 import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
 import { ZaakKoppelenService } from "../zaak-koppelen/zaak-koppelen.service";
 import { ZaakOntkoppelenDialogComponent } from "../zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
-import { ZakenService } from "../zaken.service";
 import { ZaakOpschortenDialogComponent } from "../zaak-opschorten-dialog/zaak-opschorten-dialog.component";
-import moment from "moment";
+import { ZakenService } from "../zaken.service";
 
 @Component({
   templateUrl: "./zaak-view.component.html",
@@ -93,7 +92,7 @@ export class ZaakViewComponent
 {
   readonly indicatiesLayout = IndicatiesLayout;
   zaak: Zaak;
-  zaakOpschorting: ZaakOpschorting;
+  zaakOpschorting: GeneratedType<"RESTZaakOpschorting">;
   actiefPlanItem: PlanItem;
   menu: MenuItem[];
   readonly sideNavAction = SideNavAction;
@@ -789,12 +788,7 @@ export class ZaakViewComponent
         collectedActionMenuItems.push(
           new ButtonMenuItem(
             "actie.zaak.opschorten",
-            () => {
-              this.actionsSidenav.close();
-              this.dialog.open(ZaakOpschortenDialogComponent, {
-                data: { zaak: this.zaak },
-              });
-            },
+            () => this.openZaakOpschortenDialog(),
             "pause_circle",
           ),
         );
@@ -994,6 +988,21 @@ export class ZaakViewComponent
       });
   }
 
+  private openZaakOpschortenDialog(): void {
+    this.actionsSidenav.close();
+    this.dialog
+      .open(ZaakOpschortenDialogComponent, {
+        data: { zaak: this.zaak },
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) {
+          this.init(result);
+          this.utilService.openSnackbar("msg.zaak.opgeschort");
+        }
+      });
+  }
+
   private openZaakHervattenDialog(): void {
     this.actionsSidenav.close();
 
@@ -1050,9 +1059,8 @@ export class ZaakViewComponent
       .afterClosed()
       .subscribe((result) => {
         if (result) {
+          this.utilService.openSnackbar("msg.zaak.hervat");
           this.updateZaak();
-          this.loadTaken();
-          // this.utilService.openSnackbar("msg.zaak.afgebroken");
         }
       });
   }
