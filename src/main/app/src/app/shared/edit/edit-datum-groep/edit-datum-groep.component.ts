@@ -176,7 +176,6 @@ export class EditDatumGroepComponent
     }
   }
 
-  // Removed by upcoming task PZ-4945 in same story
   private maakDuurField(
     label: string,
     validators: ValidatorFn[],
@@ -189,14 +188,12 @@ export class EditDatumGroepComponent
     return this.duurField;
   }
 
-  // Removed by upcoming task PZ-4945 in same story
   private maakHiddenField(field: AbstractFormField): HiddenFormField {
     return new HiddenFormFieldBuilder(field.formControl.value)
       .id(field.id)
       .build();
   }
 
-  // Removed by upcoming task PZ-4945 in same story
   private maakRedenField(reden: string): InputFormField {
     return new InputFormFieldBuilder(reden)
       .id("reden")
@@ -205,7 +202,6 @@ export class EditDatumGroepComponent
       .build();
   }
 
-  // Removed by upcoming task PZ-4945 in same story
   private maakTakenField(label: string): CheckboxFormField {
     return new CheckboxFormFieldBuilder()
       .id("takenVerlengen")
@@ -213,7 +209,6 @@ export class EditDatumGroepComponent
       .build();
   }
 
-  // Removed by upcoming task PZ-4945 in same story
   opschorten() {
     const heeftEinddatumGepland: boolean =
       this.einddatumGeplandField.formControl.value;
@@ -262,13 +257,11 @@ export class EditDatumGroepComponent
       });
   }
 
-  // Removed by upcoming task PZ-4945 in same story
   saveOpschorting(results: any[]): Observable<void> {
     this.doOpschorting.emit(results);
     return of(null);
   }
 
-  // Removed by upcoming task PZ-4945 in same story
   hervatten() {
     this.werkelijkeOpschortDuur = moment().diff(
       moment(this.opschortDatumTijd),
@@ -289,7 +282,6 @@ export class EditDatumGroepComponent
     });
   }
 
-  // Removed by upcoming task PZ-4945 in same story
   saveHervatting(results: any[]): Observable<void> {
     const heeftEinddatumGepland: boolean =
       this.einddatumGeplandField.formControl.value;
@@ -373,7 +365,6 @@ export class EditDatumGroepComponent
     return of(null);
   }
 
-  // Removed by upcoming task PZ-4945 in same story
   private subscribe(
     vorigeEinddatumGeplandDatum: Moment,
     vorigeUiterlijkeEinddatumAfdoening: Moment,
@@ -417,7 +408,6 @@ export class EditDatumGroepComponent
     }
   }
 
-  // Removed by upcoming task PZ-4945 in same story
   duurChanged(
     value: string,
     vorigeEinddatumGeplandDatum: Moment,
@@ -434,7 +424,6 @@ export class EditDatumGroepComponent
     );
   }
 
-  // Removed by upcoming task PZ-4945 in same story
   einddatumGeplandChanged(
     value: any,
     vorigeEinddatumGeplandDatum: Moment,
@@ -449,7 +438,6 @@ export class EditDatumGroepComponent
     }
   }
 
-  // Removed by upcoming task PZ-4945 in same story
   uiterlijkEinddatumAfdoeningChanged(
     value: any,
     vorigeEinddatumGeplandDatum: Moment,
@@ -468,7 +456,6 @@ export class EditDatumGroepComponent
     return !this.opgeschort && !!this.opschortReden;
   }
 
-  // Removed by upcoming task PZ-4945 in same story
   private updateDatums(
     duur: number,
     vorigeEinddatumGeplandDatum: Moment,
@@ -494,7 +481,6 @@ export class EditDatumGroepComponent
     }
   }
 
-  // Removed by upcoming task PZ-4945 in same story
   private resetDatums(
     vorigeEinddatumGeplandDatum: Moment,
     vorigeUiterlijkeEinddatumAfdoening: Moment,
