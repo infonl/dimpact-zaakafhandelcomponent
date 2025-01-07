@@ -5,7 +5,7 @@
 
 <div mat-dialog-title>
   <h3>
-    <mat-icon>thumb_up_alt</mat-icon>
+    <mat-icon>pause_circle</mat-icon>
     {{ "actie.zaak.opschorten" | translate }}
   </h3>
   <button mat-icon-button (click)="close()">
@@ -15,10 +15,10 @@
 
 <div mat-dialog-content>
   <ng-container *ngFor="let formField of formFields"> </ng-container>
-  <mfb-form-field [field]="duurField"></mfb-form-field>
+  <mfb-form-field [field]="duurDagenField"></mfb-form-field>
   <mfb-form-field [field]="einddatumGeplandField"></mfb-form-field>
   <mfb-form-field [field]="uiterlijkeEinddatumAfdoeningField"></mfb-form-field>
-  <mfb-form-field [field]="opschortReden"></mfb-form-field>
+  <mfb-form-field [field]="redenOpschortingField"></mfb-form-field>
 </div>
 
 <div mat-dialog-actions>

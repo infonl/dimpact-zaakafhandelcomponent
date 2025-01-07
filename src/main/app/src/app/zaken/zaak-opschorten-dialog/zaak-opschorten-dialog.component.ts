@@ -28,10 +28,10 @@ export class ZaakOpschortenDialogComponent implements OnInit {
   zaak: Zaak;
   loading: boolean = true;
 
-  duurField: InputFormField;
+  duurDagenField: InputFormField;
   einddatumGeplandField: DateFormField | HiddenFormField;
   uiterlijkeEinddatumAfdoeningField: DateFormField;
-  opschortReden: InputFormField;
+  redenOpschortingField: InputFormField;
 
   private ngDestroy = new Subject<void>();
 
@@ -51,7 +51,7 @@ export class ZaakOpschortenDialogComponent implements OnInit {
   }
 
   initFormFields(): void {
-    this.duurField = new InputFormFieldBuilder()
+    this.duurDagenField = new InputFormFieldBuilder()
       .id("opschortduur")
       .label("opschortduur")
       .validators(Validators.required, Validators.min(1))
@@ -78,20 +78,20 @@ export class ZaakOpschortenDialogComponent implements OnInit {
       .validators(Validators.required)
       .build();
 
-    this.opschortReden = new InputFormFieldBuilder()
+    this.redenOpschortingField = new InputFormFieldBuilder()
       .id("reden")
       .label("reden")
       .validators(Validators.required)
       .build();
 
     this.formFields = [
-      this.duurField,
+      this.duurDagenField,
       this.einddatumGeplandField,
       this.uiterlijkeEinddatumAfdoeningField,
-      this.opschortReden,
+      this.redenOpschortingField,
     ];
 
-    this.duurField.formControl.valueChanges
+    this.duurDagenField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
         let duur = Number(value);
@@ -129,7 +129,7 @@ export class ZaakOpschortenDialogComponent implements OnInit {
 
   private updateDateFields(duur: number): void {
     if (duur > 0) {
-      this.duurField.formControl.setValue(duur, { emitEvent: false });
+      this.duurDagenField.formControl.setValue(duur, { emitEvent: false });
       if (this.einddatumGeplandField.formControl.value != null) {
         this.einddatumGeplandField.formControl.setValue(
           moment(this.data.zaak.einddatumGepland).add(duur, "days"),
@@ -146,7 +146,7 @@ export class ZaakOpschortenDialogComponent implements OnInit {
   }
 
   private resetFields(): void {
-    this.duurField.formControl.setValue(null, { emitEvent: false });
+    this.duurDagenField.formControl.setValue(null, { emitEvent: false });
     this.einddatumGeplandField.formControl.setValue(
       moment(this.data.zaak.einddatumGepland),
       { emitEvent: false },
@@ -164,13 +164,13 @@ export class ZaakOpschortenDialogComponent implements OnInit {
 
     const zaakOpschortGegevens: GeneratedType<"RESTZaakOpschortGegevens"> = {};
     zaakOpschortGegevens.indicatieOpschorting = true;
-    zaakOpschortGegevens.duurDagen = this.duurField.formControl.value;
+    zaakOpschortGegevens.duurDagen = this.duurDagenField.formControl.value;
     zaakOpschortGegevens.einddatumGepland =
       this.einddatumGeplandField.formControl.value;
     zaakOpschortGegevens.uiterlijkeEinddatumAfdoening =
       this.uiterlijkeEinddatumAfdoeningField.formControl.value;
     zaakOpschortGegevens.redenOpschorting =
-      this.opschortReden.formControl.value;
+      this.redenOpschortingField.formControl.value;
 
     this.zakenService
       .opschortenZaak(this.data.zaak.uuid, zaakOpschortGegevens)
