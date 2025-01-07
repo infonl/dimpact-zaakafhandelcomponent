@@ -16,3 +16,13 @@ fun createUserRepresentation(
     this.lastName = lastName
     this.email = email
 }
+
+fun createGroupRepresentation(
+    id: String = "dummyGroupId",
+    name: String = "dummyGroupName",
+    attributes: Map<String, List<String>> = mapOf("dummyKey" to listOf("dummyValue"))
+) = GroupRepresentation().apply {
+    this.id = id
+    this.name = name
+    this.attributes = attributes
+}
