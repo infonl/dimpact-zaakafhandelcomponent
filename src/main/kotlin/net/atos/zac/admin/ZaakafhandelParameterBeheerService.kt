@@ -137,44 +137,30 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         ztcClientService.clearZaaktypeCache()
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUri)
         if (!zaaktype.concept) {
-            readRecentsteZaakafhandelParameters(zaaktype.omschrijving)
-                .clone(zaaktype)
-                .run(::createZaakafhandelParameters)
+            val previousZaakafhandelparameters = readRecentsteZaakafhandelParameters(zaaktype.omschrijving)
+            val newZaakafhandelParameters = ZaakafhandelParameters().apply {
+                zaakTypeUUID = zaaktype.url.extractUuid()
+                zaaktypeOmschrijving = zaaktype.omschrijving
+                caseDefinitionID = previousZaakafhandelparameters.caseDefinitionID
+                groepID = previousZaakafhandelparameters.groepID
+                gebruikersnaamMedewerker = previousZaakafhandelparameters.gebruikersnaamMedewerker
+                einddatumGeplandWaarschuwing = zaaktype.servicenorm?.let {
+                    previousZaakafhandelparameters.einddatumGeplandWaarschuwing
+                }
+                uiterlijkeEinddatumAfdoeningWaarschuwing = previousZaakafhandelparameters.uiterlijkeEinddatumAfdoeningWaarschuwing
+                intakeMail = previousZaakafhandelparameters.intakeMail
+                afrondenMail = previousZaakafhandelparameters.afrondenMail
+                productaanvraagtype = previousZaakafhandelparameters.productaanvraagtype
+                domein = previousZaakafhandelparameters.domein
+                isSmartDocumentsIngeschakeld = previousZaakafhandelparameters.isSmartDocumentsIngeschakeld
+            }
+            mapHumanTaskParameters(previousZaakafhandelparameters, newZaakafhandelParameters)
+            mapUserEventListenerParameters(previousZaakafhandelparameters, newZaakafhandelParameters)
+            mapZaakbeeindigGegevens(previousZaakafhandelparameters, newZaakafhandelParameters, zaaktype)
+            mapMailtemplateKoppelingen(previousZaakafhandelparameters, newZaakafhandelParameters)
+            mapSmartDocuments(previousZaakafhandelparameters.zaakTypeUUID, newZaakafhandelParameters.zaakTypeUUID)
+            createZaakafhandelParameters(newZaakafhandelParameters)
         }
-    }
-
-    private fun ZaakafhandelParameters.clone(zaaktype: ZaakType) = ZaakafhandelParameters().let {
-        it.zaakTypeUUID = zaaktype.url.extractUuid()
-        it.zaaktypeOmschrijving = zaaktype.omschrijving
-        it.caseDefinitionID = caseDefinitionID
-        it.groepID = groepID
-        it.gebruikersnaamMedewerker = gebruikersnaamMedewerker
-        it.einddatumGeplandWaarschuwing = zaaktype.servicenorm?.let {
-            einddatumGeplandWaarschuwing
-        }
-        it.uiterlijkeEinddatumAfdoeningWaarschuwing = uiterlijkeEinddatumAfdoeningWaarschuwing
-        it.intakeMail = intakeMail
-        it.afrondenMail = afrondenMail
-        it.productaanvraagtype = productaanvraagtype
-        it.domein = domein
-        it.isSmartDocumentsIngeschakeld = isSmartDocumentsIngeschakeld
-
-        it.setHumanTaskParametersCollection(humanTaskParametersCollection.cloneHumanTaskParameters())
-        it.setUserEventListenerParametersCollection(
-            userEventListenerParametersCollection.cloneUserEventListenerParameters()
-        )
-        it.setMailtemplateKoppelingen(mailtemplateKoppelingen.cloneMailtemplateKoppeling())
-
-        val newResultaattypen = zaaktype.resultaattypen.map(ztcClientService::readResultaattype)
-        it.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype?.mapOnResultaattypen(newResultaattypen)
-        it.setZaakbeeindigParameters(zaakbeeindigParameters.cloneTo(newResultaattypen))
-
-        smartDocumentsTemplatesService.storeTemplatesMapping(
-            smartDocumentsTemplatesService.getTemplatesMapping(zaakTypeUUID),
-            it.zaakTypeUUID
-        )
-
-        it
     }
 
     private fun readRecentsteZaakafhandelParameters(zaaktypeDescription: String): ZaakafhandelParameters {
@@ -192,43 +178,96 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         }
     }
 
-    private fun Set<HumanTaskParameters>.cloneHumanTaskParameters() = mapNotNull {
-        it.id = null // detach the entity
-        it.zaakafhandelParameters = null
-        it
-    }
-        .toSet()
+    /**
+     * Kopieren van de HumanTaskParameters van de oude ZaakafhandelParameters naar de nieuw ZaakafhandelParameters
+     *
+     * @param previousZaakafhandelParameters bron
+     * @param newZaakafhandelParameters bestemming
+     */
+    private fun mapHumanTaskParameters(
+        previousZaakafhandelParameters: ZaakafhandelParameters,
+        newZaakafhandelParameters: ZaakafhandelParameters
+    ) = previousZaakafhandelParameters.humanTaskParametersCollection.map {
+        HumanTaskParameters().apply {
+            doorlooptijd = it.doorlooptijd
+            isActief = it.isActief
+            formulierDefinitieID = it.formulierDefinitieID
+            planItemDefinitionID = it.planItemDefinitionID
+            groepID = it.groepID
+            referentieTabellen = it.referentieTabellen
+            formulierDefinitieID = it.formulierDefinitieID
+        }
+    }.toSet().let(newZaakafhandelParameters::setHumanTaskParametersCollection)
 
-    private fun Set<UserEventListenerParameters>.cloneUserEventListenerParameters() = mapNotNull {
-        it.id = null // detach the entity
-        it.zaakafhandelParameters = null
-        it
-    }.toSet()
+    /**
+     * Kopieren van de UserEventListenerParameters van de oude ZaakafhandelParameters naar de nieuw ZaakafhandelParameters
+     *
+     * @param previousZaakafhandelParameters bron
+     * @param newZaakafhandelParameters bestemming
+     */
+    private fun mapUserEventListenerParameters(
+        previousZaakafhandelParameters: ZaakafhandelParameters,
+        newZaakafhandelParameters: ZaakafhandelParameters
+    ) = previousZaakafhandelParameters.userEventListenerParametersCollection.map {
+        UserEventListenerParameters().apply {
+            planItemDefinitionID = it.planItemDefinitionID
+            toelichting = it.toelichting
+        }
+    }.toSet().let(newZaakafhandelParameters::setUserEventListenerParametersCollection)
 
-    private fun Set<ZaakbeeindigParameter>.cloneTo(resultaattypen: List<ResultaatType>): Set<ZaakbeeindigParameter> =
-        mapNotNull {
+    /**
+     * Kopieren van de ZaakbeeindigGegevens van de oude ZaakafhandelParameters naar de nieuw ZaakafhandelParameters
+     *
+     * @param previousZaakafhandelParameters bron
+     * @param newZaakafhandelParameters bestemming
+     * @param newZaaktype                het nieuwe zaaktype om de resultaten van te lezen
+     */
+    private fun mapZaakbeeindigGegevens(
+        previousZaakafhandelParameters: ZaakafhandelParameters,
+        newZaakafhandelParameters: ZaakafhandelParameters,
+        newZaaktype: ZaakType
+    ) {
+        val newResultaattypen = newZaaktype.resultaattypen.map { ztcClientService.readResultaattype(it) }
+        newZaakafhandelParameters.nietOntvankelijkResultaattype =
+            previousZaakafhandelParameters.nietOntvankelijkResultaattype?.let {
+                mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen)
+            }
+        val zaakbeeindigParametersCollection = previousZaakafhandelParameters.zaakbeeindigParameters.mapNotNull {
                 zaakbeeindigParameter ->
             zaakbeeindigParameter.resultaattype
-                ?.mapOnResultaattypen(resultaattypen)
+                ?.let { mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen) }
                 ?.let {
                     ZaakbeeindigParameter().apply {
                         zaakbeeindigReden = zaakbeeindigParameter.zaakbeeindigReden
                         resultaattype = it
                     }
                 }
-        }.toSet()
+        }.toMutableSet()
+        newZaakafhandelParameters.setZaakbeeindigParameters(zaakbeeindigParametersCollection)
+    }
 
-    private fun Set<MailtemplateKoppeling>.cloneMailtemplateKoppeling() = this
-        .map {
-            it.id = null // detach entity
-            it.zaakafhandelParameters = null
-            it
-        }.toSet()
+    private fun mapMailtemplateKoppelingen(
+        previousZaakafhandelParameters: ZaakafhandelParameters,
+        newZaakafhandelParameters: ZaakafhandelParameters
+    ) = previousZaakafhandelParameters.mailtemplateKoppelingen.map {
+        MailtemplateKoppeling().apply {
+            mailTemplate = it.mailTemplate
+            zaakafhandelParameters = newZaakafhandelParameters
+        }
+    }.toSet().let(newZaakafhandelParameters::setMailtemplateKoppelingen)
 
-    private fun UUID.mapOnResultaattypen(
+    private fun mapVorigResultaattypeOpNieuwResultaattype(
+        previousResultaattypeUUID: UUID,
         newResultaattypen: List<ResultaatType>,
     ): UUID? =
-        ztcClientService.readResultaattype(this).let { resultaattype ->
+        ztcClientService.readResultaattype(previousResultaattypeUUID).let { resultaattype ->
             newResultaattypen.firstOrNull { it.omschrijving == resultaattype.omschrijving }?.url?.extractUuid()
         }
+
+    private fun mapSmartDocuments(
+        previousZaakafhandelUUID: UUID,
+        newZaakafhandelParametersUUID: UUID
+    ) = smartDocumentsTemplatesService.getTemplatesMapping(previousZaakafhandelUUID).let {
+        smartDocumentsTemplatesService.storeTemplatesMapping(it, newZaakafhandelParametersUUID)
+    }
 }
