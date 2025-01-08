@@ -10,7 +10,7 @@ open class User(
     val id: String,
     val firstName: String? = null,
     val lastName: String? = null,
-    val fullName: String? = null,
+    val displayName: String? = null,
     val email: String? = null
 ) {
     /**
@@ -22,18 +22,22 @@ open class User(
         id = id,
         firstName = null,
         lastName = id,
-        fullName = id,
         email = null
     )
 }
 
 /**
- * Maybe better to get rid of this extension function by using the `fullName` property directly.
- * Then we need to make sure the full name gets set correctly in the first place.
+ * Returns the full name of the user using the following logic:
+ * - If the display name is present, use that
+ * - If both first name and last name are present, return the full name
+ * - If only the last name is present, return the last name
+ * - If the last name is not present, return the user id
+ *
+ * Note that we do not support an infix (tussenvoegsel) in the name
  */
 fun User.getFullName(): String =
     when {
-        !fullName.isNullOrBlank() -> fullName
+        !displayName.isNullOrBlank() -> displayName
         !firstName.isNullOrBlank() && !lastName.isNullOrBlank() -> "$firstName $lastName"
         !lastName.isNullOrBlank() -> lastName
         else -> id
@@ -45,7 +49,5 @@ fun UserRepresentation.toUser(): User =
         id = username,
         firstName = firstName,
         lastName = lastName,
-        // note that we do not support an infix (tussenvoegsel)
-        fullName = "$firstName $lastName",
         email = email
     )

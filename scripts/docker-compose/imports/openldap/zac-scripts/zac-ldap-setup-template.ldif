@@ -95,7 +95,6 @@ objectClass: person
 objectClass: top
 cn: testuser2
 sn: User2
-givenName: Test
 mail: ${TESTUSER2_EMAIL_ADDRESS}
 userPassword:: e1NTSEF9cUErcnhWdjljR2dPTGRrVzFLRDI3bktPZFBXVmovT2N4cElKUnc9P
  Q==

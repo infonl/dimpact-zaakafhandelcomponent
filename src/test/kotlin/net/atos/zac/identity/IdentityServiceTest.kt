@@ -13,6 +13,8 @@ import io.mockk.mockk
 import nl.info.test.org.keycloak.representations.idm.createGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createUserRepresentation
 import org.keycloak.admin.client.resource.RealmResource
+import org.keycloak.representations.idm.createGroupRepresentation
+import org.keycloak.representations.idm.createUserRepresentation
 
 class IdentityServiceTest : BehaviorSpec({
     val realmResource = mockk<RealmResource>()
@@ -54,21 +56,21 @@ class IdentityServiceTest : BehaviorSpec({
                     id shouldBe "dummyUsername1"
                     firstName shouldBe "dummyFirstName1"
                     lastName shouldBe "dummyLastName1"
-                    fullName shouldBe "dummyFirstName1 dummyLastName1"
+                    getFullName() shouldBe "dummyFirstName1 dummyLastName1"
                     email shouldBe "test1@example.com"
                 }
                 with(users[1]) {
                     id shouldBe "dummyUsername2"
                     firstName shouldBe "dummyFirstName2"
                     lastName shouldBe "dummyLastName2"
-                    fullName shouldBe "dummyFirstName2 dummyLastName2"
+                    getFullName() shouldBe "dummyFirstName2 dummyLastName2"
                     email shouldBe "test2@example.com"
                 }
                 with(users[2]) {
                     id shouldBe "dummyUsername3"
                     firstName shouldBe "dummyFirstName3"
                     lastName shouldBe "dummyLastName3"
-                    fullName shouldBe "dummyFirstName3 dummyLastName3"
+                    getFullName() shouldBe "dummyFirstName3 dummyLastName3"
                     email shouldBe "test3@example.com"
                 }
             }
@@ -91,7 +93,7 @@ class IdentityServiceTest : BehaviorSpec({
                     id shouldBe "dummyUsername"
                     firstName shouldBe "dummyFirstName"
                     lastName shouldBe "dummyLastName"
-                    fullName shouldBe "dummyFirstName dummyLastName"
+                    getFullName() shouldBe "dummyFirstName dummyLastName"
                     email shouldBe "test@example.com"
                 }
             }
@@ -126,13 +128,13 @@ class IdentityServiceTest : BehaviorSpec({
                     id shouldBe "dummyUsername1"
                     firstName shouldBe "dummyFirstName1"
                     lastName shouldBe "dummyLastName1"
-                    fullName shouldBe "dummyFirstName1 dummyLastName1"
+                    getFullName() shouldBe "dummyFirstName1 dummyLastName1"
                 }
                 with(users[1]) {
                     id shouldBe "dummyUsername2"
                     firstName shouldBe "dummyFirstName2"
                     lastName shouldBe "dummyLastName2"
-                    fullName shouldBe "dummyFirstName2 dummyLastName2"
+                    getFullName() shouldBe "dummyFirstName2 dummyLastName2"
                 }
             }
         }
