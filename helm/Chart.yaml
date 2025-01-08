@@ -18,6 +18,6 @@ dependencies:
     repository: https://charts.bitnami.com/bitnami
     condition: solr.enabled
 maintainers:
-  - name: Team Dimpact, info
+  - name: Team Genève, INFO
     email: teamdimpact@info.nl
     url: https://www.info.nl
