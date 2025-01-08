@@ -30,7 +30,6 @@ import { ZaakHeropenenGegevens } from "./model/zaak-heropenen-gegevens";
 import { ZaakKoppelGegevens } from "./model/zaak-koppel-gegevens";
 import { ZaakLocatieGegevens } from "./model/zaak-locatie-gegevens";
 import { ZaakToekennenGegevens } from "./model/zaak-toekennen-gegevens";
-import { ZaakVerlengGegevens } from "./model/zaak-verleng-gegevens";
 import { Zaaktype } from "./model/zaaktype";
 import { ZakenVerdeelGegevens } from "./model/zaken-verdeel-gegevens";
 
@@ -112,7 +111,7 @@ export class ZakenService {
 
   verlengenZaak(
     zaakUUID: string,
-    zaakVerlengGegevens: ZaakVerlengGegevens,
+    zaakVerlengGegevens: GeneratedType<"RESTZaakVerlengGegevens">,
   ): Observable<Zaak> {
     return this.http
       .patch<Zaak>(

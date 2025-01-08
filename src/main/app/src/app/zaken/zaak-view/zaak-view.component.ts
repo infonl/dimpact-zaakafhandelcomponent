@@ -79,6 +79,7 @@ import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-af
 import { ZaakKoppelenService } from "../zaak-koppelen/zaak-koppelen.service";
 import { ZaakOntkoppelenDialogComponent } from "../zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
 import { ZaakOpschortenDialogComponent } from "../zaak-opschorten-dialog/zaak-opschorten-dialog.component";
+import { ZaakVerlengenDialogComponent } from "../zaak-verlengen-dialog/zaak-verlengen-dialog.component";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -778,21 +779,39 @@ export class ZaakViewComponent
   private collectActionMenuItems(): MenuItem[] {
     const collectedActionMenuItems: MenuItem[] = [];
 
-    if (this.zaak.isOpen && this.zaak.rechten.behandelen) {
-      if (
-        this.zaak.zaaktype.opschortingMogelijk &&
-        !this.zaak.isHeropend &&
-        !this.zaak.isOpgeschort &&
-        !this.zaak.isProcesGestuurd
-      ) {
-        collectedActionMenuItems.push(
-          new ButtonMenuItem(
-            "actie.zaak.opschorten",
-            () => this.openZaakOpschortenDialog(),
-            "pause_circle",
-          ),
-        );
-      }
+    if (
+      this.zaak.isOpen &&
+      this.zaak.rechten.behandelen &&
+      this.zaak.zaaktype.opschortingMogelijk &&
+      !this.zaak.isHeropend &&
+      !this.zaak.isOpgeschort &&
+      !this.zaak.isProcesGestuurd
+    ) {
+      collectedActionMenuItems.push(
+        new ButtonMenuItem(
+          "actie.zaak.opschorten",
+          () => this.openZaakOpschortenDialog(),
+          "pause_circle",
+        ),
+      );
+    }
+
+    if (
+      this.zaak.isOpen &&
+      this.zaak.rechten.wijzigenDoorlooptijd &&
+      this.zaak.zaaktype.verlengingMogelijk &&
+      !this.zaak.duurVerlenging &&
+      !this.zaak.isHeropend &&
+      !this.zaak.isOpgeschort &&
+      !this.zaak.isProcesGestuurd
+    ) {
+      collectedActionMenuItems.push(
+        new ButtonMenuItem(
+          "actie.zaak.verlengen",
+          () => this.openZaakVerlengenDialog(),
+          "update",
+        ),
+      );
     }
 
     if (
@@ -999,6 +1018,21 @@ export class ZaakViewComponent
         if (result) {
           this.init(result);
           this.utilService.openSnackbar("msg.zaak.opgeschort");
+        }
+      });
+  }
+
+  private openZaakVerlengenDialog(): void {
+    this.actionsSidenav.close();
+    this.dialog
+      .open(ZaakVerlengenDialogComponent, {
+        data: { zaak: this.zaak },
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) {
+          this.init(result);
+          this.utilService.openSnackbar("msg.zaak.verlengd");
         }
       });
   }

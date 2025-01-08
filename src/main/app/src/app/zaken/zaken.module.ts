@@ -30,6 +30,7 @@ import { ZaakKoppelenDialogComponent } from "./zaak-koppelen/zaak-koppelen-dialo
 import { ZaakOntkoppelenDialogComponent } from "./zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
 import { ZaakOpschortenDialogComponent } from "./zaak-opschorten-dialog/zaak-opschorten-dialog.component";
 import { ZaakVerkortComponent } from "./zaak-verkort/zaak-verkort.component";
+import { ZaakVerlengenDialogComponent } from "./zaak-verlengen-dialog/zaak-verlengen-dialog.component";
 import { ZaakViewComponent } from "./zaak-view/zaak-view.component";
 import { ZaakdataFormComponent } from "./zaakdata/zaakdata-form/zaakdata-form.component";
 import { ZaakdataComponent } from "./zaakdata/zaakdata.component";
@@ -59,6 +60,7 @@ import { LocatieZoekComponent } from "./zoek/locatie-zoek/locatie-zoek.component
     ZaakOntkoppelenDialogComponent,
     ZakenVrijgevenDialogComponent,
     ZaakOpschortenDialogComponent,
+    ZaakVerlengenDialogComponent,
     ZaakInitiatorToevoegenComponent,
     NotitiesComponent,
     LocatieZoekComponent,
