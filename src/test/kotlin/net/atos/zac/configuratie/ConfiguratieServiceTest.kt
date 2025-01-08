@@ -27,6 +27,9 @@ class ConfiguratieServiceTest : BehaviorSpec({
         val entityManager = mockk<EntityManager>()
         val ztcClientService = mockk<ZtcClientService>()
         val catalogus = mockk<Catalogus>()
+        val catalogusUri = "https://example.com/catalogus"
+        every { catalogus.url } returns URI(catalogusUri)
+        every { ztcClientService.readCatalogus(any<CatalogusListParameters>()) } returns catalogus
 
         val additionalAllowedFileTypes = ""
         val zgwApiClientMpRestUrl = "https://example.com:1111"
@@ -35,9 +38,10 @@ class ConfiguratieServiceTest : BehaviorSpec({
         val gemeenteNaam = "Gemeente Name"
         val gemeenteMail = "gemeente@example.com"
         val bpmnSupport = false
-        val catalogusUri = "https://example.com/catalogus"
-        every { catalogus.url } returns URI(catalogusUri)
-        every { ztcClientService.readCatalogus(any<CatalogusListParameters>()) } returns catalogus
+
+        val bronOrganisatie = "123443210"
+        val verantwoordelijkeOrganisatie = "316245124"
+        val catalogusDomein = "ALG"
 
         val configurationService = ConfiguratieService(
             entityManager,
@@ -48,7 +52,10 @@ class ConfiguratieServiceTest : BehaviorSpec({
             gemeenteCode,
             gemeenteNaam,
             gemeenteMail,
-            bpmnSupport
+            bpmnSupport,
+            bronOrganisatie,
+            verantwoordelijkeOrganisatie,
+            catalogusDomein
         )
 
         When("zaak tonen URL is requested") {

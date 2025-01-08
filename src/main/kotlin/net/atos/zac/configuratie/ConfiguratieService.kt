@@ -12,6 +12,7 @@ import jakarta.ws.rs.core.UriBuilder
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.CatalogusListParameters
 import net.atos.zac.configuratie.model.Taal
+import net.atos.zac.util.BSNValidator.validateBSN
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -50,13 +51,18 @@ class ConfiguratieService @Inject constructor(
     private val gemeenteMail: String,
 
     @ConfigProperty(name = "FEATURE_FLAG_BPMN_SUPPORT")
-    private val bpmnSupport: Boolean
+    private val bpmnSupport: Boolean,
+
+    @ConfigProperty(name = "BRON_ORGANISATIE", defaultValue = "123443210")
+    private val bronOrganisatie: String,
+
+    @ConfigProperty(name = "VERANTWOORDELIJKE_ORGANISATIE", defaultValue = "316245124")
+    private val verantwoordelijkeOrganisatie: String,
+
+    @ConfigProperty(name = "CATALOGUS_DOMEIN", defaultValue = "ALG")
+    private val catalogusDomein: String,
 ) {
     companion object {
-        // TODO zaakafhandelcomponent#1468 vervangen van onderstaande placeholders
-        const val BRON_ORGANISATIE = "123443210"
-        const val VERANTWOORDELIJKE_ORGANISATIE = "316245124"
-        const val CATALOGUS_DOMEIN = "ALG"
         const val OMSCHRIJVING_TAAK_DOCUMENT = "taak-document"
         const val OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN = "geen"
 
@@ -86,7 +92,7 @@ class ConfiguratieService @Inject constructor(
          * Maximum file size in MB for file uploads.
          *
          * Note that WildFly / RESTEasy also defines a max file upload size.
-         * The value used in our WildFly configuration should be set higher to account for overhead. (e.g. 80MB -> 120MB).
+         * The value used in WildFly configuration should be set higher to account for overhead. (e.g. 80MB -> 120MB).
          * We use the Base2 system to calculate the max file size in bytes.
          */
         const val MAX_FILE_SIZE_MB: Int = 80
@@ -94,8 +100,13 @@ class ConfiguratieService @Inject constructor(
         private const val NONE = "<NONE>"
     }
 
+    init {
+        validateBSN(bronOrganisatie)
+        validateBSN(verantwoordelijkeOrganisatie)
+    }
+
     private var catalogusURI: URI =
-        ztcClientService.readCatalogus(CatalogusListParameters().apply { domein = CATALOGUS_DOMEIN }).url
+        ztcClientService.readCatalogus(CatalogusListParameters().apply { domein = catalogusDomein }).url
 
     fun listTalen(): List<Taal> {
         val query = entityManager.criteriaBuilder.createQuery(Taal::class.java)
@@ -148,4 +159,10 @@ class ConfiguratieService @Inject constructor(
     fun readGemeenteMail(): String = gemeenteMail
 
     fun readZgwApiClientMpRestUrl(): String = zgwApiClientMpRestUrl
+
+    fun readBronOrganisatie(): String = bronOrganisatie
+
+    fun readVerantwoordelijkeOrganisatie(): String = verantwoordelijkeOrganisatie
+
+    fun readCatalogusDomein(): String = catalogusDomein
 }

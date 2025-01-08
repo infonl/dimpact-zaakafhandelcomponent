@@ -135,7 +135,7 @@ class MailService @Inject constructor(
         val eMailObjectType = getEmailInformatieObjectType(zaak)
         val pdfDocument = createPdfDocument(verzender, ontvanger, subject, body, attachments)
         val enkelvoudigInformatieobjectWithInhoud = EnkelvoudigInformatieObjectCreateLockRequest().apply {
-            bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
+            bronorganisatie = configuratieService.readBronOrganisatie()
             creatiedatum = LocalDate.now()
             titel = subject
             auteur = loggedInUserInstance.get().getFullName()

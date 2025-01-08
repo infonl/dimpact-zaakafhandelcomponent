@@ -55,7 +55,8 @@ class RestZaakConverter @Inject constructor(
     private val restZaaktypeConverter: RestZaaktypeConverter,
     private val policyService: PolicyService,
     private val zaakVariabelenService: ZaakVariabelenService,
-    private val bpmnService: BPMNService
+    private val bpmnService: BPMNService,
+    private val configuratieService: ConfiguratieService
 ) {
     companion object {
         private val LOG = Logger.getLogger(RestZaakConverter::class.java.name)
@@ -153,8 +154,8 @@ class RestZaakConverter @Inject constructor(
     fun toZaak(restZaak: RestZaak, zaaktype: ZaakType) = Zaak(
         zaaktype.url,
         restZaak.startdatum,
-        ConfiguratieService.BRON_ORGANISATIE,
-        ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE
+        configuratieService.readBronOrganisatie(),
+        configuratieService.readVerantwoordelijkeOrganisatie()
     ).apply {
         this.communicatiekanaalNaam = restZaak.communicatiekanaal
         this.omschrijving = restZaak.omschrijving
