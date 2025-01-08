@@ -15,4 +15,4 @@ echo "Starting WildFly '$WILDFLY_VERSION' with environment variables from 1Passw
 # crashes of WildFly/ZAC when running in IntelliJ when you have configured DEBUG logging in WildFly
 # with errors such as: "fatal error: concurrent map read and map write goroutine 2013 [running]:
 # go.1password.io/op/op-cli/command/subprocess/masking.matches.add(...)"
-op run --env-file="./.env.tpl" --no-masking -- ./wildfly-$WILDFLY_VERSION/bin/standalone.sh
+op run --env-file="./.env.tpl" --no-masking -- ./wildfly-$WILDFLY_VERSION/bin/standalone.sh -b=0.0.0.0

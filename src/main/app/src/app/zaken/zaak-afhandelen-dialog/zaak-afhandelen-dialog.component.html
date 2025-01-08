@@ -3,6 +3,16 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
+<div mat-dialog-title>
+  <h3>
+    <mat-icon>thumb_up_alt</mat-icon>
+    {{ data.planItem.naam | translate }}
+  </h3>
+  <button mat-icon-button (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
 <div mat-dialog-content [formGroup]="formGroup">
   <p
     *ngIf="data.planItem.toelichting"
@@ -123,11 +133,11 @@
 <div mat-dialog-actions>
   <button
     *ngIf="!besluitVastleggen"
-    [disabled]="loading || formGroup.invalid"
-    mat-button
+    mat-raised-button
     color="primary"
-    (click)="afhandelen()"
     id="zaakAfhandelen_button"
+    [disabled]="loading || formGroup.invalid"
+    (click)="afhandelen()"
   >
     <mat-icon *ngIf="loading">
       <mat-spinner diameter="18"></mat-spinner>
@@ -137,15 +147,15 @@
 
   <button
     *ngIf="besluitVastleggen"
-    mat-button
+    mat-raised-button
     color="primary"
-    (click)="openBesluitVastleggen()"
     id="besluitVastleggen_button"
+    (click)="openBesluitVastleggen()"
   >
     {{'actie.besluit.vastleggen' | translate}}
   </button>
 
-  <button [disabled]="loading" mat-button (click)="close()">
+  <button mat-raised-button [disabled]="loading" (click)="close()">
     {{'actie.annuleren' | translate}}
   </button>
 </div>

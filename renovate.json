@@ -32,29 +32,32 @@
     {
       "groupName": "Dependencies provided by WildFly",
       "matchPackageNames": [
-	"jakarta.platform:jakarta.jakartaee-api",
-	"org.eclipse.microprofile.config:microprofile-config-api",
-	"org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api",
-	"org.eclipse.microprofile.health:microprofile-health-api",
-	"org.eclipse.microprofile.rest.client:microprofile-rest-client-api",
+	    "jakarta.platform:jakarta.jakartaee-api",
+        "org.eclipse.microprofile.config:microprofile-config-api",
+        "org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api",
+        "org.eclipse.microprofile.health:microprofile-health-api",
+        "org.eclipse.microprofile.rest.client:microprofile-rest-client-api",
         "org.jboss.resteasy:resteasy-multipart-provider",
         "org.wildfly.security:wildfly-elytron-http-oidc",
         "org.hibernate.validator:hibernate-validator"
       ],
       "matchManagers": [
-	"gradle"
+	    "gradle"
       ],
+      "enabled": false,
       "description": "Updates for dependencies that are provided by WildFly"
     },
     {
       "matchPackageNames": [
-        "quay.io/keycloak/keycloak"
+        "quay.io/keycloak/keycloak",
+        "org.keycloak:keycloak-admin-client"
       ],
       "matchDatasources": [
-        "docker"
+        "docker",
+        "gradle"
       ],
-      "allowedVersions": "<= 24.0.5",
-      "description": "We currently focus on Dimpact PodiumD release 2.0 which pins this package to this version"
+      "allowedVersions": "<= 25.0.6",
+      "description": "Pinned by the next Dimpact PodiumD release"
     },
     {
       "matchPackageNames": [
@@ -64,7 +67,7 @@
         "docker"
       ],
       "allowedVersions": "<= 2.4.4",
-      "description": "We currently focus on Dimpact PodiumD release 2.0 which pins this package to this version"
+      "description": "Pinned by the next Dimpact PodiumD release"
     },
     {
       "matchPackageNames": [
@@ -74,7 +77,7 @@
         "docker"
       ],
       "allowedVersions": "<= 2.2.2",
-      "description": "We currently focus on Dimpact PodiumD release 2.0 which pins this package to this version"
+      "description": "Pinned by the next Dimpact PodiumD release"
     },
     {
       "matchPackageNames": [
@@ -84,7 +87,7 @@
         "docker"
       ],
       "allowedVersions": "<= 2.3.0",
-      "description": "We currently focus on Dimpact PodiumD release 2.0 which pins this package to this version"
+      "description": "Pinned by the next Dimpact PodiumD release"
     },
     {
       "matchPackageNames": [
@@ -94,7 +97,7 @@
         "docker"
       ],
       "allowedVersions": "<= 1.15.0",
-      "description": "We currently focus on Dimpact PodiumD release 2.0 which pins this package to this version"
+      "description": "Pinned by the next Dimpact PodiumD release"
     },
     {
       "matchPackageNames": [
@@ -104,7 +107,7 @@
         "docker"
       ],
       "allowedVersions": "<= 1.7.1",
-      "description": "We currently focus on Dimpact PodiumD release 2.0 which pins this package to this version"
+      "description": "Pinned by the next Dimpact PodiumD release"
     },
     {
       "matchPackageNames": [

@@ -58,7 +58,7 @@ val jacocoAgentJarForItest: Configuration by configurations.creating {
     isTransitive = false
 }
 
-// sets the Java version for all Koltin and Java compilation tasks (source and target compatibility)
+// sets the Java version for all Kotlin and Java compilation tasks (source and target compatibility)
 // make sure the Java version is supported by WildFly
 // and update our base Docker image and JDK versions in our GitHubs workflows accordingly
 val javaVersion = 21
@@ -123,7 +123,6 @@ dependencies {
     implementation(libs.apache.solr)
     implementation(libs.webdav.servlet)
     implementation(libs.htmlcleaner)
-    implementation(libs.unboundid.ldapsdk)
     implementation(libs.caffeine)
     implementation(libs.jackson.core)
     implementation(libs.jackson.annotations)
@@ -132,6 +131,7 @@ dependencies {
     implementation(libs.opentelemetry.api)
     implementation(libs.opentelemetry.instrumentation.annotations)
     implementation(libs.opentelemetry.extension.kotlin)
+    implementation(libs.keycloak.admin.client)
 
     swaggerUI(libs.swagger.ui)
 
@@ -478,6 +478,7 @@ tasks {
     // specify a specific non-overlapping output directory per task so that
     // Gradle can cache the outputs for these tasks.
     withType<GenerateTask> {
+        group = "build"
         generatorName.set("java")
         generateApiTests.set(false)
         generateApiDocumentation.set(false)
@@ -508,30 +509,35 @@ tasks {
     }
 
     register<GenerateTask>("generateKvkZoekenClient") {
+        description = "Generates Java client code for the KVK Zoeken API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/zoeken-openapi.yaml")
         outputDir.set("$rootDir/src/generated/kvk/zoeken/java")
         modelPackage.set("net.atos.client.kvk.zoeken.model.generated")
     }
 
     register<GenerateTask>("generateKvkBasisProfielClient") {
+        description = "Generates Java client code for the KVK Basisprofiel API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/basisprofiel-openapi.yaml")
         outputDir.set("$rootDir/src/generated/kvk/basisprofiel/java")
         modelPackage.set("net.atos.client.kvk.basisprofiel.model.generated")
     }
 
     register<GenerateTask>("generateKvkVestigingsProfielClient") {
+        description = "Generates Java client code for the KVK Vestigingsprofiel API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/vestigingsprofiel-openapi.yaml")
         outputDir.set("$rootDir/src/generated/kvk/vestigingsprofiel/java")
         modelPackage.set("net.atos.client.kvk.vestigingsprofiel.model.generated")
     }
 
     register<GenerateTask>("generateBrpClient") {
+        description = "Generates Java client code for the BRP API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/brp/brp-openapi.yaml")
         outputDir.set("$rootDir/src/generated/brp/java")
         modelPackage.set("net.atos.client.brp.model.generated")
     }
 
     register<GenerateTask>("generateBagClient") {
+        description = "Generates Java client code for the BAG API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/bag/bag-openapi.yaml")
         outputDir.set("$rootDir/src/generated/bag/java")
         modelPackage.set("net.atos.client.bag.model.generated")
@@ -551,6 +557,7 @@ tasks {
     }
 
     register<GenerateTask>("generateKlantenClient") {
+        description = "Generates Java client code for the Klanten API"
         // disabled because (at least with our current settings) this results
         // in uncompilable generated Java code
         // this task was not enabled in the original Maven build either;
@@ -563,12 +570,14 @@ tasks {
     }
 
     register<GenerateTask>("generateZgwBrcClient") {
+        description = "Generates Java client code for the BRC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/brc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/brc/java")
         modelPackage.set("net.atos.client.zgw.brc.model.generated")
     }
 
     register<GenerateTask>("generateZgwDrcClient") {
+        description = "Generates Java client code for the DRC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/drc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/drc/java")
 
@@ -580,30 +589,35 @@ tasks {
     }
 
     register<GenerateTask>("generateZgwZrcClient") {
+        description = "Generates Java client code for the ZRC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/zrc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/zrc/java")
         modelPackage.set("net.atos.client.zgw.zrc.model.generated")
     }
 
     register<GenerateTask>("generateZgwZtcClient") {
+        description = "Generates Java client code for the ZTC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/ztc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/ztc/java")
         modelPackage.set("net.atos.client.zgw.ztc.model.generated")
     }
 
     register<GenerateTask>("generateOrObjectsClient") {
+        description = "Generates Java client code for the Objects API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/or/objects-openapi.yaml")
         outputDir.set("$rootDir/src/generated/or/objects/java")
         modelPackage.set("net.atos.client.or.objects.model.generated")
     }
 
     register<GenerateTask>("generateOrObjectTypesClient") {
+        description = "Generates Java client code for the Object Types API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/or/objecttypes-openapi.yaml")
         outputDir.set("$rootDir/src/generated/or/objecttypes/java")
         modelPackage.set("net.atos.client.or.objecttypes.model.generated")
     }
 
     register("generateJavaClients") {
+        description = "Generates Java client code for the various REST APIs"
         dependsOn(
             generateJsonSchema2Pojo,
             "generateKvkZoekenClient",
@@ -622,11 +636,15 @@ tasks {
     }
 
     getByName("npmInstall") {
+        description = "Installs the frontend application dependencies"
+        group = "build"
         inputs.file("src/main/app/package.json")
         outputs.dir("src/main/app/node_modules")
     }
 
     register<NpmTask>("npmRunBuild") {
+        description = "Builds the frontend application"
+        group = "build"
         dependsOn("npmInstall")
         dependsOn("generateOpenApiSpec")
 
@@ -640,6 +658,8 @@ tasks {
     }
 
     register<NpmTask>("npmRunTest") {
+        description = "Runs the frontend test suite"
+        group = "verification"
         dependsOn("npmRunBuild")
 
         npmCommand.set(listOf("run", "test"))
@@ -652,6 +672,8 @@ tasks {
     }
 
     register<NpmTask>("npmRunTestCoverage") {
+        description = "Generates the frontend test suite code coverage report"
+        group = "verification"
         dependsOn("npmRunTest")
 
         npmCommand.set(listOf("run", "test:report"))
@@ -659,6 +681,8 @@ tasks {
     }
 
     register<Exec>("buildDockerImage") {
+        description = "Builds the Docker image for the Zaakafhandelcomponent"
+        group = "build"
         dependsOn("generateWildflyBootableJar")
 
         inputs.file("Dockerfile")
@@ -680,6 +704,8 @@ tasks {
     }
 
     register<Test>("itest") {
+        description = "Runs the integration test suite"
+        group = "verification"
         dependsOn("buildDockerImage")
 
         testClassesDirs = sourceSets["itest"].output.classesDirs
@@ -693,6 +719,7 @@ tasks {
         dependsOn("itest")
 
         description = "Generates code coverage report for the integration tests"
+        group = "verification"
         val resultFile = layout.buildDirectory.file("jacoco/itest/jacoco-report/jacoco-it.exec").orNull
         inputs.files(resultFile)
         executionData.setFrom(resultFile)
@@ -708,6 +735,8 @@ tasks {
     }
 
     register<Maven>("generateWildflyBootableJar") {
+        description = "Generates a WildFly bootable JAR"
+        group = "build"
         dependsOn("war")
         execGoal("wildfly:package")
 
@@ -721,6 +750,8 @@ tasks {
     }
 
     register<Maven>("mavenClean") {
+        description = "Cleans the Maven build output"
+        group = "build"
         execGoal("clean")
     }
 }

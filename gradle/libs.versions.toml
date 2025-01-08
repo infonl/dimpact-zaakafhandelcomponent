@@ -1,13 +1,13 @@
 [versions]
 kotlin = "2.1.0"
-kotlinx-coroutines = "1.9.0"
+kotlinx-coroutines = "1.10.1"
 nodejs = "20.17.0"
 jsonschema2pojo = "1.2.2"
 kotlin-csv = "1.10.0"
 openapi = "4.0.5"
 openapi-generator = "7.10.0"
 opentelemetry = "1.45.0"
-opentelemetry-instrumentation = "2.10.0"
+opentelemetry-instrumentation = "2.11.0"
 node-gradle = "7.1.0"
 taskinfo = "2.2.0"
 swagger-generator = "2.19.2"
@@ -19,9 +19,10 @@ spotless-prettier-organize-imports = "3.2.4"
 microprofile-rest-client = "3.0"
 jacoco = "0.8.12"
 glassfish-expressly = "5.0.0"
+keycloak = "25.0.6"
 
 apache-commons-lang = "3.17.0"
-apache-commons-text = "1.12.0"
+apache-commons-text = "1.13.0"
 apache-commons-collections = "4.4"
 commons-io = "2.18.0"
 opencsv = "5.9"
@@ -29,14 +30,13 @@ flowable = "7.1.0"
 slf4j = "2.0.16"
 auth0-java-jwt = "4.4.0"
 javax-cache = "1.1.1"
-google-guava = "33.3.1-jre"
+google-guava = "33.4.0-jre"
 itextpdf = "9.0.0"
 itextpdf-html2pdf = "6.0.0"
 flyway = "11.0.1"
 apache-solr = "9.7.0"
-webdav-servlet = "1.2.105"
+webdav-servlet = "1.2.108"
 htmlcleaner = "2.29"
-unboundid = "7.0.2"
 swagger = "5.18.2"
 infinispan = "15.0.11.Final"
 apache-httpclient = "4.5.14"
@@ -53,7 +53,7 @@ eclipse-microprofile-rest-client-api = "3.0.1"
 eclipse-microprofile-config-api = "3.1"
 eclipse-microprofile-health-api = "4.0.1"
 eclipse-microprofile-fault-tolerance-api = "4.0.2"
-hibernate-validator = "8.0.2.Final"
+hibernate-validator = "8.0.1.Final"
 jakarta-jakartaee = "10.0.0"
 jboss-resteasy-multipart-provider = "6.2.11.Final"
 wildfly-security-elytron-http-oidc = "2.6.0.Final"
@@ -63,7 +63,7 @@ eclipse-yasson = "3.0.4"
 
 kotest-runner-junit5 = "5.9.1"
 kotest-assertions-json = "5.9.1"
-mockk = "1.13.13"
+mockk = "1.13.14"
 
 testcontainers = "1.20.4"
 
@@ -97,7 +97,6 @@ flyway-postgresql = { group = "org.flywaydb", name = "flyway-database-postgresql
 apache-solr = { group = "org.apache.solr", name = "solr-solrj", version.ref = "apache-solr" }
 webdav-servlet = { group = "nl.info.webdav", name = "webdav-servlet", version.ref = "webdav-servlet" }
 htmlcleaner = { group = "net.sourceforge.htmlcleaner", name = "htmlcleaner", version.ref = "htmlcleaner" }
-unboundid-ldapsdk = { group = "com.unboundid", name = "unboundid-ldapsdk", version.ref = "unboundid" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlin-csv-jvm = { group = "com.github.doyaaaaaken", name = "kotlin-csv-jvm", version.ref = "kotlin-csv" }
 
@@ -124,6 +123,8 @@ opentelemetry-instrumentation-annotations = { group = "io.opentelemetry.instrume
 opentelemetry-extension-kotlin = { group = "io.opentelemetry", name = "opentelemetry-extension-kotlin", version.ref = "opentelemetry" }
 
 glassfish-expressly = { group = "org.glassfish.expressly", name = "expressly", version.ref = "glassfish-expressly" }
+# please keep the Keycloak admin client version in sync with the Keycloak version in our Docker Compose file
+keycloak-admin-client = { group = "org.keycloak", name = "keycloak-admin-client", version.ref = "keycloak" }
 
 # dependencies provided by Wildfly
 # update these versions when upgrading WildFly

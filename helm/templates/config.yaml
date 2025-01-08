@@ -19,11 +19,9 @@ data:
   GEMEENTE_CODE: {{ required "Valid .Values.gemeente.code entry required!" .Values.gemeente.code  | quote }}
   GEMEENTE_NAAM: {{ required "Valid .Values.gemeente.naam entry required!" .Values.gemeente.naam }}
   GEMEENTE_MAIL: {{ required "Valid .Values.gemeente.mail entry required!" .Values.gemeente.mail }}
+  KEYCLOAK_ADMIN_CLIENT_ID: {{ required "Valid .Values.keycloak.adminClient.id entry required!" .Values.keycloak.adminClient.id }}
   KLANTINTERACTIES_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.klantinteractiesApi.url entry required!" .Values.klantinteractiesApi.url }}
   KVK_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.kvkApi.url entry required!" .Values.kvkApi.url }}
-  LDAP_DN: {{ required "Valid .Values.ldap.dn entry required!" .Values.ldap.dn }}
-  LDAP_URL: {{ required "Valid .Values.ldap.url entry required!" .Values.ldap.url }}
-  LDAP_USER: {{ required "Valid .Values.ldap.user entry required!" .Values.ldap.user }}
   {{- if .Values.additionalAllowedFileTypes }}
   ADDITIONAL_ALLOWED_FILE_TYPES: {{ .Values.additionalAllowedFileTypes }}
   {{- end}}
