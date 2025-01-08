@@ -94,10 +94,6 @@ class ConfiguratieService @Inject constructor(
         const val MAX_FILE_SIZE_MB: Int = 80
 
         private const val NONE = "<NONE>"
-
-        private const val SMART_DOCUMENTS_REDIRECT_URL_BASE =
-            "rest/document-creation/smartdocuments/callback/zaak/{zaakUuid}"
-        private const val SMART_DOCUMENTS_WIZARD_FINISH_PAGE = "static/smart-documents-result.html"
     }
 
     private var catalogusURI: URI =
@@ -145,59 +141,7 @@ class ConfiguratieService @Inject constructor(
             .path("informatie-objecten/{enkelvoudigInformatieobjectUUID}")
             .build(enkelvoudigInformatieobjectUUID.toString())
 
-    fun documentCreationCallbackUrl(
-        zaakUuid: UUID,
-        taskId: String?,
-        templateGroupId: String,
-        templateId: String,
-        title: String,
-        description: String?,
-        creationDate: ZonedDateTime,
-        userName: String
-    ): URI {
-        val builder = UriBuilder
-            .fromUri(contextUrl)
-            .queryParam("templateId", templateId)
-            .queryParam("templateGroupId", templateGroupId)
-            .queryParam("title", title)
-            .queryParam("userName", userName)
-            .queryParam("creationDate", creationDate.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
-
-        if (description != null) {
-            builder.queryParam("description", description)
-        }
-
-        return if (taskId != null) {
-            builder
-                .path("$SMART_DOCUMENTS_REDIRECT_URL_BASE/task/{taskId}")
-                .build(zaakUuid.toString(), taskId)
-        } else {
-            builder
-                .path(SMART_DOCUMENTS_REDIRECT_URL_BASE)
-                .build(zaakUuid.toString())
-        }
-    }
-
-    fun documentCreationFinishPageUrl(
-        zaakId: String,
-        taskId: String? = null,
-        documentName: String? = null,
-        result: String
-    ): URI =
-        UriBuilder
-            .fromUri(contextUrl)
-            .path(SMART_DOCUMENTS_WIZARD_FINISH_PAGE)
-            .queryParam("zaak", zaakId)
-            .apply {
-                if (taskId != null) {
-                    queryParam("taak", taskId)
-                }
-                if (documentName != null) {
-                    queryParam("doc", documentName)
-                }
-            }
-            .queryParam("result", result)
-            .build()
+    fun readContextUrl(): String = contextUrl
 
     fun readGemeenteCode(): String = gemeenteCode
 

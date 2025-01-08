@@ -38,14 +38,12 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
-    val configurationService = mockk<ConfiguratieService>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
     val flowableTaskService = mockk<FlowableTaskService>()
     val documentCreationRestService = DocumentCreationRestService(
         policyService = policyService,
         documentCreationService = documentCreationService,
         zrcClientService = zrcClientService,
-        configurationService = configurationService,
         zaakafhandelParameterService = zaakafhandelParameterService,
         flowableTaskService = flowableTaskService
     )

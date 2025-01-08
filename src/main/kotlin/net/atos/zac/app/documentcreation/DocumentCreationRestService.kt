@@ -47,7 +47,6 @@ class DocumentCreationRestService @Inject constructor(
     private val policyService: PolicyService,
     private val documentCreationService: DocumentCreationService,
     private val zrcClientService: ZrcClientService,
-    private val configurationService: ConfiguratieService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val flowableTaskService: FlowableTaskService
 ) {
@@ -226,7 +225,7 @@ class DocumentCreationRestService @Inject constructor(
         result: SmartDocumentsWizardResult
     ) =
         Response.seeOther(
-            configurationService.documentCreationFinishPageUrl(
+            documentCreationService.documentCreationFinishPageUrl(
                 zaakId = zaakId,
                 taskId = taskId,
                 documentName = documentName,
