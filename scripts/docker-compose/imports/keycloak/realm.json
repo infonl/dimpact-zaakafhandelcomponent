@@ -947,7 +947,7 @@
     },
     {
       "clientId": "zaakafhandelcomponent-admin-client",
-      "name": "zaakafhandelcomponent-admin-client",
+      "name": "Zaakafhandelcomponent admin client",
       "description": "Used by the Zaakafhandelcomponent for direct integration using the Keycloak API",
       "rootUrl": "",
       "adminUrl": "",
