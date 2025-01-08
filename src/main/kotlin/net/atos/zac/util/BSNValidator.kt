@@ -23,5 +23,4 @@ object BSNValidator {
                 (BSN_LENGTH - index) * bsnChar.digitToInt()
             }
         }.sum()
-
 }
