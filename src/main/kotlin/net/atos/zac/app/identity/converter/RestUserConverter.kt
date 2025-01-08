@@ -8,7 +8,7 @@ import jakarta.inject.Inject
 import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.identity.model.toRestUser
 import net.atos.zac.identity.IdentityService
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 class RestUserConverter @Inject constructor(

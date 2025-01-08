@@ -13,7 +13,7 @@ import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
 import net.atos.zac.util.FlywayIntegrator
-import nl.lifely.zac.util.AllOpen
+import nl.info.zac.util.AllOpen
 
 /**
  * These are ISO 639-2/B language codes.

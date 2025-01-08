@@ -16,7 +16,7 @@ import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
 import net.atos.zac.app.admin.model.RestReferenceTableValue
 import net.atos.zac.util.FlywayIntegrator
-import nl.lifely.zac.util.AllOpen
+import nl.info.zac.util.AllOpen
 
 @Entity
 @Table(schema = FlywayIntegrator.SCHEMA, name = "referentie_waarde")

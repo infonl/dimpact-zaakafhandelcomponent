@@ -14,8 +14,8 @@ import net.atos.zac.app.exception.ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKAF
 import net.atos.zac.app.exception.ERROR_CODE_REFERENCE_TABLE_WITH_SAME_CODE_ALREADY_EXISTS
 import net.atos.zac.app.exception.ERROR_CODE_SYSTEM_REFERENCE_TABLE_CANNOT_BE_DELETED
 import net.atos.zac.app.exception.InputValidationFailedException
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
 @ApplicationScoped
 @Transactional(Transactional.TxType.SUPPORTS)

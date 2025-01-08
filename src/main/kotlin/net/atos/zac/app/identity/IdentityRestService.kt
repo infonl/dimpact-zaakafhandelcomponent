@@ -21,8 +21,8 @@ import net.atos.zac.app.identity.model.toRestLoggedInUser
 import net.atos.zac.app.identity.model.toRestUsers
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.identity.IdentityService
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
 @Singleton
 @Path("identity")

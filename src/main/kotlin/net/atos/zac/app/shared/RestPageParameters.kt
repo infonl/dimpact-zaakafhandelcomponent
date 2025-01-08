@@ -5,7 +5,7 @@
 package net.atos.zac.app.shared
 
 import jakarta.validation.constraints.Positive
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 open class RestPageParameters(

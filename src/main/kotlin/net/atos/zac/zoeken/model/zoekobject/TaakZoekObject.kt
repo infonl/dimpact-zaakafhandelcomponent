@@ -5,7 +5,7 @@
 package net.atos.zac.zoeken.model.zoekobject
 
 import net.atos.zac.app.task.model.TaakStatus
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 import org.apache.solr.client.solrj.beans.Field
 import java.util.Date
 

@@ -7,7 +7,7 @@ package net.atos.zac.app.identity.converter
 import jakarta.inject.Inject
 import net.atos.zac.app.identity.model.toRestGroup
 import net.atos.zac.identity.IdentityService
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 class RestGroupConverter @Inject constructor(

@@ -12,8 +12,8 @@ import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
 import net.atos.zac.identity.model.toGroup
 import net.atos.zac.identity.model.toUser
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import org.keycloak.admin.client.resource.RealmResource
 
 @AllOpen

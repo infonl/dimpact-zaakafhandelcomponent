@@ -9,8 +9,8 @@ import net.atos.zac.app.formulieren.model.RESTFormulierDefinitie
 import net.atos.zac.app.identity.model.RestGroup
 import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.policy.model.RestTaakRechten
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID

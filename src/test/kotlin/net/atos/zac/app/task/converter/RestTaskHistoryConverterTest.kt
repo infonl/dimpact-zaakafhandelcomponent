@@ -11,8 +11,8 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.mockk
 import net.atos.zac.identity.IdentityService
+import nl.info.test.org.flowable.task.service.impl.persistence.entity.createHistoricTaskLogEntryEntityImpl
 import org.flowable.task.api.history.HistoricTaskLogEntryType
-import org.flowable.task.service.impl.persistence.entity.createHistoricTaskLogEntryEntityImpl
 
 class RestTaskHistoryConverterTest : BehaviorSpec({
     val identityService = mockk<IdentityService>()

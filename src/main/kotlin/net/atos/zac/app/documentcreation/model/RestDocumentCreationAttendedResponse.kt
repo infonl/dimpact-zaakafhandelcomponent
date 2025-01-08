@@ -4,7 +4,7 @@
  */
 package net.atos.zac.app.documentcreation.model
 
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 import java.net.URI
 
 @NoArgConstructor

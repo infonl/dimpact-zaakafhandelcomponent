@@ -41,8 +41,8 @@ import net.atos.zac.identity.model.getFullName
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.util.StringUtil
-import nl.lifely.zac.util.NoArgConstructor
-import nl.lifely.zac.util.decodedBase64StringLength
+import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.decodedBase64StringLength
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.Objects
