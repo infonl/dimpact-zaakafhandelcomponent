@@ -123,7 +123,6 @@ dependencies {
     implementation(libs.apache.solr)
     implementation(libs.webdav.servlet)
     implementation(libs.htmlcleaner)
-    implementation(libs.unboundid.ldapsdk)
     implementation(libs.caffeine)
     implementation(libs.jackson.core)
     implementation(libs.jackson.annotations)
@@ -132,6 +131,7 @@ dependencies {
     implementation(libs.opentelemetry.api)
     implementation(libs.opentelemetry.instrumentation.annotations)
     implementation(libs.opentelemetry.extension.kotlin)
+    implementation(libs.keycloak.admin.client)
 
     swaggerUI(libs.swagger.ui)
 

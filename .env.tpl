@@ -30,14 +30,12 @@ FEATURE_FLAG_BPMN_SUPPORT=false
 GEMEENTE_CODE=password
 GEMEENTE_MAIL=op://Dimpact/ZAC-.env-$APP_ENV/GEMEENTE/MAIL
 GEMEENTE_NAAM=DummyGemeente
+KEYCLOAK_ADMIN_CLIENT_ID=zaakafhandelcomponent-admin-client
+KEYCLOAK_ADMIN_CLIENT_SECRET=zaakafhandelcomponentAdminClientSecret
 KLANTINTERACTIES_API_CLIENT_MP_REST_URL=http://localhost:8002
 KLANTINTERACTIES_API_TOKEN=dummyToken
 KVK_API_CLIENT_MP_REST_URL=op://Dimpact/ZAC-.env-$APP_ENV/KVK/API_CLIENT_MP_REST_URL
 KVK_API_KEY=op://Dimpact/ZAC-.env-$APP_ENV/KVK/API_KEY
-LDAP_DN="ou=people,dc=example,dc=org"
-LDAP_PASSWORD=admin
-LDAP_URL=ldap://localhost:1389
-LDAP_USER=cn=admin,dc=example,dc=org
 MAILJET_API_KEY=op://Dimpact/ZAC-.env-$APP_ENV/MAILJET/API_KEY
 MAILJET_API_SECRET_KEY=op://Dimpact/ZAC-.env-$APP_ENV/MAILJET/API_SECRET_KEY
 # We use the Base2 system to calculate the max file size in bytes.

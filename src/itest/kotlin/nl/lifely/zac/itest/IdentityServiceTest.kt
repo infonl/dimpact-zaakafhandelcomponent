@@ -120,21 +120,6 @@ class IdentityServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("Keycloak contains groups and users as group members") {
-        val response = itestHttpClient.performGetRequest(
-            url = "$ZAC_API_URI/identity/groups/*/users"
-        )
-        When(
-            "the 'list users in group' endpoint is called with an illegal LDAP filter character using group name '*'"
-        ) {
-            Then("an empty list is returned") {
-                response.isSuccessful shouldBe true
-                response.body!!.string() shouldEqualJson """
-                            []
-                """.trimIndent()
-            }
-        }
-    }
     Given("'test user 1' is logged in to ZAC and is part of two groups") {
         When("the 'get logged in user' endpoint is called") {
             val response = itestHttpClient.performGetRequest(
