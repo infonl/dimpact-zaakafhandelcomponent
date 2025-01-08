@@ -15,8 +15,6 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.CatalogusListParameters
 import net.atos.client.zgw.ztc.model.generated.Catalogus
 import java.net.URI
-import java.time.ZoneOffset
-import java.time.ZonedDateTime
 import java.util.UUID
 
 class ConfiguratieServiceTest : BehaviorSpec({
@@ -78,5 +76,4 @@ class ConfiguratieServiceTest : BehaviorSpec({
             }
         }
     }
-
 })

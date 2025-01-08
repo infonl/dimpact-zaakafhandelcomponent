@@ -16,8 +16,6 @@ import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.net.URI
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 @ApplicationScoped

@@ -23,7 +23,6 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import net.atos.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
-import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
 import net.atos.zac.flowable.task.FlowableTaskService

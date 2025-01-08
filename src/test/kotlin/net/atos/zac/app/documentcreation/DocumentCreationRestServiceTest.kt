@@ -19,7 +19,6 @@ import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.app.documentcreation.model.createRestDocumentCreationAttendedData
-import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
 import net.atos.zac.documentcreation.model.createDocumentCreationAttendedResponse
