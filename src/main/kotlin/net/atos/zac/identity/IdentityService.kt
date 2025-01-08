@@ -36,7 +36,8 @@ class IdentityService @Inject constructor(
         .sortedBy { it.name }
 
     fun readUser(userId: String): User = keycloakZacRealmResource.users()
-        .search(userId).map { it.toUser() }.firstOrNull()
+        .searchByUsername(userId, true)
+        .map { it.toUser() }.firstOrNull()
         // is this fallback really needed? better to return null or throw a custom exception
         ?: User(userId)
 

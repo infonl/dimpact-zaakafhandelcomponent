@@ -55,18 +55,44 @@ class IdentityServiceTest : BehaviorSpec({
                     firstName shouldBe "dummyFirstName1"
                     lastName shouldBe "dummyLastName1"
                     fullName shouldBe "dummyFirstName1 dummyLastName1"
+                    email shouldBe "test1@example.com"
                 }
                 with(users[1]) {
                     id shouldBe "dummyUsername2"
                     firstName shouldBe "dummyFirstName2"
                     lastName shouldBe "dummyLastName2"
                     fullName shouldBe "dummyFirstName2 dummyLastName2"
+                    email shouldBe "test2@example.com"
                 }
                 with(users[2]) {
                     id shouldBe "dummyUsername3"
                     firstName shouldBe "dummyFirstName3"
                     lastName shouldBe "dummyLastName3"
                     fullName shouldBe "dummyFirstName3 dummyLastName3"
+                    email shouldBe "test3@example.com"
+                }
+            }
+        }
+    }
+    Given("A user in the Keycloak realm") {
+        val userRepresentation = createUserRepresentation(
+            username = "dummyUsername",
+            firstName = "dummyFirstName",
+            lastName = "dummyLastName",
+            email = "test@example.com"
+        )
+        every { realmResource.users().searchByUsername(userRepresentation.username, true) } returns listOf(userRepresentation)
+
+        When("the user is retrieved") {
+            val user = identityService.readUser(userRepresentation.username)
+
+            Then("the user is retrieved from Keycloak") {
+                with(user) {
+                    id shouldBe "dummyUsername"
+                    firstName shouldBe "dummyFirstName"
+                    lastName shouldBe "dummyLastName"
+                    fullName shouldBe "dummyFirstName dummyLastName"
+                    email shouldBe "test@example.com"
                 }
             }
         }
