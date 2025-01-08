@@ -25,13 +25,13 @@ auth:
   clientId: ""
   secret: ""
 
-# ldap Configuration of ldap or ADFS connection
-ldap:
-  url: "" # ldap://openldap.internal:1389
-  dn: ""  # ou=example-unit,dc=example,dc=org
-  # Account to login into LDAP or ADFS with read rights
-  user: ""
-  password: ""
+# configuration of the ZAC admin client in Keycloak
+keycloak:
+  adminClient:
+    # Keycloak ZAC admin client name
+    id: ""
+    # Keycloak ZAC admin client secret
+    secret: ""
 
 # gemeente Configuration gemeente
 gemeente:

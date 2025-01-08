@@ -121,7 +121,7 @@ All required roles are already included in the Keycloak realm. No need to create
 
 ### OpenLDAP
 
-OpenLDAP is used by ZAC to authenticate users and to retrieve group information.
+OpenLDAP is currently used by ZAC to sync users and groups to/from Keycloak but will be phased out soon.
 
 ZAC requires OpenLDAP to have the additional RFC2307BIS LDAP schema (e.g. for the `GroupOfUniqueNames` object class).
 You can use an LDAP client such as [Apache Directory Studio](https://directory.apache.org/studio/) to create users and groups and update the `zac-ldap-setup.ldif` file.
