@@ -948,7 +948,7 @@
     {
       "clientId": "zaakafhandelcomponent-admin-client",
       "name": "zaakafhandelcomponent-admin-client",
-      "description": "",
+      "description": "Used by the Zaakafhandelcomponent for direct integration using the Keycloak API",
       "rootUrl": "",
       "adminUrl": "",
       "baseUrl": "",
@@ -957,12 +957,8 @@
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "secret": "zaakafhandelcomponentAdminClientSecret",
-      "redirectUris": [
-        "/*"
-      ],
-      "webOrigins": [
-        "/*"
-      ],
+      "redirectUris": [],
+      "webOrigins": [],
       "notBefore": 0,
       "bearerOnly": false,
       "consentRequired": false,
