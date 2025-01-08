@@ -5,9 +5,9 @@ name: Helm chart linting and testing
 
 on:
   pull_request:
-#    branches: [main]
-#    paths:
-#      - 'helm/**'
+    branches: [main]
+    paths:
+      - 'helm/**'
   merge_group:
   workflow_dispatch:
 
@@ -43,15 +43,15 @@ jobs:
           fi
 
       - name: Run chart-testing (lint)
-        #if: steps.list-changed.outputs.changed == 'true'
+        if: steps.list-changed.outputs.changed == 'true'
         working-directory: ./helm
         run: ct lint --charts . --target-branch ${{ github.event.repository.default_branch }} --validate-maintainers=false
 
-      - name: Create kind cluster
-        #if: steps.list-changed.outputs.changed == 'true'
-        uses: helm/kind-action@ae94020eaf628e9b9b9f341a10cc0cdcf5c018fb # v1.11.0
-
-      - name: Run chart-testing (install)
-        #if: steps.list-changed.outputs.changed == 'true'
-        working-directory: ./helm
-        run: ct install --charts . --target-branch ${{ github.event.repository.default_branch }}
+#      - name: Create kind cluster
+#        if: steps.list-changed.outputs.changed == 'true'
+#        uses: helm/kind-action@ae94020eaf628e9b9b9f341a10cc0cdcf5c018fb # v1.11.0
+#
+#      - name: Run chart-testing (install)
+#        if: steps.list-changed.outputs.changed == 'true'
+#        working-directory: ./helm
+#        run: ct install --charts . --target-branch ${{ github.event.repository.default_branch }}
