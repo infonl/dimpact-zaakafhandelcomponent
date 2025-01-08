@@ -382,6 +382,8 @@ opentelemetry-collector:
   enabled: false
   mode: deployment
   replicaCount: 1
+  image:
+    repository: "otel/opentelemetry-collector-contrib"
   presets:
     clusterMetrics:
       enabled: false

@@ -10,8 +10,8 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import net.atos.client.smartdocuments.model.createsmartDocumentsTemplatesResponse
 import net.atos.zac.admin.model.createZaakafhandelParameters
-import net.atos.zac.smartdocuments.rest.createRESTMappedTemplate
-import net.atos.zac.smartdocuments.rest.createRESTMappedTemplateGroup
+import net.atos.zac.smartdocuments.rest.createRestMappedSmartDocumentsTemplate
+import net.atos.zac.smartdocuments.rest.createRestMappedSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroupSet
 import net.atos.zac.smartdocuments.rest.toSmartDocumentsTemplateGroupSet
@@ -59,31 +59,31 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
     Given("a REST request") {
         val expectedInformatieobjectTypeUUID = UUID.randomUUID()
         val restTemplateRequest = setOf(
-            createRESTMappedTemplateGroup(
+            createRestMappedSmartDocumentsTemplateGroup(
                 name = "root",
                 groups = setOf(
-                    createRESTMappedTemplateGroup(
+                    createRestMappedSmartDocumentsTemplateGroup(
                         name = "group 1",
                         templates = setOf(
-                            createRESTMappedTemplate(
+                            createRestMappedSmartDocumentsTemplate(
                                 name = "group 1 template 1",
                                 informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
                             ),
-                            createRESTMappedTemplate(
+                            createRestMappedSmartDocumentsTemplate(
                                 name = "group 1 template 2",
                                 informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
                             )
                         ),
                         groups = emptySet()
                     ),
-                    createRESTMappedTemplateGroup(
+                    createRestMappedSmartDocumentsTemplateGroup(
                         name = "group 2",
                         templates = setOf(
-                            createRESTMappedTemplate(
+                            createRestMappedSmartDocumentsTemplate(
                                 name = "group 2 template 1",
                                 informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
                             ),
-                            createRESTMappedTemplate(
+                            createRestMappedSmartDocumentsTemplate(
                                 name = "group 2 template 2",
                                 informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
                             )
@@ -92,11 +92,11 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                     )
                 ),
                 templates = setOf(
-                    createRESTMappedTemplate(
+                    createRestMappedSmartDocumentsTemplate(
                         name = "root template 1",
                         informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
                     ),
-                    createRESTMappedTemplate(
+                    createRestMappedSmartDocumentsTemplate(
                         name = "root template 2",
                         informatieObjectTypeUUID = expectedInformatieobjectTypeUUID
                     )

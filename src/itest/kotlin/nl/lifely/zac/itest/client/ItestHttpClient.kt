@@ -9,7 +9,6 @@ import nl.lifely.zac.itest.config.ItestConfiguration.HTTP_READ_TIMEOUT_SECONDS
 import nl.lifely.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_PORT
 import okhttp3.Headers
 import okhttp3.JavaNetCookieJar
-import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
@@ -40,7 +39,7 @@ class ItestHttpClient {
 
     fun performDeleteRequest(
         url: String,
-        headers: Headers = getDefaultJSONHeaders(),
+        headers: Headers = buildHeaders(),
         addAuthorizationHeader: Boolean = true
     ): Response {
         logger.info { "Performing DELETE request on: '$url'" }
@@ -60,7 +59,7 @@ class ItestHttpClient {
 
     fun performGetRequest(
         url: String,
-        headers: Headers = getDefaultJSONGETHeaders(),
+        headers: Headers = buildHeaders(acceptType = null),
         addAuthorizationHeader: Boolean = true
     ): Response {
         logger.info { "Performing GET request on: '$url'" }
@@ -80,7 +79,7 @@ class ItestHttpClient {
 
     fun performPostRequest(
         url: String,
-        headers: Headers = getDefaultJSONHeaders(),
+        headers: Headers = buildHeaders(),
         requestBody: RequestBody,
         addAuthorizationHeader: Boolean = true
     ): Response {
@@ -101,19 +100,19 @@ class ItestHttpClient {
 
     fun performJSONPostRequest(
         url: String,
-        headers: Headers = getDefaultJSONHeaders(),
+        headers: Headers = buildHeaders(),
         requestBodyAsString: String,
         addAuthorizationHeader: Boolean = true
     ) = performPostRequest(
         url = url,
         headers = headers,
-        requestBody = requestBodyAsString.toRequestBody("application/json".toMediaType()),
+        requestBody = requestBodyAsString.toRequestBody(MediaType.APPLICATION_JSON.toMediaType()),
         addAuthorizationHeader = addAuthorizationHeader
     )
 
     fun performPatchRequest(
         url: String,
-        headers: Headers = getDefaultJSONHeaders(),
+        headers: Headers = buildHeaders(),
         requestBodyAsString: String,
         addAuthorizationHeader: Boolean = true
     ): Response {
@@ -127,14 +126,14 @@ class ItestHttpClient {
                 }
             )
             .url(url)
-            .patch(requestBodyAsString.toRequestBody("application/json".toMediaType()))
+            .patch(requestBodyAsString.toRequestBody(MediaType.APPLICATION_JSON.toMediaType()))
             .build()
         return okHttpClient.newCall(request).execute()
     }
 
     fun performPutRequest(
         url: String,
-        headers: Headers = getDefaultJSONHeaders(),
+        headers: Headers = buildHeaders(),
         requestBodyAsString: String,
         addAuthorizationHeader: Boolean = true
     ): Response {
@@ -147,7 +146,7 @@ class ItestHttpClient {
                     headers
                 }
             ).url(url)
-            .put(requestBodyAsString.toRequestBody("application/json".toMediaType()))
+            .put(requestBodyAsString.toRequestBody(MediaType.APPLICATION_JSON.toMediaType()))
             .build()
         return okHttpClient.newCall(request).execute()
     }
@@ -155,7 +154,7 @@ class ItestHttpClient {
     fun connectNewWebSocket(
         url: String,
         webSocketListener: WebSocketListener,
-        headers: Headers = getDefaultJSONGETHeaders(),
+        headers: Headers = buildHeaders(acceptType = null),
         addAuthorizationHeader: Boolean = true
     ): WebSocket {
         logger.info { "Connecting new websocket on: '$url'" }
@@ -175,25 +174,12 @@ class ItestHttpClient {
         )
     }
 
-    fun shutdownClient() = okHttpClient.dispatcher.executorService.shutdown()
+    private fun cloneHeadersWithAuthorization(headers: Headers, url: String): Headers =
+        headers.newBuilder().add(Header.AUTHORIZATION.name, determineBearerToken(url)).build()
 
-    private fun getDefaultJSONGETHeaders() = Headers.headersOf(
-        "Accept",
-        "application/json"
-    )
-
-    private fun getDefaultJSONHeaders() =
-        getDefaultJSONGETHeaders()
-            .newBuilder()
-            .add("Content-Type", "application/json")
-            .build()
-
-    private fun cloneHeadersWithAuthorization(headers: Headers, url: String): Headers {
-        val token = if (URI(url).port == OPEN_ZAAK_EXTERNAL_PORT) {
-            generateToken()
-        } else {
-            KeycloakClient.requestAccessToken()
-        }
-        return headers.newBuilder().add("Authorization", "Bearer $token").build()
+    private fun determineBearerToken(url: String) = "Bearer " + if (URI(url).port == OPEN_ZAAK_EXTERNAL_PORT) {
+        generateToken()
+    } else {
+        KeycloakClient.requestAccessToken()
     }
 }
