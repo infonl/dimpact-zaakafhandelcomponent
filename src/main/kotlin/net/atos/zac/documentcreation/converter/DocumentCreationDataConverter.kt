@@ -59,7 +59,8 @@ class DocumentCreationDataConverter @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
     private val identityService: IdentityService,
     private val productaanvraagService: ProductaanvraagService,
-    private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService
+    private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
+    private val configuratieService: ConfiguratieService
 ) {
     companion object {
         const val DATE_FORMAT: String = "dd-MM-yyyy"
@@ -208,7 +209,7 @@ class DocumentCreationDataConverter @Inject constructor(
         creationDate: ZonedDateTime,
         userName: String
     ) = EnkelvoudigInformatieObjectCreateLockRequest().apply {
-        bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
+        bronorganisatie = configuratieService.readBronOrganisatie()
         creatiedatum = creationDate.toLocalDate()
         titel = title
         auteur = userName

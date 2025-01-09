@@ -27,6 +27,7 @@ import net.atos.zac.app.zaak.model.createRestDecision
 import net.atos.zac.app.zaak.model.createRestGroup
 import net.atos.zac.app.zaak.model.createRestUser
 import net.atos.zac.app.zaak.model.createRestZaaktype
+import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.bpmn.BPMNService
 import net.atos.zac.policy.PolicyService
@@ -47,6 +48,7 @@ class RestZaakConverterTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val bpmnService = mockk<BPMNService>()
+    val configuratieService = mockk<ConfiguratieService>()
 
     val restZaakConverter = RestZaakConverter(
         ztcClientService = ztcClientService,
@@ -61,7 +63,8 @@ class RestZaakConverterTest : BehaviorSpec({
         restZaaktypeConverter = restZaaktypeConverter,
         policyService = policyService,
         zaakVariabelenService = zaakVariabelenService,
-        bpmnService = bpmnService
+        bpmnService = bpmnService,
+        configuratieService = configuratieService
     )
 
     Given("A zaak") {
