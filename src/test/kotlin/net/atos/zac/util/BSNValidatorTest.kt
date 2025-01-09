@@ -21,7 +21,7 @@ class BSNValidatorTest : BehaviorSpec({
         val validBSN = "316245124"
 
         When("it is validated") {
-            BSNValidator.validateBSN(validBSN)
+            validBSN.validateBSN()
 
             Then("no exception is thrown") {}
         }
@@ -32,7 +32,7 @@ class BSNValidatorTest : BehaviorSpec({
 
         When("it is validated") {
             val exception = shouldThrow<IllegalArgumentException> {
-                BSNValidator.validateBSN(invalidBSN)
+                invalidBSN.validateBSN()
             }
 
             Then("exception is thrown") {
@@ -46,7 +46,7 @@ class BSNValidatorTest : BehaviorSpec({
 
         When("it is validated") {
             val exception = shouldThrow<IllegalArgumentException> {
-                BSNValidator.validateBSN(invalidBSN)
+                invalidBSN.validateBSN()
             }
 
             Then("exception is thrown") {
@@ -60,7 +60,7 @@ class BSNValidatorTest : BehaviorSpec({
 
         When("it is validated") {
             val exception = shouldThrow<IllegalArgumentException> {
-                BSNValidator.validateBSN(invalidBSN)
+                invalidBSN.validateBSN()
             }
 
             Then("exception is thrown") {
@@ -74,7 +74,7 @@ class BSNValidatorTest : BehaviorSpec({
 
         When("it is validated") {
             val exception = shouldThrow<IllegalArgumentException> {
-                BSNValidator.validateBSN(invalidBSN)
+                invalidBSN.validateBSN()
             }
 
             Then("exception is thrown") {

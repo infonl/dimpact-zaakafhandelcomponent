@@ -5,12 +5,11 @@
 package net.atos.zac.util
 
 private const val BSN_LENGTH = 9
-// https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
-private const val BSN_11_PROEF = 11
+private const val BSN_11_PROEF = 11 // https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
 
 fun String.validateBSN() {
     require(this.length == BSN_LENGTH) { "BSN '$this' length must be $BSN_LENGTH" }
-    require(bsnSum(this) % BSN_11_PROEF == 0) { "Invalid BSN '$this'" }
+    require(isElfProef(bsnSum(this))) { "Invalid BSN '$this'" }
 }
 
 private fun bsnSum(bsn: String) =
@@ -22,3 +21,6 @@ private fun bsnSum(bsn: String) =
             (BSN_LENGTH - index) * bsnChar.digitToInt()
         }
     }.sum()
+
+// https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
+private fun isElfProef(sum: Int) = sum % BSN_11_PROEF == 0
