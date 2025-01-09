@@ -10,6 +10,7 @@ import jakarta.inject.Named
 import net.atos.zac.identity.exception.IdentityRuntimeException
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
+import net.atos.zac.identity.model.getFullName
 import net.atos.zac.identity.model.toGroup
 import net.atos.zac.identity.model.toUser
 import nl.info.zac.util.AllOpen
@@ -27,7 +28,7 @@ class IdentityService @Inject constructor(
     fun listUsers(): List<User> = keycloakZacRealmResource.users()
         .list()
         .map { it.toUser() }
-        .sortedBy { it.fullName }
+        .sortedBy { it.getFullName() }
 
     fun listGroups(): List<Group> = keycloakZacRealmResource.groups()
         // retrieve groups with 'full representation' or else the group attributes will not be filled
@@ -57,6 +58,6 @@ class IdentityService @Inject constructor(
             .group(keycloakGroupId)
             .members()
             .map { it.toUser() }
-            .sortedBy { it.fullName }
+            .sortedBy { it.getFullName() }
     }
 }

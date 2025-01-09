@@ -30,6 +30,7 @@ import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.identity.IdentityService
+import net.atos.zac.identity.model.getFullName
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 
@@ -95,7 +96,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
                     }
                     with(gebruikerData) {
                         id shouldBe loggedInUser.id
-                        naam shouldBe loggedInUser.fullName
+                        naam shouldBe loggedInUser.getFullName()
                     }
                     with(zaakData) {
                         zaaktype shouldBe zaakType.omschrijving
