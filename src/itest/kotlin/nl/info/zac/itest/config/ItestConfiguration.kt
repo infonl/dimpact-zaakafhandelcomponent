@@ -137,6 +137,10 @@ object ItestConfiguration {
     const val TEST_USER_1_EMAIL = "testuser1@example.com"
     const val TEST_USER_1_NAME = "Test User1 Špëçîâl Characters"
     const val TEST_USER_2_ID = "testuser2"
+
+    /**
+     * Test user 2 does not have a first name so their full name should be equal to their last name.
+     */
     const val TEST_USER_2_NAME = "User2"
     const val TEST_USER_DOMEIN_TEST_1_ID = "testuserdomeintest1"
     const val TEST_USER_DOMEIN_TEST_1_NAME = "Test testuserdomeintest1"
