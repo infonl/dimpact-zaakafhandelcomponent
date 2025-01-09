@@ -10,7 +10,7 @@ data:
   AUTH_RESOURCE: {{ required "Valid .Values.auth.clientId entry required!" .Values.auth.clientId }}
   AUTH_SERVER: {{ required "Valid .Values.auth.server entry required!" .Values.auth.server }}
   BAG_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.bagApi.url entry required!" .Values.bagApi.url }}
-  BRON_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.bron.rsin entry required!" .Values.organizations.bron.rsin }}
+  BRON_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.bron.rsin entry required!" .Values.organizations.bron.rsin | quote }}
   BRP_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.brpApi.url entry required!" .Values.brpApi.url }}
   CONTEXT_URL: {{ required "Valid .Values.contextUrl entry required!" .Values.contextUrl }}
   DB_HOST: {{ required "Valid .Values.db.host entry required!" .Values.db.host }}
@@ -63,7 +63,7 @@ data:
   SOLR_URL: {{ printf "http://%s-solr.%s" .Release.Name .Release.Namespace }}
   {{- end }}
   TZ: Europe/Amsterdam
-  VERANTWOORDELIJKE_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.verantwoordelijke.rsin entry required!" .Values.organizations.verantwoordelijke.rsin }}
+  VERANTWOORDELIJKE_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.verantwoordelijke.rsin entry required!" .Values.organizations.verantwoordelijke.rsin | quote }}
   ZGW_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.zgwApis.url entry required!" .Values.zgwApis.url }}
   ZGW_API_CLIENTID: {{ required "Valid .Values.zgwApis.clientId entry required!" .Values.zgwApis.clientId }}
   ZGW_API_URL_EXTERN: {{ required "Valid .Values.zgwApis.urlExtern entry required!" .Values.zgwApis.urlExtern }}
