@@ -30,7 +30,6 @@ import net.atos.client.zgw.ztc.model.createResultaatType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.createZaakafhandelParameters
-import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.Date
