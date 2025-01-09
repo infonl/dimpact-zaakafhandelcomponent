@@ -954,38 +954,6 @@ export class ZaakViewComponent
       });
   }
 
-  editOpschorting(event: any): void {
-    const zaakOpschortGegevens = new ZaakOpschortGegevens();
-    zaakOpschortGegevens.indicatieOpschorting = !this.zaak.isOpgeschort;
-    zaakOpschortGegevens.einddatumGepland = event.einddatumGepland;
-    zaakOpschortGegevens.uiterlijkeEinddatumAfdoening =
-      event.uiterlijkeEinddatumAfdoening;
-    zaakOpschortGegevens.redenOpschorting = event.reden;
-    zaakOpschortGegevens.duurDagen = event.duurDagen;
-    this.websocketService.suspendListener(this.zaakListener);
-    this.zakenService
-      .opschortenZaak(this.zaak.uuid, zaakOpschortGegevens)
-      .subscribe((updatedZaak) => {
-        this.init(updatedZaak);
-      });
-  }
-
-  editVerlenging(event: any): void {
-    const zaakVerlengGegevens = new ZaakVerlengGegevens();
-    zaakVerlengGegevens.einddatumGepland = event.einddatumGepland;
-    zaakVerlengGegevens.uiterlijkeEinddatumAfdoening =
-      event.uiterlijkeEinddatumAfdoening;
-    zaakVerlengGegevens.redenVerlenging = event.reden;
-    zaakVerlengGegevens.duurDagen = event.duurDagen;
-    zaakVerlengGegevens.takenVerlengen = event.takenVerlengen;
-    this.websocketService.suspendListener(this.zaakListener);
-    this.zakenService
-      .verlengenZaak(this.zaak.uuid, zaakVerlengGegevens)
-      .subscribe((updatedZaak) => {
-        this.init(updatedZaak);
-      });
-  }
-
   private loadOpschorting(): void {
     if (this.zaak.isOpgeschort) {
       this.zakenService
