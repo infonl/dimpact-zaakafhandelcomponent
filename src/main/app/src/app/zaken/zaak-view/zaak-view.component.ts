@@ -630,26 +630,6 @@ export class ZaakViewComponent
       );
     }
 
-    if (this.zaak.isHeropend && this.zaak.rechten.behandelen) {
-      this.menu.push(
-        new ButtonMenuItem(
-          "actie.zaak.afsluiten",
-          () => this.openZaakAfsluitenDialog(),
-          "thumb_up_alt",
-        ),
-      );
-    }
-
-    if (!this.zaak.isOpen && this.zaak.rechten.heropenen) {
-      this.menu.push(
-        new ButtonMenuItem(
-          "actie.zaak.heropenen",
-          () => this.openZaakHeropenenDialog(),
-          "restart_alt",
-        ),
-      );
-    }
-
     forkJoin([
       this.planItemsService.listUserEventListenerPlanItems(this.zaak.uuid),
       this.planItemsService.listHumanTaskPlanItems(this.zaak.uuid),
@@ -660,35 +640,8 @@ export class ZaakViewComponent
         humanTaskPlanItems,
         processTaskPlanItems,
       ]) => {
-        if (
-          this.zaak.rechten.behandelen &&
-          userEventListenerPlanItems.length > 0
-        ) {
-          this.menu = this.menu.concat(
-            userEventListenerPlanItems
-              .map((userEventListenerPlanItem) =>
-                this.createUserEventListenerPlanItemMenuItem(
-                  userEventListenerPlanItem,
-                ),
-              )
-              .filter((menuItem) => menuItem != null),
-          );
-        }
-        if (
-          this.zaak.isOpen &&
-          !this.zaak.isHeropend &&
-          this.zaak.rechten.afbreken &&
-          this.zaak.zaaktype.zaakafhandelparameters.zaakbeeindigParameters
-            .length > 0
-        ) {
-          this.menu.push(
-            new ButtonMenuItem(
-              "actie.zaak.afbreken",
-              () => this.openZaakAfbrekenDialog(),
-              "thumb_down_alt",
-            ),
-          );
-        }
+        const actionMenuItems = this.createActionMenuItems();
+
         if (this.hasZaakData() && this.zaak.rechten.bekijkenZaakdata) {
           this.menu.push(
             new ButtonMenuItem(
@@ -702,9 +655,22 @@ export class ZaakViewComponent
           );
         }
 
-        const actionMenuItems = this.collectActionMenuItems();
-        if (actionMenuItems.length > 0) {
+        if (
+          userEventListenerPlanItems.length > 0 ||
+          actionMenuItems.length > 0
+        ) {
           this.menu.push(new HeaderMenuItem("actie.zaak.acties"));
+          if (this.zaak.rechten.behandelen) {
+            this.menu = this.menu.concat(
+              userEventListenerPlanItems
+                .map((userEventListenerPlanItem) =>
+                  this.createUserEventListenerPlanItemMenuItem(
+                    userEventListenerPlanItem,
+                  ),
+                )
+                .filter((menuItem) => menuItem != null),
+            );
+          }
           this.menu = this.menu.concat(actionMenuItems);
         }
 
@@ -776,8 +742,18 @@ export class ZaakViewComponent
     }
   }
 
-  private collectActionMenuItems(): MenuItem[] {
-    const collectedActionMenuItems: MenuItem[] = [];
+  private createActionMenuItems(): MenuItem[] {
+    const actionMenuItems: MenuItem[] = [];
+
+    if (!this.zaak.isOpen && this.zaak.rechten.heropenen) {
+      actionMenuItems.push(
+        new ButtonMenuItem(
+          "actie.zaak.heropenen",
+          () => this.openZaakHeropenenDialog(),
+          "restart_alt",
+        ),
+      );
+    }
 
     if (
       this.zaak.isOpen &&
@@ -787,7 +763,7 @@ export class ZaakViewComponent
       !this.zaak.isOpgeschort &&
       !this.zaak.isProcesGestuurd
     ) {
-      collectedActionMenuItems.push(
+      actionMenuItems.push(
         new ButtonMenuItem(
           "actie.zaak.opschorten",
           () => this.openZaakOpschortenDialog(),
@@ -805,7 +781,7 @@ export class ZaakViewComponent
       !this.zaak.isOpgeschort &&
       !this.zaak.isProcesGestuurd
     ) {
-      collectedActionMenuItems.push(
+      actionMenuItems.push(
         new ButtonMenuItem(
           "actie.zaak.verlengen",
           () => this.openZaakVerlengenDialog(),
@@ -819,7 +795,7 @@ export class ZaakViewComponent
       this.zaak.rechten.behandelen &&
       !this.zaak.isProcesGestuurd
     ) {
-      collectedActionMenuItems.push(
+      actionMenuItems.push(
         new ButtonMenuItem(
           "actie.zaak.hervatten",
           () => this.openZaakHervattenDialog(),
@@ -828,7 +804,33 @@ export class ZaakViewComponent
       );
     }
 
-    return collectedActionMenuItems;
+    if (
+      this.zaak.isOpen &&
+      !this.zaak.isHeropend &&
+      this.zaak.rechten.afbreken &&
+      this.zaak.zaaktype.zaakafhandelparameters.zaakbeeindigParameters.length >
+        0
+    ) {
+      actionMenuItems.push(
+        new ButtonMenuItem(
+          "actie.zaak.afbreken",
+          () => this.openZaakAfbrekenDialog(),
+          "thumb_down_alt",
+        ),
+      );
+    }
+
+    if (this.zaak.isHeropend && this.zaak.rechten.behandelen) {
+      actionMenuItems.push(
+        new ButtonMenuItem(
+          "actie.zaak.afsluiten",
+          () => this.openZaakAfsluitenDialog(),
+          "thumb_up_alt",
+        ),
+      );
+    }
+
+    return actionMenuItems;
   }
 
   openPlanItemStartenDialog(planItem: PlanItem): void {
