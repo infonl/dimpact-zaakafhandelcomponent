@@ -45,8 +45,6 @@ export class ZaakVerlengenDialogComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log("this.data.zaak", this.data.zaak);
-
     this.initFormFields();
 
     this.dialogRef.afterOpened().subscribe(() => {
@@ -211,8 +209,6 @@ export class ZaakVerlengenDialogComponent implements OnInit {
       this.redenVerlengingField.formControl.value;
     zaakVerlengGegevens.takenVerlengen =
       this.takenVerlengenField.formControl.value;
-
-    console.log("zaakVerlengGegevens", zaakVerlengGegevens);
 
     this.zakenService
       .verlengenZaak(this.data.zaak.uuid, zaakVerlengGegevens)
