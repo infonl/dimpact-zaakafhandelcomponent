@@ -10,11 +10,10 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import net.atos.zac.identity.model.getFullName
 import nl.info.test.org.keycloak.representations.idm.createGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createUserRepresentation
 import org.keycloak.admin.client.resource.RealmResource
-import org.keycloak.representations.idm.createGroupRepresentation
-import org.keycloak.representations.idm.createUserRepresentation
 
 class IdentityServiceTest : BehaviorSpec({
     val realmResource = mockk<RealmResource>()
