@@ -351,7 +351,7 @@ export class ZaakViewComponent
       new TextareaFormFieldBuilder(this.zaak.toelichting)
         .id("toelichting")
         .label("toelichting")
-        .maxlength(11000)
+        .maxlength(1000)
         .build(),
     );
     this.editFormFields.set(
