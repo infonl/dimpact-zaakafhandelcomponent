@@ -35,7 +35,7 @@ import java.util.UUID
 @AllOpen
 @NoArgConstructor
 @Suppress("TooManyFunctions")
-class ZaakafhandelParameterBeheerService @Inject constructor(
+open class ZaakafhandelParameterBeheerService @Inject constructor(
     private val entityManager: EntityManager,
     private val ztcClientService: ZtcClientService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
@@ -158,7 +158,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             mapUserEventListenerParameters(previousZaakafhandelparameters, newZaakafhandelParameters)
             mapZaakbeeindigGegevens(previousZaakafhandelparameters, newZaakafhandelParameters, zaaktype)
             mapMailtemplateKoppelingen(previousZaakafhandelparameters, newZaakafhandelParameters)
-            mapSmartDocuments(previousZaakafhandelparameters.zaakTypeUUID, newZaakafhandelParameters.zaakTypeUUID)
+            //mapSmartDocuments(previousZaakafhandelparameters.zaakTypeUUID, newZaakafhandelParameters.zaakTypeUUID)
             createZaakafhandelParameters(newZaakafhandelParameters)
         }
     }
