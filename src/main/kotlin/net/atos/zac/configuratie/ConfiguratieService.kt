@@ -53,10 +53,10 @@ class ConfiguratieService @Inject constructor(
     @ConfigProperty(name = "FEATURE_FLAG_BPMN_SUPPORT")
     private val bpmnSupport: Boolean,
 
-    @ConfigProperty(name = "BRON_ORGANISATIE", defaultValue = "123443210")
+    @ConfigProperty(name = "BRON_ORGANISATIE")
     private val bronOrganisatie: String,
 
-    @ConfigProperty(name = "VERANTWOORDELIJKE_ORGANISATIE", defaultValue = "316245124")
+    @ConfigProperty(name = "VERANTWOORDELIJKE_ORGANISATIE")
     private val verantwoordelijkeOrganisatie: String,
 
     @ConfigProperty(name = "CATALOGUS_DOMEIN", defaultValue = "ALG")

@@ -581,6 +581,7 @@ services:
       - AUTH_SERVER=http://keycloak:8080
       - BAG_API_CLIENT_MP_REST_URL=https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/
       - BAG_API_KEY=${BAG_API_KEY:-dummyBagApiKey}
+      - BRON_ORGANISATIE=${BRON_ORGANISATIE:-123443210}
       - BRP_API_CLIENT_MP_REST_URL=http://brp-personen-mock:5010/haalcentraal/api/brp
       - BRP_API_KEY=dummyKey # not used when using the BRP proxy
       - CONTEXT_URL=http://localhost:8080
@@ -612,20 +613,21 @@ services:
       - SMARTDOCUMENTS_AUTHENTICATION=${SMARTDOCUMENTS_AUTHENTICATION:-dummySmartDocumentsAuthentication}
       - SMARTDOCUMENTS_CLIENT_MP_REST_URL=${SMARTDOCUMENTS_CLIENT_MP_REST_URL:-http://smartdocuments-wiremock:8080}
       - SMARTDOCUMENTS_FIXED_USER_NAME=${SMARTDOCUMENTS_FIXED_USER_NAME:-}
+      - SMTP_SERVER=${SMTP_SERVER:-in-v3.mailjet.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USERNAME=${SMTP_USERNAME:-dummyMailjetApiKey}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-dummyMailjetApiSecretKey}
       - SIGNALERINGEN_DELETE_OLDER_THAN_DAYS=${SIGNALERINGEN_DELETE_OLDER_THAN_DAYS:-14}
       - SOLR_URL=http://solr:8983
       # Turn off the Open Telemetry sampler by default because it is not always needed
       # Typically when using the Docker Compose profile 'metrics' you want to turn this on
       - SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=${SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE:-off}
       - SUBSYSTEM_OPENTELEMETRY__ENDPOINT=http://otel-collector:4317
+      - VERANTWOORDELIJKE_ORGANISATIE=${VERANTWOORDELIJKE_ORGANISATIE:-316245124}
       - ZGW_API_CLIENT_MP_REST_URL=http://openzaak.local:8000/
       - ZGW_API_CLIENTID=zac_client
       - ZGW_API_SECRET=openzaakZaakafhandelcomponentClientSecret
       - ZGW_API_URL_EXTERN=http://localhost:8001/
-      - SMTP_SERVER=${SMTP_SERVER:-in-v3.mailjet.com}
-      - SMTP_PORT=${SMTP_PORT:-587}
-      - SMTP_USERNAME=${SMTP_USERNAME:-dummyMailjetApiKey}
-      - SMTP_PASSWORD=${SMTP_PASSWORD:-dummyMailjetApiSecretKey}
     ports:
       - "8080:8080"
       - "9990:9990"

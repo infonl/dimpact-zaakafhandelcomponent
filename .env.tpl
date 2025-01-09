@@ -17,6 +17,7 @@ AUTH_REALM=zaakafhandelcomponent
 AUTH_RESOURCE=zaakafhandelcomponent
 AUTH_SECRET=keycloakZaakafhandelcomponentClientSecret
 AUTH_SERVER=http://localhost:8081
+BRON_ORGANISATIE=123443210
 BAG_API_CLIENT_MP_REST_URL=op://Dimpact/ZAC-.env-$APP_ENV/BAG/API_CLIENT_MP_REST_URL
 BAG_API_KEY=op://Dimpact/ZAC-.env-$APP_ENV/BAG/API_KEY
 BRP_API_CLIENT_MP_REST_URL=http://localhost:5010/haalcentraal/api/brp
@@ -40,6 +41,10 @@ MAILJET_API_KEY=op://Dimpact/ZAC-.env-$APP_ENV/MAILJET/API_KEY
 MAILJET_API_SECRET_KEY=op://Dimpact/ZAC-.env-$APP_ENV/MAILJET/API_SECRET_KEY
 # We use the Base2 system to calculate the max file size in bytes.
 MAX_FILE_SIZE_MB=80
+OBJECTS_API_CLIENT_MP_REST_URL=http://host.docker.internal:8010
+OBJECTS_API_TOKEN=dummyZacObjectsToken
+OBJECTTYPES_API_CLIENT_MP_REST_URL=http://host.docker.internal:8011
+OBJECTTYPES_API_TOKEN=dummyZacObjectTypesToken
 OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://localhost:9999
 OPA_API_CLIENT_MP_REST_URL=http://localhost:8181
 OPEN_NOTIFICATIONS_API_SECRET_KEY=openNotificatiesApiSecretKey
@@ -47,20 +52,17 @@ SMARTDOCUMENTS_ENABLED=true
 SMARTDOCUMENTS_AUTHENTICATION=op://Dimpact/ZAC-.env-$APP_ENV/SMARTDOCUMENTS/AUTHENTICATION
 SMARTDOCUMENTS_CLIENT_MP_REST_URL=op://Dimpact/ZAC-.env-$APP_ENV/SMARTDOCUMENTS/CLIENT_MP_REST_URL
 SMARTDOCUMENTS_FIXED_USER_NAME=op://Dimpact/ZAC-.env-$APP_ENV/SMARTDOCUMENTS/SMARTDOCUMENTS_FIXED_USER_NAME
-SIGNALERINGEN_DELETE_OLDER_THAN_DAYS=14
-SOLR_URL=http://localhost:8983
-ZGW_API_CLIENT_MP_REST_URL=http://localhost:8001/
-ZGW_API_CLIENTID=zac_client
-ZGW_API_SECRET=openzaakZaakafhandelcomponentClientSecret
-ZGW_API_URL_EXTERN=http://localhost:8001/
 SMTP_SERVER=op://Dimpact/ZAC-.env-$APP_ENV/SMTP/SERVER
 SMTP_PORT=op://Dimpact/ZAC-.env-$APP_ENV/SMTP/PORT
 SMTP_USERNAME=op://Dimpact/ZAC-.env-$APP_ENV/MAILJET/API_KEY
 SMTP_PASSWORD=op://Dimpact/ZAC-.env-$APP_ENV/MAILJET/API_SECRET_KEY
-OBJECTS_API_CLIENT_MP_REST_URL=http://host.docker.internal:8010
-OBJECTS_API_TOKEN=dummyZacObjectsToken
-OBJECTTYPES_API_CLIENT_MP_REST_URL=http://host.docker.internal:8011
-OBJECTTYPES_API_TOKEN=dummyZacObjectTypesToken
+SIGNALERINGEN_DELETE_OLDER_THAN_DAYS=14
+SOLR_URL=http://localhost:8983
+VERANTWOORDELIJKE_ORGANISATIE=316245124
+ZGW_API_CLIENT_MP_REST_URL=http://localhost:8001/
+ZGW_API_CLIENTID=zac_client
+ZGW_API_SECRET=openzaakZaakafhandelcomponentClientSecret
+ZGW_API_URL_EXTERN=http://localhost:8001/
 
 # -----------------------------------------
 # e2e only environment variables
