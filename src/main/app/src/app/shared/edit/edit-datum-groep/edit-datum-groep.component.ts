@@ -5,37 +5,18 @@
 
 import {
   Component,
-  EventEmitter,
   Input,
   OnChanges,
   OnInit,
-  Output,
   SimpleChanges,
 } from "@angular/core";
-import {
-  FormControlStatus,
-  FormGroup,
-  ValidatorFn,
-  Validators,
-} from "@angular/forms";
-import { MatDialog } from "@angular/material/dialog";
-import { TranslateService } from "@ngx-translate/core";
+import { FormControlStatus, FormGroup } from "@angular/forms";
 import moment from "moment";
 import { Moment } from "moment/moment";
-import { Observable, Subscription, of } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
-import { ZakenService } from "../../../zaken/zaken.service";
-import { DialogData } from "../../dialog/dialog-data";
-import { DialogComponent } from "../../dialog/dialog.component";
-import { CheckboxFormField } from "../../material-form-builder/form-components/checkbox/checkbox-form-field";
-import { CheckboxFormFieldBuilder } from "../../material-form-builder/form-components/checkbox/checkbox-form-field-builder";
 import { DateFormField } from "../../material-form-builder/form-components/date/date-form-field";
-import { HiddenFormField } from "../../material-form-builder/form-components/hidden/hidden-form-field";
-import { HiddenFormFieldBuilder } from "../../material-form-builder/form-components/hidden/hidden-form-field-builder";
 import { InputFormField } from "../../material-form-builder/form-components/input/input-form-field";
-import { InputFormFieldBuilder } from "../../material-form-builder/form-components/input/input-form-field-builder";
 import { MaterialFormBuilderService } from "../../material-form-builder/material-form-builder.service";
-import { AbstractFormField } from "../../material-form-builder/model/abstract-form-field";
 import { EditComponent } from "../edit.component";
 import { TextIcon } from "../text-icon";
 

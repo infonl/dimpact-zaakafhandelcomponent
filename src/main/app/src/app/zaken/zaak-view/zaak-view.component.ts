@@ -72,9 +72,7 @@ import { IntakeAfrondenDialogComponent } from "../intake-afronden-dialog/intake-
 import { GeometryGegevens } from "../model/geometry-gegevens";
 import { Zaak } from "../model/zaak";
 import { ZaakBetrokkene } from "../model/zaak-betrokkene";
-import { ZaakOpschortGegevens } from "../model/zaak-opschort-gegevens";
 import { ZaakOpschorting } from "../model/zaak-opschorting";
-import { ZaakVerlengGegevens } from "../model/zaak-verleng-gegevens";
 import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
 import { ZaakKoppelenService } from "../zaak-koppelen/zaak-koppelen.service";
 import { ZaakOntkoppelenDialogComponent } from "../zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
