@@ -158,7 +158,7 @@ open class ZaakafhandelParameterBeheerService @Inject constructor(
             mapUserEventListenerParameters(previousZaakafhandelparameters, newZaakafhandelParameters)
             mapZaakbeeindigGegevens(previousZaakafhandelparameters, newZaakafhandelParameters, zaaktype)
             mapMailtemplateKoppelingen(previousZaakafhandelparameters, newZaakafhandelParameters)
-            //mapSmartDocuments(previousZaakafhandelparameters.zaakTypeUUID, newZaakafhandelParameters.zaakTypeUUID)
+            // mapSmartDocuments(previousZaakafhandelparameters.zaakTypeUUID, newZaakafhandelParameters.zaakTypeUUID)
             createZaakafhandelParameters(newZaakafhandelParameters)
         }
     }
@@ -264,10 +264,10 @@ open class ZaakafhandelParameterBeheerService @Inject constructor(
             newResultaattypen.firstOrNull { it.omschrijving == resultaattype.omschrijving }?.url?.extractUuid()
         }
 
-    private fun mapSmartDocuments(
-        previousZaakafhandelUUID: UUID,
-        newZaakafhandelParametersUUID: UUID
-    ) = smartDocumentsTemplatesService.getTemplatesMapping(previousZaakafhandelUUID).let {
-        smartDocumentsTemplatesService.storeTemplatesMapping(it, newZaakafhandelParametersUUID)
-    }
+//    private fun mapSmartDocuments(
+//        previousZaakafhandelUUID: UUID,
+//        newZaakafhandelParametersUUID: UUID
+//    ) = smartDocumentsTemplatesService.getTemplatesMapping(previousZaakafhandelUUID).let {
+//        smartDocumentsTemplatesService.storeTemplatesMapping(it, newZaakafhandelParametersUUID)
+//    }
 }
