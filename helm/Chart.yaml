@@ -12,7 +12,7 @@ dependencies:
   - name: opentelemetry-collector
     repository: https://open-telemetry.github.io/opentelemetry-helm-charts
     condition: opentelemetry-collector.enabled
-    version: 0.100.0
+    version: 0.101.2
   - name: solr
     version: 9.1.6
     repository: https://charts.bitnami.com/bitnami
