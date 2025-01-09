@@ -34,11 +34,10 @@ import java.util.UUID
 @AllOpen
 @NoArgConstructor
 @Suppress("TooManyFunctions")
-open class ZaakafhandelParameterBeheerService @Inject constructor(
+class ZaakafhandelParameterBeheerService @Inject constructor(
     private val entityManager: EntityManager,
     private val ztcClientService: ZtcClientService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
-//    private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService
 ) {
     /**
      * Retrieves the zaakafhandelparameters for a given zaaktype UUID.
@@ -262,11 +261,4 @@ open class ZaakafhandelParameterBeheerService @Inject constructor(
         ztcClientService.readResultaattype(previousResultaattypeUUID).let { resultaattype ->
             newResultaattypen.firstOrNull { it.omschrijving == resultaattype.omschrijving }?.url?.extractUuid()
         }
-
-//    private fun mapSmartDocuments(
-//        previousZaakafhandelUUID: UUID,
-//        newZaakafhandelParametersUUID: UUID
-//    ) = smartDocumentsTemplatesService.getTemplatesMapping(previousZaakafhandelUUID).let {
-//        smartDocumentsTemplatesService.storeTemplatesMapping(it, newZaakafhandelParametersUUID)
-//    }
 }
