@@ -119,12 +119,17 @@ export class FoutAfhandelingService {
 
   public httpErrorAfhandelen(err: HttpErrorResponse): Observable<never> {
     if (err.status === 400) {
-      return this.openFoutDialog(this.translate.instant(err.error.message));
+      return this.openFoutDialog(
+        this.translate.instant(
+          err.error.message || err.message || "dialoog.body.error.technisch",
+        ),
+      );
     }
+
     this.foutmelding = err.message;
     if (err.error instanceof ErrorEvent) {
       // client-side error
-      this.foutmelding = `Er is een fout opgetreden`;
+      this.foutmelding = this.translate.instant(`dialoog.body.error.fout`);
       this.bericht = err.error.message;
       this.router.navigate(["/fout-pagina"]);
     } else if (err.status === 0 && err.url.startsWith("/rest/")) {
@@ -133,23 +138,19 @@ export class FoutAfhandelingService {
         window.location.reload();
         return;
       }
-      this.foutmelding = "Helaas! Je bent uitgelogd.";
+      this.foutmelding = this.translate.instant("dialoog.body.error.loggedout");
       this.bericht = "";
       this.router.navigate(["/fout-pagina"]);
     } else {
-      let errorDetail: string;
-      if (err.error) {
-        errorDetail = err.error.exception;
-      } else {
-        errorDetail = err.message;
-      }
+      const errorDetail: string = err.error.exception || err.message;
+
       // only show server error texts in case of a server error (500 family of errors)
       // or in case of a 403 Forbidden error
       const showServerErrorTexts = err.status >= 500 || err.status === 403;
 
       // show error in context and do not redirect to error page
       return this.openFoutDetailedDialog(
-        this.translate.instant(err.error.message),
+        err.error.message || err.message || "dialoog.body.error.technisch",
         errorDetail,
         showServerErrorTexts,
       );
