@@ -78,6 +78,8 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             ztcClientService.readInformatieobjecttype(restTaakDocumentData.documentType.uuid)
         } returns providedInformatieObjectType
 
+        every { configuratieService.readBronOrganisatie() } returns "123443210"
+
         When("convert is invoked") {
             val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convert(
                 restTaakDocumentData,
@@ -115,6 +117,8 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         every {
             ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
         } returns providedInformatieObjectType
+
+        every { configuratieService.readBronOrganisatie() } returns "123443210"
 
         When("convert taak object is invoked") {
             val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convertTaakObject(
@@ -159,6 +163,8 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         every {
             ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
         } returns providedInformatieObjectType
+
+        every { configuratieService.readBronOrganisatie() } returns "123443210"
 
         When("convert zaak object is invoked") {
             val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convertZaakObject(
