@@ -909,7 +909,7 @@
   "zoekVeld.TAAK_TOELICHTING": "Taak toelichting",
   "zoekVeld.DOCUMENT_TITEL": "Documenttitel",
   "zoekVeld.DOCUMENT_BESCHRIJVING": "Document beschrijving",
-  " 10 ": ">>--> Dialoog errors <--<<",
+  " 10 ": ">>--> Dialogen <--<<",
   "dialoog.titel.fout": "Er is een fout opgetreden",
   "dialoog.body.error.fout": "Er is een fout opgetreden.",
   "dialoog.body.error.loggedout": "Helaas! Je bent uitgelogd.",

@@ -909,7 +909,7 @@
   "zoekVeld.TAAK_TOELICHTING": "Taks explanation",
   "zoekVeld.DOCUMENT_TITEL": "Document title",
   "zoekVeld.DOCUMENT_BESCHRIJVING": "Document description",
-  " 10 ": ">>--> Dialoog errors <--<<",
+  " 10 ": ">>--> Dialogen <--<<",
   "dialoog.titel.fout": "An error has occurred",
   "dialoog.body.error.fout": "An error has occurred.",
   "dialoog.body.error.loggedout": "Unfortunately! You have been logged out.",
