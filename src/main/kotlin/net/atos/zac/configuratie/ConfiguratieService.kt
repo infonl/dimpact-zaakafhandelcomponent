@@ -101,8 +101,8 @@ class ConfiguratieService @Inject constructor(
     }
 
     init {
-        bronOrganisatie.validateRSIN("bron organisatie RSIN")
-        verantwoordelijkeOrganisatie.validateRSIN("verantwoordelijke organisatie RSIN")
+        bronOrganisatie.validateRSIN("BRON_ORGANISATIE_RSIN")
+        verantwoordelijkeOrganisatie.validateRSIN("VERANTWOORDELIJKE_ORGANISATIE_RSIN")
     }
 
     private var catalogusURI: URI =
