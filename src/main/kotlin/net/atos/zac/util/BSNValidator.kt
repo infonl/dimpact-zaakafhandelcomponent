@@ -7,14 +7,16 @@ package net.atos.zac.util
 private const val BSN_LENGTH = 9
 private const val BSN_11_PROEF = 11 // https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
 
-fun String.validateBSN() {
-    require(this.length == BSN_LENGTH) { "BSN '$this' length must be $BSN_LENGTH" }
-    require(isElfProef(bsnSum(this))) { "Invalid BSN '$this'" }
+fun String.validateBSN(numberDescription: String) {
+    require(this.length == BSN_LENGTH) { "$numberDescription '$this' length must be $BSN_LENGTH" }
+    require(isElfProef(bsnSum(numberDescription, this))) { "Invalid $numberDescription '$this'" }
 }
 
-private fun bsnSum(bsn: String) =
+fun String.validateRSIN(numberDescription: String) = validateBSN(numberDescription)
+
+private fun bsnSum(numberDescription: String, bsn: String) =
     bsn.mapIndexed { index, bsnChar ->
-        require(bsnChar.isDigit()) { "Character on index $index in BSN '$bsn' is not a digit" }
+        require(bsnChar.isDigit()) { "Character on index $index in $numberDescription '$bsn' is not a digit" }
         if (index == BSN_LENGTH - 1) {
             -bsnChar.digitToInt()
         } else {

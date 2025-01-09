@@ -511,6 +511,6 @@ nginx:
 
 organizations:
   verantwoordelijke:
-    bsn: ""
+    rsin: ""
   bron:
-    bsn: ""
+    rsin: ""

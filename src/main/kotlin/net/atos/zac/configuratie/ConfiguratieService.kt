@@ -12,7 +12,7 @@ import jakarta.ws.rs.core.UriBuilder
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.CatalogusListParameters
 import net.atos.zac.configuratie.model.Taal
-import net.atos.zac.util.validateBSN
+import net.atos.zac.util.validateRSIN
 import nl.lifely.zac.util.AllOpen
 import nl.lifely.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -53,10 +53,10 @@ class ConfiguratieService @Inject constructor(
     @ConfigProperty(name = "FEATURE_FLAG_BPMN_SUPPORT")
     private val bpmnSupport: Boolean,
 
-    @ConfigProperty(name = "BRON_ORGANISATIE_BSN")
+    @ConfigProperty(name = "BRON_ORGANISATIE_RSIN")
     private val bronOrganisatie: String,
 
-    @ConfigProperty(name = "VERANTWOORDELIJKE_ORGANISATIE_BSN")
+    @ConfigProperty(name = "VERANTWOORDELIJKE_ORGANISATIE_RSIN")
     private val verantwoordelijkeOrganisatie: String,
 
     @ConfigProperty(name = "CATALOGUS_DOMEIN", defaultValue = "ALG")
@@ -101,8 +101,8 @@ class ConfiguratieService @Inject constructor(
     }
 
     init {
-        bronOrganisatie.validateBSN()
-        verantwoordelijkeOrganisatie.validateBSN()
+        bronOrganisatie.validateRSIN("bron organisatie RSIN")
+        verantwoordelijkeOrganisatie.validateRSIN("verantwoordelijke organisatie RSIN")
     }
 
     private var catalogusURI: URI =

@@ -21,7 +21,17 @@ class BSNValidatorTest : BehaviorSpec({
         val validBSN = "316245124"
 
         When("it is validated") {
-            validBSN.validateBSN()
+            validBSN.validateBSN("valid BSN")
+
+            Then("no exception is thrown") {}
+        }
+    }
+
+    Given("a valid BSN starting with 0") {
+        val validBSN = "010000008"
+
+        When("it is validated") {
+            validBSN.validateBSN("valid 0-first BSN")
 
             Then("no exception is thrown") {}
         }
@@ -32,11 +42,11 @@ class BSNValidatorTest : BehaviorSpec({
 
         When("it is validated") {
             val exception = shouldThrow<IllegalArgumentException> {
-                invalidBSN.validateBSN()
+                invalidBSN.validateBSN("bad number BSN")
             }
 
             Then("exception is thrown") {
-                exception.message shouldBe "Invalid BSN '$invalidBSN'"
+                exception.message shouldBe "Invalid bad number BSN '$invalidBSN'"
             }
         }
     }
@@ -46,11 +56,11 @@ class BSNValidatorTest : BehaviorSpec({
 
         When("it is validated") {
             val exception = shouldThrow<IllegalArgumentException> {
-                invalidBSN.validateBSN()
+                invalidBSN.validateBSN("Short BSN")
             }
 
             Then("exception is thrown") {
-                exception.message shouldBe "BSN '$invalidBSN' length must be 9"
+                exception.message shouldBe "Short BSN '$invalidBSN' length must be 9"
             }
         }
     }
@@ -60,11 +70,11 @@ class BSNValidatorTest : BehaviorSpec({
 
         When("it is validated") {
             val exception = shouldThrow<IllegalArgumentException> {
-                invalidBSN.validateBSN()
+                invalidBSN.validateBSN("Too long BSN")
             }
 
             Then("exception is thrown") {
-                exception.message shouldBe "BSN '$invalidBSN' length must be 9"
+                exception.message shouldBe "Too long BSN '$invalidBSN' length must be 9"
             }
         }
     }
@@ -74,11 +84,11 @@ class BSNValidatorTest : BehaviorSpec({
 
         When("it is validated") {
             val exception = shouldThrow<IllegalArgumentException> {
-                invalidBSN.validateBSN()
+                invalidBSN.validateBSN("invalid BSN")
             }
 
             Then("exception is thrown") {
-                exception.message shouldBe "Character on index 3 in BSN '$invalidBSN' is not a digit"
+                exception.message shouldBe "Character on index 3 in invalid BSN '$invalidBSN' is not a digit"
             }
         }
     }
