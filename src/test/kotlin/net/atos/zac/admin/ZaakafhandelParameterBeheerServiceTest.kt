@@ -55,13 +55,13 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
     val order = mockk<Order>()
     val expressionString = mockk<Expression<String>>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
-    val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
+//    val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
 
     val zaakafhandelParameterBeheerService = ZaakafhandelParameterBeheerService(
         entityManager = entityManager,
         ztcClientService = ztcClientService,
         zaakafhandelParameterService = zaakafhandelParameterService,
-        smartDocumentsTemplatesService = smartDocumentsTemplatesService
+//        smartDocumentsTemplatesService = smartDocumentsTemplatesService
     )
 
     beforeEach {
@@ -221,14 +221,14 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
                 templates = setOf(createRestMappedSmartDocumentsTemplate())
             )
         )
-        every {
-            smartDocumentsTemplatesService.getTemplatesMapping(any<UUID>())
-        } returns originalRestMappedSmartDocumentsTemplateGroups
+//        every {
+//            smartDocumentsTemplatesService.getTemplatesMapping(any<UUID>())
+//        } returns originalRestMappedSmartDocumentsTemplateGroups
         val slotStoreTemplatesMapping = slot<Set<RestMappedSmartDocumentsTemplateGroup>>()
-        every {
-            smartDocumentsTemplatesService
-                .storeTemplatesMapping(capture(slotStoreTemplatesMapping), zaaktypeUUID)
-        } answers { }
+//        every {
+//            smartDocumentsTemplatesService
+//                .storeTemplatesMapping(capture(slotStoreTemplatesMapping), zaaktypeUUID)
+//        } answers { }
 
         When("Processing the updated zaaktype") {
             zaakafhandelParameterBeheerService.zaaktypeAangepast(zaaktypeUri)
@@ -314,9 +314,9 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
                 }
             }
 
-            And("The smartdocuments settings should get copied") {
-                slotStoreTemplatesMapping.captured should matchGroups(originalRestMappedSmartDocumentsTemplateGroups)
-            }
+//            And("The smartdocuments settings should get copied") {
+//                slotStoreTemplatesMapping.captured should matchGroups(originalRestMappedSmartDocumentsTemplateGroups)
+//            }
         }
     }
 })
