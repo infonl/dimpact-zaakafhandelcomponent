@@ -7,8 +7,8 @@ package net.atos.zac.app.admin.model
 import jakarta.validation.constraints.NotBlank
 import net.atos.zac.admin.model.ReferenceTable
 import net.atos.zac.admin.model.ReferenceTableValue
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
 @AllOpen
 @NoArgConstructor

@@ -29,8 +29,8 @@ import net.atos.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.client.zgw.ztc.model.generated.ResultaatType
 import net.atos.client.zgw.ztc.model.generated.StatusType
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
 import java.net.URI
 import java.time.LocalDate

@@ -27,7 +27,7 @@ import net.atos.zac.identity.IdentityService
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
 import net.atos.zac.signalering.model.SignaleringType
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 
 @Path("signaleringen")

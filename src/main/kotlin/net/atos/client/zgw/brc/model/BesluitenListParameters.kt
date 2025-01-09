@@ -6,8 +6,8 @@ package net.atos.client.zgw.brc.model
 
 import jakarta.ws.rs.QueryParam
 import net.atos.client.zgw.shared.model.AbstractListParameters
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.net.URI
 
 @NoArgConstructor

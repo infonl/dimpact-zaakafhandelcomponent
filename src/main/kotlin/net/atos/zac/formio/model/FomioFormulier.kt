@@ -15,7 +15,7 @@ import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import net.atos.zac.util.FlywayIntegrator
-import nl.lifely.zac.util.AllOpen
+import nl.info.zac.util.AllOpen
 
 @Entity
 @Table(schema = FlywayIntegrator.SCHEMA, name = "formio_formulier")

@@ -34,7 +34,7 @@ import net.atos.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import net.atos.zac.zaak.exception.CaseHasLockedInformationObjectsException
 import net.atos.zac.zaak.exception.CaseHasOpenSubcasesException
 import net.atos.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
-import nl.lifely.zac.util.AllOpen
+import nl.info.zac.util.AllOpen
 import java.util.Locale
 import java.util.UUID
 import java.util.logging.Logger

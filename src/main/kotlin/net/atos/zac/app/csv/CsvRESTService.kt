@@ -20,7 +20,7 @@ import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.util.MediaTypes
 import net.atos.zac.zoeken.ZoekenService
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 
 @Path("csv")
 @Consumes(MediaType.APPLICATION_JSON)

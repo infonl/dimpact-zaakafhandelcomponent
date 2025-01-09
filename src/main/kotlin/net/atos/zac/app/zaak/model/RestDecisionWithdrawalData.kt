@@ -6,8 +6,8 @@ package net.atos.zac.app.zaak.model
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 import java.util.UUID
 

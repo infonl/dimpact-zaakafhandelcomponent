@@ -30,8 +30,8 @@ import net.atos.zac.app.exception.ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNO
 import net.atos.zac.app.exception.InputValidationFailedException
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.policy.PolicyService
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
 @Singleton
 @Path("referentietabellen")

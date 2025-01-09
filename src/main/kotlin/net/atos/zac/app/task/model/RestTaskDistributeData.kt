@@ -5,8 +5,8 @@
 package net.atos.zac.app.task.model
 
 import jakarta.validation.constraints.NotBlank
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
 @AllOpen
 @NoArgConstructor

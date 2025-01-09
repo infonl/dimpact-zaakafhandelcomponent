@@ -18,7 +18,7 @@ import net.atos.zac.app.zaak.model.RestDecision
 import net.atos.zac.app.zaak.model.RestDecisionCreateData
 import net.atos.zac.app.zaak.model.toRestDecisionType
 import net.atos.zac.configuratie.ConfiguratieService
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 
 @NoArgConstructor

@@ -23,8 +23,8 @@ import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.admin.model.ZaakbeeindigReden
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.util.ValidationUtil
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.Date

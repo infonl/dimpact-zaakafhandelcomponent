@@ -24,8 +24,8 @@ import net.atos.zac.identity.model.getFullName
 import net.atos.zac.smartdocuments.SmartDocumentsService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.util.MediaTypes
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.net.URI
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter

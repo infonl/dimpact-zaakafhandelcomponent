@@ -48,8 +48,8 @@ import net.atos.zac.productaanvraag.util.IndicatieMachtigingEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.convertToZgwPoint
 import net.atos.zac.util.JsonbUtil
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID

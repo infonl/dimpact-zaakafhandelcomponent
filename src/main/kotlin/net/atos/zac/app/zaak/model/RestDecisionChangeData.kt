@@ -7,8 +7,8 @@ package net.atos.zac.app.zaak.model
 import jakarta.validation.constraints.NotNull
 import net.atos.client.zgw.brc.model.generated.Besluit
 import net.atos.client.zgw.brc.model.generated.VervalredenEnum
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 import java.util.UUID
 

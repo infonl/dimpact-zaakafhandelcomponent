@@ -8,8 +8,8 @@ package net.atos.zac.smartdocuments.rest
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplate
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 
 @NoArgConstructor

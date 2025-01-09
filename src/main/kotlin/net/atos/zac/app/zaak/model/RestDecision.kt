@@ -7,8 +7,8 @@ package net.atos.zac.app.zaak.model
 import jakarta.json.bind.annotation.JsonbProperty
 import net.atos.client.zgw.brc.model.generated.VervalredenEnum
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID

@@ -5,7 +5,7 @@
 package net.atos.client.smartdocuments.model.document
 
 import jakarta.json.bind.annotation.JsonbProperty
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 data class AttendedResponse(

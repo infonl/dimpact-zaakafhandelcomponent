@@ -7,8 +7,8 @@ package net.atos.zac.smartdocuments.rest
 
 import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseTemplateGroup
 import net.atos.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 @AllOpen

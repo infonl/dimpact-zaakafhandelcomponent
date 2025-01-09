@@ -43,7 +43,7 @@ import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
 import net.atos.zac.productaanvraag.model.generated.Geometry
-import nl.lifely.zac.test.util.createRandomStringWithAlphanumericCharacters
+import nl.info.zac.test.util.createRandomStringWithAlphanumericCharacters
 import java.net.URI
 import java.util.UUID
 
