@@ -101,8 +101,8 @@ class ConfiguratieService @Inject constructor(
     }
 
     init {
-        validateBSN(bronOrganisatie)
-        validateBSN(verantwoordelijkeOrganisatie)
+        bronOrganisatie.validateBSN()
+        verantwoordelijkeOrganisatie.validateBSN()
     }
 
     private var catalogusURI: URI =
