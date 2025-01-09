@@ -28,10 +28,10 @@ open class User(
 
 /**
  * Returns the full name of the user using the following logic:
- * - If the display name is present, use that
- * - If both first name and last name are present, return the full name
- * - If only the last name is present, return the last name
- * - If the last name is not present, return the user id
+ * - If the display name is present, return that
+ * - Else if both first name and last name are present, concatenate them with a space and return that
+ * - Else if only the last name is present, return the last name
+ * - Else if the user does not have a last name, return the user id
  *
  * Note that we do not support an infix (tussenvoegsel) in the name
  */
