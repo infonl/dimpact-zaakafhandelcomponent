@@ -20,7 +20,7 @@ import net.atos.zac.app.admin.model.RestFormioFormulier
 import net.atos.zac.app.admin.model.RestFormioFormulierContent
 import net.atos.zac.formio.FormioService
 import net.atos.zac.policy.PolicyService
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 
 @Singleton
 @Path("formio-formulieren")

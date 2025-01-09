@@ -6,7 +6,7 @@ package net.atos.client.zgw.shared.model.audit
 
 import net.atos.client.zgw.shared.model.Bron
 import net.atos.client.zgw.zrc.model.generated.Wijzigingen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID

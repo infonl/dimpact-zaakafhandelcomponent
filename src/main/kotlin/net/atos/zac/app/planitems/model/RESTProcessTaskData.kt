@@ -4,7 +4,7 @@
  */
 package net.atos.zac.app.planitems.model
 
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 data class RESTProcessTaskData(

@@ -8,8 +8,8 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import net.atos.zac.app.identity.model.RestGroup
 import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.policy.model.RestZaakRechten
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 import java.util.UUID
 

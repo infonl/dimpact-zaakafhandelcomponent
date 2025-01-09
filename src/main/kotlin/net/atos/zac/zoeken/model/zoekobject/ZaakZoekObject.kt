@@ -6,7 +6,7 @@ package net.atos.zac.zoeken.model.zoekobject
 
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.zac.zoeken.model.ZaakIndicatie
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 import org.apache.solr.client.solrj.beans.Field
 import java.util.Date
 import java.util.EnumSet

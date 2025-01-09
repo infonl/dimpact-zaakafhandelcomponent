@@ -21,7 +21,7 @@ import net.atos.client.smartdocuments.rest.DownloadedFile
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.documentcreation.model.createData
-import nl.lifely.zac.util.toBase64String
+import nl.info.zac.util.toBase64String
 import java.net.URI
 import java.util.Optional
 

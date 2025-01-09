@@ -5,7 +5,7 @@
 package net.atos.zac.app.documentcreation.model
 
 import jakarta.validation.constraints.NotNull
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 import java.util.UUID
 

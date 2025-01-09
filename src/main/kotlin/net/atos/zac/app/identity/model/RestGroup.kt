@@ -6,8 +6,8 @@ package net.atos.zac.app.identity.model
 
 import jakarta.validation.constraints.Size
 import net.atos.zac.identity.model.Group
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 @AllOpen

@@ -13,8 +13,8 @@ import net.atos.zac.app.admin.model.RestZaakafhandelParameters
 import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.app.zaak.model.RESTZaakStatusmailOptie
 import net.atos.zac.smartdocuments.SmartDocumentsService
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
 @AllOpen
 @NoArgConstructor

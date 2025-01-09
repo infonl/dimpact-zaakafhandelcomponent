@@ -9,8 +9,8 @@ import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.klant.model.klant.RestKlant
 import net.atos.zac.app.shared.RESTResultaat
 import net.atos.zac.util.StringUtil
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.util.Locale
 import java.util.Objects
 

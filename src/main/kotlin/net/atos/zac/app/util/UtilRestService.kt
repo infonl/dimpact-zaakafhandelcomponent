@@ -13,8 +13,8 @@ import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.shared.cache.Caching
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.admin.ZaakafhandelParameterService
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.text.StringEscapeUtils
 
 @Path("util")

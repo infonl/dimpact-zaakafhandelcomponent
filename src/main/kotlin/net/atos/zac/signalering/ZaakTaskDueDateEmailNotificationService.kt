@@ -29,8 +29,8 @@ import net.atos.zac.zoeken.model.FilterWaarde
 import net.atos.zac.zoeken.model.ZoekParameters
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import org.flowable.task.api.Task
 import java.time.LocalDate
 import java.util.UUID

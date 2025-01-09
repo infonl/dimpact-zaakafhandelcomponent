@@ -5,7 +5,7 @@
 package net.atos.zac.app.planitems.model
 
 import net.atos.zac.app.mail.model.RESTMailGegevens
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
 
 @NoArgConstructor

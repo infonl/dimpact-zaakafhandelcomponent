@@ -12,8 +12,8 @@ import jakarta.ws.rs.core.UriBuilder
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.CatalogusListParameters
 import net.atos.zac.configuratie.model.Taal
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.net.URI
 import java.util.UUID

@@ -5,8 +5,8 @@
 package net.atos.zac.app.klant.model.bedrijven
 
 import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.util.Locale
 
 private const val VESTIGINGTYPE_HOOFDVESTIGING = "HOOFDVESTIGING"

@@ -15,8 +15,8 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.zoeken.IndexingService
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
 @Singleton
 @Path("indexeren")
