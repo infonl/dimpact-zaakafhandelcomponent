@@ -201,7 +201,10 @@ public class NotificatieReceiver {
     private void handleZaaktype(final Notificatie notificatie) {
         try {
             if (notificatie.getResource() == ZAAKTYPE) {
-                if (notificatie.getAction() == CREATE || notificatie.getAction() == UPDATE) {
+                if (notificatie.getAction() == CREATE) {
+                    zaakafhandelParameterBeheerService.zaaktypeAangemaakt(notificatie.getResourceUrl());
+                }
+                if (notificatie.getAction() == UPDATE) {
                     zaakafhandelParameterBeheerService.zaaktypeAangepast(notificatie.getResourceUrl());
                 }
             }

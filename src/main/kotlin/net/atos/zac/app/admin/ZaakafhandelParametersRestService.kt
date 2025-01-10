@@ -150,7 +150,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
                     zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
                     zaakafhandelParameterService.clearListCache()
                 }
-            } ?: zaakafhandelParameterBeheerService.createZaakafhandelParameters(zaakafhandelParameters)
+            } ?: zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
             zaakafhandelParametersConverter.toRestZaakafhandelParameters(
                 updatedZaakafhandelParameters,
                 true
