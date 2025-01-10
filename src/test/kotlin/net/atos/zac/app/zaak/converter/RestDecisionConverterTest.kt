@@ -23,6 +23,7 @@ import net.atos.client.zgw.ztc.model.createBesluitType
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
 import net.atos.zac.app.zaak.model.createRestDecisionCreateData
+import net.atos.zac.configuratie.ConfiguratieService
 import java.time.LocalDate
 
 class RestDecisionConverterTest : BehaviorSpec({
@@ -30,11 +31,13 @@ class RestDecisionConverterTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
     val restInformatieobjectConverter = mockk<RestInformatieobjectConverter>()
     val ztcClientService = mockk<ZtcClientService>()
+    val configuratieService = mockk<ConfiguratieService>()
     val restDecisionConverter = RestDecisionConverter(
         brcClientService,
         drcClientService,
         restInformatieobjectConverter,
-        ztcClientService
+        ztcClientService,
+        configuratieService
     )
 
     Given("Besluit toevoegen data with a vervaldatum") {
@@ -48,6 +51,8 @@ class RestDecisionConverterTest : BehaviorSpec({
         val besluittype = createBesluitType()
 
         every { ztcClientService.readBesluittype(decisionCreateData.besluittypeUuid) } returns besluittype
+        every { configuratieService.readBronOrganisatie() } returns "123443210"
+        every { configuratieService.readVerantwoordelijkeOrganisatie() } returns "316245124"
 
         When("this data is converted to a besluit") {
             val dateNow = LocalDate.now()

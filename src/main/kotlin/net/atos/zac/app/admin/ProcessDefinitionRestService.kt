@@ -20,7 +20,7 @@ import net.atos.zac.app.admin.model.RestProcessDefinition
 import net.atos.zac.app.admin.model.RestProcessDefinitionContent
 import net.atos.zac.flowable.bpmn.BPMNService
 import net.atos.zac.policy.PolicyService
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 
 @Singleton
 @Path("process-definitions")

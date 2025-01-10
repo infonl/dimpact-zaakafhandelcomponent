@@ -34,8 +34,8 @@ import net.atos.client.zgw.ztc.model.generated.StatusType
 import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.client.zgw.ztc.model.generated.ZaakTypeInformatieObjectType
 import net.atos.zac.configuratie.ConfiguratieService
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.net.URI
 import java.time.ZonedDateTime

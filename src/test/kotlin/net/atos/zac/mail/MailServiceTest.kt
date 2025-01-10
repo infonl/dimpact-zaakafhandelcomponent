@@ -117,6 +117,8 @@ class MailServiceTest : BehaviorSpec({
         val transportSendRequest = slot<Message>()
         every { Transport.send(capture(transportSendRequest)) } just runs
 
+        every { configuratieService.readBronOrganisatie() } returns "123443210"
+
         When("the send mail function is invoked") {
             mailService.sendMail(mailGegevens, bronnen)
 

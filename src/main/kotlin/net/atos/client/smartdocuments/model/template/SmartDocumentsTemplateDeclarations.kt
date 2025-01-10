@@ -4,7 +4,7 @@
  */
 package net.atos.client.smartdocuments.model.template
 
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 data class SmartDocumentsTemplatesResponse(

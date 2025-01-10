@@ -5,8 +5,8 @@
 package net.atos.zac.app.zaak.model
 
 import net.atos.zac.app.policy.model.RestZaakRechten
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 
 @AllOpen

@@ -11,8 +11,8 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import net.atos.zac.admin.exception.ReferenceTableNotFoundException
 import net.atos.zac.admin.model.ReferenceTable
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
 @ApplicationScoped
 @NoArgConstructor

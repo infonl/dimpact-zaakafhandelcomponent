@@ -40,9 +40,9 @@ import net.atos.zac.mail.model.MailAdres
 import net.atos.zac.mailtemplates.MailTemplateHelper
 import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.util.MediaTypes
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
-import nl.lifely.zac.util.toBase64String
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.toBase64String
 import org.apache.commons.lang3.StringUtils
 import org.htmlcleaner.HtmlCleaner
 import org.htmlcleaner.PrettyXmlSerializer
@@ -135,7 +135,7 @@ class MailService @Inject constructor(
         val eMailObjectType = getEmailInformatieObjectType(zaak)
         val pdfDocument = createPdfDocument(verzender, ontvanger, subject, body, attachments)
         val enkelvoudigInformatieobjectWithInhoud = EnkelvoudigInformatieObjectCreateLockRequest().apply {
-            bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
+            bronorganisatie = configuratieService.readBronOrganisatie()
             creatiedatum = LocalDate.now()
             titel = subject
             auteur = loggedInUserInstance.get().getFullName()

@@ -5,7 +5,7 @@
 package net.atos.zac.app.planitems.model
 
 import net.atos.zac.admin.model.FormulierDefinitie
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 import java.util.UUID
 

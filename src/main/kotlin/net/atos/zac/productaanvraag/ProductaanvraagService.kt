@@ -48,8 +48,8 @@ import net.atos.zac.productaanvraag.util.IndicatieMachtigingEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.convertToZgwPoint
 import net.atos.zac.util.JsonbUtil
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
@@ -454,8 +454,8 @@ class ProductaanvraagService @Inject constructor(
     ) {
         val createdZaak = Zaak().apply {
             this.zaaktype = zaaktype.url
-            bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
-            verantwoordelijkeOrganisatie = ConfiguratieService.BRON_ORGANISATIE
+            bronorganisatie = configuratieService.readBronOrganisatie()
+            verantwoordelijkeOrganisatie = configuratieService.readBronOrganisatie()
             startdatum = LocalDate.now()
         }.let(zgwApiService::createZaak)
         bpmnService.readProcessDefinitionByprocessDefinitionKey(zaaktype.referentieproces.naam).let {
@@ -479,9 +479,9 @@ class ProductaanvraagService @Inject constructor(
         val createdZaak = Zaak().apply {
             this.zaaktype = zaaktype.url
             startdatum = productaanvraagObject.record.startAt
-            bronorganisatie = ConfiguratieService.BRON_ORGANISATIE
+            bronorganisatie = configuratieService.readBronOrganisatie()
             communicatiekanaalNaam = ConfiguratieService.COMMUNICATIEKANAAL_EFORMULIER
-            verantwoordelijkeOrganisatie = ConfiguratieService.BRON_ORGANISATIE
+            verantwoordelijkeOrganisatie = configuratieService.readBronOrganisatie()
             productaanvraag.zaakgegevens?.let { zaakgegevens ->
                 // we currently only support 'POINT' geometries
                 zaakgegevens.geometry?.takeIf { it.type == Geometry.Type.POINT }?.let {

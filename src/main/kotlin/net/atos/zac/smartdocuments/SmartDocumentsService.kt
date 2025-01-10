@@ -18,9 +18,9 @@ import net.atos.client.smartdocuments.model.template.SmartDocumentsTemplatesResp
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.documentcreation.model.DocumentCreationAttendedResponse
 import net.atos.zac.util.MediaTypes
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
-import nl.lifely.zac.util.toBase64String
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.toBase64String
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.util.Optional

@@ -6,8 +6,8 @@ package net.atos.zac.app.zaak.model
 
 import net.atos.client.zgw.zrc.model.Status
 import net.atos.client.zgw.ztc.model.generated.StatusType
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
 @AllOpen
 @NoArgConstructor

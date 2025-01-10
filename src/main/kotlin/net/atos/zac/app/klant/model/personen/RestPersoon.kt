@@ -36,8 +36,8 @@ import net.atos.zac.app.klant.model.klant.RestKlant
 import net.atos.zac.app.shared.RESTResultaat
 import net.atos.zac.util.StringUtil
 import net.atos.zac.util.StringUtil.ONBEKEND
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
 import java.util.EnumSet
 import java.util.Locale

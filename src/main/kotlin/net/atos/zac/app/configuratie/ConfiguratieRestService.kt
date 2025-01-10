@@ -16,8 +16,8 @@ import net.atos.zac.app.configuratie.model.toRestTaal
 import net.atos.zac.app.configuratie.model.toRestTalen
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.util.JsonbUtil
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
 /**
  * Provides specific configuration items to a ZAC client.

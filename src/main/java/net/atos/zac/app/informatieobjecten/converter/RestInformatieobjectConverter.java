@@ -10,7 +10,7 @@ import static net.atos.zac.app.configuratie.model.RestTaalKt.toRestTaal;
 import static net.atos.zac.app.identity.model.RestUserKt.toRestUser;
 import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
 import static net.atos.zac.identity.model.UserKt.getFullName;
-import static nl.lifely.zac.util.Base64ConvertersKt.toBase64String;
+import static nl.info.zac.util.Base64ConvertersKt.toBase64String;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -154,7 +154,7 @@ public class RestInformatieobjectConverter {
         restEnkelvoudigInformatieobject.titel = enkelvoudigInformatieObject.getTitel();
         if (enkelvoudigInformatieObject.getBronorganisatie() != null) {
             restEnkelvoudigInformatieobject.bronorganisatie = enkelvoudigInformatieObject.getBronorganisatie()
-                    .equals(ConfiguratieService.BRON_ORGANISATIE) ? null : enkelvoudigInformatieObject.getBronorganisatie();
+                    .equals(configuratieService.readBronOrganisatie()) ? null : enkelvoudigInformatieObject.getBronorganisatie();
         }
         restEnkelvoudigInformatieobject.creatiedatum = enkelvoudigInformatieObject.getCreatiedatum();
         if (enkelvoudigInformatieObject.getVertrouwelijkheidaanduiding() != null) {
@@ -210,7 +210,7 @@ public class RestInformatieobjectConverter {
             RestEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
     ) {
         final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieObjectCreateLockRequest();
-        enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(ConfiguratieService.BRON_ORGANISATIE);
+        enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(configuratieService.readBronOrganisatie());
         enkelvoudigInformatieobjectWithInhoud.setCreatiedatum(restEnkelvoudigInformatieobject.creatiedatum);
         enkelvoudigInformatieobjectWithInhoud.setTitel(restEnkelvoudigInformatieobject.titel);
         enkelvoudigInformatieobjectWithInhoud.setAuteur(restEnkelvoudigInformatieobject.auteur);
@@ -251,7 +251,7 @@ public class RestInformatieobjectConverter {
             RestEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
     ) {
         final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieObjectData = new EnkelvoudigInformatieObjectCreateLockRequest();
-        enkelvoudigInformatieObjectData.setBronorganisatie(ConfiguratieService.BRON_ORGANISATIE);
+        enkelvoudigInformatieObjectData.setBronorganisatie(configuratieService.readBronOrganisatie());
         enkelvoudigInformatieObjectData.setCreatiedatum(LocalDate.now());
         enkelvoudigInformatieObjectData.setTitel(restEnkelvoudigInformatieobject.titel);
         enkelvoudigInformatieObjectData.setAuteur(getFullName(loggedInUserInstance.get()));
@@ -274,7 +274,7 @@ public class RestInformatieobjectConverter {
             final RESTFileUpload bestand
     ) {
         final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieObjectCreateLockRequest();
-        enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(ConfiguratieService.BRON_ORGANISATIE);
+        enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(configuratieService.readBronOrganisatie());
         enkelvoudigInformatieobjectWithInhoud.setCreatiedatum(LocalDate.now());
         enkelvoudigInformatieobjectWithInhoud.setTitel(documentData.getDocumentTitel());
         enkelvoudigInformatieobjectWithInhoud.setAuteur(getFullName(loggedInUserInstance.get()));
