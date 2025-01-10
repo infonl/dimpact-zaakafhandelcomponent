@@ -260,7 +260,12 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
             every { resultList } returns listOf(originalZaakafhandelParameters)
         }
         every { smartDocumentsTemplatesService.getTemplatesMapping(any<UUID>()) } returns emptySet()
-        every { smartDocumentsTemplatesService.storeTemplatesMapping(any<Set<RestMappedSmartDocumentsTemplateGroup>>(), any<UUID>()) } just runs
+        every {
+            smartDocumentsTemplatesService.storeTemplatesMapping(
+                any<Set<RestMappedSmartDocumentsTemplateGroup>>(),
+                any<UUID>()
+            )
+        } just runs
 
         val slotPersistZaakafhandelParameters = slot<ZaakafhandelParameters>()
         every { entityManager.persist(capture(slotPersistZaakafhandelParameters)) } answers { }
