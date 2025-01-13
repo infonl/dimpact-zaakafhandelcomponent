@@ -11,7 +11,7 @@ on:
 jobs:
   playwright:
     name: "Playwright Tests"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment: azure-dimpact-dta
     steps:
       - name: Get current date
