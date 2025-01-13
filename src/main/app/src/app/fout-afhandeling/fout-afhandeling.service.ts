@@ -129,7 +129,7 @@ export class FoutAfhandelingService {
     this.foutmelding = err.message;
     if (err.error instanceof ErrorEvent) {
       // client-side error
-      this.foutmelding = this.translate.instant(`dialoog.body.error.fout`);
+      this.foutmelding = this.translate.instant("dialoog.body.error.fout");
       this.bericht = err.error.message;
       this.router.navigate(["/fout-pagina"]);
     } else if (err.status === 0 && err.url.startsWith("/rest/")) {
