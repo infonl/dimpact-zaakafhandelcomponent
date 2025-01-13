@@ -50,8 +50,8 @@ mail:
 
 # zgwApis Configuration of ZGW API's provider (Open Zaak)
 zgwApis:
-  url: "" # http://open-zaak.internal
-  urlExtern: "" # https://open-zaak.example.com
+  url: ""  # http://open-zaak.internal
+  urlExtern: ""  # https://open-zaak.example.com
   clientId: ""
   secret: ""
 
@@ -99,7 +99,7 @@ openForms:
 # smartDocuments Configuration of the SmartDocuments connection
 smartDocuments:
   enabled: false
-  url: "" # https://partners.smartdocuments.com
+  url: ""  # https://partners.smartdocuments.com
   authentication: ""
   fixedUserName: ""
 
