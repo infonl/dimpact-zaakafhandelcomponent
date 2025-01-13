@@ -509,8 +509,11 @@ nginx:
 
 organizations:
   verantwoordelijke:
-    # -- Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
+    # -- The RSIN of the Non-natural person - the organization that created the business. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
     rsin: ""
   bron:
-    # -- Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die eindverantwoordelijk is voor de behandeling van de zaak. Dit moet een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
+    # -- The RSIN of the Non-natural person - the organization that is ultimately responsible for handling the zaak. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
     rsin: ""
+
+# -- OpenZaak catalogus domein
+catalogusDomein: ALG

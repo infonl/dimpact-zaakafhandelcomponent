@@ -12,6 +12,9 @@ data:
   BAG_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.bagApi.url entry required!" .Values.bagApi.url }}
   BRON_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.bron.rsin entry required!" .Values.organizations.bron.rsin | quote }}
   BRP_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.brpApi.url entry required!" .Values.brpApi.url }}
+  {{- if .Values.catalogusDomein }}
+  CATALOGUS_DOMEIN: {{ .Values.catalogusDomein }}
+  {{- end }}
   CONTEXT_URL: {{ required "Valid .Values.contextUrl entry required!" .Values.contextUrl }}
   DB_HOST: {{ required "Valid .Values.db.host entry required!" .Values.db.host }}
   DB_NAME: {{ required "Valid .Values.db.name entry required!" .Values.db.name }}
