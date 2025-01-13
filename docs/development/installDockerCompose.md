@@ -89,7 +89,7 @@ To log in to the Keycloak Admin Console:
 
 ZAC uses the imported `zaakafhandelcomponent` Keycloak realm.
 
-After making changes in Keycloak you can make a new realm export thereby overriding the existing `realm.json` file to
+After making changes in Keycloak you can make a new realm export thereby overriding the existing `zaakafhandelcomponent-realm.json` file to
 be automatically imported.
 When you do so beware of the following:
 
