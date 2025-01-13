@@ -293,39 +293,11 @@
                       editFormFieldIcons.get('uiterlijkeEinddatumAfdoening')
                     "
                     [reasonField]="editFormFields.get('reden')"
-                    (onSave)="editDatumGroep($event)"
                     [opgeschort]="zaak.isOpgeschort"
-                    [opschortReden]="zaak.redenOpschorting"
                     [opschortDuur]="zaakOpschorting?.duurDagen"
-                    [opschortDatumTijd]="zaakOpschorting?.vanafDatumTijd"
-                    [verlengReden]="zaak.redenVerlenging"
                     [verlengDuur]="zaak.duurVerlenging"
-                    [verlengingstermijn]="zaak.zaaktype.verlengingstermijn"
                     [readonly]="!zaak.rechten.wijzigen || zaak.isProcesGestuurd"
-                    [actieOpschorten]="
-                      zaak.zaaktype.opschortingMogelijk &&
-                      zaak.isOpen &&
-                      !zaak.isHeropend &&
-                      !zaak.isOpgeschort &&
-                      zaak.rechten.behandelen &&
-                      !this.zaak.isProcesGestuurd
-                    "
-                    [actieHervatten]="
-                      zaak.isOpgeschort &&
-                      zaak.rechten.behandelen &&
-                      !this.zaak.isProcesGestuurd
-                    "
-                    [actieVerlengen]="
-                      zaak.zaaktype.verlengingMogelijk &&
-                      !zaak.duurVerlenging &&
-                      zaak.isOpen &&
-                      !zaak.isHeropend &&
-                      !zaak.isOpgeschort &&
-                      zaak.rechten.wijzigenDoorlooptijd &&
-                      !this.zaak.isProcesGestuurd
-                    "
-                    (doOpschorting)="editOpschorting($event)"
-                    (doVerlenging)="editVerlenging($event)"
+                    (onSave)="editDatumGroep($event)"
                   ></zac-edit-datum-groep>
                   <mat-divider></mat-divider>
                 </div>

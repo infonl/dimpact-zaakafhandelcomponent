@@ -73,8 +73,6 @@ import { IntakeAfrondenDialogComponent } from "../intake-afronden-dialog/intake-
 import { GeometryGegevens } from "../model/geometry-gegevens";
 import { Zaak } from "../model/zaak";
 import { ZaakBetrokkene } from "../model/zaak-betrokkene";
-import { ZaakOpschortGegevens } from "../model/zaak-opschort-gegevens";
-import { ZaakVerlengGegevens } from "../model/zaak-verleng-gegevens";
 import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
 import { ZaakKoppelenService } from "../zaak-koppelen/zaak-koppelen.service";
 import { ZaakOntkoppelenDialogComponent } from "../zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
@@ -1109,38 +1107,6 @@ export class ZaakViewComponent
     this.websocketService.suspendListener(this.zaakListener);
     this.zakenService
       .updateZaak(this.zaak.uuid, zaak, event.reden)
-      .subscribe((updatedZaak) => {
-        this.init(updatedZaak);
-      });
-  }
-
-  editOpschorting(event: any): void {
-    const zaakOpschortGegevens = new ZaakOpschortGegevens();
-    zaakOpschortGegevens.indicatieOpschorting = !this.zaak.isOpgeschort;
-    zaakOpschortGegevens.einddatumGepland = event.einddatumGepland;
-    zaakOpschortGegevens.uiterlijkeEinddatumAfdoening =
-      event.uiterlijkeEinddatumAfdoening;
-    zaakOpschortGegevens.redenOpschorting = event.reden;
-    zaakOpschortGegevens.duurDagen = event.duurDagen;
-    this.websocketService.suspendListener(this.zaakListener);
-    this.zakenService
-      .opschortenZaak(this.zaak.uuid, zaakOpschortGegevens)
-      .subscribe((updatedZaak) => {
-        this.init(updatedZaak);
-      });
-  }
-
-  editVerlenging(event: any): void {
-    const zaakVerlengGegevens = new ZaakVerlengGegevens();
-    zaakVerlengGegevens.einddatumGepland = event.einddatumGepland;
-    zaakVerlengGegevens.uiterlijkeEinddatumAfdoening =
-      event.uiterlijkeEinddatumAfdoening;
-    zaakVerlengGegevens.redenVerlenging = event.reden;
-    zaakVerlengGegevens.duurDagen = event.duurDagen;
-    zaakVerlengGegevens.takenVerlengen = event.takenVerlengen;
-    this.websocketService.suspendListener(this.zaakListener);
-    this.zakenService
-      .verlengenZaak(this.zaak.uuid, zaakVerlengGegevens)
       .subscribe((updatedZaak) => {
         this.init(updatedZaak);
       });
