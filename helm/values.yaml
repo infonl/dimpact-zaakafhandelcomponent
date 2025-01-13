@@ -43,8 +43,8 @@ gemeente:
 mail:
   # SMTP server and port are required, spf record needs to be properly setup in DNS
   smtp:
-    server: "" # -- SMTP server host (for example localhost or in-v3.mailjet.com)
-    port: "587" # -- port 587 for TLS, port 25 for relaying
+    server: ""  # -- SMTP server host (for example localhost or in-v3.mailjet.com)
+    port: "587"  # -- port 587 for TLS, port 25 for relaying
     username: ""
     password: ""
 
@@ -60,7 +60,7 @@ notificationsSecretKey: ""
 
 # klantenApi Configuration of Klanten API provider (Open Klant)
 klantinteractiesApi:
-  url: "" # http://open-klant.internal/klantinteracties
+  url: ""  # http://open-klant.internal/klantinteracties
   token: ""
 
 # featureFlags defines supported feature flags and their default values
@@ -69,32 +69,32 @@ featureFlags:
 
 # objectenApi Configuration of the Objecten API provider (Overige Registraties)
 objectenApi:
-  url: "" # http://objecten.internal
+  url: ""  # http://objecten.internal
   token: ""
 
 # objecttypenApi Configuration of the Objecttypen API provider (Overige Registraties)
 objecttypenApi:
-  url: "" # http://objecttypen.internal
+  url: ""  # http://objecttypen.internal
   token: ""
 
 # brpApi Configuration of the BRP Api provider (Haal Centraal)
 brpApi:
-  url: "" # https://www.haalcentraal.nl/haalcentraal
+  url: ""  # https://www.haalcentraal.nl/haalcentraal
   apiKey: ""
 
 # kvkApi Configuration of the KVK API provider (KVK)
 kvkApi:
-  url: "" # https://developers.kvk.nl/test
+  url: ""  # https://developers.kvk.nl/test
   apiKey: ""
 
 # bagApi Configuration of the BAG API provider (Kadaster)
 bagApi:
-  url: "" # https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2
+  url: ""  # https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2
   apiKey: ""
 
 # openForms Configuration of the Open Forms URL
 openForms:
-  url: "" # https://open-forms.example.com
+  url: ""  # https://open-forms.example.com
 
 # smartDocuments Configuration of the SmartDocuments connection
 smartDocuments:
@@ -141,7 +141,7 @@ maxFileSizeMB: 80
 # additionalAllowedFileTypes: aaa,bbb,ccc
 
 # -- Enable Java remote debugging
-remoteDebug: False
+remoteDebug: false
 
 # -- jvm options to set in the _JAVA_OPTIONS env var, recommended defaults are used if not provided and are shown below
 #javaOptions: -Xmx1024m -Xms1024m -Xlog:gc::time,uptime
