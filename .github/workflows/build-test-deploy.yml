@@ -15,11 +15,6 @@ on:
       # ignore pushes to the publiccode.yaml file or else we would trigger an endless build loop
       - 'publiccode.yaml'
 
-# cancel any previous runs of this workflow for this branch that are still in progress
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 env:
   JAVA_VERSION: '21'
   CONTAINER_REGISTRY_URL: 'ghcr.io/infonl'
