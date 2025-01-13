@@ -1023,16 +1023,16 @@ export class ZaakViewComponent
       ],
       (results: any[]) => {
         const zaakOpschortGegevens: GeneratedType<"RESTZaakOpschortGegevens"> =
-          {};
-        zaakOpschortGegevens.indicatieOpschorting = false;
-        zaakOpschortGegevens.duurDagen = werkelijkeOpschortDuur;
-        zaakOpschortGegevens.uiterlijkeEinddatumAfdoening = moment(
-          this.zaak.uiterlijkeEinddatumAfdoening,
-        )
-          .add(duurVerkortingOpschorting, "days")
-          .format("YYYY-MM-DD");
-        zaakOpschortGegevens.redenOpschorting =
-          results["redenOpschortingField"];
+          {
+            indicatieOpschorting: false,
+            duurDagen: werkelijkeOpschortDuur,
+            uiterlijkeEinddatumAfdoening: moment(
+              this.zaak.uiterlijkeEinddatumAfdoening,
+            )
+              .add(duurVerkortingOpschorting, "days")
+              .format("YYYY-MM-DD"),
+            redenOpschorting: results["redenOpschortingField"],
+          };
 
         if (this.zaak.einddatumGepland) {
           zaakOpschortGegevens.einddatumGepland = moment(

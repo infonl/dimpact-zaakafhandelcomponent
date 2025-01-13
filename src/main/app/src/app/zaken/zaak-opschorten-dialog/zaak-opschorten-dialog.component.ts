@@ -127,21 +127,25 @@ export class ZaakOpschortenDialogComponent implements OnInit {
   }
 
   private updateDateFields(duur: number): void {
-    if (duur > 0) {
-      this.duurDagenField.formControl.setValue(duur, { emitEvent: false });
-      if (this.einddatumGeplandField.formControl.value != null) {
-        this.einddatumGeplandField.formControl.setValue(
-          moment(this.data.zaak.einddatumGepland).add(duur, "days"),
-          { emitEvent: false },
-        );
-      }
-      this.uiterlijkeEinddatumAfdoeningField.formControl.setValue(
-        moment(this.data.zaak.uiterlijkeEinddatumAfdoening).add(duur, "days"),
-        { emitEvent: false },
-      );
-    } else {
+    if (duur <= 0) {
       this.resetFields();
+      return;
     }
+
+    this.duurDagenField.formControl.setValue(duur, { emitEvent: false });
+    this.uiterlijkeEinddatumAfdoeningField.formControl.setValue(
+      moment(this.data.zaak.uiterlijkeEinddatumAfdoening).add(duur, "days"),
+      { emitEvent: false },
+    );
+
+    if (this.einddatumGeplandField.formControl.value === null) {
+      return;
+    }
+
+    this.einddatumGeplandField.formControl.setValue(
+      moment(this.data.zaak.einddatumGepland).add(duur, "days"),
+      { emitEvent: false },
+    );
   }
 
   private resetFields(): void {
