@@ -6,6 +6,7 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { CheckboxFormField } from "src/app/shared/material-form-builder/form-components/checkbox/checkbox-form-field";
@@ -20,8 +21,6 @@ import { AbstractFormField } from "../../shared/material-form-builder/model/abst
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { Zaak } from "../model/zaak";
 import { ZakenService } from "../zaken.service";
-import { Translate } from "ol/interaction";
-import { TranslateService } from "@ngx-translate/core";
 
 @Component({
   templateUrl: "zaak-verlengen-dialog.component.html",
