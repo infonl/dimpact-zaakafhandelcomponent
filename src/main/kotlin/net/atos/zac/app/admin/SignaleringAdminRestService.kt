@@ -20,8 +20,8 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.util.event.JobEvent
 import net.atos.zac.util.event.JobId
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 
 @Path("admin/signaleringen")

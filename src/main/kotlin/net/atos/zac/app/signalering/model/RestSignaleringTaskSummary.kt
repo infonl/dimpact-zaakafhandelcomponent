@@ -4,8 +4,8 @@
  */
 package net.atos.zac.app.signalering.model
 
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 
 @AllOpen

@@ -74,7 +74,7 @@ import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.identity.model.Group;
-import net.atos.zac.identity.model.User;
+import net.atos.zac.identity.model.UserKt;
 import net.atos.zac.mailtemplates.model.MailLink;
 import net.atos.zac.mailtemplates.model.MailTemplateVariabelen;
 import net.atos.zac.util.time.DateTimeConverterUtil;
@@ -218,7 +218,7 @@ public class MailTemplateHelper {
                 resolvedTekst = replaceVariabele(resolvedTekst, TAAK_BEHANDELAAR_MEDEWERKER,
                         Optional.of(taskInfo.getAssignee())
                                 .map(identityService::readUser)
-                                .map(User::getFullName));
+                                .map(UserKt::getFullName));
             }
         }
         return resolvedTekst;

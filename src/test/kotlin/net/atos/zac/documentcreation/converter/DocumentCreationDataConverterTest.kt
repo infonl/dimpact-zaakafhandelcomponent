@@ -28,8 +28,10 @@ import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.authentication.createLoggedInUser
+import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.identity.IdentityService
+import net.atos.zac.identity.model.getFullName
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 
@@ -44,6 +46,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
     val identityService = mockk<IdentityService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
+    val configuratieService = mockk<ConfiguratieService>()
     val documentCreationDataConverter = DocumentCreationDataConverter(
         zgwApiService = zgwApiService,
         zrcClientService = zrcClientService,
@@ -54,8 +57,10 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         flowableTaskService = flowableTaskService,
         identityService = identityService,
         productaanvraagService = productaanvraagService,
-        smartDocumentsTemplatesService = smartDocumentsTemplatesService
+        smartDocumentsTemplatesService = smartDocumentsTemplatesService,
+        configuratieService = configuratieService
     )
+
     Given("A logged in user and a zaak with a behandelaar") {
         val loggedInUser = createLoggedInUser()
         val rolNatuurlijkPersoon =
@@ -95,7 +100,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
                     }
                     with(gebruikerData) {
                         id shouldBe loggedInUser.id
-                        naam shouldBe loggedInUser.fullName
+                        naam shouldBe loggedInUser.getFullName()
                     }
                     with(zaakData) {
                         zaaktype shouldBe zaakType.omschrijving

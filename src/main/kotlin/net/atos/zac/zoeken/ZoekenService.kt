@@ -22,8 +22,8 @@ import net.atos.zac.zoeken.model.ZoekResultaat
 import net.atos.zac.zoeken.model.ZoekVeld
 import net.atos.zac.zoeken.model.zoekobject.ZoekObject
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.SolrServerException

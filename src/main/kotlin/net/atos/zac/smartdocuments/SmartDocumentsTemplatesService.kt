@@ -20,8 +20,8 @@ import net.atos.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroupSet
 import net.atos.zac.smartdocuments.rest.toSmartDocumentsTemplateGroupSet
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplate
 import net.atos.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
 import java.util.logging.Logger
 

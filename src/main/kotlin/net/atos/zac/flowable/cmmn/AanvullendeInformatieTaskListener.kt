@@ -9,7 +9,7 @@ import net.atos.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHR
 import net.atos.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_INTAKE
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.processengine.ProcessEngineLookupImpl.getCmmnEngineConfiguration
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import org.flowable.engine.delegate.TaskListener
 import org.flowable.task.api.TaskInfo

@@ -10,8 +10,8 @@ import net.atos.client.zgw.zrc.model.GeometryType
 import net.atos.client.zgw.zrc.model.Point
 import net.atos.client.zgw.zrc.model.Point2D
 import net.atos.client.zgw.zrc.model.Polygon
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
 @AllOpen
 @NoArgConstructor

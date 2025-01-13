@@ -21,10 +21,9 @@ import net.atos.zac.admin.model.ZaakafhandelParameters.PRODUCTAANVRAAGTYYPE
 import net.atos.zac.admin.model.ZaakafhandelParameters.ZAAKTYPE_OMSCHRIJVING
 import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.admin.model.ZaakbeeindigReden
-import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.util.ValidationUtil
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.Date
@@ -39,7 +38,6 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
     private val entityManager: EntityManager,
     private val ztcClientService: ZtcClientService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
-    private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService
 ) {
     /**
      * Retrieves the zaakafhandelparameters for a given zaaktype UUID.
@@ -158,7 +156,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             mapUserEventListenerParameters(previousZaakafhandelparameters, newZaakafhandelParameters)
             mapZaakbeeindigGegevens(previousZaakafhandelparameters, newZaakafhandelParameters, zaaktype)
             mapMailtemplateKoppelingen(previousZaakafhandelparameters, newZaakafhandelParameters)
-            mapSmartDocuments(previousZaakafhandelparameters.zaakTypeUUID, newZaakafhandelParameters.zaakTypeUUID)
+            // mapSmartDocuments(previousZaakafhandelparameters.zaakTypeUUID, newZaakafhandelParameters.zaakTypeUUID)
             createZaakafhandelParameters(newZaakafhandelParameters)
         }
     }
@@ -263,11 +261,4 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         ztcClientService.readResultaattype(previousResultaattypeUUID).let { resultaattype ->
             newResultaattypen.firstOrNull { it.omschrijving == resultaattype.omschrijving }?.url?.extractUuid()
         }
-
-    private fun mapSmartDocuments(
-        previousZaakafhandelUUID: UUID,
-        newZaakafhandelParametersUUID: UUID
-    ) = smartDocumentsTemplatesService.getTemplatesMapping(previousZaakafhandelUUID).let {
-        smartDocumentsTemplatesService.storeTemplatesMapping(it, newZaakafhandelParametersUUID)
-    }
 }

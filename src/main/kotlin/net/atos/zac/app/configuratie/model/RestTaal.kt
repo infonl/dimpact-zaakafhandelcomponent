@@ -5,8 +5,8 @@
 package net.atos.zac.app.configuratie.model
 
 import net.atos.zac.configuratie.model.Taal
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
 @AllOpen
 @NoArgConstructor

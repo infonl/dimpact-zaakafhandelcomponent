@@ -12,12 +12,11 @@ import jakarta.ws.rs.core.UriBuilder
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.CatalogusListParameters
 import net.atos.zac.configuratie.model.Taal
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import net.atos.zac.util.validateRSIN
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.net.URI
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 @ApplicationScoped
@@ -52,13 +51,18 @@ class ConfiguratieService @Inject constructor(
     private val gemeenteMail: String,
 
     @ConfigProperty(name = "FEATURE_FLAG_BPMN_SUPPORT")
-    private val bpmnSupport: Boolean
+    private val bpmnSupport: Boolean,
+
+    @ConfigProperty(name = "BRON_ORGANISATIE_RSIN")
+    private val bronOrganisatie: String,
+
+    @ConfigProperty(name = "VERANTWOORDELIJKE_ORGANISATIE_RSIN")
+    private val verantwoordelijkeOrganisatie: String,
+
+    @ConfigProperty(name = "CATALOGUS_DOMEIN", defaultValue = "ALG")
+    private val catalogusDomein: String,
 ) {
     companion object {
-        // TODO zaakafhandelcomponent#1468 vervangen van onderstaande placeholders
-        const val BRON_ORGANISATIE = "123443210"
-        const val VERANTWOORDELIJKE_ORGANISATIE = "316245124"
-        const val CATALOGUS_DOMEIN = "ALG"
         const val OMSCHRIJVING_TAAK_DOCUMENT = "taak-document"
         const val OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN = "geen"
 
@@ -88,20 +92,21 @@ class ConfiguratieService @Inject constructor(
          * Maximum file size in MB for file uploads.
          *
          * Note that WildFly / RESTEasy also defines a max file upload size.
-         * The value used in our WildFly configuration should be set higher to account for overhead. (e.g. 80MB -> 120MB).
+         * The value used in WildFly configuration should be set higher to account for overhead. (e.g. 80MB -> 120MB).
          * We use the Base2 system to calculate the max file size in bytes.
          */
         const val MAX_FILE_SIZE_MB: Int = 80
 
         private const val NONE = "<NONE>"
+    }
 
-        private const val SMART_DOCUMENTS_REDIRECT_URL_BASE =
-            "rest/document-creation/smartdocuments/callback/zaak/{zaakUuid}"
-        private const val SMART_DOCUMENTS_WIZARD_FINISH_PAGE = "static/smart-documents-result.html"
+    init {
+        bronOrganisatie.validateRSIN("BRON_ORGANISATIE_RSIN")
+        verantwoordelijkeOrganisatie.validateRSIN("VERANTWOORDELIJKE_ORGANISATIE_RSIN")
     }
 
     private var catalogusURI: URI =
-        ztcClientService.readCatalogus(CatalogusListParameters().apply { domein = CATALOGUS_DOMEIN }).url
+        ztcClientService.readCatalogus(CatalogusListParameters().apply { domein = catalogusDomein }).url
 
     fun listTalen(): List<Taal> {
         val query = entityManager.criteriaBuilder.createQuery(Taal::class.java)
@@ -145,59 +150,7 @@ class ConfiguratieService @Inject constructor(
             .path("informatie-objecten/{enkelvoudigInformatieobjectUUID}")
             .build(enkelvoudigInformatieobjectUUID.toString())
 
-    fun documentCreationCallbackUrl(
-        zaakUuid: UUID,
-        taskId: String?,
-        templateGroupId: String,
-        templateId: String,
-        title: String,
-        description: String?,
-        creationDate: ZonedDateTime,
-        userName: String
-    ): URI {
-        val builder = UriBuilder
-            .fromUri(contextUrl)
-            .queryParam("templateId", templateId)
-            .queryParam("templateGroupId", templateGroupId)
-            .queryParam("title", title)
-            .queryParam("userName", userName)
-            .queryParam("creationDate", creationDate.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
-
-        if (description != null) {
-            builder.queryParam("description", description)
-        }
-
-        return if (taskId != null) {
-            builder
-                .path("$SMART_DOCUMENTS_REDIRECT_URL_BASE/task/{taskId}")
-                .build(zaakUuid.toString(), taskId)
-        } else {
-            builder
-                .path(SMART_DOCUMENTS_REDIRECT_URL_BASE)
-                .build(zaakUuid.toString())
-        }
-    }
-
-    fun documentCreationFinishPageUrl(
-        zaakId: String,
-        taskId: String? = null,
-        documentName: String? = null,
-        result: String
-    ): URI =
-        UriBuilder
-            .fromUri(contextUrl)
-            .path(SMART_DOCUMENTS_WIZARD_FINISH_PAGE)
-            .queryParam("zaak", zaakId)
-            .apply {
-                if (taskId != null) {
-                    queryParam("taak", taskId)
-                }
-                if (documentName != null) {
-                    queryParam("doc", documentName)
-                }
-            }
-            .queryParam("result", result)
-            .build()
+    fun readContextUrl(): String = contextUrl
 
     fun readGemeenteCode(): String = gemeenteCode
 
@@ -206,4 +159,10 @@ class ConfiguratieService @Inject constructor(
     fun readGemeenteMail(): String = gemeenteMail
 
     fun readZgwApiClientMpRestUrl(): String = zgwApiClientMpRestUrl
+
+    fun readBronOrganisatie(): String = bronOrganisatie
+
+    fun readVerantwoordelijkeOrganisatie(): String = verantwoordelijkeOrganisatie
+
+    fun readCatalogusDomein(): String = catalogusDomein
 }

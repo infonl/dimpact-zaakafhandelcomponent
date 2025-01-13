@@ -7,6 +7,7 @@ package net.atos.zac.documentcreation
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
+import jakarta.ws.rs.core.UriBuilder
 import net.atos.client.smartdocuments.model.document.OutputFormat
 import net.atos.client.smartdocuments.model.document.Selection
 import net.atos.client.smartdocuments.model.document.SmartDocument
@@ -23,9 +24,12 @@ import net.atos.zac.identity.model.getFullName
 import net.atos.zac.smartdocuments.SmartDocumentsService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.util.MediaTypes
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
+import java.net.URI
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -43,6 +47,10 @@ class DocumentCreationService @Inject constructor(
 ) {
     companion object {
         const val REDIRECT_METHOD = "POST"
+
+        private const val SMART_DOCUMENTS_REDIRECT_URL_BASE =
+            "rest/document-creation/smartdocuments/callback/zaak/{zaakUuid}"
+        private const val SMART_DOCUMENTS_WIZARD_FINISH_PAGE = "static/smart-documents-result.html"
 
         private val LOG = Logger.getLogger(DocumentCreationService::class.java.name)
     }
@@ -81,7 +89,7 @@ class DocumentCreationService @Inject constructor(
             variables = Variables(
                 outputFormats = listOf(OutputFormat(MediaTypes.Application.MS_WORD_OPEN_XML.mediaType)),
                 redirectMethod = REDIRECT_METHOD,
-                redirectUrl = configuratieService.documentCreationCallbackUrl(
+                redirectUrl = documentCreationCallbackUrl(
                     creationDataUnattended.zaak.uuid,
                     creationDataUnattended.taskId,
                     creationDataUnattended.templateGroupId,
@@ -132,4 +140,58 @@ class DocumentCreationService @Inject constructor(
                 )
             }
         }
+
+    fun documentCreationCallbackUrl(
+        zaakUuid: UUID,
+        taskId: String?,
+        templateGroupId: String,
+        templateId: String,
+        title: String,
+        description: String?,
+        creationDate: ZonedDateTime,
+        userName: String
+    ): URI {
+        val builder = UriBuilder
+            .fromUri(configuratieService.readContextUrl())
+            .queryParam("templateId", templateId)
+            .queryParam("templateGroupId", templateGroupId)
+            .queryParam("title", title)
+            .queryParam("userName", userName)
+            .queryParam("creationDate", creationDate.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
+
+        if (description != null) {
+            builder.queryParam("description", description)
+        }
+
+        return if (taskId != null) {
+            builder
+                .path("$SMART_DOCUMENTS_REDIRECT_URL_BASE/task/{taskId}")
+                .build(zaakUuid.toString(), taskId)
+        } else {
+            builder
+                .path(SMART_DOCUMENTS_REDIRECT_URL_BASE)
+                .build(zaakUuid.toString())
+        }
+    }
+
+    fun documentCreationFinishPageUrl(
+        zaakId: String,
+        taskId: String? = null,
+        documentName: String? = null,
+        result: String
+    ): URI =
+        UriBuilder
+            .fromUri(configuratieService.readContextUrl())
+            .path(SMART_DOCUMENTS_WIZARD_FINISH_PAGE)
+            .queryParam("zaak", zaakId)
+            .apply {
+                if (taskId != null) {
+                    queryParam("taak", taskId)
+                }
+                if (documentName != null) {
+                    queryParam("doc", documentName)
+                }
+            }
+            .queryParam("result", result)
+            .build()
 }

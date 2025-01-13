@@ -4,6 +4,8 @@
  */
 package net.atos.zac.identity.model
 
+import org.keycloak.representations.idm.GroupRepresentation
+
 data class Group(
     val id: String,
 
@@ -21,3 +23,12 @@ data class Group(
         name = id
     )
 }
+
+fun GroupRepresentation.toGroup(): Group =
+    Group(
+        // better to rename 'id' field as 'name' and 'name' field as 'description'
+        id = name,
+        // maybe we want a separate description field in the Group class
+        name = attributes?.get("description")?.single()?.toString() ?: name,
+        email = attributes?.get("email")?.single().toString()
+    )

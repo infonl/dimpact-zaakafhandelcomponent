@@ -59,9 +59,9 @@ import net.atos.zac.task.TaskService
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.zoeken.IndexingService
+import nl.info.test.org.flowable.task.service.impl.persistence.entity.createHistoricTaskInstanceEntityImpl
 import org.flowable.task.api.Task
 import org.flowable.task.api.history.HistoricTaskInstance
-import org.flowable.task.api.history.createHistoricTaskInstanceEntityImpl
 import java.net.URI
 import java.time.LocalDate
 import java.time.ZonedDateTime

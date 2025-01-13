@@ -123,7 +123,6 @@ dependencies {
     implementation(libs.apache.solr)
     implementation(libs.webdav.servlet)
     implementation(libs.htmlcleaner)
-    implementation(libs.unboundid.ldapsdk)
     implementation(libs.caffeine)
     implementation(libs.jackson.core)
     implementation(libs.jackson.annotations)
@@ -132,6 +131,7 @@ dependencies {
     implementation(libs.opentelemetry.api)
     implementation(libs.opentelemetry.instrumentation.annotations)
     implementation(libs.opentelemetry.extension.kotlin)
+    implementation(libs.keycloak.admin.client)
 
     swaggerUI(libs.swagger.ui)
 
@@ -196,13 +196,13 @@ allOpen {
     // enable all-open plugin for Kotlin so that WildFly's dependency injection framework (Weld)
     // can proxy our Kotlin classes when they have our custom annotation
     // because by default Kotlin classes are final
-    annotation("nl.lifely.zac.util.AllOpen")
+    annotation("nl.info.zac.util.AllOpen")
 }
 
 noArg {
     // enable no-arg plugin for Kotlin so that WildFly's dependency injection framework (Weld)
     // can instantiate our Kotlin classes without a no-arg constructor
-    annotation("nl.lifely.zac.util.NoArgConstructor")
+    annotation("nl.info.zac.util.NoArgConstructor")
 }
 
 jacoco {

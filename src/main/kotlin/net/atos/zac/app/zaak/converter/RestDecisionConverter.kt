@@ -18,7 +18,7 @@ import net.atos.zac.app.zaak.model.RestDecision
 import net.atos.zac.app.zaak.model.RestDecisionCreateData
 import net.atos.zac.app.zaak.model.toRestDecisionType
 import net.atos.zac.configuratie.ConfiguratieService
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 
 @NoArgConstructor
@@ -26,7 +26,8 @@ class RestDecisionConverter @Inject constructor(
     private val brcClientService: BrcClientService,
     private val drcClientService: DrcClientService,
     private val restInformatieobjectConverter: RestInformatieobjectConverter,
-    private val ztcClientService: ZtcClientService
+    private val ztcClientService: ZtcClientService,
+    private val configuratieService: ConfiguratieService
 ) {
     fun convertToRestDecision(besluit: Besluit) =
         ztcClientService.readBesluittype(besluit.besluittype).let { besluitType ->
@@ -65,7 +66,7 @@ class RestDecisionConverter @Inject constructor(
                 }
                 publicatiedatum = besluitToevoegenGegevens.publicationDate
                 uiterlijkeReactiedatum = besluitToevoegenGegevens.lastResponseDate
-                verantwoordelijkeOrganisatie = ConfiguratieService.VERANTWOORDELIJKE_ORGANISATIE
+                verantwoordelijkeOrganisatie = configuratieService.readVerantwoordelijkeOrganisatie()
                 toelichting = besluitToevoegenGegevens.toelichting
             }
         }

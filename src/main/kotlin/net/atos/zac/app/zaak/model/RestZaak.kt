@@ -14,8 +14,8 @@ import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.policy.model.RestZaakRechten
 import net.atos.zac.zoeken.model.ZaakIndicatie
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 import java.util.EnumSet
 import java.util.UUID

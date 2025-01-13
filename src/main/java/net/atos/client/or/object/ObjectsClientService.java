@@ -12,7 +12,8 @@ import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import net.atos.client.or.object.model.ORObject;
+import net.atos.client.or.objects.model.generated.ModelObject;
+
 
 @ApplicationScoped
 public class ObjectsClientService {
@@ -22,34 +23,34 @@ public class ObjectsClientService {
     private ObjectsClient objectsClient;
 
     /**
-     * Create {@link ORObject}.
+     * Create {@link net.atos.client.or.objects.model.generated.ModelObject}.
      *
-     * @param object {@link ORObject}.
-     * @return Created {@link ORObject}.
+     * @param object {@link ModelObject}.
+     * @return Created {@link ModelObject}.
      */
-    public ORObject createObject(final ORObject object) {
+    public ModelObject createObject(final ModelObject object) {
         return objectsClient.objectCreate(object);
     }
 
     /**
-     * Read {@link ORObject} via its UUID.
-     * Throws a RuntimeException if the {@link ORObject} can not be read.
+     * Read {@link ModelObject} via its UUID.
+     * Throws a RuntimeException if the {@link ModelObject} can not be read.
      *
-     * @param object UUID of {@link ORObject}.
-     * @return {@link ORObject}. Never 'null'!
+     * @param object UUID of {@link ModelObject}.
+     * @return {@link ModelObject}. Never 'null'!
      */
-    public ORObject readObject(final UUID object) {
+    public ModelObject readObject(final UUID object) {
         return objectsClient.objectRead(object);
     }
 
     /**
-     * Update {@link ORObject}.
+     * Update {@link ModelObject}.
      * The given instance completely replaces the existing instance.
      *
-     * @param object {@link ORObject}.
-     * @return Updated {@link ORObject}.
+     * @param object {@link ModelObject}.
+     * @return Updated {@link ModelObject}.
      */
-    public ORObject replaceObject(final ORObject object) {
+    public ModelObject replaceObject(final ModelObject object) {
         return objectsClient.objectUpdate(object.getUuid(), object);
     }
 }

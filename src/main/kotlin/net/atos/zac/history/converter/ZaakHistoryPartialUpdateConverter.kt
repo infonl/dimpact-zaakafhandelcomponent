@@ -11,10 +11,10 @@ import net.atos.client.zgw.zrc.model.Geometry
 import net.atos.zac.history.model.HistoryAction
 import net.atos.zac.history.model.HistoryLine
 import net.atos.zac.util.time.LocalDateUtil
-import nl.lifely.zac.util.asMapWithKeyOfString
-import nl.lifely.zac.util.diff
-import nl.lifely.zac.util.getTypedValue
-import nl.lifely.zac.util.stringProperty
+import nl.info.zac.util.asMapWithKeyOfString
+import nl.info.zac.util.diff
+import nl.info.zac.util.getTypedValue
+import nl.info.zac.util.stringProperty
 import java.net.URI
 import java.time.ZonedDateTime
 

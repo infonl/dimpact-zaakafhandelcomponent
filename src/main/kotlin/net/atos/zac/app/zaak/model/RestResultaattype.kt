@@ -8,8 +8,8 @@ import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.ztc.model.Afleidingswijze
 import net.atos.client.zgw.ztc.model.generated.ResultaatType
 import net.atos.zac.util.time.PeriodUtil
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.time.Period
 import java.util.Locale
 import java.util.UUID

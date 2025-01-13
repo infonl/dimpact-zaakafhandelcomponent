@@ -10,7 +10,7 @@ import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.generated.Opschorting
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.policy.PolicyService
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit

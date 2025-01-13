@@ -8,6 +8,7 @@ import static jakarta.json.JsonValue.ValueType.STRING;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
+import static net.atos.zac.identity.model.UserKt.getFullName;
 import static net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate;
 import static org.apache.commons.lang3.StringUtils.*;
 
@@ -209,7 +210,7 @@ public class FormulierRuntimeService {
 
     private String getBehandelaarForZaakDefaultValue(final Zaak zaak) {
         return Optional.ofNullable(zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak))
-                .map(behandelaar -> identityService.readUser(behandelaar.getIdentificatienummer()).getFullName())
+                .map(behandelaar -> getFullName(identityService.readUser(behandelaar.getIdentificatienummer())))
                 .orElse(null);
     }
 

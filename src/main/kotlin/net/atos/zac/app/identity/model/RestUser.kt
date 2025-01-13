@@ -6,8 +6,8 @@ package net.atos.zac.app.identity.model
 
 import net.atos.zac.identity.model.User
 import net.atos.zac.identity.model.getFullName
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 @AllOpen

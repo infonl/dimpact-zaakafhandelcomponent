@@ -13,8 +13,8 @@ import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
 import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.model.Zaak
-import nl.lifely.zac.util.AllOpen
-import nl.lifely.zac.util.NoArgConstructor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.net.URI
 import java.util.UUID

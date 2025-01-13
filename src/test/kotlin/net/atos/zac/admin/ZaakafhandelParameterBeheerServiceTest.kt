@@ -7,7 +7,6 @@ package net.atos.zac.admin
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeSameSizeAs
 import io.kotest.matchers.collections.shouldContainOnly
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
@@ -31,11 +30,6 @@ import net.atos.client.zgw.ztc.model.createResultaatType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.createZaakafhandelParameters
-import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
-import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplate
-import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
-import net.atos.zac.smartdocuments.rest.createRestMappedSmartDocumentsTemplate
-import net.atos.zac.smartdocuments.rest.createRestMappedSmartDocumentsTemplateGroup
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.Date
@@ -55,13 +49,11 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
     val order = mockk<Order>()
     val expressionString = mockk<Expression<String>>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
-    val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
 
     val zaakafhandelParameterBeheerService = ZaakafhandelParameterBeheerService(
         entityManager = entityManager,
         ztcClientService = ztcClientService,
-        zaakafhandelParameterService = zaakafhandelParameterService,
-        smartDocumentsTemplatesService = smartDocumentsTemplatesService
+        zaakafhandelParameterService = zaakafhandelParameterService
     )
 
     beforeEach {
@@ -215,21 +207,6 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
         val slotPersistZaakafhandelParameters = slot<ZaakafhandelParameters>()
         every { entityManager.persist(capture(slotPersistZaakafhandelParameters)) } answers { }
 
-        // SmartDocuments service mocking
-        val originalRestMappedSmartDocumentsTemplateGroups = setOf(
-            createRestMappedSmartDocumentsTemplateGroup(
-                templates = setOf(createRestMappedSmartDocumentsTemplate())
-            )
-        )
-        every {
-            smartDocumentsTemplatesService.getTemplatesMapping(any<UUID>())
-        } returns originalRestMappedSmartDocumentsTemplateGroups
-        val slotStoreTemplatesMapping = slot<Set<RestMappedSmartDocumentsTemplateGroup>>()
-        every {
-            smartDocumentsTemplatesService
-                .storeTemplatesMapping(capture(slotStoreTemplatesMapping), zaaktypeUUID)
-        } answers { }
-
         When("Processing the updated zaaktype") {
             zaakafhandelParameterBeheerService.zaaktypeAangepast(zaaktypeUri)
 
@@ -237,7 +214,6 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
                 verify {
                     entityManager.persist(any<ZaakafhandelParameters>())
                 }
-                slotStoreTemplatesMapping.isCaptured shouldBe true
                 slotPersistZaakafhandelParameters.isCaptured shouldBe true
             }
 
@@ -313,45 +289,6 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
                     new.mailTemplate shouldBe original.mailTemplate
                 }
             }
-
-            And("The smartdocuments settings should get copied") {
-                slotStoreTemplatesMapping.captured should matchGroups(originalRestMappedSmartDocumentsTemplateGroups)
-            }
         }
     }
 })
-
-private fun matchGroups(
-    originalRestMappedSmartDocumentsTemplateGroups: Set<RestMappedSmartDocumentsTemplateGroup>?
-): (Set<RestMappedSmartDocumentsTemplateGroup>?) -> Unit = { groups: Set<RestMappedSmartDocumentsTemplateGroup>? ->
-    if (groups == null) {
-        originalRestMappedSmartDocumentsTemplateGroups shouldBe null
-    } else {
-        groups.run {
-            this shouldBeSameSizeAs originalRestMappedSmartDocumentsTemplateGroups!!
-            this zip originalRestMappedSmartDocumentsTemplateGroups
-        }.forEach { (stored, original) ->
-            stored.id shouldBe original.id
-            stored.name shouldBe original.name
-            stored.groups should matchGroups(original.groups)
-            stored.templates should matchTemplates(original.templates)
-        }
-    }
-}
-
-private fun matchTemplates(
-    originalTemplates: Set<RestMappedSmartDocumentsTemplate>?
-): (Set<RestMappedSmartDocumentsTemplate>?) -> Unit = { templates: Set<RestMappedSmartDocumentsTemplate>? ->
-    if (templates == null) {
-        originalTemplates shouldBe null
-    } else {
-        templates.run {
-            this shouldBeSameSizeAs originalTemplates!!
-            this zip originalTemplates
-        }.forEach { (stored, original) ->
-            stored.id shouldBe original.id
-            stored.name shouldBe original.name
-            stored.informatieObjectTypeUUID shouldBe original.informatieObjectTypeUUID
-        }
-    }
-}
