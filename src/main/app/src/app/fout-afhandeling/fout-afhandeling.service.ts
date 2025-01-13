@@ -150,7 +150,9 @@ export class FoutAfhandelingService {
 
       // show error in context and do not redirect to error page
       return this.openFoutDetailedDialog(
-        err.error.message || err.message || "dialoog.body.error.technisch",
+        this.translate.instant(
+          err.error.message || err.message || "dialoog.body.error.technisch",
+        ),
         errorDetail,
         showServerErrorTexts,
       );
