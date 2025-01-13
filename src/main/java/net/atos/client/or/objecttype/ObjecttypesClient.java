@@ -19,8 +19,8 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.or.objecttype.model.Objecttype;
-import net.atos.client.or.objecttype.model.ObjecttypeVersion;
+import net.atos.client.or.objecttypes.model.generated.ObjectType;
+import net.atos.client.or.objecttypes.model.generated.ObjectVersion;
 import net.atos.client.or.shared.exception.FoutExceptionMapper;
 import net.atos.client.or.shared.exception.ORRuntimeResponseExceptionMapper;
 import net.atos.client.or.shared.exception.ValidatieFoutExceptionMapper;
@@ -37,19 +37,19 @@ public interface ObjecttypesClient {
 
     @GET
     @Path("objecttypes")
-    List<Objecttype> objecttypeList();
+    List<ObjectType> objecttypeList();
 
     @GET
     @Path("objecttypes/{objecttype-uuid}")
-    Objecttype objecttypeRead(@PathParam("objecttype-uuid") final UUID objecttypeUUID);
+    ObjectType objecttypeRead(@PathParam("objecttype-uuid") final UUID objecttypeUUID);
 
     @GET
     @Path("objecttypes/{objecttype-uuid}/versions")
-    List<ObjecttypeVersion> objectversionList(@PathParam("objecttype-uuid") final UUID objecttypeUUID);
+    List<ObjectVersion> objectversionList(@PathParam("objecttype-uuid") final UUID objecttypeUUID);
 
     @GET
     @Path("objecttypes/{objecttype-uuid}/versions/{version}")
-    ObjecttypeVersion objectversionRead(
+    ObjectVersion objectversionRead(
             @PathParam("objecttype-uuid") final UUID objecttypeUUID,
             @PathParam("version") final Integer version
     );

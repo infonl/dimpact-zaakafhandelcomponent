@@ -1719,297 +1719,6 @@
         "config": {}
       }
     ],
-    "org.keycloak.storage.UserStorageProvider": [
-      {
-        "id": "32fc52d1-493a-45e0-a973-94decab28a7f",
-        "name": "ldap",
-        "providerId": "ldap",
-        "subComponents": {
-          "org.keycloak.storage.ldap.mappers.LDAPStorageMapper": [
-            {
-              "id": "f0b9bc9b-0cec-472c-84ba-5e67add8cf9e",
-              "name": "username",
-              "providerId": "user-attribute-ldap-mapper",
-              "subComponents": {},
-              "config": {
-                "ldap.attribute": [
-                  "cn"
-                ],
-                "is.mandatory.in.ldap": [
-                  "true"
-                ],
-                "is.binary.attribute": [
-                  "false"
-                ],
-                "always.read.value.from.ldap": [
-                  "false"
-                ],
-                "read.only": [
-                  "false"
-                ],
-                "user.model.attribute": [
-                  "username"
-                ]
-              }
-            },
-            {
-              "id": "f038f283-0ab2-4ba0-9412-8417ae5bc131",
-              "name": "first name",
-              "providerId": "user-attribute-ldap-mapper",
-              "subComponents": {},
-              "config": {
-                "ldap.attribute": [
-                  "givenName"
-                ],
-                "is.mandatory.in.ldap": [
-                  "true"
-                ],
-                "read.only": [
-                  "false"
-                ],
-                "always.read.value.from.ldap": [
-                  "true"
-                ],
-                "user.model.attribute": [
-                  "firstName"
-                ]
-              }
-            },
-            {
-              "id": "079e972b-7db4-4d2d-ab9d-00a5716ece17",
-              "name": "modify date",
-              "providerId": "user-attribute-ldap-mapper",
-              "subComponents": {},
-              "config": {
-                "ldap.attribute": [
-                  "modifyTimestamp"
-                ],
-                "is.mandatory.in.ldap": [
-                  "false"
-                ],
-                "read.only": [
-                  "true"
-                ],
-                "always.read.value.from.ldap": [
-                  "true"
-                ],
-                "user.model.attribute": [
-                  "modifyTimestamp"
-                ]
-              }
-            },
-            {
-              "id": "033976c0-f1ed-4f96-ab5e-29283dbcf2da",
-              "name": "creation date",
-              "providerId": "user-attribute-ldap-mapper",
-              "subComponents": {},
-              "config": {
-                "ldap.attribute": [
-                  "createTimestamp"
-                ],
-                "is.mandatory.in.ldap": [
-                  "false"
-                ],
-                "always.read.value.from.ldap": [
-                  "true"
-                ],
-                "read.only": [
-                  "true"
-                ],
-                "user.model.attribute": [
-                  "createTimestamp"
-                ]
-              }
-            },
-            {
-              "id": "d567eb4e-8008-4e1f-a7bc-5f37d23f82e6",
-              "name": "last name",
-              "providerId": "user-attribute-ldap-mapper",
-              "subComponents": {},
-              "config": {
-                "ldap.attribute": [
-                  "sn"
-                ],
-                "is.mandatory.in.ldap": [
-                  "true"
-                ],
-                "read.only": [
-                  "false"
-                ],
-                "always.read.value.from.ldap": [
-                  "true"
-                ],
-                "user.model.attribute": [
-                  "lastName"
-                ]
-              }
-            },
-            {
-              "id": "cd22ec58-e06a-48c3-81e2-637ca54e69d0",
-              "name": "groups",
-              "providerId": "group-ldap-mapper",
-              "subComponents": {},
-              "config": {
-                "membership.attribute.type": [
-                  "DN"
-                ],
-                "group.name.ldap.attribute": [
-                  "cn"
-                ],
-                "preserve.group.inheritance": [
-                  "false"
-                ],
-                "membership.user.ldap.attribute": [
-                  "cn"
-                ],
-                "groups.dn": [
-                  "ou=people,dc=example,dc=org"
-                ],
-                "mapped.group.attributes": [
-                  "description,email"
-                ],
-                "mode": [
-                  "LDAP_ONLY"
-                ],
-                "user.roles.retrieve.strategy": [
-                  "LOAD_GROUPS_BY_MEMBER_ATTRIBUTE"
-                ],
-                "membership.ldap.attribute": [
-                  "uniqueMember"
-                ],
-                "ignore.missing.groups": [
-                  "false"
-                ],
-                "group.object.classes": [
-                  "groupOfUniqueNames"
-                ],
-                "memberof.ldap.attribute": [
-                  "memberOf"
-                ],
-                "drop.non.existing.groups.during.sync": [
-                  "true"
-                ],
-                "groups.path": [
-                  "/"
-                ]
-              }
-            },
-            {
-              "id": "77875eb6-c977-43bb-b31e-4025c19c20b8",
-              "name": "email",
-              "providerId": "user-attribute-ldap-mapper",
-              "subComponents": {},
-              "config": {
-                "ldap.attribute": [
-                  "mail"
-                ],
-                "is.mandatory.in.ldap": [
-                  "false"
-                ],
-                "read.only": [
-                  "false"
-                ],
-                "always.read.value.from.ldap": [
-                  "false"
-                ],
-                "user.model.attribute": [
-                  "email"
-                ]
-              }
-            }
-          ]
-        },
-        "config": {
-          "pagination": [
-            "true"
-          ],
-          "fullSyncPeriod": [
-            "-1"
-          ],
-          "connectionPooling": [
-            "true"
-          ],
-          "usersDn": [
-            "ou=people,dc=example,dc=org"
-          ],
-          "cachePolicy": [
-            "DEFAULT"
-          ],
-          "useKerberosForPasswordAuthentication": [
-            "false"
-          ],
-          "importEnabled": [
-            "true"
-          ],
-          "enabled": [
-            "true"
-          ],
-          "bindCredential": [
-            "admin"
-          ],
-          "changedSyncPeriod": [
-            "-1"
-          ],
-          "usernameLDAPAttribute": [
-            "cn"
-          ],
-          "bindDn": [
-            "cn=admin,dc=example,dc=org"
-          ],
-          "lastSync": [
-            "1692025212"
-          ],
-          "vendor": [
-            "other"
-          ],
-          "uuidLDAPAttribute": [
-            "entryUUID"
-          ],
-          "connectionUrl": [
-            "${LDAP_URL}"
-          ],
-          "allowKerberosAuthentication": [
-            "false"
-          ],
-          "syncRegistrations": [
-            "false"
-          ],
-          "authType": [
-            "simple"
-          ],
-          "debug": [
-            "false"
-          ],
-          "searchScope": [
-            "1"
-          ],
-          "useTruststoreSpi": [
-            "ldapsOnly"
-          ],
-          "trustEmail": [
-            "false"
-          ],
-          "priority": [
-            "0"
-          ],
-          "userObjectClasses": [
-            "inetOrgPerson"
-          ],
-          "rdnLDAPAttribute": [
-            "cn"
-          ],
-          "editMode": [
-            "WRITABLE"
-          ],
-          "validatePasswordPolicy": [
-            "false"
-          ],
-          "batchSizeForSync": [
-            "1000"
-          ]
-        }
-      }
-    ],
     "org.keycloak.keys.KeyProvider": [
       {
         "id": "8246d76f-e5ae-418f-8e80-ea54838d1a59",
@@ -2694,6 +2403,127 @@
         "realm-management": ["view-users"],
         "account": ["view-groups"]
       }
+    },
+    {
+      "id" : "ab4991ca-2497-4e93-92b3-9effcf714aff",
+      "username" : "functioneelbeheerder1",
+      "firstName" : "Test",
+      "lastName" : "Functioneelbeheerder1",
+      "email" : "${ZAC_FUNCTIONAL_ADMIN_1_EMAIL_ADDRESS}",
+      "emailVerified" : true,
+      "createdTimestamp" : 1736758834546,
+      "enabled" : true,
+      "totp" : false,
+      "credentials" : [ {
+        "id" : "15d2ab8c-ac81-4d72-86e0-a14df248a2d2",
+        "type" : "password",
+        "userLabel" : "My password",
+        "createdDate" : 1736758845096,
+        "secretData" : "{\"value\":\"Qlh8V2XZkQIjYh2Sci7kD0F5rKBNycTl+LLf6F3FHEs=\",\"salt\":\"uaIpqD0CEX2cMT3dWRCoxw==\",\"additionalParameters\":{}}",
+        "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+      } ],
+      "disableableCredentialTypes" : [ ],
+      "requiredActions" : [ ],
+      "realmRoles" : [ "default-roles-zac" ],
+      "notBefore" : 0,
+      "groups" : [ "/test-group-fb" ]
+    },
+    {
+      "id" : "4d52e935-3338-44ba-8990-91654a831048",
+      "username" : "recordmanager1",
+      "firstName" : "Test",
+      "lastName" : "Recordmanager1",
+      "email" : "${ZAC_RECORD_MANAGER_1_EMAIL_ADDRESS}",
+      "emailVerified" : true,
+      "createdTimestamp" : 1736758776310,
+      "enabled" : true,
+      "totp" : false,
+      "credentials" : [ {
+        "id" : "4b8bfe12-ac33-45e8-9834-03c0d37b5d8f",
+        "type" : "password",
+        "userLabel" : "My password",
+        "createdDate" : 1736758789389,
+        "secretData" : "{\"value\":\"hqqOllbaQYEUMr79TDjP3MOTKmYe0isE/RzmXtO5t4Q=\",\"salt\":\"rmyMh+5EIUPj5zshU9Jh7A==\",\"additionalParameters\":{}}",
+        "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+      } ],
+      "disableableCredentialTypes" : [ ],
+      "requiredActions" : [ ],
+      "realmRoles" : [ "default-roles-zac" ],
+      "notBefore" : 0,
+      "groups" : [ "/test-group-rm" ]
+    },
+    {
+      "id" : "6da93bbd-1393-4c1e-a3a3-f75ac30384e5",
+      "username" : "testuser1",
+      "firstName" : "Test",
+      "lastName" : "User1 Špëçîâl Characters",
+      "email" : "${ZAC_TESTUSER1_EMAIL_ADDRESS}",
+      "emailVerified" : true,
+      "createdTimestamp" : 1736756061245,
+      "enabled" : true,
+      "totp" : false,
+      "credentials" : [
+        {
+          "id" : "fdb42e29-0a3c-4e6f-919b-cd4909c2609f",
+          "type" : "password",
+          "userLabel" : "My password",
+          "createdDate" : 1736756074647,
+          "secretData" : "{\"value\":\"PfxXrU/dTnnsfkND8m54EiNPhIR2Ozxrk0LUxbd2OeI=\",\"salt\":\"eObvvdX7CCKuT/CBAcdDpA==\",\"additionalParameters\":{}}",
+          "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes" : [ ],
+      "requiredActions" : [ ],
+      "realmRoles" : [ "default-roles-zac" ],
+      "notBefore" : 0,
+      "groups" : [ "/test-group-a", "/test-group-fb" ]
+    },
+    {
+      "id" : "c532d9a7-72c8-48db-8b0b-4b7c631c5793",
+      "username" : "testuser2",
+      "lastName" : "User2",
+      "email" : "${ZAC_TESTUSER2_EMAIL_ADDRESS}",
+      "emailVerified" : true,
+      "createdTimestamp" : 1736758706464,
+      "enabled" : true,
+      "totp" : false,
+      "credentials" : [ {
+        "id" : "d3b09c6f-5e88-4cb4-9c20-0cca57597d13",
+        "type" : "password",
+        "userLabel" : "My password",
+        "createdDate" : 1736758721365,
+        "secretData" : "{\"value\":\"xfw0lpHDLA0JTgCzStmAxLtvSB574QWJ3Ch/S2E+NxY=\",\"salt\":\"juESxKnnugLgmMcMb93aWw==\",\"additionalParameters\":{}}",
+        "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+      } ],
+      "disableableCredentialTypes" : [ ],
+      "requiredActions" : [ ],
+      "realmRoles" : [ "default-roles-zac" ],
+      "notBefore" : 0,
+      "groups" : [ "/test-group-a" ]
+    },
+    {
+      "id" : "cf74c040-e65b-4182-acaf-21755a8b78cb",
+      "username" : "testuserdomeintest1",
+      "firstName" : "Test",
+      "lastName" : "Testuserdomeintest1",
+      "email" : "${ZAC_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS}",
+      "emailVerified" : true,
+      "createdTimestamp" : 1736758908217,
+      "enabled" : true,
+      "totp" : false,
+      "credentials" : [ {
+        "id" : "ad75c194-2f2d-4037-a54e-c065299c0ba1",
+        "type" : "password",
+        "userLabel" : "My password",
+        "createdDate" : 1736758918180,
+        "secretData" : "{\"value\":\"51kk4w679A3dgdGwpR/sfc95qkOi4TJdAYMTDFteU+4=\",\"salt\":\"dIgPSajHcQ6KwqLvSndFgA==\",\"additionalParameters\":{}}",
+        "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+      } ],
+      "disableableCredentialTypes" : [ ],
+      "requiredActions" : [ ],
+      "realmRoles" : [ "default-roles-zac" ],
+      "notBefore" : 0,
+      "groups" : [ "/test-group-domein-test-1" ]
     }
   ]
 }

@@ -5,8 +5,6 @@
 
 package net.atos.zac.util;
 
-import static net.atos.zac.configuratie.ConfiguratieService.CATALOGUS_DOMEIN;
-
 import java.time.LocalDateTime;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -18,6 +16,7 @@ import org.eclipse.microprofile.health.Readiness;
 
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.CatalogusListParameters;
+import net.atos.zac.configuratie.ConfiguratieService;
 
 @Readiness
 @ApplicationScoped
@@ -25,12 +24,14 @@ public class OpenZaakReadinessHealthCheck implements HealthCheck {
 
     private static final CatalogusListParameters CATALOGUS_LIST_PARAMETERS = new CatalogusListParameters();
 
-    static {
-        CATALOGUS_LIST_PARAMETERS.setDomein(CATALOGUS_DOMEIN);
-    }
+    private final ZtcClientService ztcClientService;
 
     @Inject
-    private ZtcClientService ztcClientService;
+    OpenZaakReadinessHealthCheck(ZtcClientService ztcClientService, ConfiguratieService configuratieService) {
+        this.ztcClientService = ztcClientService;
+
+        CATALOGUS_LIST_PARAMETERS.setDomein(configuratieService.readCatalogusDomein());
+    }
 
     @Override
     public HealthCheckResponse call() {

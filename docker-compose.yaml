@@ -19,11 +19,15 @@ services:
       - DB_USER=keycloak
       - DB_NAME=keycloak
       - DB_PASSWORD=keycloak
-      - LDAP_URL=ldap://openldap:1389
-      - ZAC_GROUP_A_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_A_EMAIL_ADDRESS:-test-group-a@example.com}
-      - ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS:-test-group-functioneel-beheerders@example.com}
-      - ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS:-test-group-record-managers@example.com}
-      - ZAC_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS:-test-group-domein-test-1@example.com}
+      - ZAC_TESTUSER1_EMAIL_ADDRESS=${DOCKER_COMPOSE_TEST_USER_1_EMAIL_ADDRESS:-testuser1@example.com}
+      - ZAC_TESTUSER2_EMAIL_ADDRESS=${DOCKER_COMPOSE_TEST_USER_2_EMAIL_ADDRESS:-testuser2@example.com}
+      - ZAC_RECORD_MANAGER_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RECORD_MANAGER_1_EMAIL_ADDRESS:-recordmanager1@example.com}
+      - ZAC_FUNCTIONAL_ADMIN_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_FUNCTIONAL_ADMIN_1_EMAIL_ADDRESS:-functionaladmin1@example.com}
+      - ZAC_TEST_USER_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS:-testuser-domein-test-1@example.com}
+      - ZAC_GROUP_A_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_A_EMAIL_ADDRESS:-test-group-a@example.com}
+      - ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS:-test-group-functioneel-beheerders@example.com}
+      - ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS:-test-group-record-managers@example.com}
+      - ZAC_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS:-test-group-domein-test-1@example.com}
     volumes:
       - ./scripts/docker-compose/imports/keycloak:/opt/keycloak/data/import
     command:
@@ -289,32 +293,6 @@ services:
     ports:
       - "8181:8181"
 
-  openldap:
-    image: docker.io/bitnami/openldap:2.6.9@sha256:8e3f28db7a8c05d7db99ec688b8ca1044f0deaf8f98ea5b1f71c42276e3c1583
-    ports:
-      - "1389:1389"
-      - "1636:1636"
-    volumes:
-      - ./scripts/docker-compose/imports/openldap/schemas:/schemas
-      - ./scripts/docker-compose/imports/openldap/zac-scripts:/zac-scripts
-    environment:
-      - LDAP_ADMIN_USERNAME=admin
-      - LDAP_ADMIN_PASSWORD=admin
-      - LDAP_ROOT=dc=example,dc=org
-      - LDAP_SKIP_DEFAULT_TREE=yes
-      - LDAP_CUSTOM_LDIF_DIR=/tmp
-      - ZAC_TESTUSER1_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_TEST_USER_1_EMAIL_ADDRESS:-testuser1@example.com}
-      - ZAC_TESTUSER2_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_TEST_USER_2_EMAIL_ADDRESS:-testuser2@example.com}
-      - ZAC_RECORD_MANAGER_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_RECORD_MANAGER_1_EMAIL_ADDRESS:-recordmanager1@example.com}
-      - ZAC_FUNCTIONAL_ADMIN_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_FUNCTIONAL_ADMIN_1_EMAIL_ADDRESS:-functionaladmin1@example.com}
-      - ZAC_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS:-testuser-domein-test-1@example.com}
-      - ZAC_GROUP_A_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_A_EMAIL_ADDRESS:-test-group-a@example.com}
-      - ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS:-test-group-functioneel-beheerders@example.com}
-      - ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS:-test-group-record-managers@example.com}
-      - ZAC_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS:-test-group-domein-test-1@example.com}
-    entrypoint: ["/zac-scripts/generate-zac-import-ldif-and-start-openldap.sh"]
-    command: ["/opt/bitnami/scripts/openldap/run.sh"]
-
   brp-personen-mock:
     image: ghcr.io/brp-api/personen-mock:2.3.0-202409180940@sha256:eacbf6bb9d7ccd74c283506072c0d11e5695b04c0d5ed587f61fd3a4db689220
     environment:
@@ -398,14 +376,15 @@ services:
     profiles: [ "itest" ]
 
   office-converter:
-    image: ghcr.io/eugenmayer/kontextwork-converter:1.6.1@sha256:92ec2ee4390a7663bc9f5476d6d400bcbbbbc55630bf531d062919b6579295c5
+    # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
+    image: ghcr.io/eugenmayer/kontextwork-converter:1.6.2@sha256:3d1eb99e88bd2944a9a5349f8e5e7b3e81b90841cdc07f17688f96a8f8d8dd72
     platform: linux/amd64
     ports:
       - "8083:8080"
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.116.1@sha256:6260c3c942f6abcb45f255ac67835600cfd2fc6ce8be65e0ee3af6da2dfb98fb
+    image: docker.io/otel/opentelemetry-collector:0.117.0@sha256:55440719c41552ccc1a9f02fb88b0db773e3f7f9f2bad22881ba0f7be1779171
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -433,7 +412,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: docker.io/prom/prometheus:v3.0.1@sha256:565ee86501224ebbb98fc10b332fa54440b100469924003359edf49cbce374bd
+    image: docker.io/prom/prometheus:v3.1.0@sha256:6559acbd5d770b15bb3c954629ce190ac3cbbdb2b7f1c30f0385c4e05104e218
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -582,6 +561,7 @@ services:
       - BAG_API_CLIENT_MP_REST_URL=https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/
       - BAG_API_KEY=${BAG_API_KEY:-dummyBagApiKey}
       - BRP_API_CLIENT_MP_REST_URL=http://brp-personen-mock:5010/haalcentraal/api/brp
+      - BRON_ORGANISATIE_RSIN=${BRON_ORGANISATIE_RSIN:-123443210}
       - BRP_API_KEY=dummyKey # not used when using the BRP proxy
       - CONTEXT_URL=http://localhost:8080
       - DB_HOST=zac-database
@@ -612,20 +592,21 @@ services:
       - SMARTDOCUMENTS_AUTHENTICATION=${SMARTDOCUMENTS_AUTHENTICATION:-dummySmartDocumentsAuthentication}
       - SMARTDOCUMENTS_CLIENT_MP_REST_URL=${SMARTDOCUMENTS_CLIENT_MP_REST_URL:-http://smartdocuments-wiremock:8080}
       - SMARTDOCUMENTS_FIXED_USER_NAME=${SMARTDOCUMENTS_FIXED_USER_NAME:-}
+      - SMTP_SERVER=${SMTP_SERVER:-in-v3.mailjet.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USERNAME=${SMTP_USERNAME:-dummyMailjetApiKey}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-dummyMailjetApiSecretKey}
       - SIGNALERINGEN_DELETE_OLDER_THAN_DAYS=${SIGNALERINGEN_DELETE_OLDER_THAN_DAYS:-14}
       - SOLR_URL=http://solr:8983
       # Turn off the Open Telemetry sampler by default because it is not always needed
       # Typically when using the Docker Compose profile 'metrics' you want to turn this on
       - SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE=${SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE:-off}
       - SUBSYSTEM_OPENTELEMETRY__ENDPOINT=http://otel-collector:4317
+      - VERANTWOORDELIJKE_ORGANISATIE_RSIN=${VERANTWOORDELIJKE_ORGANISATIE_RSIN:-316245124}
       - ZGW_API_CLIENT_MP_REST_URL=http://openzaak.local:8000/
       - ZGW_API_CLIENTID=zac_client
       - ZGW_API_SECRET=openzaakZaakafhandelcomponentClientSecret
       - ZGW_API_URL_EXTERN=http://localhost:8001/
-      - SMTP_SERVER=${SMTP_SERVER:-in-v3.mailjet.com}
-      - SMTP_PORT=${SMTP_PORT:-587}
-      - SMTP_USERNAME=${SMTP_USERNAME:-dummyMailjetApiKey}
-      - SMTP_PASSWORD=${SMTP_PASSWORD:-dummyMailjetApiSecretKey}
     ports:
       - "8080:8080"
       - "9990:9990"

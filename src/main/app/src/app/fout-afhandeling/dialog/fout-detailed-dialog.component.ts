@@ -13,6 +13,7 @@ import { MaterialModule } from "../../shared/material/material.module";
 @Component({
   standalone: true,
   templateUrl: "fout-detailed-dialog.component.html",
+  styleUrls: ["./fout-detailed-dialog.component.less"],
   imports: [TranslateModule, MaterialModule, NgIf, AsyncPipe, NgForOf],
 })
 export class FoutDetailedDialogComponent {

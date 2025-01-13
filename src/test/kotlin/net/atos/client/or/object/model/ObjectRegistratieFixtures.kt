@@ -7,8 +7,9 @@
 
 package net.atos.client.or.`object`.model
 
+import net.atos.client.or.objects.model.generated.ModelObject
 import net.atos.client.or.objects.model.generated.ObjectRecord
-import net.atos.client.or.objecttype.model.Objecttype
+import net.atos.client.or.objecttypes.model.generated.ObjectType
 import java.net.URI
 import java.util.UUID
 
@@ -17,8 +18,7 @@ fun createORObject(
     uuid: UUID = UUID.randomUUID(),
     record: ObjectRecord? = null
 ) =
-    ORObject().apply {
-        this.url = url
+    ModelObject(url).apply {
         this.uuid = uuid
         this.record = record
     }
@@ -34,8 +34,7 @@ fun createObjecttype(
     uuid: UUID = UUID.randomUUID(),
     name: String = "dummyName"
 ) =
-    Objecttype().apply {
-        this.url = url
+    ObjectType(url, null, null, null).apply {
         this.uuid = uuid
         this.name = name
     }
