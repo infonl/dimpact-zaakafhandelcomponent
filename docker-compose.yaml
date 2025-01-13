@@ -398,6 +398,7 @@ services:
     profiles: [ "itest" ]
 
   office-converter:
+    # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
     image: ghcr.io/eugenmayer/kontextwork-converter:1.6.2@sha256:3d1eb99e88bd2944a9a5349f8e5e7b3e81b90841cdc07f17688f96a8f8d8dd72
     platform: linux/amd64
     ports:
