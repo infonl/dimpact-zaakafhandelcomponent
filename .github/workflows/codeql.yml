@@ -16,7 +16,7 @@ env:
 
 jobs:
   paths-ignore:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       skip: ${{ steps.paths-ignore.outputs.skip }}
     steps:
@@ -30,7 +30,7 @@ jobs:
 
   analyze:
     name: Analyze
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: paths-ignore
     if: ${{ needs.paths-ignore.outputs.skip != 'true' }}
     permissions:
@@ -74,7 +74,7 @@ jobs:
     needs:
       - analyze
       - paths-ignore
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       checks: read
