@@ -9,7 +9,7 @@ import jakarta.inject.Inject
 import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
 import net.atos.client.or.`object`.ObjectsClientService
-import net.atos.client.or.`object`.model.ORObject
+import net.atos.client.or.objects.model.generated.ModelObject
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.util.extractUuid
@@ -106,7 +106,7 @@ class ProductaanvraagService @Inject constructor(
         }
     }
 
-    fun getAanvraaggegevens(productaanvraagObject: ORObject): Map<String, Any> =
+    fun getAanvraaggegevens(productaanvraagObject: ModelObject): Map<String, Any> =
         (productaanvraagObject.record.data[PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS] as Map<*, *>)
             .values
             .filterIsInstance<Map<String, Any>>()
@@ -114,7 +114,7 @@ class ProductaanvraagService @Inject constructor(
             .associate { it.key to it.value }
 
     @Suppress("TooGenericExceptionCaught", "TooGenericExceptionThrown")
-    fun getProductaanvraag(productaanvraagObject: ORObject): ProductaanvraagDimpact =
+    fun getProductaanvraag(productaanvraagObject: ModelObject): ProductaanvraagDimpact =
         JsonbBuilder.create(
             JsonbConfig()
                 // register our custom enum JSON adapters because by default enums are deserialized using the enum's name
@@ -131,7 +131,7 @@ class ProductaanvraagService @Inject constructor(
             ProductaanvraagDimpact::class.java
         )
 
-    fun pairProductaanvraagWithZaak(productaanvraag: ORObject, zaakUrl: URI) {
+    fun pairProductaanvraagWithZaak(productaanvraag: ModelObject, zaakUrl: URI) {
         ZaakobjectProductaanvraag(zaakUrl, productaanvraag.url)
             .let(zrcClientService::createZaakobject)
     }
@@ -353,7 +353,7 @@ class ProductaanvraagService @Inject constructor(
             .firstOrNull { it.identificatie == zaaktypeIdentificatie }
 
     @Suppress("TooGenericExceptionCaught", "NestedBlockDepth")
-    private fun handleProductaanvraagDimpact(productaanvraagObject: ORObject) {
+    private fun handleProductaanvraagDimpact(productaanvraagObject: ModelObject) {
         LOG.fine { "Start handling productaanvraag with object URL: ${productaanvraagObject.url}" }
         val productaanvraag = getProductaanvraag(productaanvraagObject)
         zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
@@ -401,7 +401,7 @@ class ProductaanvraagService @Inject constructor(
      * This is a bit of a poor man's solution because we are currently 'misusing' the very generic Objects API
      * to store specific productaanvraag JSON data.
      */
-    private fun isProductaanvraagDimpact(productaanvraagObject: ORObject) =
+    private fun isProductaanvraagDimpact(productaanvraagObject: ModelObject) =
         productaanvraagObject.record.data.let {
             it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_BRON) &&
                 it.containsKey(PRODUCTAANVRAAG_FORMULIER_VELD_TYPE) &&
@@ -410,7 +410,7 @@ class ProductaanvraagService @Inject constructor(
 
     private fun pairProductaanvraagInfoWithZaak(
         productaanvraag: ProductaanvraagDimpact,
-        productaanvraagObject: ORObject,
+        productaanvraagObject: ModelObject,
         zaak: Zaak
     ) {
         pairProductaanvraagWithZaak(productaanvraagObject, zaak.url)
@@ -419,7 +419,7 @@ class ProductaanvraagService @Inject constructor(
         addBetrokkenen(productaanvraag, zaak)
     }
 
-    private fun registreerInbox(productaanvraag: ProductaanvraagDimpact, productaanvraagObject: ORObject) {
+    private fun registreerInbox(productaanvraag: ProductaanvraagDimpact, productaanvraagObject: ModelObject) {
         val inboxProductaanvraag = InboxProductaanvraag().apply {
             productaanvraagObjectUUID = productaanvraagObject.uuid
             type = productaanvraag.type
@@ -450,7 +450,7 @@ class ProductaanvraagService @Inject constructor(
     private fun startZaakWithBpmnProcess(
         zaaktype: ZaakType,
         productaanvraag: ProductaanvraagDimpact,
-        productaanvraagObject: ORObject
+        productaanvraagObject: ModelObject
     ) {
         val createdZaak = Zaak().apply {
             this.zaaktype = zaaktype.url
@@ -472,7 +472,7 @@ class ProductaanvraagService @Inject constructor(
     private fun startZaakWithCmmnProcess(
         zaaktypeUuid: UUID,
         productaanvraag: ProductaanvraagDimpact,
-        productaanvraagObject: ORObject
+        productaanvraagObject: ModelObject
     ) {
         val formulierData = getAanvraaggegevens(productaanvraagObject)
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)

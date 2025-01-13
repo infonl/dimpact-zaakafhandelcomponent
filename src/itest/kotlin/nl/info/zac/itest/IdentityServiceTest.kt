@@ -82,13 +82,13 @@ class IdentityServiceTest : BehaviorSpec({
                                     "naam": "$TEST_RECORD_MANAGER_1_NAME"
                                 },
                                 {
-                                    "id": "$TEST_USER_1_USERNAME",
-                                    "naam": "$TEST_USER_1_NAME"
-                                },
-                                {
                                     "id": "$TEST_USER_DOMEIN_TEST_1_ID",
                                     "naam": "$TEST_USER_DOMEIN_TEST_1_NAME"
                                 },
+                                {
+                                    "id": "$TEST_USER_1_USERNAME",
+                                    "naam": "$TEST_USER_1_NAME"
+                                },                          
                                 {
                                     "id": "$TEST_USER_2_ID",
                                     "naam": "$TEST_USER_2_NAME"

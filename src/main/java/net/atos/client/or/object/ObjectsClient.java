@@ -22,7 +22,7 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.or.object.model.ORObject;
+import net.atos.client.or.objects.model.generated.ModelObject;
 import net.atos.client.or.shared.exception.FoutExceptionMapper;
 import net.atos.client.or.shared.exception.ORRuntimeResponseExceptionMapper;
 import net.atos.client.or.shared.exception.ValidatieFoutExceptionMapper;
@@ -52,16 +52,16 @@ public interface ObjectsClient {
     @ClientHeaderParams({
                          @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
                          @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
-    ORObject objectCreate(final ORObject object);
+    ModelObject objectCreate(final ModelObject object);
 
     @GET
     @Path("objects/{object-uuid}")
-    ORObject objectRead(@PathParam("object-uuid") final UUID objectUUID);
+    ModelObject objectRead(@PathParam("object-uuid") final UUID objectUUID);
 
     @PUT
     @Path("objects/{object-uuid}")
     @ClientHeaderParams({
                          @ClientHeaderParam(name = ACCEPT_CRS, value = ACCEPT_CRS_VALUE),
                          @ClientHeaderParam(name = CONTENT_CRS, value = CONTENT_CRS_VALUE)})
-    ORObject objectUpdate(@PathParam("object-uuid") final UUID objectUUID, final ORObject object);
+    ModelObject objectUpdate(@PathParam("object-uuid") final UUID objectUUID, final ModelObject object);
 }

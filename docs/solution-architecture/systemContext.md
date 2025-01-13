@@ -100,7 +100,7 @@ Most APIs are defined using [OpenAPI](https://www.openapis.org/) definitions as 
 Notes:
 - ZAC does not integrate with Open Formulieren. For details please see: [ZAC integration with Open Formulieren](openFormulierenIntegration.md).
 - ZAC does not integrate with Open Notificaties using an API. Rather Open Notificaties performs callback HTTP requests to ZAC when events have been received to which has subscribed.
-- Components belonging to the [IAM architecture](iamArchitecture.md) such as Keycloak and OpenLDAP are not listed here to keep things relatively simple.
+- Components belonging to the [IAM architecture](iamArchitecture.md) such as Keycloak are not listed here to keep things relatively simple.
 
 ## External services
 
