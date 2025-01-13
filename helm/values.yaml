@@ -7,7 +7,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# -- contextUrl External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com)
+# -- External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com)
 contextUrl: ""
 
 # db Configuration of database connection
@@ -19,7 +19,7 @@ db:
 
 # auth Configuration of OpenID Connect
 auth:
-  server: ""  # https://keycloak.example.com
+  server: "" # https://keycloak.example.com
   realm: ""
   # -- Client ID and secret as defined in the realm
   clientId: ""
@@ -50,17 +50,17 @@ mail:
 
 # zgwApis Configuration of ZGW API's provider (Open Zaak)
 zgwApis:
-  url: ""  # http://open-zaak.internal
-  urlExtern: ""  # https://open-zaak.example.com
+  url: "" # http://open-zaak.internal
+  urlExtern: "" # https://open-zaak.example.com
   clientId: ""
   secret: ""
 
-# -- notificationsSecretKey Configuration of the notifications receiving endpoint.
+# -- Configuration of the notifications receiving endpoint.
 notificationsSecretKey: ""
 
 # klantenApi Configuration of Klanten API provider (Open Klant)
 klantinteractiesApi:
-  url: ""  # http://open-klant.internal/klantinteracties
+  url: "" # http://open-klant.internal/klantinteracties
   token: ""
 
 # featureFlags defines supported feature flags and their default values
@@ -69,37 +69,37 @@ featureFlags:
 
 # objectenApi Configuration of the Objecten API provider (Overige Registraties)
 objectenApi:
-  url: ""  # http://objecten.internal
+  url: "" # http://objecten.internal
   token: ""
 
 # objecttypenApi Configuration of the Objecttypen API provider (Overige Registraties)
 objecttypenApi:
-  url: ""  # http://objecttypen.internal
+  url: "" # http://objecttypen.internal
   token: ""
 
 # brpApi Configuration of the BRP Api provider (Haal Centraal)
 brpApi:
-  url: ""  # https://www.haalcentraal.nl/haalcentraal
+  url: "" # https://www.haalcentraal.nl/haalcentraal
   apiKey: ""
 
 # kvkApi Configuration of the KVK API provider (KVK)
 kvkApi:
-  url: ""  # https://developers.kvk.nl/test
+  url: "" # https://developers.kvk.nl/test
   apiKey: ""
 
 # bagApi Configuration of the BAG API provider (Kadaster)
 bagApi:
-  url: ""  # https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2
+  url: "" # https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2
   apiKey: ""
 
 # openForms Configuration of the Open Forms URL
 openForms:
-  url: ""  # https://open-forms.example.com
+  url: "" # https://open-forms.example.com
 
 # smartDocuments Configuration of the SmartDocuments connection
 smartDocuments:
   enabled: false
-  url: ""  # https://partners.smartdocuments.com
+  url: "" # https://partners.smartdocuments.com
   authentication: ""
   fixedUserName: ""
 
@@ -128,7 +128,7 @@ signaleringen:
   securityContext: {}
   tolerations: []
 
-# opentelemetry_zaakafhandelcomponent Overrides for opentelemetry
+# Overrides for opentelemetry
 # opentelemetry_zaakafhandelcomponent:
 #   sampler_type: "-off"
 #   endpoint: "http://otel-collector:4317"
@@ -146,7 +146,7 @@ remoteDebug: False
 # -- jvm options to set in the _JAVA_OPTIONS env var, recommended defaults are used if not provided and are shown below
 #javaOptions: -Xmx1024m -Xms1024m -Xlog:gc::time,uptime
 
-# -- replicaCount the number of replicas to run
+# -- the number of replicas to run
 replicaCount: 1
 
 # image the image parameters to use
@@ -156,7 +156,7 @@ image:
   # -- Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-# -- imagePullSecrets specifies image pull secrets
+# -- specifies image pull secrets
 imagePullSecrets: [ ]
 
 # -- name to use
@@ -174,14 +174,14 @@ serviceAccount:
   # -- The name of the service account to use. If not set and create is true, a name is generated using the fullname template
   name: ""
 
-# -- podAnnotations pod specific annotations
+# -- pod specific annotations
 podAnnotations: { }
 
-# -- podSecurityContext pod specific security context
+# -- pod specific security context
 podSecurityContext: { }
 # fsGroup: 2000
 
-# securityContext generic security context
+# generic security context
 securityContext: {}
   # capabilities:
   #   drop:
@@ -190,13 +190,13 @@ securityContext: {}
 # runAsNonRoot: true
 # runAsUser: 1000
 
-# service service specifications
+# service specifications
 service:
   type: ClusterIP
   port: 80
   annotations: {}
 
-# ingress ingress specifications
+# ingress specifications
 ingress:
   enabled: false
   className: ""
@@ -213,11 +213,11 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-# backendConfig currently not in use, specify backend in ingress instead
+# currently not in use, specify backend in ingress instead
 backendConfig:
   enabled: false
 
-# resources specify resources limits and requests if needed, prefilled values are the minimum recommended
+# specify resources limits and requests if needed, prefilled values are the minimum recommended
 resources:
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -230,7 +230,7 @@ resources:
     cpu: 100m
     memory: 1Gi
 
-# autoscaling set autoscaling parameters
+# set autoscaling parameters
 autoscaling:
   enabled: false
   minReplicas: 1
