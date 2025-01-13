@@ -90,52 +90,35 @@ To log in to the Keycloak Admin Console:
 ZAC uses the imported `zaakafhandelcomponent` Keycloak realm.
 
 After making changes in Keycloak you can make a new realm export thereby overriding the existing `zaakafhandelcomponent-realm.json` file to
-be automatically imported.
+be automatically imported. Because we include our test users in the realm this can unfortunately only be done using a 
+stand-alone Keycloak instance on your computer (which you downloaded and installed locally) and the Keycloak command line.
+For example to export the ZAC Keycloak realm including the users do the following:
+
+```
+<KEYCLOAK_INSTALL_DIR>/bin/kc.sh export --dir <ZAC_GIT_REPO_DIR>/scripts/docker-compose/imports/keycloak --users realm_file --realm zaakafhandelcomponent
+```
+
+Please see https://www.keycloak.org/server/importExport for details.
+
 When you do so beware of the following:
 
-1. Make sure to select `Export groups and roles` and `Export clients` in the export dialog.
-2. After you have exported the realm JSON file make the following manual changes in the file:
-    1. In the LDAP configuration set the dummy value of the `bindCredential` attribute to `admin`.
-       This is because the Keycloak export realm functionality does not export secrets like this.
-    2. Do the same for the `secret` attribute in the `zaakafhandelcomponent` client configuration and set this to: `keycloakZaakafhandelcomponentClientSecret`.
+1. After you have exported the realm JSON file make the following manual changes in the file:
+   1. Set the value of the `secret` attribute in the `zaakafhandelcomponent` client configuration to: `keycloakZaakafhandelcomponentClientSecret`.
 
 #### Roles
 
 All required roles are already included in the Keycloak realm. No need to create them manually.
 
-#### Users
+#### Test users
 
-1. Apart from the Keycloak admin user, the following test users are included in OpenLDAP
-    - `testuser1`
-2. OpenLDAP also contains the following groups:
-    - `test-group-a`
-3. You can sync these LDAP users and groups into Keycloak from the User Federation section in the Keycloak Admin Console.
-4. For now first you need to manually set the `Bind Credential` in `User Federation` - `ldap`. This is not imported from the JSON realm file yet.
-5. Now select `Synchronize all users`.
-6. Then in `Mappers` - `Groups` select `Sync LDAP Groups To Keycloak`.
-7. Make sure that all imported users at least have the `zaakafhandelcomponent_user` role assigned.
-8. For a ZAC admin the following user roles are required:
-    - `zaakafhandelcomponent_user`
-    - `beheerder`
-    - `domein_elk_zaaktype`
+Test users are imported into Keycloak on startup using the `zaakafhandelcomponent-realm.json` file.
 
-### OpenLDAP
+A ZAC user needs to have at the very least the base `zaakafhandelcomponent_user` role.
 
-OpenLDAP is currently used by ZAC to sync users and groups to/from Keycloak but will be phased out soon.
-
-ZAC requires OpenLDAP to have the additional RFC2307BIS LDAP schema (e.g. for the `GroupOfUniqueNames` object class).
-You can use an LDAP client such as [Apache Directory Studio](https://directory.apache.org/studio/) to create users and groups and update the `zac-ldap-setup.ldif` file.
-To do the latter, connect Apache Directory Studio to your local OpenLDAP server on `localhost:1389` and then right-click on the `dc=example,dc=org` section and select `Export - LDIF Export...`.
-
-ZAC requires that each user is part of an (LDAP) group where the `uniqueMember` attributes in this group use the `cn` attribute to identify a member and not the `uid`.
-E.g.: `uniqueMember: cn=testuser1,ou=people,dc=example,dc=org`.
-
-Note that at the moment ZAC only allows one DN which is used for both users and groups.
-
-The LDIF import contains a number of test users which can be used to log in to ZAC.
-You may wish to change the email addresses of the test users to your own domain.
-
-![Basic ZAC OpenLDAP setup](./attachments/images/zac-openldap-1.png)
+For a ZAC admin the following user roles are required:
+ - `zaakafhandelcomponent_user`
+ - `beheerder`
+ - `domein_elk_zaaktype`
 
 ### Open Klant
 
