@@ -157,7 +157,7 @@ image:
   tag: ""
 
 # -- specifies image pull secrets
-imagePullSecrets: [ ]
+imagePullSecrets: []
 
 # -- name to use
 nameOverride: ""
@@ -170,15 +170,15 @@ serviceAccount:
   # -- Specifies whether a service account should be created
   create: true
   # -- Annotations to add to the service account
-  annotations: { }
+  annotations: {}
   # -- The name of the service account to use. If not set and create is true, a name is generated using the fullname template
   name: ""
 
 # -- pod specific annotations
-podAnnotations: { }
+podAnnotations: {}
 
 # -- pod specific security context
-podSecurityContext: { }
+podSecurityContext: {}
 # fsGroup: 2000
 
 # generic security context
@@ -239,13 +239,13 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 # -- set node selector parameters
-nodeSelector: { }
+nodeSelector: {}
 
 # -- set toleration parameters
-tolerations: [ ]
+tolerations: []
 
 # -- set affinity parameters
-affinity: { }
+affinity: {}
 
 # opa provision the opa deployment, prefilled resources values are the minimum recommended
 opa:
@@ -373,7 +373,7 @@ office_converter:
 
 
 # -- Extra objects to deploy (value evaluated as a template)
-extraDeploy: [ ]
+extraDeploy: []
 
 # opentelemetry-collector enable to use the included helm chart and settings to work with zac
 opentelemetry-collector:
