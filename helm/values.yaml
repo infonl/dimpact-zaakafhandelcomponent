@@ -515,5 +515,5 @@ organizations:
     # -- The RSIN of the Non-natural person - the organization that is ultimately responsible for handling the zaak. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
     rsin: ""
 
-# -- OpenZaak catalogus domein
+# -- OpenZaak Catalogus Domein
 catalogusDomein: ALG

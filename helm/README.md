@@ -29,6 +29,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | bagApi.url | string | `""` |  |
 | brpApi.apiKey | string | `""` |  |
 | brpApi.url | string | `""` |  |
+| catalogusDomein | string | `"ALG"` | OpenZaak Catalogus Domein |
 | contextUrl | string | `""` | contextUrl External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com) |
 | db.host | string | `""` |  |
 | db.name | string | `""` |  |
@@ -205,8 +206,8 @@ A Helm chart for installing Zaakafhandelcomponent
 | opentelemetry-collector.ports.zipkin.enabled | bool | `false` |  |
 | opentelemetry-collector.presets.clusterMetrics.enabled | bool | `false` |  |
 | opentelemetry-collector.replicaCount | int | `1` |  |
-| organizations.bron.rsin | string | `""` | Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die eindverantwoordelijk is voor de behandeling van de zaak. Dit moet een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef |
-| organizations.verantwoordelijke.rsin | string | `""` | Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef |
+| organizations.bron.rsin | string | `""` | The RSIN of the Non-natural person - the organization that is ultimately responsible for handling the zaak. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef |
+| organizations.verantwoordelijke.rsin | string | `""` | The RSIN of the Non-natural person - the organization that created the business. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef |
 | podAnnotations | object | `{}` | podAnnotations pod specific annotations |
 | podSecurityContext | object | `{}` | podSecurityContext pod specific security context |
 | remoteDebug | bool | `false` | Enable Java remote debugging |
