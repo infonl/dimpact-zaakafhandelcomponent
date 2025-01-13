@@ -398,7 +398,7 @@ services:
     profiles: [ "itest" ]
 
   office-converter:
-    image: ghcr.io/eugenmayer/kontextwork-converter:1.6.1@sha256:92ec2ee4390a7663bc9f5476d6d400bcbbbbc55630bf531d062919b6579295c5
+    image: ghcr.io/eugenmayer/kontextwork-converter:1.6.2@sha256:3d1eb99e88bd2944a9a5349f8e5e7b3e81b90841cdc07f17688f96a8f8d8dd72
     platform: linux/amd64
     ports:
       - "8083:8080"
