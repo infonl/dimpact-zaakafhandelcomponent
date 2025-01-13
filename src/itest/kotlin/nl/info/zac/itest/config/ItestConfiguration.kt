@@ -143,7 +143,7 @@ object ItestConfiguration {
      */
     const val TEST_USER_2_NAME = "User2"
     const val TEST_USER_DOMEIN_TEST_1_ID = "testuserdomeintest1"
-    const val TEST_USER_DOMEIN_TEST_1_NAME = "Test testuserdomeintest1"
+    const val TEST_USER_DOMEIN_TEST_1_NAME = "Test Testuserdomeintest1"
     const val TEST_RECORD_MANAGER_1_USERNAME = "recordmanager1"
     const val TEST_RECORD_MANAGER_1_NAME = "Test Recordmanager1"
     const val TEST_FUNCTIONAL_ADMIN_1_ID = "functioneelbeheerder1"

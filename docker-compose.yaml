@@ -19,11 +19,15 @@ services:
       - DB_USER=keycloak
       - DB_NAME=keycloak
       - DB_PASSWORD=keycloak
-      - LDAP_URL=ldap://openldap:1389
-      - ZAC_GROUP_A_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_A_EMAIL_ADDRESS:-test-group-a@example.com}
-      - ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS:-test-group-functioneel-beheerders@example.com}
-      - ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS:-test-group-record-managers@example.com}
-      - ZAC_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS:-test-group-domein-test-1@example.com}
+      - ZAC_TESTUSER1_EMAIL_ADDRESS=${DOCKER_COMPOSE_TEST_USER_1_EMAIL_ADDRESS:-testuser1@example.com}
+      - ZAC_TESTUSER2_EMAIL_ADDRESS=${DOCKER_COMPOSE_TEST_USER_2_EMAIL_ADDRESS:-testuser2@example.com}
+      - ZAC_RECORD_MANAGER_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RECORD_MANAGER_1_EMAIL_ADDRESS:-recordmanager1@example.com}
+      - ZAC_FUNCTIONAL_ADMIN_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_FUNCTIONAL_ADMIN_1_EMAIL_ADDRESS:-functionaladmin1@example.com}
+      - ZAC_TEST_USER_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS:-testuser-domein-test-1@example.com}
+      - ZAC_GROUP_A_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_A_EMAIL_ADDRESS:-test-group-a@example.com}
+      - ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS:-test-group-functioneel-beheerders@example.com}
+      - ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS:-test-group-record-managers@example.com}
+      - ZAC_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS:-test-group-domein-test-1@example.com}
     volumes:
       - ./scripts/docker-compose/imports/keycloak:/opt/keycloak/data/import
     command:
@@ -288,32 +292,6 @@ services:
     command: run --server --log-level debug
     ports:
       - "8181:8181"
-
-  openldap:
-    image: docker.io/bitnami/openldap:2.6.9@sha256:8e3f28db7a8c05d7db99ec688b8ca1044f0deaf8f98ea5b1f71c42276e3c1583
-    ports:
-      - "1389:1389"
-      - "1636:1636"
-    volumes:
-      - ./scripts/docker-compose/imports/openldap/schemas:/schemas
-      - ./scripts/docker-compose/imports/openldap/zac-scripts:/zac-scripts
-    environment:
-      - LDAP_ADMIN_USERNAME=admin
-      - LDAP_ADMIN_PASSWORD=admin
-      - LDAP_ROOT=dc=example,dc=org
-      - LDAP_SKIP_DEFAULT_TREE=yes
-      - LDAP_CUSTOM_LDIF_DIR=/tmp
-      - ZAC_TESTUSER1_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_TEST_USER_1_EMAIL_ADDRESS:-testuser1@example.com}
-      - ZAC_TESTUSER2_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_TEST_USER_2_EMAIL_ADDRESS:-testuser2@example.com}
-      - ZAC_RECORD_MANAGER_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_RECORD_MANAGER_1_EMAIL_ADDRESS:-recordmanager1@example.com}
-      - ZAC_FUNCTIONAL_ADMIN_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_FUNCTIONAL_ADMIN_1_EMAIL_ADDRESS:-functionaladmin1@example.com}
-      - ZAC_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS:-testuser-domein-test-1@example.com}
-      - ZAC_GROUP_A_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_A_EMAIL_ADDRESS:-test-group-a@example.com}
-      - ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS:-test-group-functioneel-beheerders@example.com}
-      - ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS:-test-group-record-managers@example.com}
-      - ZAC_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_LDAP_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS:-test-group-domein-test-1@example.com}
-    entrypoint: ["/zac-scripts/generate-zac-import-ldif-and-start-openldap.sh"]
-    command: ["/opt/bitnami/scripts/openldap/run.sh"]
 
   brp-personen-mock:
     image: ghcr.io/brp-api/personen-mock:2.3.0-202409180940@sha256:eacbf6bb9d7ccd74c283506072c0d11e5695b04c0d5ed587f61fd3a4db689220

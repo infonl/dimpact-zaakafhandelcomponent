@@ -25,7 +25,6 @@ C4Context
 
     UpdateElementStyle(ZAC, $bgColor="red", $borderColor="red")
     UpdateElementStyle(Keycloak, $bgColor="darkgrey", $borderColor="darkgrey")
-    UpdateElementStyle(OpenLDAP, $bgColor="darkgrey", $borderColor="darkgrey")
 
     UpdateLayoutConfig($c4ShapeInRow="4", $c4BoundaryInRow="4")
 ```
