@@ -113,7 +113,7 @@ export class ZaakVerlengenDialogComponent implements OnInit {
       .validators(Validators.required)
       .build();
 
-    this.takenVerlengenField = new CheckboxFormFieldBuilder()
+    this.takenVerlengenField = new CheckboxFormFieldBuilder(false)
       .id("taken.verlengen")
       .label("taken.verlengen")
       .build();
