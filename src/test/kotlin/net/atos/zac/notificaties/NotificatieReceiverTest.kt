@@ -97,7 +97,7 @@ class NotificatieReceiverTest : BehaviorSpec({
             resource = Resource.ZAAKTYPE,
             resourceUrl = zaaktypeUri
         )
-        every { zaakafhandelParameterBeheerService.zaaktypeAangemaakt(zaaktypeUri) } just runs
+        every { zaakafhandelParameterBeheerService.upsertZaaktype(zaaktypeUri) } just runs
 
         When("notificatieReceive is called with the zaaktype create notificatie") {
             val response = notificatieReceiver.notificatieReceive(httpHeaders, notificatie)
@@ -107,7 +107,7 @@ class NotificatieReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe 204
                 verify(exactly = 1) {
-                    zaakafhandelParameterBeheerService.zaaktypeAangemaakt(zaaktypeUri)
+                    zaakafhandelParameterBeheerService.upsertZaaktype(zaaktypeUri)
                 }
             }
         }
