@@ -11,7 +11,6 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.Afleidingswijze
 import net.atos.client.zgw.ztc.model.extensions.isNuGeldig
 import net.atos.client.zgw.ztc.model.generated.BesluitType
-import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.client.zgw.ztc.model.generated.ResultaatType
 import net.atos.client.zgw.ztc.model.generated.RolType
