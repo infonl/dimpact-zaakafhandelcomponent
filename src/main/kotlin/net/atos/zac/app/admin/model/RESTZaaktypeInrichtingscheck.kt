@@ -17,7 +17,7 @@ package net.atos.zac.app.admin.model
  * indien zaak besluit heeft, Besluittype
  */
 data class RESTZaaktypeInrichtingscheck(
-    var zaaktype: RESTZaaktypeOverzicht? = null,
+    var zaaktype: RESTZaaktypeOverzicht,
     var statustypeIntakeAanwezig: Boolean = false,
     var statustypeInBehandelingAanwezig: Boolean = false,
     var statustypeHeropendAanwezig: Boolean = false,
