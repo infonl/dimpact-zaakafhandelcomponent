@@ -75,22 +75,22 @@ class HealthCheckRestService @Inject constructor(
             .filter { it.isNuGeldig() }
 
     private fun convertToREST(check: ZaaktypeInrichtingscheck): RESTZaaktypeInrichtingscheck =
-        RESTZaaktypeInrichtingscheck().apply {
-            zaaktype = RESTZaaktypeOverzichtConverter.convert(check.zaaktype)
-            besluittypeAanwezig = check.isBesluittypeAanwezig
-            resultaattypesMetVerplichtBesluit = check.resultaattypesMetVerplichtBesluit
-            resultaattypeAanwezig = check.isResultaattypeAanwezig
-            informatieobjecttypeEmailAanwezig = check.isInformatieobjecttypeEmailAanwezig
-            rolBehandelaarAanwezig = check.isRolBehandelaarAanwezig
-            rolInitiatorAanwezig = check.isRolInitiatorAanwezig
-            rolOverigeAanwezig = check.isRolOverigeAanwezig
-            statustypeAfgerondAanwezig = check.isStatustypeAfgerondAanwezig
-            statustypeAfgerondLaatsteVolgnummer = check.isStatustypeAfgerondLaatsteVolgnummer
-            statustypeHeropendAanwezig = check.isStatustypeHeropendAanwezig
-            statustypeAanvullendeInformatieVereist = check.isStatustypeAanvullendeInformatieVereist
-            statustypeInBehandelingAanwezig = check.isStatustypeInBehandelingAanwezig
-            statustypeIntakeAanwezig = check.isStatustypeIntakeAanwezig
-            zaakafhandelParametersValide = check.isZaakafhandelParametersValide
+        RESTZaaktypeInrichtingscheck(
+            zaaktype = RESTZaaktypeOverzichtConverter.convert(check.zaaktype),
+            besluittypeAanwezig = check.isBesluittypeAanwezig,
+            resultaattypesMetVerplichtBesluit = check.resultaattypesMetVerplichtBesluit,
+            resultaattypeAanwezig = check.isResultaattypeAanwezig,
+            informatieobjecttypeEmailAanwezig = check.isInformatieobjecttypeEmailAanwezig,
+            rolBehandelaarAanwezig = check.isRolBehandelaarAanwezig,
+            rolInitiatorAanwezig = check.isRolInitiatorAanwezig,
+            rolOverigeAanwezig = check.isRolOverigeAanwezig,
+            statustypeAfgerondAanwezig = check.isStatustypeAfgerondAanwezig,
+            statustypeAfgerondLaatsteVolgnummer = check.isStatustypeAfgerondLaatsteVolgnummer,
+            statustypeHeropendAanwezig = check.isStatustypeHeropendAanwezig,
+            statustypeAanvullendeInformatieVereist = check.isStatustypeAanvullendeInformatieVereist,
+            statustypeInBehandelingAanwezig = check.isStatustypeInBehandelingAanwezig,
+            statustypeIntakeAanwezig = check.isStatustypeIntakeAanwezig,
+            zaakafhandelParametersValide = check.isZaakafhandelParametersValide,
             valide = check.isValide
-        }
+        )
 }
