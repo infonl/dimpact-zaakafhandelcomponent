@@ -26,7 +26,7 @@ export class GroepSignaleringenComponent
   @ViewChild("menuSidenav") menuSidenav: MatSidenav;
 
   isLoadingResults = false;
-  groepen: Observable<GeneratedType<'RestGroup'>[]>;
+  groepen: Observable<GeneratedType<"RestGroup">[]>;
   groepId: string;
   columns: string[] = ["subjecttype", "type", "dashboard", "mail"];
   dataSource = new MatTableDataSource<
@@ -47,7 +47,7 @@ export class GroepSignaleringenComponent
     this.groepen = this.identityService.listGroups();
   }
 
-  laadSignaleringSettings(groep: GeneratedType<'RestGroup'>): void {
+  laadSignaleringSettings(groep: GeneratedType<"RestGroup">): void {
     this.isLoadingResults = true;
     this.service.list(groep.id).subscribe((instellingen) => {
       this.dataSource.data = instellingen;

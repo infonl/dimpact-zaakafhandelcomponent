@@ -12,7 +12,7 @@ import {GeneratedType} from "../../../utils/generated-types";
 export class MedewerkerGroepFieldBuilder extends AbstractFormFieldBuilder {
   readonly formField: MedewerkerGroepFormField;
 
-  constructor(groep?: GeneratedType<'RestGroup'>, medewerker?: GeneratedType<'RestUser'>) {
+  constructor(groep?: GeneratedType<"RestGroup">, medewerker?: GeneratedType<"RestUser">) {
     super();
     this.formField = new MedewerkerGroepFormField();
     this.formField.initControl({

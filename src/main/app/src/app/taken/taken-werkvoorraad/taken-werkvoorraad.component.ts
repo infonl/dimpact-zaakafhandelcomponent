@@ -57,7 +57,7 @@ export class TakenWerkvoorraadComponent
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatTable) table: MatTable<TaakZoekObject>;
-  ingelogdeMedewerker: GeneratedType<'RestLoggedInUser'>;
+  ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
   expandedRow: TaakZoekObject | null;
   readonly zoekenColumn = ZoekenColumn;
   sorteerVeld = SorteerVeld;
@@ -71,7 +71,7 @@ export class TakenWerkvoorraadComponent
   );
 
   takenLoading = signal(false);
-  toekenning: { groep?: GeneratedType<'RestGroup'>; medewerker?: GeneratedType<'RestUser'> } | undefined;
+  toekenning: { groep?: GeneratedType<"RestGroup">; medewerker?: GeneratedType<"RestUser"> } | undefined;
 
   constructor(
     public route: ActivatedRoute,

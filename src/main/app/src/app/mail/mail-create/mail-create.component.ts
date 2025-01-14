@@ -54,7 +54,7 @@ export class MailCreateComponent implements OnInit {
   @Input() sideNav: MatDrawer;
   @Output() mailVerstuurd = new EventEmitter<boolean>();
   fields: Array<AbstractFormField[]>;
-  ingelogdeMedewerker: GeneratedType<'RestLoggedInUser'>;
+  ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
 
   verzenderFormField: SelectFormField;
   ontvangerFormField: InputFormField;

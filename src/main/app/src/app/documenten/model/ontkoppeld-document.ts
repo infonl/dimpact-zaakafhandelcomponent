@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {GeneratedType} from "../../shared/utils/generated-types";
+import { GeneratedType } from "../../shared/utils/generated-types";
 
 export class OntkoppeldDocument {
   id: number;
@@ -13,7 +13,7 @@ export class OntkoppeldDocument {
   creatiedatum: string;
   titel: string;
   bestandsnaam: string;
-  ontkoppeldDoor: GeneratedType<'RestUser'>;
+  ontkoppeldDoor: GeneratedType<"RestUser">;
   ontkoppeldOp: string;
   reden: string;
 }

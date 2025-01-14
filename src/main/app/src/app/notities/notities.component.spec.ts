@@ -12,15 +12,15 @@ import { Observable, of } from "rxjs";
 import { IdentityService } from "../identity/identity.service";
 import { MaterialModule } from "../shared/material/material.module";
 import { PipesModule } from "../shared/pipes/pipes.module";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { Notitie } from "./model/notitie";
 import { NotitiesComponent } from "./notities.component";
 import { NotitieService } from "./notities.service";
-import {GeneratedType} from "../shared/utils/generated-types";
 
-const currentUser: GeneratedType<'RestLoggedInUser'> = {
-  id: 'currentUser',
-  naam: 'test'
-}
+const currentUser: GeneratedType<"RestLoggedInUser"> = {
+  id: "currentUser",
+  naam: "test",
+};
 
 const mockIdentityService = {
   readLoggedInUser() {

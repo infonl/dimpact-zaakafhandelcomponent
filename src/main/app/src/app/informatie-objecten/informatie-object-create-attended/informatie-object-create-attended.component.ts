@@ -36,10 +36,10 @@ import {
   NotificationDialogComponent,
   NotificationDialogData,
 } from "../../shared/notification-dialog/notification-dialog.component";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { Zaak } from "../../zaken/model/zaak";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { DocumentCreationData } from "../model/document-creation-data";
-import {GeneratedType} from "../../shared/utils/generated-types";
 
 @Component({
   selector: "zac-informatie-object-create-attended",
@@ -58,7 +58,7 @@ export class InformatieObjectCreateAttendedComponent
 
   fields: Array<AbstractFormField[]>;
   formConfig: FormConfig;
-  private ingelogdeMedewerker: GeneratedType<'RestLoggedInUser'>;
+  private ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
   private informatieObjectTypes: any;
   private subscriptions$: Subscription[] = [];
   private sjabloonOptions$: BehaviorSubject<any[]> = new BehaviorSubject([]);

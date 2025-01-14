@@ -11,8 +11,8 @@ import { FormulierDefinitie } from "../../admin/model/formulieren/formulier-defi
 import { FormulierVeldDefinitie } from "../../admin/model/formulieren/formulier-veld-definitie";
 import { FormulierVeldtype } from "../../admin/model/formulieren/formulier-veld-type.enum";
 import { IdentityService } from "../../identity/identity.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { Zaak } from "../../zaken/model/zaak";
-import {GeneratedType} from "../../shared/utils/generated-types";
 
 @Component({
   selector: "zac-formulier",
@@ -36,8 +36,8 @@ export class FormulierComponent implements OnInit {
   >();
   referentietabellen: Map<string, string[]> = new Map<string, string[]>();
 
-  medewerkers: GeneratedType<'RestUser'>[];
-  groepen: GeneratedType<'RestGroup'>[];
+  medewerkers: GeneratedType<"RestUser">[];
+  groepen: GeneratedType<"RestGroup">[];
 
   bezigMetOpslaan = false;
 

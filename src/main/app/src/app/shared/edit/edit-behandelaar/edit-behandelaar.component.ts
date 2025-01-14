@@ -23,7 +23,7 @@ import {GeneratedType} from "../../utils/generated-types";
 export class EditBehandelaarComponent extends EditAutocompleteComponent {
   @Input() reasonField: InputFormField;
   showAssignToMe = false;
-  private loggedInUser: GeneratedType<'RestLoggedInUser'>;
+  private loggedInUser: GeneratedType<"RestLoggedInUser">;
 
   constructor(
     mfbService: MaterialFormBuilderService,

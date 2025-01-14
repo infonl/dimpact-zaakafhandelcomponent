@@ -4,9 +4,9 @@
  */
 
 import { FormControl } from "@angular/forms";
+import { GeneratedType } from "../../../utils/generated-types";
 import { AbstractFormGroupField } from "../../model/abstract-form-group-field";
 import { FieldType } from "../../model/field-type.enum";
-import {GeneratedType} from "../../../utils/generated-types";
 
 export class MedewerkerGroepFormField extends AbstractFormGroupField {
   fieldType = FieldType.MEDEWERKER_GROEP;
@@ -28,21 +28,21 @@ export class MedewerkerGroepFormField extends AbstractFormGroupField {
     return true;
   }
 
-  groepValue(groep: GeneratedType<'RestGroup'>): void {
+  groepValue(groep: GeneratedType<"RestGroup">): void {
     this.groep.setValue(groep);
     this.groep.markAsDirty();
   }
 
-  medewerkerValue(medewerker: GeneratedType<'RestUser'>) {
+  medewerkerValue(medewerker: GeneratedType<"RestUser">) {
     this.medewerker.setValue(medewerker);
     this.medewerker.markAsDirty();
   }
 
-  get groep(): FormControl<GeneratedType<'RestGroup'>> {
+  get groep(): FormControl<GeneratedType<"RestGroup">> {
     return this.formControl.get("groep") as FormControl;
   }
 
-  get medewerker(): FormControl<GeneratedType<'RestUser'>> {
+  get medewerker(): FormControl<GeneratedType<"RestUser">> {
     return this.formControl.get("medewerker") as FormControl;
   }
 }

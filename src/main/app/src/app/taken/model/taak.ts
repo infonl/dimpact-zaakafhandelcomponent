@@ -17,8 +17,8 @@ export class Taak {
   creatiedatumTijd: string;
   toekenningsdatumTijd: string;
   fataledatum: string;
-  behandelaar: GeneratedType<'RestUser'>;
-  groep: GeneratedType<'RestGroup'>;
+  behandelaar: GeneratedType<"RestUser">;
+  groep: GeneratedType<"RestGroup">;
   zaakUuid: string;
   zaakIdentificatie: string;
   zaaktypeOmschrijving: string;

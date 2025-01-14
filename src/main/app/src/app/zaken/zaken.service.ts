@@ -165,8 +165,8 @@ export class ZakenService {
   verdelenVanuitLijst(
     uuids: string[],
     screenEventResourceId: string,
-    groep?: GeneratedType<'RestGroup'>,
-    medewerker?: GeneratedType<'RestUser'>,
+    groep?: GeneratedType<"RestGroup">,
+    medewerker?: GeneratedType<"RestUser">,
     reden?: string,
   ): Observable<void> {
     const verdeelGegevens: ZakenVerdeelGegevens = new ZakenVerdeelGegevens();

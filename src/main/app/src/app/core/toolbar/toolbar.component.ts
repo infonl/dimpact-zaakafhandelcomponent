@@ -14,6 +14,7 @@ import { WerklijstRechten } from "../../policy/model/werklijst-rechten";
 import { PolicyService } from "../../policy/policy.service";
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { SignaleringenService } from "../../signaleringen.service";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { UtilService } from "../service/util.service";
@@ -21,7 +22,6 @@ import { ObjectType } from "../websocket/model/object-type";
 import { Opcode } from "../websocket/model/opcode";
 import { WebsocketListener } from "../websocket/model/websocket-listener";
 import { WebsocketService } from "../websocket/websocket.service";
-import {GeneratedType} from "../../shared/utils/generated-types";
 
 @Component({
   selector: "zac-toolbar",
@@ -35,7 +35,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   headerTitle$: Observable<string>;
   hasNewSignaleringen: boolean;
-  ingelogdeMedewerker: GeneratedType<'RestUser'>;
+  ingelogdeMedewerker: GeneratedType<"RestUser">;
   overigeRechten = new OverigeRechten();
   werklijstRechten = new WerklijstRechten();
   medewerkerNaamToolbar = "";

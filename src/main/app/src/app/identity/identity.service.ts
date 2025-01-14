@@ -10,7 +10,7 @@ import { catchError, tap } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { SessionStorageUtil } from "../shared/storage/session-storage.util";
-import {GeneratedType} from "../shared/utils/generated-types";
+import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
@@ -50,9 +50,9 @@ export class IdentityService {
   }
 
   readLoggedInUser() {
-    const loggedInUser = SessionStorageUtil.getItem(
-      IdentityService.LOGGED_IN_USER_KEY,
-    ) as GeneratedType<'RestLoggedInUser'>;
+    const loggedInUser = SessionStorageUtil.getItem<
+      GeneratedType<"RestLoggedInUser">
+    >(IdentityService.LOGGED_IN_USER_KEY);
     if (loggedInUser) {
       return of(loggedInUser);
     }

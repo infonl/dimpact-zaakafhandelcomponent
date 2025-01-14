@@ -15,7 +15,7 @@ export class OntkoppeldDocumentListParameters
 {
   readonly filtersType = "OntkoppeldDocumentListParameters";
   zaakID: string;
-  ontkoppeldDoor: GeneratedType<'RestUser'>;
+  ontkoppeldDoor: GeneratedType<"RestUser">;
   ontkoppeldOp = new DatumRange();
   creatiedatum = new DatumRange();
   titel: string;

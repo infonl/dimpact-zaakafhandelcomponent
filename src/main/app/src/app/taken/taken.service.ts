@@ -11,11 +11,11 @@ import { WebsocketService } from "../core/websocket/websocket.service";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { TableRequest } from "../shared/dynamic-table/datasource/table-request";
 import { TaakHistorieRegel } from "../shared/historie/model/taak-historie-regel";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { TaakZoekObject } from "../zoeken/model/taken/taak-zoek-object";
 import { Taak } from "./model/taak";
 import { TaakToekennenGegevens } from "./model/taak-toekennen-gegevens";
 import { TaakVerdelenGegevens } from "./model/taak-verdelen-gegevens";
-import {GeneratedType} from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
@@ -130,8 +130,8 @@ export class TakenService {
     taken: TaakZoekObject[],
     reden: string,
     screenEventResourceId: string,
-    groep?: GeneratedType<'RestGroup'>,
-    medewerker?: GeneratedType<'RestUser'>,
+    groep?: GeneratedType<"RestGroup">,
+    medewerker?: GeneratedType<"RestUser">,
   ): Observable<void> {
     const taakBody: TaakVerdelenGegevens = new TaakVerdelenGegevens();
     taakBody.taken = taken.map((taak) => ({

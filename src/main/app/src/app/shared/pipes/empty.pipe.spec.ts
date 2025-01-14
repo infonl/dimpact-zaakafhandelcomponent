@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { GeneratedType } from "../utils/generated-types";
 import { EmptyPipe } from "./empty.pipe";
-import {GeneratedType} from "../utils/generated-types";
 
 describe("EmptyPipe", () => {
   let pipe;
@@ -18,7 +18,7 @@ describe("EmptyPipe", () => {
   });
 
   it("should return -", () => {
-    const medewerker: Partial<GeneratedType<'RestUser'>> = {}
+    const medewerker: Partial<GeneratedType<"RestUser">> = {};
 
     expect(pipe.transform(medewerker.naam)).toBe("-");
   });

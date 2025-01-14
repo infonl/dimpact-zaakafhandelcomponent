@@ -41,10 +41,10 @@ import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenVerdelenDialogComponent } from "../zaken-verdelen-dialog/zaken-verdelen-dialog.component";
 import { ZakenVrijgevenDialogComponent } from "../zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component";
 import { ZakenWerkvoorraadDatasource } from "./zaken-werkvoorraad-datasource";
-import {GeneratedType} from "../../shared/utils/generated-types";
 
 @Component({
   templateUrl: "./zaken-werkvoorraad.component.html",
@@ -61,7 +61,7 @@ export class ZakenWerkvoorraadComponent
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatTable) table: MatTable<ZaakZoekObject>;
-  ingelogdeMedewerker: GeneratedType<'RestLoggedInUser'>;
+  ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
   expandedRow: ZaakZoekObject | null;
   readonly zoekenColumn = ZoekenColumn;
   sorteerVeld = SorteerVeld;
@@ -82,7 +82,12 @@ export class ZakenWerkvoorraadComponent
   );
 
   zakenLoading = signal(false);
-  toekenning: { groep?: GeneratedType<'RestGroup'>; medewerker?: GeneratedType<'RestUser'> } | undefined;
+  toekenning:
+    | {
+        groep?: GeneratedType<"RestGroup">;
+        medewerker?: GeneratedType<"RestUser">;
+      }
+    | undefined;
 
   constructor(
     private zakenService: ZakenService,

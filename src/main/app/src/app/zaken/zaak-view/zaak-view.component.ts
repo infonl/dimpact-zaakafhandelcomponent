@@ -166,7 +166,7 @@ export class ZaakViewComponent
   private zaakRollenListener: WebsocketListener;
   private zaakBesluitenListener: WebsocketListener;
   private zaakTakenListener: WebsocketListener;
-  private ingelogdeMedewerker: GeneratedType<'RestLoggedInUser'>;
+  private ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
   private datumPipe = new DatumPipe("nl");
 
   @ViewChild("actionsSidenav") actionsSidenav: MatSidenav;

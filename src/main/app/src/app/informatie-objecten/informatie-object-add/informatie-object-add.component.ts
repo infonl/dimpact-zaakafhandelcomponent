@@ -80,7 +80,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
   private status: SelectFormField;
   private subscriptions: Subscription[] = [];
 
-  private getInputs(deps: { loggedInUser: GeneratedType<'RestLoggedInUser'> }) {
+  private getInputs(deps: { loggedInUser: GeneratedType<"RestLoggedInUser"> }) {
     const { loggedInUser } = deps;
     this.formConfig = new FormConfigBuilder()
       .saveText("actie.toevoegen")

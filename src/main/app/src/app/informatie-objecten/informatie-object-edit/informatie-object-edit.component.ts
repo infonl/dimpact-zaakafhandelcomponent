@@ -53,7 +53,7 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
 
   fields: Array<AbstractFormField[]>;
   formConfig: FormConfig;
-  ingelogdeMedewerker: GeneratedType<'RestLoggedInUser'>;
+  ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
 
   private subscriptions$: Subscription[] = [];
 

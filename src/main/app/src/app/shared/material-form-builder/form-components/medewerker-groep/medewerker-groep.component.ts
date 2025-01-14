@@ -16,10 +16,10 @@ import { Observable, Subscription } from "rxjs";
 import { map, startWith, tap } from "rxjs/operators";
 import { IdentityService } from "../../../../identity/identity.service";
 import { OrderUtil } from "../../../order/order-util";
+import { GeneratedType } from "../../../utils/generated-types";
 import { FormComponent } from "../../model/form-component";
 import { AutocompleteValidators } from "../autocomplete/autocomplete-validators";
 import { MedewerkerGroepFormField } from "./medewerker-groep-form-field";
-import {GeneratedType} from "../../../utils/generated-types";
 
 @Component({
   templateUrl: "./medewerker-groep.component.html",
@@ -30,10 +30,10 @@ export class MedewerkerGroepComponent
   implements OnInit, OnDestroy
 {
   data: MedewerkerGroepFormField;
-  groepen: GeneratedType<'RestGroup'>[];
-  filteredGroepen: Observable<GeneratedType<'RestGroup'>[]>;
-  medewerkers: GeneratedType<'RestUser'>[];
-  filteredMedewerkers: Observable<GeneratedType<'RestUser'>[]>;
+  groepen: GeneratedType<"RestGroup">[];
+  filteredGroepen: Observable<GeneratedType<"RestGroup">[]>;
+  medewerkers: GeneratedType<"RestUser">[];
+  filteredMedewerkers: Observable<GeneratedType<"RestUser">[]>;
   subscriptions$: Subscription[] = [];
 
   hasGroep: boolean = false;
@@ -138,7 +138,8 @@ export class MedewerkerGroepComponent
 
   private getMedewerkers(defaultMedewerkerId?: string) {
     this.medewerkers = [];
-    this.identityService.listUsersInGroup(this.data.groep.value.id)
+    this.identityService
+      .listUsersInGroup(this.data.groep.value.id)
       .pipe(tap((value) => value.sort(OrderUtil.orderBy("naam"))))
       .subscribe((medewerkers) => {
         this.medewerkers = medewerkers;
@@ -166,11 +167,15 @@ export class MedewerkerGroepComponent
       });
   }
 
-  displayFn(obj: GeneratedType<'RestUser'> | GeneratedType<'RestGroup'>): string {
+  displayFn(
+    obj: GeneratedType<"RestUser"> | GeneratedType<"RestGroup">,
+  ): string {
     return obj?.naam ?? "";
   }
 
-  private _filterGroepen(value: string | GeneratedType<'RestGroup'>): GeneratedType<'RestGroup'>[] {
+  private _filterGroepen(
+    value: string | GeneratedType<"RestGroup">,
+  ): GeneratedType<"RestGroup">[] {
     if (typeof value === "object") {
       return [value];
     }
@@ -180,7 +185,9 @@ export class MedewerkerGroepComponent
     );
   }
 
-  private _filterMedewerkers(value: string | GeneratedType<'RestUser'>): GeneratedType<'RestUser'>[] {
+  private _filterMedewerkers(
+    value: string | GeneratedType<"RestUser">,
+  ): GeneratedType<"RestUser">[] {
     if (typeof value === "object") {
       return [value];
     }

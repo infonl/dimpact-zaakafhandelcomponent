@@ -8,5 +8,5 @@ import { OntkoppeldDocument } from "./ontkoppeld-document";
 import {GeneratedType} from "../../shared/utils/generated-types";
 
 export class OntkoppeldeDocumentenResultaat extends Resultaat<OntkoppeldDocument> {
-  filterOntkoppeldDoor: GeneratedType<'RestUser'>[];
+  filterOntkoppeldDoor: GeneratedType<"RestUser">[];
 }

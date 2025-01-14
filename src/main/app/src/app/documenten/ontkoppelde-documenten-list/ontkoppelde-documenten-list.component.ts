@@ -30,10 +30,10 @@ import {
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { OntkoppeldDocument } from "../model/ontkoppeld-document";
 import { OntkoppeldDocumentListParameters } from "../model/ontkoppeld-document-list-parameters";
 import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
-import {GeneratedType} from "../../shared/utils/generated-types";
 
 @Component({
   templateUrl: "./ontkoppelde-documenten-list.component.html",
@@ -67,7 +67,7 @@ export class OntkoppeldeDocumentenListComponent
     "actions_filter",
   ];
   listParameters: OntkoppeldDocumentListParameters;
-  filterOntkoppeldDoor: GeneratedType<'RestUser'>[] = [];
+  filterOntkoppeldDoor: GeneratedType<"RestUser">[] = [];
   filterChange: EventEmitter<void> = new EventEmitter<void>();
   clearZoekopdracht: EventEmitter<void> = new EventEmitter<void>();
 
@@ -210,7 +210,10 @@ export class OntkoppeldeDocumentenListComponent
     return new OntkoppeldDocumentListParameters("ontkoppeldOp", "desc");
   }
 
-  compareUser = (user1: GeneratedType<'RestUser'>, user2: GeneratedType<'RestUser'>) => {
+  compareUser = (
+    user1: GeneratedType<"RestUser">,
+    user2: GeneratedType<"RestUser">,
+  ) => {
     return user1?.id === user2?.id;
   };
 

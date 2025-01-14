@@ -28,7 +28,7 @@ export class EditGroepBehandelaarComponent
 {
   @Input() formField: MedewerkerGroepFormField;
   @Input() reasonField: InputFormField;
-  private loggedInUser: GeneratedType<'RestLoggedInUser'>;
+  private loggedInUser: GeneratedType<"RestLoggedInUser">;
 
   constructor(
     mfbService: MaterialFormBuilderService,

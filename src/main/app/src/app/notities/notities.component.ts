@@ -5,9 +5,9 @@
 
 import { Component, Input, OnInit, ViewChild } from "@angular/core";
 import { IdentityService } from "../identity/identity.service";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { Notitie } from "./model/notitie";
 import { NotitieService } from "./notities.service";
-import {GeneratedType} from "../shared/utils/generated-types";
 
 @Component({
   selector: "zac-notities",
@@ -20,7 +20,7 @@ export class NotitiesComponent implements OnInit {
 
   @ViewChild("notitieTekst") notitieTekst;
 
-  ingelogdeMedewerker: GeneratedType<'RestLoggedInUser'>;
+  ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
 
   aantalNotities = 0;
   laatNotitiesSchermZien = true;

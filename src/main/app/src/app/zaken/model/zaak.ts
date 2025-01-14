@@ -38,8 +38,8 @@ export class Zaak {
   isVerlengd: boolean;
   redenVerlenging: string;
   duurVerlenging: string;
-  groep: GeneratedType<'RestGroup'>;
-  behandelaar: GeneratedType<'RestUser'>;
+  groep: GeneratedType<"RestGroup">;
+  behandelaar: GeneratedType<"RestUser">;
   gerelateerdeZaken: GeneratedType<"RestGerelateerdeZaak">[];
   kenmerken: ZaakKenmerk[];
   initiatorIdentificatieType: GeneratedType<"IdentificatieType">;

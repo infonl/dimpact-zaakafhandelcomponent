@@ -89,7 +89,7 @@ export class TaakViewComponent
 
   posts = 0;
   private taakListener: WebsocketListener;
-  private ingelogdeMedewerker: GeneratedType<'RestLoggedInUser'>;
+  private ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
   readonly TaakStatusAfgerond = TaakStatus.Afgerond;
 
   constructor(

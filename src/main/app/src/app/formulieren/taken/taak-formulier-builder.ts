@@ -7,11 +7,11 @@ import { HumanTaskData } from "../../plan-items/model/human-task-data";
 import { PlanItem } from "../../plan-items/model/plan-item";
 import { DividerFormFieldBuilder } from "../../shared/material-form-builder/form-components/divider/divider-form-field-builder";
 import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { Taak } from "../../taken/model/taak";
 import { TaakStatus } from "../../taken/model/taak-status.enum";
 import { Zaak } from "../../zaken/model/zaak";
 import { AbstractTaakFormulier } from "./abstract-taak-formulier";
-import {GeneratedType} from "../../shared/utils/generated-types";
 
 export class TaakFormulierBuilder {
   protected readonly _formulier: AbstractTaakFormulier;
@@ -30,7 +30,9 @@ export class TaakFormulierBuilder {
       this._formulier.humanTaskData.fataledatum = planItem.fataleDatum;
     }
     this._formulier.initStartForm();
-    const groep: GeneratedType<'RestGroup'> | null = planItem ? {id:planItem.groepId, naam: planItem.naam} : null;
+    const groep: GeneratedType<"RestGroup"> | null = planItem
+      ? { id: planItem.groepId, naam: planItem.naam }
+      : null;
 
     this._formulier.form.push(
       [new DividerFormFieldBuilder().build()],

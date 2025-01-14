@@ -92,8 +92,8 @@ export class ParameterEditComponent
 
   caseDefinitions: CaseDefinition[];
   domeinen: string[];
-  groepen: GeneratedType<'RestGroup'>[];
-  medewerkers: GeneratedType<'RestLoggedInUser'>[];
+  groepen: GeneratedType<"RestGroup">[];
+  medewerkers: GeneratedType<"RestLoggedInUser">[];
   resultaattypes: GeneratedType<"RestResultaattype">[];
   referentieTabellen: ReferentieTabel[];
   formulierDefinities: FormulierDefinitie[];
