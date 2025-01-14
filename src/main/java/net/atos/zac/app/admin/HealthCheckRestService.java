@@ -88,9 +88,9 @@ public class HealthCheckRestService {
 
     private RESTZaaktypeInrichtingscheck convertToREST(final ZaaktypeInrichtingscheck check) {
         final RESTZaaktypeInrichtingscheck restCheck = new RESTZaaktypeInrichtingscheck();
-        restCheck.zaaktype = RESTZaaktypeOverzichtConverter.convert(check.getZaaktype());
+        restCheck.zaaktype = RESTZaaktypeOverzichtConverter.convert(check.zaaktype);
         restCheck.besluittypeAanwezig = check.isBesluittypeAanwezig();
-        restCheck.resultaattypesMetVerplichtBesluit = check.getResultaattypesMetVerplichtBesluit();
+        restCheck.resultaattypesMetVerplichtBesluit = check.resultaattypesMetVerplichtBesluit;
         restCheck.resultaattypeAanwezig = check.isResultaattypeAanwezig();
         restCheck.informatieobjecttypeEmailAanwezig = check.isInformatieobjecttypeEmailAanwezig();
         restCheck.rolBehandelaarAanwezig = check.isRolBehandelaarAanwezig();

@@ -2,12 +2,9 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.healthcheck.model;
+package net.atos.zac.healthcheck.model
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.atos.client.zgw.ztc.model.generated.ZaakType;
+import net.atos.client.zgw.ztc.model.generated.ZaakType
 
 /**
  * 4 statustype; Intake, In behandeling, Heropend, Afgerond: met Afgerond als laatste statustypevolgnummer
@@ -16,148 +13,31 @@ import net.atos.client.zgw.ztc.model.generated.ZaakType;
  * Informatieobjecttype: e-mail
  * indien zaak besluit heeft, Besluittype
  */
-public class ZaaktypeInrichtingscheck {
-    private final ZaakType zaaktype;
-    private boolean statustypeIntakeAanwezig;
-    private boolean statustypeInBehandelingAanwezig;
-    private boolean statustypeHeropendAanwezig;
-    private boolean statustypeAanvullendeInformatieVereist;
-    private boolean statustypeAfgerondAanwezig;
-    private boolean statustypeAfgerondLaatsteVolgnummer;
-    private boolean resultaattypeAanwezig;
-    private boolean rolInitiatorAanwezig;
-    private boolean rolBehandelaarAanwezig;
-    private boolean rolOverigeAanwezig;
-    private boolean informatieobjecttypeEmailAanwezig;
-    private boolean besluittypeAanwezig;
-    private final List<String> resultaattypesMetVerplichtBesluit = new ArrayList<>();
-    private boolean zaakafhandelParametersValide;
+class ZaaktypeInrichtingscheck(@JvmField val zaaktype: ZaakType?) {
+    var isStatustypeIntakeAanwezig: Boolean = false
+    var isStatustypeInBehandelingAanwezig: Boolean = false
+    var isStatustypeHeropendAanwezig: Boolean = false
+    var isStatustypeAanvullendeInformatieVereist: Boolean = false
+    var isStatustypeAfgerondAanwezig: Boolean = false
+    var isStatustypeAfgerondLaatsteVolgnummer: Boolean = false
+    var isResultaattypeAanwezig: Boolean = false
+    var isRolInitiatorAanwezig: Boolean = false
+    var isRolBehandelaarAanwezig: Boolean = false
+    var isRolOverigeAanwezig: Boolean = false
+    var isInformatieobjecttypeEmailAanwezig: Boolean = false
+    var isBesluittypeAanwezig: Boolean = false
+    @JvmField
+    val resultaattypesMetVerplichtBesluit: MutableList<String?> = ArrayList<String?>()
+    var isZaakafhandelParametersValide: Boolean = false
 
-    public ZaaktypeInrichtingscheck(final ZaakType zaaktype) {
-        this.zaaktype = zaaktype;
+    fun addResultaattypesMetVerplichtBesluit(resultaattypeMetVerplichtBesluit: String?) {
+        this.resultaattypesMetVerplichtBesluit.add(resultaattypeMetVerplichtBesluit)
     }
 
-    public boolean isStatustypeIntakeAanwezig() {
-        return statustypeIntakeAanwezig;
-    }
-
-    public void setStatustypeIntakeAanwezig(final boolean statustypeIntakeAanwezig) {
-        this.statustypeIntakeAanwezig = statustypeIntakeAanwezig;
-    }
-
-    public boolean isStatustypeInBehandelingAanwezig() {
-        return statustypeInBehandelingAanwezig;
-    }
-
-    public void setStatustypeInBehandelingAanwezig(final boolean statustypeInBehandelingAanwezig) {
-        this.statustypeInBehandelingAanwezig = statustypeInBehandelingAanwezig;
-    }
-
-    public boolean isStatustypeHeropendAanwezig() {
-        return statustypeHeropendAanwezig;
-    }
-
-    public void setStatustypeHeropendAanwezig(final boolean statustypeHeropendAanwezig) {
-        this.statustypeHeropendAanwezig = statustypeHeropendAanwezig;
-    }
-
-    public boolean isStatustypeAanvullendeInformatieVereist() {
-        return statustypeAanvullendeInformatieVereist;
-    }
-
-    public void setStatustypeAanvullendeInformatieVereist(boolean statustypeAanvullendeInformatieVereist) {
-        this.statustypeAanvullendeInformatieVereist = statustypeAanvullendeInformatieVereist;
-    }
-
-    public boolean isStatustypeAfgerondAanwezig() {
-        return statustypeAfgerondAanwezig;
-    }
-
-    public void setStatustypeAfgerondAanwezig(final boolean statustypeAfgerondAanwezig) {
-        this.statustypeAfgerondAanwezig = statustypeAfgerondAanwezig;
-    }
-
-    public boolean isStatustypeAfgerondLaatsteVolgnummer() {
-        return statustypeAfgerondLaatsteVolgnummer;
-    }
-
-    public void setStatustypeAfgerondLaatsteVolgnummer(final boolean statustypeAfgerondLaatsteVolgnummer) {
-        this.statustypeAfgerondLaatsteVolgnummer = statustypeAfgerondLaatsteVolgnummer;
-    }
-
-    public boolean isRolInitiatorAanwezig() {
-        return rolInitiatorAanwezig;
-    }
-
-    public void setRolInitiatorAanwezig(final boolean rolInitiatorAanwezig) {
-        this.rolInitiatorAanwezig = rolInitiatorAanwezig;
-    }
-
-    public boolean isRolBehandelaarAanwezig() {
-        return rolBehandelaarAanwezig;
-    }
-
-    public void setRolBehandelaarAanwezig(final boolean rolBehandelaarAanwezig) {
-        this.rolBehandelaarAanwezig = rolBehandelaarAanwezig;
-    }
-
-    public boolean isRolOverigeAanwezig() {
-        return rolOverigeAanwezig;
-    }
-
-    public void setRolOverigeAanwezig(final boolean rolOverigeAanwezig) {
-        this.rolOverigeAanwezig = rolOverigeAanwezig;
-    }
-
-    public boolean isInformatieobjecttypeEmailAanwezig() {
-        return informatieobjecttypeEmailAanwezig;
-    }
-
-    public void setInformatieobjecttypeEmailAanwezig(final boolean informatieobjecttypeEmailAanwezig) {
-        this.informatieobjecttypeEmailAanwezig = informatieobjecttypeEmailAanwezig;
-    }
-
-    public boolean isBesluittypeAanwezig() {
-        return besluittypeAanwezig;
-    }
-
-    public void setBesluittypeAanwezig(final boolean besluittypeAanwezig) {
-        this.besluittypeAanwezig = besluittypeAanwezig;
-    }
-
-    public List<String> getResultaattypesMetVerplichtBesluit() {
-        return resultaattypesMetVerplichtBesluit;
-    }
-
-    public void addResultaattypesMetVerplichtBesluit(final String resultaattypeMetVerplichtBesluit) {
-        this.resultaattypesMetVerplichtBesluit.add(resultaattypeMetVerplichtBesluit);
-    }
-
-    public boolean isResultaattypeAanwezig() {
-        return resultaattypeAanwezig;
-    }
-
-    public void setResultaattypeAanwezig(final boolean resultaattypeAanwezig) {
-        this.resultaattypeAanwezig = resultaattypeAanwezig;
-    }
-
-    public ZaakType getZaaktype() {
-        return zaaktype;
-    }
-
-    public boolean isZaakafhandelParametersValide() {
-        return zaakafhandelParametersValide;
-    }
-
-    public void setZaakafhandelParametersValide(final boolean zaakafhandelParametersValide) {
-        this.zaakafhandelParametersValide = zaakafhandelParametersValide;
-    }
-
-    public boolean isValide() {
-        return statustypeIntakeAanwezig && statustypeInBehandelingAanwezig && statustypeHeropendAanwezig && statustypeAfgerondAanwezig &&
-               statustypeAfgerondLaatsteVolgnummer && statustypeAanvullendeInformatieVereist &&
-               rolInitiatorAanwezig && rolBehandelaarAanwezig && rolOverigeAanwezig && informatieobjecttypeEmailAanwezig &&
-               resultaattypeAanwezig &&
-               zaakafhandelParametersValide && (resultaattypesMetVerplichtBesluit.isEmpty() || besluittypeAanwezig);
-    }
+    val isValide: Boolean
+        get() = this.isStatustypeIntakeAanwezig && this.isStatustypeInBehandelingAanwezig && this.isStatustypeHeropendAanwezig && this.isStatustypeAfgerondAanwezig &&
+                this.isStatustypeAfgerondLaatsteVolgnummer && this.isStatustypeAanvullendeInformatieVereist &&
+                this.isRolInitiatorAanwezig && this.isRolBehandelaarAanwezig && this.isRolOverigeAanwezig && this.isInformatieobjecttypeEmailAanwezig &&
+                this.isResultaattypeAanwezig &&
+                this.isZaakafhandelParametersValide && (resultaattypesMetVerplichtBesluit.isEmpty() || this.isBesluittypeAanwezig)
 }
