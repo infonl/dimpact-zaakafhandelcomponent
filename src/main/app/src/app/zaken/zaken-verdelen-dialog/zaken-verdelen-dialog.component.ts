@@ -6,8 +6,6 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { v4 as uuidv4 } from "uuid";
-import { Group } from "../../identity/model/group";
-import { User } from "../../identity/model/user";
 import { InputFormField } from "../../shared/material-form-builder/form-components/input/input-form-field";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
@@ -15,6 +13,7 @@ import { MedewerkerGroepFormField } from "../../shared/material-form-builder/for
 import { MaterialFormBuilderService } from "../../shared/material-form-builder/material-form-builder.service";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZakenService } from "../zaken.service";
+import {GeneratedType} from "../../shared/utils/generated-types";
 
 @Component({
   templateUrl: "zaken-verdelen-dialog.component.html",
@@ -60,7 +59,7 @@ export class ZakenVerdelenDialogComponent implements OnInit {
 
   verdeel(): void {
     this.redenFormField.readonly = true;
-    const toekenning: { groep?: Group; medewerker?: User } =
+    const toekenning: { groep?: GeneratedType<'RestGroup'>; medewerker?: GeneratedType<'RestUser'> } =
       this.medewerkerGroepFormField.formControl.value;
     this.dialogRef.disableClose = true;
     this.loading = true;

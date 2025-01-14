@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2023 Atos
+ * SPDX-FileCopyrightText: 2021 - 2023 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -7,11 +7,11 @@ import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { UtilService } from "../../../core/service/util.service";
 import { IdentityService } from "../../../identity/identity.service";
-import { LoggedInUser } from "../../../identity/model/logged-in-user";
 import { InputFormField } from "../../material-form-builder/form-components/input/input-form-field";
 import { MedewerkerGroepFormField } from "../../material-form-builder/form-components/medewerker-groep/medewerker-groep-form-field";
 import { MaterialFormBuilderService } from "../../material-form-builder/material-form-builder.service";
 import { EditComponent } from "../edit.component";
+import {GeneratedType} from "../../utils/generated-types";
 
 @Component({
   selector: "zac-edit-groep-behandelaar",
@@ -28,7 +28,7 @@ export class EditGroepBehandelaarComponent
 {
   @Input() formField: MedewerkerGroepFormField;
   @Input() reasonField: InputFormField;
-  private loggedInUser: LoggedInUser;
+  private loggedInUser: GeneratedType<'RestLoggedInUser'>;
 
   constructor(
     mfbService: MaterialFormBuilderService,

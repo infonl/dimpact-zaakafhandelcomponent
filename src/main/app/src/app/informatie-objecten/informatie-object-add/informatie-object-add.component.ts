@@ -17,7 +17,6 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
 import { BehaviorSubject, Subscription, combineLatest, map, tap } from "rxjs";
-import { LoggedInUser } from "src/app/identity/model/logged-in-user";
 import { FileInputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/file-input/file-input-form-field-builder";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -81,7 +80,7 @@ export class InformatieObjectAddComponent implements AfterViewInit, OnDestroy {
   private status: SelectFormField;
   private subscriptions: Subscription[] = [];
 
-  private getInputs(deps: { loggedInUser: LoggedInUser }) {
+  private getInputs(deps: { loggedInUser: GeneratedType<'RestLoggedInUser'> }) {
     const { loggedInUser } = deps;
     this.formConfig = new FormConfigBuilder()
       .saveText("actie.toevoegen")

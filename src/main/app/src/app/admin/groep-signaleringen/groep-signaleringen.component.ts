@@ -10,7 +10,6 @@ import { Observable } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { Group } from "../../identity/model/group";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { SignaleringenSettingsBeheerService } from "../signaleringen-settings-beheer.service";
@@ -27,7 +26,7 @@ export class GroepSignaleringenComponent
   @ViewChild("menuSidenav") menuSidenav: MatSidenav;
 
   isLoadingResults = false;
-  groepen: Observable<Group[]>;
+  groepen: Observable<GeneratedType<'RestGroup'>[]>;
   groepId: string;
   columns: string[] = ["subjecttype", "type", "dashboard", "mail"];
   dataSource = new MatTableDataSource<
@@ -48,7 +47,7 @@ export class GroepSignaleringenComponent
     this.groepen = this.identityService.listGroups();
   }
 
-  laadSignaleringSettings(groep: Group): void {
+  laadSignaleringSettings(groep: GeneratedType<'RestGroup'>): void {
     this.isLoadingResults = true;
     this.service.list(groep.id).subscribe((instellingen) => {
       this.dataSource.data = instellingen;

@@ -1,18 +1,16 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Injectable } from "@angular/core";
 
-import { Observable, of } from "rxjs";
+import { of } from "rxjs";
 import { catchError, tap } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { SessionStorageUtil } from "../shared/storage/session-storage.util";
-import { Group } from "./model/group";
-import { LoggedInUser } from "./model/logged-in-user";
-import { User } from "./model/user";
+import {GeneratedType} from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
@@ -25,7 +23,7 @@ export class IdentityService {
     private foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
-  listGroups(): Observable<Group[]> {
+  listGroups() {
     return this.zacHttp
       .GET("/rest/identity/groups")
       .pipe(
@@ -33,7 +31,7 @@ export class IdentityService {
       );
   }
 
-  listUsersInGroup(groupId: string): Observable<User[]> {
+  listUsersInGroup(groupId: string) {
     return this.zacHttp
       .GET("/rest/identity/groups/{groupId}/users", {
         pathParams: { path: { groupId } },
@@ -43,7 +41,7 @@ export class IdentityService {
       );
   }
 
-  listUsers(): Observable<User[]> {
+  listUsers() {
     return this.zacHttp
       .GET(`/rest/identity/users`)
       .pipe(
@@ -51,10 +49,10 @@ export class IdentityService {
       );
   }
 
-  readLoggedInUser(): Observable<LoggedInUser> {
+  readLoggedInUser() {
     const loggedInUser = SessionStorageUtil.getItem(
       IdentityService.LOGGED_IN_USER_KEY,
-    ) as LoggedInUser;
+    ) as GeneratedType<'RestLoggedInUser'>;
     if (loggedInUser) {
       return of(loggedInUser);
     }

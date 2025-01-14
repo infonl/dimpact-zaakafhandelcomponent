@@ -1,16 +1,15 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Group } from "../../identity/model/group";
-import { User } from "../../identity/model/user";
 import { TaakStuurGegevens } from "./taak-stuur-gegevens";
+import {GeneratedType} from "../../shared/utils/generated-types";
 
 export class HumanTaskData {
   planItemInstanceId: string;
-  groep: Group;
-  medewerker: User;
+  groep: GeneratedType<'RestGroup'>;
+  medewerker: GeneratedType<'RestUser'>;
   fataledatum: string;
   toelichting: string;
   taakdata: {};

@@ -9,7 +9,6 @@ import { MatSidenav } from "@angular/material/sidenav";
 import moment from "moment";
 import { Observable, Subscription } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
-import { User } from "../../identity/model/user";
 import { OverigeRechten } from "../../policy/model/overige-rechten";
 import { WerklijstRechten } from "../../policy/model/werklijst-rechten";
 import { PolicyService } from "../../policy/policy.service";
@@ -22,6 +21,7 @@ import { ObjectType } from "../websocket/model/object-type";
 import { Opcode } from "../websocket/model/opcode";
 import { WebsocketListener } from "../websocket/model/websocket-listener";
 import { WebsocketService } from "../websocket/websocket.service";
+import {GeneratedType} from "../../shared/utils/generated-types";
 
 @Component({
   selector: "zac-toolbar",
@@ -35,7 +35,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   headerTitle$: Observable<string>;
   hasNewSignaleringen: boolean;
-  ingelogdeMedewerker: User;
+  ingelogdeMedewerker: GeneratedType<'RestUser'>;
   overigeRechten = new OverigeRechten();
   werklijstRechten = new WerklijstRechten();
   medewerkerNaamToolbar = "";

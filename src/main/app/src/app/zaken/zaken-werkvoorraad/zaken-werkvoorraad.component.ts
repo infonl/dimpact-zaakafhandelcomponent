@@ -20,7 +20,6 @@ import { MatSort } from "@angular/material/sort";
 import { MatTable } from "@angular/material/table";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { LoggedInUser } from "../../identity/model/logged-in-user";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
@@ -33,8 +32,6 @@ import { TranslateService } from "@ngx-translate/core";
 import { firstValueFrom } from "rxjs";
 import { ObjectType } from "src/app/core/websocket/model/object-type";
 import { Opcode } from "src/app/core/websocket/model/opcode";
-import { Group } from "src/app/identity/model/group";
-import { User } from "src/app/identity/model/user";
 import { IndexingService } from "src/app/indexing/indexing.service";
 import { BatchProcessService } from "src/app/shared/batch-progress/batch-process.service";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
@@ -47,6 +44,7 @@ import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { ZakenVerdelenDialogComponent } from "../zaken-verdelen-dialog/zaken-verdelen-dialog.component";
 import { ZakenVrijgevenDialogComponent } from "../zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component";
 import { ZakenWerkvoorraadDatasource } from "./zaken-werkvoorraad-datasource";
+import {GeneratedType} from "../../shared/utils/generated-types";
 
 @Component({
   templateUrl: "./zaken-werkvoorraad.component.html",
@@ -63,7 +61,7 @@ export class ZakenWerkvoorraadComponent
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatTable) table: MatTable<ZaakZoekObject>;
-  ingelogdeMedewerker: LoggedInUser;
+  ingelogdeMedewerker: GeneratedType<'RestLoggedInUser'>;
   expandedRow: ZaakZoekObject | null;
   readonly zoekenColumn = ZoekenColumn;
   sorteerVeld = SorteerVeld;
@@ -84,7 +82,7 @@ export class ZakenWerkvoorraadComponent
   );
 
   zakenLoading = signal(false);
-  toekenning: { groep?: Group; medewerker?: User } | undefined;
+  toekenning: { groep?: GeneratedType<'RestGroup'>; medewerker?: GeneratedType<'RestUser'> } | undefined;
 
   constructor(
     private zakenService: ZakenService,

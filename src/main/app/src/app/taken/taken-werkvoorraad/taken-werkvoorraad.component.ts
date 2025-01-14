@@ -23,8 +23,6 @@ import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { ObjectType } from "src/app/core/websocket/model/object-type";
 import { Opcode } from "src/app/core/websocket/model/opcode";
-import { Group } from "src/app/identity/model/group";
-import { User } from "src/app/identity/model/user";
 import { BatchProcessService } from "src/app/shared/batch-progress/batch-process.service";
 import { SorteerVeld } from "src/app/zoeken/model/sorteer-veld";
 import { v4 as uuidv4 } from "uuid";
@@ -32,7 +30,6 @@ import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
 import { IdentityService } from "../../identity/identity.service";
-import { LoggedInUser } from "../../identity/model/logged-in-user";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
@@ -44,6 +41,7 @@ import { TakenVerdelenDialogComponent } from "../taken-verdelen-dialog/taken-ver
 import { TakenVrijgevenDialogComponent } from "../taken-vrijgeven-dialog/taken-vrijgeven-dialog.component";
 import { TakenService } from "../taken.service";
 import { TakenWerkvoorraadDatasource } from "./taken-werkvoorraad-datasource";
+import {GeneratedType} from "../../shared/utils/generated-types";
 
 @Component({
   templateUrl: "./taken-werkvoorraad.component.html",
@@ -59,7 +57,7 @@ export class TakenWerkvoorraadComponent
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatTable) table: MatTable<TaakZoekObject>;
-  ingelogdeMedewerker: LoggedInUser;
+  ingelogdeMedewerker: GeneratedType<'RestLoggedInUser'>;
   expandedRow: TaakZoekObject | null;
   readonly zoekenColumn = ZoekenColumn;
   sorteerVeld = SorteerVeld;
@@ -73,7 +71,7 @@ export class TakenWerkvoorraadComponent
   );
 
   takenLoading = signal(false);
-  toekenning: { groep?: Group; medewerker?: User } | undefined;
+  toekenning: { groep?: GeneratedType<'RestGroup'>; medewerker?: GeneratedType<'RestUser'> } | undefined;
 
   constructor(
     public route: ActivatedRoute,

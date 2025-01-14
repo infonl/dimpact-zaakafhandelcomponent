@@ -1,9 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Group } from "../../identity/model/group";
 import { HumanTaskData } from "../../plan-items/model/human-task-data";
 import { PlanItem } from "../../plan-items/model/plan-item";
 import { DividerFormFieldBuilder } from "../../shared/material-form-builder/form-components/divider/divider-form-field-builder";
@@ -12,6 +11,7 @@ import { Taak } from "../../taken/model/taak";
 import { TaakStatus } from "../../taken/model/taak-status.enum";
 import { Zaak } from "../../zaken/model/zaak";
 import { AbstractTaakFormulier } from "./abstract-taak-formulier";
+import {GeneratedType} from "../../shared/utils/generated-types";
 
 export class TaakFormulierBuilder {
   protected readonly _formulier: AbstractTaakFormulier;
@@ -30,11 +30,8 @@ export class TaakFormulierBuilder {
       this._formulier.humanTaskData.fataledatum = planItem.fataleDatum;
     }
     this._formulier.initStartForm();
-    let groep = null;
-    if (planItem.groepId) {
-      groep = new Group();
-      groep.id = planItem.groepId;
-    }
+    const groep: GeneratedType<'RestGroup'> | null = planItem ? {id:planItem.groepId, naam: planItem.naam} : null;
+
     this._formulier.form.push(
       [new DividerFormFieldBuilder().build()],
       [

@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Group } from "../../identity/model/group";
-import { User } from "../../identity/model/user";
 import { ZaakRechten } from "../../policy/model/zaak-rechten";
 import { ZaakIndicatie } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -40,8 +38,8 @@ export class Zaak {
   isVerlengd: boolean;
   redenVerlenging: string;
   duurVerlenging: string;
-  groep: Group;
-  behandelaar: User;
+  groep: GeneratedType<'RestGroup'>;
+  behandelaar: GeneratedType<'RestUser'>;
   gerelateerdeZaken: GeneratedType<"RestGerelateerdeZaak">[];
   kenmerken: ZaakKenmerk[];
   initiatorIdentificatieType: GeneratedType<"IdentificatieType">;

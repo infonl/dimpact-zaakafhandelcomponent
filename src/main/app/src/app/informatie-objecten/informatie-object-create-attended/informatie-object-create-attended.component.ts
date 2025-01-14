@@ -20,7 +20,6 @@ import moment from "moment";
 import { BehaviorSubject, Subscription, firstValueFrom } from "rxjs";
 import { first } from "rxjs/operators";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
-import { User } from "src/app/identity/model/user";
 import { AutocompleteFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/autocomplete/autocomplete-form-field-builder";
 import { HiddenFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/hidden/hidden-form-field-builder";
 import { AbstractFormField } from "src/app/shared/material-form-builder/model/abstract-form-field";
@@ -40,6 +39,7 @@ import {
 import { Zaak } from "../../zaken/model/zaak";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { DocumentCreationData } from "../model/document-creation-data";
+import {GeneratedType} from "../../shared/utils/generated-types";
 
 @Component({
   selector: "zac-informatie-object-create-attended",
@@ -58,7 +58,7 @@ export class InformatieObjectCreateAttendedComponent
 
   fields: Array<AbstractFormField[]>;
   formConfig: FormConfig;
-  private ingelogdeMedewerker: User;
+  private ingelogdeMedewerker: GeneratedType<'RestLoggedInUser'>;
   private informatieObjectTypes: any;
   private subscriptions$: Subscription[] = [];
   private sjabloonOptions$: BehaviorSubject<any[]> = new BehaviorSubject([]);

@@ -14,8 +14,7 @@ import { catchError, filter, takeUntil } from "rxjs/operators";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { BAGObject } from "../../bag/model/bagobject";
 import { UtilService } from "../../core/service/util.service";
-import { Group } from "../../identity/model/group";
-import { User } from "../../identity/model/user";
+import { IdentityService } from "../../identity/identity.service";
 import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { KlantenService } from "../../klanten/klanten.service";
 import { Klant } from "../../klanten/model/klanten/klant";
@@ -41,6 +40,7 @@ import { FormConfigBuilder } from "../../shared/material-form-builder/model/form
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import { OrderUtil } from "../../shared/order/order-util";
 import { SideNavAction } from "../../shared/side-nav/side-nav-action";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { Zaak } from "../model/zaak";
 import { ZaakAanmaakGegevens } from "../model/zaak-aanmaak-gegevens";
 import { Zaaktype } from "../model/zaaktype";
@@ -81,6 +81,8 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
   private readonly inboxProductaanvraag: InboxProductaanvraag;
   private communicatiekanalen: Observable<string[]>;
   private communicatiekanaalField: SelectFormField;
+  private medewerkers: GeneratedType<"RestUser">[];
+  private groepen: GeneratedType<"RestGroup">[];
 
   constructor(
     private zakenService: ZakenService,
@@ -90,6 +92,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
     private referentieTabelService: ReferentieTabelService,
     private translateService: TranslateService,
     private utilService: UtilService,
+    private identityService: IdentityService,
   ) {
     this.inboxProductaanvraag =
       this.router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
@@ -231,6 +234,14 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
     if (this.inboxProductaanvraag) {
       this.verwerkInboxProductaanvraagGegevens();
     }
+
+    this.identityService.listUsers().subscribe((users) => {
+      this.medewerkers = users;
+    });
+
+    this.identityService.listGroups().subscribe((groups) => {
+      this.groepen = groups;
+    });
   }
 
   ngOnDestroy(): void {
@@ -303,18 +314,11 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
     groepId?: string,
     medewerkerId?: string,
   ): MedewerkerGroepFormField {
-    let groep = null;
-    let medewerker = null;
+    const groep = this.groepen.find((group) => group.id === groepId);
+    const medewerker = this.medewerkers.find(
+      (user) => user.id === medewerkerId,
+    );
 
-    if (groepId) {
-      groep = new Group();
-      groep.id = groepId;
-    }
-
-    if (medewerkerId) {
-      medewerker = new User();
-      medewerker.id = medewerkerId;
-    }
     return new MedewerkerGroepFieldBuilder(groep, medewerker)
       .id("toekenning")
       .groepLabel("actie.zaak.toekennen.groep")
@@ -324,27 +328,30 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
   }
 
   zaaktypeGeselecteerd(zaaktype: Zaaktype): void {
-    if (zaaktype) {
-      this.medewerkerGroepFormField = this.getMedewerkerGroupFormField(
-        zaaktype.zaakafhandelparameters.defaultGroepId,
-        zaaktype.zaakafhandelparameters.defaultBehandelaarId,
-      );
-      const index = this.createZaakFields.findIndex((formRow) =>
+    if (!zaaktype) {
+      return;
+    }
+
+    this.createZaakFields = this.createZaakFields.map((formRow) => {
+      if (
         formRow.find(
           (formField) => formField.fieldType === FieldType.MEDEWERKER_GROEP,
-        ),
-      );
-      this.createZaakFields[index] = [this.medewerkerGroepFormField];
+        )
+      ) {
+        const newField = this.getMedewerkerGroupFormField(
+          zaaktype.zaakafhandelparameters.defaultGroepId,
+          zaaktype.zaakafhandelparameters.defaultBehandelaarId,
+        );
+        return [newField];
+      }
+      return formRow;
+    });
 
-      // update reference of the array to apply changes
-      this.createZaakFields = [...this.createZaakFields];
-
-      this.vertrouwelijkheidaanduidingField.formControl.setValue(
-        this.vertrouwelijkheidaanduidingen.find(
-          (o) => o.value === zaaktype.vertrouwelijkheidaanduiding,
-        ),
-      );
-    }
+    this.vertrouwelijkheidaanduidingField.formControl.setValue(
+      this.vertrouwelijkheidaanduidingen.find(
+        (o) => o.value === zaaktype.vertrouwelijkheidaanduiding,
+      ),
+    );
   }
 
   private iconNext(action: SideNavAction) {

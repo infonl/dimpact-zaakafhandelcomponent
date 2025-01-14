@@ -10,18 +10,20 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { Observable, of } from "rxjs";
 import { IdentityService } from "../identity/identity.service";
-import { LoggedInUser } from "../identity/model/logged-in-user";
 import { MaterialModule } from "../shared/material/material.module";
 import { PipesModule } from "../shared/pipes/pipes.module";
 import { Notitie } from "./model/notitie";
 import { NotitiesComponent } from "./notities.component";
 import { NotitieService } from "./notities.service";
+import {GeneratedType} from "../shared/utils/generated-types";
 
-const currentUser = new LoggedInUser();
-currentUser.id = "currentUser";
+const currentUser: GeneratedType<'RestLoggedInUser'> = {
+  id: 'currentUser',
+  naam: 'test'
+}
 
 const mockIdentityService = {
-  readLoggedInUser(): Observable<LoggedInUser> {
+  readLoggedInUser() {
     return of(currentUser);
   },
 };

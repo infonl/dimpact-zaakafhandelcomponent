@@ -12,7 +12,6 @@ import { Subject } from "rxjs";
 import { Mail } from "../../admin/model/mail";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { User } from "../../identity/model/user";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { InformatieobjectZoekParameters } from "../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { KlantenService } from "../../klanten/klanten.service";
@@ -55,7 +54,7 @@ export class MailCreateComponent implements OnInit {
   @Input() sideNav: MatDrawer;
   @Output() mailVerstuurd = new EventEmitter<boolean>();
   fields: Array<AbstractFormField[]>;
-  ingelogdeMedewerker: User;
+  ingelogdeMedewerker: GeneratedType<'RestLoggedInUser'>;
 
   verzenderFormField: SelectFormField;
   ontvangerFormField: InputFormField;

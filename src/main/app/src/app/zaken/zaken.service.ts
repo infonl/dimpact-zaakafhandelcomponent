@@ -10,8 +10,6 @@ import { catchError } from "rxjs/operators";
 import { ZaakAfzender } from "../admin/model/zaakafzender";
 import { ZaakbeeindigReden } from "../admin/model/zaakbeeindig-reden";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { Group } from "../identity/model/group";
-import { User } from "../identity/model/user";
 import { Klant } from "../klanten/model/klanten/klant";
 import { Roltype } from "../klanten/model/klanten/roltype";
 import { TableRequest } from "../shared/dynamic-table/datasource/table-request";
@@ -167,8 +165,8 @@ export class ZakenService {
   verdelenVanuitLijst(
     uuids: string[],
     screenEventResourceId: string,
-    groep?: Group,
-    medewerker?: User,
+    groep?: GeneratedType<'RestGroup'>,
+    medewerker?: GeneratedType<'RestUser'>,
     reden?: string,
   ): Observable<void> {
     const verdeelGegevens: ZakenVerdeelGegevens = new ZakenVerdeelGegevens();

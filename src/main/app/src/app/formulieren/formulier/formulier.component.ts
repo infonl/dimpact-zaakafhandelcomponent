@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -11,9 +11,8 @@ import { FormulierDefinitie } from "../../admin/model/formulieren/formulier-defi
 import { FormulierVeldDefinitie } from "../../admin/model/formulieren/formulier-veld-definitie";
 import { FormulierVeldtype } from "../../admin/model/formulieren/formulier-veld-type.enum";
 import { IdentityService } from "../../identity/identity.service";
-import { Group } from "../../identity/model/group";
-import { User } from "../../identity/model/user";
 import { Zaak } from "../../zaken/model/zaak";
+import {GeneratedType} from "../../shared/utils/generated-types";
 
 @Component({
   selector: "zac-formulier",
@@ -37,8 +36,8 @@ export class FormulierComponent implements OnInit {
   >();
   referentietabellen: Map<string, string[]> = new Map<string, string[]>();
 
-  medewerkers: User[];
-  groepen: Group[];
+  medewerkers: GeneratedType<'RestUser'>[];
+  groepen: GeneratedType<'RestGroup'>[];
 
   bezigMetOpslaan = false;
 

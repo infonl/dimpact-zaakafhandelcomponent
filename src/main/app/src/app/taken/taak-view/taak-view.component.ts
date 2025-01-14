@@ -26,7 +26,6 @@ import { WebsocketService } from "../../core/websocket/websocket.service";
 import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-formulier";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { IdentityService } from "../../identity/identity.service";
-import { User } from "../../identity/model/user";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { TaakHistorieRegel } from "../../shared/historie/model/taak-historie-regel";
@@ -90,7 +89,7 @@ export class TaakViewComponent
 
   posts = 0;
   private taakListener: WebsocketListener;
-  private ingelogdeMedewerker: User;
+  private ingelogdeMedewerker: GeneratedType<'RestLoggedInUser'>;
   readonly TaakStatusAfgerond = TaakStatus.Afgerond;
 
   constructor(
