@@ -53,13 +53,10 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         val query = builder.createQuery(ZaakafhandelParameters::class.java)
         val root = query.from(ZaakafhandelParameters::class.java)
         query.select(root).where(builder.equal(root.get<Any>(ZaakafhandelParameters.ZAAKTYPE_UUID), zaaktypeUUID))
-        val resultList = entityManager.createQuery(query).resultList
-        return if (resultList.isNotEmpty()) {
-            resultList.first()
-        } else {
-            ZaakafhandelParameters().apply {
-                zaakTypeUUID = zaaktypeUUID
-            }
+        // IT FAILS HERE (persistent instance references an unsaved transient instance of 'net.atos.zac.admin.model.HumanTaskParameters')
+        val resultList = entityManager.createQuery(query).setMaxResults(1).resultList
+        return resultList.firstOrNull() ?: ZaakafhandelParameters().apply {
+            zaakTypeUUID = zaaktypeUUID
         }
     }
 
@@ -77,22 +74,16 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             humanTaskParametersCollection.forEach { ValidationUtil.valideerObject(it) }
             userEventListenerParametersCollection.forEach { ValidationUtil.valideerObject(it) }
             mailtemplateKoppelingen.forEach { ValidationUtil.valideerObject(it) }
-            creatiedatum = ZonedDateTime.now()
+            creatiedatum = zaakafhandelParameters.creatiedatum ?: ZonedDateTime.now()
         }
+
         return if (zaakafhandelParameters.id == null) {
             entityManager.persist(zaakafhandelParameters)
             zaakafhandelParameters
         } else {
             entityManager.merge(zaakafhandelParameters)
+            zaakafhandelParameters
         }
-    }
-
-    fun updateZaakafhandelParameters(zaakafhandelParameters: ZaakafhandelParameters): ZaakafhandelParameters {
-        ValidationUtil.valideerObject(zaakafhandelParameters)
-        zaakafhandelParameters.humanTaskParametersCollection.forEach(ValidationUtil::valideerObject)
-        zaakafhandelParameters.creatiedatum =
-            entityManager.find(ZaakafhandelParameters::class.java, zaakafhandelParameters.id).creatiedatum
-        return entityManager.merge(zaakafhandelParameters)
     }
 
     /**
@@ -132,68 +123,73 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         return entityManager.createQuery(query).resultList
     }
 
-    fun zaaktypeAangemaakt(zaaktypeUri: URI) {
+    fun deleteZaaktype(zaaktypeUri: URI) {
         zaakafhandelParameterService.clearListCache()
         ztcClientService.clearZaaktypeCache()
-        val zaaktype = ztcClientService.readZaaktype(zaaktypeUri)
-        if (zaaktype.concept) return
 
-        val currentZaakafhandelparameters = currentZaakafhandelParameters(zaaktype.omschrijving)
-        val zaakafhandelParameters = if (currentZaakafhandelparameters.id == null) {
-            currentZaakafhandelparameters.apply {
-                zaakTypeUUID = zaaktype.url.extractUuid()
-                zaaktypeOmschrijving = zaaktype.omschrijving
-            }
-            currentZaakafhandelparameters
-        } else {
-            val newZaakafhandelParameters = ZaakafhandelParameters().apply {
-                zaakTypeUUID = zaaktype.url.extractUuid()
-                zaaktypeOmschrijving = zaaktype.omschrijving
-                caseDefinitionID = currentZaakafhandelparameters.caseDefinitionID
-                groepID = currentZaakafhandelparameters.groepID
-                gebruikersnaamMedewerker = currentZaakafhandelparameters.gebruikersnaamMedewerker
-                einddatumGeplandWaarschuwing = zaaktype.servicenorm?.let {
-                    currentZaakafhandelparameters.einddatumGeplandWaarschuwing
-                }
-                uiterlijkeEinddatumAfdoeningWaarschuwing =
-                    currentZaakafhandelparameters.uiterlijkeEinddatumAfdoeningWaarschuwing
-                intakeMail = currentZaakafhandelparameters.intakeMail
-                afrondenMail = currentZaakafhandelparameters.afrondenMail
-                productaanvraagtype = currentZaakafhandelparameters.productaanvraagtype
-                domein = currentZaakafhandelparameters.domein
-                isSmartDocumentsIngeschakeld = currentZaakafhandelparameters.isSmartDocumentsIngeschakeld
-                uiterlijkeEinddatumAfdoeningWaarschuwing = currentZaakafhandelparameters.uiterlijkeEinddatumAfdoeningWaarschuwing
-                intakeMail = currentZaakafhandelparameters.intakeMail
-                afrondenMail = currentZaakafhandelparameters.afrondenMail
-                productaanvraagtype = currentZaakafhandelparameters.productaanvraagtype
-                domein = currentZaakafhandelparameters.domein
-                isSmartDocumentsIngeschakeld = currentZaakafhandelparameters.isSmartDocumentsIngeschakeld
-            }
-            mapHumanTaskParameters(currentZaakafhandelparameters, newZaakafhandelParameters)
-            mapUserEventListenerParameters(currentZaakafhandelparameters, newZaakafhandelParameters)
-            mapZaakbeeindigGegevens(currentZaakafhandelparameters, newZaakafhandelParameters, zaaktype)
-            mapMailtemplateKoppelingen(currentZaakafhandelparameters, newZaakafhandelParameters)
-            mapSmartDocuments(currentZaakafhandelparameters.zaakTypeUUID, newZaakafhandelParameters.zaakTypeUUID)
-            newZaakafhandelParameters
-        }
-        storeZaakafhandelParameters(zaakafhandelParameters)
+        // TODO: what to do when a case type has been removed
     }
 
-    fun zaaktypeAangepast(zaaktypeUri: URI) {
+    fun upsertZaaktype(zaaktypeUri: URI) {
         zaakafhandelParameterService.clearListCache()
         ztcClientService.clearZaaktypeCache()
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUri)
         if (zaaktype.concept) return
 
-        val zaaktypeUuid = zaaktype.url.extractUuid()
-        val zaakafhandelParameters = currentZaakafhandelParameters(zaaktypeUuid)
+        val zaakafhandelParameters = currentZaakafhandelParameters(zaaktype.url.extractUuid())
+
         zaakafhandelParameters.apply {
             zaaktypeOmschrijving = zaaktype.omschrijving
             einddatumGeplandWaarschuwing = zaaktype.servicenorm?.let {
                 zaakafhandelParameters.einddatumGeplandWaarschuwing
             }
         }
-        updateZaakbeeindigGegevens(zaakafhandelParameters, zaaktype)
+
+        // Check if this version was published before
+        if (zaakafhandelParameters.zaakTypeUUID != null) {
+            updateZaakbeeindigGegevens(zaakafhandelParameters, zaaktype)
+            storeZaakafhandelParameters(zaakafhandelParameters)
+            return
+        }
+
+        val previousZaakafhandelparameters = currentZaakafhandelParameters(zaaktype.omschrijving)
+
+        // Check if this is a "new version" of a `zaaktype`
+        if (previousZaakafhandelparameters.zaakTypeUUID == null) return
+
+        zaakafhandelParameters.apply {
+            zaakTypeUUID = zaaktype.url.extractUuid()
+            caseDefinitionID = previousZaakafhandelparameters.caseDefinitionID
+            groepID = previousZaakafhandelparameters.groepID
+            gebruikersnaamMedewerker = previousZaakafhandelparameters.gebruikersnaamMedewerker
+            einddatumGeplandWaarschuwing = zaaktype.servicenorm?.let {
+                previousZaakafhandelparameters.einddatumGeplandWaarschuwing
+            }
+            uiterlijkeEinddatumAfdoeningWaarschuwing =
+                previousZaakafhandelparameters.uiterlijkeEinddatumAfdoeningWaarschuwing
+            intakeMail = previousZaakafhandelparameters.intakeMail
+            afrondenMail = previousZaakafhandelparameters.afrondenMail
+            productaanvraagtype = previousZaakafhandelparameters.productaanvraagtype
+            domein = previousZaakafhandelparameters.domein
+            isSmartDocumentsIngeschakeld = previousZaakafhandelparameters.isSmartDocumentsIngeschakeld
+            uiterlijkeEinddatumAfdoeningWaarschuwing = previousZaakafhandelparameters.uiterlijkeEinddatumAfdoeningWaarschuwing
+            intakeMail = previousZaakafhandelparameters.intakeMail
+            afrondenMail = previousZaakafhandelparameters.afrondenMail
+            productaanvraagtype = previousZaakafhandelparameters.productaanvraagtype
+            domein = previousZaakafhandelparameters.domein
+            isSmartDocumentsIngeschakeld = previousZaakafhandelparameters.isSmartDocumentsIngeschakeld
+        }
+
+        mapHumanTaskParameters(previousZaakafhandelparameters, zaakafhandelParameters)
+        mapUserEventListenerParameters(previousZaakafhandelparameters, zaakafhandelParameters)
+        mapZaakbeeindigGegevens(previousZaakafhandelparameters, zaakafhandelParameters, zaaktype)
+        mapMailtemplateKoppelingen(previousZaakafhandelparameters, zaakafhandelParameters)
+
+        // We need to store the zaakafhandel parameters before mapping smart documents
+        // as we are reliant on fetching data which is mapped in the methods above
+        storeZaakafhandelParameters(zaakafhandelParameters)
+
+        mapSmartDocuments(previousZaakafhandelparameters.zaakTypeUUID, zaakafhandelParameters.zaakTypeUUID)
         storeZaakafhandelParameters(zaakafhandelParameters)
     }
 
@@ -338,7 +334,8 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
     private fun mapSmartDocuments(
         previousZaakafhandelUUID: UUID,
         newZaakafhandelParametersUUID: UUID
-    ) = smartDocumentsTemplatesService.getTemplatesMapping(previousZaakafhandelUUID).let {
-        smartDocumentsTemplatesService.storeTemplatesMapping(it, newZaakafhandelParametersUUID)
+    ) {
+        val templateMappings = smartDocumentsTemplatesService.getTemplatesMapping(previousZaakafhandelUUID)
+        smartDocumentsTemplatesService.storeTemplatesMapping(templateMappings, newZaakafhandelParametersUUID)
     }
 }

@@ -218,7 +218,7 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
         every { entityManager.merge(capture(slotPersistZaakafhandelParameters)) } answers { ZaakafhandelParameters() }
 
         When("Processing the updated zaaktype") {
-            zaakafhandelParameterBeheerService.zaaktypeAangepast(zaaktypeUri)
+            zaakafhandelParameterBeheerService.upsertZaaktype(zaaktypeUri)
 
             Then("The related zaakafhandelparameters is stored through the entity manager") {
                 slotPersistZaakafhandelParameters.isCaptured shouldBe true

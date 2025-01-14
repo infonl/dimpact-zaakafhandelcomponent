@@ -83,7 +83,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         every {
             zaakafhandelParametersConverter.toZaakafhandelParameters(restZaakafhandelParameters)
         } returns zaakafhandelParameters
-        every { zaakafhandelParameterBeheerService.updateZaakafhandelParameters(zaakafhandelParameters) } returns
+        every { zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters) } returns
             updatedZaakafhandelParameters
         every {
             zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
@@ -107,7 +107,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
             ) {
                 returnedRestZaakafhandelParameters shouldBe updatedRestZaakafhandelParameters
                 verify(exactly = 1) {
-                    zaakafhandelParameterBeheerService.updateZaakafhandelParameters(zaakafhandelParameters)
+                    zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
                     zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
                     zaakafhandelParameterService.clearListCache()
                 }

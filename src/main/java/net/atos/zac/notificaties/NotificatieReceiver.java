@@ -200,13 +200,16 @@ public class NotificatieReceiver {
 
     private void handleZaaktype(final Notificatie notificatie) {
         try {
-            if (notificatie.getResource() == ZAAKTYPE) {
-                if (notificatie.getAction() == CREATE) {
-                    zaakafhandelParameterBeheerService.zaaktypeAangemaakt(notificatie.getResourceUrl());
-                }
-                if (notificatie.getAction() == UPDATE) {
-                    zaakafhandelParameterBeheerService.zaaktypeAangepast(notificatie.getResourceUrl());
-                }
+            if(notificatie.getResource() != ZAAKTYPE) return;
+
+            switch (notificatie.getAction()) {
+                case CREATE, UPDATE:
+                    zaakafhandelParameterBeheerService.upsertZaaktype(notificatie.getResourceUrl());
+                    break;
+                case DELETE:
+                    // TODO: we are not receiving this notificatie
+                    zaakafhandelParameterBeheerService.deleteZaaktype(notificatie.getResourceUrl());
+                    break;
             }
         } catch (RuntimeException ex) {
             warning("Zaaktype", notificatie, ex);
