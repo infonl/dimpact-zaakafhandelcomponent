@@ -11,9 +11,9 @@ import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-c
 import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
 import { MedewerkerGroepFormField } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-form-field";
 import { MaterialFormBuilderService } from "../../shared/material-form-builder/material-form-builder.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZakenService } from "../zaken.service";
-import {GeneratedType} from "../../shared/utils/generated-types";
 
 @Component({
   templateUrl: "zaken-verdelen-dialog.component.html",
@@ -59,8 +59,10 @@ export class ZakenVerdelenDialogComponent implements OnInit {
 
   verdeel(): void {
     this.redenFormField.readonly = true;
-    const toekenning: { groep?: GeneratedType<"RestGroup">; medewerker?: GeneratedType<"RestUser"> } =
-      this.medewerkerGroepFormField.formControl.value;
+    const toekenning: {
+      groep?: GeneratedType<"RestGroup">;
+      medewerker?: GeneratedType<"RestUser">;
+    } = this.medewerkerGroepFormField.formControl.value;
     this.dialogRef.disableClose = true;
     this.loading = true;
     this.zakenService

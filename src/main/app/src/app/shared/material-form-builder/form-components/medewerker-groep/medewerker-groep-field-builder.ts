@@ -4,15 +4,18 @@
  */
 
 import { ValidatorFn, Validators } from "@angular/forms";
+import { GeneratedType } from "../../../utils/generated-types";
 import { AbstractFormField } from "../../model/abstract-form-field";
 import { AbstractFormFieldBuilder } from "../../model/abstract-form-field-builder";
 import { MedewerkerGroepFormField } from "./medewerker-groep-form-field";
-import {GeneratedType} from "../../../utils/generated-types";
 
 export class MedewerkerGroepFieldBuilder extends AbstractFormFieldBuilder {
   readonly formField: MedewerkerGroepFormField;
 
-  constructor(groep?: GeneratedType<"RestGroup">, medewerker?: GeneratedType<"RestUser">) {
+  constructor(
+    groep?: GeneratedType<"RestGroup">,
+    medewerker?: GeneratedType<"RestUser">,
+  ) {
     super();
     this.formField = new MedewerkerGroepFormField();
     this.formField.initControl({

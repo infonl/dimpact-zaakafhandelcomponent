@@ -10,8 +10,8 @@ import { IdentityService } from "../../../identity/identity.service";
 import { InputFormField } from "../../material-form-builder/form-components/input/input-form-field";
 import { MedewerkerGroepFormField } from "../../material-form-builder/form-components/medewerker-groep/medewerker-groep-form-field";
 import { MaterialFormBuilderService } from "../../material-form-builder/material-form-builder.service";
+import { GeneratedType } from "../../utils/generated-types";
 import { EditComponent } from "../edit.component";
-import {GeneratedType} from "../../utils/generated-types";
 
 @Component({
   selector: "zac-edit-groep-behandelaar",

@@ -35,13 +35,13 @@ import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werkli
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { TakenVerdelenDialogComponent } from "../taken-verdelen-dialog/taken-verdelen-dialog.component";
 import { TakenVrijgevenDialogComponent } from "../taken-vrijgeven-dialog/taken-vrijgeven-dialog.component";
 import { TakenService } from "../taken.service";
 import { TakenWerkvoorraadDatasource } from "./taken-werkvoorraad-datasource";
-import {GeneratedType} from "../../shared/utils/generated-types";
 
 @Component({
   templateUrl: "./taken-werkvoorraad.component.html",
@@ -71,7 +71,12 @@ export class TakenWerkvoorraadComponent
   );
 
   takenLoading = signal(false);
-  toekenning: { groep?: GeneratedType<"RestGroup">; medewerker?: GeneratedType<"RestUser"> } | undefined;
+  toekenning:
+    | {
+        groep?: GeneratedType<"RestGroup">;
+        medewerker?: GeneratedType<"RestUser">;
+      }
+    | undefined;
 
   constructor(
     public route: ActivatedRoute,

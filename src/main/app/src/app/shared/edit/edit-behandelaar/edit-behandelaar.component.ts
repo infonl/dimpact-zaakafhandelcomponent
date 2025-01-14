@@ -8,8 +8,8 @@ import { UtilService } from "../../../core/service/util.service";
 import { IdentityService } from "../../../identity/identity.service";
 import { InputFormField } from "../../material-form-builder/form-components/input/input-form-field";
 import { MaterialFormBuilderService } from "../../material-form-builder/material-form-builder.service";
+import { GeneratedType } from "../../utils/generated-types";
 import { EditAutocompleteComponent } from "../edit-autocomplete/edit-autocomplete.component";
-import {GeneratedType} from "../../utils/generated-types";
 
 @Component({
   selector: "zac-edit-behandelaar",
