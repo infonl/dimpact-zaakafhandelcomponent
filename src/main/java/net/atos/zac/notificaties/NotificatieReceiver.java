@@ -200,7 +200,9 @@ public class NotificatieReceiver {
 
     private void handleZaaktype(final Notificatie notificatie) {
         try {
-            if(notificatie.getResource() != ZAAKTYPE) return;
+            if (notificatie.getResource() != ZAAKTYPE) {
+                return;
+            }
 
             switch (notificatie.getAction()) {
                 case CREATE, UPDATE:
