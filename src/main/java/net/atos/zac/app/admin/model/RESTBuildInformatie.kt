@@ -2,27 +2,24 @@
  * SPDX-FileCopyrightText: 2023 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.admin.model
 
-package net.atos.zac.app.admin.model;
+import net.atos.zac.healthcheck.model.BuildInformatie
+import java.time.LocalDateTime
 
-import java.time.LocalDateTime;
+class RESTBuildInformatie(buildInformatie: BuildInformatie) {
+    val commit: String?
 
-import net.atos.zac.healthcheck.model.BuildInformatie;
+    val buildId: String?
 
-public class RESTBuildInformatie {
+    val buildDatumTijd: LocalDateTime?
 
-    public final String commit;
+    val versienummer: String?
 
-    public final String buildId;
-
-    public final LocalDateTime buildDatumTijd;
-
-    public final String versienummer;
-
-    public RESTBuildInformatie(final BuildInformatie buildInformatie) {
-        this.commit = buildInformatie.getCommit();
-        this.buildId = buildInformatie.getBuildId();
-        this.buildDatumTijd = buildInformatie.getBuildDatumTijd();
-        this.versienummer = buildInformatie.getVersienummer();
+    init {
+        this.commit = buildInformatie.commit
+        this.buildId = buildInformatie.buildId
+        this.buildDatumTijd = buildInformatie.buildDatumTijd
+        this.versienummer = buildInformatie.versienummer
     }
 }
