@@ -177,4 +177,4 @@ swagger-generator = { id = "org.hidetake.swagger.generator", version.ref = "swag
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 osdetector = { id = "com.google.osdetector", version.ref = "os-detector" }
-download = { id = "de.undercouch.download", version.ref = "undercouch-download" }
+undercouch-download = { id = "de.undercouch.download", version.ref = "undercouch-download" }

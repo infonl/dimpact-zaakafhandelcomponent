@@ -23,7 +23,7 @@ plugins {
     alias(libs.plugins.taskinfo)
     alias(libs.plugins.openapi)
     alias(libs.plugins.osdetector)
-    alias(libs.plugins.download)
+    alias(libs.plugins.undercouch.download)
     alias(libs.plugins.swagger.generator)
     alias(libs.plugins.detekt)
     alias(libs.plugins.spotless)
