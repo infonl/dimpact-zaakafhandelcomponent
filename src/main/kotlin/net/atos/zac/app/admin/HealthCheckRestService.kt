@@ -1,7 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
- * SPDX-License-Identifier: EUPL-1.2+
- */
 package net.atos.zac.app.admin
 
 import jakarta.inject.Inject
@@ -13,9 +9,10 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.ztc.ZtcClientService
+import net.atos.client.zgw.ztc.model.extensions.isNuGeldig
 import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.zac.app.admin.converter.RESTZaaktypeOverzichtConverter
-import net.atos.zac.app.admin.model.RESTBuildInformatie
+import net.atos.zac.app.admin.model.RESTBuildInformation
 import net.atos.zac.app.admin.model.RESTZaaktypeInrichtingscheck
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.healthcheck.HealthCheckService
@@ -26,36 +23,27 @@ import java.time.ZonedDateTime
 @Path("health-check")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-class HealthCheckRestService {
-    @Inject
-    private val ztcClientService: ZtcClientService? = null
-
-    @Inject
-    private val configuratieService: ConfiguratieService? = null
-
-    @Inject
-    private val healthCheckService: HealthCheckService? = null
-
+class HealthCheckRestService @Inject constructor(
+    private val ztcClientService: ZtcClientService,
+    private val configuratieService: ConfiguratieService,
+    private val healthCheckService: HealthCheckService
+) {
     @GET
     @Path("zaaktypes")
-    fun listZaaktypeInrichtingschecks(): MutableList<RESTZaaktypeInrichtingscheck?> {
-        return listZaaktypes().stream().map<RESTZaaktypeInrichtingscheck?> { zaaktype: ZaakType? ->
-            convertToREST(
-                healthCheckService!!.controleerZaaktype(zaaktype!!.getUrl())
-            )
-        }.toList()
-    }
+    fun listZaaktypeInrichtingschecks() =
+        listZaaktypes().map {
+            convertToREST(healthCheckService.controleerZaaktype(it.url))
+        }
 
     @GET
     @Path("bestaat-communicatiekanaal-eformulier")
-    fun readBestaatCommunicatiekanaalEformulier(): Boolean {
-        return healthCheckService!!.bestaatCommunicatiekanaalEformulier()
-    }
+    fun readBestaatCommunicatiekanaalEformulier() =
+        healthCheckService.bestaatCommunicatiekanaalEformulier()
 
     @DELETE
     @Path("ztc-cache")
     fun clearZTCCaches(): ZonedDateTime {
-        ztcClientService!!.clearZaaktypeCache()
+        ztcClientService.clearZaaktypeCache()
         ztcClientService.clearStatustypeCache()
         ztcClientService.clearResultaattypeCache()
         ztcClientService.clearInformatieobjecttypeCache()
@@ -68,41 +56,37 @@ class HealthCheckRestService {
 
     @GET
     @Path("ztc-cache")
-    fun readZTCCacheTime(): ZonedDateTime {
-        return ztcClientService!!.resetCacheTimeToNow()
-    }
+    fun readZTCCacheTime() = ztcClientService.resetCacheTimeToNow()
 
     @GET
     @Path("build-informatie")
-    fun readBuildInformatie(): RESTBuildInformatie {
-        return RESTBuildInformatie(healthCheckService!!.readBuildInformatie())
-    }
+    fun readBuildInformatie() =
+        healthCheckService.readBuildInformatie().let {
+            RESTBuildInformation(it.commit, it.buildId, it.buildDatumTijd, it.versienummer)
+        }
 
-    private fun listZaaktypes(): MutableList<ZaakType?> {
-        return ztcClientService!!.listZaaktypen(configuratieService!!.readDefaultCatalogusURI()).stream()
-            .filter { zaaktype: ZaakType? -> !zaaktype!!.getConcept() }
-            .filter { isNuGeldig() }
-            .toList()
-    }
+    private fun listZaaktypes() =
+        ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
+            .filter { zaaktype: ZaakType -> !zaaktype.concept }
+            .filter { it.isNuGeldig() }
 
-    private fun convertToREST(check: ZaaktypeInrichtingscheck): RESTZaaktypeInrichtingscheck {
-        val restCheck = RESTZaaktypeInrichtingscheck()
-        restCheck.zaaktype = RESTZaaktypeOverzichtConverter.convert(check.zaaktype)
-        restCheck.besluittypeAanwezig = check.isBesluittypeAanwezig
-        restCheck.resultaattypesMetVerplichtBesluit = check.resultaattypesMetVerplichtBesluit
-        restCheck.resultaattypeAanwezig = check.isResultaattypeAanwezig
-        restCheck.informatieobjecttypeEmailAanwezig = check.isInformatieobjecttypeEmailAanwezig
-        restCheck.rolBehandelaarAanwezig = check.isRolBehandelaarAanwezig
-        restCheck.rolInitiatorAanwezig = check.isRolInitiatorAanwezig
-        restCheck.rolOverigeAanwezig = check.isRolOverigeAanwezig
-        restCheck.statustypeAfgerondAanwezig = check.isStatustypeAfgerondAanwezig
-        restCheck.statustypeAfgerondLaatsteVolgnummer = check.isStatustypeAfgerondLaatsteVolgnummer
-        restCheck.statustypeHeropendAanwezig = check.isStatustypeHeropendAanwezig
-        restCheck.statustypeAanvullendeInformatieVereist = check.isStatustypeAanvullendeInformatieVereist
-        restCheck.statustypeInBehandelingAanwezig = check.isStatustypeInBehandelingAanwezig
-        restCheck.statustypeIntakeAanwezig = check.isStatustypeIntakeAanwezig
-        restCheck.zaakafhandelParametersValide = check.isZaakafhandelParametersValide
-        restCheck.valide = check.isValide
-        return restCheck
-    }
+    private fun convertToREST(check: ZaaktypeInrichtingscheck): RESTZaaktypeInrichtingscheck =
+        RESTZaaktypeInrichtingscheck().apply {
+            zaaktype = RESTZaaktypeOverzichtConverter.convert(check.zaaktype)
+            besluittypeAanwezig = check.isBesluittypeAanwezig
+            resultaattypesMetVerplichtBesluit = check.resultaattypesMetVerplichtBesluit
+            resultaattypeAanwezig = check.isResultaattypeAanwezig
+            informatieobjecttypeEmailAanwezig = check.isInformatieobjecttypeEmailAanwezig
+            rolBehandelaarAanwezig = check.isRolBehandelaarAanwezig
+            rolInitiatorAanwezig = check.isRolInitiatorAanwezig
+            rolOverigeAanwezig = check.isRolOverigeAanwezig
+            statustypeAfgerondAanwezig = check.isStatustypeAfgerondAanwezig
+            statustypeAfgerondLaatsteVolgnummer = check.isStatustypeAfgerondLaatsteVolgnummer
+            statustypeHeropendAanwezig = check.isStatustypeHeropendAanwezig
+            statustypeAanvullendeInformatieVereist = check.isStatustypeAanvullendeInformatieVereist
+            statustypeInBehandelingAanwezig = check.isStatustypeInBehandelingAanwezig
+            statustypeIntakeAanwezig = check.isStatustypeIntakeAanwezig
+            zaakafhandelParametersValide = check.isZaakafhandelParametersValide
+            valide = check.isValide
+        }
 }
