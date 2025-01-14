@@ -4,6 +4,12 @@
 
 A Helm chart for installing Zaakafhandelcomponent
 
+## Maintainers
+
+| Name | Email | Url |
+| ---- | ------ | --- |
+| Team Genève, INFO | <teamdimpact@info.nl> | <https://www.info.nl> |
+
 ## Requirements
 
 | Repository | Name | Version |
@@ -30,7 +36,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | brpApi.apiKey | string | `""` |  |
 | brpApi.url | string | `""` |  |
 | catalogusDomein | string | `"ALG"` | OpenZaak Catalogus Domein |
-| contextUrl | string | `""` | contextUrl External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com) |
+| contextUrl | string | `""` | External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com) |
 | db.host | string | `""` |  |
 | db.name | string | `""` |  |
 | db.password | string | `""` |  |
@@ -44,7 +50,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/infonl/zaakafhandelcomponent"` |  |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
-| imagePullSecrets | list | `[]` | imagePullSecrets specifies image pull secrets |
+| imagePullSecrets | list | `[]` | specifies image pull secrets |
 | ingress.annotations | object | `{}` |  |
 | ingress.className | string | `""` |  |
 | ingress.enabled | bool | `false` |  |
@@ -147,7 +153,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | nginx.service.type | string | `"ClusterIP"` |  |
 | nginx.useXForwardedHost | bool | `false` |  |
 | nodeSelector | object | `{}` | set node selector parameters |
-| notificationsSecretKey | string | `""` | notificationsSecretKey Configuration of the notifications receiving endpoint. |
+| notificationsSecretKey | string | `""` | Configuration of the notifications receiving endpoint. |
 | objectenApi.token | string | `""` |  |
 | objectenApi.url | string | `""` |  |
 | objecttypenApi.token | string | `""` |  |
@@ -156,7 +162,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | office_converter.enabled | bool | `true` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
 | office_converter.image.repository | string | `"ghcr.io/eugenmayer/kontextwork-converter"` |  |
-| office_converter.image.tag | string | `"1.6.1@sha256:92ec2ee4390a7663bc9f5476d6d400bcbbbbc55630bf531d062919b6579295c5"` |  |
+| office_converter.image.tag | string | `"1.6.2@sha256:3d1eb99e88bd2944a9a5349f8e5e7b3e81b90841cdc07f17688f96a8f8d8dd72"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
@@ -208,10 +214,10 @@ A Helm chart for installing Zaakafhandelcomponent
 | opentelemetry-collector.replicaCount | int | `1` |  |
 | organizations.bron.rsin | string | `""` | The RSIN of the Non-natural person - the organization that is ultimately responsible for handling the zaak. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef |
 | organizations.verantwoordelijke.rsin | string | `""` | The RSIN of the Non-natural person - the organization that created the business. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef |
-| podAnnotations | object | `{}` | podAnnotations pod specific annotations |
-| podSecurityContext | object | `{}` | podSecurityContext pod specific security context |
+| podAnnotations | object | `{}` | pod specific annotations |
+| podSecurityContext | object | `{}` | pod specific security context |
 | remoteDebug | bool | `false` | Enable Java remote debugging |
-| replicaCount | int | `1` | replicaCount the number of replicas to run |
+| replicaCount | int | `1` | the number of replicas to run |
 | resources.requests.cpu | string | `"100m"` |  |
 | resources.requests.memory | string | `"1Gi"` |  |
 | securityContext | object | `{}` |  |

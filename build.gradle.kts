@@ -390,7 +390,6 @@ tasks {
     }
 
     build {
-        dependsOn("downloadAndUnpackHelmDocs")
         dependsOn("generateWildflyBootableJar")
         finalizedBy("buildHelmChartReadme")
     }
@@ -708,7 +707,7 @@ tasks {
         description = "Download helm-docs release archive"
         group = "build"
 
-        val version = libs.versions.helmDocs.get()
+        val version = libs.versions.helm.docs.get()
         src(
             "https://github.com/norwoodj/helm-docs/releases/download/v$version/" +
                 "helm-docs_${version}_${osdetector.os}_${osdetector.arch}.tar.gz"
