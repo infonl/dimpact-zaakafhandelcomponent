@@ -2,54 +2,50 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
-package net.atos.zac.app.admin.model;
-
-import java.util.List;
+package net.atos.zac.app.admin.model
 
 /**
  * 5 statustype; Intake, In behandeling, Heropend, Wacht op aanvullende informatie,
  * Afgerond: met Afgerond als laatste statustypevolgnummer
- * <br/>
+ * <br></br>
  * min 1 resultaattype
- * <br/>
+ * <br></br>
  * Roltypen, omschrijving generiek: initiator en behandelaar. 1 overig roltype
- * <br/>
+ * <br></br>
  * Informatieobjecttype: e-mail
- * <br/>
+ * <br></br>
  * indien zaak besluit heeft, Besluittype
  */
-public class RESTZaaktypeInrichtingscheck {
+class RESTZaaktypeInrichtingscheck {
+    var zaaktype: RESTZaaktypeOverzicht? = null
 
-    public RESTZaaktypeOverzicht zaaktype;
+    var statustypeIntakeAanwezig: Boolean = false
 
-    public boolean statustypeIntakeAanwezig;
+    var statustypeInBehandelingAanwezig: Boolean = false
 
-    public boolean statustypeInBehandelingAanwezig;
+    var statustypeHeropendAanwezig: Boolean = false
 
-    public boolean statustypeHeropendAanwezig;
+    var statustypeAanvullendeInformatieVereist: Boolean = false
 
-    public boolean statustypeAanvullendeInformatieVereist;
+    var statustypeAfgerondAanwezig: Boolean = false
 
-    public boolean statustypeAfgerondAanwezig;
+    var statustypeAfgerondLaatsteVolgnummer: Boolean = false
 
-    public boolean statustypeAfgerondLaatsteVolgnummer;
+    var resultaattypeAanwezig: Boolean = false
 
-    public boolean resultaattypeAanwezig;
+    var rolInitiatorAanwezig: Boolean = false
 
-    public boolean rolInitiatorAanwezig;
+    var rolBehandelaarAanwezig: Boolean = false
 
-    public boolean rolBehandelaarAanwezig;
+    var rolOverigeAanwezig: Boolean = false
 
-    public boolean rolOverigeAanwezig;
+    var informatieobjecttypeEmailAanwezig: Boolean = false
 
-    public boolean informatieobjecttypeEmailAanwezig;
+    var besluittypeAanwezig: Boolean = false
 
-    public boolean besluittypeAanwezig;
+    var resultaattypesMetVerplichtBesluit: MutableList<String?>? = null
 
-    public List<String> resultaattypesMetVerplichtBesluit;
+    var zaakafhandelParametersValide: Boolean = false
 
-    public boolean zaakafhandelParametersValide;
-
-    public boolean valide;
+    var valide: Boolean = false
 }
