@@ -27,8 +27,6 @@ import { switchMap, tap } from "rxjs/operators";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { Group } from "../../identity/model/group";
-import { User } from "../../identity/model/user";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakStatusmailOptie } from "../../zaken/model/zaak-statusmail-optie";
 import { AdminComponent } from "../admin/admin.component";
@@ -94,8 +92,8 @@ export class ParameterEditComponent
 
   caseDefinitions: CaseDefinition[];
   domeinen: string[];
-  groepen: Group[];
-  medewerkers: User[];
+  groepen: GeneratedType<"RestGroup">[];
+  medewerkers: GeneratedType<"RestLoggedInUser">[];
   resultaattypes: GeneratedType<"RestResultaattype">[];
   referentieTabellen: ReferentieTabel[];
   formulierDefinities: FormulierDefinitie[];

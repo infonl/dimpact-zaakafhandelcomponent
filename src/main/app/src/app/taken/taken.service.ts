@@ -9,10 +9,9 @@ import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { WebsocketService } from "../core/websocket/websocket.service";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { Group } from "../identity/model/group";
-import { User } from "../identity/model/user";
 import { TableRequest } from "../shared/dynamic-table/datasource/table-request";
 import { TaakHistorieRegel } from "../shared/historie/model/taak-historie-regel";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { TaakZoekObject } from "../zoeken/model/taken/taak-zoek-object";
 import { Taak } from "./model/taak";
 import { TaakToekennenGegevens } from "./model/taak-toekennen-gegevens";
@@ -131,8 +130,8 @@ export class TakenService {
     taken: TaakZoekObject[],
     reden: string,
     screenEventResourceId: string,
-    groep?: Group,
-    medewerker?: User,
+    groep?: GeneratedType<"RestGroup">,
+    medewerker?: GeneratedType<"RestUser">,
   ): Observable<void> {
     const taakBody: TaakVerdelenGegevens = new TaakVerdelenGegevens();
     taakBody.taken = taken.map((taak) => ({

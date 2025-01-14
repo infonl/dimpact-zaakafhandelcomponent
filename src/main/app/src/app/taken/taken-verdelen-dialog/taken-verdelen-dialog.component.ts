@@ -5,13 +5,12 @@
 
 import { Component, Inject, OnInit } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { Group } from "../../identity/model/group";
-import { User } from "../../identity/model/user";
 import { InputFormField } from "../../shared/material-form-builder/form-components/input/input-form-field";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
 import { MedewerkerGroepFormField } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-form-field";
 import { MaterialFormBuilderService } from "../../shared/material-form-builder/material-form-builder.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenService } from "../taken.service";
 
@@ -64,8 +63,10 @@ export class TakenVerdelenDialogComponent implements OnInit {
 
   verdeel(): void {
     this.redenFormField.readonly = true;
-    const toekenning: { groep?: Group; medewerker?: User } =
-      this.medewerkerGroepFormField.formControl.value;
+    const toekenning: {
+      groep?: GeneratedType<"RestGroup">;
+      medewerker?: GeneratedType<"RestUser">;
+    } = this.medewerkerGroepFormField.formControl.value;
     const reden: string = this.redenFormField.formControl.value;
     this.dialogRef.disableClose = true;
     this.loading = true;
