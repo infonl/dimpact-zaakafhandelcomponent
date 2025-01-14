@@ -21,12 +21,14 @@ import net.atos.zac.app.admin.model.RESTZaaktypeInrichtingscheck
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.healthcheck.HealthCheckService
 import net.atos.zac.healthcheck.model.ZaaktypeInrichtingscheck
+import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 
 @Singleton
 @Path("health-check")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@NoArgConstructor
 class HealthCheckRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val configuratieService: ConfiguratieService,
