@@ -194,14 +194,10 @@ class HealthCheckService @Inject constructor(
 
     private fun controleerZaaktypeInformatieobjecttypeInrichting(zaaktypeInrichtingscheck: ZaaktypeInrichtingscheck) {
         val informatieobjecttypes = ztcClientService.readInformatieobjecttypen(zaaktypeInrichtingscheck.zaaktype.url)
-        informatieobjecttypes.forEach(
-            Consumer { informatieobjecttype: InformatieObjectType ->
-                if (informatieobjecttype.isNuGeldig() &&
-                    ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL == informatieobjecttype.omschrijving
-                ) {
-                    zaaktypeInrichtingscheck.isInformatieobjecttypeEmailAanwezig = true
-                }
+        informatieobjecttypes.forEach {
+            if (it.isNuGeldig() && ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL == it.omschrijving) {
+                zaaktypeInrichtingscheck.isInformatieobjecttypeEmailAanwezig = true
             }
-        )
+        }
     }
 }

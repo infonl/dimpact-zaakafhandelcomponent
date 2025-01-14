@@ -73,7 +73,7 @@ class HealthCheckRestService @Inject constructor(
 
     private fun listZaaktypes() =
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
-            .filter { zaaktype: ZaakType -> !zaaktype.concept }
+            .filter { !it.concept }
             .filter { it.isNuGeldig() }
 
     private fun convertToREST(check: ZaaktypeInrichtingscheck): RESTZaaktypeInrichtingscheck =

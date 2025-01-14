@@ -4,18 +4,6 @@
  */
 package net.atos.zac.app.admin.model
 
-/**
- * 5 statustype; Intake, In behandeling, Heropend, Wacht op aanvullende informatie,
- * Afgerond: met Afgerond als laatste statustypevolgnummer
- * <br></br>
- * min 1 resultaattype
- * <br></br>
- * Roltypen, omschrijving generiek: initiator en behandelaar. 1 overig roltype
- * <br></br>
- * Informatieobjecttype: e-mail
- * <br></br>
- * indien zaak besluit heeft, Besluittype
- */
 data class RESTZaaktypeInrichtingscheck(
     var zaaktype: RESTZaaktypeOverzicht,
     var statustypeIntakeAanwezig: Boolean = false,
