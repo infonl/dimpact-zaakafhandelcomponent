@@ -20,9 +20,9 @@ public class RESTBuildInformatie {
     public final String versienummer;
 
     public RESTBuildInformatie(final BuildInformatie buildInformatie) {
-        this.commit = buildInformatie.commit;
-        this.buildId = buildInformatie.buildId;
-        this.buildDatumTijd = buildInformatie.buildDatumTijd;
-        this.versienummer = buildInformatie.versienummer;
+        this.commit = buildInformatie.getCommit();
+        this.buildId = buildInformatie.getBuildId();
+        this.buildDatumTijd = buildInformatie.getBuildDatumTijd();
+        this.versienummer = buildInformatie.getVersienummer();
     }
 }

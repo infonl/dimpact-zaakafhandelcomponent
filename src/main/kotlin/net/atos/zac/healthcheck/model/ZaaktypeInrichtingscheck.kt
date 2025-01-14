@@ -13,7 +13,7 @@ import net.atos.client.zgw.ztc.model.generated.ZaakType
  * Informatieobjecttype: e-mail
  * indien zaak besluit heeft, Besluittype
  */
-class ZaaktypeInrichtingscheck(@JvmField val zaaktype: ZaakType?) {
+class ZaaktypeInrichtingscheck(val zaaktype: ZaakType) {
     var isStatustypeIntakeAanwezig: Boolean = false
     var isStatustypeInBehandelingAanwezig: Boolean = false
     var isStatustypeHeropendAanwezig: Boolean = false
@@ -26,7 +26,6 @@ class ZaaktypeInrichtingscheck(@JvmField val zaaktype: ZaakType?) {
     var isRolOverigeAanwezig: Boolean = false
     var isInformatieobjecttypeEmailAanwezig: Boolean = false
     var isBesluittypeAanwezig: Boolean = false
-    @JvmField
     val resultaattypesMetVerplichtBesluit: MutableList<String?> = ArrayList<String?>()
     var isZaakafhandelParametersValide: Boolean = false
 
@@ -35,9 +34,17 @@ class ZaaktypeInrichtingscheck(@JvmField val zaaktype: ZaakType?) {
     }
 
     val isValide: Boolean
-        get() = this.isStatustypeIntakeAanwezig && this.isStatustypeInBehandelingAanwezig && this.isStatustypeHeropendAanwezig && this.isStatustypeAfgerondAanwezig &&
-                this.isStatustypeAfgerondLaatsteVolgnummer && this.isStatustypeAanvullendeInformatieVereist &&
-                this.isRolInitiatorAanwezig && this.isRolBehandelaarAanwezig && this.isRolOverigeAanwezig && this.isInformatieobjecttypeEmailAanwezig &&
-                this.isResultaattypeAanwezig &&
-                this.isZaakafhandelParametersValide && (resultaattypesMetVerplichtBesluit.isEmpty() || this.isBesluittypeAanwezig)
+        get() = this.isStatustypeIntakeAanwezig &&
+            this.isStatustypeInBehandelingAanwezig &&
+            this.isStatustypeHeropendAanwezig &&
+            this.isStatustypeAfgerondAanwezig &&
+            this.isStatustypeAfgerondLaatsteVolgnummer &&
+            this.isStatustypeAanvullendeInformatieVereist &&
+            this.isRolInitiatorAanwezig &&
+            this.isRolBehandelaarAanwezig &&
+            this.isRolOverigeAanwezig &&
+            this.isInformatieobjecttypeEmailAanwezig &&
+            this.isResultaattypeAanwezig &&
+            this.isZaakafhandelParametersValide &&
+            (resultaattypesMetVerplichtBesluit.isEmpty() || this.isBesluittypeAanwezig)
 }
