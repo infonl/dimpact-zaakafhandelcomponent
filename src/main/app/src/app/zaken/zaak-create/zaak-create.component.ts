@@ -314,10 +314,8 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
     groepId?: string,
     medewerkerId?: string,
   ): MedewerkerGroepFormField {
-    const groep = this.groepen.find((group) => group.id === groepId);
-    const medewerker = this.medewerkers.find(
-      (user) => user.id === medewerkerId,
-    );
+    const groep = this.groepen.find(({ id }) => id === groepId);
+    const medewerker = this.medewerkers.find(({ id }) => id === medewerkerId);
 
     return new MedewerkerGroepFieldBuilder(groep, medewerker)
       .id("toekenning")
