@@ -81,8 +81,8 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
   private readonly inboxProductaanvraag: InboxProductaanvraag;
   private communicatiekanalen: Observable<string[]>;
   private communicatiekanaalField: SelectFormField;
-  private medewerkers: GeneratedType<"RestUser">[];
-  private groepen: GeneratedType<"RestGroup">[];
+  private medewerkers: GeneratedType<"RestUser">[] = [];
+  private groepen: GeneratedType<"RestGroup">[] = [];
 
   constructor(
     private zakenService: ZakenService,
