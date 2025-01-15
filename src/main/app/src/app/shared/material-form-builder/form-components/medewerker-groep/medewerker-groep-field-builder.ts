@@ -1,11 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { ValidatorFn, Validators } from "@angular/forms";
-import { Group } from "../../../../identity/model/group";
-import { User } from "../../../../identity/model/user";
+import { GeneratedType } from "../../../utils/generated-types";
 import { AbstractFormField } from "../../model/abstract-form-field";
 import { AbstractFormFieldBuilder } from "../../model/abstract-form-field-builder";
 import { MedewerkerGroepFormField } from "./medewerker-groep-form-field";
@@ -13,7 +12,10 @@ import { MedewerkerGroepFormField } from "./medewerker-groep-form-field";
 export class MedewerkerGroepFieldBuilder extends AbstractFormFieldBuilder {
   readonly formField: MedewerkerGroepFormField;
 
-  constructor(groep?: Group, medewerker?: User) {
+  constructor(
+    groep?: GeneratedType<"RestGroup">,
+    medewerker?: GeneratedType<"RestUser">,
+  ) {
     super();
     this.formField = new MedewerkerGroepFormField();
     this.formField.initControl({
