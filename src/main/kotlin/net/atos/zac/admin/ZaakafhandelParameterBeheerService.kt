@@ -73,6 +73,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             humanTaskParametersCollection.forEach { ValidationUtil.valideerObject(it) }
             userEventListenerParametersCollection.forEach { ValidationUtil.valideerObject(it) }
             mailtemplateKoppelingen.forEach { ValidationUtil.valideerObject(it) }
+            creatiedatum = zaakafhandelParameters.creatiedatum ?: ZonedDateTime.now()
         }
 
         return if (zaakafhandelParameters.id == null) {
