@@ -53,7 +53,6 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         val query = builder.createQuery(ZaakafhandelParameters::class.java)
         val root = query.from(ZaakafhandelParameters::class.java)
         query.select(root).where(builder.equal(root.get<Any>(ZaakafhandelParameters.ZAAKTYPE_UUID), zaaktypeUUID))
-        // IT FAILS HERE (persistent instance references an unsaved transient instance of 'net.atos.zac.admin.model.HumanTaskParameters')
         val resultList = entityManager.createQuery(query).setMaxResults(1).resultList
         return resultList.firstOrNull() ?: ZaakafhandelParameters().apply {
             zaakTypeUUID = zaaktypeUUID
@@ -123,13 +122,6 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         return entityManager.createQuery(query).resultList
     }
 
-    fun deleteZaaktype(zaaktypeUri: URI) {
-        zaakafhandelParameterService.clearListCache()
-        ztcClientService.clearZaaktypeCache()
-
-        // TODO: what to do when a case type has been removed
-    }
-
     fun upsertZaaktype(zaaktypeUri: URI) {
         zaakafhandelParameterService.clearListCache()
         ztcClientService.clearZaaktypeCache()
@@ -186,7 +178,8 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         mapMailtemplateKoppelingen(previousZaakafhandelparameters, zaakafhandelParameters)
 
         // We need to store the zaakafhandel parameters before mapping smart documents
-        // as we are reliant on fetching data which is mapped in the methods above
+        // as we are reliant on fetching data which is mapped in the methods above and should be stored
+        // to prevent issues with the entityManager
         storeZaakafhandelParameters(zaakafhandelParameters)
 
         mapSmartDocuments(previousZaakafhandelparameters.zaakTypeUUID, zaakafhandelParameters.zaakTypeUUID)

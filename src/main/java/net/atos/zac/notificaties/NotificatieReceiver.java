@@ -208,10 +208,6 @@ public class NotificatieReceiver {
                 case CREATE, UPDATE:
                     zaakafhandelParameterBeheerService.upsertZaaktype(notificatie.getResourceUrl());
                     break;
-                case DELETE:
-                    // TODO: we are not receiving this notificatie
-                    zaakafhandelParameterBeheerService.deleteZaaktype(notificatie.getResourceUrl());
-                    break;
             }
         } catch (RuntimeException ex) {
             warning("Zaaktype", notificatie, ex);

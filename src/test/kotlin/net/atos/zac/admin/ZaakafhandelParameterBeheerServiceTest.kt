@@ -11,9 +11,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.persistence.EntityManager
@@ -246,6 +244,23 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
                 every { setMaxResults(1) } returns this
                 every { resultList } returns emptyList() andThen listOf(originalZaakafhandelParameters)
             }
+
+            val template = RestMappedSmartDocumentsTemplateGroup(
+                id = "test",
+                name = "test",
+                groups = null,
+                templates = null
+            )
+
+            every { smartDocumentsTemplatesService.getTemplatesMapping(any<UUID>()) } answers {
+                setOf(template)
+            }
+
+            every {
+                smartDocumentsTemplatesService.storeTemplatesMapping(any<Set<RestMappedSmartDocumentsTemplateGroup>>(), any<UUID>())
+            } returns mockk {}
+
+            zaakafhandelParameterBeheerService.upsertZaaktype(zaaktypeUri)
 
             Then("The zaaktype simple values have been copied from the original") {
                 with(slotPersistZaakafhandelParameters.captured) {
