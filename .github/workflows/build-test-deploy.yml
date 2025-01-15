@@ -178,8 +178,41 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+  next-version:
+    runs-on: ubuntu-22.04
+    outputs:
+      version: ${{ steps.get-version.outputs.replaced }}
+      tag: ${{ steps.get-tag.outputs.new_tag }}
+    steps:
+      # Checkout the repository including tags
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      # Determine the next semantic version based on the commit message tags
+      - name: Get next tag
+        id: get-tag
+        uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297 # 1.71.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PRERELEASE: false
+          DEFAULT_BUMP: patch
+          WITH_V: true
+          RELEASE_BRANCHES: main
+      - name: Get next version
+        id: get-version
+        uses: frabert/replace-string-action@b6828c5a4cb6371753ff873b0d1c4c4fbd9a63cb # v2.5
+        with:
+          pattern: 'v(.*)'
+          string: ${{ steps.get-tag.outputs.new_tag }}
+          replace-with: '$1'
+      - name: Print new tag and version
+        run: |
+          echo "Next version: ${{ steps.get-version.outputs.replaced }}"
+          echo "Next version tag: ${{ steps.get-tag.outputs.new_tag }}"
+
   build-docker-image-and-run-itests:
-    needs: [build, paths-ignore]
+    needs: [build, paths-ignore, next-version]
     if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
     runs-on: ubuntu-22.04
     timeout-minutes: 30
@@ -190,6 +223,7 @@ jobs:
       GIT_COMMIT_HASH: ${{ github.sha }}
       BAG_API_CLIENT_MP_REST_URL: $${{ vars.BAG_API_CLIENT_MP_REST_URL }}
       BAG_API_KEY: ${{ secrets.BAG_API_KEY }}
+      NEXT_VERSION: ${{ needs.next-version.outputs.version }}
     steps:
       # workaround to avoid 'No space left on device' error
       - name: Free Disk Space (Ubuntu)
@@ -227,7 +261,7 @@ jobs:
         with:
           tags: ${{ env.ZAC_DOCKER_IMAGE }}
           build-args: |
-            versionNumber=${{ env.BUILD_NUMBER }}
+            versionNumber=${{ env.NEXT_VERSION }}
             branchName=${{ env.BRANCH_NAME }}
             commitHash=${{ env.GIT_COMMIT_HASH }}
           context: .
@@ -325,40 +359,6 @@ jobs:
           # see: https://github.com/fastify/github-action-merge-dependabot/issues/134
           approve-only: true
           target: minor
-
-  next-version:
-    if: ${{ github.ref == 'refs/heads/main'}}
-    runs-on: ubuntu-22.04
-    outputs:
-      version: ${{ steps.get-version.outputs.replaced }}
-      tag: ${{ steps.get-tag.outputs.new_tag }}
-    steps:
-      # Checkout the repository including tags
-      - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          fetch-depth: 0
-      # Determine the next semantic version based on the commit message tags
-      - name: Get next tag
-        id: get-tag
-        uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297 # 1.71.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PRERELEASE: false
-          DEFAULT_BUMP: patch
-          WITH_V: true
-          RELEASE_BRANCHES: main
-      - name: Get next version
-        id: get-version
-        uses: frabert/replace-string-action@b6828c5a4cb6371753ff873b0d1c4c4fbd9a63cb # v2.5
-        with:
-          pattern: 'v(.*)'
-          string: ${{ steps.get-tag.outputs.new_tag }}
-          replace-with: '$1'
-      - name: Print new tag and version
-        run: |
-          echo "Next version: ${{ steps.get-version.outputs.replaced }}"
-          echo "Next version tag: ${{ steps.get-tag.outputs.new_tag }}"
 
   push-docker-image:
     needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version]
