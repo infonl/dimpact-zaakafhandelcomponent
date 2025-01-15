@@ -73,15 +73,13 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             humanTaskParametersCollection.forEach { ValidationUtil.valideerObject(it) }
             userEventListenerParametersCollection.forEach { ValidationUtil.valideerObject(it) }
             mailtemplateKoppelingen.forEach { ValidationUtil.valideerObject(it) }
-            creatiedatum = zaakafhandelParameters.creatiedatum ?: ZonedDateTime.now()
         }
 
         return if (zaakafhandelParameters.id == null) {
             entityManager.persist(zaakafhandelParameters)
             zaakafhandelParameters
         } else {
-            entityManager.merge(zaakafhandelParameters)
-            zaakafhandelParameters
+            return entityManager.merge(zaakafhandelParameters)
         }
     }
 
@@ -122,7 +120,8 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         return entityManager.createQuery(query).resultList
     }
 
-    fun upsertZaaktype(zaaktypeUri: URI) {
+    @SuppressWarnings("ReturnCount")
+    fun upsertZaakafhandelParameters(zaaktypeUri: URI) {
         zaakafhandelParameterService.clearListCache()
         ztcClientService.clearZaaktypeCache()
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUri)
@@ -170,6 +169,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             productaanvraagtype = previousZaakafhandelparameters.productaanvraagtype
             domein = previousZaakafhandelparameters.domein
             isSmartDocumentsIngeschakeld = previousZaakafhandelparameters.isSmartDocumentsIngeschakeld
+            creatiedatum = ZonedDateTime.now()
         }
 
         mapHumanTaskParameters(previousZaakafhandelparameters, zaakafhandelParameters)

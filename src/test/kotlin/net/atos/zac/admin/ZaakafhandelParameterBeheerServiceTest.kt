@@ -219,7 +219,7 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
 
             every { entityManager.merge(capture(slotPersistZaakafhandelParameters)) } answers { ZaakafhandelParameters() }
 
-            zaakafhandelParameterBeheerService.upsertZaaktype(zaaktypeUri)
+            zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri)
 
             Then("The related zaakafhandelparameters is stored through the entity manager") {
                 slotPersistZaakafhandelParameters.isCaptured shouldBe true
@@ -260,7 +260,7 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
                 smartDocumentsTemplatesService.storeTemplatesMapping(any<Set<RestMappedSmartDocumentsTemplateGroup>>(), any<UUID>())
             } returns mockk {}
 
-            zaakafhandelParameterBeheerService.upsertZaaktype(zaaktypeUri)
+            zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri)
 
             Then("The zaaktype simple values have been copied from the original") {
                 with(slotPersistZaakafhandelParameters.captured) {

@@ -97,7 +97,7 @@ class NotificatieReceiverTest : BehaviorSpec({
             resource = Resource.ZAAKTYPE,
             resourceUrl = zaaktypeUri
         )
-        every { zaakafhandelParameterBeheerService.upsertZaaktype(zaaktypeUri) } just runs
+        every { zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri) } just runs
 
         When("notificatieReceive is called with the zaaktype create notificatie") {
             val response = notificatieReceiver.notificatieReceive(httpHeaders, notificatie)
@@ -107,7 +107,7 @@ class NotificatieReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe 204
                 verify(exactly = 1) {
-                    zaakafhandelParameterBeheerService.upsertZaaktype(zaaktypeUri)
+                    zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri)
                 }
             }
         }
@@ -125,7 +125,7 @@ class NotificatieReceiverTest : BehaviorSpec({
             resourceUrl = zaaktypeUri,
             action = Action.UPDATE
         )
-        every { zaakafhandelParameterBeheerService.upsertZaaktype(zaaktypeUri) } just runs
+        every { zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri) } just runs
 
         When("notificatieReceive is called with the zaaktype create notificatie") {
             val response = notificatieReceiver.notificatieReceive(httpHeaders, notificatie)
@@ -135,7 +135,7 @@ class NotificatieReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe 204
                 verify(exactly = 1) {
-                    zaakafhandelParameterBeheerService.upsertZaaktype(zaaktypeUri)
+                    zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri)
                 }
             }
         }
