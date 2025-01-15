@@ -63,8 +63,8 @@ class HealthCheckService @Inject constructor(
     fun controleerZaaktype(zaaktypeUrl: URI): ZaaktypeInrichtingscheck {
         ztcClientService.resetCacheTimeToNow()
         ztcClientService.readZaaktype(zaaktypeUrl).let { zaaktype ->
-            zaaktype.url.extractUuid().let { zaaktypeUuid ->
-                return inrichtingscheck(zaaktypeUuid, zaaktype)
+            zaaktype.url.extractUuid().let {
+                return inrichtingscheck(it, zaaktype)
             }
         }
     }
@@ -158,7 +158,7 @@ class HealthCheckService @Inject constructor(
     private fun controleerZaaktypeBesluittypeInrichting(zaaktypeInrichtingscheck: ZaaktypeInrichtingscheck) {
         val besluittypes = ztcClientService.readBesluittypen(
             zaaktypeInrichtingscheck.zaaktype.url
-        ).filter { besluittype: BesluitType -> LocalDateUtil.dateNowIsBetween(besluittype) }
+        ).filter { LocalDateUtil.dateNowIsBetween(it) }
         if (besluittypes.isNotEmpty()) {
             zaaktypeInrichtingscheck.isBesluittypeAanwezig = true
         }
