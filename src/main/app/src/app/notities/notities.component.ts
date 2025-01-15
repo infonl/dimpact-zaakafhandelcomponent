@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Component, Input, OnInit, ViewChild } from "@angular/core";
 import { IdentityService } from "../identity/identity.service";
-import { User } from "../identity/model/user";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { Notitie } from "./model/notitie";
 import { NotitieService } from "./notities.service";
 
@@ -20,7 +20,7 @@ export class NotitiesComponent implements OnInit {
 
   @ViewChild("notitieTekst") notitieTekst;
 
-  ingelogdeMedewerker: User;
+  ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
 
   aantalNotities = 0;
   laatNotitiesSchermZien = true;

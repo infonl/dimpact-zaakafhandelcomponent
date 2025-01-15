@@ -33,7 +33,6 @@ import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
-import { LoggedInUser } from "../../identity/model/logged-in-user";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { KlantenService } from "../../klanten/klanten.service";
@@ -167,7 +166,7 @@ export class ZaakViewComponent
   private zaakRollenListener: WebsocketListener;
   private zaakBesluitenListener: WebsocketListener;
   private zaakTakenListener: WebsocketListener;
-  private ingelogdeMedewerker: LoggedInUser;
+  private ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
   private datumPipe = new DatumPipe("nl");
 
   @ViewChild("actionsSidenav") actionsSidenav: MatSidenav;

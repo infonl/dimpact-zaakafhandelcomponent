@@ -1,14 +1,14 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Component, Input } from "@angular/core";
 import { UtilService } from "../../../core/service/util.service";
 import { IdentityService } from "../../../identity/identity.service";
-import { User } from "../../../identity/model/user";
 import { InputFormField } from "../../material-form-builder/form-components/input/input-form-field";
 import { MaterialFormBuilderService } from "../../material-form-builder/material-form-builder.service";
+import { GeneratedType } from "../../utils/generated-types";
 import { EditAutocompleteComponent } from "../edit-autocomplete/edit-autocomplete.component";
 
 @Component({
@@ -23,7 +23,7 @@ import { EditAutocompleteComponent } from "../edit-autocomplete/edit-autocomplet
 export class EditBehandelaarComponent extends EditAutocompleteComponent {
   @Input() reasonField: InputFormField;
   showAssignToMe = false;
-  private loggedInUser: User;
+  private loggedInUser: GeneratedType<"RestLoggedInUser">;
 
   constructor(
     mfbService: MaterialFormBuilderService,

@@ -5,8 +5,8 @@
 
 import { SortDirection } from "@angular/material/sort";
 import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
-import { User } from "../../identity/model/user";
 import { ListParameters } from "../../shared/model/list-parameters";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { DatumRange } from "../../zoeken/model/datum-range";
 
 export class OntkoppeldDocumentListParameters
@@ -15,7 +15,7 @@ export class OntkoppeldDocumentListParameters
 {
   readonly filtersType = "OntkoppeldDocumentListParameters";
   zaakID: string;
-  ontkoppeldDoor: User;
+  ontkoppeldDoor: GeneratedType<"RestUser">;
   ontkoppeldOp = new DatumRange();
   creatiedatum = new DatumRange();
   titel: string;
