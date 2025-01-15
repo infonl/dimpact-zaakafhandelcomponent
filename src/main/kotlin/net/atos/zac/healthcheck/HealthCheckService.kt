@@ -53,6 +53,7 @@ class HealthCheckService @Inject constructor(
 ) {
     companion object {
         private const val BUILD_TIMESTAMP_FILE = "/build_timestamp.txt"
+        private const val DEV_BUILD_ID = "dev"
     }
 
     private var buildInformatie: BuildInformatie = createBuildInformatie()
@@ -87,26 +88,26 @@ class HealthCheckService @Inject constructor(
     fun readBuildInformatie() = buildInformatie
 
     private fun createBuildInformatie(): BuildInformatie {
-        val buildDatumTijd: LocalDateTime?
+        val buildDateTime: LocalDateTime?
         val buildDatumTijdFile = File(BUILD_TIMESTAMP_FILE)
         if (buildDatumTijdFile.exists()) {
             try {
-                buildDatumTijd = DateTimeConverterUtil.convertToLocalDateTime(
+                buildDateTime = DateTimeConverterUtil.convertToLocalDateTime(
                     ZonedDateTime.parse(
                         Files.readAllLines(buildDatumTijdFile.toPath()).first()
                     )
                 )
             } catch (ioException: IOException) {
-                throw BuildInformationException("Cannot read build information", ioException)
+                throw BuildInformationException("Cannot read build timestamp", ioException)
             }
         } else {
-            buildDatumTijd = null
+            buildDateTime = null
         }
         return BuildInformatie(
             commitHash.orElse(null),
             branchName.orElse(null),
-            buildDatumTijd,
-            versionNumber.orElse(null)
+            buildDateTime,
+            versionNumber.orElse(DEV_BUILD_ID)
         )
     }
 
