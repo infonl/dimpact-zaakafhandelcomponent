@@ -212,7 +212,7 @@ jobs:
           echo "Next version tag: ${{ steps.get-tag.outputs.new_tag }}"
 
   build-docker-image-and-run-itests:
-    needs: [build, paths-ignore]
+    needs: [build, paths-ignore, next-version]
     if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
     runs-on: ubuntu-22.04
     timeout-minutes: 30
