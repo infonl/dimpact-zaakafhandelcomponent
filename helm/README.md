@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | solr | 9.1.6 |
+| https://charts.bitnami.com/bitnami | solr | 9.3.10 |
 | https://open-telemetry.github.io/opentelemetry-helm-charts | opentelemetry-collector | 0.104.0 |
 
 ## Values
@@ -212,8 +212,8 @@ A Helm chart for installing Zaakafhandelcomponent
 | opentelemetry-collector.ports.zipkin.enabled | bool | `false` |  |
 | opentelemetry-collector.presets.clusterMetrics.enabled | bool | `false` |  |
 | opentelemetry-collector.replicaCount | int | `1` |  |
-| organizations.bron.rsin | string | `""` | The RSIN of the Non-natural person - the organization that is ultimately responsible for handling the zaak. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef |
-| organizations.verantwoordelijke.rsin | string | `""` | The RSIN of the Non-natural person - the organization that created the business. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef |
+| organizations.bron.rsin | string | `""` | The RSIN of the Non-natural person - the organization that created the zaak. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef |
+| organizations.verantwoordelijke.rsin | string | `""` | The RSIN of the Non-natural person - the organization that is ultimately responsible for handling a zaak or establishing a decision. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef |
 | podAnnotations | object | `{}` | pod specific annotations |
 | podSecurityContext | object | `{}` | pod specific security context |
 | remoteDebug | bool | `false` | Enable Java remote debugging |

@@ -9,8 +9,8 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
-import { Observable, Subject, of } from "rxjs";
-import { catchError, filter, takeUntil } from "rxjs/operators";
+import { Observable, Subject, lastValueFrom, of } from "rxjs";
+import { catchError, filter, map, takeUntil } from "rxjs/operators";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { BAGObject } from "../../bag/model/bagobject";
 import { UtilService } from "../../core/service/util.service";
@@ -81,8 +81,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
   private readonly inboxProductaanvraag: InboxProductaanvraag;
   private communicatiekanalen: Observable<string[]>;
   private communicatiekanaalField: SelectFormField;
-  private medewerkers: GeneratedType<"RestUser">[] = [];
-  private groepen: GeneratedType<"RestGroup">[] = [];
+  private groepen: Observable<GeneratedType<"RestGroup">[]>;
 
   constructor(
     private zakenService: ZakenService,
@@ -98,7 +97,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
       this.router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
   }
 
-  ngOnInit(): void {
+  async ngOnInit() {
     this.utilService.setTitle("title.zaak.aanmaken");
 
     this.formConfig = new FormConfigBuilder()
@@ -154,7 +153,8 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
       .validators(Validators.required)
       .build();
 
-    this.medewerkerGroepFormField = this.getMedewerkerGroupFormField();
+    this.groepen = this.identityService.listGroups();
+    this.medewerkerGroepFormField = await this.getMedewerkerGroupFormField();
 
     this.initiatorField = new InputFormFieldBuilder()
       .id("initiatorIdentificatie")
@@ -234,14 +234,6 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
     if (this.inboxProductaanvraag) {
       this.verwerkInboxProductaanvraagGegevens();
     }
-
-    this.identityService.listUsers().subscribe((users) => {
-      this.medewerkers = users;
-    });
-
-    this.identityService.listGroups().subscribe((groups) => {
-      this.groepen = groups;
-    });
   }
 
   ngOnDestroy(): void {
@@ -310,14 +302,22 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
     this.actionsSidenav.close();
   }
 
-  getMedewerkerGroupFormField(
-    groepId?: string,
-    medewerkerId?: string,
-  ): MedewerkerGroepFormField {
-    const groep = this.groepen.find(({ id }) => id === groepId);
-    const medewerker = this.medewerkers.find(({ id }) => id === medewerkerId);
+  async getMedewerkerGroupFormField(groepId?: string, medewerkerId?: string) {
+    const group = await lastValueFrom(
+      this.groepen.pipe(
+        map((groups) => groups.find(({ id }) => id === groepId)),
+      ),
+    );
 
-    return new MedewerkerGroepFieldBuilder(groep, medewerker)
+    const employee = group
+      ? await lastValueFrom(
+          this.identityService
+            .listUsersInGroup(group.id)
+            .pipe(map((users) => users.find(({ id }) => id === medewerkerId))),
+        )
+      : undefined;
+
+    return new MedewerkerGroepFieldBuilder(group, employee)
       .id("toekenning")
       .groepLabel("actie.zaak.toekennen.groep")
       .groepRequired()
@@ -325,25 +325,27 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
       .build();
   }
 
-  zaaktypeGeselecteerd(zaaktype: Zaaktype): void {
+  async zaaktypeGeselecteerd(zaaktype: Zaaktype) {
     if (!zaaktype) {
       return;
     }
 
-    this.createZaakFields = this.createZaakFields.map((formRow) => {
-      if (
-        formRow.find(
-          (formField) => formField.fieldType === FieldType.MEDEWERKER_GROEP,
-        )
-      ) {
-        const newField = this.getMedewerkerGroupFormField(
-          zaaktype.zaakafhandelparameters.defaultGroepId,
-          zaaktype.zaakafhandelparameters.defaultBehandelaarId,
-        );
-        return [newField];
-      }
-      return formRow;
-    });
+    this.createZaakFields = await Promise.all(
+      this.createZaakFields.map(async (formRow) => {
+        if (
+          formRow.find(
+            ({ fieldType }) => fieldType === FieldType.MEDEWERKER_GROEP,
+          )
+        ) {
+          const newField = await this.getMedewerkerGroupFormField(
+            zaaktype.zaakafhandelparameters.defaultGroepId,
+            zaaktype.zaakafhandelparameters.defaultBehandelaarId,
+          );
+          return [newField];
+        }
+        return formRow;
+      }),
+    );
 
     this.vertrouwelijkheidaanduidingField.formControl.setValue(
       this.vertrouwelijkheidaanduidingen.find(
