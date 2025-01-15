@@ -179,7 +179,6 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   next-version:
-    if: ${{ github.ref == 'refs/heads/main'}}
     runs-on: ubuntu-22.04
     outputs:
       version: ${{ steps.get-version.outputs.replaced }}
