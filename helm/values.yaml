@@ -509,10 +509,10 @@ nginx:
 
 organizations:
   verantwoordelijke:
-    # -- The RSIN of the Non-natural person - the organization that created the business. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
+    # -- The RSIN of the Non-natural person - the organization that is ultimately responsible for handling a zaak or establishing a decision. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
     rsin: ""
   bron:
-    # -- The RSIN of the Non-natural person - the organization that is ultimately responsible for handling the zaak. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
+    # -- The RSIN of the Non-natural person - the organization that created the zaak. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
     rsin: ""
 
 # -- OpenZaak Catalogus Domein
