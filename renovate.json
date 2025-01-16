@@ -127,7 +127,7 @@
         "docker"
       ],
       "allowedVersions": "<= 2.6.1",
-      "description": "Pinned by the next Dimpact PodiumD release"
+      "description": "Pinned - story created "
     },
     {
       "matchPackageNames": [
@@ -147,7 +147,7 @@
         "helm"
       ],
       "allowedVersions": "<= 0.104.0",
-      "description": "Pinned by the next Dimpact PodiumD release"
+      "description": "Pinned - next version(s) have breaking changes - story created"
     },
     {
       "matchPackageNames": [
