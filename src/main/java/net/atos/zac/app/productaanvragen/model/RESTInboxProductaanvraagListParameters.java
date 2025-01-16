@@ -6,13 +6,13 @@
 package net.atos.zac.app.productaanvragen.model;
 
 import net.atos.zac.app.shared.RESTListParameters;
-import net.atos.zac.app.zoeken.model.RESTDatumRange;
+import net.atos.zac.app.zoeken.model.RestDatumRange;
 
 public class RESTInboxProductaanvraagListParameters extends RESTListParameters {
 
     public String type;
 
-    public RESTDatumRange ontvangstdatum;
+    public RestDatumRange ontvangstdatum;
 
     public String initiatorID;
 }

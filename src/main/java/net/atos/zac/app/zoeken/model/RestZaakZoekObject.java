@@ -13,7 +13,7 @@ import java.util.Map;
 import net.atos.zac.app.policy.model.RestZaakRechten;
 import net.atos.zac.zoeken.model.ZaakIndicatie;
 
-public class RESTZaakZoekObject extends AbstractRESTZoekObject {
+public class RestZaakZoekObject extends AbstractRestZoekObject {
 
     public String omschrijving;
 
