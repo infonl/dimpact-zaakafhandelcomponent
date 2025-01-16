@@ -9,12 +9,13 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
-import { Observable, Subject, lastValueFrom, of } from "rxjs";
-import { catchError, filter, map, takeUntil } from "rxjs/operators";
+import { Observable, Subject, of } from "rxjs";
+import { catchError, filter, takeUntil } from "rxjs/operators";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { BAGObject } from "../../bag/model/bagobject";
 import { UtilService } from "../../core/service/util.service";
-import { IdentityService } from "../../identity/identity.service";
+import { Group } from "../../identity/model/group";
+import { User } from "../../identity/model/user";
 import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { KlantenService } from "../../klanten/klanten.service";
 import { Klant } from "../../klanten/model/klanten/klant";
@@ -40,7 +41,6 @@ import { FormConfigBuilder } from "../../shared/material-form-builder/model/form
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import { OrderUtil } from "../../shared/order/order-util";
 import { SideNavAction } from "../../shared/side-nav/side-nav-action";
-import { GeneratedType } from "../../shared/utils/generated-types";
 import { Zaak } from "../model/zaak";
 import { ZaakAanmaakGegevens } from "../model/zaak-aanmaak-gegevens";
 import { Zaaktype } from "../model/zaaktype";
@@ -81,7 +81,6 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
   private readonly inboxProductaanvraag: InboxProductaanvraag;
   private communicatiekanalen: Observable<string[]>;
   private communicatiekanaalField: SelectFormField;
-  private groepen: Observable<GeneratedType<"RestGroup">[]>;
 
   constructor(
     private zakenService: ZakenService,
@@ -91,13 +90,12 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
     private referentieTabelService: ReferentieTabelService,
     private translateService: TranslateService,
     private utilService: UtilService,
-    private identityService: IdentityService,
   ) {
     this.inboxProductaanvraag =
       this.router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
   }
 
-  async ngOnInit() {
+  ngOnInit(): void {
     this.utilService.setTitle("title.zaak.aanmaken");
 
     this.formConfig = new FormConfigBuilder()
@@ -153,8 +151,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
       .validators(Validators.required)
       .build();
 
-    this.groepen = this.identityService.listGroups();
-    this.medewerkerGroepFormField = await this.getMedewerkerGroupFormField();
+    this.medewerkerGroepFormField = this.getMedewerkerGroupFormField();
 
     this.initiatorField = new InputFormFieldBuilder()
       .id("initiatorIdentificatie")
@@ -302,22 +299,23 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
     this.actionsSidenav.close();
   }
 
-  async getMedewerkerGroupFormField(groepId?: string, medewerkerId?: string) {
-    const group = await lastValueFrom(
-      this.groepen.pipe(
-        map((groups) => groups.find(({ id }) => id === groepId)),
-      ),
-    );
+  getMedewerkerGroupFormField(
+    groepId?: string,
+    medewerkerId?: string,
+  ): MedewerkerGroepFormField {
+    let groep = null;
+    let medewerker = null;
 
-    const employee = group
-      ? await lastValueFrom(
-          this.identityService
-            .listUsersInGroup(group.id)
-            .pipe(map((users) => users.find(({ id }) => id === medewerkerId))),
-        )
-      : undefined;
+    if (groepId) {
+      groep = new Group();
+      groep.id = groepId;
+    }
 
-    return new MedewerkerGroepFieldBuilder(group, employee)
+    if (medewerkerId) {
+      medewerker = new User();
+      medewerker.id = medewerkerId;
+    }
+    return new MedewerkerGroepFieldBuilder(groep, medewerker)
       .id("toekenning")
       .groepLabel("actie.zaak.toekennen.groep")
       .groepRequired()
@@ -325,33 +323,28 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
       .build();
   }
 
-  async zaaktypeGeselecteerd(zaaktype: Zaaktype) {
-    if (!zaaktype) {
-      return;
+  zaaktypeGeselecteerd(zaaktype: Zaaktype): void {
+    if (zaaktype) {
+      this.medewerkerGroepFormField = this.getMedewerkerGroupFormField(
+        zaaktype.zaakafhandelparameters.defaultGroepId,
+        zaaktype.zaakafhandelparameters.defaultBehandelaarId,
+      );
+      const index = this.createZaakFields.findIndex((formRow) =>
+        formRow.find(
+          (formField) => formField.fieldType === FieldType.MEDEWERKER_GROEP,
+        ),
+      );
+      this.createZaakFields[index] = [this.medewerkerGroepFormField];
+
+      // update reference of the array to apply changes
+      this.createZaakFields = [...this.createZaakFields];
+
+      this.vertrouwelijkheidaanduidingField.formControl.setValue(
+        this.vertrouwelijkheidaanduidingen.find(
+          (o) => o.value === zaaktype.vertrouwelijkheidaanduiding,
+        ),
+      );
     }
-
-    this.createZaakFields = await Promise.all(
-      this.createZaakFields.map(async (formRow) => {
-        if (
-          formRow.find(
-            ({ fieldType }) => fieldType === FieldType.MEDEWERKER_GROEP,
-          )
-        ) {
-          const newField = await this.getMedewerkerGroupFormField(
-            zaaktype.zaakafhandelparameters.defaultGroepId,
-            zaaktype.zaakafhandelparameters.defaultBehandelaarId,
-          );
-          return [newField];
-        }
-        return formRow;
-      }),
-    );
-
-    this.vertrouwelijkheidaanduidingField.formControl.setValue(
-      this.vertrouwelijkheidaanduidingen.find(
-        (o) => o.value === zaaktype.vertrouwelijkheidaanduiding,
-      ),
-    );
   }
 
   private iconNext(action: SideNavAction) {
