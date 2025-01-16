@@ -14,6 +14,7 @@ import net.atos.zac.zoeken.model.DatumRange
 import net.atos.zac.zoeken.model.DatumVeld
 import net.atos.zac.zoeken.model.FilterParameters
 import net.atos.zac.zoeken.model.FilterVeld
+import net.atos.zac.zoeken.model.ZOEK_VELDEN
 import net.atos.zac.zoeken.model.ZoekParameters
 import net.atos.zac.zoeken.model.ZoekVeld
 import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject
@@ -27,10 +28,6 @@ import org.apache.commons.lang3.BooleanUtils
 class RestZoekParametersConverter @Inject constructor(
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
-    companion object {
-        private val zoekvelden = ZoekVeld.entries.toTypedArray().map { it.name }
-    }
-
     fun convert(restZoekParameters: RestZoekParameters): ZoekParameters {
         val zoekParameters = ZoekParameters(restZoekParameters.type)
         restZoekParameters.filters?.forEach { (filterVeld: FilterVeld, filterParameters: FilterParameters) ->
@@ -53,20 +50,18 @@ class RestZoekParametersConverter @Inject constructor(
         if (restZoekParameters.alleenMijnTaken) {
             zoekParameters.addFilterQuery(TaakZoekObject.BEHANDELAAR_ID_FIELD, loggedInUserInstance.get().id)
         }
-        restZoekParameters.zoeken?.let {
+        restZoekParameters.zoeken.let {
             it.forEach { (key: String, value: String) ->
-                if (zoekvelden.contains(key)) {
+                if (ZOEK_VELDEN.contains(key)) {
                     zoekParameters.addZoekVeld(ZoekVeld.valueOf(key), value)
                 } else if (key.startsWith(ZaakZoekObject.ZAAK_BETROKKENE_PREFIX)) {
                     zoekParameters.addFilterQuery(key, value)
                 }
             }
         }
-
         restZoekParameters.sorteerVeld?.let {
             zoekParameters.setSortering(it, fromValue(restZoekParameters.sorteerRichting))
         }
-
         zoekParameters.start = restZoekParameters.page * restZoekParameters.rows
         zoekParameters.rows = restZoekParameters.rows
         return zoekParameters

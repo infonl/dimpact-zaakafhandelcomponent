@@ -8,6 +8,9 @@ import jakarta.inject.Inject
 import net.atos.zac.app.zoeken.model.AbstractRestZoekObject
 import net.atos.zac.app.zoeken.model.RestZoekParameters
 import net.atos.zac.app.zoeken.model.RestZoekResultaat
+import net.atos.zac.app.zoeken.model.toRestDocumentZoekObject
+import net.atos.zac.app.zoeken.model.toRestTaakZoekObject
+import net.atos.zac.app.zoeken.model.toRestZaakZoekObject
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.zoeken.model.FilterParameters
 import net.atos.zac.zoeken.model.FilterResultaat
