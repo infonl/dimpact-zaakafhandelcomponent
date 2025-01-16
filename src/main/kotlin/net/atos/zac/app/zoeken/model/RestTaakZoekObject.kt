@@ -10,11 +10,15 @@ import net.atos.zac.app.task.model.TaakStatus
 import net.atos.zac.policy.output.TaakRechten
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate
 import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 
 @NoArgConstructor
 data class RestTaakZoekObject(
+    override var id: String? = null,
+    override var type: ZoekObjectType? = null,
+    override var identificatie: String? = null,
     var naam: String? = null,
     var toelichting: String? = null,
     var status: TaakStatus? = null,
@@ -35,24 +39,24 @@ data class RestTaakZoekObject(
     var taakData: List<String>? = null,
     var taakInformatie: List<String>? = null,
     var rechten: RestTaakRechten? = null
-) : AbstractRestZoekObject()
+) : AbstractRestZoekObject(id, type, identificatie)
 
-fun TaakZoekObject.toRestTaakZoekObject(taakRechten: TaakRechten) = RestTaakZoekObject().apply {
-    id = this@toRestTaakZoekObject.getObjectId()
-    type = this@toRestTaakZoekObject.getType()
-    naam = this@toRestTaakZoekObject.naam
-    status = this@toRestTaakZoekObject.getStatus()
-    toelichting = this@toRestTaakZoekObject.toelichting
-    creatiedatum = convertToLocalDate(this@toRestTaakZoekObject.creatiedatum)
-    toekenningsdatum = convertToLocalDate(this@toRestTaakZoekObject.toekenningsdatum)
-    fataledatum = convertToLocalDate(this@toRestTaakZoekObject.fataledatum)
-    groepNaam = this@toRestTaakZoekObject.groepNaam
-    behandelaarNaam = this@toRestTaakZoekObject.behandelaarNaam
-    behandelaarGebruikersnaam = this@toRestTaakZoekObject.behandelaarGebruikersnaam
-    zaaktypeOmschrijving = this@toRestTaakZoekObject.zaaktypeOmschrijving
-    zaakIdentificatie = this@toRestTaakZoekObject.zaakIdentificatie
-    zaakUuid = this@toRestTaakZoekObject.zaakUUID
-    zaakToelichting = this@toRestTaakZoekObject.zaakToelichting
-    zaakOmschrijving = this@toRestTaakZoekObject.zaakOmschrijving
+fun TaakZoekObject.toRestTaakZoekObject(taakRechten: TaakRechten) = RestTaakZoekObject(
+    id = this@toRestTaakZoekObject.getObjectId(),
+    type = this@toRestTaakZoekObject.getType(),
+    naam = this@toRestTaakZoekObject.naam,
+    status = this@toRestTaakZoekObject.getStatus(),
+    toelichting = this@toRestTaakZoekObject.toelichting,
+    creatiedatum = convertToLocalDate(this@toRestTaakZoekObject.creatiedatum),
+    toekenningsdatum = convertToLocalDate(this@toRestTaakZoekObject.toekenningsdatum),
+    fataledatum = convertToLocalDate(this@toRestTaakZoekObject.fataledatum),
+    groepNaam = this@toRestTaakZoekObject.groepNaam,
+    behandelaarNaam = this@toRestTaakZoekObject.behandelaarNaam,
+    behandelaarGebruikersnaam = this@toRestTaakZoekObject.behandelaarGebruikersnaam,
+    zaaktypeOmschrijving = this@toRestTaakZoekObject.zaaktypeOmschrijving,
+    zaakIdentificatie = this@toRestTaakZoekObject.zaakIdentificatie,
+    zaakUuid = this@toRestTaakZoekObject.zaakUUID,
+    zaakToelichting = this@toRestTaakZoekObject.zaakToelichting,
+    zaakOmschrijving = this@toRestTaakZoekObject.zaakOmschrijving,
     rechten = RestRechtenConverter.convert(taakRechten)
-}
+)
