@@ -379,14 +379,31 @@ configure<SpotlessExtension> {
 
 tasks {
     clean {
-        dependsOn("mavenClean")
+        dependsOn("cleanMaven")
+
+        delete(".gradle/configuration-cache")
+        delete(srcGenerated)
+
+        finalizedBy("cleanApp", "cleanE2e")
+    }
+
+    register<Delete>("cleanApp") {
+        description = "Deletes the App build output"
+        group = "build"
 
         delete(srcMainApp.dir("dist"))
         delete(srcMainApp.dir("reports"))
         delete(srcMainApp.dir("src/generated"))
         delete(srcMainApp.dir("coverage"))
-        delete(srcGenerated)
+        delete(srcMainApp.dir("node_modules"))
+    }
+
+    register<Delete>("cleanE2e") {
+        description = "Cleans the e2e build output"
+        group = "build"
+
         delete(srcE2e.dir("reports"))
+        delete(srcE2e.dir("node_modules"))
     }
 
     build {
@@ -790,8 +807,8 @@ tasks {
         outputs.dir(layout.projectDirectory.dir("target"))
     }
 
-    register<Maven>("mavenClean") {
-        description = "Cleans the Maven build output"
+    register<Maven>("cleanMaven") {
+        description = "Deletes the Maven build output"
         group = "build"
         execGoal("clean")
     }
