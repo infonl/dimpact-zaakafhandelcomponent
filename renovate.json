@@ -24,7 +24,7 @@
       "matchStrings": ["\\s+softwareVersion:(\\s)+(\\x22|\\x27)?(?<currentValue>.*?)(\\x22|\\x27)?\\s*releasedate:(\\s)+(\\x22|\\x27)?(?:[^\\s]*?)(\\x22|\\x27)?"],
       "depNameTemplate": "infonl/dimpact-zaakafhandelcomponent",
       "datasourceTemplate": "github-tags",
-      "autoReplaceStringTemplate": "softwareVersion: {{{newValue}}}\nreleasedate: {{{releaseTimestamp}}}"
+      "autoReplaceStringTemplate": "softwareVersion: \\"{{{newValue}}}\\"\\nreleasedate: \\"{{{releaseTimestamp}}}\\""
     }
   ],
   "packageRules": [
@@ -133,6 +133,15 @@
       ],
       "enabled": false,
       "description": ["The version of the ZAC Docker image in our Docker Compose file is set to 'latest' and is only used for local development"]
+    },
+    {
+      "matchPackageNames": [
+        "zaakafhandelcomponent"
+      ],
+      "matchDatasources": [
+        "custom"
+      ],
+      "automerge": true,
     }
   ]
 }
