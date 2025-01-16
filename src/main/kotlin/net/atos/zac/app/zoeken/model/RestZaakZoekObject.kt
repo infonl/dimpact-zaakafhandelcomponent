@@ -17,9 +17,9 @@ import java.util.EnumSet
 
 @NoArgConstructor
 data class RestZaakZoekObject(
-    override var id: String? = null,
-    override var type: ZoekObjectType? = null,
-    override var identificatie: String? = null,
+    override val id: String? = null,
+    override val type: ZoekObjectType? = null,
+    override val identificatie: String? = null,
     var omschrijving: String? = null,
     var toelichting: String? = null,
     var registratiedatum: LocalDate? = null,

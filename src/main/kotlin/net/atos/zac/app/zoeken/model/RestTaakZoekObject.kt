@@ -16,9 +16,9 @@ import java.time.LocalDate
 
 @NoArgConstructor
 data class RestTaakZoekObject(
-    override var id: String? = null,
-    override var type: ZoekObjectType? = null,
-    override var identificatie: String? = null,
+    override val id: String? = null,
+    override val type: ZoekObjectType? = null,
+    override val identificatie: String? = null,
     var naam: String? = null,
     var toelichting: String? = null,
     var status: TaakStatus? = null,
