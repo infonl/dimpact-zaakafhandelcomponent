@@ -147,7 +147,7 @@
         "helm"
       ],
       "allowedVersions": "<= 0.104.0",
-      "description": "Pinned - next version(s) have breaking changes - story created"
+      "description": "Pinned - next version(s) have breaking changes - https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/33896 - story created"
     },
     {
       "matchPackageNames": [
