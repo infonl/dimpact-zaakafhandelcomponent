@@ -12,8 +12,13 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_2
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
+import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
+import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
+import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
+import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.TAAK_1_FATAL_DATE
@@ -27,14 +32,21 @@ import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_TASKS
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_ZAKEN
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_CREATION_DATE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_FILE_NAME
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_TITEL
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakManual2Identification
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
+import org.json.JSONObject
 
 // Run this test last so that all the required data is available in the Solr index
 @Order(TEST_SPEC_ORDER_LAST)
@@ -515,6 +527,171 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                         }
                     }
                 """.trimIndent()
+            }
+        }
+    }
+    Given("""Documents have been created and are indexed""") {
+        When(
+            """the search endpoint is called to search for all objects of type 'DOCUMENT'"""
+        ) {
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/zoeken/list",
+                requestBodyAsString = """
+                   {
+                    "filtersType": "ZoekParameters",
+                    "alleenMijnZaken": false,
+                    "alleenOpenstaandeZaken": false,
+                    "alleenAfgeslotenZaken": false,
+                    "alleenMijnTaken": false,
+                    "zoeken": {},
+                    "filters": {},
+                    "datums": {},
+                    "rows": 10,
+                    "page":0,
+                    "type":"DOCUMENT"
+                    }
+                """.trimIndent()
+            )
+            Then(
+                """
+                    the response is successful and the search results should include the expected number of indexed documents
+                    and the expected search filters
+                """.trimMargin()
+            ) {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+                JSONObject(responseBody).getInt("totaal") shouldBe TOTAL_COUNT_DOCUMENTS
+                JSONObject(responseBody).getJSONObject("filters").toString() shouldEqualJsonIgnoringOrderAndExtraneousFields """                   
+                      {
+                        "ZAAKTYPE" : [ {
+                          "aantal" : $TOTAL_COUNT_DOCUMENTS,
+                          "naam" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                        } ],
+                        "DOCUMENT_STATUS" : [ {
+                          "aantal" : 5,
+                          "naam" : "$DOCUMENT_STATUS_DEFINITIEF"
+                        }, {
+                          "aantal" : 2,
+                          "naam" : "$DOCUMENT_STATUS_IN_BEWERKING"
+                        } ],
+                        "DOCUMENT_TYPE" : [ {
+                          "aantal" : 6,
+                          "naam" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING"
+                        }, {
+                          "aantal" : 1,
+                          "naam" : "$INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING"
+                        } ],
+                        "DOCUMENT_VERGRENDELD_DOOR" : [ {
+                          "aantal" : $TOTAL_COUNT_DOCUMENTS,
+                          "naam" : "-NULL-"
+                        } ],
+                        "DOCUMENT_INDICATIES" : [ {
+                          "aantal" : $TOTAL_COUNT_DOCUMENTS,
+                          "naam" : "ONDERTEKEND"
+                        }, {
+                          "aantal" : 6,
+                          "naam" : "GEBRUIKSRECHT"
+                        }, {
+                          "aantal" : 1,
+                          "naam" : "VERZONDEN"
+                        } ]
+                      }                                                                  
+                """
+            }
+        }
+    }
+    Given("""Documents have been created and are indexed""") {
+        When(
+            """the search endpoint is called to search for a specific document"""
+        ) {
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/zoeken/list",
+                requestBodyAsString = """
+                   {
+                    "filtersType": "ZoekParameters",
+                    "alleenMijnZaken": false,
+                    "alleenOpenstaandeZaken": false,
+                    "alleenAfgeslotenZaken": false,
+                    "alleenMijnTaken": false,
+                    "zoeken": { "DOCUMENT_TITEL": "Dummy test document" },
+                    "filters": {},
+                    "datums": {},
+                    "rows": 10,
+                    "page":0,
+                    "type":"DOCUMENT"
+                    }
+                """.trimIndent()
+            )
+            Then(
+                """
+                    the response is successful and the search results should include the expected document
+                """.trimMargin()
+            ) {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                    {
+                      "foutmelding" : "",
+                      "resultaten" : [ {
+                        "type" : "DOCUMENT",
+                        "auteur" : "Aanvrager",
+                        "beschrijving" : "Ingezonden formulier",
+                        "bestandsnaam" : "$ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_FILE_NAME",
+                        "bestandsomvang" : 1234,
+                        "creatiedatum" : "$ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_CREATION_DATE",
+                        "documentType" : "bijlage",
+                        "formaat" : "application/pdf",
+                        "indicatieGebruiksrecht" : false,
+                        "indicatieOndertekend" : true,
+                        "indicatieVergrendeld" : false,
+                        "indicaties" : [ "ONDERTEKEND" ],
+                        "rechten" : {
+                          "lezen" : true,
+                          "ondertekenen" : false,
+                          "ontgrendelen" : true,
+                          "toevoegenNieuweVersie" : true,
+                          "vergrendelen" : false,
+                          "verwijderen" : true,
+                          "wijzigen" : true
+                        },
+                        "registratiedatum" : "$ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_CREATION_DATE",
+                        "status" : "definitief",
+                        "titel" : "$ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_TITEL",
+                        "versie" : 1,
+                        "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK",
+                        "zaakIdentificatie" : "$ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION",
+                        "zaakRelatie" : "Hoort bij, omgekeerd: kent",
+                        "zaaktypeIdentificatie" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE",
+                        "zaaktypeOmschrijving" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION",
+                        "zaaktypeUuid" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID"
+                      } ],
+                      "totaal" : 1.0,
+                      "filters" : {
+                        "ZAAKTYPE" : [ {
+                          "aantal" : 1,
+                          "naam" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                        } ],
+                        "DOCUMENT_STATUS" : [ {
+                          "aantal" : 1,
+                          "naam" : "$DOCUMENT_STATUS_DEFINITIEF"
+                        } ],
+                        "DOCUMENT_TYPE" : [ {
+                          "aantal" : 1,
+                          "naam" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING"
+                        } ],
+                        "DOCUMENT_VERGRENDELD_DOOR" : [ {
+                          "aantal" : 1,
+                          "naam" : "-NULL-"
+                        } ],
+                        "DOCUMENT_INDICATIES" : [ {
+                          "aantal" : 1,
+                          "naam" : "ONDERTEKEND"
+                        } ]
+                      }                   
+                    }                                              
+                """
             }
         }
     }

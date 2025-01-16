@@ -98,7 +98,7 @@ class ZoekenService @Inject constructor(
                 val values = facetField.values
                     .filter { it.count > 0 }
                     .map { FilterResultaat(it.name ?: FilterWaarde.LEEG.toString(), it.count) }
-                zoekResultaat.addFilter(facetVeld, values)
+                zoekResultaat.addFilter(facetVeld, values.toMutableList())
             }
             return zoekResultaat
         } catch (ioException: IOException) {
