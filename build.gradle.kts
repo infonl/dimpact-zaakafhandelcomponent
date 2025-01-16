@@ -395,7 +395,6 @@ tasks {
         delete(srcMainApp.dir("reports"))
         delete(srcMainApp.dir("src/generated"))
         delete(srcMainApp.dir("coverage"))
-        delete(srcMainApp.dir("node_modules"))
     }
 
     register<Delete>("cleanE2e") {
@@ -403,7 +402,6 @@ tasks {
         group = "build"
 
         delete(srcE2e.dir("reports"))
-        delete(srcE2e.dir("node_modules"))
     }
 
     build {
