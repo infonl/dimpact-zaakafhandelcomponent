@@ -57,17 +57,18 @@ export class MedewerkerGroepComponent
 
         if (this.data.groep.valid) {
           this.data.medewerker.enable();
-          this.getMedewerkers();
+          this.getMedewerkers(this.data.medewerker.defaultValue?.id);
         } else if (!this.data.groep.value) {
           this.data.medewerker.disable();
         }
         this.data.medewerker.setValue(null);
       }),
     );
+
     if (!this.data.groep.value) {
       this.data.medewerker.disable();
     } else {
-      this.getMedewerkers();
+      this.getMedewerkers(this.data.medewerker.defaultValue?.id);
     }
 
     this.data.groep.valueChanges.subscribe((value) => {
@@ -126,6 +127,7 @@ export class MedewerkerGroepComponent
             groep ? this._filterGroepen(groep) : this.groepen.slice(),
           ),
         );
+
         if (this.data.groep.defaultValue) {
           this.data.groep.setValue(
             groepen.find(
@@ -157,6 +159,7 @@ export class MedewerkerGroepComponent
               : this.medewerkers.slice(),
           ),
         );
+
         if (defaultMedewerkerId) {
           this.data.medewerker.setValue(
             medewerkers.find(
