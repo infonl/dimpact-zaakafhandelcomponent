@@ -15,8 +15,8 @@ import net.atos.zac.app.bag.createLigplaatsAdresseerbaarObject
 import net.atos.zac.app.bag.createStandplaatsAdresseerbaarObject
 import net.atos.zac.app.bag.createVerblijfsAdresseerbaarObject
 
-class RESTAdreseerbaarObjectConverterTest : BehaviorSpec({
-    val restAdreseerbaarObjectConverter = RESTAdreseerbaarObjectConverter()
+class RESTAdresseerbaarObjectConverterTest : BehaviorSpec({
+    val restAdresseerbaarObjectConverter = RESTAdresseerbaarObjectConverter()
 
     beforeEach {
         checkUnnecessaryStub()
@@ -26,7 +26,7 @@ class RESTAdreseerbaarObjectConverterTest : BehaviorSpec({
         val adresseerbaarObjectIOHal = createLigplaatsAdresseerbaarObject(StatusPlaats.AANGEWEZEN)
 
         When("converted to rest representation") {
-            val result = restAdreseerbaarObjectConverter.convertToREST(adresseerbaarObjectIOHal)
+            val result = restAdresseerbaarObjectConverter.convertToREST(adresseerbaarObjectIOHal)
 
             Then("it should return the correct data") {
                 with(result) {
@@ -53,7 +53,7 @@ class RESTAdreseerbaarObjectConverterTest : BehaviorSpec({
         val adresseerbaarObjectIOHal = createStandplaatsAdresseerbaarObject(StatusPlaats.AANGEWEZEN)
 
         When("converted to rest representation") {
-            val result = restAdreseerbaarObjectConverter.convertToREST(adresseerbaarObjectIOHal)
+            val result = restAdresseerbaarObjectConverter.convertToREST(adresseerbaarObjectIOHal)
 
             Then("it should return the correct data") {
                 with(result) {
@@ -80,7 +80,7 @@ class RESTAdreseerbaarObjectConverterTest : BehaviorSpec({
         val adresseerbaarObjectIOHal = createVerblijfsAdresseerbaarObject(StatusVerblijfsobject.VERBLIJFSOBJECT_GEVORMD)
 
         When("converted to rest representation") {
-            val result = restAdreseerbaarObjectConverter.convertToREST(adresseerbaarObjectIOHal)
+            val result = restAdresseerbaarObjectConverter.convertToREST(adresseerbaarObjectIOHal)
 
             Then("it should return the correct data") {
                 with(result) {
