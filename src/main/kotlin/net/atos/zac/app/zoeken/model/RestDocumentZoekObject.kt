@@ -14,7 +14,6 @@ import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import java.time.LocalDate
 import java.util.EnumSet
 
-
 data class RestDocumentZoekObject(
     override val id: String? = null,
     override val type: ZoekObjectType? = null,

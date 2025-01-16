@@ -18,7 +18,7 @@ data class RestZoekParameters(
     override var page: Int,
     override var rows: Int,
     var type: ZoekObjectType? = null,
-    var zoeken: Map<String, String>,
+    var zoeken: Map<String, String>? = null,
     var filters: Map<FilterVeld, FilterParameters>? = null,
     var datums: Map<DatumVeld, RestDatumRange>? = null,
     var sorteerVeld: SorteerVeld? = null,

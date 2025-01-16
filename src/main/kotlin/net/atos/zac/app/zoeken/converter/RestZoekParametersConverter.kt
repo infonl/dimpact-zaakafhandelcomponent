@@ -50,7 +50,7 @@ class RestZoekParametersConverter @Inject constructor(
         if (restZoekParameters.alleenMijnTaken) {
             zoekParameters.addFilterQuery(TaakZoekObject.BEHANDELAAR_ID_FIELD, loggedInUserInstance.get().id)
         }
-        restZoekParameters.zoeken.let {
+        restZoekParameters.zoeken?.let {
             it.forEach { (key: String, value: String) ->
                 if (ZOEK_VELDEN.contains(key)) {
                     zoekParameters.addZoekVeld(ZoekVeld.valueOf(key), value)
