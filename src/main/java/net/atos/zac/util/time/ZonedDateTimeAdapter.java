@@ -14,11 +14,11 @@ public class ZonedDateTimeAdapter implements JsonbAdapter<ZonedDateTime, String>
 
     @Override
     public String adaptToJson(final ZonedDateTime dateTime) {
-        return dateTime != null ? dateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME) : null;
+        return dateTime != null ? dateTime.format(DateTimeFormatter.ISO_INSTANT) : null;
     }
 
     @Override
     public ZonedDateTime adaptFromJson(final String dateTime) {
-        return ZonedDateTime.parse(dateTime, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        return ZonedDateTime.parse(dateTime);
     }
 }
