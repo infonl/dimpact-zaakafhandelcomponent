@@ -17,6 +17,16 @@
     "hsiliev"
   ],
   "prConcurrentLimit": 5,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["^publiccode.yaml$"],
+      "matchStrings": ["\\s+softwareVersion:(\\s)+(\\x22|\\x27)?(?<currentValue>.*?)(\\x22|\\x27)?\\s*releasedate:(\\s)+(\\x22|\\x27)?(?:[^\\s]*?)(\\x22|\\x27)?"],
+      "depNameTemplate": "infonl/dimpact-zaakafhandelcomponent",
+      "datasourceTemplate": "github-tags",
+      "autoReplaceStringTemplate": "softwareVersion: {{{newValue}}}\nreleasedate: {{{releaseTimestamp}}}"
+    }
+  ],
   "packageRules": [
     {
       "matchDatasources": [
@@ -32,7 +42,7 @@
     {
       "groupName": "Dependencies provided by WildFly",
       "matchPackageNames": [
-	    "jakarta.platform:jakarta.jakartaee-api",
+	"jakarta.platform:jakarta.jakartaee-api",
         "org.eclipse.microprofile.config:microprofile-config-api",
         "org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api",
         "org.eclipse.microprofile.health:microprofile-health-api",
