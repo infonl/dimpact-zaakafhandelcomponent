@@ -19,7 +19,6 @@ import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.healthcheck.exception.BuildInformationException
 import net.atos.zac.healthcheck.model.BuildInformatie
 import net.atos.zac.healthcheck.model.ZaaktypeInrichtingscheck
-import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.util.time.LocalDateUtil
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -27,7 +26,6 @@ import java.io.File
 import java.io.IOException
 import java.net.URI
 import java.nio.file.Files
-import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.util.Locale
 import java.util.Optional
@@ -84,20 +82,15 @@ class HealthCheckService @Inject constructor(
     fun readBuildInformatie() = buildInformatie
 
     private fun createBuildInformatie(): BuildInformatie {
-        val buildDateTime: LocalDateTime?
         val buildDatumTijdFile = File(BUILD_TIMESTAMP_FILE)
-        if (buildDatumTijdFile.exists()) {
+        val buildDateTime = if (buildDatumTijdFile.exists()) {
             try {
-                buildDateTime = DateTimeConverterUtil.convertToLocalDateTime(
-                    ZonedDateTime.parse(
-                        Files.readAllLines(buildDatumTijdFile.toPath()).first()
-                    )
-                )
+                ZonedDateTime.parse(Files.readAllLines(buildDatumTijdFile.toPath()).first())
             } catch (ioException: IOException) {
                 throw BuildInformationException("Cannot read build timestamp", ioException)
             }
         } else {
-            buildDateTime = null
+            null
         }
         return BuildInformatie(
             commitHash.orElse(null),
