@@ -2,17 +2,16 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zoeken.model
 
-package net.atos.zac.app.zoeken.model;
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
+import nl.info.zac.util.NoArgConstructor
 
-import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType;
+@NoArgConstructor
+abstract class AbstractRestZoekObject {
+    var id: String? = null
 
-public abstract class AbstractRestZoekObject {
+    var type: ZoekObjectType? = null
 
-    public String id;
-
-    public ZoekObjectType type;
-
-    public String identificatie;
-
+    var identificatie: String? = null
 }

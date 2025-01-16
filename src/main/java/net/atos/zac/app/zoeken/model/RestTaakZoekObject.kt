@@ -2,55 +2,52 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zoeken.model
 
-package net.atos.zac.app.zoeken.model;
+import net.atos.zac.app.policy.model.RestTaakRechten
+import net.atos.zac.app.task.model.TaakStatus
+import nl.info.zac.util.NoArgConstructor
+import java.time.LocalDate
 
-import java.time.LocalDate;
-import java.util.List;
+@NoArgConstructor
+data class RestTaakZoekObject(
+    var naam: String? = null,
 
-import net.atos.zac.app.policy.model.RestTaakRechten;
-import net.atos.zac.app.task.model.TaakStatus;
+    var toelichting: String? = null,
 
-public class RestTaakZoekObject extends AbstractRestZoekObject {
+    var status: TaakStatus? = null,
 
-    public String naam;
+    var zaakUuid: String? = null,
 
-    public String toelichting;
+    var zaakIdentificatie: String? = null,
 
-    public TaakStatus status;
+    var zaakOmschrijving: String? = null,
 
-    public String zaakUuid;
+    var zaakToelichting: String? = null,
 
-    public String zaakIdentificatie;
+    var zaaktypeUuid: String? = null,
 
-    public String zaakOmschrijving;
+    var zaaktypeIdentificatie: String? = null,
 
-    public String zaakToelichting;
+    var zaaktypeOmschrijving: String? = null,
 
-    public String zaaktypeUuid;
+    var creatiedatum: LocalDate? = null,
 
-    public String zaaktypeIdentificatie;
+    var toekenningsdatum: LocalDate? = null,
 
-    public String zaaktypeOmschrijving;
+    var fataledatum: LocalDate? = null,
 
-    public LocalDate creatiedatum;
+    var groepID: String? = null,
 
-    public LocalDate toekenningsdatum;
+    var groepNaam: String? = null,
 
-    public LocalDate fataledatum;
+    var behandelaarNaam: String? = null,
 
-    public String groepID;
+    var behandelaarGebruikersnaam: String? = null,
 
-    public String groepNaam;
+    var taakData: MutableList<String?>? = null,
 
-    public String behandelaarNaam;
+    var taakInformatie: MutableList<String?>? = null,
 
-    public String behandelaarGebruikersnaam;
-
-    public List<String> taakData;
-
-    public List<String> taakInformatie;
-
-    public RestTaakRechten rechten;
-
-}
+    var rechten: RestTaakRechten? = null
+) : AbstractRestZoekObject()
