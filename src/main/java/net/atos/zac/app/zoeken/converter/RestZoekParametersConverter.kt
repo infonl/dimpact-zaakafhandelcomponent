@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.zoeken.converter
@@ -28,9 +28,7 @@ class RestZoekParametersConverter @Inject constructor(
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
-        private val zoekvelden =
-            //Arrays.stream<ZoekVeld>(ZoekVeld.entries.toTypedArray()).map<String?> { it.name }.toList()
-            ZoekVeld.entries.toTypedArray().map{ it.name }.toList()
+        private val zoekvelden = ZoekVeld.entries.toTypedArray().map { it.name }
     }
 
     fun convert(restZoekParameters: RestZoekParameters): ZoekParameters {

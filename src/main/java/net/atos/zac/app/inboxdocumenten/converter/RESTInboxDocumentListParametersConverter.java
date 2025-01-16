@@ -18,7 +18,8 @@ public class RESTInboxDocumentListParametersConverter extends
         listParameters.setIdentificatie(restListParameters.identificatie);
         listParameters.setTitel(restListParameters.titel);
         if (restListParameters.creatiedatum != null && restListParameters.creatiedatum.hasValue()) {
-            listParameters.setCreatiedatum(new DatumRange(restListParameters.creatiedatum.van, restListParameters.creatiedatum.tot));
+            listParameters.setCreatiedatum(new DatumRange(restListParameters.creatiedatum.getVan(), restListParameters.creatiedatum
+                    .getTot()));
         }
     }
 
