@@ -38,16 +38,14 @@ class RestZoekResultaatConverter @Inject constructor(
             zoekResultaat.count
         )
         restZoekResultaat.filters.putAll(zoekResultaat.getFilters())
-
-        // if there are no results, keep the current search filters
         zoekParameters.filters?.forEach { (filterVeld: FilterVeld, filters: FilterParameters) ->
-            val filterResultaten = restZoekResultaat.filters.getOrDefault(filterVeld, ArrayList<FilterResultaat>())
+            val filterResultaten = restZoekResultaat.filters.getOrPut(filterVeld) { ArrayList() }
             filters.values.forEach { filterValue: String ->
-                if (filterResultaten.stream().noneMatch { it.naam == filterValue }) {
+                // if there are no results, keep the current filters
+                if (filterResultaten.none { it.naam == filterValue }) {
                     filterResultaten.add(FilterResultaat(filterValue, 0))
                 }
             }
-            restZoekResultaat.filters.put(filterVeld, filterResultaten)
         }
         return restZoekResultaat
     }
