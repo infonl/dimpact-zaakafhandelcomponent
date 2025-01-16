@@ -10,22 +10,22 @@ import net.atos.zac.policy.output.TaakRechten
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate
 import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject
 
-fun TaakZoekObject.toTaakZoekObject(taakRechten: TaakRechten) = RestTaakZoekObject().apply {
-    id = this@toTaakZoekObject.getObjectId()
-    type = this@toTaakZoekObject.getType()
-    naam = this@toTaakZoekObject.naam
-    status = this@toTaakZoekObject.getStatus()
-    toelichting = this@toTaakZoekObject.toelichting
-    creatiedatum = convertToLocalDate(this@toTaakZoekObject.creatiedatum)
-    toekenningsdatum = convertToLocalDate(this@toTaakZoekObject.toekenningsdatum)
-    fataledatum = convertToLocalDate(this@toTaakZoekObject.fataledatum)
-    groepNaam = this@toTaakZoekObject.groepNaam
-    behandelaarNaam = this@toTaakZoekObject.behandelaarNaam
-    behandelaarGebruikersnaam = this@toTaakZoekObject.behandelaarGebruikersnaam
-    zaaktypeOmschrijving = this@toTaakZoekObject.zaaktypeOmschrijving
-    zaakIdentificatie = this@toTaakZoekObject.zaakIdentificatie
-    zaakUuid = this@toTaakZoekObject.zaakUUID
-    zaakToelichting = this@toTaakZoekObject.zaakToelichting
-    zaakOmschrijving = this@toTaakZoekObject.zaakOmschrijving
+fun TaakZoekObject.toRestTaakZoekObject(taakRechten: TaakRechten) = RestTaakZoekObject().apply {
+    id = this@toRestTaakZoekObject.getObjectId()
+    type = this@toRestTaakZoekObject.getType()
+    naam = this@toRestTaakZoekObject.naam
+    status = this@toRestTaakZoekObject.getStatus()
+    toelichting = this@toRestTaakZoekObject.toelichting
+    creatiedatum = convertToLocalDate(this@toRestTaakZoekObject.creatiedatum)
+    toekenningsdatum = convertToLocalDate(this@toRestTaakZoekObject.toekenningsdatum)
+    fataledatum = convertToLocalDate(this@toRestTaakZoekObject.fataledatum)
+    groepNaam = this@toRestTaakZoekObject.groepNaam
+    behandelaarNaam = this@toRestTaakZoekObject.behandelaarNaam
+    behandelaarGebruikersnaam = this@toRestTaakZoekObject.behandelaarGebruikersnaam
+    zaaktypeOmschrijving = this@toRestTaakZoekObject.zaaktypeOmschrijving
+    zaakIdentificatie = this@toRestTaakZoekObject.zaakIdentificatie
+    zaakUuid = this@toRestTaakZoekObject.zaakUUID
+    zaakToelichting = this@toRestTaakZoekObject.zaakToelichting
+    zaakOmschrijving = this@toRestTaakZoekObject.zaakOmschrijving
     rechten = RestRechtenConverter.convert(taakRechten)
 }

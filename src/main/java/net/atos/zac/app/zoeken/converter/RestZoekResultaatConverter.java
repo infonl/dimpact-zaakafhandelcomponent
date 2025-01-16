@@ -6,7 +6,7 @@
 package net.atos.zac.app.zoeken.converter;
 
 import static net.atos.zac.app.zoeken.converter.RestDocumentZoekObjectConverterKt.toRestDocumentZoekObject;
-import static net.atos.zac.app.zoeken.converter.RestTaakZoekObjectConverterKt.toTaakZoekObject;
+import static net.atos.zac.app.zoeken.converter.RestTaakZoekObjectConverterKt.toRestTaakZoekObject;
 import static net.atos.zac.app.zoeken.converter.RestZaakZoekObjectConverterKt.toRestZaakZoekObject;
 
 import java.util.ArrayList;
@@ -56,7 +56,7 @@ public class RestZoekResultaatConverter {
     private AbstractRestZoekObject convert(final ZoekObject zoekObject) {
         return switch (zoekObject.getType()) {
             case ZAAK -> toRestZaakZoekObject((ZaakZoekObject) zoekObject, policyService.readZaakRechten((ZaakZoekObject) zoekObject));
-            case TAAK -> toTaakZoekObject((TaakZoekObject) zoekObject, policyService.readTaakRechten((TaakZoekObject) zoekObject));
+            case TAAK -> toRestTaakZoekObject((TaakZoekObject) zoekObject, policyService.readTaakRechten((TaakZoekObject) zoekObject));
             case DOCUMENT -> toRestDocumentZoekObject((DocumentZoekObject) zoekObject, policyService.readDocumentRechten(
                     (DocumentZoekObject) zoekObject));
         };
