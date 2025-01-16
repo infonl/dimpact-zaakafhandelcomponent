@@ -5,6 +5,10 @@
 
 package net.atos.zac.app.zoeken.converter;
 
+import static net.atos.zac.app.zoeken.converter.RESTDocumentZoekObjectConverterKt.convertDocumentZoekObject;
+import static net.atos.zac.app.zoeken.converter.RESTTaakZoekObjectConverterKt.convertTaakZoekObject;
+import static net.atos.zac.app.zoeken.converter.RESTZaakZoekObjectConverterKt.convertZaakZoekObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +17,7 @@ import jakarta.inject.Inject;
 import net.atos.zac.app.zoeken.model.AbstractRESTZoekObject;
 import net.atos.zac.app.zoeken.model.RESTZoekParameters;
 import net.atos.zac.app.zoeken.model.RESTZoekResultaat;
+import net.atos.zac.policy.PolicyService;
 import net.atos.zac.zoeken.model.FilterResultaat;
 import net.atos.zac.zoeken.model.ZoekResultaat;
 import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject;
@@ -23,13 +28,7 @@ import net.atos.zac.zoeken.model.zoekobject.ZoekObject;
 public class RESTZoekResultaatConverter {
 
     @Inject
-    private RESTZaakZoekObjectConverter restZaakZoekObjectConverter;
-
-    @Inject
-    private RESTTaakZoekObjectConverter restTaakZoekObjectConverter;
-
-    @Inject
-    private RESTDocumentZoekObjectConverter restDocumentZoekObjectConverter;
+    private PolicyService policyService;
 
     public RESTZoekResultaat<? extends AbstractRESTZoekObject> convert(
             final ZoekResultaat<? extends ZoekObject> zoekResultaat,
@@ -56,9 +55,10 @@ public class RESTZoekResultaatConverter {
 
     private AbstractRESTZoekObject convert(final ZoekObject zoekObject) {
         return switch (zoekObject.getType()) {
-            case ZAAK -> restZaakZoekObjectConverter.convert((ZaakZoekObject) zoekObject);
-            case TAAK -> restTaakZoekObjectConverter.convert((TaakZoekObject) zoekObject);
-            case DOCUMENT -> restDocumentZoekObjectConverter.convert((DocumentZoekObject) zoekObject);
+            case ZAAK -> convertZaakZoekObject((ZaakZoekObject) zoekObject, policyService.readZaakRechten((ZaakZoekObject) zoekObject));
+            case TAAK -> convertTaakZoekObject((TaakZoekObject) zoekObject, policyService.readTaakRechten((TaakZoekObject) zoekObject));
+            case DOCUMENT -> convertDocumentZoekObject((DocumentZoekObject) zoekObject, policyService.readDocumentRechten(
+                    (DocumentZoekObject) zoekObject));
         };
     }
 }
