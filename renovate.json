@@ -141,7 +141,7 @@
       "matchDatasources": [
         "custom"
       ],
-      "automerge": true,
+      "automerge": false,
     }
   ]
 }
