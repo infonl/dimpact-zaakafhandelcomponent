@@ -136,7 +136,7 @@ data class ZaakZoekObject(
     private var indicatiesVolgorde: Long = 0,
 
     @Field("zaak_betrokkene_*")
-    var betrokkenen: MutableMap<String, MutableList<String>> = mutableMapOf(),
+    var betrokkenen: MutableMap<String, MutableList<String>>? = null,
 
     @Field("zaak_bagObjecten")
     var bagObjectIDs: List<String>? = null
@@ -186,7 +186,8 @@ data class ZaakZoekObject(
 
     fun addBetrokkene(rol: String, identificatie: String) {
         val key = "$ZAAK_BETROKKENE_PREFIX$rol"
-        betrokkenen.getOrPut(key) { mutableListOf() }.add(identificatie)
+        betrokkenen = betrokkenen ?: mutableMapOf()
+        betrokkenen!!.getOrPut(key) { mutableListOf() }.add(identificatie)
     }
 
     private fun updateIndicaties(indicatie: ZaakIndicatie, value: Boolean) {
