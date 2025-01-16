@@ -4,11 +4,11 @@
  */
 package net.atos.zac.healthcheck.model
 
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 data class BuildInformatie(
     val commit: String?,
     val buildId: String?,
-    val buildDatumTijd: LocalDateTime?,
+    val buildDatumTijd: ZonedDateTime?,
     val versienummer: String?
 )
