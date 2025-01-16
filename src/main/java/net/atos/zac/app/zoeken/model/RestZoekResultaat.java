@@ -14,15 +14,15 @@ import net.atos.zac.app.shared.RESTResultaat;
 import net.atos.zac.zoeken.model.FilterResultaat;
 import net.atos.zac.zoeken.model.FilterVeld;
 
-public class RESTZoekResultaat<TYPE> extends RESTResultaat<TYPE> {
+public class RestZoekResultaat<TYPE> extends RESTResultaat<TYPE> {
 
     public TreeMap<FilterVeld, List<FilterResultaat>> filters = new TreeMap<>(Comparator.comparingInt(FilterVeld::ordinal));
 
-    public RESTZoekResultaat(final Collection<TYPE> resultaten, final long aantalTotaal) {
+    public RestZoekResultaat(final Collection<TYPE> resultaten, final long aantalTotaal) {
         super(resultaten, aantalTotaal);
     }
 
-    public RESTZoekResultaat(final String foutmelding) {
+    public RestZoekResultaat(final String foutmelding) {
         super(foutmelding);
     }
 
