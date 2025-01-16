@@ -7,18 +7,18 @@ package net.atos.zac.app.ontkoppeldedocumenten.model;
 
 import net.atos.zac.app.identity.model.RestUser;
 import net.atos.zac.app.shared.RESTListParameters;
-import net.atos.zac.app.zoeken.model.RESTDatumRange;
+import net.atos.zac.app.zoeken.model.RestDatumRange;
 
 public class RESTOntkoppeldDocumentListParameters extends RESTListParameters {
     public String titel;
 
     public String reden;
 
-    public RESTDatumRange creatiedatum;
+    public RestDatumRange creatiedatum;
 
     public RestUser ontkoppeldDoor;
 
-    public RESTDatumRange ontkoppeldOp;
+    public RestDatumRange ontkoppeldOp;
 
     public String zaakID;
 }

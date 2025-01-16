@@ -14,7 +14,7 @@ import net.atos.zac.zoeken.model.FilterVeld;
 import net.atos.zac.zoeken.model.SorteerVeld;
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType;
 
-public class RESTZoekParameters extends RestPageParameters {
+public class RestZoekParameters extends RestPageParameters {
 
     public ZoekObjectType type;
 
@@ -22,7 +22,7 @@ public class RESTZoekParameters extends RestPageParameters {
 
     public Map<FilterVeld, FilterParameters> filters;
 
-    public Map<DatumVeld, RESTDatumRange> datums;
+    public Map<DatumVeld, RestDatumRange> datums;
 
     public SorteerVeld sorteerVeld;
 

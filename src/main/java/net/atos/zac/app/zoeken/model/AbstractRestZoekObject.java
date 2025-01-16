@@ -7,7 +7,7 @@ package net.atos.zac.app.zoeken.model;
 
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType;
 
-public abstract class AbstractRESTZoekObject {
+public abstract class AbstractRestZoekObject {
 
     public String id;
 

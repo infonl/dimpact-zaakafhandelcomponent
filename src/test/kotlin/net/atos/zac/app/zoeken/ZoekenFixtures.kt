@@ -4,8 +4,8 @@
  */
 package net.atos.zac.app.zoeken
 
-import net.atos.zac.app.zoeken.model.RESTDatumRange
-import net.atos.zac.app.zoeken.model.RESTZoekParameters
+import net.atos.zac.app.zoeken.model.RestDatumRange
+import net.atos.zac.app.zoeken.model.RestZoekParameters
 import net.atos.zac.shared.model.SorteerRichting
 import net.atos.zac.zoeken.model.DatumRange
 import net.atos.zac.zoeken.model.DatumVeld
@@ -26,8 +26,8 @@ fun createRESTZoekParameters(
     filters: Map<FilterVeld, FilterParameters> = mapOf(
         FilterVeld.BEHANDELAAR to FilterParameters(listOf("dummyFilterValue"), false)
     ),
-    datums: Map<DatumVeld, RESTDatumRange> = mapOf(
-        DatumVeld.STARTDATUM to RESTDatumRange()
+    datums: Map<DatumVeld, RestDatumRange> = mapOf(
+        DatumVeld.STARTDATUM to RestDatumRange()
     ),
     sorteerVeld: SorteerVeld = SorteerVeld.CREATED,
     sorteerRichting: String = "ASC",
@@ -37,7 +37,7 @@ fun createRESTZoekParameters(
     alleenOpenstaandeZaken: Boolean = false,
     alleenAfgeslotenZaken: Boolean = false,
     alleenMijnTaken: Boolean = false
-) = RESTZoekParameters().apply {
+) = RestZoekParameters().apply {
     this.type = type
     this.zoeken = zoeken
     this.filters = filters

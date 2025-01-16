@@ -11,7 +11,7 @@ import java.util.EnumSet;
 import net.atos.zac.app.policy.model.RestDocumentRechten;
 import net.atos.zac.zoeken.model.DocumentIndicatie;
 
-public class RESTDocumentZoekObject extends AbstractRESTZoekObject {
+public class RestDocumentZoekObject extends AbstractRestZoekObject {
 
     public String titel;
 

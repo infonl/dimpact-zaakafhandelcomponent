@@ -75,12 +75,12 @@ fun createResultaat(
 }
 
 fun createRolMedewerker(
-    zaak: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(),
     roltoelichting: String = "dummyToelichting",
     betrokkeneIdentificatie: Medewerker? = createMedewerker()
 ) = RolMedewerker(
-    zaak,
+    zaakURI,
     rolType,
     roltoelichting,
     betrokkeneIdentificatie

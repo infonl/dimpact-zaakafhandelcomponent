@@ -179,7 +179,7 @@ class ZGWApiServiceTest : BehaviorSpec({
     }
     Given("A zaak with a behandelaar medewerker role") {
         val zaak = createZaak()
-        val rolMedewerker = createRolMedewerker(zaak = zaak.url)
+        val rolMedewerker = createRolMedewerker(zaakURI = zaak.url)
         every {
             ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
         } returns listOf(createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR))
@@ -202,7 +202,7 @@ class ZGWApiServiceTest : BehaviorSpec({
     Given("A zaak with a behandelaar medewerker role without a betrokkene identificatie") {
         val zaak = createZaak()
         val rolMedewerker = createRolMedewerker(
-            zaak = zaak.url,
+            zaakURI = zaak.url,
             // in the ZGW API it is possible (strangely enough) to have a rol-medewerker object
             // without a medewerker and this also happens in practise in some circumstances
             betrokkeneIdentificatie = null
@@ -278,7 +278,7 @@ class ZGWApiServiceTest : BehaviorSpec({
     }
     Given("A zaak with an initiator") {
         val zaak = createZaak()
-        val rolMedewerker = createRolMedewerker(zaak = zaak.url)
+        val rolMedewerker = createRolMedewerker(zaakURI = zaak.url)
         every {
             ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
         } returns listOf(createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR))

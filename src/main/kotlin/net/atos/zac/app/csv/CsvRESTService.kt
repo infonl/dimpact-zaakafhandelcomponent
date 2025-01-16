@@ -12,8 +12,8 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.zac.app.zoeken.converter.RESTZoekParametersConverter
-import net.atos.zac.app.zoeken.model.RESTZoekParameters
+import net.atos.zac.app.zoeken.converter.RestZoekParametersConverter
+import net.atos.zac.app.zoeken.model.RestZoekParameters
 import net.atos.zac.csv.CsvService
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
 import net.atos.zac.policy.PolicyService
@@ -29,13 +29,13 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 class CsvRESTService @Inject constructor(
     private val zoekenService: ZoekenService,
-    private val restZoekParametersConverter: RESTZoekParametersConverter,
+    private val restZoekParametersConverter: RestZoekParametersConverter,
     private val csvService: CsvService,
     private val policyService: PolicyService
 ) {
     @POST
     @Path("export")
-    fun downloadCSV(restZoekParameters: RESTZoekParameters): Response {
+    fun downloadCSV(restZoekParameters: RestZoekParameters): Response {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenExporteren)
         val zoekParameters = restZoekParametersConverter.convert(restZoekParameters).let {
             // if no max nr of result rows are specified, resort to the default value

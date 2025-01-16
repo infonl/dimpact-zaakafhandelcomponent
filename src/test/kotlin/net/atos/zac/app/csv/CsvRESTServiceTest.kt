@@ -10,7 +10,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.ws.rs.core.StreamingOutput
-import net.atos.zac.app.zoeken.converter.RESTZoekParametersConverter
+import net.atos.zac.app.zoeken.converter.RestZoekParametersConverter
 import net.atos.zac.app.zoeken.createRESTZoekParameters
 import net.atos.zac.app.zoeken.createZoekParameters
 import net.atos.zac.app.zoeken.createZoekResultaatForZaakZoekObjecten
@@ -20,7 +20,7 @@ import net.atos.zac.zoeken.ZoekenService
 
 class CsvRESTServiceTest : BehaviorSpec({
     val zoekenService = mockk<ZoekenService>()
-    val restZoekParametersConverter = mockk<RESTZoekParametersConverter>()
+    val restZoekParametersConverter = mockk<RestZoekParametersConverter>()
     val csvService = mockk<CsvService>()
     val policyService = mockk<PolicyService>()
     val csvRESTService = CsvRESTService(

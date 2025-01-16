@@ -7,7 +7,7 @@ package net.atos.zac.app.zoeken.model;
 
 import java.time.LocalDate;
 
-public class RESTDatumRange {
+public class RestDatumRange {
 
     public LocalDate van;
 
