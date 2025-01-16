@@ -6,6 +6,7 @@ package net.atos.zac.app.zaak
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.doubles.exactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.checkUnnecessaryStub
@@ -27,6 +28,7 @@ import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Medewerker
+import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.Point
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
@@ -56,9 +58,9 @@ import net.atos.zac.app.zaak.model.RestZaaktype
 import net.atos.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
 import net.atos.zac.app.zaak.model.createRESTGeometry
 import net.atos.zac.app.zaak.model.createRESTZaakAanmaakGegevens
+import net.atos.zac.app.zaak.model.createRESTZaakAssignmentData
 import net.atos.zac.app.zaak.model.createRESTZaakBetrokkeneGegevens
 import net.atos.zac.app.zaak.model.createRESTZaakKoppelGegevens
-import net.atos.zac.app.zaak.model.createRESTZaakToekennenGegevens
 import net.atos.zac.app.zaak.model.createRESTZakenVerdeelGegevens
 import net.atos.zac.app.zaak.model.createRestGroup
 import net.atos.zac.app.zaak.model.createRestZaak
@@ -291,20 +293,24 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("a zaak exists, no one is assigned and zaak toekennen gegevens are provided") {
-        val restZaakToekennenGegevens = createRESTZaakToekennenGegevens()
+    Given("a zaak exists, no user and no group are assigned and zaak assignment data is provided") {
+        val restZaakToekennenGegevens = createRESTZaakAssignmentData()
         val zaak = createZaak()
         val user = createLoggedInUser()
-        val rolSlot = slot<Rol<*>>()
+        val rolSlot = mutableListOf<Rol<*>>()
         val restZaak = createRestZaak()
         val rolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
         val rolMedewerker = createRolMedewerker()
+        val group = createGroup()
+        val rolGroup = createRolOrganisatorischeEenheid()
 
         every { zrcClientService.readZaak(restZaakToekennenGegevens.zaakUUID) } returns zaak
         every { zrcClientService.updateRol(zaak, capture(rolSlot), restZaakToekennenGegevens.reason) } just runs
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
         every { identityService.readUser(restZaakToekennenGegevens.assigneeUserName!!) } returns user
         every { zgwApiService.findGroepForZaak(zaak) } returns null
+        every { identityService.readGroup(restZaakToekennenGegevens.groupId) } returns group
+        every { zaakService.bepaalRolGroep(group, zaak) } returns rolGroup
         every { restZaakConverter.toRestZaak(zaak) } returns restZaak
         every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
         every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
@@ -314,18 +320,28 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             val returnedRestZaak = zaakRestService.assign(restZaakToekennenGegevens)
 
-            Then("the zaak is updated, and the zaken search index is updated") {
+            Then("the zaak is assigned both to the group and the user, and the zaken search index is updated") {
                 returnedRestZaak shouldBe restZaak
-                verify(exactly = 1) {
+                verify(exactly = 2) {
                     zrcClientService.updateRol(zaak, any(), restZaakToekennenGegevens.reason)
+                }
+                verify(exactly = 1) {
                     indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                 }
-                with(rolSlot.captured) {
+                with(rolSlot[0]) {
                     betrokkeneType shouldBe BetrokkeneType.MEDEWERKER
                     with(betrokkeneIdentificatie as Medewerker) {
                         identificatie shouldBe rolMedewerker.betrokkeneIdentificatie!!.identificatie
                     }
                     this.zaak shouldBe rolMedewerker.zaak
+                    omschrijving shouldBe rolType.omschrijving
+                }
+                with(rolSlot[1]) {
+                    betrokkeneType shouldBe BetrokkeneType.ORGANISATORISCHE_EENHEID
+                    with(betrokkeneIdentificatie as OrganisatorischeEenheid) {
+                        identificatie shouldBe rolGroup.betrokkeneIdentificatie!!.identificatie
+                    }
+                    this.zaak shouldBe rolGroup.zaak
                     omschrijving shouldBe rolType.omschrijving
                 }
             }
