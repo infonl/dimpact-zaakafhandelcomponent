@@ -55,7 +55,7 @@
 	    "gradle"
       ],
       "enabled": false,
-      "description": "Updates for dependencies that are provided by WildFly"
+      "description": ["Updates for dependencies that are provided by WildFly"]
     },
     {
       "matchPackageNames": [
@@ -67,7 +67,7 @@
         "gradle"
       ],
       "allowedVersions": "<= 25.0.6",
-      "description": "Pinned by the next Dimpact PodiumD release"
+      "description": ["Pinned by the next Dimpact PodiumD release"]
     },
     {
       "matchPackageNames": [
@@ -77,7 +77,7 @@
         "docker"
       ],
       "allowedVersions": "<= 2.4.4",
-      "description": "Pinned by the next Dimpact PodiumD release"
+      "description": ["Pinned by the next Dimpact PodiumD release"]
     },
     {
       "matchPackageNames": [
@@ -87,7 +87,7 @@
         "docker"
       ],
       "allowedVersions": "<= 2.2.2",
-      "description": "Pinned by the next Dimpact PodiumD release"
+      "description": ["Pinned by the next Dimpact PodiumD release"]
     },
     {
       "matchPackageNames": [
@@ -97,7 +97,7 @@
         "docker"
       ],
       "allowedVersions": "<= 2.3.0",
-      "description": "Pinned by the next Dimpact PodiumD release"
+      "description": ["Pinned by the next Dimpact PodiumD release"]
     },
     {
       "matchPackageNames": [
@@ -107,7 +107,7 @@
         "docker"
       ],
       "allowedVersions": "<= 1.15.0",
-      "description": "Pinned by the next Dimpact PodiumD release"
+      "description": ["Pinned by the next Dimpact PodiumD release"]
     },
     {
       "matchPackageNames": [
@@ -117,7 +117,7 @@
         "docker"
       ],
       "allowedVersions": "<= 1.7.1",
-      "description": "Pinned by the next Dimpact PodiumD release"
+      "description": ["Pinned by the next Dimpact PodiumD release"]
     },
     {
       "matchPackageNames": [
@@ -132,7 +132,7 @@
         "pinDigest"
       ],
       "enabled": false,
-      "description": "The version of the ZAC Docker image in our Docker Compose file is set to 'latest' and is only used for local development"
+      "description": ["The version of the ZAC Docker image in our Docker Compose file is set to 'latest' and is only used for local development"]
     }
   ]
 }
