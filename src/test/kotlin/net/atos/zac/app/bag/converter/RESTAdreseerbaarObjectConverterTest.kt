@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2025 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 package net.atos.zac.app.bag.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
