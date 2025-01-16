@@ -10,7 +10,7 @@
   "dependencies": {
     "@cucumber/cucumber": "11.2.0",
     "@types/uniqid": "5.3.4",
-    "cross-fetch": "4.0.0",
+    "cross-fetch": "4.1.0",
     "pdf-parse": "1.1.1",
     "uniqid": "5.4.0",
     "zod": "3.24.1"
