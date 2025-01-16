@@ -35,6 +35,9 @@ class NotificatieReceiverTest : BehaviorSpec({
     val inboxDocumentenService = mockk<InboxDocumentenService>()
     val zaakafhandelParameterBeheerService = mockk<ZaakafhandelParameterBeheerService>()
     val objecttypesClientService = mockk<ObjecttypesClientService>()
+
+    val httpHeaders = mockk<HttpHeaders>()
+    val httpSession = mockk<HttpSession>(relaxed = true)
     val httpSessionInstance = mockk<Instance<HttpSession>>()
 
     val notificatieReceiver = NotificatieReceiver(
@@ -48,36 +51,91 @@ class NotificatieReceiverTest : BehaviorSpec({
         httpSessionInstance
     )
 
+    // HTTP session mock
+
     Given(
-        "a request containing a authorization header, a productaanvraag notificatie with a object type UUID " +
-            "for the productaanvraag object type"
+        """
+            a request containing a authorization header and
+            a productaanvraag notificatie with a object type UUID for the productaanvraag object type
+            """
     ) {
+        val productaanvraagObjectUUID = UUID.randomUUID()
+        val productTypeUUID = UUID.randomUUID()
+        val objectType = createObjecttype(name = "Productaanvraag-Dimpact")
+        every { objecttypesClientService.readObjecttype(productTypeUUID) } returns objectType
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        val notificatie = createNotificatie(
+            resourceUrl = URI("http://example.com/dummyproductaanvraag/$productaanvraagObjectUUID"),
+            properties = mapOf("objectType" to "http://example.com/dummyproducttype/$productTypeUUID")
+        )
+        every { productaanvraagService.handleProductaanvraag(productaanvraagObjectUUID) } just runs
+
         When("notificatieReceive is called") {
+            val response = notificatieReceiver.notificatieReceive(httpHeaders, notificatie)
+
             Then(
                 "the 'functional user' is added to the HTTP sessionm the productaanvraag service is invoked " +
                     "and a 'no content' response is returned"
             ) {
-                val secret = "dummySecret"
-                val productaanvraagObjectUUID = UUID.randomUUID()
-                val productTypeUUID = UUID.randomUUID()
-                val httpHeaders = mockk<HttpHeaders>()
-                val httpSession = mockk<HttpSession>()
-                val notifcatie = createNotificatie(
-                    resourceUrl = URI("http://example.com/dummyproductaanvraag/$productaanvraagObjectUUID"),
-                    properties = mapOf("objectType" to "http://example.com/dummyproducttype/$productTypeUUID")
-                )
-                val objectType = createObjecttype(name = "Productaanvraag-Dimpact")
-                every { httpHeaders.getHeaderString("Authorization") } returns secret
-                every { httpSessionInstance.get() } returns httpSession
-                every { httpSession.setAttribute("logged-in-user", any()) } just runs
-                every { objecttypesClientService.readObjecttype(productTypeUUID) } returns objectType
-                every { productaanvraagService.handleProductaanvraag(productaanvraagObjectUUID) } just runs
-
-                val response = notificatieReceiver.notificatieReceive(httpHeaders, notifcatie)
-
                 response.status shouldBe 204
                 verify(exactly = 1) {
                     productaanvraagService.handleProductaanvraag(productaanvraagObjectUUID)
+                }
+            }
+        }
+    }
+
+    Given(
+        "a request containing a authorization header and a zaaktype create notificatie"
+    ) {
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        val zaaktypeUUID = UUID.randomUUID()
+        val zaaktypeUri = URI("http://example.com/dummyzaaktype/$zaaktypeUUID")
+        val notificatie = createNotificatie(
+            resource = Resource.ZAAKTYPE,
+            resourceUrl = zaaktypeUri
+        )
+        every { zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri) } just runs
+
+        When("notificatieReceive is called with the zaaktype create notificatie") {
+            val response = notificatieReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            Then(
+                "the zaaktype aanvraag service is invoked and a 'no content' response is returned"
+            ) {
+                response.status shouldBe 204
+                verify(exactly = 1) {
+                    zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri)
+                }
+            }
+        }
+    }
+
+    Given(
+        "a request containing a authorization header and a zaaktype update notificatie"
+    ) {
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        val zaaktypeUUID = UUID.randomUUID()
+        val zaaktypeUri = URI("http://example.com/dummyzaaktype/$zaaktypeUUID")
+        val notificatie = createNotificatie(
+            resource = Resource.ZAAKTYPE,
+            resourceUrl = zaaktypeUri,
+            action = Action.UPDATE
+        )
+        every { zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri) } just runs
+
+        When("notificatieReceive is called with the zaaktype create notificatie") {
+            val response = notificatieReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            Then(
+                "the zaaktype aanvraag service is invoked and a 'no content' response is returned"
+            ) {
+                response.status shouldBe 204
+                verify(exactly = 1) {
+                    zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri)
                 }
             }
         }

@@ -456,7 +456,9 @@ jobs:
           git push --force    
 
   trigger-provision:
-    needs: [push-docker-image]
+    needs: [next-version, push-docker-image]
+    env:
+      NEXT_VERSION: ${{ needs.next-version.outputs.version }}
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'
@@ -470,7 +472,7 @@ jobs:
               repo: 'dimpact-provisioning',
               workflow_id: 'azure-provision-zaakafhandelcomponent.yml',
               inputs: {
-                tag: '${{  github.ref_name }}-${{ github.run_number }}',
+                tag: '${{ env.NEXT_VERSION }}',
               },
               ref: 'main'
             })

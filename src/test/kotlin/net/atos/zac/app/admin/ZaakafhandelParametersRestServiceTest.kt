@@ -83,7 +83,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         every {
             zaakafhandelParametersConverter.toZaakafhandelParameters(restZaakafhandelParameters)
         } returns zaakafhandelParameters
-        every { zaakafhandelParameterBeheerService.updateZaakafhandelParameters(zaakafhandelParameters) } returns
+        every { zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters) } returns
             updatedZaakafhandelParameters
         every {
             zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
@@ -107,7 +107,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
             ) {
                 returnedRestZaakafhandelParameters shouldBe updatedRestZaakafhandelParameters
                 verify(exactly = 1) {
-                    zaakafhandelParameterBeheerService.updateZaakafhandelParameters(zaakafhandelParameters)
+                    zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
                     zaakafhandelParameterService.cacheRemoveZaakafhandelParameters(zaakafhandelParameters.zaakTypeUUID)
                     zaakafhandelParameterService.clearListCache()
                 }
@@ -146,7 +146,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         } returns
             emptyList()
         every {
-            zaakafhandelParameterBeheerService.createZaakafhandelParameters(zaakafhandelParameters)
+            zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
         } returns createdZaakafhandelParameters
         every {
             zaakafhandelParametersConverter.toRestZaakafhandelParameters(createdZaakafhandelParameters, true)
@@ -165,7 +165,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
             ) {
                 returnedRestZaakafhandelParameters shouldBe updatedRestZaakafhandelParameters
                 verify(exactly = 1) {
-                    zaakafhandelParameterBeheerService.createZaakafhandelParameters(zaakafhandelParameters)
+                    zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
                 }
             }
         }
@@ -212,7 +212,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
             ) {
                 exception.message shouldBe "msg.error.productaanvraagtype.already.in.use"
                 verify(exactly = 0) {
-                    zaakafhandelParameterBeheerService.createZaakafhandelParameters(zaakafhandelParameters)
+                    zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
                 }
             }
         }
