@@ -9,7 +9,7 @@ import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 abstract class AbstractRestZoekObject(
-    open var id: String? = null,
-    open var type: ZoekObjectType? = null,
-    open var identificatie: String? = null
+    open val id: String? = null,
+    open val type: ZoekObjectType? = null,
+    open val identificatie: String? = null
 )
