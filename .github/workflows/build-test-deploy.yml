@@ -1,8 +1,7 @@
 #
 # SPDX-FileCopyrightText: 2023 Lifely
 # SPDX-License-Identifier: EUPL-1.2+
-#
-name: Build, test & deploy
+
 
 on:
   pull_request:
@@ -421,39 +420,6 @@ jobs:
           allowUpdates: true
           makeLatest: true
           generateReleaseNotes: true
-
-  update-publiccode-yml:
-    needs: [ next-version, create-release ]
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-22.04
-    env:
-      NEXT_VERSION: ${{ needs.next-version.outputs.version }}
-    steps:
-      # check out the repository with the private SSH key of the deploy key so that
-      # we can bypass the ruleset for the main branch
-      # see: https://github.com/sbellone/release-workflow-example for details
-      - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          ssh-key: ${{ secrets.DEPLOY_KEY_BYPASS_RULESET_MAIN_PRIVATE_KEY }}
-      - name: Get current date
-        id: set-current-date
-        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
-      - uses: elieahd/templater@f802bfce98073a045ad327cdc2c9857564fdfc07 # v1
-        with:
-          template: 'scripts/file-templates/publiccode-yaml-template.yaml'
-          file: 'publiccode.yaml'
-          variables: '
-              REPO_URL=${{ github.repositoryUrl }} 
-              SOFTWARE_VERSION=${{ needs.next-version.outputs.version }}
-              REPO_CREATED_AT=${{ steps.set-current-date.outputs.date }}'
-      - name: Commit changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add publiccode.yaml
-          git commit -m "${{ github.workflow }}" || echo "No changes to commit"
-          git push    
 
   trigger-provision:
     needs: [next-version, push-docker-image]
