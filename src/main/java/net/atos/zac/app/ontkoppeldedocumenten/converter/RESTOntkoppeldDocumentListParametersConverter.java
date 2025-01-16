@@ -22,7 +22,8 @@ public class RESTOntkoppeldDocumentListParametersConverter extends
         listParameters.setTitel(restListParameters.titel);
 
         if (restListParameters.creatiedatum != null && restListParameters.creatiedatum.hasValue()) {
-            listParameters.setCreatiedatum(new DatumRange(restListParameters.creatiedatum.van, restListParameters.creatiedatum.tot));
+            listParameters.setCreatiedatum(new DatumRange(restListParameters.creatiedatum.getVan(), restListParameters.creatiedatum
+                    .getTot()));
         }
 
         if (restListParameters.ontkoppeldDoor != null) {
@@ -30,7 +31,8 @@ public class RESTOntkoppeldDocumentListParametersConverter extends
         }
 
         if (restListParameters.ontkoppeldOp != null && restListParameters.ontkoppeldOp.hasValue()) {
-            listParameters.setOntkoppeldOp(new DatumRange(restListParameters.ontkoppeldOp.van, restListParameters.ontkoppeldOp.tot));
+            listParameters.setOntkoppeldOp(new DatumRange(restListParameters.ontkoppeldOp.getVan(), restListParameters.ontkoppeldOp
+                    .getTot()));
         }
 
         listParameters.setZaakID(restListParameters.zaakID);

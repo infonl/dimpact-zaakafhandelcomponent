@@ -26,3 +26,5 @@ enum class ZoekVeld(val veld: String) {
     DOCUMENT_TITEL("informatieobject_titel"),
     DOCUMENT_BESCHRIJVING("informatieobject_beschrijving")
 }
+
+val ZOEK_VELDEN = ZoekVeld.entries.toTypedArray().map { it.name }

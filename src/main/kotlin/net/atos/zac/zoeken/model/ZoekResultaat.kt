@@ -8,11 +8,11 @@ import net.atos.zac.shared.model.Resultaat
 import java.util.EnumMap
 
 class ZoekResultaat<TYPE>(items: List<TYPE>, count: Long) : Resultaat<TYPE>(items, count) {
-    private val filters = EnumMap<FilterVeld, List<FilterResultaat>>(FilterVeld::class.java)
+    private val filters = EnumMap<FilterVeld, MutableList<FilterResultaat>>(FilterVeld::class.java)
 
-    fun addFilter(facetVeld: FilterVeld, waardes: List<FilterResultaat>) {
-        filters[facetVeld] = waardes
+    fun addFilter(filterField: FilterVeld, filterResults: MutableList<FilterResultaat>) {
+        filters[filterField] = filterResults
     }
 
-    fun getFilters(): Map<FilterVeld, List<FilterResultaat>> = filters
+    fun getFilters(): Map<FilterVeld, MutableList<FilterResultaat>> = filters
 }
