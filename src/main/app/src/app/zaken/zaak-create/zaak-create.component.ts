@@ -299,21 +299,21 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
   }
 
   getMedewerkerGroupFormField(
-    groepId?: string,
-    medewerkerId?: string,
+    groupId?: string,
+    employeeId?: string,
   ): MedewerkerGroepFormField {
     let groep: GeneratedType<"RestGroup"> | null = null;
-    let medewerker: GeneratedType<"RestUser"> | null = null;
+    let employee: GeneratedType<"RestUser"> | null = null;
 
-    if (groepId) {
-      groep = { id: groepId } as GeneratedType<"RestGroup">;
+    if (groupId) {
+      groep = { id: groupId } as GeneratedType<"RestGroup">;
     }
 
-    if (medewerkerId) {
-      medewerker = { id: medewerkerId } as GeneratedType<"RestUser">;
+    if (employeeId) {
+      employee = { id: employeeId } as GeneratedType<"RestUser">;
     }
 
-    return new MedewerkerGroepFieldBuilder(groep, medewerker)
+    return new MedewerkerGroepFieldBuilder(groep, employee)
       .id("toekenning")
       .groepLabel("actie.zaak.toekennen.groep")
       .groepRequired()
