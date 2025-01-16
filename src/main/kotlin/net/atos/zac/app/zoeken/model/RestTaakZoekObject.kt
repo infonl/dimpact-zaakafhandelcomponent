@@ -11,34 +11,32 @@ import net.atos.zac.policy.output.TaakRechten
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate
 import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
-import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 
-@NoArgConstructor
 data class RestTaakZoekObject(
     override val id: String? = null,
     override val type: ZoekObjectType? = null,
     override val identificatie: String? = null,
-    var naam: String? = null,
-    var toelichting: String? = null,
-    var status: TaakStatus? = null,
-    var zaakUuid: String? = null,
-    var zaakIdentificatie: String? = null,
-    var zaakOmschrijving: String? = null,
-    var zaakToelichting: String? = null,
-    var zaaktypeUuid: String? = null,
-    var zaaktypeIdentificatie: String? = null,
-    var zaaktypeOmschrijving: String? = null,
-    var creatiedatum: LocalDate? = null,
-    var toekenningsdatum: LocalDate? = null,
-    var fataledatum: LocalDate? = null,
-    var groepID: String? = null,
-    var groepNaam: String? = null,
-    var behandelaarNaam: String? = null,
-    var behandelaarGebruikersnaam: String? = null,
-    var taakData: List<String>? = null,
-    var taakInformatie: List<String>? = null,
-    var rechten: RestTaakRechten? = null
+    val naam: String? = null,
+    val toelichting: String? = null,
+    val status: TaakStatus? = null,
+    val zaakUuid: String? = null,
+    val zaakIdentificatie: String? = null,
+    val zaakOmschrijving: String? = null,
+    val zaakToelichting: String? = null,
+    val zaaktypeUuid: String? = null,
+    val zaaktypeIdentificatie: String? = null,
+    val zaaktypeOmschrijving: String? = null,
+    val creatiedatum: LocalDate? = null,
+    val toekenningsdatum: LocalDate? = null,
+    val fataledatum: LocalDate? = null,
+    val groepID: String? = null,
+    val groepNaam: String? = null,
+    val behandelaarNaam: String? = null,
+    val behandelaarGebruikersnaam: String? = null,
+    val taakData: List<String>? = null,
+    val taakInformatie: List<String>? = null,
+    val rechten: RestTaakRechten? = null
 ) : AbstractRestZoekObject(id, type, identificatie)
 
 fun TaakZoekObject.toRestTaakZoekObject(taakRechten: TaakRechten) = RestTaakZoekObject(
