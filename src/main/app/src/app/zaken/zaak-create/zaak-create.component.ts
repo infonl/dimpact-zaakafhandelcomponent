@@ -14,8 +14,6 @@ import { catchError, filter, takeUntil } from "rxjs/operators";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { BAGObject } from "../../bag/model/bagobject";
 import { UtilService } from "../../core/service/util.service";
-import { Group } from "../../identity/model/group";
-import { User } from "../../identity/model/user";
 import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { KlantenService } from "../../klanten/klanten.service";
 import { Klant } from "../../klanten/model/klanten/klant";
@@ -45,6 +43,7 @@ import { Zaak } from "../model/zaak";
 import { ZaakAanmaakGegevens } from "../model/zaak-aanmaak-gegevens";
 import { Zaaktype } from "../model/zaaktype";
 import { ZakenService } from "../zaken.service";
+import { GeneratedType } from "src/app/shared/utils/generated-types";
 
 @Component({
   selector: "zac-zaak-create",
@@ -303,18 +302,17 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
     groepId?: string,
     medewerkerId?: string,
   ): MedewerkerGroepFormField {
-    let groep = null;
-    let medewerker = null;
+    let groep: GeneratedType<"RestGroup"> | null = null;
+    let medewerker: GeneratedType<"RestUser"> | null = null;
 
     if (groepId) {
-      groep = new Group();
-      groep.id = groepId;
+      groep = { id: groepId } as GeneratedType<"RestGroup">;
     }
 
     if (medewerkerId) {
-      medewerker = new User();
-      medewerker.id = medewerkerId;
+      medewerker = { id: medewerkerId } as GeneratedType<"RestUser">;
     }
+
     return new MedewerkerGroepFieldBuilder(groep, medewerker)
       .id("toekenning")
       .groepLabel("actie.zaak.toekennen.groep")
