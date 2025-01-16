@@ -531,8 +531,9 @@ class ZaakRestService @Inject constructor(
             } ?: zrcClientService.deleteRol(zaak, BetrokkeneType.MEDEWERKER, toekennenGegevens.reason)
             isUpdated.set(true)
         }
-        zgwApiService.findGroepForZaak(zaak)?.betrokkeneIdentificatie?.identificatie?.let { currentGroupId ->
-            if (currentGroupId != toekennenGegevens.groupId) {
+        // if the zaak is not already assigned to the requested group, assign it to this group
+        zgwApiService.findGroepForZaak(zaak)?.betrokkeneIdentificatie?.identificatie.let { currentGroupId ->
+            if (currentGroupId == null || currentGroupId != toekennenGegevens.groupId) {
                 val group = identityService.readGroup(toekennenGegevens.groupId)
                 val role = zaakService.bepaalRolGroep(group, zaak)
                 zrcClientService.updateRol(zaak, role, toekennenGegevens.reason)
