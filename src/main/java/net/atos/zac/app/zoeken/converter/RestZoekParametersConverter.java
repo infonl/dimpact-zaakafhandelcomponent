@@ -13,7 +13,7 @@ import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.BooleanUtils;
 
-import net.atos.zac.app.zoeken.model.RESTZoekParameters;
+import net.atos.zac.app.zoeken.model.RestZoekParameters;
 import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.shared.model.SorteerRichtingKt;
 import net.atos.zac.zoeken.model.DatumRange;
@@ -22,13 +22,13 @@ import net.atos.zac.zoeken.model.ZoekVeld;
 import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject;
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
 
-public class RESTZoekParametersConverter {
+public class RestZoekParametersConverter {
     private static final List<String> zoekvelden = Arrays.stream(ZoekVeld.values()).map(Enum::name).toList();
 
     @Inject
     private Instance<LoggedInUser> loggedInUserInstance;
 
-    public ZoekParameters convert(final RESTZoekParameters restZoekParameters) {
+    public ZoekParameters convert(final RestZoekParameters restZoekParameters) {
         final ZoekParameters zoekParameters = new ZoekParameters(restZoekParameters.type);
 
         restZoekParameters.filters.forEach(zoekParameters::addFilter);

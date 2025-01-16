@@ -17,11 +17,11 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.zac.app.zoeken.converter.RESTZoekParametersConverter;
-import net.atos.zac.app.zoeken.converter.RESTZoekResultaatConverter;
-import net.atos.zac.app.zoeken.model.AbstractRESTZoekObject;
-import net.atos.zac.app.zoeken.model.RESTZoekParameters;
-import net.atos.zac.app.zoeken.model.RESTZoekResultaat;
+import net.atos.zac.app.zoeken.converter.RestZoekParametersConverter;
+import net.atos.zac.app.zoeken.converter.RestZoekResultaatConverter;
+import net.atos.zac.app.zoeken.model.AbstractRestZoekObject;
+import net.atos.zac.app.zoeken.model.RestZoekParameters;
+import net.atos.zac.app.zoeken.model.RestZoekResultaat;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.zoeken.ZoekenService;
 import net.atos.zac.zoeken.model.ZoekParameters;
@@ -32,23 +32,23 @@ import net.atos.zac.zoeken.model.zoekobject.ZoekObject;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
-public class ZoekenRESTService {
+public class ZoekenRestService {
 
     @Inject
     private ZoekenService zoekenService;
 
     @Inject
-    private RESTZoekParametersConverter zoekZaakParametersConverter;
+    private RestZoekParametersConverter zoekZaakParametersConverter;
 
     @Inject
-    private RESTZoekResultaatConverter ZoekResultaatConverter;
+    private RestZoekResultaatConverter ZoekResultaatConverter;
 
     @Inject
     private PolicyService policyService;
 
     @PUT
     @Path("list")
-    public RESTZoekResultaat<? extends AbstractRESTZoekObject> list(final RESTZoekParameters restZoekParameters) {
+    public RestZoekResultaat<? extends AbstractRestZoekObject> list(final RestZoekParameters restZoekParameters) {
         if (restZoekParameters.type == ZAAK || restZoekParameters.type == TAAK) {
             assertPolicy(policyService.readWerklijstRechten().zakenTaken());
         } else {
