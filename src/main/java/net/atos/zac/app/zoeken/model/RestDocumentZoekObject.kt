@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.zoeken.model
@@ -13,60 +13,32 @@ import java.util.EnumSet
 @NoArgConstructor
 data class RestDocumentZoekObject(
     var titel: String? = null,
-
     var beschrijving: String? = null,
-
     var zaaktypeUuid: String? = null,
-
     var zaaktypeIdentificatie: String? = null,
-
     var zaaktypeOmschrijving: String? = null,
-
     var zaakIdentificatie: String? = null,
-
     var zaakUuid: String? = null,
-
     var zaakRelatie: String? = null,
-
     var creatiedatum: LocalDate? = null,
-
     var registratiedatum: LocalDate? = null,
-
     var ontvangstdatum: LocalDate? = null,
-
     var verzenddatum: LocalDate? = null,
-
     var ondertekeningDatum: LocalDate? = null,
-
     var vertrouwelijkheidaanduiding: String? = null,
-
     var auteur: String? = null,
-
     var status: String? = null,
-
     var formaat: String? = null,
-
     var versie: Long = 0,
-
     var bestandsnaam: String? = null,
-
     var bestandsomvang: Long = 0,
-
     var documentType: String? = null,
-
     var ondertekeningSoort: String? = null,
-
     var indicatieOndertekend: Boolean = false,
-
     var inhoudUrl: String? = null,
-
     var indicatieVergrendeld: Boolean = false,
-
     var vergrendeldDoor: String? = null,
-
     var indicaties: EnumSet<DocumentIndicatie>? = null,
-
     var rechten: RestDocumentRechten? = null,
-
     var indicatieGebruiksrecht: Boolean = false
 ) : AbstractRestZoekObject()

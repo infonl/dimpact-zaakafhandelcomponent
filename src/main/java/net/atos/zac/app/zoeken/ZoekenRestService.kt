@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.zoeken
@@ -19,11 +19,15 @@ import net.atos.zac.app.zoeken.model.RestZoekResultaat
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.zoeken.ZoekenService
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
 @Path("zoeken")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
+@NoArgConstructor
+@AllOpen
 class ZoekenRestService @Inject constructor(
     private val zoekenService: ZoekenService,
     private val restZoekZaakParametersConverter: RestZoekParametersConverter,
@@ -33,10 +37,9 @@ class ZoekenRestService @Inject constructor(
     @PUT
     @Path("list")
     fun list(restZoekParameters: RestZoekParameters): RestZoekResultaat<out AbstractRestZoekObject?> {
-        if (restZoekParameters.type == ZoekObjectType.ZAAK || restZoekParameters.type == ZoekObjectType.TAAK) {
-            PolicyService.assertPolicy(policyService.readWerklijstRechten().zakenTaken)
-        } else {
-            PolicyService.assertPolicy(policyService.readOverigeRechten().zoeken)
+        when (restZoekParameters.type) {
+            ZoekObjectType.ZAAK, ZoekObjectType.TAAK -> PolicyService.assertPolicy(policyService.readWerklijstRechten().zakenTaken)
+            else -> PolicyService.assertPolicy(policyService.readOverigeRechten().zoeken)
         }
         val zoekParameters = restZoekZaakParametersConverter.convert(restZoekParameters)
         val zoekResultaat = zoekenService.zoek(zoekParameters)

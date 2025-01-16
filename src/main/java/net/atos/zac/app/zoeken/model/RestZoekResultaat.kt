@@ -8,15 +8,10 @@ import net.atos.zac.app.shared.RESTResultaat
 import net.atos.zac.zoeken.model.FilterResultaat
 import net.atos.zac.zoeken.model.FilterVeld
 import java.util.TreeMap
-import java.util.function.ToIntFunction
 
-class RestZoekResultaat<TYPE> : RESTResultaat<TYPE> {
+data class RestZoekResultaat<TYPE>(
+    var results: Collection<TYPE>,
+    var resultCount: Long,
     var filters: TreeMap<FilterVeld, MutableList<FilterResultaat>> =
-        TreeMap<FilterVeld, MutableList<FilterResultaat>>(
-            Comparator.comparingInt<FilterVeld>(ToIntFunction { it.ordinal })
-        )
-
-    constructor(resultaten: MutableCollection<TYPE>, aantalTotaal: Long) : super(resultaten, aantalTotaal)
-
-    constructor(foutmelding: String?) : super(foutmelding)
-}
+        TreeMap<FilterVeld, MutableList<FilterResultaat>>(Comparator.comparingInt { it.ordinal })
+) : RESTResultaat<TYPE>(results, resultCount)

@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Positive
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
-abstract class RestPageParameters(
+open class RestPageParameters(
     @Positive open var page: Int,
     @Positive open var rows: Int
 )

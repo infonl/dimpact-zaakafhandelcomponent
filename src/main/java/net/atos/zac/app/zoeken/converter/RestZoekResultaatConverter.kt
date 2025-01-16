@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.zoeken.converter
@@ -20,7 +20,6 @@ import net.atos.zac.zoeken.model.zoekobject.ZoekObject
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.util.function.Consumer
 
 @NoArgConstructor
 @AllOpen
@@ -31,14 +30,13 @@ class RestZoekResultaatConverter @Inject constructor(
         zoekResultaat: ZoekResultaat<out ZoekObject>,
         zoekParameters: RestZoekParameters
     ): RestZoekResultaat<out AbstractRestZoekObject> {
-        val restZoekResultaat =
-            RestZoekResultaat<AbstractRestZoekObject>(
-                zoekResultaat.items.map { this.convert(it) }.toList(),
-                zoekResultaat.count
-            )
+        val restZoekResultaat = RestZoekResultaat(
+            zoekResultaat.items.map { convert(it) },
+            zoekResultaat.count
+        )
         restZoekResultaat.filters.putAll(zoekResultaat.getFilters())
 
-        // indien geen resultaten, de huidige filters laten staan
+        // if there are no results, keep the current search filters
         zoekParameters.filters?.forEach { (filterVeld: FilterVeld, filters: FilterParameters) ->
             val filterResultaten = restZoekResultaat.filters.getOrDefault(filterVeld, ArrayList<FilterResultaat>())
             filters.values.forEach { filterValue: String ->
@@ -52,7 +50,7 @@ class RestZoekResultaatConverter @Inject constructor(
     }
 
     private fun convert(zoekObject: ZoekObject): AbstractRestZoekObject =
-         when (zoekObject.getType()) {
+        when (zoekObject.getType()) {
             ZoekObjectType.ZAAK -> (zoekObject as ZaakZoekObject).toRestZaakZoekObject(
                 policyService.readZaakRechten(zoekObject)
             )
