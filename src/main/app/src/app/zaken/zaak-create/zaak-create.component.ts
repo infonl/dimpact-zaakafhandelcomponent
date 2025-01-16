@@ -11,11 +11,10 @@ import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
 import { Observable, Subject, of } from "rxjs";
 import { catchError, filter, takeUntil } from "rxjs/operators";
+import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { BAGObject } from "../../bag/model/bagobject";
 import { UtilService } from "../../core/service/util.service";
-import { Group } from "../../identity/model/group";
-import { User } from "../../identity/model/user";
 import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { KlantenService } from "../../klanten/klanten.service";
 import { Klant } from "../../klanten/model/klanten/klant";
@@ -300,22 +299,17 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
   }
 
   getMedewerkerGroupFormField(
-    groepId?: string,
-    medewerkerId?: string,
+    groupId?: string,
+    employeeId?: string,
   ): MedewerkerGroepFormField {
-    let groep = null;
-    let medewerker = null;
-
-    if (groepId) {
-      groep = new Group();
-      groep.id = groepId;
-    }
-
-    if (medewerkerId) {
-      medewerker = new User();
-      medewerker.id = medewerkerId;
-    }
-    return new MedewerkerGroepFieldBuilder(groep, medewerker)
+    return new MedewerkerGroepFieldBuilder(
+      groupId
+        ? ({ id: groupId, naam: "" } as GeneratedType<"RestGroup">)
+        : null,
+      employeeId
+        ? ({ id: employeeId, naam: "" } as GeneratedType<"RestUser">)
+        : null,
+    )
       .id("toekenning")
       .groepLabel("actie.zaak.toekennen.groep")
       .groepRequired()

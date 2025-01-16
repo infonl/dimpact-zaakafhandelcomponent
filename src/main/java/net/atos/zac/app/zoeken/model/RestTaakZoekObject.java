@@ -11,7 +11,7 @@ import java.util.List;
 import net.atos.zac.app.policy.model.RestTaakRechten;
 import net.atos.zac.app.task.model.TaakStatus;
 
-public class RESTTaakZoekObject extends AbstractRESTZoekObject {
+public class RestTaakZoekObject extends AbstractRestZoekObject {
 
     public String naam;
 
