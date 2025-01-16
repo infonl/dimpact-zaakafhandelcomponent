@@ -2,73 +2,71 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zoeken.model
 
-package net.atos.zac.app.zoeken.model;
+import net.atos.zac.app.policy.model.RestDocumentRechten
+import net.atos.zac.zoeken.model.DocumentIndicatie
+import nl.info.zac.util.NoArgConstructor
+import java.time.LocalDate
+import java.util.EnumSet
 
-import java.time.LocalDate;
-import java.util.EnumSet;
+@NoArgConstructor
+data class RestDocumentZoekObject(
+    var titel: String? = null,
 
-import net.atos.zac.app.policy.model.RestDocumentRechten;
-import net.atos.zac.zoeken.model.DocumentIndicatie;
+    var beschrijving: String? = null,
 
-public class RestDocumentZoekObject extends AbstractRestZoekObject {
+    var zaaktypeUuid: String? = null,
 
-    public String titel;
+    var zaaktypeIdentificatie: String? = null,
 
-    public String beschrijving;
+    var zaaktypeOmschrijving: String? = null,
 
-    public String zaaktypeUuid;
+    var zaakIdentificatie: String? = null,
 
-    public String zaaktypeIdentificatie;
+    var zaakUuid: String? = null,
 
-    public String zaaktypeOmschrijving;
+    var zaakRelatie: String? = null,
 
-    public String zaakIdentificatie;
+    var creatiedatum: LocalDate? = null,
 
-    public String zaakUuid;
+    var registratiedatum: LocalDate? = null,
 
-    public String zaakRelatie;
+    var ontvangstdatum: LocalDate? = null,
 
-    public LocalDate creatiedatum;
+    var verzenddatum: LocalDate? = null,
 
-    public LocalDate registratiedatum;
+    var ondertekeningDatum: LocalDate? = null,
 
-    public LocalDate ontvangstdatum;
+    var vertrouwelijkheidaanduiding: String? = null,
 
-    public LocalDate verzenddatum;
+    var auteur: String? = null,
 
-    public LocalDate ondertekeningDatum;
+    var status: String? = null,
 
-    public String vertrouwelijkheidaanduiding;
+    var formaat: String? = null,
 
-    public String auteur;
+    var versie: Long = 0,
 
-    public String status;
+    var bestandsnaam: String? = null,
 
-    public String formaat;
+    var bestandsomvang: Long = 0,
 
-    public long versie;
+    var documentType: String? = null,
 
-    public String bestandsnaam;
+    var ondertekeningSoort: String? = null,
 
-    public long bestandsomvang;
+    var indicatieOndertekend: Boolean = false,
 
-    public String documentType;
+    var inhoudUrl: String? = null,
 
-    public String ondertekeningSoort;
+    var indicatieVergrendeld: Boolean = false,
 
-    public boolean indicatieOndertekend;
+    var vergrendeldDoor: String? = null,
 
-    public String inhoudUrl;
+    var indicaties: EnumSet<DocumentIndicatie>? = null,
 
-    public boolean indicatieVergrendeld;
+    var rechten: RestDocumentRechten? = null,
 
-    public String vergrendeldDoor;
-
-    public EnumSet<DocumentIndicatie> indicaties;
-
-    public RestDocumentRechten rechten;
-
-    public boolean indicatieGebruiksrecht;
-
-}
+    var indicatieGebruiksrecht: Boolean = false
+) : AbstractRestZoekObject()

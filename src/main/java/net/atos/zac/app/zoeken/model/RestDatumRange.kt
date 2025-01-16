@@ -2,19 +2,16 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zoeken.model
 
-package net.atos.zac.app.zoeken.model;
+import nl.info.zac.util.NoArgConstructor
+import java.time.LocalDate
 
-import java.time.LocalDate;
+@NoArgConstructor
+data class RestDatumRange(
+    var van: LocalDate? = null,
 
-public class RestDatumRange {
-
-    public LocalDate van;
-
-    public LocalDate tot;
-
-    public boolean hasValue() {
-        return this.van != null || this.tot != null;
-    }
-
+    var tot: LocalDate? = null
+) {
+    fun hasValue(): Boolean = this.van != null || this.tot != null
 }

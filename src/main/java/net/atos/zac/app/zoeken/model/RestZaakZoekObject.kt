@@ -2,91 +2,87 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zoeken.model
 
-package net.atos.zac.app.zoeken.model;
+import net.atos.zac.app.policy.model.RestZaakRechten
+import net.atos.zac.zoeken.model.ZaakIndicatie
+import nl.info.zac.util.NoArgConstructor
+import java.time.LocalDate
+import java.util.EnumSet
 
-import java.time.LocalDate;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
+@NoArgConstructor
+data class RestZaakZoekObject(
+    var omschrijving: String? = null,
 
-import net.atos.zac.app.policy.model.RestZaakRechten;
-import net.atos.zac.zoeken.model.ZaakIndicatie;
+    var toelichting: String? = null,
 
-public class RestZaakZoekObject extends AbstractRestZoekObject {
+    var registratiedatum: LocalDate? = null,
 
-    public String omschrijving;
+    var startdatum: LocalDate? = null,
 
-    public String toelichting;
+    var einddatumGepland: LocalDate? = null,
 
-    public LocalDate registratiedatum;
+    var einddatum: LocalDate? = null,
 
-    public LocalDate startdatum;
+    var archiefActiedatum: LocalDate? = null,
 
-    public LocalDate einddatumGepland;
+    var uiterlijkeEinddatumAfdoening: LocalDate? = null,
 
-    public LocalDate einddatum;
+    var publicatiedatum: LocalDate? = null,
 
-    public LocalDate archiefActiedatum;
+    var communicatiekanaal: String? = null,
 
-    public LocalDate uiterlijkeEinddatumAfdoening;
+    var vertrouwelijkheidaanduiding: String? = null,
 
-    public LocalDate publicatiedatum;
+    var archiefNominatie: String? = null,
 
-    public String communicatiekanaal;
+    var afgehandeld: Boolean = false,
 
-    public String vertrouwelijkheidaanduiding;
+    var groepId: String? = null,
 
-    public String archiefNominatie;
+    var groepNaam: String? = null,
 
-    public boolean afgehandeld;
+    var behandelaarNaam: String? = null,
 
-    public String groepId;
+    var behandelaarGebruikersnaam: String? = null,
 
-    public String groepNaam;
+    var initiatorIdentificatie: String? = null,
 
-    public String behandelaarNaam;
+    var locatie: String? = null,
 
-    public String behandelaarGebruikersnaam;
+    var indicatieVerlenging: Boolean = false,
 
-    public String initiatorIdentificatie;
+    var indicatieOpschorting: Boolean = false,
 
-    public String locatie;
+    var indicatieHeropend: Boolean = false,
 
-    public boolean indicatieVerlenging;
+    var indicatieDeelzaak: Boolean = false,
 
-    public boolean indicatieOpschorting;
+    var indicatieHoofdzaak: Boolean = false,
 
-    public boolean indicatieHeropend;
+    var duurVerlenging: String? = null,
 
-    public boolean indicatieDeelzaak;
+    var redenVerlenging: String? = null,
 
-    public boolean indicatieHoofdzaak;
+    var redenOpschorting: String? = null,
 
-    public String duurVerlenging;
+    var zaaktypeUuid: String? = null,
 
-    public String redenVerlenging;
+    var zaaktypeOmschrijving: String? = null,
 
-    public String redenOpschorting;
+    var resultaattypeOmschrijving: String? = null,
 
-    public String zaaktypeUuid;
+    var resultaatToelichting: String? = null,
 
-    public String zaaktypeOmschrijving;
+    var statustypeOmschrijving: String? = null,
 
-    public String resultaattypeOmschrijving;
+    var statusToelichting: String? = null,
 
-    public String resultaatToelichting;
+    var aantalOpenstaandeTaken: Long = 0,
 
-    public String statustypeOmschrijving;
+    var indicaties: EnumSet<ZaakIndicatie>? = null,
 
-    public String statusToelichting;
+    var rechten: RestZaakRechten? = null,
 
-    public long aantalOpenstaandeTaken;
-
-    public EnumSet<ZaakIndicatie> indicaties;
-
-    public RestZaakRechten rechten;
-
-    public Map<String, List<String>> betrokkenen;
-
-}
+    var betrokkenen: MutableMap<String, MutableList<String>>? = null
+) : AbstractRestZoekObject()

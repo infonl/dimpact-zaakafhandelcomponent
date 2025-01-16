@@ -2,63 +2,65 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.app.zoeken.converter
 
-package net.atos.zac.app.zoeken.converter;
+import jakarta.inject.Inject
+import net.atos.zac.app.zoeken.model.AbstractRestZoekObject
+import net.atos.zac.app.zoeken.model.RestZoekParameters
+import net.atos.zac.app.zoeken.model.RestZoekResultaat
+import net.atos.zac.policy.PolicyService
+import net.atos.zac.zoeken.model.FilterParameters
+import net.atos.zac.zoeken.model.FilterResultaat
+import net.atos.zac.zoeken.model.FilterVeld
+import net.atos.zac.zoeken.model.ZoekResultaat
+import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject
+import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject
+import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
+import net.atos.zac.zoeken.model.zoekobject.ZoekObject
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
+import java.util.function.Consumer
 
-import static net.atos.zac.app.zoeken.converter.RestDocumentZoekObjectConverterKt.toRestDocumentZoekObject;
-import static net.atos.zac.app.zoeken.converter.RestTaakZoekObjectConverterKt.toRestTaakZoekObject;
-import static net.atos.zac.app.zoeken.converter.RestZaakZoekObjectConverterKt.toRestZaakZoekObject;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import jakarta.inject.Inject;
-
-import net.atos.zac.app.zoeken.model.AbstractRestZoekObject;
-import net.atos.zac.app.zoeken.model.RestZoekParameters;
-import net.atos.zac.app.zoeken.model.RestZoekResultaat;
-import net.atos.zac.policy.PolicyService;
-import net.atos.zac.zoeken.model.FilterResultaat;
-import net.atos.zac.zoeken.model.ZoekResultaat;
-import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject;
-import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject;
-import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
-import net.atos.zac.zoeken.model.zoekobject.ZoekObject;
-
-public class RestZoekResultaatConverter {
-
-    @Inject
-    private PolicyService policyService;
-
-    public RestZoekResultaat<? extends AbstractRestZoekObject> convert(
-            final ZoekResultaat<? extends ZoekObject> zoekResultaat,
-            final RestZoekParameters zoekParameters
-    ) {
-
-        final RestZoekResultaat<? extends AbstractRestZoekObject> restZoekResultaat = new RestZoekResultaat<>(
-                zoekResultaat.getItems().stream().map(this::convert).toList(), zoekResultaat.getCount()
-        );
-        restZoekResultaat.filters.putAll(zoekResultaat.getFilters());
+@NoArgConstructor
+@AllOpen
+class RestZoekResultaatConverter @Inject constructor(
+    private val policyService: PolicyService
+) {
+    fun convert(
+        zoekResultaat: ZoekResultaat<out ZoekObject>,
+        zoekParameters: RestZoekParameters
+    ): RestZoekResultaat<out AbstractRestZoekObject> {
+        val restZoekResultaat =
+            RestZoekResultaat<AbstractRestZoekObject>(
+                zoekResultaat.items.map { this.convert(it) }.toList(),
+                zoekResultaat.count
+            )
+        restZoekResultaat.filters.putAll(zoekResultaat.getFilters())
 
         // indien geen resultaten, de huidige filters laten staan
-        zoekParameters.filters.forEach((filterVeld, filters) -> {
-            final List<FilterResultaat> filterResultaten = restZoekResultaat.filters.getOrDefault(filterVeld, new ArrayList<>());
-            filters.getValues().forEach(filter -> {
-                if (filterResultaten.stream().noneMatch(filterResultaat -> filterResultaat.getNaam().equals(filter))) {
-                    filterResultaten.add(new FilterResultaat(filter, 0));
+        zoekParameters.filters?.forEach { (filterVeld: FilterVeld, filters: FilterParameters) ->
+            val filterResultaten = restZoekResultaat.filters.getOrDefault(filterVeld, ArrayList<FilterResultaat>())
+            filters.values.forEach { filterValue: String ->
+                if (filterResultaten.stream().noneMatch { it.naam == filterValue }) {
+                    filterResultaten.add(FilterResultaat(filterValue, 0))
                 }
-            });
-            restZoekResultaat.filters.put(filterVeld, filterResultaten);
-        });
-        return restZoekResultaat;
+            }
+            restZoekResultaat.filters.put(filterVeld, filterResultaten)
+        }
+        return restZoekResultaat
     }
 
-    private AbstractRestZoekObject convert(final ZoekObject zoekObject) {
-        return switch (zoekObject.getType()) {
-            case ZAAK -> toRestZaakZoekObject((ZaakZoekObject) zoekObject, policyService.readZaakRechten((ZaakZoekObject) zoekObject));
-            case TAAK -> toRestTaakZoekObject((TaakZoekObject) zoekObject, policyService.readTaakRechten((TaakZoekObject) zoekObject));
-            case DOCUMENT -> toRestDocumentZoekObject((DocumentZoekObject) zoekObject, policyService.readDocumentRechten(
-                    (DocumentZoekObject) zoekObject));
-        };
-    }
+    private fun convert(zoekObject: ZoekObject): AbstractRestZoekObject =
+         when (zoekObject.getType()) {
+            ZoekObjectType.ZAAK -> (zoekObject as ZaakZoekObject).toRestZaakZoekObject(
+                policyService.readZaakRechten(zoekObject)
+            )
+            ZoekObjectType.TAAK -> (zoekObject as TaakZoekObject).toRestTaakZoekObject(
+                policyService.readTaakRechten(zoekObject)
+            )
+            ZoekObjectType.DOCUMENT -> (zoekObject as DocumentZoekObject).toRestDocumentZoekObject(
+                policyService.readDocumentRechten(zoekObject)
+            )
+        }
 }
