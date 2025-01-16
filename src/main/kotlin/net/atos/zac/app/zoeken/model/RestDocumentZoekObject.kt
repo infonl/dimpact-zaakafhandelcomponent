@@ -10,12 +10,16 @@ import net.atos.zac.policy.output.DocumentRechten
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate
 import net.atos.zac.zoeken.model.DocumentIndicatie
 import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject
+import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 import java.util.EnumSet
 
 @NoArgConstructor
 data class RestDocumentZoekObject(
+    override var id: String? = null,
+    override var type: ZoekObjectType? = null,
+    override var identificatie: String? = null,
     var titel: String? = null,
     var beschrijving: String? = null,
     var zaaktypeUuid: String? = null,
@@ -45,41 +49,39 @@ data class RestDocumentZoekObject(
     var indicaties: EnumSet<DocumentIndicatie>? = null,
     var rechten: RestDocumentRechten? = null,
     var indicatieGebruiksrecht: Boolean = false
-) : AbstractRestZoekObject()
+) : AbstractRestZoekObject(id, type, identificatie)
 
-fun DocumentZoekObject.toRestDocumentZoekObject(documentRechten: DocumentRechten) = RestDocumentZoekObject().apply {
-    id = this@toRestDocumentZoekObject.getObjectId()
-    type = this@toRestDocumentZoekObject.getType()
-    titel = this@toRestDocumentZoekObject.titel
-    beschrijving = this@toRestDocumentZoekObject.beschrijving
-    zaaktypeUuid = this@toRestDocumentZoekObject.zaaktypeUuid
-    zaaktypeIdentificatie = this@toRestDocumentZoekObject.zaaktypeIdentificatie
-    zaaktypeOmschrijving = this@toRestDocumentZoekObject.zaaktypeOmschrijving
-    zaakIdentificatie = this@toRestDocumentZoekObject.zaakIdentificatie
-    zaakUuid = this@toRestDocumentZoekObject.zaakUuid
-    zaakRelatie = this@toRestDocumentZoekObject.zaakRelatie
-    creatiedatum = convertToLocalDate(this@toRestDocumentZoekObject.creatiedatum)
-    registratiedatum = convertToLocalDate(this@toRestDocumentZoekObject.registratiedatum)
-    ontvangstdatum = convertToLocalDate(this@toRestDocumentZoekObject.ontvangstdatum)
-    verzenddatum = convertToLocalDate(this@toRestDocumentZoekObject.verzenddatum)
-    ondertekeningDatum = convertToLocalDate(this@toRestDocumentZoekObject.ondertekeningDatum)
-    vertrouwelijkheidaanduiding = this@toRestDocumentZoekObject.vertrouwelijkheidaanduiding
-    auteur = this@toRestDocumentZoekObject.auteur
-    this@toRestDocumentZoekObject.getStatus()?.let { status = it.toString() }
-    formaat = this@toRestDocumentZoekObject.formaat
-    versie = this@toRestDocumentZoekObject.versie
-    bestandsnaam = this@toRestDocumentZoekObject.bestandsnaam
-    bestandsomvang = this@toRestDocumentZoekObject.bestandsomvang
-    documentType = this@toRestDocumentZoekObject.documentType
-    ondertekeningSoort = this@toRestDocumentZoekObject.ondertekeningSoort
-    indicatieOndertekend =
-        this@toRestDocumentZoekObject.isIndicatie(DocumentIndicatie.ONDERTEKEND)
-    inhoudUrl = this@toRestDocumentZoekObject.inhoudUrl
-    indicatieVergrendeld =
-        this@toRestDocumentZoekObject.isIndicatie(DocumentIndicatie.VERGRENDELD)
-    vergrendeldDoor = this@toRestDocumentZoekObject.vergrendeldDoorNaam
+fun DocumentZoekObject.toRestDocumentZoekObject(documentRechten: DocumentRechten) = RestDocumentZoekObject(
+    id = this@toRestDocumentZoekObject.getObjectId(),
+    type = this@toRestDocumentZoekObject.getType(),
+    titel = this@toRestDocumentZoekObject.titel,
+    beschrijving = this@toRestDocumentZoekObject.beschrijving,
+    zaaktypeUuid = this@toRestDocumentZoekObject.zaaktypeUuid,
+    zaaktypeIdentificatie = this@toRestDocumentZoekObject.zaaktypeIdentificatie,
+    zaaktypeOmschrijving = this@toRestDocumentZoekObject.zaaktypeOmschrijving,
+    zaakIdentificatie = this@toRestDocumentZoekObject.zaakIdentificatie,
+    zaakUuid = this@toRestDocumentZoekObject.zaakUuid,
+    zaakRelatie = this@toRestDocumentZoekObject.zaakRelatie,
+    creatiedatum = convertToLocalDate(this@toRestDocumentZoekObject.creatiedatum),
+    registratiedatum = convertToLocalDate(this@toRestDocumentZoekObject.registratiedatum),
+    ontvangstdatum = convertToLocalDate(this@toRestDocumentZoekObject.ontvangstdatum),
+    verzenddatum = convertToLocalDate(this@toRestDocumentZoekObject.verzenddatum),
+    ondertekeningDatum = convertToLocalDate(this@toRestDocumentZoekObject.ondertekeningDatum),
+    vertrouwelijkheidaanduiding = this@toRestDocumentZoekObject.vertrouwelijkheidaanduiding,
+    auteur = this@toRestDocumentZoekObject.auteur,
+    status = this@toRestDocumentZoekObject.getStatus()?.toString(),
+    formaat = this@toRestDocumentZoekObject.formaat,
+    versie = this@toRestDocumentZoekObject.versie,
+    bestandsnaam = this@toRestDocumentZoekObject.bestandsnaam,
+    bestandsomvang = this@toRestDocumentZoekObject.bestandsomvang,
+    documentType = this@toRestDocumentZoekObject.documentType,
+    ondertekeningSoort = this@toRestDocumentZoekObject.ondertekeningSoort,
+    indicatieOndertekend = this@toRestDocumentZoekObject.isIndicatie(DocumentIndicatie.ONDERTEKEND),
+    inhoudUrl = this@toRestDocumentZoekObject.inhoudUrl,
+    indicatieVergrendeld = this@toRestDocumentZoekObject.isIndicatie(DocumentIndicatie.VERGRENDELD),
+    vergrendeldDoor = this@toRestDocumentZoekObject.vergrendeldDoorNaam,
     indicaties = this@toRestDocumentZoekObject.getDocumentIndicaties()
         .filter { it != DocumentIndicatie.GEBRUIKSRECHT }
-        .toCollection(EnumSet.noneOf(DocumentIndicatie::class.java))
+        .toCollection(EnumSet.noneOf(DocumentIndicatie::class.java)),
     rechten = RestRechtenConverter.convert(documentRechten)
-}
+)
