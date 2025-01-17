@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ include "zaakafhandelcomponent.fullname" . }}-signaleren-delete
+  name: {{ include "zaakafhandelcomponent.fullname" . }}-sig-del
   labels:
     {{- include "zaakafhandelcomponent.labels" . | nindent 4 }}
 spec:

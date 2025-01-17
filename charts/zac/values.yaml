@@ -1,0 +1,519 @@
+#
+# SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
+
+# Default values for zaakafhandelcomponent.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# -- External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com)
+contextUrl: ""
+
+# db Configuration of database connection
+db:
+  host: ""  # -- database.internal or 1.2.3.4
+  name: ""
+  user: ""
+  password: ""
+
+# auth Configuration of OpenID Connect
+auth:
+  server: ""  # https://keycloak.example.com
+  realm: ""
+  # -- Client ID and secret as defined in the realm
+  clientId: ""
+  secret: ""
+
+# configuration of the ZAC admin client in Keycloak
+keycloak:
+  adminClient:
+    # -- Keycloak ZAC admin client name
+    id: ""
+    # -- Keycloak ZAC admin client secret
+    secret: ""
+
+# gemeente Configuration gemeente
+gemeente:
+  code: ""
+  naam: ""
+  mail: ""
+
+# mail Configuration email sending connection
+mail:
+  # SMTP server and port are required, spf record needs to be properly setup in DNS
+  smtp:
+    server: ""  # -- SMTP server host (for example localhost or in-v3.mailjet.com)
+    port: "587"  # -- port 587 for TLS, port 25 for relaying
+    username: ""
+    password: ""
+
+# zgwApis Configuration of ZGW API's provider (Open Zaak)
+zgwApis:
+  url: ""  # http://open-zaak.internal
+  urlExtern: ""  # https://open-zaak.example.com
+  clientId: ""
+  secret: ""
+
+# -- Configuration of the notifications receiving endpoint.
+notificationsSecretKey: ""
+
+# klantenApi Configuration of Klanten API provider (Open Klant)
+klantinteractiesApi:
+  url: ""  # http://open-klant.internal/klantinteracties
+  token: ""
+
+# featureFlags defines supported feature flags and their default values
+featureFlags:
+  bpmnSupport: false
+
+# objectenApi Configuration of the Objecten API provider (Overige Registraties)
+objectenApi:
+  url: ""  # http://objecten.internal
+  token: ""
+
+# objecttypenApi Configuration of the Objecttypen API provider (Overige Registraties)
+objecttypenApi:
+  url: ""  # http://objecttypen.internal
+  token: ""
+
+# brpApi Configuration of the BRP Api provider (Haal Centraal)
+brpApi:
+  url: ""  # https://www.haalcentraal.nl/haalcentraal
+  apiKey: ""
+
+# kvkApi Configuration of the KVK API provider (KVK)
+kvkApi:
+  url: ""  # https://developers.kvk.nl/test
+  apiKey: ""
+
+# bagApi Configuration of the BAG API provider (Kadaster)
+bagApi:
+  url: ""  # https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2
+  apiKey: ""
+
+# openForms Configuration of the Open Forms URL
+openForms:
+  url: ""  # https://open-forms.example.com
+
+# smartDocuments Configuration of the SmartDocuments connection
+smartDocuments:
+  enabled: false
+  url: ""  # https://partners.smartdocuments.com
+  authentication: ""
+  fixedUserName: ""
+
+# signaleringen Configuration of the signaleren job
+signaleringen:
+  # -- Delete any signaleringen older than this number of days when the corresponding admin endpoint is called.
+  deleteOlderThanDays: "14"
+  # -- Schedule of the signaleringen send zaken job in CRON job format
+  sendZaakSignaleringenSchedule: "0 2 * * *"
+  # -- Schedule of the 'delete old signaleringen' send job in CRON job format
+  deleteOldSignaleringenSchedule: "0 3 * * *"
+  # -- k8s settings for the signaleren jobs
+  successfulJobsHistoryLimit: 1
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 3
+  restartPolicy: Never
+  image:
+    repository: curlimages/curl
+    tag: 8.11.1@sha256:c1fe1679c34d9784c1b0d1e5f62ac0a79fca01fb6377cdd33e90473c6f9f9a69
+    pullPolicy: IfNotPresent
+  imagePullSecrets: []
+  resources: {}
+  podSecurityContext: {}
+  nodeSelector: {}
+  affinity: {}
+  securityContext: {}
+  tolerations: []
+
+# Overrides for opentelemetry
+# opentelemetry_zaakafhandelcomponent:
+#   sampler_type: "-off"
+#   endpoint: "http://otel-collector:4317"
+
+
+# -- Maximum size (in Mega Bytes) of files that can be uploaded.
+maxFileSizeMB: 80
+
+# -- An optional list of additional file extensions that can be uploaded
+# additionalAllowedFileTypes: aaa,bbb,ccc
+
+# -- Enable Java remote debugging
+remoteDebug: false
+
+# -- jvm options to set in the _JAVA_OPTIONS env var, recommended defaults are used if not provided and are shown below
+# javaOptions: -Xmx1024m -Xms1024m -Xlog:gc::time,uptime
+
+# -- the number of replicas to run
+replicaCount: 1
+
+# image the image parameters to use
+image:
+  repository: ghcr.io/infonl/zaakafhandelcomponent
+  pullPolicy: IfNotPresent
+  # -- Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+# -- specifies image pull secrets
+imagePullSecrets: []
+
+# -- name to use
+nameOverride: ""
+
+# -- fullname to use
+fullnameOverride: ""
+
+# serviceAccount service account parameters
+serviceAccount:
+  # -- Specifies whether a service account should be created
+  create: true
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- The name of the service account to use. If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# -- pod specific annotations
+podAnnotations: {}
+
+# -- pod specific security context
+podSecurityContext: {}
+# fsGroup: 2000
+
+# generic security context
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+# runAsNonRoot: true
+# runAsUser: 1000
+
+# service specifications
+service:
+  type: ClusterIP
+  port: 80
+  annotations: {}
+
+# ingress specifications
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+# currently not in use, specify backend in ingress instead
+backendConfig:
+  enabled: false
+
+# specify resources limits and requests if needed, prefilled values are the minimum recommended
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 1Gi
+
+# set autoscaling parameters
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# -- set node selector parameters
+nodeSelector: {}
+
+# -- set toleration parameters
+tolerations: []
+
+# -- set affinity parameters
+affinity: {}
+
+# opa provision the opa deployment, prefilled resources values are the minimum recommended
+opa:
+  enabled: true
+  # -- set sidecar to true to run the opa service together with the zac pod
+  sidecar: false
+  # -- set url if the opa url cannot be automatically determined and is not run as a sidecar. the opa url should be the url the openpolicyagent can be reached on from ZAC ( for example: http://release-opa.default.svc.cluster.local:8181 )
+  # url: ""
+  name: "opa"
+  service:
+    type: ClusterIP
+    port: 8181
+    annotations: {}
+  image:
+    repository: openpolicyagent/opa
+    tag: "0.70.0-static@sha256:5679cbbedd1908063b7a68e8af28e662dce4ae3e069b4b5459531b141c6b6ff0"
+    pullPolicy: IfNotPresent
+  # The settings below will be ignored when running as a sidecar (the zac values will be used instead)
+  autoscaling:
+    enabled: false
+  replicas: 1
+  resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+    requests:
+      cpu: 10m
+      memory: 20Mi
+  podAnnotations: {}
+  imagePullSecrets: []
+  podSecurityContext: {}
+  securityContext: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+
+
+# It is recommended to use solr-operator to help provision a solr-cloud cluster,
+# you will have to configure the zac core seperately then.
+# See the zaakafhandelcomponent wiki on more information about this.
+#
+
+# solr enable to use the included solr helm chart to provision a solr to use with zac
+solr:
+  # -- set enabled to true to provision bitnami solr version with the zac core
+  enabled: false
+  # you only need to set the url if the solr url cannot be automatically determined
+  # the solr url should be the url solr can be reached on from ZAC ( for example: http://release-solr.default.svc.cluster.local )
+  # url: ""
+  # all settings below are only used when enabled is set to true
+  coreNames: ["zac"]
+  persistence:
+    size: 1Gi
+  replicaCount: 1
+  collectionReplicas: 1
+  cloudBootstrap: false
+  cloudEnabled: false
+  customReadinessProbe:
+    httpGet:
+      port: http
+      path: /solr/zac/admin/ping
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 15
+    failureThreshold: 6
+    successThreshold: 1
+  customLivenessProbe:
+    httpGet:
+      port: http
+      path: /solr/zac/admin/ping
+    initialDelaySeconds: 40
+    periodSeconds: 10
+    timeoutSeconds: 15
+    failureThreshold: 6
+    successThreshold: 1
+  service:
+    ports:
+      http: 80
+  auth:
+    enabled: false
+  extraEnvVars:
+    - name: ZK_CREATE_CHROOT
+      value: "true"
+  zookeeper:
+    enabled: false
+
+# office_converter use the office converter specified, prefilled resources values are the minimum recommended
+office_converter:
+  enabled: true
+  # set url if the office-converter url cannot be automatically determined
+  # the url should be the url office-converter can be reached on from ZAC ( for example: http://release-office-converter.default.svc.cluster.local )
+  # url: ""
+  image:
+    repository: ghcr.io/eugenmayer/kontextwork-converter
+    tag: "1.6.2@sha256:3d1eb99e88bd2944a9a5349f8e5e7b3e81b90841cdc07f17688f96a8f8d8dd72"
+    pullPolicy: IfNotPresent
+  name: "office-converter"
+  replicas: 1
+  resources:
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 512Mi
+  service:
+    type: ClusterIP
+    port: 80
+    annotations: {}
+  podAnnotations: {}
+  imagePullSecrets: []
+  podSecurityContext: {}
+  securityContext: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+
+
+# -- Extra objects to deploy (value evaluated as a template)
+extraDeploy: []
+
+# opentelemetry-collector enable to use the included helm chart and settings to work with zac
+opentelemetry-collector:
+  enabled: false
+  mode: deployment
+  replicaCount: 1
+  image:
+    repository: "otel/opentelemetry-collector-contrib"
+  presets:
+    clusterMetrics:
+      enabled: false
+  ports:
+    jaeger-compact:
+      enabled: false
+    jaeger-thrift:
+      enabled: false
+    jaeger-grpc:
+      enabled: false
+    zipkin:
+      enabled: false
+  config:
+    receivers:
+      prometheus: {}
+      jaeger: {}
+      zipkin: {}
+    service:
+      pipelines:
+        traces:
+          receivers:
+            - otlp
+        metrics: {}
+        logs: {}
+
+nginx:
+  enabled: false
+  image:
+    repository: nginxinc/nginx-unprivileged
+    pullPolicy: IfNotPresent
+    tag: 1.27.3@sha256:d0ebbd60453d566b6c497adb4c0c220ba0aa1bc0d654a6975aa65e16ae11d8fb
+  service:
+    type: ClusterIP
+    port: 80
+    annotations: {}
+  # -- mount existing nginx vhost config
+  existingConfigmap: null
+  replicaCount: 1
+  podLabels: {}
+  securityContext:
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: false
+    runAsNonRoot: true
+    runAsUser: 101
+  autoscaling:
+    enabled: false
+  livenessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+  readinessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+  resources: {}
+  useXForwardedHost: false
+  allowedHosts: ""
+  client_max_body_size: 120M
+  api_proxy:
+    enabled: false
+    certificate_secret: nginx-certs
+    kvk:
+      zoeken:
+        enabled: true
+        key_secret: kvk_key
+        client_secret: kvk_client
+        server_secret: kvk_server
+        host: kvk.nl
+        path: /test
+        proxy_path: /test
+        ssl_verify: false
+        apikey_header_name: "X-Api-Key"
+        apikey_value: "test"
+      basisprofiel:
+        enabled: true
+        key_secret: kvk_key
+        client_secret: kvk_client
+        server_secret: kvk_server
+        host: kvk.nl
+        path: /test
+        proxy_path: /test
+        ssl_verify: false
+        apikey_header_name: "X-Api-Key"
+        apikey_value: "test"
+      vestigingsprofiel:
+        enabled: true
+        key_secret: kvk_key
+        client_secret: kvk_client
+        server_secret: kvk_server
+        host: kvk.nl
+        path: /test
+        proxy_path: /test
+        ssl_verify: false
+        apikey_header_name: "X-Api-Key"
+        apikey_value: "test"
+    brp:
+      enabled: true
+      key_secret: brp_key
+      client_secret: brp_client
+      server_secret: brp_server
+      host: brp.nl
+      path: /haalcentraal/api/brp
+      proxy_path: /haalcentraal/api/brp
+      ssl_verify: false
+      apikey_header_name: ""
+      apikey_value: ""
+      x_doelbinding: "test"
+    bag:
+      enabled: true
+      key_secret: bag_key
+      client_secret: bag_client
+      server_secret: bag_server
+      host: bag.nl
+      path: /lvbag/individuelebevragingen/v2/
+      proxy_path: /lvbag/individuelebevragingen/v2/
+      ssl_verify: false
+      apikey_header_name: "apikey"
+      apikey_value: "test"
+
+organizations:
+  verantwoordelijke:
+    # -- The RSIN of the Non-natural person - the organization that is ultimately responsible for handling a zaak or establishing a decision. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
+    rsin: ""
+  bron:
+    # -- The RSIN of the Non-natural person - the organization that created the zaak. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
+    rsin: ""
+
+# -- OpenZaak Catalogus Domein
+catalogusDomein: ALG
