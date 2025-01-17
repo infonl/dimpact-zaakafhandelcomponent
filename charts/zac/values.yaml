@@ -12,14 +12,14 @@ contextUrl: ""
 
 # db Configuration of database connection
 db:
-  host: "" # -- database.internal or 1.2.3.4
+  host: ""  # -- database.internal or 1.2.3.4
   name: ""
   user: ""
   password: ""
 
 # auth Configuration of OpenID Connect
 auth:
-  server: "" # https://keycloak.example.com
+  server: ""  # https://keycloak.example.com
   realm: ""
   # -- Client ID and secret as defined in the realm
   clientId: ""
@@ -144,7 +144,7 @@ maxFileSizeMB: 80
 remoteDebug: false
 
 # -- jvm options to set in the _JAVA_OPTIONS env var, recommended defaults are used if not provided and are shown below
-#javaOptions: -Xmx1024m -Xms1024m -Xlog:gc::time,uptime
+# javaOptions: -Xmx1024m -Xms1024m -Xlog:gc::time,uptime
 
 # -- the number of replicas to run
 replicaCount: 1
@@ -253,7 +253,7 @@ opa:
   # -- set sidecar to true to run the opa service together with the zac pod
   sidecar: false
   # -- set url if the opa url cannot be automatically determined and is not run as a sidecar. the opa url should be the url the openpolicyagent can be reached on from ZAC ( for example: http://release-opa.default.svc.cluster.local:8181 )
-  #url: ""
+  # url: ""
   name: "opa"
   service:
     type: ClusterIP
