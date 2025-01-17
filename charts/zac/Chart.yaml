@@ -12,9 +12,9 @@ dependencies:
   - name: opentelemetry-collector
     repository: "@opentelemetry"
     condition: opentelemetry-collector.enabled
-    version: "0.104.0"
+    version: 0.104.0
   - name: solr
-    version: "9.5.1"
+    version: 9.5.1
     repository: "@bitnami"
     condition: solr.enabled
 maintainers:
