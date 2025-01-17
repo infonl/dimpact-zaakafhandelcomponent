@@ -730,7 +730,7 @@ tasks {
         group = "build"
         dependsOn("downloadAndUnpackHelmDocs")
 
-        workingDir("helm")
+        workingDir("charts/zac")
         commandLine("$rootDir/build/helm-docs/helm-docs", "values.yaml")
     }
 
