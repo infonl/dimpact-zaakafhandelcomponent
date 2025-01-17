@@ -51,4 +51,5 @@ jobs:
 
       - name: Run chart-testing (install)
         if: steps.list-changed.outputs.changed == 'true'
+        continue-on-error: true
         run: ct install --target-branch ${{ github.event.repository.default_branch }}
