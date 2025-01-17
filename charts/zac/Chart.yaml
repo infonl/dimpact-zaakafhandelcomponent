@@ -8,6 +8,7 @@ name: zaakafhandelcomponent
 description: A Helm chart for installing Zaakafhandelcomponent
 version: 0.4.0
 appVersion: "latest"
+icon: https://raw.githubusercontent.com/infonl/dimpact-zaakafhandelcomponent/49f8dee60948282b546ebdfdc5cff6f8bbef0305/docs/manuals/ZAC-gebruikershandleiding/images/pic.svg
 dependencies:
   - name: opentelemetry-collector
     repository: "@opentelemetry"
