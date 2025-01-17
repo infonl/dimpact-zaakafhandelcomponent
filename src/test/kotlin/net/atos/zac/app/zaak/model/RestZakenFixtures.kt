@@ -209,7 +209,7 @@ fun createRESTZaakBetrokkeneGegevens(
 
 fun createRESTZaakKenmerk() = RESTZaakKenmerk("Sample kenmerk", "Sample bron")
 
-fun createRESTZaakToekennenGegevens(
+fun createRESTZaakAssignmentData(
     zaakUUID: UUID = UUID.randomUUID(),
     groepId: String = "dummyGroupId",
     behandelaarGebruikersnaam: String = "dummyBehandelaarGebruikersnaam",

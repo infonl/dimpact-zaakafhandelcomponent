@@ -1,9 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atosm 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { User } from "../../identity/model/user";
+import { GeneratedType } from "../../shared/utils/generated-types";
 
 export class OntkoppeldDocument {
   id: number;
@@ -13,7 +13,7 @@ export class OntkoppeldDocument {
   creatiedatum: string;
   titel: string;
   bestandsnaam: string;
-  ontkoppeldDoor: User;
+  ontkoppeldDoor: GeneratedType<"RestUser">;
   ontkoppeldOp: string;
   reden: string;
 }

@@ -9,6 +9,6 @@ import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 open class RestPageParameters(
-    @JvmField @Positive var page: Int,
-    @JvmField @Positive var rows: Int
+    @Positive open var page: Int,
+    @Positive open var rows: Int
 )

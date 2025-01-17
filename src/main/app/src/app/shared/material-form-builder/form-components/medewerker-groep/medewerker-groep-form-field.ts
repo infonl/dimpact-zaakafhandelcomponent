@@ -1,11 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { FormControl } from "@angular/forms";
-import { Group } from "../../../../identity/model/group";
-import { User } from "../../../../identity/model/user";
+import { GeneratedType } from "../../../utils/generated-types";
 import { AbstractFormGroupField } from "../../model/abstract-form-group-field";
 import { FieldType } from "../../model/field-type.enum";
 
@@ -29,21 +28,21 @@ export class MedewerkerGroepFormField extends AbstractFormGroupField {
     return true;
   }
 
-  groepValue(groep: Group): void {
+  groepValue(groep: GeneratedType<"RestGroup">): void {
     this.groep.setValue(groep);
     this.groep.markAsDirty();
   }
 
-  medewerkerValue(medewerker: User) {
+  medewerkerValue(medewerker: GeneratedType<"RestUser">) {
     this.medewerker.setValue(medewerker);
     this.medewerker.markAsDirty();
   }
 
-  get groep(): FormControl<Group> {
+  get groep(): FormControl<GeneratedType<"RestGroup">> {
     return this.formControl.get("groep") as FormControl;
   }
 
-  get medewerker(): FormControl<User> {
+  get medewerker(): FormControl<GeneratedType<"RestUser">> {
     return this.formControl.get("medewerker") as FormControl;
   }
 }
