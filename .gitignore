@@ -16,6 +16,9 @@ src/e2e/ExportData/*
 src/main/app/.nvmrc
 /bin
 
+### Python virtual environment ###
+scripts/python/.venv
+
 ### INTELLIJ ###
 *.iml
 .idea
@@ -43,4 +46,5 @@ docker-compose.override.yml
 check-for-running-containers.sh
 fix-permissions.sh
 
+### Docker ###
 .DS_store
