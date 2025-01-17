@@ -37,20 +37,20 @@ fun createRESTZoekParameters(
     alleenOpenstaandeZaken: Boolean = false,
     alleenAfgeslotenZaken: Boolean = false,
     alleenMijnTaken: Boolean = false
-) = RestZoekParameters().apply {
-    this.type = type
-    this.zoeken = zoeken
-    this.filters = filters
-    this.datums = datums
-    this.sorteerVeld = sorteerVeld
-    this.sorteerRichting = sorteerRichting
-    this.rows = rows
-    this.page = page
-    this.alleenMijnZaken = alleenMijnZaken
-    this.alleenOpenstaandeZaken = alleenOpenstaandeZaken
-    this.alleenAfgeslotenZaken = alleenAfgeslotenZaken
-    this.alleenMijnTaken = alleenMijnTaken
-}
+) = RestZoekParameters(
+    type = type,
+    zoeken = zoeken,
+    filters = filters,
+    datums = datums,
+    sorteerVeld = sorteerVeld,
+    sorteerRichting = sorteerRichting,
+    rows = rows,
+    page = page,
+    alleenMijnZaken = alleenMijnZaken,
+    alleenOpenstaandeZaken = alleenOpenstaandeZaken,
+    alleenAfgeslotenZaken = alleenAfgeslotenZaken,
+    alleenMijnTaken = alleenMijnTaken
+)
 
 fun createZaakZoekObject(
     uuid: UUID = UUID.randomUUID(),
