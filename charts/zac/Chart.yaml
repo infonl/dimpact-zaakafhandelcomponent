@@ -10,12 +10,12 @@ version: 0.4.0
 appVersion: "latest"
 dependencies:
   - name: opentelemetry-collector
-    repository: @opentelemetry
+    repository: "@opentelemetry"
     condition: opentelemetry-collector.enabled
-    version: 0.104.0
+    version: "0.104.0"
   - name: solr
-    version: 9.5.1
-    repository: @bitnami
+    version: "9.5.1"
+    repository: "@bitnami"
     condition: solr.enabled
 maintainers:
   - name: Team Genève, INFO
