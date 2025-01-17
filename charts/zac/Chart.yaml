@@ -10,12 +10,12 @@ version: 0.4.0
 appVersion: "latest"
 dependencies:
   - name: opentelemetry-collector
-    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+    repository: @opentelemetry
     condition: opentelemetry-collector.enabled
     version: 0.104.0
   - name: solr
     version: 9.5.1
-    repository: https://charts.bitnami.com/bitnami
+    repository: @bitnami
     condition: solr.enabled
 maintainers:
   - name: Team Genève, INFO

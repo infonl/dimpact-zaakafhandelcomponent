@@ -60,7 +60,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./src/e2e/reports/ # directory of your reports
-          publish_branch: gh-pages/dimpact-e2e-test-report # deploying to gh-pages branch
+          publish_branch: gh-pages # deploying to gh-pages branch
           keep_files: true # retains files that are not part of the current publish
       - name: Notify Slack
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}

@@ -7,7 +7,7 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'helm/**'
+      - 'charts/**'
   merge_group:
   workflow_dispatch:
 
@@ -29,23 +29,21 @@ jobs:
         uses: helm/chart-testing-action@e6669bcd63d7cb57cb4380c33043eebe5d111992 # v2.6.1
 
       - name: Add repositories
-        working-directory: ./helm
         run: | 
-          helm dependency list | tail +2 | head -n -1 | awk '{ print "helm repo add " $1 " " $3 }' | while read cmd; do $cmd; done
+          helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+          helm repo add bitnami https://charts.bitnami.com/bitnami
 
       - name: Run chart-testing (list-changed)
-        working-directory: ./helm
         id: list-changed
         run: |
-          changed=$(ct list-changed --chart-dirs . --target-branch ${{ github.event.repository.default_branch }})
+          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }})
           if [[ -n "$changed" ]]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Run chart-testing (lint)
         if: steps.list-changed.outputs.changed == 'true'
-        working-directory: ./helm
-        run: ct lint --charts . --target-branch ${{ github.event.repository.default_branch }} --validate-maintainers=false
+        run: ct lint --target-branch ${{ github.event.repository.default_branch }} --validate-maintainers=false
 
 #      - name: Create kind cluster
 #        if: steps.list-changed.outputs.changed == 'true'
@@ -53,5 +51,4 @@ jobs:
 #
 #      - name: Run chart-testing (install)
 #        if: steps.list-changed.outputs.changed == 'true'
-#        working-directory: ./helm
-#        run: ct install --charts . --target-branch ${{ github.event.repository.default_branch }}
+#        run: ct install --target-branch ${{ github.event.repository.default_branch }}
