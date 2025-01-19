@@ -41,6 +41,11 @@ if __name__ == '__main__':
     open_objecttypes_latest_version = open_objecttypes_extractor.get_latest_version()
     print(f'Object Types API latest version: {open_objecttypes_latest_version}')
 
+    # Extract the latest version of Object Types API from the GitHub tags
+    open_objecttypes_extractor = GitHubTagVersionExtractor('https://github.com/Klantinteractie-Servicesysteem/.github/tags','v')
+    open_objecttypes_latest_version = open_objecttypes_extractor.get_latest_version()
+    print(f'KISS latest version: v{open_objecttypes_latest_version}')
+
     # Extract the latest version of Keycloak from the GitHub tags
     keycloak_extractor = GitHubTagVersionExtractor('https://github.com/keycloak/keycloak/tags')
     keycloak_latest_version = keycloak_extractor.get_latest_version()
@@ -49,7 +54,7 @@ if __name__ == '__main__':
     # Extract the latest version of Clamav from the GitHub tags
     clamav_extractor = GitHubTagVersionExtractor('https://github.com/Cisco-Talos/clamav/tags','clamav-')
     clamav_latest_version = clamav_extractor.get_latest_version()
-    print(f'ClamAV latest version: {clamav_latest_version}')
+    print(f'ClamAV latest version: clamav-{clamav_latest_version}')
 
     # Extract the latest version of Postgresql from it's release page
     postgresql_extractor = PostgresqlVersionExtractor('https://www.postgresql.org/docs/release/')
