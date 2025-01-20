@@ -120,15 +120,17 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                     initiatorIdentificatie shouldBe rolInitiator.identificatienummer
                     // locatie conversion is not implemented yet
                     locatie shouldBe null
-                    betrokkenen.size shouldBe rollenZaak.size
-                    betrokkenen shouldContain Pair(
-                        "zaak_betrokkene_${rolAdviseur.omschrijving}",
-                        listOf(rolAdviseur.identificatienummer)
-                    )
-                    betrokkenen shouldContain Pair(
-                        "zaak_betrokkene_${rolBelanghebbende.omschrijving}",
-                        listOf(rolBelanghebbende.identificatienummer)
-                    )
+                    with(betrokkenen!!) {
+                        size shouldBe rollenZaak.size
+                        this shouldContain Pair(
+                            "zaak_betrokkene_${rolAdviseur.omschrijving}",
+                            listOf(rolAdviseur.identificatienummer)
+                        )
+                        this shouldContain Pair(
+                            "zaak_betrokkene_${rolBelanghebbende.omschrijving}",
+                            listOf(rolBelanghebbende.identificatienummer)
+                        )
+                    }
                     getZaakIndicaties() shouldNotContain ZaakIndicatie.HEROPEND
                     resultaattypeOmschrijving shouldBe resultaatType.omschrijving
                 }
@@ -198,15 +200,17 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                     // locatie conversion is not implemented (yet?)
                     locatie shouldBe null
 
-                    betrokkenen.size shouldBe rollenZaak.size
-                    betrokkenen shouldContain Pair(
-                        "zaak_betrokkene_${rolAdviseur.omschrijving}",
-                        listOf(rolAdviseur.identificatienummer)
-                    )
-                    betrokkenen shouldContain Pair(
-                        "zaak_betrokkene_${rolBelanghebbende.omschrijving}",
-                        listOf(rolBelanghebbende.identificatienummer)
-                    )
+                    with(betrokkenen!!) {
+                        size shouldBe rollenZaak.size
+                        this shouldContain Pair(
+                            "zaak_betrokkene_${rolAdviseur.omschrijving}",
+                            listOf(rolAdviseur.identificatienummer)
+                        )
+                        this shouldContain Pair(
+                            "zaak_betrokkene_${rolBelanghebbende.omschrijving}",
+                            listOf(rolBelanghebbende.identificatienummer)
+                        )
+                    }
                     getZaakIndicaties() shouldContain ZaakIndicatie.HEROPEND
                 }
             }

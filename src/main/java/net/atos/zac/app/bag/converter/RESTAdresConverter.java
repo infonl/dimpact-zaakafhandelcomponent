@@ -33,7 +33,7 @@ public class RESTAdresConverter {
     private RESTWoonplaatsConverter woonplaatsConverter;
 
     @Inject
-    private RESTAdreseerbaarObjectConverter adreseerbaarObjectConverter;
+    private RESTAdresseerbaarObjectConverter adreseerbaarObjectConverter;
 
     public RESTBAGAdres convertToREST(final AdresIOHal adres) {
         if (adres == null) {

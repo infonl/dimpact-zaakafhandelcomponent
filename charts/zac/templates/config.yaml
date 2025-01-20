@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "zaakafhandelcomponent.fullname" . }}
+  labels:
+    {{- include "zaakafhandelcomponent.labels" . | nindent 4 }}
+data:
+  _JAVA_OPTIONS: {{ .Values.javaOptions | default "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime" | quote }}
+  AUTH_REALM: {{ required "Valid .Values.auth.realm entry required!" .Values.auth.realm }}
+  AUTH_RESOURCE: {{ required "Valid .Values.auth.clientId entry required!" .Values.auth.clientId }}
+  AUTH_SERVER: {{ required "Valid .Values.auth.server entry required!" .Values.auth.server }}
+  BAG_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.bagApi.url entry required!" .Values.bagApi.url }}
+  BRON_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.bron.rsin entry required!" .Values.organizations.bron.rsin | quote }}
+  BRP_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.brpApi.url entry required!" .Values.brpApi.url }}
+  {{- if .Values.catalogusDomein }}
+  CATALOGUS_DOMEIN: {{ .Values.catalogusDomein }}
+  {{- end }}
+  CONTEXT_URL: {{ required "Valid .Values.contextUrl entry required!" .Values.contextUrl }}
+  DB_HOST: {{ required "Valid .Values.db.host entry required!" .Values.db.host }}
+  DB_NAME: {{ required "Valid .Values.db.name entry required!" .Values.db.name }}
+  DB_USER: {{ required "Valid .Values.db.user entry required!" .Values.db.user }}
+  FEATURE_FLAG_BPMN_SUPPORT: {{ .Values.featureFlags.bpmnSupport | default "false" | quote }}
+  GEMEENTE_CODE: {{ required "Valid .Values.gemeente.code entry required!" .Values.gemeente.code  | quote }}
+  GEMEENTE_NAAM: {{ required "Valid .Values.gemeente.naam entry required!" .Values.gemeente.naam }}
+  GEMEENTE_MAIL: {{ required "Valid .Values.gemeente.mail entry required!" .Values.gemeente.mail }}
+  KEYCLOAK_ADMIN_CLIENT_ID: {{ required "Valid .Values.keycloak.adminClient.id entry required!" .Values.keycloak.adminClient.id }}
+  KLANTINTERACTIES_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.klantinteractiesApi.url entry required!" .Values.klantinteractiesApi.url }}
+  KVK_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.kvkApi.url entry required!" .Values.kvkApi.url }}
+  {{- if .Values.additionalAllowedFileTypes }}
+  ADDITIONAL_ALLOWED_FILE_TYPES: {{ .Values.additionalAllowedFileTypes }}
+  {{- end}}
+  MP_HEALTH_EMPTY_LIVENESS_CHECKS_STATUS: DOWN
+  MP_HEALTH_EMPTY_READINESS_CHECKS_STATUS: DOWN
+  OBJECTS_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.objectenApi.url entry required!" .Values.objectenApi.url }}
+  OBJECTTYPES_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.objecttypenApi.url entry required!" .Values.objecttypenApi.url }}
+  {{- if .Values.office_converter.url }}
+  OFFICE_CONVERTER_CLIENT_MP_REST_URL: {{ .Values.office_converter.url }}
+  {{- else }}
+  OFFICE_CONVERTER_CLIENT_MP_REST_URL: {{ printf "http://%s-office-converter.%s" .Release.Name .Release.Namespace }}
+  {{- end }}
+  {{- if .Values.opa.sidecar }}
+  OPA_API_CLIENT_MP_REST_URL: {{ printf "http://localhost:8181" }}
+  {{- else }}
+  {{- if .Values.opa.url }}
+  OPA_API_CLIENT_MP_REST_URL: {{ .Values.opa.url }}
+  {{- else }}
+  OPA_API_CLIENT_MP_REST_URL: {{ printf "http://%s-%s.%s:8181" .Release.Name .Values.opa.name .Release.Namespace }}
+  {{- end }}
+  {{- end }}
+  OPEN_FORMS_URL: {{ required "Valid .Values.openForms.url entry required!" .Values.openForms.url }}
+  SIGNALERINGEN_DELETE_OLDER_THAN_DAYS: {{ required "Valid .Values.signaleringen.deleteOlderThanDays entry required!" .Values.signaleringen.deleteOlderThanDays | quote }}
+  SMTP_PORT: {{ required "Valid .Values.mail.smtp.port entry required!" .Values.mail.smtp.port | quote }}
+  SMTP_SERVER: {{ required "Valid .Values.mail.smtp.server entry required!" .Values.mail.smtp.server }}
+  {{- if index .Values "opentelemetry-collector" "enabled" }}
+  SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE: {{ ((.Values.opentelemetry_zaakafhandelcomponent).sampler_type) | default "-off" }}
+  SUBSYSTEM_OPENTELEMETRY__ENDPOINT: {{ ((.Values.opentelemetry_zaakafhandelcomponent).endpoint) | default (printf "http://%s-opentelemetry-collector:4317" .Release.Name) }}
+  {{- end }}
+  SMARTDOCUMENTS_ENABLED: {{ .Values.smartDocuments.enabled | default "false" | quote }}
+  SMARTDOCUMENTS_CLIENT_MP_REST_URL: {{ required "Valid .Values.smartDocuments.url entry required!" .Values.smartDocuments.url }}
+  {{- if .Values.smartDocuments.fixedUserName }}
+  SMARTDOCUMENTS_FIXED_USER_NAME: {{ .Values.smartDocuments.fixedUserName }}
+  {{- end}}
+  {{- if .Values.solr.url }}
+  SOLR_URL: {{ .Values.solr.url }}
+  {{- else }}
+  SOLR_URL: {{ printf "http://%s-solr.%s" .Release.Name .Release.Namespace }}
+  {{- end }}
+  TZ: Europe/Amsterdam
+  VERANTWOORDELIJKE_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.verantwoordelijke.rsin entry required!" .Values.organizations.verantwoordelijke.rsin | quote }}
+  ZGW_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.zgwApis.url entry required!" .Values.zgwApis.url }}
+  ZGW_API_CLIENTID: {{ required "Valid .Values.zgwApis.clientId entry required!" .Values.zgwApis.clientId }}
+  ZGW_API_URL_EXTERN: {{ required "Valid .Values.zgwApis.urlExtern entry required!" .Values.zgwApis.urlExtern }}

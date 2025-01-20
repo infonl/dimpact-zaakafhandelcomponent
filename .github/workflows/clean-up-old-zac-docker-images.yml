@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   clean:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Delete ZAC Docker Images older than 8 weeks
     steps:
       - uses: snok/container-retention-policy@4f22ef80902ad409ed55a99dc5133cc1250a0d03 # v3.0.0

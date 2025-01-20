@@ -11,7 +11,7 @@ on:
 jobs:
   playwright:
     name: "Playwright Tests"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment: azure-dimpact-dta
     steps:
       - name: Get current date
@@ -48,7 +48,7 @@ jobs:
       - name: copy report to seperate folder
         if: always()
         run: "cd src/e2e && mv reports ${{ steps.date.outputs.date }} && mkdir reports && mv ${{ steps.date.outputs.date }} reports/"
-      - uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+      - uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         if: always()
         with:
           name: playwright-report
@@ -60,7 +60,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./src/e2e/reports/ # directory of your reports
-          publish_branch: gh-pages/dimpact-e2e-test-report # deploying to gh-pages branch
+          publish_branch: gh-pages # deploying to gh-pages branch
           keep_files: true # retains files that are not part of the current publish
       - name: Notify Slack
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}

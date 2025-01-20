@@ -67,12 +67,12 @@ class ZoekenService @Inject constructor(
         }
         zoekParameters.getFilterQueries()
             .forEach { (veld: String, waarde: String) -> query.addFilterQuery("$veld:${quoted(waarde)}") }
-        query.setFacetMinCount(1)
+        query.facetMinCount = 1
         query.setFacetMissing(!zoekParameters.isGlobaalZoeken())
         query.setFacet(true)
         query.setParam("q.op", SimpleParams.AND_OPERATOR)
-        query.setRows(zoekParameters.rows)
-        query.setStart(zoekParameters.start)
+        query.rows = zoekParameters.rows
+        query.start = zoekParameters.start
         query.addSort(
             zoekParameters.sortering.sorteerVeld.veld,
             if (zoekParameters.sortering.richting == SorteerRichting.DESCENDING) SolrQuery.ORDER.desc else SolrQuery.ORDER.asc
@@ -98,7 +98,7 @@ class ZoekenService @Inject constructor(
                 val values = facetField.values
                     .filter { it.count > 0 }
                     .map { FilterResultaat(it.name ?: FilterWaarde.LEEG.toString(), it.count) }
-                zoekResultaat.addFilter(facetVeld, values)
+                zoekResultaat.addFilter(facetVeld, values.toMutableList())
             }
             return zoekResultaat
         } catch (ioException: IOException) {

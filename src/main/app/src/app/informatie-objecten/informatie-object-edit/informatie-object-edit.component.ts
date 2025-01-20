@@ -22,7 +22,6 @@ import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipe
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { User } from "../../identity/model/user";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
@@ -54,7 +53,7 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
 
   fields: Array<AbstractFormField[]>;
   formConfig: FormConfig;
-  ingelogdeMedewerker: User;
+  ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
 
   private subscriptions$: Subscription[] = [];
 

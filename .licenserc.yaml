@@ -22,7 +22,7 @@ header:
     - 'gradle'
     # Exclude Helm Chart files because the 'Azure Kubernetes Bake' GitHub Action that we use cannot
     # deal with SPDX headers in these files. See: https://github.com/Azure/k8s-bake/issues/117
-    - 'helm'
+    - 'charts'
     - 'scripts'
     - 'target'
     - 'wildfly-*'

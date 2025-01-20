@@ -1,0 +1,39 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2024 Lifely
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<div mat-dialog-title>
+  <h3>
+    <mat-icon>pause_circle</mat-icon>
+    {{ "actie.zaak.opschorten" | translate }}
+  </h3>
+  <button mat-icon-button (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<div mat-dialog-content>
+  <mfb-form-field [field]="duurDagenField"></mfb-form-field>
+  <mfb-form-field [field]="einddatumGeplandField"></mfb-form-field>
+  <mfb-form-field [field]="uiterlijkeEinddatumAfdoeningField"></mfb-form-field>
+  <mfb-form-field [field]="redenOpschortingField"></mfb-form-field>
+</div>
+
+<div mat-dialog-actions>
+  <button
+    mat-raised-button
+    color="primary"
+    id="zaakOpschorten_button"
+    [disabled]="disabled()"
+    (click)="opschorten()"
+  >
+    <mat-icon *ngIf="loading">
+      <mat-spinner diameter="18"></mat-spinner>
+    </mat-icon>
+    {{ "actie.zaak.opschorten" | translate }}
+  </button>
+  <button autofocus mat-raised-button [disabled]="loading" (click)="close()">
+    {{ "actie.annuleren" | translate }}
+  </button>
+</div>

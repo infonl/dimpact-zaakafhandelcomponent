@@ -9,12 +9,12 @@ import { MatSidenav } from "@angular/material/sidenav";
 import moment from "moment";
 import { Observable, Subscription } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
-import { User } from "../../identity/model/user";
 import { OverigeRechten } from "../../policy/model/overige-rechten";
 import { WerklijstRechten } from "../../policy/model/werklijst-rechten";
 import { PolicyService } from "../../policy/policy.service";
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { SignaleringenService } from "../../signaleringen.service";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { UtilService } from "../service/util.service";
@@ -35,7 +35,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   headerTitle$: Observable<string>;
   hasNewSignaleringen: boolean;
-  ingelogdeMedewerker: User;
+  ingelogdeMedewerker: GeneratedType<"RestUser">;
   overigeRechten = new OverigeRechten();
   werklijstRechten = new WerklijstRechten();
   medewerkerNaamToolbar = "";

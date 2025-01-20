@@ -36,16 +36,13 @@ public class FormulierVeldDefinitie {
     @JoinColumn(name = "id_formulier_definitie", referencedColumnName = "id_formulier_definitie")
     private FormulierDefinitie formulierDefinitie;
 
-    @NotBlank
-    @Column(name = "systeemnaam", nullable = false, unique = true)
+    @NotBlank @Column(name = "systeemnaam", nullable = false, unique = true)
     private String systeemnaam;
 
-    @PositiveOrZero
-    @Column(name = "volgorde", nullable = false)
+    @PositiveOrZero @Column(name = "volgorde", nullable = false)
     private int volgorde;
 
-    @NotBlank
-    @Column(name = "label", nullable = false)
+    @NotBlank @Column(name = "label", nullable = false)
     private String label;
 
     @NotNull @Column(name = "veldtype", nullable = false)

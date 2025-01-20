@@ -22,7 +22,8 @@ public class RESTInboxProductaanvraagListParametersConverter extends
         listParameters.setInitiatorID(restListParameters.initiatorID);
 
         if (restListParameters.ontvangstdatum != null && restListParameters.ontvangstdatum.hasValue()) {
-            listParameters.setOntvangstdatum(new DatumRange(restListParameters.ontvangstdatum.van, restListParameters.ontvangstdatum.tot));
+            listParameters.setOntvangstdatum(new DatumRange(restListParameters.ontvangstdatum.getVan(), restListParameters.ontvangstdatum
+                    .getTot()));
         }
     }
 

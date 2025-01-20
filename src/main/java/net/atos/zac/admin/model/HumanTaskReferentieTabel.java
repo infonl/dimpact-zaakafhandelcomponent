@@ -37,8 +37,7 @@ public class HumanTaskReferentieTabel {
     @JoinColumn(name = "id_humantask_parameters", referencedColumnName = "id_humantask_parameters")
     private HumanTaskParameters humantask;
 
-    @NotBlank
-    @Column(name = "veld", nullable = false)
+    @NotBlank @Column(name = "veld", nullable = false)
     private String veld;
 
     public HumanTaskReferentieTabel() {

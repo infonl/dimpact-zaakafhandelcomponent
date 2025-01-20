@@ -1,17 +1,17 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2023 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2023-2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 export class OrderUtil {
-  static orderBy(sortKey?: string): { (a: any, b: any) } {
-    return (a: any, b: any): number => {
+  static orderBy<T>(sortKey?: keyof T): { (a: T, b: T) } {
+    return (a: T, b: T): number => {
       const valueA = sortKey ? a[sortKey] : a;
       const valueB = sortKey ? b[sortKey] : b;
 
-      return typeof valueA === "number"
+      return typeof valueA === "number" && typeof valueB === "number"
         ? valueA - valueB
-        : valueA.localeCompare(valueB);
+        : String(valueA).localeCompare(String(valueB));
     };
   }
 

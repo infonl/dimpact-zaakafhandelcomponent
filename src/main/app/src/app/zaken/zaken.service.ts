@@ -10,8 +10,6 @@ import { catchError } from "rxjs/operators";
 import { ZaakAfzender } from "../admin/model/zaakafzender";
 import { ZaakbeeindigReden } from "../admin/model/zaakbeeindig-reden";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
-import { Group } from "../identity/model/group";
-import { User } from "../identity/model/user";
 import { Klant } from "../klanten/model/klanten/klant";
 import { Roltype } from "../klanten/model/klanten/roltype";
 import { TableRequest } from "../shared/dynamic-table/datasource/table-request";
@@ -29,10 +27,7 @@ import { ZaakEditMetRedenGegevens } from "./model/zaak-edit-met-reden-gegevens";
 import { ZaakHeropenenGegevens } from "./model/zaak-heropenen-gegevens";
 import { ZaakKoppelGegevens } from "./model/zaak-koppel-gegevens";
 import { ZaakLocatieGegevens } from "./model/zaak-locatie-gegevens";
-import { ZaakOpschortGegevens } from "./model/zaak-opschort-gegevens";
-import { ZaakOpschorting } from "./model/zaak-opschorting";
 import { ZaakToekennenGegevens } from "./model/zaak-toekennen-gegevens";
-import { ZaakVerlengGegevens } from "./model/zaak-verleng-gegevens";
 import { Zaaktype } from "./model/zaaktype";
 import { ZakenVerdeelGegevens } from "./model/zaken-verdeel-gegevens";
 
@@ -86,9 +81,13 @@ export class ZakenService {
       );
   }
 
-  readOpschortingZaak(uuid: string): Observable<ZaakOpschorting> {
+  readOpschortingZaak(
+    uuid: string,
+  ): Observable<GeneratedType<"RESTZaakOpschorting">> {
     return this.http
-      .get<ZaakOpschorting>(`${this.basepath}/zaak/${uuid}/opschorting`)
+      .get<
+        GeneratedType<"RESTZaakOpschorting">
+      >(`${this.basepath}/zaak/${uuid}/opschorting`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -96,7 +95,7 @@ export class ZakenService {
 
   opschortenZaak(
     uuid: string,
-    zaakOpschortGegevens: ZaakOpschortGegevens,
+    zaakOpschortGegevens: GeneratedType<"RESTZaakOpschortGegevens">,
   ): Observable<Zaak> {
     return this.http
       .patch<Zaak>(
@@ -110,7 +109,7 @@ export class ZakenService {
 
   verlengenZaak(
     zaakUUID: string,
-    zaakVerlengGegevens: ZaakVerlengGegevens,
+    zaakVerlengGegevens: GeneratedType<"RESTZaakVerlengGegevens">,
   ): Observable<Zaak> {
     return this.http
       .patch<Zaak>(
@@ -166,8 +165,8 @@ export class ZakenService {
   verdelenVanuitLijst(
     uuids: string[],
     screenEventResourceId: string,
-    groep?: Group,
-    medewerker?: User,
+    groep?: GeneratedType<"RestGroup">,
+    medewerker?: GeneratedType<"RestUser">,
     reden?: string,
   ): Observable<void> {
     const verdeelGegevens: ZakenVerdeelGegevens = new ZakenVerdeelGegevens();

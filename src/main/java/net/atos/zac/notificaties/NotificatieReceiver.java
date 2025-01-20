@@ -199,11 +199,14 @@ public class NotificatieReceiver {
     }
 
     private void handleZaaktype(final Notificatie notificatie) {
+        if (notificatie.getResource() != ZAAKTYPE)
+            return;
+
         try {
-            if (notificatie.getResource() == ZAAKTYPE) {
-                if (notificatie.getAction() == CREATE || notificatie.getAction() == UPDATE) {
-                    zaakafhandelParameterBeheerService.zaaktypeAangepast(notificatie.getResourceUrl());
-                }
+            switch (notificatie.getAction()) {
+                case CREATE, UPDATE:
+                    zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(notificatie.getResourceUrl());
+                    break;
             }
         } catch (RuntimeException ex) {
             warning("Zaaktype", notificatie, ex);

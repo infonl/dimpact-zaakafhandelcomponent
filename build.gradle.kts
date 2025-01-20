@@ -5,6 +5,7 @@
 
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.github.gradle.node.npm.task.NpmTask
+import de.undercouch.gradle.tasks.download.Download
 import io.gitlab.arturbosch.detekt.Detekt
 import io.smallrye.openapi.api.OpenApiConfig
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
@@ -21,6 +22,8 @@ plugins {
     alias(libs.plugins.gradle.node)
     alias(libs.plugins.taskinfo)
     alias(libs.plugins.openapi)
+    alias(libs.plugins.osdetector)
+    alias(libs.plugins.undercouch.download)
     alias(libs.plugins.swagger.generator)
     alias(libs.plugins.detekt)
     alias(libs.plugins.spotless)
@@ -388,6 +391,7 @@ tasks {
 
     build {
         dependsOn("generateWildflyBootableJar")
+        finalizedBy("buildHelmChartReadme")
     }
 
     test {
@@ -690,7 +694,44 @@ tasks {
         inputs.files(fileTree("certificates"))
 
         workingDir(".")
-        commandLine("scripts/docker/build-docker-image.sh", "-v", versionNumber, "-b", branchName, "-c", commitHash, "-t", zacDockerImage)
+        commandLine(
+            "scripts/docker/build-docker-image.sh",
+            "-v", versionNumber,
+            "-b", branchName,
+            "-c", commitHash,
+            "-t", zacDockerImage
+        )
+    }
+
+    register<Download>("downloadHelmDocsArchive") {
+        description = "Download helm-docs release archive"
+        group = "build"
+
+        val version = libs.versions.helm.docs.get()
+        src(
+            "https://github.com/norwoodj/helm-docs/releases/download/v$version/" +
+                "helm-docs_${version}_${osdetector.os}_${osdetector.arch}.tar.gz"
+        )
+        onlyIfModified(true)
+        dest(layout.buildDirectory.file("helm-docs.tar.gz"))
+    }
+
+    register<Copy>("downloadAndUnpackHelmDocs") {
+        description = "Download and unpack helm-docs executable"
+        group = "build"
+        dependsOn("downloadHelmDocsArchive")
+
+        from(tarTree(layout.buildDirectory.file("helm-docs.tar.gz")))
+        into(layout.buildDirectory.dir("helm-docs"))
+    }
+
+    register<Exec>("buildHelmChartReadme") {
+        description = "Builds the Docker image for the Zaakafhandelcomponent"
+        group = "build"
+        dependsOn("downloadAndUnpackHelmDocs")
+
+        workingDir("charts/zac")
+        commandLine("$rootDir/build/helm-docs/helm-docs", "values.yaml")
     }
 
     register<Copy>("copyJacocoAgentForItest") {
