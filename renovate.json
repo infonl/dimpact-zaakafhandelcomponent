@@ -121,16 +121,6 @@
     },
     {
       "matchPackageNames": [
-        "docker.io/grafana/tempo"
-      ],
-      "matchDatasources": [
-        "docker"
-      ],
-      "allowedVersions": "<= 2.6.1",
-      "description": "Pinned - story created "
-    },
-    {
-      "matchPackageNames": [
         "docker.io/redis"
       ],
       "matchDatasources": [
