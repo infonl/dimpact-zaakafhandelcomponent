@@ -21,7 +21,7 @@ jobs:
       skip: ${{ steps.paths-ignore.outputs.skip }}
     steps:
       - name: Skip job when only Markdown files are changed
-        uses: kunitsucom/github-actions-paths-ignore-alternative@3800eba25a9d716029cd1db0439cb9194431cc5c # v0.0.4
+        uses: kunitsucom/github-actions-paths-ignore-alternative@d1b27090d1a610f8cdde46d8d937a4a9c9127619 # v1.0.1
         id: paths-ignore
         with:
           paths-ignore: |-
