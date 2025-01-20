@@ -121,6 +121,26 @@
     },
     {
       "matchPackageNames": [
+        "docker.io/redis"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "<= 7.4.1",
+      "description": "Pinned by the next Dimpact PodiumD release"
+    },
+    {
+      "matchPackageNames": [
+        "opentelemetry-collector"
+      ],
+      "matchDatasources": [
+        "helm"
+      ],
+      "allowedVersions": "<= 0.104.0",
+      "description": "Pinned - next version(s) have breaking changes - https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/33896 - story created"
+    },
+    {
+      "matchPackageNames": [
         "ghcr.io/infonl/zaakafhandelcomponent"
       ],
       "matchDatasources": [
