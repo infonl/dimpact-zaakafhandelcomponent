@@ -149,7 +149,7 @@
   "bagObject.pand.status.Niet gerealiseerd pand": "Unrealized Premises",
   "bagObject.pand.status.Bouw gestart": "Building started",
   "bagObject.pand.status.Pand in gebruik (niet ingemeten)": "Premises in use (not measured)",
-  "bagObject.pand.status.Pand in gebruik": "Premises in use (not measured)",
+  "bagObject.pand.status.Pand in gebruik": "Premises in use",
   "bagObject.pand.status.Verbouwing pand": "Premises renovation",
   "bagObject.pand.status.Sloopvergunning verleend": "Demolition permit granted",
   "bagObject.pand.status.Pand gesloopt": "Premises demolished",
