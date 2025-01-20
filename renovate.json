@@ -164,7 +164,7 @@
       "matchDatasources": [
         "custom"
       ],
-      "automerge": false
+      "automerge": true
     }
   ]
 }
