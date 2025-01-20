@@ -8,60 +8,60 @@
 # Declare variables to be passed into your templates.
 
 # -- External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com)
-contextUrl: ""
+contextUrl: "http://localhost"
 
 # db Configuration of database connection
 db:
-  host: "" # -- database.internal or 1.2.3.4
-  name: ""
-  user: ""
-  password: ""
+  host: "zac-database"  # -- database.internal or 1.2.3.4
+  name: "zac"
+  user: "zac"
+  password: "password"
 
 # auth Configuration of OpenID Connect
 auth:
-  server: "" # https://keycloak.example.com
-  realm: ""
+  server: "http://keycloak:8080"  # https://keycloak.example.com
+  realm: "zaakafhandelcomponent"
   # -- Client ID and secret as defined in the realm
-  clientId: ""
-  secret: ""
+  clientId: "zaakafhandelcomponent-admin-client"
+  secret: "keycloakZaakafhandelcomponentClientSecret"
 
 # configuration of the ZAC admin client in Keycloak
 keycloak:
   adminClient:
     # -- Keycloak ZAC admin client name
-    id: ""
+    id: "zaakafhandelcomponent-admin-client"
     # -- Keycloak ZAC admin client secret
-    secret: ""
+    secret: "keycloakZaakafhandelcomponentClientSecret"
 
 # gemeente Configuration gemeente
 gemeente:
-  code: ""
-  naam: ""
-  mail: ""
+  code: "9999"
+  naam: "DummyZacGemeente"
+  mail: "gemeente-zac-test@example.com"
 
 # mail Configuration email sending connection
 mail:
   # SMTP server and port are required, spf record needs to be properly setup in DNS
   smtp:
-    server: ""  # -- SMTP server host (for example localhost or in-v3.mailjet.com)
+    server: "in-v3.mailjet.com"  # -- SMTP server host (for example localhost or in-v3.mailjet.com)
     port: "587"  # -- port 587 for TLS, port 25 for relaying
-    username: ""
-    password: ""
+    username: "dummyMailjetApiKey"
+    password: "dummyMailjetApiSecretKey"
 
 # zgwApis Configuration of ZGW API's provider (Open Zaak)
 zgwApis:
-  url: ""  # http://open-zaak.internal
-  urlExtern: ""  # https://open-zaak.example.com
-  clientId: ""
-  secret: ""
+  url: "http://openzaak.local:8000/"  # http://open-zaak.internal
+  urlExtern: "http://localhost:8001/"  # https://open-zaak.example.com
+  clientId: "zac_client"
+  secret: "openzaakZaakafhandelcomponentClientSecret"
 
 # -- Configuration of the notifications receiving endpoint.
-notificationsSecretKey: ""
+notificationsSecretKey: "openNotificatiesApiSecretKey"
 
 # klantenApi Configuration of Klanten API provider (Open Klant)
 klantinteractiesApi:
-  url: ""  # http://open-klant.internal/klantinteracties
-  token: ""
+  url: "http://openklant.local:8000"  # http://open-klant.internal/klantinteracties
+  token: "dummyToken"
 
 # featureFlags defines supported feature flags and their default values
 featureFlags:
@@ -69,39 +69,39 @@ featureFlags:
 
 # objectenApi Configuration of the Objecten API provider (Overige Registraties)
 objectenApi:
-  url: ""  # http://objecten.internal
-  token: ""
+  url: "http://objecten-api.local:8000"  # http://objecten.internal
+  token: "dummyZacObjectsToken"
 
 # objecttypenApi Configuration of the Objecttypen API provider (Overige Registraties)
 objecttypenApi:
-  url: ""  # http://objecttypen.internal
-  token: ""
+  url: "http://objecttypen-api:8000"  # http://objecttypen.internal
+  token: "123456"
 
 # brpApi Configuration of the BRP Api provider (Haal Centraal)
 brpApi:
-  url: ""  # https://www.haalcentraal.nl/haalcentraal
-  apiKey: ""
+  url: "http://brp-personen-mock:5010/haalcentraal/api/brp"  # https://www.haalcentraal.nl/haalcentraal
+  apiKey: "dummyKey"
 
 # kvkApi Configuration of the KVK API provider (KVK)
 kvkApi:
-  url: ""  # https://developers.kvk.nl/test
-  apiKey: ""
+  url: "http://dummyKvkApiUrl.mock"  # https://developers.kvk.nl/test
+  apiKey: "dummyKvkApiKey"
 
 # bagApi Configuration of the BAG API provider (Kadaster)
 bagApi:
-  url: ""  # https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2
-  apiKey: ""
+  url: "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/"  # https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2
+  apiKey: "dummyBagApiKey"
 
 # openForms Configuration of the Open Forms URL
 openForms:
-  url: ""  # https://open-forms.example.com
+  url: "http://localhost:9999"  # https://open-forms.example.com
 
 # smartDocuments Configuration of the SmartDocuments connection
 smartDocuments:
   enabled: false
-  url: ""  # https://partners.smartdocuments.com
-  authentication: ""
-  fixedUserName: ""
+  url: "http://smartdocuments-wiremock:8080"  # https://partners.smartdocuments.com
+  authentication: "dummySmartDocumentsAuthentication"
+  fixedUserName: "dummy"
 
 # signaleringen Configuration of the signaleren job
 signaleringen:
@@ -144,7 +144,7 @@ maxFileSizeMB: 80
 remoteDebug: false
 
 # -- jvm options to set in the _JAVA_OPTIONS env var, recommended defaults are used if not provided and are shown below
-#javaOptions: -Xmx1024m -Xms1024m -Xlog:gc::time,uptime
+# javaOptions: -Xmx1024m -Xms1024m -Xlog:gc::time,uptime
 
 # -- the number of replicas to run
 replicaCount: 1
@@ -253,7 +253,7 @@ opa:
   # -- set sidecar to true to run the opa service together with the zac pod
   sidecar: false
   # -- set url if the opa url cannot be automatically determined and is not run as a sidecar. the opa url should be the url the openpolicyagent can be reached on from ZAC ( for example: http://release-opa.default.svc.cluster.local:8181 )
-  #url: ""
+  # url: ""
   name: "opa"
   service:
     type: ClusterIP
@@ -510,10 +510,10 @@ nginx:
 organizations:
   verantwoordelijke:
     # -- The RSIN of the Non-natural person - the organization that is ultimately responsible for handling a zaak or establishing a decision. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
-    rsin: ""
+    rsin: "dummy"
   bron:
     # -- The RSIN of the Non-natural person - the organization that created the zaak. Must be a valid RSIN of 9 numbers and comply with https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
-    rsin: ""
+    rsin: "dummy"
 
 # -- OpenZaak Catalogus Domein
 catalogusDomein: ALG
