@@ -5,15 +5,16 @@
 <div *ngIf="layout != versionLayout.VERBOSE" class="version">
   <mat-chip
     class="flex-row"
-    [matTooltip]="'healthCheck.build_informatie.build' | translate:{
-                build: buildInformatie.buildId,
-                timestamp: (buildInformatie.buildDatumTijd | datum: 'short')
-            }"
+    [matTooltip]="buildInformatie.buildId && buildInformatie.buildDatumTijd ?
+          ('healthCheck.build_informatie.build' | translate:{
+            build: buildInformatie.buildId,
+            timestamp: (buildInformatie.buildDatumTijd | datum: 'short')
+          }) : ''"
   >
     <mat-icon>construction</mat-icon>
     <span class="label">
       {{'healthCheck.build_informatie.version' | translate:{ version:
-      buildInformatie.versienummer } }}</span
+      buildInformatie.versienummer?.toUpperCase() } }}</span
     >
   </mat-chip>
 </div>
@@ -28,7 +29,7 @@
   <mat-card-content>
     <p>
       {{'healthCheck.build_informatie.version' | translate:{ version:
-      buildInformatie.versienummer } }}
+      buildInformatie.versienummer?.toUpperCase() } }}
     </p>
     <p *ngIf="buildInformatie.buildId && buildInformatie.buildDatumTijd">
       {{'healthCheck.build_informatie.build' | translate:{ build:
