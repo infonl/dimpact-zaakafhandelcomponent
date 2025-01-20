@@ -42,15 +42,13 @@ public class Notitie {
     @Column(name = "zaak_uuid", updatable = false)
     private UUID zaakUUID;
 
-    @NotBlank
-    @Column(nullable = false)
+    @NotBlank @Column(nullable = false)
     private String tekst;
 
     @NotNull @Column(name = "tijdstip_laatste_wijziging", nullable = false)
     private ZonedDateTime tijdstipLaatsteWijziging;
 
-    @NotBlank
-    @Column(name = "gebruikersnaam_medewerker", nullable = false, updatable = true)
+    @NotBlank @Column(name = "gebruikersnaam_medewerker", nullable = false, updatable = true)
     private String gebruikersnaamMedewerker;
 
     public Long getId() {

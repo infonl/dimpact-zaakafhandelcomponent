@@ -45,8 +45,7 @@ public class ZaakAfzender {
     @Column(name = "default_mail", nullable = false)
     private boolean defaultMail;
 
-    @NotBlank
-    @Column(name = "mail", nullable = false)
+    @NotBlank @Column(name = "mail", nullable = false)
     private String mail;
 
     @Column(name = "replyto")
