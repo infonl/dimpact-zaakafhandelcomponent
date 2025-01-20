@@ -49,15 +49,13 @@ public class HumanTaskParameters {
     @Column(name = "id_formulier_definition")
     private String formulierDefinitieID;
 
-    @NotBlank
-    @Column(name = "id_planitem_definition", nullable = false)
+    @NotBlank @Column(name = "id_planitem_definition", nullable = false)
     private String planItemDefinitionID;
 
     @Column(name = "id_groep", nullable = false)
     private String groepID;
 
-    @Min(value = 0)
-    @Column(name = "doorlooptijd")
+    @Min(value = 0) @Column(name = "doorlooptijd")
     private Integer doorlooptijd;
 
     @OneToMany(mappedBy = "humantask", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)

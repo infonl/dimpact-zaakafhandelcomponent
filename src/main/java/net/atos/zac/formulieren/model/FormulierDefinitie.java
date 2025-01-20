@@ -35,12 +35,10 @@ public class FormulierDefinitie {
     @Column(name = "id_formulier_definitie")
     private Long id;
 
-    @NotBlank
-    @Column(name = "systeemnaam", nullable = false, unique = true)
+    @NotBlank @Column(name = "systeemnaam", nullable = false, unique = true)
     private String systeemnaam;
 
-    @NotBlank
-    @Column(name = "naam", nullable = false)
+    @NotBlank @Column(name = "naam", nullable = false)
     private String naam;
 
     @Column(name = "beschrijving")

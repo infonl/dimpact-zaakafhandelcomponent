@@ -55,8 +55,7 @@ public class ZaakafhandelParameters {
     @NotNull @Column(name = "uuid_zaaktype", nullable = false)
     private UUID zaakTypeUUID;
 
-    @NotBlank
-    @Column(name = "zaaktype_omschrijving", nullable = false)
+    @NotBlank @Column(name = "zaaktype_omschrijving", nullable = false)
     private String zaaktypeOmschrijving;
 
     @Column(name = "id_case_definition", nullable = false)
