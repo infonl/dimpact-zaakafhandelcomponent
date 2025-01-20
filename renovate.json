@@ -17,6 +17,16 @@
     "hsiliev"
   ],
   "prConcurrentLimit": 5,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["^publiccode.yaml$"],
+      "matchStrings": ["\\s+softwareVersion:(\\s)+(\\x22|\\x27)?(?<currentValue>.*?)(\\x22|\\x27)?\\s*releaseDate:(\\s)+(\\x22|\\x27)?(?:[^\\s]*?)(\\x22|\\x27)?"],
+      "depNameTemplate": "infonl/dimpact-zaakafhandelcomponent",
+      "datasourceTemplate": "github-tags",
+      "autoReplaceStringTemplate": "softwareVersion: {{{newValue}}}\nreleaseDate: {{{releaseTimestamp}}}"
+    }
+  ],
   "packageRules": [
     {
       "matchDatasources": [
@@ -32,7 +42,7 @@
     {
       "groupName": "Dependencies provided by WildFly",
       "matchPackageNames": [
-	    "jakarta.platform:jakarta.jakartaee-api",
+	"jakarta.platform:jakarta.jakartaee-api",
         "org.eclipse.microprofile.config:microprofile-config-api",
         "org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api",
         "org.eclipse.microprofile.health:microprofile-health-api",
@@ -45,7 +55,7 @@
 	    "gradle"
       ],
       "enabled": false,
-      "description": "Updates for dependencies that are provided by WildFly"
+      "description": ["Updates for dependencies that are provided by WildFly"]
     },
     {
       "matchPackageNames": [
@@ -57,7 +67,7 @@
         "gradle"
       ],
       "allowedVersions": "<= 25.0.6",
-      "description": "Pinned by the next Dimpact PodiumD release"
+      "description": ["Pinned by the next Dimpact PodiumD release"]
     },
     {
       "matchPackageNames": [
@@ -67,7 +77,7 @@
         "docker"
       ],
       "allowedVersions": "<= 2.4.4",
-      "description": "Pinned by the next Dimpact PodiumD release"
+      "description": ["Pinned by the next Dimpact PodiumD release"]
     },
     {
       "matchPackageNames": [
@@ -77,7 +87,7 @@
         "docker"
       ],
       "allowedVersions": "<= 2.2.2",
-      "description": "Pinned by the next Dimpact PodiumD release"
+      "description": ["Pinned by the next Dimpact PodiumD release"]
     },
     {
       "matchPackageNames": [
@@ -87,7 +97,7 @@
         "docker"
       ],
       "allowedVersions": "<= 2.3.0",
-      "description": "Pinned by the next Dimpact PodiumD release"
+      "description": ["Pinned by the next Dimpact PodiumD release"]
     },
     {
       "matchPackageNames": [
@@ -97,7 +107,7 @@
         "docker"
       ],
       "allowedVersions": "<= 1.15.0",
-      "description": "Pinned by the next Dimpact PodiumD release"
+      "description": ["Pinned by the next Dimpact PodiumD release"]
     },
     {
       "matchPackageNames": [
@@ -107,7 +117,7 @@
         "docker"
       ],
       "allowedVersions": "<= 1.7.1",
-      "description": "Pinned by the next Dimpact PodiumD release"
+      "description": ["Pinned by the next Dimpact PodiumD release"]
     },
     {
       "matchPackageNames": [
@@ -122,7 +132,16 @@
         "pinDigest"
       ],
       "enabled": false,
-      "description": "The version of the ZAC Docker image in our Docker Compose file is set to 'latest' and is only used for local development"
+      "description": ["The version of the ZAC Docker image in our Docker Compose file is set to 'latest' and is only used for local development"]
+    },
+    {
+      "matchPackageNames": [
+        "zaakafhandelcomponent"
+      ],
+      "matchDatasources": [
+        "custom"
+      ],
+      "automerge": false,
     }
   ]
 }
