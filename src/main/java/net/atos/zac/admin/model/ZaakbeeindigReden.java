@@ -26,8 +26,7 @@ public class ZaakbeeindigReden {
     @Column(name = "id_zaakbeeindigreden")
     private Long id;
 
-    @NotBlank
-    @Column(name = "naam", nullable = false)
+    @NotBlank @Column(name = "naam", nullable = false)
     private String naam;
 
     public Long getId() {

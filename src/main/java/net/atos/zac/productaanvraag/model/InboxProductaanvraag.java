@@ -54,8 +54,7 @@ public class InboxProductaanvraag {
     @NotNull @Column(name = "ontvangstdatum", nullable = false)
     private LocalDate ontvangstdatum;
 
-    @NotBlank
-    @Column(name = "productaanvraag_type", nullable = false)
+    @NotBlank @Column(name = "productaanvraag_type", nullable = false)
     private String type;
 
     @Column(name = "id_initiator")

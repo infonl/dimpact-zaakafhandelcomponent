@@ -42,8 +42,7 @@ public class Zoekopdracht {
     @NotNull @Column(name = "creatiedatum", nullable = false)
     private ZonedDateTime creatiedatum;
 
-    @NotBlank
-    @Column(name = "naam", nullable = false)
+    @NotBlank @Column(name = "naam", nullable = false)
     private String naam;
 
     @NotNull @Column(name = "id_lijst", nullable = false)
@@ -53,12 +52,10 @@ public class Zoekopdracht {
     @Column(name = "actief")
     private boolean actief;
 
-    @NotBlank
-    @Column(name = "id_medewerker", nullable = false)
+    @NotBlank @Column(name = "id_medewerker", nullable = false)
     private String medewerkerID;
 
-    @NotBlank
-    @Column(name = "json_zoekopdracht", nullable = false)
+    @NotBlank @Column(name = "json_zoekopdracht", nullable = false)
     private String json;
 
     public Long getId() {

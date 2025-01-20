@@ -57,12 +57,10 @@ public class Signalering {
     @Enumerated(EnumType.STRING)
     private SignaleringTarget targettype;
 
-    @NotBlank
-    @Column(name = "target", nullable = false)
+    @NotBlank @Column(name = "target", nullable = false)
     private String target;
 
-    @NotBlank
-    @Column(name = "subject", nullable = false)
+    @NotBlank @Column(name = "subject", nullable = false)
     private String subject;
 
     @Column(name = "detail")

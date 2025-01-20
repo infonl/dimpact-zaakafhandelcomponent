@@ -52,13 +52,10 @@ public class TabelInstellingen {
     @Enumerated(EnumType.STRING)
     private Werklijst lijstID;
 
-    @NotBlank
-    @Column(name = "id_medewerker", nullable = false)
+    @NotBlank @Column(name = "id_medewerker", nullable = false)
     private String medewerkerID;
 
-    @Min(AANTAL_PER_PAGINA_MIN)
-    @Max(AANTAL_PER_PAGINA_MAX)
-    @Column(name = "aantal_per_pagina", nullable = false)
+    @Min(AANTAL_PER_PAGINA_MIN) @Max(AANTAL_PER_PAGINA_MAX) @Column(name = "aantal_per_pagina", nullable = false)
     private int aantalPerPagina;
 
     public Long getId() {

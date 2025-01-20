@@ -31,8 +31,7 @@ public class DashboardCardInstelling {
     @Column(name = "id_dashboard_card")
     private Long id;
 
-    @NotBlank
-    @Column(name = "id_medewerker", nullable = false)
+    @NotBlank @Column(name = "id_medewerker", nullable = false)
     private String medewerkerId;
 
     @NotNull @Column(name = "dashboard_card_enum", nullable = false)
