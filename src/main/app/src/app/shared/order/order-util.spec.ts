@@ -72,10 +72,10 @@ describe(OrderUtil.name, () => {
   );
 
   describe(OrderUtil.orderAsIs.name, () => {
-      it('will return the array as is', () => {
-          const result = [1,2,3].sort(OrderUtil.orderAsIs());
+    it("will return the array as is", () => {
+      const result = [1, 2, 3].sort(OrderUtil.orderAsIs());
 
-          expect(result).toEqual([1,2,3]);
-      })
+      expect(result).toEqual([1, 2, 3]);
+    });
   });
 });
