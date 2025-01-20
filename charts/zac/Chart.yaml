@@ -19,6 +19,6 @@ dependencies:
     repository: "@bitnami"
     condition: solr.enabled
 maintainers:
-  - name: Team Genève, INFO
+  - name: Team Geneve, INFO
     email: teamdimpact@info.nl
     url: https://www.info.nl
