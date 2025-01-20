@@ -17,14 +17,17 @@
     "hsiliev"
   ],
   "prConcurrentLimit": 5,
+  "bumpVersion": "patch",
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": ["^publiccode.yaml$"],
-      "matchStrings": ["\\s+softwareVersion:(\\s)+(\\x22|\\x27)?(?<currentValue>.*?)(\\x22|\\x27)?\\s*releaseDate:(\\s)+(\\x22|\\x27)?(?:[^\\s]*?)(\\x22|\\x27)?"],
+      "fileMatch": ["^publiccode\\.yaml$"],
+      "matchStrings": [
+        "softwareVersion: \"(?<currentValue>[^\"]+)\"\\nreleaseDate: \"(?<releaseDate>[^\"]+)\""
+      ],
       "depNameTemplate": "infonl/dimpact-zaakafhandelcomponent",
       "datasourceTemplate": "github-tags",
-      "autoReplaceStringTemplate": "softwareVersion: {{{newValue}}}\nreleaseDate: {{{releaseTimestamp}}}"
+      "autoReplaceStringTemplate": "softwareVersion: \"{{{newValue}}}\"\nreleaseDate: \"{{{releaseTimestamp}}}\""
     }
   ],
   "packageRules": [
@@ -127,7 +130,7 @@
         "docker"
       ],
       "allowedVersions": "<= 7.4.1",
-      "description": "Pinned by the next Dimpact PodiumD release"
+      "description": ["Pinned by the next Dimpact PodiumD release"]
     },
     {
       "matchPackageNames": [
@@ -137,7 +140,7 @@
         "helm"
       ],
       "allowedVersions": "<= 0.104.0",
-      "description": "Pinned - next version(s) have breaking changes - https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/33896 - story created"
+      "description": ["Pinned - next version(s) have breaking changes - https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/33896 - story created"]
     },
     {
       "matchPackageNames": [
@@ -161,7 +164,7 @@
       "matchDatasources": [
         "custom"
       ],
-      "automerge": false,
+      "automerge": false
     }
   ]
 }
