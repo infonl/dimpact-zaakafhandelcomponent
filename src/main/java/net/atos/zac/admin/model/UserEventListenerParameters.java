@@ -28,8 +28,7 @@ public class UserEventListenerParameters {
     @Column(name = "id_usereventlistener_parameters")
     private Long id;
 
-    @NotBlank
-    @Column(name = "id_planitem_definition", nullable = false)
+    @NotBlank @Column(name = "id_planitem_definition", nullable = false)
     private String planItemDefinitionID;
 
     @NotNull @ManyToOne

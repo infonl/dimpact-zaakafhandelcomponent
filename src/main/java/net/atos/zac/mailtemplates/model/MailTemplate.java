@@ -39,16 +39,13 @@ public class MailTemplate {
     @Column(name = "id_mail_template")
     private Long id;
 
-    @NotBlank
-    @Column(name = "mail_template_naam", nullable = false)
+    @NotBlank @Column(name = "mail_template_naam", nullable = false)
     private String mailTemplateNaam;
 
-    @NotBlank
-    @Column(name = "onderwerp", nullable = false)
+    @NotBlank @Column(name = "onderwerp", nullable = false)
     private String onderwerp;
 
-    @NotBlank
-    @Column(name = "body", nullable = false)
+    @NotBlank @Column(name = "body", nullable = false)
     private String body;
 
     @NotNull @Column(name = "mail_template_enum", nullable = false)

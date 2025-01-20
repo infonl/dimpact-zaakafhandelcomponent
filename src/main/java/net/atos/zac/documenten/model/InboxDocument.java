@@ -53,15 +53,13 @@ public class InboxDocument {
     @NotNull @Column(name = "uuid_enkelvoudiginformatieobject", nullable = false)
     private UUID enkelvoudiginformatieobjectUUID;
 
-    @NotBlank
-    @Column(name = "id_enkelvoudiginformatieobject", nullable = false)
+    @NotBlank @Column(name = "id_enkelvoudiginformatieobject", nullable = false)
     private String enkelvoudiginformatieobjectID;
 
     @NotNull @Column(name = "creatiedatum", nullable = false)
     private ZonedDateTime creatiedatum;
 
-    @NotBlank
-    @Column(name = "titel", nullable = false)
+    @NotBlank @Column(name = "titel", nullable = false)
     private String titel;
 
     @Column(name = "bestandsnaam")
