@@ -30,12 +30,12 @@
       {{'healthCheck.build_informatie.version' | translate:{ version:
       buildInformatie.versienummer } }}
     </p>
-    <p>
+    <p *ngIf="buildInformatie.buildId && buildInformatie.buildDatumTijd">
       {{'healthCheck.build_informatie.build' | translate:{ build:
       buildInformatie.buildId, timestamp: (buildInformatie.buildDatumTijd |
       datum: 'short') } }}
     </p>
-    <p>
+    <p *ngIf="buildInformatie.commit">
       {{'healthCheck.build_informatie.commit' | translate:{ commit:
       buildInformatie.commit } }}
     </p>
