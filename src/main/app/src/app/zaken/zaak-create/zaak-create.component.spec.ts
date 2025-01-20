@@ -23,82 +23,82 @@ import { ZakenService } from "../zaken.service";
 import { ZaakCreateComponent } from "./zaak-create.component";
 
 describe(ZaakCreateComponent.name, () => {
-    let component: ZaakCreateComponent;
+  let component: ZaakCreateComponent;
 
-    let identityService: IdentityService;
+  let identityService: IdentityService;
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [ZaakCreateComponent],
-            providers: [
-                ZakenService,
-                NavigationService,
-                KlantenService,
-                ReferentieTabelService,
-                UtilService,
-                IdentityService,
-                provideAnimations(),
-            ],
-            imports: [
-                RouterModule.forRoot([]),
-                TranslateModule.forRoot(),
-                HttpClientTestingModule,
-                MatSidenavModule,
-            ],
-        }).compileComponents();
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [ZaakCreateComponent],
+      providers: [
+        ZakenService,
+        NavigationService,
+        KlantenService,
+        ReferentieTabelService,
+        UtilService,
+        IdentityService,
+        provideAnimations(),
+      ],
+      imports: [
+        RouterModule.forRoot([]),
+        TranslateModule.forRoot(),
+        HttpClientTestingModule,
+        MatSidenavModule,
+      ],
+    }).compileComponents();
 
-        const fixture = TestBed.createComponent(ZaakCreateComponent);
-        component = fixture.componentInstance;
+    const fixture = TestBed.createComponent(ZaakCreateComponent);
+    component = fixture.componentInstance;
 
-        identityService = TestBed.inject(IdentityService);
-        jest
-            .spyOn(identityService, "listGroups")
-            .mockReturnValue(of([{ id: "test-group-id", naam: "test group" }]));
-        jest
-            .spyOn(identityService, "listUsersInGroup")
-            .mockReturnValue(of([{ id: "test-user-id", naam: "test user" }]));
+    identityService = TestBed.inject(IdentityService);
+    jest
+      .spyOn(identityService, "listGroups")
+      .mockReturnValue(of([{ id: "test-group-id", naam: "test group" }]));
+    jest
+      .spyOn(identityService, "listUsersInGroup")
+      .mockReturnValue(of([{ id: "test-user-id", naam: "test user" }]));
+  });
+
+  describe(ZaakCreateComponent.prototype.zaaktypeGeselecteerd.name, () => {
+    it(`should call ${ZaakCreateComponent.prototype.getMedewerkerGroupFormField.name} with the default behandelaar and groep`, () => {
+      const getMedewerkerGroupFormField = jest.spyOn(
+        component,
+        "getMedewerkerGroupFormField",
+      );
+
+      const zaakType = new Zaaktype();
+      zaakType.zaakafhandelparameters = {
+        defaultBehandelaarId: "default-behandelaar",
+        defaultGroepId: "default-group",
+        einddatumGeplandWaarschuwing: 10,
+        zaaktype: zaakType,
+        afrondenMail: ZaakStatusmailOptie.BESCHIKBAAR_AAN,
+        caseDefinition: new CaseDefinition(),
+        creatiedatum: new Date().toJSON(),
+        domein: "test",
+        humanTaskParameters: [],
+        intakeMail: ZaakStatusmailOptie.BESCHIKBAAR_AAN,
+        mailtemplateKoppelingen: [],
+        productaanvraagtype: "",
+        uiterlijkeEinddatumAfdoeningWaarschuwing: 10,
+        valide: true,
+        userEventListenerParameters: [],
+        zaakAfzenders: [],
+        zaakbeeindigParameters: [],
+        smartDocuments: {},
+        zaakNietOntvankelijkResultaattype: {
+          id: "1",
+        },
+      };
+
+      component.ngOnInit();
+      component.zaaktypeGeselecteerd(zaakType);
+
+      expect(getMedewerkerGroupFormField).toHaveBeenCalledTimes(2); // one for the init
+      expect(getMedewerkerGroupFormField).toHaveBeenCalledWith(
+        zaakType.zaakafhandelparameters.defaultGroepId,
+        zaakType.zaakafhandelparameters.defaultBehandelaarId,
+      );
     });
-
-    describe(ZaakCreateComponent.prototype.zaaktypeGeselecteerd.name, () => {
-        it(`should call ${ZaakCreateComponent.prototype.getMedewerkerGroupFormField.name} with the default behandelaar and groep`,  () => {
-            const getMedewerkerGroupFormField = jest.spyOn(
-                component,
-                "getMedewerkerGroupFormField",
-            );
-
-            const zaakType = new Zaaktype();
-            zaakType.zaakafhandelparameters = {
-                defaultBehandelaarId: "default-behandelaar",
-                defaultGroepId: "default-group",
-                einddatumGeplandWaarschuwing: 10,
-                zaaktype: zaakType,
-                afrondenMail: ZaakStatusmailOptie.BESCHIKBAAR_AAN,
-                caseDefinition: new CaseDefinition(),
-                creatiedatum: new Date().toJSON(),
-                domein: "test",
-                humanTaskParameters: [],
-                intakeMail: ZaakStatusmailOptie.BESCHIKBAAR_AAN,
-                mailtemplateKoppelingen: [],
-                productaanvraagtype: "",
-                uiterlijkeEinddatumAfdoeningWaarschuwing: 10,
-                valide: true,
-                userEventListenerParameters: [],
-                zaakAfzenders: [],
-                zaakbeeindigParameters: [],
-                smartDocuments: {},
-                zaakNietOntvankelijkResultaattype: {
-                    id: "1",
-                },
-            };
-
-            component.ngOnInit()
-            component.zaaktypeGeselecteerd(zaakType);
-
-            expect(getMedewerkerGroupFormField).toHaveBeenCalledTimes(2); // one for the init
-            expect(getMedewerkerGroupFormField).toHaveBeenCalledWith(
-                zaakType.zaakafhandelparameters.defaultGroepId,
-                zaakType.zaakafhandelparameters.defaultBehandelaarId,
-            );
-        });
-    });
+  });
 });
