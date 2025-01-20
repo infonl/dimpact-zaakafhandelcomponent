@@ -67,12 +67,13 @@ In sommige taakbehandelformulieren komen keuzelijsten voor waarvan de opties via
     ![image](images/33fc1158-0ada-4fea-a491-fc1e6e9935a0.png)
 9. Ga verder naar 'SmartDocuments'. Hier kunt u het documenttype selecteren dat door elk sjabloon moet worden verwerkt.
   - SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen
-  - Elk SmartDocuments-sjabloon moet de plug-in "RedirectURL" ingeschakeld hebben. [Documentatie hier](https://support.smartdocuments.com/a/solutions/articles/103000285444) beschikbaar.
+  - Elk SmartDocuments-sjabloon moet de plug-in "RedirectURL" ingeschakeld hebben.
   - SmartDocuments inschakelen voor het huidige zaaktype (stap 1)
   - De sjabloongroep uitvouwen (stap 2)
   - Documenttype selecteren (stap 3)
   - De configuratie opslaan (stap 4) 
 ![image](images/f744cc21-04a4-4457-827a-1e6807c019b2.png)
+  - Het documenttype deselecteren kan door het vinkje te verwijderen of in de dropdown "Geen documenttype" te selecteren.
 10. Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
 
 ## Referentietabellen

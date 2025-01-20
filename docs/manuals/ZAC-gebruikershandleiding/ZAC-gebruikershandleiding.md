@@ -611,11 +611,13 @@ Deze actie maakt het mogelijk om een document met sjablonen in een documentcreat
 
 1 In een zaak kies je actie *Document maken*
 
-2 Kies het documenttype van het te maken document en vul de titel in (deze stap is in ontwikkeling)
+2 Kies de sjabloongroep en daarvan het sjabloon van het te maken document en vul de titel in en als gewenst een beschrijving
 
-3 Klik op de Maken knop om de documentcreatieapplicatie te starten. Deze opent in een nieuw tabblad.
+3 Pas als gewenst de creartiedatum en behandelaar aan
 
-4 Maak het document en klik op Opslaan
+4 Klik op de Toevoegen knop om de documentcreatieapplicatie te starten. Deze opent in een nieuw tabblad
+
+4 Maak het document en klik op Klaar en sluit deze tabblad af
 
 5 Het document is aan de zaak toegevoegd en beschikbaar in het documentenoverzicht
 
