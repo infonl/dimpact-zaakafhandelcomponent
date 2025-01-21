@@ -726,7 +726,7 @@ tasks {
         val osClassifier = "${osdetector.os}_${osdetector.arch}".replace("osx", "Darwin").replace("aarch_64", "arm64")
         src(
             "https://github.com/norwoodj/helm-docs/releases/download/v$version/" +
-                "helm-docs_${version}_${osClassifier}.tar.gz"
+                "helm-docs_${version}_$osClassifier.tar.gz"
         )
         onlyIfModified(true)
         dest(layout.buildDirectory.file("helm-docs.tar.gz"))
