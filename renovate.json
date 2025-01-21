@@ -17,7 +17,6 @@
     "hsiliev"
   ],
   "prConcurrentLimit": 5,
-  "bumpVersion": "patch",
   "customManagers": [
     {
       "customType": "regex",
