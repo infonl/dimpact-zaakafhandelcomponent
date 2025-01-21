@@ -150,7 +150,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         if (zaakafhandelParameters.zaakTypeUUID != null) {
             LOG.warning {
                 "ZaakafhandelParameters for zaak type with UUID $zaaktypeUuid is already published. " +
-                        "Updating parameters data"
+                    "Updating parameters data"
             }
             updateZaakbeeindigGegevens(zaakafhandelParameters, zaaktype)
             storeZaakafhandelParameters(zaakafhandelParameters)
@@ -179,7 +179,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         if (previousZaakafhandelparameters.zaakTypeUUID == null) {
             LOG.warning {
                 "No previous version of ZaakafhandelParameters for zaak type with UUID ${zaaktype.url.extractUuid()} " +
-                        "found. Skipping data copy"
+                    "found. Skipping data copy"
             }
             return
         }
