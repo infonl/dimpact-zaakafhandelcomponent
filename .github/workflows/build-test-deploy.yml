@@ -30,7 +30,7 @@ permissions:
 
 jobs:
   paths-ignore:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       skip: ${{ steps.paths-ignore.outputs.skip }}
     steps:
@@ -43,7 +43,7 @@ jobs:
             ^helm/
 
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     needs: paths-ignore
     if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
@@ -118,7 +118,7 @@ jobs:
   run-unit-tests:
     needs: [build, paths-ignore]
     if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
@@ -179,7 +179,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   next-version:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.get-version.outputs.replaced }}
       tag: ${{ steps.get-tag.outputs.new_tag }}
@@ -214,7 +214,7 @@ jobs:
   build-docker-image-and-run-itests:
     needs: [build, paths-ignore, next-version]
     if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
@@ -346,7 +346,7 @@ jobs:
 
   dependabot-auto-merge:
     needs: [run-unit-tests, build-docker-image-and-run-itests]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: github.actor == 'dependabot[bot]'
     permissions:
       pull-requests: write
@@ -362,7 +362,7 @@ jobs:
 
   push-docker-image:
     needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     # Avoid infinite build loop on renovate updates
     if: ${{ github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'update ghcr.io/infonl/zaakafhandelcomponent docker tag') && !contains(github.event.head_commit.message, 'update dependency infonl/dimpact-zaakafhandelcomponent to') }}
@@ -399,7 +399,7 @@ jobs:
   create-release:
     needs: [next-version, push-docker-image]
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       NEXT_VERSION: ${{ needs.next-version.outputs.version }}
       NEXT_VERSION_TAG: ${{ needs.next-version.outputs.tag }}
@@ -427,7 +427,7 @@ jobs:
     needs: [next-version, push-docker-image]
     env:
       NEXT_VERSION: ${{ needs.next-version.outputs.version }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     if: github.ref == 'refs/heads/main'
     steps:
