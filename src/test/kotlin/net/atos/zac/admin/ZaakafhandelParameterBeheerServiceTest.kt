@@ -185,6 +185,44 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
         }
     }
 
+    Given("A new zaaktype was created and no previous version exists") {
+        val zaaktypeUUID = UUID.randomUUID()
+        val zaaktypeUri = URI("https://example.com/zaaktypes/$zaaktypeUUID")
+        val zaakType = createZaakType(uri = zaaktypeUri, servicenorm = "dummyServiceNorm", concept = false)
+
+        every { zaakafhandelParameterService.clearListCache() } returns "Cache cleared"
+
+        // ZtcClientService mocking
+        every { ztcClientService.clearZaaktypeCache() } returns "Cache cleared"
+        every { ztcClientService.readZaaktype(zaaktypeUri) } returns zaakType
+
+        // Relaxed entity manager mocking; criteria queries and persisting
+        val criteriaQuery = mockk<CriteriaQuery<ZaakafhandelParameters>>(relaxed = true)
+        every { entityManager.criteriaBuilder } returns mockk(relaxed = true) {
+            every { createQuery(ZaakafhandelParameters::class.java) } returns criteriaQuery
+        }
+        val slotPersistZaakafhandelParameters = slot<ZaakafhandelParameters>()
+
+        every {
+            entityManager.persist(capture(slotPersistZaakafhandelParameters))
+        } answers { ZaakafhandelParameters() }
+
+        every { entityManager.createQuery(criteriaQuery) } returns mockk {
+            every { setMaxResults(1) } returns this
+            every { resultList } returns emptyList()
+        }
+
+        When("Publishing a new zaaktype") {
+            zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri)
+
+            Then("The new zaak type is stored") {
+                verify {
+                    entityManager.persist(any<ZaakafhandelParameters>())
+                }
+            }
+        }
+    }
+
     Given("A zaaktype that has been updated") {
         val zaaktypeUUID = UUID.randomUUID()
         val zaaktypeUri = URI("https://example.com/zaaktypes/$zaaktypeUUID")
