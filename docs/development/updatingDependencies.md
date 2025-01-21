@@ -89,8 +89,17 @@ So for Angular dependencies we have to update them manually and commit them to t
 
 ### Prerequisites
 
-1. You need to have the Angular command line tools installed locally. Do install these on a Mac you can use
-   `brew install angular-cli`
+You need the Angular command line tools. You can install Angular CLI `ng` in several different ways: 
+```bash
+    # On Mac
+    brew install angular-cli
+    
+    # install Angular CLI locally
+    npm install -g @angular/cli`
+    
+    # run Angular CLI as remote package
+    npx @angular/cli ng
+```
 
 ### Update Angular dependencies
 
@@ -114,4 +123,18 @@ Make sure to commit every update command you run with a format like:
 ```bash
     git add .
     git commit -m "update @angular/core to [version]"
+```
+
+## Upgrading Helm Chart README
+
+```bash
+    ./gradlew buildHelmChartReadme
+
+    # Review and add changes
+    git co -b feature/PZ-<number>-update-helm-chart-readme
+    git add -p charts/zac/README.md
+   
+    # Commit and push the changes
+    git commit -m 'Update Helm Chart README'
+    git push origin feature/PZ-<number>-update-helm-chart-readme
 ```
