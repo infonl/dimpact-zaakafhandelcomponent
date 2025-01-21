@@ -521,9 +521,6 @@ tasks {
                 "useJakartaEe" to "true"
             )
         )
-        // Specify custom Mustache template dir as temporary workaround for the issue where OpenAPI Generator
-        // fails to generate import statements for @JsonbCreator annotations.
-        templateDir.set("$rootDir/src/main/resources/openapi-generator-templates")
     }
 
     register<GenerateTask>("generateKvkZoekenClient") {

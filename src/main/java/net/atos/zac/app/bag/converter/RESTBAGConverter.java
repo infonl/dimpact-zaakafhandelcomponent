@@ -12,6 +12,7 @@ import java.util.List;
 
 import jakarta.inject.Inject;
 
+import net.atos.client.bag.model.generated.Surface;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -95,11 +96,11 @@ public class RESTBAGConverter {
         return volledigHuisnummer.toString().trim();
     }
 
-    public static RestGeometry convertVlak(final PolygonGeoJSON polygonGeoJSON) {
+    public static RestGeometry convertVlak(final Surface surface) {
         return new RestGeometry(
-                polygonGeoJSON.getType().value(),
+                surface.getType().value(),
                 null,
-                polygonGeoJSON.getCoordinates()
+                surface.getCoordinates()
                         .stream()
                         .map(coords -> coords.stream()
                                 .map(RESTBAGConverter::convertCoordinates)
