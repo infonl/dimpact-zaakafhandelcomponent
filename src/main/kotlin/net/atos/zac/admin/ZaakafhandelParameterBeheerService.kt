@@ -132,13 +132,13 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         ztcClientService.clearZaaktypeCache()
 
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUri)
-        val zaktypeUuid = zaaktype.url.extractUuid()
+        val zaaktypeUuid = zaaktype.url.extractUuid()
         if (zaaktype.concept) {
-            LOG.warning { "Zaak type with UUID $zaktypeUuid is still a concept. Ignoring" }
+            LOG.warning { "Zaak type with UUID $zaaktypeUuid is still a concept. Ignoring" }
             return
         }
 
-        val zaakafhandelParameters = currentZaakafhandelParameters(zaktypeUuid)
+        val zaakafhandelParameters = currentZaakafhandelParameters(zaaktypeUuid)
 
         zaakafhandelParameters.apply {
             zaaktypeOmschrijving = zaaktype.omschrijving
@@ -149,33 +149,26 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
 
         if (zaakafhandelParameters.zaakTypeUUID != null) {
             LOG.warning {
-                "ZaakafhandelParameters for zaak type with UUID $zaktypeUuid is already published. Updating information"
+                "ZaakafhandelParameters for zaak type with UUID $zaaktypeUuid is already published. " +
+                        "Updating parameters data"
             }
             updateZaakbeeindigGegevens(zaakafhandelParameters, zaaktype)
             storeZaakafhandelParameters(zaakafhandelParameters)
             return
+        } else {
+            zaakafhandelParameters.zaakTypeUUID = zaaktypeUuid
         }
 
         val previousZaakafhandelparameters = currentZaakafhandelParameters(zaaktype.omschrijving)
-
-        // Check if this is a "new version" of a `zaaktype`
-        if (previousZaakafhandelparameters.zaakTypeUUID == null) {
-            LOG.warning {
-                "No previous version of ZaakafhandelParameters for zaak type with UUID $zaktypeUuid found. " +
-                        "Skipping data copy"
-            }
-            return
-        }
-
         mapPreviousZaakafhandelparametersData(zaakafhandelParameters, zaaktype, previousZaakafhandelparameters)
-
-        // We need to store the zaakafhandel parameters before mapping smart documents
-        // as we are reliant on fetching data which is mapped in the methods above and should be stored
-        // to prevent issues with the entityManager
         storeZaakafhandelParameters(zaakafhandelParameters)
 
-        mapSmartDocuments(previousZaakafhandelparameters.zaakTypeUUID, zaakafhandelParameters.zaakTypeUUID)
-        storeZaakafhandelParameters(zaakafhandelParameters)
+        // ZaakafhandelParameters and SmartDocumentsTemplates have circular relations. To solve this we update
+        // already existing ZaakafhandelParameters with SmartDocuments settings
+        previousZaakafhandelparameters.zaakTypeUUID?.let { previousZaakafhandelparametersUuid ->
+            mapSmartDocuments(previousZaakafhandelparametersUuid, zaakafhandelParameters.zaakTypeUUID)
+            storeZaakafhandelParameters(zaakafhandelParameters)
+        }
     }
 
     private fun mapPreviousZaakafhandelparametersData(
@@ -183,8 +176,15 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         zaaktype: ZaakType,
         previousZaakafhandelparameters: ZaakafhandelParameters
     ) {
+        if (previousZaakafhandelparameters.zaakTypeUUID == null) {
+            LOG.warning {
+                "No previous version of ZaakafhandelParameters for zaak type with UUID ${zaaktype.url.extractUuid()} " +
+                        "found. Skipping data copy"
+            }
+            return
+        }
+
         zaakafhandelParameters.apply {
-            zaakTypeUUID = zaaktype.url.extractUuid()
             caseDefinitionID = previousZaakafhandelparameters.caseDefinitionID
             groepID = previousZaakafhandelparameters.groepID
             gebruikersnaamMedewerker = previousZaakafhandelparameters.gebruikersnaamMedewerker
