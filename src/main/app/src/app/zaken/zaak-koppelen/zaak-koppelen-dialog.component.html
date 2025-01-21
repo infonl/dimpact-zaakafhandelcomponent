@@ -4,7 +4,7 @@
   -->
 
 <h1 mat-dialog-title>
-  {{'title.zaak.koppelen' | translate:{zaak: bronZaak?.identificatie} }}
+  {{ "title.zaak.koppelen" | translate: { zaak: bronZaak?.identificatie } }}
 </h1>
 
 <div mat-dialog-content>
@@ -35,7 +35,7 @@
     [maxLength]="100"
   ></zac-static-text>
   <div *ngIf="!isKoppelenToegestaan() && !loading">
-    {{'msg.zaak.koppelen.niet.toegestaan' | translate}}
+    {{ "msg.zaak.koppelen.niet.toegestaan" | translate }}
   </div>
 </div>
 <div mat-dialog-actions>
@@ -49,9 +49,9 @@
     <mat-icon *ngIf="loading">
       <mat-spinner diameter="18"></mat-spinner>
     </mat-icon>
-    {{'actie.koppelen' | translate}}
+    {{ "actie.koppelen" | translate }}
   </button>
   <button [disabled]="loading" autofocus mat-button (click)="close()">
-    {{'actie.annuleren' | translate}}
+    {{ "actie.annuleren" | translate }}
   </button>
 </div>

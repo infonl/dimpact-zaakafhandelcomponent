@@ -24,7 +24,7 @@
       [ngClass]="{
         error:
           data.groep.invalid &&
-          (data.formControl.touched || data.formControl.dirty)
+          (data.formControl.touched || data.formControl.dirty),
       }"
       >search</mat-icon
     >
@@ -40,19 +40,21 @@
         [ngClass]="{
           error:
             data.groep.invalid &&
-            (data.formControl.touched || data.formControl.dirty)
+            (data.formControl.touched || data.formControl.dirty),
         }"
         >clear</mat-icon
       >
     </button>
     <mat-autocomplete #groepAC="matAutocomplete" [displayWith]="displayFn">
-      <mat-option *ngFor="let groep of filteredGroepen | async" [value]="groep"
+      <mat-option
+        *ngFor="let groep of filteredGroepen | async"
+        [value]="groep"
         >{{ groep.naam }}</mat-option
       >
     </mat-autocomplete>
-    <mat-error appEnhanceMatError *ngIf="data.groep.invalid"
-      >{{ getMessage(data.groep, "Groep") }}</mat-error
-    >
+    <mat-error appEnhanceMatError *ngIf="data.groep.invalid">{{
+      getMessage(data.groep, "Groep")
+    }}</mat-error>
   </mat-form-field>
   <mat-form-field appearance="fill" class="full-width" floatLabel="always">
     <mat-label>{{ data.medewerkerLabel | translate }}</mat-label>
@@ -71,7 +73,7 @@
       [ngClass]="{
         error:
           data.medewerker.invalid &&
-          (data.formControl.touched || data.formControl.dirty)
+          (data.formControl.touched || data.formControl.dirty),
       }"
       >search</mat-icon
     >
@@ -87,7 +89,7 @@
         [ngClass]="{
           error:
             data.medewerker.invalid &&
-            (data.formControl.touched || data.formControl.dirty)
+            (data.formControl.touched || data.formControl.dirty),
         }"
         >clear</mat-icon
       >
@@ -99,8 +101,8 @@
         >{{ medewerker.naam }}</mat-option
       >
     </mat-autocomplete>
-    <mat-error appEnhanceMatError *ngIf="data.medewerker.invalid"
-      >{{ getMessage(data.medewerker, "Medewerker") }}</mat-error
-    >
+    <mat-error appEnhanceMatError *ngIf="data.medewerker.invalid">{{
+      getMessage(data.medewerker, "Medewerker")
+    }}</mat-error>
   </mat-form-field>
 </fieldset>

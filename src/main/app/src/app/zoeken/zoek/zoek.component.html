@@ -6,25 +6,25 @@
 <div class="form" [class.loading]="utilService.loading$ | async">
   <div class="button-row flex-row items-center">
     <div class="full-width title">
-      <ng-container *ngIf="zoekType == ZoekType.ZAC"
-        >{{'actie.zoeken.zac' | translate}}</ng-container
-      >
-      <ng-container *ngIf="zoekType == ZoekType.PERSONEN"
-        >{{'actie.zoeken.persoon' | translate}}</ng-container
-      >
-      <ng-container *ngIf="zoekType == ZoekType.BEDRIJVEN"
-        >{{'actie.zoeken.bedrijf' | translate}}</ng-container
-      >
-      <ng-container *ngIf="zoekType == ZoekType.BAG_OBJECTEN"
-        >{{'actie.zoeken.bagObject' | translate}}</ng-container
-      >
+      <ng-container *ngIf="zoekType == ZoekType.ZAC">{{
+        "actie.zoeken.zac" | translate
+      }}</ng-container>
+      <ng-container *ngIf="zoekType == ZoekType.PERSONEN">{{
+        "actie.zoeken.persoon" | translate
+      }}</ng-container>
+      <ng-container *ngIf="zoekType == ZoekType.BEDRIJVEN">{{
+        "actie.zoeken.bedrijf" | translate
+      }}</ng-container>
+      <ng-container *ngIf="zoekType == ZoekType.BAG_OBJECTEN">{{
+        "actie.zoeken.bagObject" | translate
+      }}</ng-container>
     </div>
     <button
       mat-icon-button
       type="button"
       matSuffix
       id="zac-button"
-      title="{{'actie.zoeken.zac' | translate}}"
+      title="{{ 'actie.zoeken.zac' | translate }}"
       [color]="zoekType === ZoekType.ZAC ? 'primary' : null"
       (click)="setZoektype(ZoekType.ZAC)"
     >
@@ -35,7 +35,7 @@
       type="button"
       matSuffix
       id="personen-button"
-      title="{{'actie.zoeken.persoon' | translate}}"
+      title="{{ 'actie.zoeken.persoon' | translate }}"
       [color]="zoekType === ZoekType.PERSONEN ? 'primary' : null"
       (click)="setZoektype(ZoekType.PERSONEN)"
     >
@@ -46,7 +46,7 @@
       type="button"
       matSuffix
       id="bedrijven-button"
-      title="{{'actie.zoeken.bedrijf' | translate}}"
+      title="{{ 'actie.zoeken.bedrijf' | translate }}"
       [color]="zoekType === ZoekType.BEDRIJVEN ? 'primary' : null"
       (click)="setZoektype(ZoekType.BEDRIJVEN)"
     >
@@ -57,7 +57,7 @@
       type="button"
       matSuffix
       id="bagObjecten-button"
-      title="{{'actie.zoeken.bagObject' | translate}}"
+      title="{{ 'actie.zoeken.bagObject' | translate }}"
       [color]="zoekType === ZoekType.BAG_OBJECTEN ? 'primary' : null"
       (click)="setZoektype(ZoekType.BAG_OBJECTEN)"
     >
@@ -71,39 +71,39 @@
         [formControl]="zoekveldControl"
         (selectionChange)="zoekVeldChanged()"
       >
-        <mat-option [value]="ZoekVeld.ALLE"
-          >{{'zoekVeld.ALLE' | translate}}</mat-option
-        >
-        <mat-option [value]="ZoekVeld.ZAAK_OMSCHRIJVING"
-          >{{'zoekVeld.ZAAK_OMSCHRIJVING' | translate}}</mat-option
-        >
-        <mat-option [value]="ZoekVeld.ZAAK_TOELICHTING"
-          >{{'zoekVeld.ZAAK_TOELICHTING' | translate}}</mat-option
-        >
-        <mat-option [value]="ZoekVeld.TAAK_TOELICHTING"
-          >{{'zoekVeld.TAAK_TOELICHTING' | translate}}</mat-option
-        >
-        <mat-option [value]="ZoekVeld.DOCUMENT_TITEL"
-          >{{'zoekVeld.DOCUMENT_TITEL' | translate}}</mat-option
-        >
-        <mat-option [value]="ZoekVeld.DOCUMENT_BESCHRIJVING"
-          >{{'zoekVeld.DOCUMENT_BESCHRIJVING' | translate}}</mat-option
-        >
+        <mat-option [value]="ZoekVeld.ALLE">{{
+          "zoekVeld.ALLE" | translate
+        }}</mat-option>
+        <mat-option [value]="ZoekVeld.ZAAK_OMSCHRIJVING">{{
+          "zoekVeld.ZAAK_OMSCHRIJVING" | translate
+        }}</mat-option>
+        <mat-option [value]="ZoekVeld.ZAAK_TOELICHTING">{{
+          "zoekVeld.ZAAK_TOELICHTING" | translate
+        }}</mat-option>
+        <mat-option [value]="ZoekVeld.TAAK_TOELICHTING">{{
+          "zoekVeld.TAAK_TOELICHTING" | translate
+        }}</mat-option>
+        <mat-option [value]="ZoekVeld.DOCUMENT_TITEL">{{
+          "zoekVeld.DOCUMENT_TITEL" | translate
+        }}</mat-option>
+        <mat-option [value]="ZoekVeld.DOCUMENT_BESCHRIJVING">{{
+          "zoekVeld.DOCUMENT_BESCHRIJVING" | translate
+        }}</mat-option>
       </mat-select>
     </mat-form-field>
     <mat-form-field class="flex-1 w75" appearance="fill">
-      <mat-label>{{'actie.zoeken' | translate}}</mat-label>
+      <mat-label>{{ "actie.zoeken" | translate }}</mat-label>
       <input
         [formControl]="trefwoordenControl"
         id="zoekVeld"
         matInput
         (keyup.enter)="keywordsChange()"
-        placeholder="{{'msg.zoeken.trefwoorden.placeholder' | translate}}"
+        placeholder="{{ 'msg.zoeken.trefwoorden.placeholder' | translate }}"
         maxlength="100"
       />
       <button
         *ngIf="hasSearched && zoekType === ZoekType.ZAC"
-        [title]="'actie.zoekopdracht.wissen'|translate"
+        [title]="'actie.zoekopdracht.wissen' | translate"
         (click)="reset()"
         mat-icon-button
         matSuffix
@@ -127,7 +127,7 @@
       ></mat-progress-bar>
     </mat-form-field>
   </div>
-  <ng-container *ngIf="zoekType===ZoekType.ZAC">
+  <ng-container *ngIf="zoekType === ZoekType.ZAC">
     <div class="flex-row gap-10">
       <div class="zoek-filters flex-col w25 flex-1 gap-10">
         <div
@@ -148,28 +148,39 @@
           (changed)="zoek.emit()"
         ></zac-zaak-betrokkene-filter>
         <zac-date-filter
-          *ngIf="hasZaken || hasTaken || hasDocument || zoekParameters.datums.STARTDATUM?.hasValue();"
+          *ngIf="
+            hasZaken ||
+            hasTaken ||
+            hasDocument ||
+            zoekParameters.datums.STARTDATUM?.hasValue()
+          "
           label="startdatum"
           [range]="zoekParameters.datums.STARTDATUM"
           (changed)="zoekParameters.datums.STARTDATUM = $event; zoek.emit()"
         >
         </zac-date-filter>
         <zac-date-filter
-          *ngIf="hasZaken || zoekParameters.datums.ZAAK_STREEFDATUM?.hasValue();"
+          *ngIf="hasZaken || zoekParameters.datums.ZAAK_STREEFDATUM?.hasValue()"
           label="zaak.streefdatum"
           [range]="zoekParameters.datums.ZAAK_STREEFDATUM"
-          (changed)="zoekParameters.datums.ZAAK_STREEFDATUM = $event; zoek.emit()"
+          (changed)="
+            zoekParameters.datums.ZAAK_STREEFDATUM = $event; zoek.emit()
+          "
         >
         </zac-date-filter>
         <zac-date-filter
-          *ngIf="hasZaken || zoekParameters.datums.ZAAK_FATALE_DATUM?.hasValue();"
+          *ngIf="
+            hasZaken || zoekParameters.datums.ZAAK_FATALE_DATUM?.hasValue()
+          "
           label="zaak.fataledatum"
           [range]="zoekParameters.datums.ZAAK_FATALE_DATUM"
-          (changed)="zoekParameters.datums.ZAAK_FATALE_DATUM = $event; zoek.emit()"
+          (changed)="
+            zoekParameters.datums.ZAAK_FATALE_DATUM = $event; zoek.emit()
+          "
         >
         </zac-date-filter>
         <zac-date-filter
-          *ngIf="hasZaken || zoekParameters.datums.ZAAK_EINDDATUM?.hasValue();"
+          *ngIf="hasZaken || zoekParameters.datums.ZAAK_EINDDATUM?.hasValue()"
           label="zaak.einddatum"
           [range]="zoekParameters.datums.ZAAK_EINDDATUM"
           (changed)="zoekParameters.datums.ZAAK_EINDDATUM = $event; zoek.emit()"
@@ -201,22 +212,22 @@
           class="geen-resultaat"
           *ngIf="zoekResultaat.totaal == 0 && !isLoadingResults"
         >
-          {{'msg.geen.gegevens.gevonden' | translate}}
+          {{ "msg.geen.gegevens.gevonden" | translate }}
         </p>
       </div>
     </div>
   </ng-container>
-  <ng-container *ngIf="zoekType===ZoekType.PERSONEN">
+  <ng-container *ngIf="zoekType === ZoekType.PERSONEN">
     <zac-persoon-zoek [sideNav]="zoekenSideNav"></zac-persoon-zoek>
   </ng-container>
-  <ng-container *ngIf="zoekType===ZoekType.BEDRIJVEN">
+  <ng-container *ngIf="zoekType === ZoekType.BEDRIJVEN">
     <zac-bedrijf-zoek [sideNav]="zoekenSideNav"></zac-bedrijf-zoek>
   </ng-container>
-  <ng-container *ngIf="zoekType===ZoekType.BAG_OBJECTEN">
+  <ng-container *ngIf="zoekType === ZoekType.BAG_OBJECTEN">
     <zac-bag-zoek [sideNav]="zoekenSideNav"></zac-bag-zoek>
   </ng-container>
   <mat-paginator
-    [ngClass]="{'hide' : zoekType !== ZoekType.ZAC}"
+    [ngClass]="{ hide: zoekType !== ZoekType.ZAC }"
     #paginator
     [pageIndex]="0"
     [pageSize]="10"

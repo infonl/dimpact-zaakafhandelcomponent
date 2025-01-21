@@ -24,21 +24,21 @@
           <table mat-table [dataSource]="dataSource">
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>
-                {{ 'naam' | translate }}
+                {{ "naam" | translate }}
               </th>
               <td mat-cell *matCellDef="let row">{{ row.name }}</td>
             </ng-container>
 
             <ng-container matColumnDef="version">
               <th mat-header-cell *matHeaderCellDef>
-                {{ 'versie' | translate }}
+                {{ "versie" | translate }}
               </th>
               <td mat-cell *matCellDef="let row">{{ row.version }}</td>
             </ng-container>
 
             <ng-container matColumnDef="key">
               <th mat-header-cell *matHeaderCellDef>
-                {{ 'sleutel' | translate }}
+                {{ "sleutel" | translate }}
               </th>
               <td mat-cell *matCellDef="let row">{{ row.key }}</td>
             </ng-container>
@@ -48,7 +48,7 @@
                 <button
                   mat-icon-button
                   id="upload"
-                  title="{{ 'actie.toevoegen' | translate}}"
+                  title="{{ 'actie.toevoegen' | translate }}"
                   (click)="selectFile()"
                 >
                   <mat-icon>add_circle</mat-icon>
@@ -64,7 +64,7 @@
                 <button
                   mat-icon-button
                   id="delete"
-                  title="{{ 'actie.verwijderen' | translate}}"
+                  title="{{ 'actie.verwijderen' | translate }}"
                   (click)="delete(row)"
                 >
                   <mat-icon>delete</mat-icon>
@@ -73,10 +73,10 @@
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="columns"></tr>
-            <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns"></tr>
             <tr mat-row *matNoDataRow>
               <td [colSpan]="columns.length">
-                {{ 'msg.geen.gegevens.gevonden' | translate }}
+                {{ "msg.geen.gegevens.gevonden" | translate }}
               </td>
             </tr>
           </table>
