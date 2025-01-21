@@ -159,10 +159,24 @@
     },
     {
       "matchPackageNames": [
-        "zaakafhandelcomponent"
+        "infonl/dimpact-zaakafhandelcomponent"
       ],
       "matchDatasources": [
-        "custom"
+        "github-tags"
+      ],
+      "automerge": true
+    },
+    {
+      "matchPackageNames": [
+        "ghcr.io/infonl/zaakafhandelcomponent"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchUpdateTypes": [
+        "patch",
+	"minor",
+	"major"
       ],
       "automerge": true
     }
