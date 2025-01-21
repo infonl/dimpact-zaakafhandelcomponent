@@ -56,14 +56,19 @@
     </button>
   </div>
   <button
-    [disabled]="actieveZoekopdracht!=null"
+    [disabled]="actieveZoekopdracht != null"
     mat-icon-button
     (click)="saveSearch()"
     id="saveZoekopdrachtButton"
   >
     <mat-icon
-      [attr.outlined]="actieveZoekopdracht==null?true:null"
-      title="{{ (actieveZoekopdracht ? actieveZoekopdracht.naam: 'actie.zoekopdracht.opslaan') | translate }}"
+      [attr.outlined]="actieveZoekopdracht == null ? true : null"
+      title="{{
+        (actieveZoekopdracht
+          ? actieveZoekopdracht.naam
+          : 'actie.zoekopdracht.opslaan'
+        ) | translate
+      }}"
     >
       star
     </mat-icon>

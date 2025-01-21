@@ -10,11 +10,11 @@
 >
   <ng-container *ngFor="let menuItem of menu" [ngSwitch]="menuItem.type">
     <h3 mat-subheader *ngSwitchCase="menuItemType.HEADER">
-      <mat-icon *ngIf="menuState===MenuState.CLOSED"
-        >{{menuItem.icon ? menuItem.icon : 'more_horiz'}}</mat-icon
-      >
-      <span *ngIf="menuState===MenuState.OPEN">
-        {{menuItem.title | translate}}</span
+      <mat-icon *ngIf="menuState === MenuState.CLOSED">{{
+        menuItem.icon ? menuItem.icon : "more_horiz"
+      }}</mat-icon>
+      <span *ngIf="menuState === MenuState.OPEN">
+        {{ menuItem.title | translate }}</span
       >
     </h3>
     <mat-divider *ngSwitchCase="menuItemType.HEADER"></mat-divider>
@@ -23,7 +23,7 @@
       mat-list-item
       *ngSwitchCase="menuItemType.LINK"
       [disabled]="menuItem.disabled"
-      routerLink="{{asLinkMenuItem(menuItem).url}}"
+      routerLink="{{ asLinkMenuItem(menuItem).url }}"
       routerLinkActive="active"
     >
       <mat-icon
@@ -31,9 +31,9 @@
         matTooltipPosition="after"
         [matTooltip]="menuItem.title | translate"
         matListItemIcon
-        >{{menuItem.icon}}</mat-icon
+        >{{ menuItem.icon }}</mat-icon
       >
-      <div matListItemTitle>{{menuItem.title | translate}}</div>
+      <div matListItemTitle>{{ menuItem.title | translate }}</div>
     </a>
     <button
       type="button"
@@ -48,9 +48,9 @@
         matTooltipPosition="after"
         [matTooltip]="menuItem.title | translate"
         matListItemIcon
-        >{{menuItem.icon}}</mat-icon
+        >{{ menuItem.icon }}</mat-icon
       >
-      <div matListItemTitle>{{menuItem.title | translate}}</div>
+      <div matListItemTitle>{{ menuItem.title | translate }}</div>
     </button>
     <a
       mat-list-item
@@ -63,9 +63,9 @@
         matTooltipPosition="after"
         [matTooltip]="menuItem.title | translate"
         matListItemIcon
-        >{{menuItem.icon}}</mat-icon
+        >{{ menuItem.icon }}</mat-icon
       >
-      <div matListItemTitle>{{menuItem.title | translate}}</div>
+      <div matListItemTitle>{{ menuItem.title | translate }}</div>
     </a>
   </ng-container>
 </mat-nav-list>
@@ -74,10 +74,10 @@
     (click)="toggleMenu()"
     mat-mini-fab
     id="toggleMenuButon"
-    title="{{'actie.menu.aanpassen' | translate}}"
+    title="{{ 'actie.menu.aanpassen' | translate }}"
   >
-    <mat-icon [@rotated180]="menuMode"
-      >{{menuMode === MenuMode.AUTO ? 'menu' : 'menu_open'}}</mat-icon
-    >
+    <mat-icon [@rotated180]="menuMode">{{
+      menuMode === MenuMode.AUTO ? "menu" : "menu_open"
+    }}</mat-icon>
   </button>
 </mat-toolbar>

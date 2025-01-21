@@ -10,16 +10,16 @@
   [class]="data.styleClass"
 >
   @if (data.onClear.observed && data.formControl.value && !data.readonly) {
-  <button
-    matSuffix
-    mat-icon-button
-    aria-label="Clear"
-    [disabled]="clearDisabled$ | async"
-    (click)="data.onClear.emit(); $event.stopPropagation()"
-    title="{{'actie.wissen' | translate}}"
-  >
-    <mat-icon>clear</mat-icon>
-  </button>
+    <button
+      matSuffix
+      mat-icon-button
+      aria-label="Clear"
+      [disabled]="clearDisabled$ | async"
+      (click)="data.onClear.emit(); $event.stopPropagation()"
+      title="{{ 'actie.wissen' | translate }}"
+    >
+      <mat-icon>clear</mat-icon>
+    </button>
   }
 
   <button
@@ -27,14 +27,14 @@
     mat-icon-button
     type="button"
     matSuffix
-    title="{{icon.title | translate}}"
+    title="{{ icon.title | translate }}"
     (click)="icon.iconClicked.next(null)"
     [disabled]="iconButtonsDisabled$ | async"
   >
-    <mat-icon>{{icon.icon}}</mat-icon>
+    <mat-icon>{{ icon.icon }}</mat-icon>
   </button>
 
-  <mat-label>{{data.label | translate}}</mat-label>
+  <mat-label>{{ data.label | translate }}</mat-label>
   <input
     [formControl]="data.formControl"
     [id]="data.id + '_tekstfield'"
@@ -43,14 +43,14 @@
     [maxlength]="data.maxlength"
     [readonly]="data.readonly"
   />
-  <mat-hint *ngIf="data.hint" [align]="data.hint.align"
-    >{{data.hint.label | translate}}</mat-hint
-  >
+  <mat-hint *ngIf="data.hint" [align]="data.hint.align">{{
+    data.hint.label | translate
+  }}</mat-hint>
   <mat-hint
     *ngIf="data.showCount && data.formControl.value && data.formControl.dirty"
-    >{{data.formControl.value.length}} /{{data.maxlength}}</mat-hint
+    >{{ data.formControl.value.length }} /{{ data.maxlength }}</mat-hint
   >
-  <mat-error appEnhanceMatError *ngIf="data.formControl.invalid"
-    >{{getErrorMessage()}}</mat-error
-  >
+  <mat-error appEnhanceMatError *ngIf="data.formControl.invalid">{{
+    getErrorMessage()
+  }}</mat-error>
 </mat-form-field>

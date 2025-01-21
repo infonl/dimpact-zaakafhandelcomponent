@@ -8,7 +8,7 @@
     <div class="flex-row flex-wrap">
       <mat-card class="flex-1">
         <mat-card-header>
-          <mat-card-title>{{'bedrijfsgegevens' | translate}}</mat-card-title>
+          <mat-card-title>{{ "bedrijfsgegevens" | translate }}</mat-card-title>
           <button
             mat-icon-button
             [disabled]="!vestigingsprofielOphalenMogelijk"
@@ -76,7 +76,7 @@
             <zac-static-text
               *ngIf="vestigingsprofiel"
               [label]="'activiteiten' | translate"
-              [value]="vestigingsprofiel.sbiActiviteiten?.join(',\r\n') "
+              [value]="vestigingsprofiel.sbiActiviteiten?.join(',\r\n')"
             ></zac-static-text>
             <zac-static-text
               *ngIf="vestigingsprofiel"

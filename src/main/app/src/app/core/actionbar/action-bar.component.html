@@ -7,37 +7,42 @@
   <mat-list>
     <mat-list-item
       *ngFor="let action of actions"
-      title="{{(action.actionEnabled() ? null :action.disabledReden()) | translate}}"
+      title="{{
+        (action.actionEnabled() ? null : action.disabledReden()) | translate
+      }}"
     >
       <div class="flex-row items-center">
         <div>
           <div class="flex-row items-center">
             <span class="entity-type"
-              >{{'action.entityType.' + action.entityType |
-              translate}}&nbsp;</span
+              >{{
+                "action.entityType." + action.entityType | translate
+              }}&nbsp;</span
             >
             <span
-              >{{action.text}}
+              >{{ action.text }}
               <mat-icon *ngIf="!action.actionEnabled()" class="help-icon"
                 >help_outline</mat-icon
               >
             </span>
           </div>
-          <div class="sub-text flex-row items-center">{{action.subText}}</div>
+          <div class="sub-text flex-row items-center">{{ action.subText }}</div>
         </div>
         <div class="flex-row items-center justify-end align-self-end">
           <button
             mat-icon-button
             color="primary"
-            title="{{(action.actionEnabled() ? action.action.title: null) | translate}}"
+            title="{{
+              (action.actionEnabled() ? action.action.title : null) | translate
+            }}"
             [disabled]="!action.actionEnabled() || actionBarDisabled"
             (click)="actionTextClicked(action)"
           >
-            <mat-icon>{{action.action.icon}}</mat-icon>
+            <mat-icon>{{ action.action.icon }}</mat-icon>
           </button>
           <button
             mat-icon-button
-            title="{{'actie.annuleren' | translate}}"
+            title="{{ 'actie.annuleren' | translate }}"
             (click)="dismissAction(action)"
           >
             <mat-icon>close</mat-icon>
