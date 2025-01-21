@@ -154,7 +154,7 @@ image:
   repository: ghcr.io/infonl/zaakafhandelcomponent
   pullPolicy: IfNotPresent
   # -- Overrides the image tag whose default is the chart appVersion.
-  tag: "1.12.343@sha256:ae7154be5cf66f6700a7574fa4b65067d4b5f8303d11002312eb8d152aa55ddf"
+  tag: ""
 
 # -- specifies image pull secrets
 imagePullSecrets: []
