@@ -25,7 +25,7 @@
         "softwareVersion: \"(?<currentValue>[^\"]+)\"\\nreleaseDate: \"(?<releaseDate>[^\"]+)\""
       ],
       "depNameTemplate": "infonl/dimpact-zaakafhandelcomponent",
-      "datasourceTemplate": "github-tags",
+      "datasourceTemplate": "github-releases",
       "autoReplaceStringTemplate": "softwareVersion: \"{{{newValue}}}\"\nreleaseDate: \"{{{releaseTimestamp}}}\""
     }
   ],
@@ -161,7 +161,7 @@
         "infonl/dimpact-zaakafhandelcomponent"
       ],
       "matchDatasources": [
-        "github-tags"
+        "github-releases"
       ],
       "automerge": true
     },
