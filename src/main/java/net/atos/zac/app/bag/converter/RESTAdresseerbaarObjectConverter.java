@@ -18,7 +18,7 @@ import net.atos.client.bag.model.generated.TypeAdresseerbaarObject;
 import net.atos.client.bag.model.generated.Verblijfsobject;
 import net.atos.zac.app.bag.model.RESTAdresseerbaarObject;
 
-public class RESTAdreseerbaarObjectConverter {
+public class RESTAdresseerbaarObjectConverter {
 
     public RESTAdresseerbaarObject convertToREST(final AdresseerbaarObjectIOHal adresseerbaarObjectIOHal) {
         if (adresseerbaarObjectIOHal == null) {

@@ -162,9 +162,7 @@ export class MedewerkerGroepComponent
 
         if (defaultMedewerkerId) {
           this.data.medewerker.setValue(
-            medewerkers.find(
-              (medewerker) => medewerker.id === defaultMedewerkerId,
-            ),
+            medewerkers.find(({ id }) => id === defaultMedewerkerId),
           );
         }
       });

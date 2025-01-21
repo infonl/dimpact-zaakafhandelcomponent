@@ -377,7 +377,7 @@ services:
 
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
-    image: ghcr.io/eugenmayer/kontextwork-converter:1.6.2@sha256:3d1eb99e88bd2944a9a5349f8e5e7b3e81b90841cdc07f17688f96a8f8d8dd72
+    image: ghcr.io/eugenmayer/kontextwork-converter:1.7.0@sha256:8660b8d329b1ca0315c04725cfc855f03e7d34c918d292497216bb98c5c8dd89
     platform: linux/amd64
     ports:
       - "8083:8080"
