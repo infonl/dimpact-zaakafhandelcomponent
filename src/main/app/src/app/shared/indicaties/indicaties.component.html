@@ -18,15 +18,17 @@
   >
     <div class="view">
       <mat-icon [attr.outlined]="indicatie.outlined">
-        {{indicatie.icon}}
+        {{ indicatie.icon }}
       </mat-icon>
-      <span class="label"> {{'indicatie.' + indicatie.naam | translate}} </span>
+      <span class="label">
+        {{ "indicatie." + indicatie.naam | translate }}
+      </span>
     </div>
   </mat-chip-option>
 </mat-chip-listbox>
 
 <mat-chip-listbox
-  *ngIf="layout== Layout.WERKLIJST || layout == Layout.ZOEKEN"
+  *ngIf="layout == Layout.WERKLIJST || layout == Layout.ZOEKEN"
   [class]="layout.toLowerCase()"
   selectable="false"
   class="flex-row"
@@ -36,11 +38,14 @@
     selectable="false"
     [color]="indicatie.primary ? 'accent' : null"
     [highlighted]="indicatie.primary"
-    [matTooltip]="('indicatie.'+indicatie.naam | translate)+(indicatie.toelichting ? ': '+ indicatie.toelichting : '')"
+    [matTooltip]="
+      ('indicatie.' + indicatie.naam | translate) +
+      (indicatie.toelichting ? ': ' + indicatie.toelichting : '')
+    "
   >
     <div class="werklijst">
       <mat-icon [attr.outlined]="indicatie.outlined">
-        {{indicatie.icon}}
+        {{ indicatie.icon }}
       </mat-icon>
     </div>
   </mat-chip-option>

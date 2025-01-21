@@ -4,6 +4,8 @@
   -->
 
 <span
-  class="fa-solid {{getFileIcon(bestandsnaam).icon}} {{getFileIcon(bestandsnaam).color}}"
+  class="fa-solid {{ getFileIcon(bestandsnaam).icon }} {{
+    getFileIcon(bestandsnaam).color
+  }}"
   [title]="getFileTooltip(getFileIcon(bestandsnaam).type)"
 ></span>

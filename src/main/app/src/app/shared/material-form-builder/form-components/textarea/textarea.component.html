@@ -4,7 +4,7 @@
   -->
 
 <mat-form-field appearance="fill" class="full-width">
-  <mat-label *ngIf="data.label">{{data.label | translate}}</mat-label>
+  <mat-label *ngIf="data.label">{{ data.label | translate }}</mat-label>
 
   <textarea
     [formControl]="data.formControl"
@@ -17,14 +17,14 @@
     [maxlength]="data.maxlength"
   ></textarea>
 
-  <mat-hint *ngIf="data.hint" [align]="data.hint.align"
-    >{{data.hint.label | translate}}</mat-hint
-  >
+  <mat-hint *ngIf="data.hint" [align]="data.hint.align">{{
+    data.hint.label | translate
+  }}</mat-hint>
   <mat-hint
     *ngIf="data.showCount && data.formControl.value && data.formControl.dirty"
-    >{{data.formControl.value.length}}/{{data.maxlength}}</mat-hint
+    >{{ data.formControl.value.length }}/{{ data.maxlength }}</mat-hint
   >
-  <mat-error appEnhanceMatError *ngIf="data.formControl.invalid"
-    >{{getErrorMessage()}}</mat-error
-  >
+  <mat-error appEnhanceMatError *ngIf="data.formControl.invalid">{{
+    getErrorMessage()
+  }}</mat-error>
 </mat-form-field>

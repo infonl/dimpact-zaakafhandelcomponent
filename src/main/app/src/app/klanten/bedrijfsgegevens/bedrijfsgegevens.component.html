@@ -5,9 +5,9 @@
 
 <mat-expansion-panel [expanded]="klantExpanded">
   <mat-expansion-panel-header>
-    <mat-panel-title> {{'initiator.titel'| translate}} </mat-panel-title>
+    <mat-panel-title> {{ "initiator.titel" | translate }} </mat-panel-title>
     <mat-panel-description>
-      {{bedrijf ? bedrijf.naam : ('msg.loading'| translate)}}
+      {{ bedrijf ? bedrijf.naam : ("msg.loading" | translate) }}
       <div class="flex-row">
         <button
           mat-icon-button
@@ -38,7 +38,7 @@
           mat-icon-button
           [routerLink]="['/bedrijf', bedrijf.identificatie]"
           (click)="$event.stopPropagation()"
-          [id]="'bedrijfBekijken_' + bedrijf.identificatie +'_button'"
+          [id]="'bedrijfBekijken_' + bedrijf.identificatie + '_button'"
           title="{{ 'actie.bedrijf.bekijken' | translate }}"
         >
           <mat-icon>visibility</mat-icon>
@@ -100,7 +100,7 @@
     <zac-static-text
       *ngIf="vestigingsprofiel"
       [label]="'activiteiten' | translate"
-      [value]="vestigingsprofiel.sbiActiviteiten?.join(',\r\n') "
+      [value]="vestigingsprofiel.sbiActiviteiten?.join(',\r\n')"
     ></zac-static-text>
     <zac-static-text
       *ngIf="vestigingsprofiel"

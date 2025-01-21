@@ -10,7 +10,7 @@
     class="file-field full-width"
     (click)="fileInput.click()"
   >
-    <mat-label>{{data.label | translate}}</mat-label>
+    <mat-label>{{ data.label | translate }}</mat-label>
     <input
       [formControl]="data.formControl"
       [id]="data.id + '_filefield'"
@@ -48,11 +48,14 @@
     <mat-hint>
       <div
         class="error"
-        *ngIf="(data.formControl.invalid && data.formControl.touched) || data.uploadError"
+        *ngIf="
+          (data.formControl.invalid && data.formControl.touched) ||
+          data.uploadError
+        "
       >
-        {{getErrorMessage()}}
+        {{ getErrorMessage() }}
       </div>
-      <div *ngIf="data.hint">{{data.hint?.label}}</div>
+      <div *ngIf="data.hint">{{ data.hint?.label }}</div>
     </mat-hint>
 
     <input

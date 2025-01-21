@@ -9,7 +9,7 @@
     class="full-width"
     (click)="fileInput.click()"
   >
-    <mat-label>{{data.label | translate}}</mat-label>
+    <mat-label>{{ data.label | translate }}</mat-label>
     <input
       [formControl]="uploadControl"
       [id]="data.id + '_upload'"
@@ -43,14 +43,17 @@
     >
       <mat-icon>delete</mat-icon>
     </button>
-    <mat-hint *ngIf="data.hint" [align]="data.hint.align"
-      >{{data.hint.label | translate}}</mat-hint
-    >
+    <mat-hint *ngIf="data.hint" [align]="data.hint.align">{{
+      data.hint.label | translate
+    }}</mat-hint>
     <mat-hint
       class="mat-error"
-      *ngIf="(data.formControl.invalid && data.formControl.touched) || data.uploadError"
+      *ngIf="
+        (data.formControl.invalid && data.formControl.touched) ||
+        data.uploadError
+      "
     >
-      {{getErrorMessage()}}
+      {{ getErrorMessage() }}
     </mat-hint>
     <input
       hidden="hidden"
@@ -67,7 +70,7 @@
     appearance="fill"
     *ngIf="uploadControl.value"
   >
-    <mat-label>{{'documenttitel' | translate}}</mat-label>
+    <mat-label>{{ "documenttitel" | translate }}</mat-label>
     <input
       [formControl]="titelControl"
       [id]="data.id + '_title'"
@@ -80,16 +83,16 @@
     appearance="fill"
     *ngIf="uploadControl.value"
   >
-    <mat-label>{{'documentType' | translate}}</mat-label>
+    <mat-label>{{ "documentType" | translate }}</mat-label>
     <mat-select
       [id]="data.id + '_type'"
       [compareWith]="compareInfoObjectType"
       (selectionChange)="updateValue()"
       [formControl]="typeControl"
     >
-      <mat-option *ngFor="let type of types$ | async" [value]="type"
-        >{{ type.omschrijving | titlecase }}</mat-option
-      >
+      <mat-option *ngFor="let type of types$ | async" [value]="type">{{
+        type.omschrijving | titlecase
+      }}</mat-option>
     </mat-select>
   </mat-form-field>
 </form>
