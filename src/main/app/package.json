@@ -1,6 +1,6 @@
 {
   "name": "app",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "scripts": {
     "ng": "ng",
     "dev": "npm run generate:types:zac-openapi && ng serve --hmr --proxy-config proxy.conf.json",
@@ -58,8 +58,8 @@
     "@types/jest": "29.5.14",
     "@types/node": "22.10.7",
     "@types/uuid": "10.0.0",
-    "@typescript-eslint/eslint-plugin": "8.20.0",
-    "@typescript-eslint/parser": "8.20.0",
+    "@typescript-eslint/eslint-plugin": "8.21.0",
+    "@typescript-eslint/parser": "8.21.0",
     "codelyzer": "6.0.2",
     "eslint": "8.57.1",
     "eslint-config-prettier": "10.0.1",
