@@ -41,8 +41,13 @@ if __name__ == '__main__':
     open_objecttypes_latest_version = open_objecttypes_extractor.get_latest_version()
     print(f'Object Types API latest version: {open_objecttypes_latest_version}')
 
-    # Extract the latest version of Object Types API from the GitHub tags
-    open_objecttypes_extractor = GitHubTagVersionExtractor('https://github.com/Klantinteractie-Servicesysteem/.github/tags','v')
+    # Extract the latest version of open-inwoner from the GitHub tags
+    open_inwoner_extractor = GitHubTagVersionExtractor('https://github.com/maykinmedia/open-inwoner/tags', 'v')
+    open_inwoner_latest_version = open_inwoner_extractor.get_latest_version()
+    print(f'Open Inwoner latest version: {open_inwoner_latest_version}')
+
+    # Extract the latest version of KISS from the GitHub tags
+    open_objecttypes_extractor = GitHubTagVersionExtractor('https://github.com/Klantinteractie-Servicesysteem/KISS-frontend/releases','v')
     open_objecttypes_latest_version = open_objecttypes_extractor.get_latest_version()
     print(f'KISS latest version: v{open_objecttypes_latest_version}')
 
