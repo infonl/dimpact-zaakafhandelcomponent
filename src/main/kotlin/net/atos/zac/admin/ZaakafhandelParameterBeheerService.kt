@@ -30,6 +30,7 @@ import java.net.URI
 import java.time.ZonedDateTime
 import java.util.Date
 import java.util.UUID
+import java.util.logging.Logger
 
 @ApplicationScoped
 @Transactional
@@ -42,6 +43,10 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService
 ) {
+    companion object {
+        private val LOG = Logger.getLogger(ZaakafhandelParameterBeheerService::class.java.name)
+    }
+
     /**
      * Retrieves the zaakafhandelparameters for a given zaaktype UUID.
      * Note that a zaaktype UUID uniquely identifies a _version_ of a zaaktype, and therefore also
@@ -73,6 +78,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             humanTaskParametersCollection.forEach { ValidationUtil.valideerObject(it) }
             userEventListenerParametersCollection.forEach { ValidationUtil.valideerObject(it) }
             mailtemplateKoppelingen.forEach { ValidationUtil.valideerObject(it) }
+            zaakAfzenders.forEach { ValidationUtil.valideerObject(it) }
             creatiedatum = zaakafhandelParameters.creatiedatum ?: ZonedDateTime.now()
         }
 
@@ -124,11 +130,17 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
     @SuppressWarnings("ReturnCount")
     fun upsertZaakafhandelParameters(zaaktypeUri: URI) {
         zaakafhandelParameterService.clearListCache()
+        zaakafhandelParameterService.clearManagedCache()
         ztcClientService.clearZaaktypeCache()
-        val zaaktype = ztcClientService.readZaaktype(zaaktypeUri)
-        if (zaaktype.concept) return
 
-        val zaakafhandelParameters = currentZaakafhandelParameters(zaaktype.url.extractUuid())
+        val zaaktype = ztcClientService.readZaaktype(zaaktypeUri)
+        val zaktypeUuid = zaaktype.url.extractUuid()
+        if (zaaktype.concept) {
+            LOG.warning { "Zaak type with UUID $zaktypeUuid is still a concept. Ignoring" }
+            return
+        }
+
+        val zaakafhandelParameters = currentZaakafhandelParameters(zaktypeUuid)
 
         zaakafhandelParameters.apply {
             zaaktypeOmschrijving = zaaktype.omschrijving
@@ -137,8 +149,10 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             }
         }
 
-        // Check if this version was published before
         if (zaakafhandelParameters.zaakTypeUUID != null) {
+            LOG.warning {
+                "ZaakafhandelParameters for zaak type with UUID $zaktypeUuid is already published. Updating information"
+            }
             updateZaakbeeindigGegevens(zaakafhandelParameters, zaaktype)
             storeZaakafhandelParameters(zaakafhandelParameters)
             return
@@ -147,8 +161,30 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         val previousZaakafhandelparameters = currentZaakafhandelParameters(zaaktype.omschrijving)
 
         // Check if this is a "new version" of a `zaaktype`
-        if (previousZaakafhandelparameters.zaakTypeUUID == null) return
+        if (previousZaakafhandelparameters.zaakTypeUUID == null) {
+            LOG.warning {
+                "No previous version of ZaakafhandelParameters for zaak type with UUID $zaktypeUuid found. " +
+                        "Skipping data copy"
+            }
+            return
+        }
 
+        mapPreviousZaakafhandelparametersData(zaakafhandelParameters, zaaktype, previousZaakafhandelparameters)
+
+        // We need to store the zaakafhandel parameters before mapping smart documents
+        // as we are reliant on fetching data which is mapped in the methods above and should be stored
+        // to prevent issues with the entityManager
+        storeZaakafhandelParameters(zaakafhandelParameters)
+
+        mapSmartDocuments(previousZaakafhandelparameters.zaakTypeUUID, zaakafhandelParameters.zaakTypeUUID)
+        storeZaakafhandelParameters(zaakafhandelParameters)
+    }
+
+    private fun mapPreviousZaakafhandelparametersData(
+        zaakafhandelParameters: ZaakafhandelParameters,
+        zaaktype: ZaakType,
+        previousZaakafhandelparameters: ZaakafhandelParameters
+    ) {
         zaakafhandelParameters.apply {
             zaakTypeUUID = zaaktype.url.extractUuid()
             caseDefinitionID = previousZaakafhandelparameters.caseDefinitionID
@@ -164,7 +200,8 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             productaanvraagtype = previousZaakafhandelparameters.productaanvraagtype
             domein = previousZaakafhandelparameters.domein
             isSmartDocumentsIngeschakeld = previousZaakafhandelparameters.isSmartDocumentsIngeschakeld
-            uiterlijkeEinddatumAfdoeningWaarschuwing = previousZaakafhandelparameters.uiterlijkeEinddatumAfdoeningWaarschuwing
+            uiterlijkeEinddatumAfdoeningWaarschuwing =
+                previousZaakafhandelparameters.uiterlijkeEinddatumAfdoeningWaarschuwing
             intakeMail = previousZaakafhandelparameters.intakeMail
             afrondenMail = previousZaakafhandelparameters.afrondenMail
             productaanvraagtype = previousZaakafhandelparameters.productaanvraagtype
@@ -177,14 +214,6 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         mapUserEventListenerParameters(previousZaakafhandelparameters, zaakafhandelParameters)
         mapZaakbeeindigGegevens(previousZaakafhandelparameters, zaakafhandelParameters, zaaktype)
         mapMailtemplateKoppelingen(previousZaakafhandelparameters, zaakafhandelParameters)
-
-        // We need to store the zaakafhandel parameters before mapping smart documents
-        // as we are reliant on fetching data which is mapped in the methods above and should be stored
-        // to prevent issues with the entityManager
-        storeZaakafhandelParameters(zaakafhandelParameters)
-
-        mapSmartDocuments(previousZaakafhandelparameters.zaakTypeUUID, zaakafhandelParameters.zaakTypeUUID)
-        storeZaakafhandelParameters(zaakafhandelParameters)
     }
 
     private fun currentZaakafhandelParameters(zaaktypeUuid: UUID): ZaakafhandelParameters {
@@ -231,7 +260,8 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
     }.toSet().let(newZaakafhandelParameters::setHumanTaskParametersCollection)
 
     /**
-     * Kopieren van de UserEventListenerParameters van de oude ZaakafhandelParameters naar de nieuw ZaakafhandelParameters
+     * Kopieren van de UserEventListenerParameters van de oude ZaakafhandelParameters naar de nieuw
+     * ZaakafhandelParameters
      *
      * @param previousZaakafhandelParameters bron
      * @param newZaakafhandelParameters bestemming
@@ -293,8 +323,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen)
         }
 
-        zaakafhandelParameters.zaakbeeindigParameters.mapNotNull {
-                zaakbeeindigParameter ->
+        zaakafhandelParameters.zaakbeeindigParameters.mapNotNull { zaakbeeindigParameter ->
             zaakbeeindigParameter.resultaattype
                 ?.let { mapVorigResultaattypeOpNieuwResultaattype(it, newResultaattypen) }
                 ?.let {
