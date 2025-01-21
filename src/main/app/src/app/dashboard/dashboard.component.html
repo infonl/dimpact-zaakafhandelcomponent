@@ -8,7 +8,8 @@
     class="mode-slider"
     color="primary"
     id="dashboardEdit_toggle"
-    [(ngModel)]="editmode"
+    [ngModel]="editmode"
+    (ngModelChange)="editmode = $event"
     aria-label="Dashboard aanpassen"
   >
     {{ "actie.dashboard.wijzigen" | translate }}
