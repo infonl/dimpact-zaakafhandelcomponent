@@ -5,13 +5,17 @@
 
 // Http testing module and mocking controller
 import {
-  HttpClientTestingModule,
   HttpTestingController,
+  provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { expectType } from "ts-expect";
 // Other imports
 import { TestBed } from "@angular/core/testing";
 
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
 import { Paths, ZacHttpClient } from "./zac-http-client";
 
 describe("HttpClientTesting", () => {
@@ -20,7 +24,11 @@ describe("HttpClientTesting", () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
+      imports: [],
+      providers: [
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+      ],
     });
 
     zacHttpClient = TestBed.inject(ZacHttpClient);
