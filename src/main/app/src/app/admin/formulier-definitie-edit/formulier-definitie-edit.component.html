@@ -21,12 +21,14 @@
     <form [formGroup]="definitieFormGroup">
       <mat-card>
         <mat-card-header>
-          <mat-card-title>{{ 'formulierDefinitie'| translate }}</mat-card-title>
+          <mat-card-title>{{
+            "formulierDefinitie" | translate
+          }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <div class="flex-row flex-wrap gap-20">
             <mat-form-field class="w50" floatLabel="always">
-              <mat-label>{{ 'naam' | translate }}</mat-label>
+              <mat-label>{{ "naam" | translate }}</mat-label>
               <input
                 matInput
                 (keyup)="updateSysteemnaam()"
@@ -34,19 +36,19 @@
               />
             </mat-form-field>
             <mat-form-field class="w50" floatLabel="always">
-              <mat-label>{{ 'systeemnaam' | translate }}</mat-label>
+              <mat-label>{{ "systeemnaam" | translate }}</mat-label>
               <input matInput formControlName="systeemnaam" />
             </mat-form-field>
           </div>
           <div class="flex-row">
             <mat-form-field class="w100" floatLabel="always">
-              <mat-label>{{ 'beschrijving' | translate }}</mat-label>
+              <mat-label>{{ "beschrijving" | translate }}</mat-label>
               <input matInput formControlName="beschrijving" />
             </mat-form-field>
           </div>
           <div class="flex-row">
             <mat-form-field class="row w100" floatLabel="always">
-              <mat-label>{{ 'uitleg' | translate }}</mat-label>
+              <mat-label>{{ "uitleg" | translate }}</mat-label>
               <textarea matInput formControlName="uitleg"></textarea>
             </mat-form-field>
           </div>
@@ -72,21 +74,21 @@
       </mat-card>
       <mat-card>
         <mat-card-header>
-          <mat-card-title>{{ 'veldDefinities'| translate }}</mat-card-title>
+          <mat-card-title>{{ "veldDefinities" | translate }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <mat-table [dataSource]="dataSource">
             <ng-container matColumnDef="label">
               <mat-header-cell *matHeaderCellDef
-                >{{ 'label' | translate }}
+                >{{ "label" | translate }}
               </mat-header-cell>
-              <mat-cell *matCellDef="let element;" [formGroup]="element">
+              <mat-cell *matCellDef="let element" [formGroup]="element">
                 <mat-form-field
                   class="full-width"
                   floatLabel="always"
                   subscriptSizing="dynamic"
                 >
-                  <mat-label>{{ 'label' | translate }}</mat-label>
+                  <mat-label>{{ "label" | translate }}</mat-label>
                   <input
                     matInput
                     formControlName="label"
@@ -98,15 +100,15 @@
 
             <ng-container matColumnDef="systeemnaam">
               <mat-header-cell *matHeaderCellDef
-                >{{ 'systeemnaam' | translate }}
+                >{{ "systeemnaam" | translate }}
               </mat-header-cell>
-              <mat-cell *matCellDef="let element;" [formGroup]="element">
+              <mat-cell *matCellDef="let element" [formGroup]="element">
                 <mat-form-field
                   class="full-width"
                   floatLabel="always"
                   subscriptSizing="dynamic"
                 >
-                  <mat-label>{{ 'systeemnaam' | translate }}</mat-label>
+                  <mat-label>{{ "systeemnaam" | translate }}</mat-label>
                   <input matInput formControlName="systeemnaam" />
                 </mat-form-field>
               </mat-cell>
@@ -114,15 +116,15 @@
 
             <ng-container matColumnDef="beschrijving">
               <mat-header-cell *matHeaderCellDef
-                >{{ 'beschrijving' | translate }}
+                >{{ "beschrijving" | translate }}
               </mat-header-cell>
-              <mat-cell *matCellDef="let element;" [formGroup]="element">
+              <mat-cell *matCellDef="let element" [formGroup]="element">
                 <mat-form-field
                   class="full-width"
                   floatLabel="always"
                   subscriptSizing="dynamic"
                 >
-                  <mat-label>{{ 'beschrijving' | translate }}</mat-label>
+                  <mat-label>{{ "beschrijving" | translate }}</mat-label>
                   <input matInput formControlName="beschrijving" />
                 </mat-form-field>
               </mat-cell>
@@ -130,15 +132,15 @@
 
             <ng-container matColumnDef="helptekst">
               <mat-header-cell *matHeaderCellDef
-                >{{ 'helptekst' | translate }}
+                >{{ "helptekst" | translate }}
               </mat-header-cell>
-              <mat-cell *matCellDef="let element;" [formGroup]="element">
+              <mat-cell *matCellDef="let element" [formGroup]="element">
                 <mat-form-field
                   class="full-width"
                   floatLabel="always"
                   subscriptSizing="dynamic"
                 >
-                  <mat-label>{{ 'helptekst' | translate }}</mat-label>
+                  <mat-label>{{ "helptekst" | translate }}</mat-label>
                   <input matInput formControlName="helptekst" />
                 </mat-form-field>
               </mat-cell>
@@ -146,15 +148,15 @@
 
             <ng-container matColumnDef="veldtype">
               <mat-header-cell *matHeaderCellDef
-                >{{ 'veldtype' | translate }}
+                >{{ "veldtype" | translate }}
               </mat-header-cell>
-              <mat-cell *matCellDef="let element;" [formGroup]="element">
+              <mat-cell *matCellDef="let element" [formGroup]="element">
                 <mat-form-field
                   class="full-width"
                   floatLabel="always"
                   subscriptSizing="dynamic"
                 >
-                  <mat-label>{{ 'veldtype' | translate }}</mat-label>
+                  <mat-label>{{ "veldtype" | translate }}</mat-label>
                   <mat-select
                     formControlName="veldtype"
                     (selectionChange)="onVeldtypeChange($event, element)"
@@ -173,15 +175,15 @@
 
             <ng-container matColumnDef="defaultWaarde">
               <mat-header-cell *matHeaderCellDef
-                >{{ 'defaultWaarde' | translate }}
+                >{{ "defaultWaarde" | translate }}
               </mat-header-cell>
-              <mat-cell *matCellDef="let element;" [formGroup]="element">
+              <mat-cell *matCellDef="let element" [formGroup]="element">
                 <mat-form-field
                   class="full-width"
                   floatLabel="always"
                   subscriptSizing="dynamic"
                 >
-                  <mat-label>{{ 'defaultWaarde' | translate }}</mat-label>
+                  <mat-label>{{ "defaultWaarde" | translate }}</mat-label>
                   <input
                     *ngIf="!isTekstvlak(element)"
                     matInput
@@ -199,24 +201,24 @@
 
             <ng-container matColumnDef="verplicht">
               <mat-header-cell *matHeaderCellDef
-                >{{ 'verplicht' | translate }}
+                >{{ "verplicht" | translate }}
               </mat-header-cell>
-              <mat-cell *matCellDef="let element;" [formGroup]="element">
+              <mat-cell *matCellDef="let element" [formGroup]="element">
                 <mat-checkbox formControlName="verplicht"></mat-checkbox>
               </mat-cell>
             </ng-container>
 
             <ng-container matColumnDef="meerkeuzeOpties">
               <mat-header-cell *matHeaderCellDef>
-                {{ 'meerkeuzeOpties' | translate }}
+                {{ "meerkeuzeOpties" | translate }}
               </mat-header-cell>
-              <mat-cell *matCellDef="let element;" [formGroup]="element">
+              <mat-cell *matCellDef="let element" [formGroup]="element">
                 <mat-form-field
                   class="full-width"
                   floatLabel="always"
                   subscriptSizing="dynamic"
                 >
-                  <mat-label>{{ 'meerkeuzeOpties' | translate }}</mat-label>
+                  <mat-label>{{ "meerkeuzeOpties" | translate }}</mat-label>
                   <input matInput formControlName="meerkeuzeOpties" />
                 </mat-form-field>
               </mat-cell>
@@ -224,15 +226,15 @@
 
             <ng-container matColumnDef="volgorde">
               <mat-header-cell *matHeaderCellDef>
-                {{ 'volgorde' | translate }}
+                {{ "volgorde" | translate }}
               </mat-header-cell>
-              <mat-cell *matCellDef="let element;" [formGroup]="element">
+              <mat-cell *matCellDef="let element" [formGroup]="element">
                 <mat-form-field
                   class="full-width"
                   floatLabel="always"
                   subscriptSizing="dynamic"
                 >
-                  <mat-label>{{ 'volgorde' | translate }}</mat-label>
+                  <mat-label>{{ "volgorde" | translate }}</mat-label>
                   <input matInput formControlName="volgorde" />
                 </mat-form-field>
               </mat-cell>
@@ -244,17 +246,17 @@
                   mat-icon-button
                   id="toevoegen"
                   (click)="addVeldDefinities()"
-                  title="{{ 'actie.toevoegen' | translate}}"
+                  title="{{ 'actie.toevoegen' | translate }}"
                 >
                   <mat-icon>add_circle</mat-icon>
                 </button>
               </mat-header-cell>
-              <mat-cell *matCellDef="let element;" [formGroup]="element">
+              <mat-cell *matCellDef="let element" [formGroup]="element">
                 <button
                   mat-icon-button
                   id="remove"
                   (click)="removeVeldDefinitie(element)"
-                  title="{{ 'actie.verwijderen' | translate}}"
+                  title="{{ 'actie.verwijderen' | translate }}"
                 >
                   <mat-icon>delete</mat-icon>
                 </button>
@@ -262,12 +264,12 @@
             </ng-container>
 
             <mat-header-row *matHeaderRowDef="veldColumns"></mat-header-row>
-            <mat-row *matRowDef="let row; columns: veldColumns;"></mat-row>
+            <mat-row *matRowDef="let row; columns: veldColumns"></mat-row>
           </mat-table>
           <ng-container
             *ngIf="definitieFormGroup?.get('veldDefinities').value.length === 0"
           >
-            <p>{{ 'msg.geen.gegevens.gevonden' | translate }}</p>
+            <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>
           </ng-container>
         </mat-card-content>
       </mat-card>
@@ -289,7 +291,7 @@
             Een referentietabel <b>REF:CODE</b>, bijvoorbeeld: REF:AFZENDER
           </li>
         </ul>
-        Beschikbare referentietabellen: [{{ referentieLijsten.join(', ') }}]
+        Beschikbare referentietabellen: [{{ referentieLijsten.join(", ") }}]
         <br />
         <br />
         <b>DOCUMENTEN_LIJST</b><br />

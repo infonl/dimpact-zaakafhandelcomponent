@@ -5,15 +5,15 @@
 
 <ng-container *ngIf="getType() === 'CONTROL'">
   <mat-form-field class="zaakdata-form-field" floatLabel="always">
-    <mat-label>{{label}}</mat-label>
+    <mat-label>{{ label }}</mat-label>
     <input matInput [formControl]="getControl()" />
   </mat-form-field>
 </ng-container>
 
 <ng-container *ngIf="getType() === 'ARRAY'">
   <zac-zaakdata-form
-    *ngFor="let elm of getArray().controls; let i=index"
-    [label]="label+' ('+(i+1)+')'"
+    *ngFor="let elm of getArray().controls; let i = index"
+    [label]="label + ' (' + (i + 1) + ')'"
     [formItem]="elm"
   ></zac-zaakdata-form>
 </ng-container>
@@ -21,7 +21,7 @@
 <ng-container *ngIf="getType() === 'GROUP'">
   <form [formGroup]="getGroup()" class="form" *ngIf="label">
     <fieldset>
-      <legend *ngIf="label">{{label}}</legend>
+      <legend *ngIf="label">{{ label }}</legend>
       <div *ngFor="let item of getGroup().controls | keyvalue">
         <zac-zaakdata-form
           [label]="item.key"

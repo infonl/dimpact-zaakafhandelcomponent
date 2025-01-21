@@ -5,11 +5,11 @@
 
 <mat-expansion-panel class="date-filter" [expanded]="expanded()">
   <mat-expansion-panel-header>
-    <mat-panel-title> {{label | translate}} </mat-panel-title>
+    <mat-panel-title> {{ label | translate }} </mat-panel-title>
   </mat-expansion-panel-header>
   <div class="datepicker-content">
     <mat-form-field>
-      <mat-label>{{'van' | translate}}</mat-label>
+      <mat-label>{{ "van" | translate }}</mat-label>
       <input
         matInput
         [matDatepicker]="pickerVan"
@@ -30,7 +30,7 @@
       <mat-datepicker #pickerVan></mat-datepicker>
     </mat-form-field>
     <mat-form-field>
-      <mat-label>{{'t/m' | translate}}</mat-label>
+      <mat-label>{{ "t/m" | translate }}</mat-label>
       <input
         matInput
         [matDatepicker]="pickerTM"

@@ -4,10 +4,10 @@
   -->
 
 <h1 *ngIf="data.taken.length === 1" mat-dialog-title>
-  {{'msg.verdelen.taak' | translate}}
+  {{ "msg.verdelen.taak" | translate }}
 </h1>
 <h1 *ngIf="data.taken.length !== 1" mat-dialog-title>
-  {{ 'msg.verdelen.taken' | translate:{aantal: data.taken.length} }}
+  {{ "msg.verdelen.taken" | translate: { aantal: data.taken.length } }}
 </h1>
 
 <div mat-dialog-content>
@@ -25,7 +25,7 @@
     <mat-icon *ngIf="loading">
       <mat-spinner diameter="18"></mat-spinner>
     </mat-icon>
-    {{'actie.verdelen' | translate}}
+    {{ "actie.verdelen" | translate }}
   </button>
   <button
     (click)="close()"
@@ -33,6 +33,6 @@
     id="annuleren_button"
     mat-button
   >
-    {{'actie.annuleren' | translate}}
+    {{ "actie.annuleren" | translate }}
   </button>
 </div>

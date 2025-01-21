@@ -6,7 +6,7 @@
 <div class="sidenav-title">
   <h3>
     <mat-icon>assignment</mat-icon>
-    {{'title.taak.starten'| translate: ({taak: planItem.naam})}}
+    {{ "title.taak.starten" | translate: { taak: planItem.naam } }}
   </h3>
   <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>

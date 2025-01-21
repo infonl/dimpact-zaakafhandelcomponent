@@ -18,7 +18,7 @@
     [ngClass]="{
       error:
         data.formControl.invalid &&
-        (data.formControl.touched || data.formControl.dirty)
+        (data.formControl.touched || data.formControl.dirty),
     }"
     matSuffix
     >search</mat-icon
@@ -35,7 +35,7 @@
       [ngClass]="{
         error:
           data.formControl.invalid &&
-          (data.formControl.touched || data.formControl.dirty)
+          (data.formControl.touched || data.formControl.dirty),
       }"
       >clear</mat-icon
     >
@@ -51,10 +51,10 @@
       </div>
     </mat-option>
   </mat-autocomplete>
-  <mat-hint *ngIf="data.hint" [align]="data.hint.align"
-    >{{ data.hint.label | translate }}</mat-hint
-  >
-  <mat-error appEnhanceMatError *ngIf="data.formControl.invalid"
-    >{{ getErrorMessage() }}</mat-error
-  >
+  <mat-hint *ngIf="data.hint" [align]="data.hint.align">{{
+    data.hint.label | translate
+  }}</mat-hint>
+  <mat-error appEnhanceMatError *ngIf="data.formControl.invalid">{{
+    getErrorMessage()
+  }}</mat-error>
 </mat-form-field>

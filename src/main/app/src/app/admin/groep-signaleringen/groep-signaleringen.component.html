@@ -22,17 +22,17 @@
       <mat-card-content>
         <mat-form-field appearance="fill" class="full-width">
           <mat-select
-            placeholder="{{'groep.-kies-' | translate}}"
+            placeholder="{{ 'groep.-kies-' | translate }}"
             (selectionChange)="laadSignaleringSettings($event.value)"
           >
-            <mat-option *ngFor="let groep of groepen | async" [value]="groep"
-              >{{ groep.naam }}</mat-option
-            >
+            <mat-option *ngFor="let groep of groepen | async" [value]="groep">{{
+              groep.naam
+            }}</mat-option>
           </mat-select>
         </mat-form-field>
         <div
           class="table-wrapper"
-          [ngClass]="{'table-loading-shade':isLoadingResults}"
+          [ngClass]="{ 'table-loading-shade': isLoadingResults }"
         >
           <table mat-table [dataSource]="dataSource">
             <ng-container
@@ -40,23 +40,27 @@
               *ngFor="let column of columns"
             >
               <th mat-header-cell *matHeaderCellDef>
-                {{'signalering.' + column | translate}}
+                {{ "signalering." + column | translate }}
               </th>
               <td mat-cell *matCellDef="let row">
                 <ng-container *ngIf="column == 'subjecttype'">
-                  {{'signalering.subjecttype.' + row[column] | translate}}
+                  {{ "signalering.subjecttype." + row[column] | translate }}
                 </ng-container>
                 <ng-container *ngIf="column == 'type'">
-                  {{'signalering.type.' + row[column] + '.group' | translate}}
+                  {{ "signalering.type." + row[column] + ".group" | translate }}
                 </ng-container>
                 <ng-container
-                  *ngIf="column != 'type' && column != 'subjecttype' && row[column] != null"
+                  *ngIf="
+                    column != 'type' &&
+                    column != 'subjecttype' &&
+                    row[column] != null
+                  "
                 >
                   <mat-checkbox
                     (click)="$event.stopPropagation()"
-                    (change)="changed(row,column,$event.checked)"
+                    (change)="changed(row, column, $event.checked)"
                     [checked]="row[column]"
-                    [id]="row.type+'_'+column +'_checkbox'"
+                    [id]="row.type + '_' + column + '_checkbox'"
                     [title]="'actie.signalering.' + column | translate"
                   >
                   </mat-checkbox>
@@ -64,10 +68,10 @@
               </td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="columns"></tr>
-            <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns"></tr>
             <tr mat-row *matNoDataRow>
               <td [colSpan]="columns.length">
-                {{'msg.geen.gegevens.gevonden' | translate}}
+                {{ "msg.geen.gegevens.gevonden" | translate }}
               </td>
             </tr>
           </table>

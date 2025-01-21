@@ -4,7 +4,7 @@
   -->
 
 <mat-form-field appearance="fill" class="full-width">
-  <mat-label>{{data.label | translate}}</mat-label>
+  <mat-label>{{ data.label | translate }}</mat-label>
   <input
     [id]="data.id"
     #mapAutoComplete
@@ -12,12 +12,12 @@
     [formControl]="data.formControl"
     [required]="data.required"
   />
-  <mat-hint *ngIf="data.hint" [align]="data.hint.align"
-    >{{data.hint.label | translate}}</mat-hint
-  >
-  <mat-error appEnhanceMatError *ngIf="data.formControl.invalid"
-    >{{getErrorMessage()}}</mat-error
-  >
+  <mat-hint *ngIf="data.hint" [align]="data.hint.align">{{
+    data.hint.label | translate
+  }}</mat-hint>
+  <mat-error appEnhanceMatError *ngIf="data.formControl.invalid">{{
+    getErrorMessage()
+  }}</mat-error>
 </mat-form-field>
 
 <google-map

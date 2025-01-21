@@ -3,12 +3,12 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 <div class="radio-form-field">
-  <label class="label" [class.required]="data.required"
-    >{{data.label | translate}}</label
-  >
-  <mat-hint *ngIf="data.hint" [align]="data.hint.align"
-    >{{data.hint.label | translate}}</mat-hint
-  >
+  <label class="label" [class.required]="data.required">{{
+    data.label | translate
+  }}</label>
+  <mat-hint *ngIf="data.hint" [align]="data.hint.align">{{
+    data.hint.label | translate
+  }}</mat-hint>
   <mat-radio-group
     class="radio-group"
     [formControl]="data.formControl"
@@ -20,13 +20,13 @@
       *ngFor="let option of data.options | async"
       [value]="data.optionValue ? option[data.optionValue] : option"
     >
-      {{(data.optionLabel ? option[data.optionLabel] : option) | translate}}
+      {{ (data.optionLabel ? option[data.optionLabel] : option) | translate }}
     </mat-radio-button>
   </mat-radio-group>
 
   <mat-error
     appEnhanceMatError
     *ngIf="data.formControl.touched && data.formControl.invalid"
-    >{{getErrorMessage()}}</mat-error
+    >{{ getErrorMessage() }}</mat-error
   >
 </div>

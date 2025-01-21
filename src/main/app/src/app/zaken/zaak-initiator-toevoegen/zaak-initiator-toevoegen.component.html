@@ -5,9 +5,9 @@
 
 <mat-expansion-panel disabled>
   <mat-expansion-panel-header>
-    <mat-panel-title>{{'initiator.titel'| translate}}</mat-panel-title>
+    <mat-panel-title>{{ "initiator.titel" | translate }}</mat-panel-title>
     <mat-panel-description>
-      <div class="hide-sm">{{'msg.zaak.geen.initiator' | translate}}</div>
+      <div class="hide-sm">{{ "msg.zaak.geen.initiator" | translate }}</div>
       <div class="hide-gt-sm">-</div>
       <button
         *ngIf="toevoegenToegestaan"

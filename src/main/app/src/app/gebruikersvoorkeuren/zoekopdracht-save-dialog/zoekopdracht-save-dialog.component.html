@@ -3,14 +3,14 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<h1 mat-dialog-title>{{'title.zoekopdrachten.opslaan' | translate}}</h1>
+<h1 mat-dialog-title>{{ "title.zoekopdrachten.opslaan" | translate }}</h1>
 
 <div mat-dialog-content>
   <mat-form-field class="full-width" floatLabel="always">
-    <mat-label>{{'zoekopdracht' | translate}}</mat-label>
+    <mat-label>{{ "zoekopdracht" | translate }}</mat-label>
     <input
       type="text"
-      placeholder="{{'naam' | translate}}"
+      placeholder="{{ 'naam' | translate }}"
       matInput
       [formControl]="formControl"
       [matAutocomplete]="auto"
@@ -20,7 +20,7 @@
         *ngFor="let option of filteredOptions | async"
         [value]="option"
       >
-        {{option}}
+        {{ option }}
       </mat-option>
     </mat-autocomplete>
   </mat-form-field>
@@ -36,7 +36,7 @@
     <mat-icon *ngIf="loading">
       <mat-spinner diameter="18"></mat-spinner>
     </mat-icon>
-    {{(isNew() ? "actie.toevoegen" : "actie.wijzigen") | translate}}
+    {{ (isNew() ? "actie.toevoegen" : "actie.wijzigen") | translate }}
   </button>
   <button
     [disabled]="loading"
@@ -44,6 +44,6 @@
     (click)="close()"
     id="dialogClose_button"
   >
-    {{'actie.annuleren' | translate}}
+    {{ "actie.annuleren" | translate }}
   </button>
 </div>

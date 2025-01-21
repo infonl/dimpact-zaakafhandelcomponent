@@ -4,7 +4,7 @@
   -->
 
 <div class="html-editor-form-field">
-  <mat-label>{{data.label | translate}}</mat-label>
+  <mat-label>{{ data.label | translate }}</mat-label>
   <div class="editor">
     <ngx-editor-menu
       [editor]="editor"
@@ -26,14 +26,14 @@
       ></variabelen-kies-menu>
     </ng-template>
   </div>
-  <mat-hint *ngIf="data.hint" [align]="data.hint.align"
-    >{{data.hint.label | translate}}</mat-hint
-  >
+  <mat-hint *ngIf="data.hint" [align]="data.hint.align">{{
+    data.hint.label | translate
+  }}</mat-hint>
   <mat-hint
     *ngIf="data.showCount && data.formControl.value && data.formControl.dirty"
-    >{{data.formControl.value.length}}/{{data.maxlength}}</mat-hint
+    >{{ data.formControl.value.length }}/{{ data.maxlength }}</mat-hint
   >
-  <mat-error appEnhanceMatError *ngIf="data.formControl.invalid"
-    >{{getErrorMessage()}}</mat-error
-  >
+  <mat-error appEnhanceMatError *ngIf="data.formControl.invalid">{{
+    getErrorMessage()
+  }}</mat-error>
 </div>

@@ -5,7 +5,7 @@
 
 <div class="static-text">
   <label class="static-text-label">
-    {{label}}
+    {{ label }}
     <ng-content select="[position=label]"></ng-content>
   </label>
   <div class="static-text-content">
@@ -13,18 +13,18 @@
     <read-more
       *ngIf="maxLength"
       [maxLength]="maxLength"
-      text="{{value | empty}}"
+      text="{{ value | empty }}"
     ></read-more>
-    <ng-container *ngIf="!maxLength">{{value | empty}}</ng-container>
+    <ng-container *ngIf="!maxLength">{{ value | empty }}</ng-container>
     <mat-icon
       class="label-icon"
       [attr.outlined]="icon.outlined"
       [ngClass]="icon.styleClass"
       *ngIf="hasIcon"
       (click)="iconClicked.emit()"
-      title="{{ icon.title | translate}}"
+      title="{{ icon.title | translate }}"
     >
-      {{icon.icon}}
+      {{ icon.icon }}
     </mat-icon>
     <ng-content select="[position=content-after]"></ng-content>
   </div>

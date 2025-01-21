@@ -52,7 +52,7 @@
         color="primary"
         aria-label="Menu voor zaken"
       >
-        {{'zaken' |translate }}
+        {{ "zaken" | translate }}
         <mat-icon>arrow_drop_down</mat-icon>
       </button>
       <mat-menu #zakenMenu="matMenu">
@@ -63,7 +63,7 @@
           routerLinkActive="active"
         >
           <mat-icon>source</mat-icon>
-          <span>{{ 'title.zaken.werkvoorraad' | translate }}</span>
+          <span>{{ "title.zaken.werkvoorraad" | translate }}</span>
         </a>
         <a
           routerLink="/zaken/mijn"
@@ -72,7 +72,7 @@
           routerLinkActive="active"
         >
           <mat-icon>folder_shared</mat-icon>
-          <span>{{ 'title.zaken.mijn' | translate }}</span>
+          <span>{{ "title.zaken.mijn" | translate }}</span>
         </a>
         <a
           routerLink="/zaken/afgehandeld"
@@ -81,7 +81,7 @@
           routerLinkActive="active"
         >
           <mat-icon>rule_folder</mat-icon>
-          <span>{{ 'title.zaken.afgehandeld' | translate }}</span>
+          <span>{{ "title.zaken.afgehandeld" | translate }}</span>
         </a>
       </mat-menu>
 
@@ -93,7 +93,7 @@
         color="primary"
         aria-label="Menu voor taken"
       >
-        {{'taken' |translate }}
+        {{ "taken" | translate }}
         <mat-icon>arrow_drop_down</mat-icon>
       </button>
       <mat-menu #takenMenu="matMenu">
@@ -104,7 +104,7 @@
           routerLinkActive="active"
         >
           <mat-icon>description</mat-icon>
-          <span>{{ 'title.taken.werkvoorraad' | translate }}</span>
+          <span>{{ "title.taken.werkvoorraad" | translate }}</span>
         </a>
         <a
           routerLink="/taken/mijn"
@@ -113,7 +113,7 @@
           routerLinkActive="active"
         >
           <mat-icon>contact_page</mat-icon>
-          <span>{{ 'title.taken.mijn' | translate }}</span>
+          <span>{{ "title.taken.mijn" | translate }}</span>
         </a>
       </mat-menu>
 
@@ -125,7 +125,7 @@
         color="primary"
         aria-label="Menu voor inboxen"
       >
-        {{'inbox' |translate }}
+        {{ "inbox" | translate }}
         <mat-icon>arrow_drop_down</mat-icon>
       </button>
       <mat-menu #inboxMenu="matMenu">
@@ -136,9 +136,9 @@
           routerLinkActive="active"
         >
           <mat-icon>inbox</mat-icon>
-          <span
-            >{{ 'title.documenten.ontkoppeldeDocumenten' | translate }}</span
-          >
+          <span>{{
+            "title.documenten.ontkoppeldeDocumenten" | translate
+          }}</span>
         </a>
         <a
           routerLink="/documenten/inbox"
@@ -147,7 +147,7 @@
           routerLinkActive="active"
         >
           <mat-icon outlined>drive_file_move</mat-icon>
-          <span>{{ 'title.documenten.inboxDocumenten' | translate }}</span>
+          <span>{{ "title.documenten.inboxDocumenten" | translate }}</span>
         </a>
         <a
           routerLink="/productaanvragen/inbox"
@@ -156,15 +156,14 @@
           routerLinkActive="active"
         >
           <mat-icon>web</mat-icon>
-          <span
-            >{{ 'title.productaanvragen.inboxProductaanvragen' | translate
-            }}</span
-          >
+          <span>{{
+            "title.productaanvragen.inboxProductaanvragen" | translate
+          }}</span>
         </a>
       </mat-menu>
     </div>
 
-    <div class="title hide-md">{{headerTitle$ | async | translate}}</div>
+    <div class="title hide-md">{{ headerTitle$ | async | translate }}</div>
 
     <div class="flex-row items-center">
       <mat-form-field
@@ -177,7 +176,7 @@
           (keyup.enter)="zoekenSideNav.open()"
           [formControl]="zoekenFormControl"
           matInput
-          placeholder="{{'msg.zoeken.trefwoorden.placeholder' | translate}}"
+          placeholder="{{ 'msg.zoeken.trefwoorden.placeholder' | translate }}"
         />
         <button
           *ngIf="hasSearched"
@@ -194,7 +193,7 @@
           type="button"
           matSuffix
           id="zoeken-button"
-          title="{{'actie.zoeken' | translate}}"
+          title="{{ 'actie.zoeken' | translate }}"
           (click)="zoekenSideNav.open()"
         >
           <mat-icon>search</mat-icon>
@@ -234,7 +233,7 @@
         >
           <mat-icon>account_circle</mat-icon>
         </button>
-        <div class="user-name-toolbar">{{medewerkerNaamToolbar}}</div>
+        <div class="user-name-toolbar">{{ medewerkerNaamToolbar }}</div>
       </div>
       <mat-menu #accountMenu="matMenu">
         <p class="user-name-menu">{{ ingelogdeMedewerker?.naam }}</p>
@@ -246,11 +245,11 @@
           routerLinkActive="active"
         >
           <mat-icon>notifications_active</mat-icon>
-          <span>{{'actie.mijn.signaleringen.settings' | translate}}</span>
+          <span>{{ "actie.mijn.signaleringen.settings" | translate }}</span>
         </button>
         <a href="/logout" id="uitloggen_button" mat-menu-item>
           <mat-icon>logout</mat-icon>
-          <span>{{'actie.uitloggen' | translate}}</span>
+          <span>{{ "actie.uitloggen" | translate }}</span>
         </a>
         <mat-divider></mat-divider>
         <zac-version></zac-version>

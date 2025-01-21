@@ -3,7 +3,7 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<h1 mat-dialog-title>{{'title.zaak.ontkoppelen' | translate }}</h1>
+<h1 mat-dialog-title>{{ "title.zaak.ontkoppelen" | translate }}</h1>
 
 <div mat-dialog-content>
   <mfb-form-field [field]="redenFormField"></mfb-form-field>
@@ -19,9 +19,9 @@
     <mat-icon *ngIf="loading">
       <mat-spinner diameter="18"></mat-spinner>
     </mat-icon>
-    {{'actie.ontkoppelen' | translate}}
+    {{ "actie.ontkoppelen" | translate }}
   </button>
   <button [disabled]="loading" autofocus mat-button (click)="close()">
-    {{'actie.annuleren' | translate}}
+    {{ "actie.annuleren" | translate }}
   </button>
 </div>

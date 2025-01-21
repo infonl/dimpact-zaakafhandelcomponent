@@ -6,16 +6,20 @@
 <mat-form-field subscriptSizing="dynamic">
   <mat-select
     panelClass="facet-filter-options"
-    id="{{label+'_filter'}}"
+    id="{{ label + '_filter' }}"
     (selectionChange)="change()"
     placeholder="{{ 'filter.-alle-' | translate }}"
     [(ngModel)]="selected"
   >
-    <mat-option>{{ 'filter.-alle-' | translate }}</mat-option>
+    <mat-option>{{ "filter.-alle-" | translate }}</mat-option>
     <mat-option *ngFor="let value of getFilters()" [value]="value.naam">
-      {{ value.naam == '-NULL-' ? (label + '.-geen-' | translate) :
-      isVertaalbaar(label) ? (VERTAALBARE_FACETTEN[label] + value.naam |
-      translate) : value.naam }}
+      {{
+        value.naam == "-NULL-"
+          ? (label + ".-geen-" | translate)
+          : isVertaalbaar(label)
+            ? (VERTAALBARE_FACETTEN[label] + value.naam | translate)
+            : value.naam
+      }}
     </mat-option>
   </mat-select>
 </mat-form-field>

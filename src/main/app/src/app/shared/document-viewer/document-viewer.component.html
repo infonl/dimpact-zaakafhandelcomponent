@@ -4,9 +4,9 @@
   -->
 
 <div
-  *ngIf="showPreview "
+  *ngIf="showPreview"
   class="document-viewer-wrapper"
-  [ngClass]="{'pdf': isPDF(),'img':isImage()}"
+  [ngClass]="{ pdf: isPDF(), img: isImage() }"
 >
   <object
     *ngIf="isPDF()"

@@ -7,29 +7,29 @@
   <table mat-table [dataSource]="dataSource" matSort>
     <ng-container matColumnDef="identificatie">
       <th mat-header-cell *matHeaderCellDef mat-sort-header="identificatie">
-        {{'zaak.identificatie' | translate}}
+        {{ "zaak.identificatie" | translate }}
       </th>
-      <td mat-cell *matCellDef="let zaak">{{zaak.identificatie | empty}}</td>
+      <td mat-cell *matCellDef="let zaak">{{ zaak.identificatie | empty }}</td>
     </ng-container>
     <ng-container matColumnDef="startdatum">
       <th mat-header-cell *matHeaderCellDef mat-sort-header="startdatum">
-        {{'startdatum' | translate}}
+        {{ "startdatum" | translate }}
       </th>
       <td mat-cell *matCellDef="let zaak">
-        {{zaak.startdatum | datum | empty}}
+        {{ zaak.startdatum | datum | empty }}
       </td>
     </ng-container>
     <ng-container matColumnDef="zaaktype">
       <th mat-header-cell *matHeaderCellDef mat-sort-header="zaaktype">
-        {{'zaaktype' | translate}}
+        {{ "zaaktype" | translate }}
       </th>
-      <td mat-cell *matCellDef="let zaak">{{zaak.zaaktype}}</td>
+      <td mat-cell *matCellDef="let zaak">{{ zaak.zaaktype }}</td>
     </ng-container>
     <ng-container matColumnDef="omschrijving">
       <th mat-header-cell *matHeaderCellDef mat-sort-header="omschrijving">
-        {{'omschrijving' | translate}}
+        {{ "omschrijving" | translate }}
       </th>
-      <td mat-cell *matCellDef="let zaak">{{zaak.omschrijving | empty}}</td>
+      <td mat-cell *matCellDef="let zaak">{{ zaak.omschrijving | empty }}</td>
     </ng-container>
 
     <ng-container matColumnDef="url" stickyEnd id="zaakButtons">
@@ -38,7 +38,7 @@
         <a
           mat-icon-button
           [routerLink]="['/zaken', zaak.identificatie]"
-          [id]="'zaakBekijken_' + zaak.uuid +'_button'"
+          [id]="'zaakBekijken_' + zaak.uuid + '_button'"
           title="{{ 'actie.zaak.bekijken' | translate }}"
         >
           <mat-icon>visibility</mat-icon>
@@ -46,10 +46,10 @@
       </td>
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="columns"></tr>
-    <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns"></tr>
     <tr class="mat-row" *matNoDataRow>
       <td class="mat-cell" colspan="5">
-        <p>{{'msg.geen.gegevens.gevonden' | translate}}</p>
+        <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>
       </td>
     </tr>
   </table>

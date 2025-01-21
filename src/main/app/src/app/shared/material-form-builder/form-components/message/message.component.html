@@ -8,9 +8,9 @@
     *ngIf="data.icon"
     [attr.outlined]="data.icon.outlined"
     [ngClass]="data.icon.styleClass"
-    title="{{data.icon.title | translate}}"
+    title="{{ data.icon.title | translate }}"
   >
-    {{data.icon.icon}}
+    {{ data.icon.icon }}
   </mat-icon>
-  <label class="message-text"> {{data.label | translate}} </label>
+  <label class="message-text"> {{ data.label | translate }} </label>
 </div>

@@ -5,23 +5,25 @@
 
 <div class="link flex-row flex-wrap space-between items-center">
   <div class="flex-col">
-    <label>{{zoekObject.type.toLowerCase() | translate}}</label>
+    <label>{{ zoekObject.type.toLowerCase() | translate }}</label>
     <a
       (click)="(_newtab || sideNav.close()) && $event.stopPropagation()"
       [routerLink]="getLink()"
-      title="{{ 'actie.'+zoekObject.type.toLowerCase()+'.bekijken' | translate }}"
+      title="{{
+        'actie.' + zoekObject.type.toLowerCase() + '.bekijken' | translate
+      }}"
     >
       <read-more maxLength="25" [text]="getName()"></read-more>
       <mat-icon>visibility</mat-icon>
     </a>
   </div>
   <zac-zaak-indicaties
-    *ngIf="zoekObject.type=='ZAAK'"
+    *ngIf="zoekObject.type == 'ZAAK'"
     [layout]="indicatiesLayout.ZOEKEN"
     [zaakZoekObject]="zoekObject"
   ></zac-zaak-indicaties>
   <zac-informatie-object-indicaties
-    *ngIf="zoekObject.type=='DOCUMENT'"
+    *ngIf="zoekObject.type == 'DOCUMENT'"
     [layout]="indicatiesLayout.ZOEKEN"
     [documentZoekObject]="zoekObject"
   ></zac-informatie-object-indicaties>

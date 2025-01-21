@@ -5,7 +5,7 @@
 <div class="sidenav-title">
   <h3>
     <mat-icon>location_on</mat-icon>
-    {{'actie.locatie.' + (readonly ? 'bekijken' : 'toevoegen') | translate}}
+    {{ "actie.locatie." + (readonly ? "bekijken" : "toevoegen") | translate }}
   </h3>
   <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
@@ -17,7 +17,7 @@
     <div class="w100">
       <mat-form-field *ngIf="!readonly" appearance="fill" class="full-width">
         <mat-icon matSuffix>search</mat-icon>
-        <mat-label>{{'adres' | translate}}</mat-label>
+        <mat-label>{{ "adres" | translate }}</mat-label>
         <input
           matInput
           type="text"
@@ -33,7 +33,7 @@
         >
           <mat-option *ngFor="let result of searchResults" [value]="result">
             <mat-icon mat-list-icon>home</mat-icon>
-            <span>{{result.weergavenaam}}</span>
+            <span>{{ result.weergavenaam }}</span>
           </mat-option>
         </mat-autocomplete>
       </mat-form-field>
@@ -48,11 +48,11 @@
           [id]="'open-layers-map'"
           #openLayersMap
           class="open-layers-map"
-          [ngClass]="{'readonly':readonly}"
+          [ngClass]="{ readonly: readonly }"
         ></div>
       </div>
       <mat-form-field *ngIf="!readonly" class="full-width">
-        <mat-label>{{'reden' | translate}}</mat-label>
+        <mat-label>{{ "reden" | translate }}</mat-label>
         <input
           matInput
           type="text"
@@ -61,7 +61,7 @@
           required="true"
           maxlength="80"
         />
-        <mat-hint>{{redenControl.value.length}}/80</mat-hint>
+        <mat-hint>{{ redenControl.value.length }}/80</mat-hint>
       </mat-form-field>
       <div *ngIf="!readonly" class="full-width">
         <button
@@ -72,7 +72,7 @@
           (click)="save()"
           type="button"
         >
-          {{'actie.opslaan' | translate}}
+          {{ "actie.opslaan" | translate }}
         </button>
         <button
           mat-raised-button
@@ -81,7 +81,7 @@
           (click)="clear()"
           type="button"
         >
-          {{'actie.verwijderen' | translate}}
+          {{ "actie.verwijderen" | translate }}
         </button>
       </div>
     </div>

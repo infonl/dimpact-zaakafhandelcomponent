@@ -7,9 +7,9 @@
   <mat-card-header>
     <mat-card-title-group>
       <mat-card-title
-        >{{'zaak' | translate}} {{zaak.identificatie}}</mat-card-title
+        >{{ "zaak" | translate }} {{ zaak.identificatie }}</mat-card-title
       >
-      <mat-card-subtitle>{{zaak.zaaktype.omschrijving}}</mat-card-subtitle>
+      <mat-card-subtitle>{{ zaak.zaaktype.omschrijving }}</mat-card-subtitle>
       <a
         [routerLink]="['/zaken', zaak?.identificatie]"
         [title]="zaak.identificatie + ' openen'"
@@ -26,7 +26,7 @@
       <zac-static-text
         class="flex-1 w33"
         [label]="'status' | translate"
-        [value]="zaak.status | empty:'naam'"
+        [value]="zaak.status | empty: 'naam'"
       ></zac-static-text>
 
       <zac-static-text

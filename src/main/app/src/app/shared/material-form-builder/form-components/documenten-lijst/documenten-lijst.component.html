@@ -4,13 +4,13 @@
   -->
 
 <fieldset>
-  <legend>{{data.label | translate}}</legend>
+  <legend>{{ data.label | translate }}</legend>
   <div [id]="data.id" class="value">
     <div class="table-wrapper mat-elevation-z1">
       <table mat-table [dataSource]="dataSource">
         <ng-container matColumnDef="select">
           <th mat-header-cell *matHeaderCellDef>
-            {{this.data.selectLabel | translate}}
+            {{ this.data.selectLabel | translate }}
           </th>
           <td mat-cell *matCellDef="let document">
             <mat-checkbox
@@ -23,53 +23,55 @@
           </td>
         </ng-container>
         <ng-container matColumnDef="titel">
-          <th mat-header-cell *matHeaderCellDef>{{'titel' | translate}}</th>
+          <th mat-header-cell *matHeaderCellDef>{{ "titel" | translate }}</th>
           <td mat-cell *matCellDef="let document">
             <zac-document-icon
               [bestandsnaam]="document.bestandsnaam"
             ></zac-document-icon>
-            {{document.titel}}
+            {{ document.titel }}
           </td>
         </ng-container>
         <ng-container matColumnDef="documentType">
           <th mat-header-cell *matHeaderCellDef>
-            {{'documentType' | translate}}
+            {{ "documentType" | translate }}
           </th>
           <td mat-cell *matCellDef="let document">
-            {{document.informatieobjectTypeOmschrijving}}
+            {{ document.informatieobjectTypeOmschrijving }}
           </td>
         </ng-container>
         <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>{{'status' | translate}}</th>
+          <th mat-header-cell *matHeaderCellDef>{{ "status" | translate }}</th>
           <td mat-cell *matCellDef="let document">
-            {{'informatieobject.status.' + document.status | translate}}
+            {{ "informatieobject.status." + document.status | translate }}
           </td>
         </ng-container>
         <ng-container matColumnDef="versie">
-          <th mat-header-cell *matHeaderCellDef>{{'versie' | translate}}</th>
-          <td mat-cell *matCellDef="let document">{{document.versie}}</td>
+          <th mat-header-cell *matHeaderCellDef>{{ "versie" | translate }}</th>
+          <td mat-cell *matCellDef="let document">{{ document.versie }}</td>
         </ng-container>
         <ng-container matColumnDef="auteur">
-          <th mat-header-cell *matHeaderCellDef>{{'auteur' | translate}}</th>
-          <td mat-cell *matCellDef="let document">{{document.auteur}}</td>
+          <th mat-header-cell *matHeaderCellDef>{{ "auteur" | translate }}</th>
+          <td mat-cell *matCellDef="let document">{{ document.auteur }}</td>
         </ng-container>
         <ng-container matColumnDef="creatiedatum">
           <th mat-header-cell *matHeaderCellDef>
-            {{'creatiedatum' | translate}}
+            {{ "creatiedatum" | translate }}
           </th>
-          <td mat-cell *matCellDef="let document">{{document.creatiedatum}}</td>
+          <td mat-cell *matCellDef="let document">
+            {{ document.creatiedatum }}
+          </td>
         </ng-container>
         <ng-container matColumnDef="bestandsomvang">
           <th mat-header-cell *matHeaderCellDef>
-            {{'bestandsomvang' | translate}}
+            {{ "bestandsomvang" | translate }}
           </th>
           <td mat-cell *matCellDef="let document">
-            {{document.bestandsomvang | bestandsomvang}}
+            {{ document.bestandsomvang | bestandsomvang }}
           </td>
         </ng-container>
         <ng-container matColumnDef="indicaties">
           <th mat-header-cell *matHeaderCellDef>
-            {{'indicaties' | translate}}
+            {{ "indicaties" | translate }}
           </th>
           <td mat-cell *matCellDef="let document">
             <zac-informatie-object-indicaties
@@ -85,15 +87,15 @@
               <a
                 mat-icon-button
                 [href]="document.viewLink"
-                target="{{this.data.openInNieuweTab ? '_blank' : ''}}"
-                title="{{ 'actie.document.bekijken' | translate}}"
+                target="{{ this.data.openInNieuweTab ? '_blank' : '' }}"
+                title="{{ 'actie.document.bekijken' | translate }}"
               >
                 <mat-icon>visibility</mat-icon>
               </a>
               <a
                 mat-icon-button
                 [href]="document.downloadLink"
-                title="{{ 'actie.downloaden' | translate}}"
+                title="{{ 'actie.downloaden' | translate }}"
               >
                 <mat-icon>download</mat-icon>
               </a>
@@ -101,13 +103,13 @@
           </td>
         </ng-container>
         <tr mat-header-row *matHeaderRowDef="data.columns; sticky: true"></tr>
-        <tr mat-row *matRowDef="let row; columns: data.columns;"></tr>
+        <tr mat-row *matRowDef="let row; columns: data.columns"></tr>
       </table>
       <p *ngIf="dataSource.data.length == 0 && !loading">
-        {{'msg.geen.gegevens.gevonden' | translate}}
+        {{ "msg.geen.gegevens.gevonden" | translate }}
       </p>
-      <p *ngIf="loading ">{{'msg.loading' | translate}}</p>
+      <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
     </div>
-    <mat-hint *ngIf="data.hint">{{data.hint.label}}</mat-hint>
+    <mat-hint *ngIf="data.hint">{{ data.hint.label }}</mat-hint>
   </div>
 </fieldset>

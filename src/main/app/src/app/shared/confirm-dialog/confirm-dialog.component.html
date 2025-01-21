@@ -18,7 +18,7 @@
     <mat-icon *ngIf="loading">
       <mat-spinner diameter="18"></mat-spinner>
     </mat-icon>
-    {{'actie.ja' | translate}}
+    {{ "actie.ja" | translate }}
   </button>
   <button
     [disabled]="loading"
@@ -27,6 +27,6 @@
     (click)="cancel()"
     id="cancelButton"
   >
-    {{'actie.nee' | translate}}
+    {{ "actie.nee" | translate }}
   </button>
 </div>

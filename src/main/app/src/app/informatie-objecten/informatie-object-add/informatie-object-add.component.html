@@ -6,7 +6,7 @@
 <div class="sidenav-title">
   <h3>
     <mat-icon>upload_file</mat-icon>
-    {{'actie.document.toevoegen' | translate}}
+    {{ "actie.document.toevoegen" | translate }}
   </h3>
   <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
@@ -15,13 +15,14 @@
 
 <div class="form">
   <!-- we use a for loop here to mount a completely new form here when there is a new iteration -->
-  @for (iteration of formIterations$ | async; track $index) { @if (iteration ===
-  (activeIteration$ | async)) {
-  <mfb-form
-    *ngIf="fields$ | async"
-    (formSubmit)="onFormSubmit($event)"
-    [formFields]="fields$ | async"
-    [config]="formConfig"
-  ></mfb-form>
-  } }
+  @for (iteration of formIterations$ | async; track $index) {
+    @if (iteration === (activeIteration$ | async)) {
+      <mfb-form
+        *ngIf="fields$ | async"
+        (formSubmit)="onFormSubmit($event)"
+        [formFields]="fields$ | async"
+        [config]="formConfig"
+      ></mfb-form>
+    }
+  }
 </div>

@@ -21,33 +21,33 @@
       mat-raised-button
       color="accent"
       *ngIf="config.partialButtonText || config.partialButtonIcon"
-      [disabled]="formGroup.invalid||submitting"
+      [disabled]="formGroup.invalid || submitting"
       id="partial_button"
       type="button"
       (click)="partial()"
     >
       <mat-icon *ngIf="config.partialButtonIcon && !submittingPartial">
-        {{config.partialButtonIcon}}
+        {{ config.partialButtonIcon }}
       </mat-icon>
       <mat-icon *ngIf="submittingPartial">
         <mat-spinner diameter="18"></mat-spinner>
       </mat-icon>
-      {{config.partialButtonText | translate}}
+      {{ config.partialButtonText | translate }}
     </button>
     <button
       mat-raised-button
       color="primary"
-      [disabled]="formGroup.invalid||formGroup.pending||submitting"
+      [disabled]="formGroup.invalid || formGroup.pending || submitting"
       id="opslaan_button"
       type="submit"
     >
       <mat-icon *ngIf="config.saveButtonIcon && !submittingForm">
-        {{config.saveButtonIcon}}
+        {{ config.saveButtonIcon }}
       </mat-icon>
       <mat-icon *ngIf="submittingForm">
         <mat-spinner diameter="18"></mat-spinner>
       </mat-icon>
-      {{config.saveButtonText | translate}}
+      {{ config.saveButtonText | translate }}
     </button>
     <button
       mat-raised-button
@@ -58,9 +58,9 @@
       (click)="cancel()"
     >
       <mat-icon *ngIf="config.cancelButtonIcon">
-        {{config.cancelButtonIcon}}
+        {{ config.cancelButtonIcon }}
       </mat-icon>
-      {{config.cancelButtonText | translate}}
+      {{ config.cancelButtonText | translate }}
     </button>
   </div>
 </form>

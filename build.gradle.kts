@@ -361,7 +361,7 @@ configure<SpotlessExtension> {
             "src/main/app/.angular/**",
         )
 
-        prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "html"))
+        prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "angular"))
     }
     format("less") {
         target("src/**/*.less")
