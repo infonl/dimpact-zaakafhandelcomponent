@@ -283,7 +283,7 @@ configure<SpotlessExtension> {
         target(".gitattributes", ".gitignore", ".containerignore", ".dockerignore")
 
         trimTrailingWhitespace()
-        indentWithSpaces()
+        leadingTabsToSpaces()
         endWithNewline()
     }
     java {
