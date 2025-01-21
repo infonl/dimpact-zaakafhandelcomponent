@@ -283,7 +283,7 @@ configure<SpotlessExtension> {
         target(".gitattributes", ".gitignore", ".containerignore", ".dockerignore")
 
         trimTrailingWhitespace()
-        indentWithSpaces()
+        leadingTabsToSpaces()
         endWithNewline()
     }
     java {
@@ -361,7 +361,7 @@ configure<SpotlessExtension> {
             "src/main/app/.angular/**",
         )
 
-        prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "html"))
+        prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "angular"))
     }
     format("less") {
         target("src/**/*.less")
@@ -379,13 +379,28 @@ configure<SpotlessExtension> {
 
 tasks {
     clean {
-        dependsOn("mavenClean")
+        dependsOn("cleanMaven")
+
+        delete(".gradle/configuration-cache")
+        delete(srcGenerated)
+
+        finalizedBy("cleanApp", "cleanE2e")
+    }
+
+    register<Delete>("cleanApp") {
+        description = "Deletes the App build output"
+        group = "build"
 
         delete(srcMainApp.dir("dist"))
         delete(srcMainApp.dir("reports"))
         delete(srcMainApp.dir("src/generated"))
         delete(srcMainApp.dir("coverage"))
-        delete(srcGenerated)
+    }
+
+    register<Delete>("cleanE2e") {
+        description = "Cleans the e2e build output"
+        group = "build"
+
         delete(srcE2e.dir("reports"))
     }
 
@@ -790,8 +805,8 @@ tasks {
         outputs.dir(layout.projectDirectory.dir("target"))
     }
 
-    register<Maven>("mavenClean") {
-        description = "Cleans the Maven build output"
+    register<Maven>("cleanMaven") {
+        description = "Deletes the Maven build output"
         group = "build"
         execGoal("clean")
     }

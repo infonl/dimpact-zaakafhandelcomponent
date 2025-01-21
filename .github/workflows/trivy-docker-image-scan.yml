@@ -18,7 +18,7 @@ permissions:
 jobs:
   build:
     name: Run Trivy Docker image scan
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Pull Docker Image
         run: docker pull ${{ env.ZAC_IMAGE_URL }}

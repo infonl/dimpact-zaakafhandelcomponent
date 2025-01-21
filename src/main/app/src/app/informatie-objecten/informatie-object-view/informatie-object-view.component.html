@@ -289,12 +289,12 @@
           <mat-card-header>
             <mat-card-title-group>
               <mat-card-title
-                >{{ "zaak" | translate }} {{ zaak.zaakIdentificatie
-                }}</mat-card-title
+                >{{ "zaak" | translate }}
+                {{ zaak.zaakIdentificatie }}</mat-card-title
               >
-              <mat-card-subtitle
-                >{{ zaak.zaaktypeOmschrijving }}</mat-card-subtitle
-              >
+              <mat-card-subtitle>{{
+                zaak.zaaktypeOmschrijving
+              }}</mat-card-subtitle>
               <a
                 [routerLink]="['/zaken', zaak?.zaakIdentificatie]"
                 [title]="zaak.zaakIdentificatie + ' openen'"

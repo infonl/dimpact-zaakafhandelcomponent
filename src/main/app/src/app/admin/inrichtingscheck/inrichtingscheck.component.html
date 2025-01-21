@@ -21,7 +21,7 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title>
-          {{'healthCheck.synchroniseer.ztc.title' | translate}}
+          {{ "healthCheck.synchroniseer.ztc.title" | translate }}
         </mat-card-title>
       </mat-card-header>
       <mat-card-content>
@@ -34,19 +34,24 @@
                 mat-flat-button
                 color="primary"
               >
-                <mat-icon>{{loadingZaaktypes ? 'sync_lock' : 'sync'}}</mat-icon>
-                {{'healthCheck.synchroniseer.ztc.button' | translate }}
+                <mat-icon>{{
+                  loadingZaaktypes ? "sync_lock" : "sync"
+                }}</mat-icon>
+                {{ "healthCheck.synchroniseer.ztc.button" | translate }}
               </button>
             </mat-panel-title>
             <mat-panel-description>
-              {{'healthCheck.synchroniseer.ztc.description' |
-              translate:{ztcCacheTime: (ztcCacheTime | datum: 'medium')} }}
+              {{
+                "healthCheck.synchroniseer.ztc.description"
+                  | translate
+                    : { ztcCacheTime: (ztcCacheTime | datum: "medium") }
+              }}
             </mat-panel-description>
             <mat-icon>help</mat-icon>
           </mat-expansion-panel-header>
           <p>
-            {{'healthCheck.synchroniseer.ztc.uitleg.1' | translate}}
-            <br />{{'healthCheck.synchroniseer.ztc.uitleg.2' | translate}}
+            {{ "healthCheck.synchroniseer.ztc.uitleg.1" | translate }}
+            <br />{{ "healthCheck.synchroniseer.ztc.uitleg.2" | translate }}
           </p>
         </mat-expansion-panel>
       </mat-card-content>
@@ -55,7 +60,7 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title>
-          {{'healthCheck.zaaktype.inrichtingscheck' | translate}}
+          {{ "healthCheck.zaaktype.inrichtingscheck" | translate }}
         </mat-card-title>
       </mat-card-header>
       <mat-card-content>
@@ -74,7 +79,7 @@
                 &nbsp;
               </th>
               <td mat-cell *matCellDef="let row">
-                <mat-icon *ngIf=" !row.valide && expandedRow !== row"
+                <mat-icon *ngIf="!row.valide && expandedRow !== row"
                   >keyboard_arrow_down</mat-icon
                 >
                 <mat-icon *ngIf="!row.valide && expandedRow === row"
@@ -88,15 +93,15 @@
                 *matHeaderCellDef
                 mat-sort-header="zaaktypeOmschrijving"
               >
-                {{'zaaktypeOmschrijving'|translate}}
+                {{ "zaaktypeOmschrijving" | translate }}
               </th>
               <td mat-cell *matCellDef="let row">
-                {{row.zaaktype.omschrijving}}
+                {{ row.zaaktype.omschrijving }}
               </td>
             </ng-container>
             <ng-container matColumnDef="zaaktypeDoel">
               <th mat-header-cell *matHeaderCellDef mat-sort-header="doel">
-                {{'doel'|translate}}
+                {{ "doel" | translate }}
               </th>
               <td mat-cell *matCellDef="let row">
                 <read-more
@@ -111,10 +116,10 @@
                 *matHeaderCellDef
                 mat-sort-header="beginGeldigheid"
               >
-                {{'begin.geldigheid'|translate}}
+                {{ "begin.geldigheid" | translate }}
               </th>
               <td mat-cell *matCellDef="let row">
-                {{row.zaaktype.beginGeldigheid | datum}}
+                {{ row.zaaktype.beginGeldigheid | datum }}
               </td>
             </ng-container>
             <ng-container matColumnDef="valide">
@@ -139,50 +144,58 @@
               <td mat-cell *matCellDef="let row">
                 <div
                   class="detail flex-col"
-                  [@detailExpand]="row == expandedRow ? 'expanded' : 'collapsed'"
+                  [@detailExpand]="
+                    row == expandedRow ? 'expanded' : 'collapsed'
+                  "
                 >
                   <div *ngIf="!row.zaakafhandelParametersValide">
-                    {{'zaakafhandelparameters' | translate}}
+                    {{ "zaakafhandelparameters" | translate }}
                   </div>
                   <div *ngIf="!row.statustypeIntakeAanwezig">
-                    {{'statustype' | translate}}
+                    {{ "statustype" | translate }}
                   </div>
                   <div *ngIf="!row.statustypeInBehandelingAanwezig">
-                    {{'statustype' | translate}}
+                    {{ "statustype" | translate }}
                   </div>
                   <div *ngIf="!row.statustypeHeropendAanwezig">
-                    {{'statustype' | translate}}
+                    {{ "statustype" | translate }}
                   </div>
                   <div *ngIf="!row.statustypeAanvullendeInformatieVereist">
-                    {{'statustype' | translate}}
+                    {{ "statustype" | translate }}
                   </div>
                   <div *ngIf="!row.statustypeAfgerondAanwezig">
-                    {{'statustype' | translate}}
+                    {{ "statustype" | translate }}
                   </div>
                   <div
-                    *ngIf="row.statustypeAfgerondAanwezig && !row.statustypeAfgerondLaatsteVolgnummer"
+                    *ngIf="
+                      row.statustypeAfgerondAanwezig &&
+                      !row.statustypeAfgerondLaatsteVolgnummer
+                    "
                   >
-                    {{'statustype' | translate}}
+                    {{ "statustype" | translate }}
                   </div>
                   <div *ngIf="!row.resultaattypeAanwezig">
-                    {{'resultaattype' | translate}}
+                    {{ "resultaattype" | translate }}
                   </div>
                   <div *ngIf="!row.rolInitiatorAanwezig">
-                    {{'rol' | translate}}
+                    {{ "rol" | translate }}
                   </div>
                   <div *ngIf="!row.rolBehandelaarAanwezig">
-                    {{'rol' | translate}}
+                    {{ "rol" | translate }}
                   </div>
                   <div *ngIf="!row.rolOverigeAanwezig">
-                    {{'rol' | translate}}
+                    {{ "rol" | translate }}
                   </div>
                   <div *ngIf="!row.informatieobjecttypeEmailAanwezig">
-                    {{'informatieobjecttype' | translate}}
+                    {{ "informatieobjecttype" | translate }}
                   </div>
                   <div
-                    *ngIf="row.resultaattypesMetVerplichtBesluit.length && !row.besluittypeAanwezig"
+                    *ngIf="
+                      row.resultaattypesMetVerplichtBesluit.length &&
+                      !row.besluittypeAanwezig
+                    "
                   >
-                    {{'besluittype' | translate}}
+                    {{ "besluittype" | translate }}
                   </div>
                 </div>
               </td>
@@ -191,65 +204,105 @@
               <td
                 mat-cell
                 *matCellDef="let row"
-                [attr.colspan]="columnsToDisplay.length -3"
+                [attr.colspan]="columnsToDisplay.length - 3"
               >
                 <div
                   class="detail flex-col"
-                  [@detailExpand]="row == expandedRow ? 'expanded' : 'collapsed'"
+                  [@detailExpand]="
+                    row == expandedRow ? 'expanded' : 'collapsed'
+                  "
                 >
                   <div *ngIf="!row.zaakafhandelParametersValide">
-                    {{'healthCheck.zaaktype.zaakafhandelParametersOngeldig' |
-                    translate}}
+                    {{
+                      "healthCheck.zaaktype.zaakafhandelParametersOngeldig"
+                        | translate
+                    }}
                   </div>
                   <div *ngIf="!row.statustypeIntakeAanwezig">
-                    {{'healthCheck.zaaktype.geenStatustypeIntakeAanwezig' |
-                    translate}}
+                    {{
+                      "healthCheck.zaaktype.geenStatustypeIntakeAanwezig"
+                        | translate
+                    }}
                   </div>
                   <div *ngIf="!row.statustypeInBehandelingAanwezig">
-                    {{'healthCheck.zaaktype.geenStatustypeInBehandelingAanwezig'
-                    | translate}}
+                    {{
+                      "healthCheck.zaaktype.geenStatustypeInBehandelingAanwezig"
+                        | translate
+                    }}
                   </div>
                   <div *ngIf="!row.statustypeHeropendAanwezig">
-                    {{'healthCheck.zaaktype.geenStatustypeHeropendAanwezig' |
-                    translate}}
+                    {{
+                      "healthCheck.zaaktype.geenStatustypeHeropendAanwezig"
+                        | translate
+                    }}
                   </div>
                   <div *ngIf="!row.statustypeAanvullendeInformatieVereist">
-                    {{'healthCheck.zaaktype.geenStatustypeAanvullendeInformatieVereist'
-                    | translate}}
+                    {{
+                      "healthCheck.zaaktype.geenStatustypeAanvullendeInformatieVereist"
+                        | translate
+                    }}
                   </div>
                   <div *ngIf="!row.statustypeAfgerondAanwezig">
-                    {{'healthCheck.zaaktype.geenStatustypeAfgerondAanwezig' |
-                    translate}}
+                    {{
+                      "healthCheck.zaaktype.geenStatustypeAfgerondAanwezig"
+                        | translate
+                    }}
                   </div>
                   <div
-                    *ngIf="row.statustypeAfgerondAanwezig && !row.statustypeAfgerondLaatsteVolgnummer"
+                    *ngIf="
+                      row.statustypeAfgerondAanwezig &&
+                      !row.statustypeAfgerondLaatsteVolgnummer
+                    "
                   >
-                    {{'healthCheck.zaaktype.statustypeAfgerondLaatsteVolgnummer'
-                    | translate}}
+                    {{
+                      "healthCheck.zaaktype.statustypeAfgerondLaatsteVolgnummer"
+                        | translate
+                    }}
                   </div>
                   <div *ngIf="!row.resultaattypeAanwezig">
-                    {{'healthCheck.zaaktype.geenResultaattypeAanwezig' |
-                    translate}}
+                    {{
+                      "healthCheck.zaaktype.geenResultaattypeAanwezig"
+                        | translate
+                    }}
                   </div>
                   <div *ngIf="!row.rolInitiatorAanwezig">
-                    {{'healthCheck.zaaktype.geenRolInitiatorAanwezig' |
-                    translate}}
+                    {{
+                      "healthCheck.zaaktype.geenRolInitiatorAanwezig"
+                        | translate
+                    }}
                   </div>
                   <div *ngIf="!row.rolBehandelaarAanwezig">
-                    {{'healthCheck.zaaktype.geenRolBehandelaarAanwezig' |
-                    translate}}
+                    {{
+                      "healthCheck.zaaktype.geenRolBehandelaarAanwezig"
+                        | translate
+                    }}
                   </div>
                   <div *ngIf="!row.rolOverigeAanwezig">
-                    {{'healthCheck.zaaktype.geenRolOverigeAanwezig' |
-                    translate}}
+                    {{
+                      "healthCheck.zaaktype.geenRolOverigeAanwezig" | translate
+                    }}
                   </div>
                   <div *ngIf="!row.informatieobjecttypeEmailAanwezig">
-                    {{'healthCheck.zaaktype.geenInformatieobjecttypeEmailAanwezig'
-                    | translate}}
+                    {{
+                      "healthCheck.zaaktype.geenInformatieobjecttypeEmailAanwezig"
+                        | translate
+                    }}
                   </div>
                   <div
-                    *ngIf="row.resultaattypesMetVerplichtBesluit.length && !row.besluittypeAanwezig"
-                    [innerHTML]="'healthCheck.zaaktype.geenBesluittypeAanwezig' | translate:{resultaattypes: row.resultaattypesMetVerplichtBesluit.join(', ')}"
+                    *ngIf="
+                      row.resultaattypesMetVerplichtBesluit.length &&
+                      !row.besluittypeAanwezig
+                    "
+                    [innerHTML]="
+                      'healthCheck.zaaktype.geenBesluittypeAanwezig'
+                        | translate
+                          : {
+                              resultaattypes:
+                                row.resultaattypesMetVerplichtBesluit.join(
+                                  ', '
+                                ),
+                            }
+                    "
                   ></div>
                 </div>
               </td>
@@ -257,7 +310,7 @@
             <ng-container matColumnDef="zoekFilter">
               <th mat-header-cell *matHeaderCellDef colspan="3">
                 <mat-form-field subscriptSizing="dynamic">
-                  <mat-label>{{'filter' | translate}}</mat-label>
+                  <mat-label>{{ "filter" | translate }}</mat-label>
                   <input matInput (keyup)="applyFilter($event)" />
                 </mat-form-field>
               </th>
@@ -280,24 +333,31 @@
               *matHeaderRowDef="['valideFilter', 'zoekFilter']"
             ></tr>
             <tr
-              (click)="!row.valide ? (expandedRow = expandedRow === row ? null : row): null"
-              [class]="row.valide ? 'ok':'error'"
+              (click)="
+                !row.valide
+                  ? (expandedRow = expandedRow === row ? null : row)
+                  : null
+              "
+              [class]="row.valide ? 'ok' : 'error'"
               class="main-row"
               mat-row
-              *matRowDef="let row; columns: columnsToDisplay;"
+              *matRowDef="let row; columns: columnsToDisplay"
             ></tr>
             <tr
               mat-row
-              *matRowDef="let row; columns: ['expandedPrefix','expandedTitle','expandedDetail']"
+              *matRowDef="
+                let row;
+                columns: ['expandedPrefix', 'expandedTitle', 'expandedDetail']
+              "
               class="detail-row"
             ></tr>
           </table>
         </div>
         <p *ngIf="dataSource.data.length === 0 && !loadingZaaktypes">
-          {{'msg.geen.gegevens.gevonden' | translate}}
+          {{ "msg.geen.gegevens.gevonden" | translate }}
         </p>
         <p *ngIf="dataSource.data.length === 0 && loadingZaaktypes">
-          {{'msg.loading' | translate}}
+          {{ "msg.loading" | translate }}
         </p>
       </mat-card-content>
     </mat-card>
@@ -305,7 +365,7 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title>
-          {{'healthCheck.referentielijsten.inrichtingscheck' | translate}}
+          {{ "healthCheck.referentielijsten.inrichtingscheck" | translate }}
         </mat-card-title>
       </mat-card-header>
       <mat-card-content>
@@ -317,35 +377,45 @@
               >
               <mat-icon
                 outlined
-                *ngIf="!loadingCommunicatiekanaal && bestaatCommunicatiekanaalEformulier"
+                *ngIf="
+                  !loadingCommunicatiekanaal &&
+                  bestaatCommunicatiekanaalEformulier
+                "
                 color="primary"
                 >check_circle
               </mat-icon>
               <mat-icon
                 outlined
-                *ngIf="!loadingCommunicatiekanaal && !bestaatCommunicatiekanaalEformulier"
+                *ngIf="
+                  !loadingCommunicatiekanaal &&
+                  !bestaatCommunicatiekanaalEformulier
+                "
                 color="warn"
                 >error
               </mat-icon>
               <div>
-                {{'healthCheck.communicatiekanaal.e-formulier' | translate}}
+                {{ "healthCheck.communicatiekanaal.e-formulier" | translate }}
               </div>
             </mat-panel-title>
             <mat-panel-description>
               <div *ngIf="!loadingCommunicatiekanaal">
                 <ng-container *ngIf="bestaatCommunicatiekanaalEformulier">
-                  {{'healthCheck.communicatiekanaal.e-formulier.beschikbaar' |
-                  translate}}
+                  {{
+                    "healthCheck.communicatiekanaal.e-formulier.beschikbaar"
+                      | translate
+                  }}
                 </ng-container>
                 <ng-container *ngIf="!bestaatCommunicatiekanaalEformulier">
-                  {{'healthCheck.communicatiekanaal.e-formulier.niet.beschikbaar'
-                  | translate}}
+                  {{
+                    "healthCheck.communicatiekanaal.e-formulier.niet.beschikbaar"
+                      | translate
+                  }}
                 </ng-container>
               </div>
             </mat-panel-description>
             <mat-icon>help</mat-icon>
           </mat-expansion-panel-header>
-          {{'healthCheck.communicatiekanaal.e-formulier.uitleg' | translate}}
+          {{ "healthCheck.communicatiekanaal.e-formulier.uitleg" | translate }}
         </mat-expansion-panel>
       </mat-card-content>
     </mat-card>

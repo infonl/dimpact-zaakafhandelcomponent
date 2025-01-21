@@ -4,9 +4,9 @@
   -->
 
 <mat-card>
-  <mat-card-title
-    >{{'zoeken.filter.zaak_betrokkene' | translate}}</mat-card-title
-  >
+  <mat-card-title>{{
+    "zoeken.filter.zaak_betrokkene" | translate
+  }}</mat-card-title>
   <mat-card-content class="zaak-betrokkene-filter">
     <mat-form-field class="full-width" appearance="fill">
       <mat-select
@@ -14,42 +14,42 @@
         [formControl]="betrokkeneSelectControl"
         (selectionChange)="roltypeChanged()"
       >
-        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENEN"
-          >{{'betrokkeneRoltype.-alle-' | translate}}</mat-option
-        >
-        <mat-option [value]="ZoekVeld.ZAAK_INITIATOR"
-          >{{'betrokkeneRoltype.INITIATOR' | translate}}</mat-option
-        >
-        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_MEDE_INITIATOR"
-          >{{'betrokkeneRoltype.MEDE_INITIATOR' | translate}}</mat-option
-        >
-        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_BELANGHEBBENDE"
-          >{{'betrokkeneRoltype.BELANGHEBBENDE' | translate}}</mat-option
-        >
-        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_BESLISSER"
-          >{{'betrokkeneRoltype.BESLISSER' | translate}}</mat-option
-        >
-        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_ADVISEUR"
-          >{{'betrokkeneRoltype.ADVISEUR' | translate}}</mat-option
-        >
-        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_KLANTCONTACTER"
-          >{{'betrokkeneRoltype.KLANTCONTACTER' | translate}}</mat-option
-        >
-        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_ZAAKCOORDINATOR"
-          >{{'betrokkeneRoltype.ZAAKCOORDINATOR' | translate}}</mat-option
-        >
+        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENEN">{{
+          "betrokkeneRoltype.-alle-" | translate
+        }}</mat-option>
+        <mat-option [value]="ZoekVeld.ZAAK_INITIATOR">{{
+          "betrokkeneRoltype.INITIATOR" | translate
+        }}</mat-option>
+        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_MEDE_INITIATOR">{{
+          "betrokkeneRoltype.MEDE_INITIATOR" | translate
+        }}</mat-option>
+        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_BELANGHEBBENDE">{{
+          "betrokkeneRoltype.BELANGHEBBENDE" | translate
+        }}</mat-option>
+        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_BESLISSER">{{
+          "betrokkeneRoltype.BESLISSER" | translate
+        }}</mat-option>
+        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_ADVISEUR">{{
+          "betrokkeneRoltype.ADVISEUR" | translate
+        }}</mat-option>
+        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_KLANTCONTACTER">{{
+          "betrokkeneRoltype.KLANTCONTACTER" | translate
+        }}</mat-option>
+        <mat-option [value]="ZoekVeld.ZAAK_BETROKKENE_ZAAKCOORDINATOR">{{
+          "betrokkeneRoltype.ZAAKCOORDINATOR" | translate
+        }}</mat-option>
       </mat-select>
     </mat-form-field>
     <mat-form-field class="full-width" appearance="fill">
       <input
         matInput
-        placeholder="{{'bsn.vestigingsnummer.rsin' | translate}}"
+        placeholder="{{ 'bsn.vestigingsnummer.rsin' | translate }}"
         (blur)="idChanged()"
         (keyup.enter)="idChanged()"
         [formControl]="klantIdControl"
       />
       <mat-icon
-        [ngClass]="{'active': dialogOpen}"
+        [ngClass]="{ active: dialogOpen }"
         matSuffix
         (click)="openDialog()"
         >person</mat-icon

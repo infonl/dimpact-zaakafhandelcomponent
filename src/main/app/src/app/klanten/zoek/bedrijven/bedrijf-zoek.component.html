@@ -44,10 +44,10 @@
     [disabled]="!isValid() || loading"
     (click)="zoekBedrijven()"
   >
-    {{'actie.zoeken' | translate}}
+    {{ "actie.zoeken" | translate }}
   </button>
   <button mat-flat-button (click)="wissen()">
-    {{'actie.wissen' | translate}}
+    {{ "actie.wissen" | translate }}
   </button>
 </div>
 
@@ -55,37 +55,39 @@
   <table mat-table [dataSource]="bedrijven" matSort>
     <ng-container matColumnDef="naam">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
-        {{'naam' | translate}}
+        {{ "naam" | translate }}
       </th>
-      <td *matCellDef="let bedrijf" mat-cell>{{bedrijf.naam | empty}}</td>
+      <td *matCellDef="let bedrijf" mat-cell>{{ bedrijf.naam | empty }}</td>
     </ng-container>
     <ng-container matColumnDef="kvk">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
-        {{'kvk' | translate}}
+        {{ "kvk" | translate }}
       </th>
-      <td *matCellDef="let bedrijf" mat-cell>{{bedrijf.kvkNummer | empty}}</td>
+      <td *matCellDef="let bedrijf" mat-cell>
+        {{ bedrijf.kvkNummer | empty }}
+      </td>
     </ng-container>
     <ng-container matColumnDef="vestigingsnummer">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
-        {{'vestigingsnummer' | translate}}
+        {{ "vestigingsnummer" | translate }}
       </th>
       <td *matCellDef="let bedrijf" mat-cell>
-        {{bedrijf.vestigingsnummer | empty}}
+        {{ bedrijf.vestigingsnummer | empty }}
       </td>
     </ng-container>
     <ng-container matColumnDef="type">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
-        {{'type' | translate}}
+        {{ "type" | translate }}
       </th>
       <td *matCellDef="let bedrijf" mat-cell>
-        {{bedrijf.type | empty | titlecase }}
+        {{ bedrijf.type | empty | titlecase }}
       </td>
     </ng-container>
     <ng-container matColumnDef="adres">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
-        {{'adres' | translate}}
+        {{ "adres" | translate }}
       </th>
-      <td *matCellDef="let bedrijf" mat-cell>{{bedrijf.adres | empty}}</td>
+      <td *matCellDef="let bedrijf" mat-cell>{{ bedrijf.adres | empty }}</td>
     </ng-container>
 
     <ng-container matColumnDef="acties" stickyEnd>
@@ -96,7 +98,7 @@
           mat-icon-button
           color="primary"
           (click)="selectBedrijf(row)"
-          title="{{ 'actie.selecteren' | translate}}"
+          title="{{ 'actie.selecteren' | translate }}"
         >
           <mat-icon>business</mat-icon>
         </button>
@@ -104,7 +106,7 @@
           *ngIf="!bedrijf.observed"
           mat-icon-button
           (click)="openBedrijfPagina(row)"
-          [id]="'bedrijfBekijken_' + row.identificatie +'_button'"
+          [id]="'bedrijfBekijken_' + row.identificatie + '_button'"
           title="{{ 'actie.bedrijf.bekijken' | translate }}"
         >
           <mat-icon>visibility</mat-icon>
@@ -112,10 +114,10 @@
       </td>
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="bedrijfColumns; sticky: true"></tr>
-    <tr mat-row *matRowDef="let row; columns: bedrijfColumns;"></tr>
+    <tr mat-row *matRowDef="let row; columns: bedrijfColumns"></tr>
   </table>
   <p *ngIf="bedrijven.data.length == 0 && !loading">
-    {{foutmelding ? foutmelding : 'msg.geen.gegevens.gevonden' | translate}}
+    {{ foutmelding ? foutmelding : ("msg.geen.gegevens.gevonden" | translate) }}
   </p>
-  <p *ngIf="loading ">{{'msg.loading' | translate}}</p>
+  <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
 </div>

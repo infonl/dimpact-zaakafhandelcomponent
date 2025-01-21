@@ -48,10 +48,10 @@
     [disabled]="!isValid() || loading"
     (click)="zoekPersonen()"
   >
-    {{'actie.zoeken' | translate}}
+    {{ "actie.zoeken" | translate }}
   </button>
   <button mat-flat-button (click)="wissen()">
-    {{'actie.wissen' | translate}}
+    {{ "actie.wissen" | translate }}
   </button>
 </div>
 
@@ -59,30 +59,30 @@
   <table mat-table [dataSource]="personen" matSort>
     <ng-container matColumnDef="bsn">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
-        {{'bsn' | translate}}
+        {{ "bsn" | translate }}
       </th>
-      <td *matCellDef="let persoon" mat-cell>{{persoon.bsn | empty}}</td>
+      <td *matCellDef="let persoon" mat-cell>{{ persoon.bsn | empty }}</td>
     </ng-container>
     <ng-container matColumnDef="naam">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
-        {{'naam' | translate}}
+        {{ "naam" | translate }}
       </th>
-      <td *matCellDef="let persoon" mat-cell>{{persoon.naam | empty}}</td>
+      <td *matCellDef="let persoon" mat-cell>{{ persoon.naam | empty }}</td>
     </ng-container>
     <ng-container matColumnDef="geboortedatum">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
-        {{'geboortedatum' | translate}}
+        {{ "geboortedatum" | translate }}
       </th>
       <td *matCellDef="let persoon" mat-cell>
-        {{persoon.geboortedatum | datum | empty}}
+        {{ persoon.geboortedatum | datum | empty }}
       </td>
     </ng-container>
     <ng-container matColumnDef="verblijfplaats">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
-        {{'verblijfplaats' | translate}}
+        {{ "verblijfplaats" | translate }}
       </th>
       <td *matCellDef="let persoon" mat-cell>
-        {{persoon.verblijfplaats | empty}}
+        {{ persoon.verblijfplaats | empty }}
       </td>
     </ng-container>
     <ng-container matColumnDef="acties" stickyEnd>
@@ -93,7 +93,7 @@
           mat-icon-button
           color="primary"
           (click)="selectPersoon(row)"
-          title="{{ 'actie.selecteren' | translate}}"
+          title="{{ 'actie.selecteren' | translate }}"
         >
           <mat-icon>emoji_people</mat-icon>
         </button>
@@ -101,7 +101,7 @@
           *ngIf="!persoon.observed"
           mat-icon-button
           (click)="openPersoonPagina(row)"
-          [id]="'persoonBekijken_' + row.identificatie +'_button'"
+          [id]="'persoonBekijken_' + row.identificatie + '_button'"
           title="{{ 'actie.persoon.bekijken' | translate }}"
         >
           <mat-icon>visibility</mat-icon>
@@ -109,10 +109,10 @@
       </td>
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="persoonColumns; sticky: true"></tr>
-    <tr mat-row *matRowDef="let row; columns: persoonColumns;"></tr>
+    <tr mat-row *matRowDef="let row; columns: persoonColumns"></tr>
   </table>
   <p *ngIf="personen.data.length == 0 && !loading">
-    {{foutmelding ? foutmelding : 'msg.geen.gegevens.gevonden' | translate}}
+    {{ foutmelding ? foutmelding : ("msg.geen.gegevens.gevonden" | translate) }}
   </p>
-  <p *ngIf="loading ">{{'msg.loading' | translate}}</p>
+  <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
 </div>
