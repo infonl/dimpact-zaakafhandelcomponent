@@ -78,7 +78,6 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             humanTaskParametersCollection.forEach { ValidationUtil.valideerObject(it) }
             userEventListenerParametersCollection.forEach { ValidationUtil.valideerObject(it) }
             mailtemplateKoppelingen.forEach { ValidationUtil.valideerObject(it) }
-            zaakAfzenders.forEach { ValidationUtil.valideerObject(it) }
             creatiedatum = zaakafhandelParameters.creatiedatum ?: ZonedDateTime.now()
         }
 
@@ -130,7 +129,6 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
     @SuppressWarnings("ReturnCount")
     fun upsertZaakafhandelParameters(zaaktypeUri: URI) {
         zaakafhandelParameterService.clearListCache()
-        zaakafhandelParameterService.clearManagedCache()
         ztcClientService.clearZaaktypeCache()
 
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUri)
