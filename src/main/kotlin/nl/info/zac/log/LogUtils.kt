@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package nl.info.zac.util
+package nl.info.zac.log
 
 import java.util.logging.Level
 import java.util.logging.Logger
