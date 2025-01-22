@@ -34,25 +34,32 @@ class SmartDocumentsService @Inject constructor(
     @RestClient
     private val smartDocumentsClient: SmartDocumentsClient,
 
-    @ConfigProperty(name = "SMARTDOCUMENTS_ENABLED", defaultValue = "false")
-    private val enabled: Boolean,
+    @ConfigProperty(name = "SMARTDOCUMENTS_ENABLED")
+    private val enabled: Optional<Boolean>,
 
     @ConfigProperty(name = "SMARTDOCUMENTS_CLIENT_MP_REST_URL")
-    private val smartDocumentsURL: String,
+    private val smartDocumentsURL: Optional<String>,
 
     @ConfigProperty(name = "SMARTDOCUMENTS_AUTHENTICATION")
-    private val authenticationToken: String,
+    private val authenticationToken: Optional<String>,
 
     @ConfigProperty(name = "SMARTDOCUMENTS_FIXED_USER_NAME")
     private val fixedUserName: Optional<String>,
 
     private val loggedInUserInstance: Instance<LoggedInUser>,
 ) {
+    init {
+        if (isEnabled()) {
+            require(smartDocumentsURL.isPresent) { "SMARTDOCUMENTS_CLIENT_MP_REST_URL environment variable required" }
+            require(authenticationToken.isPresent) { "SMARTDOCUMENTS_AUTHENTICATION environment variable required" }
+        }
+    }
+
     companion object {
         private val LOG = Logger.getLogger(SmartDocumentsService::class.java.name)
     }
 
-    fun isEnabled() = enabled
+    fun isEnabled() = enabled.orElse(false)
 
     /**
      * Sends a request to SmartDocuments to create a document using the Smart Documents wizard (= attended mode).
@@ -69,14 +76,14 @@ class SmartDocumentsService @Inject constructor(
             LOG.fine("Starting Smart Documents wizard for user: '$it'")
         }
         return smartDocumentsClient.attendedDeposit(
-            authenticationToken = "Basic $authenticationToken",
+            authenticationToken = "Basic ${authenticationToken.get()}",
             userName = userName,
             deposit = deposit
         ).also {
             LOG.fine("SmartDocuments attended document creation response: $it")
         }.let {
             DocumentCreationAttendedResponse(
-                redirectUrl = UriBuilder.fromUri(smartDocumentsURL)
+                redirectUrl = UriBuilder.fromUri(smartDocumentsURL.get())
                     .path("smartdocuments/wizard")
                     .queryParam("ticket", it.ticket)
                     .build()

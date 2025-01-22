@@ -5,6 +5,7 @@
 
 package net.atos.zac.smartdocuments
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
@@ -51,9 +52,9 @@ class SmartDocumentsServiceTest : BehaviorSpec({
 
         val smartDocumentsService = SmartDocumentsService(
             smartDocumentsClient = smartDocumentsClient,
-            enabled = true,
-            smartDocumentsURL = smartDocumentsURL,
-            authenticationToken = authenticationToken,
+            enabled = Optional.of(true),
+            smartDocumentsURL = Optional.of(smartDocumentsURL),
+            authenticationToken = Optional.of(authenticationToken),
             loggedInUserInstance = loggedInUserInstance,
             fixedUserName = fixedUserName
         )
@@ -91,9 +92,9 @@ class SmartDocumentsServiceTest : BehaviorSpec({
 
         val smartDocumentsService = SmartDocumentsService(
             smartDocumentsClient = smartDocumentsClient,
-            enabled = true,
-            smartDocumentsURL = smartDocumentsURL,
-            authenticationToken = authenticationToken,
+            enabled = Optional.of(true),
+            smartDocumentsURL = Optional.of(smartDocumentsURL),
+            authenticationToken = Optional.of(authenticationToken),
             loggedInUserInstance = loggedInUserInstance,
             fixedUserName = fixedUserName
         )
@@ -122,9 +123,9 @@ class SmartDocumentsServiceTest : BehaviorSpec({
 
         val smartDocumentsService = SmartDocumentsService(
             smartDocumentsClient = smartDocumentsClient,
-            enabled = true,
-            smartDocumentsURL = smartDocumentsURL,
-            authenticationToken = authenticationToken,
+            enabled = Optional.of(true),
+            smartDocumentsURL = Optional.of(smartDocumentsURL),
+            authenticationToken = Optional.of(authenticationToken),
             loggedInUserInstance = loggedInUserInstance,
             fixedUserName = fixedUserName
         )
@@ -150,9 +151,9 @@ class SmartDocumentsServiceTest : BehaviorSpec({
     Given("SmartDocuments is disabled") {
         val smartDocumentsService = SmartDocumentsService(
             smartDocumentsClient = smartDocumentsClient,
-            enabled = false,
-            smartDocumentsURL = smartDocumentsURL,
-            authenticationToken = authenticationToken,
+            enabled = Optional.of(false),
+            smartDocumentsURL = Optional.empty(),
+            authenticationToken = Optional.empty(),
             loggedInUserInstance = loggedInUserInstance,
             fixedUserName = fixedUserName
         )
@@ -163,4 +164,24 @@ class SmartDocumentsServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("SmartDocuments is enabled, but not enough configuration is provided") {
+        When("SmartDocumentsService is constructed") {
+            val exception = shouldThrow<IllegalArgumentException> {
+                SmartDocumentsService(
+                    smartDocumentsClient = smartDocumentsClient,
+                    enabled = Optional.of(true),
+                    smartDocumentsURL = Optional.empty(),
+                    authenticationToken = Optional.empty(),
+                    loggedInUserInstance = loggedInUserInstance,
+                    fixedUserName = fixedUserName
+                )
+            }
+
+            Then("it throws an exception") {
+                exception.message shouldBe "SMARTDOCUMENTS_CLIENT_MP_REST_URL environment variable required"
+            }
+        }
+    }
+
 })
