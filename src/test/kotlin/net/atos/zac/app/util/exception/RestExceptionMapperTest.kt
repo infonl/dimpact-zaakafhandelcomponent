@@ -30,7 +30,7 @@ import net.atos.zac.app.decision.DecisionResponseDateMissingException
 import net.atos.zac.app.exception.RestExceptionMapper
 import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
-import nl.info.zac.util.log
+import nl.info.zac.log.log
 import org.apache.http.HttpHost
 import org.apache.http.HttpStatus
 import org.apache.http.conn.HttpHostConnectException
