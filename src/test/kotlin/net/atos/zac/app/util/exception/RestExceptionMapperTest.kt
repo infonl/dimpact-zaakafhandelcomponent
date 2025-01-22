@@ -260,7 +260,9 @@ class RestExceptionMapperTest : BehaviorSpec({
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
 
-            Then("it should return the general server error error code with an exception message and log the exception") {
+            Then(
+                "it should return the general server error error code with an exception message and log the exception"
+            ) {
                 checkResponse(response, "msg.error.server.generic", exceptionMessage)
                 verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
             }
