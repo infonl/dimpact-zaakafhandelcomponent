@@ -36,7 +36,7 @@ import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import net.atos.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import net.atos.zac.zaak.exception.CaseHasLockedInformationObjectsException
 import net.atos.zac.zaak.exception.CaseHasOpenSubcasesException
-import nl.info.zac.util.log
+import nl.info.zac.log.log
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException
