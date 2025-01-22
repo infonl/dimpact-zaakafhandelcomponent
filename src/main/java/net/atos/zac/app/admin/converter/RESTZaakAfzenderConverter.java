@@ -31,11 +31,6 @@ public final class RESTZaakAfzenderConverter {
 
     public static List<ZaakAfzender> convertRESTZaakAfzenders(final List<RESTZaakAfzender> restZaakAfzender) {
         return restZaakAfzender.stream()
-                .peek(afzender -> {
-                    if (afzender.mail.equals(afzender.replyTo)) {
-                        afzender.replyTo = null;
-                    }
-                })
                 .filter(afzender -> !afzender.speciaal || afzender.defaultMail || afzender.replyTo != null)
                 .map(RESTZaakAfzenderConverter::convertRESTZaakAfzender)
                 .toList();

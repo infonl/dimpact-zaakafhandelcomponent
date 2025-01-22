@@ -140,6 +140,7 @@ class MailServiceTest : BehaviorSpec({
                 }
                 with(transportSendRequest.captured) {
                     subject shouldBe resolvedSubject
+                    getHeader("Reply-To") shouldBe null
                     with((content as MimeMultipart).getBodyPart(0).dataHandler) {
                         contentType shouldBe "text/html; charset=UTF-8"
                         content shouldBe "dummyResolvedBody5"
@@ -148,6 +149,7 @@ class MailServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("a task") {
         val task = mockk<Task>()
         val mailGegevens = createMailGegevens(
