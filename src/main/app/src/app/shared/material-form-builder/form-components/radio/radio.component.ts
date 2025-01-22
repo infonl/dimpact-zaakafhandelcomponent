@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -22,9 +22,5 @@ export class RadioComponent extends FormComponent implements OnInit {
 
   ngOnInit(): void {
     this.selectedValue = this.data.formControl.value;
-  }
-
-  radioChanged(): void {
-    this.data.formControl.setValue(this.selectedValue);
   }
 }
