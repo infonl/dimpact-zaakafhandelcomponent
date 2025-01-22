@@ -219,7 +219,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         )
         .build().also {
             LOG.log(
-                Level.FINE,
+                if (responseStatus == Response.Status.INTERNAL_SERVER_ERROR) Level.SEVERE else Level.FINE,
                 exception.message ?: "Exception was thrown. Returning response with error code $errorCode.",
                 exception
             )
