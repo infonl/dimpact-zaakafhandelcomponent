@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 0.4.1](https://img.shields.io/badge/Version-0.4.1-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.4.3](https://img.shields.io/badge/Version-0.4.3-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -8,7 +8,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Name | Email | Url |
 | ---- | ------ | --- |
-| Team Geneve, INFO | <teamdimpact@info.nl> | <https://www.info.nl> |
+| Team Dimpact, INFO | <teamdimpact@info.nl> | <https://github.com/infonl/dimpact-zaakafhandelcomponent/discussion> |
 
 ## Requirements
 
