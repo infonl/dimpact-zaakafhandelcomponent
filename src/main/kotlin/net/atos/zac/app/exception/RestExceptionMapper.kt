@@ -36,6 +36,7 @@ import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import net.atos.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import net.atos.zac.zaak.exception.CaseHasLockedInformationObjectsException
 import net.atos.zac.zaak.exception.CaseHasOpenSubcasesException
+import nl.info.zac.util.log
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException
@@ -218,10 +219,11 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             )
         )
         .build().also {
-            LOG.log(
-                if (responseStatus == Response.Status.INTERNAL_SERVER_ERROR) Level.SEVERE else Level.FINE,
-                exception.message ?: "Exception was thrown. Returning response with error code $errorCode.",
-                exception
+            log(
+                logger = LOG,
+                level = if (responseStatus == Response.Status.INTERNAL_SERVER_ERROR) Level.SEVERE else Level.FINE,
+                message = exception.message ?: "Exception was thrown. Returning response with error code $errorCode.",
+                throwable = exception
             )
         }
 
@@ -231,7 +233,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             exceptionMessage?.let { errorJsonHashMap["exception"] = it }
             ObjectMapper().writeValueAsString(errorJsonHashMap)
         } catch (jsonProcessingException: JsonProcessingException) {
-            LOG.log(Level.SEVERE, JSON_CONVERSION_ERROR_MESSAGE, jsonProcessingException)
+            log(LOG, Level.SEVERE, JSON_CONVERSION_ERROR_MESSAGE, jsonProcessingException)
             JSON_CONVERSION_ERROR_MESSAGE
         }
 }
