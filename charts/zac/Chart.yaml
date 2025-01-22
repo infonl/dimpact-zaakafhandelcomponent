@@ -19,6 +19,6 @@ dependencies:
     repository: "@bitnami"
     condition: solr.enabled
 maintainers:
-  - name: Team Geneve, INFO
+  - name: Team Dimpact, INFO
     email: teamdimpact@info.nl
-    url: https://www.info.nl
+    url: https://github.com/infonl/dimpact-zaakafhandelcomponent/discussion

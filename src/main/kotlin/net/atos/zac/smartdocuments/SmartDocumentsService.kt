@@ -59,7 +59,7 @@ class SmartDocumentsService @Inject constructor(
         private val LOG = Logger.getLogger(SmartDocumentsService::class.java.name)
     }
 
-    fun isEnabled() = enabled.orElse(false)
+    fun isEnabled() = enabled.get()
 
     /**
      * Sends a request to SmartDocuments to create a document using the Smart Documents wizard (= attended mode).
@@ -98,7 +98,7 @@ class SmartDocumentsService @Inject constructor(
      */
     fun listTemplates(): SmartDocumentsTemplatesResponse =
         smartDocumentsClient.listTemplates(
-            authenticationToken = "Basic $authenticationToken",
+            authenticationToken = "Basic ${authenticationToken.get()}",
             userName = fixedUserName.orElse(loggedInUserInstance.get().id)
         )
 
