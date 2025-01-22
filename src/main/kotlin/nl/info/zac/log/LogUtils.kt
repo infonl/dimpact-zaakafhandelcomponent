@@ -11,6 +11,4 @@ import java.util.logging.Logger
 /**
  * Simple wapper function around [Logger.log] to make it easier to unit test classes that use logging.
  */
-fun log(logger: Logger, level: Level, message: String, throwable: Throwable) {
-    logger.log(level, message, throwable)
-}
+fun log(logger: Logger, level: Level, message: String, throwable: Throwable) = logger.log(level, message, throwable)
