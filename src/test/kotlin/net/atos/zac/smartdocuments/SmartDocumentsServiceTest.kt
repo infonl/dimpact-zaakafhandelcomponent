@@ -152,8 +152,20 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         val smartDocumentsService = SmartDocumentsService(
             smartDocumentsClient = smartDocumentsClient,
             enabled = Optional.of(false),
-            smartDocumentsURL = Optional.empty(),
-            authenticationToken = Optional.empty(),
+            loggedInUserInstance = loggedInUserInstance,
+            fixedUserName = fixedUserName
+        )
+
+        When("checking if enabled") {
+            Then("it returns `false`") {
+                smartDocumentsService.isEnabled() shouldBe false
+            }
+        }
+    }
+
+    Given("SmartDocuments state is not specified") {
+        val smartDocumentsService = SmartDocumentsService(
+            smartDocumentsClient = smartDocumentsClient,
             loggedInUserInstance = loggedInUserInstance,
             fixedUserName = fixedUserName
         )
@@ -171,8 +183,6 @@ class SmartDocumentsServiceTest : BehaviorSpec({
                 SmartDocumentsService(
                     smartDocumentsClient = smartDocumentsClient,
                     enabled = Optional.of(true),
-                    smartDocumentsURL = Optional.empty(),
-                    authenticationToken = Optional.empty(),
                     loggedInUserInstance = loggedInUserInstance,
                     fixedUserName = fixedUserName
                 )
