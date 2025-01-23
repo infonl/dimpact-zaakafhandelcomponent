@@ -94,10 +94,14 @@ class MailService @Inject constructor(
         )
         val body = resolveVariabelen(mailGegevens.body, bronnen)
         val attachments = getAttachments(mailGegevens.attachments)
+        val fromAddress = mailGegevens.from.toAddress()
+        val replyToAddress = mailGegevens.replyTo?.toAddress().let {
+            if (fromAddress == it) null else it
+        }
         val message = MailMessageBuilder(
-            fromAddress = mailGegevens.from.toAddress(),
+            fromAddress = fromAddress,
             toAddress = mailGegevens.to.toAddress(),
-            replyToAddress = mailGegevens.replyTo?.toAddress(),
+            replyToAddress = replyToAddress,
             mailSubject = subject,
             body = body,
             attachments = attachments

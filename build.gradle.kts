@@ -406,7 +406,6 @@ tasks {
 
     build {
         dependsOn("generateWildflyBootableJar")
-        finalizedBy("buildHelmChartReadme")
     }
 
     test {
@@ -720,7 +719,7 @@ tasks {
 
     register<Download>("downloadHelmDocsArchive") {
         description = "Download helm-docs release archive"
-        group = "build"
+        group = "build setup"
 
         val version = libs.versions.helm.docs.get()
         val osClassifier = "${osdetector.os}_${osdetector.arch}".replace("osx", "Darwin").replace("aarch_64", "arm64")
@@ -734,7 +733,7 @@ tasks {
 
     register<Copy>("downloadAndUnpackHelmDocs") {
         description = "Download and unpack helm-docs executable"
-        group = "build"
+        group = "build setup"
         dependsOn("downloadHelmDocsArchive")
 
         from(tarTree(layout.buildDirectory.file("helm-docs.tar.gz")))
