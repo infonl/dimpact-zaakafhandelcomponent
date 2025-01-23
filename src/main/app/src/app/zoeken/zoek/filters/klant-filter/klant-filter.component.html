@@ -14,7 +14,8 @@
         placeholder="{{ 'bsn.vestigingsnummer.rsin' | translate }}"
         (blur)="change()"
         (keyup.enter)="change()"
-        [(ngModel)]="value"
+        [ngModel]="value"
+        (ngModelChange)="value = $event"
       />
       <mat-icon
         [ngClass]="{ active: dialogOpen }"

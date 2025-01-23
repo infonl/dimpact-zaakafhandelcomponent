@@ -1,12 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { Observable, of } from "rxjs";
-import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { InformatieobjectZoekParameters } from "../../../informatie-objecten/model/informatieobject-zoek-parameters";
 import { DocumentenLijstFieldBuilder } from "../../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
@@ -16,7 +15,6 @@ import { ReadonlyFormFieldBuilder } from "../../../shared/material-form-builder/
 import { TextareaFormFieldBuilder } from "../../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { TakenService } from "../../../taken/taken.service";
-import { ZakenService } from "../../../zaken/zaken.service";
 import { AbstractTaakFormulier } from "../abstract-taak-formulier";
 
 export class Advies extends AbstractTaakFormulier {
@@ -35,8 +33,6 @@ export class Advies extends AbstractTaakFormulier {
     translate: TranslateService,
     public takenService: TakenService,
     public informatieObjectenService: InformatieObjectenService,
-    private zakenService: ZakenService,
-    private zaakafhandelParametersService: ZaakafhandelParametersService,
   ) {
     super(translate, informatieObjectenService);
   }
