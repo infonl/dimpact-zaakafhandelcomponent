@@ -377,6 +377,20 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
                 }
             }
 
+            And("The afzenders should get copied") {
+                slotPersistZaakafhandelParameters.captured.zaakAfzenders.let {
+                    it shouldBeSameSizeAs originalZaakafhandelParameters.zaakAfzenders
+                    it zip originalZaakafhandelParameters.zaakAfzenders
+                }.forEach { (new, original) ->
+                    new.id shouldNotBe original.id
+                    new.zaakafhandelParameters shouldNotBe original.zaakafhandelParameters
+                    new.zaakafhandelParameters shouldBe slotPersistZaakafhandelParameters.captured
+                    new.isDefault shouldBe original.isDefault
+                    new.mail shouldBe original.mail
+                    new.replyTo shouldBe original.replyTo
+                }
+            }
+
             And("The new zaak type is stored") {
                 verify {
                     entityManager.persist(any<ZaakafhandelParameters>())
