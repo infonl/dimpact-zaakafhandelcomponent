@@ -17,16 +17,16 @@ private const val VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING"
 data class RestVestigingsprofiel(
     var adressen: List<RestKlantenAdres>? = null,
     var commercieleVestiging: Boolean = false,
-    var deeltijdWerkzamePersonen: Int = 0,
+    var deeltijdWerkzamePersonen: Int? = null,
     var eersteHandelsnaam: String? = null,
     var kvkNummer: String? = null,
     var rsin: String? = null,
     var sbiActiviteiten: List<String>? = null,
     var sbiHoofdActiviteit: String? = null,
     var type: String? = null,
-    var totaalWerkzamePersonen: Int = 0,
+    var totaalWerkzamePersonen: Int? = null,
     var vestigingsnummer: String? = null,
-    var voltijdWerkzamePersonen: Int = 0,
+    var voltijdWerkzamePersonen: Int? = null,
     var website: String? = null
 )
 
@@ -40,22 +40,19 @@ fun Vestiging.toRestVestigingsProfiel() = RestVestigingsprofiel(
     voltijdWerkzamePersonen = this.voltijdWerkzamePersonen,
     commercieleVestiging = this.indCommercieleVestiging?.isIndicatie() ?: false,
     type = if (this.indHoofdvestiging?.isIndicatie() == true) VESTIGINGTYPE_HOOFDVESTIGING else VESTIGINGTYPE_NEVENVESTIGING,
-    sbiHoofdActiviteit = this.sbiActiviteiten
-        .filter { it.indHoofdactiviteit?.isIndicatie() == true }
-        .map { it.sbiOmschrijving }
-        .firstOrNull(),
-    sbiActiviteiten = this.sbiActiviteiten
-        .filter { it.indHoofdactiviteit?.isIndicatie() == false }
-        .map { it.sbiOmschrijving },
-    adressen = this.adressen
-        .map {
-            RestKlantenAdres(
-                it.type,
-                it.indAfgeschermd?.isIndicatie() ?: false,
-                it.volledigAdres
-            )
-        }
-        .toList(),
+    sbiHoofdActiviteit = this.sbiActiviteiten?.firstOrNull {
+        it?.indHoofdactiviteit?.isIndicatie() == true
+    }?.sbiOmschrijving,
+    sbiActiviteiten = this.sbiActiviteiten?.filter {
+        it.indHoofdactiviteit?.isIndicatie() == false
+    }?.map { it.sbiOmschrijving },
+    adressen = this.adressen?.map {
+        RestKlantenAdres(
+            it.type,
+            it.indAfgeschermd?.isIndicatie() == true,
+            it.volledigAdres
+        )
+    },
     website = this.websites?.first()
 )
 

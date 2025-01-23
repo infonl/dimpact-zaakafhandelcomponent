@@ -18,6 +18,8 @@ import net.atos.client.klant.createDigitalAddresses
 import net.atos.client.kvk.KvkClientService
 import net.atos.client.kvk.zoeken.model.createAdresWithBinnenlandsAdres
 import net.atos.client.kvk.zoeken.model.createResultaatItem
+import net.atos.client.kvk.zoeken.model.createSBIActiviteit
+import net.atos.client.kvk.zoeken.model.createVestiging
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.klant.exception.VestigingNotFoundException
 import java.util.Optional
@@ -203,6 +205,74 @@ class KlantRestServiceTest : BehaviorSpec({
 
             Then("an exception should be thrown") {
                 exception.message shouldBe "Geen persoon gevonden voor BSN '$bsn'"
+            }
+        }
+    }
+    Given("A KVK vestigingsprofiel including werkzame personen and activiteiten") {
+        val vestiging = createVestiging(
+            sbiActiviteiten = listOf(
+                createSBIActiviteit(
+                    sbiCode = "dummySbiCode1",
+                    sbiOmschrijving = "dummySbiOmschrijving1",
+                    indHoofdactiviteit = "nee"
+                ),
+                createSBIActiviteit(
+                    sbiCode = "dummySbiCode2",
+                    sbiOmschrijving = "dummySbiOmschrijving2",
+                    indHoofdactiviteit = "ja"
+                ),
+                createSBIActiviteit(
+                    sbiCode = "dummySbiCode3",
+                    sbiOmschrijving = "dummySbiOmschrijving3",
+                    indHoofdactiviteit = "nee"
+                )
+            )
+        )
+        every { kvkClientService.findVestigingsprofiel(vestiging.vestigingsnummer) } returns Optional.of(vestiging)
+
+        When("the vestigingsprofiel is requested for a given vestigingsnummer") {
+            val vestigingsProfiel = klantRestService.readVestigingsprofiel(vestiging.vestigingsnummer)
+
+            Then("the vestigingsprofiel is returned correctly") {
+                with(vestigingsProfiel) {
+                    this.vestigingsnummer shouldBe vestiging.vestigingsnummer
+                    this.kvkNummer shouldBe vestiging.kvkNummer
+                    this.eersteHandelsnaam shouldBe vestiging.eersteHandelsnaam
+                    this.rsin shouldBe vestiging.rsin
+                    this.totaalWerkzamePersonen shouldBe vestiging.totaalWerkzamePersonen
+                    this.deeltijdWerkzamePersonen shouldBe vestiging.deeltijdWerkzamePersonen
+                    this.voltijdWerkzamePersonen shouldBe vestiging.voltijdWerkzamePersonen
+                    // the SBI activiteiten list is the list of descriptions of the non-hoofd activiteiten
+                    this.sbiActiviteiten shouldBe listOf("dummySbiOmschrijving1", "dummySbiOmschrijving3")
+                    this.sbiHoofdActiviteit shouldBe "dummySbiOmschrijving2"
+                }
+            }
+        }
+    }
+    Given("A KVK vestigingsprofiel without data about werkzame personen nor about activiteiten") {
+        val vestiging = createVestiging(
+            voltijdWerkzamePersonen = null,
+            deeltijdWerkzamePersonen = null,
+            totaalWerkzamePersonen = null,
+            sbiActiviteiten = null
+        )
+        every { kvkClientService.findVestigingsprofiel(vestiging.vestigingsnummer) } returns Optional.of(vestiging)
+
+        When("the vestigingsprofiel is requested for a given vestigingsnummer") {
+            val vestigingsProfiel = klantRestService.readVestigingsprofiel(vestiging.vestigingsnummer)
+
+            Then("the vestigingsprofiel is returned correctly") {
+                with(vestigingsProfiel) {
+                    this.vestigingsnummer shouldBe vestiging.vestigingsnummer
+                    this.kvkNummer shouldBe vestiging.kvkNummer
+                    this.eersteHandelsnaam shouldBe vestiging.eersteHandelsnaam
+                    this.rsin shouldBe vestiging.rsin
+                    this.totaalWerkzamePersonen shouldBe vestiging.totaalWerkzamePersonen
+                    this.deeltijdWerkzamePersonen shouldBe vestiging.deeltijdWerkzamePersonen
+                    this.voltijdWerkzamePersonen shouldBe vestiging.voltijdWerkzamePersonen
+                    this.sbiActiviteiten shouldBe null
+                    this.sbiHoofdActiviteit shouldBe null
+                }
             }
         }
     }
