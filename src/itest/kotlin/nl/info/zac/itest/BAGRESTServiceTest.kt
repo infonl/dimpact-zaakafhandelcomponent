@@ -21,11 +21,11 @@ class BAGRESTServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
 
     Given("A zaak exists and address data is present in the BAG API mock") {
-        When("the list addresses endpoint is called for the search query 'de dam 1 amsterdam'") {
+        When("the list addresses endpoint is called for a search query for which we have mock data") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/bag/adres",
                 requestBodyAsString = """
-                        { "trefwoorden": "de dam 1 amsterdam"}
+                        { "trefwoorden": "dummy search text"}
                 """.trimIndent()
             )
             Then(
