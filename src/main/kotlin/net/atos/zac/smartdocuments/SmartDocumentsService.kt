@@ -26,7 +26,6 @@ import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.util.Optional
 import java.util.logging.Logger
 import kotlin.jvm.optionals.getOrDefault
-import kotlin.jvm.optionals.getOrElse
 
 @NoArgConstructor
 @ApplicationScoped
