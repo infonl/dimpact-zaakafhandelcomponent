@@ -40,7 +40,7 @@ class SmartDocumentsService @Inject constructor(
     // With nullable Kotlin types ConfigProperty and Weld error with:
     //     io.smallrye.config.inject.ConfigException: SRCFG02000: Failed to Inject @ConfigProperty for key
     // Therefore we use Optional to support non-mandatory properties.
-    // Weld inject Optional.empty() if property is not available and overrides default value
+    // Weld injects Optional.empty() if a property is not available and overrides the Kotlin default value.
 
     @ConfigProperty(name = "SMARTDOCUMENTS_ENABLED")
     private val enabled: Optional<Boolean> = Optional.empty(),
