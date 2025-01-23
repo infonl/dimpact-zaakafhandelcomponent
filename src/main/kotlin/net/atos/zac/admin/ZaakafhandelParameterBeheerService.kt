@@ -15,6 +15,7 @@ import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.admin.model.MailtemplateKoppeling
 import net.atos.zac.admin.model.UserEventListenerParameters
+import net.atos.zac.admin.model.ZaakAfzender
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.ZaakafhandelParameters.CREATIEDATUM
 import net.atos.zac.admin.model.ZaakafhandelParameters.PRODUCTAANVRAAGTYYPE
@@ -212,6 +213,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         mapUserEventListenerParameters(previousZaakafhandelparameters, zaakafhandelParameters)
         mapZaakbeeindigGegevens(previousZaakafhandelparameters, zaakafhandelParameters, zaaktype)
         mapMailtemplateKoppelingen(previousZaakafhandelparameters, zaakafhandelParameters)
+        mapZaakAfzenders(previousZaakafhandelparameters, zaakafhandelParameters)
     }
 
     private fun currentZaakafhandelParameters(zaaktypeUuid: UUID): ZaakafhandelParameters {
@@ -341,7 +343,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
             mailTemplate = it.mailTemplate
             zaakafhandelParameters = newZaakafhandelParameters
         }
-    }.toSet().let(newZaakafhandelParameters::setMailtemplateKoppelingen)
+    }.let(newZaakafhandelParameters::setMailtemplateKoppelingen)
 
     private fun mapVorigResultaattypeOpNieuwResultaattype(
         previousResultaattypeUUID: UUID,
@@ -359,4 +361,16 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         val templateMappings = smartDocumentsTemplatesService.getTemplatesMapping(previousZaakafhandelUUID)
         smartDocumentsTemplatesService.storeTemplatesMapping(templateMappings, newZaakafhandelParametersUUID)
     }
+
+    private fun mapZaakAfzenders(
+        previousZaakafhandelParameters: ZaakafhandelParameters,
+        newZaakafhandelParameters: ZaakafhandelParameters
+    ) = previousZaakafhandelParameters.zaakAfzenders.map {
+        ZaakAfzender().apply {
+            isDefault = it.isDefault
+            mail = it.mail
+            replyTo = it.replyTo
+            zaakafhandelParameters = newZaakafhandelParameters
+        }
+    }.let(newZaakafhandelParameters::setZaakAfzenders)
 }
