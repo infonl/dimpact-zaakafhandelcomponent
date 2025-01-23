@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 <div class="radio-form-field">
@@ -9,12 +9,7 @@
   <mat-hint *ngIf="data.hint" [align]="data.hint.align">{{
     data.hint.label | translate
   }}</mat-hint>
-  <mat-radio-group
-    class="radio-group"
-    [formControl]="data.formControl"
-    [(ngModel)]="selectedValue"
-    (change)="radioChanged()"
-  >
+  <mat-radio-group class="radio-group" [formControl]="data.formControl">
     <mat-radio-button
       class="radio-button"
       *ngFor="let option of data.options | async"
@@ -26,7 +21,7 @@
 
   <mat-error
     appEnhanceMatError
-    *ngIf="data.formControl.touched && data.formControl.invalid"
+    *ngIf="data.formControl.dirty && data.formControl.invalid"
     >{{ getErrorMessage() }}</mat-error
   >
 </div>
