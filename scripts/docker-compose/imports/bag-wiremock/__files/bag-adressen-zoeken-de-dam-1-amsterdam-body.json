@@ -1,0 +1,1628 @@
+{
+  "_links": {
+    "self": {
+      "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/adressen?q=de+dam+1+amsterdam&expand=nummeraanduiding%2CopenbareRuimte%2Cpanden%2Cwoonplaats"
+    },
+    "next": {
+      "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/adressen?q=de+dam+1+amsterdam&expand=nummeraanduiding%2CopenbareRuimte%2Cpanden%2Cwoonplaats&page=2"
+    },
+    "last": {
+      "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/adressen?q=de+dam+1+amsterdam&expand=nummeraanduiding%2CopenbareRuimte%2Cpanden%2Cwoonplaats&page=18"
+    }
+  },
+  "_embedded": {
+    "adressen": [
+      {
+        "openbareRuimteNaam": "Dam",
+        "korteNaam": "Dam",
+        "huisnummer": 1,
+        "postcode": "1012JS",
+        "woonplaatsNaam": "Amsterdam",
+        "nummeraanduidingIdentificatie": "0363200003761447",
+        "openbareRuimteIdentificatie": "0363300000003186",
+        "woonplaatsIdentificatie": "3594",
+        "adresseerbaarObjectIdentificatie": "0363010003761571",
+        "pandIdentificaties": [
+          "0363100012168052"
+        ],
+        "adresregel5": "Dam 1",
+        "adresregel6": "1012 JS  AMSTERDAM",
+        "_links": {
+          "self": {
+            "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/adressen/0363200003761447"
+          },
+          "openbareRuimte": {
+            "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003186"
+          },
+          "nummeraanduiding": {
+            "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/nummeraanduidingen/0363200003761447"
+          },
+          "woonplaats": {
+            "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
+          },
+          "adresseerbaarObject": {
+            "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/verblijfsobjecten/0363010003761571"
+          },
+          "panden": [
+            {
+              "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/panden/0363100012168052"
+            }
+          ]
+        },
+        "_embedded": {
+          "openbareRuimte": {
+            "openbareRuimte": {
+              "identificatie": "0363300000003186",
+              "domein": "NL.IMBAG.Openbareruimte",
+              "naam": "Dam",
+              "type": "Weg",
+              "status": "Naamgeving uitgegeven",
+              "korteNaam": "Dam",
+              "geconstateerd": "N",
+              "documentdatum": "2014-01-10",
+              "documentnummer": "GV00001729_AC00AC",
+              "voorkomen": {
+                "tijdstipRegistratie": "2014-01-10T20:43:29",
+                "versie": 2,
+                "beginGeldigheid": "2014-01-10",
+                "tijdstipRegistratieLV": "2014-01-10T21:05:38.267"
+              },
+              "ligtIn": "3594"
+            },
+            "_links": {
+              "self": {
+                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003186"
+              },
+              "ligtInWoonplaats": {
+                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
+              }
+            }
+          },
+          "nummeraanduiding": {
+            "nummeraanduiding": {
+              "identificatie": "0363200003761447",
+              "domein": "NL.IMBAG.Nummeraanduiding",
+              "huisnummer": 1,
+              "postcode": "1012JS",
+              "typeAdresseerbaarObject": "Verblijfsobject",
+              "status": "Naamgeving uitgegeven",
+              "geconstateerd": "N",
+              "documentdatum": "2009-03-20",
+              "documentnummer": "SA00002271",
+              "voorkomen": {
+                "tijdstipRegistratie": "2010-11-06T00:22:56",
+                "versie": 1,
+                "beginGeldigheid": "2009-03-20",
+                "tijdstipRegistratieLV": "2010-11-08T11:38:05.555"
+              },
+              "ligtIn": "3594",
+              "ligtAan": "0363300000003186"
+            },
+            "_links": {
+              "self": {
+                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/nummeraanduidingen/0363200003761447"
+              },
+              "ligtInWoonplaats": {
+                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
+              },
+              "ligtAanOpenbareRuimte": {
+                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003186"
+              }
+            }
+          },
+          "woonplaats": {
+            "woonplaats": {
+              "identificatie": "3594",
+              "domein": "NL.IMBAG.Woonplaats",
+              "naam": "Amsterdam",
+              "status": "Woonplaats aangewezen",
+              "geconstateerd": "N",
+              "documentdatum": "2014-01-10",
+              "documentnummer": "GV00001729_AC00AC",
+              "voorkomen": {
+                "tijdstipRegistratie": "2014-01-10T16:17:08",
+                "versie": 1,
+                "beginGeldigheid": "2014-01-10",
+                "tijdstipRegistratieLV": "2014-01-10T16:34:01.612"
+              }
+            },
+            "_links": {
+              "self": {
+                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
+              },
+              "bronhouders": [
+                {
+                  "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/bronhouders/0363"
+                }
+              ]
+            }
+          },
+          "panden": [
+            {
+              "pand": {
+                "identificatie": "0363100012168052",
+                "domein": "NL.IMBAG.Pand",
+                "geometrie": {
+                  "type": "Polygon",
+                  "coordinates": [
+                    [
+                      [
+                        121488.34,
+                        487444.779,
+                        0.0
+                      ],
+                      [
+                        121484.902,
+                        487447.647,
+                        0.0
+                      ],
+                      [
+                        121478.079,
+                        487453.339,
+                        0.0
+                      ],
+                      [
+                        121478.151,
+                        487453.426,
+                        0.0
+                      ],
+                      [
+                        121477.719,
+                        487453.786,
+                        0.0
+                      ],
+                      [
+                        121477.83,
+                        487453.92,
+                        0.0
+                      ],
+                      [
+                        121458.644,
+                        487469.879,
+                        0.0
+                      ],
+                      [
+                        121458.499,
+                        487469.999,
+                        0.0
+                      ],
+                      [
+                        121445.692,
+                        487454.792,
+                        0.0
+                      ],
+                      [
+                        121441.383,
+                        487449.675,
+                        0.0
+                      ],
+                      [
+                        121442.53,
+                        487448.7,
+                        0.0
+                      ],
+                      [
+                        121433.035,
+                        487437.534,
+                        0.0
+                      ],
+                      [
+                        121432.91,
+                        487437.64,
+                        0.0
+                      ],
+                      [
+                        121429.235,
+                        487433.305,
+                        0.0
+                      ],
+                      [
+                        121428.961,
+                        487433.538,
+                        0.0
+                      ],
+                      [
+                        121428.22,
+                        487432.663,
+                        0.0
+                      ],
+                      [
+                        121428.208,
+                        487432.672,
+                        0.0
+                      ],
+                      [
+                        121428.196,
+                        487432.68,
+                        0.0
+                      ],
+                      [
+                        121428.183,
+                        487432.688,
+                        0.0
+                      ],
+                      [
+                        121428.169,
+                        487432.694,
+                        0.0
+                      ],
+                      [
+                        121428.155,
+                        487432.698,
+                        0.0
+                      ],
+                      [
+                        121428.14,
+                        487432.702,
+                        0.0
+                      ],
+                      [
+                        121428.126,
+                        487432.705,
+                        0.0
+                      ],
+                      [
+                        121428.111,
+                        487432.706,
+                        0.0
+                      ],
+                      [
+                        121428.096,
+                        487432.706,
+                        0.0
+                      ],
+                      [
+                        121428.08,
+                        487432.705,
+                        0.0
+                      ],
+                      [
+                        121428.063,
+                        487432.702,
+                        0.0
+                      ],
+                      [
+                        121428.047,
+                        487432.697,
+                        0.0
+                      ],
+                      [
+                        121428.032,
+                        487432.692,
+                        0.0
+                      ],
+                      [
+                        121428.017,
+                        487432.684,
+                        0.0
+                      ],
+                      [
+                        121428.003,
+                        487432.676,
+                        0.0
+                      ],
+                      [
+                        121427.99,
+                        487432.666,
+                        0.0
+                      ],
+                      [
+                        121427.977,
+                        487432.655,
+                        0.0
+                      ],
+                      [
+                        121427.966,
+                        487432.643,
+                        0.0
+                      ],
+                      [
+                        121425.276,
+                        487429.469,
+                        0.0
+                      ],
+                      [
+                        121425.267,
+                        487429.457,
+                        0.0
+                      ],
+                      [
+                        121425.259,
+                        487429.445,
+                        0.0
+                      ],
+                      [
+                        121425.251,
+                        487429.432,
+                        0.0
+                      ],
+                      [
+                        121425.245,
+                        487429.418,
+                        0.0
+                      ],
+                      [
+                        121425.24,
+                        487429.404,
+                        0.0
+                      ],
+                      [
+                        121425.237,
+                        487429.39,
+                        0.0
+                      ],
+                      [
+                        121425.234,
+                        487429.375,
+                        0.0
+                      ],
+                      [
+                        121425.233,
+                        487429.36,
+                        0.0
+                      ],
+                      [
+                        121425.233,
+                        487429.345,
+                        0.0
+                      ],
+                      [
+                        121425.234,
+                        487429.33,
+                        0.0
+                      ],
+                      [
+                        121425.237,
+                        487429.315,
+                        0.0
+                      ],
+                      [
+                        121425.24,
+                        487429.301,
+                        0.0
+                      ],
+                      [
+                        121425.245,
+                        487429.287,
+                        0.0
+                      ],
+                      [
+                        121425.251,
+                        487429.273,
+                        0.0
+                      ],
+                      [
+                        121425.258,
+                        487429.26,
+                        0.0
+                      ],
+                      [
+                        121425.267,
+                        487429.248,
+                        0.0
+                      ],
+                      [
+                        121425.276,
+                        487429.236,
+                        0.0
+                      ],
+                      [
+                        121425.286,
+                        487429.225,
+                        0.0
+                      ],
+                      [
+                        121425.297,
+                        487429.215,
+                        0.0
+                      ],
+                      [
+                        121424.682,
+                        487428.49,
+                        0.0
+                      ],
+                      [
+                        121424.67,
+                        487428.499,
+                        0.0
+                      ],
+                      [
+                        121424.658,
+                        487428.507,
+                        0.0
+                      ],
+                      [
+                        121424.645,
+                        487428.515,
+                        0.0
+                      ],
+                      [
+                        121424.631,
+                        487428.521,
+                        0.0
+                      ],
+                      [
+                        121424.617,
+                        487428.526,
+                        0.0
+                      ],
+                      [
+                        121424.603,
+                        487428.529,
+                        0.0
+                      ],
+                      [
+                        121424.588,
+                        487428.532,
+                        0.0
+                      ],
+                      [
+                        121424.573,
+                        487428.533,
+                        0.0
+                      ],
+                      [
+                        121424.558,
+                        487428.533,
+                        0.0
+                      ],
+                      [
+                        121424.543,
+                        487428.532,
+                        0.0
+                      ],
+                      [
+                        121424.528,
+                        487428.529,
+                        0.0
+                      ],
+                      [
+                        121424.514,
+                        487428.526,
+                        0.0
+                      ],
+                      [
+                        121424.5,
+                        487428.521,
+                        0.0
+                      ],
+                      [
+                        121424.486,
+                        487428.515,
+                        0.0
+                      ],
+                      [
+                        121424.473,
+                        487428.508,
+                        0.0
+                      ],
+                      [
+                        121424.461,
+                        487428.499,
+                        0.0
+                      ],
+                      [
+                        121424.449,
+                        487428.49,
+                        0.0
+                      ],
+                      [
+                        121424.438,
+                        487428.48,
+                        0.0
+                      ],
+                      [
+                        121424.428,
+                        487428.469,
+                        0.0
+                      ],
+                      [
+                        121421.739,
+                        487425.296,
+                        0.0
+                      ],
+                      [
+                        121421.73,
+                        487425.284,
+                        0.0
+                      ],
+                      [
+                        121421.722,
+                        487425.272,
+                        0.0
+                      ],
+                      [
+                        121421.714,
+                        487425.259,
+                        0.0
+                      ],
+                      [
+                        121421.708,
+                        487425.245,
+                        0.0
+                      ],
+                      [
+                        121421.703,
+                        487425.231,
+                        0.0
+                      ],
+                      [
+                        121421.7,
+                        487425.217,
+                        0.0
+                      ],
+                      [
+                        121421.697,
+                        487425.202,
+                        0.0
+                      ],
+                      [
+                        121421.696,
+                        487425.187,
+                        0.0
+                      ],
+                      [
+                        121421.696,
+                        487425.172,
+                        0.0
+                      ],
+                      [
+                        121421.697,
+                        487425.157,
+                        0.0
+                      ],
+                      [
+                        121421.7,
+                        487425.142,
+                        0.0
+                      ],
+                      [
+                        121421.703,
+                        487425.128,
+                        0.0
+                      ],
+                      [
+                        121421.708,
+                        487425.114,
+                        0.0
+                      ],
+                      [
+                        121421.714,
+                        487425.1,
+                        0.0
+                      ],
+                      [
+                        121421.721,
+                        487425.087,
+                        0.0
+                      ],
+                      [
+                        121421.73,
+                        487425.075,
+                        0.0
+                      ],
+                      [
+                        121421.739,
+                        487425.063,
+                        0.0
+                      ],
+                      [
+                        121421.749,
+                        487425.052,
+                        0.0
+                      ],
+                      [
+                        121421.76,
+                        487425.042,
+                        0.0
+                      ],
+                      [
+                        121421.146,
+                        487424.318,
+                        0.0
+                      ],
+                      [
+                        121421.134,
+                        487424.327,
+                        0.0
+                      ],
+                      [
+                        121421.122,
+                        487424.335,
+                        0.0
+                      ],
+                      [
+                        121421.109,
+                        487424.343,
+                        0.0
+                      ],
+                      [
+                        121421.095,
+                        487424.349,
+                        0.0
+                      ],
+                      [
+                        121421.081,
+                        487424.353,
+                        0.0
+                      ],
+                      [
+                        121421.066,
+                        487424.357,
+                        0.0
+                      ],
+                      [
+                        121421.052,
+                        487424.36,
+                        0.0
+                      ],
+                      [
+                        121421.037,
+                        487424.361,
+                        0.0
+                      ],
+                      [
+                        121421.022,
+                        487424.361,
+                        0.0
+                      ],
+                      [
+                        121421.006,
+                        487424.36,
+                        0.0
+                      ],
+                      [
+                        121420.989,
+                        487424.357,
+                        0.0
+                      ],
+                      [
+                        121420.973,
+                        487424.352,
+                        0.0
+                      ],
+                      [
+                        121420.958,
+                        487424.347,
+                        0.0
+                      ],
+                      [
+                        121420.943,
+                        487424.339,
+                        0.0
+                      ],
+                      [
+                        121420.929,
+                        487424.331,
+                        0.0
+                      ],
+                      [
+                        121420.916,
+                        487424.321,
+                        0.0
+                      ],
+                      [
+                        121420.903,
+                        487424.31,
+                        0.0
+                      ],
+                      [
+                        121420.892,
+                        487424.298,
+                        0.0
+                      ],
+                      [
+                        121418.203,
+                        487421.125,
+                        0.0
+                      ],
+                      [
+                        121418.194,
+                        487421.113,
+                        0.0
+                      ],
+                      [
+                        121418.186,
+                        487421.101,
+                        0.0
+                      ],
+                      [
+                        121418.178,
+                        487421.088,
+                        0.0
+                      ],
+                      [
+                        121418.172,
+                        487421.074,
+                        0.0
+                      ],
+                      [
+                        121418.167,
+                        487421.06,
+                        0.0
+                      ],
+                      [
+                        121418.164,
+                        487421.046,
+                        0.0
+                      ],
+                      [
+                        121418.161,
+                        487421.031,
+                        0.0
+                      ],
+                      [
+                        121418.16,
+                        487421.016,
+                        0.0
+                      ],
+                      [
+                        121418.16,
+                        487421.001,
+                        0.0
+                      ],
+                      [
+                        121418.161,
+                        487420.986,
+                        0.0
+                      ],
+                      [
+                        121418.164,
+                        487420.971,
+                        0.0
+                      ],
+                      [
+                        121418.167,
+                        487420.957,
+                        0.0
+                      ],
+                      [
+                        121418.172,
+                        487420.943,
+                        0.0
+                      ],
+                      [
+                        121418.178,
+                        487420.929,
+                        0.0
+                      ],
+                      [
+                        121418.185,
+                        487420.916,
+                        0.0
+                      ],
+                      [
+                        121418.194,
+                        487420.904,
+                        0.0
+                      ],
+                      [
+                        121418.203,
+                        487420.892,
+                        0.0
+                      ],
+                      [
+                        121418.213,
+                        487420.881,
+                        0.0
+                      ],
+                      [
+                        121418.224,
+                        487420.871,
+                        0.0
+                      ],
+                      [
+                        121417.48,
+                        487419.994,
+                        0.0
+                      ],
+                      [
+                        121417.754,
+                        487419.761,
+                        0.0
+                      ],
+                      [
+                        121414.075,
+                        487415.421,
+                        0.0
+                      ],
+                      [
+                        121414.19,
+                        487415.324,
+                        0.0
+                      ],
+                      [
+                        121404.775,
+                        487404.069,
+                        0.0
+                      ],
+                      [
+                        121403.59,
+                        487405.06,
+                        0.0
+                      ],
+                      [
+                        121386.49,
+                        487384.63,
+                        0.0
+                      ],
+                      [
+                        121407.025,
+                        487367.471,
+                        0.0
+                      ],
+                      [
+                        121407.23,
+                        487367.737,
+                        0.0
+                      ],
+                      [
+                        121415.216,
+                        487377.357,
+                        0.0
+                      ],
+                      [
+                        121419.678,
+                        487373.653,
+                        0.0
+                      ],
+                      [
+                        121424.763,
+                        487369.432,
+                        0.0
+                      ],
+                      [
+                        121456.069,
+                        487407.169,
+                        0.0
+                      ],
+                      [
+                        121454.359,
+                        487408.549,
+                        0.0
+                      ],
+                      [
+                        121461.859,
+                        487417.119,
+                        0.0
+                      ],
+                      [
+                        121488.34,
+                        487444.779,
+                        0.0
+                      ]
+                    ]
+                  ]
+                },
+                "oorspronkelijkBouwjaar": "1914",
+                "status": "Pand in gebruik",
+                "geconstateerd": "N",
+                "documentdatum": "2023-09-28",
+                "documentnummer": "GV00007182_AC00AC",
+                "voorkomen": {
+                  "tijdstipRegistratie": "2023-09-28T18:49:50.173",
+                  "versie": 2,
+                  "beginGeldigheid": "2023-09-28",
+                  "tijdstipRegistratieLV": "2023-09-28T21:31:24.997"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "openbareRuimteNaam": "Damrak",
+        "korteNaam": "Damrak",
+        "huisnummer": 1,
+        "postcode": "1012LG",
+        "woonplaatsNaam": "Amsterdam",
+        "nummeraanduidingIdentificatie": "0363200012113669",
+        "openbareRuimteIdentificatie": "0363300000003187",
+        "woonplaatsIdentificatie": "3594",
+        "adresseerbaarObjectIdentificatie": "0363010012111931",
+        "pandIdentificaties": [
+          "0363100012185508"
+        ],
+        "adresregel5": "Damrak 1",
+        "adresregel6": "1012 LG  AMSTERDAM",
+        "_links": {
+          "self": {
+            "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/adressen/0363200012113669"
+          },
+          "openbareRuimte": {
+            "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003187"
+          },
+          "nummeraanduiding": {
+            "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/nummeraanduidingen/0363200012113669"
+          },
+          "woonplaats": {
+            "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
+          },
+          "adresseerbaarObject": {
+            "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/verblijfsobjecten/0363010012111931"
+          },
+          "panden": [
+            {
+              "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/panden/0363100012185508"
+            }
+          ]
+        },
+        "_embedded": {
+          "openbareRuimte": {
+            "openbareRuimte": {
+              "identificatie": "0363300000003187",
+              "domein": "NL.IMBAG.Openbareruimte",
+              "naam": "Damrak",
+              "type": "Weg",
+              "status": "Naamgeving uitgegeven",
+              "korteNaam": "Damrak",
+              "geconstateerd": "N",
+              "documentdatum": "2014-01-10",
+              "documentnummer": "GV00001729_AC00AC",
+              "voorkomen": {
+                "tijdstipRegistratie": "2014-01-11T05:21:43",
+                "versie": 2,
+                "beginGeldigheid": "2014-01-10",
+                "tijdstipRegistratieLV": "2014-01-11T05:34:07.669"
+              },
+              "ligtIn": "3594"
+            },
+            "_links": {
+              "self": {
+                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003187"
+              },
+              "ligtInWoonplaats": {
+                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
+              }
+            }
+          },
+          "nummeraanduiding": {
+            "nummeraanduiding": {
+              "identificatie": "0363200012113669",
+              "domein": "NL.IMBAG.Nummeraanduiding",
+              "huisnummer": 1,
+              "postcode": "1012LG",
+              "typeAdresseerbaarObject": "Verblijfsobject",
+              "status": "Naamgeving uitgegeven",
+              "geconstateerd": "N",
+              "documentdatum": "2016-08-10",
+              "documentnummer": "SA00022024",
+              "voorkomen": {
+                "tijdstipRegistratie": "2016-08-15T13:58:58",
+                "versie": 1,
+                "beginGeldigheid": "2016-08-10",
+                "tijdstipRegistratieLV": "2016-08-15T14:00:56.111"
+              },
+              "ligtIn": "3594",
+              "ligtAan": "0363300000003187"
+            },
+            "_links": {
+              "self": {
+                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/nummeraanduidingen/0363200012113669"
+              },
+              "ligtInWoonplaats": {
+                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
+              },
+              "ligtAanOpenbareRuimte": {
+                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003187"
+              }
+            }
+          },
+          "woonplaats": {
+            "woonplaats": {
+              "identificatie": "3594",
+              "domein": "NL.IMBAG.Woonplaats",
+              "naam": "Amsterdam",
+              "status": "Woonplaats aangewezen",
+              "geconstateerd": "N",
+              "documentdatum": "2014-01-10",
+              "documentnummer": "GV00001729_AC00AC",
+              "voorkomen": {
+                "tijdstipRegistratie": "2014-01-10T16:17:08",
+                "versie": 1,
+                "beginGeldigheid": "2014-01-10",
+                "tijdstipRegistratieLV": "2014-01-10T16:34:01.612"
+              }
+            },
+            "_links": {
+              "self": {
+                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
+              },
+              "bronhouders": [
+                {
+                  "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/bronhouders/0363"
+                }
+              ]
+            }
+          },
+          "panden": [
+            {
+              "pand": {
+                "identificatie": "0363100012185508",
+                "domein": "NL.IMBAG.Pand",
+                "geometrie": {
+                  "type": "Polygon",
+                  "coordinates": [
+                    [
+                      [
+                        121673.874,
+                        487814.547,
+                        0.0
+                      ],
+                      [
+                        121677.33,
+                        487818.2,
+                        0.0
+                      ],
+                      [
+                        121675.16,
+                        487820.24,
+                        0.0
+                      ],
+                      [
+                        121679.135,
+                        487824.716,
+                        0.0
+                      ],
+                      [
+                        121678.679,
+                        487825.15,
+                        0.0
+                      ],
+                      [
+                        121678.789,
+                        487825.269,
+                        0.0
+                      ],
+                      [
+                        121675.07,
+                        487828.729,
+                        0.0
+                      ],
+                      [
+                        121674.866,
+                        487828.517,
+                        0.0
+                      ],
+                      [
+                        121674.736,
+                        487828.642,
+                        0.0
+                      ],
+                      [
+                        121674.84,
+                        487828.749,
+                        0.0
+                      ],
+                      [
+                        121673.797,
+                        487829.755,
+                        0.0
+                      ],
+                      [
+                        121673.311,
+                        487829.251,
+                        0.0
+                      ],
+                      [
+                        121670.8,
+                        487831.676,
+                        0.0
+                      ],
+                      [
+                        121671.286,
+                        487832.18,
+                        0.0
+                      ],
+                      [
+                        121661.541,
+                        487841.589,
+                        0.0
+                      ],
+                      [
+                        121658.071,
+                        487837.992,
+                        0.0
+                      ],
+                      [
+                        121655.634,
+                        487840.344,
+                        0.0
+                      ],
+                      [
+                        121653.55,
+                        487838.26,
+                        0.0
+                      ],
+                      [
+                        121645.91,
+                        487830.58,
+                        0.0
+                      ],
+                      [
+                        121646.07,
+                        487830.41,
+                        0.0
+                      ],
+                      [
+                        121645.895,
+                        487830.242,
+                        0.0
+                      ],
+                      [
+                        121649.365,
+                        487826.92,
+                        0.0
+                      ],
+                      [
+                        121646.92,
+                        487824.36,
+                        0.0
+                      ],
+                      [
+                        121650.904,
+                        487820.495,
+                        0.0
+                      ],
+                      [
+                        121651.632,
+                        487821.285,
+                        0.0
+                      ],
+                      [
+                        121652.453,
+                        487820.533,
+                        0.0
+                      ],
+                      [
+                        121651.059,
+                        487819.077,
+                        0.0
+                      ],
+                      [
+                        121653.46,
+                        487816.89,
+                        0.0
+                      ],
+                      [
+                        121652.042,
+                        487815.291,
+                        0.0
+                      ],
+                      [
+                        121647.165,
+                        487809.984,
+                        0.0
+                      ],
+                      [
+                        121642.134,
+                        487804.773,
+                        0.0
+                      ],
+                      [
+                        121645.16,
+                        487801.66,
+                        0.0
+                      ],
+                      [
+                        121647.854,
+                        487804.229,
+                        0.0
+                      ],
+                      [
+                        121651.191,
+                        487800.715,
+                        0.0
+                      ],
+                      [
+                        121670.26,
+                        487781.495,
+                        0.0
+                      ],
+                      [
+                        121670.29,
+                        487781.47,
+                        0.0
+                      ],
+                      [
+                        121670.496,
+                        487781.716,
+                        0.0
+                      ],
+                      [
+                        121670.259,
+                        487781.943,
+                        0.0
+                      ],
+                      [
+                        121673.102,
+                        487785.332,
+                        0.0
+                      ],
+                      [
+                        121673.339,
+                        487785.105,
+                        0.0
+                      ],
+                      [
+                        121674.01,
+                        487785.906,
+                        0.0
+                      ],
+                      [
+                        121673.734,
+                        487786.152,
+                        0.0
+                      ],
+                      [
+                        121677.464,
+                        487790.623,
+                        0.0
+                      ],
+                      [
+                        121677.74,
+                        487790.377,
+                        0.0
+                      ],
+                      [
+                        121678.12,
+                        487790.809,
+                        0.0
+                      ],
+                      [
+                        121678.082,
+                        487790.837,
+                        0.0
+                      ],
+                      [
+                        121678.16,
+                        487790.92,
+                        0.0
+                      ],
+                      [
+                        121687.253,
+                        487801.888,
+                        0.0
+                      ],
+                      [
+                        121687.5,
+                        487801.68,
+                        0.0
+                      ],
+                      [
+                        121690.629,
+                        487805.373,
+                        0.0
+                      ],
+                      [
+                        121691.024,
+                        487805.89,
+                        0.0
+                      ],
+                      [
+                        121690.778,
+                        487806.089,
+                        0.0
+                      ],
+                      [
+                        121690.948,
+                        487806.288,
+                        0.0
+                      ],
+                      [
+                        121691.509,
+                        487806.469,
+                        0.0
+                      ],
+                      [
+                        121692.275,
+                        487807.383,
+                        0.0
+                      ],
+                      [
+                        121693.533,
+                        487807.012,
+                        0.0
+                      ],
+                      [
+                        121693.704,
+                        487807.003,
+                        0.0
+                      ],
+                      [
+                        121693.875,
+                        487807.014,
+                        0.0
+                      ],
+                      [
+                        121694.044,
+                        487807.044,
+                        0.0
+                      ],
+                      [
+                        121694.208,
+                        487807.094,
+                        0.0
+                      ],
+                      [
+                        121694.365,
+                        487807.161,
+                        0.0
+                      ],
+                      [
+                        121694.514,
+                        487807.247,
+                        0.0
+                      ],
+                      [
+                        121694.651,
+                        487807.348,
+                        0.0
+                      ],
+                      [
+                        121694.777,
+                        487807.465,
+                        0.0
+                      ],
+                      [
+                        121694.888,
+                        487807.595,
+                        0.0
+                      ],
+                      [
+                        121694.984,
+                        487807.737,
+                        0.0
+                      ],
+                      [
+                        121695.063,
+                        487807.889,
+                        0.0
+                      ],
+                      [
+                        121695.186,
+                        487808.227,
+                        0.0
+                      ],
+                      [
+                        121695.287,
+                        487808.573,
+                        0.0
+                      ],
+                      [
+                        121695.368,
+                        487808.924,
+                        0.0
+                      ],
+                      [
+                        121695.426,
+                        487809.279,
+                        0.0
+                      ],
+                      [
+                        121695.462,
+                        487809.637,
+                        0.0
+                      ],
+                      [
+                        121695.476,
+                        487809.997,
+                        0.0
+                      ],
+                      [
+                        121695.468,
+                        487810.357,
+                        0.0
+                      ],
+                      [
+                        121695.437,
+                        487810.716,
+                        0.0
+                      ],
+                      [
+                        121695.384,
+                        487811.072,
+                        0.0
+                      ],
+                      [
+                        121695.31,
+                        487811.424,
+                        0.0
+                      ],
+                      [
+                        121695.214,
+                        487811.771,
+                        0.0
+                      ],
+                      [
+                        121695.096,
+                        487812.112,
+                        0.0
+                      ],
+                      [
+                        121694.958,
+                        487812.444,
+                        0.0
+                      ],
+                      [
+                        121694.877,
+                        487812.616,
+                        0.0
+                      ],
+                      [
+                        121694.778,
+                        487812.778,
+                        0.0
+                      ],
+                      [
+                        121694.66,
+                        487812.927,
+                        0.0
+                      ],
+                      [
+                        121694.525,
+                        487813.061,
+                        0.0
+                      ],
+                      [
+                        121694.376,
+                        487813.179,
+                        0.0
+                      ],
+                      [
+                        121694.214,
+                        487813.279,
+                        0.0
+                      ],
+                      [
+                        121694.042,
+                        487813.359,
+                        0.0
+                      ],
+                      [
+                        121693.861,
+                        487813.419,
+                        0.0
+                      ],
+                      [
+                        121693.675,
+                        487813.457,
+                        0.0
+                      ],
+                      [
+                        121693.486,
+                        487813.473,
+                        0.0
+                      ],
+                      [
+                        121693.296,
+                        487813.468,
+                        0.0
+                      ],
+                      [
+                        121693.108,
+                        487813.44,
+                        0.0
+                      ],
+                      [
+                        121692.924,
+                        487813.391,
+                        0.0
+                      ],
+                      [
+                        121691.625,
+                        487812.786,
+                        0.0
+                      ],
+                      [
+                        121691.377,
+                        487812.929,
+                        0.0
+                      ],
+                      [
+                        121691.117,
+                        487813.052,
+                        0.0
+                      ],
+                      [
+                        121690.849,
+                        487813.154,
+                        0.0
+                      ],
+                      [
+                        121690.574,
+                        487813.235,
+                        0.0
+                      ],
+                      [
+                        121690.293,
+                        487813.293,
+                        0.0
+                      ],
+                      [
+                        121690.009,
+                        487813.329,
+                        0.0
+                      ],
+                      [
+                        121690.189,
+                        487814.289,
+                        0.0
+                      ],
+                      [
+                        121690.439,
+                        487814.449,
+                        0.0
+                      ],
+                      [
+                        121689.836,
+                        487814.989,
+                        0.0
+                      ],
+                      [
+                        121689.541,
+                        487814.696,
+                        0.0
+                      ],
+                      [
+                        121689.38,
+                        487814.87,
+                        0.0
+                      ],
+                      [
+                        121688.685,
+                        487814.175,
+                        0.0
+                      ],
+                      [
+                        121685.837,
+                        487811.116,
+                        0.0
+                      ],
+                      [
+                        121684.79,
+                        487812.1,
+                        0.0
+                      ],
+                      [
+                        121681.95,
+                        487811.4,
+                        0.0
+                      ],
+                      [
+                        121680.51,
+                        487812.67,
+                        0.0
+                      ],
+                      [
+                        121678.32,
+                        487810.34,
+                        0.0
+                      ],
+                      [
+                        121673.874,
+                        487814.547,
+                        0.0
+                      ]
+                    ]
+                  ]
+                },
+                "oorspronkelijkBouwjaar": "1890",
+                "status": "Pand in gebruik",
+                "geconstateerd": "N",
+                "documentdatum": "2019-03-20",
+                "documentnummer": "SA00022024_OR00GM",
+                "voorkomen": {
+                  "tijdstipRegistratie": "2019-03-22T11:50:39",
+                  "versie": 5,
+                  "beginGeldigheid": "2019-03-20",
+                  "tijdstipRegistratieLV": "2019-03-22T12:00:36.195"
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
