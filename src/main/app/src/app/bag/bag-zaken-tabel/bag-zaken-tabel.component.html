@@ -7,8 +7,7 @@
   <mat-card-header>
     <mat-card-title>{{ "zaken" | translate }}</mat-card-title>
     <mat-slide-toggle
-      [ngModel]="inclusiefAfgerondeZaken"
-      (ngModelChange)="inclusiefAfgerondeZaken = $event"
+      [formControl]="inclusiefAfgerondeZaken"
       color="primary"
       id="zakenAfgerondeToon_toggle"
       (change)="filtersChanged()"

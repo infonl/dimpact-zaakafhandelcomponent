@@ -13,6 +13,7 @@ import {
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
+import { FormControl } from "@angular/forms";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
@@ -38,9 +39,8 @@ export class BagZakenTabelComponent
   @Input() BagObjectIdentificatie: string;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
-  dataSource: MatTableDataSource<ZaakZoekObject> =
-    new MatTableDataSource<ZaakZoekObject>();
-  columns: string[] = [
+  dataSource = new MatTableDataSource<ZaakZoekObject>();
+  columns = [
     "identificatie",
     "status",
     "groep",
@@ -50,15 +50,14 @@ export class BagZakenTabelComponent
     "omschrijving",
     "url",
   ];
-  filterColumns: string[] = this.columns.map((n) => n + "_filter");
+  filterColumns = this.columns.map((n) => n + "_filter");
   isLoadingResults = true;
   sorteerVeld = SorteerVeld;
-  filterChange: EventEmitter<void> = new EventEmitter<void>();
+  filterChange = new EventEmitter<void>();
   zoekParameters = new ZoekParameters();
-  zoekResultaat: ZoekResultaat<ZaakZoekObject> =
-    new ZoekResultaat<ZaakZoekObject>();
+  zoekResultaat = new ZoekResultaat<ZaakZoekObject>();
   init: boolean;
-  inclusiefAfgerondeZaken = false;
+  inclusiefAfgerondeZaken = new FormControl(false);
   ZoekVeld = ZoekVeld;
 
   constructor(
@@ -80,7 +79,8 @@ export class BagZakenTabelComponent
     this.zoekParameters.sorteerRichting = this.sort.direction;
     this.zoekParameters.sorteerVeld = SorteerVeld[this.sort.active];
     this.zoekParameters.rows = this.paginator.pageSize;
-    this.zoekParameters.alleenOpenstaandeZaken = !this.inclusiefAfgerondeZaken;
+    this.zoekParameters.alleenOpenstaandeZaken =
+      !this.inclusiefAfgerondeZaken.value;
     return this.zoekenService.list(this.zoekParameters) as Observable<
       ZoekResultaat<ZaakZoekObject>
     >;
