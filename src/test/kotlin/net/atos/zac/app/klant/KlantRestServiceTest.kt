@@ -20,6 +20,7 @@ import net.atos.client.kvk.zoeken.model.createAdresWithBinnenlandsAdres
 import net.atos.client.kvk.zoeken.model.createResultaatItem
 import net.atos.client.kvk.zoeken.model.createSBIActiviteit
 import net.atos.client.kvk.zoeken.model.createVestiging
+import net.atos.client.kvk.zoeken.model.createVestigingsAdres
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.klant.exception.VestigingNotFoundException
 import java.util.Optional
@@ -208,7 +209,7 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("A KVK vestigingsprofiel including werkzame personen and activiteiten") {
+    Given("A KVK vestigingsprofiel including werkzame personen, activiteiten and adressen") {
         val vestiging = createVestiging(
             sbiActiviteiten = listOf(
                 createSBIActiviteit(
@@ -225,6 +226,18 @@ class KlantRestServiceTest : BehaviorSpec({
                     sbiCode = "dummySbiCode3",
                     sbiOmschrijving = "dummySbiOmschrijving3",
                     indHoofdactiviteit = "nee"
+                )
+            ),
+            adressen = listOf(
+                createVestigingsAdres(
+                    type = "dummyType1",
+                    indAfgeschermd = "nee",
+                    volledigAdres = "dummyVolledigAdres1"
+                ),
+                createVestigingsAdres(
+                    type = "dummyType2",
+                    indAfgeschermd = "ja",
+                    volledigAdres = "dummyVolledigAdres2"
                 )
             )
         )
@@ -245,6 +258,19 @@ class KlantRestServiceTest : BehaviorSpec({
                     // the SBI activiteiten list is the list of descriptions of the non-hoofd activiteiten
                     this.sbiActiviteiten shouldBe listOf("dummySbiOmschrijving1", "dummySbiOmschrijving3")
                     this.sbiHoofdActiviteit shouldBe "dummySbiOmschrijving2"
+                    with(this.adressen!!) {
+                        size shouldBe 2
+                        with(this[0]) {
+                            type shouldBe "dummyType1"
+                            afgeschermd shouldBe false
+                            volledigAdres shouldBe "dummyVolledigAdres1"
+                        }
+                        with(this[1]) {
+                            type shouldBe "dummyType2"
+                            afgeschermd shouldBe true
+                            volledigAdres shouldBe "dummyVolledigAdres2"
+                        }
+                    }
                 }
             }
         }
@@ -254,7 +280,8 @@ class KlantRestServiceTest : BehaviorSpec({
             voltijdWerkzamePersonen = null,
             deeltijdWerkzamePersonen = null,
             totaalWerkzamePersonen = null,
-            sbiActiviteiten = null
+            sbiActiviteiten = null,
+            adressen = null
         )
         every { kvkClientService.findVestigingsprofiel(vestiging.vestigingsnummer) } returns Optional.of(vestiging)
 
@@ -272,6 +299,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     this.voltijdWerkzamePersonen shouldBe vestiging.voltijdWerkzamePersonen
                     this.sbiActiviteiten shouldBe null
                     this.sbiHoofdActiviteit shouldBe null
+                    this.adressen shouldBe null
                 }
             }
         }

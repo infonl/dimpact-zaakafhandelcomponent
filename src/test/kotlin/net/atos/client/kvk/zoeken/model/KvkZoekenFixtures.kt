@@ -77,6 +77,7 @@ fun createVestiging(
             indHoofdactiviteit = "nee"
         )
     ),
+    adressen: List<net.atos.client.kvk.vestigingsprofiel.model.generated.Adres>? = listOf(createVestigingsAdres())
 ) = Vestiging().apply {
     this.vestigingsnummer = vestigingsnummer
     this.kvkNummer = kvkNumber
@@ -85,4 +86,15 @@ fun createVestiging(
     this.deeltijdWerkzamePersonen = deeltijdWerkzamePersonen
     this.totaalWerkzamePersonen = totaalWerkzamePersonen
     this.sbiActiviteiten = sbiActiviteiten
+    this.adressen = adressen
+}
+
+fun createVestigingsAdres(
+    type: String = "dummyType",
+    indAfgeschermd: String = "nee",
+    volledigAdres: String = "dummyVolledigAdres"
+) = net.atos.client.kvk.vestigingsprofiel.model.generated.Adres().apply {
+    this.type = type
+    this.indAfgeschermd = indAfgeschermd
+    this.volledigAdres = volledigAdres
 }

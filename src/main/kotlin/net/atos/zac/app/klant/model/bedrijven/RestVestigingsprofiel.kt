@@ -7,7 +7,6 @@ package net.atos.zac.app.klant.model.bedrijven
 import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.util.Locale
 
 private const val VESTIGINGTYPE_HOOFDVESTIGING = "HOOFDVESTIGING"
 private const val VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING"
@@ -46,19 +45,6 @@ fun Vestiging.toRestVestigingsProfiel() = RestVestigingsprofiel(
     sbiActiviteiten = this.sbiActiviteiten?.filter {
         it.indHoofdactiviteit?.isIndicatie() == false
     }?.map { it.sbiOmschrijving },
-    adressen = this.adressen?.map {
-        RestKlantenAdres(
-            it.type,
-            it.indAfgeschermd?.isIndicatie() == true,
-            it.volledigAdres
-        )
-    },
+    adressen = this.adressen?.map { it.toRestKlantenAdres() },
     website = this.websites?.first()
 )
-
-private fun String.isIndicatie(): Boolean =
-    when (this.lowercase(Locale.getDefault())) {
-        "ja" -> true
-        "nee" -> false
-        else -> error("Unexpected value: $this")
-    }
