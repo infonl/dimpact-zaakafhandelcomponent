@@ -96,11 +96,14 @@ bagApi:
 openForms:
   url: ""  # https://open-forms.example.com
 
-# smartDocuments Configuration of the SmartDocuments connection
 smartDocuments:
+  # -- Enable SmartDocuments integration for creating a new document
   enabled: false
-  url: ""  # https://partners.smartdocuments.com
+  # -- URL to SmartDocuments instance. For example: https://partners.smartdocuments.com
+  url: ""
+  # -- Authentication token
   authentication: ""
+  # -- Fixed username for authentication
   fixedUserName: ""
 
 # signaleringen Configuration of the signaleren job
