@@ -16,7 +16,7 @@
     "zod": "3.24.1"
   },
   "devDependencies": {
-    "@types/node": "22.10.7",
+    "@types/node": "22.10.9",
     "@playwright/test": "1.49.1",
     "cucumber-html-reporter": "7.2.0",
     "cucumber-pretty": "6.0.1",
