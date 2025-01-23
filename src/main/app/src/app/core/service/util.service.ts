@@ -223,7 +223,9 @@ export class UtilService {
     return source
       .map((value) => value[item])
       .filter((value, index, self) => {
-        return value && self.findIndex((v) => v && v[key] === value[key]) === index;
+        return (
+          value && self.findIndex((v) => v && v[key] === value[key]) === index
+        );
       })
       .sort(OrderUtil.orderBy(sortKey));
   }
