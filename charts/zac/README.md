@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 0.4.3](https://img.shields.io/badge/Version-0.4.3-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.4.4](https://img.shields.io/badge/Version-0.4.4-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -244,10 +244,10 @@ A Helm chart for installing Zaakafhandelcomponent
 | signaleringen.sendZaakSignaleringenSchedule | string | `"0 2 * * *"` | Schedule of the signaleringen send zaken job in CRON job format |
 | signaleringen.successfulJobsHistoryLimit | int | `1` | k8s settings for the signaleren jobs |
 | signaleringen.tolerations | list | `[]` |  |
-| smartDocuments.authentication | string | `""` |  |
-| smartDocuments.enabled | bool | `false` |  |
-| smartDocuments.fixedUserName | string | `""` |  |
-| smartDocuments.url | string | `""` |  |
+| smartDocuments.authentication | string | `""` | Authentication token |
+| smartDocuments.enabled | bool | `false` | Enable SmartDocuments integration for creating a new document |
+| smartDocuments.fixedUserName | string | `""` | Fixed username for authentication |
+| smartDocuments.url | string | `""` | URL to SmartDocuments instance. For example: https://partners.smartdocuments.com |
 | solr.auth.enabled | bool | `false` |  |
 | solr.cloudBootstrap | bool | `false` |  |
 | solr.cloudEnabled | bool | `false` |  |
