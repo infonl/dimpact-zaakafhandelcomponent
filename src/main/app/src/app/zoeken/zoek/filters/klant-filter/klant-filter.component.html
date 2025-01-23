@@ -4,20 +4,20 @@
   -->
 
 <mat-card>
-  <mat-card-title
-    >{{'zoeken.filter.' + (label | lowercase) | translate}}</mat-card-title
-  >
+  <mat-card-title>{{
+    "zoeken.filter." + (label | lowercase) | translate
+  }}</mat-card-title>
   <mat-card-content class="klant-filter">
     <mat-form-field>
       <input
         matInput
-        placeholder="{{'bsn.vestigingsnummer.rsin' | translate}}"
+        placeholder="{{ 'bsn.vestigingsnummer.rsin' | translate }}"
         (blur)="change()"
         (keyup.enter)="change()"
         [(ngModel)]="value"
       />
       <mat-icon
-        [ngClass]="{'active': dialogOpen}"
+        [ngClass]="{ active: dialogOpen }"
         matSuffix
         (click)="openDialog()"
         >person</mat-icon

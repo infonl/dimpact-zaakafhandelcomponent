@@ -3,27 +3,27 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div class="table-wrapper" [ngClass]="{'loading':zoekQuery.isLoading()}">
+<div class="table-wrapper" [ngClass]="{ loading: zoekQuery.isLoading() }">
   <table mat-table [dataSource]="dataSource" matSort>
     <ng-container matColumnDef="naam">
       <th mat-header-cell *matHeaderCellDef mat-sort-header="naam">
-        {{'naam' | translate}}
+        {{ "naam" | translate }}
       </th>
-      <td mat-cell *matCellDef="let object">{{object.naam | empty}}</td>
+      <td mat-cell *matCellDef="let object">{{ object.naam | empty }}</td>
     </ng-container>
     <ng-container matColumnDef="creatiedatum">
       <th mat-header-cell *matHeaderCellDef mat-sort-header="creatiedatum">
-        {{'creatiedatumTijd' | translate}}
+        {{ "creatiedatumTijd" | translate }}
       </th>
       <td mat-cell *matCellDef="let object">
-        {{object.creatiedatum | datum | empty}}
+        {{ object.creatiedatum | datum | empty }}
       </td>
     </ng-container>
     <ng-container matColumnDef="zaakIdentificatie">
       <th mat-header-cell *matHeaderCellDef mat-sort-header="zaakIdentificatie">
-        {{'zaakIdentificatie' | translate}}
+        {{ "zaakIdentificatie" | translate }}
       </th>
-      <td mat-cell *matCellDef="let object">{{object.zaakIdentificatie}}</td>
+      <td mat-cell *matCellDef="let object">{{ object.zaakIdentificatie }}</td>
     </ng-container>
     <ng-container matColumnDef="zaaktypeOmschrijving">
       <th
@@ -31,9 +31,11 @@
         *matHeaderCellDef
         mat-sort-header="zaaktypeOmschrijving"
       >
-        {{'zaaktype' | translate}}
+        {{ "zaaktype" | translate }}
       </th>
-      <td mat-cell *matCellDef="let object">{{object.zaaktypeOmschrijving}}</td>
+      <td mat-cell *matCellDef="let object">
+        {{ object.zaaktypeOmschrijving }}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="url" stickyEnd id="taakButtons">
@@ -41,7 +43,7 @@
       <td mat-cell *matCellDef="let object">
         <a
           mat-icon-button
-          [id]="'taakBekijken_' + object.id +'_button'"
+          [id]="'taakBekijken_' + object.id + '_button'"
           [routerLink]="['/taken', object.id]"
           title="{{ 'actie.taak.bekijken' | translate }}"
         >
@@ -50,12 +52,12 @@
       </td>
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="columns"></tr>
-    <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns"></tr>
     <tr class="mat-row" *matNoDataRow>
       <td class="mat-cell" colspan="5">
-        <p *ngIf="zoekQuery.isLoading()">{{'msg.loading' | translate}}</p>
+        <p *ngIf="zoekQuery.isLoading()">{{ "msg.loading" | translate }}</p>
         <p *ngIf="!zoekQuery.isLoading()">
-          {{'msg.geen.gegevens.gevonden' | translate}}
+          {{ "msg.geen.gegevens.gevonden" | translate }}
         </p>
       </td>
     </tr>

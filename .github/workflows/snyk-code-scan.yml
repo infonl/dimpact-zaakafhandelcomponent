@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   snyk-node:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -30,12 +30,12 @@ jobs:
           command: test
 
       - name: Upload Snyk Node result to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@b6a472f63d85b9c78a3ac5e89422239fc15e9b3c # v3.28.1
+        uses: github/codeql-action/upload-sarif@d68b2d4edb4189fd2a5366ac14e72027bd4b37dd # v3.28.2
         with:
           sarif_file: snyk-node.sarif
 
   snyk-gradle:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -49,6 +49,6 @@ jobs:
           args: --sarif --sarif-file-output=snyk-gradle.sarif
 
       - name: Upload Snyk Gradle result to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@b6a472f63d85b9c78a3ac5e89422239fc15e9b3c # v3.28.1
+        uses: github/codeql-action/upload-sarif@d68b2d4edb4189fd2a5366ac14e72027bd4b37dd # v3.28.2
         with:
           sarif_file: snyk-gradle.sarif

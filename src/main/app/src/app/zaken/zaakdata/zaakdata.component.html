@@ -6,8 +6,10 @@
 <div class="sidenav-title">
   <h3>
     <mat-icon>folder_copy</mat-icon>
-    {{ (readonly ? 'actie.zaakdata.bekijken' : 'actie.zaakdata.wijzigen') |
-    translate}}
+    {{
+      (readonly ? "actie.zaakdata.bekijken" : "actie.zaakdata.wijzigen")
+        | translate
+    }}
   </h3>
   <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
@@ -23,13 +25,13 @@
     color="primary"
     (click)="opslaan()"
   >
-    {{'actie.opslaan' | translate}}
+    {{ "actie.opslaan" | translate }}
   </button>
   <button
     mat-raised-button
     [disabled]="bezigMetOpslaan"
     (click)="sideNav.close()"
   >
-    {{'actie.annuleren' | translate}}
+    {{ "actie.annuleren" | translate }}
   </button>
 </div>

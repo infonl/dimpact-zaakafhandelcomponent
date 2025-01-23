@@ -4,13 +4,15 @@
   -->
 <div class="static-text" (click)="edit()" [class.readonly]="readonly">
   <label class="static-text-label">
-    {{formField.label | translate}}
+    {{ formField.label | translate }}
     <mat-icon *ngIf="!readonly">edit</mat-icon>
   </label>
   <div *ngIf="!editing" class="static-text-content">
-    {{ formField.optionLabel && formField.formControl.defaultValue ?
-    formField.formControl.defaultValue[formField.optionLabel] :
-    formField.formControl.defaultValue | empty }}
+    {{
+      formField.optionLabel && formField.formControl.defaultValue
+        ? formField.formControl.defaultValue[formField.optionLabel]
+        : (formField.formControl.defaultValue | empty)
+    }}
     <div *ngIf="!readonly" class="edit-icon">
       <mat-icon>edit</mat-icon>
     </div>
@@ -35,7 +37,7 @@
       color="primary"
       id="groepOpslaan_button"
       mat-mini-fab
-      title="{{'actie.opslaan' | translate}}"
+      title="{{ 'actie.opslaan' | translate }}"
     >
       <mat-icon>check</mat-icon>
     </button>
@@ -44,7 +46,7 @@
       color="warn"
       id="groepAnnuleren_button"
       mat-mini-fab
-      title="{{'actie.annuleren' | translate}}"
+      title="{{ 'actie.annuleren' | translate }}"
     >
       <mat-icon>close</mat-icon>
     </button>

@@ -22,29 +22,38 @@
       <mat-card-content>
         <div
           class="table-wrapper"
-          [ngClass]="{'table-loading-shade':isLoadingResults}"
+          [ngClass]="{ 'table-loading-shade': isLoadingResults }"
         >
           <table mat-table [dataSource]="dataSource">
             <ng-container matColumnDef="code">
-              <th mat-header-cell *matHeaderCellDef>{{'tabel' | translate}}</th>
-              <td mat-cell *matCellDef="let row">{{row.code}}</td>
+              <th mat-header-cell *matHeaderCellDef>
+                {{ "tabel" | translate }}
+              </th>
+              <td mat-cell *matCellDef="let row">{{ row.code }}</td>
             </ng-container>
             <ng-container matColumnDef="naam">
-              <th mat-header-cell *matHeaderCellDef>{{'naam' | translate}}</th>
-              <td mat-cell *matCellDef="let row">{{row.naam}}</td>
+              <th mat-header-cell *matHeaderCellDef>
+                {{ "naam" | translate }}
+              </th>
+              <td mat-cell *matCellDef="let row">{{ row.naam }}</td>
             </ng-container>
             <ng-container matColumnDef="systeem">
               <th mat-header-cell *matHeaderCellDef>
-                {{'systeem' | translate}}
+                {{ "systeem" | translate }}
               </th>
               <td mat-cell *matCellDef="let row">
-                {{row.systeem ? ('actie.ja' | translate) : ('actie.nee' |
-                translate)}}
+                {{
+                  row.systeem
+                    ? ("actie.ja" | translate)
+                    : ("actie.nee" | translate)
+                }}
               </td>
             </ng-container>
             <ng-container matColumnDef="waarden">
-              <th mat-header-cell *matHeaderCellDef>{{'rijen' | translate}}</th>
-              <td mat-cell *matCellDef="let row">{{row.aantalWaarden}}</td>
+              <th mat-header-cell *matHeaderCellDef>
+                {{ "rijen" | translate }}
+              </th>
+              <td mat-cell *matCellDef="let row">{{ row.aantalWaarden }}</td>
             </ng-container>
             <ng-container matColumnDef="id" stickyEnd>
               <th mat-header-cell *matHeaderCellDef>
@@ -52,7 +61,7 @@
                   mat-icon-button
                   id="toevoegen"
                   [routerLink]="'/admin/referentietabellen/new'"
-                  title="{{ 'actie.toevoegen' | translate}}"
+                  title="{{ 'actie.toevoegen' | translate }}"
                 >
                   <mat-icon>add_circle</mat-icon>
                 </button>
@@ -62,7 +71,7 @@
                   mat-icon-button
                   [routerLink]="['/admin/referentietabellen/', row.id]"
                   id="edit"
-                  title="{{ 'actie.bewerken' | translate}}"
+                  title="{{ 'actie.bewerken' | translate }}"
                 >
                   <mat-icon>visibility</mat-icon>
                 </a>
@@ -70,7 +79,7 @@
                   mat-icon-button
                   *ngIf="!row.systeem"
                   id="verwijderen"
-                  title="{{ 'actie.verwijderen' | translate}}"
+                  title="{{ 'actie.verwijderen' | translate }}"
                   (click)="verwijderReferentieTabel(row)"
                 >
                   <mat-icon>delete</mat-icon>
@@ -78,10 +87,10 @@
               </td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="columns"></tr>
-            <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns"></tr>
             <tr mat-row *matNoDataRow>
               <td [colSpan]="columns.length">
-                {{'msg.geen.gegevens.gevonden' | translate}}
+                {{ "msg.geen.gegevens.gevonden" | translate }}
               </td>
             </tr>
           </table>

@@ -5,13 +5,13 @@
 
 <mat-card>
   <mat-card-header>
-    <mat-card-title>{{'zaken'| translate}}</mat-card-title>
+    <mat-card-title>{{ "zaken" | translate }}</mat-card-title>
     <mat-slide-toggle
       [(ngModel)]="inclusiefAfgerondeZaken"
       color="primary"
       id="zakenAfgerondeToon_toggle"
       (change)="filtersChanged()"
-      >{{ 'toonAfgerondeZaken' | translate }}</mat-slide-toggle
+      >{{ "toonAfgerondeZaken" | translate }}</mat-slide-toggle
     >
   </mat-card-header>
   <mat-card-content>
@@ -21,7 +21,10 @@
           <th mat-header-cell *matHeaderCellDef>
             <zac-tekst-filter
               [value]="zoekParameters.zoeken.ZAAK_IDENTIFICATIE"
-              (changed)="zoekParameters.zoeken.ZAAK_IDENTIFICATIE = $event; filtersChanged()"
+              (changed)="
+                zoekParameters.zoeken.ZAAK_IDENTIFICATIE = $event;
+                filtersChanged()
+              "
             ></zac-tekst-filter>
           </th>
         </ng-container>
@@ -31,10 +34,10 @@
             *matHeaderCellDef
             [mat-sort-header]="sorteerVeld.ZAAK_IDENTIFICATIE"
           >
-            {{'zaak.identificatie' | translate}}
+            {{ "zaak.identificatie" | translate }}
           </th>
           <td mat-cell *matCellDef="let object">
-            {{object.identificatie | empty}}
+            {{ object.identificatie | empty }}
           </td>
         </ng-container>
         <ng-container matColumnDef="betrokkene_filter">
@@ -46,16 +49,16 @@
                 [formControl]="betrokkeneSelectControl"
                 (selectionChange)="filtersChanged()"
               >
-                <mat-option
-                  >{{'betrokkeneRoltype.-kies-' | translate}}</mat-option
-                >
-                @if(distinctRoltypenQuery.data(); as data) {
-                <mat-option
-                  *ngFor="let betrokkene of data"
-                  [value]="'zaak_betrokkene_' + betrokkene"
-                >
-                  {{betrokkene}}
-                </mat-option>
+                <mat-option>{{
+                  "betrokkeneRoltype.-kies-" | translate
+                }}</mat-option>
+                @if (distinctRoltypenQuery.data(); as data) {
+                  <mat-option
+                    *ngFor="let betrokkene of data"
+                    [value]="'zaak_betrokkene_' + betrokkene"
+                  >
+                    {{ betrokkene }}
+                  </mat-option>
                 }
               </mat-select>
             </mat-form-field>
@@ -63,11 +66,11 @@
         </ng-container>
         <ng-container matColumnDef="betrokkene">
           <th mat-header-cell *matHeaderCellDef>
-            {{ 'betrokkeneRoltype' | translate }}
+            {{ "betrokkeneRoltype" | translate }}
           </th>
           <td mat-cell *matCellDef="let object">
             <div *ngFor="let betrokkene of getBetrokkenheid(object)">
-              {{betrokkene}}
+              {{ betrokkene }}
             </div>
           </td>
         </ng-container>
@@ -77,7 +80,9 @@
               label="status"
               [filter]="zoekParameters.filters.ZAAK_STATUS"
               [opties]="this.zoekResultaat.filters.ZAAK_STATUS"
-              (changed)="zoekParameters.filters.ZAAK_STATUS = $event; filtersChanged()"
+              (changed)="
+                zoekParameters.filters.ZAAK_STATUS = $event; filtersChanged()
+              "
             >
             </zac-facet-filter>
           </th>
@@ -88,7 +93,7 @@
             *matHeaderCellDef
             [mat-sort-header]="sorteerVeld.ZAAK_STATUS"
           >
-            {{ 'status' | translate }}
+            {{ "status" | translate }}
           </th>
           <td mat-cell *matCellDef="let object">
             {{ object.statustypeOmschrijving | empty }}
@@ -101,7 +106,9 @@
               label="groep"
               [filter]="zoekParameters.filters.GROEP"
               [opties]="this.zoekResultaat.filters.GROEP"
-              (changed)="zoekParameters.filters.GROEP = $event; filtersChanged()"
+              (changed)="
+                zoekParameters.filters.GROEP = $event; filtersChanged()
+              "
             >
             </zac-facet-filter>
           </th>
@@ -112,7 +119,7 @@
             *matHeaderCellDef
             [mat-sort-header]="sorteerVeld.ZAAK_GROEP"
           >
-            {{ 'groep' | translate }}
+            {{ "groep" | translate }}
           </th>
           <td mat-cell *matCellDef="let object">
             {{ object.groepNaam | empty }}
@@ -125,7 +132,9 @@
               label="behandelaar"
               [filter]="zoekParameters.filters.BEHANDELAAR"
               [opties]="this.zoekResultaat.filters.BEHANDELAAR"
-              (changed)="zoekParameters.filters.BEHANDELAAR = $event; filtersChanged()"
+              (changed)="
+                zoekParameters.filters.BEHANDELAAR = $event; filtersChanged()
+              "
             >
             </zac-facet-filter>
           </th>
@@ -136,7 +145,7 @@
             *matHeaderCellDef
             [mat-sort-header]="sorteerVeld.ZAAK_BEHANDELAAR"
           >
-            {{ 'behandelaar' | translate }}
+            {{ "behandelaar" | translate }}
           </th>
           <td mat-cell *matCellDef="let object">
             {{ object.behandelaarNaam | empty }}
@@ -148,7 +157,9 @@
             <zac-date-range-filter
               label="startdatum"
               [range]="zoekParameters.datums.ZAAK_STARTDATUM"
-              (changed)="zoekParameters.datums.ZAAK_STARTDATUM = $event; filtersChanged()"
+              (changed)="
+                zoekParameters.datums.ZAAK_STARTDATUM = $event; filtersChanged()
+              "
             >
             </zac-date-range-filter>
           </th>
@@ -159,10 +170,10 @@
             *matHeaderCellDef
             [mat-sort-header]="sorteerVeld.ZAAK_STARTDATUM"
           >
-            {{'startdatum' | translate}}
+            {{ "startdatum" | translate }}
           </th>
           <td mat-cell *matCellDef="let object">
-            {{object.startdatum | datum | empty}}
+            {{ object.startdatum | datum | empty }}
           </td>
         </ng-container>
 
@@ -172,7 +183,9 @@
               label="zaaktype"
               [filter]="zoekParameters.filters.ZAAKTYPE"
               [opties]="zoekResultaat.filters.ZAAKTYPE"
-              (changed)="zoekParameters.filters.ZAAKTYPE = $event; filtersChanged()"
+              (changed)="
+                zoekParameters.filters.ZAAKTYPE = $event; filtersChanged()
+              "
             >
             </zac-facet-filter>
           </th>
@@ -183,10 +196,10 @@
             *matHeaderCellDef
             [mat-sort-header]="sorteerVeld.ZAAK_ZAAKTYPE"
           >
-            {{'zaaktype' | translate}}
+            {{ "zaaktype" | translate }}
           </th>
           <td mat-cell *matCellDef="let object">
-            {{object.zaaktypeOmschrijving}}
+            {{ object.zaaktypeOmschrijving }}
           </td>
         </ng-container>
 
@@ -194,7 +207,10 @@
           <th mat-header-cell *matHeaderCellDef id="omschrijving_filter">
             <zac-tekst-filter
               [value]="zoekParameters.zoeken.ZAAK_OMSCHRIJVING"
-              (changed)="zoekParameters.zoeken.ZAAK_OMSCHRIJVING = $event; filtersChanged()"
+              (changed)="
+                zoekParameters.zoeken.ZAAK_OMSCHRIJVING = $event;
+                filtersChanged()
+              "
             ></zac-tekst-filter>
           </th>
         </ng-container>
@@ -204,10 +220,10 @@
             *matHeaderCellDef
             [mat-sort-header]="sorteerVeld.ZAAK_OMSCHRIJVING"
           >
-            {{'omschrijving' | translate}}
+            {{ "omschrijving" | translate }}
           </th>
           <td mat-cell *matCellDef="let object">
-            {{object.omschrijving | empty}}
+            {{ object.omschrijving | empty }}
           </td>
         </ng-container>
 
@@ -225,7 +241,9 @@
               id="clearZoekopdrachtButton"
             >
               <mat-icon
-                [ngClass]="actieveFilters ? 'filter-icon' : 'material-icons-outlined'"
+                [ngClass]="
+                  actieveFilters ? 'filter-icon' : 'material-icons-outlined'
+                "
               >
                 filter_alt
               </mat-icon>
@@ -245,7 +263,7 @@
             <a
               mat-icon-button
               [routerLink]="['/zaken', object.identificatie]"
-              [id]="'zaakBekijken_' + object.uuid +'_button'"
+              [id]="'zaakBekijken_' + object.uuid + '_button'"
               title="{{ 'actie.zaak.bekijken' | translate }}"
             >
               <mat-icon>visibility</mat-icon>
@@ -253,14 +271,14 @@
           </td>
         </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="columns;"></tr>
-        <tr mat-header-row *matHeaderRowDef="filterColumns;"></tr>
-        <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-header-row *matHeaderRowDef="filterColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"></tr>
         <tr class="mat-row" *matNoDataRow>
           <td class="mat-cell" [colSpan]="columns.length">
-            <p *ngIf="isLoadingResults">{{'msg.loading' | translate}}</p>
+            <p *ngIf="isLoadingResults">{{ "msg.loading" | translate }}</p>
             <p *ngIf="!isLoadingResults">
-              {{'msg.geen.gegevens.gevonden' | translate}}
+              {{ "msg.geen.gegevens.gevonden" | translate }}
             </p>
           </td>
         </tr>

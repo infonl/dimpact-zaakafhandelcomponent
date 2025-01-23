@@ -9,20 +9,20 @@
   [readOnly]="readOnly"
   language="nl"
   [options]="{
-                disableAlerts: true,
-                i18n: {
-                    en: {
-                        'next': 'Next',
-                        'previous': 'Previous',
-                        'submit': 'Submit'
-                    },
-                    nl: {
-                        'next': 'Volgende',
-                        'previous': 'Vorige',
-                        'submit': 'Indienen'
-                    }
-                }
-              }"
+    disableAlerts: true,
+    i18n: {
+      en: {
+        next: 'Next',
+        previous: 'Previous',
+        submit: 'Submit',
+      },
+      nl: {
+        next: 'Volgende',
+        previous: 'Vorige',
+        submit: 'Indienen',
+      },
+    },
+  }"
   (submit)="onSubmit($event)"
   (change)="onChange($event)"
 ></formio>
