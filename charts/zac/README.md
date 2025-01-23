@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.4.4](https://img.shields.io/badge/Version-0.4.4-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -8,14 +8,14 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Name | Email | Url |
 | ---- | ------ | --- |
-| Team Genève, INFO | <teamdimpact@info.nl> | <https://www.info.nl> |
+| Team Dimpact, INFO | <teamdimpact@info.nl> | <https://github.com/infonl/dimpact-zaakafhandelcomponent/discussion> |
 
 ## Requirements
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | solr | 9.3.10 |
-| https://open-telemetry.github.io/opentelemetry-helm-charts | opentelemetry-collector | 0.104.0 |
+| @bitnami | solr | 9.5.1 |
+| @opentelemetry | opentelemetry-collector | 0.104.0 |
 
 ## Values
 
@@ -130,7 +130,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | nginx.existingConfigmap | string | `nil` | mount existing nginx vhost config |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.26.2@sha256:4dc24adb9f46f6c5bbdea47e03a22343d515687c1c9077cf3df36dd9c0a97441"` |  |
+| nginx.image.tag | string | `"1.27.3@sha256:d0ebbd60453d566b6c497adb4c0c220ba0aa1bc0d654a6975aa65e16ae11d8fb"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -162,7 +162,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | office_converter.enabled | bool | `true` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
 | office_converter.image.repository | string | `"ghcr.io/eugenmayer/kontextwork-converter"` |  |
-| office_converter.image.tag | string | `"1.6.2@sha256:3d1eb99e88bd2944a9a5349f8e5e7b3e81b90841cdc07f17688f96a8f8d8dd72"` |  |
+| office_converter.image.tag | string | `"1.7.0@sha256:8660b8d329b1ca0315c04725cfc855f03e7d34c918d292497216bb98c5c8dd89"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
@@ -181,7 +181,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"0.69.0-static@sha256:eeba593a37823cd086b3e41f5b24da4bb0876d1a843776ae7792a68a0a950cc7"` |  |
+| opa.image.tag | string | `"0.70.0-static@sha256:5679cbbedd1908063b7a68e8af28e662dce4ae3e069b4b5459531b141c6b6ff0"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` | set url if the opa url cannot be automatically determined and is not run as a sidecar. the opa url should be the url the openpolicyagent can be reached on from ZAC ( for example: http://release-opa.default.svc.cluster.local:8181 ) url: "" |
 | opa.nodeSelector | object | `{}` |  |
