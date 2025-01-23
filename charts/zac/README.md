@@ -49,7 +49,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | gemeente.naam | string | `""` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/infonl/zaakafhandelcomponent"` |  |
-| image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
+| image.tag | string | `"1.12.269@sha256:79178b78f60b25e0052fb5d763dd123f0d2e6a215d14515d55fa1d65c545ca89"` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | specifies image pull secrets |
 | ingress.annotations | object | `{}` |  |
 | ingress.className | string | `""` |  |
