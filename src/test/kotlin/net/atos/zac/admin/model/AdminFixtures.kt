@@ -76,12 +76,14 @@ fun createZaakafhandelParameters(
         this.zaaktypeOmschrijving = zaaktypeOmschrijving
         this.einddatumGeplandWaarschuwing = einddatumGeplandWaarschuwing
         this.productaanvraagtype = productaanvraagtype
-        setMailtemplateKoppelingen(setOf(
-            createMailtemplateKoppelingen(
-                zaakafhandelParameters = this,
-                mailTemplate = createMailTemplate()
+        setMailtemplateKoppelingen(
+            setOf(
+                createMailtemplateKoppelingen(
+                    zaakafhandelParameters = this,
+                    mailTemplate = createMailTemplate()
+                )
             )
-        ))
+        )
         setZaakAfzenders(setOf(createZaakAfzender(zaakafhandelParameters = this)))
     }
 
