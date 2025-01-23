@@ -5,6 +5,8 @@
 
 package net.atos.client.kvk.zoeken.model
 
+import net.atos.client.kvk.vestigingsprofiel.model.generated.SBIActiviteit
+import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging
 import net.atos.client.kvk.zoeken.model.generated.Adres
 import net.atos.client.kvk.zoeken.model.generated.AdresType
 import net.atos.client.kvk.zoeken.model.generated.BinnenlandsAdres
@@ -43,4 +45,56 @@ fun createResultaatItem(
     this.type = type
     this.kvkNummer = kvkNummer
     this.vestigingsnummer = vestingsnummer
+}
+
+fun createSBIActiviteit(
+    sbiCode: String = "dummySbiCode",
+    sbiOmschrijving: String = "dummySbiOmschrijving",
+    indHoofdactiviteit: String = "ja",
+) = SBIActiviteit().apply {
+    this.sbiCode = sbiCode
+    this.sbiOmschrijving = sbiOmschrijving
+    this.indHoofdactiviteit = indHoofdactiviteit
+}
+
+@Suppress("LongParameterList")
+fun createVestiging(
+    vestigingsnummer: String = "dummyVestigingsnummer",
+    kvkNumber: String = "dummyKvkNummer",
+    eersteHandelsNaam: String = "dummyEersteHandelsNaam",
+    voltijdWerkzamePersonen: Int? = 10,
+    deeltijdWerkzamePersonen: Int? = 5,
+    totaalWerkzamePersonen: Int? = 15,
+    sbiActiviteiten: List<SBIActiviteit>? = listOf(
+        createSBIActiviteit(
+            sbiCode = "dummySbiCode1",
+            sbiOmschrijving = "dummySbiOmschrijving1",
+            indHoofdactiviteit = "ja"
+        ),
+        createSBIActiviteit(
+            sbiCode = "dummySbiCode2",
+            sbiOmschrijving = "dummySbiOmschrijving2",
+            indHoofdactiviteit = "nee"
+        )
+    ),
+    adressen: List<net.atos.client.kvk.vestigingsprofiel.model.generated.Adres>? = listOf(createVestigingsAdres())
+) = Vestiging().apply {
+    this.vestigingsnummer = vestigingsnummer
+    this.kvkNummer = kvkNumber
+    this.eersteHandelsnaam = eersteHandelsNaam
+    this.voltijdWerkzamePersonen = voltijdWerkzamePersonen
+    this.deeltijdWerkzamePersonen = deeltijdWerkzamePersonen
+    this.totaalWerkzamePersonen = totaalWerkzamePersonen
+    this.sbiActiviteiten = sbiActiviteiten
+    this.adressen = adressen
+}
+
+fun createVestigingsAdres(
+    type: String = "dummyType",
+    indAfgeschermd: String = "nee",
+    volledigAdres: String = "dummyVolledigAdres"
+) = net.atos.client.kvk.vestigingsprofiel.model.generated.Adres().apply {
+    this.type = type
+    this.indAfgeschermd = indAfgeschermd
+    this.volledigAdres = volledigAdres
 }
