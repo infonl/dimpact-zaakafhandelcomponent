@@ -272,7 +272,7 @@ services:
       - objecttypen-api
 
   solr:
-    image: docker.io/solr:9.7.0-slim@sha256:5eb3e2e6791020c6d098514594bc6bd16f2a95a7df0f855801af6f5af98169f5
+    image: docker.io/solr:9.8.0-slim@sha256:2fa0b81b09cbb2bdee0f472bea0644b9e30eee494a2e18277bf240e3feaa4ae7
     platform: linux/amd64
     ports:
       - "8983:8983"
