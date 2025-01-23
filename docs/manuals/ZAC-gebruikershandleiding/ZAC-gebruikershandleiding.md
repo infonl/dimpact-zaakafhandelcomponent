@@ -613,7 +613,7 @@ Deze actie maakt het mogelijk om een document met sjablonen in een documentcreat
 
 2 Kies de sjabloongroep en daarvan het sjabloon van het te maken document en vul de titel in en als gewenst een beschrijving
 
-3 Pas als gewenst de creartiedatum en behandelaar aan
+3 Pas als gewenst de creatiedatum en behandelaar aan
 
 4 Klik op de Toevoegen knop om de documentcreatieapplicatie te starten. Deze opent in een nieuw tabblad
 
@@ -711,7 +711,7 @@ De initiator bij een zaak is bovenaan het zaakgegevensscherm te vinden. Als er g
 Als een zaak wel een initiator heeft toegekend dan kan deze gewijzigd worden met het ‘Initiator wijzigen’ icoon, deze is dan beschikbaar in plaats van het ‘initiator toekennen’ icoon.
 ![Initiator wijzigen](./images/initiator-wijzigen.png)
 
-Als relevant voor de toegekende initiator zal er een inidicatie zichtbaar worden in de vorm van een icoon. De volgende indicatoren zijn er mogelijk:
+Als relevant voor de toegekende initiator zal er een indicatie zichtbaar worden in de vorm van een icoon. De volgende indicatoren zijn er mogelijk:
  - In onderzoek
  - Geheimhouding op persoonsgegevens
  - Overleden
