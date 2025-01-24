@@ -12,13 +12,12 @@ import java.util.List;
 
 import jakarta.inject.Inject;
 
-import net.atos.client.bag.model.generated.Surface;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.bag.model.generated.PointGeoJSON;
-import net.atos.client.bag.model.generated.PolygonGeoJSON;
 import net.atos.client.bag.model.generated.PuntOfVlak;
+import net.atos.client.bag.model.generated.Surface;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdres;
