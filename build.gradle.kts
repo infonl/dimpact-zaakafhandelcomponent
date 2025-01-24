@@ -517,10 +517,11 @@ tasks {
                 "sourceFolder" to "",
                 "dateLibrary" to "java8",
                 "disallowAdditionalPropertiesIfNotPresent" to "false",
-                "openApiNullable" to "false",
                 "useJakartaEe" to "true"
             )
         )
+        // Specify custom Mustache template dir as temporary workaround for issues we have with the OpenAPI Generator
+        templateDir.set("$rootDir/src/main/resources/openapi-generator-templates")
     }
 
     register<GenerateTask>("generateKvkZoekenClient") {
@@ -565,7 +566,6 @@ tasks {
                 "sourceFolder" to "",
                 "dateLibrary" to "java8-localdatetime",
                 "disallowAdditionalPropertiesIfNotPresent" to "false",
-                "openApiNullable" to "false",
                 "useJakartaEe" to "true"
             )
         )
