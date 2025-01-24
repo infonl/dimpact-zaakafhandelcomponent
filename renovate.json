@@ -35,7 +35,8 @@
 	"\\sJAVA_VERSION: \"(?<currentValue>[^\"]+)\""
       ],
       "datasourceTemplate": "java-version",
-      "depNameTemplate": "java-jre"
+      "depNameTemplate": "java-jre",
+      "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
     }    
   ],
   "packageRules": [
