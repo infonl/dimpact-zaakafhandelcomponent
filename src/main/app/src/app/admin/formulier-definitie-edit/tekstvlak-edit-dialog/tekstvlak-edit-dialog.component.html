@@ -10,7 +10,12 @@
     subscriptSizing="dynamic"
   >
     <mat-label>{{ "defaultWaarde" | translate }}</mat-label>
-    <textarea rows="18" matInput [(ngModel)]="data['value']"></textarea>
+    <textarea
+      rows="18"
+      matInput
+      [formControl]="formControl"
+      (change)="updateData()"
+    ></textarea>
   </mat-form-field>
 </div>
 
