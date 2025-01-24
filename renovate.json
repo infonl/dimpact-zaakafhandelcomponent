@@ -36,7 +36,7 @@
       ],
       "datasourceTemplate": "java-version",
       "depNameTemplate": "java-jre",
-      "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
+      "extractVersionTemplate": '^(?<version>\\d+\\.\\d+\\.\\d+)[+]'
     }    
   ],
   "packageRules": [
