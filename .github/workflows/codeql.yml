@@ -12,7 +12,7 @@ on:
     - cron: "21 11 * * 0"
 
 env:
-  JAVA_VERSION: "21"
+  JAVA_VERSION: "21.0.5"
 
 jobs:
   paths-ignore:
