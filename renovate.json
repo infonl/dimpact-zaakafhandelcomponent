@@ -34,8 +34,8 @@
       "matchStrings": [
 	"\\sJAVA_VERSION: \"(?<currentValue>[^\"]+)\""
       ],
-      datasourceTemplate: "java-version",
-      depNameTemplate: "java-jre"
+      "datasourceTemplate": "java-version",
+      "depNameTemplate": "java-jre"
     }    
   ],
   "packageRules": [
