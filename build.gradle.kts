@@ -520,7 +520,12 @@ tasks {
                 "useJakartaEe" to "true"
             )
         )
-        // Specify custom Mustache template dir as temporary workaround for issues we have with the OpenAPI Generator
+        // Specify custom Mustache template dir as temporary workaround for issues we have with the OpenAPI Generator.
+        // Both issues have to do with the support for JSON-B polymorphism type annotations introduced by
+        // https://github.com/OpenAPITools/openapi-generator/pull/20164 in OpenAPI Generator version 7.11.
+        // Instead of overriding these Mustache templates the obvious workaround seems to set the additional property
+        // 'jsonbPolymorphism' to false in this Gradle build file. However, that does not seem to work.
+        // Probably because this property is set by the OpenAPI Generator library itself regardless of our configuration.
         templateDir.set("$rootDir/src/main/resources/openapi-generator-templates")
     }
 
