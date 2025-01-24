@@ -9,12 +9,12 @@ import net.atos.client.bag.model.generated.AdresseerbaarObjectIOHal
 import net.atos.client.bag.model.generated.Ligplaats
 import net.atos.client.bag.model.generated.LigplaatsIOHal
 import net.atos.client.bag.model.generated.PointGeoJSON
-import net.atos.client.bag.model.generated.PolygonGeoJSON
 import net.atos.client.bag.model.generated.PuntOfVlak
 import net.atos.client.bag.model.generated.Standplaats
 import net.atos.client.bag.model.generated.StandplaatsIOHal
 import net.atos.client.bag.model.generated.StatusPlaats
 import net.atos.client.bag.model.generated.StatusVerblijfsobject
+import net.atos.client.bag.model.generated.Surface
 import net.atos.client.bag.model.generated.Verblijfsobject
 import net.atos.client.bag.model.generated.VerblijfsobjectIOHal
 import java.math.BigDecimal
@@ -24,7 +24,7 @@ fun createLigplaatsAdresseerbaarObject(status: StatusPlaats) =
         ligplaats = LigplaatsIOHal().apply {
             ligplaats = Ligplaats().apply {
                 this.status = status
-                this.geometrie = createPolygonGeoJSON()
+                this.geometrie = createSurface()
             }
         }
     }
@@ -34,7 +34,7 @@ fun createStandplaatsAdresseerbaarObject(status: StatusPlaats) =
         standplaats = StandplaatsIOHal().apply {
             standplaats = Standplaats().apply {
                 this.status = status
-                this.geometrie = createPolygonGeoJSON()
+                this.geometrie = createSurface()
             }
         }
     }
@@ -56,8 +56,8 @@ fun createPuntOfVlak() = PuntOfVlak().apply {
     }
 }
 
-fun createPolygonGeoJSON() = PolygonGeoJSON().apply {
-    type = PolygonGeoJSON.TypeEnum.POLYGON
+fun createSurface() = Surface().apply {
+    type = Surface.TypeEnum.POLYGON
     coordinates = listOf(listOf(createCoordinates())) as List<List<List<BigDecimal?>?>?>?
 }
 

@@ -23,7 +23,7 @@ class RESTAdresseerbaarObjectConverterTest : BehaviorSpec({
     }
 
     Given("Ligplaats addressbaar object") {
-        val adresseerbaarObjectIOHal = createLigplaatsAdresseerbaarObject(StatusPlaats.AANGEWEZEN)
+        val adresseerbaarObjectIOHal = createLigplaatsAdresseerbaarObject(StatusPlaats.PLAATS_AANGEWEZEN)
 
         When("converted to rest representation") {
             val result = restAdresseerbaarObjectConverter.convertToREST(adresseerbaarObjectIOHal)
@@ -49,8 +49,8 @@ class RESTAdresseerbaarObjectConverterTest : BehaviorSpec({
         }
     }
 
-    Given("Standplaats addressbaar object") {
-        val adresseerbaarObjectIOHal = createStandplaatsAdresseerbaarObject(StatusPlaats.AANGEWEZEN)
+    Given("Standplaats adresseerbaar object") {
+        val adresseerbaarObjectIOHal = createStandplaatsAdresseerbaarObject(StatusPlaats.PLAATS_AANGEWEZEN)
 
         When("converted to rest representation") {
             val result = restAdresseerbaarObjectConverter.convertToREST(adresseerbaarObjectIOHal)
