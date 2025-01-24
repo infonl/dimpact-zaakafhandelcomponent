@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -9,8 +9,7 @@
     placeholder="..."
     (blur)="change()"
     (keyup.enter)="change()"
-    [ngModel]="value"
-    (ngModelChange)="value = $event"
+    [value]="value"
   />
   <mat-icon matSuffix (click)="change()">search</mat-icon>
 </mat-form-field>
