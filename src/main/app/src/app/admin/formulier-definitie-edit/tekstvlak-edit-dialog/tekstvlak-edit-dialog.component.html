@@ -13,8 +13,8 @@
     <textarea
       rows="18"
       matInput
-      [ngModel]="data['value']"
-      (ngModelChange)="data['value'] = $event"
+      [formControl]="formControl"
+      (change)="updateData()"
     ></textarea>
   </mat-form-field>
 </div>
