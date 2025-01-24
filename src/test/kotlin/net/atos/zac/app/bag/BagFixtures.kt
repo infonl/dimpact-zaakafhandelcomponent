@@ -9,7 +9,6 @@ import net.atos.client.bag.model.generated.AdresseerbaarObjectIOHal
 import net.atos.client.bag.model.generated.Ligplaats
 import net.atos.client.bag.model.generated.LigplaatsIOHal
 import net.atos.client.bag.model.generated.PointGeoJSON
-import net.atos.client.bag.model.generated.PolygonGeoJSON
 import net.atos.client.bag.model.generated.PuntOfVlak
 import net.atos.client.bag.model.generated.Standplaats
 import net.atos.client.bag.model.generated.StandplaatsIOHal
