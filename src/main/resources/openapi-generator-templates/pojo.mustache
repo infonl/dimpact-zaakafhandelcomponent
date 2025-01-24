@@ -1,6 +1,8 @@
 {{! Lifely/INFO temporary workaround for the issue where the OpenAPI Generator Gradle plugin }}
-{{! incorrectly generates '@JsonbTransient' annotations for all fields in model classes that have the name 'type' }}
+{{! incorrectly generates '@JsonbTransient' annotations for certain 'type' fields in polymorphic model classes }}
 {{! which has the result that these fields are not serialized and deserialized leading to errors in the various APIs we use. }}
+{{! For example in the generated BRP 'PersonenQuery.java' class the 'type' String field was given the '@JsonbTransient' annotation }}
+{{! which breaks the ZAC BRP API integration because this is mandatory field in the BRP API. }}
 {{! This was most likely introduced by: https://github.com/OpenAPITools/openapi-generator/pull/20164 }}
 {{! It may also be that the BRP OpenAPI spec does not use the discriminator keyword correctly since these 'type' fields are simple strings. }}
 {{! and not polymorphic structures. Also see: https://apidog.com/blog/openapi-discriminator-guide/ }}
