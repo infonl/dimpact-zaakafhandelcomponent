@@ -27,7 +27,16 @@
       "depNameTemplate": "infonl/dimpact-zaakafhandelcomponent",
       "datasourceTemplate": "github-releases",
       "autoReplaceStringTemplate": "softwareVersion: \"{{{newValue}}}\"\nreleaseDate: \"{{{releaseTimestamp}}}\""
-    }
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["workflows/.+\\.ya?ml$"],
+      "matchStrings": [
+	"\\sJAVA_VERSION: \"(?<currentValue>[^\"]+)\""
+      ],
+      "datasourceTemplate": "java-version",
+      "depNameTemplate": "java-jre"
+    }    
   ],
   "packageRules": [
     {
