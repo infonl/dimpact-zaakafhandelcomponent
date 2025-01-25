@@ -15,8 +15,4 @@ print(three_zero_podiumd)
 print('# Compare PodiumD versions')
 PodiumdVersionComparator(latest_podiumd, three_zero_podiumd).print_version_updated_table()
 
-# print('# PodiumD 2.1.0 version')
-# two_one_podiumd = PodiumdVersionBuilder("2.1.0")
-# two_one_podiumd.read_chart_version()
-# two_one_podiumd.print_component_versions()
 

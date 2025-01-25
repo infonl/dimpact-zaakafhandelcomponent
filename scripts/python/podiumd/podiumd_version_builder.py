@@ -27,11 +27,40 @@ class PodiumdVersionBuilder:
             'kiss.frontend': 'Contact',
             'clamav': 'ClamAV'
         }
+        self.chart_dependencies_table = {
+            'keycloak': 'Keycloak',
+            'openldap': 'OpenLDAP',
+            'clamav': 'ClamAV',
+            'brpmock': 'BRP Mock',
+            'openzaak': 'Open Zaak',
+            'opennotificaties': 'Open Notificaties',
+            'objecten': 'Objecten',
+            'objecttypen': 'Objecttypen',
+            'openklant': 'Open Klant',
+            'openforms': 'Open Formulieren',
+            'openinwoner': 'Open Inwoner',
+            'kiss-elastic': 'KISS Elastic'
+        }
 
     def read_chart_version(self):
         with urllib.request.urlopen(self.chart_file) as char_text:
             chart_data = yaml.safe_load(char_text)
             return { "chart_version": chart_data['version'], "app_version": chart_data['appVersion'] }
+
+    def build_chart_dependency_version(self, dependency_name, version):
+        if dependency_name in self.chart_dependencies_table:
+            return { "chart": self.chart_dependencies_table[dependency_name], "version": version }
+        else:
+            return { "chart": dependency_name, "version": version }
+
+    def read_chart_dependencies(self):
+        chart_dependencies = {}
+        with urllib.request.urlopen(self.chart_file) as char_text:
+            chart_data = yaml.safe_load(char_text)
+            for dependency in chart_data['dependencies']:
+                v = self.build_chart_dependency_version(dependency['name'], dependency['version'])
+                chart_dependencies[v['chart']]=ComponentVersion(v['chart'], v['version'])
+        return chart_dependencies
 
     def build_component_version(self, product_name, version):
         if product_name in self.products_table:
@@ -58,5 +87,6 @@ class PodiumdVersionBuilder:
 
     def build(self):
         chart_version = self.read_chart_version()
+        chart_dependency_versions = self.read_chart_dependencies()
         component_versions = self.read_component_versions()
-        return PodiumdVersion(self.podiumd_root_path, chart_version["chart_version"], chart_version["app_version"], component_versions)
+        return PodiumdVersion(self.podiumd_root_path, chart_version["chart_version"], chart_version["app_version"], chart_dependency_versions, component_versions)
