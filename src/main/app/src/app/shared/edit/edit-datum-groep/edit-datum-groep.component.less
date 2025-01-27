@@ -4,16 +4,14 @@
  */
 @import "/variables";
 
-.datum-groep {
-  padding-right: 0;
-}
-
-.inner-static-text {
-  padding: 0 5px;
-}
-
 .static-text .static-text-content {
   min-height: 20px;
+}
+
+.flex-item {
+  flex: 0 1 calc(33% - 15px);
+  box-sizing: border-box;
+  min-width: 200px;
 }
 
 .error-text {
@@ -24,33 +22,10 @@
   font-size: 14px;
 }
 
-.time-control {
-  .time-button {
-    transform: scaleX(-1);
-  }
+.inner-static-text {
+  margin-left: 5px;
 }
 
 .timed-messages {
   margin-bottom: 10px;
-}
-
-.play-control {
-  &:hover {
-    .play-icon {
-      display: none;
-    }
-
-    .play-button {
-      display: inline-block;
-    }
-  }
-
-  .play-icon {
-    display: inline-block;
-    color: black;
-  }
-
-  .play-button {
-    display: none;
-  }
 }

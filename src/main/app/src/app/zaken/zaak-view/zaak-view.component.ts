@@ -33,7 +33,6 @@ import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
-import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { KlantenService } from "../../klanten/klanten.service";
 import { Klant } from "../../klanten/model/klanten/klant";
@@ -177,7 +176,6 @@ export class ZaakViewComponent
   @ViewChild("takenSort") takenSort: MatSort;
 
   constructor(
-    private informatieObjectenService: InformatieObjectenService,
     private takenService: TakenService,
     private zakenService: ZakenService,
     private identityService: IdentityService,
