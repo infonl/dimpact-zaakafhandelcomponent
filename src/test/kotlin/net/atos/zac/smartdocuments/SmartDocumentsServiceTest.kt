@@ -31,7 +31,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
     val authenticationToken = "dummyAuthenticationToken"
     val fixedUserName = Optional.of("dummyFixedUserName")
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val smartDocumentsClient = mockk<SmartDocumentsClient>()
+    val smartDocumentsClient = mockk<Instance<SmartDocumentsClient>>()
 
     beforeEach {
         checkUnnecessaryStub()
@@ -48,7 +48,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         val smartDocument = createSmartDocument(variables)
         val attendedResponse = createAttendedResponse()
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { smartDocumentsClient.attendedDeposit(any(), any(), any()) } returns attendedResponse
+        every { smartDocumentsClient.get().attendedDeposit(any(), any(), any()) } returns attendedResponse
 
         val smartDocumentsService = SmartDocumentsService(
             smartDocumentsClient = smartDocumentsClient,
@@ -86,7 +86,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         val fileName = "abcd.docx"
         val body = "body content".toByteArray(Charsets.UTF_8)
 
-        every { smartDocumentsClient.downloadFile(any(), any()) } returns downloadedFile
+        every { smartDocumentsClient.get().downloadFile(any(), any()) } returns downloadedFile
         every { downloadedFile.body() } returns body
         every { downloadedFile.contentDisposition() } returns "attachment; filename=\"$fileName\""
 
@@ -118,7 +118,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
 
         val templatesResponse = createsmartDocumentsTemplatesResponse()
         every {
-            smartDocumentsClient.listTemplates(any(), any())
+            smartDocumentsClient.get().listTemplates(any(), any())
         } returns templatesResponse
 
         val smartDocumentsService = SmartDocumentsService(
