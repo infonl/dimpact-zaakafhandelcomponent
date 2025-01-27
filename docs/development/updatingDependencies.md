@@ -18,6 +18,14 @@ The configuration inherits from base settings provided by Renovate, which lay th
 * Pinning Docker Digests: This strategy involves locking Docker images to specific digests. Pinned digests help eliminate the risk of unexpected updates that could introduce breaking changes or vulnerabilities, as you always use a known working image version.
 * Scheduled Digest Updates: Even with pinned digests, it's important to periodically update them to include the latest security patches and features. Therefore, Renovate is configured to check for and apply digest updates weekly during the first week of each month's weekends. These digest updates are configured to be automerged. 
 
+### Checking newer versions
+
+Renovate will keep dependencies up to date, keeping within the specific limitations set in the renovate config, but can
+be that you would want or need to know what newer versions may be available. The reason may be that we need to update to
+a newer version of a component to make use of a new feature. 
+
+To check for newer versions of components, you can make use of a few [python scripts](../../scripts/python/README.md).
+
 ## Updating (OpenAPI) API specifications used by ZAC
 
 ZAC integrates with various components and external services using APIs.
