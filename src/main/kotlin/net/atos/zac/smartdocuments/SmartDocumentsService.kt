@@ -25,21 +25,25 @@ import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.util.Optional
 import java.util.logging.Logger
+import kotlin.jvm.optionals.getOrDefault
 
 @NoArgConstructor
 @ApplicationScoped
 @AllOpen
 @Suppress("LongParameterList")
 class SmartDocumentsService @Inject constructor(
+    // RestEasy declarative clients use configuration properties
+    // To make the client optional we use Instance, which is alternative to @Autowire(required=false) in Spring
     @RestClient
-    private val smartDocumentsClient: SmartDocumentsClient,
+    private val smartDocumentsClient: Instance<SmartDocumentsClient>,
 
     // With nullable Kotlin types ConfigProperty and Weld error with:
     //     io.smallrye.config.inject.ConfigException: SRCFG02000: Failed to Inject @ConfigProperty for key
-    // Therefore we use Optional to support non-mandatory properties
+    // Therefore we use Optional to support non-mandatory properties.
+    // Weld injects Optional.empty() if a property is not available and overrides the Kotlin default value.
 
     @ConfigProperty(name = "SMARTDOCUMENTS_ENABLED")
-    private val enabled: Optional<Boolean> = Optional.of(false),
+    private val enabled: Optional<Boolean> = Optional.empty(),
 
     @ConfigProperty(name = "SMARTDOCUMENTS_CLIENT_MP_REST_URL")
     private val smartDocumentsURL: Optional<String> = Optional.empty(),
@@ -63,7 +67,7 @@ class SmartDocumentsService @Inject constructor(
         private val LOG = Logger.getLogger(SmartDocumentsService::class.java.name)
     }
 
-    fun isEnabled() = enabled.get()
+    fun isEnabled() = enabled.getOrDefault(false)
 
     /**
      * Sends a request to SmartDocuments to create a document using the Smart Documents wizard (= attended mode).
@@ -79,7 +83,7 @@ class SmartDocumentsService @Inject constructor(
         val userName = fixedUserName.orElse(loggedInUserInstance.get().id).also {
             LOG.fine("Starting Smart Documents wizard for user: '$it'")
         }
-        return smartDocumentsClient.attendedDeposit(
+        return smartDocumentsClient.get().attendedDeposit(
             authenticationToken = "Basic ${authenticationToken.get()}",
             userName = userName,
             deposit = deposit
@@ -101,7 +105,7 @@ class SmartDocumentsService @Inject constructor(
      * @return A structure describing templates and groups
      */
     fun listTemplates(): SmartDocumentsTemplatesResponse =
-        smartDocumentsClient.listTemplates(
+        smartDocumentsClient.get().listTemplates(
             authenticationToken = "Basic ${authenticationToken.get()}",
             userName = fixedUserName.orElse(loggedInUserInstance.get().id)
         )
@@ -110,7 +114,7 @@ class SmartDocumentsService @Inject constructor(
      * Download generated document
      */
     fun downloadDocument(fileId: String): File =
-        smartDocumentsClient.downloadFile(
+        smartDocumentsClient.get().downloadFile(
             smartDocumentsId = fileId,
             documentFormat = MediaTypes.Application.MS_WORD_OPEN_XML.mediaType
         ).let { downloadedFile ->
