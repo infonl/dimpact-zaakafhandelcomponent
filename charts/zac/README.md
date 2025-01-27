@@ -49,7 +49,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | gemeente.naam | string | `""` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/infonl/zaakafhandelcomponent"` |  |
-| image.tag | string | `"1.12.269@sha256:79178b78f60b25e0052fb5d763dd123f0d2e6a215d14515d55fa1d65c545ca89"` | Overrides the image tag whose default is the chart appVersion. |
+| image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | specifies image pull secrets |
 | ingress.annotations | object | `{}` |  |
 | ingress.className | string | `""` |  |
@@ -65,8 +65,8 @@ A Helm chart for installing Zaakafhandelcomponent
 | kvkApi.apiKey | string | `""` |  |
 | kvkApi.url | string | `""` |  |
 | mail.smtp.password | string | `""` |  |
-| mail.smtp.port | string | `"587"` |  |
-| mail.smtp.server | string | `""` |  |
+| mail.smtp.port | string | `"587"` | port 587 for TLS, port 25 for relaying |
+| mail.smtp.server | string | `""` | SMTP server host (for example localhost or in-v3.mailjet.com) |
 | mail.smtp.username | string | `""` |  |
 | maxFileSizeMB | int | `80` | Maximum size (in Mega Bytes) of files that can be uploaded. |
 | nameOverride | string | `""` | name to use |

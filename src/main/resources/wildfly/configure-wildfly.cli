@@ -46,8 +46,8 @@ data-source add \
 
 # Create custom ZAC mail session
 /subsystem=mail/mail-session=zac:add(jndi-name=java:jboss/mail/zac,debug=false)
-/socket-binding-group=standard-sockets/remote-destination-outbound-socket-binding=zac-smtp-binding:add(host=${env.SMTP_SERVER},port=${env.SMTP_PORT})
-/subsystem=mail/mail-session=zac/server=smtp:add(outbound-socket-binding-ref=zac-smtp-binding,username=${env.SMTP_USERNAME},password=${env.SMTP_PASSWORD})
+/socket-binding-group=standard-sockets/remote-destination-outbound-socket-binding=zac-smtp-binding:add(host=${env.SMTP_SERVER:smtp.example.com},port=${env.SMTP_PORT:587})
+/subsystem=mail/mail-session=zac/server=smtp:add(outbound-socket-binding-ref=zac-smtp-binding,username=${env.SMTP_USERNAME:username},password=${env.SMTP_PASSWORD:smtpPassword})
 
 # To set the log level to DEBUG (default is INFO) uncomment the following lines.
 # Note that this will result in _a lot_ of logging including SessionRegistry sessionRegistry security sensitive data
