@@ -58,7 +58,6 @@ export class IdentityService {
     }
     return this.zacHttp.GET("/rest/identity/loggedInUser").pipe(
       tap((user) => {
-        console.log(user);
         SessionStorageUtil.setItem(IdentityService.LOGGED_IN_USER_KEY, user);
       }),
       catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
