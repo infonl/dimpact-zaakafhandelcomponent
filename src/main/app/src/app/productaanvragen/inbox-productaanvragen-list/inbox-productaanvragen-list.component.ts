@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -12,6 +12,7 @@ import {
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
+import { MatSelectChange } from "@angular/material/select";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
@@ -30,6 +31,7 @@ import {
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
+import { DatumRange } from "../../zoeken/model/datum-range";
 import { InboxProductaanvragenService } from "../inbox-productaanvragen.service";
 import { InboxProductaanvraag } from "../model/inbox-productaanvraag";
 import { InboxProductaanvraagListParameters } from "../model/inbox-productaanvraag-list-parameters";
@@ -44,8 +46,7 @@ export class InboxProductaanvragenListComponent
   implements OnInit, AfterViewInit
 {
   isLoadingResults = true;
-  dataSource: MatTableDataSource<InboxProductaanvraag> =
-    new MatTableDataSource<InboxProductaanvraag>();
+  dataSource = new MatTableDataSource<InboxProductaanvraag>();
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   displayedColumns: string[] = [
@@ -67,8 +68,8 @@ export class InboxProductaanvragenListComponent
   listParameters: InboxProductaanvraagListParameters;
   expandedRow: InboxProductaanvraag | null;
   filterType: string[] = [];
-  filterChange: EventEmitter<void> = new EventEmitter<void>();
-  clearZoekopdracht: EventEmitter<void> = new EventEmitter<void>();
+  filterChange = new EventEmitter<void>();
+  clearZoekopdracht = new EventEmitter<void>();
   previewSrc: SafeUrl = null;
 
   constructor(
@@ -132,7 +133,14 @@ export class InboxProductaanvragenListComponent
     return this.infoService.getDownloadURL(ip.aanvraagdocumentUUID);
   }
 
-  filtersChanged(): void {
+  filtersChanged(options: {
+    event: MatSelectChange | string | DatumRange;
+    filter: keyof typeof this.listParameters;
+  }): void {
+    this.listParameters[options.filter] =
+      typeof options.event === "object" && "value" in options.event
+        ? options.event.value
+        : null;
     this.paginator.pageIndex = 0;
     this.clearZoekopdracht.emit();
     this.filterChange.emit();
