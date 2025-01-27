@@ -3,7 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClientModule } from "@angular/common/http";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -50,18 +53,18 @@ describe("NotitiesComponent", () => {
   let fixture: ComponentFixture<NotitiesComponent>;
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      declarations: [NotitiesComponent],
       imports: [
-        HttpClientModule,
         TranslateModule,
         MaterialModule,
         PipesModule,
         NoopAnimationsModule,
       ],
-      declarations: [NotitiesComponent],
       providers: [
         { provide: IdentityService, useValue: mockIdentityService },
         { provide: NotitieService, useValue: mockNotitieService },
         { provide: TranslateService, useValue: mockTranslateService },
+        provideHttpClient(withInterceptorsFromDi()),
       ],
     }).compileComponents();
 

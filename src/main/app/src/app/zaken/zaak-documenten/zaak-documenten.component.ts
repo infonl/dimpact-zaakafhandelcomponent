@@ -14,7 +14,7 @@ import {
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
-import { Validators } from "@angular/forms";
+import {FormControl, Validators} from "@angular/forms";
 import { MatCheckboxChange } from "@angular/material/checkbox";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSort } from "@angular/material/sort";
@@ -62,7 +62,7 @@ export class ZaakDocumentenComponent
   zaakIdentificatie: string;
   heeftGerelateerdeZaken;
   selectAll = false;
-  toonGekoppeldeZaakDocumenten = false;
+  toonGekoppeldeZaakDocumenten = new FormControl(false);
   documentColumns = [
     "downloaden",
     "titel",
@@ -179,7 +179,7 @@ export class ZaakDocumentenComponent
   private searchEnkelvoudigeInformatieObjecten(): void {
     const zoekParameters = new InformatieobjectZoekParameters();
     zoekParameters.zaakUUID = this.zaakUUID;
-    zoekParameters.gekoppeldeZaakDocumenten = this.toonGekoppeldeZaakDocumenten;
+    zoekParameters.gekoppeldeZaakDocumenten = this.toonGekoppeldeZaakDocumenten.value;
     this.isLoadingResults = true;
 
     this.informatieObjectenService
@@ -286,7 +286,7 @@ export class ZaakDocumentenComponent
   }
 
   toggleGekoppeldeZaakDocumenten() {
-    this.documentColumns = this.toonGekoppeldeZaakDocumenten
+    this.documentColumns = this.toonGekoppeldeZaakDocumenten.value
       ? [
           "downloaden",
           "titel",
