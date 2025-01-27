@@ -18,7 +18,6 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { $e } from "codelyzer/angular/styles/chars";
 import { Observable, lastValueFrom, merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -180,6 +179,4 @@ export class KlantZakenTabelComponent
     this.betrokkeneSelectControl.setValue(null);
     this.filtersChanged();
   }
-
-  protected readonly $e = $e;
 }

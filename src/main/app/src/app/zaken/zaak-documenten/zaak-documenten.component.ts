@@ -60,7 +60,7 @@ export class ZaakDocumentenComponent
 
   zaakUUID: string;
   zaakIdentificatie: string;
-  heeftGerelateerdeZaken;
+  heeftGerelateerdeZaken = false;
   selectAll = false;
   toonGekoppeldeZaakDocumenten = new FormControl(false);
   documentColumns = [
