@@ -64,10 +64,10 @@ A Helm chart for installing Zaakafhandelcomponent
 | klantinteractiesApi.url | string | `""` |  |
 | kvkApi.apiKey | string | `""` |  |
 | kvkApi.url | string | `""` |  |
-| mail.smtp.password | string | `""` |  |
-| mail.smtp.port | string | `"587"` | port 587 for TLS, port 25 for relaying |
-| mail.smtp.server | string | `""` | SMTP server host (for example localhost or in-v3.mailjet.com) |
-| mail.smtp.username | string | `""` |  |
+| mail.smtp.password | string | `""` | SMTP server password if authentication is required. Optional |
+| mail.smtp.port | string | `"587"` | SMTP server port: 587 for TLS, port 25 for relaying. Required |
+| mail.smtp.server | string | `""` | SMTP server host (for example localhost or in-v3.mailjet.com). Required |
+| mail.smtp.username | string | `""` | SMTP server username if authentication is required. Optional |
 | maxFileSizeMB | int | `80` | Maximum size (in Mega Bytes) of files that can be uploaded. |
 | nameOverride | string | `""` | name to use |
 | nginx.allowedHosts | string | `""` |  |

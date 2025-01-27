@@ -42,11 +42,13 @@ gemeente:
 #-- Email sending connection. SPF record needs to be properly setup in DNS
 mail:
   smtp:
-    # -- SMTP server host (for example localhost or in-v3.mailjet.com)
+    # -- SMTP server host (for example localhost or in-v3.mailjet.com). Required
     server: ""
-    # -- port 587 for TLS, port 25 for relaying
+    # -- SMTP server port: 587 for TLS, port 25 for relaying. Required
     port: "587"
+    # -- SMTP server username if authentication is required. Optional
     username: ""
+    # -- SMTP server password if authentication is required. Optional
     password: ""
 
 # zgwApis Configuration of ZGW API's provider (Open Zaak)
