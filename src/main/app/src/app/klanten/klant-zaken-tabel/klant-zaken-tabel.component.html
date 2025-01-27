@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -7,9 +7,7 @@
   <mat-card-header>
     <mat-card-title>{{ "zaken" | translate }}</mat-card-title>
     <mat-slide-toggle
-      [ngModel]="inclusiefAfgerondeZaken"
-      (ngModelChange)="inclusiefAfgerondeZaken = $event"
-      color="primary"
+      [formControl]="inclusiefAfgerondeZaken"
       id="zakenAfgerondeToon_toggle"
       (change)="filtersChanged()"
       >{{ "toonAfgerondeZaken" | translate }}</mat-slide-toggle
