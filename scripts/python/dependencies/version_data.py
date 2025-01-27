@@ -3,6 +3,12 @@
 #  SPDX-License-Identifier: EUPL-1.2+
 #
 class VersionData:
+    """
+    Version Data is a combination of a version string and a URL where this version information can be found. Versions
+    can be compared (using less and greater than; < and > in code), and this is done as one would expect by comparing
+    version parts from major through minor to patch version.
+    """
+
     def __init__(self, version, url):
         self.version = version
         self.url = url

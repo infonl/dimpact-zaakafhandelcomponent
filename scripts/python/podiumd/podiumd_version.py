@@ -4,6 +4,9 @@
 #
 
 class PodiumdVersion:
+    """
+    PodiumD version information data object.
+    """
     def __init__(self, tag_url, chart_version, app_version, chart_dependency_versions = None, component_versions = None):
         self.tag_url = tag_url
         self.chart_version = chart_version

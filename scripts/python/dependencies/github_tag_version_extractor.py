@@ -8,6 +8,10 @@ import re
 from version_data import VersionData
 
 class GitHubTagVersionExtractor:
+    """
+    Version extractor specifically for a GitHub tags page.
+    """
+
     def __init__(self, url, prefix = ''):
         self.url = url
         self.prefix = prefix

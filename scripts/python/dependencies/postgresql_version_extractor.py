@@ -8,6 +8,10 @@ import re
 from version_data import VersionData
 
 class PostgresqlVersionExtractor:
+    """
+    Version extractor specifically for Postgesql version information pages.
+    """
+
     def __init__(self, url):
         self.url = url
 

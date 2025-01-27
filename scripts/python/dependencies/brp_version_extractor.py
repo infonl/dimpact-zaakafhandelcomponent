@@ -9,6 +9,10 @@ from version_data import VersionData
 
 
 class BrpVersionExtractor:
+    """
+    Version extractor specifically for a Haal-Centraal-BRP releasenotes page.
+    """
+
     def __init__(self, url):
         self.url = url
 

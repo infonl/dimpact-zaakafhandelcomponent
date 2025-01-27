@@ -19,4 +19,4 @@ class PodiumdVersionComparator:
             if v1 == v2:
                 print(f'| {component_name} | {v1} | {v2} |')
             else:
-                print(f'| {component_name} | **{v1}** | {v2} |')
+                print(f'| {component_name} | {v1} | **{v2}** |')

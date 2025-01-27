@@ -5,63 +5,88 @@ from brp_version_extractor import BrpVersionExtractor
 from github_tag_version_extractor import GitHubTagVersionExtractor
 from postgresql_version_extractor import PostgresqlVersionExtractor
 
-if __name__ == '__main__':
+def print_versions_of_components():
+    """
+    Print the version of the following components:
+
+    - Haal-Centraal-BRP     from https://brp-api.github.io/Haal-Centraal-BRP-bevragen/releasenotes
+    - Open Notificaties     from https://github.com/open-zaak/open-notificaties/tags
+    - Open Zaak             from https://github.com/open-zaak/open-zaak/tags
+    - Open Klant            from https://github.com/maykinmedia/open-klant/tags
+    - Open Formulieren      from https://github.com/open-formulieren/open-forms/tags
+    - Objecten API          from https://github.com/maykinmedia/objects-api/tags
+    - Object Types API      from https://github.com/maykinmedia/objecttypes-api/tags
+    - Open Inwoner          from https://github.com/maykinmedia/open-inwoner/tags
+    - KISS                  from https://github.com/Klantinteractie-Servicesysteem/KISS-frontend/releases
+    - Keycloak              from https://github.com/keycloak/keycloak/tags
+    - ClamAV                from https://github.com/Cisco-Talos/clamav/tags
+    - Postgresql            from https://www.postgresql.org/docs/release/
+    """
+
     # Extract the latest version of Haal-Centraal-BRP from the release notes
-    brp_version_extractor = BrpVersionExtractor('https://brp-api.github.io/Haal-Centraal-BRP-bevragen/releasenotes')
-    brp_latest_version = brp_version_extractor.get_latest_version()
+    brp_latest_version = BrpVersionExtractor(
+        'https://brp-api.github.io/Haal-Centraal-BRP-bevragen/releasenotes').get_latest_version()
     print(f'Haal-Centraal-BRP latest version: {brp_latest_version}')
 
     # Extract the latest version of Haal-Centraal-BRP from the GitHub tags
-    open_notificaties_extractor = GitHubTagVersionExtractor('https://github.com/open-zaak/open-notificaties/tags')
-    open_notificaties_latest_version = open_notificaties_extractor.get_latest_version()
+    open_notificaties_latest_version = GitHubTagVersionExtractor(
+        'https://github.com/open-zaak/open-notificaties/tags').get_latest_version()
     print(f'Open Notificaties latest version: {open_notificaties_latest_version}')
 
     # Extract the latest version of Haal-Centraal-BRP from the GitHub tags
-    open_zaak_extractor = GitHubTagVersionExtractor('https://github.com/open-zaak/open-zaak/tags')
-    open_zaak_latest_version = open_zaak_extractor.get_latest_version()
+    open_zaak_latest_version = GitHubTagVersionExtractor(
+        'https://github.com/open-zaak/open-zaak/tags').get_latest_version()
     print(f'Open Zaak latest version: {open_zaak_latest_version}')
 
     # Extract the latest version of Haal-Centraal-BRP from the GitHub tags
-    open_klant_extractor = GitHubTagVersionExtractor('https://github.com/maykinmedia/open-klant/tags')
-    open_klant_latest_version = open_klant_extractor.get_latest_version()
+    open_klant_latest_version = GitHubTagVersionExtractor(
+        'https://github.com/maykinmedia/open-klant/tags').get_latest_version()
     print(f'Open Klant latest version: {open_klant_latest_version}')
 
     # Extract the latest version of Open Formulieren the GitHub tags
-    open_formulieren_extractor = GitHubTagVersionExtractor('https://github.com/open-formulieren/open-forms/tags')
-    open_formulieren_latest_version = open_formulieren_extractor.get_latest_version()
+    open_formulieren_latest_version = GitHubTagVersionExtractor(
+        'https://github.com/open-formulieren/open-forms/tags').get_latest_version()
     print(f'Open Formulieren latest version: {open_formulieren_latest_version}')
 
     # Extract the latest version of Objecten API from the GitHub tags
-    open_objecten_extractor = GitHubTagVersionExtractor('https://github.com/maykinmedia/objects-api/tags')
-    open_objecten_latest_version = open_objecten_extractor.get_latest_version()
+    open_objecten_latest_version = GitHubTagVersionExtractor(
+        'https://github.com/maykinmedia/objects-api/tags').get_latest_version()
     print(f'Objecten API latest version: {open_objecten_latest_version}')
 
     # Extract the latest version of Object Types API from the GitHub tags
-    open_objecttypes_extractor = GitHubTagVersionExtractor('https://github.com/maykinmedia/objecttypes-api/tags')
-    open_objecttypes_latest_version = open_objecttypes_extractor.get_latest_version()
+    open_objecttypes_latest_version = GitHubTagVersionExtractor(
+        'https://github.com/maykinmedia/objecttypes-api/tags').get_latest_version()
     print(f'Object Types API latest version: {open_objecttypes_latest_version}')
 
     # Extract the latest version of open-inwoner from the GitHub tags
-    open_inwoner_extractor = GitHubTagVersionExtractor('https://github.com/maykinmedia/open-inwoner/tags', 'v')
-    open_inwoner_latest_version = open_inwoner_extractor.get_latest_version()
+    open_inwoner_latest_version = GitHubTagVersionExtractor('https://github.com/maykinmedia/open-inwoner/tags',
+                                                            'v').get_latest_version()
     print(f'Open Inwoner latest version: {open_inwoner_latest_version}')
 
     # Extract the latest version of KISS from the GitHub tags
-    open_objecttypes_extractor = GitHubTagVersionExtractor('https://github.com/Klantinteractie-Servicesysteem/KISS-frontend/releases','v')
-    open_objecttypes_latest_version = open_objecttypes_extractor.get_latest_version()
-    print(f'KISS latest version: v{open_objecttypes_latest_version}')
+    kiss_latest_version = GitHubTagVersionExtractor(
+        'https://github.com/Klantinteractie-Servicesysteem/KISS-frontend/tags', 'v').get_latest_version()
+    print(f'KISS latest version: {kiss_latest_version}')
+
+    # Extract the latest version of ZAC from the GitHub tags
+    zac_latest_version = GitHubTagVersionExtractor('https://github.com/infonl/dimpact-zaakafhandelcomponent/tags',
+                                                   'v').get_latest_version()
+    print(f'Zaakafhandelcomponent latest version: {zac_latest_version}')
 
     # Extract the latest version of Keycloak from the GitHub tags
-    keycloak_extractor = GitHubTagVersionExtractor('https://github.com/keycloak/keycloak/tags')
-    keycloak_latest_version = keycloak_extractor.get_latest_version()
+    keycloak_latest_version = GitHubTagVersionExtractor(
+        'https://github.com/keycloak/keycloak/tags').get_latest_version()
     print(f'Keycloak latest version: {keycloak_latest_version}')
 
     # Extract the latest version of Clamav from the GitHub tags
-    clamav_extractor = GitHubTagVersionExtractor('https://github.com/Cisco-Talos/clamav/tags','clamav-')
-    clamav_latest_version = clamav_extractor.get_latest_version()
+    clamav_latest_version = GitHubTagVersionExtractor('https://github.com/Cisco-Talos/clamav/tags',
+                                                      'clamav-').get_latest_version()
     print(f'ClamAV latest version: clamav-{clamav_latest_version}')
 
     # Extract the latest version of Postgresql from it's release page
-    postgresql_extractor = PostgresqlVersionExtractor('https://www.postgresql.org/docs/release/')
-    postgresql_latest_version = postgresql_extractor.get_latest_version()
+    postgresql_latest_version = PostgresqlVersionExtractor(
+        'https://www.postgresql.org/docs/release/').get_latest_version()
     print(f'Postgresql latest version: {postgresql_latest_version}')
+
+if __name__ == '__main__':
+    print_versions_of_components()
