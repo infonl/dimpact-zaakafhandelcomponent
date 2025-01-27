@@ -10,7 +10,7 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
-import { Validators } from "@angular/forms";
+import { FormControl, Validators } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatSort } from "@angular/material/sort";
@@ -33,7 +33,6 @@ import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
-import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { KlantenService } from "../../klanten/klanten.service";
 import { Klant } from "../../klanten/model/klanten/klant";
@@ -97,10 +96,9 @@ export class ZaakViewComponent
   action: SideNavAction;
   teWijzigenBesluit: GeneratedType<"RestDecision">;
 
-  takenDataSource: MatTableDataSource<ExpandableTableData<Taak>> =
-    new MatTableDataSource<ExpandableTableData<Taak>>();
+  takenDataSource = new MatTableDataSource<ExpandableTableData<Taak>>();
   allTakenExpanded = false;
-  toonAfgerondeTaken = false;
+  toonAfgerondeTaken = new FormControl(false);
   takenFilter: any = {};
   takenLoading = false;
   takenColumnsToDisplay: string[] = [
@@ -113,8 +111,7 @@ export class ZaakViewComponent
     "id",
   ];
 
-  historie: MatTableDataSource<HistorieRegel> =
-    new MatTableDataSource<HistorieRegel>();
+  historie = new MatTableDataSource<HistorieRegel>();
   historieColumns: string[] = [
     "datum",
     "gebruiker",
@@ -124,8 +121,7 @@ export class ZaakViewComponent
     "nieuweWaarde",
     "toelichting",
   ];
-  betrokkenen: MatTableDataSource<ZaakBetrokkene> =
-    new MatTableDataSource<ZaakBetrokkene>();
+  betrokkenen = new MatTableDataSource<ZaakBetrokkene>();
   betrokkenenColumns: string[] = [
     "roltype",
     "betrokkenegegevens",
@@ -133,8 +129,7 @@ export class ZaakViewComponent
     "roltoelichting",
     "actions",
   ];
-  bagObjectenDataSource: MatTableDataSource<BAGObjectGegevens> =
-    new MatTableDataSource<BAGObjectGegevens>();
+  bagObjectenDataSource = new MatTableDataSource<BAGObjectGegevens>();
   gekoppeldeBagObjecten: BAGObject[];
   bagObjectenColumns: string[] = [
     "identificatie",
@@ -150,8 +145,8 @@ export class ZaakViewComponent
     "relatieType",
   ];
   notitieType = NotitieType.ZAAK;
-  editFormFields: Map<string, any> = new Map<string, any>();
-  editFormFieldIcons: Map<string, TextIcon> = new Map<string, TextIcon>();
+  editFormFields = new Map<string, any>();
+  editFormFieldIcons = new Map<string, TextIcon>();
   viewInitialized = false;
   toolTipIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.always),
@@ -177,7 +172,6 @@ export class ZaakViewComponent
   @ViewChild("takenSort") takenSort: MatSort;
 
   constructor(
-    private informatieObjectenService: InformatieObjectenService,
     private takenService: TakenService,
     private zakenService: ZakenService,
     private identityService: IdentityService,
@@ -244,12 +238,14 @@ export class ZaakViewComponent
       data: ExpandableTableData<Taak>,
       filter: string,
     ): boolean => {
-      return !this.toonAfgerondeTaken
+      return !this.toonAfgerondeTaken.value
         ? data.data.status !== filter["status"]
         : true;
     };
 
-    this.toonAfgerondeTaken = SessionStorageUtil.getItem("toonAfgerondeTaken");
+    this.toonAfgerondeTaken.setValue(
+      Boolean(SessionStorageUtil.getItem("toonAfgerondeTaken")),
+    );
   }
 
   init(zaak: Zaak): void {
@@ -1247,7 +1243,7 @@ export class ZaakViewComponent
   }
 
   checkAllTakenExpanded(): void {
-    const filter: ExpandableTableData<Taak>[] = this.toonAfgerondeTaken
+    const filter = this.toonAfgerondeTaken.value
       ? this.takenDataSource.data.filter((value) => !value.expanded)
       : this.takenDataSource.data.filter(
           (value) => value.data.status !== "AFGEROND" && !value.expanded,
@@ -1420,12 +1416,15 @@ export class ZaakViewComponent
   }
 
   filterTakenOpStatus() {
-    if (!this.toonAfgerondeTaken) {
+    if (!this.toonAfgerondeTaken.value) {
       this.takenFilter["status"] = "AFGEROND";
     }
 
     this.takenDataSource.filter = this.takenFilter;
-    SessionStorageUtil.setItem("toonAfgerondeTaken", this.toonAfgerondeTaken);
+    SessionStorageUtil.setItem(
+      "toonAfgerondeTaken",
+      this.toonAfgerondeTaken.value,
+    );
   }
 
   sluitSidenav(): void {

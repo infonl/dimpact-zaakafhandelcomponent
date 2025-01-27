@@ -16,9 +16,7 @@
   <mat-icon
     *ngIf="!isEditing"
     [ngClass]="{
-      error:
-        data.formControl.invalid &&
-        (data.formControl.touched || data.formControl.dirty),
+      error: data.formControl.invalid && data.formControl.dirty,
     }"
     matSuffix
     >search</mat-icon
@@ -33,9 +31,7 @@
   >
     <mat-icon
       [ngClass]="{
-        error:
-          data.formControl.invalid &&
-          (data.formControl.touched || data.formControl.dirty),
+        error: data.formControl.invalid && data.formControl.dirty,
       }"
       >clear</mat-icon
     >
