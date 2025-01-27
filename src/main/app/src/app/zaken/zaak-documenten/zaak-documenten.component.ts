@@ -14,7 +14,7 @@ import {
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
-import {FormControl, Validators} from "@angular/forms";
+import { FormControl, Validators } from "@angular/forms";
 import { MatCheckboxChange } from "@angular/material/checkbox";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSort } from "@angular/material/sort";
@@ -179,7 +179,8 @@ export class ZaakDocumentenComponent
   private searchEnkelvoudigeInformatieObjecten(): void {
     const zoekParameters = new InformatieobjectZoekParameters();
     zoekParameters.zaakUUID = this.zaakUUID;
-    zoekParameters.gekoppeldeZaakDocumenten = this.toonGekoppeldeZaakDocumenten.value;
+    zoekParameters.gekoppeldeZaakDocumenten =
+      this.toonGekoppeldeZaakDocumenten.value;
     this.isLoadingResults = true;
 
     this.informatieObjectenService

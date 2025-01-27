@@ -9,6 +9,7 @@ import {
   transferArrayItem,
 } from "@angular/cdk/drag-drop";
 import { Component, OnInit, ViewChild } from "@angular/core";
+import { FormControl } from "@angular/forms";
 import { MatMenuTrigger } from "@angular/material/menu";
 import moment from "moment";
 import { forkJoin } from "rxjs";
@@ -20,7 +21,6 @@ import { DashboardCard } from "./model/dashboard-card";
 import { DashboardCardId } from "./model/dashboard-card-id";
 import { DashboardCardInstelling } from "./model/dashboard-card-instelling";
 import { DashboardCardType } from "./model/dashboard-card-type";
-import {FormControl} from "@angular/forms";
 
 @Component({
   templateUrl: "./dashboard.component.html",
@@ -65,7 +65,6 @@ export class DashboardComponent implements OnInit {
   width: number; // actual number of cards horizontally
   editMode = new FormControl(false);
   showHint: boolean;
-
 
   instellingen: DashboardCardInstelling[] = []; // the last loaded card settings
   available: DashboardCard[] = []; // cards that are not on the dashboard
