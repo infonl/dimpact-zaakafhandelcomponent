@@ -1,0 +1,67 @@
+{{- if (index .Values "solr-operator").enabled }}
+apiVersion: solr.apache.org/v1beta1
+kind: SolrCloud
+metadata:
+  name: {{ (index .Values "solr-operator").solr.name }}
+  {{- with (index .Values "solr-operator").annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with (index .Values "solr-operator").nodeSelector }}
+  customSolrKubeOptions:
+    podOptions:
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+  {{- end }}
+  busyBoxImage:
+    imagePullPolicy: {{ (index .Values "solr-operator").busyBoxImage.pullPolicy }}
+    {{- if (index .Values "solr-operator").busyBoxImage.imagePullSecret }}
+    imagePullSecret: {{ (index .Values "solr-operator").busyBoxImage.imagePullSecret }}
+    {{- end }{
+    repository: {{ (index .Values "solr-operator").busyBoxImage.repository }}
+    tag: {{ (index .Values "solr-operator").busyBoxImage.tag }}
+  replicas: {{ (index .Values "solr-operator").solr.replicas }}
+  solrImage:
+    imagePullPolicy: {{ (index .Values "solr-operator").solr.image.pullPolicy }}
+    {{- if (index .Values "solr-operator").solr.image.imagePullSecret }}
+    imagePullSecret: {{ (index .Values "solr-operator").solr.image.imagePullSecret }}
+    {{- end }{
+    repository: {{ (index .Values "solr-operator").solr.image.repository }}
+    tag: {{ (index .Values "solr-operator").solr.image.tag }}
+  solrJavaMem: {{ (index .Values "solr-operator").solr.javaMem }}
+  solrLogLevel: {{ (index .Values "solr-operator").solr.logLevel }}
+  dataStorage:
+    persistent:
+      pvcTemplate:
+         spec:
+           storageClassName: {{ (index .Values "solr-operator").solr.storage.storageClassName }}
+           resources:
+             requests:
+               storage: {{ (index .Values "solr-operator").solr.storage.size }}
+      reclaimPolicy: {{ (index .Values "solr-operator").solr.storage.reclaimPolicy }}
+  zookeeperRef:
+    provided:
+      {{- with (index (index .Values "solr-operator") "zookeeper-operator").nodeSelector }}
+      zookeeperPodPolicy:
+        nodeSelector:
+          {{- toYaml . | nindent 10 }}
+      {{- end }}
+      image:
+        imagePullPolicy: {{ (index .Values "solr-operator").zookeeper.image.pullPolicy }}
+        {{- if (index .Values "solr-operator").zookeeper.image.imagePullSecret }}
+        imagePullSecret: {{ (index .Values "solr-operator").zookeeper.image.imagePullSecret }}
+        {{- end }}
+        repository: {{ (index .Values "solr-operator").zookeeper.image.repository }}
+        tag: {{ (index .Values "solr-operator").zookeeper.image.tag }}
+      replicas: {{ (index .Values "solr-operator").zookeeper.replicas }}
+      persistence:
+        reclaimPolicy: {{ (index .Values "solr-operator").zookeeper.storage.reclaimPolicy }}
+        spec:
+          storageClassName: {{ (index .Values "solr-operator").zookeeper.storage.storageClassName }}
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: {{ (index .Values "solr-operator").zookeeper.storage.size }}
+{{- end }}

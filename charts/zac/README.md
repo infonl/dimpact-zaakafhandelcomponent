@@ -16,6 +16,7 @@ A Helm chart for installing Zaakafhandelcomponent
 |------------|------|---------|
 | https://charts.bitnami.com/bitnami | solr | 9.3.10 |
 | https://open-telemetry.github.io/opentelemetry-helm-charts | opentelemetry-collector | 0.104.0 |
+| https://solr.apache.org/charts | solr-operator | 0.8.1 |
 
 ## Values
 
@@ -248,6 +249,53 @@ A Helm chart for installing Zaakafhandelcomponent
 | smartDocuments.enabled | bool | `false` |  |
 | smartDocuments.fixedUserName | string | `""` |  |
 | smartDocuments.url | string | `""` |  |
+| solr-operator.affinity | object | `{}` | affinity for solr-operator |
+| solr-operator.annotations | object | `{}` | annotations for solr-operator |
+| solr-operator.enabled | bool | `false` | set enabled to provision solr using the solr-operator. requires adding the crds first |
+| solr-operator.createZacCore | bool | `true` | enable the job to provision the zac core in solrcloud automatically |
+| solr-operator.busyBoxImage.imagePullSecret | string | `""` | imagePullSecret for busybox image |
+| solr-operator.busyBoxImage.pullPolicy | string | `"ifNotPresent"` | pullPolicy for busybox image |
+| solr-operator.busyBoxImage.repository | string | `"library/busybox"` | repository for busybox image |
+| solr-operator.busyBoxImage.tag | string | `"1.28.0-glibc"` | repository for busybox image |
+| solr-operator.image.imagePullSecret | string | `""` | imagePullSecret for solr-operator image |
+| solr-operator.image.pullPolicy | string | `"ifNotPresent"` | pullPolicy for solr-operator image |
+| solr-operator.image.repository | string | `"apache/solr-operator"` | repository for solr-operator image |
+| solr-operator.image.tag | string | `"v0.8.1"` | repository for solr-operator image |
+| solr-operator.job.image.imagePullSecret | string | `""` | imagePullSecret for curl image |
+| solr-operator.job.image.pullPolicy | string | `"ifNotPresent"` | pullPolicy for curl image |
+| solr-operator.job.image.repository | string | `"curlimages/curl"` | repository for curl image |
+| solr-operator.job.image.tag | string | `"8.10.1"` | repository for curl image |
+| solr-operator.labels | object | `{}` | labels for solr-operator |
+| solr-operator.metrics.enable | bool | `true` | enable metrics for solr-operator |
+| solr-operator.nodeSelector | object | `{}` | nodeSelector for solr-operator, also used for solr and jobs |
+| solr-operator.solr.image.imagePullSecret | string | `""` | imagePullSecret for solr image |
+| solr-operator.solr.image.pullPolicy | string | `"ifNotPresent"` | pullPolicy for solr image |
+| solr-operator.solr.image.repository | string | `"library/solr"` | repository for solr image |
+| solr-operator.solr.image.tag | string | `"9.6.1"` | repository for solr image |
+| solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` | memory settings for solr image |
+| solr-operator.storage.reclaimPolicy | string | `"Delete"` | solr storage reclaimPolicy |
+| solr-operator.storage.storageClassName | string | `""` | solr storage storageClassName |
+| solr-operator.storage.size | string | `"1Gi"` | solr storage requests |
+| solr-operator.version | string | `"0.8.1"` | solr-operator version |
+| solr-operator.watchNamespaces | string | `"default"` | a comma-seperated list of namespaces that the operator should watch, watches all namespaces if empty |
+| solr-operator.zookeeper-operator.fullnameOverride | string | `"zookeeper-operator"` | fullname override for the zookeeper-operator |
+| solr-operator.zookeeper-operator.image.imagePullSecret | string | `""` | imagePullSecret for zookeeper-operator image |
+| solr-operator.zookeeper-operator.image.pullPolicy | string | `"ifNotPresent"` | pullPolicy for zookeeper-operator image |
+| solr-operator.zookeeper-operator.image.repository | string | `"pravega/zookeeper-operator"` | repository for zookeeper-operator image |
+| solr-operator.zookeeper-operator.image.tag | string | `"0.2.15"` | tag for zookeeper-operator image |
+| solr-operator.zookeeper-operator.hooks.image.imagePullSecret | string | `""` | imagePullSecret for hooks image |
+| solr-operator.zookeeper-operator.hooks.image.pullPolicy | string | `"ifNotPresent"` | pullPolicy for hooks image |
+| solr-operator.zookeeper-operator.hooks.image.repository | string | `"lachlanevenson/k8s-kubectl"` | repository for hooks image |
+| solr-operator.zookeeper-operator.hooks.image.tag | string | `"v1.23.2"` | tag for hooks image |
+| solr-operator.zookeeper-operator.nodeSelector | object | `{}` | nodeSelector for zookeeper-operator |
+| solr-operator.zookeeper-operator.watchNamespace | string | `"default"` | a comma-seperated list of namespacs that the operator should watch, watches all namespaces if empty |
+| solr-operator.zookeeper.image.imagePullSecret | string | `""` | imagePullSecret for zookeeper-operator image |
+| solr-operator.zookeeper.image.pullPolicy | string | `"ifNotPresent"` | pullPolicy for zookeeper-operator image |
+| solr-operator.zookeeper.image.repository | string | `"pravega/zookeeper"` | repository for zookeeper-operator image |
+| solr-operator.zookeeper.image.tag | string | `"0.2.14"` | tag for zookeeper-operator image |
+| solr-operator.zookeeper.storage.reclaimPolicy | string | `"Delete"` | zookeeper storage reclaimPolicy |
+| solr-operator.zookeeper.storage.storageClassName | string | `""` | zookeeper storage storageClassName |
+| solr-operator.zookeeper.storage.size | string | `"1Gi"` | zookeeper datastorage requests |
 | solr.auth.enabled | bool | `false` |  |
 | solr.cloudBootstrap | bool | `false` |  |
 | solr.cloudEnabled | bool | `false` |  |

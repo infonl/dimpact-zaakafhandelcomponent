@@ -6,7 +6,7 @@
 apiVersion: v2
 name: zaakafhandelcomponent
 description: A Helm chart for installing Zaakafhandelcomponent
-version: 0.4.1
+version: 0.4.2
 appVersion: "latest"
 icon: https://raw.githubusercontent.com/infonl/dimpact-zaakafhandelcomponent/49f8dee60948282b546ebdfdc5cff6f8bbef0305/docs/manuals/ZAC-gebruikershandleiding/images/pic.svg
 dependencies:
@@ -18,6 +18,11 @@ dependencies:
     version: 9.5.1
     repository: "@bitnami"
     condition: solr.enabled
+  - name: solr-operator
+    repository: "@solr"
+    version: 0.8.1
+    alias: solr-operator
+    condition: solr-operator.enabled
 maintainers:
   - name: Team Geneve, INFO
     email: teamdimpact@info.nl

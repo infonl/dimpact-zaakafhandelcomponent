@@ -336,6 +336,72 @@ solr:
   zookeeper:
     enabled: false
 
+# solr-operator enable to use the included helm chart to provision a solrcloud cluster to use with zac
+# -- requires the installation of the solr-operator crds: kubectl create -f https://solr.apache.org/operator/downloads/crds/v0.8.1/all-with-dependencies.yaml
+solr-operator:
+  annotations: {}
+  affinity: {}
+  busyBoxImage:
+    pullPolicy: IfNotPresent
+    repository: library/busybox
+    tag: 1.28.0-glibc
+  # enable createZacCore to have a curl statement generate the zac core if it does not exist yet, this does currently not support solr with authentication
+  createZacCore: true
+  enabled: true
+  fullnameOverride: solr-operator
+  job:
+    image:
+      pullPolicy: IfNotPresent
+      repository: curlimages/curl
+      tag: 8.10.1
+  metrics:
+    enabled: true
+  nodeSelector: {}
+  solr:
+    image:
+      pullPolicy: IfNotPresent
+      repository: library/solr
+      tag: 9.6.1 
+    javaMem: -Xms512m -Xmx768m
+    logLevel: INFO
+    name: solr
+    replicas: 3
+    storage:
+      reclaimPolicy: Delete
+      storageClassName: managed-csi
+      size: 1Gi
+  version: 0.8.1
+  # a comma-seperated list of namespaces to watch, watches all namespaces if empty
+  watchNamespaces: "default"
+  zookeeper-operator:
+    affinity: {}
+    annotations: {}
+    fullnameOverride: zookeeper-operator
+    global:
+      imagePullSecrets: []
+    hooks:
+      image:
+        pullPolicy: IfNotPresent
+        repository: lachlanevenson/k8s-kubectl 
+        tag: v1.23.2
+    image: 
+      pullPolicy: IfNotPresent
+      repository: pravega/zookeeper-operator
+      tag: 0.2.15
+    nodeSelector: {}
+    # a comma-seperated list of namespaces to watch, watches all namespaces if empty
+    watchNamespace: "default"
+  zookeeper:
+    image:
+      pullPolicy: IfNotPresent
+      repository: pravega/zookeeper
+      tag: 0.2.14
+    replicas: 3
+    storage:
+      reclaimPolicy: Delete
+      storageClassName: managed-csi
+      size: 1Gi  
+
 # office_converter use the office converter specified, prefilled resources values are the minimum recommended
 office_converter:
   enabled: true
