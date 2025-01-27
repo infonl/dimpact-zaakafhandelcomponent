@@ -9,8 +9,7 @@
     id="{{ label + '_filter' }}"
     (selectionChange)="change()"
     placeholder="{{ 'filter.-alle-' | translate }}"
-    [ngModel]="selected"
-    (ngModelChange)="selected = $event"
+    [formControl]="selected"
   >
     <mat-option>{{ "filter.-alle-" | translate }}</mat-option>
     <mat-option *ngFor="let value of getFilters()" [value]="value.naam">
