@@ -1,6 +1,7 @@
 #  SPDX-FileCopyrightText: 2024 Lifely
 #  SPDX-License-Identifier: EUPL-1.2+
 
+from kvk_version_extractor import KvkVersionExtractor
 from brp_version_extractor import BrpVersionExtractor
 from github_tag_version_extractor import GitHubTagVersionExtractor
 from postgresql_version_extractor import PostgresqlVersionExtractor
@@ -22,6 +23,21 @@ def print_versions_of_components():
     - ClamAV                from https://github.com/Cisco-Talos/clamav/tags
     - Postgresql            from https://www.postgresql.org/docs/release/
     """
+
+    # KvK zoeken API
+    kvk_zoeken_api_version = KvkVersionExtractor(
+        'https://developers.kvk.nl/documentation/release-notes/zoeken-api').get_latest_version()
+    print(f'KvK Zoeken API latest version: {kvk_zoeken_api_version}')
+
+    # KvK Basisprofiel API
+    kvk_basisprofiel_api_version = KvkVersionExtractor(
+        'https://developers.kvk.nl/documentation/release-notes/basisprofiel-api').get_latest_version()
+    print(f'KvK Basisprofiel API latest version: {kvk_basisprofiel_api_version}')
+
+    # KvK vestigingsprofiel API
+    kvk_vestigingsprofiel_api_version = KvkVersionExtractor(
+        'https://developers.kvk.nl/documentation/release-notes/vestigingsprofiel-api').get_latest_version()
+    print(f'KvK Vestigingsprofiel API latest version: {kvk_vestigingsprofiel_api_version}')
 
     # Extract the latest version of Haal-Centraal-BRP from the release notes
     brp_latest_version = BrpVersionExtractor(

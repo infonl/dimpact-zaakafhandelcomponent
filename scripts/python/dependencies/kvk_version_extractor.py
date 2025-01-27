@@ -8,9 +8,9 @@ import re
 from version_data import VersionData
 
 
-class BrpVersionExtractor:
+class KvkVersionExtractor:
     """
-    Version extractor specifically for a Haal-Centraal-BRP release notes page.
+    Version extractor specifically for a KvK release notes pages.
     """
 
     def __init__(self, url):
@@ -24,11 +24,12 @@ class BrpVersionExtractor:
         soup = BeautifulSoup(response.content, 'html.parser')
 
         # Find all version numbers matching the pattern 'Versi(on|e) x.y.z'
-        version_pattern = re.compile(r'Versi[e|o]n? ([\d.]+)')
-        versions = version_pattern.findall(soup.text)
+        releases = soup.find_all('h2', id=lambda x: x and x.startswith('Release'))
+        versions = [header.get_text(strip=True).replace('Release', '').strip() for header in releases]
 
         # Extract the version numbers from a tags within the ul
         version_list = []
+
         for version_number in versions:
             if re.match(r'[\d.]+', version_number):
                 version_data = VersionData(version_number, self.url)
