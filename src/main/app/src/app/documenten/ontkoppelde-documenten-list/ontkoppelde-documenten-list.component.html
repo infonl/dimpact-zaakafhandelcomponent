@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -18,7 +18,7 @@
         <th mat-header-cell *matHeaderCellDef>
           <zac-tekst-filter
             [value]="listParameters.titel"
-            (changed)="listParameters.titel = $event; filtersChanged()"
+            (changed)="filtersChanged({ event: $event, filter: 'titel' })"
           ></zac-tekst-filter>
         </th>
       </ng-container>
@@ -27,7 +27,9 @@
           <zac-date-range-filter
             label="creatiedatum"
             [range]="listParameters.creatiedatum"
-            (changed)="filtersChanged()"
+            (changed)="
+              filtersChanged({ event: $event, filter: 'creatiedatum' })
+            "
           ></zac-date-range-filter>
         </th>
       </ng-container>
@@ -35,7 +37,7 @@
         <th mat-header-cell *matHeaderCellDef>
           <zac-tekst-filter
             [value]="listParameters.zaakID"
-            (changed)="listParameters.zaakID = $event; filtersChanged()"
+            (changed)="filtersChanged({ event: $event, filter: 'zaakID' })"
           ></zac-tekst-filter>
         </th>
       </ng-container>
@@ -44,11 +46,12 @@
           <mat-form-field subscriptSizing="dynamic">
             <mat-select
               [compareWith]="compareUser"
-              (selectionChange)="filtersChanged()"
+              (selectionChange)="
+                filtersChanged({ event: $event, filter: 'ontkoppeldDoor' })
+              "
               id="ontkoppeldDoor_filter"
               placeholder="{{ 'filter.-alle-' | translate }}"
-              [(ngModel)]="listParameters.ontkoppeldDoor"
-              (ngModelChange)="listParameters.ontkoppeldDoor = $event"
+              [value]="listParameters.ontkoppeldDoor"
             >
               <mat-option>{{ "filter.-alle-" | translate }}</mat-option>
               <mat-option
@@ -65,7 +68,9 @@
           <zac-date-range-filter
             label="ontkoppeldOp"
             [range]="listParameters.ontkoppeldOp"
-            (changed)="filtersChanged()"
+            (changed)="
+              filtersChanged({ event: $event, filter: 'ontkoppeldOp' })
+            "
           ></zac-date-range-filter>
         </th>
       </ng-container>
@@ -73,7 +78,7 @@
         <th mat-header-cell *matHeaderCellDef>
           <zac-tekst-filter
             [value]="listParameters.reden"
-            (changed)="listParameters.reden = $event; filtersChanged()"
+            (changed)="filtersChanged({ event: $event, filter: 'reden' })"
           ></zac-tekst-filter>
         </th>
       </ng-container>

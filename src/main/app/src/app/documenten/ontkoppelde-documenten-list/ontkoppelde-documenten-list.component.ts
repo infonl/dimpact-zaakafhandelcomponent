@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -7,15 +7,16 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  OnDestroy,
   OnInit,
   ViewChild,
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
+import { MatSelectChange } from "@angular/material/select";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
-import { TranslateService } from "@ngx-translate/core";
 import { merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -31,6 +32,7 @@ import {
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { DatumRange } from "../../zoeken/model/datum-range";
 import { OntkoppeldDocument } from "../model/ontkoppeld-document";
 import { OntkoppeldDocumentListParameters } from "../model/ontkoppeld-document-list-parameters";
 import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
@@ -41,11 +43,10 @@ import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service"
 })
 export class OntkoppeldeDocumentenListComponent
   extends WerklijstComponent
-  implements OnInit, AfterViewInit
+  implements OnInit, AfterViewInit, OnDestroy
 {
   isLoadingResults = true;
-  dataSource: MatTableDataSource<OntkoppeldDocument> =
-    new MatTableDataSource<OntkoppeldDocument>();
+  dataSource = new MatTableDataSource<OntkoppeldDocument>();
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   displayedColumns: string[] = [
@@ -68,15 +69,14 @@ export class OntkoppeldeDocumentenListComponent
   ];
   listParameters: OntkoppeldDocumentListParameters;
   filterOntkoppeldDoor: GeneratedType<"RestUser">[] = [];
-  filterChange: EventEmitter<void> = new EventEmitter<void>();
-  clearZoekopdracht: EventEmitter<void> = new EventEmitter<void>();
+  filterChange = new EventEmitter<void>();
+  clearZoekopdracht = new EventEmitter<void>();
 
   constructor(
     private ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
     private infoService: InformatieObjectenService,
     private utilService: UtilService,
     public dialog: MatDialog,
-    private translate: TranslateService,
     private informatieObjectVerplaatsService: InformatieObjectVerplaatsService,
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
     public route: ActivatedRoute,
@@ -175,7 +175,14 @@ export class OntkoppeldeDocumentenListComponent
     );
   }
 
-  filtersChanged(): void {
+  filtersChanged(options: {
+    event: string | MatSelectChange | DatumRange;
+    filter: keyof typeof this.listParameters;
+  }): void {
+    this.listParameters[options.filter] =
+      typeof options.event === "object" && "value" in options.event
+        ? options.event.value
+        : null;
     this.paginator.pageIndex = 0;
     this.clearZoekopdracht.emit();
     this.filterChange.emit();
@@ -222,7 +229,7 @@ export class OntkoppeldeDocumentenListComponent
   }
 
   ngOnDestroy(): void {
-    // Make sure when returning to this comnponent, the very first page is loaded
+    // Make sure when returning to this component, the very first page is loaded
     this.listParameters.page = 0;
     SessionStorageUtil.setItem(
       Werklijst.ONTKOPPELDE_DOCUMENTEN + "_ZOEKPARAMETERS",
