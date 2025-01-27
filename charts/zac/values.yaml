@@ -39,7 +39,7 @@ gemeente:
   naam: ""
   mail: ""
 
-#-- Email sending connection. SPF record needs to be properly setup in DNS
+# -- Email sending connection. SPF record needs to be properly setup in DNS
 mail:
   smtp:
     # -- SMTP server host (for example localhost or in-v3.mailjet.com). Required
