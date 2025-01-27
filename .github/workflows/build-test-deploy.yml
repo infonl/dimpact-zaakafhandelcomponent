@@ -16,9 +16,9 @@ on:
       - 'publiccode.yaml'
 
 env:
-  JAVA_VERSION: '21'
-  CONTAINER_REGISTRY_URL: 'ghcr.io/infonl'
-  APPLICATION_NAME: 'zaakafhandelcomponent'
+  JAVA_VERSION: "21.0.6"
+  CONTAINER_REGISTRY_URL: "ghcr.io/infonl"
+  APPLICATION_NAME: "zaakafhandelcomponent"
 
 permissions:
   contents: write
@@ -161,18 +161,25 @@ jobs:
 
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@170bf24d20d201b842d7a52403b73ed297e6645b # v2.18.0
-        if: always()
+        if: ${{ !cancelled() }}
         with:
           check_name: unit-test-results
           files: |
             build/test-results/**/*.xml
             src/main/app/reports/*.xml
 
+      - name: Upload unit test results to CodeCov
+        uses: codecov/test-results-action@v1
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unittests
+
       - name: Generate unit test code coverage report
         run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x test -x itest -x npmRunBuild npmRunTestCoverage jacocoTestReport --info
 
       - name: Upload unit test coverage report to Codecov
-        uses: codecov/codecov-action@5a605bd92782ce0810fa3b8acc235c921b497052 # v5.2.0
+        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
         with:
           flags: unittests
         env:
@@ -257,7 +264,7 @@ jobs:
         uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
 
       - name: Build Docker image
-        uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d # v6.12.0
+        uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991 # v6.13.0
         with:
           tags: ${{ env.ZAC_DOCKER_IMAGE }}
           build-args: |
@@ -285,9 +292,16 @@ jobs:
             -x compileJava -x processResources -x compileKotlin -x classes -x buildDockerImage \
             itest --info
 
+      - name: Upload integration test results to CodeCov
+        uses: codecov/test-results-action@v1
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: integrationtests
+
       - name: Publish integration test results
         uses: EnricoMi/publish-unit-test-result-action@170bf24d20d201b842d7a52403b73ed297e6645b # v2.18.0
-        if: always()
+        if: ${{ !cancelled() }}
         with:
           check_name: integration-test-results
           files: |
@@ -306,7 +320,7 @@ jobs:
         run: ./gradlew jacocoIntegrationTestReport -x itest --info
 
       - name: Upload integration test coverage report to Codecov
-        uses: codecov/codecov-action@5a605bd92782ce0810fa3b8acc235c921b497052 # v5.2.0
+        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
         with:
           flags: integrationtests
         env:
@@ -329,7 +343,7 @@ jobs:
           TRIVY_SKIP_JAVA_DB_UPDATE: true
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@dd196fa9ce80b6bacc74ca1c32bd5b0ba22efca7 # v3.28.3
+        uses: github/codeql-action/upload-sarif@f6091c0113d1dcf9b98e269ee48e8a7e51b7bdd4 # v3.28.5
         with:
           sarif_file: 'trivy-results.sarif'
 

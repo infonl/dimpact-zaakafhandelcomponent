@@ -27,7 +27,17 @@
       "depNameTemplate": "infonl/dimpact-zaakafhandelcomponent",
       "datasourceTemplate": "github-releases",
       "autoReplaceStringTemplate": "softwareVersion: \"{{{newValue}}}\"\nreleaseDate: \"{{{releaseTimestamp}}}\""
-    }
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["workflows/.+\\.ya?ml$"],
+      "matchStrings": [
+	"\\sJAVA_VERSION: \"(?<currentValue>[^\"]+)\""
+      ],
+      "datasourceTemplate": "java-version",
+      "depNameTemplate": "java-jre",
+      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)[+]"
+    }    
   ],
   "packageRules": [
     {
@@ -61,12 +71,20 @@
     },
     {
       "matchPackageNames": [
-        "quay.io/keycloak/keycloak",
+        "quay.io/keycloak/keycloak"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "<= 25.0.6",
+      "description": ["Pinned by the next Dimpact PodiumD release"]
+    },
+    {
+      "matchPackageNames": [
         "org.keycloak:keycloak-admin-client"
       ],
       "matchDatasources": [
-        "docker",
-        "gradle"
+        "maven"
       ],
       "allowedVersions": "<= 25.0.6",
       "description": ["Pinned by the next Dimpact PodiumD release"]
