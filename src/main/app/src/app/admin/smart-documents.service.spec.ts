@@ -3,7 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClientTestingModule } from "@angular/common/http/testing";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
 import isEqual from "lodash/isEqual";
@@ -35,7 +39,7 @@ describe("SmartDocumentsService service functions tests", () => {
     });
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
+      imports: [],
       providers: [
         SmartDocumentsService,
         {
@@ -43,6 +47,8 @@ describe("SmartDocumentsService service functions tests", () => {
           useValue: mockFoutAfhandelingService,
         },
         { provide: TranslateService, useValue: mockTranslateService },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     });
 
