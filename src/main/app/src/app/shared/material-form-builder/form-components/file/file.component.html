@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Atos
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -49,7 +49,7 @@
       <div
         class="error"
         *ngIf="
-          (data.formControl.invalid && data.formControl.touched) ||
+          (data.formControl.invalid && data.formControl.dirty) ||
           data.uploadError
         "
       >

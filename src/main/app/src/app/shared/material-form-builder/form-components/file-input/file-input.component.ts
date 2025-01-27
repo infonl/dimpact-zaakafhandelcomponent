@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 024 Lifely
+ * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -79,7 +79,7 @@ import { MatFileInput } from "./file-input-control";
 
         <mat-hint>
           @if (
-            (data.formControl.invalid && data.formControl.touched) ||
+            (data.formControl.invalid && data.formControl.dirty) ||
             data.uploadError
           ) {
             <div class="error">
