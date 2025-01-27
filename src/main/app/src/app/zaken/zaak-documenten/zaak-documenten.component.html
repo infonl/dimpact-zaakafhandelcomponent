@@ -10,8 +10,7 @@
     }}</mat-card-title>
     <mat-slide-toggle
       *ngIf="heeftGerelateerdeZaken"
-      [ngModel]="toonGekoppeldeZaakDocumenten"
-      (ngModelChange)="toonGekoppeldeZaakDocumenten = $event"
+      [formControl]="toonGekoppeldeZaakDocumenten"
       color="primary"
       class="flex-row"
       id="gekoppeldeZaakDocumentenToon_toggle"
