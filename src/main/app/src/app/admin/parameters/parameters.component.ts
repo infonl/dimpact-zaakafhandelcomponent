@@ -4,6 +4,7 @@
  */
 
 import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
+import { MatSelectChange } from "@angular/material/select";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
@@ -32,8 +33,7 @@ export class ParametersComponent
   @ViewChild("parametersSort") parametersSort: MatSort;
 
   filterParameters: ZaakafhandelParametersListParameters;
-  parameters: MatTableDataSource<ZaakafhandelParameters> =
-    new MatTableDataSource<ZaakafhandelParameters>();
+  parameters = new MatTableDataSource<ZaakafhandelParameters>();
   loading = false;
 
   private storedParameterFilters = "parameterFilters";
@@ -151,7 +151,18 @@ export class ParametersComponent
     };
   }
 
-  applyFilter(): void {
+  applyFilter(options?: {
+    event?: MatSelectChange | ToggleSwitchOptions;
+    filter?: keyof typeof this.filterParameters;
+  }): void {
+    if (options) {
+      const value =
+        typeof options.event === "object"
+          ? options.event?.value
+          : options.event;
+      this.filterParameters[options.filter] = value as never;
+    }
+
     this.parameters.filter = JSON.stringify(this.filterParameters);
     SessionStorageUtil.setItem(
       this.storedParameterFilters,

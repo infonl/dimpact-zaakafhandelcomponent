@@ -1,12 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Injectable } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { FormulierDefinitieID } from "../../admin/model/formulier-definitie";
-import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
@@ -30,7 +29,6 @@ export class TaakFormulierenService {
     private informatieObjectenService: InformatieObjectenService,
     private takenService: TakenService,
     private zakenService: ZakenService,
-    private zaakafhandelParametersService: ZaakafhandelParametersService,
     private mailtemplateService: MailtemplateService,
     private klantenService: KlantenService,
   ) {}
@@ -63,8 +61,6 @@ export class TaakFormulierenService {
             this.translate,
             this.takenService,
             this.informatieObjectenService,
-            this.zakenService,
-            this.zaakafhandelParametersService,
           ),
         );
       case "EXTERN_ADVIES_VASTLEGGEN":
