@@ -161,12 +161,19 @@ jobs:
 
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@170bf24d20d201b842d7a52403b73ed297e6645b # v2.18.0
-        if: always()
+        if: ${{ !cancelled() }}
         with:
           check_name: unit-test-results
           files: |
             build/test-results/**/*.xml
             src/main/app/reports/*.xml
+
+      - name: Upload unit test results to CodeCov
+        uses: codecov/test-results-action@v1
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unittests
 
       - name: Generate unit test code coverage report
         run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x test -x itest -x npmRunBuild npmRunTestCoverage jacocoTestReport --info
@@ -285,9 +292,16 @@ jobs:
             -x compileJava -x processResources -x compileKotlin -x classes -x buildDockerImage \
             itest --info
 
+      - name: Upload integration test results to CodeCov
+        uses: codecov/test-results-action@v1
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: integrationtests
+
       - name: Publish integration test results
         uses: EnricoMi/publish-unit-test-result-action@170bf24d20d201b842d7a52403b73ed297e6645b # v2.18.0
-        if: always()
+        if: ${{ !cancelled() }}
         with:
           check_name: integration-test-results
           files: |
