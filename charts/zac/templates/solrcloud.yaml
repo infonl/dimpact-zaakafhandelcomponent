@@ -3,7 +3,11 @@
 apiVersion: solr.apache.org/v1beta1
 kind: SolrCloud
 metadata:
+  {{- if (index .Values "solr-operator").solr.name }}
   name: {{ (index .Values "solr-operator").solr.name }}
+  {{- else }}
+  name: {{ printf "%s-%s" .Release.Name "solr" }}
+  {{- end }}
 spec:
   customSolrKubeOptions:
     podOptions:

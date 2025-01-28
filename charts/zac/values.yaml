@@ -410,8 +410,8 @@ solr-operator:
       tolerations: []
     # -- solr loglevel
     logLevel: INFO
-    # -- solrcloud name
-    name: solr
+    # -- override for solrcloud name
+    # name:
     # -- nodeSelector for solr in solrcloud
     nodeSelector: {}
     # -- replicas for solr in solrcloud, should be an odd number
