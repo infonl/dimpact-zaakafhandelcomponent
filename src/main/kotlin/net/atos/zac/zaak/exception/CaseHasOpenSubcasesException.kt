@@ -6,4 +6,10 @@
 
 package net.atos.zac.zaak.exception
 
-class CaseHasOpenSubcasesException(message: String) : RuntimeException(message)
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_OPEN_SUBCASES
+import nl.info.zac.exception.InputValidationFailedException
+
+class CaseHasOpenSubcasesException(message: String) : InputValidationFailedException(
+    errorCode = ERROR_CODE_CASE_HAS_OPEN_SUBCASES,
+    message = message
+)

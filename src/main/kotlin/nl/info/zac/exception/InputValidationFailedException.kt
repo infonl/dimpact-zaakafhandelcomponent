@@ -1,11 +1,12 @@
+/*
+ * SPDX-FileCopyrightText: 2025 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package nl.info.zac.exception
-
-import jakarta.ws.rs.BadRequestException
 
 /**
  * Custom exception for input validation failures.
- * We subclass from the JAX-RS [jakarta.ws.rs.BadRequestException] class so that we can use our generic exception handling mechanism
- * in [net.atos.zac.app.exception.RestExceptionMapper].
+ * These exceptions typically result in a 400 Bad Request response.
  */
 open class InputValidationFailedException(
     val errorCode: ErrorCode? = null,

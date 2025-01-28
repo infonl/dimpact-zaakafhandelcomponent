@@ -26,21 +26,13 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
-import net.atos.zac.app.decision.DecisionPublicationDisabledException
-import net.atos.zac.app.decision.DecisionResponseDateInvalidException
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
-import net.atos.zac.zaak.exception.CaseHasLockedInformationObjectsException
-import net.atos.zac.zaak.exception.CaseHasOpenSubcasesException
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BAG_CLIENT
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_BESLUIT_PUBLICATION_DISABLED_TYPE
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_BESLUIT_RESPONSE_DATE_INVALID_TYPE
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BRP_CLIENT
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_OPEN_SUBCASES
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_DRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_FORBIDDEN
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_KLANTINTERACTIES_CLIENT
@@ -50,7 +42,7 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_SERVER_GENERIC
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZTC_CLIENT
 import nl.info.zac.exception.InputValidationFailedException
-import nl.info.zac.exception.ZacRuntimeException
+import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.log.log
 import java.net.ConnectException
 import java.net.UnknownHostException
@@ -96,29 +88,9 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 errorCode = ERROR_CODE_FORBIDDEN,
                 exception = exception
             )
-            exception is DecisionPublicationDisabledException -> generateResponse(
-                responseStatus = Response.Status.BAD_REQUEST,
-                errorCode = ERROR_CODE_BESLUIT_PUBLICATION_DISABLED_TYPE,
-                exception = exception
-            )
-            exception is DecisionResponseDateInvalidException -> generateResponse(
-                responseStatus = Response.Status.BAD_REQUEST,
-                errorCode = ERROR_CODE_BESLUIT_RESPONSE_DATE_INVALID_TYPE,
-                exception = exception
-            )
             exception is BetrokkeneIsAlreadyAddedToZaakException -> generateResponse(
                 responseStatus = Response.Status.CONFLICT,
                 errorCode = ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK,
-                exception = exception
-            )
-            exception is CaseHasLockedInformationObjectsException -> generateResponse(
-                responseStatus = Response.Status.BAD_REQUEST,
-                errorCode = ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS,
-                exception = exception
-            )
-            exception is CaseHasOpenSubcasesException -> generateResponse(
-                responseStatus = Response.Status.BAD_REQUEST,
-                errorCode = ERROR_CODE_CASE_HAS_OPEN_SUBCASES,
                 exception = exception
             )
             exception is InputValidationFailedException -> generateResponse(
@@ -126,7 +98,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 errorCode = exception.errorCode ?: ERROR_CODE_SERVER_GENERIC,
                 exception = exception
             )
-            exception is ZacRuntimeException -> generateResponse(
+            exception is ServerErrorException -> generateResponse(
                 responseStatus = Response.Status.INTERNAL_SERVER_ERROR,
                 errorCode = exception.errorCode,
                 exception = exception

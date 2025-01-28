@@ -29,10 +29,11 @@ import net.atos.zac.app.decision.DecisionPublicationDateMissingException
 import net.atos.zac.app.decision.DecisionPublicationDisabledException
 import net.atos.zac.app.decision.DecisionResponseDateInvalidException
 import net.atos.zac.app.exception.RestExceptionMapper
-import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
-import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import nl.info.zac.exception.ErrorCode
-import nl.info.zac.exception.ZacRuntimeException
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_BAG_CLIENT
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
+import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.log.log
 import org.apache.http.HttpHost
 import org.apache.http.HttpStatus
@@ -271,16 +272,24 @@ class RestExceptionMapperTest : BehaviorSpec({
             }
         }
     }
-    Given("A SmartDocumentsDisabled exception") {
-        val exception = SmartDocumentsDisabledException()
+    Given("An input validation exception with an error code and a message") {
+        val exception = InputValidationFailedException(
+            errorCode = ERROR_CODE_BAG_CLIENT,
+            message = "dummyErrorMessage"
+        )
 
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
 
-            Then("it should return the proper error code and no exception message and log the exception") {
+            Then(
+                """
+                    it should return a bad request status with error message equal to the value of the
+                    error code and it should log the exception including the error message
+                """
+            ) {
                 checkResponse(
                     response = response,
-                    errorMessage = "msg.error.smartdocuments.disabled",
+                    errorMessage = ERROR_CODE_BAG_CLIENT.value,
                     expectedStatus = HttpStatus.SC_BAD_REQUEST
                 )
                 verify(
@@ -289,26 +298,41 @@ class RestExceptionMapperTest : BehaviorSpec({
                     log(
                         any(),
                         Level.FINE,
-                        "Exception was thrown. Returning response with error message: 'msg.error.smartdocuments.disabled'.",
+                        "dummyErrorMessage",
                         exception
                     )
                 }
             }
         }
     }
-    Given("A SmartDocumentsConfiguration exception") {
-        val exception = SmartDocumentsConfigurationException("error")
+    Given("An input validation exception with an error code and no message") {
+        val exception = InputValidationFailedException(
+            errorCode = ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
+        )
 
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
 
-            Then("it should return the proper error code and no exception message and log the exception") {
+            Then(
+                """
+                    it should return a bad request status with error message equal to the value of the
+                    error code and it should log the exception including a generic error message
+                """
+            ) {
                 checkResponse(
                     response = response,
-                    errorMessage = "msg.error.smartdocuments.not.configured",
+                    errorMessage = ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS.value,
                     expectedStatus = HttpStatus.SC_BAD_REQUEST
                 )
-                verify(exactly = 1) { log(any(), Level.FINE, exception.message!!, exception) }
+                verify(exactly = 1) {
+                    log(
+                        any(),
+                        Level.FINE,
+                        "Exception was thrown. Returning response with error message: " +
+                            "'${ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS.value}'.",
+                        exception
+                    )
+                }
             }
         }
     }
@@ -371,7 +395,7 @@ class RestExceptionMapperTest : BehaviorSpec({
     }
     Given("A ZAC runtime exception") {
         val errorCode = mockk<ErrorCode>()
-        val exception = ZacRuntimeException(errorCode, "error")
+        val exception = ServerErrorException(errorCode, "error")
         every { errorCode.value } returns "dummyErrorCodeValue"
 
         When("the exception is mapped to a response") {
