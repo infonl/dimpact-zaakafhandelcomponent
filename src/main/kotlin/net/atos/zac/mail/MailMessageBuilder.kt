@@ -6,9 +6,7 @@ package net.atos.zac.mail
 
 import jakarta.mail.Address
 import jakarta.mail.Message
-import jakarta.mail.PasswordAuthentication
 import jakarta.mail.Session
-import jakarta.mail.URLName
 import jakarta.mail.internet.MimeBodyPart
 import jakarta.mail.internet.MimeMessage
 import jakarta.mail.internet.MimeMultipart
@@ -26,34 +24,32 @@ class MailMessageBuilder(
     private var body: String,
     private var attachments: List<Attachment>
 ) {
-    fun build(mailSession: Session) = setupPasswordAuthentication(mailSession).let {
-        MimeMessage(mailSession).apply {
-            addHeader("Content-type", "${MediaType.TEXT_HTML}; charset=${StandardCharsets.UTF_8.name()}")
-            addHeader("format", "flowed")
-            addHeader("Content-Transfer-Encoding", "8bit")
+    fun build(mailSession: Session) = MimeMessage(mailSession).apply {
+        addHeader("Content-type", "${MediaType.TEXT_HTML}; charset=${StandardCharsets.UTF_8.name()}")
+        addHeader("format", "flowed")
+        addHeader("Content-Transfer-Encoding", "8bit")
 
-            setFrom(fromAddress)
-            setRecipients(Message.RecipientType.TO, arrayOf(toAddress))
-            replyTo = replyToAddress?.let { arrayOf(replyToAddress) }
-            subject = mailSubject
-            sentDate = Date()
+        setFrom(fromAddress)
+        setRecipients(Message.RecipientType.TO, arrayOf(toAddress))
+        replyTo = replyToAddress?.let { arrayOf(replyToAddress) }
+        subject = mailSubject
+        sentDate = Date()
 
-            setContent(
-                MimeMultipart().apply {
-                    addBodyPart(
-                        MimeBodyPart().apply {
-                            setText(body, StandardCharsets.UTF_8.name(), "html")
-                        }
-                    )
-                    attachments.forEach {
-                        val messageBodyPart = PreencodedMimeBodyPart("base64").apply {
-                            setContent(it.base64Content, it.contentType)
-                            fileName = it.filename
-                        }
-                        addBodyPart(messageBodyPart)
+        setContent(
+            MimeMultipart().apply {
+                addBodyPart(
+                    MimeBodyPart().apply {
+                        setText(body, StandardCharsets.UTF_8.name(), "html")
                     }
+                )
+                attachments.forEach {
+                    val messageBodyPart = PreencodedMimeBodyPart("base64").apply {
+                        setContent(it.base64Content, it.contentType)
+                        fileName = it.filename
+                    }
+                    addBodyPart(messageBodyPart)
                 }
-            )
-        }
+            }
+        )
     }
 }
