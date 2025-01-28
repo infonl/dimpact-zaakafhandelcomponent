@@ -341,44 +341,56 @@ solr:
 solr-operator:
   annotations: {}
   affinity: {}
-  busyBoxImage:
-    pullPolicy: IfNotPresent
-    repository: library/busybox
-    tag: 1.28.0-glibc
-  # enable createZacCore to have a curl statement generate the zac core if it does not exist yet, this does currently not support solr with authentication
-  createZacCore: true
   enabled: true
   fullnameOverride: solr-operator
-  job:
-    image:
-      pullPolicy: IfNotPresent
-      repository: curlimages/curl
-      tag: 8.10.1
+  image:
+    pullPolicy: IfNotPresent
+    repository: apache/solr-operator
+    tag: v0.8.1
   metrics:
     enabled: true
   nodeSelector: {}
   solr:
+    affinity: {}
+    annotations: {}
+    busyBoxImage:
+      pullPolicy: IfNotPresent
+      repository: library/busybox
+      tag: 1.28.0-glibc
+    enabled: true
     image:
       pullPolicy: IfNotPresent
       repository: library/solr
-      tag: 9.6.1 
+      tag: 9.6.1
     javaMem: -Xms512m -Xmx768m
+    jobs:
+      affinity: { }
+      annotations: { }
+      # enable createZacCore to have a curl statement generate the zac core in the provided solrcloud if it does not exist yet
+      createZacCore: true
+      image:
+        pullPolicy: IfNotPresent
+        repository: curlimages/curl
+        tag: 8.10.1
+      nodeSelector: {}
+      tolerations: []
     logLevel: INFO
     name: solr
+    nodeSelector: {}
     replicas: 3
     storage:
       reclaimPolicy: Delete
       storageClassName: managed-csi
       size: 1Gi
+    tolerations: []
+  tolerations: []
   version: 0.8.1
   # a comma-seperated list of namespaces to watch, watches all namespaces if empty
   watchNamespaces: "default"
   zookeeper-operator:
     affinity: {}
     annotations: {}
-    fullnameOverride: zookeeper-operator
-    global:
-      imagePullSecrets: []
+    fullnameOverride: zookeepe
     hooks:
       image:
         pullPolicy: IfNotPresent
@@ -389,18 +401,23 @@ solr-operator:
       repository: pravega/zookeeper-operator
       tag: 0.2.15
     nodeSelector: {}
+    tolerations: []
     # a comma-seperated list of namespaces to watch, watches all namespaces if empty
     watchNamespace: "default"
-  zookeeper:
-    image:
-      pullPolicy: IfNotPresent
-      repository: pravega/zookeeper
-      tag: 0.2.14
-    replicas: 3
-    storage:
-      reclaimPolicy: Delete
-      storageClassName: managed-csi
-      size: 1Gi  
+    zookeeper:
+      affinity: {}
+      annotations: {}
+      image:
+        pullPolicy: IfNotPresent
+        repository: pravega/zookeeper
+        tag: 0.2.14
+      nodeSelector: {}
+      replicas: 3
+      storage:
+        reclaimPolicy: Delete
+        storageClassName: managed-csi
+        size: 1Gi
+      tolerations: []
 
 # office_converter use the office converter specified, prefilled resources values are the minimum recommended
 office_converter:
