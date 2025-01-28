@@ -191,12 +191,12 @@
                     [matTooltip]="zaak.status?.toelichting"
                     [attr.role]="zaak.status?.toelichting ? 'tooltip' : null"
                     [attr.aria-label]="zaak.status?.toelichting"
-                    class="flex-item"
+                    class="flex-1 w33 w50-md"
                   ></zac-static-text>
                   <zac-static-text
                     [label]="'registratiedatum' | translate"
                     [value]="zaak.registratiedatum | datum"
-                    class="flex-item"
+                    class="flex-1 w33 w50-md"
                   ></zac-static-text>
                   <zac-static-text
                     [label]="'resultaat' | translate"
@@ -205,13 +205,13 @@
                     [matTooltip]="zaak.resultaat?.toelichting"
                     [attr.role]="zaak.resultaat?.toelichting ? 'tooltip' : null"
                     [attr.aria-label]="zaak.resultaat?.toelichting"
-                    class="flex-item"
+                    class="flex-1 w33 w50-md"
                   ></zac-static-text>
                   <zac-static-text
                     *ngIf="zaak.einddatum"
                     [label]="'einddatum' | translate"
                     [value]="zaak.einddatum | datum"
-                    class="flex-item"
+                    class="flex-1 w33 w50-md"
                   ></zac-static-text>
                   <zac-static-text
                     *ngIf="zaak.archiefNominatie === 'VERNIETIGEN'"
@@ -220,7 +220,7 @@
                         | translate
                     "
                     [value]="zaak.archiefActiedatum | datum | empty"
-                    class="flex-item"
+                    class="flex-1 w33 w50-md"
                   ></zac-static-text>
                   <zac-static-text
                     *ngIf="zaak.archiefNominatie === 'BLIJVEND_BEWAREN'"
@@ -228,7 +228,7 @@
                     [value]="
                       'archiefNominatie.' + zaak.archiefNominatie | translate
                     "
-                    class="flex-item"
+                    class="flex-1 w33 w50-md"
                   ></zac-static-text>
                 </div>
                 <mat-divider class="mat-divider-wrapper"></mat-divider>
