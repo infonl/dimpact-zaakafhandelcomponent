@@ -29,6 +29,7 @@ import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_SMARTDOCUMENTS_DISABLED
 import java.net.URI
 import java.util.UUID
 
@@ -158,7 +159,8 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             }
 
             Then("it throws exception with correct message") {
-                exception.message shouldBe "SmartDocuments is disabled"
+                exception.errorCode shouldBe ERROR_CODE_SMARTDOCUMENTS_DISABLED
+                exception.message shouldBe null
             }
         }
     }

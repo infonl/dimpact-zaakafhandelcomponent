@@ -18,6 +18,7 @@ import net.atos.zac.admin.model.ReferenceTable
 import net.atos.zac.admin.model.createReferenceTable
 import net.atos.zac.admin.model.createReferenceTableValue
 import net.atos.zac.policy.PolicyService
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNOT_BE_CHANGED
 import nl.info.zac.exception.InputValidationFailedException
 
 class ReferenceTableRestServiceTest : BehaviorSpec({
@@ -209,7 +210,8 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             }
 
             Then("an exception should be thrown indicating that system values cannot be updated") {
-                exception.message shouldBe "msg.error.system.reference.table.system.values.cannot.be.changed"
+                exception.errorCode shouldBe ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNOT_BE_CHANGED
+                exception.message shouldBe null
             }
         }
     }
