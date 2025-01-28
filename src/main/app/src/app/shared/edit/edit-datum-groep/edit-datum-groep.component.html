@@ -1,15 +1,15 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
 <div *ngIf="!editing">
   <div
-    class="static-text w100 datum-groep flex-row flex-wrap flex-col-xs"
+    class="flex flex-row flex-wrap justify-start gap-10"
     [class.readonly]="readonly"
     (click)="edit()"
   >
-    <div class="flex-1 w33 w50-md">
+    <div class="static-text flex-item">
       <label class="static-text-label">
         {{ startDatumField.label | translate }}
         <mat-icon *ngIf="!readonly">edit</mat-icon>
@@ -18,7 +18,7 @@
         {{ startDatumField.formControl.defaultValue | datum }}
       </div>
     </div>
-    <div class="inner-static-text flex-1 w33 w50-md">
+    <div class="static-text flex-item">
       <label class="static-text-label">
         {{ einddatumGeplandField.label | translate }}
         <mat-icon *ngIf="!readonly">edit</mat-icon>
@@ -37,7 +37,7 @@
         </div>
       </div>
     </div>
-    <div class="inner-static-text flex-1 w33 w50-md">
+    <div class="static-text flex-item">
       <label class="static-text-label">
         {{ uiterlijkeEinddatumAfdoeningField.label | translate }}
         <mat-icon *ngIf="!readonly">edit</mat-icon>
@@ -62,7 +62,10 @@
       </div>
     </div>
   </div>
-  <div class="flex-row space-between toelichting timed-messages">
+  <div
+    *ngIf="verlengDuur || opgeschort"
+    class="flex-row space-between toelichting timed-messages"
+  >
     <div class="flex-col justify-content-around inner-static-text">
       <div *ngIf="verlengDuur">
         {{ "duurVerlenging" | translate: { duur: verlengDuur } }}

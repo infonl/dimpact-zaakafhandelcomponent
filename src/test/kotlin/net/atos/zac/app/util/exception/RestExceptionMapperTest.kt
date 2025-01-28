@@ -7,6 +7,8 @@ package net.atos.zac.app.util.exception
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
@@ -30,6 +32,8 @@ import net.atos.zac.app.decision.DecisionResponseDateMissingException
 import net.atos.zac.app.exception.RestExceptionMapper
 import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
+import nl.info.zac.exception.ErrorCode
+import nl.info.zac.exception.ZacRuntimeException
 import nl.info.zac.log.log
 import org.apache.http.HttpHost
 import org.apache.http.HttpStatus
@@ -361,6 +365,24 @@ class RestExceptionMapperTest : BehaviorSpec({
                     expectedStatus = HttpStatus.SC_BAD_REQUEST
                 )
                 verify(exactly = 1) { log(any(), Level.FINE, exception.message!!, exception) }
+            }
+        }
+    }
+    Given("A ZAC runtime exception") {
+        val errorCode = mockk<ErrorCode>()
+        val exception = ZacRuntimeException(errorCode, "error")
+        every { errorCode.value } returns "dummyErrorCodeValue"
+
+        When("the exception is mapped to a response") {
+            val response = restExceptionMapper.toResponse(exception)
+
+            Then("it should return the expected error code and no exception message and log the exception") {
+                checkResponse(
+                    response = response,
+                    errorMessage = "dummyErrorCodeValue",
+                    expectedStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR
+                )
+                verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
             }
         }
     }

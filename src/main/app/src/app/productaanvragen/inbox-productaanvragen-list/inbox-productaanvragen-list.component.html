@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2023 Atos
+  ~ SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -20,7 +20,9 @@
           <zac-date-range-filter
             label="ontvangstdatum"
             [range]="listParameters.ontvangstdatum"
-            (changed)="filtersChanged()"
+            (changed)="
+              filtersChanged({ event: $event, filter: 'ontvangstdatum' })
+            "
           ></zac-date-range-filter>
         </th>
       </ng-container>
@@ -28,7 +30,7 @@
         <th mat-header-cell *matHeaderCellDef>
           <zac-tekst-filter
             [value]="listParameters.initiatorID"
-            (changed)="listParameters.initiatorID = $event; filtersChanged()"
+            (changed)="filtersChanged({ event: $event, filter: 'initiatorID' })"
           ></zac-tekst-filter>
         </th>
       </ng-container>
@@ -36,10 +38,12 @@
         <th mat-header-cell *matHeaderCellDef>
           <mat-form-field subscriptSizing="dynamic">
             <mat-select
-              (selectionChange)="filtersChanged()"
+              (selectionChange)="
+                filtersChanged({ event: $event, filter: 'type' })
+              "
               id="type_filter"
               placeholder="{{ 'filter.-alle-' | translate }}"
-              [(ngModel)]="listParameters.type"
+              [value]="listParameters.type"
             >
               <mat-option>{{ "filter.-alle-" | translate }}</mat-option>
               <mat-option *ngFor="let value of filterType" [value]="value">{{

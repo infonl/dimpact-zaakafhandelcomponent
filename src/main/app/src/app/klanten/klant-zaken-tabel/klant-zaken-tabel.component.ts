@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -57,13 +57,12 @@ export class KlantZakenTabelComponent
   filterColumns: string[] = this.columns.map((n) => n + "_filter");
   isLoadingResults = true;
   sorteerVeld = SorteerVeld;
-  filterChange: EventEmitter<void> = new EventEmitter<void>();
+  filterChange = new EventEmitter<void>();
   zoekParameters = new ZoekParameters();
   actieveFilters = false;
-  zoekResultaat: ZoekResultaat<ZaakZoekObject> =
-    new ZoekResultaat<ZaakZoekObject>();
+  zoekResultaat = new ZoekResultaat<ZaakZoekObject>();
   init: boolean;
-  inclusiefAfgerondeZaken = false;
+  inclusiefAfgerondeZaken = new FormControl(false);
   ZoekVeld = ZoekVeld;
   betrokkeneSelectControl = new FormControl<ZoekVeld>(null);
   private laatsteBetrokkenheid: string;
@@ -111,7 +110,8 @@ export class KlantZakenTabelComponent
     this.zoekParameters.sorteerRichting = this.sort.direction;
     this.zoekParameters.sorteerVeld = SorteerVeld[this.sort.active];
     this.zoekParameters.rows = this.paginator.pageSize;
-    this.zoekParameters.alleenOpenstaandeZaken = !this.inclusiefAfgerondeZaken;
+    this.zoekParameters.alleenOpenstaandeZaken =
+      !this.inclusiefAfgerondeZaken.value;
     return this.zoekenService.list(this.zoekParameters) as Observable<
       ZoekResultaat<ZaakZoekObject>
     >;

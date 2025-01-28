@@ -169,7 +169,7 @@ jobs:
             src/main/app/reports/*.xml
 
       - name: Upload unit test results to CodeCov
-        uses: codecov/test-results-action@v1
+        uses: codecov/test-results-action@4e79e65778be1cecd5df25e14af1eafb6df80ea9 # v1.0.2
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -293,7 +293,7 @@ jobs:
             itest --info
 
       - name: Upload integration test results to CodeCov
-        uses: codecov/test-results-action@v1
+        uses: codecov/test-results-action@4e79e65778be1cecd5df25e14af1eafb6df80ea9 # v1.0.2
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -343,7 +343,7 @@ jobs:
           TRIVY_SKIP_JAVA_DB_UPDATE: true
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@f6091c0113d1dcf9b98e269ee48e8a7e51b7bdd4 # v3.28.5
+        uses: github/codeql-action/upload-sarif@17a820bf2e43b47be2c72b39cc905417bc1ab6d0 # v3.28.6
         with:
           sarif_file: 'trivy-results.sarif'
 

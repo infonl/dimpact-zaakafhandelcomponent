@@ -18,7 +18,6 @@ import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
-import { IdentityService } from "../../identity/identity.service";
 import { AdminComponent } from "../admin/admin.component";
 import { FormulierDefinitieService } from "../formulier-defintie.service";
 import { FormulierDefinitie } from "../model/formulieren/formulier-definitie";
@@ -62,7 +61,6 @@ export class FormulierDefinitieEditComponent
     public dialog: MatDialog,
     public utilService: UtilService,
     public configuratieService: ConfiguratieService,
-    private identityService: IdentityService,
     private service: FormulierDefinitieService,
     private referentieService: ReferentieTabelService,
     private route: ActivatedRoute,
@@ -220,22 +218,22 @@ export class FormulierDefinitieEditComponent
     this.router.navigate(["/admin/formulierdefinities"]);
   }
 
-  isTekstvlak(element: FormGroup) {
-    return element.get("veldtype")?.value === FormulierVeldtype.TEKST_VLAK;
+  isTekstvlak(formGroup: FormGroup) {
+    return formGroup.get("veldtype")?.value === FormulierVeldtype.TEKST_VLAK;
   }
 
-  openTekstvlakEditDialog(element: FormGroup) {
+  openTekstvlakEditDialog(formGroup: FormGroup) {
     this.dialog
       .open(TekstvlakEditDialogComponent, {
         width: "50%",
         data: {
-          value: element.get("defaultWaarde").value,
+          value: formGroup.get("defaultWaarde").value,
         },
       })
       .afterClosed()
       .subscribe((value) => {
         if (typeof value === "string") {
-          element.get("defaultWaarde").setValue(value);
+          formGroup.get("defaultWaarde").setValue(value);
         }
       });
   }

@@ -1,9 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClientModule } from "@angular/common/http";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { BUILDER_CONFIG } from "../material-form-builder-config";
@@ -14,11 +17,12 @@ describe("GoogleMapsServiceService", () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
+      imports: [],
       providers: [
         { provide: FoutAfhandelingService, useValue: {} },
         { provide: BUILDER_CONFIG, useValue: {} },
+        provideHttpClient(withInterceptorsFromDi()),
       ],
-      imports: [HttpClientModule],
     });
 
     service = TestBed.inject(GoogleMapsService);
