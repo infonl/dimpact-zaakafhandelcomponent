@@ -47,27 +47,40 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
 import org.apache.commons.lang3.StringUtils
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.htmlcleaner.HtmlCleaner
 import org.htmlcleaner.PrettyXmlSerializer
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.time.LocalDate
 import java.util.Base64
+import java.util.Optional
 import java.util.UUID
 import java.util.function.Consumer
 import java.util.logging.Level
 import java.util.logging.Logger
+import kotlin.jvm.optionals.getOrNull
 
 @ApplicationScoped
 @NoArgConstructor
 @AllOpen
+@Suppress("LongParameterList")
 class MailService @Inject constructor(
     private var configuratieService: ConfiguratieService,
     private var zgwApiService: ZGWApiService,
     private var ztcClientService: ZtcClientService,
     private var drcClientService: DrcClientService,
     private var mailTemplateHelper: MailTemplateHelper,
-    private var loggedInUserInstance: Instance<LoggedInUser>
+    private var loggedInUserInstance: Instance<LoggedInUser>,
+
+    @ConfigProperty(name = "SMTP_SERVER")
+    private val smtpServerHost: String,
+
+    @ConfigProperty(name = "SMTP_USERNAME")
+    private val smtpUsername: Optional<String> = Optional.empty(),
+
+    @ConfigProperty(name = "SMTP_PASSWORD")
+    private val smtpPassword: Optional<String> = Optional.empty(),
 ) {
 
     companion object {
@@ -90,27 +103,21 @@ class MailService @Inject constructor(
         private const val MAIL_SMTP_AUTH = "mail.smtp.auth"
     }
 
-    val gemeenteMailAdres
-        get() = MailAdres(configuratieService.readGemeenteMail(), configuratieService.readGemeenteNaam())
-
     @PostConstruct
-    private fun setupPasswordAuthentication() {
-        val userName = System.getenv("SMTP_USERNAME")
-        val password = System.getenv("SMTP_PASSWORD")
-        userName?.let {
-            mailSession.properties.setProperty(MAIL_SMTP_USER, userName)
+    @Suppress("UnusedPrivateMember")
+    private fun initPasswordAuthentication() =
+        smtpUsername.getOrNull()?.let {
+            mailSession.properties.setProperty(MAIL_SMTP_USER, it)
             mailSession.properties.setProperty(MAIL_SMTP_AUTH, "true")
-        }
-        password?.let {
-            val authSection = if (userName != null) "$userName@" else ""
-            val smtpServerHost = System.getenv("SMTP_SERVER")
             mailSession.setPasswordAuthentication(
-                URLName("smtp://$authSection$smtpServerHost"),
-                PasswordAuthentication(userName, password)
+                URLName("smtp://$it@$smtpServerHost"),
+                PasswordAuthentication(it, smtpPassword.get())
             )
             mailSession.properties.setProperty(MAIL_SMTP_AUTH, "true")
         }
-    }
+
+    val gemeenteMailAdres
+        get() = MailAdres(configuratieService.readGemeenteMail(), configuratieService.readGemeenteNaam())
 
     fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String {
         val subject = StringUtils.abbreviate(
