@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -14,7 +14,7 @@ import {
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
-import { Validators } from "@angular/forms";
+import { FormControl, Validators } from "@angular/forms";
 import { MatCheckboxChange } from "@angular/material/checkbox";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSort } from "@angular/material/sort";
@@ -60,9 +60,9 @@ export class ZaakDocumentenComponent
 
   zaakUUID: string;
   zaakIdentificatie: string;
-  heeftGerelateerdeZaken;
+  heeftGerelateerdeZaken = false;
   selectAll = false;
-  toonGekoppeldeZaakDocumenten = false;
+  toonGekoppeldeZaakDocumenten = new FormControl(false);
   documentColumns = [
     "downloaden",
     "titel",
@@ -179,7 +179,8 @@ export class ZaakDocumentenComponent
   private searchEnkelvoudigeInformatieObjecten(): void {
     const zoekParameters = new InformatieobjectZoekParameters();
     zoekParameters.zaakUUID = this.zaakUUID;
-    zoekParameters.gekoppeldeZaakDocumenten = this.toonGekoppeldeZaakDocumenten;
+    zoekParameters.gekoppeldeZaakDocumenten =
+      this.toonGekoppeldeZaakDocumenten.value;
     this.isLoadingResults = true;
 
     this.informatieObjectenService
@@ -286,7 +287,7 @@ export class ZaakDocumentenComponent
   }
 
   toggleGekoppeldeZaakDocumenten() {
-    this.documentColumns = this.toonGekoppeldeZaakDocumenten
+    this.documentColumns = this.toonGekoppeldeZaakDocumenten.value
       ? [
           "downloaden",
           "titel",

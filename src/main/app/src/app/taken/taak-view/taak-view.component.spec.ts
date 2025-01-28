@@ -4,7 +4,11 @@
  *
  */
 
-import { HttpClientTestingModule } from "@angular/common/http/testing";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { MatSidenav } from "@angular/material/sidenav";
 import { provideAnimations } from "@angular/platform-browser/animations";
@@ -54,6 +58,11 @@ describe(TaakViewComponent.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
+      imports: [
+        MatSidenav,
+        RouterModule.forRoot([]),
+        TranslateModule.forRoot(),
+      ],
       providers: [
         TaakViewComponent,
         WebsocketService,
@@ -63,12 +72,8 @@ describe(TaakViewComponent.name, () => {
           provide: ActivatedRoute,
           useValue: { data: of({ taak }) },
         },
-      ],
-      imports: [
-        MatSidenav,
-        RouterModule.forRoot([]),
-        TranslateModule.forRoot(),
-        HttpClientTestingModule,
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     }).compileComponents();
 

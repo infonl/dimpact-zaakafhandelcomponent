@@ -1,14 +1,15 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Observable } from "rxjs";
 import { AbstractFormField } from "../material-form-builder/model/abstract-form-field";
 
-export class DialogData {
+export class DialogData<T extends unknown = unknown> {
   public confirmButtonActionKey = "actie.ja";
   public cancelButtonActionKey = "actie.annuleren";
+  public value: T;
 
   constructor(
     public formFields: AbstractFormField[],

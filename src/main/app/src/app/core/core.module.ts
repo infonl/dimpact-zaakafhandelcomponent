@@ -1,10 +1,14 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { registerLocaleData } from "@angular/common";
-import { HttpClient, HttpClientModule } from "@angular/common/http";
+import {
+  HttpClient,
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
 import localeNl from "@angular/common/locales/nl";
 import { LOCALE_ID, NgModule, Optional, SkipSelf } from "@angular/core";
 import { MAT_DATE_LOCALE } from "@angular/material/core";
@@ -28,8 +32,8 @@ export function HttpLoaderFactory(http: HttpClient) {
 
 @NgModule({
   declarations: [LoadingComponent],
+  exports: [LoadingComponent],
   imports: [
-    HttpClientModule,
     TranslateModule.forRoot({
       defaultLanguage: "nl",
       loader: {
@@ -40,7 +44,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     }),
     SharedModule,
   ],
-  exports: [LoadingComponent],
   providers: [
     UtilService,
     { provide: LOCALE_ID, useValue: "nl-NL" },
@@ -53,6 +56,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         autoFocus: "dialog",
       },
     },
+    provideHttpClient(withInterceptorsFromDi()),
   ],
 })
 export class CoreModule extends EnsureModuleLoadedOnceGuard {

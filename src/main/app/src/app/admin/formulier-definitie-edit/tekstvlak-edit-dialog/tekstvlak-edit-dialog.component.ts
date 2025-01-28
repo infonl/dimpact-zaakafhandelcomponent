@@ -4,6 +4,7 @@
  */
 
 import { Component, Inject } from "@angular/core";
+import { FormControl } from "@angular/forms";
 import { MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { DialogData } from "../../../shared/dialog/dialog-data";
 
@@ -13,5 +14,13 @@ import { DialogData } from "../../../shared/dialog/dialog-data";
   styleUrls: ["./tekstvlak-edit-dialog.component.less"],
 })
 export class TekstvlakEditDialogComponent {
-  constructor(@Inject(MAT_DIALOG_DATA) public data: DialogData) {}
+  formControl: FormControl<string>;
+
+  constructor(@Inject(MAT_DIALOG_DATA) public data: DialogData<string>) {
+    this.formControl = new FormControl(data.value);
+  }
+
+  updateData() {
+    this.data.value = this.formControl.value;
+  }
 }

@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -49,8 +49,7 @@
     <mat-hint
       class="mat-error"
       *ngIf="
-        (data.formControl.invalid && data.formControl.touched) ||
-        data.uploadError
+        (data.formControl.invalid && data.formControl.dirty) || data.uploadError
       "
     >
       {{ getErrorMessage() }}
@@ -74,7 +73,7 @@
     <input
       [formControl]="titelControl"
       [id]="data.id + '_title'"
-      (ngModelChange)="updateValue()"
+      (change)="updateValue()"
       matInput
     />
   </mat-form-field>
