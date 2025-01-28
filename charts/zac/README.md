@@ -245,9 +245,9 @@ A Helm chart for installing Zaakafhandelcomponent
 | signaleringen.sendZaakSignaleringenSchedule | string | `"0 2 * * *"` | Schedule of the signaleringen send zaken job in CRON job format |
 | signaleringen.successfulJobsHistoryLimit | int | `1` | k8s settings for the signaleren jobs |
 | signaleringen.tolerations | list | `[]` |  |
-| smartDocuments.authentication | string | `""` |  |
-| smartDocuments.enabled | bool | `false` |  |
-| smartDocuments.fixedUserName | string | `""` |  |
+| smartDocuments.authentication | string | `""` | Authentication token |
+| smartDocuments.enabled | bool | `false` | Enable SmartDocuments integration for creating a new document |
+| smartDocuments.fixedUserName | string | `""` | Fixed username for authentication |
 | smartDocuments.url | string | `""` |  |
 | solr-operator.affinity | object | `{}` | affinity for solr-operator |
 | solr-operator.annotations | object | `{}` | annotations for solr-operator |
