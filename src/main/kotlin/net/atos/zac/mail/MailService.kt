@@ -16,6 +16,7 @@ import com.itextpdf.layout.Document
 import com.itextpdf.layout.element.IBlockElement
 import com.itextpdf.layout.element.IElement
 import com.itextpdf.layout.element.Paragraph
+import jakarta.annotation.PostConstruct
 import jakarta.annotation.Resource
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
@@ -75,10 +76,8 @@ class MailService @Inject constructor(
         @Resource(mappedName = "java:jboss/mail/zac")
         lateinit var mailSession: Session
 
-        private var authenticationSetupDone = false
-
         // http://www.faqs.org/rfcs/rfc2822.html
-        private const val SUBJECT_MAXWIDTH = 78
+        private const val SUBJECT_MAX_WIDTH = 78
 
         private const val FONT_SIZE = 16f
         private const val MAIL_VERZENDER = "Afzender"
@@ -94,10 +93,8 @@ class MailService @Inject constructor(
     val gemeenteMailAdres
         get() = MailAdres(configuratieService.readGemeenteMail(), configuratieService.readGemeenteNaam())
 
-    @Synchronized
+    @PostConstruct
     private fun setupPasswordAuthentication() {
-        if (authenticationSetupDone) return
-
         val userName = System.getenv("SMTP_USERNAME")
         val password = System.getenv("SMTP_PASSWORD")
         userName?.let {
@@ -113,14 +110,12 @@ class MailService @Inject constructor(
             )
             mailSession.properties.setProperty(MAIL_SMTP_AUTH, "true")
         }
-
-        authenticationSetupDone = true
     }
 
     fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String {
         val subject = StringUtils.abbreviate(
             resolveVariabelen(mailGegevens.subject, bronnen),
-            SUBJECT_MAXWIDTH
+            SUBJECT_MAX_WIDTH
         )
         val body = resolveVariabelen(mailGegevens.body, bronnen)
         val attachments = getAttachments(mailGegevens.attachments)
@@ -128,7 +123,6 @@ class MailService @Inject constructor(
         val replyToAddress = mailGegevens.replyTo?.toAddress().let {
             if (fromAddress == it) null else it
         }
-        setupPasswordAuthentication()
         val message = MailMessageBuilder(
             fromAddress = fromAddress,
             toAddress = mailGegevens.to.toAddress(),
