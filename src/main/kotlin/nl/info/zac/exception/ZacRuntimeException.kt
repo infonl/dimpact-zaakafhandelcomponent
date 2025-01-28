@@ -12,7 +12,4 @@ open class ZacRuntimeException(
     val errorCode: ErrorCode,
     message: String,
     cause: Throwable? = null
-) : RuntimeException(message, cause) {
-    constructor(errorCode: ErrorCode, message: String) : this(errorCode, message, null)
-    constructor(errorCode: ErrorCode, cause: Throwable) : this(errorCode, cause.toString(), cause)
-}
+) : RuntimeException(message, cause)
