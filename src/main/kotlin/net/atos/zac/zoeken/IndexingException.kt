@@ -4,7 +4,13 @@
  */
 package net.atos.zac.zoeken
 
-class IndexingException : RuntimeException {
-    constructor(message: String) : super(message)
-    constructor(cause: Throwable) : super(cause)
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_SEARCH_INDEXING
+import nl.info.zac.exception.ZacRuntimeException
+
+/**
+ * Exception thrown when an error occurs during search indexing in the Solr search engine.
+ */
+class IndexingException : ZacRuntimeException {
+    constructor(message: String) : super(ERROR_CODE_SEARCH_INDEXING, message)
+    constructor(message: String, cause: Throwable) : super(ERROR_CODE_SEARCH_INDEXING, message, cause)
 }

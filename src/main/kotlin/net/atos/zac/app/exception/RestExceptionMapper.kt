@@ -36,6 +36,28 @@ import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import net.atos.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import net.atos.zac.zaak.exception.CaseHasLockedInformationObjectsException
 import net.atos.zac.zaak.exception.CaseHasOpenSubcasesException
+import nl.info.zac.exception.ErrorCode
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_BAG_CLIENT
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_BESLUIT_PUBLICATION_DATE_MISSING_TYPE
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_BESLUIT_PUBLICATION_DISABLED_TYPE
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_BESLUIT_RESPONSE_DATE_INVALID_TYPE
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_BESLUIT_RESPONSE_DATE_MISSING_TYPE
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_BRC_CLIENT
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_BRP_CLIENT
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_OPEN_SUBCASES
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_DRC_CLIENT
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_FORBIDDEN
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_GENERIC_SERVER
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_KLANTINTERACTIES_CLIENT
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_OBJECTS_CLIENT
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_OBJECTTYPES_CLIENT
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_SMARTDOCUMENTS_DISABLED
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_SMARTDOCUMENTS_NOT_CONFIGURED
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZRC_CLIENT
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZTC_CLIENT
+import nl.info.zac.exception.ZacRuntimeException
 import nl.info.zac.log.log
 import java.net.ConnectException
 import java.net.UnknownHostException
@@ -126,6 +148,11 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 errorCode = ERROR_CODE_CASE_HAS_OPEN_SUBCASES,
                 exception = exception
             )
+            exception is ZacRuntimeException -> generateResponse(
+                responseStatus = Response.Status.INTERNAL_SERVER_ERROR,
+                errorCode = exception.errorCode,
+                exception = exception
+            )
             // fall back to generic server error
             else -> generateServerErrorResponse(exception = exception, exceptionMessage = exception.message)
         }
@@ -133,7 +160,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
     private fun createResponse(exception: WebApplicationException) =
         Response.status(exception.response.status)
             .type(MediaType.APPLICATION_JSON)
-            .entity(getJSONMessage(errorMessage = exception.message ?: ERROR_CODE_GENERIC_SERVER))
+            .entity(getJSONMessage(errorMessage = exception.message ?: ERROR_CODE_GENERIC_SERVER.value))
             .build()
 
     private fun handleZgwRuntimeException(exception: ZgwRuntimeException): Response =
@@ -196,7 +223,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
 
     private fun generateServerErrorResponse(
         exception: Exception,
-        errorCode: String? = null,
+        errorCode: ErrorCode? = null,
         exceptionMessage: String? = null
     ) = generateResponse(
         responseStatus = Response.Status.INTERNAL_SERVER_ERROR,
@@ -207,14 +234,14 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
 
     private fun generateResponse(
         responseStatus: Response.Status,
-        errorCode: String,
+        errorCode: ErrorCode,
         exception: Exception,
         exceptionMessage: String? = null
     ) = Response.status(responseStatus)
         .type(MediaType.APPLICATION_JSON)
         .entity(
             getJSONMessage(
-                errorMessage = errorCode,
+                errorMessage = errorCode.value,
                 exceptionMessage = exceptionMessage
             )
         )
