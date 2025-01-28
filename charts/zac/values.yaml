@@ -349,7 +349,7 @@ solr-operator:
   enabled: false
   # -- set fullname for solr-operator
   fullnameOverride: solr-operator
-  # -- solr-operator image parameters
+  # solr-operator image parameters
   image:
     # -- solr-operator imagePullPolicy
     pullPolicy: IfNotPresent
@@ -362,13 +362,13 @@ solr-operator:
     enabled: true
   # -- nodeSelector for solr-operator
   nodeSelector: {}
-  # -- settings for solrcloud
+  # settings for solrcloud
   solr:
     # -- affinity for solr in solrcloud
     affinity: {}
     # -- annotations for solr in solrcloud
     annotations: {}
-    # -- solr busybox image parameters
+    # solr busybox image parameters
     busyBoxImage:
       # -- solr busybox image imagePullPolicy
       pullPolicy: IfNotPresent
@@ -378,7 +378,7 @@ solr-operator:
       tag: 1.28.0-glibc
     # -- enable configuration of a solrcloud
     enabled: true
-    # -- solr image parameters
+    # solr image parameters
     image:
       # -- solr imagePullPolicy
       pullPolicy: IfNotPresent
@@ -388,7 +388,7 @@ solr-operator:
       tag: 9.6.1
     # -- solr memory settings
     javaMem: -Xms512m -Xmx768m
-    # -- jobs settings
+    # jobs settings
     jobs:
       # -- affinity for jobs
       affinity: {}
@@ -396,7 +396,7 @@ solr-operator:
       annotations: {}
       # -- enable createZacCore to have a curl statement generate the zac core in the provided solrcloud if it does not exist yet
       createZacCore: true
-      # -- solr jobs image parameters
+      # solr jobs image parameters
       image:
         # -- solr jobs imagePullPolicy
         pullPolicy: IfNotPresent
@@ -416,7 +416,7 @@ solr-operator:
     nodeSelector: {}
     # -- replicas for solr in solrcloud, should be an odd number
     replicas: 3
-    # -- solr storage parameters
+    # solr storage parameters
     storage:
       # -- solr storage reclaimPolicy
       reclaimPolicy: Delete
@@ -430,7 +430,7 @@ solr-operator:
   tolerations: []
   # -- a comma-seperated list of namespaces to watch, watches all namespaces if empty
   watchNamespaces: "default"
-  # -- zookeeper-operator settings
+  # zookeeper-operator settings
   zookeeper-operator:
     # -- affinity for zookeeper-operator
     affinity: {}
@@ -438,9 +438,9 @@ solr-operator:
     annotations: {}
     # -- set fullname for zookeeper-operator
     fullnameOverride: zookeeper-operator
-    # -- zookeeper-operator hooks parameters
+    # zookeeper-operator hooks parameters
     hooks:
-      # -- zookeeper-operator hooks image parameters
+      # zookeeper-operator hooks image parameters
       image:
         # -- zookeeper-operator hooks imagePullPolicy
         pullPolicy: IfNotPresent
@@ -448,7 +448,7 @@ solr-operator:
         repository: lachlanevenson/k8s-kubectl
         # -- zookeeper-operator hooks tag
         tag: v1.23.2
-    # -- zookeeper-operator image parameters
+    # zookeeper-operator image parameters
     image:
       # -- zookeeper-operator imagePullPolicy
       pullPolicy: IfNotPresent
@@ -462,13 +462,13 @@ solr-operator:
     tolerations: []
     # -- a comma-seperated list of namespaces to watch, watches all namespaces if empty
     watchNamespace: "default"
-    # -- zookeeper parameters
+    # zookeeper parameters
     zookeeper:
       # -- affinity for zookeeper
       affinity: {}
       # -- annotations for zookeeper
       annotations: {}
-      # -- zookeeper image parameters
+      # zookeeper image parameters
       image:
         # -- zookeeper imagePullPolicy
         pullPolicy: IfNotPresent
@@ -480,7 +480,7 @@ solr-operator:
       nodeSelector: {}
       # -- replicas for zookeeper, should be an odd number
       replicas: 3
-      # -- zookeeper storage parameters
+      # zookeeper storage parameters
       storage:
         # -- zookeeper storage reclaimPolicy
         reclaimPolicy: Delete

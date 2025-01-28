@@ -254,30 +254,24 @@ A Helm chart for installing Zaakafhandelcomponent
 | solr-operator.annotations | object | `{}` | annotations for solr-operator |
 | solr-operator.enabled | bool | `false` | set enabled to actually use the solr-operator helm chart |
 | solr-operator.fullnameOverride | string | `"solr-operator"` | set fullname for solr-operator |
-| solr-operator.image | object | `{"pullPolicy":"IfNotPresent","repository":"apache/solr-operator","tag":"v0.8.1"}` | solr-operator image parameters |
 | solr-operator.image.pullPolicy | string | `"IfNotPresent"` | solr-operator imagePullPolicy |
 | solr-operator.image.repository | string | `"apache/solr-operator"` | solr-operator repository |
 | solr-operator.image.tag | string | `"v0.8.1"` | solr-operator tag |
 | solr-operator.metrics.enabled | bool | `true` | enable to have solr-operator metric endpoints |
 | solr-operator.nodeSelector | object | `{}` | nodeSelector for solr-operator |
-| solr-operator.solr | object | `{"affinity":{},"annotations":{},"busyBoxImage":{"pullPolicy":"IfNotPresent","repository":"library/busybox","tag":"1.28.0-glibc"},"enabled":true,"image":{"pullPolicy":"IfNotPresent","repository":"library/solr","tag":"9.6.1"},"javaMem":"-Xms512m -Xmx768m","jobs":{"affinity":{},"annotations":{},"createZacCore":true,"image":{"pullPolicy":"IfNotPresent","repository":"curlimages/curl","tag":"8.10.1"},"nodeSelector":{},"tolerations":[]},"logLevel":"INFO","name":"solr","nodeSelector":{},"replicas":3,"storage":{"reclaimPolicy":"Delete","size":"1Gi","storageClassName":"managed-csi"},"tolerations":[]}` | settings for solrcloud |
 | solr-operator.solr.affinity | object | `{}` | affinity for solr in solrcloud |
 | solr-operator.solr.annotations | object | `{}` | annotations for solr in solrcloud |
-| solr-operator.solr.busyBoxImage | object | `{"pullPolicy":"IfNotPresent","repository":"library/busybox","tag":"1.28.0-glibc"}` | solr busybox image parameters |
 | solr-operator.solr.busyBoxImage.pullPolicy | string | `"IfNotPresent"` | solr busybox image imagePullPolicy |
 | solr-operator.solr.busyBoxImage.repository | string | `"library/busybox"` | solr busybox image reposity |
 | solr-operator.solr.busyBoxImage.tag | string | `"1.28.0-glibc"` | solr busybox image tag |
 | solr-operator.solr.enabled | bool | `true` | enable configuration of a solrcloud |
-| solr-operator.solr.image | object | `{"pullPolicy":"IfNotPresent","repository":"library/solr","tag":"9.6.1"}` | solr image parameters |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
 | solr-operator.solr.image.tag | string | `"9.6.1"` | solr image tag |
 | solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` | solr memory settings |
-| solr-operator.solr.jobs | object | `{"affinity":{},"annotations":{},"createZacCore":true,"image":{"pullPolicy":"IfNotPresent","repository":"curlimages/curl","tag":"8.10.1"},"nodeSelector":{},"tolerations":[]}` | jobs settings |
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |
 | solr-operator.solr.jobs.createZacCore | bool | `true` | enable createZacCore to have a curl statement generate the zac core in the provided solrcloud if it does not exist yet |
-| solr-operator.solr.jobs.image | object | `{"pullPolicy":"IfNotPresent","repository":"curlimages/curl","tag":"8.10.1"}` | solr jobs image parameters |
 | solr-operator.solr.jobs.image.pullPolicy | string | `"IfNotPresent"` | solr jobs imagePullPolicy |
 | solr-operator.solr.jobs.image.repository | string | `"curlimages/curl"` | solr jobs repository |
 | solr-operator.solr.jobs.image.tag | string | `"8.10.1"` | solr jobs tag |
@@ -287,39 +281,31 @@ A Helm chart for installing Zaakafhandelcomponent
 | solr-operator.solr.name | string | `"solr"` | solrcloud name |
 | solr-operator.solr.nodeSelector | object | `{}` | nodeSelector for solr in solrcloud |
 | solr-operator.solr.replicas | int | `3` | replicas for solr in solrcloud, should be an odd number |
-| solr-operator.solr.storage | object | `{"reclaimPolicy":"Delete","size":"1Gi","storageClassName":"managed-csi"}` | solr storage parameters |
 | solr-operator.solr.storage.reclaimPolicy | string | `"Delete"` | solr storage reclaimPolicy |
 | solr-operator.solr.storage.size | string | `"1Gi"` | solr storage size |
 | solr-operator.solr.storage.storageClassName | string | `"managed-csi"` | solr storage storageClassName |
 | solr-operator.solr.tolerations | list | `[]` | tolerations for solr in solrcloud |
 | solr-operator.tolerations | list | `[]` | tolerations for solr-operator |
 | solr-operator.watchNamespaces | string | `"default"` | a comma-seperated list of namespaces to watch, watches all namespaces if empty |
-| solr-operator.zookeeper-operator | object | `{"affinity":{},"annotations":{},"fullnameOverride":"zookeeper-operator","hooks":{"image":{"pullPolicy":"IfNotPresent","repository":"lachlanevenson/k8s-kubectl","tag":"v1.23.2"}},"image":{"pullPolicy":"IfNotPresent","repository":"pravega/zookeeper-operator","tag":"0.2.15"},"nodeSelector":{},"tolerations":[],"watchNamespace":"default","zookeeper":{"affinity":{},"annotations":{},"image":{"pullPolicy":"IfNotPresent","repository":"pravega/zookeeper","tag":"0.2.14"},"nodeSelector":{},"replicas":3,"storage":{"reclaimPolicy":"Delete","size":"1Gi","storageClassName":"managed-csi"},"tolerations":[]}}` | zookeeper-operator settings |
 | solr-operator.zookeeper-operator.affinity | object | `{}` | affinity for zookeeper-operator |
 | solr-operator.zookeeper-operator.annotations | object | `{}` | annotations for zookeeper-operator |
 | solr-operator.zookeeper-operator.fullnameOverride | string | `"zookeeper-operator"` | set fullname for zookeeper-operator |
-| solr-operator.zookeeper-operator.hooks | object | `{"image":{"pullPolicy":"IfNotPresent","repository":"lachlanevenson/k8s-kubectl","tag":"v1.23.2"}}` | zookeeper-operator hooks parameters |
-| solr-operator.zookeeper-operator.hooks.image | object | `{"pullPolicy":"IfNotPresent","repository":"lachlanevenson/k8s-kubectl","tag":"v1.23.2"}` | zookeeper-operator hooks image parameters |
 | solr-operator.zookeeper-operator.hooks.image.pullPolicy | string | `"IfNotPresent"` | zookeeper-operator hooks imagePullPolicy |
 | solr-operator.zookeeper-operator.hooks.image.repository | string | `"lachlanevenson/k8s-kubectl"` | zookeeper-operator hooks repository |
 | solr-operator.zookeeper-operator.hooks.image.tag | string | `"v1.23.2"` | zookeeper-operator hooks tag |
-| solr-operator.zookeeper-operator.image | object | `{"pullPolicy":"IfNotPresent","repository":"pravega/zookeeper-operator","tag":"0.2.15"}` | zookeeper-operator image parameters |
 | solr-operator.zookeeper-operator.image.pullPolicy | string | `"IfNotPresent"` | zookeeper-operator imagePullPolicy |
 | solr-operator.zookeeper-operator.image.repository | string | `"pravega/zookeeper-operator"` | zookeeper-operator image repository |
 | solr-operator.zookeeper-operator.image.tag | string | `"0.2.15"` | zookeeper-operator image tag |
 | solr-operator.zookeeper-operator.nodeSelector | object | `{}` | nodeSelector for solr-operator |
 | solr-operator.zookeeper-operator.tolerations | list | `[]` | tolerations for solr-operator |
 | solr-operator.zookeeper-operator.watchNamespace | string | `"default"` | a comma-seperated list of namespaces to watch, watches all namespaces if empty |
-| solr-operator.zookeeper-operator.zookeeper | object | `{"affinity":{},"annotations":{},"image":{"pullPolicy":"IfNotPresent","repository":"pravega/zookeeper","tag":"0.2.14"},"nodeSelector":{},"replicas":3,"storage":{"reclaimPolicy":"Delete","size":"1Gi","storageClassName":"managed-csi"},"tolerations":[]}` | zookeeper parameters |
 | solr-operator.zookeeper-operator.zookeeper.affinity | object | `{}` | affinity for zookeeper |
 | solr-operator.zookeeper-operator.zookeeper.annotations | object | `{}` | annotations for zookeeper |
-| solr-operator.zookeeper-operator.zookeeper.image | object | `{"pullPolicy":"IfNotPresent","repository":"pravega/zookeeper","tag":"0.2.14"}` | zookeeper image parameters |
 | solr-operator.zookeeper-operator.zookeeper.image.pullPolicy | string | `"IfNotPresent"` | zookeeper imagePullPolicy |
 | solr-operator.zookeeper-operator.zookeeper.image.repository | string | `"pravega/zookeeper"` | zookeeper image repository |
 | solr-operator.zookeeper-operator.zookeeper.image.tag | string | `"0.2.14"` | zookeeper image tag |
 | solr-operator.zookeeper-operator.zookeeper.nodeSelector | object | `{}` | nodeSelector for zookeeper |
 | solr-operator.zookeeper-operator.zookeeper.replicas | int | `3` | replicas for zookeeper, should be an odd number |
-| solr-operator.zookeeper-operator.zookeeper.storage | object | `{"reclaimPolicy":"Delete","size":"1Gi","storageClassName":"managed-csi"}` | zookeeper storage parameters |
 | solr-operator.zookeeper-operator.zookeeper.storage.reclaimPolicy | string | `"Delete"` | zookeeper storage reclaimPolicy |
 | solr-operator.zookeeper-operator.zookeeper.storage.size | string | `"1Gi"` | zookeeper storage size |
 | solr-operator.zookeeper-operator.zookeeper.storage.storageClassName | string | `"managed-csi"` | zookeeper storageClassName |
