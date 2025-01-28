@@ -21,8 +21,10 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.mail.MessagingException
+import jakarta.mail.PasswordAuthentication
 import jakarta.mail.Session
 import jakarta.mail.Transport
+import jakarta.mail.URLName
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import net.atos.client.zgw.drc.model.generated.StatusEnum
@@ -73,6 +75,8 @@ class MailService @Inject constructor(
         @Resource(mappedName = "java:jboss/mail/zac")
         lateinit var mailSession: Session
 
+        private var authenticationSetupDone = false
+
         // http://www.faqs.org/rfcs/rfc2822.html
         private const val SUBJECT_MAXWIDTH = 78
 
@@ -82,10 +86,36 @@ class MailService @Inject constructor(
         private const val MAIL_BIJLAGE = "Bijlage"
         private const val MAIL_ONDERWERP = "Onderwerp"
         private const val MAIL_BERICHT = "Bericht"
+
+        private const val MAIL_SMTP_USER = "mail.smtp.user"
+        private const val MAIL_SMTP_AUTH = "mail.smtp.auth"
     }
 
     val gemeenteMailAdres
         get() = MailAdres(configuratieService.readGemeenteMail(), configuratieService.readGemeenteNaam())
+
+    @Synchronized
+    private fun setupPasswordAuthentication() {
+        if (authenticationSetupDone) return
+
+        val userName = System.getenv("SMTP_USERNAME")
+        val password = System.getenv("SMTP_PASSWORD")
+        userName?.let {
+            mailSession.properties.setProperty(MAIL_SMTP_USER, userName)
+            mailSession.properties.setProperty(MAIL_SMTP_AUTH, "true")
+        }
+        password?.let {
+            val authSection = if (userName != null) "$userName@" else ""
+            val smtpServerHost = System.getenv("SMTP_SERVER")
+            mailSession.setPasswordAuthentication(
+                URLName("smtp://$authSection$smtpServerHost"),
+                PasswordAuthentication(userName, password)
+            )
+            mailSession.properties.setProperty(MAIL_SMTP_AUTH, "true")
+        }
+
+        authenticationSetupDone = true
+    }
 
     fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String {
         val subject = StringUtils.abbreviate(
@@ -98,6 +128,7 @@ class MailService @Inject constructor(
         val replyToAddress = mailGegevens.replyTo?.toAddress().let {
             if (fromAddress == it) null else it
         }
+        setupPasswordAuthentication()
         val message = MailMessageBuilder(
             fromAddress = fromAddress,
             toAddress = mailGegevens.to.toAddress(),
