@@ -40,7 +40,7 @@
           (change)="$event ? selection.toggle(row) : null"
           [checked]="selection.isSelected(row)"
           [aria-label]="checkboxLabel(row) | translate"
-          [id]="row.identificatie +'_checkbox'"
+          [id]="row.identificatie + '_checkbox'"
         >
         </mat-checkbox>
       </td>
@@ -50,7 +50,10 @@
       <th mat-header-cell *matHeaderCellDef>
         <zac-tekst-filter
           [value]="dataSource.zoekParameters.zoeken.ZAAK_IDENTIFICATIE"
-          (changed)="dataSource.zoekParameters.zoeken.ZAAK_IDENTIFICATIE = $event; filtersChange()"
+          (changed)="
+            dataSource.zoekParameters.zoeken.ZAAK_IDENTIFICATIE = $event;
+            filtersChange()
+          "
         ></zac-tekst-filter>
       </th>
     </ng-container>
@@ -61,7 +64,7 @@
         *matHeaderCellDef
         [mat-sort-header]="sorteerVeld.ZAAK_IDENTIFICATIE"
       >
-        {{ 'zaak.identificatie' | translate }}
+        {{ "zaak.identificatie" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">{{ row.identificatie }}</td>
     </ng-container>
@@ -72,7 +75,10 @@
           label="status"
           [filter]="dataSource.zoekParameters.filters.ZAAK_STATUS"
           [opties]="this.dataSource.beschikbareFilters.ZAAK_STATUS"
-          (changed)="dataSource.zoekParameters.filters.ZAAK_STATUS = $event; filtersChange()"
+          (changed)="
+            dataSource.zoekParameters.filters.ZAAK_STATUS = $event;
+            filtersChange()
+          "
         >
         </zac-facet-filter>
       </th>
@@ -84,7 +90,7 @@
         *matHeaderCellDef
         [mat-sort-header]="sorteerVeld.ZAAK_STATUS"
       >
-        {{ 'status' | translate }}
+        {{ "status" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
         {{ row.statustypeOmschrijving | empty }}
@@ -97,7 +103,9 @@
           label="zaaktype"
           [filter]="dataSource.zoekParameters.filters.ZAAKTYPE"
           [opties]="this.dataSource.beschikbareFilters.ZAAKTYPE"
-          (changed)="dataSource.zoekParameters.filters.ZAAKTYPE = $event; filtersChange()"
+          (changed)="
+            dataSource.zoekParameters.filters.ZAAKTYPE = $event; filtersChange()
+          "
         >
         </zac-facet-filter>
       </th>
@@ -109,7 +117,7 @@
         *matHeaderCellDef
         [mat-sort-header]="sorteerVeld.ZAAK_ZAAKTYPE"
       >
-        {{ 'zaaktype' | translate }}
+        {{ "zaaktype" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
         {{ row.zaaktypeOmschrijving | empty }}
@@ -120,13 +128,16 @@
       <th mat-header-cell *matHeaderCellDef id="omschrijving_filter">
         <zac-tekst-filter
           [value]="dataSource.zoekParameters.zoeken.ZAAK_OMSCHRIJVING"
-          (changed)="dataSource.zoekParameters.zoeken.ZAAK_OMSCHRIJVING = $event; filtersChange()"
+          (changed)="
+            dataSource.zoekParameters.zoeken.ZAAK_OMSCHRIJVING = $event;
+            filtersChange()
+          "
         ></zac-tekst-filter>
       </th>
     </ng-container>
     <ng-container matColumnDef="omschrijving">
       <th mat-header-cell cdkDrag *matHeaderCellDef>
-        {{ 'omschrijving' | translate }}
+        {{ "omschrijving" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">{{ row.omschrijving | empty }}</td>
     </ng-container>
@@ -137,7 +148,9 @@
           label="groep"
           [filter]="dataSource.zoekParameters.filters.GROEP"
           [opties]="this.dataSource.beschikbareFilters.GROEP"
-          (changed)="dataSource.zoekParameters.filters.GROEP = $event; filtersChange()"
+          (changed)="
+            dataSource.zoekParameters.filters.GROEP = $event; filtersChange()
+          "
         >
         </zac-facet-filter>
       </th>
@@ -149,9 +162,9 @@
         *matHeaderCellDef
         [mat-sort-header]="sorteerVeld.ZAAK_GROEP"
       >
-        {{ 'groep' | translate }}
+        {{ "groep" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">{{ row.groepNaam | empty}}</td>
+      <td mat-cell *matCellDef="let row">{{ row.groepNaam | empty }}</td>
     </ng-container>
 
     <ng-container matColumnDef="vertrouwelijkheidaanduiding">
@@ -161,20 +174,33 @@
         *matHeaderCellDef
         [mat-sort-header]="sorteerVeld.ZAAK_VERTROUWELIJKHEIDAANDUIDING"
       >
-        {{ 'vertrouwelijkheidaanduiding' | translate }}
+        {{ "vertrouwelijkheidaanduiding" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
-        {{ row.vertrouwelijkheidaanduiding ? (row.vertrouwelijkheidaanduiding |
-        vertrouwelijkaanduidingToTranslationKey | translate) : '-'}}
+        {{
+          row.vertrouwelijkheidaanduiding
+            ? (row.vertrouwelijkheidaanduiding
+              | vertrouwelijkaanduidingToTranslationKey
+              | translate)
+            : "-"
+        }}
       </td>
     </ng-container>
     <ng-container matColumnDef="vertrouwelijkheidaanduiding_filter">
       <th mat-header-cell *matHeaderCellDef>
         <zac-facet-filter
           label="vertrouwelijkheidaanduiding"
-          [filter]="dataSource.zoekParameters.filters.ZAAK_VERTROUWELIJKHEIDAANDUIDING"
-          [opties]="this.dataSource.beschikbareFilters.ZAAK_VERTROUWELIJKHEIDAANDUIDING"
-          (changed)="dataSource.zoekParameters.filters.ZAAK_VERTROUWELIJKHEIDAANDUIDING = $event; filtersChange()"
+          [filter]="
+            dataSource.zoekParameters.filters.ZAAK_VERTROUWELIJKHEIDAANDUIDING
+          "
+          [opties]="
+            this.dataSource.beschikbareFilters.ZAAK_VERTROUWELIJKHEIDAANDUIDING
+          "
+          (changed)="
+            dataSource.zoekParameters.filters.ZAAK_VERTROUWELIJKHEIDAANDUIDING =
+              $event;
+            filtersChange()
+          "
         >
         </zac-facet-filter>
       </th>
@@ -187,10 +213,10 @@
         *matHeaderCellDef
         [mat-sort-header]="sorteerVeld.ZAAK_COMMUNICATIEKANAAL"
       >
-        {{ 'communicatiekanaal' | translate }}
+        {{ "communicatiekanaal" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
-        {{ row.communicatiekanaal | empty}}
+        {{ row.communicatiekanaal | empty }}
       </td>
     </ng-container>
     <ng-container matColumnDef="communicatiekanaal_filter">
@@ -199,7 +225,10 @@
           label="communicatiekanaal"
           [filter]="dataSource.zoekParameters.filters.ZAAK_COMMUNICATIEKANAAL"
           [opties]="this.dataSource.beschikbareFilters.ZAAK_COMMUNICATIEKANAAL"
-          (changed)="dataSource.zoekParameters.filters.ZAAK_COMMUNICATIEKANAAL = $event; filtersChange()"
+          (changed)="
+            dataSource.zoekParameters.filters.ZAAK_COMMUNICATIEKANAAL = $event;
+            filtersChange()
+          "
         >
         </zac-facet-filter>
       </th>
@@ -210,7 +239,10 @@
         <zac-date-range-filter
           label="registratiedatum"
           [range]="dataSource.zoekParameters.datums.ZAAK_REGISTRATIEDATUM"
-          (changed)="dataSource.zoekParameters.datums.ZAAK_REGISTRATIEDATUM = $event; filtersChange()"
+          (changed)="
+            dataSource.zoekParameters.datums.ZAAK_REGISTRATIEDATUM = $event;
+            filtersChange()
+          "
         >
         </zac-date-range-filter>
       </th>
@@ -222,7 +254,7 @@
         *matHeaderCellDef
         [mat-sort-header]="sorteerVeld.ZAAK_REGISTRATIEDATUM"
       >
-        {{ 'registratiedatum' | translate }}
+        {{ "registratiedatum" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
         {{ row.registratiedatum | datum | empty }}
@@ -234,7 +266,10 @@
         <zac-date-range-filter
           label="startdatum"
           [range]="dataSource.zoekParameters.datums.ZAAK_STARTDATUM"
-          (changed)="dataSource.zoekParameters.datums.ZAAK_STARTDATUM = $event; filtersChange()"
+          (changed)="
+            dataSource.zoekParameters.datums.ZAAK_STARTDATUM = $event;
+            filtersChange()
+          "
         >
         </zac-date-range-filter>
       </th>
@@ -246,7 +281,7 @@
         *matHeaderCellDef
         [mat-sort-header]="sorteerVeld.ZAAK_STARTDATUM"
       >
-        {{ 'startdatum' | translate }}
+        {{ "startdatum" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
         {{ row.startdatum | datum | empty }}
@@ -258,7 +293,10 @@
         <zac-date-range-filter
           label="streefdatum"
           [range]="dataSource.zoekParameters.datums.ZAAK_STREEFDATUM"
-          (changed)="dataSource.zoekParameters.datums.ZAAK_STREEFDATUM = $event; filtersChange()"
+          (changed)="
+            dataSource.zoekParameters.datums.ZAAK_STREEFDATUM = $event;
+            filtersChange()
+          "
         >
         </zac-date-range-filter>
       </th>
@@ -270,7 +308,7 @@
         *matHeaderCellDef
         [mat-sort-header]="sorteerVeld.ZAAK_STREEFDATUM"
       >
-        {{ 'einddatumGepland' | translate }}
+        {{ "einddatumGepland" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
         {{ row.einddatumGepland | datum | empty }}
@@ -288,7 +326,7 @@
     </ng-container>
     <ng-container matColumnDef="dagenTotStreefdatum">
       <th mat-header-cell cdkDrag *matHeaderCellDef>
-        {{ 'dagenTotStreefdatum' | translate }}
+        {{ "dagenTotStreefdatum" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
         {{ row.einddatumGepland | dagen | empty }}
@@ -301,7 +339,10 @@
           label="behandelaar"
           [filter]="dataSource.zoekParameters.filters.BEHANDELAAR"
           [opties]="this.dataSource.beschikbareFilters.BEHANDELAAR"
-          (changed)="dataSource.zoekParameters.filters.BEHANDELAAR = $event; filtersChange()"
+          (changed)="
+            dataSource.zoekParameters.filters.BEHANDELAAR = $event;
+            filtersChange()
+          "
         >
         </zac-facet-filter>
       </th>
@@ -313,7 +354,7 @@
         *matHeaderCellDef
         [mat-sort-header]="sorteerVeld.ZAAK_BEHANDELAAR"
       >
-        {{ 'behandelaar' | translate }}
+        {{ "behandelaar" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">{{ row.behandelaarNaam | empty }}</td>
     </ng-container>
@@ -323,7 +364,10 @@
         <zac-date-range-filter
           label="uiterlijkedatumafdoening"
           [range]="dataSource.zoekParameters.datums.ZAAK_FATALE_DATUM"
-          (changed)="dataSource.zoekParameters.datums.ZAAK_FATALE_DATUM = $event; filtersChange()"
+          (changed)="
+            dataSource.zoekParameters.datums.ZAAK_FATALE_DATUM = $event;
+            filtersChange()
+          "
         >
         </zac-date-range-filter>
       </th>
@@ -335,7 +379,7 @@
         *matHeaderCellDef
         [mat-sort-header]="sorteerVeld.ZAAK_FATALE_DATUM"
       >
-        {{ 'uiterlijkeEinddatumAfdoening' | translate }}
+        {{ "uiterlijkeEinddatumAfdoening" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
         {{ row.uiterlijkeEinddatumAfdoening | datum | empty }}
@@ -353,7 +397,7 @@
     </ng-container>
     <ng-container matColumnDef="dagenTotFataledatum">
       <th mat-header-cell cdkDrag *matHeaderCellDef>
-        {{ 'dagenTotFataledatum' | translate }}
+        {{ "dagenTotFataledatum" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
         {{ row.uiterlijkeEinddatumAfdoening | dagen | empty }}
@@ -364,13 +408,16 @@
       <th mat-header-cell *matHeaderCellDef>
         <zac-tekst-filter
           [value]="dataSource.zoekParameters.zoeken.ZAAK_TOELICHTING"
-          (changed)="dataSource.zoekParameters.zoeken.ZAAK_TOELICHTING = $event; filtersChange()"
+          (changed)="
+            dataSource.zoekParameters.zoeken.ZAAK_TOELICHTING = $event;
+            filtersChange()
+          "
         ></zac-tekst-filter>
       </th>
     </ng-container>
     <ng-container matColumnDef="toelichting">
       <th mat-header-cell cdkDrag *matHeaderCellDef>
-        {{ 'toelichting' | translate }}
+        {{ "toelichting" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">{{ row.toelichting | empty }}</td>
     </ng-container>
@@ -385,7 +432,7 @@
         *matHeaderCellDef
         [mat-sort-header]="sorteerVeld.ZAAK_AANTAL_OPENSTAANDE_TAKEN"
       >
-        {{ 'openstaandeTaken' | translate | empty}}
+        {{ "openstaandeTaken" | translate | empty }}
       </th>
       <td mat-cell *matCellDef="let row">{{ row.aantalOpenstaandeTaken }}</td>
     </ng-container>
@@ -396,7 +443,10 @@
           label="indicaties"
           [filter]="dataSource.zoekParameters.filters.ZAAK_INDICATIES"
           [opties]="dataSource.beschikbareFilters.ZAAK_INDICATIES"
-          (changed)="dataSource.zoekParameters.filters.ZAAK_INDICATIES = $event; filtersChange()"
+          (changed)="
+            dataSource.zoekParameters.filters.ZAAK_INDICATIES = $event;
+            filtersChange()
+          "
         >
         </zac-facet-filter>
       </th>
@@ -408,7 +458,7 @@
         *matHeaderCellDef
         [mat-sort-header]="sorteerVeld.ZAAK_INDICATIES_SORT"
       >
-        {{ 'indicaties' | translate | empty}}
+        {{ "indicaties" | translate | empty }}
       </th>
       <td mat-cell *matCellDef="let row">
         <zac-zaak-indicaties
@@ -445,20 +495,20 @@
           ></zac-column-picker>
         </div>
       </th>
-      <td mat-cell *matCellDef=" let row">
+      <td mat-cell *matCellDef="let row">
         <div class="flex-row">
           <a
             mat-icon-button
             [routerLink]="['/zaken', row.identificatie]"
             (click)="$event.stopPropagation()"
-            [id]="'zaakBekijken_' + row.identificatie +'_button'"
+            [id]="'zaakBekijken_' + row.identificatie + '_button'"
             title="{{ 'actie.zaak.bekijken' | translate }}"
           >
             <mat-icon>visibility</mat-icon>
           </a>
           <button
             mat-icon-button
-            [id]="'kenZaakAanMijToe_' + row.identificatie +'_button'"
+            [id]="'kenZaakAanMijToe_' + row.identificatie + '_button'"
             title="{{ 'actie.mij.toekennen' | translate }}"
             (click)="assignToMe(row, $event)"
             *ngIf="showAssignToMe(row)"
@@ -542,7 +592,13 @@
               ></zac-static-text>
               <zac-static-text
                 *ngSwitchCase="zoekenColumn.VERTROUWELIJKHEIDAANDUIDING"
-                [value]="row.vertrouwelijkheidaanduiding ? (row.vertrouwelijkheidaanduiding | vertrouwelijkaanduidingToTranslationKey | translate) : '-'"
+                [value]="
+                  row.vertrouwelijkheidaanduiding
+                    ? (row.vertrouwelijkheidaanduiding
+                      | vertrouwelijkaanduidingToTranslationKey
+                      | translate)
+                    : '-'
+                "
                 class="flex-1 w33"
                 [label]="column | translate"
               ></zac-static-text>
@@ -580,9 +636,9 @@
                 class="flex-1 w33 static-text"
                 *ngSwitchCase="zoekenColumn.INDICATIES"
               >
-                <label class="static-text-label"
-                  >{{'indicaties' | translate}}</label
-                >
+                <label class="static-text-label">{{
+                  "indicaties" | translate
+                }}</label>
                 <div class="static-text-content">
                   <zac-zaak-indicaties
                     [layout]="indicatiesLayout.WERKLIJST"
@@ -598,11 +654,11 @@
 
     <tr
       mat-header-row
-      *matHeaderRowDef="dataSource.visibleColumns; sticky: true;"
+      *matHeaderRowDef="dataSource.visibleColumns; sticky: true"
     ></tr>
     <tr
       mat-header-row
-      *matHeaderRowDef="dataSource.filterColumns; sticky: true;"
+      *matHeaderRowDef="dataSource.filterColumns; sticky: true"
       class="second-row"
     ></tr>
     <tr
@@ -620,7 +676,7 @@
   </table>
 
   <ng-container *ngIf="dataSource.totalItems === 0"
-    ><p>{{'msg.geen.gegevens.gevonden' | translate}}</p></ng-container
+    ><p>{{ "msg.geen.gegevens.gevonden" | translate }}</p></ng-container
   >
   <div class="pagination-wrapper">
     <zac-export-button
@@ -651,7 +707,7 @@
     mat-raised-button
     title="{{ 'actie.verdelen' | translate }}"
   >
-    {{'actie.verdelen' | translate}}
+    {{ "actie.verdelen" | translate }}
     <mat-icon
       [matBadgeHidden]="!isSelected()"
       [matBadge]="countSelected()"
@@ -669,7 +725,7 @@
     mat-raised-button
     title="{{ 'actie.vrijgeven' | translate }}"
   >
-    {{'actie.vrijgeven' | translate}}
+    {{ "actie.vrijgeven" | translate }}
     <mat-icon
       [matBadgeHidden]="!isSelected()"
       [matBadge]="countSelected()"

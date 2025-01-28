@@ -3,13 +3,13 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<h1 mat-dialog-title>{{'title.taken.vrijgeven' | translate}}</h1>
+<h1 mat-dialog-title>{{ "title.taken.vrijgeven" | translate }}</h1>
 
 <div mat-dialog-content>
   <mfb-form-field [field]="redenFormField"></mfb-form-field>
-  <p *ngIf="data.taken.length === 1">{{'msg.vrijgeven.taak' | translate }}</p>
+  <p *ngIf="data.taken.length === 1">{{ "msg.vrijgeven.taak" | translate }}</p>
   <p *ngIf="data.taken.length !== 1">
-    {{ 'msg.vrijgeven.taken' | translate:{aantal: data.taken.length} }}
+    {{ "msg.vrijgeven.taken" | translate: { aantal: data.taken.length } }}
   </p>
 </div>
 <div mat-dialog-actions>
@@ -23,7 +23,7 @@
     <mat-icon *ngIf="loading">
       <mat-spinner diameter="18"></mat-spinner>
     </mat-icon>
-    {{'actie.vrijgeven' | translate}}
+    {{ "actie.vrijgeven" | translate }}
   </button>
   <button
     [disabled]="loading"
@@ -31,6 +31,6 @@
     (click)="close()"
     id="dialogClose_button"
   >
-    {{'actie.annuleren' | translate}}
+    {{ "actie.annuleren" | translate }}
   </button>
 </div>

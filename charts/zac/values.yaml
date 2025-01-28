@@ -96,11 +96,10 @@ bagApi:
 openForms:
   url: ""  # https://open-forms.example.com
 
-# smartDocuments Configuration of the SmartDocuments connection
 smartDocuments:
   # -- Enable SmartDocuments integration for creating a new document
   enabled: false
-  # URL to SmartDocuments instance. For example: https://partners.smartdocuments.com
+  # -- URL to SmartDocuments instance. For example: https://partners.smartdocuments.com
   url: ""
   # -- Authentication token
   authentication: ""
@@ -158,7 +157,7 @@ image:
   repository: ghcr.io/infonl/zaakafhandelcomponent
   pullPolicy: IfNotPresent
   # -- Overrides the image tag whose default is the chart appVersion.
-  tag: "1.12.269@sha256:79178b78f60b25e0052fb5d763dd123f0d2e6a215d14515d55fa1d65c545ca89"
+  tag: ""
 
 # -- specifies image pull secrets
 imagePullSecrets: []
@@ -500,7 +499,7 @@ office_converter:
   # url: ""
   image:
     repository: ghcr.io/eugenmayer/kontextwork-converter
-    tag: "1.7.0@sha256:8660b8d329b1ca0315c04725cfc855f03e7d34c918d292497216bb98c5c8dd89"
+    tag: "1.7.1@sha256:21cf2abf83c6b14b50188bc66ecde970081d5e6493f0c0fdfd435ebbc3145b34"
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1

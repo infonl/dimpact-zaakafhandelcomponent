@@ -5,6 +5,7 @@
 
 package net.atos.zac.smartdocuments
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
@@ -30,7 +31,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
     val authenticationToken = "dummyAuthenticationToken"
     val fixedUserName = Optional.of("dummyFixedUserName")
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val smartDocumentsClient = mockk<SmartDocumentsClient>()
+    val smartDocumentsClient = mockk<Instance<SmartDocumentsClient>>()
 
     beforeEach {
         checkUnnecessaryStub()
@@ -47,13 +48,13 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         val smartDocument = createSmartDocument(variables)
         val attendedResponse = createAttendedResponse()
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { smartDocumentsClient.attendedDeposit(any(), any(), any()) } returns attendedResponse
+        every { smartDocumentsClient.get().attendedDeposit(any(), any(), any()) } returns attendedResponse
 
         val smartDocumentsService = SmartDocumentsService(
             smartDocumentsClient = smartDocumentsClient,
-            enabled = true,
-            smartDocumentsURL = smartDocumentsURL,
-            authenticationToken = authenticationToken,
+            enabled = Optional.of(true),
+            smartDocumentsURL = Optional.of(smartDocumentsURL),
+            authenticationToken = Optional.of(authenticationToken),
             loggedInUserInstance = loggedInUserInstance,
             fixedUserName = fixedUserName
         )
@@ -85,15 +86,15 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         val fileName = "abcd.docx"
         val body = "body content".toByteArray(Charsets.UTF_8)
 
-        every { smartDocumentsClient.downloadFile(any(), any()) } returns downloadedFile
+        every { smartDocumentsClient.get().downloadFile(any(), any()) } returns downloadedFile
         every { downloadedFile.body() } returns body
         every { downloadedFile.contentDisposition() } returns "attachment; filename=\"$fileName\""
 
         val smartDocumentsService = SmartDocumentsService(
             smartDocumentsClient = smartDocumentsClient,
-            enabled = true,
-            smartDocumentsURL = smartDocumentsURL,
-            authenticationToken = authenticationToken,
+            enabled = Optional.of(true),
+            smartDocumentsURL = Optional.of(smartDocumentsURL),
+            authenticationToken = Optional.of(authenticationToken),
             loggedInUserInstance = loggedInUserInstance,
             fixedUserName = fixedUserName
         )
@@ -117,14 +118,14 @@ class SmartDocumentsServiceTest : BehaviorSpec({
 
         val templatesResponse = createsmartDocumentsTemplatesResponse()
         every {
-            smartDocumentsClient.listTemplates(any(), any())
+            smartDocumentsClient.get().listTemplates(any(), any())
         } returns templatesResponse
 
         val smartDocumentsService = SmartDocumentsService(
             smartDocumentsClient = smartDocumentsClient,
-            enabled = true,
-            smartDocumentsURL = smartDocumentsURL,
-            authenticationToken = authenticationToken,
+            enabled = Optional.of(true),
+            smartDocumentsURL = Optional.of(smartDocumentsURL),
+            authenticationToken = Optional.of(authenticationToken),
             loggedInUserInstance = loggedInUserInstance,
             fixedUserName = fixedUserName
         )
@@ -150,9 +151,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
     Given("SmartDocuments is disabled") {
         val smartDocumentsService = SmartDocumentsService(
             smartDocumentsClient = smartDocumentsClient,
-            enabled = false,
-            smartDocumentsURL = smartDocumentsURL,
-            authenticationToken = authenticationToken,
+            enabled = Optional.of(false),
             loggedInUserInstance = loggedInUserInstance,
             fixedUserName = fixedUserName
         )
@@ -160,6 +159,37 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         When("checking if enabled") {
             Then("it returns `false`") {
                 smartDocumentsService.isEnabled() shouldBe false
+            }
+        }
+    }
+
+    Given("SmartDocuments state is not specified") {
+        val smartDocumentsService = SmartDocumentsService(
+            smartDocumentsClient = smartDocumentsClient,
+            loggedInUserInstance = loggedInUserInstance,
+            fixedUserName = fixedUserName
+        )
+
+        When("checking if enabled") {
+            Then("it returns `false`") {
+                smartDocumentsService.isEnabled() shouldBe false
+            }
+        }
+    }
+
+    Given("SmartDocuments is enabled, but not enough configuration is provided") {
+        When("SmartDocumentsService is constructed") {
+            val exception = shouldThrow<IllegalArgumentException> {
+                SmartDocumentsService(
+                    smartDocumentsClient = smartDocumentsClient,
+                    enabled = Optional.of(true),
+                    loggedInUserInstance = loggedInUserInstance,
+                    fixedUserName = fixedUserName
+                )
+            }
+
+            Then("it throws an exception") {
+                exception.message shouldBe "SMARTDOCUMENTS_CLIENT_MP_REST_URL environment variable required"
             }
         }
     }

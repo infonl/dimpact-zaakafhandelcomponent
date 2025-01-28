@@ -6,7 +6,7 @@
 <div class="sidenav-title" *ngIf="bagObject.observed">
   <h3>
     <mat-icon>add_home_work</mat-icon>
-    {{'actie.bagObject.toevoegen' | translate}}
+    {{ "actie.bagObject.toevoegen" | translate }}
   </h3>
   <button mat-icon-button (click)="sideNav.close()">
     <mat-icon>close</mat-icon>
@@ -22,22 +22,22 @@
           mat-icon-button
           type="button"
           matSuffix
-          title="{{'zoeken' | translate}}"
+          title="{{ 'zoeken' | translate }}"
           (click)="zoek()"
         >
           <mat-icon>search</mat-icon>
         </button>
-        <mat-label>{{'bagObjecten' | translate}}</mat-label>
+        <mat-label>{{ "bagObjecten" | translate }}</mat-label>
         <input
           matInput
           id="trefwoorden"
           cdkFocusInitial
           maxlength="255"
           (keyup.enter)="!trefwoorden.valid || zoek()"
-          placeholder="{{'msg.zoeken.bagObject.label' | translate}}"
+          placeholder="{{ 'msg.zoeken.bagObject.label' | translate }}"
           [formControl]="trefwoorden"
         />
-        <mat-hint>{{trefwoorden.value.length}}/255</mat-hint>
+        <mat-hint>{{ trefwoorden.value.length }}/255</mat-hint>
       </mat-form-field>
     </div>
   </div>
@@ -49,36 +49,41 @@
       <th *matHeaderCellDef mat-header-cell mat-sort-header></th>
       <td *matCellDef="let bagObject" mat-cell>
         <button
-          *ngIf="expandable(bagObject) "
+          *ngIf="expandable(bagObject)"
           mat-icon-button
           (click)="expand(bagObject)"
-          title="{{ (bagObject.expanded ? 'actie.gerelateerde.gegevens.verbergen' : 'actie.gerelateerde.gegevens.tonen') | translate}}"
+          title="{{
+            (bagObject.expanded
+              ? 'actie.gerelateerde.gegevens.verbergen'
+              : 'actie.gerelateerde.gegevens.tonen'
+            ) | translate
+          }}"
         >
-          <mat-icon
-            >{{bagObject.expanded ? 'expand_more' : 'chevron_right'}}</mat-icon
-          >
+          <mat-icon>{{
+            bagObject.expanded ? "expand_more" : "chevron_right"
+          }}</mat-icon>
         </button>
       </td>
     </ng-container>
     <ng-container matColumnDef="id">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
-        {{'identificatie' | translate}}
+        {{ "identificatie" | translate }}
       </th>
       <td *matCellDef="let bagObject" mat-cell>
-        {{bagObject.identificatie | empty}}
+        {{ bagObject.identificatie | empty }}
       </td>
     </ng-container>
     <ng-container matColumnDef="type">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
-        {{'type' | translate}}
+        {{ "type" | translate }}
       </th>
       <td *matCellDef="let bagObject" mat-cell>
-        {{'objecttype.' + bagObject.bagObjectType | translate}}
+        {{ "objecttype." + bagObject.bagObjectType | translate }}
       </td>
     </ng-container>
     <ng-container matColumnDef="omschrijving">
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
-        {{'omschrijving' | translate}}
+        {{ "omschrijving" | translate }}
       </th>
       <td
         *matCellDef="let bagObject"
@@ -86,20 +91,24 @@
         [ngSwitch]="bagObject.bagObjectType"
       >
         <span *ngSwitchCase="BAGObjecttype.ADRES">
-          {{bagObject.openbareRuimteNaam}} {{bagObject.huisnummerWeergave}},
-          {{bagObject.postcode}} {{bagObject.woonplaatsNaam}}
+          {{ bagObject.openbareRuimteNaam }} {{ bagObject.huisnummerWeergave }},
+          {{ bagObject.postcode }} {{ bagObject.woonplaatsNaam }}
         </span>
         <span *ngSwitchCase="BAGObjecttype.NUMMERAANDUIDING"
-          >{{bagObject.huisnummerWeergave}} ({{bagObject.postcode}})</span
+          >{{ bagObject.huisnummerWeergave }} ({{ bagObject.postcode }})</span
         >
         <span *ngSwitchCase="BAGObjecttype.PAND">
-          {{'bouwjaar' | translate}}: {{bagObject.oorspronkelijkBouwjaar}}
-          ({{'bagObject.pand.status.' + bagObject.status | translate}})
+          {{ "bouwjaar" | translate }}:
+          {{ bagObject.oorspronkelijkBouwjaar }} ({{
+            "bagObject.pand.status." + bagObject.status | translate
+          }})
         </span>
         <span *ngSwitchCase="BAGObjecttype.OPENBARE_RUIMTE"
-          >{{bagObject.naam}} ({{bagObject.type}})</span
+          >{{ bagObject.naam }} ({{ bagObject.type }})</span
         >
-        <span *ngSwitchCase="BAGObjecttype.WOONPLAATS">{{bagObject.naam}}</span>
+        <span *ngSwitchCase="BAGObjecttype.WOONPLAATS">{{
+          bagObject.naam
+        }}</span>
       </td>
     </ng-container>
     <ng-container matColumnDef="acties" stickyEnd>
@@ -111,7 +120,7 @@
           color="primary"
           [disabled]="reedsGekoppeld(row)"
           (click)="selectBagObject(row)"
-          title="{{ 'actie.selecteren' | translate}}"
+          title="{{ 'actie.selecteren' | translate }}"
         >
           <mat-icon>add_home_work</mat-icon>
         </button>
@@ -119,7 +128,7 @@
           *ngIf="!bagObject.observed"
           mat-icon-button
           (click)="openBagTonenPagina(row)"
-          [id]="'bagObjectBekijken_' + row.identificatie +'_button'"
+          [id]="'bagObjectBekijken_' + row.identificatie + '_button'"
           title="{{ 'actie.bagObject.bekijken' | translate }}"
         >
           <mat-icon>visibility</mat-icon>
@@ -128,13 +137,13 @@
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
     <tr
-      [ngClass]="bagObject.child ?  'child' : 'parent'"
+      [ngClass]="bagObject.child ? 'child' : 'parent'"
       mat-row
-      *matRowDef="let bagObject; columns: columns;"
+      *matRowDef="let bagObject; columns: columns"
     ></tr>
   </table>
   <p *ngIf="bagObjecten.data.length == 0 && !loading">
-    {{'msg.geen.gegevens.gevonden' | translate}}
+    {{ "msg.geen.gegevens.gevonden" | translate }}
   </p>
-  <p *ngIf="loading ">{{'msg.loading' | translate}}</p>
+  <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
 </div>

@@ -69,7 +69,9 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
         val now = ZonedDateTime.now()
         every { ztcClientService.resetCacheTimeToNow() } returns now
         every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(ZaakafhandelParameters::class.java) } returns zaakafhandelparametersCriteriaQuery
+        every {
+            criteriaBuilder.createQuery(ZaakafhandelParameters::class.java)
+        } returns zaakafhandelparametersCriteriaQuery
         every {
             zaakafhandelparametersCriteriaQuery.from(ZaakafhandelParameters::class.java)
         } returns zaakafhandelparametersRoot
@@ -101,14 +103,18 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
             createZaakafhandelParameters()
         )
         every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(ZaakafhandelParameters::class.java) } returns zaakafhandelparametersCriteriaQuery
+        every {
+            criteriaBuilder.createQuery(ZaakafhandelParameters::class.java)
+        } returns zaakafhandelparametersCriteriaQuery
         every {
             zaakafhandelparametersCriteriaQuery.from(ZaakafhandelParameters::class.java)
         } returns zaakafhandelparametersRoot
         every {
             zaakafhandelparametersCriteriaQuery.select(zaakafhandelparametersRoot)
         } returns zaakafhandelparametersCriteriaQuery
-        every { entityManager.createQuery(zaakafhandelparametersCriteriaQuery).resultList } returns zaakafhandelparameters
+        every {
+            entityManager.createQuery(zaakafhandelparametersCriteriaQuery).resultList
+        } returns zaakafhandelparameters
         every { zaakafhandelparametersRoot.get<Any>("id") } returns path
         every { criteriaBuilder.desc(path) } returns order
         every { zaakafhandelparametersCriteriaQuery.orderBy(order) } returns zaakafhandelparametersCriteriaQuery
@@ -127,11 +133,7 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
             }
         }
     }
-    Given(
-        """
-        Two active zaakafhandelparameters for a given productaanvraagType
-        """
-    ) {
+    Given("Two active zaakafhandelparameters for a given productaanvraagType") {
         val productaanvraagType = "dummyProductaanvraagType"
         val zaakafhandelparametersList = listOf(
             createZaakafhandelParameters(),
@@ -170,18 +172,53 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
         }
         every { zaakafhandelparametersTypedQuery.resultList } returns zaakafhandelparametersList
 
-        When(
-            """
-                the active zaakafhandelparameters are retrieved for the given productaanvraagType
-                """
-        ) {
-            val returnedZaakafhandelParameters = zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
-                productaanvraagType
-            )
+        When("the active zaakafhandelparameters are retrieved for the given productaanvraagType") {
+            val returnedZaakafhandelParameters =
+                zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+                    productaanvraagType
+                )
 
             Then("two zaakafhandelparameters should be returned") {
                 returnedZaakafhandelParameters.size shouldBe 2
                 returnedZaakafhandelParameters.map { productaanvraagType } shouldContainOnly listOf(productaanvraagType)
+            }
+        }
+    }
+
+    Given("A new zaaktype was created and no previous version exists") {
+        val zaaktypeUUID = UUID.randomUUID()
+        val zaaktypeUri = URI("https://example.com/zaaktypes/$zaaktypeUUID")
+        val zaakType = createZaakType(uri = zaaktypeUri, servicenorm = "dummyServiceNorm", concept = false)
+
+        every { zaakafhandelParameterService.clearListCache() } returns "Cache cleared"
+
+        // ZtcClientService mocking
+        every { ztcClientService.clearZaaktypeCache() } returns "Cache cleared"
+        every { ztcClientService.readZaaktype(zaaktypeUri) } returns zaakType
+
+        // Relaxed entity manager mocking; criteria queries and persisting
+        val criteriaQuery = mockk<CriteriaQuery<ZaakafhandelParameters>>(relaxed = true)
+        every { entityManager.criteriaBuilder } returns mockk(relaxed = true) {
+            every { createQuery(ZaakafhandelParameters::class.java) } returns criteriaQuery
+        }
+        val slotPersistZaakafhandelParameters = slot<ZaakafhandelParameters>()
+
+        every {
+            entityManager.persist(capture(slotPersistZaakafhandelParameters))
+        } answers { ZaakafhandelParameters() }
+
+        every { entityManager.createQuery(criteriaQuery) } returns mockk {
+            every { setMaxResults(1) } returns this
+            every { resultList } returns emptyList()
+        }
+
+        When("Publishing a new zaaktype") {
+            zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri)
+
+            Then("The new zaak type is stored") {
+                verify {
+                    entityManager.persist(any<ZaakafhandelParameters>())
+                }
             }
         }
     }
@@ -217,7 +254,9 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
                 every { resultList } returns listOf(originalZaakafhandelParameters)
             }
 
-            every { entityManager.merge(capture(slotPersistZaakafhandelParameters)) } answers { ZaakafhandelParameters() }
+            every {
+                entityManager.merge(capture(slotPersistZaakafhandelParameters))
+            } answers { ZaakafhandelParameters() }
 
             zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri)
 
@@ -238,7 +277,9 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
         }
 
         When("Publishing a new zaaktype") {
-            every { entityManager.persist(capture(slotPersistZaakafhandelParameters)) } answers { ZaakafhandelParameters() }
+            every {
+                entityManager.persist(capture(slotPersistZaakafhandelParameters))
+            } answers { ZaakafhandelParameters() }
 
             every { entityManager.createQuery(criteriaQuery) } returns mockk {
                 every { setMaxResults(1) } returns this
@@ -252,12 +293,13 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
                 templates = null
             )
 
-            every { smartDocumentsTemplatesService.getTemplatesMapping(any<UUID>()) } answers {
-                setOf(template)
-            }
+            every { smartDocumentsTemplatesService.getTemplatesMapping(any<UUID>()) } answers { setOf(template) }
 
             every {
-                smartDocumentsTemplatesService.storeTemplatesMapping(any<Set<RestMappedSmartDocumentsTemplateGroup>>(), any<UUID>())
+                smartDocumentsTemplatesService.storeTemplatesMapping(
+                    any<Set<RestMappedSmartDocumentsTemplateGroup>>(),
+                    any<UUID>()
+                )
             } returns mockk {}
 
             zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri)
@@ -332,6 +374,32 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
                     new.zaakafhandelParameters shouldNotBe original.zaakafhandelParameters
                     new.zaakafhandelParameters shouldBe slotPersistZaakafhandelParameters.captured
                     new.mailTemplate shouldBe original.mailTemplate
+                }
+            }
+
+            And("The afzenders should get copied") {
+                slotPersistZaakafhandelParameters.captured.zaakAfzenders.let {
+                    it shouldBeSameSizeAs originalZaakafhandelParameters.zaakAfzenders
+                    it zip originalZaakafhandelParameters.zaakAfzenders
+                }.forEach { (new, original) ->
+                    new.id shouldNotBe original.id
+                    new.zaakafhandelParameters shouldNotBe original.zaakafhandelParameters
+                    new.zaakafhandelParameters shouldBe slotPersistZaakafhandelParameters.captured
+                    new.isDefault shouldBe original.isDefault
+                    new.mail shouldBe original.mail
+                    new.replyTo shouldBe original.replyTo
+                }
+            }
+
+            And("The new zaak type is stored") {
+                verify {
+                    entityManager.persist(any<ZaakafhandelParameters>())
+                }
+            }
+
+            And("Then updated with SmartDocuments mappings") {
+                verify {
+                    entityManager.merge(any<ZaakafhandelParameters>())
                 }
             }
         }

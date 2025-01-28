@@ -1,6 +1,7 @@
 # zaakafhandelcomponent
 
-![Version: 0.4.2](https://img.shields.io/badge/Version-0.4.2-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.4.4](https://img.shields.io/badge/Version-0.4.4-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -8,7 +9,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Name | Email | Url |
 | ---- | ------ | --- |
-| Team Geneve, INFO | <teamdimpact@info.nl> | <https://www.info.nl> |
+| Team Dimpact, INFO | <teamdimpact@info.nl> | <https://github.com/infonl/dimpact-zaakafhandelcomponent/discussion> |
 
 ## Requirements
 
@@ -248,7 +249,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | smartDocuments.authentication | string | `""` | Authentication token |
 | smartDocuments.enabled | bool | `false` | Enable SmartDocuments integration for creating a new document |
 | smartDocuments.fixedUserName | string | `""` | Fixed username for authentication |
-| smartDocuments.url | string | `""` |  |
+| smartDocuments.url | string | `""` | URL to SmartDocuments instance. For example: https://partners.smartdocuments.com |
 | solr-operator.affinity | object | `{}` | affinity for solr-operator |
 | solr-operator.annotations | object | `{}` | annotations for solr-operator |
 | solr-operator.enabled | bool | `false` | set enabled to actually use the solr-operator helm chart |

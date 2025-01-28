@@ -5,11 +5,11 @@
 <div (click)="edit()" *ngIf="!editing" class="view">
   <div class="static-text groep" [class.readonly]="readonly">
     <label class="static-text-label">
-      {{'groep' | translate}}
+      {{ "groep" | translate }}
       <mat-icon *ngIf="!readonly">edit</mat-icon>
     </label>
     <div *ngIf="!editing" class="static-text-content">
-      {{ getFormControl('groep').defaultValue | empty:'naam' }}
+      {{ getFormControl("groep").defaultValue | empty: "naam" }}
       <div *ngIf="!readonly" class="edit-icon">
         <mat-icon>edit</mat-icon>
       </div>
@@ -18,11 +18,11 @@
 
   <div class="static-text behandelaar" [class.readonly]="readonly">
     <label class="static-text-label">
-      {{'behandelaar' | translate}}
+      {{ "behandelaar" | translate }}
       <mat-icon *ngIf="!readonly">edit</mat-icon>
     </label>
     <div *ngIf="!editing" class="static-text-content">
-      {{ getFormControl('medewerker').defaultValue | empty:'naam' }}
+      {{ getFormControl("medewerker").defaultValue | empty: "naam" }}
       <div *ngIf="!readonly" class="edit-icon">
         <mat-icon>edit</mat-icon>
       </div>
@@ -33,7 +33,7 @@
 <div *ngIf="editing" (zacOutsideClick)="onOutsideClick()">
   <div class="static-text">
     <label class="static-text-label">
-      {{'groep.behandelaar' | translate}}
+      {{ "groep.behandelaar" | translate }}
       <mat-icon>edit</mat-icon>
     </label>
   </div>
@@ -55,7 +55,7 @@
         color="accent"
         id="behandelaarKenAanMijToe_button"
         mat-mini-fab
-        title="{{'actie.mij.toekennen' | translate}}"
+        title="{{ 'actie.mij.toekennen' | translate }}"
       >
         <mat-icon outlined>person_add</mat-icon>
       </button>
@@ -66,7 +66,7 @@
         color="accent"
         id="behandelaarVrijgeven_button"
         mat-mini-fab
-        title="{{'actie.vrijgeven' | translate}}"
+        title="{{ 'actie.vrijgeven' | translate }}"
       >
         <mat-icon outlined>person_remove</mat-icon>
       </button>
@@ -78,7 +78,7 @@
         color="primary"
         id="behandelaarOpslaan_button"
         mat-mini-fab
-        title="{{'actie.opslaan' | translate}}"
+        title="{{ 'actie.opslaan' | translate }}"
       >
         <mat-icon>check</mat-icon>
       </button>
@@ -87,7 +87,7 @@
         color="warn"
         id="behandelaarAnnuleren_button"
         mat-mini-fab
-        title="{{'actie.annuleren' | translate}}"
+        title="{{ 'actie.annuleren' | translate }}"
       >
         <mat-icon>close</mat-icon>
       </button>

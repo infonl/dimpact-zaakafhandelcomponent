@@ -36,9 +36,9 @@
   ></zac-static-text>
   <div *ngIf="!zaak.resultaat">
     <mat-form-field appearance="fill" floatLabel="always" class="full-width">
-      <mat-label>{{'resultaat' | translate}}</mat-label>
+      <mat-label>{{ "resultaat" | translate }}</mat-label>
       <mat-select
-        placeholder="{{'resultaat.-kies-' | translate}}"
+        placeholder="{{ 'resultaat.-kies-' | translate }}"
         formControlName="resultaattype"
       >
         <mat-option
@@ -47,39 +47,38 @@
           >{{ resultaattype.naam }}</mat-option
         >
       </mat-select>
-      <mat-error
-        >{{getError(formGroup.get('resultaattype'),
-        'resultaattype')}}</mat-error
-      >
+      <mat-error>{{
+        getError(formGroup.get("resultaattype"), "resultaattype")
+      }}</mat-error>
     </mat-form-field>
   </div>
   <div>
     <mat-form-field appearance="fill" class="full-width">
-      <mat-label>{{'toelichting'| translate}}</mat-label>
+      <mat-label>{{ "toelichting" | translate }}</mat-label>
       <input
         id="toelichting"
         formControlName="toelichting"
         maxlength="80"
         matInput
       />
-      <mat-hint>{{formGroup.get('toelichting').value.length}}/80</mat-hint>
+      <mat-hint>{{ formGroup.get("toelichting").value.length }}/80</mat-hint>
     </mat-form-field>
   </div>
   <div *ngIf="mailBeschikbaar">
     <mat-checkbox id="sendMail" formControlName="sendMail">
-      {{'sendMail' | translate}}
+      {{ "sendMail" | translate }}
     </mat-checkbox>
   </div>
   <div *ngIf="formGroup.get('sendMail').value">
     <mat-form-field appearance="fill" class="full-width">
-      <mat-label>{{'verzender' | translate}}</mat-label>
+      <mat-label>{{ "verzender" | translate }}</mat-label>
       <mat-select
-        placeholder="{{'verzender.-kies-' | translate}}"
+        placeholder="{{ 'verzender.-kies-' | translate }}"
         formControlName="verzender"
         [compareWith]="compareObject"
       >
         <mat-select-trigger>
-          {{formGroup.get('verzender').value?.mail}}
+          {{ formGroup.get("verzender").value?.mail }}
         </mat-select-trigger>
         <mat-option
           *ngFor="let afzender of afzenders | async"
@@ -87,7 +86,7 @@
         >
           {{ afzender.mail }}
           <div class="suffix" *ngIf="afzender.suffix">
-            {{afzender.suffix | translate}}
+            {{ afzender.suffix | translate }}
           </div>
         </mat-option>
       </mat-select>
@@ -100,23 +99,23 @@
         mat-icon-button
         type="button"
         matSuffix
-        title="{{initiatorToevoegenIcon.title | translate}}"
+        title="{{ initiatorToevoegenIcon.title | translate }}"
         (click)="setInitatorEmail()"
       >
-        <mat-icon>{{initiatorToevoegenIcon.icon}}</mat-icon>
+        <mat-icon>{{ initiatorToevoegenIcon.icon }}</mat-icon>
       </button>
 
-      <mat-label>{{'ontvanger' | translate}}</mat-label>
+      <mat-label>{{ "ontvanger" | translate }}</mat-label>
       <input
         matInput
         id="ontvanger"
         maxlength="200"
         formControlName="ontvanger"
       />
-      <mat-hint>{{formGroup.get('ontvanger').value.length}}/200</mat-hint>
-      <mat-error
-        >{{getError(formGroup.get('ontvanger'), 'ontvanger')}}</mat-error
-      >
+      <mat-hint>{{ formGroup.get("ontvanger").value.length }}/200</mat-hint>
+      <mat-error>{{
+        getError(formGroup.get("ontvanger"), "ontvanger")
+      }}</mat-error>
     </mat-form-field>
   </div>
 
@@ -125,7 +124,7 @@
     *ngIf="formGroup.get('sendMail').value"
   >
     <mat-expansion-panel-header>
-      {{'body' | translate }}
+      {{ "body" | translate }}
     </mat-expansion-panel-header>
     <p class="readonly" [innerHTML]="mailtemplate?.body"></p>
   </mat-expansion-panel>
@@ -142,7 +141,7 @@
     <mat-icon *ngIf="loading">
       <mat-spinner diameter="18"></mat-spinner>
     </mat-icon>
-    {{'actie.zaak.afhandelen' | translate}}
+    {{ "actie.zaak.afhandelen" | translate }}
   </button>
 
   <button
@@ -152,10 +151,10 @@
     id="besluitVastleggen_button"
     (click)="openBesluitVastleggen()"
   >
-    {{'actie.besluit.vastleggen' | translate}}
+    {{ "actie.besluit.vastleggen" | translate }}
   </button>
 
   <button mat-raised-button [disabled]="loading" (click)="close()">
-    {{'actie.annuleren' | translate}}
+    {{ "actie.annuleren" | translate }}
   </button>
 </div>
