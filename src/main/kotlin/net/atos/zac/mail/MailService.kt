@@ -108,7 +108,6 @@ class MailService @Inject constructor(
     private fun initPasswordAuthentication() =
         smtpUsername.getOrNull()?.let {
             mailSession.properties.setProperty(MAIL_SMTP_USER, it)
-            mailSession.properties.setProperty(MAIL_SMTP_AUTH, "true")
             mailSession.setPasswordAuthentication(
                 URLName("smtp://$it@$smtpServerHost"),
                 PasswordAuthentication(it, smtpPassword.get())
