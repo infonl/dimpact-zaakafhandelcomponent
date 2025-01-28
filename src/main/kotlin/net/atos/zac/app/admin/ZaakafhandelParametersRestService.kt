@@ -281,7 +281,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
                     "This indicates a configuration error in the zaakafhandelparameters. " +
                     "There should be at most only one active zaakafhandelparameters for each productaanvraagtype."
             )
-            throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
+            throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE.value)
         }
         if (activeZaakafhandelparametersForProductaanvraagtype.size == 1 &&
             activeZaakafhandelparametersForProductaanvraagtype.first().zaaktypeOmschrijving != zaaktypeOmschrijving
@@ -292,7 +292,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
                     "and zaaktype UUID: '${activeZaakafhandelparametersForProductaanvraagtype.first().zaakTypeUUID}'. " +
                     "Please use a unique productaanvraagtype per active zaakafhandelparameters."
             )
-            throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
+            throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE.value)
         }
     }
 }
