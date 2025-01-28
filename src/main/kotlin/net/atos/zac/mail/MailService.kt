@@ -73,14 +73,8 @@ class MailService @Inject constructor(
     private var mailTemplateHelper: MailTemplateHelper,
     private var loggedInUserInstance: Instance<LoggedInUser>,
 
-    @ConfigProperty(name = "SMTP_SERVER")
-    private val smtpServerHost: String,
-
     @ConfigProperty(name = "SMTP_USERNAME")
     private val smtpUsername: Optional<String> = Optional.empty(),
-
-    @ConfigProperty(name = "SMTP_PASSWORD")
-    private val smtpPassword: Optional<String> = Optional.empty(),
 ) {
 
     companion object {
@@ -99,21 +93,17 @@ class MailService @Inject constructor(
         private const val MAIL_ONDERWERP = "Onderwerp"
         private const val MAIL_BERICHT = "Bericht"
 
-        private const val MAIL_SMTP_USER = "mail.smtp.user"
         private const val MAIL_SMTP_AUTH = "mail.smtp.auth"
     }
 
     @PostConstruct
     @Suppress("UnusedPrivateMember")
-    private fun initPasswordAuthentication() =
-        smtpUsername.getOrNull()?.let {
-            mailSession.properties.setProperty(MAIL_SMTP_USER, it)
-            mailSession.setPasswordAuthentication(
-                URLName("smtp://$it@$smtpServerHost"),
-                PasswordAuthentication(it, smtpPassword.get())
-            )
-            mailSession.properties.setProperty(MAIL_SMTP_AUTH, "true")
+    private fun initPasswordAuthentication() {
+        if (!smtpUsername.isPresent) {
+            mailSession.properties.setProperty(MAIL_SMTP_AUTH, "false")
+            LOG.warning { "SMTP authentication disabled" }
         }
+    }
 
     val gemeenteMailAdres
         get() = MailAdres(configuratieService.readGemeenteMail(), configuratieService.readGemeenteNaam())

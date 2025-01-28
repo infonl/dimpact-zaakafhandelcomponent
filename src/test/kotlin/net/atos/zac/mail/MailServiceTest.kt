@@ -46,7 +46,6 @@ class MailServiceTest : BehaviorSpec({
     val zgwApiService = mockk<ZGWApiService>()
     val ztcClientService = mockk<ZtcClientService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val smtpServerName = "smtp.example.com"
 
     val mailService = MailService(
         configuratieService,
@@ -54,8 +53,7 @@ class MailServiceTest : BehaviorSpec({
         ztcClientService,
         drcClientService,
         mailTemplateHelper,
-        loggedInUserInstance,
-        smtpServerName,
+        loggedInUserInstance
     )
 
     beforeEach {
