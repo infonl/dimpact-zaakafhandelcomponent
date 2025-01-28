@@ -22,10 +22,8 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.mail.MessagingException
-import jakarta.mail.PasswordAuthentication
 import jakarta.mail.Session
 import jakarta.mail.Transport
-import jakarta.mail.URLName
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import net.atos.client.zgw.drc.model.generated.StatusEnum
@@ -59,7 +57,6 @@ import java.util.UUID
 import java.util.function.Consumer
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.jvm.optionals.getOrNull
 
 @ApplicationScoped
 @NoArgConstructor
