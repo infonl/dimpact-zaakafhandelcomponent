@@ -8,8 +8,8 @@ import {
   moveItemInArray,
   transferArrayItem,
 } from "@angular/cdk/drag-drop";
-import { BreakpointObserver } from "@angular/cdk/layout";
 import { Component, OnInit, ViewChild } from "@angular/core";
+import { FormControl } from "@angular/forms";
 import { MatMenuTrigger } from "@angular/material/menu";
 import moment from "moment";
 import { forkJoin } from "rxjs";
@@ -63,15 +63,14 @@ export class DashboardComponent implements OnInit {
 
   dashboardCardType = DashboardCardType;
   width: number; // actual number of cards horizontally
-  editmode: boolean;
+  editMode = new FormControl(false);
   showHint: boolean;
 
-  instellingen: DashboardCardInstelling[]; // the last loaded card settings
+  instellingen: DashboardCardInstelling[] = []; // the last loaded card settings
   available: DashboardCard[] = []; // cards that are not on the dashboard
   grid: Array<DashboardCard[]> = []; // cards that are on the dashboard
 
   constructor(
-    private breakpointObserver: BreakpointObserver,
     private utilService: UtilService,
     private signaleringenService: SignaleringenService,
     private gebruikersvoorkeurenService: GebruikersvoorkeurenService,
@@ -212,7 +211,7 @@ export class DashboardComponent implements OnInit {
   }
 
   hint(): void {
-    this.editmode = true;
+    this.editMode.setValue(true);
     setTimeout(() => {
       this.menuTrigger.openMenu();
     }, 666);

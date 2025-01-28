@@ -4,7 +4,11 @@
  */
 
 import { CommonModule } from "@angular/common";
-import { HttpClientJsonpModule, HttpClientModule } from "@angular/common/http";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+  withJsonpSupport,
+} from "@angular/common/http";
 import { ModuleWithProviders, NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { GoogleMapsModule } from "@angular/google-maps";
@@ -100,11 +104,31 @@ import {
     EnhanceMatErrorDirective,
     CapitalizeFirstLetterPipe,
   ],
+  exports: [
+    FileDragAndDropDirective,
+    FormComponent,
+    FormFieldComponent,
+    DateComponent,
+    HeadingComponent,
+    HtmlEditorComponent,
+    InputComponent,
+    FileComponent,
+    SelectComponent,
+    MedewerkerGroepComponent,
+    CheckboxComponent,
+    TextareaComponent,
+    GoogleMapsComponent,
+    AutocompleteComponent,
+    DocumentenLijstComponent,
+    DocumentenOndertekenenComponent,
+    TaakDocumentUploadComponent,
+    RadioComponent,
+    ParagraphComponent,
+    MessageComponent,
+  ],
   imports: [
     FileDragAndDropDirective,
     CommonModule,
-    HttpClientModule,
-    HttpClientJsonpModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
     GoogleMapsModule,
@@ -130,28 +154,6 @@ import {
     MatListModule,
     DocumentIconComponent,
     InformatieObjectIndicatiesComponent,
-  ],
-  exports: [
-    FileDragAndDropDirective,
-    FormComponent,
-    FormFieldComponent,
-    DateComponent,
-    HeadingComponent,
-    HtmlEditorComponent,
-    InputComponent,
-    FileComponent,
-    SelectComponent,
-    MedewerkerGroepComponent,
-    CheckboxComponent,
-    TextareaComponent,
-    GoogleMapsComponent,
-    AutocompleteComponent,
-    DocumentenLijstComponent,
-    DocumentenOndertekenenComponent,
-    TaakDocumentUploadComponent,
-    RadioComponent,
-    ParagraphComponent,
-    MessageComponent,
   ],
   providers: [
     {
@@ -179,6 +181,7 @@ import {
         },
       },
     },
+    provideHttpClient(withInterceptorsFromDi(), withJsonpSupport()),
   ],
 })
 export class MaterialFormBuilderModule {
