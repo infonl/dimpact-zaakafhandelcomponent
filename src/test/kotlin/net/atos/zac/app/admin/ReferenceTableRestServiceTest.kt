@@ -17,8 +17,8 @@ import net.atos.zac.admin.ReferenceTableService
 import net.atos.zac.admin.model.ReferenceTable
 import net.atos.zac.admin.model.createReferenceTable
 import net.atos.zac.admin.model.createReferenceTableValue
-import nl.info.zac.exception.InputValidationFailedException
 import net.atos.zac.policy.PolicyService
+import nl.info.zac.exception.InputValidationFailedException
 
 class ReferenceTableRestServiceTest : BehaviorSpec({
     val referenceTableService = mockk<ReferenceTableService>()
