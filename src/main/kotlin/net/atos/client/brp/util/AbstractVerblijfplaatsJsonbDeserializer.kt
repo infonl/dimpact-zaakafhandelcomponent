@@ -15,7 +15,7 @@ import net.atos.client.brp.model.generated.Adres
 import net.atos.client.brp.model.generated.Locatie
 import net.atos.client.brp.model.generated.VerblijfplaatsBuitenland
 import net.atos.client.brp.model.generated.VerblijfplaatsOnbekend
-import net.atos.zac.app.exception.InputValidationFailedException
+import nl.info.zac.exception.InputValidationFailedException
 import java.lang.reflect.Type
 
 class AbstractVerblijfplaatsJsonbDeserializer : JsonbDeserializer<AbstractVerblijfplaats> {

@@ -16,7 +16,7 @@ import net.atos.client.brp.model.generated.ZoekMetNaamEnGemeenteVanInschrijvingR
 import net.atos.client.brp.model.generated.ZoekMetNummeraanduidingIdentificatieResponse
 import net.atos.client.brp.model.generated.ZoekMetPostcodeEnHuisnummerResponse
 import net.atos.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse
-import net.atos.zac.app.exception.InputValidationFailedException
+import nl.info.zac.exception.InputValidationFailedException
 import java.lang.reflect.Type
 
 class PersonenQueryResponseJsonbDeserializer : JsonbDeserializer<PersonenQueryResponse> {

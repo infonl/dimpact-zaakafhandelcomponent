@@ -23,7 +23,7 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.FormulierDefinitie
 import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.admin.model.ZaakafhandelParameters
-import net.atos.zac.app.exception.InputValidationFailedException
+import nl.info.zac.exception.InputValidationFailedException
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
 import net.atos.zac.app.planitems.converter.RESTPlanItemConverter
 import net.atos.zac.app.planitems.model.RESTHumanTaskData
