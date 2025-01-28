@@ -11,7 +11,7 @@ import nl.info.zac.exception.ZacRuntimeException
  * Exception thrown when an error occurs during searches using the Solr search engine.
  */
 class SearchException(message: String, cause: Throwable) : ZacRuntimeException(
-    ERROR_CODE_SEARCH_SEARCH,
-    message,
-    cause
+    errorCode = ERROR_CODE_SEARCH_SEARCH,
+    message = message,
+    cause = cause
 )

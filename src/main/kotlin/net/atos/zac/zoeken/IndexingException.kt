@@ -12,5 +12,5 @@ import nl.info.zac.exception.ZacRuntimeException
  */
 class IndexingException : ZacRuntimeException {
     constructor(message: String) : super(ERROR_CODE_SEARCH_INDEXING, message)
-    constructor(cause: Throwable) : super(ERROR_CODE_SEARCH_INDEXING, cause)
+    constructor(message: String, cause: Throwable) : super(ERROR_CODE_SEARCH_INDEXING, message, cause)
 }
