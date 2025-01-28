@@ -341,7 +341,7 @@ solr:
 solr-operator:
   annotations: {}
   affinity: {}
-  enabled: true
+  enabled: false
   fullnameOverride: solr-operator
   image:
     pullPolicy: IfNotPresent
