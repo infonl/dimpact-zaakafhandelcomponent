@@ -2,8 +2,8 @@
   ~ SPDX-FileCopyrightText: 2022 - 2023 Atos
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
-<div (click)="edit()" *ngIf="!editing" class="view">
-  <div class="static-text groep" [class.readonly]="readonly">
+<div (click)="edit()" *ngIf="!editing" class="flex flex-row flex-nowrap justify-start gap-10">
+  <div class="static-text groep flex-item" [class.readonly]="readonly">
     <label class="static-text-label">
       {{ "groep" | translate }}
       <mat-icon *ngIf="!readonly">edit</mat-icon>
@@ -16,7 +16,7 @@
     </div>
   </div>
 
-  <div class="static-text behandelaar" [class.readonly]="readonly">
+  <div class="static-text behandelaar flex-item" [class.readonly]="readonly">
     <label class="static-text-label">
       {{ "behandelaar" | translate }}
       <mat-icon *ngIf="!readonly">edit</mat-icon>
