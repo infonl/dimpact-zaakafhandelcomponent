@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021-2022 Atos
+ * SPDX-FileCopyrightText: 2021-2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -12,6 +12,7 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
+import { FormControl } from "@angular/forms";
 import { FilterParameters } from "../../../zoeken/model/filter-parameters";
 import { FilterResultaat } from "../../../zoeken/model/filter-resultaat";
 
@@ -21,7 +22,7 @@ import { FilterResultaat } from "../../../zoeken/model/filter-resultaat";
   styleUrls: ["./facet-filter.component.less"],
 })
 export class FacetFilterComponent implements OnInit, OnChanges {
-  selected: string;
+  selected = new FormControl<string>(undefined);
   @Input() filter: FilterParameters;
   @Input() opties: FilterResultaat[];
   @Input() label: string;
@@ -51,7 +52,7 @@ export class FacetFilterComponent implements OnInit, OnChanges {
   }
 
   private setSelected(): void {
-    this.selected = this.filter?.values ? this.filter.values[0] : null;
+    this.selected.setValue(this.filter?.values ? this.filter.values[0] : null);
   }
 
   isVertaalbaar(veld: string): boolean {
@@ -59,10 +60,11 @@ export class FacetFilterComponent implements OnInit, OnChanges {
   }
 
   change() {
-    if (this.selected) {
-      this.changed.emit(new FilterParameters([this.selected], false));
-    } else {
-      this.changed.emit(new FilterParameters([], false));
-    }
+    this.changed.emit(
+      new FilterParameters(
+        this.selected.value ? [this.selected.value] : [],
+        false,
+      ),
+    );
   }
 }
