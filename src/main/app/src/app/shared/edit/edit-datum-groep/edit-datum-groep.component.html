@@ -18,7 +18,7 @@
         {{ startDatumField.formControl.defaultValue | datum }}
       </div>
     </div>
-      <div class="static-text flex-item">
+    <div class="static-text flex-item">
       <label class="static-text-label">
         {{ einddatumGeplandField.label | translate }}
         <mat-icon *ngIf="!readonly">edit</mat-icon>
@@ -37,7 +37,7 @@
         </div>
       </div>
     </div>
-      <div class="static-text flex-item">
+    <div class="static-text flex-item">
       <label class="static-text-label">
         {{ uiterlijkeEinddatumAfdoeningField.label | translate }}
         <mat-icon *ngIf="!readonly">edit</mat-icon>
@@ -62,7 +62,10 @@
       </div>
     </div>
   </div>
-  <div *ngIf="verlengDuur || opgeschort" class="flex-row space-between toelichting timed-messages">
+  <div
+    *ngIf="verlengDuur || opgeschort"
+    class="flex-row space-between toelichting timed-messages"
+  >
     <div class="flex-col justify-content-around inner-static-text">
       <div *ngIf="verlengDuur">
         {{ "duurVerlenging" | translate: { duur: verlengDuur } }}
