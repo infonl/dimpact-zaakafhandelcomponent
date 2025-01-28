@@ -31,7 +31,6 @@ import net.atos.zac.app.admin.model.RESTTaakFormulierDefinitie
 import net.atos.zac.app.admin.model.RESTTaakFormulierVeldDefinitie
 import net.atos.zac.app.admin.model.RESTZaakbeeindigReden
 import net.atos.zac.app.admin.model.RestZaakafhandelParameters
-import net.atos.zac.app.exception.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import net.atos.zac.app.exception.InputValidationFailedException
 import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.app.zaak.model.RestResultaattype
@@ -43,6 +42,7 @@ import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.RestSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.isSubsetOf
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
@@ -281,7 +281,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
                     "This indicates a configuration error in the zaakafhandelparameters. " +
                     "There should be at most only one active zaakafhandelparameters for each productaanvraagtype."
             )
-            throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
+            throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE.value)
         }
         if (activeZaakafhandelparametersForProductaanvraagtype.size == 1 &&
             activeZaakafhandelparametersForProductaanvraagtype.first().zaaktypeOmschrijving != zaaktypeOmschrijving
@@ -292,7 +292,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
                     "and zaaktype UUID: '${activeZaakafhandelparametersForProductaanvraagtype.first().zaakTypeUUID}'. " +
                     "Please use a unique productaanvraagtype per active zaakafhandelparameters."
             )
-            throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
+            throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE.value)
         }
     }
 }

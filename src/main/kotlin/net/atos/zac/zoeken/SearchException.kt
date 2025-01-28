@@ -4,4 +4,14 @@
  */
 package net.atos.zac.zoeken
 
-class SearchException(message: String, cause: Throwable) : RuntimeException(message, cause)
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_SEARCH
+import nl.info.zac.exception.ZacRuntimeException
+
+/**
+ * Exception thrown when an error occurs during searches using the Solr search engine.
+ */
+class SearchException(message: String, cause: Throwable) : ZacRuntimeException(
+    ERROR_CODE_SEARCH,
+    message,
+    cause
+)
