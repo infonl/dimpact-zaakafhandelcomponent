@@ -32,7 +32,7 @@ class AbstractDatumJsonbDeserializer : JsonbDeserializer<AbstractDatum> {
                 "DatumOnbekend" -> JSONB.fromJson(it.toString(), DatumOnbekend::class.java)
                 "JaarDatum" -> JSONB.fromJson(it.toString(), JaarDatum::class.java)
                 "JaarMaandDatum" -> JSONB.fromJson(it.toString(), JaarMaandDatum::class.java)
-                else -> throw InputValidationFailedException("Type '$type' is not supported")
+                else -> throw InputValidationFailedException(message = "Type '$type' is not supported")
             }
         }
 }

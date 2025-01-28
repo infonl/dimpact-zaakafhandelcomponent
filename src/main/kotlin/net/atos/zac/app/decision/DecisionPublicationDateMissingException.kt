@@ -5,4 +5,9 @@
 
 package net.atos.zac.app.decision
 
-class DecisionPublicationDateMissingException(message: String) : DecisionException(message)
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_BESLUIT_PUBLICATION_DATE_MISSING_TYPE
+import nl.info.zac.exception.InputValidationFailedException
+
+class DecisionPublicationDateMissingException : InputValidationFailedException(
+    ERROR_CODE_BESLUIT_PUBLICATION_DATE_MISSING_TYPE
+)

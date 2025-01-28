@@ -28,7 +28,6 @@ import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
 import net.atos.zac.app.decision.DecisionPublicationDateMissingException
 import net.atos.zac.app.decision.DecisionPublicationDisabledException
 import net.atos.zac.app.decision.DecisionResponseDateInvalidException
-import net.atos.zac.app.decision.DecisionResponseDateMissingException
 import net.atos.zac.app.exception.RestExceptionMapper
 import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
@@ -273,7 +272,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         }
     }
     Given("A SmartDocumentsDisabled exception") {
-        val exception = SmartDocumentsDisabledException("disabled")
+        val exception = SmartDocumentsDisabledException()
 
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
@@ -284,7 +283,16 @@ class RestExceptionMapperTest : BehaviorSpec({
                     errorMessage = "msg.error.smartdocuments.disabled",
                     expectedStatus = HttpStatus.SC_BAD_REQUEST
                 )
-                verify(exactly = 1) { log(any(), Level.FINE, exception.message!!, exception) }
+                verify(
+                    exactly = 1
+                ) {
+                    log(
+                        any(),
+                        Level.FINE,
+                        "Exception was thrown. Returning response with error message: 'msg.error.smartdocuments.disabled'.",
+                        exception
+                    )
+                }
             }
         }
     }
@@ -321,7 +329,7 @@ class RestExceptionMapperTest : BehaviorSpec({
         }
     }
     Given("A DecisionPublicationDateMissingException exception") {
-        val exception = DecisionPublicationDateMissingException("error")
+        val exception = DecisionPublicationDateMissingException()
 
         When("the exception is mapped to a response") {
             val response = restExceptionMapper.toResponse(exception)
@@ -332,23 +340,16 @@ class RestExceptionMapperTest : BehaviorSpec({
                     errorMessage = "msg.error.besluit.publication.date.missing",
                     expectedStatus = HttpStatus.SC_BAD_REQUEST
                 )
-                verify(exactly = 1) { log(any(), Level.FINE, exception.message!!, exception) }
-            }
-        }
-    }
-    Given("A DecisionResponseDateMissingException exception") {
-        val exception = DecisionResponseDateMissingException("error")
-
-        When("the exception is mapped to a response") {
-            val response = restExceptionMapper.toResponse(exception)
-
-            Then("it should return the proper error code and no exception message and log the exception") {
-                checkResponse(
-                    response = response,
-                    errorMessage = "msg.error.besluit.response.date.missing",
-                    expectedStatus = HttpStatus.SC_BAD_REQUEST
-                )
-                verify(exactly = 1) { log(any(), Level.FINE, exception.message!!, exception) }
+                verify(
+                    exactly = 1
+                ) {
+                    log(
+                        any(),
+                        Level.FINE,
+                        "Exception was thrown. Returning response with error message: 'msg.error.besluit.publication.date.missing'.",
+                        exception
+                    )
+                }
             }
         }
     }

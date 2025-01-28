@@ -40,7 +40,7 @@ class AbstractVerblijfplaatsJsonbDeserializer : JsonbDeserializer<AbstractVerbli
                 "VerblijfplaatsOnbekend" -> JSONB.fromJson(it.toString(), VerblijfplaatsOnbekend::class.java)
                 "Locatie" -> JSONB.fromJson(it.toString(), Locatie::class.java)
                 else -> throw InputValidationFailedException(
-                    "Unsupported ${AbstractVerblijfplaats::class.java.simpleName} type: '$type'"
+                    message = "Unsupported ${AbstractVerblijfplaats::class.java.simpleName} type: '$type'"
                 )
             }
         }

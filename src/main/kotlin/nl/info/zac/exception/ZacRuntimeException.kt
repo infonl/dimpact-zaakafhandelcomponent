@@ -7,6 +7,7 @@ package nl.info.zac.exception
 /**
  * Exception thrown when an error occurs in the ZAC application.
  * Contains an error code which can be translated to a user-friendly message.
+ * These exceptions typically result in a 500 Internal Server Error response.
  */
 open class ZacRuntimeException(
     val errorCode: ErrorCode,

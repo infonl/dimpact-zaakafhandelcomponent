@@ -305,7 +305,7 @@ class PlanItemsRESTService @Inject constructor(
     private fun validateFatalDate(taskFatalDate: LocalDate?, zaakFatalDate: LocalDate) {
         if (taskFatalDate != null && taskFatalDate.isAfter(zaakFatalDate)) {
             throw InputValidationFailedException(
-                "Fatal date of a task ($taskFatalDate) cannot be later than the fatal date of the zaak ($zaakFatalDate)"
+                message = "Fatal date of a task ($taskFatalDate) cannot be later than the fatal date of the zaak ($zaakFatalDate)"
             )
         }
     }

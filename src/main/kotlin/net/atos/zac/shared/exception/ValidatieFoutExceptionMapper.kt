@@ -14,9 +14,9 @@ import net.atos.client.zgw.shared.exception.ValidatieFoutException
  * the frontend for further processing.
  */
 @Provider
-class ValidatieFoutExceptionMapper : ExceptionMapper<ValidatieFoutException?> {
-    override fun toResponse(validatieFoutException: ValidatieFoutException?): Response =
-        validatieFoutException?.validatieFout.toString().let {
+class ValidatieFoutExceptionMapper : ExceptionMapper<ValidatieFoutException> {
+    override fun toResponse(validatieFoutException: ValidatieFoutException): Response =
+        validatieFoutException.validatieFout.toString().let {
             Response.status(Response.Status.BAD_REQUEST).entity(it).build()
         }
 }

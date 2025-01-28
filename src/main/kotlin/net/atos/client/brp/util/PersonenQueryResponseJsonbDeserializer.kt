@@ -70,7 +70,7 @@ class PersonenQueryResponseJsonbDeserializer : JsonbDeserializer<PersonenQueryRe
                     it.toString(),
                     ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse::class.java
                 )
-                else -> throw InputValidationFailedException("Unsupported type: '$type'")
+                else -> throw InputValidationFailedException(message = "Unsupported type: '$type'")
             }
         }
 }
