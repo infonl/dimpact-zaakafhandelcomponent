@@ -475,7 +475,7 @@ solr-operator:
         # -- zookeeper image repository
         repository: pravega/zookeeper
         # -- zookeeper image tag
-        tag: 0.2.14
+        tag: 0.2.15@sha256:c498ebfb76a66f038075e2fa6148528d74d31ca1664f3257fdf82ee779eec9c8
       # -- nodeSelector for zookeeper
       nodeSelector: {}
       # -- replicas for zookeeper, should be an odd number
