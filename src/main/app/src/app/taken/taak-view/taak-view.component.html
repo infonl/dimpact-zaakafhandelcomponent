@@ -15,9 +15,19 @@
     opened="true"
     disableClose="true"
   >
-    <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
+    <zac-side-nav
+      (mode)="menuModeChanged($event)"
+      [menu]="menu"
+      [activeItem]="action"
+    ></zac-side-nav>
   </mat-drawer>
-  <mat-drawer #actionsSidenav mode="over" position="end" [ngSwitch]="action">
+  <mat-drawer
+    #actionsSidenav
+    mode="over"
+    position="end"
+    [ngSwitch]="action"
+    (closedStart)="action = null"
+  >
     <zac-informatie-object-create-attended
       *ngSwitchCase="sideNavAction.DOCUMENT_MAKEN"
       [sideNav]="actionsSidenav"

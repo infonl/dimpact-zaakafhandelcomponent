@@ -335,6 +335,7 @@ export class TaakViewComponent
             this.action = SideNavAction.DOCUMENT_TOEVOEGEN;
           },
           "upload_file",
+          SideNavAction.DOCUMENT_TOEVOEGEN,
         ),
       );
 
@@ -352,6 +353,7 @@ export class TaakViewComponent
               this.action = SideNavAction.DOCUMENT_MAKEN;
             },
             "note_add",
+            SideNavAction.DOCUMENT_MAKEN,
           ),
         );
       }
