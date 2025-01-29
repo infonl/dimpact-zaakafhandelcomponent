@@ -23,6 +23,7 @@
       mat-list-item
       *ngSwitchCase="menuItemType.LINK"
       [disabled]="menuItem.disabled"
+      [activated]="menuItem.activated"
       routerLink="{{ asLinkMenuItem(menuItem).url }}"
       routerLinkActive="active"
     >

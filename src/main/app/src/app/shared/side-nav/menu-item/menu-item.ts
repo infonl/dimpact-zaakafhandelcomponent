@@ -10,6 +10,7 @@ export abstract class MenuItem {
   abstract readonly title: string;
   abstract readonly icon?: string;
   action?: SideNavAction | null = null;
+  activated = false;
   disabled = false;
 }
 

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 - 2024 Dimpact
+ * SPDX-FileCopyrightText: 2022 - 2024-2025 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -85,7 +85,7 @@ export abstract class AdminComponent extends ViewComponent {
 
   private getMenuLink(title: string, url: string, icon: string): MenuItem {
     const menuItem: MenuItem = new LinkMenuItem(title, url, icon);
-    menuItem.disabled = this.activeMenu === title;
+    menuItem.activated = this.activeMenu === title;
     return menuItem;
   }
 }
