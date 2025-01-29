@@ -96,6 +96,13 @@ class MailService @Inject constructor(
     @PostConstruct
     @Suppress("UnusedPrivateMember")
     private fun initPasswordAuthentication() {
+        // If there's no SMTP_USERNAME environment variable set, we consider this as a case, where SMTP server
+        // has no authentication. In such case we disable SMTP authentication in the mail session to prevent sending
+        // the default dummy credentials configured in src/main/resources/wildfly/configure-wildfly.cli
+        //
+        // Without the dummy credentials the SMTP mail session is not properly configured, and:
+        //    - Weld fails to instantiate the mail session and satisfy the @Resource dependency above
+        //    - mail Transport below throws AuthenticationFailedException, because of insufficient configuration
         if (!smtpUsername.isPresent) {
             mailSession.properties.setProperty(MAIL_SMTP_AUTH, "false")
             LOG.warning { "SMTP authentication disabled" }
