@@ -144,7 +144,7 @@ export class FoutAfhandelingService {
     } else {
       // only show server error texts in case of a server error (500 family of errors)
       // or in case of a 403 Forbidden error
-      const showServerErrorTexts = err.status >= 500 ||  err.status === 403;
+      const showServerErrorTexts = err.status >= 500 || err.status === 403;
 
       // show error in context and do not redirect to error page
       return this.openFoutDetailedDialog(
