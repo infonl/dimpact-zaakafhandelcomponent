@@ -61,7 +61,6 @@ import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
-import { SideNavAction } from "../../shared/side-nav/side-nav-action";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { Taak } from "../../taken/model/taak";
@@ -92,8 +91,7 @@ export class ZaakViewComponent
   zaakOpschorting: GeneratedType<"RESTZaakOpschorting">;
   actiefPlanItem: PlanItem;
   menu: MenuItem[];
-  readonly sideNavAction = SideNavAction;
-  action: SideNavAction;
+  activeSideAction: string | null = null;
   teWijzigenBesluit: GeneratedType<"RestDecision">;
 
   takenDataSource = new MatTableDataSource<ExpandableTableData<Taak>>();
@@ -272,9 +270,12 @@ export class ZaakViewComponent
 
     this.subscriptions$.push(
       this.actionsSidenav.openedChange.subscribe((opened) => {
-        if (!opened && this.action === SideNavAction.ZOEK_LOCATIE) {
-          this.action = null;
-        }
+        if (opened) return;
+
+        console.log({ opened });
+
+        this.activeSideAction = null;
+        console.log(this.activeSideAction);
       }),
     );
 
@@ -301,6 +302,10 @@ export class ZaakViewComponent
       }
     };
     this.historie.sort = this.historieSort;
+  }
+
+  log(event: unknown) {
+    console.log(JSON.stringify(event));
   }
 
   ngOnDestroy(): void {
@@ -461,59 +466,25 @@ export class ZaakViewComponent
     );
   }
 
-  private createHumanTaskPlanItemMenuItem(
-    humanTaskPlanItem: PlanItem,
-  ): MenuItem {
+  private createPlanItemMenuItem(planItem: PlanItem, icon: string): MenuItem {
     return new ButtonMenuItem(
-      humanTaskPlanItem.naam,
+      planItem.naam,
       () => {
-        if (
-          !this.actiefPlanItem ||
-          this.actiefPlanItem.id !== humanTaskPlanItem.id
-        ) {
-          this.action = null;
+        if (!this.actiefPlanItem || this.actiefPlanItem.id !== planItem.id) {
+          this.activeSideAction = null;
           this.planItemsService
-            .readHumanTaskPlanItem(humanTaskPlanItem.id)
+            .readHumanTaskPlanItem(planItem.id)
             .subscribe((planItem) => {
               this.actiefPlanItem = planItem;
-              this.action = SideNavAction.TAAK_STARTEN;
+              this.activeSideAction = planItem.naam;
               this.actionsSidenav.open();
             });
         } else {
-          this.action = SideNavAction.TAAK_STARTEN;
+          this.activeSideAction = planItem.naam;
           this.actionsSidenav.open();
         }
       },
-      "assignment",
-      SideNavAction.TAAK_STARTEN,
-    );
-  }
-
-  private createProcessTaskPlanItemMenuItem(
-    processTaskPlanItem: PlanItem,
-  ): MenuItem {
-    return new ButtonMenuItem(
-      processTaskPlanItem.naam,
-      () => {
-        if (
-          !this.actiefPlanItem ||
-          this.actiefPlanItem.id !== processTaskPlanItem.id
-        ) {
-          this.action = null;
-          this.planItemsService
-            .readProcessTaskPlanItem(processTaskPlanItem.id)
-            .subscribe((planItem) => {
-              this.actiefPlanItem = planItem;
-              this.action = SideNavAction.PROCESS_STARTEN;
-              this.actionsSidenav.open();
-            });
-        } else {
-          this.action = SideNavAction.PROCESS_STARTEN;
-          this.actionsSidenav.open();
-        }
-      },
-      "receipt_long",
-      SideNavAction.PROCESS_STARTEN,
+      icon,
     );
   }
 
@@ -541,12 +512,8 @@ export class ZaakViewComponent
         this.menu.push(
           new ButtonMenuItem(
             "actie.ontvangstbevestiging.versturen",
-            () => {
-              this.actionsSidenav.open();
-              this.action = SideNavAction.ONTVANGSTBEVESTIGING;
-            },
+            () => this.actionsSidenav.open(),
             "mark_email_read",
-            SideNavAction.ONTVANGSTBEVESTIGING,
           ),
         );
       }
@@ -555,12 +522,8 @@ export class ZaakViewComponent
         this.menu.push(
           new ButtonMenuItem(
             "actie.mail.versturen",
-            () => {
-              this.actionsSidenav.open();
-              this.action = SideNavAction.MAIL_VERSTUREN;
-            },
+            () => this.actionsSidenav.open(),
             "mail",
-            SideNavAction.MAIL_VERSTUREN,
           ),
         );
       }
@@ -576,12 +539,8 @@ export class ZaakViewComponent
         this.menu.push(
           new ButtonMenuItem(
             "actie.document.maken",
-            () => {
-              this.actionsSidenav.open();
-              this.action = SideNavAction.DOCUMENT_MAKEN;
-            },
+            () => this.actionsSidenav.open(),
             "note_add",
-            SideNavAction.DOCUMENT_MAKEN,
           ),
         );
       }
@@ -589,24 +548,16 @@ export class ZaakViewComponent
       this.menu.push(
         new ButtonMenuItem(
           "actie.document.toevoegen",
-          () => {
-            this.actionsSidenav.open();
-            this.action = SideNavAction.DOCUMENT_TOEVOEGEN;
-          },
+          () => this.actionsSidenav.open(),
           "upload_file",
-          SideNavAction.DOCUMENT_TOEVOEGEN,
         ),
       );
 
       this.menu.push(
         new ButtonMenuItem(
           "actie.document.verzenden",
-          () => {
-            this.actionsSidenav.open();
-            this.action = SideNavAction.DOCUMENT_VERZENDEN;
-          },
+          () => this.actionsSidenav.open(),
           "local_post_office",
-          SideNavAction.DOCUMENT_VERZENDEN,
         ),
       );
     }
@@ -621,12 +572,8 @@ export class ZaakViewComponent
       this.menu.push(
         new ButtonMenuItem(
           "actie.besluit.vastleggen",
-          () => {
-            this.actionsSidenav.open();
-            this.action = SideNavAction.BESLUIT_VASTLEGGEN;
-          },
+          () => this.actionsSidenav.open(),
           "gavel",
-          SideNavAction.BESLUIT_VASTLEGGEN,
         ),
       );
     }
@@ -647,12 +594,8 @@ export class ZaakViewComponent
           this.menu.push(
             new ButtonMenuItem(
               "actie.zaakdata.bekijken",
-              () => {
-                this.actionsSidenav.open();
-                this.action = SideNavAction.ZAAKDATA_TONEN;
-              },
+              () => this.actionsSidenav.open(),
               "folder_copy",
-              SideNavAction.ZAAKDATA_TONEN,
             ),
           );
         }
@@ -680,7 +623,7 @@ export class ZaakViewComponent
           this.menu.push(new HeaderMenuItem("actie.taak.starten"));
           this.menu = this.menu.concat(
             humanTaskPlanItems.map((humanTaskPlanItem) =>
-              this.createHumanTaskPlanItemMenuItem(humanTaskPlanItem),
+              this.createPlanItemMenuItem(humanTaskPlanItem, "assignment"),
             ),
           );
         }
@@ -689,7 +632,7 @@ export class ZaakViewComponent
           this.menu.push(new HeaderMenuItem("actie.proces.starten"));
           this.menu = this.menu.concat(
             processTaskPlanItems.map((processTaskPlanItem) =>
-              this.createProcessTaskPlanItemMenuItem(processTaskPlanItem),
+              this.createPlanItemMenuItem(processTaskPlanItem, "receipt_long"),
             ),
           );
         }
@@ -710,24 +653,16 @@ export class ZaakViewComponent
         this.menu.push(
           new ButtonMenuItem(
             "actie.betrokkene.toevoegen",
-            () => {
-              this.actionsSidenav.open();
-              this.action = SideNavAction.ZOEK_BETROKKENE;
-            },
+            () => this.actionsSidenav.open(),
             "group_add",
-            SideNavAction.ZOEK_BETROKKENE,
           ),
         );
         if (this.zaak.rechten.toevoegenBagObject) {
           this.menu.push(
             new ButtonMenuItem(
               "actie.bagObject.toevoegen",
-              () => {
-                this.actionsSidenav.open();
-                this.action = SideNavAction.ZOEK_BAG_ADRES;
-              },
+              () => this.actionsSidenav.open(),
               "add_home_work",
-              SideNavAction.ZOEK_BAG_ADRES,
             ),
           );
         }
@@ -737,7 +672,10 @@ export class ZaakViewComponent
           new ButtonMenuItem(
             "actie.zaak.koppelen",
             () => {
-              this.zaakKoppelenService.addTeKoppelenZaak(this.zaak);
+              this.zaakKoppelenService.addTeKoppelenZaak(this.zaak, () => {
+                console.log(true);
+                this.activeSideAction = null;
+              });
             },
             "account_tree",
           ),
@@ -848,10 +786,10 @@ export class ZaakViewComponent
       })
       .afterClosed()
       .subscribe((result) => {
+        this.activeSideAction = null;
         if (result) {
           if (result === "openBesluitVastleggen") {
             this.actionsSidenav.open();
-            this.action = SideNavAction.BESLUIT_VASTLEGGEN;
           } else {
             this.utilService.openSnackbar(
               "msg.planitem.uitgevoerd." + planItem.userEventListenerActie,
@@ -928,6 +866,7 @@ export class ZaakViewComponent
       .open(DialogComponent, { data: dialogData })
       .afterClosed()
       .subscribe((result) => {
+        this.activeSideAction = null;
         if (result) {
           this.updateZaak();
           this.loadTaken();
@@ -960,6 +899,7 @@ export class ZaakViewComponent
       .open(DialogComponent, { data: dialogData })
       .afterClosed()
       .subscribe((result) => {
+        this.activeSideAction = null;
         if (result) {
           this.updateZaak();
           this.loadTaken();
@@ -1005,6 +945,7 @@ export class ZaakViewComponent
       .open(DialogComponent, { data: dialogData })
       .afterClosed()
       .subscribe((result) => {
+        this.activeSideAction = null;
         if (result) {
           this.updateZaak();
           this.loadTaken();
@@ -1021,6 +962,7 @@ export class ZaakViewComponent
       })
       .afterClosed()
       .subscribe((result) => {
+        this.activeSideAction = null;
         if (result) {
           this.init(result);
           this.utilService.openSnackbar("msg.zaak.opgeschort");
@@ -1036,6 +978,7 @@ export class ZaakViewComponent
       })
       .afterClosed()
       .subscribe((result) => {
+        this.activeSideAction = null;
         if (result) {
           this.init(result);
           this.utilService.openSnackbar("msg.zaak.verlengd");
@@ -1098,6 +1041,7 @@ export class ZaakViewComponent
       .open(DialogComponent, { data: dialogData })
       .afterClosed()
       .subscribe((result) => {
+        this.activeSideAction = null;
         if (result) {
           this.utilService.openSnackbar("msg.zaak.hervat");
           this.updateZaak();
@@ -1163,17 +1107,6 @@ export class ZaakViewComponent
       });
   }
 
-  editZaak(value: string, field: string): void {
-    const zaak: Zaak = new Zaak();
-    zaak[field] = value;
-    this.websocketService.suspendListener(this.zaakListener);
-    this.zakenService
-      .updateZaak(this.zaak.uuid, zaak)
-      .subscribe((updatedZaak) => {
-        this.init(updatedZaak);
-      });
-  }
-
   public updateZaak(): void {
     this.zakenService.readZaak(this.zaak.uuid).subscribe((zaak) => {
       this.init(zaak);
@@ -1208,13 +1141,12 @@ export class ZaakViewComponent
       (this.zaak.isOpen && this.zaak.rechten.wijzigen) ||
       this.zaak.zaakgeometrie != null
     ) {
-      this.action = SideNavAction.ZOEK_LOCATIE;
       this.actionsSidenav.open();
     }
   }
 
   addOrEditZaakInitiator(): void {
-    this.action = SideNavAction.ZOEK_INITIATOR;
+    this.activeSideAction = "actie.initiator.toevoegen";
     this.actionsSidenav.open();
   }
 
@@ -1330,6 +1262,7 @@ export class ZaakViewComponent
       })
       .afterClosed()
       .subscribe((result) => {
+        this.activeSideAction = null;
         if (result) {
           this.utilService.openSnackbar("msg.initiator.ontkoppelen.uitgevoerd");
           this.zakenService.readZaak(this.zaak.uuid).subscribe((zaak) => {
@@ -1386,6 +1319,7 @@ export class ZaakViewComponent
       })
       .afterClosed()
       .subscribe((result) => {
+        this.activeSideAction = null;
         if (result) {
           this.utilService.openSnackbar(
             "msg.betrokkene.ontkoppelen.uitgevoerd",
@@ -1439,18 +1373,17 @@ export class ZaakViewComponent
   }
 
   sluitSidenav(): void {
-    this.action = null;
+    this.activeSideAction = null;
+    this.actiefPlanItem = null;
     this.actionsSidenav.close();
   }
 
   taakGestart(): void {
-    this.actiefPlanItem = null;
     this.sluitSidenav();
     this.updateZaak();
   }
 
   processGestart(): void {
-    this.actiefPlanItem = null;
     this.sluitSidenav();
     this.updateZaak();
   }
@@ -1497,6 +1430,7 @@ export class ZaakViewComponent
       })
       .afterClosed()
       .subscribe((result) => {
+        this.activeSideAction = null;
         if (result) {
           this.utilService.openSnackbar("msg.zaak.ontkoppelen.uitgevoerd");
         }
@@ -1508,7 +1442,7 @@ export class ZaakViewComponent
   }
 
   besluitWijzigen($event): void {
-    this.action = SideNavAction.BESLUIT_WIJZIGEN;
+    this.activeSideAction = "actie.besluit.wijzigen";
     this.teWijzigenBesluit = $event;
     this.actionsSidenav.open();
   }
@@ -1593,6 +1527,7 @@ export class ZaakViewComponent
       .open(DialogComponent, { data: dialogData })
       .afterClosed()
       .subscribe((result) => {
+        this.activeSideAction = null;
         if (result) {
           this.loadHistorie();
           this.loadBagObjecten();

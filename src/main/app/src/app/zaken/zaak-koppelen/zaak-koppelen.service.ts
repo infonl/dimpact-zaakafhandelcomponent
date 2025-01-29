@@ -1,11 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Injectable } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
-import { Router } from "@angular/router";
 import { Subject } from "rxjs";
 import {
   ActionBarAction,
@@ -23,15 +22,17 @@ import { ZaakKoppelenDialogComponent } from "./zaak-koppelen-dialog.component";
   providedIn: "root",
 })
 export class ZaakKoppelenService {
+  private koppelZaakCallback: Function | null;
+
   constructor(
     private utilService: UtilService,
-    private router: Router,
     private dialog: MatDialog,
   ) {}
 
-  addTeKoppelenZaak(zaak: Zaak): void {
+  addTeKoppelenZaak(zaak: Zaak, callback?: Function): void {
     if (!this.isReedsTeKoppelen(zaak)) {
       this._koppelenZaak(zaak);
+      this.koppelZaakCallback = callback;
     }
   }
 
@@ -55,6 +56,7 @@ export class ZaakKoppelenService {
   private _koppelenZaak(zaak: Zaak, onInit?: boolean) {
     const dismiss: Subject<void> = new Subject<void>();
     dismiss.asObservable().subscribe(() => {
+      this.koppelZaakCallback?.();
       this.deleteTeKoppelenZaak(zaak);
     });
     const editAction = new Subject<string>();
@@ -86,9 +88,14 @@ export class ZaakKoppelenService {
     zaakKoppelGegevens.bronZaakUuid = zaak.uuid;
     zaakKoppelGegevens.doelZaakIdentificatie = nieuwZaakID;
 
-    this.dialog.open(ZaakKoppelenDialogComponent, {
-      data: zaakKoppelGegevens,
-    });
+    this.dialog
+      .open(ZaakKoppelenDialogComponent, {
+        data: zaakKoppelGegevens,
+      })
+      .afterClosed()
+      .subscribe(() => {
+        this.koppelZaakCallback?.();
+      });
   }
 
   private deleteTeKoppelenZaak(zaak: Zaak) {

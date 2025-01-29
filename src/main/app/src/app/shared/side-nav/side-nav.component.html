@@ -41,7 +41,7 @@
       mat-list-item
       *ngSwitchCase="menuItemType.BUTTON"
       [disabled]="menuItem.disabled"
-      [activated]="activeItem && activeItem === menuItem.action"
+      [activated]="activeItem && activeItem === menuItem.title"
       (click)="onClick(asButtonMenuItem(menuItem))"
       routerLinkActive="active"
     >

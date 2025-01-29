@@ -4,7 +4,6 @@
  */
 
 import { Observable } from "rxjs";
-import { SideNavAction } from "../side-nav-action";
 import { ButtonMenuItem } from "./button-menu-item";
 
 export class AsyncButtonMenuItem extends ButtonMenuItem {
@@ -12,8 +11,7 @@ export class AsyncButtonMenuItem extends ButtonMenuItem {
     readonly title: string,
     readonly fn: () => Observable<void>,
     readonly icon?: string,
-    readonly action?: SideNavAction,
   ) {
-    super(title, fn, icon, action);
+    super(title, fn, icon);
   }
 }

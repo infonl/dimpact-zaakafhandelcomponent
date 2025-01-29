@@ -38,7 +38,6 @@ import { OrderUtil } from "../../shared/order/order-util";
 import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
-import { SideNavAction } from "../../shared/side-nav/side-nav-action";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { Zaak } from "../../zaken/model/zaak";
@@ -70,8 +69,7 @@ export class TaakViewComponent
   formioChangeData;
 
   menu: MenuItem[] = [];
-  readonly sideNavAction = SideNavAction;
-  action: SideNavAction;
+  activeSideAction: string | null = null;
 
   historieSrc: MatTableDataSource<TaakHistorieRegel> =
     new MatTableDataSource<TaakHistorieRegel>();
@@ -330,12 +328,8 @@ export class TaakViewComponent
       this.menu.push(
         new ButtonMenuItem(
           "actie.document.toevoegen",
-          () => {
-            this.actionsSidenav.open();
-            this.action = SideNavAction.DOCUMENT_TOEVOEGEN;
-          },
+          () => this.actionsSidenav.open(),
           "upload_file",
-          SideNavAction.DOCUMENT_TOEVOEGEN,
         ),
       );
 
@@ -348,12 +342,8 @@ export class TaakViewComponent
         this.menu.push(
           new ButtonMenuItem(
             "actie.document.maken",
-            () => {
-              this.actionsSidenav.open();
-              this.action = SideNavAction.DOCUMENT_MAKEN;
-            },
+            () => this.actionsSidenav.open(),
             "note_add",
-            SideNavAction.DOCUMENT_MAKEN,
           ),
         );
       }
@@ -501,7 +491,6 @@ export class TaakViewComponent
   }
 
   documentCreated(): void {
-    this.action = null;
     void this.actionsSidenav.close();
 
     const listener = this.websocketService.addListener(

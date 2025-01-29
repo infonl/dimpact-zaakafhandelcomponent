@@ -18,25 +18,26 @@
     <zac-side-nav
       (mode)="menuModeChanged($event)"
       [menu]="menu"
-      [activeItem]="action"
+      [activeItem]="activeSideAction"
+      (activeItemChange)="activeSideAction = $event"
     ></zac-side-nav>
   </mat-drawer>
   <mat-drawer
     #actionsSidenav
     mode="over"
     position="end"
-    [ngSwitch]="action"
-    (closedStart)="action = null"
+    [ngSwitch]="activeSideAction"
+    (closedStart)="activeSideAction = null"
   >
     <zac-informatie-object-create-attended
-      *ngSwitchCase="sideNavAction.DOCUMENT_MAKEN"
+      *ngSwitchCase="'actie.document.maken'"
       [sideNav]="actionsSidenav"
       [zaak]="zaak"
       [taak]="taak"
       (document)="documentCreated()"
     ></zac-informatie-object-create-attended>
     <zac-informatie-object-add
-      *ngSwitchCase="sideNavAction.DOCUMENT_TOEVOEGEN"
+      *ngSwitchCase="'actie.document.toevoegen'"
       [sideNav]="actionsSidenav"
       [taak]="taak"
       (document)="updateTaakdocumenten($event)"

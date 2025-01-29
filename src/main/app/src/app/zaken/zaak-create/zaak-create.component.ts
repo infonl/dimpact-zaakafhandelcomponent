@@ -39,7 +39,6 @@ import { FormConfig } from "../../shared/material-form-builder/model/form-config
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import { OrderUtil } from "../../shared/order/order-util";
-import { SideNavAction } from "../../shared/side-nav/side-nav-action";
 import { Zaak } from "../model/zaak";
 import { ZaakAanmaakGegevens } from "../model/zaak-aanmaak-gegevens";
 import { Zaaktype } from "../model/zaaktype";
@@ -57,8 +56,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
   formConfig: FormConfig;
   @ViewChild("actionsSideNav") actionsSidenav: MatSidenav;
   @ViewChild("mfbForm") mfbForm: FormComponent;
-  readonly sideNavAction = SideNavAction;
-  action: SideNavAction;
+  activeSideAction: string | null;
   private initiatorField: InputFormField;
   private toelichtingField: TextareaFormField;
   private bagObjectenField: InputFormField;
@@ -200,7 +198,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
       .build();
 
     this.initiatorField.clicked.subscribe(
-      this.iconNext(SideNavAction.ZOEK_INITIATOR),
+      this.iconNext("actie.initiator.toevoegen"),
     );
     this.initiatorField.onClear.subscribe(() => {
       this.initiator = null;
@@ -208,7 +206,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
     });
 
     this.bagObjectenField.clicked.subscribe(
-      this.iconNext(SideNavAction.ZOEK_BAG_ADRES),
+      this.iconNext("actie.bagObject.toevoegen"),
     );
     this.bagObjectenField.onClear.subscribe(() => {
       this.bagObjecten = [];
@@ -341,9 +339,9 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
     }
   }
 
-  private iconNext(action: SideNavAction) {
+  private iconNext(action: string) {
     return () => {
-      this.action = action;
+      this.activeSideAction = action;
       this.actionsSidenav.open();
     };
   }
