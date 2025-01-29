@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024-2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -485,6 +485,7 @@ export class ZaakViewComponent
         }
       },
       "assignment",
+      SideNavAction.TAAK_STARTEN,
     );
   }
 
@@ -512,6 +513,7 @@ export class ZaakViewComponent
         }
       },
       "receipt_long",
+      SideNavAction.PROCESS_STARTEN,
     );
   }
 
@@ -544,6 +546,7 @@ export class ZaakViewComponent
               this.action = SideNavAction.ONTVANGSTBEVESTIGING;
             },
             "mark_email_read",
+            SideNavAction.ONTVANGSTBEVESTIGING,
           ),
         );
       }
@@ -557,6 +560,7 @@ export class ZaakViewComponent
               this.action = SideNavAction.MAIL_VERSTUREN;
             },
             "mail",
+            SideNavAction.MAIL_VERSTUREN,
           ),
         );
       }
@@ -577,6 +581,7 @@ export class ZaakViewComponent
               this.action = SideNavAction.DOCUMENT_MAKEN;
             },
             "note_add",
+            SideNavAction.DOCUMENT_MAKEN,
           ),
         );
       }
@@ -589,6 +594,7 @@ export class ZaakViewComponent
             this.action = SideNavAction.DOCUMENT_TOEVOEGEN;
           },
           "upload_file",
+          SideNavAction.DOCUMENT_TOEVOEGEN,
         ),
       );
 
@@ -600,6 +606,7 @@ export class ZaakViewComponent
             this.action = SideNavAction.DOCUMENT_VERZENDEN;
           },
           "local_post_office",
+          SideNavAction.DOCUMENT_VERZENDEN,
         ),
       );
     }
@@ -619,6 +626,7 @@ export class ZaakViewComponent
             this.action = SideNavAction.BESLUIT_VASTLEGGEN;
           },
           "gavel",
+          SideNavAction.BESLUIT_VASTLEGGEN,
         ),
       );
     }
@@ -644,6 +652,7 @@ export class ZaakViewComponent
                 this.action = SideNavAction.ZAAKDATA_TONEN;
               },
               "folder_copy",
+              SideNavAction.ZAAKDATA_TONEN,
             ),
           );
         }
@@ -706,6 +715,7 @@ export class ZaakViewComponent
               this.action = SideNavAction.ZOEK_BETROKKENE;
             },
             "group_add",
+            SideNavAction.ZOEK_BETROKKENE,
           ),
         );
         if (this.zaak.rechten.toevoegenBagObject) {
@@ -717,6 +727,7 @@ export class ZaakViewComponent
                 this.action = SideNavAction.ZOEK_BAG_ADRES;
               },
               "add_home_work",
+              SideNavAction.ZOEK_BAG_ADRES,
             ),
           );
         }

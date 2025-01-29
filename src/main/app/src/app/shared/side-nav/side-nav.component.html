@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Atos
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -40,6 +40,7 @@
       mat-list-item
       *ngSwitchCase="menuItemType.BUTTON"
       [disabled]="menuItem.disabled"
+      [activated]="activeItem && activeItem === menuItem.action"
       (click)="onClick(asButtonMenuItem(menuItem))"
       routerLinkActive="active"
     >

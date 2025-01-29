@@ -1,8 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { SideNavAction } from "../side-nav-action";
 import { MenuItem, MenuItemType } from "./menu-item";
 
 export class ButtonMenuItem extends MenuItem {
@@ -12,6 +13,7 @@ export class ButtonMenuItem extends MenuItem {
     readonly title: string,
     readonly fn: () => void,
     readonly icon?: string,
+    readonly action?: SideNavAction,
   ) {
     super();
   }

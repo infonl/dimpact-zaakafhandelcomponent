@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -12,6 +12,7 @@ import { HrefMenuItem } from "./menu-item/href-menu-item";
 import { LinkMenuItem } from "./menu-item/link-menu-item";
 import { MenuItem, MenuItemType } from "./menu-item/menu-item";
 import { AsyncButtonMenuItem } from "./menu-item/subscription-button-menu-item";
+import { SideNavAction } from "./side-nav-action";
 import { SideNavUtil } from "./side-nav.util";
 
 @Component({
@@ -22,6 +23,7 @@ import { SideNavUtil } from "./side-nav.util";
 })
 export class SideNavComponent implements OnInit {
   @Input() menu: MenuItem[];
+  @Input() activeItem: SideNavAction | null;
   @Output() mode = new EventEmitter<string>();
 
   readonly menuItemType = MenuItemType;
@@ -71,7 +73,9 @@ export class SideNavComponent implements OnInit {
   }
 
   onClick(buttonMenuItem: ButtonMenuItem): void {
+    console.log(buttonMenuItem);
     if (buttonMenuItem.disabled) return;
+
     if (buttonMenuItem instanceof AsyncButtonMenuItem) {
       this.utilService.setLoading(true);
       buttonMenuItem.disabled = true;
@@ -84,9 +88,11 @@ export class SideNavComponent implements OnInit {
           }),
         )
         .subscribe();
-    } else {
-      buttonMenuItem.fn();
+
+      return;
     }
+
+    buttonMenuItem.fn();
   }
 
   asButtonMenuItem(menuItem: MenuItem): ButtonMenuItem {

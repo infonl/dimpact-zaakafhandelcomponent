@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
+  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024-2025 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -16,13 +16,18 @@
     opened="true"
     disableClose="true"
   >
-    <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
+    <zac-side-nav
+      (mode)="menuModeChanged($event)"
+      [menu]="menu"
+      [activeItem]="action"
+    ></zac-side-nav>
   </mat-drawer>
   <mat-drawer
     #actionsSidenav
     mode="over"
     position="end"
     [ngSwitch]="action"
+    (closedStart)="action = null"
     class="zaak-actions-drawer"
   >
     <zac-klant-koppel
