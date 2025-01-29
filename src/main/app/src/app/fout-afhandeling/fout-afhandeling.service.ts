@@ -142,18 +142,16 @@ export class FoutAfhandelingService {
       this.bericht = "";
       this.router.navigate(["/fout-pagina"]);
     } else {
-      const errorDetail: string = err.error.exception || err.message;
-
       // only show server error texts in case of a server error (500 family of errors)
       // or in case of a 403 Forbidden error
-      const showServerErrorTexts = err.status >= 500 || err.status === 403;
+      const showServerErrorTexts = err.status >= 500 ||  err.status === 403;
 
       // show error in context and do not redirect to error page
       return this.openFoutDetailedDialog(
         this.translate.instant(
           err.error.message || err.message || "dialoog.body.error.technisch",
         ),
-        errorDetail,
+        err.error.exception,
         showServerErrorTexts,
       );
     }
