@@ -90,7 +90,7 @@ class MailService @Inject constructor(
         private const val MAIL_ONDERWERP = "Onderwerp"
         private const val MAIL_BERICHT = "Bericht"
 
-        private const val MAIL_SMTP_AUTH = "mail.smtp.auth"
+        private const val JAVAMAIL_SMTP_AUTH_KEY = "mail.smtp.auth"
     }
 
     @PostConstruct
@@ -104,7 +104,7 @@ class MailService @Inject constructor(
         //    - Weld fails to instantiate the mail session and satisfy the @Resource dependency above
         //    - mail Transport below throws AuthenticationFailedException because of insufficient configuration
         if (!smtpUsername.isPresent) {
-            mailSession.properties.setProperty(MAIL_SMTP_AUTH, "false")
+            mailSession.properties.setProperty(JAVAMAIL_SMTP_AUTH_KEY, "false")
             LOG.warning { "SMTP authentication disabled" }
         }
     }

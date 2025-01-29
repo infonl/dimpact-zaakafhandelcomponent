@@ -47,7 +47,10 @@ data-source add \
 # Create custom ZAC mail session
 /subsystem=mail/mail-session=zac:add(jndi-name=java:jboss/mail/zac,debug=false)
 /socket-binding-group=standard-sockets/remote-destination-outbound-socket-binding=zac-smtp-binding:add(host=${env.SMTP_SERVER},port=${env.SMTP_PORT})
-/subsystem=mail/mail-session=zac/server=smtp:add(outbound-socket-binding-ref=zac-smtp-binding,username=${env.SMTP_USERNAME:∅},password=${env.SMTP_PASSWORD:∅})
+# Use dummy credentials as defaults, to properly configure the mail session. Without credentials (or with empty string for user/password):
+#    - Weld fails to instantiate the mail session and satisfy the @Resource dependency in MailService
+#    - mail Transport we use throws AuthenticationFailedException because of insufficient configuration
+/subsystem=mail/mail-session=zac/server=smtp:add(outbound-socket-binding-ref=zac-smtp-binding,username=${env.SMTP_USERNAME:dummyDefaultUsername},password=${env.SMTP_PASSWORD:dummyDefaultPassword})
 
 # To set the log level to DEBUG (default is INFO) uncomment the following lines.
 # Note that this will result in _a lot_ of logging including SessionRegistry sessionRegistry security sensitive data
