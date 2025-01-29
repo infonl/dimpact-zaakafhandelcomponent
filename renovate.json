@@ -54,7 +54,7 @@
     {
       "groupName": "Dependencies provided by WildFly",
       "matchPackageNames": [
-	"jakarta.platform:jakarta.jakartaee-api",
+	    "jakarta.platform:jakarta.jakartaee-api",
         "org.eclipse.microprofile.config:microprofile-config-api",
         "org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api",
         "org.eclipse.microprofile.health:microprofile-health-api",
@@ -192,10 +192,17 @@
       ],
       "matchUpdateTypes": [
         "patch",
-	"minor",
-	"major"
+	    "minor",
+	    "major"
       ],
       "automerge": true
+    },
+    {
+      "matchPackageNames": [
+        "com.diffplug.spotless"
+      ],
+      "allowedVersions": "< 7",
+      "description": ["Pinned - version 7 causes Connection refused and node/npm discovery issues"]
     }
   ]
 }
