@@ -26,38 +26,23 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.exception.ZrcRuntimeException
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
-import net.atos.zac.app.decision.DecisionPublicationDateMissingException
-import net.atos.zac.app.decision.DecisionPublicationDisabledException
-import net.atos.zac.app.decision.DecisionResponseDateInvalidException
-import net.atos.zac.app.decision.DecisionResponseDateMissingException
 import net.atos.zac.policy.exception.PolicyException
-import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
-import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import net.atos.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
-import net.atos.zac.zaak.exception.CaseHasLockedInformationObjectsException
-import net.atos.zac.zaak.exception.CaseHasOpenSubcasesException
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BAG_CLIENT
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_BESLUIT_PUBLICATION_DATE_MISSING_TYPE
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_BESLUIT_PUBLICATION_DISABLED_TYPE
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_BESLUIT_RESPONSE_DATE_INVALID_TYPE
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_BESLUIT_RESPONSE_DATE_MISSING_TYPE
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BRP_CLIENT
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_OPEN_SUBCASES
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_DRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_FORBIDDEN
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_GENERIC_SERVER
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_KLANTINTERACTIES_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_OBJECTS_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_OBJECTTYPES_CLIENT
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_SMARTDOCUMENTS_DISABLED
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_SMARTDOCUMENTS_NOT_CONFIGURED
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_SERVER_GENERIC
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZTC_CLIENT
-import nl.info.zac.exception.ZacRuntimeException
+import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.log.log
 import java.net.ConnectException
 import java.net.UnknownHostException
@@ -103,52 +88,17 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 errorCode = ERROR_CODE_FORBIDDEN,
                 exception = exception
             )
-            exception is SmartDocumentsDisabledException -> generateResponse(
-                responseStatus = Response.Status.BAD_REQUEST,
-                errorCode = ERROR_CODE_SMARTDOCUMENTS_DISABLED,
-                exception = exception
-            )
-            exception is SmartDocumentsConfigurationException -> generateResponse(
-                responseStatus = Response.Status.BAD_REQUEST,
-                errorCode = ERROR_CODE_SMARTDOCUMENTS_NOT_CONFIGURED,
-                exception = exception
-            )
-            exception is DecisionPublicationDisabledException -> generateResponse(
-                responseStatus = Response.Status.BAD_REQUEST,
-                errorCode = ERROR_CODE_BESLUIT_PUBLICATION_DISABLED_TYPE,
-                exception = exception
-            )
-            exception is DecisionPublicationDateMissingException -> generateResponse(
-                responseStatus = Response.Status.BAD_REQUEST,
-                errorCode = ERROR_CODE_BESLUIT_PUBLICATION_DATE_MISSING_TYPE,
-                exception = exception
-            )
-            exception is DecisionResponseDateMissingException -> generateResponse(
-                responseStatus = Response.Status.BAD_REQUEST,
-                errorCode = ERROR_CODE_BESLUIT_RESPONSE_DATE_MISSING_TYPE,
-                exception = exception
-            )
-            exception is DecisionResponseDateInvalidException -> generateResponse(
-                responseStatus = Response.Status.BAD_REQUEST,
-                errorCode = ERROR_CODE_BESLUIT_RESPONSE_DATE_INVALID_TYPE,
-                exception = exception
-            )
             exception is BetrokkeneIsAlreadyAddedToZaakException -> generateResponse(
                 responseStatus = Response.Status.CONFLICT,
                 errorCode = ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK,
                 exception = exception
             )
-            exception is CaseHasLockedInformationObjectsException -> generateResponse(
+            exception is InputValidationFailedException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
-                errorCode = ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS,
+                errorCode = exception.errorCode ?: ERROR_CODE_SERVER_GENERIC,
                 exception = exception
             )
-            exception is CaseHasOpenSubcasesException -> generateResponse(
-                responseStatus = Response.Status.BAD_REQUEST,
-                errorCode = ERROR_CODE_CASE_HAS_OPEN_SUBCASES,
-                exception = exception
-            )
-            exception is ZacRuntimeException -> generateResponse(
+            exception is ServerErrorException -> generateResponse(
                 responseStatus = Response.Status.INTERNAL_SERVER_ERROR,
                 errorCode = exception.errorCode,
                 exception = exception
@@ -160,7 +110,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
     private fun createResponse(exception: WebApplicationException) =
         Response.status(exception.response.status)
             .type(MediaType.APPLICATION_JSON)
-            .entity(getJSONMessage(errorMessage = exception.message ?: ERROR_CODE_GENERIC_SERVER.value))
+            .entity(getJSONMessage(errorMessage = exception.message ?: ERROR_CODE_SERVER_GENERIC.value))
             .build()
 
     private fun handleZgwRuntimeException(exception: ZgwRuntimeException): Response =
@@ -227,7 +177,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         exceptionMessage: String? = null
     ) = generateResponse(
         responseStatus = Response.Status.INTERNAL_SERVER_ERROR,
-        errorCode = errorCode ?: ERROR_CODE_GENERIC_SERVER,
+        errorCode = errorCode ?: ERROR_CODE_SERVER_GENERIC,
         exception = exception,
         exceptionMessage = exceptionMessage
     )
@@ -249,7 +199,8 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             log(
                 logger = LOG,
                 level = if (responseStatus == Response.Status.INTERNAL_SERVER_ERROR) Level.SEVERE else Level.FINE,
-                message = exception.message ?: "Exception was thrown. Returning response with error code $errorCode.",
+                message = exception.message
+                    ?: "Exception was thrown. Returning response with error message: '${errorCode.value}'.",
                 throwable = exception
             )
         }

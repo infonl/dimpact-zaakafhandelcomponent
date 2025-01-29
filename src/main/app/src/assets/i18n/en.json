@@ -771,6 +771,7 @@
   "msg.error.ztc.client.exception": "Unfortunately a technical error has occurred. No zaaktypes could be retrieved.",
   "msg.error.smartdocuments.not.configured": "SmartDocuments is not configured.",
   "msg.error.smartdocuments.disabled": "SmartDocuments is disabled.",
+  "msg.error.validation.generic": "The data entered is not valid. Please check the fields for invalid input.",
   "msg.error.besluit.publication.disabled": "Publication not enabled for this decision type.",
   "msg.error.besluit.publication.date.missing": "Missing decision publication date.",
   "msg.error.besluit.response.date.missing": "Missing decision response date.",
