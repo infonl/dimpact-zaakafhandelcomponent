@@ -181,7 +181,9 @@
       "matchDatasources": [
         "github-releases"
       ],
-      "automerge": true
+      "automerge": true,
+      "schedule": ["* 0-8 1,15 * *"],
+      "description": ["automerge the updates to publiccode.yaml on the 1st and 15th day of the month before 08:00"]
     },
     {
       "matchPackageNames": [
