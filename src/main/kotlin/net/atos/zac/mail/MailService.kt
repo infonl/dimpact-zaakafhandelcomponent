@@ -90,6 +90,7 @@ class MailService @Inject constructor(
         private const val MAIL_ONDERWERP = "Onderwerp"
         private const val MAIL_BERICHT = "Bericht"
 
+        // https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html
         private const val JAVAMAIL_SMTP_AUTH_KEY = "mail.smtp.auth"
     }
 
