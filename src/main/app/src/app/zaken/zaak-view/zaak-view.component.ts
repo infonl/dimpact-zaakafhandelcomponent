@@ -760,7 +760,7 @@ export class ZaakViewComponent
         new ButtonMenuItem(
           "actie.zaak.opschorten",
           () => this.openZaakOpschortenDialog(),
-          "pause_circle",
+          "pause",
         ),
       );
     }
