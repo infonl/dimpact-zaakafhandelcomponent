@@ -42,11 +42,11 @@ disable_verbose() {
 # Clean (remove) the virtual environment
 clean_virtual_environment() {
     echo "Clean virtual environment"
-    if [ -n "$VIRTUAL_ENV" ]; then
-        echo "Deactivating virtual environment"
-        command deactivate
-    fi
     rm -rf .venv
+    echo "Don't forget to deactivate the virtual environment if you won't be using it again by running:"
+    echo ""
+    echo "deactivate"
+    echo ""
 }
 
 # If there is no virtual environment available, then
@@ -89,11 +89,11 @@ update_virtual_environment() {
     pip install -r requirements.txt
 }
 
-# Check if the virtual environment will be usable in the current terminal session.
-# And show a message if the script wasn't started using the 'source' command.
-# In that case, the virtual environment will have to be manually activated.
+# Check if the script is being sourced.
+# If not show a message indicating that the virtual environment will have to be manually activated.
 check_virtual_environment() {
-    if [ $SOURCED -eq 0 ]; then
+    echo "Check virtual environment:"
+    if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
         echo ""
         echo "The python virtual environment has been created and required libraries have been"
         echo "installed, but it will not be active in the current terminal session."
@@ -114,11 +114,6 @@ install_virtual_environment() {
       update_virtual_environment
       check_virtual_environment
 }
-
-# Check if the script is being sourced
-if [ "$$" -ne "$PPID" ]; then
-    SOURCED=0
-fi
 
 # Parse command-line options
 while getopts "hvrcp:" opt; do
