@@ -26,7 +26,6 @@ import net.atos.zac.admin.model.FormulierDefinitie
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.createHumanTaskParameters
 import net.atos.zac.admin.model.createZaakafhandelParameters
-import net.atos.zac.app.exception.InputValidationFailedException
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
 import net.atos.zac.app.mail.model.createRESTMailGegevens
 import net.atos.zac.app.planitems.converter.RESTPlanItemConverter
@@ -47,6 +46,7 @@ import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
+import nl.info.zac.exception.InputValidationFailedException
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI
 import java.time.LocalDate

@@ -65,8 +65,9 @@ while getopts ':bdvurh' OPTION; do
 done
 
 if [ $build = "true" ]; then
-  echo "Building ZAC Docker Image ..."
-  ./gradlew buildDockerImage
+  echo "Building fresh ZAC Docker Image ..."
+  # shellcheck disable=SC2086
+  ./gradlew $args clean buildDockerImage
 fi
 
 export ZAC_DOCKER_IMAGE=ghcr.io/infonl/zaakafhandelcomponent:dev

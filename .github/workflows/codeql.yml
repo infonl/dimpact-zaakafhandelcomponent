@@ -47,7 +47,7 @@ jobs:
 
       - name: Setup JDK
         if: matrix.language == 'java-kotlin'
-        uses: actions/setup-java@7a6d8a8234af8eb26422e24e3006232cccaa061b # v4.6.0
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4.7.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: "temurin"
@@ -57,15 +57,15 @@ jobs:
         uses: gradle/actions/setup-gradle@0bdd871935719febd78681f197cd39af5b6e16a6 # v4.2.2
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@17a820bf2e43b47be2c72b39cc905417bc1ab6d0 # v3.28.6
+        uses: github/codeql-action/init@6e5455904168f98c75d8e5ad848b4dc4ab3ae77e # v3.28.7
         with:
           languages: ${{ matrix.language }}
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@17a820bf2e43b47be2c72b39cc905417bc1ab6d0 # v3.28.6
+        uses: github/codeql-action/autobuild@6e5455904168f98c75d8e5ad848b4dc4ab3ae77e # v3.28.7
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@17a820bf2e43b47be2c72b39cc905417bc1ab6d0 # v3.28.6
+        uses: github/codeql-action/analyze@6e5455904168f98c75d8e5ad848b4dc4ab3ae77e # v3.28.7
         with:
           category: "/language:${{matrix.language}}"
 

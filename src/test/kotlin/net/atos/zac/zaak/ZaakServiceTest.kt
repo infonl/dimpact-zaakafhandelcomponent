@@ -5,6 +5,7 @@
 
 package net.atos.zac.zaak
 
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -35,6 +36,10 @@ import net.atos.zac.identity.model.createUser
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
+import net.atos.zac.zaak.exception.CaseHasLockedInformationObjectsException
+import net.atos.zac.zaak.exception.CaseHasOpenSubcasesException
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_OPEN_SUBCASES
 import java.net.URI
 import java.util.UUID
 
@@ -442,6 +447,50 @@ class ZaakServiceTest : BehaviorSpec({
                 betrokkenenRoles.size shouldBe 2
                 betrokkenenRoles[0] shouldBe rolNatuurlijkPersonen[0]
                 betrokkenenRoles[1] shouldBe rolNatuurlijkPersonen[1]
+            }
+        }
+    }
+    Given("A zaak that has no open deelzaken and no locked information objects") {
+        val zaak = createZaak()
+        every { zrcClientService.heeftOpenDeelzaken(zaak) } returns false
+        every { lockService.hasLockedInformatieobjecten(zaak) } returns false
+
+        When("the zaak is checked if it is closeable") {
+            shouldNotThrowAny { zaakService.checkZaakAfsluitbaar(zaak) }
+
+            Then("it should not throw any exceptions") {
+                verify(exactly = 1) {
+                    zrcClientService.heeftOpenDeelzaken(zaak)
+                    lockService.hasLockedInformatieobjecten(zaak)
+                }
+            }
+        }
+    }
+    Given("A zaak that has open deelzaken") {
+        val zaak = createZaak()
+        every { zrcClientService.heeftOpenDeelzaken(zaak) } returns true
+
+        When("the zaak is checked if it is closeable") {
+            val exception = shouldThrow<CaseHasOpenSubcasesException> { zaakService.checkZaakAfsluitbaar(zaak) }
+
+            Then("it should throw an exception") {
+                exception.errorCode shouldBe ERROR_CODE_CASE_HAS_OPEN_SUBCASES
+                exception.message shouldBe "Case ${zaak.uuid} has open subcases"
+            }
+        }
+    }
+    Given("A zaak that has no open deelzaken but has locked information objects") {
+        val zaak = createZaak()
+        every { zrcClientService.heeftOpenDeelzaken(zaak) } returns false
+        every { lockService.hasLockedInformatieobjecten(zaak) } returns true
+
+        When("the zaak is checked if it is closeable") {
+            val exception =
+                shouldThrow<CaseHasLockedInformationObjectsException> { zaakService.checkZaakAfsluitbaar(zaak) }
+
+            Then("it should throw an exception") {
+                exception.errorCode shouldBe ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
+                exception.message shouldBe "Case ${zaak.uuid} has locked information objects"
             }
         }
     }

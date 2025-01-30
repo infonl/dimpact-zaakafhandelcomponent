@@ -23,7 +23,6 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.FormulierDefinitie
 import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.admin.model.ZaakafhandelParameters
-import net.atos.zac.app.exception.InputValidationFailedException
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
 import net.atos.zac.app.planitems.converter.RESTPlanItemConverter
 import net.atos.zac.app.planitems.model.RESTHumanTaskData
@@ -46,6 +45,7 @@ import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.runtime.PlanItemInstance
@@ -305,7 +305,7 @@ class PlanItemsRESTService @Inject constructor(
     private fun validateFatalDate(taskFatalDate: LocalDate?, zaakFatalDate: LocalDate) {
         if (taskFatalDate != null && taskFatalDate.isAfter(zaakFatalDate)) {
             throw InputValidationFailedException(
-                "Fatal date of a task ($taskFatalDate) cannot be later than the fatal date of the zaak ($zaakFatalDate)"
+                message = "Fatal date of a task ($taskFatalDate) cannot be later than the fatal date of the zaak ($zaakFatalDate)"
             )
         }
     }

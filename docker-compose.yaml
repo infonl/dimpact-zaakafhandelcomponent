@@ -589,8 +589,6 @@ services:
       - KEYCLOAK_ADMIN_CLIENT_SECRET=zaakafhandelcomponentAdminClientSecret
       - KVK_API_CLIENT_MP_REST_URL=${KVK_API_CLIENT_MP_REST_URL:-dummyKvkApiUrl}
       - KVK_API_KEY=${KVK_API_KEY:-dummyKvkApiKey}
-      - MAILJET_API_KEY=${MAILJET_API_KEY:-dummyMailjetApiKey}
-      - MAILJET_API_SECRET_KEY=${MAILJET_API_SECRET_KEY:-dummyMailjetApiSecretKey}
       - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://office-converter:8080
       - OBJECTS_API_CLIENT_MP_REST_URL=http://objecten-api.local:8000
       - OBJECTS_API_TOKEN=dummyZacObjectsToken
