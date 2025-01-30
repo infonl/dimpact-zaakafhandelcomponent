@@ -5,6 +5,8 @@ from kvk_version_extractor import KvkVersionExtractor
 from brp_version_extractor import BrpVersionExtractor
 from github_tag_version_extractor import GitHubTagVersionExtractor
 from postgresql_version_extractor import PostgresqlVersionExtractor
+from docker_version_extractor import DockerHubVersionExtractor
+
 
 def print_versions_of_components():
     """
@@ -106,9 +108,8 @@ def print_versions_of_components():
     print(f'Postgresql latest version: {postgresql_latest_version}')
 
     # Extract the latest version of infinispan from the GitHub tags
-    infinispan_latest_version = GitHubTagVersionExtractor(
-        'https://github.com/infinispan/infinispan/tags').get_latest_version()
-    print(f'infinispan latest version: {infinispan_latest_version}')
+    infinispan_latest_version = DockerHubVersionExtractor('infinispan/server').get_latest_version()
+    print(f'Infinispan latest version: {infinispan_latest_version}')
 
 if __name__ == '__main__':
     print_versions_of_components()
