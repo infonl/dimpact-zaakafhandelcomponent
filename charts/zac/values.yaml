@@ -359,7 +359,7 @@ solr-operator:
     # -- solr-operator repository
     repository: apache/solr-operator
     # -- solr-operator tag
-    tag: v0.8.1
+    tag: v0.8.1@sha256:eccb92c2dbc468de0fcdcd41b0430d918ae0598bafbb94b7afb8e234a3ade47e
   metrics:
     # -- enable to have solr-operator metric endpoints
     enabled: true
@@ -378,7 +378,7 @@ solr-operator:
       # -- solr busybox image reposity
       repository: library/busybox
       # -- solr busybox image tag
-      tag: 1.28.0-glibc
+      tag: 1.28.0-glibc@sha256:0b55a30394294ab23b9afd58fab94e61a923f5834fba7ddbae7f8e0c11ba85e6
     # -- enable configuration of a solrcloud
     enabled: true
     # solr image parameters
@@ -388,7 +388,7 @@ solr-operator:
       # -- solr image repository
       repository: library/solr
       # -- solr image tag
-      tag: 9.6.1
+      tag: 9.6.1@sha256:8e47adc0da374463605dd9a9084b7053674eda6e2c95059b8ce8f138af99dcb2
     # -- solr memory settings
     javaMem: -Xms512m -Xmx768m
     # jobs settings
@@ -406,7 +406,7 @@ solr-operator:
         # -- solr jobs repository
         repository: curlimages/curl
         # -- solr jobs tag
-        tag: 8.10.1
+        tag: 8.10.1@sha256:d9b4541e214bcd85196d6e92e2753ac6d0ea699f0af5741f8c6cccbfcf00ef4b
       # -- nodeSelector for jobs
       nodeSelector: {}
       # -- tolerations for jobs
@@ -458,7 +458,7 @@ solr-operator:
       # -- zookeeper-operator image repository
       repository: pravega/zookeeper-operator
       # -- zookeeper-operator image tag
-      tag: 0.2.15
+      tag: 0.2.15@sha256:b2bc4042fdd8fea6613b04f2f602ba4aff1201e79ba35cd0e2df9f3327111b0e
     # -- nodeSelector for solr-operator
     nodeSelector: {}
     # -- tolerations for solr-operator
@@ -478,7 +478,7 @@ solr-operator:
         # -- zookeeper image repository
         repository: pravega/zookeeper
         # -- zookeeper image tag
-        tag: 0.2.14
+        tag: 0.2.14@sha256:82d853f46476fb80c306411d306cf125fafb901752ec4662555cee354713b77d
       # -- nodeSelector for zookeeper
       nodeSelector: {}
       # -- replicas for zookeeper, should be an odd number
