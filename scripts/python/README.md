@@ -13,7 +13,7 @@ The init script will have to be run from the context of the current session (in 
 immediately make use of the installed environment and installed libraries. 
 Use the following command:
 ```shell
-source ./init-pyenv.sh
+source init-pyenv.sh
 ```
 
 ## Dependencies scripts
@@ -34,5 +34,23 @@ and Version files from [GitHub PodiumD Helm Charts](https://github.com/Dimpact-S
 
 To run the script use the following command:
 ```shell
-python ./podiumd/podiumd_versions.py
+python ./podiumd/podiumd_versions.py -o 3.2.0
+```
+
+### PodiumD versions script options
+The script has a number of parameters to be able to compare specific versions, this from the help:
+
+```
+usage: podiumd_versions.py [-h] -o OLD_VERSION [-n NEW_VERSION] [-b NEW_VERSION_BRANCH]
+
+Script for comparing PodiumD version details between specific versions
+
+options:
+  -h, --help            show this help message and exit
+  -o, --old_version OLD_VERSION
+                        Version to base comparison on
+  -n, --new_version NEW_VERSION
+                        Version to comparison with. Defaults to the latest on main.
+  -b, --new_version_branch NEW_VERSION_BRANCH
+                        Branch to comparison on. Defaults to the main branch.
 ```

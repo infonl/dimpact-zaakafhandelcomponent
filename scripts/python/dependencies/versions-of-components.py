@@ -22,6 +22,7 @@ def print_versions_of_components():
     - Keycloak              from https://github.com/keycloak/keycloak/tags
     - ClamAV                from https://github.com/Cisco-Talos/clamav/tags
     - Postgresql            from https://www.postgresql.org/docs/release/
+    - Infinispan            from https://github.com/infinispan/infinispan/tags
     """
 
     # KvK zoeken API
@@ -103,6 +104,11 @@ def print_versions_of_components():
     postgresql_latest_version = PostgresqlVersionExtractor(
         'https://www.postgresql.org/docs/release/').get_latest_version()
     print(f'Postgresql latest version: {postgresql_latest_version}')
+
+    # Extract the latest version of infinispan from the GitHub tags
+    infinispan_latest_version = GitHubTagVersionExtractor(
+        'https://github.com/infinispan/infinispan/tags').get_latest_version()
+    print(f'infinispan latest version: {infinispan_latest_version}')
 
 if __name__ == '__main__':
     print_versions_of_components()

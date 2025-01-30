@@ -15,10 +15,13 @@ class PodiumdVersionBuilder:
     specifically from the Chart and Values files.
     """
 
-    def __init__(self, version=None):
+    def __init__(self, version = None, branch = None):
         self.podiumd_root_path = "https://raw.githubusercontent.com/Dimpact-Samenwerking/helm-charts/refs/heads/main"
         if version:
             self.podiumd_root_path = f"https://raw.githubusercontent.com/Dimpact-Samenwerking/helm-charts/refs/tags/podiumd-{version}"
+        if branch:
+            self.podiumd_root_path = f"https://raw.githubusercontent.com/Dimpact-Samenwerking/helm-charts/refs/heads/{branch}"
+
         self.chart_file = f"{self.podiumd_root_path}/charts/podiumd/Chart.yaml"
         self.values_file = f"{self.podiumd_root_path}/charts/podiumd/values.yaml"
         self.products_table = {
