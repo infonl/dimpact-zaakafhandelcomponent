@@ -378,7 +378,7 @@ solr-operator:
       # -- solr busybox image reposity
       repository: library/busybox
       # -- solr busybox image tag
-      tag: 1.28.0-glibc
+      tag: 1.31.1-glibc@sha256:1f81263701cddf6402afe9f33fca0266d9fff379e59b1748f33d3072da71ee85
     # -- enable configuration of a solrcloud
     enabled: true
     # solr image parameters
