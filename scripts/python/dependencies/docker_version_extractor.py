@@ -2,8 +2,6 @@
 #  SPDX-License-Identifier: EUPL-1.2+
 
 import requests
-from bs4 import BeautifulSoup
-import re
 
 from version_data import VersionData
 
