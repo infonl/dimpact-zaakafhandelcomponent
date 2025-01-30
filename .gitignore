@@ -18,6 +18,7 @@ src/main/app/.nvmrc
 
 ### Python virtual environment ###
 scripts/python/.venv
+scripts/python/.venv/*
 
 ### INTELLIJ ###
 *.iml
