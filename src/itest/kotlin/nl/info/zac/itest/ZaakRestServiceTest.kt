@@ -75,6 +75,8 @@ class ZaakRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val longitude = Random.nextFloat()
     val latitude = Random.nextFloat()
+    val startDateNew = LocalDate.now()
+    val fatalDateNew = startDateNew.plusDays(1)
 
     lateinit var zaak2UUID: UUID
 
@@ -390,8 +392,6 @@ class ZaakRestServiceTest : BehaviorSpec({
             and also the communication channel is changed
             """
         ) {
-            val startDateNew = LocalDate.now()
-            val fatalDateNew = startDateNew.plusDays(1)
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID",
                 requestBodyAsString = """
@@ -516,7 +516,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     }
                 """.trimIndent()
             )
-            Then("the response should be a 200 HTTP response with the changed zaak description and no other changes") {
+            Then("the response should be a 200 HTTP response with only the changed zaak description and no other changes") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK
@@ -545,9 +545,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "kenmerken": [],
                       "omschrijving": "changedDescription",         
                       "registratiedatum": "${LocalDate.now()}",
-                      "startdatum": "$DATE_TIME_2020_01_01",
+                      "startdatum": "$startDateNew",
                       "toelichting": "$ZAAK_EXPLANATION_1",
-                      "uiterlijkeEinddatumAfdoening": "$DATE_2020_01_15",
+                      "uiterlijkeEinddatumAfdoening": "$fatalDateNew",
                       "uuid" : "$zaak2UUID",
                       "verantwoordelijkeOrganisatie" : "$VERANTWOORDELIJKE_ORGANISATIE",
                       "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
