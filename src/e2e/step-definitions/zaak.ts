@@ -113,7 +113,8 @@ When(
 
     await this.expect(
       this.page.getByRole('cell', { name: 'Aanvullende informatie' })
-          .toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
+    )
+        .toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
     await checkZaakAssignment.call(this, zaakNumber, user2Profile);
   },
 );
@@ -217,7 +218,9 @@ Then(
     await this.page.goto(`${this.worldParameters.urls.zac}/taken/mijn`);
 
     await this.expect(
-      this.page.getByRole("cell", { name: caseNumber, exact: true }).first(),
+      this.page
+          .getByRole("cell", { name: caseNumber, exact: true })
+          .first(),
     ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
 
     await this.expect(
