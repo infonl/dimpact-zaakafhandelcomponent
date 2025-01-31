@@ -112,10 +112,8 @@ When(
     await this.page.getByRole("button", { name: "Start" }).first().click();
 
     await this.expect(
-      this.page.getByText(
-        `Aanvullende informatie nodig voor zaak ${zaakNumber}`,
-      ).first(),
-    ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
+      this.page.getByRole('cell', { name: 'Aanvullende informatie' })
+          .toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
     await checkZaakAssignment.call(this, zaakNumber, user2Profile);
   },
 );
