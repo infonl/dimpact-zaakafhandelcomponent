@@ -657,9 +657,7 @@ export class ZaakViewComponent
           new ButtonMenuItem(
             "actie.zaak.koppelen",
             () => {
-              this.zaakKoppelenService.addTeKoppelenZaak(this.zaak, () => {
-                this.activeSideAction = null;
-              });
+              this.zaakKoppelenService.addTeKoppelenZaak(this.zaak);
             },
             "account_tree",
           ),
@@ -1552,5 +1550,15 @@ export class ZaakViewComponent
       default:
         return "";
     }
+  }
+
+  async menuItemChanged(event: string) {
+    if (event === "actie.zaak.koppelen") {
+      return;
+    }
+
+    setTimeout(() => {
+      this.activeSideAction = event;
+    }, 100); // Prevent `closedStart` from `#actionsSidenav` to reset the value to `null` on dialog actions
   }
 }

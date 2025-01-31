@@ -20,7 +20,7 @@
       (mode)="menuModeChanged($event)"
       [menu]="menu"
       [activeItem]="activeSideAction"
-      (activeItemChange)="activeSideAction = $event"
+      (activeItemChange)="menuItemChanged($event)"
     ></zac-side-nav>
   </mat-drawer>
   <mat-drawer

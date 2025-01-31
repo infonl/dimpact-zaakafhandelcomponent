@@ -22,17 +22,14 @@ import { ZaakKoppelenDialogComponent } from "./zaak-koppelen-dialog.component";
   providedIn: "root",
 })
 export class ZaakKoppelenService {
-  private koppelZaakCallback: Function | null;
-
   constructor(
     private utilService: UtilService,
     private dialog: MatDialog,
   ) {}
 
-  addTeKoppelenZaak(zaak: Zaak, callback?: Function): void {
+  addTeKoppelenZaak(zaak: Zaak): void {
     if (!this.isReedsTeKoppelen(zaak)) {
       this._koppelenZaak(zaak);
-      this.koppelZaakCallback = callback;
     }
   }
 
@@ -56,7 +53,6 @@ export class ZaakKoppelenService {
   private _koppelenZaak(zaak: Zaak, onInit?: boolean) {
     const dismiss: Subject<void> = new Subject<void>();
     dismiss.asObservable().subscribe(() => {
-      this.koppelZaakCallback?.();
       this.deleteTeKoppelenZaak(zaak);
     });
     const editAction = new Subject<string>();
@@ -88,14 +84,9 @@ export class ZaakKoppelenService {
     zaakKoppelGegevens.bronZaakUuid = zaak.uuid;
     zaakKoppelGegevens.doelZaakIdentificatie = nieuwZaakID;
 
-    this.dialog
-      .open(ZaakKoppelenDialogComponent, {
-        data: zaakKoppelGegevens,
-      })
-      .afterClosed()
-      .subscribe(() => {
-        this.koppelZaakCallback?.();
-      });
+    this.dialog.open(ZaakKoppelenDialogComponent, {
+      data: zaakKoppelGegevens,
+    });
   }
 
   private deleteTeKoppelenZaak(zaak: Zaak) {
