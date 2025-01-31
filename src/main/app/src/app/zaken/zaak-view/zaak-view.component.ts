@@ -268,17 +268,6 @@ export class ZaakViewComponent
     this.viewInitialized = true;
     super.ngAfterViewInit();
 
-    this.subscriptions$.push(
-      this.actionsSidenav.openedChange.subscribe((opened) => {
-        if (opened) return;
-
-        console.log({ opened });
-
-        this.activeSideAction = null;
-        console.log(this.activeSideAction);
-      }),
-    );
-
     this.takenDataSource.sortingDataAccessor = (item, property) => {
       switch (property) {
         case "groep":
@@ -302,10 +291,6 @@ export class ZaakViewComponent
       }
     };
     this.historie.sort = this.historieSort;
-  }
-
-  log(event: unknown) {
-    console.log(JSON.stringify(event));
   }
 
   ngOnDestroy(): void {
@@ -673,7 +658,6 @@ export class ZaakViewComponent
             "actie.zaak.koppelen",
             () => {
               this.zaakKoppelenService.addTeKoppelenZaak(this.zaak, () => {
-                console.log(true);
                 this.activeSideAction = null;
               });
             },

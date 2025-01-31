@@ -38,6 +38,7 @@ export class ProcessTaskDoComponent implements OnInit {
       .saveText("actie.starten")
       .cancelText("actie.annuleren")
       .build();
+    console.log(this.planItem)
     this.formulier = this.processFormulierenService
       .getFormulierBuilder(this.planItem.formulierDefinitie)
       .form(this.planItem, this.zaak)

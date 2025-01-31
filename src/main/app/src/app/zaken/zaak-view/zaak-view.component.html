@@ -28,7 +28,7 @@
     mode="over"
     position="end"
     [ngSwitch]="activeSideAction"
-    (closedStart)="log($event); activeSideAction = null"
+    (closedStart)="activeSideAction = null"
     class="zaak-actions-drawer"
   >
     <zac-klant-koppel
