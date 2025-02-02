@@ -11,9 +11,9 @@ import jakarta.json.bind.JsonbConfig;
 import jakarta.ws.rs.ext.ContextResolver;
 
 import net.atos.client.zgw.zrc.util.GeometryJsonbDeserializer;
-import net.atos.client.zgw.zrc.util.GeometryJsonbSerializer;
 import net.atos.client.zgw.zrc.util.RolJsonbDeserializer;
 import net.atos.client.zgw.zrc.util.ZaakObjectJsonbDeserializer;
+import nl.info.client.zgw.zrc.jsonb.GeometryJsonbSerializer;
 
 public class JsonbConfiguration implements ContextResolver<Jsonb> {
 
