@@ -11,6 +11,7 @@ import jakarta.json.bind.JsonbConfig;
 import jakarta.ws.rs.ext.ContextResolver;
 
 import net.atos.client.zgw.zrc.util.GeometryJsonbDeserializer;
+import net.atos.client.zgw.zrc.util.GeometryJsonbSerializer;
 import net.atos.client.zgw.zrc.util.RolJsonbDeserializer;
 import net.atos.client.zgw.zrc.util.ZaakObjectJsonbDeserializer;
 
@@ -19,12 +20,16 @@ public class JsonbConfiguration implements ContextResolver<Jsonb> {
     private final Jsonb jsonb;
 
     public JsonbConfiguration() {
-        final JsonbConfig jsonbConfig = new JsonbConfig().withDeserializers(
-                new RolJsonbDeserializer(),
-                new ZaakObjectJsonbDeserializer(),
-                new GeometryJsonbDeserializer(),
-                new URIJsonbDeserializer()
-        );
+        final JsonbConfig jsonbConfig = new JsonbConfig()
+                .withDeserializers(
+                    new RolJsonbDeserializer(),
+                    new ZaakObjectJsonbDeserializer(),
+                    new GeometryJsonbDeserializer(),
+                    new URIJsonbDeserializer()
+                )
+                .withSerializers(
+                    new GeometryJsonbSerializer()
+                );
         jsonb = JsonbBuilder.create(jsonbConfig);
     }
 

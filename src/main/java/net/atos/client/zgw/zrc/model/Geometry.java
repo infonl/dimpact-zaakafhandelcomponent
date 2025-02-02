@@ -7,13 +7,24 @@ package net.atos.client.zgw.zrc.model;
 
 import jakarta.json.bind.annotation.JsonbTypeDeserializer;
 
+import jakarta.json.bind.annotation.JsonbTypeSerializer;
 import net.atos.client.zgw.zrc.util.GeometryJsonbDeserializer;
+import net.atos.client.zgw.zrc.util.GeometryJsonbSerializer;
 
 @JsonbTypeDeserializer(GeometryJsonbDeserializer.class)
+@JsonbTypeSerializer(GeometryJsonbSerializer.class)
 public abstract class Geometry {
     public static final String GEOMETRY_TYPE_NAAM = "type";
 
     private final GeometryType type;
+
+    /**
+     * If set to true indicates that the geometry should be deleted.
+     * Used in {@link GeometryJsonbSerializer}.
+     * Note that the @JsonbNillable annotation cannot be used here because
+     * that is a static annotation, and we need to set this value dynamically.
+     */
+    private Boolean deleteGeometry = false;
 
     protected Geometry(final GeometryType type) {
         this.type = type;
@@ -25,6 +36,14 @@ public abstract class Geometry {
 
     public GeometryType getType() {
         return type;
+    }
+
+    public boolean isDeleteGeometry() {
+        return deleteGeometry;
+    }
+
+    public void setDeleteGeometry() {
+        deleteGeometry = true;
     }
 
     @Override

@@ -131,13 +131,6 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                   },
                   {
                     "actie": "GEWIJZIGD",
-                    "attribuutLabel": "zaakgeometrie",
-                    "door": "$TEST_USER_1_NAME",
-                    "oudeWaarde": "POINT($PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE $PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE)",
-                    "toelichting": "Aanvullende informatie opgevraagd"
-                  },
-                  {
-                    "actie": "GEWIJZIGD",
                     "attribuutLabel": "uiterlijkeEinddatumAfdoening",
                     "door": "$TEST_USER_1_NAME",
                     "nieuweWaarde": "17-01-1970",
