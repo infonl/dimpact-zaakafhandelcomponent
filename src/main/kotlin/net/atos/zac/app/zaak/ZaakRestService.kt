@@ -32,8 +32,8 @@ import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.BetrokkeneType
+import net.atos.client.zgw.zrc.model.GeometryToBeDeleted
 import net.atos.client.zgw.zrc.model.HoofdzaakZaakPatch
-import net.atos.client.zgw.zrc.model.LocatieZaakPatch
 import net.atos.client.zgw.zrc.model.RelevanteZaak
 import net.atos.client.zgw.zrc.model.RelevantezaakZaakPatch
 import net.atos.client.zgw.zrc.model.Rol
@@ -336,12 +336,12 @@ class ZaakRestService @Inject constructor(
         restZaakLocatieGegevens: RestZaakLocatieGegevens
     ): RestZaak {
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).wijzigen)
-        val locatieZaakPatch = restZaakLocatieGegevens.geometrie?.let {
-            LocatieZaakPatch(it.toGeometry())
-        } ?: LocatieZaakPatch(null)
+        val zaakPatch = Zaak().apply {
+            zaakgeometrie = restZaakLocatieGegevens.geometrie?.toGeometry() ?: GeometryToBeDeleted()
+        }
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID,
-            locatieZaakPatch,
+            zaakPatch,
             restZaakLocatieGegevens.reden
         )
         return restZaakConverter.toRestZaak(updatedZaak)
