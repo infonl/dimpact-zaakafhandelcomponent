@@ -516,7 +516,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                     }
                 """.trimIndent()
             )
-            Then("the response should be a 200 HTTP response with only the changed zaak description and no other changes") {
+            Then(
+                "the response should be a 200 HTTP response with only the changed zaak description and no other changes"
+            ) {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK

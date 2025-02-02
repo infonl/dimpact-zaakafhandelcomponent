@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package net.atos.client.zgw.zrc.util
 
 import jakarta.json.bind.serializer.JsonbSerializer
@@ -9,6 +13,7 @@ import net.atos.client.zgw.zrc.model.GeometryType
 import net.atos.client.zgw.zrc.model.Point
 
 class GeometryJsonbSerializer : JsonbSerializer<Geometry> {
+
     override fun serialize(
         geometry: Geometry,
         jsonGenerator: JsonGenerator,
@@ -16,14 +21,16 @@ class GeometryJsonbSerializer : JsonbSerializer<Geometry> {
     ) {
         // in the patch zaak endpoint of the ZRC ZGW API a null property value
         // is used to indicate that the property in question should be deleted
-        if (geometry.isDeleteGeometry) {
+        if (geometry.markGeometryForDeletion) {
             jsonGenerator.writeNull()
         } else {
             when (geometry.type) {
                 GeometryType.POINT -> jsonGenerator.write(JSONB.toJson(geometry, Point::class.java))
-                GeometryType.POLYGON -> throw IllegalArgumentException("Polygon serialization not implemented")
+                GeometryType.POLYGON -> throw IllegalArgumentException(
+                    "Polygon serialization is not implemented"
+                )
                 GeometryType.GEOMETRYCOLLECTION -> throw IllegalArgumentException(
-                    "GeometryCollection serialization not implemented"
+                    "GeometryCollection serialization is not implemented"
                 )
             }
         }
