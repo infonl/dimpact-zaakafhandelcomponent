@@ -1123,6 +1123,7 @@ export class ZaakViewComponent
       (this.zaak.isOpen && this.zaak.rechten.wijzigen) ||
       this.zaak.zaakgeometrie != null
     ) {
+      this.activeSideAction = "actie.locatie.toevoegen";
       this.actionsSidenav.open();
     }
   }
