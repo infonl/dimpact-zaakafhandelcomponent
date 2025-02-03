@@ -5,7 +5,7 @@ kind: Deployment
 metadata:
   name: {{ include "zaakafhandelcomponent.opa.fullname" . }}
   labels:
-    {{ include "zaakafhandelcomponent.opa.labels" . }}
+    {{- include "zaakafhandelcomponent.opa.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.opa.autoscaling.enabled }}
   replicas: {{ .Values.opa.replicas }}
