@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024-2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
