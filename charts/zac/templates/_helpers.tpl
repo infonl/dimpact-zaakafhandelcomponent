@@ -64,7 +64,7 @@ We truncate at 57 chars in order to provide space for the "-nginx" suffix
 
 {{/*
 Create a default fully qualified name for office-converter.
-We truncate at 57 chars in order to provide space for the suffix
+We truncate at 46 chars in order to provide space for the suffix
 */}}
 {{- define "zaakafhandelcomponent.office-converter.fullname" -}}
 {{ include "zaakafhandelcomponent.fullname" . | trunc 46 | trimSuffix "-" }}-office-converter
