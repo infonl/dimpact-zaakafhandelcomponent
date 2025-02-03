@@ -292,7 +292,7 @@ fun createRESTZaakOverzicht(
 }
 
 fun createRestZaakLocatieGegevens(
-    restGeometry: RestGeometry = createRESTGeometry(),
+    restGeometry: RestGeometry? = createRESTGeometry(),
     reason: String = "dummyReden"
 ) = RestZaakLocatieGegevens(
     geometrie = restGeometry,
