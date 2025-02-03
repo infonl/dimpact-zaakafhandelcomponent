@@ -52,10 +52,10 @@ export class PersoonIndicatiesComponent
           icon = "deceased";
           break;
         case "MINISTIRIELE_REGELING":
-          icon = "order_approve"
+          icon = "order_approve";
           break;
         case "EMIGRATIE":
-          icon = "travel"
+          icon = "travel";
           break;
       }
 
