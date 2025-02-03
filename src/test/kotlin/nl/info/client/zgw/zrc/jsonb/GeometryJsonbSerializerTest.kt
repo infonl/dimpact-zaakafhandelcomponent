@@ -59,7 +59,7 @@ class GeometryJsonbSerializerTest : BehaviorSpec({
         }
     }
 
-    Given("A polygoon geometry object") {
+    Given("A polygon geometry object") {
         val polygon = Polygon()
 
         When("the object is serialized using the geometry JSONB serializer") {
