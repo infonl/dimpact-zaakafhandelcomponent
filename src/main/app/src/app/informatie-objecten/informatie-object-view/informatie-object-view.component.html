@@ -15,11 +15,22 @@
     opened="true"
     disableClose="true"
   >
-    <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
+    <zac-side-nav
+      (mode)="menuModeChanged($event)"
+      [menu]="menu"
+      [activeItem]="activeSideAction"
+      (activeItemChange)="activeSideAction = $event"
+    ></zac-side-nav>
   </mat-drawer>
-  <mat-drawer #actionsSidenav mode="over" position="end" [ngSwitch]="action">
+  <mat-drawer
+    #actionsSidenav
+    mode="over"
+    position="end"
+    [ngSwitch]="activeSideAction"
+    (closedStart)="activeSideAction = null"
+  >
     <zac-informatie-object-edit
-      *ngSwitchCase="sideNavAction.DOCUMENT_VERSIE_TOEVOEGEN"
+      *ngSwitchCase="'actie.nieuwe.versie.toevoegen'"
       [sideNav]="actionsSidenav"
       [infoObject]="documentNieuweVersieGegevens"
       [zaakUuid]="zaak.uuid"

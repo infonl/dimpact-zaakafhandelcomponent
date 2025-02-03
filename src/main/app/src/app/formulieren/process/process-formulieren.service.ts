@@ -16,6 +16,6 @@ export class ProcessFormulierenService {
   public getFormulierBuilder(
     formulierDefinitie: FormulierDefinitieID,
   ): ProcessFormulierenBuilder {
-    return null;
+    return new ProcessFormulierenBuilder();
   }
 }

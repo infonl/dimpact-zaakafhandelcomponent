@@ -84,10 +84,10 @@ class DecisionService @Inject constructor(
                 }
             }
             if (publicationDate == null && responseDate != null) {
-                throw DecisionPublicationDateMissingException("Missing publication date")
+                throw DecisionPublicationDateMissingException()
             }
             if (publicationDate != null && responseDate == null) {
-                throw DecisionResponseDateMissingException("Missing response date")
+                throw DecisionResponseDateMissingException()
             }
             responseDate?.let {
                 PeriodUtil.numberOfDaysFromToday(Period.parse(reactietermijn)).toLong().let { responseDays ->

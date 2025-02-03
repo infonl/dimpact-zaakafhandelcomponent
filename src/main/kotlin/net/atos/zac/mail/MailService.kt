@@ -16,6 +16,7 @@ import com.itextpdf.layout.Document
 import com.itextpdf.layout.element.IBlockElement
 import com.itextpdf.layout.element.IElement
 import com.itextpdf.layout.element.Paragraph
+import jakarta.annotation.PostConstruct
 import jakarta.annotation.Resource
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
@@ -44,12 +45,14 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
 import org.apache.commons.lang3.StringUtils
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.htmlcleaner.HtmlCleaner
 import org.htmlcleaner.PrettyXmlSerializer
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.time.LocalDate
 import java.util.Base64
+import java.util.Optional
 import java.util.UUID
 import java.util.function.Consumer
 import java.util.logging.Level
@@ -58,13 +61,17 @@ import java.util.logging.Logger
 @ApplicationScoped
 @NoArgConstructor
 @AllOpen
+@Suppress("LongParameterList")
 class MailService @Inject constructor(
     private var configuratieService: ConfiguratieService,
     private var zgwApiService: ZGWApiService,
     private var ztcClientService: ZtcClientService,
     private var drcClientService: DrcClientService,
     private var mailTemplateHelper: MailTemplateHelper,
-    private var loggedInUserInstance: Instance<LoggedInUser>
+    private var loggedInUserInstance: Instance<LoggedInUser>,
+
+    @ConfigProperty(name = "SMTP_USERNAME")
+    private val smtpUsername: Optional<String> = Optional.empty(),
 ) {
 
     companion object {
@@ -74,7 +81,7 @@ class MailService @Inject constructor(
         lateinit var mailSession: Session
 
         // http://www.faqs.org/rfcs/rfc2822.html
-        private const val SUBJECT_MAXWIDTH = 78
+        private const val SUBJECT_MAX_WIDTH = 78
 
         private const val FONT_SIZE = 16f
         private const val MAIL_VERZENDER = "Afzender"
@@ -82,6 +89,25 @@ class MailService @Inject constructor(
         private const val MAIL_BIJLAGE = "Bijlage"
         private const val MAIL_ONDERWERP = "Onderwerp"
         private const val MAIL_BERICHT = "Bericht"
+
+        // https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html
+        private const val JAVAMAIL_SMTP_AUTH_KEY = "mail.smtp.auth"
+    }
+
+    @PostConstruct
+    @Suppress("UnusedPrivateMember")
+    private fun initPasswordAuthentication() {
+        // If there's no SMTP_USERNAME environment variable set, we consider this as a case, where SMTP server
+        // has no authentication. In this case we disable SMTP authentication in the mail session to prevent sending
+        // the default dummy credentials configured in src/main/resources/wildfly/configure-wildfly.cli
+        //
+        // Without the dummy credentials, the SMTP mail session is not properly configured, and:
+        //    - Weld fails to instantiate the mail session and satisfy the @Resource dependency above
+        //    - mail Transport below throws AuthenticationFailedException because of insufficient configuration
+        if (!smtpUsername.isPresent) {
+            mailSession.properties.setProperty(JAVAMAIL_SMTP_AUTH_KEY, "false")
+            LOG.warning { "SMTP authentication disabled" }
+        }
     }
 
     val gemeenteMailAdres
@@ -90,7 +116,7 @@ class MailService @Inject constructor(
     fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String {
         val subject = StringUtils.abbreviate(
             resolveVariabelen(mailGegevens.subject, bronnen),
-            SUBJECT_MAXWIDTH
+            SUBJECT_MAX_WIDTH
         )
         val body = resolveVariabelen(mailGegevens.body, bronnen)
         val attachments = getAttachments(mailGegevens.attachments)

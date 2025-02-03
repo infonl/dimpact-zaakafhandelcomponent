@@ -4,4 +4,10 @@
  */
 package net.atos.zac.smartdocuments.exception
 
-open class SmartDocumentsConfigurationException(message: String) : RuntimeException(message)
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_SMARTDOCUMENTS_NOT_CONFIGURED
+import nl.info.zac.exception.InputValidationFailedException
+
+open class SmartDocumentsConfigurationException(message: String? = null) : InputValidationFailedException(
+    errorCode = ERROR_CODE_SMARTDOCUMENTS_NOT_CONFIGURED,
+    message = message
+)

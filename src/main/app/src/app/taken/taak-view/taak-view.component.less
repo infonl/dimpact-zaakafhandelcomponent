@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -25,11 +25,6 @@
   margin-bottom: 10px;
 }
 
-.verkorte-taak {
-  min-width: 400px;
-  max-width: 650px;
-}
-
 .taak-card {
   margin-bottom: 10px;
 }
@@ -37,4 +32,23 @@
 .zaak-card {
   height: 100%;
   margin-bottom: 10px;
+}
+
+.flex-item {
+  flex: 0 1 calc(25% - 5px);
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.flex-double-item {
+  flex: 0 1 calc(50% - 10px);
+  display: flex;
+  box-sizing: border-box;
+  min-width: 400px;
+  max-width: 600px;
+
+  * > {
+    width: 100%;
+  }
 }
