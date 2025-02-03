@@ -32,7 +32,7 @@ Create chart name and version as used by the chart label.
 
 {{/*
 Create a name for NGINX
-We truncate at 57 chars in order to provide space for the "-nginx" suffix
+We truncate at 57 chars in order to provide space for the suffix
 */}}
 {{- define "zaakafhandelcomponent.nginx.name" -}}
 {{ include "zaakafhandelcomponent.name" . | trunc 57 | trimSuffix "-" }}-nginx
@@ -40,10 +40,34 @@ We truncate at 57 chars in order to provide space for the "-nginx" suffix
 
 {{/*
 Create a default fully qualified name for NGINX.
-We truncate at 57 chars in order to provide space for the "-nginx" suffix
+We truncate at 57 chars in order to provide space for the suffix
 */}}
 {{- define "zaakafhandelcomponent.nginx.fullname" -}}
 {{ include "zaakafhandelcomponent.fullname" . | trunc 57 | trimSuffix "-" }}-nginx
+{{- end }}
+
+{{/*
+Create a default fully qualified name for solrcloud.
+We truncate at 57 chars in order to provide space for the suffix
+*/}}
+{{- define "zaakafhandelcomponent.solrcloud.fullname" -}}
+{{ include "zaakafhandelcomponent.fullname" . | trunc 57 | trimSuffix "-" }}-solr
+{{- end }}
+
+{{/*
+Create a default fully qualified name for opa.
+We truncate at 57 chars in order to provide space for the "-nginx" suffix
+*/}}
+{{- define "zaakafhandelcomponent.opa.fullname" -}}
+{{ include "zaakafhandelcomponent.fullname" . | trunc 57 | trimSuffix "-" }}-opa
+{{- end }}
+
+{{/*
+Create a default fully qualified name for office-converter.
+We truncate at 57 chars in order to provide space for the suffix
+*/}}
+{{- define "zaakafhandelcomponent.office-converter.fullname" -}}
+{{ include "zaakafhandelcomponent.fullname" . | trunc 46 | trimSuffix "-" }}-office-converter
 {{- end }}
 
 {{/*
