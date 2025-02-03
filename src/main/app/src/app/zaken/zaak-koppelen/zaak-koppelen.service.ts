@@ -1,11 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Injectable } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
-import { Router } from "@angular/router";
 import { Subject } from "rxjs";
 import {
   ActionBarAction,
@@ -25,7 +24,6 @@ import { ZaakKoppelenDialogComponent } from "./zaak-koppelen-dialog.component";
 export class ZaakKoppelenService {
   constructor(
     private utilService: UtilService,
-    private router: Router,
     private dialog: MatDialog,
   ) {}
 

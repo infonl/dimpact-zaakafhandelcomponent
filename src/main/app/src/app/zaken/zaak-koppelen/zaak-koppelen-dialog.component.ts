@@ -25,6 +25,7 @@ import { ZaakKoppelenService } from "./zaak-koppelen.service";
 
 @Component({
   templateUrl: "zaak-koppelen-dialog.component.html",
+  styleUrl: "zaak-koppelen-dialog.component.less",
 })
 export class ZaakKoppelenDialogComponent implements OnInit {
   loading: boolean;

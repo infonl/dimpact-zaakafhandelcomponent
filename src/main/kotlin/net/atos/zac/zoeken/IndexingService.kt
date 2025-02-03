@@ -49,6 +49,7 @@ class IndexingService @Inject constructor(
 ) {
     companion object {
         const val SOLR_CORE = "zac"
+        const val SOLR_INDEXING_ERROR_MESSAGE = "Error occurred during Solr indexing"
 
         private const val SOLR_MAX_RESULTS = 100
         private const val TAKEN_MAX_RESULTS = 50
@@ -328,19 +329,19 @@ class IndexingService @Inject constructor(
         try {
             return fn()
         } catch (solrServerException: SolrServerException) {
-            throw IndexingException(solrServerException)
+            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, solrServerException)
         } catch (ioException: IOException) {
-            throw IndexingException(ioException)
+            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, ioException)
         } catch (webApplicationException: WebApplicationException) {
-            throw IndexingException(webApplicationException)
+            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, webApplicationException)
         } catch (zgwRuntimeException: ZgwRuntimeException) {
-            throw IndexingException(zgwRuntimeException)
+            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, zgwRuntimeException)
         } catch (jsonbException: JsonbException) {
-            throw IndexingException(jsonbException)
+            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, jsonbException)
         } catch (jaxbException: JAXBException) {
-            throw IndexingException(jaxbException)
+            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, jaxbException)
         } catch (processingException: ProcessingException) {
-            throw IndexingException(processingException)
+            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, processingException)
         }
     }
 

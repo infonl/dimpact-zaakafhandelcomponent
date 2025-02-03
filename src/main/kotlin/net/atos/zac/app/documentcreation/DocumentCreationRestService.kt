@@ -74,7 +74,7 @@ class DocumentCreationRestService @Inject constructor(
             }
             it.zaaktype.extractUuid().let {
                 if (!zaakafhandelParameterService.isSmartDocumentsEnabled(it)) {
-                    throw SmartDocumentsDisabledException("SmartDocuments is disabled")
+                    throw SmartDocumentsDisabledException()
                 }
             }
         }.let {

@@ -6,4 +6,10 @@
 
 package net.atos.zac.zaak.exception
 
-class CaseHasLockedInformationObjectsException(message: String) : RuntimeException(message)
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
+import nl.info.zac.exception.InputValidationFailedException
+
+class CaseHasLockedInformationObjectsException(message: String) : InputValidationFailedException(
+    errorCode = ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS,
+    message = message
+)

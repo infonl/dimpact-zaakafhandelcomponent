@@ -63,6 +63,18 @@ fun createOrganisatorischeEenheid(
     this.naam = naam
 }
 
+fun createPoint(
+    coordinates: Point2D = createPoint2D()
+) = Point(coordinates)
+
+fun createPoint2D(
+    latitude: Double = 1.23,
+    longitude: Double = 4.56
+) = Point2D(
+    latitude,
+    longitude
+)
+
 fun createResultaat(
     url: URI = URI("http://example.com/resultaat/${UUID.randomUUID()}"),
     uuid: UUID = UUID.randomUUID(),

@@ -29,6 +29,8 @@ import net.atos.client.zgw.ztc.model.createBesluitType
 import net.atos.zac.app.zaak.converter.RestDecisionConverter
 import net.atos.zac.app.zaak.model.createRestDecisionChangeData
 import net.atos.zac.app.zaak.model.createRestDecisionCreateData
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_BESLUIT_PUBLICATION_DATE_MISSING_TYPE
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_BESLUIT_RESPONSE_DATE_MISSING_TYPE
 import java.time.LocalDate
 import java.util.UUID
 
@@ -180,7 +182,8 @@ class BesluitServiceTest : BehaviorSpec({
             }
 
             Then("it throws exception") {
-                exception.message shouldBe "Missing response date"
+                exception.errorCode shouldBe ERROR_CODE_BESLUIT_RESPONSE_DATE_MISSING_TYPE
+                exception.message shouldBe null
             }
         }
     }
@@ -201,7 +204,8 @@ class BesluitServiceTest : BehaviorSpec({
             }
 
             Then("it throws exception") {
-                exception.message shouldBe "Missing publication date"
+                exception.errorCode shouldBe ERROR_CODE_BESLUIT_PUBLICATION_DATE_MISSING_TYPE
+                exception.message shouldBe null
             }
         }
     }
@@ -324,7 +328,8 @@ class BesluitServiceTest : BehaviorSpec({
             }
 
             Then("it throws exception") {
-                exception.message shouldBe "Missing publication date"
+                exception.errorCode shouldBe ERROR_CODE_BESLUIT_PUBLICATION_DATE_MISSING_TYPE
+                exception.message shouldBe null
             }
         }
     }
@@ -346,7 +351,8 @@ class BesluitServiceTest : BehaviorSpec({
             }
 
             Then("it throws exception") {
-                exception.message shouldBe "Missing publication date"
+                exception.errorCode shouldBe ERROR_CODE_BESLUIT_PUBLICATION_DATE_MISSING_TYPE
+                exception.message shouldBe null
             }
         }
     }

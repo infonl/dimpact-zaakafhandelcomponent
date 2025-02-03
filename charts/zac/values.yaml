@@ -39,13 +39,16 @@ gemeente:
   naam: ""
   mail: ""
 
-# mail Configuration email sending connection
+# -- Email sending connection. SPF record needs to be properly setup in DNS
 mail:
-  # SMTP server and port are required, spf record needs to be properly setup in DNS
   smtp:
-    server: ""  # -- SMTP server host (for example localhost or in-v3.mailjet.com)
-    port: "587"  # -- port 587 for TLS, port 25 for relaying
+    # -- SMTP server host (for example localhost or in-v3.mailjet.com). Required
+    server: ""
+    # -- SMTP server port: 587 for TLS, port 25 for relaying. Required
+    port: "587"
+    # -- SMTP server username if authentication is required. Optional
     username: ""
+    # -- SMTP server password if authentication is required. Optional
     password: ""
 
 # zgwApis Configuration of ZGW API's provider (Open Zaak)
@@ -375,7 +378,7 @@ solr-operator:
       # -- solr busybox image reposity
       repository: library/busybox
       # -- solr busybox image tag
-      tag: 1.28.0-glibc
+      tag: 1.35.0-glibc@sha256:41fc7ea20e05a14b63ce5f71a443131b0a9eceffee1f8f3dae65104d8586c921
     # -- enable configuration of a solrcloud
     enabled: true
     # solr image parameters
@@ -447,7 +450,7 @@ solr-operator:
         # -- zookeeper-operator hooks repository
         repository: lachlanevenson/k8s-kubectl
         # -- zookeeper-operator hooks tag
-        tag: v1.23.2
+        tag: v1.23.14@sha256:e3a18fbba08769e06d3eaba8634ed3c5b1364ba61a4cff9ef5953b5865e59978
     # zookeeper-operator image parameters
     image:
       # -- zookeeper-operator imagePullPolicy
@@ -475,7 +478,7 @@ solr-operator:
         # -- zookeeper image repository
         repository: pravega/zookeeper
         # -- zookeeper image tag
-        tag: 0.2.14
+        tag: 0.2.15@sha256:c498ebfb76a66f038075e2fa6148528d74d31ca1664f3257fdf82ee779eec9c8
       # -- nodeSelector for zookeeper
       nodeSelector: {}
       # -- replicas for zookeeper, should be an odd number

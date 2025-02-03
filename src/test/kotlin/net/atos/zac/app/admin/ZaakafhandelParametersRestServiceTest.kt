@@ -21,13 +21,14 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RestZaakafhandelParametersConverter
-import net.atos.zac.app.exception.InputValidationFailedException
 import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
+import nl.info.zac.exception.InputValidationFailedException
 import java.util.UUID
 
 class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
@@ -210,7 +211,8 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
                 an exception should be thrown indicating that the provided productaanvraagtype is already in use
                 """
             ) {
-                exception.message shouldBe "msg.error.productaanvraagtype.already.in.use"
+                exception.errorCode shouldBe ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
+                exception.message shouldBe null
                 verify(exactly = 0) {
                     zaakafhandelParameterBeheerService.storeZaakafhandelParameters(zaakafhandelParameters)
                 }

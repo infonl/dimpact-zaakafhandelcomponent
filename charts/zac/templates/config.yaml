@@ -36,7 +36,7 @@ data:
   {{- if .Values.office_converter.url }}
   OFFICE_CONVERTER_CLIENT_MP_REST_URL: {{ .Values.office_converter.url }}
   {{- else }}
-  OFFICE_CONVERTER_CLIENT_MP_REST_URL: {{ include "zaakafhandelcomponent.office-converter.fullname" . }}
+  OFFICE_CONVERTER_CLIENT_MP_REST_URL: http://{{ include "zaakafhandelcomponent.office-converter.fullname" . }}
   {{- end }}
   {{- if .Values.opa.sidecar }}
   OPA_API_CLIENT_MP_REST_URL: {{ printf "http://localhost:8181" }}
@@ -44,13 +44,13 @@ data:
   {{- if .Values.opa.url }}
   OPA_API_CLIENT_MP_REST_URL: {{ .Values.opa.url }}
   {{- else }}
-  OPA_API_CLIENT_MP_REST_URL: {{ include "zaakafhandelcomponent.opa.fullname" . }}
+  OPA_API_CLIENT_MP_REST_URL: http://{{ include "zaakafhandelcomponent.opa.fullname" . }}
   {{- end }}
   {{- end }}
   OPEN_FORMS_URL: {{ required "Valid .Values.openForms.url entry required!" .Values.openForms.url }}
   SIGNALERINGEN_DELETE_OLDER_THAN_DAYS: {{ required "Valid .Values.signaleringen.deleteOlderThanDays entry required!" .Values.signaleringen.deleteOlderThanDays | quote }}
-  SMTP_PORT: {{ required "Valid .Values.mail.smtp.port entry required!" .Values.mail.smtp.port | quote }}
-  SMTP_SERVER: {{ required "Valid .Values.mail.smtp.server entry required!" .Values.mail.smtp.server }}
+  SMTP_PORT: {{ .Values.mail.smtp.port | quote }}
+  SMTP_SERVER: {{ .Values.mail.smtp.server }}
   {{- if index .Values "opentelemetry-collector" "enabled" }}
   SUBSYSTEM_OPENTELEMETRY__SAMPLER_TYPE: {{ ((.Values.opentelemetry_zaakafhandelcomponent).sampler_type) | default "-off" }}
   SUBSYSTEM_OPENTELEMETRY__ENDPOINT: {{ ((.Values.opentelemetry_zaakafhandelcomponent).endpoint) | default (printf "http://%s-opentelemetry-collector:4317" .Release.Name) }}
@@ -65,7 +65,7 @@ data:
   {{- if .Values.solr.url }}
   SOLR_URL: {{ .Values.solr.url }}
   {{- else }}
-  SOLR_URL: {{ include "zaakafhandelcomponent.solrcloud.fullname" . }}
+  SOLR_URL: http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}
   {{- end }}
   TZ: Europe/Amsterdam
   VERANTWOORDELIJKE_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.verantwoordelijke.rsin entry required!" .Values.organizations.verantwoordelijke.rsin | quote }}
