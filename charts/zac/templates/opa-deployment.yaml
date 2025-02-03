@@ -3,9 +3,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.opa.name }}
+  name: {{ include "zaakafhandelcomponent.opa.fullname" . }}
   labels:
-    {{ include "zaakafhandelcomponent.opa.fullname" . }}
+    {{ include "zaakafhandelcomponent.opa.labels" . }}
 spec:
   {{- if not .Values.opa.autoscaling.enabled }}
   replicas: {{ .Values.opa.replicas }}
