@@ -3,7 +3,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: create-zac-core-job
+  name: {{ include "zaakafhandelcomponent.fullname" . | trunc 42 | trimSuffix "-" }}-create-solr-core-job
   {{- with (index .Values "solr-operator").solr.jobs.annotations }}
   annotations:
     {{ toYaml . | nindent 8 }}
@@ -17,7 +17,7 @@ spec:
         {{- if .Values.solr.url }}
         command: ["curl","-XPOST","-k","{{ .Values.solr.url }}/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml"]
         {{- else }}
-        command: ["curl","-XPOST","-k","{{ printf "http://%s-solr.%s" .Release.Name .Release.Namespace }}/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml"]
+        command: ["curl","-XPOST","-k","{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml"]
         {{- end }}
         name: create-zac-core
       {{- with (index .Values "solr-operator").solr.jobs.nodeSelector }}

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.office_converter.name }}
+  name: {{ include "zaakafhandelcomponent.office-converter.fullname" . }}
   labels:
     {{- include "zaakafhandelcomponent.office-converter.labels" . | nindent 4 }}
 spec:

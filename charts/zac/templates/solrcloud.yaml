@@ -3,11 +3,7 @@
 apiVersion: solr.apache.org/v1beta1
 kind: SolrCloud
 metadata:
-  {{- if (index .Values "solr-operator").solr.name }}
-  name: {{ (index .Values "solr-operator").solr.name }}
-  {{- else }}
-  name: {{ printf "%s-%s" .Release.Name "solr" }}
-  {{- end }}
+  name: {{ include "zaakafhandelcomponent.solrcloud.fullname" . }}
 spec:
   customSolrKubeOptions:
     podOptions:
@@ -28,12 +24,12 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
   busyBoxImage:
-    imagePullPolicy: {{ (index .Values "solr-operator").solr.busyBoxImage.pullPolicy }}
+    pullPolicy: {{ (index .Values "solr-operator").solr.busyBoxImage.pullPolicy }}
     repository: {{ (index .Values "solr-operator").solr.busyBoxImage.repository }}
     tag: {{ (index .Values "solr-operator").solr.busyBoxImage.tag }}
   replicas: {{ (index .Values "solr-operator").solr.replicas }}
   solrImage:
-    imagePullPolicy: {{ (index .Values "solr-operator").solr.image.pullPolicy }}
+    pullPolicy: {{ (index .Values "solr-operator").solr.image.pullPolicy }}
     repository: {{ (index .Values "solr-operator").solr.image.repository }}
     tag: {{ (index .Values "solr-operator").solr.image.tag }}
   solrJavaMem: {{ (index .Values "solr-operator").solr.javaMem }}
@@ -67,7 +63,7 @@ spec:
           {{- toYaml . | nindent 10 }}
         {{- end }}
       image:
-        imagePullPolicy: {{ (index (index .Values "solr-operator") "zookeeper-operator").zookeeper.image.pullPolicy }}
+        pullPolicy: {{ (index (index .Values "solr-operator") "zookeeper-operator").zookeeper.image.pullPolicy }}
         repository: {{ (index (index .Values "solr-operator") "zookeeper-operator").zookeeper.image.repository }}
         tag: {{ (index (index .Values "solr-operator") "zookeeper-operator").zookeeper.image.tag }}
       replicas: {{ (index (index .Values "solr-operator") "zookeeper-operator").zookeeper.replicas }}
