@@ -444,6 +444,8 @@
   "indicatie.IN_ONDERZOEK": "under investigation",
   "indicatie.GEHEIMHOUDING_OP_PERSOONSGEGEVENS": "confidentiality on personal data",
   "indicatie.OVERLEDEN": "deceased",
+  "indicatie.MINISTIRIELE_REGELING": "ministerial regulation",
+  "indicatie.EMIGRATIE": "emigration",
   "indicatie.OPSCHORTING_BIJHOUDING": "suspension of record maintenance",
   "indicatie.NIET_INGEZETENE": "non-resident",
   "indicatie.ONDER_CURATELE": "in receivership",

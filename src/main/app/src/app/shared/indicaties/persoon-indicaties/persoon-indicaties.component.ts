@@ -51,6 +51,12 @@ export class PersoonIndicatiesComponent
         case "OVERLEDEN":
           icon = "deceased";
           break;
+        case "MINISTIRIELE_REGELING":
+          icon = "order_approve"
+          break;
+        case "EMIGRATIE":
+          icon = "travel"
+          break;
       }
 
       return [
