@@ -1,0 +1,39 @@
+{{- if (index .Values "solr-operator").enabled }}
+{{- if (index .Values "solr-operator").solr.jobs.createZacCore }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "zaakafhandelcomponent.fullname" . | trunc 42 | trimSuffix "-" }}-create-solr-core-job
+  {{- with (index .Values "solr-operator").solr.jobs.annotations }}
+  annotations:
+    {{ toYaml . | nindent 8 }}
+  {{- end }}
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    spec:
+      containers:
+      - image: {{ (index .Values "solr-operator").solr.jobs.image.repository }}:{{ (index .Values "solr-operator").solr.jobs.image.tag }}
+        {{- if .Values.solr.url }}
+        command: ["curl","-XPOST","-k","{{ .Values.solr.url }}/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml"]
+        {{- else }}
+        command: ["curl","-XPOST","-k","{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml"]
+        {{- end }}
+        name: create-zac-core
+      {{- with (index .Values "solr-operator").solr.jobs.nodeSelector }}
+      nodeSelector: 
+        {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (index .Values "solr-operator").solr.jobs.affinity }}
+      affinity: 
+        {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (index .Values "solr-operator").solr.jobs.tolerations }}
+      tolerations:
+        {{ toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: OnFailure
+  backoffLimit: 4
+  activeDeadlineSeconds: 300
+{{- end }}
+{{- end }}

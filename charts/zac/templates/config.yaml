@@ -36,7 +36,7 @@ data:
   {{- if .Values.office_converter.url }}
   OFFICE_CONVERTER_CLIENT_MP_REST_URL: {{ .Values.office_converter.url }}
   {{- else }}
-  OFFICE_CONVERTER_CLIENT_MP_REST_URL: {{ printf "http://%s-office-converter.%s" .Release.Name .Release.Namespace }}
+  OFFICE_CONVERTER_CLIENT_MP_REST_URL: http://{{ include "zaakafhandelcomponent.office-converter.fullname" . }}
   {{- end }}
   {{- if .Values.opa.sidecar }}
   OPA_API_CLIENT_MP_REST_URL: {{ printf "http://localhost:8181" }}
@@ -44,7 +44,7 @@ data:
   {{- if .Values.opa.url }}
   OPA_API_CLIENT_MP_REST_URL: {{ .Values.opa.url }}
   {{- else }}
-  OPA_API_CLIENT_MP_REST_URL: {{ printf "http://%s-%s.%s:8181" .Release.Name .Values.opa.name .Release.Namespace }}
+  OPA_API_CLIENT_MP_REST_URL: http://{{ include "zaakafhandelcomponent.opa.fullname" . }}
   {{- end }}
   {{- end }}
   OPEN_FORMS_URL: {{ required "Valid .Values.openForms.url entry required!" .Values.openForms.url }}
@@ -65,7 +65,7 @@ data:
   {{- if .Values.solr.url }}
   SOLR_URL: {{ .Values.solr.url }}
   {{- else }}
-  SOLR_URL: {{ printf "http://%s-solr-solrcloud-common.%s" .Release.Name .Release.Namespace }}
+  SOLR_URL: http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}
   {{- end }}
   TZ: Europe/Amsterdam
   VERANTWOORDELIJKE_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.verantwoordelijke.rsin entry required!" .Values.organizations.verantwoordelijke.rsin | quote }}
