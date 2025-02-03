@@ -3,9 +3,14 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 <mat-sidenav-container autosize>
-  <mat-sidenav #actionsSideNav mode="over" position="end" [ngSwitch]="action">
+  <mat-sidenav
+    #actionsSideNav
+    mode="over"
+    position="end"
+    [ngSwitch]="activeSideAction"
+  >
     <zac-klant-koppel
-      *ngSwitchCase="sideNavAction.ZOEK_INITIATOR"
+      *ngSwitchCase="'actie.initiator.toevoegen'"
       (klantGegevens)="initiatorGeselecteerd($event.klant)"
       [sideNav]="actionsSidenav"
       [initiator]="true"
@@ -13,7 +18,7 @@
       [allowPersoon]="true"
     ></zac-klant-koppel>
     <zac-bag-zoek
-      *ngSwitchCase="sideNavAction.ZOEK_BAG_ADRES"
+      *ngSwitchCase="'actie.bagObject.toevoegen'"
       [gekoppeldeBagObjecten]="bagObjecten"
       [sideNav]="actionsSidenav"
       (bagObject)="bagGeselecteerd($event)"

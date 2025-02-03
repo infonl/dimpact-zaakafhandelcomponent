@@ -26,6 +26,7 @@ import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
+import net.atos.client.zgw.zrc.model.GeometryToBeDeleted
 import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.OrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.Point
@@ -582,12 +583,12 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { zrcClientService.patchZaak(zaak.uuid, capture(patchZaakSlot), reason) } returns updatedZaak
         every { restZaakConverter.toRestZaak(updatedZaak) } returns updatedRestZaak
 
-        When("zaaklocatie is added to the zaak") {
+        When("a zaak location is added to the zaak") {
             val restZaak = zaakRestService.updateZaakLocatie(zaak.uuid, restZaakLocatieGegevens)
 
             Then("the zaak is updated correctly") {
-                verify(exactly = 0) {
-                    zrcClientService.patchZaak(zaak.uuid, any())
+                verify(exactly = 1) {
+                    zrcClientService.patchZaak(zaak.uuid, any(), reason)
                 }
                 restZaak shouldBe updatedRestZaak
                 with(patchZaakSlot.captured) {
@@ -600,6 +601,37 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("An existing zaak with a zaak location") {
+        val zaak = createZaak()
+        val reason = "dummyReasonForDeletion"
+        val restZaakLocatieGegevens = createRestZaakLocatieGegevens(
+            restGeometry = null,
+            reason = reason
+        )
+        val updatedZaak = createZaak()
+        val updatedRestZaak = createRestZaak()
+        val patchZaakSlot = slot<Zaak>()
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { zrcClientService.patchZaak(zaak.uuid, capture(patchZaakSlot), reason) } returns updatedZaak
+        every { restZaakConverter.toRestZaak(updatedZaak) } returns updatedRestZaak
+
+        When("the zaak location is deleted") {
+            val restZaak = zaakRestService.updateZaakLocatie(zaak.uuid, restZaakLocatieGegevens)
+
+            Then("the zaak is updated correctly") {
+                verify(exactly = 1) {
+                    zrcClientService.patchZaak(zaak.uuid, any(), reason)
+                }
+                restZaak shouldBe updatedRestZaak
+                with(patchZaakSlot.captured) {
+                    zaakgeometrie.shouldBeInstanceOf<GeometryToBeDeleted>()
+                }
+            }
+        }
+    }
+
     Given("A zaak with an initiator and rest zaak betrokkene gegevens") {
         val zaak = createZaak()
         val restZaakBetrokkenGegevens = createRESTZaakBetrokkeneGegevens()

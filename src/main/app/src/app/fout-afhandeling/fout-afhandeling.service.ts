@@ -11,6 +11,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { Observable, throwError } from "rxjs";
 import { P, match } from "ts-pattern";
 import { UtilService } from "../core/service/util.service";
+import { HttpParamsError } from "../shared/http/zac-http-client";
 import { FoutDetailedDialogComponent } from "./dialog/fout-detailed-dialog.component";
 import { FoutDialogComponent } from "./dialog/fout-dialog.component";
 
@@ -118,11 +119,15 @@ export class FoutAfhandelingService {
   }
 
   public httpErrorAfhandelen(err: HttpErrorResponse): Observable<never> {
+    if (err instanceof HttpParamsError) {
+      return throwError(() => err.message);
+    }
+
+    const errorDetail = err.error?.exception || err.message;
+
     if (err.status === 400) {
       return this.openFoutDialog(
-        this.translate.instant(
-          err.error.message || err.message || "dialoog.body.error.technisch",
-        ),
+        this.translate.instant(errorDetail || "dialoog.body.error.technisch"),
       );
     }
 
@@ -148,9 +153,7 @@ export class FoutAfhandelingService {
 
       // show error in context and do not redirect to error page
       return this.openFoutDetailedDialog(
-        this.translate.instant(
-          err.error.message || err.message || "dialoog.body.error.technisch",
-        ),
+        this.translate.instant(errorDetail || "dialoog.body.error.technisch"),
         err.error.exception,
         showServerErrorTexts,
       );
