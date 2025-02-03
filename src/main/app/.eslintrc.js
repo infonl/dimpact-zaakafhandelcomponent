@@ -38,6 +38,15 @@ module.exports = {
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/strict-boolean-expressions": [
+          "error",
+          {
+            allowNullableObject: false,
+            allowNullableString: false,
+            allowNullableNumber: false,
+            allowNullableBoolean: false,
+          },
+        ],
 
         "no-prototype-builtins": "off",
       },
