@@ -64,7 +64,7 @@ data class RestPersoon(
     }
 }
 
-private const val DEATH_CODE = "O"
+private const val DECEASED_CODE = "O"
 private const val MINISTRIAL_REGULATION_CODE = "M"
 private const val EMIGRATION_CODE = "E"
 
@@ -89,7 +89,7 @@ fun Persoon.toRestPersoon() = RestPersoon(
         // "Voor overleden personen wordt altijd het opschortingBijhouding veld geleverd met reden code ‘O’ en
         // omschrijving ‘overlijden’. Zie de overlijden overzicht feature voor meer informatie over dit veld."
         // https://brp-api.github.io/Haal-Centraal-BRP-bevragen/v2/features-overzicht
-        DEATH_CODE -> indicaties.add(RestPersoonIndicaties.OVERLEDEN)
+        DECEASED_CODE -> indicaties.add(RestPersoonIndicaties.OVERLEDEN)
         MINISTRIAL_REGULATION_CODE -> indicaties.add(RestPersoonIndicaties.MINISTIRIELE_REGELING)
         EMIGRATION_CODE -> indicaties.add(RestPersoonIndicaties.EMIGRATIE)
     }
@@ -131,7 +131,7 @@ fun PersoonBeperkt.toRestPersoon() = RestPersoon(
         // "Voor overleden personen wordt altijd het opschortingBijhouding veld geleverd met reden code ‘O’ en
         // omschrijving ‘overlijden’. Zie de overlijden overzicht feature voor meer informatie over dit veld."
         // https://brp-api.github.io/Haal-Centraal-BRP-bevragen/v2/features-overzicht
-        DEATH_CODE -> indicaties.add(RestPersoonIndicaties.OVERLEDEN)
+        DECEASED_CODE -> indicaties.add(RestPersoonIndicaties.OVERLEDEN)
         MINISTRIAL_REGULATION_CODE -> indicaties.add(RestPersoonIndicaties.MINISTIRIELE_REGELING)
         EMIGRATION_CODE -> indicaties.add(RestPersoonIndicaties.EMIGRATIE)
     }
