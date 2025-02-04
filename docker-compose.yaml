@@ -345,7 +345,7 @@ services:
         condition: service_started
 
   smartdocuments-wiremock:
-    image: docker.io/wiremock/wiremock:3.10.0@sha256:052f7d05b585d5cc956ecf2f1543b1a721858ec83baf0d11b507a113e3b023ee
+    image: docker.io/wiremock/wiremock:3.11.0@sha256:dd1530e0db539130da9a708778cebe3b516f083f7524d9609528f32f780977f8
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
@@ -356,7 +356,7 @@ services:
     profiles: [ "itest" ]
 
   kvk-wiremock:
-    image: docker.io/wiremock/wiremock:3.10.0@sha256:052f7d05b585d5cc956ecf2f1543b1a721858ec83baf0d11b507a113e3b023ee
+    image: docker.io/wiremock/wiremock:3.11.0@sha256:dd1530e0db539130da9a708778cebe3b516f083f7524d9609528f32f780977f8
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/kvk-wiremock/mappings:/home/wiremock/mappings
@@ -367,7 +367,7 @@ services:
     profiles: [ "itest" ]
 
   bag-wiremock:
-    image: docker.io/wiremock/wiremock:3.10.0@sha256:052f7d05b585d5cc956ecf2f1543b1a721858ec83baf0d11b507a113e3b023ee
+    image: docker.io/wiremock/wiremock:3.11.0@sha256:dd1530e0db539130da9a708778cebe3b516f083f7524d9609528f32f780977f8
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/bag-wiremock/mappings:/home/wiremock/mappings
