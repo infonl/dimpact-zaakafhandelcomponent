@@ -23,7 +23,6 @@ import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.TAAK_1_FATAL_DATE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_LAST
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
@@ -35,7 +34,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEM
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
@@ -44,7 +42,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_DOCUME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_TITEL
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.zaakManual2Identification
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONObject
 
@@ -107,11 +104,11 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                             ],
                             "ZAAKTYPE": [
                                 {
-                                    "aantal": 5,
+                                    "aantal": 6,
                                     "naam": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                                 },
                                 {
-                                    "aantal": 11,
+                                    "aantal": 12,
                                     "naam": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                                 }                                
                             ],
@@ -123,13 +120,13 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                             ],
                             "GROEP": [
                                 {
-                                    "aantal": 9,
+                                    "aantal": 11,
                                     "naam": "$TEST_GROUP_A_DESCRIPTION"
                                 }
                             ],
                             "TOEGEKEND": [
                                 {
-                                    "aantal": 7,
+                                    "aantal": 9,
                                     "naam": "false"
                                 },
                                 {
@@ -143,7 +140,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                                     "naam": "Wacht op aanvullende informatie"
                                 },
                                 {
-                                    "aantal": 2,
+                                    "aantal": 4,
                                     "naam": "Intake"
                                 },
                                 {
@@ -168,12 +165,20 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                             "ZAAK_INDICATIES": [
                                 {
                                     "aantal": 1,
+                                    "naam": "DEELZAAK"
+                                },
+                                {
+                                    "aantal": 1,
+                                    "naam": "HOOFDZAAK"
+                                },
+                                {
+                                    "aantal": 1,
                                     "naam": "VERLENGD"
                                 }
                             ],
                             "ZAAK_COMMUNICATIEKANAAL": [
                                 {
-                                    "aantal": 4,
+                                    "aantal": 6,
                                     "naam": "$COMMUNICATIEKANAAL_TEST_1"
                                 },
                                 {
@@ -187,7 +192,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                             ],
                             "ZAAK_VERTROUWELIJKHEIDAANDUIDING": [
                                 {
-                                    "aantal": 7,
+                                    "aantal": 9,
                                     "naam": "OPENBAAR"
                                 }
                             ],
@@ -298,82 +303,34 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                 response.isSuccessful shouldBe true
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
-                      "foutmelding" : "",
-                      "resultaten" : [ 
-                      {
-                        "identificatie" : "$zaakManual2Identification",
-                        "type" : "ZAAK",
-                        "aantalOpenstaandeTaken" : 1,
-                        "afgehandeld" : false,
-                        "betrokkenen" : {
-                          "Behandelaar" : [ "$TEST_GROUP_A_ID" ]
-                        },
-                        "communicatiekanaal" : "$COMMUNICATIEKANAAL_TEST_1",
-                        "groepId" : "$TEST_GROUP_A_ID",
-                        "groepNaam" : "$TEST_GROUP_A_DESCRIPTION",
-                        "indicatieDeelzaak" : false,
-                        "indicatieHeropend" : false,
-                        "indicatieHoofdzaak" : false,
-                        "indicatieOpschorting" : false,
-                        "indicatieVerlenging" : false,
-                        "indicaties" : [ ],
-                        "omschrijving" : "$ZAAK_DESCRIPTION_1",                     
-                        "statusToelichting" : "Status gewijzigd",
-                        "statustypeOmschrijving" : "Wacht op aanvullende informatie",
-                        "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
-                        "zaaktypeOmschrijving" : "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
-                      },
-                      {
-                         "identificatie": "$ZAAK_MANUAL_2_IDENTIFICATION",
-                         "type": "ZAAK",
-                         "aantalOpenstaandeTaken": 0,
-                         "afgehandeld": false,
-                         "betrokkenen": {
-                           "Behandelaar": [
-                             "test-group-a"
-                           ]
-                         },
-                         "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_1",
-                         "groepId": "$TEST_GROUP_A_ID",
-                         "groepNaam": "$TEST_GROUP_A_DESCRIPTION",
-                         "indicatieDeelzaak": false,
-                         "indicatieHeropend": false,
-                         "indicatieHoofdzaak": false,
-                         "indicatieOpschorting": false,
-                         "indicatieVerlenging": false,
-                         "indicaties": [],
-                         "omschrijving": "dummyOmschrijving",               
-                         "resultaattypeOmschrijving": "Toegekend",
-                         "statusToelichting": "Status gewijzigd",
-                         "statustypeOmschrijving": "In behandeling",
-                         "toelichting": "null",
-                         "vertrouwelijkheidaanduiding": "OPENBAAR",
-                         "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
-                        }
-                       ],
-                      "totaal" : 2.0,
+                      "foutmelding" : "",                     
+                      "totaal" : 3,
                       "filters" : {
                         "ZAAKTYPE" : [ {
-                          "aantal" : 3,
+                          "aantal" : 4,
                           "naam" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                         }, {
-                          "aantal" : 2,
+                          "aantal" : 3,
                           "naam" : "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                         } ],          
                         "BEHANDELAAR": [
                           {
-                            "aantal": 2,
+                            "aantal": 3,
                             "naam": "-NULL-"
                           }
                         ],
                         "GROEP" : [ {
-                          "aantal" : 2,
+                          "aantal" : 3,
                           "naam" : "$TEST_GROUP_A_DESCRIPTION"
                         } ],
                         "ZAAK_STATUS" : [
                            {
                                 "aantal": 1,
                                 "naam": "In behandeling"
+                            },
+                            {
+                                "aantal": 1,
+                                "naam": "Intake"
                             },
                             {
                                 "aantal" : 1,
@@ -386,24 +343,30 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                             "naam": "Toegekend"
                           },                       
                           {
-                             "aantal" : 1,
+                             "aantal" : 2,
                              "naam" : "-NULL-"
                            } 
                         ],
-                        "ZAAK_INDICATIES" : [ {
-                          "aantal" : 2,
-                          "naam" : "-NULL-"
-                        } ],
+                        "ZAAK_INDICATIES" : [
+                          {
+                            "aantal": 1,
+                            "naam": "HOOFDZAAK"
+                          },
+                          {                       
+                            "aantal" : 2,
+                            "naam" : "-NULL-"
+                          } 
+                        ],
                         "ZAAK_COMMUNICATIEKANAAL" : [ {                    
-                          "aantal" : 2,
+                          "aantal" : 3,
                           "naam" : "$COMMUNICATIEKANAAL_TEST_1"
                         } ],
                         "ZAAK_VERTROUWELIJKHEIDAANDUIDING" : [ {
-                          "aantal" : 2,
+                          "aantal" : 3,
                           "naam" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
                         } ],
                         "ZAAK_ARCHIEF_NOMINATIE" : [ {
-                          "aantal" : 2,
+                          "aantal" : 3,
                           "naam" : "-NULL-"
                         } ]
                       }
