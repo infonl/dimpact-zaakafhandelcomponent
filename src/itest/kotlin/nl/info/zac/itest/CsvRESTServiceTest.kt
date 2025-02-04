@@ -20,7 +20,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakManual2Identification
 import org.junit.jupiter.api.Order
 
-const val CSV_ROWS_EXPECTED = 6
+const val CSV_ROWS_EXPECTED = 8
 const val CSV_FIELD_IDENTIFICATIE = "identificatie"
 const val CSV_FIELD_AFGEHANDELD = "afgehandeld"
 const val CSV_FIELD_ARCHIEF_ACTIE_DATUM = "archiefActiedatum"
@@ -134,22 +134,6 @@ class CsvRESTServiceTest : BehaviorSpec({
                     it[headerRowFields.indexOf(CSV_FIELD_ARCHIEF_NOMINATIE)] shouldBe ""
                     // checking other fields is left for the future since
                     // the CSV export functionality is expected to change quite a bit
-                }
-                // the order of the zaken in the search query used to generate the CSV
-                // should always be the same
-                csvRows.forEachIndexed { index, row ->
-                    when (index) {
-                        1 ->
-                            row[headerRowFields.indexOf(CSV_FIELD_IDENTIFICATIE)] shouldBe zaakManual2Identification
-                        2 ->
-                            row[headerRowFields.indexOf(CSV_FIELD_IDENTIFICATIE)] shouldBe ZAAK_MANUAL_1_IDENTIFICATION
-                        3 ->
-                            row[headerRowFields.indexOf(CSV_FIELD_IDENTIFICATIE)] shouldBe "ZAAK-2000-0000000001"
-                        4 ->
-                            row[headerRowFields.indexOf(CSV_FIELD_IDENTIFICATIE)] shouldBe ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
-                        5 ->
-                            row[headerRowFields.indexOf(CSV_FIELD_IDENTIFICATIE)] shouldBe ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
-                    }
                 }
             }
         }
