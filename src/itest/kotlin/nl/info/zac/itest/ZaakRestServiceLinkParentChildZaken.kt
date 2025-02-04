@@ -17,15 +17,16 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CREATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
+import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONObject
 import java.util.UUID
 import java.util.UUID.fromString
 
 /**
- * Integration test to test the functionality of linking parent and child zaken (hoofd- en deelzaken_.
+ * Integration test to test the functionality of linking parent and child zaken (hoofd- en deelzaken).
  */
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
 class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
@@ -41,6 +42,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
     ) {
         lateinit var zaak1UUID: UUID
         lateinit var zaak2UUID: UUID
+        lateinit var zaak2Identificatie: String
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
             groupId = TEST_GROUP_A_ID,
@@ -50,9 +52,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
             val responseBody = body!!.string()
             logger.info { "Response: $responseBody" }
             JSONObject(responseBody).run {
-                getJSONObject("zaakdata").run {
-                    zaak1UUID = getString("zaakUUID").run(UUID::fromString)
-                }
+                zaak1UUID = getString("uuid").run(UUID::fromString)
             }
         }
         zacClient.createZaak(
@@ -64,9 +64,8 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
             val responseBody = body!!.string()
             logger.info { "Response: $responseBody" }
             JSONObject(responseBody).run {
-                getJSONObject("zaakdata").run {
-                    zaak2UUID = getString("zaakUUID").run(UUID::fromString)
-                }
+                zaak2Identificatie = getString("identificatie")
+                zaak2UUID = getString("uuid").run(UUID::fromString)
             }
         }
         When("a request is done to link the parent zaak to the child zaak") {
@@ -85,7 +84,25 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_NO_CONTENT
 
-                // TODO: retrieve zaak and check if the relationship is established
+                // retrieve the first zaak and check if the parent-child relationship has been established
+                val response = zacClient.retrieveZaak(zaak1UUID)
+                with(response) {
+                    code shouldBe HTTP_STATUS_OK
+                    val responseBody = response.body!!.string()
+                    logger.info { "Response: $responseBody" }
+                    JSONObject(responseBody).getJSONArray("gerelateerdeZaken").run {
+                        length() shouldBe 1
+                        this[0].toString() shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                            {
+                                "identificatie" : "$zaak2Identificatie",
+                                "relatieType" : "DEELZAAK",
+                                "startdatum" : "$DATE_TIME_2000_01_01",
+                                "statustypeOmschrijving" : "Intake",
+                                "zaaktypeOmschrijving" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
+                            }
+                        """.trimIndent()
+                    }
+                }
             }
         }
     }
