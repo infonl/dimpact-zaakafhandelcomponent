@@ -10,7 +10,7 @@ import java.util.UUID
 
 @NoArgConstructor
 @AllOpen
-data class RESTZaakKoppelGegevens(
+data class RestZaakLinkData(
     var zaakUuid: UUID,
 
     var teKoppelenZaakUuid: UUID,

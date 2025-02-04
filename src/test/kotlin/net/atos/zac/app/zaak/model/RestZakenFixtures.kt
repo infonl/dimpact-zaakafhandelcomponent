@@ -235,12 +235,12 @@ fun createRESTZakenVerdeelGegevens(
     screenEventResourceId = screenEventResourceId
 )
 
-fun createRESTZaakKoppelGegevens(
+fun createRestZaakLinkData(
     zaakUuid: UUID = UUID.randomUUID(),
     teKoppelenZaakUuid: UUID = UUID.randomUUID(),
     relatieType: RelatieType,
     reverseRelatieType: RelatieType
-) = RESTZaakKoppelGegevens(
+) = RestZaakLinkData(
     zaakUuid = zaakUuid,
     teKoppelenZaakUuid = teKoppelenZaakUuid,
     relatieType = relatieType,

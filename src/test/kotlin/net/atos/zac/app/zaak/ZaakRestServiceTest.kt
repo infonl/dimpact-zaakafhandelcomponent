@@ -62,10 +62,10 @@ import net.atos.zac.app.zaak.model.createRESTGeometry
 import net.atos.zac.app.zaak.model.createRESTZaakAanmaakGegevens
 import net.atos.zac.app.zaak.model.createRESTZaakAssignmentData
 import net.atos.zac.app.zaak.model.createRESTZaakBetrokkeneGegevens
-import net.atos.zac.app.zaak.model.createRESTZaakKoppelGegevens
 import net.atos.zac.app.zaak.model.createRESTZakenVerdeelGegevens
 import net.atos.zac.app.zaak.model.createRestGroup
 import net.atos.zac.app.zaak.model.createRestZaak
+import net.atos.zac.app.zaak.model.createRestZaakLinkData
 import net.atos.zac.app.zaak.model.createRestZaakLocatieGegevens
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
@@ -452,7 +452,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     Given("Two open zaken") {
         val zaak = createZaak()
         val teKoppelenZaak = createZaak()
-        val restZakenVerdeelGegevens = createRESTZaakKoppelGegevens(
+        val restZakenVerdeelGegevens = createRestZaakLinkData(
             zaakUuid = zaak.uuid,
             teKoppelenZaakUuid = teKoppelenZaak.uuid,
             relatieType = RelatieType.BIJDRAGE,
@@ -479,7 +479,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     Given("An open zaak and a closed zaak") {
         val zaak = createZaak()
         val teKoppelenZaak = createZaak(archiefnominatie = Archiefnominatie.BLIJVEND_BEWAREN)
-        val restZakenVerdeelGegevens = createRESTZaakKoppelGegevens(
+        val restZakenVerdeelGegevens = createRestZaakLinkData(
             zaakUuid = zaak.uuid,
             teKoppelenZaakUuid = teKoppelenZaak.uuid,
             relatieType = RelatieType.BIJDRAGE,

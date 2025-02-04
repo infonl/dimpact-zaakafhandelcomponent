@@ -21,7 +21,7 @@ export class ZaakOntkoppelenDialogComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<ZaakOntkoppelenDialogComponent>,
     @Inject(MAT_DIALOG_DATA)
-    public data: GeneratedType<"RESTZaakOntkoppelGegevens">,
+    public data: GeneratedType<"RestZaakUnlinkData">,
     private zakenService: ZakenService,
   ) {}
 

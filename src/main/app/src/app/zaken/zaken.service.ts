@@ -439,7 +439,7 @@ export class ZakenService {
   }
 
   ontkoppelZaak(
-    zaakOntkoppelGegevens: GeneratedType<"RESTZaakOntkoppelGegevens">,
+    zaakOntkoppelGegevens: GeneratedType<"RestZaakUnlinkData">,
   ): Observable<void> {
     return this.http
       .patch<void>(`${this.basepath}/zaak/ontkoppel`, zaakOntkoppelGegevens)

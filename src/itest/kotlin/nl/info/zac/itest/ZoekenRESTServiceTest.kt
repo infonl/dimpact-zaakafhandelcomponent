@@ -86,7 +86,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                 responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                         "foutmelding": "",                      
-                        "totaal": ${TOTAL_COUNT_ZAKEN + TOTAL_COUNT_TASKS + TOTAL_COUNT_DOCUMENTS}.0,
+                        "totaal": ${TOTAL_COUNT_ZAKEN + TOTAL_COUNT_TASKS + TOTAL_COUNT_DOCUMENTS},
                         "filters": {
                             "TYPE": [
                                 {
@@ -162,15 +162,7 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                                 "naam": "Toegekend"
                               }
                             ],
-                            "ZAAK_INDICATIES": [
-                                {
-                                    "aantal": 1,
-                                    "naam": "DEELZAAK"
-                                },
-                                {
-                                    "aantal": 1,
-                                    "naam": "HOOFDZAAK"
-                                },
+                            "ZAAK_INDICATIES": [                        
                                 {
                                     "aantal": 1,
                                     "naam": "VERLENGD"
@@ -347,13 +339,9 @@ class ZoekenRESTServiceTest : BehaviorSpec({
                              "naam" : "-NULL-"
                            } 
                         ],
-                        "ZAAK_INDICATIES" : [
-                          {
-                            "aantal": 1,
-                            "naam": "HOOFDZAAK"
-                          },
+                        "ZAAK_INDICATIES" : [                    
                           {                       
-                            "aantal" : 2,
+                            "aantal" : 3,
                             "naam" : "-NULL-"
                           } 
                         ],
