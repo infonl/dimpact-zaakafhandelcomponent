@@ -112,7 +112,7 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_SEARCH = 8
     const val TEST_SPEC_ORDER_LAST = 100
 
-    const val TOTAL_COUNT_ZAKEN = 7
+    const val TOTAL_COUNT_ZAKEN = 9
     const val TOTAL_COUNT_TASKS = 2
     const val TOTAL_COUNT_DOCUMENTS = 7
 
@@ -301,6 +301,9 @@ object ItestConfiguration {
     @Suppress("MagicNumber")
     val DATE_TIME_2000_01_01: ZonedDateTime = LocalDate.of(2000, Month.JANUARY, 1)
         .atStartOfDay(TimeZone.getDefault().toZoneId())
+
+    @Suppress("MagicNumber")
+    val DATE_2000_01_01: LocalDate = LocalDate.of(2000, Month.JANUARY, 1)
 
     @Suppress("MagicNumber")
     val DATE_2020_01_01: LocalDate = LocalDate.of(2020, Month.JANUARY, 1)

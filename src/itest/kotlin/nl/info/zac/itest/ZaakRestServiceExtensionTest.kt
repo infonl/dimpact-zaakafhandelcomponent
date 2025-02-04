@@ -16,6 +16,9 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_CR
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 
+/**
+ * Integration test to test the functionality of extending a zaak.
+ */
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
 @Suppress("MagicNumber")
 class ZaakRestServiceExtensionTest : BehaviorSpec({
