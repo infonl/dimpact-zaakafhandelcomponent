@@ -303,6 +303,9 @@ object ItestConfiguration {
         .atStartOfDay(TimeZone.getDefault().toZoneId())
 
     @Suppress("MagicNumber")
+    val DATE_2000_01_01: LocalDate = LocalDate.of(2000, Month.JANUARY, 1)
+
+    @Suppress("MagicNumber")
     val DATE_2020_01_01: LocalDate = LocalDate.of(2020, Month.JANUARY, 1)
 
     @Suppress("MagicNumber")
