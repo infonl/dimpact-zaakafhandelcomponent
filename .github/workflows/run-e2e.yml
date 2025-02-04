@@ -8,6 +8,11 @@ on:
     # Runs at 9:00 PM UTC from Monday to Friday
     - cron: "0 21 * * 1-5"
   workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+
 jobs:
   playwright:
     name: "Playwright Tests"

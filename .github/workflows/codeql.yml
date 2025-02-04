@@ -11,6 +11,9 @@ on:
   schedule:
     - cron: "21 11 * * 0"
 
+permissions:
+  contents: read
+
 env:
   JAVA_VERSION: "21.0.6"
 
