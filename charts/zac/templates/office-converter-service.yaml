@@ -1,3 +1,4 @@
+{{- if .Values.office_converter.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -18,3 +19,4 @@ spec:
       targetPort: http
   selector:
     {{- include "zaakafhandelcomponent.office-converter.selectorLabels" . | nindent 4 }}
+  {{- end }}
