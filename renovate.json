@@ -213,7 +213,8 @@
       "matchDatasources": [
         "docker"
       ],
-      "versioning": "loose"
+      "versioning": "loose",
+      "allowedVersions": "/jre-ubi9-minimal$/"
     }
   ]
 }
