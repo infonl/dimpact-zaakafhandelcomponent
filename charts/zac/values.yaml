@@ -450,7 +450,7 @@ solr-operator:
         # -- zookeeper-operator hooks repository
         repository: lachlanevenson/k8s-kubectl
         # -- zookeeper-operator hooks tag
-        tag: v1.23.14@sha256:e3a18fbba08769e06d3eaba8634ed3c5b1364ba61a4cff9ef5953b5865e59978
+        tag: v1.24.8@sha256:19c3e20ada5a675a9728fe4a88996ae3f7908cc79a3c81ed9b36012c85d92cef
     # zookeeper-operator image parameters
     image:
       # -- zookeeper-operator imagePullPolicy
