@@ -10,6 +10,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.config.ItestConfiguration.DATE_2020_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
@@ -96,7 +97,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                             {
                                 "identificatie" : "$zaak2Identificatie",
                                 "relatieType" : "DEELZAAK",
-                                "startdatum" : "$DATE_TIME_2000_01_01",
+                                "startdatum" : "$DATE_2020_01_01",
                                 "statustypeOmschrijving" : "Intake",
                                 "zaaktypeOmschrijving" : "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                             }
