@@ -205,6 +205,15 @@
       ],
       "allowedVersions": "< 7",
       "description": ["Pinned - version 7 causes Connection refused and node/npm discovery issues"]
+    },
+    {
+      "matchPackageNames": [
+        "docker.io/eclipse-temurin"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "versioning": "loose"
     }
   ]
 }
