@@ -51,7 +51,7 @@ import net.atos.zac.policy.PolicyService;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
-public class BAGRESTService {
+public class BagRestService {
     private BagClientService bagClientService;
     private ZrcClientService zrcClientService;
     private RESTBAGConverter restbagConverter;
@@ -65,11 +65,11 @@ public class BAGRESTService {
     /**
      * Default no-arg constructor, required by Weld.
      */
-    public BAGRESTService() {
+    public BagRestService() {
     }
 
     @Inject
-    public BAGRESTService(
+    public BagRestService(
             BagClientService bagClientService,
             ZrcClientService zrcClientService,
             RESTBAGConverter restbagConverter,

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.client.keycloak
+package nl.info.client.keycloak
 
 import jakarta.enterprise.inject.Produces
 import jakarta.inject.Inject

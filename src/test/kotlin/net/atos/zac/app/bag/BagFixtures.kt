@@ -17,6 +17,8 @@ import net.atos.client.bag.model.generated.StatusVerblijfsobject
 import net.atos.client.bag.model.generated.Surface
 import net.atos.client.bag.model.generated.Verblijfsobject
 import net.atos.client.bag.model.generated.VerblijfsobjectIOHal
+import net.atos.zac.app.bag.model.RESTBAGAdres
+import net.atos.zac.app.bag.model.RESTWoonplaats
 import java.math.BigDecimal
 
 fun createLigplaatsAdresseerbaarObject(status: StatusPlaats) =
@@ -28,6 +30,16 @@ fun createLigplaatsAdresseerbaarObject(status: StatusPlaats) =
             }
         }
     }
+
+fun createRESTBAGAdres() = RESTBAGAdres().apply {
+    huisnummer = 1
+    postcode = "1234AB"
+    woonplaats = createRESTWoonplaats()
+}
+
+fun createRESTWoonplaats() = RESTWoonplaats().apply {
+    naam = "Amsterdam"
+}
 
 fun createStandplaatsAdresseerbaarObject(status: StatusPlaats) =
     AdresseerbaarObjectIOHal().apply {

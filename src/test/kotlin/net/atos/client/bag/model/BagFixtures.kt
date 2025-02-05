@@ -1,0 +1,21 @@
+/*
+ * SPDX-FileCopyrightText: 2025 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package net.atos.client.bag.model
+
+import net.atos.client.bag.model.generated.AdresIOHal
+
+fun createAdresIOHal(
+    huisnummer: Int = 123,
+    huisletter: String = "dummyHuisletter",
+    huisnummertoevoeging: String = "dummyHuisnummertoevoeging",
+    postcode: String = "dummyPostcode",
+    woonplaatsNaam: String = "dummyWoonplaatsNaam",
+) = AdresIOHal().apply {
+    this.huisnummer = huisnummer
+    this.huisletter = huisletter
+    this.huisnummertoevoeging = huisnummertoevoeging
+    this.postcode = postcode
+    this.woonplaatsNaam = woonplaatsNaam
+}

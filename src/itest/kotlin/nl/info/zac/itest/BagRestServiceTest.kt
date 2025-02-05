@@ -16,7 +16,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 
 @Order(TEST_SPEC_ORDER_AFTER_ZAAK_CREATED)
-class BAGRESTServiceTest : BehaviorSpec({
+class BagRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val logger = KotlinLogging.logger {}
 
