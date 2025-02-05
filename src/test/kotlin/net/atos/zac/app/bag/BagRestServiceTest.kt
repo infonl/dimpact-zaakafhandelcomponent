@@ -54,7 +54,7 @@ class BagRestServiceTest : BehaviorSpec({
             val bagObject = bagRestService.read(BAGObjectType.ADRES, bagObjectId)
 
             Then(
-                "the response should be a 200 HTTP response with the expected BAG object"
+                "the expected BAG object should be returned"
             ) {
                 verify(exactly = 1) {
                     bagClientService.readAdres(bagObjectId)
