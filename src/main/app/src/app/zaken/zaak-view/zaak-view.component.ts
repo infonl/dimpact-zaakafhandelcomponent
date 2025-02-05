@@ -1407,7 +1407,7 @@ export class ZaakViewComponent
         data: {
           zaakUuid: this.zaak.uuid,
           gekoppeldeZaakIdentificatie: gerelateerdeZaak.identificatie,
-          relatietype: gerelateerdeZaak.relatieType,
+          relatieType: gerelateerdeZaak.relatieType,
           reden: "",
         },
       })

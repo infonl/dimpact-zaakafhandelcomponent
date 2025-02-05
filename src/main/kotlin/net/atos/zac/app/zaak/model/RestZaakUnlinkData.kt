@@ -10,12 +10,12 @@ import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
-data class RESTZaakOntkoppelGegevens(
+data class RestZaakUnlinkData(
     var zaakUuid: UUID,
 
     var gekoppeldeZaakIdentificatie: String,
 
-    var relatietype: RelatieType,
+    var relatieType: RelatieType,
 
     var reden: String
 )

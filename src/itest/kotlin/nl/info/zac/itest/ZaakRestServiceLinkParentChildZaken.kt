@@ -105,5 +105,34 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                 }
             }
         }
+        When("a request is done to unlink the linked parent zaak from the child zaak") {
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/zaken/zaak/ontkoppel",
+                requestBodyAsString = """
+                    {
+                        "zaakUuid": "$zaak1UUID",
+                        "gekoppeldeZaakIdentificatie": "$zaak2Identificatie",
+                        "relatieType": "DEELZAAK",
+                        "reden": "dummyReason"
+                    }
+                """.trimIndent()
+            )
+            Then("the parent-child relationship between the two zaken should be removed") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_NO_CONTENT
+
+                // retrieve the zaak and check if the parent-child relationship has been removed
+                val response = zacClient.retrieveZaak(zaak1UUID)
+                with(response) {
+                    code shouldBe HTTP_STATUS_OK
+                    val responseBody = response.body!!.string()
+                    logger.info { "Response: $responseBody" }
+                    JSONObject(responseBody).getJSONArray("gerelateerdeZaken").run {
+                        length() shouldBe 0
+                    }
+                }
+            }
+        }
     }
 })

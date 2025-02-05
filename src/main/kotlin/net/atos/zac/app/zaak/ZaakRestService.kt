@@ -67,8 +67,6 @@ import net.atos.zac.app.zaak.model.RESTZaakAfsluitenGegevens
 import net.atos.zac.app.zaak.model.RESTZaakBetrokkeneGegevens
 import net.atos.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import net.atos.zac.app.zaak.model.RESTZaakHeropenenGegevens
-import net.atos.zac.app.zaak.model.RESTZaakKoppelGegevens
-import net.atos.zac.app.zaak.model.RESTZaakOntkoppelGegevens
 import net.atos.zac.app.zaak.model.RESTZaakOpschortGegevens
 import net.atos.zac.app.zaak.model.RESTZaakOpschorting
 import net.atos.zac.app.zaak.model.RESTZaakVerlengGegevens
@@ -85,8 +83,10 @@ import net.atos.zac.app.zaak.model.RestZaak
 import net.atos.zac.app.zaak.model.RestZaakAssignmentData
 import net.atos.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
 import net.atos.zac.app.zaak.model.RestZaakBetrokkene
+import net.atos.zac.app.zaak.model.RestZaakLinkData
 import net.atos.zac.app.zaak.model.RestZaakLocatieGegevens
 import net.atos.zac.app.zaak.model.RestZaakOverzicht
+import net.atos.zac.app.zaak.model.RestZaakUnlinkData
 import net.atos.zac.app.zaak.model.RestZaaktype
 import net.atos.zac.app.zaak.model.toGeometry
 import net.atos.zac.app.zaak.model.toRestDecisionTypes
@@ -674,25 +674,25 @@ class ZaakRestService @Inject constructor(
 
     @PATCH
     @Path("/zaak/koppel")
-    fun koppelZaak(gegevens: RESTZaakKoppelGegevens) {
-        val zaak: Zaak = zrcClientService.readZaak(gegevens.zaakUuid)
-        val teKoppelenZaak: Zaak = zrcClientService.readZaak(gegevens.teKoppelenZaakUuid)
-        assertPolicy(zaak.isOpen == teKoppelenZaak.isOpen)
+    fun koppelZaak(restZaakLinkData: RestZaakLinkData) {
+        val zaak = zrcClientService.readZaak(restZaakLinkData.zaakUuid)
+        val zaakToLinkTo = zrcClientService.readZaak(restZaakLinkData.teKoppelenZaakUuid)
+        assertPolicy(zaak.isOpen == zaakToLinkTo.isOpen)
         assertPolicy(policyService.readZaakRechten(zaak).koppelen)
-        assertPolicy(policyService.readZaakRechten(teKoppelenZaak).koppelen)
+        assertPolicy(policyService.readZaakRechten(zaakToLinkTo).koppelen)
 
-        when (gegevens.relatieType) {
-            RelatieType.HOOFDZAAK -> koppelHoofdEnDeelzaak(teKoppelenZaak, zaak)
-            RelatieType.DEELZAAK -> koppelHoofdEnDeelzaak(zaak, teKoppelenZaak)
-            RelatieType.VERVOLG -> koppelRelevantezaken(zaak, teKoppelenZaak, AardRelatie.VERVOLG)
-            RelatieType.ONDERWERP -> koppelRelevantezaken(zaak, teKoppelenZaak, AardRelatie.ONDERWERP)
-            RelatieType.BIJDRAGE -> koppelRelevantezaken(zaak, teKoppelenZaak, AardRelatie.BIJDRAGE)
+        when (restZaakLinkData.relatieType) {
+            RelatieType.HOOFDZAAK -> koppelHoofdEnDeelzaak(zaakToLinkTo, zaak)
+            RelatieType.DEELZAAK -> koppelHoofdEnDeelzaak(zaak, zaakToLinkTo)
+            RelatieType.VERVOLG -> koppelRelevantezaken(zaak, zaakToLinkTo, AardRelatie.VERVOLG)
+            RelatieType.ONDERWERP -> koppelRelevantezaken(zaak, zaakToLinkTo, AardRelatie.ONDERWERP)
+            RelatieType.BIJDRAGE -> koppelRelevantezaken(zaak, zaakToLinkTo, AardRelatie.BIJDRAGE)
         }
-        gegevens.reverseRelatieType?.let { reverseRelatieType ->
+        restZaakLinkData.reverseRelatieType?.let { reverseRelatieType ->
             when (reverseRelatieType) {
-                RelatieType.VERVOLG -> koppelRelevantezaken(teKoppelenZaak, zaak, AardRelatie.VERVOLG)
-                RelatieType.ONDERWERP -> koppelRelevantezaken(teKoppelenZaak, zaak, AardRelatie.ONDERWERP)
-                RelatieType.BIJDRAGE -> koppelRelevantezaken(teKoppelenZaak, zaak, AardRelatie.BIJDRAGE)
+                RelatieType.VERVOLG -> koppelRelevantezaken(zaakToLinkTo, zaak, AardRelatie.VERVOLG)
+                RelatieType.ONDERWERP -> koppelRelevantezaken(zaakToLinkTo, zaak, AardRelatie.ONDERWERP)
+                RelatieType.BIJDRAGE -> koppelRelevantezaken(zaakToLinkTo, zaak, AardRelatie.BIJDRAGE)
                 else -> error("Reverse relatie type $reverseRelatieType is not supported")
             }
         }
@@ -700,34 +700,32 @@ class ZaakRestService @Inject constructor(
 
     @PATCH
     @Path("/zaak/ontkoppel")
-    fun ontkoppelZaak(gegevens: RESTZaakOntkoppelGegevens) {
-        val zaak: Zaak = zrcClientService.readZaak(gegevens.zaakUuid)
-        val gekoppeldeZaak = zrcClientService.readZaakByID(gegevens.gekoppeldeZaakIdentificatie)
+    fun ontkoppelZaak(restZaakUnlinkData: RestZaakUnlinkData) {
+        val zaak = zrcClientService.readZaak(restZaakUnlinkData.zaakUuid)
+        val linkedZaak = zrcClientService.readZaakByID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
         assertPolicy(policyService.readZaakRechten(zaak).wijzigen)
-        assertPolicy(policyService.readZaakRechten(gekoppeldeZaak).wijzigen)
+        assertPolicy(policyService.readZaakRechten(linkedZaak).wijzigen)
 
-        when (gegevens.relatietype) {
-            RelatieType.HOOFDZAAK -> ontkoppelHoofdEnDeelzaak(gekoppeldeZaak, zaak, gegevens.reden)
-            RelatieType.DEELZAAK -> ontkoppelHoofdEnDeelzaak(zaak, gekoppeldeZaak, gegevens.reden)
+        when (restZaakUnlinkData.relatieType) {
+            RelatieType.HOOFDZAAK -> ontkoppelHoofdEnDeelzaak(linkedZaak, zaak, restZaakUnlinkData.reden)
+            RelatieType.DEELZAAK -> ontkoppelHoofdEnDeelzaak(zaak, linkedZaak, restZaakUnlinkData.reden)
             RelatieType.VERVOLG -> ontkoppelRelevantezaken(
                 zaak,
-                gekoppeldeZaak,
+                linkedZaak,
                 AardRelatie.VERVOLG,
-                gegevens.reden
+                restZaakUnlinkData.reden
             )
-
             RelatieType.ONDERWERP -> ontkoppelRelevantezaken(
                 zaak,
-                gekoppeldeZaak,
+                linkedZaak,
                 AardRelatie.ONDERWERP,
-                gegevens.reden
+                restZaakUnlinkData.reden
             )
-
             RelatieType.BIJDRAGE -> ontkoppelRelevantezaken(
                 zaak,
-                gekoppeldeZaak,
+                linkedZaak,
                 AardRelatie.BIJDRAGE,
-                gegevens.reden
+                restZaakUnlinkData.reden
             )
         }
     }

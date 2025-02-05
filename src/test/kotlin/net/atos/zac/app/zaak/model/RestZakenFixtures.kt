@@ -235,16 +235,28 @@ fun createRESTZakenVerdeelGegevens(
     screenEventResourceId = screenEventResourceId
 )
 
-fun createRESTZaakKoppelGegevens(
+fun createRestZaakLinkData(
     zaakUuid: UUID = UUID.randomUUID(),
     teKoppelenZaakUuid: UUID = UUID.randomUUID(),
     relatieType: RelatieType,
-    reverseRelatieType: RelatieType
-) = RESTZaakKoppelGegevens(
+    reverseRelatieType: RelatieType? = null
+) = RestZaakLinkData(
     zaakUuid = zaakUuid,
     teKoppelenZaakUuid = teKoppelenZaakUuid,
     relatieType = relatieType,
     reverseRelatieType = reverseRelatieType
+)
+
+fun createRestZaakUnlinkData(
+    zaakUuid: UUID = UUID.randomUUID(),
+    gekoppeldeZaakIdentificatie: String = "dummyIdentificatie",
+    relationType: RelatieType,
+    reason: String = "dummyReason"
+) = RestZaakUnlinkData(
+    zaakUuid = zaakUuid,
+    gekoppeldeZaakIdentificatie = gekoppeldeZaakIdentificatie,
+    relatieType = relationType,
+    reden = reason
 )
 
 fun createRestZaakRechten() = RestZaakRechten()

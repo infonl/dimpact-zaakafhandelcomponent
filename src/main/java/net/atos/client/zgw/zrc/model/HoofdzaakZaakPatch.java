@@ -7,11 +7,9 @@ package net.atos.client.zgw.zrc.model;
 import java.net.URI;
 
 import jakarta.json.bind.annotation.JsonbNillable;
-import jakarta.json.bind.annotation.JsonbProperty;
 
 public class HoofdzaakZaakPatch extends Zaak {
 
-    @JsonbProperty
     @JsonbNillable
     private final URI hoofdzaak;
 
