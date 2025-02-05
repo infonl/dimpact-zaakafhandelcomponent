@@ -738,7 +738,7 @@
           class="besluiten"
           *ngIf="zaak.besluiten"
           [besluiten]="zaak.besluiten"
-          [result]="zaak?.resultaat"
+          [result]="zaak.resultaat"
           [readonly]="!zaak.isOpen || !zaak.rechten.behandelen"
           (besluitWijzigen)="besluitWijzigen($event)"
           (doIntrekking)="doIntrekking($event)"
