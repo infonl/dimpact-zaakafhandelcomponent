@@ -90,7 +90,7 @@ fun Persoon.toRestPersoon() = RestPersoon(
         // omschrijving ‘overlijden’. Zie de overlijden overzicht feature voor meer informatie over dit veld."
         // https://brp-api.github.io/Haal-Centraal-BRP-bevragen/v2/features-overzicht
         DECEASED_CODE -> indicaties.add(RestPersoonIndicaties.OVERLEDEN)
-        MINISTRIAL_REGULATION_CODE -> indicaties.add(RestPersoonIndicaties.MINISTIRIELE_REGELING)
+        MINISTRIAL_REGULATION_CODE -> indicaties.add(RestPersoonIndicaties.MINISTERIELE_REGELING)
         EMIGRATION_CODE -> indicaties.add(RestPersoonIndicaties.EMIGRATIE)
     }
     if (opschortingBijhouding != null) {
@@ -132,7 +132,7 @@ fun PersoonBeperkt.toRestPersoon() = RestPersoon(
         // omschrijving ‘overlijden’. Zie de overlijden overzicht feature voor meer informatie over dit veld."
         // https://brp-api.github.io/Haal-Centraal-BRP-bevragen/v2/features-overzicht
         DECEASED_CODE -> indicaties.add(RestPersoonIndicaties.OVERLEDEN)
-        MINISTRIAL_REGULATION_CODE -> indicaties.add(RestPersoonIndicaties.MINISTIRIELE_REGELING)
+        MINISTRIAL_REGULATION_CODE -> indicaties.add(RestPersoonIndicaties.MINISTERIELE_REGELING)
         EMIGRATION_CODE -> indicaties.add(RestPersoonIndicaties.EMIGRATIE)
     }
     if (opschortingBijhouding != null) {
