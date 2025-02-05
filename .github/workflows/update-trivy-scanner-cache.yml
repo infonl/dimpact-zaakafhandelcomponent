@@ -11,6 +11,9 @@ on:
     - cron: "0 2 * * 1-5"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   update-trivy-db:
     runs-on: ubuntu-24.04

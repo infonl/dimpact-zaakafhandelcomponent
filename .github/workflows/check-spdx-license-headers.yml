@@ -9,6 +9,10 @@ on:
   merge_group:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   check-spdx-license-headers:
     runs-on: ubuntu-24.04
