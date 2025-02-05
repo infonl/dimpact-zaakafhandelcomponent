@@ -239,7 +239,7 @@ fun createRestZaakLinkData(
     zaakUuid: UUID = UUID.randomUUID(),
     teKoppelenZaakUuid: UUID = UUID.randomUUID(),
     relatieType: RelatieType,
-    reverseRelatieType: RelatieType
+    reverseRelatieType: RelatieType? = null
 ) = RestZaakLinkData(
     zaakUuid = zaakUuid,
     teKoppelenZaakUuid = teKoppelenZaakUuid,
