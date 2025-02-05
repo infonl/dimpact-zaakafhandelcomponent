@@ -21,7 +21,7 @@ import java.util.EnumSet
 
 class RestPersoonTest : BehaviorSpec({
 
-    Given("BRP Persoon with all flags but MINISTIRIELE_REGELING and EMIGRATION") {
+    Given("BRP Persoon with all flags but MINISTERIELE_REGELING and EMIGRATION") {
         val date = AbstractDatum().apply {
             type = "type"
             langFormaat = "langFormaat"
@@ -48,7 +48,7 @@ class RestPersoonTest : BehaviorSpec({
                 restPersoon.bsn shouldBe persoon.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.complementOf(
                     EnumSet.of(
-                        RestPersoonIndicaties.MINISTIRIELE_REGELING,
+                        RestPersoonIndicaties.MINISTERIELE_REGELING,
                         RestPersoonIndicaties.EMIGRATIE
                     )
                 )
@@ -56,7 +56,7 @@ class RestPersoonTest : BehaviorSpec({
         }
     }
 
-    Given("BRP Persoon with MINISTIRIELE_REGELING") {
+    Given("BRP Persoon with MINISTERIELE_REGELING") {
         val date = AbstractDatum().apply {
             type = "type"
             langFormaat = "langFormaat"
@@ -78,7 +78,7 @@ class RestPersoonTest : BehaviorSpec({
                 restPersoon.bsn shouldBe persoon.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.of(
                     RestPersoonIndicaties.OPSCHORTING_BIJHOUDING,
-                    RestPersoonIndicaties.MINISTIRIELE_REGELING
+                    RestPersoonIndicaties.MINISTERIELE_REGELING
                 )
             }
         }
@@ -148,7 +148,7 @@ class RestPersoonTest : BehaviorSpec({
         }
     }
 
-    Given("BRP PersoonBeperkt with MINISTIRIELE_REGELING") {
+    Given("BRP PersoonBeperkt with MINISTERIELE_REGELING") {
         val date = AbstractDatum().apply {
             type = "type"
             langFormaat = "langFormaat"
@@ -170,7 +170,7 @@ class RestPersoonTest : BehaviorSpec({
                 restPersoon.bsn shouldBe persoonBeperkt.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.of(
                     RestPersoonIndicaties.OPSCHORTING_BIJHOUDING,
-                    RestPersoonIndicaties.MINISTIRIELE_REGELING
+                    RestPersoonIndicaties.MINISTERIELE_REGELING
                 )
             }
         }

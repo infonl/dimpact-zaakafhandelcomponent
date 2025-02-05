@@ -51,7 +51,7 @@ export class PersoonIndicatiesComponent
         case "OVERLEDEN":
           icon = "deceased";
           break;
-        case "MINISTIRIELE_REGELING":
+        case "MINISTERIELE_REGELING":
           icon = "order_approve";
           break;
         case "EMIGRATIE":
