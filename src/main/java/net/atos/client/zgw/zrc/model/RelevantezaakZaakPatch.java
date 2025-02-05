@@ -7,11 +7,12 @@ package net.atos.client.zgw.zrc.model;
 
 import java.util.List;
 
+import jakarta.json.bind.annotation.JsonbNillable;
 import jakarta.json.bind.annotation.JsonbProperty;
 
 public class RelevantezaakZaakPatch extends Zaak {
 
-    @JsonbProperty(nillable = true)
+    @JsonbNillable
     private final List<RelevanteZaak> relevanteAndereZaken;
 
     public RelevantezaakZaakPatch(final List<RelevanteZaak> relevanteAndereZaken) {

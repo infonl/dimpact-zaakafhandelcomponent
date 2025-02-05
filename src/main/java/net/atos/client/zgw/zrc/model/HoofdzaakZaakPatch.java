@@ -11,7 +11,6 @@ import jakarta.json.bind.annotation.JsonbProperty;
 
 public class HoofdzaakZaakPatch extends Zaak {
 
-    @JsonbProperty
     @JsonbNillable
     private final URI hoofdzaak;
 
