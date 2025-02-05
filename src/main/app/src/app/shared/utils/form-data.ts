@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import FormData from "form-data";
+
 type FormCompatible = string | Blob | { toString: () => string };
 
 type FormDataMappingFunction<T> = (
