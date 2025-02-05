@@ -1,0 +1,36 @@
+# External URL to the zaakafhandelcomponent
+contextUrl: "https://your-zac-domain.com"
+
+# Database configuration
+db:
+  host: "your-db-host"
+  name: "your-db-name"
+  user: "your-db-user"
+  password: "your-db-password"
+
+# Keycloak authentication
+auth:
+  server: "https://your-keycloak-server"
+  realm: "your-realm"
+  clientId: "your-client-id"
+  secret: "your-client-secret"
+
+# ZGW APIs configuration (Open Zaak)
+zgwApis:
+  url: "http://your-openzaak-internal"
+  urlExtern: "https://your-openzaak-external"
+  clientId: "your-zgw-client-id"
+  secret: "your-zgw-secret"
+
+# Municipality configuration
+gemeente:
+  code: "your-gemeente-code"
+  naam: "your-gemeente-name"
+  mail: "your-gemeente-email"
+
+# Organizations configuration
+organizations:
+  verantwoordelijke:
+    rsin: "your-rsin"  # 9-digit RSIN number
+  bron:
+    rsin: "your-rsin"  # 9-digit RSIN number

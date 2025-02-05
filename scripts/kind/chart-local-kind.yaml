@@ -1,0 +1,19 @@
+apiVersion: v2
+name: zac-stack
+description: Umbrella chart for ZAC and its dependencies
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+dependencies:
+  - name: zac
+    version: "*"
+    repository: "file://../../charts/zac"
+  - name: postgresql
+    version: "12.x.x"
+    repository: "@bitnami"
+  - name: keycloak
+    version: "15.x.x"
+    repository: "@bitnami"
+  - name: open-zaak
+    version: "*"
+    repository: "@maykinmedia"
