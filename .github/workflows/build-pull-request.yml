@@ -1,0 +1,173 @@
+#
+# SPDX-FileCopyrightText: 2023 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Build, test & deploy
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: "21.0.6"
+
+permissions:
+  contents: write
+  packages: write
+  checks: write
+  pull-requests: write
+  # Required for uploading SARIF reports
+  security-events: write
+
+jobs:
+  paths-ignore:
+    runs-on: ubuntu-24.04
+    outputs:
+      skip: ${{ steps.paths-ignore.outputs.skip }}
+    steps:
+      - name: Skip job when only Markdown files are changed
+        uses: kunitsucom/github-actions-paths-ignore-alternative@d1b27090d1a610f8cdde46d8d937a4a9c9127619 # v1.0.1
+        id: paths-ignore
+        with:
+          paths-ignore: |-
+            ^.*\.md$
+            ^helm/
+
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    needs: paths-ignore
+    if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
+    outputs:
+      branch_name: ${{ steps.gen_branch_name.outputs.BRANCH_NAME }}
+      build_number: ${{ steps.gen_build_number.outputs.BUILD_NUMBER }}
+      zac_docker_image: ${{ steps.gen_tag.outputs.ZAC_DOCKER_IMAGE }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set branch name
+        id: gen_branch_name
+        run: echo "BRANCH_NAME=${{ github.ref_name }}" | sed 's/\//_/g; s/(//g; s/)//g' >> $GITHUB_OUTPUT
+
+      - name: Set build number
+        id: gen_build_number
+        run: echo "BUILD_NUMBER=${{ steps.gen_branch_name.outputs.BRANCH_NAME }}-${{ github.run_number }}" >> $GITHUB_OUTPUT
+
+      - name: Setup JDK
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4.7.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          # Use the Maven cache here so that Maven artefacts (Maven build is triggered from the Gradle build) are cached.
+          cache: 'maven'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@94baf225fe0a508e581a564467443d0e2379123b # v4.3.0
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@94baf225fe0a508e581a564467443d0e2379123b # v4.3.0
+
+      # The Gradle build also executes a Maven command to build the WildFly bootable JAR.
+      # Disable the Gradle Configuration Cache for now because we sometimes run into a similar issue to:
+      # https://github.com/diffplug/spotless/issues/651
+      - name: Gradle build
+        run: ./gradlew build -x test --info --no-configuration-cache
+
+      - name: Cache Gradle build artefacts
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: |
+            build
+          key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
+      - name: Cache generated Java clients
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: |
+            src/generated
+          key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
+      - name: Cache built frontend artefacts
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: |
+            src/main/app/dist/zaakafhandelcomponent
+            src/main/app/src/generated/types
+          key: built-frontend-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
+      - name: Cache built ZAC JAR
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: |
+            target/zaakafhandelcomponent.jar
+          key: zac-jar-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
+  run-unit-tests:
+    needs: [build, paths-ignore]
+    if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
+      READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup JDK
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4.7.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@94baf225fe0a508e581a564467443d0e2379123b # v4.3.0
+
+      - name: Restore Gradle build artefacts
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: |
+            build
+          key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
+      - name: Restore built frontend artefacts
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: |
+            build
+          key: built-frontend-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
+      - name: Restore generated Java clients
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: |
+            src/generated
+          key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+
+      - name: Run unit tests
+        run: ./gradlew -x processResources -x classes test --info
+
+      - name: Publish unit test results
+        uses: EnricoMi/publish-unit-test-result-action@170bf24d20d201b842d7a52403b73ed297e6645b # v2.18.0
+        if: ${{ !cancelled() }}
+        with:
+          check_name: unit-test-results
+          files: |
+            build/test-results/**/*.xml
+            src/main/app/reports/*.xml
+
+      - name: Upload unit test results to CodeCov
+        uses: codecov/test-results-action@44ecb3a270cd942bdf0fa8f2ce14cb32493e810a # v1.0.3
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unittests
+
+      - name: Generate unit test code coverage report
+        run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x test -x itest -x npmRunBuild npmRunTestCoverage jacocoTestReport --info
+
+      - name: Upload unit test coverage report to Codecov
+        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
+        with:
+          flags: unittests
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

@@ -5,7 +5,6 @@
 name: Build, test & deploy
 
 on:
-  pull_request:
   merge_group:
   workflow_dispatch:
   push:
@@ -359,22 +358,6 @@ jobs:
         with:
           path: docker-image.tar
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
-  dependabot-auto-merge:
-    needs: [run-unit-tests, build-docker-image-and-run-itests]
-    runs-on: ubuntu-24.04
-    if: github.actor == 'dependabot[bot]'
-    permissions:
-      pull-requests: write
-      contents: write
-    steps:
-      - uses: fastify/github-action-merge-dependabot@c3bde0759d4f24db16f7b250b2122bc2df57e817 # v3.11.0
-        with:
-          # Our Dependabot PRs are not merged automatically because an automatically merged PR
-          # does not trigger our push workflow (and so no release would be made).
-          # see: https://github.com/fastify/github-action-merge-dependabot/issues/134
-          approve-only: true
-          target: minor
 
   push-docker-image:
     needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version]
