@@ -69,6 +69,7 @@ import net.atos.zac.app.zaak.model.createRestGroup
 import net.atos.zac.app.zaak.model.createRestZaak
 import net.atos.zac.app.zaak.model.createRestZaakLinkData
 import net.atos.zac.app.zaak.model.createRestZaakLocatieGegevens
+import net.atos.zac.app.zaak.model.createRestZaakUnlinkData
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
@@ -103,7 +104,7 @@ import nl.info.zac.test.date.toDate
 import org.flowable.task.api.Task
 import java.util.UUID
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "LargeClass")
 class ZaakRestServiceTest : BehaviorSpec({
     val decisionService = mockk<DecisionService>()
     val bpmnService = mockk<BPMNService>()
@@ -551,6 +552,40 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             Then("a policy exception should be thrown") {
                 exception.message shouldBe null
+            }
+        }
+    }
+
+    Given("Two linked zaken with the relation 'vervolg'") {
+        val zaak = createZaak()
+        val gekoppeldeZaak = createZaak()
+        val restZaakLinkData = createRestZaakUnlinkData(
+            zaakUuid = zaak.uuid,
+            gekoppeldeZaakIdentificatie = gekoppeldeZaak.identificatie,
+            relationType = RelatieType.VERVOLG,
+            reason = "dummyUnlinkReason"
+        )
+        val patchZaakUUIDSlot = slot<UUID>()
+        val patchZaakSlot = slot<Zaak>()
+        every { zrcClientService.readZaak(restZaakLinkData.zaakUuid) } returns zaak
+        every { zrcClientService.readZaakByID(restZaakLinkData.gekoppeldeZaakIdentificatie) } returns gekoppeldeZaak
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
+        every { policyService.readZaakRechten(gekoppeldeZaak) } returns createZaakRechten()
+        every {
+            zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot), "dummyUnlinkReason")
+        } returns zaak
+
+        When("the zaken are unlinked") {
+            zaakRestService.ontkoppelZaak(restZaakLinkData)
+
+            Then("the two zaken are successfully unlinked") {
+                verify(exactly = 1) {
+                    zrcClientService.patchZaak(any(), any(), any())
+                }
+                patchZaakUUIDSlot.captured shouldBe zaak.uuid
+                with(patchZaakSlot.captured) {
+                    relevanteAndereZaken shouldBe null
+                }
             }
         }
     }

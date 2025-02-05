@@ -247,6 +247,18 @@ fun createRestZaakLinkData(
     reverseRelatieType = reverseRelatieType
 )
 
+fun createRestZaakUnlinkData(
+    zaakUuid: UUID = UUID.randomUUID(),
+    gekoppeldeZaakIdentificatie: String = "dummyIdentificatie",
+    relationType: RelatieType,
+    reason: String = "dummyReason"
+) = RestZaakUnlinkData(
+    zaakUuid = zaakUuid,
+    gekoppeldeZaakIdentificatie = gekoppeldeZaakIdentificatie,
+    relatieType = relationType,
+    reden = reason
+)
+
 fun createRestZaakRechten() = RestZaakRechten()
 
 fun createRestZaakResultaat() = RestZaakResultaat()
