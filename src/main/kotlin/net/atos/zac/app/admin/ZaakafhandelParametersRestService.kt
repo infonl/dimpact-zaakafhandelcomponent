@@ -184,9 +184,9 @@ class ZaakafhandelParametersRestService @Inject constructor(
     fun listZaakbeeindigRedenenForZaaktype(
         @PathParam("zaaktypeUUID") zaaktypeUUID: UUID?
     ): List<RESTZaakbeeindigReden> =
-        createHardcodedZaakbeeindigRedenen() + readManagedZaakbeeindigRedenen(zaaktypeUUID)
+        createHardcodedZaakTerminationReasons() + readManagedZaakTerminationReasons(zaaktypeUUID)
 
-    private fun createHardcodedZaakbeeindigRedenen() =
+    private fun createHardcodedZaakTerminationReasons() =
         listOf(
             RESTZaakbeeindigReden().apply {
                 id = INADMISSIBLE_TERMINATION_ID
@@ -194,7 +194,7 @@ class ZaakafhandelParametersRestService @Inject constructor(
             }
         )
 
-    private fun readManagedZaakbeeindigRedenen(zaaktypeUUID: UUID?): List<RESTZaakbeeindigReden> =
+    private fun readManagedZaakTerminationReasons(zaaktypeUUID: UUID?): List<RESTZaakbeeindigReden> =
         zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID).zaakbeeindigParameters
             .map { it.zaakbeeindigReden }
             .let { RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(it) }
