@@ -3,4 +3,9 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 codecov:
+  notify:
+    # only notify Codecov after two builds because we want to make sure
+    # that the reported coverage from our GitHub workflow includes both
+    # our unit test and integration test coverage
+    after_n_builds: 2
   max_report_age: off
