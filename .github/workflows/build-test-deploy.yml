@@ -197,8 +197,9 @@ jobs:
         with:
           fetch-depth: 0
       # Determine the next semantic version based on the commit message tags
-      - name: Get next tag
-        id: get-tag
+      - name: Get next tag on main
+        id: get-tag-main
+        if: ${{ github.ref == 'refs/heads/main'}}
         uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297 # 1.71.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -206,17 +207,29 @@ jobs:
           DEFAULT_BUMP: patch
           WITH_V: true
           RELEASE_BRANCHES: main
+      # If not on main, Determine the next semantic version based on the commit message tags without pushing tags`
+      - name: Get next tag on non-main
+        id: get-tag-non-main
+        if: ${{ github.ref != 'refs/heads/main'}}
+        uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297 # 1.71.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PRERELEASE: false
+          DEFAULT_BUMP: patch
+          WITH_V: true
+          RELEASE_BRANCHES: main
+          DRY_RUN: true
       - name: Get next version
         id: get-version
         uses: frabert/replace-string-action@b6828c5a4cb6371753ff873b0d1c4c4fbd9a63cb # v2.5
         with:
           pattern: 'v(.*)'
-          string: ${{ steps.get-tag.outputs.new_tag }}
+          string: ${{ github.ref == 'refs/heads/main' && steps.get-tag-main.outputs.new_tag || steps.get-tag-non-main.outputs.new_tag }}
           replace-with: '$1'
       - name: Print new tag and version
         run: |
           echo "Next version: ${{ steps.get-version.outputs.replaced }}"
-          echo "Next version tag: ${{ steps.get-tag.outputs.new_tag }}"
+          echo "Next version tag: ${{ github.ref == 'refs/heads/main' && steps.get-tag-main.outputs.new_tag || steps.get-tag-non-main.outputs.new_tag }}"
 
   build-docker-image-and-run-itests:
     needs: [build, paths-ignore, next-version]
