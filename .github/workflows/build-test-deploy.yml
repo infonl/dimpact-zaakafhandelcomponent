@@ -170,15 +170,20 @@ jobs:
 
       - name: Upload unit test results to CodeCov
         uses: codecov/test-results-action@44ecb3a270cd942bdf0fa8f2ce14cb32493e810a # v1.0.3
-        if: ${{ !cancelled() }}
+        # Do not run in the merge queue and do not run if the job got cancelled
+        if: ${{ github.event_name != 'merge_group' && !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: unittests
 
       - name: Generate unit test code coverage report
+        # Do not run in the merge queue
+        if: ${{ github.event_name != 'merge_group' }}
         run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x test -x itest -x npmRunBuild npmRunTestCoverage jacocoTestReport --info
 
       - name: Upload unit test coverage report to Codecov
+        # Do not run in the merge queue
+        if: ${{ github.event_name != 'merge_group' }}
         uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
         with:
           flags: unittests
@@ -186,7 +191,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   next-version:
-    # Do not run this job for pull requests
+    # Do not run for pull requests
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
     outputs:
@@ -222,7 +227,7 @@ jobs:
 
   build-docker-image-and-run-itests:
     needs: [build, paths-ignore, next-version]
-    # Do not run this job for pull requests and do not run if the paths-ignore step defines it to skip
+    # Do not run for pull requests and do not run if the paths-ignore step defines it to skip
     # but always run for the main branch
     if: ${{ (github.event_name != 'pull_request' && needs.paths-ignore.outputs.skip != 'true') || github.ref == 'refs/heads/main'}}
     runs-on: ubuntu-24.04
@@ -298,7 +303,8 @@ jobs:
 
       - name: Upload integration test results to CodeCov
         uses: codecov/test-results-action@44ecb3a270cd942bdf0fa8f2ce14cb32493e810a # v1.0.3
-        if: ${{ !cancelled() }}
+        # Do not run in the merge queue and do not run if the job got cancelled
+        if: ${{ github.event_name != 'merge_group' && !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: integrationtests
@@ -321,9 +327,13 @@ jobs:
           key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Generate JaCoCo integration test code coverage report
+        # Do not run in the merge queue
+        if: ${{ github.event_name != 'merge_group' }}
         run: ./gradlew jacocoIntegrationTestReport -x itest --info
 
       - name: Upload integration test coverage report to Codecov
+        # Do not run in the merge queue
+        if: ${{ github.event_name != 'merge_group' }}
         uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
         with:
           flags: integrationtests
