@@ -19,6 +19,7 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.admin.ReferenceTableService
 import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaakafhandelParameterService.NIET_ONTVANKELIJK_NAME
 import net.atos.zac.admin.model.FormulierDefinitie
 import net.atos.zac.admin.model.ReferenceTable
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
@@ -69,8 +70,6 @@ class ZaakafhandelParametersRestService @Inject constructor(
     private val policyService: PolicyService
 ) {
     companion object {
-        private const val NIET_ONTVANKELIJK_NAME = "Zaak is niet ontvankelijk"
-
         private val LOG = Logger.getLogger(ZaakafhandelParametersRestService::class.java.name)
     }
 
@@ -184,13 +183,17 @@ class ZaakafhandelParametersRestService @Inject constructor(
     fun listZaakbeeindigRedenenForZaaktype(
         @PathParam("zaaktypeUUID") zaaktypeUUID: UUID?
     ): List<RESTZaakbeeindigReden> =
-        mutableListOf(RESTZaakbeeindigReden().apply { naam = NIET_ONTVANKELIJK_NAME }).apply {
-            addAll(
-                zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID).zaakbeeindigParameters
-                    .map { it.zaakbeeindigReden }
-                    .let { RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(it) }
-            )
+        mutableListOf(createHardcodedZaakbeeindigRedenen()).apply {
+            addAll(readManagedZaakbeeindigRedenen(zaaktypeUUID))
         }
+
+    private fun createHardcodedZaakbeeindigRedenen() =
+        RESTZaakbeeindigReden().apply { naam = NIET_ONTVANKELIJK_NAME }
+
+    private fun readManagedZaakbeeindigRedenen(zaaktypeUUID: UUID?): List<RESTZaakbeeindigReden> =
+        zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID).zaakbeeindigParameters
+            .map { it.zaakbeeindigReden }
+            .let { RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(it) }
 
     /**
      * Retrieve all resultaattypes for a zaaktype

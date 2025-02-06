@@ -30,6 +30,11 @@ public class ZaakafhandelParameterService implements Caching {
     private static final int MAX_CACHE_SIZE = 20;
     private static final int EXPIRATION_TIME_HOURS = 1;
 
+    /**
+     * Hardcoded zaakbeeindigreden that we don't manage via ZaakafhandelParameters
+     */
+    public static final String NIET_ONTVANKELIJK_NAME = "Zaak is niet ontvankelijk";
+
     @Inject
     private ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService;
 

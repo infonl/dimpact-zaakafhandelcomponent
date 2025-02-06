@@ -46,6 +46,7 @@ import net.atos.client.zgw.zrc.util.StatusTypeUtil
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.extensions.isNuGeldig
 import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaakafhandelParameterService.NIET_ONTVANKELIJK_NAME
 import net.atos.zac.admin.model.ZaakAfzender.Speciaal
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
@@ -171,14 +172,11 @@ class ZaakRestService @Inject constructor(
     private val zaakHistoryService: ZaakHistoryService
 ) {
     companion object {
-        const val AANVULLENDE_INFORMATIE_TASK_NAME = "Aanvullende informatie"
-
-        private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
-        private const val NIET_ONTVANKELIJK_REDEN = "Zaak is niet ontvankelijk"
         private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
         private const val ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
-
+        private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
         private const val VERLENGING = "Verlenging"
+        const val AANVULLENDE_INFORMATIE_TASK_NAME = "Aanvullende informatie"
     }
 
     @GET
@@ -631,7 +629,8 @@ class ZaakRestService @Inject constructor(
                 zaakAfbreken(zaak, it.resultaattype, it.zaakbeeindigReden.naam)
             }
         } else {
-            zaakAfbreken(zaak, zaakafhandelParameters.nietOntvankelijkResultaattype, NIET_ONTVANKELIJK_REDEN)
+            // Use the hardcoded "niet ontvankelijk" zaakbeeindigreden that we don't manage via ZaakafhandelParameters
+            zaakAfbreken(zaak, zaakafhandelParameters.nietOntvankelijkResultaattype, NIET_ONTVANKELIJK_NAME)
         }
 
         // Terminate case after the zaak is ended in order to prevent the EndCaseLifecycleListener from ending the zaak.
