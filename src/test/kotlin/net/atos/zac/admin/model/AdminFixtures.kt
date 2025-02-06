@@ -68,7 +68,7 @@ fun createZaakafhandelParameters(
     einddatumGeplandWaarschuwing: Int? = null,
     productaanvraagtype: String? = null,
     nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
-    zaakbeeindigParameters: Set<ZaakbeeindigParameter>? = null
+    zaakbeeindigParameters: Set<ZaakbeeindigParameter>? = emptySet()
 ) =
     ZaakafhandelParameters().apply {
         this.id = id
