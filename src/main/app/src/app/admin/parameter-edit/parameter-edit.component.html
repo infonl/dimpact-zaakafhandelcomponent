@@ -123,6 +123,7 @@
               <input
                 matInput
                 type="number"
+                [attr.inputmode]="'numeric'"
                 min="0"
                 max="31"
                 formControlName="einddatumGeplandWaarschuwing"
@@ -272,9 +273,10 @@
                     <input
                       matInput
                       type="number"
-                      formControlName="doorlooptijd"
+                      [attr.inputmode]="'numeric'"
                       min="0"
                       max="2147483647"
+                      formControlName="doorlooptijd"
                     />
                     <span matSuffix>{{ "kalenderdagen" | translate }}</span>
                   </mat-form-field>
