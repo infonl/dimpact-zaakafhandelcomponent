@@ -799,7 +799,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { zgwApiService.endZaak(zaak, "Zaak is niet ontvankelijk") } just runs
         every { cmmnService.terminateCase(zaak.uuid) } just runs
 
-        When("aborted with the hardcoded ''niet ontvankelijk' zaakbeeindigreden") {
+        When("aborted with the hardcoded 'niet ontvankelijk' zaakbeeindigreden") {
             zaakRestService.afbreken(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = null))
 
             Then("it is ended with result") {
