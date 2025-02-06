@@ -7,7 +7,7 @@ package net.atos.zac.app.admin.model;
 
 public class RESTZaakbeeindigReden {
 
-    public Long id;
+    public String id;
 
     public String naam;
 }

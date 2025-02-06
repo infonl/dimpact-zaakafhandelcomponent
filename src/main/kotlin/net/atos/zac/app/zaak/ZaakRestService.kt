@@ -46,7 +46,8 @@ import net.atos.client.zgw.zrc.util.StatusTypeUtil
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.extensions.isNuGeldig
 import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.ZaakafhandelParameterService.NIET_ONTVANKELIJK_NAME
+import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_ID
+import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_REASON
 import net.atos.zac.admin.model.ZaakAfzender.Speciaal
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
@@ -624,13 +625,15 @@ class ZaakRestService @Inject constructor(
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
             zaak.zaaktype.extractUuid()
         )
-        if (afbrekenGegevens.zaakbeeindigRedenId != null) {
-            zaakafhandelParameters.readZaakbeeindigParameter(afbrekenGegevens.zaakbeeindigRedenId).let {
-                zaakAfbreken(zaak, it.resultaattype, it.zaakbeeindigReden.naam)
-            }
-        } else {
+        if (afbrekenGegevens.zaakbeeindigRedenId == INADMISSIBLE_TERMINATION_ID) {
             // Use the hardcoded "niet ontvankelijk" zaakbeeindigreden that we don't manage via ZaakafhandelParameters
-            zaakAfbreken(zaak, zaakafhandelParameters.nietOntvankelijkResultaattype, NIET_ONTVANKELIJK_NAME)
+            zaakAfbreken(zaak, zaakafhandelParameters.nietOntvankelijkResultaattype, INADMISSIBLE_TERMINATION_REASON)
+        } else {
+            afbrekenGegevens.zaakbeeindigRedenId.toLong().let { zaakbeeindigRedenId ->
+                zaakafhandelParameters.readZaakbeeindigParameter(zaakbeeindigRedenId).let {
+                    zaakAfbreken(zaak, it.resultaattype, it.zaakbeeindigReden.naam)
+                }
+            }
         }
 
         // Terminate case after the zaak is ended in order to prevent the EndCaseLifecycleListener from ending the zaak.

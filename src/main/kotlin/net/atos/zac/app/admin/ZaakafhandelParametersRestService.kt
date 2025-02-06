@@ -19,7 +19,8 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.admin.ReferenceTableService
 import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.ZaakafhandelParameterService.NIET_ONTVANKELIJK_NAME
+import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_ID
+import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_REASON
 import net.atos.zac.admin.model.FormulierDefinitie
 import net.atos.zac.admin.model.ReferenceTable
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
@@ -183,12 +184,15 @@ class ZaakafhandelParametersRestService @Inject constructor(
     fun listZaakbeeindigRedenenForZaaktype(
         @PathParam("zaaktypeUUID") zaaktypeUUID: UUID?
     ): List<RESTZaakbeeindigReden> =
-        mutableListOf(createHardcodedZaakbeeindigRedenen()).apply {
-            addAll(readManagedZaakbeeindigRedenen(zaaktypeUUID))
-        }
+        createHardcodedZaakbeeindigRedenen() + readManagedZaakbeeindigRedenen(zaaktypeUUID)
 
     private fun createHardcodedZaakbeeindigRedenen() =
-        RESTZaakbeeindigReden().apply { naam = NIET_ONTVANKELIJK_NAME }
+        listOf(
+            RESTZaakbeeindigReden().apply {
+                id = INADMISSIBLE_TERMINATION_ID
+                naam = INADMISSIBLE_TERMINATION_REASON
+            }
+        )
 
     private fun readManagedZaakbeeindigRedenen(zaaktypeUUID: UUID?): List<RESTZaakbeeindigReden> =
         zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID).zaakbeeindigParameters

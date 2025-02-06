@@ -33,7 +33,8 @@ public class ZaakafhandelParameterService implements Caching {
     /**
      * Hardcoded zaakbeeindigreden that we don't manage via ZaakafhandelParameters
      */
-    public static final String NIET_ONTVANKELIJK_NAME = "Zaak is niet ontvankelijk";
+    public static final String INADMISSIBLE_TERMINATION_ID = "ZNOR";
+    public static final String INADMISSIBLE_TERMINATION_REASON = "Zaak is niet ontvankelijk";
 
     @Inject
     private ZaakafhandelParameterBeheerService zaakafhandelParameterBeheerService;

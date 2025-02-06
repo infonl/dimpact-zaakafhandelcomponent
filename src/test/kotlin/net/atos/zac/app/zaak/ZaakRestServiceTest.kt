@@ -47,6 +47,7 @@ import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_ID
 import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.admin.model.ZaakbeeindigReden
 import net.atos.zac.admin.model.createZaakafhandelParameters
@@ -800,7 +801,10 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { cmmnService.terminateCase(zaak.uuid) } just runs
 
         When("aborted with the hardcoded 'niet ontvankelijk' zaakbeeindigreden") {
-            zaakRestService.afbreken(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = null))
+            zaakRestService.afbreken(
+                zaak.uuid,
+                RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)
+            )
 
             Then("it is ended with result") {
                 verify(exactly = 1) {
@@ -845,7 +849,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { cmmnService.terminateCase(zaak.uuid) } just runs
 
         When("aborted with managed zaakbeeindigreden") {
-            zaakRestService.afbreken(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = -2))
+            zaakRestService.afbreken(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = "-2"))
 
             Then("it is ended with result") {
                 verify(exactly = 1) {
@@ -853,6 +857,16 @@ class ZaakRestServiceTest : BehaviorSpec({
                     zgwApiService.endZaak(zaak, "-2 name")
                     cmmnService.terminateCase(zaak.uuid)
                 }
+            }
+        }
+
+        When("aborted with invalid zaakbeeindigreden id") {
+            val exception = shouldThrow<IllegalArgumentException> {
+                zaakRestService.afbreken(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = "not a number"))
+            }
+
+            Then("it throws an error") {
+                exception.message shouldBe "For input string: \"not a number\""
             }
         }
     }
