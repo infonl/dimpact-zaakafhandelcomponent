@@ -172,11 +172,14 @@ class ZaakRestService @Inject constructor(
     private val zaakHistoryService: ZaakHistoryService
 ) {
     companion object {
+        const val AANVULLENDE_INFORMATIE_TASK_NAME = "Aanvullende informatie"
+
+        private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
+        private const val NIET_ONTVANKELIJK_REDEN = "Zaak is niet ontvankelijk"
         private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
         private const val ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
-        private const val AANMAKEN_ZAAK_REDEN = "Aanmaken zaak"
+
         private const val VERLENGING = "Verlenging"
-        const val AANVULLENDE_INFORMATIE_TASK_NAME = "Aanvullende informatie"
     }
 
     @GET
@@ -624,17 +627,25 @@ class ZaakRestService @Inject constructor(
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
             zaak.zaaktype.extractUuid()
         )
-        val zaakbeeindigParameter: ZaakbeeindigParameter = zaakafhandelParameters.readZaakbeeindigParameter(
-            afbrekenGegevens.zaakbeeindigRedenId
-        )
-        zgwApiService.createResultaatForZaak(
-            zaak,
-            zaakbeeindigParameter.resultaattype,
-            zaakbeeindigParameter.zaakbeeindigReden.naam
-        )
-        zgwApiService.endZaak(zaak, zaakbeeindigParameter.zaakbeeindigReden.naam)
+        if (afbrekenGegevens.zaakbeeindigRedenId != null) {
+            zaakafhandelParameters.readZaakbeeindigParameter(afbrekenGegevens.zaakbeeindigRedenId).let {
+                zaakAfbreken(zaak, it.resultaattype, it.zaakbeeindigReden.naam)
+            }
+        } else {
+            zaakAfbreken(zaak, zaakafhandelParameters.nietOntvankelijkResultaattype, NIET_ONTVANKELIJK_REDEN)
+        }
+
         // Terminate case after the zaak is ended in order to prevent the EndCaseLifecycleListener from ending the zaak.
         cmmnService.terminateCase(zaakUUID)
+    }
+
+    private fun zaakAfbreken(
+        zaak: Zaak,
+        resultaattype: UUID,
+        zaakbeeindigRedenNaam: String
+    ) {
+        zgwApiService.createResultaatForZaak(zaak, resultaattype, zaakbeeindigRedenNaam)
+        zgwApiService.endZaak(zaak, zaakbeeindigRedenNaam)
     }
 
     @PATCH

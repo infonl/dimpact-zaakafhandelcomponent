@@ -10,5 +10,5 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 @AllOpen
 data class RESTZaakAfbrekenGegevens(
-    var zaakbeeindigRedenId: Long
+    var zaakbeeindigRedenId: Long?
 )

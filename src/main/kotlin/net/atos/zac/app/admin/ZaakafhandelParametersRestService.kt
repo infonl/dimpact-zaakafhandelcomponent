@@ -69,6 +69,8 @@ class ZaakafhandelParametersRestService @Inject constructor(
     private val policyService: PolicyService
 ) {
     companion object {
+        private const val NIET_ONTVANKELIJK_NAME = "Zaak is niet ontvankelijk"
+
         private val LOG = Logger.getLogger(ZaakafhandelParametersRestService::class.java.name)
     }
 
@@ -182,11 +184,13 @@ class ZaakafhandelParametersRestService @Inject constructor(
     fun listZaakbeeindigRedenenForZaaktype(
         @PathParam("zaaktypeUUID") zaaktypeUUID: UUID?
     ): List<RESTZaakbeeindigReden> =
-        zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID).zaakbeeindigParameters
-            .map { it.zaakbeeindigReden }
-            .let {
-                RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(it)
-            }
+        mutableListOf(RESTZaakbeeindigReden().apply { naam = NIET_ONTVANKELIJK_NAME }).apply {
+            addAll(
+                zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID).zaakbeeindigParameters
+                    .map { it.zaakbeeindigReden }
+                    .let { RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(it) }
+            )
+        }
 
     /**
      * Retrieve all resultaattypes for a zaaktype
