@@ -170,20 +170,15 @@ jobs:
 
       - name: Upload unit test results to CodeCov
         uses: codecov/test-results-action@44ecb3a270cd942bdf0fa8f2ce14cb32493e810a # v1.0.3
-        # Do not run in the merge queue and do not run if the job got cancelled
-        if: ${{ github.event_name != 'merge_group' && !cancelled() }}
+        if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: unittests
 
       - name: Generate unit test code coverage report
-        # Do not run in the merge queue
-        if: ${{ github.event_name != 'merge_group' }}
         run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x test -x itest -x npmRunBuild npmRunTestCoverage jacocoTestReport --info
 
       - name: Upload unit test coverage report to Codecov
-        # Do not run in the merge queue
-        if: ${{ github.event_name != 'merge_group' }}
         uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
         with:
           flags: unittests
@@ -191,8 +186,6 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   next-version:
-    # Do not run for pull requests
-    if: github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.get-version.outputs.replaced }}
@@ -227,9 +220,7 @@ jobs:
 
   build-docker-image-and-run-itests:
     needs: [build, paths-ignore, next-version]
-    # Do not run for pull requests and do not run if the paths-ignore step defines it to skip
-    # but always run for the main branch
-    if: ${{ (github.event_name != 'pull_request' && needs.paths-ignore.outputs.skip != 'true') || github.ref == 'refs/heads/main'}}
+    if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
@@ -303,8 +294,7 @@ jobs:
 
       - name: Upload integration test results to CodeCov
         uses: codecov/test-results-action@44ecb3a270cd942bdf0fa8f2ce14cb32493e810a # v1.0.3
-        # Do not run in the merge queue and do not run if the job got cancelled
-        if: ${{ github.event_name != 'merge_group' && !cancelled() }}
+        if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: integrationtests
@@ -327,13 +317,9 @@ jobs:
           key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Generate JaCoCo integration test code coverage report
-        # Do not run in the merge queue
-        if: ${{ github.event_name != 'merge_group' }}
         run: ./gradlew jacocoIntegrationTestReport -x itest --info
 
       - name: Upload integration test coverage report to Codecov
-        # Do not run in the merge queue
-        if: ${{ github.event_name != 'merge_group' }}
         uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
         with:
           flags: integrationtests
@@ -341,7 +327,6 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Run Trivy vulnerability scanner
-        # Only run on the main branch
         if: github.ref == 'refs/heads/main'
         uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # 0.29.0
         with:
@@ -375,11 +360,27 @@ jobs:
           path: docker-image.tar
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
+  dependabot-auto-merge:
+    needs: [run-unit-tests, build-docker-image-and-run-itests]
+    runs-on: ubuntu-24.04
+    if: github.actor == 'dependabot[bot]'
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - uses: fastify/github-action-merge-dependabot@c3bde0759d4f24db16f7b250b2122bc2df57e817 # v3.11.0
+        with:
+          # Our Dependabot PRs are not merged automatically because an automatically merged PR
+          # does not trigger our push workflow (and so no release would be made).
+          # see: https://github.com/fastify/github-action-merge-dependabot/issues/134
+          approve-only: true
+          target: minor
+
   push-docker-image:
     needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version]
     runs-on: ubuntu-24.04
     timeout-minutes: 30
-    # Only run on the main branch and avoid infinite build loop on Renovate updates
+    # Avoid infinite build loop on renovate updates
     if: ${{ github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'update ghcr.io/infonl/zaakafhandelcomponent docker tag') && !contains(github.event.head_commit.message, 'update dependency infonl/dimpact-zaakafhandelcomponent to') }}
     env:
       ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
@@ -413,7 +414,6 @@ jobs:
 
   create-release:
     needs: [next-version, push-docker-image]
-    # Only run on the main branch
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     env:
@@ -445,7 +445,6 @@ jobs:
       NEXT_VERSION: ${{ needs.next-version.outputs.version }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
-    # Only run on the main branch
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
