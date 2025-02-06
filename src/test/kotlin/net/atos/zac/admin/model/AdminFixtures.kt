@@ -66,7 +66,9 @@ fun createZaakafhandelParameters(
     zaaktypeUUID: UUID = UUID.randomUUID(),
     zaaktypeOmschrijving: String = "dummyZaaktypeOmschrijving",
     einddatumGeplandWaarschuwing: Int? = null,
-    productaanvraagtype: String? = null
+    productaanvraagtype: String? = null,
+    nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
+    zaakbeeindigParameters: Set<ZaakbeeindigParameter>? = null
 ) =
     ZaakafhandelParameters().apply {
         this.id = id
@@ -76,6 +78,7 @@ fun createZaakafhandelParameters(
         this.zaaktypeOmschrijving = zaaktypeOmschrijving
         this.einddatumGeplandWaarschuwing = einddatumGeplandWaarschuwing
         this.productaanvraagtype = productaanvraagtype
+        this.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
         setMailtemplateKoppelingen(
             setOf(
                 createMailtemplateKoppelingen(
@@ -85,6 +88,7 @@ fun createZaakafhandelParameters(
             )
         )
         setZaakAfzenders(setOf(createZaakAfzender(zaakafhandelParameters = this)))
+        setZaakbeeindigParameters(zaakbeeindigParameters)
     }
 
 fun createMailtemplateKoppelingen(
