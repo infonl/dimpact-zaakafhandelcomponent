@@ -331,6 +331,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Run Trivy vulnerability scanner
+        # Only run on the main branch
         if: github.ref == 'refs/heads/main'
         uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # 0.29.0
         with:
