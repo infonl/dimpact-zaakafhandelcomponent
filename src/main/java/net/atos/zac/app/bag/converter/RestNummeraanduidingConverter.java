@@ -8,8 +8,6 @@ package net.atos.zac.app.bag.converter;
 
 import java.net.URI;
 
-import jakarta.inject.Inject;
-
 import net.atos.client.bag.model.generated.Indicatie;
 import net.atos.client.bag.model.generated.Nummeraanduiding;
 import net.atos.client.bag.model.generated.NummeraanduidingIOHal;
@@ -21,15 +19,8 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectNummeraanduiding;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding;
 import net.atos.zac.app.bag.model.RESTNummeraanduiding;
 
-public class RESTNummeraanduidingConverter {
-
-    @Inject
-    private RESTWoonplaatsConverter woonplaatsConverter;
-
-    @Inject
-    private RESTOpenbareRuimteConverter openbareRuimteConverter;
-
-    public RESTNummeraanduiding convertToREST(final NummeraanduidingIOHalBasis nummeraanduidingIO) {
+public class RestNummeraanduidingConverter {
+    public static RESTNummeraanduiding convertToREST(final NummeraanduidingIOHalBasis nummeraanduidingIO) {
         if (nummeraanduidingIO == null) {
             return null;
         }
@@ -38,21 +29,21 @@ public class RESTNummeraanduidingConverter {
         return restNummeraanduiding;
     }
 
-    public RESTNummeraanduiding convertToREST(final NummeraanduidingIOHal nummeraanduidingIO) {
+    public static RESTNummeraanduiding convertToREST(final NummeraanduidingIOHal nummeraanduidingIO) {
         if (nummeraanduidingIO == null) {
             return null;
         }
         final RESTNummeraanduiding restNummeraanduiding = convertToREST(nummeraanduidingIO.getNummeraanduiding());
         restNummeraanduiding.url = URI.create(nummeraanduidingIO.getLinks().getSelf().getHref());
         if (nummeraanduidingIO.getEmbedded() != null) {
-            restNummeraanduiding.woonplaats = woonplaatsConverter.convertToREST(nummeraanduidingIO.getEmbedded().getLigtInWoonplaats());
-            restNummeraanduiding.openbareRuimte = openbareRuimteConverter.convertToREST(nummeraanduidingIO.getEmbedded()
+            restNummeraanduiding.woonplaats = RestWoonplaatsConverter.convertToREST(nummeraanduidingIO.getEmbedded().getLigtInWoonplaats());
+            restNummeraanduiding.openbareRuimte = RestOpenbareRuimteConverter.convertToREST(nummeraanduidingIO.getEmbedded()
                     .getLigtAanOpenbareRuimte());
         }
         return restNummeraanduiding;
     }
 
-    public RESTNummeraanduiding convertToREST(final ZaakobjectNummeraanduiding zaakobjectNummeraanduiding) {
+    public static RESTNummeraanduiding convertToREST(final ZaakobjectNummeraanduiding zaakobjectNummeraanduiding) {
         if (zaakobjectNummeraanduiding == null || zaakobjectNummeraanduiding.getObjectIdentificatie() == null) {
             return null;
         }
@@ -70,7 +61,7 @@ public class RESTNummeraanduidingConverter {
         return restNummeraanduiding;
     }
 
-    public ZaakobjectNummeraanduiding convertToZaakobject(final RESTNummeraanduiding nummeraanduiding, final Zaak zaak) {
+    public static ZaakobjectNummeraanduiding convertToZaakobject(final RESTNummeraanduiding nummeraanduiding, final Zaak zaak) {
         final ObjectNummeraanduiding objectNummeraanduiding = new ObjectNummeraanduiding(
                 nummeraanduiding.identificatie,
                 nummeraanduiding.huisnummer,
@@ -83,17 +74,17 @@ public class RESTNummeraanduidingConverter {
         return new ZaakobjectNummeraanduiding(zaak.getUrl(), nummeraanduiding.url, objectNummeraanduiding);
     }
 
-    private String convertHuisnummerWeergave(final Nummeraanduiding nummeraanduiding) {
-        return RESTBAGConverter.getHuisnummerWeergave(nummeraanduiding.getHuisnummer(), nummeraanduiding.getHuisletter(),
+    private static String convertHuisnummerWeergave(final Nummeraanduiding nummeraanduiding) {
+        return RestBagConverter.getHuisnummerWeergave(nummeraanduiding.getHuisnummer(), nummeraanduiding.getHuisletter(),
                 nummeraanduiding.getHuisnummertoevoeging());
     }
 
-    private String convertHuisnummerWeergave(final ObjectNummeraanduiding nummeraanduiding) {
-        return RESTBAGConverter.getHuisnummerWeergave(nummeraanduiding.getHuisnummer(), nummeraanduiding.getHuisletter(),
+    private static String convertHuisnummerWeergave(final ObjectNummeraanduiding nummeraanduiding) {
+        return RestBagConverter.getHuisnummerWeergave(nummeraanduiding.getHuisnummer(), nummeraanduiding.getHuisletter(),
                 nummeraanduiding.getHuisnummertoevoeging());
     }
 
-    public RESTNummeraanduiding convertToREST(final Nummeraanduiding nummeraanduiding) {
+    public static RESTNummeraanduiding convertToREST(final Nummeraanduiding nummeraanduiding) {
         final RESTNummeraanduiding restNummeraanduiding = new RESTNummeraanduiding();
         restNummeraanduiding.identificatie = nummeraanduiding.getIdentificatie();
         restNummeraanduiding.postcode = nummeraanduiding.getPostcode();

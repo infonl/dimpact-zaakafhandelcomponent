@@ -7,6 +7,7 @@ package net.atos.zac.app.zaak
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.doubles.exactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.checkUnnecessaryStub
@@ -42,13 +43,14 @@ import net.atos.client.zgw.zrc.model.createRolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.createZaakobjectPand
+import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
+import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.createZaakafhandelParameters
-import net.atos.zac.app.bag.converter.RESTBAGConverter
 import net.atos.zac.app.decision.DecisionService
 import net.atos.zac.app.zaak.ZaakRestService.Companion.AANVULLENDE_INFORMATIE_TASK_NAME
 import net.atos.zac.app.zaak.converter.RestDecisionConverter
@@ -123,7 +125,6 @@ class ZaakRestServiceTest : BehaviorSpec({
     val opschortenZaakHelper = mockk<SuspensionZaakHelper>()
     val policyService = mockk<PolicyService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
-    val restBAGConverter = mockk<RESTBAGConverter>()
     val restDecisionConverter = mockk<RestDecisionConverter>()
     val restZaakConverter = mockk<RestZaakConverter>()
     val restZaakOverzichtConverter = mockk<RestZaakOverzichtConverter>()
@@ -148,7 +149,6 @@ class ZaakRestServiceTest : BehaviorSpec({
         objectsClientService = objectsClientService,
         policyService = policyService,
         productaanvraagService = productaanvraagService,
-        restBAGConverter = restBAGConverter,
         restZaakConverter = restZaakConverter,
         zaakafhandelParameterService = zaakafhandelParameterService,
         zaakVariabelenService = zaakVariabelenService,
@@ -232,15 +232,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaak.url
             )
         } just runs
-        every {
-            restBAGConverter.convertToZaakobject(restZaakAanmaakGegevens.bagObjecten?.get(0), zaak)
-        } returns zaakObjectPand
-        every {
-            restBAGConverter.convertToZaakobject(
-                restZaakAanmaakGegevens.bagObjecten?.get(1),
-                zaak
-            )
-        } returns zaakObjectOpenbareRuimte
         every { restZaakConverter.toRestZaak(zaak) } returns restZaak
         every { restZaakConverter.toZaak(restZaakAanmaakGegevens.zaak, zaakType) } returns zaak
         every {
@@ -249,8 +240,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { zaakVariabelenService.setZaakdata(zaak.uuid, formulierData) } just runs
         every { zgwApiService.createZaak(zaak) } returns zaak
         every { zrcClientService.updateRol(zaak, any(), any()) } just runs
-        every { zrcClientService.createZaakobject(zaakObjectPand) } returns zaakObjectPand
-        every { zrcClientService.createZaakobject(zaakObjectOpenbareRuimte) } returns zaakObjectOpenbareRuimte
+        every { zrcClientService.createZaakobject(any<ZaakobjectPand>()) } returns zaakObjectPand
+        every { zrcClientService.createZaakobject(any<ZaakobjectOpenbareRuimte>()) } returns zaakObjectOpenbareRuimte
         every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
         every { zaakService.bepaalRolGroep(group, zaak) } returns rolOrganisatorischeEenheid
         every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
@@ -284,8 +275,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "Aanmaken zaak"
                     )
                     cmmnService.startCase(zaak, zaakType, zaakAfhandelParameters, null)
-                    zrcClientService.createZaakobject(zaakObjectPand)
-                    zrcClientService.createZaakobject(zaakObjectOpenbareRuimte)
+                }
+                verify(exactly = 2) {
+                    zrcClientService.createZaakobject(any())
                 }
                 zaakCreatedSlot.captured shouldBe zaak
                 with(rolGroupSlotOrganisatorischeEenheidSlot.captured) {

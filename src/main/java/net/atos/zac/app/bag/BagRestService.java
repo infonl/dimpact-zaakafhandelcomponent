@@ -33,12 +33,12 @@ import net.atos.client.zgw.zrc.model.Objecttype;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters;
-import net.atos.zac.app.bag.converter.RESTAdresConverter;
-import net.atos.zac.app.bag.converter.RESTBAGConverter;
-import net.atos.zac.app.bag.converter.RESTNummeraanduidingConverter;
-import net.atos.zac.app.bag.converter.RESTOpenbareRuimteConverter;
-import net.atos.zac.app.bag.converter.RESTPandConverter;
-import net.atos.zac.app.bag.converter.RESTWoonplaatsConverter;
+import net.atos.zac.app.bag.converter.RestAdresConverter;
+import net.atos.zac.app.bag.converter.RestBagConverter;
+import net.atos.zac.app.bag.converter.RestNummeraanduidingConverter;
+import net.atos.zac.app.bag.converter.RestOpenbareRuimteConverter;
+import net.atos.zac.app.bag.converter.RestPandConverter;
+import net.atos.zac.app.bag.converter.RestWoonplaatsConverter;
 import net.atos.zac.app.bag.model.BAGObjectType;
 import net.atos.zac.app.bag.model.RESTBAGAdres;
 import net.atos.zac.app.bag.model.RESTBAGObject;
@@ -54,12 +54,6 @@ import net.atos.zac.policy.PolicyService;
 public class BagRestService {
     private BagClientService bagClientService;
     private ZrcClientService zrcClientService;
-    private RESTBAGConverter restbagConverter;
-    private RESTAdresConverter restAdresConverter;
-    private RESTNummeraanduidingConverter restNummeraanduidingConverter;
-    private RESTOpenbareRuimteConverter restOpenbareRuimteConverter;
-    private RESTPandConverter restPandConverter;
-    private RESTWoonplaatsConverter restWoonplaatsConverter;
     private PolicyService policyService;
 
     /**
@@ -72,22 +66,10 @@ public class BagRestService {
     public BagRestService(
             BagClientService bagClientService,
             ZrcClientService zrcClientService,
-            RESTBAGConverter restbagConverter,
-            RESTAdresConverter restAdresConverter,
-            RESTNummeraanduidingConverter restNummeraanduidingConverter,
-            RESTOpenbareRuimteConverter restOpenbareRuimteConverter,
-            RESTPandConverter restPandConverter,
-            RESTWoonplaatsConverter restWoonplaatsConverter,
             PolicyService policyService
     ) {
         this.bagClientService = bagClientService;
         this.zrcClientService = zrcClientService;
-        this.restbagConverter = restbagConverter;
-        this.restAdresConverter = restAdresConverter;
-        this.restNummeraanduidingConverter = restNummeraanduidingConverter;
-        this.restOpenbareRuimteConverter = restOpenbareRuimteConverter;
-        this.restPandConverter = restPandConverter;
-        this.restWoonplaatsConverter = restWoonplaatsConverter;
         this.policyService = policyService;
     }
 
@@ -99,7 +81,7 @@ public class BagRestService {
         bevraagAdressenParameters.setExpand(getExpand(BAGObjectType.NUMMERAANDUIDING, BAGObjectType.OPENBARE_RUIMTE, BAGObjectType.PAND,
                 BAGObjectType.WOONPLAATS));
         return new RESTResultaat<>(bagClientService.listAdressen(bevraagAdressenParameters).stream()
-                .map(adres -> restAdresConverter.convertToREST(adres))
+                .map(RestAdresConverter::convertToREST)
                 .toList());
     }
 
@@ -107,11 +89,11 @@ public class BagRestService {
     @Path("/{type}/{id}")
     public RESTBAGObject read(@PathParam("type") final BAGObjectType type, @PathParam("id") final String id) {
         return switch (type) {
-            case ADRES -> restAdresConverter.convertToREST(bagClientService.readAdres(id));
-            case WOONPLAATS -> restWoonplaatsConverter.convertToREST(bagClientService.readWoonplaats(id));
-            case PAND -> restPandConverter.convertToREST(bagClientService.readPand(id));
-            case OPENBARE_RUIMTE -> restOpenbareRuimteConverter.convertToREST(bagClientService.readOpenbareRuimte(id));
-            case NUMMERAANDUIDING -> restNummeraanduidingConverter.convertToREST(bagClientService.readNummeraanduiding(id));
+            case ADRES -> RestAdresConverter.convertToREST(bagClientService.readAdres(id));
+            case WOONPLAATS -> RestWoonplaatsConverter.convertToREST(bagClientService.readWoonplaats(id));
+            case PAND -> RestPandConverter.convertToREST(bagClientService.readPand(id));
+            case OPENBARE_RUIMTE -> RestOpenbareRuimteConverter.convertToREST(bagClientService.readOpenbareRuimte(id));
+            case NUMMERAANDUIDING -> RestNummeraanduidingConverter.convertToREST(bagClientService.readNummeraanduiding(id));
             case ADRESSEERBAAR_OBJECT -> null; //(Nog) geen zelfstandige entiteit
         };
     }
@@ -121,7 +103,7 @@ public class BagRestService {
         final Zaak zaak = zrcClientService.readZaak(bagObjectGegevens.zaakUuid);
         assertPolicy(policyService.readZaakRechten(zaak).toevoegenBagObject());
         if (isNogNietGekoppeld(bagObjectGegevens.getBagObject(), zaak)) {
-            zrcClientService.createZaakobject(restbagConverter.convertToZaakobject(bagObjectGegevens.getBagObject(), zaak));
+            zrcClientService.createZaakobject(RestBagConverter.convertToZaakobject(bagObjectGegevens.getBagObject(), zaak));
         }
     }
 
@@ -144,7 +126,7 @@ public class BagRestService {
         if (zaakobjecten.getCount() > 0) {
             return zaakobjecten.getResults().stream()
                     .filter(Zaakobject::isBagObject)
-                    .map(restbagConverter::convertToRESTBAGObjectGegevens)
+                    .map(RestBagConverter::convertToRESTBAGObjectGegevens)
                     .toList();
         } else {
             return Collections.emptyList();

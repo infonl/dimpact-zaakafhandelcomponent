@@ -10,8 +10,6 @@ import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 import java.math.BigDecimal;
 import java.util.List;
 
-import jakarta.inject.Inject;
-
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -35,46 +33,30 @@ import net.atos.zac.app.bag.model.RESTWoonplaats;
 import net.atos.zac.app.zaak.model.RestCoordinates;
 import net.atos.zac.app.zaak.model.RestGeometry;
 
-public class RESTBAGConverter {
-
-    @Inject
-    private RESTAdresConverter adresConverter;
-
-    @Inject
-    private RESTNummeraanduidingConverter nummeraanduidingConverter;
-
-    @Inject
-    private RESTOpenbareRuimteConverter openbareRuimteConverter;
-
-    @Inject
-    private RESTPandConverter pandConverter;
-
-    @Inject
-    private RESTWoonplaatsConverter woonplaatsConverter;
-
-    public Zaakobject convertToZaakobject(final RESTBAGObject restbagObject, final Zaak zaak) {
+public class RestBagConverter {
+    public static Zaakobject convertToZaakobject(final RESTBAGObject restbagObject, final Zaak zaak) {
         return switch (restbagObject.getBagObjectType()) {
-            case ADRES -> adresConverter.convertToZaakobject((RESTBAGAdres) restbagObject, zaak);
-            case PAND -> pandConverter.convertToZaakobject((RESTPand) restbagObject, zaak);
-            case WOONPLAATS -> woonplaatsConverter.convertToZaakobject((RESTWoonplaats) restbagObject, zaak);
-            case OPENBARE_RUIMTE -> openbareRuimteConverter.convertToZaakobject((RESTOpenbareRuimte) restbagObject, zaak);
-            case NUMMERAANDUIDING -> nummeraanduidingConverter.convertToZaakobject((RESTNummeraanduiding) restbagObject, zaak);
+            case ADRES -> RestAdresConverter.convertToZaakobject((RESTBAGAdres) restbagObject, zaak);
+            case PAND -> RestPandConverter.convertToZaakobject((RESTPand) restbagObject, zaak);
+            case WOONPLAATS -> RestWoonplaatsConverter.convertToZaakobject((RESTWoonplaats) restbagObject, zaak);
+            case OPENBARE_RUIMTE -> RestOpenbareRuimteConverter.convertToZaakobject((RESTOpenbareRuimte) restbagObject, zaak);
+            case NUMMERAANDUIDING -> RestNummeraanduidingConverter.convertToZaakobject((RESTNummeraanduiding) restbagObject, zaak);
             case ADRESSEERBAAR_OBJECT -> throw new NotImplementedException();
         };
     }
 
-    public RESTBAGObject convertToRESTBAGObject(final Zaakobject zaakobject) {
+    public static RESTBAGObject convertToRESTBAGObject(final Zaakobject zaakobject) {
         return switch (zaakobject.getObjectType()) {
-            case ADRES -> adresConverter.convertToREST((ZaakobjectAdres) zaakobject);
-            case PAND -> pandConverter.convertToREST((ZaakobjectPand) zaakobject);
-            case WOONPLAATS -> woonplaatsConverter.convertToREST((ZaakobjectWoonplaats) zaakobject);
-            case OPENBARE_RUIMTE -> openbareRuimteConverter.convertToREST((ZaakobjectOpenbareRuimte) zaakobject);
-            case OVERIGE -> nummeraanduidingConverter.convertToREST((ZaakobjectNummeraanduiding) zaakobject); // voor nu alleen nummeraanduiding
+            case ADRES -> RestAdresConverter.convertToREST((ZaakobjectAdres) zaakobject);
+            case PAND -> RestPandConverter.convertToREST((ZaakobjectPand) zaakobject);
+            case WOONPLAATS -> RestWoonplaatsConverter.convertToREST((ZaakobjectWoonplaats) zaakobject);
+            case OPENBARE_RUIMTE -> RestOpenbareRuimteConverter.convertToREST((ZaakobjectOpenbareRuimte) zaakobject);
+            case OVERIGE -> RestNummeraanduidingConverter.convertToREST((ZaakobjectNummeraanduiding) zaakobject); // voor nu alleen nummeraanduiding
             default -> throw new IllegalStateException("Unexpected objectType: " + zaakobject.getObjectType());
         };
     }
 
-    public RESTBAGObjectGegevens convertToRESTBAGObjectGegevens(final Zaakobject zaakobject) {
+    public static RESTBAGObjectGegevens convertToRESTBAGObjectGegevens(final Zaakobject zaakobject) {
         final RESTBAGObjectGegevens restZaakobject = new RESTBAGObjectGegevens();
         restZaakobject.zaakobject = convertToRESTBAGObject(zaakobject);
         restZaakobject.uuid = zaakobject.getUuid();
@@ -102,7 +84,7 @@ public class RESTBAGConverter {
                 surface.getCoordinates()
                         .stream()
                         .map(coords -> coords.stream()
-                                .map(RESTBAGConverter::convertCoordinates)
+                                .map(RestBagConverter::convertCoordinates)
                                 .toList())
                         .toList(),
                 null

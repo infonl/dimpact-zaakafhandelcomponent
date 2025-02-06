@@ -17,23 +17,22 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectPand;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand;
 import net.atos.zac.app.bag.model.RESTPand;
 
-public class RESTPandConverter {
-
-    public List<RESTPand> convertToREST(final List<PandIOHalBasis> panden) {
+public class RestPandConverter {
+    public static List<RESTPand> convertToREST(final List<PandIOHalBasis> panden) {
         if (panden == null) {
             return List.of();
         }
-        return panden.stream().map(this::convertToREST).toList();
+        return panden.stream().map(RestPandConverter::convertToREST).toList();
     }
 
-    public RESTPand convertToREST(final PandIOHalBasis pandIO) {
+    public static RESTPand convertToREST(final PandIOHalBasis pandIO) {
         if (pandIO == null) {
             return null;
         }
         return convertToREST(pandIO.getPand());
     }
 
-    public RESTPand convertToREST(final PandIOHal pandIO) {
+    public static RESTPand convertToREST(final PandIOHal pandIO) {
         if (pandIO == null) {
             return null;
         }
@@ -42,7 +41,7 @@ public class RESTPandConverter {
         return restPand;
     }
 
-    public RESTPand convertToREST(final ZaakobjectPand zaakobjectPand) {
+    public static RESTPand convertToREST(final ZaakobjectPand zaakobjectPand) {
         if (zaakobjectPand == null || zaakobjectPand.getObjectIdentificatie() == null) {
             return null;
         }
@@ -52,11 +51,11 @@ public class RESTPandConverter {
         return restPand;
     }
 
-    public ZaakobjectPand convertToZaakobject(final RESTPand pand, final Zaak zaak) {
+    public static ZaakobjectPand convertToZaakobject(final RESTPand pand, final Zaak zaak) {
         return new ZaakobjectPand(zaak.getUrl(), pand.url, new ObjectPand(pand.identificatie));
     }
 
-    public RESTPand convertToREST(final Pand pand) {
+    public static RESTPand convertToREST(final Pand pand) {
         final RESTPand restPand = new RESTPand();
         restPand.identificatie = pand.getIdentificatie();
         restPand.status = pand.getStatus();
@@ -65,7 +64,7 @@ public class RESTPandConverter {
         }
         restPand.oorspronkelijkBouwjaar = pand.getOorspronkelijkBouwjaar();
         restPand.geconstateerd = Indicatie.J.equals(pand.getGeconstateerd());
-        restPand.geometry = RESTBAGConverter.convertVlak(pand.getGeometrie());
+        restPand.geometry = RestBagConverter.convertVlak(pand.getGeometrie());
         return restPand;
     }
 
