@@ -12,6 +12,12 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_VERZOEK_IS_BIJ_VERKEERDE_ORGANISATIE_INGEDIEND_ID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_VERZOEK_IS_BIJ_VERKEERDE_ORGANISATIE_INGEDIEND_NAME
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_ID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_NAME
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_ZAAK_IS_EEN_DUPLICAAT_ID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_ZAAK_IS_EEN_DUPLICAAT_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 
@@ -100,16 +106,16 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJsonIgnoringOrder """
                     [ 
                         {
-                          "id" : "-1",
-                          "naam" : "Verzoek is door initiator ingetrokken"
+                          "id" : "$ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_ID",
+                          "naam" : "$ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_NAME"
                         },
                         {
-                          "id" : "-2",
-                          "naam" : "Zaak is een duplicaat"
+                          "id" : "$ZAAK_BEEINDIG_ZAAK_IS_EEN_DUPLICAAT_ID",
+                          "naam" : "$ZAAK_BEEINDIG_ZAAK_IS_EEN_DUPLICAAT_NAME"
                         }, 
                         {
-                          "id" : "-3",
-                          "naam" : "Verzoek is bij verkeerde organisatie ingediend"
+                          "id" : "$ZAAK_BEEINDIG_VERZOEK_IS_BIJ_VERKEERDE_ORGANISATIE_INGEDIEND_ID",
+                          "naam" : "$ZAAK_BEEINDIG_VERZOEK_IS_BIJ_VERKEERDE_ORGANISATIE_INGEDIEND_NAME"
                         }
                     ]
                 """.trimIndent()

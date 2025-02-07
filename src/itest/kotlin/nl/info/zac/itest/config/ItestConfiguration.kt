@@ -298,6 +298,17 @@ object ItestConfiguration {
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_PLAATSVERVANGER =
         "74799b20-0350-457d-8773-a0f1ab16b299"
 
+    /**
+     * Zaak beeindig constants
+     */
+    const val ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_ID = "-1"
+    const val ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_NAME = "Verzoek is door initiator ingetrokken"
+    const val ZAAK_BEEINDIG_ZAAK_IS_EEN_DUPLICAAT_ID = "-2"
+    const val ZAAK_BEEINDIG_ZAAK_IS_EEN_DUPLICAAT_NAME = "Zaak is een duplicaat"
+    const val ZAAK_BEEINDIG_VERZOEK_IS_BIJ_VERKEERDE_ORGANISATIE_INGEDIEND_ID = "-3"
+    const val ZAAK_BEEINDIG_VERZOEK_IS_BIJ_VERKEERDE_ORGANISATIE_INGEDIEND_NAME =
+        "Verzoek is bij verkeerde organisatie ingediend"
+
     @Suppress("MagicNumber")
     val DATE_TIME_2000_01_01: ZonedDateTime = LocalDate.of(2000, Month.JANUARY, 1)
         .atStartOfDay(TimeZone.getDefault().toZoneId())
