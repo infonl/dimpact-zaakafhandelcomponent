@@ -101,7 +101,7 @@ export class ParameterEditComponent
   mailtemplates: Mailtemplate[];
   replyTos: ReplyTo[];
   loading: boolean;
-  defaultGroepSubscription$: Subscription;
+  subscriptions$: Subscription[] = [];
 
   constructor(
     public utilService: UtilService,
@@ -186,7 +186,9 @@ export class ParameterEditComponent
 
   ngOnDestroy(): void {
     super.ngOnDestroy();
-    this.defaultGroepSubscription$.unsubscribe();
+    for (const subscription of this.subscriptions$) {
+      subscription.unsubscribe();
+    }
   }
 
   caseDefinitionChanged(event: MatSelectChange): void {
@@ -259,7 +261,13 @@ export class ParameterEditComponent
       ],
       productaanvraagtype: [this.parameters.productaanvraagtype],
     });
-    this.defaultGroepSubscription$ =
+    this.createHumanTasksForm();
+    this.createUserEventListenerForm();
+    this.createMailForm();
+    this.createZaakbeeindigForm();
+    this.createSmartDocumentsEnabledForm();
+
+    this.subscriptions$.push(
       this.algemeenFormGroup.controls.defaultGroepId.valueChanges
         .pipe(
           switchMap((groepId) =>
@@ -268,12 +276,30 @@ export class ParameterEditComponent
               .pipe(tap((medewerkers) => (this.medewerkers = medewerkers))),
           ),
         )
-        .subscribe();
-    this.createHumanTasksForm();
-    this.createUserEventListenerForm();
-    this.createMailForm();
-    this.createZaakbeeindigForm();
-    this.createSmartDocumentsEnabledForm();
+        .subscribe(),
+    );
+
+    this.subscriptions$.push(
+      this.algemeenFormGroup.controls.einddatumGeplandWaarschuwing.valueChanges.subscribe(
+        (value) => {
+          this.algemeenFormGroup.controls.einddatumGeplandWaarschuwing.setValue(
+            this.sanitizeNumericInput(value),
+            { emitEvent: false },
+          );
+        },
+      ),
+    );
+
+    this.subscriptions$.push(
+      this.algemeenFormGroup.controls.uiterlijkeEinddatumAfdoeningWaarschuwing.valueChanges.subscribe(
+        (value) => {
+          this.algemeenFormGroup.controls.uiterlijkeEinddatumAfdoeningWaarschuwing.setValue(
+            this.sanitizeNumericInput(value),
+            { emitEvent: false },
+          );
+        },
+      ),
+    );
   }
 
   isHumanTaskParameterValid(humanTaskParameter: HumanTaskParameter): boolean {
@@ -319,6 +345,18 @@ export class ParameterEditComponent
         );
       }
     }
+
+    const doorlooptijdControl = humanTaskFormGroup.get("doorlooptijd");
+    if (doorlooptijdControl) {
+      this.subscriptions$.push(
+        doorlooptijdControl.valueChanges.subscribe((value) => {
+          doorlooptijdControl.setValue(this.sanitizeNumericInput(value), {
+            emitEvent: false,
+          });
+        }),
+      );
+    }
+
     return humanTaskFormGroup;
   }
 
@@ -719,5 +757,9 @@ export class ParameterEditComponent
     return this.mailtemplates.filter(
       (template) => template.mail === mailtemplate,
     );
+  }
+
+  sanitizeNumericInput(value: number) {
+    return parseInt(value?.toString(), 10);
   }
 }
