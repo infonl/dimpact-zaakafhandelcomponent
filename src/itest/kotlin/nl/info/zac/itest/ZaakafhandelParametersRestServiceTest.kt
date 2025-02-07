@@ -100,15 +100,15 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJsonIgnoringOrder """
                     [ 
                         {
-                          "id" : -1,
+                          "id" : "-1",
                           "naam" : "Verzoek is door initiator ingetrokken"
                         },
                         {
-                          "id" : -2,
+                          "id" : "-2",
                           "naam" : "Zaak is een duplicaat"
                         }, 
                         {
-                          "id" : -3,
+                          "id" : "-3",
                           "naam" : "Verzoek is bij verkeerde organisatie ingediend"
                         }
                     ]
