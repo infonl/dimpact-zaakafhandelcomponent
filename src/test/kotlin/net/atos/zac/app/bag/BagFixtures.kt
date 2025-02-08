@@ -17,7 +17,9 @@ import net.atos.client.bag.model.generated.StatusVerblijfsobject
 import net.atos.client.bag.model.generated.Surface
 import net.atos.client.bag.model.generated.Verblijfsobject
 import net.atos.client.bag.model.generated.VerblijfsobjectIOHal
+import net.atos.zac.app.bag.model.BAGObjectType
 import net.atos.zac.app.bag.model.RESTBAGAdres
+import net.atos.zac.app.bag.model.RESTListAdressenParameters
 import net.atos.zac.app.bag.model.RESTWoonplaats
 import java.math.BigDecimal
 
@@ -35,6 +37,18 @@ fun createRESTBAGAdres() = RESTBAGAdres().apply {
     huisnummer = 1
     postcode = "1234AB"
     woonplaats = createRESTWoonplaats()
+}
+
+fun createRESTListAdressenParameters(
+    bagObjectType: BAGObjectType = BAGObjectType.ADRES,
+    trefwoorden: String = "dummyText",
+    postcode: String = "1234AB",
+    huisnummer: Int = 1,
+) = RESTListAdressenParameters().apply {
+    this.type = bagObjectType
+    this.trefwoorden = trefwoorden
+    this.postcode = postcode
+    this.huisnummer = huisnummer
 }
 
 fun createRESTWoonplaats() = RESTWoonplaats().apply {

@@ -78,8 +78,14 @@ public class BagRestService {
     public RESTResultaat<RESTBAGAdres> listAdressen(final RESTListAdressenParameters listAdressenParameters) {
         final BevraagAdressenParameters bevraagAdressenParameters = new BevraagAdressenParameters();
         bevraagAdressenParameters.setQ(listAdressenParameters.trefwoorden);
-        bevraagAdressenParameters.setExpand(getExpand(BAGObjectType.NUMMERAANDUIDING, BAGObjectType.OPENBARE_RUIMTE, BAGObjectType.PAND,
-                BAGObjectType.WOONPLAATS));
+        bevraagAdressenParameters.setExpand(
+                getExpand(
+                        BAGObjectType.NUMMERAANDUIDING,
+                        BAGObjectType.OPENBARE_RUIMTE,
+                        BAGObjectType.PAND,
+                        BAGObjectType.WOONPLAATS
+                )
+        );
         return new RESTResultaat<>(bagClientService.listAdressen(bevraagAdressenParameters).stream()
                 .map(RestAdresConverter::convertToREST)
                 .toList());
