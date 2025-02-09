@@ -1,13 +1,13 @@
 {
   "_links": {
     "self": {
-      "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/adressen?q=de+dam+1+amsterdam&expand=nummeraanduiding%2CopenbareRuimte%2Cpanden%2Cwoonplaats"
+      "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/adressen?q=de+dam+1+amsterdam&expand=nummeraanduiding%2CopenbareRuimte%2Cpanden%2Cwoonplaats"
     },
     "next": {
-      "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/adressen?q=de+dam+1+amsterdam&expand=nummeraanduiding%2CopenbareRuimte%2Cpanden%2Cwoonplaats&page=2"
+      "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/adressen?q=de+dam+1+amsterdam&expand=nummeraanduiding%2CopenbareRuimte%2Cpanden%2Cwoonplaats&page=2"
     },
     "last": {
-      "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/adressen?q=de+dam+1+amsterdam&expand=nummeraanduiding%2CopenbareRuimte%2Cpanden%2Cwoonplaats&page=18"
+      "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/adressen?q=de+dam+1+amsterdam&expand=nummeraanduiding%2CopenbareRuimte%2Cpanden%2Cwoonplaats&page=18"
     }
   },
   "_embedded": {
@@ -29,23 +29,23 @@
         "adresregel6": "1012 JS  AMSTERDAM",
         "_links": {
           "self": {
-            "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/adressen/0363200003761447"
+            "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/adressen/0363200003761447"
           },
           "openbareRuimte": {
-            "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003186"
+            "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003186"
           },
           "nummeraanduiding": {
-            "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/nummeraanduidingen/0363200003761447"
+            "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/nummeraanduidingen/0363200003761447"
           },
           "woonplaats": {
-            "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
+            "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
           },
           "adresseerbaarObject": {
-            "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/verblijfsobjecten/0363010003761571"
+            "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/verblijfsobjecten/0363010003761571"
           },
           "panden": [
             {
-              "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/panden/0363100012168052"
+              "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/panden/0363100012168052"
             }
           ]
         },
@@ -71,10 +71,10 @@
             },
             "_links": {
               "self": {
-                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003186"
+                "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003186"
               },
               "ligtInWoonplaats": {
-                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
+                "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
               }
             }
           },
@@ -100,13 +100,13 @@
             },
             "_links": {
               "self": {
-                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/nummeraanduidingen/0363200003761447"
+                "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/nummeraanduidingen/0363200003761447"
               },
               "ligtInWoonplaats": {
-                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
+                "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
               },
               "ligtAanOpenbareRuimte": {
-                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003186"
+                "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003186"
               }
             }
           },
@@ -128,11 +128,11 @@
             },
             "_links": {
               "self": {
-                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
+                "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
               },
               "bronhouders": [
                 {
-                  "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/bronhouders/0363"
+                  "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/bronhouders/0363"
                 }
               ]
             }
@@ -927,23 +927,23 @@
         "adresregel6": "1012 LG  AMSTERDAM",
         "_links": {
           "self": {
-            "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/adressen/0363200012113669"
+            "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/adressen/0363200012113669"
           },
           "openbareRuimte": {
-            "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003187"
+            "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003187"
           },
           "nummeraanduiding": {
-            "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/nummeraanduidingen/0363200012113669"
+            "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/nummeraanduidingen/0363200012113669"
           },
           "woonplaats": {
-            "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
+            "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
           },
           "adresseerbaarObject": {
-            "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/verblijfsobjecten/0363010012111931"
+            "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/verblijfsobjecten/0363010012111931"
           },
           "panden": [
             {
-              "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/panden/0363100012185508"
+              "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/panden/0363100012185508"
             }
           ]
         },
@@ -969,10 +969,10 @@
             },
             "_links": {
               "self": {
-                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003187"
+                "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003187"
               },
               "ligtInWoonplaats": {
-                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
+                "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
               }
             }
           },
@@ -998,13 +998,13 @@
             },
             "_links": {
               "self": {
-                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/nummeraanduidingen/0363200012113669"
+                "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/nummeraanduidingen/0363200012113669"
               },
               "ligtInWoonplaats": {
-                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
+                "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
               },
               "ligtAanOpenbareRuimte": {
-                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003187"
+                "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003187"
               }
             }
           },
@@ -1026,11 +1026,11 @@
             },
             "_links": {
               "self": {
-                "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
+                "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
               },
               "bronhouders": [
                 {
-                  "href": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/bronhouders/0363"
+                  "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/bronhouders/0363"
                 }
               ]
             }

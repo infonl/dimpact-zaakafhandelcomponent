@@ -36,7 +36,8 @@ object ItestConfiguration {
 
     const val ACTIE_INTAKE_AFRONDEN = "INTAKE_AFRONDEN"
     const val ACTIE_ZAAK_AFHANDELEN = "ZAAK_AFHANDELEN"
-    const val BAG_MOCK_BASE_URI = "http://bag-wiremock:8080"
+    const val BAG_MOCK_BASE_URI = "http://bag-wiremock.local:8080"
+    const val BAG_TEST_ADRES_1_IDENTIFICATION = "0363200003761447"
     const val BETROKKENE_TYPE_NATUURLIJK_PERSOON = "NATUURLIJK_PERSOON"
     const val BETROKKENE_IDENTIFICATION_TYPE_BSN = "BSN"
     const val BETROKKENE_IDENTIFACTION_TYPE_VESTIGING = "VN"
@@ -112,7 +113,7 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_SEARCH = 8
     const val TEST_SPEC_ORDER_LAST = 100
 
-    const val TOTAL_COUNT_ZAKEN = 9
+    const val TOTAL_COUNT_ZAKEN = 10
     const val TOTAL_COUNT_TASKS = 2
     const val TOTAL_COUNT_DOCUMENTS = 7
 

@@ -16,7 +16,13 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REINDEX
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.junit.jupiter.api.Order
 
-const val CSV_ROWS_EXPECTED = 8
+/**
+ * Since we run this test after [IndexerenRESTServiceTest], we expect
+ * all created zaken up to that point to be present in the search index
+ * which is used to generate the CSV.
+ */
+const val CSV_ROWS_EXPECTED = 9
+
 const val CSV_FIELD_IDENTIFICATIE = "identificatie"
 const val CSV_FIELD_AFGEHANDELD = "afgehandeld"
 const val CSV_FIELD_ARCHIEF_ACTIE_DATUM = "archiefActiedatum"
@@ -106,15 +112,12 @@ class CsvRESTServiceTest : BehaviorSpec({
 
                 val csvReader = csvReader {
                     delimiter = ';'
-                    // the value rows in the zaken export CSVs contains values than are
+                    // the value rows in the zaken export CSVs contains values other than are
                     // defined in the header row, so we convert them to empty strings
                     insufficientFieldsRowBehaviour = EMPTY_STRING
                 }
                 val csvRows = csvReader.readAll(responseBody)
                 logger.info { "CSV rows: $csvRows" }
-                // since we run this test after IndexerenRESTServiceTest, we expect
-                // all created zaken up to that point to be present in the search index
-                // which is used to generate the CSV
                 csvRows.size shouldBe CSV_ROWS_EXPECTED
                 csvRows[0] shouldContainExactly headerRowFields
                 csvRows.filterIndexed { index, _ -> index > 0 }.forEach {

@@ -65,13 +65,15 @@ public class RestAdresConverter {
     }
 
     public static ZaakobjectAdres convertToZaakobject(final RESTBAGAdres restBAGAdres, final Zaak zaak) {
-        ObjectAdres objectAdres = new ObjectAdres(restBAGAdres.identificatie,
+        ObjectAdres objectAdres = new ObjectAdres(
+                restBAGAdres.identificatie,
                 restBAGAdres.woonplaatsNaam,
                 restBAGAdres.openbareRuimteNaam,
                 restBAGAdres.huisnummer,
                 restBAGAdres.huisletter,
                 restBAGAdres.huisnummertoevoeging,
-                restBAGAdres.postcode);
+                restBAGAdres.postcode
+        );
         return new ZaakobjectAdres(zaak.getUrl(), restBAGAdres.url, objectAdres);
     }
 
