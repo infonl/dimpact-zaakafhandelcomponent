@@ -13,15 +13,18 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REINDEXING
+import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_ZAKEN
+import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_ZAKEN_AFGEROND
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.junit.jupiter.api.Order
 
 /**
  * Since we run this test after [IndexerenRESTServiceTest], we expect
- * all created zaken up to that point to be present in the search index
+ * all created and still open zaken up to that point to be present in the search index
  * which is used to generate the CSV.
+ * The number of CSV rows is expected to be equal to the number of open zaken + 1 for the header row.
  */
-const val CSV_ROWS_EXPECTED = 9
+const val CSV_ROWS_EXPECTED = TOTAL_COUNT_ZAKEN - TOTAL_COUNT_ZAKEN_AFGEROND + 1
 
 const val CSV_FIELD_IDENTIFICATIE = "identificatie"
 const val CSV_FIELD_AFGEHANDELD = "afgehandeld"

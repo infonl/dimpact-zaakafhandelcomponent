@@ -114,6 +114,7 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_LAST = 100
 
     const val TOTAL_COUNT_ZAKEN = 10
+    const val TOTAL_COUNT_ZAKEN_AFGEROND = 2
     const val TOTAL_COUNT_TASKS = 2
     const val TOTAL_COUNT_DOCUMENTS = 7
 

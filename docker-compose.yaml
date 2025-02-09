@@ -113,7 +113,7 @@ services:
       - DJANGO_SUPERUSER_PASSWORD=admin
       - LOG_LEVEL=DEBUG
       # uncomment to enable logging of outgoing requests; can be helpful for debugging
-      - LOG_REQUESTS=true
+      #- LOG_REQUESTS=true
       - NOTIFICATIONS_DISABLED=${OPENZAAK_NOTIFICATIONS_DISABLED:-true}
       - OPENZAAK_SUPERUSER_USERNAME=admin
       - OPENZAAK_SUPERUSER_EMAIL=noreply@example.com
