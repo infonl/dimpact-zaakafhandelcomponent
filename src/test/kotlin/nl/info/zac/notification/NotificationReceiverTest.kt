@@ -16,7 +16,6 @@ import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.Response
-import net.atos.client.or.`object`.model.createObjecttype
 import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.event.EventingService
