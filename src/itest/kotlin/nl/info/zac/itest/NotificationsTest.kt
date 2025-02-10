@@ -279,8 +279,8 @@ class NotificationsTest : BehaviorSpec({
                 dockerComposeContainer.waitingFor(
                     "zac",
                     Wait.forLogMessage(
-                        ".* Er is iets fout gegaan in de Zaaktype-handler bij het afhandelen van notificatie: " +
-                            "null ZAAKTYPE CREATE .*: java.lang.RuntimeException: URI 'http://example.com/dummyResourceUrl' does not " +
+                        ".* Failed to handle notification 'null ZAAKTYPE CREATE' .*" +
+                            "java.lang.RuntimeException: URI 'http://example.com/dummyResourceUrl' does not " +
                             "start with value for environment variable 'ZGW_API_CLIENT_MP_REST_URL': '$OPEN_ZAAK_BASE_URI/' .*",
                         1
                     ).withStartupTimeout(30.seconds.toJavaDuration())

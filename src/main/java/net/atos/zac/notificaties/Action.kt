@@ -2,75 +2,52 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.notificaties
 
-package net.atos.zac.notificaties;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Logger;
-
-import jakarta.json.bind.adapter.JsonbAdapter;
-import jakarta.json.bind.annotation.JsonbTypeAdapter;
-
-import org.apache.commons.lang3.NotImplementedException;
+import jakarta.json.bind.adapter.JsonbAdapter
+import jakarta.json.bind.annotation.JsonbTypeAdapter
+import org.apache.commons.lang3.NotImplementedException
+import java.util.logging.Logger
+import kotlin.collections.mutableMapOf
 
 /**
- * Enumeratie die de acties bevat zoals die binnenkomen op de {@link NotificatieReceiver}.
- * <p>
- * http://open-zaak.default/ref/kanalen/
+ * Enumeratie die de acties bevat zoals die binnenkomen op de [NotificatieReceiver].
  */
-@JsonbTypeAdapter(Action.Adapter.class)
-public enum Action {
-
+@JsonbTypeAdapter(Action.Adapter::class)
+enum class Action(private val code: String, private val alternativeCode: String? = null) {
     CREATE("create"),
     READ("read", "list"),
     UPDATE("update", "partial_update"),
     DELETE("destroy");
 
-    private static final Logger LOG = Logger.getLogger(Action.class.getName());
+    companion object {
+        private val LOG = Logger.getLogger(Action::class.java.getName())
+        private val VALUES = mutableMapOf<String, Action>()
 
-    private final String code;
-
-    private final String alt;
-
-    private static final Map<String, Action> VALUES = new HashMap<>();
-
-    static {
-        for (final Action value : values()) {
-            VALUES.put(value.code, value);
-            if (value.alt != null) {
-                VALUES.put(value.alt, value);
+        init {
+            for (value in entries) {
+                VALUES.put(value.code, value)
+                if (value.alternativeCode != null) {
+                    VALUES.put(value.alternativeCode, value)
+                }
             }
         }
+
+        fun fromCode(code: String): Action? =
+            VALUES[code].also {
+                if (it == null) {
+                    LOG.warning("Unknown action: '$code'")
+                }
+            }
     }
 
-    Action(final String code, final String alt) {
-        this.code = code;
-        this.alt = alt;
-    }
-
-    Action(final String code) {
-        this(code, null);
-    }
-
-    public static Action fromCode(final String code) {
-        final Action value = VALUES.get(code);
-        if (value == null) {
-            LOG.warning(String.format("unknown %s action", code));
-        }
-        return value;
-    }
-
-    static class Adapter implements JsonbAdapter<Action, String> {
-
-        @Override
-        public String adaptToJson(final Action action) {
-            throw new NotImplementedException();
+    internal class Adapter : JsonbAdapter<Action, String> {
+        override fun adaptToJson(action: Action): String {
+            throw NotImplementedException()
         }
 
-        @Override
-        public Action adaptFromJson(final String code) {
-            return fromCode(code);
+        override fun adaptFromJson(code: String): Action? {
+            return fromCode(code)
         }
     }
 }

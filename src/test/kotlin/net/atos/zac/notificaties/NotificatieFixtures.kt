@@ -13,7 +13,7 @@ import java.util.UUID
 fun createNotificatie(
     channel: Channel = Channel.OBJECTEN,
     creationDateTime: ZonedDateTime = ZonedDateTime.now(),
-    properties: Map<String, String> = mapOf(
+    properties: MutableMap<String, String> = mutableMapOf(
         "objectType" to "http://example.com/dummyproducttype/${UUID.randomUUID()}"
     ),
     resource: Resource = Resource.OBJECT,

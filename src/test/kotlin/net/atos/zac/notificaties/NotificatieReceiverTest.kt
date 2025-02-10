@@ -41,17 +41,14 @@ class NotificatieReceiverTest : BehaviorSpec({
     val httpSessionInstance = mockk<Instance<HttpSession>>()
 
     val notificatieReceiver = NotificatieReceiver(
-        eventingService,
-        productaanvraagService,
-        indexingService,
-        inboxDocumentenService,
-        zaakafhandelParameterBeheerService,
-        objecttypesClientService,
-        SECRET,
-        httpSessionInstance
+        eventingService = eventingService,
+        productaanvraagService = productaanvraagService,
+        indexingService = indexingService,
+        inboxDocumentenService = inboxDocumentenService,
+        zaakafhandelParameterBeheerService = zaakafhandelParameterBeheerService,
+        secret = SECRET,
+        httpSession = httpSessionInstance
     )
-
-    // HTTP session mock
 
     Given(
         """
@@ -62,13 +59,13 @@ class NotificatieReceiverTest : BehaviorSpec({
         val productaanvraagObjectUUID = UUID.randomUUID()
         val productTypeUUID = UUID.randomUUID()
         val objectType = createObjecttype(name = "Productaanvraag-Dimpact")
+        val notificatie = createNotificatie(
+            resourceUrl = URI("http://example.com/dummyproductaanvraag/$productaanvraagObjectUUID"),
+            properties = mutableMapOf("objectType" to "http://example.com/dummyproducttype/$productTypeUUID")
+        )
         every { objecttypesClientService.readObjecttype(productTypeUUID) } returns objectType
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
-        val notificatie = createNotificatie(
-            resourceUrl = URI("http://example.com/dummyproductaanvraag/$productaanvraagObjectUUID"),
-            properties = mapOf("objectType" to "http://example.com/dummyproducttype/$productTypeUUID")
-        )
         every { productaanvraagService.handleProductaanvraag(productaanvraagObjectUUID) } just runs
 
         When("notificatieReceive is called") {
@@ -89,14 +86,14 @@ class NotificatieReceiverTest : BehaviorSpec({
     Given(
         "a request containing a authorization header and a zaaktype create notificatie"
     ) {
-        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
-        every { httpSessionInstance.get() } returns httpSession
         val zaaktypeUUID = UUID.randomUUID()
         val zaaktypeUri = URI("http://example.com/dummyzaaktype/$zaaktypeUUID")
         val notificatie = createNotificatie(
             resource = Resource.ZAAKTYPE,
             resourceUrl = zaaktypeUri
         )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
         every { zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri) } just runs
 
         When("notificatieReceive is called with the zaaktype create notificatie") {
@@ -116,8 +113,6 @@ class NotificatieReceiverTest : BehaviorSpec({
     Given(
         "a request containing a authorization header and a zaaktype update notificatie"
     ) {
-        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
-        every { httpSessionInstance.get() } returns httpSession
         val zaaktypeUUID = UUID.randomUUID()
         val zaaktypeUri = URI("http://example.com/dummyzaaktype/$zaaktypeUUID")
         val notificatie = createNotificatie(
@@ -125,6 +120,8 @@ class NotificatieReceiverTest : BehaviorSpec({
             resourceUrl = zaaktypeUri,
             action = Action.UPDATE
         )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
         every { zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri) } just runs
 
         When("notificatieReceive is called with the zaaktype create notificatie") {
