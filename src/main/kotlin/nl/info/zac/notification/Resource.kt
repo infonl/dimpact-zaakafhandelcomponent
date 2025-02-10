@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.notification
@@ -8,7 +8,6 @@ import jakarta.json.bind.adapter.JsonbAdapter
 import jakarta.json.bind.annotation.JsonbTypeAdapter
 import org.apache.commons.lang3.NotImplementedException
 import java.util.logging.Logger
-import kotlin.collections.mutableMapOf
 
 /**
  * Defines notification resources as handled in [NotificationReceiver].
@@ -36,20 +35,6 @@ enum class Resource(private val code: String) {
 
     companion object {
         private val LOG = Logger.getLogger(Resource::class.java.getName())
-        private val VALUES = mutableMapOf<String, Resource>()
-
-        init {
-            for (value in entries) {
-                VALUES.put(value.code, value)
-            }
-        }
-
-        fun fromCode(code: String?): Resource? =
-            VALUES[code].also {
-                if (it == null) {
-                    LOG.warning("Unknown resource: '$code'")
-                }
-            }
     }
 
     internal class Adapter : JsonbAdapter<Resource, String> {
@@ -57,8 +42,11 @@ enum class Resource(private val code: String) {
             throw NotImplementedException()
         }
 
-        override fun adaptFromJson(code: String): Resource? {
-            return fromCode(code)
-        }
+        override fun adaptFromJson(code: String): Resource? =
+            entries.find { it.code == code }.also {
+                if (it == null) {
+                    LOG.warning("Unknown resource: '$code'")
+                }
+            }
     }
 }
