@@ -2,14 +2,14 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.notificaties
+package nl.info.zac.notification
 
 import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.json.bind.annotation.JsonbTransient
 import java.net.URI
 import java.time.ZonedDateTime
 
-class Notificatie {
+class Notification {
     @set:JsonbProperty("kanaal")
     var channel: Channel? = null
 
@@ -25,8 +25,6 @@ class Notificatie {
     @set:JsonbProperty("actie")
     var action: Action? = null
 
-    // TODO?
-    // @JsonbDateFormat(DateTimeUtil.DATE_TIME_FORMAT_WITH_MILLISECONDS)
     @set:JsonbProperty("aanmaakdatum")
     var creationDateTime: ZonedDateTime? = null
 

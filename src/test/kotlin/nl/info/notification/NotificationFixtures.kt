@@ -3,8 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.notificaties
+package nl.info.notification
 
+import nl.info.zac.notification.Action
+import nl.info.zac.notification.Channel
+import nl.info.zac.notification.Notification
+import nl.info.zac.notification.Resource
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -20,7 +24,7 @@ fun createNotificatie(
     action: Action = Action.CREATE,
     resourceUrl: URI = URI("http://example.com/dummyresourceurl"),
     mainResourceUrl: URI = resourceUrl
-) = Notificatie().apply {
+) = Notification().apply {
     this.channel = channel
     this.creationDateTime = creationDateTime
     this.properties = properties

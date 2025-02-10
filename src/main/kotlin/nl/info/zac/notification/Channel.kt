@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.notificaties
+package nl.info.zac.notification
 
 import jakarta.json.bind.adapter.JsonbAdapter
 import jakarta.json.bind.annotation.JsonbTypeAdapter
@@ -12,7 +12,7 @@ import kotlin.collections.mutableMapOf
 
 /**
  * Enumeratie die de [kanalen](http://open-zaak.default/ref/kanalen/) bevat zoals die binnenkomen
- * op de [NotificatieReceiver].
+ * op de [NotificationReceiver].
  */
 @JsonbTypeAdapter(Channel.Adapter::class)
 enum class Channel(private val code: String, val resourceType: Resource) {

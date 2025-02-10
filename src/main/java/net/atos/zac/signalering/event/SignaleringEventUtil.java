@@ -15,9 +15,9 @@ import org.flowable.task.api.TaskInfo;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.identity.model.User;
-import net.atos.zac.notificaties.Action;
-import net.atos.zac.notificaties.Channel;
-import net.atos.zac.notificaties.Notificatie;
+import nl.info.zac.notification.Action;
+import nl.info.zac.notification.Channel;
+import nl.info.zac.notification.Notification;
 import net.atos.zac.signalering.model.SignaleringType;
 
 /**
@@ -62,8 +62,8 @@ public class SignaleringEventUtil {
 
     private static SignaleringEvent<URI> event(
             final SignaleringType.Type signaleringType,
-            final Notificatie.ResourceInfo resource,
-            final Notificatie.ResourceInfo detail
+            final Notification.ResourceInfo resource,
+            final Notification.ResourceInfo detail
     ) {
         // There is no actor information in notifications
         return instance(signaleringType, resource.getUrl(), detail != null ? detail.getUrl() : null, null);
@@ -79,8 +79,8 @@ public class SignaleringEventUtil {
      */
     public static Set<SignaleringEvent<URI>> getEvents(
             final Channel channel,
-            final Notificatie.ResourceInfo mainResource,
-            final Notificatie.ResourceInfo resource
+            final Notification.ResourceInfo mainResource,
+            final Notification.ResourceInfo resource
     ) {
         final Set<SignaleringEvent<URI>> events = new HashSet<>();
         if (Objects.requireNonNull(channel) == Channel.ZAKEN) {

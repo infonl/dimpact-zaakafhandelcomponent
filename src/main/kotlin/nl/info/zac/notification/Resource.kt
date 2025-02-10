@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.notificaties
+package nl.info.zac.notification
 
 import jakarta.json.bind.adapter.JsonbAdapter
 import jakarta.json.bind.annotation.JsonbTypeAdapter
@@ -11,7 +11,7 @@ import java.util.logging.Logger
 import kotlin.collections.mutableMapOf
 
 /**
- * Enumeratie die de resources bevat zoals die binnenkomen op de [NotificatieReceiver].
+ * Enumeratie die de resources bevat zoals die binnenkomen op de [NotificationReceiver].
  *
  *
  * http://open-zaak.default/ref/kanalen/

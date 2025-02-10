@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import nl.info.zac.notification.Notification;
 import org.flowable.task.api.TaskInfo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,8 +31,7 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.app.zaak.model.RestZaakOverzicht;
 import net.atos.zac.event.Opcode;
-import net.atos.zac.notificaties.Channel;
-import net.atos.zac.notificaties.Notificatie;
+import nl.info.zac.notification.Channel;
 import net.atos.zac.signalering.model.Signalering;
 
 /**
@@ -226,8 +226,8 @@ public enum ScreenEventType {
 
     private ScreenEvent event(
             final Opcode opcode,
-            final Notificatie.ResourceInfo resource,
-            final Notificatie.ResourceInfo detail
+            final Notification.ResourceInfo resource,
+            final Notification.ResourceInfo detail
     ) {
         return instance(opcode, this,
                 resource.getUrl(),
@@ -430,8 +430,8 @@ public enum ScreenEventType {
 
     private void addEvent(
             final Set<ScreenEvent> events,
-            final Notificatie.ResourceInfo resource,
-            final Notificatie.ResourceInfo detail
+            final Notification.ResourceInfo resource,
+            final Notification.ResourceInfo detail
     ) {
         switch (resource.getAction()) {
             case CREATE:
@@ -459,8 +459,8 @@ public enum ScreenEventType {
      */
     public static Set<ScreenEvent> getEvents(
             final Channel channel,
-            final Notificatie.ResourceInfo mainResource,
-            final Notificatie.ResourceInfo resource
+            final Notification.ResourceInfo mainResource,
+            final Notification.ResourceInfo resource
     ) {
         final Set<ScreenEvent> events = new HashSet<>();
         switch (channel) {

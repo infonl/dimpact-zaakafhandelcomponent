@@ -1,8 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.notificaties
+package nl.info.zac.notification
 
 import jakarta.json.bind.adapter.JsonbAdapter
 import jakarta.json.bind.annotation.JsonbTypeAdapter
@@ -11,7 +11,7 @@ import java.util.logging.Logger
 import kotlin.collections.mutableMapOf
 
 /**
- * Enumeratie die de acties bevat zoals die binnenkomen op de [NotificatieReceiver].
+ * Enumeratie die de acties bevat zoals die binnenkomen op de [NotificationReceiver].
  */
 @JsonbTypeAdapter(Action.Adapter::class)
 enum class Action(private val code: String, private val alternativeCode: String? = null) {

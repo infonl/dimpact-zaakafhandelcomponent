@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.notificaties
+package nl.info.notification
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -22,13 +22,16 @@ import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.zoeken.IndexingService
+import nl.info.zac.notification.Action
+import nl.info.zac.notification.NotificationReceiver
+import nl.info.zac.notification.Resource
 import java.net.URI
 import java.util.UUID
 
 const val SECRET = "dummySecret"
 
 @MockKExtension.CheckUnnecessaryStub
-class NotificatieReceiverTest : BehaviorSpec({
+class NotificationReceiverTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
     val indexingService = mockk<IndexingService>()
@@ -40,7 +43,7 @@ class NotificatieReceiverTest : BehaviorSpec({
     val httpSession = mockk<HttpSession>(relaxed = true)
     val httpSessionInstance = mockk<Instance<HttpSession>>()
 
-    val notificatieReceiver = NotificatieReceiver(
+    val notificationReceiver = NotificationReceiver(
         eventingService = eventingService,
         productaanvraagService = productaanvraagService,
         indexingService = indexingService,
@@ -69,7 +72,7 @@ class NotificatieReceiverTest : BehaviorSpec({
         every { productaanvraagService.handleProductaanvraag(productaanvraagObjectUUID) } just runs
 
         When("notificatieReceive is called") {
-            val response = notificatieReceiver.notificatieReceive(httpHeaders, notificatie)
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
 
             Then(
                 "the 'functional user' is added to the HTTP sessionm the productaanvraag service is invoked " +
@@ -97,7 +100,7 @@ class NotificatieReceiverTest : BehaviorSpec({
         every { zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri) } just runs
 
         When("notificatieReceive is called with the zaaktype create notificatie") {
-            val response = notificatieReceiver.notificatieReceive(httpHeaders, notificatie)
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
 
             Then(
                 "the zaaktype aanvraag service is invoked and a 'no content' response is returned"
@@ -125,7 +128,7 @@ class NotificatieReceiverTest : BehaviorSpec({
         every { zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri) } just runs
 
         When("notificatieReceive is called with the zaaktype create notificatie") {
-            val response = notificatieReceiver.notificatieReceive(httpHeaders, notificatie)
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
 
             Then(
                 "the zaaktype aanvraag service is invoked and a 'no content' response is returned"
