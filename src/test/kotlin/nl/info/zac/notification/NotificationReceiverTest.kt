@@ -58,7 +58,6 @@ class NotificationReceiverTest : BehaviorSpec({
     ) {
         val productaanvraagObjectUUID = UUID.randomUUID()
         val productTypeUUID = UUID.randomUUID()
-        val objectType = createObjecttype(name = "Productaanvraag-Dimpact")
         val notificatie = createNotificatie(
             resourceUrl = URI("http://example.com/dummyproductaanvraag/$productaanvraagObjectUUID"),
             properties = mutableMapOf("objectType" to "http://example.com/dummyproducttype/$productTypeUUID")

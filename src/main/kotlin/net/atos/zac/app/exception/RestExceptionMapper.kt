@@ -16,7 +16,6 @@ import net.atos.client.bag.BagClientService
 import net.atos.client.brp.BrpClientService
 import net.atos.client.klant.KlantClientService
 import net.atos.client.or.`object`.ObjectsClientService
-import net.atos.client.or.objecttype.ObjecttypesClientService
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.brc.exception.BrcRuntimeException
 import net.atos.client.zgw.drc.DrcClientService
