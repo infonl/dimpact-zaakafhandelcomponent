@@ -1128,6 +1128,13 @@ export class ZaakViewComponent
     }
   }
 
+  editCaseDetails(): void {
+    if (this.zaak.isOpen && this.zaak.rechten.wijzigen) {
+      this.activeSideAction = "actie.zaak.wijzigen";
+      this.actionsSidenav.open();
+    }
+  }
+
   addOrEditZaakInitiator(): void {
     this.activeSideAction = "actie.initiator.toevoegen";
     this.actionsSidenav.open();

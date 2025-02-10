@@ -1,0 +1,40 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 Lifely
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+<div class="sidenav-title">
+  <h3>
+    <mat-icon>edit</mat-icon>
+    {{ "actie.zaak.wijzigen" | translate }}
+  </h3>
+  <button mat-icon-button (click)="sideNav.close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<div>
+  <mat-tab-group mat-stretch-tabs="false">
+    <mat-tab label="Tab 1">
+      <ng-template mat-tab-label>
+        <mat-icon>topic</mat-icon>
+        {{ "gegevens.algemeen" | translate }}</ng-template
+      >
+      <div class="form">
+        <mfb-form
+          #mfbForm
+          *ngIf="formFields"
+          [formFields]="formFields"
+          [config]="formConfig"
+          (formSubmit)="onFormSubmit($event)"
+        ></mfb-form>
+      </div>
+    </mat-tab>
+    <mat-tab label="Tab 2" *ngIf="false">
+      <ng-template mat-tab-label>
+        <mat-icon>place</mat-icon>
+        {{ "locatie" | translate }}
+      </ng-template>
+      <div>Location Content - Todo</div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

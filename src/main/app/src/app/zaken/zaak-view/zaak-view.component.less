@@ -11,7 +11,7 @@ mat-slide-toggle {
 }
 
 .zaak-actions-drawer {
-  min-width: 30%;
+  min-width: 75vw;
 }
 
 .taken-card {
@@ -151,4 +151,29 @@ mat-slide-toggle {
 
 .replace_me_margin {
   margin-top: 10px;
+}
+
+.editable {
+  position: relative;
+
+  & button {
+    position: absolute;
+    right: -8px;
+    width: 30px;
+    height: 30px;
+    padding: 0px;
+    margin-right: 0;
+
+    & > *[role="img"] {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
+    }
+  }
+
+  & button {
+    // temporary hiding button while developing next increments
+    opacity: 0;
+    pointer-events: auto;
+  }
 }

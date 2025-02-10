@@ -655,6 +655,7 @@
   "actie.wissen.aria-label": "Clear input",
   "actie.vrijgeven": "Release",
   "actie.zaak.aanmaken": "Create case",
+  "actie.zaak.wijzigen": "Edit case details",
   "actie.zaak.afbreken": "Abort case",
   "actie.zaak.afbreken.reden": "Reason why case is aborted",
   "actie.zaak.afbreken.reden.-kies-": "- Select a reason why case is aborted -",
