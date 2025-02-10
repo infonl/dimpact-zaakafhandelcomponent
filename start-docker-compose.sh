@@ -11,16 +11,22 @@ help()
 {
    echo "Starts the ZAC Docker Compose environment using the 1Password CLI tools to retrieve secrets."
    echo
-   echo "Syntax: $0 [-d|m|t|z|b|l|o|h]"
-   echo "options:"
-   echo "-d     Delete local Docker volume data before starting Docker Compose."
-   echo "-m     Also enable tracing and start the containers used for handling metrics and traces"
-   echo "-t     Also enable containers used for integration testing"
-   echo "-z     Also start last-known-good ZAC Docker container as part of the Docker Compose environment."
-   echo "-b     Build and start local ZAC Docker image in the Docker Compose environment."
-   echo "-l     Start local ZAC Docker image in the Docker Compose environment."
-   echo "-o     Also start OpenNotificaties in the Docker Compose environment."
-   echo "-h     Print this Help."
+   echo "Syntax: $0 [-d|h|z|b|l|m|t|o|a]"
+   echo
+   echo "General:"
+   echo "   -d     Delete local Docker volume data before starting Docker Compose."
+   echo "   -h     Print this Help."
+   echo
+   echo "ZAC options:"
+   echo "   -z     Start last-known-good ZAC Docker container."
+   echo "   -b     Build and start local ZAC Docker image."
+   echo "   -l     Start locally built ZAC Docker image."
+   echo
+   echo "Additional components:"
+   echo "   -m     Start the containers used for handling metrics and traces."
+   echo "   -t     Start containers used for integration testing."
+   echo "   -o     Start OpenNotificaties."
+   echo "   -a     Start ArchiefBeheerComponent."
    echo
 }
 
@@ -39,7 +45,7 @@ profiles=()
 
 [ -f fix-permissions.sh ] && ./fix-permissions.sh
 
-while getopts ':dmtzbloh' OPTION; do
+while getopts ':dhzblmtoa' OPTION; do
   case $OPTION in
     d)
       echo "Deleting local Docker volume data folder: '$volumeDataFolder'.."
@@ -49,15 +55,6 @@ while getopts ':dmtzbloh' OPTION; do
     h)
       help
       exit;;
-    t)
-      echo "Also enabling containers used for integration testing"
-      profiles+=("itest")
-      ;;
-    m)
-      echo "Also enabling tracing and starting containers used for handling metrics and traces"
-      profiles+=("metrics")
-      enableZacOpenTelemetrySampler=on
-      ;;
     z)
       profiles+=("zac")
       pullZac=true
@@ -70,10 +67,19 @@ while getopts ':dmtzbloh' OPTION; do
       profiles+=("zac")
       localZac=true
       ;;
+    m)
+      profiles+=("metrics")
+      enableZacOpenTelemetrySampler=on
+      ;;
+    t)
+      profiles+=("itest")
+      ;;
     o)
-      echo "Also starting OpenNotificaties"
       profiles+=("opennotificaties")
       export OPENZAAK_NOTIFICATIONS_DISABLED=false
+      ;;
+    a)
+      profiles+=("archiefbeheercomponent")
       ;;
     \?)
       echoerr "Error: Invalid option"
