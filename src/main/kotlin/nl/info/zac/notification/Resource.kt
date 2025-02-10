@@ -11,10 +11,7 @@ import java.util.logging.Logger
 import kotlin.collections.mutableMapOf
 
 /**
- * Enumeratie die de resources bevat zoals die binnenkomen op de [NotificationReceiver].
- *
- *
- * http://open-zaak.default/ref/kanalen/
+ * Defines notification resources as handled in [NotificationReceiver].
  */
 @JsonbTypeAdapter(Resource.Adapter::class)
 enum class Resource(private val code: String) {

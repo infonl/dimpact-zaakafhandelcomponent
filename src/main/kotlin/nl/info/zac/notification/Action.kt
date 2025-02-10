@@ -8,10 +8,9 @@ import jakarta.json.bind.adapter.JsonbAdapter
 import jakarta.json.bind.annotation.JsonbTypeAdapter
 import org.apache.commons.lang3.NotImplementedException
 import java.util.logging.Logger
-import kotlin.collections.mutableMapOf
 
 /**
- * Enumeratie die de acties bevat zoals die binnenkomen op de [NotificationReceiver].
+ * Defines notification actions as handled in [NotificationReceiver].
  */
 @JsonbTypeAdapter(Action.Adapter::class)
 enum class Action(private val code: String, private val alternativeCode: String? = null) {
@@ -22,23 +21,6 @@ enum class Action(private val code: String, private val alternativeCode: String?
 
     companion object {
         private val LOG = Logger.getLogger(Action::class.java.getName())
-        private val VALUES = mutableMapOf<String, Action>()
-
-        init {
-            for (value in entries) {
-                VALUES.put(value.code, value)
-                if (value.alternativeCode != null) {
-                    VALUES.put(value.alternativeCode, value)
-                }
-            }
-        }
-
-        fun fromCode(code: String): Action? =
-            VALUES[code].also {
-                if (it == null) {
-                    LOG.warning("Unknown action: '$code'")
-                }
-            }
     }
 
     internal class Adapter : JsonbAdapter<Action, String> {
@@ -46,8 +28,11 @@ enum class Action(private val code: String, private val alternativeCode: String?
             throw NotImplementedException()
         }
 
-        override fun adaptFromJson(code: String): Action? {
-            return fromCode(code)
-        }
+        override fun adaptFromJson(code: String): Action? =
+            entries.find { it.code == code || it.alternativeCode == code }.also {
+                if (it == null) {
+                    LOG.warning("Unknown action: '$code'")
+                }
+            }
     }
 }
