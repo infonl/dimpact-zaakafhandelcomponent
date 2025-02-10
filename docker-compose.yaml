@@ -586,7 +586,7 @@ services:
     profiles: [ "archiefbeheercomponent" ]
 
   archiefbeheercomponent-web:
-    image: maykinmedia/archiefbeheercomponent:latest
+    image: maykinmedia/archiefbeheercomponent:1.1.5@sha256:f3dedbb97eff9d5a2f79bba2dfc19ac053d91ec414635add0cb10a290d66cefa
     environment: &web_env
       - DJANGO_SETTINGS_MODULE=archiefbeheercomponent.conf.docker
       - ALLOWED_HOSTS=*
@@ -621,7 +621,7 @@ services:
     profiles: [ "archiefbeheercomponent" ]
 
   archiefbeheercomponent-celery:
-    image: maykinmedia/archiefbeheercomponent:latest
+    image: maykinmedia/archiefbeheercomponent:1.1.5@sha256:f3dedbb97eff9d5a2f79bba2dfc19ac053d91ec414635add0cb10a290d66cefa
     environment: *web_env
     command: /celery_worker.sh
     depends_on:
