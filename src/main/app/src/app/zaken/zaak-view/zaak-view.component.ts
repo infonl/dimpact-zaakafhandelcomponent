@@ -731,9 +731,7 @@ export class ZaakViewComponent
     if (
       this.zaak.isOpen &&
       !this.zaak.isHeropend &&
-      this.zaak.rechten.afbreken &&
-      this.zaak.zaaktype.zaakafhandelparameters.zaakbeeindigParameters.length >
-        0
+      this.zaak.rechten.afbreken
     ) {
       actionMenuItems.push(
         new ButtonMenuItem(
