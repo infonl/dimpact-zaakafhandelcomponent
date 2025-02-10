@@ -73,7 +73,7 @@ public class SignaleringEventUtil {
      * This is the mapping.
      *
      * @param channel      the channel the notification came in on
-     * @param mainResource the involved main resource (may be equal to the resource)
+     * @param mainResource the involved main resource (maybe equal to the resource)
      * @param resource     the actually modified resource
      * @return the set of events that the parameters map to
      */
