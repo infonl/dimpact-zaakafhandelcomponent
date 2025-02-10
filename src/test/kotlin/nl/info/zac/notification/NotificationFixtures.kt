@@ -3,12 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package nl.info.notification
+package nl.info.zac.notification
 
-import nl.info.zac.notification.Action
-import nl.info.zac.notification.Channel
-import nl.info.zac.notification.Notification
-import nl.info.zac.notification.Resource
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID

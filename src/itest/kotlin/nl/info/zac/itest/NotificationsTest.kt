@@ -102,13 +102,15 @@ class NotificationsTest : BehaviorSpec({
                 ),
                 requestBodyAsString = JSONObject(
                     mapOf(
+                        "kanaal" to "objecten",
                         "resource" to "object",
                         "resourceUrl" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_1_UUID",
+                        "hoofdObject" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_1_UUID",
                         "actie" to "create",
+                        "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
                         "kenmerken" to mapOf(
                             "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
-                        ),
-                        "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                        )
                     )
                 ).toString(),
                 addAuthorizationHeader = false
@@ -201,13 +203,15 @@ class NotificationsTest : BehaviorSpec({
                 ),
                 requestBodyAsString = JSONObject(
                     mapOf(
+                        "kanaal" to "objecten",
                         "resource" to "object",
                         "resourceUrl" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_2_UUID",
+                        "hoofdObject" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_2_UUID",
                         "actie" to "create",
+                        "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
                         "kenmerken" to mapOf(
                             "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
-                        ),
-                        "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                        )
                     )
                 ).toString(),
                 addAuthorizationHeader = false
@@ -262,8 +266,10 @@ class NotificationsTest : BehaviorSpec({
                 ),
                 requestBodyAsString = JSONObject(
                     mapOf(
+                        "kanaal" to "zaaktypen",
                         "resource" to "zaaktype",
                         "resourceUrl" to "http://example.com/dummyResourceUrl",
+                        "hoofdObject" to "http://example.com/dummyResourceUrl",
                         "actie" to "create",
                         "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                     )
@@ -320,17 +326,17 @@ class NotificationsTest : BehaviorSpec({
                     ),
                     requestBodyAsString = JSONObject(
                         mapOf(
-                            "actie" to "partial_update",
                             "kanaal" to "zaken",
                             "resource" to "zaak",
+                            "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakProductaanvraag1Uuid",
+                            "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakProductaanvraag1Uuid",
+                            "actie" to "partial_update",
+                            "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
                             "kenmerken" to mapOf(
                                 "zaaktype" to "$OPEN_ZAAK_BASE_URI/catalogi/api/v1/zaaktypen/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
                                 "bronorganisatie" to "123443210",
                                 "vertrouwelijkheidaanduiding" to "openbaar"
-                            ),
-                            "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakProductaanvraag1Uuid",
-                            "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakProductaanvraag1Uuid",
-                            "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                            )
                         )
                     ).toString(),
                     addAuthorizationHeader = false
@@ -386,17 +392,17 @@ class NotificationsTest : BehaviorSpec({
                     ),
                     requestBodyAsString = JSONObject(
                         mapOf(
-                            "actie" to "create",
                             "kanaal" to "zaken",
                             "resource" to "rol",
+                            "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/rollen/$zaakProductaanvraag1Betrokkene1Uuid",
+                            "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakProductaanvraag1Uuid",
+                            "actie" to "create",
+                            "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
                             "kenmerken" to mapOf(
                                 "zaaktype" to "$OPEN_ZAAK_BASE_URI/catalogi/api/v1/zaaktypen/$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID",
                                 "bronorganisatie" to "123443210",
                                 "vertrouwelijkheidaanduiding" to "openbaar"
-                            ),
-                            "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakProductaanvraag1Uuid",
-                            "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/rollen/$zaakProductaanvraag1Betrokkene1Uuid",
-                            "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                            )
                         )
                     ).toString(),
                     addAuthorizationHeader = false

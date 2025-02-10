@@ -9,24 +9,27 @@ import jakarta.json.bind.annotation.JsonbTransient
 import java.net.URI
 import java.time.ZonedDateTime
 
+/**
+ * Notification as defined by the [ZGW Notificatie API](https://vng-realisatie.github.io/gemma-zaken/standaard/notificaties).
+ */
 class Notification {
     @set:JsonbProperty("kanaal")
-    var channel: Channel? = null
+    lateinit var channel: Channel
 
     @set:JsonbProperty("hoofdObject")
-    var mainResourceUrl: URI? = null
+    lateinit var mainResourceUrl: URI
 
     @set:JsonbProperty("resource")
-    var resource: Resource? = null
+    lateinit var resource: Resource
 
     @set:JsonbProperty("resourceUrl")
-    var resourceUrl: URI? = null
+    lateinit var resourceUrl: URI
 
     @set:JsonbProperty("actie")
-    var action: Action? = null
+    lateinit var action: Action
 
     @set:JsonbProperty("aanmaakdatum")
-    var creationDateTime: ZonedDateTime? = null
+    lateinit var creationDateTime: ZonedDateTime
 
     @set:JsonbProperty("kenmerken")
     var properties = mutableMapOf<String, String>()
@@ -39,7 +42,7 @@ class Notification {
     )
 
     @JsonbTransient
-    fun getMainResourceType() = channel?.resourceType
+    fun getMainResourceType() = channel.resourceType
 
     @JsonbTransient
     fun getMainResourceInfo() = ResourceInfo(
@@ -52,9 +55,7 @@ class Notification {
         }
     )
 
-    override fun toString(): String {
-        return "$channel, $resource, $action, $creationDateTime"
-    }
+    override fun toString() = "$channel, $resource, $action, $creationDateTime"
 
     /**
      * Use this for the actually modified resource
@@ -63,5 +64,5 @@ class Notification {
      * @param url    the identification of the resource
      * @param action the type of modification
      */
-    data class ResourceInfo(val type: Resource?, val url: URI?, val action: Action?)
+    data class ResourceInfo(val type: Resource, val url: URI, val action: Action)
 }

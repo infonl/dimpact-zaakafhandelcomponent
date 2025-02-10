@@ -29,7 +29,6 @@ import net.atos.zac.zoeken.IndexingService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
-import java.util.function.Supplier
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -67,12 +66,12 @@ class NotificationReceiver @Inject constructor(
         if (!isAuthenticated(headers)) {
             return Response.noContent().status(Response.Status.FORBIDDEN).build()
         }
-        setFunctioneelGebruiker(httpSession.get()!!)
-        LOG.info(Supplier { "Received notification: '$notification'" })
+        setFunctioneelGebruiker(httpSession.get())
+        LOG.info { "Received notification: '$notification'" }
         handleSignaleringen(notification)
         handleProductaanvraag(notification)
-        handleIndexering(notification)
-        handleInboxDocumenten(notification)
+        handleIndexing(notification)
+        handleInboxDocuments(notification)
         handleZaaktype(notification)
         handleWebsockets(notification)
         return Response.noContent().build()
@@ -85,97 +84,113 @@ class NotificationReceiver @Inject constructor(
         // only attempt to handle productaanvraag if the notification resource is an object with 'CREATE' action
         // and has an object type defined
         if (notification.resource == Resource.OBJECT && notification.action == Action.CREATE && objecttypeUri?.isNotEmpty() == true) {
-            productaanvraagService.handleProductaanvraag(notification.resourceUrl!!.extractUuid())
+            productaanvraagService.handleProductaanvraag(notification.resourceUrl.extractUuid())
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun handleWebsockets(notification: Notification) {
         try {
-            if (notification.channel != null && notification.resource != null) {
-                ScreenEventType.getEvents(
-                    notification.channel,
-                    notification.getMainResourceInfo(),
-                    notification.getResourceInfo()
-                ).forEach(eventingService::send)
-            }
+            ScreenEventType.getEvents(
+                notification.channel,
+                notification.getMainResourceInfo(),
+                notification.getResourceInfo()
+            ).forEach(eventingService::send)
         } catch (exception: RuntimeException) {
-            warning("Websockets", notification, exception)
+            warning("websockets", notification, exception)
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun handleSignaleringen(notification: Notification) {
         try {
-            if (notification.channel != null && notification.resource != null) {
-                SignaleringEventUtil.getEvents(
-                    notification.channel,
-                    notification.getMainResourceInfo(),
-                    notification.getResourceInfo()
-                ).forEach(eventingService::send)
-            }
+            SignaleringEventUtil.getEvents(
+                notification.channel,
+                notification.getMainResourceInfo(),
+                notification.getResourceInfo()
+            ).forEach(eventingService::send)
         } catch (exception: RuntimeException) {
-            warning("Signaleringen", notification, exception)
+            warning("signaleringen", notification, exception)
         }
     }
 
-    @Suppress("CyclomaticComplexMethod", "NestedBlockDepth", "ComplexCondition")
-    private fun handleIndexering(notification: Notification) {
+    @Suppress("CyclomaticComplexMethod", "NestedBlockDepth", "ComplexCondition", "TooGenericExceptionCaught")
+    private fun handleIndexing(notification: Notification) {
         try {
-            if (notification.channel == Channel.ZAKEN) {
-                if (notification.resource == Resource.ZAAK) {
-                    if (notification.action == Action.CREATE || notification.action == Action.UPDATE) {
-                        indexingService.addOrUpdateZaak(
-                            notification.resourceUrl!!.extractUuid(),
-                            notification.action == Action.UPDATE
-                        )
-                    } else if (notification.action == Action.DELETE) {
-                        indexingService.removeZaak(notification.resourceUrl!!.extractUuid())
-                    }
-                } else if (notification.resource == Resource.STATUS || notification.resource == Resource.RESULTAAT ||
-                    notification.resource == Resource.ROL || notification.resource == Resource.ZAAKOBJECT
-                ) {
-                    indexingService.addOrUpdateZaak(notification.mainResourceUrl!!.extractUuid(), false)
-                } else if (notification.resource == Resource.ZAAKINFORMATIEOBJECT && notification.action == Action.CREATE) {
-                    indexingService.addOrUpdateInformatieobjectByZaakinformatieobject(
-                        notification.resourceUrl!!.extractUuid()
-                    )
-                }
-            }
-            if (notification.channel == Channel.INFORMATIEOBJECTEN) {
-                if (notification.resource == Resource.INFORMATIEOBJECT) {
-                    if (notification.action == Action.CREATE || notification.action == Action.UPDATE) {
-                        indexingService.addOrUpdateInformatieobject(notification.resourceUrl!!.extractUuid())
-                    } else if (notification.action == Action.DELETE) {
-                        indexingService.removeInformatieobject(notification.resourceUrl!!.extractUuid())
+            when (notification.channel) {
+                Channel.ZAKEN -> {
+                    when (notification.resource) {
+                        Resource.ZAAK -> {
+                            when (notification.action) {
+                                Action.CREATE, Action.UPDATE -> indexingService.addOrUpdateZaak(
+                                    notification.resourceUrl.extractUuid(),
+                                    notification.action == Action.UPDATE
+                                )
+                                Action.DELETE -> indexingService.removeZaak(notification.resourceUrl.extractUuid())
+                                else -> {}
+                            }
+                        }
+                        Resource.STATUS, Resource.RESULTAAT, Resource.ROL, Resource.ZAAKOBJECT -> {
+                            indexingService.addOrUpdateZaak(notification.mainResourceUrl.extractUuid(), false)
+                        }
+                        Resource.ZAAKINFORMATIEOBJECT -> {
+                            if (notification.action == Action.CREATE) {
+                                indexingService.addOrUpdateInformatieobjectByZaakinformatieobject(
+                                    notification.resourceUrl.extractUuid()
+                                )
+                            }
+                        }
+                        else -> {}
                     }
                 }
+                Channel.INFORMATIEOBJECTEN -> {
+                    if (notification.resource == Resource.INFORMATIEOBJECT) {
+                        when (notification.action) {
+                            Action.CREATE, Action.UPDATE -> indexingService.addOrUpdateInformatieobject(
+                                notification.resourceUrl.extractUuid()
+                            )
+                            Action.DELETE -> indexingService.removeInformatieobject(
+                                notification.resourceUrl.extractUuid()
+                            )
+                            else -> {}
+                        }
+                    }
+                }
+                else -> {}
             }
         } catch (exception: RuntimeException) {
-            warning("Indexering", notification, exception)
+            warning("indexing", notification, exception)
         }
     }
 
-    private fun handleInboxDocumenten(notification: Notification) {
+    @Suppress("TooGenericExceptionCaught")
+    private fun handleInboxDocuments(notification: Notification) {
         try {
             if (notification.action == Action.CREATE) {
-                if (notification.resource == Resource.INFORMATIEOBJECT) {
-                    inboxDocumentenService.create(notification.resourceUrl!!.extractUuid())
-                } else if (notification.resource == Resource.ZAAKINFORMATIEOBJECT) {
-                    inboxDocumentenService.delete(notification.resourceUrl!!.extractUuid())
+                when (notification.resource) {
+                    Resource.INFORMATIEOBJECT -> inboxDocumentenService.create(
+                        notification.resourceUrl.extractUuid()
+                    )
+                    Resource.ZAAKINFORMATIEOBJECT -> inboxDocumentenService.delete(
+                        notification.resourceUrl.extractUuid()
+                    )
+                    else -> {}
                 }
             }
         } catch (exception: RuntimeException) {
-            warning("InboxDocumenten", notification, exception)
+            warning("inbox documents", notification, exception)
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun handleZaaktype(notification: Notification) {
         if (notification.resource != Resource.ZAAKTYPE) return
         try {
             if (notification.action == Action.CREATE || notification.action == Action.UPDATE) {
-                zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(notification.resourceUrl!!)
+                zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(notification.resourceUrl)
             }
         } catch (exception: RuntimeException) {
-            warning("Zaaktype", notification, exception)
+            warning("zaaktype", notification, exception)
         }
     }
 

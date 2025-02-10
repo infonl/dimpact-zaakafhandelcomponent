@@ -15,10 +15,10 @@ import org.flowable.task.api.TaskInfo;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.identity.model.User;
+import net.atos.zac.signalering.model.SignaleringType;
 import nl.info.zac.notification.Action;
 import nl.info.zac.notification.Channel;
 import nl.info.zac.notification.Notification;
-import net.atos.zac.signalering.model.SignaleringType;
 
 /**
  * There is no SignaleringEventType. {@link SignaleringType} is used for that instead (i.e. the Type enum in it).

@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.notification
+package nl.info.zac.notification
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -22,9 +22,6 @@ import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.zoeken.IndexingService
-import nl.info.zac.notification.Action
-import nl.info.zac.notification.NotificationReceiver
-import nl.info.zac.notification.Resource
 import java.net.URI
 import java.util.UUID
 

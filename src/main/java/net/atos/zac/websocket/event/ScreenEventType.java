@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import nl.info.zac.notification.Notification;
 import org.flowable.task.api.TaskInfo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -31,8 +30,9 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.app.zaak.model.RestZaakOverzicht;
 import net.atos.zac.event.Opcode;
-import nl.info.zac.notification.Channel;
 import net.atos.zac.signalering.model.Signalering;
+import nl.info.zac.notification.Channel;
+import nl.info.zac.notification.Notification;
 
 /**
  * Enumeration of the type of objects that can be referenced by a {@link ScreenEvent} event.
