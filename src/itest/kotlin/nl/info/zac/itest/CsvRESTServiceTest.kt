@@ -19,7 +19,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.junit.jupiter.api.Order
 
 /**
- * Since we run this test after [IndexerenRESTServiceTest], we expect
+ * Since we run this test after [IndexingRestServiceTest], we expect
  * all created and still open zaken up to that point to be present in the search index
  * which is used to generate the CSV.
  * The number of CSV rows is expected to be equal to the number of open zaken + 1 for the header row.
