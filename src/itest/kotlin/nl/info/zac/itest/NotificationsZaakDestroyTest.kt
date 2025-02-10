@@ -83,9 +83,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 """.trimIndent()
             ).body!!.string()
             JSONObject(searchResponseBody).getInt("totaal") shouldBe 1
-            with(JSONObject(searchResponseBody).getJSONArray("resultaten").getJSONObject(0).toString()) {
-                shouldContainJsonKeyValue("identificatie", zaakIdentificatie)
-            }
+            searchResponseBody.shouldContainJsonKeyValue("$.resultaten[0].identificatie", zaakIdentificatie)
         }
         When("the notificaties endpoint is called with a 'zaak destroy' payload") {
             val response = itestHttpClient.performJSONPostRequest(
