@@ -168,4 +168,17 @@ public abstract class Zaakobject {
 
     @JsonbTransient
     public abstract String getWaarde();
+
+    @Override
+    public String toString() {
+        return "Zaakobject{" +
+               "url=" + url +
+               ", uuid=" + uuid +
+               ", zaak=" + zaak +
+               ", object=" + object +
+               ", objectType=" + objectType +
+               ", objectTypeOverige='" + objectTypeOverige + '\'' +
+               ", relatieomschrijving='" + relatieomschrijving + '\'' +
+               '}';
+    }
 }

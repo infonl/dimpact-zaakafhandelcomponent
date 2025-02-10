@@ -41,7 +41,6 @@ import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.client.zgw.zrc.model.ZaakListParameters
-import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.util.StatusTypeUtil
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.extensions.isNuGeldig
@@ -51,7 +50,7 @@ import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
 import net.atos.zac.app.admin.model.RESTZaakAfzender
-import net.atos.zac.app.bag.converter.RESTBAGConverter
+import net.atos.zac.app.bag.converter.RestBagConverter
 import net.atos.zac.app.decision.DecisionService
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
@@ -163,7 +162,6 @@ class ZaakRestService @Inject constructor(
     private val restZaaktypeConverter: RestZaaktypeConverter,
     private val restDecisionConverter: RestDecisionConverter,
     private val restZaakOverzichtConverter: RestZaakOverzichtConverter,
-    private val restBAGConverter: RESTBAGConverter,
     private val zaakHistoryLineConverter: ZaakHistoryLineConverter,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
     private val healthCheckService: HealthCheckService,
@@ -295,7 +293,7 @@ class ZaakRestService @Inject constructor(
         }
         restZaakAanmaakGegevens.bagObjecten?.let { restbagObjecten ->
             for (restbagObject in restbagObjecten) {
-                val zaakobject: Zaakobject = restBAGConverter.convertToZaakobject(restbagObject, zaak)
+                val zaakobject = RestBagConverter.convertToZaakobject(restbagObject, zaak)
                 zrcClientService.createZaakobject(zaakobject)
             }
         }

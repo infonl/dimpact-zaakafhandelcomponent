@@ -7,8 +7,6 @@ package net.atos.zac.app.bag.converter;
 
 import java.net.URI;
 
-import jakarta.inject.Inject;
-
 import net.atos.client.bag.model.generated.AdresIOHal;
 import net.atos.client.bag.model.generated.Indicatie;
 import net.atos.client.bag.model.generated.OpenbareRuimte;
@@ -19,12 +17,8 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte;
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte;
 
-public class RESTOpenbareRuimteConverter {
-
-    @Inject
-    private RESTWoonplaatsConverter woonplaatsConverter;
-
-    public RESTOpenbareRuimte convertToREST(final OpenbareRuimteIOHalBasis openbareRuimteIO, final AdresIOHal adres) {
+public class RestOpenbareRuimteConverter {
+    public static RESTOpenbareRuimte convertToREST(final OpenbareRuimteIOHalBasis openbareRuimteIO, final AdresIOHal adres) {
         if (openbareRuimteIO == null) {
             return null;
         }
@@ -33,7 +27,7 @@ public class RESTOpenbareRuimteConverter {
         return restOpenbareRuimte;
     }
 
-    public RESTOpenbareRuimte convertToREST(final OpenbareRuimteIOHalBasis openbareRuimteIO) {
+    public static RESTOpenbareRuimte convertToREST(final OpenbareRuimteIOHalBasis openbareRuimteIO) {
         if (openbareRuimteIO == null) {
             return null;
         }
@@ -42,19 +36,19 @@ public class RESTOpenbareRuimteConverter {
         return restOpenbareRuimte;
     }
 
-    public RESTOpenbareRuimte convertToREST(final OpenbareRuimteIOHal openbareRuimteIO) {
+    public static RESTOpenbareRuimte convertToREST(final OpenbareRuimteIOHal openbareRuimteIO) {
         if (openbareRuimteIO == null) {
             return null;
         }
         final RESTOpenbareRuimte restOpenbareRuimte = convertToREST(openbareRuimteIO.getOpenbareRuimte());
         restOpenbareRuimte.url = URI.create(openbareRuimteIO.getLinks().getSelf().getHref());
         if (openbareRuimteIO.getEmbedded() != null) {
-            restOpenbareRuimte.woonplaats = woonplaatsConverter.convertToREST(openbareRuimteIO.getEmbedded().getLigtInWoonplaats());
+            restOpenbareRuimte.woonplaats = RestWoonplaatsConverter.convertToREST(openbareRuimteIO.getEmbedded().getLigtInWoonplaats());
         }
         return restOpenbareRuimte;
     }
 
-    public RESTOpenbareRuimte convertToREST(final ZaakobjectOpenbareRuimte zaakobjectOpenbareRuimte) {
+    public static RESTOpenbareRuimte convertToREST(final ZaakobjectOpenbareRuimte zaakobjectOpenbareRuimte) {
         if (zaakobjectOpenbareRuimte == null || zaakobjectOpenbareRuimte.getObjectIdentificatie() == null) {
             return null;
         }
@@ -67,7 +61,7 @@ public class RESTOpenbareRuimteConverter {
         return restOpenbareRuimte;
     }
 
-    public ZaakobjectOpenbareRuimte convertToZaakobject(final RESTOpenbareRuimte openbareRuimte, final Zaak zaak) {
+    public static ZaakobjectOpenbareRuimte convertToZaakobject(final RESTOpenbareRuimte openbareRuimte, final Zaak zaak) {
         final ObjectOpenbareRuimte objectOpenbareRuimte = new ObjectOpenbareRuimte(
                 openbareRuimte.identificatie,
                 openbareRuimte.naam,
@@ -75,7 +69,7 @@ public class RESTOpenbareRuimteConverter {
         return new ZaakobjectOpenbareRuimte(zaak.getUrl(), openbareRuimte.url, objectOpenbareRuimte);
     }
 
-    private RESTOpenbareRuimte convertToREST(final OpenbareRuimte openbareRuimte) {
+    private static RESTOpenbareRuimte convertToREST(final OpenbareRuimte openbareRuimte) {
         final RESTOpenbareRuimte restOpenbareRuimte = new RESTOpenbareRuimte();
         restOpenbareRuimte.identificatie = openbareRuimte.getIdentificatie();
         restOpenbareRuimte.naam = openbareRuimte.getNaam();

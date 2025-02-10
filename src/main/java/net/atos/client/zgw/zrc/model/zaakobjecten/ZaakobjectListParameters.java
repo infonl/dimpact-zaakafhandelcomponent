@@ -72,4 +72,14 @@ public class ZaakobjectListParameters {
     public void setPage(final Integer page) {
         this.page = page;
     }
+
+    @Override
+    public String toString() {
+        return "ZaakobjectListParameters{" +
+               "zaak=" + zaak +
+               ", object=" + object +
+               ", objectType='" + objectType + '\'' +
+               ", page=" + page +
+               '}';
+    }
 }

@@ -112,6 +112,8 @@ services:
       - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
       - DJANGO_SUPERUSER_PASSWORD=admin
       - LOG_LEVEL=DEBUG
+      # uncomment to enable logging of outgoing requests; can be helpful for debugging
+      #- LOG_REQUESTS=true
       - NOTIFICATIONS_DISABLED=${OPENZAAK_NOTIFICATIONS_DISABLED:-true}
       - OPENZAAK_SUPERUSER_USERNAME=admin
       - OPENZAAK_SUPERUSER_EMAIL=noreply@example.com
@@ -366,7 +368,9 @@ services:
       - "18081:8080"
     profiles: [ "itest" ]
 
-  bag-wiremock:
+  # This container name must contain a '.' or else Open Zaak will respond with a 400
+  # error on certain API requests caused by an internal 'invalid URL' error.
+  bag-wiremock.local:
     image: docker.io/wiremock/wiremock:3.11.0@sha256:dd1530e0db539130da9a708778cebe3b516f083f7524d9609528f32f780977f8
     volumes:
       # these WireMock mappings are used by the ZAC integration tests

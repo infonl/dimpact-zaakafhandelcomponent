@@ -1,0 +1,38 @@
+{
+  "openbareRuimteNaam": "Dam",
+  "korteNaam": "Dam",
+  "huisnummer": 1,
+  "postcode": "1012JS",
+  "woonplaatsNaam": "Amsterdam",
+  "nummeraanduidingIdentificatie": "0363200003761447",
+  "openbareRuimteIdentificatie": "0363300000003186",
+  "woonplaatsIdentificatie": "3594",
+  "adresseerbaarObjectIdentificatie": "0363010003761571",
+  "pandIdentificaties": [
+    "0363100012168052"
+  ],
+  "adresregel5": "Dam 1",
+  "adresregel6": "1012 JS  AMSTERDAM",
+  "_links": {
+    "self": {
+      "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/adressen/0363200003761447"
+    },
+    "openbareRuimte": {
+      "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/openbareruimten/0363300000003186"
+    },
+    "nummeraanduiding": {
+      "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/nummeraanduidingen/0363200003761447"
+    },
+    "woonplaats": {
+      "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/woonplaatsen/3594"
+    },
+    "adresseerbaarObject": {
+      "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/verblijfsobjecten/0363010003761571"
+    },
+    "panden": [
+      {
+        "href": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/panden/0363100012168052"
+      }
+    ]
+  }
+}
