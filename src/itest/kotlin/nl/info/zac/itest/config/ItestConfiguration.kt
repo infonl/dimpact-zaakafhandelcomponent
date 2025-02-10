@@ -111,7 +111,6 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED = 6
     const val TEST_SPEC_ORDER_AFTER_REINDEXING = 7
     const val TEST_SPEC_ORDER_AFTER_SEARCH = 8
-    const val TEST_SPEC_ORDER_LAST = 100
 
     const val TOTAL_COUNT_ZAKEN = 10
     const val TOTAL_COUNT_ZAKEN_AFGEROND = 2
@@ -312,10 +311,6 @@ object ItestConfiguration {
         "Verzoek is bij verkeerde organisatie ingediend"
 
     @Suppress("MagicNumber")
-    val DATE_TIME_2000_01_01: ZonedDateTime = LocalDate.of(2000, Month.JANUARY, 1)
-        .atStartOfDay(TimeZone.getDefault().toZoneId())
-
-    @Suppress("MagicNumber")
     val DATE_2000_01_01: LocalDate = LocalDate.of(2000, Month.JANUARY, 1)
 
     @Suppress("MagicNumber")
@@ -336,8 +331,10 @@ object ItestConfiguration {
     @Suppress("MagicNumber")
     val DATE_2024_01_31: LocalDate = LocalDate.of(2024, Month.JANUARY, 31)
 
+    val DATE_TIME_2000_01_01: ZonedDateTime = DATE_2000_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
     val DATE_TIME_2020_01_01: ZonedDateTime = DATE_2020_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
     val DATE_TIME_2024_01_01: ZonedDateTime = DATE_2024_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
+    val DATE_TIME_2024_01_31: ZonedDateTime = DATE_2024_01_31.atStartOfDay(TimeZone.getDefault().toZoneId())
 
     val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
     val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID: UUID =
