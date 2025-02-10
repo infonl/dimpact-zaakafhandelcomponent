@@ -12,7 +12,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
+import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REINDEXING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import org.json.JSONArray
@@ -20,7 +20,7 @@ import org.json.JSONArray
 /**
  * This test assumes a human task plan item (=task) has been started for a zaak in a previously run test.
  */
-@Order(TEST_SPEC_ORDER_AFTER_SEARCH)
+@Order(TEST_SPEC_ORDER_AFTER_REINDEXING)
 class AanvullendeInformatieTaskCompleteTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()

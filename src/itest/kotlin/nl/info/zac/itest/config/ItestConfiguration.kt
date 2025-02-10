@@ -110,7 +110,6 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_TASK_COMPLETED = 5
     const val TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED = 6
     const val TEST_SPEC_ORDER_AFTER_REINDEXING = 7
-    const val TEST_SPEC_ORDER_AFTER_SEARCH = 8
     const val TEST_SPEC_ORDER_LAST = 100
 
     const val TOTAL_COUNT_ZAKEN = 10
