@@ -6,8 +6,8 @@ package nl.info.zac.notification
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
-import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
@@ -15,8 +15,8 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
 import jakarta.ws.rs.core.HttpHeaders
+import jakarta.ws.rs.core.Response
 import net.atos.client.or.`object`.model.createObjecttype
-import net.atos.client.or.objecttype.ObjecttypesClientService
 import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.event.EventingService
@@ -27,19 +27,15 @@ import java.util.UUID
 
 const val SECRET = "dummySecret"
 
-@MockKExtension.CheckUnnecessaryStub
 class NotificationReceiverTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
     val indexingService = mockk<IndexingService>()
     val inboxDocumentenService = mockk<InboxDocumentenService>()
     val zaakafhandelParameterBeheerService = mockk<ZaakafhandelParameterBeheerService>()
-    val objecttypesClientService = mockk<ObjecttypesClientService>()
-
     val httpHeaders = mockk<HttpHeaders>()
     val httpSession = mockk<HttpSession>(relaxed = true)
     val httpSessionInstance = mockk<Instance<HttpSession>>()
-
     val notificationReceiver = NotificationReceiver(
         eventingService = eventingService,
         productaanvraagService = productaanvraagService,
@@ -49,6 +45,10 @@ class NotificationReceiverTest : BehaviorSpec({
         secret = SECRET,
         httpSession = httpSessionInstance
     )
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given(
         """
@@ -63,7 +63,6 @@ class NotificationReceiverTest : BehaviorSpec({
             resourceUrl = URI("http://example.com/dummyproductaanvraag/$productaanvraagObjectUUID"),
             properties = mutableMapOf("objectType" to "http://example.com/dummyproducttype/$productTypeUUID")
         )
-        every { objecttypesClientService.readObjecttype(productTypeUUID) } returns objectType
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
         every { productaanvraagService.handleProductaanvraag(productaanvraagObjectUUID) } just runs
@@ -75,7 +74,7 @@ class NotificationReceiverTest : BehaviorSpec({
                 "the 'functional user' is added to the HTTP sessionm the productaanvraag service is invoked " +
                     "and a 'no content' response is returned"
             ) {
-                response.status shouldBe 204
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
                     productaanvraagService.handleProductaanvraag(productaanvraagObjectUUID)
                 }
@@ -102,7 +101,7 @@ class NotificationReceiverTest : BehaviorSpec({
             Then(
                 "the zaaktype aanvraag service is invoked and a 'no content' response is returned"
             ) {
-                response.status shouldBe 204
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
                     zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri)
                 }
@@ -130,8 +129,33 @@ class NotificationReceiverTest : BehaviorSpec({
             Then(
                 "the zaaktype aanvraag service is invoked and a 'no content' response is returned"
             ) {
-                response.status shouldBe 204
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
+                    zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri)
+                }
+            }
+        }
+    }
+    Given(
+        "A request without a authorization header and a zaaktype update notificatie"
+    ) {
+        val zaaktypeUUID = UUID.randomUUID()
+        val zaaktypeUri = URI("http://example.com/dummyzaaktype/$zaaktypeUUID")
+        val notificatie = createNotificatie(
+            resource = Resource.ZAAKTYPE,
+            resourceUrl = zaaktypeUri,
+            action = Action.UPDATE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns null
+
+        When("notificatieReceive is called with the zaaktype create notificatie") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            Then(
+                "a 'forbidden' response is returned"
+            ) {
+                response.status shouldBe Response.Status.FORBIDDEN.statusCode
+                verify(exactly = 0) {
                     zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri)
                 }
             }

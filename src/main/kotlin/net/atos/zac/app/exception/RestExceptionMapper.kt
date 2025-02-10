@@ -37,7 +37,6 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_DRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_FORBIDDEN
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_KLANTINTERACTIES_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_OBJECTS_CLIENT
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_OBJECTTYPES_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_SERVER_GENERIC
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZTC_CLIENT
@@ -159,8 +158,6 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_DRC_CLIENT)
                 it.contains(ObjectsClientService::class.simpleName!!) ->
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_OBJECTS_CLIENT)
-                it.contains(ObjecttypesClientService::class.simpleName!!) ->
-                    generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_OBJECTTYPES_CLIENT)
                 it.contains(KlantClientService::class.simpleName!!) ->
                     generateServerErrorResponse(exception = exception, errorCode = ERROR_CODE_KLANTINTERACTIES_CLIENT)
                 it.contains(ZrcClientService::class.simpleName!!) ->
