@@ -121,7 +121,6 @@ public class ZrcClientService {
      * @return Created {@link Zaakobject}.
      */
     public Zaakobject createZaakobject(final Zaakobject zaakobject) {
-        log.info("XXXXX Creating Zaakobject: {}", zaakobject);
         return zrcClient.zaakobjectCreate(zaakobject);
     }
 
@@ -302,7 +301,6 @@ public class ZrcClientService {
      * @return List of {@link Zaakobject} instances.
      */
     public Results<Zaakobject> listZaakobjecten(final ZaakobjectListParameters zaakobjectListParameters) {
-        log.info("XXXXX Listing Zaakobjecten: {}", zaakobjectListParameters);
         return zrcClient.zaakobjectList(zaakobjectListParameters);
     }
 
