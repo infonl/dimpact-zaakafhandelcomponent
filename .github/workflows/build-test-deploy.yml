@@ -420,7 +420,13 @@ jobs:
 
       - name: Tag Docker Image with next version tag
         if: env.NEXT_VERSION != ''
-        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}
+        run: |
+          docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}
+          # Additionaly tag the image with '$major' and '$major.$minor' tags
+          MAJOR_VERSION=$(echo ${NEXT_VERSION} | cut -d '.' -f 1)
+          MINOR_VERSION=$(echo ${NEXT_VERSION} | cut -d '.' -f 2)
+          docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${MAJOR_VERSION}
+          docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${MAJOR_VERSION}.${MINOR_VERSION}
 
       - name: Push Docker Image with all tags
         run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}
