@@ -45,9 +45,10 @@ import net.atos.client.zgw.zrc.util.StatusTypeUtil
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.extensions.isNuGeldig
 import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_ID
+import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_REASON
 import net.atos.zac.admin.model.ZaakAfzender.Speciaal
 import net.atos.zac.admin.model.ZaakafhandelParameters
-import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
 import net.atos.zac.app.admin.model.RESTZaakAfzender
 import net.atos.zac.app.bag.converter.RestBagConverter
@@ -622,17 +623,28 @@ class ZaakRestService @Inject constructor(
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
             zaak.zaaktype.extractUuid()
         )
-        val zaakbeeindigParameter: ZaakbeeindigParameter = zaakafhandelParameters.readZaakbeeindigParameter(
-            afbrekenGegevens.zaakbeeindigRedenId
-        )
-        zgwApiService.createResultaatForZaak(
-            zaak,
-            zaakbeeindigParameter.resultaattype,
-            zaakbeeindigParameter.zaakbeeindigReden.naam
-        )
-        zgwApiService.endZaak(zaak, zaakbeeindigParameter.zaakbeeindigReden.naam)
+        if (afbrekenGegevens.zaakbeeindigRedenId == INADMISSIBLE_TERMINATION_ID) {
+            // Use the hardcoded "niet ontvankelijk" zaakbeeindigreden that we don't manage via ZaakafhandelParameters
+            zaakAfbreken(zaak, zaakafhandelParameters.nietOntvankelijkResultaattype, INADMISSIBLE_TERMINATION_REASON)
+        } else {
+            afbrekenGegevens.zaakbeeindigRedenId.toLong().let { zaakbeeindigRedenId ->
+                zaakafhandelParameters.readZaakbeeindigParameter(zaakbeeindigRedenId).let {
+                    zaakAfbreken(zaak, it.resultaattype, it.zaakbeeindigReden.naam)
+                }
+            }
+        }
+
         // Terminate case after the zaak is ended in order to prevent the EndCaseLifecycleListener from ending the zaak.
         cmmnService.terminateCase(zaakUUID)
+    }
+
+    private fun zaakAfbreken(
+        zaak: Zaak,
+        resultaattype: UUID,
+        zaakbeeindigRedenNaam: String
+    ) {
+        zgwApiService.createResultaatForZaak(zaak, resultaattype, zaakbeeindigRedenNaam)
+        zgwApiService.endZaak(zaak, zaakbeeindigRedenNaam)
     }
 
     @PATCH

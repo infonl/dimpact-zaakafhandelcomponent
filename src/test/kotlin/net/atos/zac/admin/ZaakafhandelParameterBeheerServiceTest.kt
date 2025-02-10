@@ -234,6 +234,7 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
         every { ztcClientService.clearZaaktypeCache() } returns "Cache cleared"
         every { ztcClientService.readZaaktype(zaaktypeUri) } returns zaakType
         every { ztcClientService.readResultaattype(any<URI>()) } returns createResultaatType()
+        every { ztcClientService.readResultaattype(any<UUID>()) } returns createResultaatType()
 
         // Relaxed entity manager mocking; criteria queries and persisting
         val criteriaQuery = mockk<CriteriaQuery<ZaakafhandelParameters>>(relaxed = true)

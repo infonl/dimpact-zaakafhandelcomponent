@@ -50,6 +50,9 @@ import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_ID
+import net.atos.zac.admin.model.ZaakbeeindigParameter
+import net.atos.zac.admin.model.ZaakbeeindigReden
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.app.decision.DecisionService
 import net.atos.zac.app.zaak.ZaakRestService.Companion.AANVULLENDE_INFORMATIE_TASK_NAME
@@ -58,6 +61,7 @@ import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
 import net.atos.zac.app.zaak.model.RESTReden
+import net.atos.zac.app.zaak.model.RESTZaakAfbrekenGegevens
 import net.atos.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestZaaktype
@@ -762,6 +766,99 @@ class ZaakRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.deleteRol(rolMedewerker, "dummy reason")
                 }
+            }
+        }
+    }
+
+    Given("A zaak and no managed zaakbeeindigreden") {
+        val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+        val zaakTypeUUID = zaakType.url.extractUuid()
+        val zaak = createZaak(zaakTypeURI = zaakType.url)
+        val zaakAfhandelParameters = createZaakafhandelParameters()
+
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechten(afbreken = true)
+        every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
+        every {
+            zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
+        } returns zaakAfhandelParameters
+        every {
+            zgwApiService.createResultaatForZaak(
+                zaak,
+                zaakAfhandelParameters.nietOntvankelijkResultaattype,
+                "Zaak is niet ontvankelijk"
+            )
+        } just runs
+        every { zgwApiService.endZaak(zaak, "Zaak is niet ontvankelijk") } just runs
+        every { cmmnService.terminateCase(zaak.uuid) } just runs
+
+        When("aborted with the hardcoded 'niet ontvankelijk' zaakbeeindigreden") {
+            zaakRestService.afbreken(
+                zaak.uuid,
+                RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)
+            )
+
+            Then("it is ended with result") {
+                verify(exactly = 1) {
+                    zgwApiService.createResultaatForZaak(
+                        zaak,
+                        zaakAfhandelParameters.nietOntvankelijkResultaattype,
+                        "Zaak is niet ontvankelijk"
+                    )
+                    zgwApiService.endZaak(zaak, "Zaak is niet ontvankelijk")
+                    cmmnService.terminateCase(zaak.uuid)
+                }
+            }
+        }
+    }
+
+    Given("A zaak and managed zaakbeeindigreden") {
+        val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+        val zaakTypeUUID = zaakType.url.extractUuid()
+        val zaak = createZaak(zaakTypeURI = zaakType.url)
+        val resultTypeUUID = UUID.randomUUID()
+        val zaakAfhandelParameters = createZaakafhandelParameters(
+            zaakbeeindigParameters = setOf(
+                ZaakbeeindigParameter().apply {
+                    id = 123
+                    resultaattype = resultTypeUUID
+                    zaakbeeindigReden = ZaakbeeindigReden().apply {
+                        id = -2
+                        naam = "-2 name"
+                    }
+                }
+            )
+        )
+
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechten(afbreken = true)
+        every { zaakService.checkZaakAfsluitbaar(zaak) } just runs
+        every {
+            zaakafhandelParameterService.readZaakafhandelParameters(zaakTypeUUID)
+        } returns zaakAfhandelParameters
+        every { zgwApiService.createResultaatForZaak(zaak, resultTypeUUID, "-2 name") } just runs
+        every { zgwApiService.endZaak(zaak, "-2 name") } just runs
+        every { cmmnService.terminateCase(zaak.uuid) } just runs
+
+        When("aborted with managed zaakbeeindigreden") {
+            zaakRestService.afbreken(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = "-2"))
+
+            Then("it is ended with result") {
+                verify(exactly = 1) {
+                    zgwApiService.createResultaatForZaak(zaak, resultTypeUUID, "-2 name")
+                    zgwApiService.endZaak(zaak, "-2 name")
+                    cmmnService.terminateCase(zaak.uuid)
+                }
+            }
+        }
+
+        When("aborted with invalid zaakbeeindigreden id") {
+            val exception = shouldThrow<IllegalArgumentException> {
+                zaakRestService.afbreken(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = "not a number"))
+            }
+
+            Then("it throws an error") {
+                exception.message shouldBe "For input string: \"not a number\""
             }
         }
     }

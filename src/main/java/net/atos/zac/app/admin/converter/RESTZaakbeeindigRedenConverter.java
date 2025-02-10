@@ -15,7 +15,7 @@ public final class RESTZaakbeeindigRedenConverter {
 
     public static RESTZaakbeeindigReden convertZaakbeeindigReden(final ZaakbeeindigReden zaakbeeindigReden) {
         final RESTZaakbeeindigReden restZaakbeeindigReden = new RESTZaakbeeindigReden();
-        restZaakbeeindigReden.id = zaakbeeindigReden.getId();
+        restZaakbeeindigReden.id = zaakbeeindigReden.getId().toString();
         restZaakbeeindigReden.naam = zaakbeeindigReden.getNaam();
         return restZaakbeeindigReden;
     }
@@ -28,7 +28,7 @@ public final class RESTZaakbeeindigRedenConverter {
 
     public static ZaakbeeindigReden convertRESTZaakbeeindigReden(final RESTZaakbeeindigReden restZaakbeeindigReden) {
         final ZaakbeeindigReden zaakbeeindigReden = new ZaakbeeindigReden();
-        zaakbeeindigReden.setId(restZaakbeeindigReden.id);
+        zaakbeeindigReden.setId(Long.parseLong(restZaakbeeindigReden.id));
         zaakbeeindigReden.setNaam(restZaakbeeindigReden.naam);
         return zaakbeeindigReden;
     }
