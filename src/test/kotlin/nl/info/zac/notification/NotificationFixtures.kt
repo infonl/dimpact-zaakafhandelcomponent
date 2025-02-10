@@ -20,12 +20,12 @@ fun createNotificatie(
     action: Action = Action.CREATE,
     resourceUrl: URI = URI("http://example.com/dummyresourceurl"),
     mainResourceUrl: URI = resourceUrl
-) = Notification().apply {
-    this.channel = channel
-    this.creationDateTime = creationDateTime
-    this.properties = properties
-    this.resource = resource
-    this.action = action
-    this.resourceUrl = resourceUrl
-    this.mainResourceUrl = mainResourceUrl
-}
+) = Notification(
+    channel = channel,
+    creationDateTime = creationDateTime,
+    properties = properties,
+    resource = resource,
+    action = action,
+    resourceUrl = resourceUrl,
+    mainResourceUrl = mainResourceUrl
+)

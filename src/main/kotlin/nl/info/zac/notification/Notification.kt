@@ -4,36 +4,43 @@
  */
 package nl.info.zac.notification
 
+import jakarta.json.bind.annotation.JsonbDateFormat
 import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.json.bind.annotation.JsonbTransient
+import net.atos.client.zgw.shared.util.DateTimeUtil.DATE_TIME_FORMAT_WITH_MILLISECONDS
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.net.URI
 import java.time.ZonedDateTime
 
 /**
  * Notification as defined by the [ZGW Notificatie API](https://vng-realisatie.github.io/gemma-zaken/standaard/notificaties).
  */
-class Notification {
+@NoArgConstructor
+@AllOpen
+data class Notification(
     @set:JsonbProperty("kanaal")
-    lateinit var channel: Channel
+    var channel: Channel,
 
     @set:JsonbProperty("hoofdObject")
-    lateinit var mainResourceUrl: URI
+    var mainResourceUrl: URI,
 
     @set:JsonbProperty("resource")
-    lateinit var resource: Resource
+    var resource: Resource,
 
     @set:JsonbProperty("resourceUrl")
-    lateinit var resourceUrl: URI
+    var resourceUrl: URI,
 
     @set:JsonbProperty("actie")
-    lateinit var action: Action
+    var action: Action,
 
     @set:JsonbProperty("aanmaakdatum")
-    lateinit var creationDateTime: ZonedDateTime
+    @JsonbDateFormat(DATE_TIME_FORMAT_WITH_MILLISECONDS)
+    var creationDateTime: ZonedDateTime,
 
     @set:JsonbProperty("kenmerken")
-    var properties = mutableMapOf<String, String>()
-
+    var properties: MutableMap<String, String>? = null
+) {
     @JsonbTransient
     fun getResourceInfo() = ResourceInfo(
         this.resource,
@@ -54,8 +61,6 @@ class Notification {
             Action.UPDATE
         }
     )
-
-    override fun toString() = "$channel, $resource, $action, $creationDateTime"
 
     /**
      * Use this for the actually modified resource

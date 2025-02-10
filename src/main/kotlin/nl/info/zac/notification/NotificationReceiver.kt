@@ -80,7 +80,7 @@ class NotificationReceiver @Inject constructor(
     private fun isAuthenticated(headers: HttpHeaders) = secret == headers.getHeaderString(HttpHeaders.AUTHORIZATION)
 
     private fun handleProductaanvraag(notification: Notification) {
-        val objecttypeUri = notification.properties[OBJECTTYPE_KENMERK]
+        val objecttypeUri = notification.properties?.let { it[OBJECTTYPE_KENMERK] }
         // only attempt to handle productaanvraag if the notification resource is an object with 'CREATE' action
         // and has an object type defined
         if (notification.resource == Resource.OBJECT && notification.action == Action.CREATE && objecttypeUri?.isNotEmpty() == true) {
