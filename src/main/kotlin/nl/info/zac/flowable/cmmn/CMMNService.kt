@@ -142,33 +142,23 @@ class CMMNService @Inject constructor(
             .start()
 
     fun readOpenPlanItem(planItemInstanceId: String): PlanItemInstance {
-        val planItemInstance = cmmnRuntimeService.createPlanItemInstanceQuery()
+        return cmmnRuntimeService.createPlanItemInstanceQuery()
             .planItemInstanceId(planItemInstanceId)
-            .singleResult()
-        if (planItemInstance != null) {
-            return planItemInstance
-        } else {
-            throw OpenTaskItemNotFoundException(
-                "No open plan item found with plan item instance id '$planItemInstanceId'"
-            )
-        }
+            .singleResult() ?: throw OpenTaskItemNotFoundException(
+            "No open plan item found with plan item instance id '$planItemInstanceId'"
+        )
     }
 
     fun listCaseDefinitions(): MutableList<CaseDefinition> =
         cmmnRepositoryService.createCaseDefinitionQuery().latestVersion().list()
 
     fun readCaseDefinition(caseDefinitionKey: String): CaseDefinition {
-        val caseDefinition = cmmnRepositoryService.createCaseDefinitionQuery()
+        return cmmnRepositoryService.createCaseDefinitionQuery()
             .caseDefinitionKey(caseDefinitionKey)
             .latestVersion()
-            .singleResult()
-        if (caseDefinition != null) {
-            return caseDefinition
-        } else {
-            throw CaseDefinitionNotFoundException(
-                "No case definition found for case definition key: '%$caseDefinitionKey'"
-            )
-        }
+            .singleResult() ?: throw CaseDefinitionNotFoundException(
+            "No case definition found for case definition key: '%$caseDefinitionKey'"
+        )
     }
 
     fun listUserEventListeners(caseDefinitionKey: String): MutableList<UserEventListener> =
