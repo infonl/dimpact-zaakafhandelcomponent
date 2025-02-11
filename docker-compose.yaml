@@ -603,7 +603,6 @@ services:
       - CSRF_COOKIE_SECURE=False
       - SESSION_COOKIE_SAMESITE=Lax
       - SESSION_COOKIE_SECURE=False
-      - DISABLE_2FA=yes
       - TWO_FACTOR_FORCE_OTP_ADMIN=False
       - TWO_FACTOR_PATCH_ADMIN=False
       - CELERY_BROKER_URL=redis://redis:6379/0
@@ -631,9 +630,6 @@ services:
         condition: service_started
     profiles: [ "openarchiefbeheer" ]
 
-  # TODO: the configuration does not result in properly working OIDC
-  # The backchannel needs a hostname resolvable in the docker network but the
-  # frontchannel needs a hostname resolvable on the host.
   openarchiefbeheer-web-init:
     image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
     environment: *web_env
