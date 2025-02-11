@@ -12,11 +12,8 @@ import jakarta.ws.rs.core.MultivaluedMap;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
 
-/**
- *
- */
-public class ObjecttypesClientHeadersFactory implements ClientHeadersFactory {
 
+public class ObjecttypesClientHeadersFactory implements ClientHeadersFactory {
     private static final String TOKEN = ConfigProvider.getConfig().getValue("objecttypes.api.token", String.class);
 
     @Override

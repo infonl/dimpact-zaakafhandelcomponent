@@ -15,10 +15,10 @@ import org.flowable.task.api.TaskInfo;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.identity.model.User;
-import net.atos.zac.notificaties.Action;
-import net.atos.zac.notificaties.Channel;
-import net.atos.zac.notificaties.Notificatie;
 import net.atos.zac.signalering.model.SignaleringType;
+import nl.info.zac.notification.Action;
+import nl.info.zac.notification.Channel;
+import nl.info.zac.notification.Notification;
 
 /**
  * There is no SignaleringEventType. {@link SignaleringType} is used for that instead (i.e. the Type enum in it).
@@ -62,8 +62,8 @@ public class SignaleringEventUtil {
 
     private static SignaleringEvent<URI> event(
             final SignaleringType.Type signaleringType,
-            final Notificatie.ResourceInfo resource,
-            final Notificatie.ResourceInfo detail
+            final Notification.ResourceInfo resource,
+            final Notification.ResourceInfo detail
     ) {
         // There is no actor information in notifications
         return instance(signaleringType, resource.getUrl(), detail != null ? detail.getUrl() : null, null);
@@ -73,14 +73,14 @@ public class SignaleringEventUtil {
      * This is the mapping.
      *
      * @param channel      the channel the notification came in on
-     * @param mainResource the involved main resource (may be equal to the resource)
+     * @param mainResource the involved main resource (maybe equal to the resource)
      * @param resource     the actually modified resource
      * @return the set of events that the parameters map to
      */
     public static Set<SignaleringEvent<URI>> getEvents(
             final Channel channel,
-            final Notificatie.ResourceInfo mainResource,
-            final Notificatie.ResourceInfo resource
+            final Notification.ResourceInfo mainResource,
+            final Notification.ResourceInfo resource
     ) {
         final Set<SignaleringEvent<URI>> events = new HashSet<>();
         if (Objects.requireNonNull(channel) == Channel.ZAKEN) {

@@ -76,6 +76,7 @@ import net.atos.zac.app.zaak.model.createRestZaak
 import net.atos.zac.app.zaak.model.createRestZaakLinkData
 import net.atos.zac.app.zaak.model.createRestZaakLocatieGegevens
 import net.atos.zac.app.zaak.model.createRestZaakUnlinkData
+import net.atos.zac.app.zaak.model.createRestZaaktype
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
@@ -86,6 +87,7 @@ import net.atos.zac.flowable.bpmn.BPMNService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.healthcheck.HealthCheckService
+import net.atos.zac.healthcheck.createZaaktypeInrichtingscheck
 import net.atos.zac.history.ZaakHistoryService
 import net.atos.zac.history.converter.ZaakHistoryLineConverter
 import net.atos.zac.identity.IdentityService
@@ -108,6 +110,8 @@ import net.atos.zac.zoeken.IndexingService
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import nl.info.zac.test.date.toDate
 import org.flowable.task.api.Task
+import java.net.URI
+import java.time.LocalDate
 import java.util.UUID
 
 @Suppress("LongParameterList", "LargeClass")
@@ -859,6 +863,74 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             Then("it throws an error") {
                 exception.message shouldBe "For input string: \"not a number\""
+            }
+        }
+    }
+
+    Given(
+        """
+        Existing zaaktypes in the configured catalogue for which the logged in user is authorised
+        and which are valid on the current date
+        """
+    ) {
+        val defaultCatalogueURI = URI("http://example.com/dummyCatalogue")
+        val now = LocalDate.now()
+        val zaaktypes = listOf(
+            createZaakType(
+                omschrijving = "Zaaktype 1",
+                identification = "ZAAKTYPE1",
+                beginGeldigheid = now.minusDays(1)
+            ),
+            createZaakType(
+                omschrijving = "Zaaktype 2",
+                identification = "ZAAKTYPE2",
+                beginGeldigheid = now.minusDays(2),
+                eindeGeldigheid = now.plusDays(1)
+            )
+        )
+        val restZaaktypes = listOf(createRestZaaktype(), createRestZaaktype())
+        val loggedInUser = createLoggedInUser(
+            zaakTypes = zaaktypes.map { it.omschrijving }.toSet()
+        )
+        val zaaktypeInrichtingscheck = createZaaktypeInrichtingscheck()
+        every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogueURI
+        every { configuratieService.featureFlagBpmnSupport() } returns false
+        every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
+        every { loggedInUserInstance.get() } returns loggedInUser
+        zaaktypes.forEach {
+            every { healthCheckService.controleerZaaktype(it.url) } returns zaaktypeInrichtingscheck
+            every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
+        }
+
+        When("the zaaktypes are requested") {
+            val returnedRestZaaktypes = zaakRestService.listZaaktypes()
+
+            Then("the zaaktypes are returned for which the user is authorised") {
+                verify(exactly = 1) {
+                    ztcClientService.listZaaktypen(defaultCatalogueURI)
+                }
+                returnedRestZaaktypes shouldHaveSize 2
+                returnedRestZaaktypes shouldBe restZaaktypes
+            }
+        }
+    }
+    Given("Rest zaak data") {
+        val restZaakUpdate = createRestZaak()
+        val zaak = createZaak()
+        val zaakdataMap = slot<Map<String, Any>>()
+        every { zrcClientService.readZaak(restZaakUpdate.uuid) } returns zaak
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
+        every { zaakVariabelenService.setZaakdata(restZaakUpdate.uuid, capture(zaakdataMap)) } just runs
+
+        When("the zaakdata is requested to be updated") {
+            val updatedRestZaak = zaakRestService.updateZaakdata(restZaakUpdate)
+
+            Then("the zaakdata is correctly updated") {
+                verify(exactly = 1) {
+                    zaakVariabelenService.setZaakdata(restZaakUpdate.uuid, any())
+                }
+                updatedRestZaak shouldBe restZaakUpdate
+                zaakdataMap.captured shouldBe restZaakUpdate.zaakdata
             }
         }
     }
