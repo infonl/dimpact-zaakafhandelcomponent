@@ -2,130 +2,90 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.flowable.cmmn
 
-package net.atos.zac.flowable.cmmn;
-
-import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
-import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING;
-import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_UUUID;
-import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE;
-import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID;
-import static net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.VAR_TRANSIENT_ASSIGNEE;
-import static net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.VAR_TRANSIENT_CANDIDATE_GROUP;
-import static net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.VAR_TRANSIENT_DESCRIPTION;
-import static net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.VAR_TRANSIENT_DUE_DATE;
-import static net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.VAR_TRANSIENT_OWNER;
-import static net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.VAR_TRANSIENT_TAAKDATA;
-import static net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.VAR_TRANSIENT_ZAAK_UUID;
-import static net.atos.zac.flowable.task.CreateUserTaskInterceptor.VAR_PROCESS_OWNER;
-import static org.flowable.cmmn.api.runtime.PlanItemDefinitionType.HUMAN_TASK;
-import static org.flowable.cmmn.api.runtime.PlanItemDefinitionType.PROCESS_TASK;
-import static org.flowable.cmmn.api.runtime.PlanItemDefinitionType.USER_EVENT_LISTENER;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.logging.Logger;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
-
-import org.flowable.cmmn.api.CmmnRepositoryService;
-import org.flowable.cmmn.api.CmmnRuntimeService;
-import org.flowable.cmmn.api.repository.CaseDefinition;
-import org.flowable.cmmn.api.runtime.CaseInstance;
-import org.flowable.cmmn.api.runtime.CaseInstanceBuilder;
-import org.flowable.cmmn.api.runtime.PlanItemInstance;
-import org.flowable.cmmn.model.HumanTask;
-import org.flowable.cmmn.model.UserEventListener;
-import org.flowable.common.engine.api.FlowableObjectNotFoundException;
-
-import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.ztc.model.generated.ZaakType;
-import net.atos.zac.admin.model.ZaakafhandelParameters;
-import net.atos.zac.authentication.LoggedInUser;
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.inject.Instance
+import jakarta.inject.Inject
+import jakarta.transaction.Transactional
+import net.atos.client.zgw.util.extractUuid
+import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.client.zgw.ztc.model.generated.ZaakType
+import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.authentication.LoggedInUser
+import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.task.CreateUserTaskInterceptor
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
+import org.flowable.cmmn.api.CmmnRepositoryService
+import org.flowable.cmmn.api.CmmnRuntimeService
+import org.flowable.cmmn.api.repository.CaseDefinition
+import org.flowable.cmmn.api.runtime.PlanItemDefinitionType
+import org.flowable.cmmn.api.runtime.PlanItemInstance
+import org.flowable.cmmn.model.HumanTask
+import org.flowable.cmmn.model.UserEventListener
+import org.flowable.common.engine.api.FlowableObjectNotFoundException
+import java.util.Date
+import java.util.UUID
+import java.util.logging.Logger
 
 @ApplicationScoped
 @Transactional
-public class CMMNService {
-    private static final Logger LOG = Logger.getLogger(CMMNService.class.getName());
-
-    private CmmnRuntimeService cmmnRuntimeService;
-    private CmmnRepositoryService cmmnRepositoryService;
-    private Instance<LoggedInUser> loggedInUserInstance;
-
-    /**
-     * Default no-arg constructor, required by Weld.
-     */
-    public CMMNService() {
+@AllOpen
+@NoArgConstructor
+@Suppress("TooManyFunctions")
+class CMMNService @Inject constructor(
+    private val cmmnRuntimeService: CmmnRuntimeService,
+    private val cmmnRepositoryService: CmmnRepositoryService,
+    private val loggedInUserInstance: Instance<LoggedInUser>
+) {
+    companion object {
+        private val LOG = Logger.getLogger(CMMNService::class.java.getName())
     }
 
-    @Inject
-    public CMMNService(
-            CmmnRuntimeService cmmnRuntimeService,
-            CmmnRepositoryService cmmnRepositoryService,
-            Instance<LoggedInUser> loggedInUserInstance
+    fun listHumanTaskPlanItems(zaakUUID: UUID): MutableList<PlanItemInstance> =
+        cmmnRuntimeService.createPlanItemInstanceQuery()
+            .caseVariableValueEquals(ZaakVariabelenService.VAR_ZAAK_UUID, zaakUUID)
+            .planItemInstanceStateEnabled()
+            .planItemDefinitionType(PlanItemDefinitionType.HUMAN_TASK)
+            .list()
+
+    fun listProcessTaskPlanItems(zaakUUID: UUID): MutableList<PlanItemInstance> =
+        cmmnRuntimeService.createPlanItemInstanceQuery()
+            .caseVariableValueEquals(ZaakVariabelenService.VAR_ZAAK_UUID, zaakUUID)
+            .planItemInstanceStateEnabled()
+            .planItemDefinitionType(PlanItemDefinitionType.PROCESS_TASK)
+            .list()
+
+    fun listUserEventListenerPlanItems(zaakUUID: UUID): List<PlanItemInstance> =
+        cmmnRuntimeService.createPlanItemInstanceQuery()
+            .caseVariableValueEquals(ZaakVariabelenService.VAR_ZAAK_UUID, zaakUUID)
+            .planItemInstanceStateAvailable()
+            .planItemDefinitionType(PlanItemDefinitionType.USER_EVENT_LISTENER)
+            .list()
+
+    fun startCase(
+        zaak: Zaak,
+        zaaktype: ZaakType,
+        zaakafhandelParameters: ZaakafhandelParameters,
+        zaakData: Map<String, Any>?
     ) {
-        this.cmmnRuntimeService = cmmnRuntimeService;
-        this.cmmnRepositoryService = cmmnRepositoryService;
-        this.loggedInUserInstance = loggedInUserInstance;
-    }
-
-    public List<PlanItemInstance> listHumanTaskPlanItems(final UUID zaakUUID) {
-        return cmmnRuntimeService.createPlanItemInstanceQuery()
-                .caseVariableValueEquals(VAR_ZAAK_UUID, zaakUUID)
-                .planItemInstanceStateEnabled()
-                .planItemDefinitionType(HUMAN_TASK)
-                .list();
-    }
-
-    public List<PlanItemInstance> listProcessTaskPlanItems(final UUID zaakUUID) {
-        return cmmnRuntimeService.createPlanItemInstanceQuery()
-                .caseVariableValueEquals(VAR_ZAAK_UUID, zaakUUID)
-                .planItemInstanceStateEnabled()
-                .planItemDefinitionType(PROCESS_TASK)
-                .list();
-    }
-
-    public List<PlanItemInstance> listUserEventListenerPlanItems(final UUID zaakUUID) {
-        return cmmnRuntimeService.createPlanItemInstanceQuery()
-                .caseVariableValueEquals(VAR_ZAAK_UUID, zaakUUID)
-                .planItemInstanceStateAvailable()
-                .planItemDefinitionType(USER_EVENT_LISTENER)
-                .list();
-    }
-
-    public void startCase(
-            final Zaak zaak,
-            final ZaakType zaaktype,
-            final ZaakafhandelParameters zaakafhandelParameters,
-            final Map<String, Object> zaakData
-    ) {
-        final String caseDefinitionKey = zaakafhandelParameters.getCaseDefinitionID();
-        LOG.info(() -> String.format("Starting zaak '%s' using CMMN model '%s'", zaak.getUuid(), caseDefinitionKey));
+        val caseDefinitionKey = zaakafhandelParameters.getCaseDefinitionID()
+        LOG.info("Starting zaak '${zaak.uuid}' using CMMN model '$caseDefinitionKey'")
         try {
-            final CaseInstanceBuilder caseInstanceBuilder = cmmnRuntimeService.createCaseInstanceBuilder()
-                    .caseDefinitionKey(caseDefinitionKey)
-                    .businessKey(zaak.getUuid().toString())
-                    .variable(VAR_ZAAK_UUID, zaak.getUuid())
-                    .variable(VAR_ZAAK_IDENTIFICATIE, zaak.getIdentificatie())
-                    .variable(VAR_ZAAKTYPE_UUUID, extractUuid(zaaktype.getUrl()))
-                    .variable(VAR_ZAAKTYPE_OMSCHRIJVING, zaaktype.getOmschrijving());
-            if (zaakData != null) {
-                caseInstanceBuilder.variables(zaakData);
-            }
-            caseInstanceBuilder.start();
-        } catch (final FlowableObjectNotFoundException flowableObjectNotFoundException) {
+            val caseInstanceBuilder = cmmnRuntimeService.createCaseInstanceBuilder()
+                .caseDefinitionKey(caseDefinitionKey)
+                .businessKey(zaak.uuid.toString())
+                .variable(ZaakVariabelenService.VAR_ZAAK_UUID, zaak.uuid)
+                .variable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE, zaak.identificatie)
+                .variable(ZaakVariabelenService.VAR_ZAAKTYPE_UUUID, zaaktype.url.extractUuid())
+                .variable(ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING, zaaktype.omschrijving)
+            zaakData?.let(caseInstanceBuilder::variables)
+            caseInstanceBuilder.start()
+        } catch (_: FlowableObjectNotFoundException) {
             LOG.severe(
-                    String.format(
-                            "CMMN model '%s' for zaak '%s' could not be found. Zaak is not started.",
-                            caseDefinitionKey,
-                            zaak.getUuid()
-                    )
-            );
+                "CMMN model '$caseDefinitionKey' for zaak '${zaak.uuid}' could not be found. Zaak is not started.",
+            )
         }
     }
 
@@ -136,86 +96,82 @@ public class CMMNService {
      *
      * @param zaakUUID UUID of the zaak for which the case should be terminated.
      */
-    public void terminateCase(final UUID zaakUUID) {
-        final CaseInstance caseInstance = cmmnRuntimeService.createCaseInstanceQuery()
-                .variableValueEquals(VAR_ZAAK_UUID, zaakUUID)
-                .singleResult();
-        if (caseInstance != null) {
-            cmmnRuntimeService.terminateCaseInstance(caseInstance.getId());
-        }
-    }
+    fun terminateCase(zaakUUID: UUID) =
+        cmmnRuntimeService.createCaseInstanceQuery()
+            .variableValueEquals(ZaakVariabelenService.VAR_ZAAK_UUID, zaakUUID)
+            .singleResult()?.let {
+                cmmnRuntimeService.terminateCaseInstance(it.id)
+            }
 
-    public void startHumanTaskPlanItem(
-            final String planItemInstanceId,
-            final String groupId,
-            final String assignee,
-            final Date dueDate,
-            final String description,
-            final Map<String, String> taakdata,
-            final UUID zaakUUID
+    @Suppress("LongParameterList")
+    fun startHumanTaskPlanItem(
+        planItemInstanceId: String?,
+        groupId: String,
+        assignee: String?,
+        dueDate: Date?,
+        description: String?,
+        taakdata: Map<String, String>?,
+        zaakUUID: UUID
     ) {
         cmmnRuntimeService.createPlanItemInstanceTransitionBuilder(planItemInstanceId)
-                .transientVariable(VAR_TRANSIENT_OWNER, loggedInUserInstance.get().getId())
-                .transientVariable(VAR_TRANSIENT_CANDIDATE_GROUP, groupId)
-                .transientVariable(VAR_TRANSIENT_ASSIGNEE, assignee)
-                .transientVariable(VAR_TRANSIENT_ZAAK_UUID, zaakUUID)
-                .transientVariable(VAR_TRANSIENT_DUE_DATE, dueDate)
-                .transientVariable(VAR_TRANSIENT_DESCRIPTION, description)
-                .transientVariable(VAR_TRANSIENT_TAAKDATA, taakdata)
-                .start();
+            .transientVariable(
+                ZacCreateHumanTaskInterceptor.Companion.VAR_TRANSIENT_OWNER,
+                loggedInUserInstance.get().id
+            )
+            .transientVariable(ZacCreateHumanTaskInterceptor.Companion.VAR_TRANSIENT_CANDIDATE_GROUP, groupId)
+            .transientVariable(ZacCreateHumanTaskInterceptor.Companion.VAR_TRANSIENT_ASSIGNEE, assignee)
+            .transientVariable(ZacCreateHumanTaskInterceptor.Companion.VAR_TRANSIENT_ZAAK_UUID, zaakUUID)
+            .transientVariable(ZacCreateHumanTaskInterceptor.Companion.VAR_TRANSIENT_DUE_DATE, dueDate)
+            .transientVariable(ZacCreateHumanTaskInterceptor.Companion.VAR_TRANSIENT_DESCRIPTION, description)
+            .transientVariable(ZacCreateHumanTaskInterceptor.Companion.VAR_TRANSIENT_TAAKDATA, taakdata)
+            .start()
     }
 
-    public void startUserEventListenerPlanItem(final String planItemInstanceId) {
-        cmmnRuntimeService.triggerPlanItemInstance(planItemInstanceId);
-    }
+    fun startUserEventListenerPlanItem(planItemInstanceId: String) =
+        cmmnRuntimeService.triggerPlanItemInstance(planItemInstanceId)
 
-    public void startProcessTaskPlanItem(final String planItemInstanceId, final Map<String, Object> processData) {
+    fun startProcessTaskPlanItem(planItemInstanceId: String, processData: Map<String, Any>) =
         cmmnRuntimeService.createPlanItemInstanceTransitionBuilder(planItemInstanceId)
-                .childTaskVariables(
-                        cmmnRuntimeService.getVariables(readOpenPlanItem(planItemInstanceId).getCaseInstanceId()))
-                .childTaskVariables(processData)
-                .childTaskVariable(VAR_PROCESS_OWNER, loggedInUserInstance.get().getId())
-                .start();
-    }
+            .childTaskVariables(
+                cmmnRuntimeService.getVariables(readOpenPlanItem(planItemInstanceId).caseInstanceId)
+            )
+            .childTaskVariables(processData)
+            .childTaskVariable(CreateUserTaskInterceptor.VAR_PROCESS_OWNER, loggedInUserInstance.get().id)
+            .start()
 
-    public PlanItemInstance readOpenPlanItem(final String planItemInstanceId) {
-        final PlanItemInstance planItemInstance = cmmnRuntimeService.createPlanItemInstanceQuery()
-                .planItemInstanceId(planItemInstanceId)
-                .singleResult();
+    fun readOpenPlanItem(planItemInstanceId: String): PlanItemInstance {
+        val planItemInstance = cmmnRuntimeService.createPlanItemInstanceQuery()
+            .planItemInstanceId(planItemInstanceId)
+            .singleResult()
         if (planItemInstance != null) {
-            return planItemInstance;
+            return planItemInstance
         } else {
-            throw new RuntimeException(
-                    String.format("No open plan item found with plan item instance id '%s'", planItemInstanceId));
+            throw RuntimeException("No open plan item found with plan item instance id '$planItemInstanceId'")
         }
     }
 
-    public List<CaseDefinition> listCaseDefinitions() {
-        return cmmnRepositoryService.createCaseDefinitionQuery().latestVersion().list();
-    }
+    fun listCaseDefinitions(): MutableList<CaseDefinition> =
+        cmmnRepositoryService.createCaseDefinitionQuery().latestVersion().list()
 
-    public CaseDefinition readCaseDefinition(final String caseDefinitionKey) {
-        final CaseDefinition caseDefinition = cmmnRepositoryService.createCaseDefinitionQuery()
-                .caseDefinitionKey(caseDefinitionKey)
-                .latestVersion()
-                .singleResult();
+    fun readCaseDefinition(caseDefinitionKey: String): CaseDefinition {
+        val caseDefinition = cmmnRepositoryService.createCaseDefinitionQuery()
+            .caseDefinitionKey(caseDefinitionKey)
+            .latestVersion()
+            .singleResult()
         if (caseDefinition != null) {
-            return caseDefinition;
+            return caseDefinition
         } else {
-            throw new RuntimeException(
-                    String.format("No case definition found for case definition key: '%s'", caseDefinitionKey));
+            throw RuntimeException("No case definition found for case definition key: '%$caseDefinitionKey'")
         }
     }
 
-    public List<UserEventListener> listUserEventListeners(final String caseDefinitionKey) {
-        return cmmnRepositoryService.getCmmnModel(caseDefinitionKey)
-                .getPrimaryCase()
-                .findPlanItemDefinitionsOfType(UserEventListener.class);
-    }
+    fun listUserEventListeners(caseDefinitionKey: String): MutableList<UserEventListener> =
+        cmmnRepositoryService.getCmmnModel(caseDefinitionKey)
+            .primaryCase
+            .findPlanItemDefinitionsOfType<UserEventListener>(UserEventListener::class.java)
 
-    public List<HumanTask> listHumanTasks(final String caseDefinitionKey) {
-        return cmmnRepositoryService.getCmmnModel(caseDefinitionKey)
-                .getPrimaryCase()
-                .findPlanItemDefinitionsOfType(HumanTask.class);
-    }
+    fun listHumanTasks(caseDefinitionKey: String): MutableList<HumanTask> =
+        cmmnRepositoryService.getCmmnModel(caseDefinitionKey)
+            .primaryCase
+            .findPlanItemDefinitionsOfType<HumanTask?>(HumanTask::class.java)
 }

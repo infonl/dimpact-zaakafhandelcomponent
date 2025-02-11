@@ -2,59 +2,45 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.flowable.cmmn
 
-package net.atos.zac.flowable.cmmn;
+import net.atos.zac.flowable.FlowableHelper
+import org.flowable.cmmn.api.delegate.DelegatePlanItemInstance
+import org.flowable.cmmn.api.listener.PlanItemInstanceLifecycleListener
+import org.flowable.cmmn.api.runtime.PlanItemInstance
+import org.flowable.common.engine.api.delegate.Expression
+import java.util.logging.Logger
 
-import static java.lang.String.format;
-
-import java.util.UUID;
-import java.util.logging.Logger;
-
-import org.flowable.cmmn.api.delegate.DelegatePlanItemInstance;
-import org.flowable.cmmn.api.listener.PlanItemInstanceLifecycleListener;
-import org.flowable.cmmn.api.runtime.PlanItemInstance;
-import org.flowable.common.engine.api.delegate.Expression;
-
-import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.zac.flowable.FlowableHelper;
-
-
-public class UpdateZaakLifecycleListener implements PlanItemInstanceLifecycleListener {
-    private static final Logger LOG = Logger.getLogger(UpdateZaakLifecycleListener.class.getName());
-    private static final String STATUS_TOELICHTING = "Status gewijzigd";
-
-    private Expression statusExpression;
-
-    public void setStatus(final Expression status) {
-        statusExpression = status;
+class UpdateZaakLifecycleListener : PlanItemInstanceLifecycleListener {
+    companion object {
+        private val LOG = Logger.getLogger(UpdateZaakLifecycleListener::class.java.getName())
+        private const val STATUS_TOELICHTING = "Status gewijzigd"
     }
 
-    @Override
-    public String getSourceState() {
-        return null;
+    private var statusExpression: Expression? = null
+
+    fun setStatus(status: Expression) {
+        statusExpression = status
     }
 
-    @Override
-    public String getTargetState() {
-        return null;
-    }
+    override fun getSourceState() = null
 
-    @Override
-    public void stateChanged(
-            final DelegatePlanItemInstance planItemInstance,
-            final String oldState,
-            final String newState
+    override fun getTargetState() = null
+
+    override fun stateChanged(
+        planItemInstance: DelegatePlanItemInstance,
+        oldState: String,
+        newState: String?
     ) {
-        if (statusExpression != null) {
-            updateZaak(planItemInstance, statusExpression.getValue(planItemInstance).toString());
+        statusExpression?.let {
+            updateZaak(planItemInstance, it.getValue(planItemInstance).toString())
         }
     }
 
-    private void updateZaak(final PlanItemInstance planItemInstance, final String statustypeOmschrijving) {
-        final UUID zaakUUID = FlowableHelper.getInstance().getZaakVariabelenService().readZaakUUID(planItemInstance);
-        final Zaak zaak = FlowableHelper.getInstance().getZrcClientService().readZaak(zaakUUID);
-        LOG.info(format("Zaak %s: Change Status to '%s'", zaakUUID, statustypeOmschrijving));
-        FlowableHelper.getInstance().getZgwApiService()
-                .createStatusForZaak(zaak, statustypeOmschrijving, STATUS_TOELICHTING);
+    private fun updateZaak(planItemInstance: PlanItemInstance, statustypeOmschrijving: String) {
+        val zaakUUID = FlowableHelper.getInstance().zaakVariabelenService.readZaakUUID(planItemInstance)
+        val zaak = FlowableHelper.getInstance().zrcClientService.readZaak(zaakUUID)
+        LOG.info("Zaak '$zaakUUID': Change Status to '$statustypeOmschrijving'")
+        FlowableHelper.getInstance().zgwApiService.createStatusForZaak(zaak, statustypeOmschrijving, STATUS_TOELICHTING)
     }
 }

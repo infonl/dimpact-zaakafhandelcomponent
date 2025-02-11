@@ -794,7 +794,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             )
         } just runs
         every { zgwApiService.endZaak(zaak, "Zaak is niet ontvankelijk") } just runs
-        every { cmmnService.terminateCase(zaak.uuid) } just runs
+        every { cmmnService.terminateCase(zaak.uuid) } returns Unit
 
         When("aborted with the hardcoded 'niet ontvankelijk' zaakbeeindigreden") {
             zaakRestService.afbreken(
@@ -842,7 +842,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         } returns zaakAfhandelParameters
         every { zgwApiService.createResultaatForZaak(zaak, resultTypeUUID, "-2 name") } just runs
         every { zgwApiService.endZaak(zaak, "-2 name") } just runs
-        every { cmmnService.terminateCase(zaak.uuid) } just runs
+        every { cmmnService.terminateCase(zaak.uuid) } returns Unit
 
         When("aborted with managed zaakbeeindigreden") {
             zaakRestService.afbreken(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = "-2"))

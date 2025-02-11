@@ -2,28 +2,18 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.flowable.cmmn
 
-package net.atos.zac.flowable.cmmn;
+import net.atos.zac.flowable.processengine.ProcessEngineLookupImpl
+import org.flowable.cdi.spi.CmmnEngineLookup
+import org.flowable.cmmn.engine.CmmnEngine
 
-import org.flowable.cdi.spi.CmmnEngineLookup;
-import org.flowable.cmmn.engine.CmmnEngine;
+class CmmnEngineLookupImpl : CmmnEngineLookup {
+    override fun getPrecedence() = 0
 
-import net.atos.zac.flowable.processengine.ProcessEngineLookupImpl;
+    override fun getCmmnEngine(): CmmnEngine = ProcessEngineLookupImpl.getCmmnEngineConfiguration().buildCmmnEngine()
 
-public class CmmnEngineLookupImpl implements CmmnEngineLookup {
-
-    @Override
-    public int getPrecedence() {
-        return 0;
-    }
-
-    @Override
-    public CmmnEngine getCmmnEngine() {
-        return ProcessEngineLookupImpl.getCmmnEngineConfiguration().buildCmmnEngine();
-    }
-
-    @Override
-    public void ungetCmmnEngine() {
-        // Geen actie nodig.
+    override fun ungetCmmnEngine() {
+        // no-op
     }
 }

@@ -2,51 +2,29 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.flowable.cmmn
 
-package net.atos.zac.flowable.cmmn;
+import net.atos.zac.flowable.FlowableHelper
+import org.flowable.cmmn.api.listener.CaseInstanceLifecycleListener
+import org.flowable.cmmn.api.runtime.CaseInstance
+import java.util.UUID
+import java.util.logging.Logger
 
-import static java.lang.String.format;
-
-import java.util.UUID;
-import java.util.logging.Logger;
-
-import org.flowable.cmmn.api.listener.CaseInstanceLifecycleListener;
-import org.flowable.cmmn.api.runtime.CaseInstance;
-
-import net.atos.zac.flowable.FlowableHelper;
-
-
-public class EndCaseLifecycleListener implements CaseInstanceLifecycleListener {
-
-    private static final Logger LOG = Logger.getLogger(EndCaseLifecycleListener.class.getName());
-
-    private static final String EINDSTATUS_TOELICHTING = "Zaak beeindigd";
-
-    private final String sourceState;
-
-    private final String targetState;
-
-    public EndCaseLifecycleListener(final String sourceState, final String targetState) {
-        this.sourceState = sourceState;
-        this.targetState = targetState;
+class EndCaseLifecycleListener(private val sourceState: String, private val targetState: String) : CaseInstanceLifecycleListener {
+    companion object {
+        private val LOG = Logger.getLogger(EndCaseLifecycleListener::class.java.getName())
+        private const val EINDSTATUS_TOELICHTING = "Zaak beeindigd"
     }
 
-    @Override
-    public String getSourceState() {
-        return sourceState;
-    }
+    override fun getSourceState() = sourceState
 
-    @Override
-    public String getTargetState() {
-        return targetState;
-    }
+    override fun getTargetState() = targetState
 
-    @Override
-    public void stateChanged(final CaseInstance caseInstance, final String oldState, final String newState) {
-        final UUID zaakUUID = UUID.fromString(caseInstance.getBusinessKey());
-        if (FlowableHelper.getInstance().getZrcClientService().readZaak(zaakUUID).isOpen()) {
-            LOG.info(format("Zaak %s: End Zaak", caseInstance.getBusinessKey()));
-            FlowableHelper.getInstance().getZgwApiService().endZaak(zaakUUID, EINDSTATUS_TOELICHTING);
+    override fun stateChanged(caseInstance: CaseInstance, oldState: String, newState: String) {
+        val zaakUUID = UUID.fromString(caseInstance.businessKey)
+        if (FlowableHelper.getInstance().zrcClientService.readZaak(zaakUUID).isOpen) {
+            LOG.info("Zaak %${caseInstance.businessKey}: End Zaak")
+            FlowableHelper.getInstance().zgwApiService.endZaak(zaakUUID, EINDSTATUS_TOELICHTING)
         }
     }
 }

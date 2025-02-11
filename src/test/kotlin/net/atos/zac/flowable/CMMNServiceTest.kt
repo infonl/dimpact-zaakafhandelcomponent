@@ -17,7 +17,6 @@ import org.flowable.cmmn.api.CmmnRepositoryService
 import org.flowable.cmmn.api.CmmnRuntimeService
 import org.flowable.cmmn.api.runtime.CaseInstance
 import org.flowable.cmmn.api.runtime.CaseInstanceBuilder
-import org.flowable.cmmn.api.runtime.CaseInstanceQuery
 import java.net.URI
 import java.util.UUID
 

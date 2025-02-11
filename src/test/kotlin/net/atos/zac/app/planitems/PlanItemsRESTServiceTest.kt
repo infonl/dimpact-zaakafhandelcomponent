@@ -121,7 +121,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                 planItemInstanceId,
                 restHumanTaskData.groep.id,
                 null,
-                null,
+                any(),
                 restHumanTaskData.toelichting,
                 capture(taskDataSlot),
                 zaak.uuid
@@ -378,7 +378,6 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                 restMailGegevens = restMailGegevens
             )
             every { restMailGegevensConverter.convert(restMailGegevens) } returns mailGegevens
-            every { cmmnService.startUserEventListenerPlanItem(restUserEventListenerData.planItemInstanceId) } just runs
 
             planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
 

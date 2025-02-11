@@ -50,6 +50,12 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         }
         every { ztcClientService.readZaaktype(zaakafhandelParameters.zaakTypeUUID) } returns zaakType
         every { smartDocumentsService.isEnabled() } returns true
+        every {
+            caseDefinitionConverter.convertToRESTCaseDefinition(
+                zaakafhandelParameters.caseDefinitionID,
+                true
+            )
+        } returns null
 
         When("converted to REST representation") {
             val restZaakafhandelParameters = restZaakafhandelParametersConverter.toRestZaakafhandelParameters(

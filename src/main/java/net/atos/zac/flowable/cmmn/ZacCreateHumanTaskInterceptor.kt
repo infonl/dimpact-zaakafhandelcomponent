@@ -2,78 +2,83 @@
  * SPDX-FileCopyrightText: 2021 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.flowable.cmmn
 
-package net.atos.zac.flowable.cmmn;
+import net.atos.zac.flowable.FlowableHelper
+import net.atos.zac.signalering.event.SignaleringEventUtil
+import net.atos.zac.signalering.model.SignaleringType
+import net.atos.zac.websocket.event.ScreenEventType
+import org.flowable.cmmn.engine.interceptor.CreateHumanTaskAfterContext
+import org.flowable.cmmn.engine.interceptor.CreateHumanTaskBeforeContext
+import org.flowable.cmmn.engine.interceptor.CreateHumanTaskInterceptor
+import java.util.Date
+import java.util.UUID
 
-import static java.util.Collections.unmodifiableMap;
+class ZacCreateHumanTaskInterceptor : CreateHumanTaskInterceptor {
+    companion object {
+        const val VAR_TRANSIENT_TAAKDATA: String = "taakdata"
+        const val VAR_TRANSIENT_ZAAK_UUID: String = "zaakUUID"
+        const val VAR_TRANSIENT_DUE_DATE: String = "dueDate"
+        const val VAR_TRANSIENT_DESCRIPTION: String = "description"
+        const val VAR_TRANSIENT_CANDIDATE_GROUP: String = "candidateGroupId"
+        const val VAR_TRANSIENT_ASSIGNEE: String = "assignee"
+        const val VAR_TRANSIENT_OWNER: String = "owner"
 
-import java.util.*;
+        /**
+         * This must be lower than the DEFAULT_SUSPENSION_TIMEOUT defined in `websockets.service.ts`
+         */
+        const val SECONDS_TO_DELAY: Int = 3
+    }
 
-import org.flowable.cmmn.engine.interceptor.CreateHumanTaskAfterContext;
-import org.flowable.cmmn.engine.interceptor.CreateHumanTaskBeforeContext;
-import org.flowable.cmmn.engine.interceptor.CreateHumanTaskInterceptor;
-
-import net.atos.zac.flowable.FlowableHelper;
-import net.atos.zac.signalering.event.SignaleringEvent;
-import net.atos.zac.signalering.event.SignaleringEventUtil;
-import net.atos.zac.signalering.model.SignaleringType;
-import net.atos.zac.websocket.event.ScreenEvent;
-import net.atos.zac.websocket.event.ScreenEventType;
-
-public class ZacCreateHumanTaskInterceptor implements CreateHumanTaskInterceptor {
-    public static final String VAR_TRANSIENT_TAAKDATA = "taakdata";
-    public static final String VAR_TRANSIENT_ZAAK_UUID = "zaakUUID";
-    public static final String VAR_TRANSIENT_DUE_DATE = "dueDate";
-    public static final String VAR_TRANSIENT_DESCRIPTION = "description";
-    public static final String VAR_TRANSIENT_CANDIDATE_GROUP = "candidateGroupId";
-    public static final String VAR_TRANSIENT_ASSIGNEE = "assignee";
-    public static final String VAR_TRANSIENT_OWNER = "owner";
-
-    /**
-     * This must be lower than the DEFAULT_SUSPENSION_TIMEOUT defined in `websockets.service.ts`
-     */
-    public static final int SECONDS_TO_DELAY = 3;
-
-    @Override
-    public void beforeCreateHumanTask(final CreateHumanTaskBeforeContext context) {
-        final String owner = (String) context.getPlanItemInstanceEntity().getTransientVariable(VAR_TRANSIENT_OWNER);
-        if (owner != null) {
-            context.setOwner(owner);
+    override fun beforeCreateHumanTask(context: CreateHumanTaskBeforeContext) {
+        (context.getPlanItemInstanceEntity().getTransientVariable(VAR_TRANSIENT_OWNER) as String?)?.let {
+            context.setOwner(it)
         }
-        final String candidateGroupId = (String) context.getPlanItemInstanceEntity()
-                .getTransientVariable(VAR_TRANSIENT_CANDIDATE_GROUP);
-        if (candidateGroupId != null) {
-            context.setCandidateGroups(List.of(candidateGroupId));
+        (context.getPlanItemInstanceEntity().getTransientVariable(VAR_TRANSIENT_CANDIDATE_GROUP) as String?)?.let {
+            context.setCandidateGroups(listOf(it))
         }
-        final String assignee = (String) context.getPlanItemInstanceEntity().getTransientVariable(VAR_TRANSIENT_ASSIGNEE);
-        if (assignee != null) {
-            context.setAssignee(assignee);
+        (context.getPlanItemInstanceEntity().getTransientVariable(VAR_TRANSIENT_ASSIGNEE) as String?)?.let {
+            context.setAssignee(it)
         }
     }
 
-    @Override
-    public void afterCreateHumanTask(final CreateHumanTaskAfterContext context) {
-        final Map<String, String> taakdata = (Map<String, String>) context.getPlanItemInstanceEntity()
-                .getTransientVariable(VAR_TRANSIENT_TAAKDATA);
-        FlowableHelper.getInstance().getTaakVariabelenService().setTaskData(context.getTaskEntity(), unmodifiableMap(taakdata));
-        context.getTaskEntity().setDueDate((Date) context.getPlanItemInstanceEntity()
-                .getTransientVariable(VAR_TRANSIENT_DUE_DATE));
-        context.getTaskEntity().setDescription((String) context.getPlanItemInstanceEntity()
-                .getTransientVariable(VAR_TRANSIENT_DESCRIPTION));
-        final UUID zaakUUID = (UUID) context.getPlanItemInstanceEntity().getTransientVariable(VAR_TRANSIENT_ZAAK_UUID);
-        final ScreenEvent screenEvent = ScreenEventType.ZAAK_TAKEN.updated(zaakUUID);
-        // Wait some time before handling the event to make sure that the task has been created.
-        screenEvent.setDelay(SECONDS_TO_DELAY);
-        FlowableHelper.getInstance().getEventingService().send(screenEvent);
-
-        if (context.getTaskEntity().getAssignee() != null) {
-            // On creation of a human task the event observer will assume its owner is the actor who created it.
-            final SignaleringEvent<?> signaleringEvent = SignaleringEventUtil.event(SignaleringType.Type.TAAK_OP_NAAM, context
-                    .getTaskEntity(), null);
-            // Wait some time before handling the event to make sure that the task has been created.
-            signaleringEvent.setDelay(SECONDS_TO_DELAY);
-            FlowableHelper.getInstance().getEventingService().send(signaleringEvent);
+    @Suppress("UNCHECKED_CAST")
+    override fun afterCreateHumanTask(context: CreateHumanTaskAfterContext) {
+        (
+            context.getPlanItemInstanceEntity()
+                .getTransientVariable(VAR_TRANSIENT_TAAKDATA) as Map<String, String>
+            ).let { FlowableHelper.getInstance().taakVariabelenService.setTaskData(context.getTaskEntity(), it) }
+        (
+            context
+                .getPlanItemInstanceEntity()
+                .getTransientVariable(VAR_TRANSIENT_DUE_DATE) as Date?
+            )?.let {
+            context.getTaskEntity().dueDate = it
         }
-        FlowableHelper.getInstance().getIndexeerService().addOrUpdateTaak(context.getTaskEntity().getId());
+        (
+            context
+                .getPlanItemInstanceEntity()
+                .getTransientVariable(VAR_TRANSIENT_DESCRIPTION) as String?
+            )?.let {
+            context.getTaskEntity().description = it
+        }
+        (context.getPlanItemInstanceEntity().getTransientVariable(VAR_TRANSIENT_ZAAK_UUID) as UUID).let {
+            val screenEvent = ScreenEventType.ZAAK_TAKEN.updated(it)
+            // Wait some time before handling the event to make sure that the task has been created.
+            screenEvent.setDelay(SECONDS_TO_DELAY)
+            FlowableHelper.getInstance().eventingService.send(screenEvent)
+        }
+        context.getTaskEntity().assignee?.let {
+            // On creation of a human task the event observer will assume its owner is the actor who created it.
+            val signaleringEvent = SignaleringEventUtil.event(
+                SignaleringType.Type.TAAK_OP_NAAM,
+                context.getTaskEntity(),
+                null
+            )
+            // Wait some time before handling the event to make sure that the task has been created.
+            signaleringEvent.setDelay(SECONDS_TO_DELAY)
+            FlowableHelper.getInstance().eventingService.send(signaleringEvent)
+        }
+        FlowableHelper.getInstance().indexeerService.addOrUpdateTaak(context.getTaskEntity().id)
     }
 }
