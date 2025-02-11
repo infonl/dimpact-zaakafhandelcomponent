@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2025 Dimpact
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 import { DebugElement, EventEmitter } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
@@ -9,7 +14,6 @@ import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
-import { FieldType } from "../../model/field-type.enum";
 import { AutocompleteFormField } from "./autocomplete-form-field";
 import { AutocompleteComponent } from "./autocomplete.component";
 
