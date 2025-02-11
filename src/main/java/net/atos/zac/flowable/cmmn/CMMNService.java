@@ -154,7 +154,6 @@ public class CMMNService {
             final Map<String, String> taakdata,
             final UUID zaakUUID
     ) {
-
         cmmnRuntimeService.createPlanItemInstanceTransitionBuilder(planItemInstanceId)
                 .transientVariable(VAR_TRANSIENT_OWNER, loggedInUserInstance.get().getId())
                 .transientVariable(VAR_TRANSIENT_CANDIDATE_GROUP, groupId)

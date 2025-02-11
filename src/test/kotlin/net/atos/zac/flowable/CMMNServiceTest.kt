@@ -1,8 +1,10 @@
 package net.atos.zac.flowable
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
@@ -15,6 +17,7 @@ import org.flowable.cmmn.api.CmmnRepositoryService
 import org.flowable.cmmn.api.CmmnRuntimeService
 import org.flowable.cmmn.api.runtime.CaseInstance
 import org.flowable.cmmn.api.runtime.CaseInstanceBuilder
+import org.flowable.cmmn.api.runtime.CaseInstanceQuery
 import java.net.URI
 import java.util.UUID
 
@@ -68,6 +71,28 @@ class CMMNServiceTest : BehaviorSpec({
             Then("it is successfully started") {
                 verify(exactly = 1) {
                     caseInstanceBuilder.start()
+                }
+            }
+        }
+    }
+    Given("A CMMN case which has been started for a certain zaak") {
+        val zaakUUID = UUID.randomUUID()
+        val caseInstanceID = "dummyCaseInstanceID"
+        val caseInstance = mockk<CaseInstance>()
+        every {
+            cmmnRuntimeService.createCaseInstanceQuery()
+                .variableValueEquals(ZaakVariabelenService.VAR_ZAAK_UUID, zaakUUID)
+                .singleResult()
+        } returns caseInstance
+        every { caseInstance.id } returns caseInstanceID
+        every { cmmnRuntimeService.terminateCaseInstance(caseInstanceID) } just Runs
+
+        When("the case is requested to be terminated") {
+            cmmnService.terminateCase(zaakUUID)
+
+            Then("it is successfully terminated") {
+                verify(exactly = 1) {
+                    cmmnRuntimeService.terminateCaseInstance(caseInstanceID)
                 }
             }
         }
