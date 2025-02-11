@@ -13,7 +13,7 @@ import java.time.LocalDate
 
 @NoArgConstructor
 data class RESTHumanTaskData(
-    var planItemInstanceId: String? = null,
+    var planItemInstanceId: String,
 
     @field:NotNull
     var groep: RestGroup,

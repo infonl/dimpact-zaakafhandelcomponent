@@ -84,7 +84,6 @@ import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.bpmn.BPMNService
-import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.healthcheck.HealthCheckService
 import net.atos.zac.healthcheck.createZaaktypeInrichtingscheck
@@ -108,6 +107,7 @@ import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
+import nl.info.zac.flowable.cmmn.CMMNService
 import nl.info.zac.test.date.toDate
 import org.flowable.task.api.Task
 import java.net.URI
@@ -794,7 +794,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             )
         } just runs
         every { zgwApiService.endZaak(zaak, "Zaak is niet ontvankelijk") } just runs
-        every { cmmnService.terminateCase(zaak.uuid) } just runs
+        every { cmmnService.terminateCase(zaak.uuid) } returns Unit
 
         When("aborted with the hardcoded 'niet ontvankelijk' zaakbeeindigreden") {
             zaakRestService.afbreken(
@@ -842,7 +842,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         } returns zaakAfhandelParameters
         every { zgwApiService.createResultaatForZaak(zaak, resultTypeUUID, "-2 name") } just runs
         every { zgwApiService.endZaak(zaak, "-2 name") } just runs
-        every { cmmnService.terminateCase(zaak.uuid) } just runs
+        every { cmmnService.terminateCase(zaak.uuid) } returns Unit
 
         When("aborted with managed zaakbeeindigreden") {
             zaakRestService.afbreken(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = "-2"))
