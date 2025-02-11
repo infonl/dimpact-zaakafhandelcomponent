@@ -101,4 +101,26 @@ class CMMNServiceTest : BehaviorSpec({
             }
         }
     }
+    Given("A CMMN case for a certain zaak UUID") {
+        val zaakUUID = UUID.randomUUID()
+        val caseInstanceID = "dummyCaseInstanceID"
+        val caseInstance = mockk<CaseInstance>()
+        every {
+            cmmnRuntimeService.createCaseInstanceQuery()
+                .variableValueEquals(ZaakVariabelenService.VAR_ZAAK_UUID, zaakUUID)
+                .singleResult()
+        } returns caseInstance
+        every { caseInstance.id } returns caseInstanceID
+        every { cmmnRuntimeService.deleteCaseInstance(caseInstanceID) } just Runs
+
+        When("the case is requested to be deleted") {
+            cmmnService.deleteCase(zaakUUID)
+
+            Then("the case is successfully deleted") {
+                verify(exactly = 1) {
+                    cmmnRuntimeService.deleteCaseInstance(caseInstanceID)
+                }
+            }
+        }
+    }
 })

@@ -45,6 +45,13 @@ class CMMNService @Inject constructor(
         private val LOG = Logger.getLogger(CMMNService::class.java.getName())
     }
 
+    fun deleteCase(zaakUUID: UUID) =
+        cmmnRuntimeService.createCaseInstanceQuery()
+            .variableValueEquals(ZaakVariabelenService.VAR_ZAAK_UUID, zaakUUID)
+            .singleResult()?.let {
+                cmmnRuntimeService.deleteCaseInstance(it.id)
+            }
+
     fun listHumanTaskPlanItems(zaakUUID: UUID): MutableList<PlanItemInstance> =
         cmmnRuntimeService.createPlanItemInstanceQuery()
             .caseVariableValueEquals(ZaakVariabelenService.VAR_ZAAK_UUID, zaakUUID)
