@@ -73,7 +73,6 @@ class NotificationReceiver @Inject constructor(
         handleIndexing(notification)
         handleInboxDocuments(notification)
         handleZaaktype(notification)
-        handleFlowableProcessData(notification)
         handleWebsockets(notification)
         return Response.noContent().build()
     }
@@ -114,20 +113,6 @@ class NotificationReceiver @Inject constructor(
             warning("signaleringen", notification, exception)
         }
     }
-
-    /**
-     * In case of a 'zaak destroy' notification, delete any related Flowable process data related to the zaak,
-     * including any related task data.
-     */
-    @Suppress("TooGenericExceptionCaught")
-    private fun handleFlowableProcessData(notification: Notification) {
-        try {
-
-        } catch (exception: RuntimeException) {
-            warning("flowable process data", notification, exception)
-        }
-    }
-
 
     @Suppress("CyclomaticComplexMethod", "NestedBlockDepth", "ComplexCondition", "TooGenericExceptionCaught")
     private fun handleIndexing(notification: Notification) {
