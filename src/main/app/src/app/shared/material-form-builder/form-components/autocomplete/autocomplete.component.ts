@@ -1,9 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely, 2025 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AfterViewInit, Component, OnDestroy } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Observable, Subscription } from "rxjs";
 import { map, startWith } from "rxjs/operators";
@@ -18,7 +18,7 @@ import { AutocompleteValidators } from "./autocomplete-validators";
 })
 export class AutocompleteComponent
   extends FormComponent
-  implements AfterViewInit, OnDestroy
+  implements OnInit, OnDestroy
 {
   data: AutocompleteFormField;
 
@@ -30,7 +30,7 @@ export class AutocompleteComponent
     super();
   }
 
-  ngAfterViewInit() {
+  ngOnInit() {
     this.initOptions();
     this.optionsChanged$ = this.data.optionsChanged$.subscribe(() => {
       this.data.formControl.clearAsyncValidators();
@@ -51,7 +51,7 @@ export class AutocompleteComponent
         map((value) =>
           typeof value === "string"
             ? value
-            : value
+            : typeof value === "object"
               ? value[this.data.optionLabel]
               : null,
         ),
@@ -61,7 +61,7 @@ export class AutocompleteComponent
   }
 
   displayFn = (obj: any): string => {
-    return obj && obj[this.data.optionLabel] ? obj[this.data.optionLabel] : obj;
+    return obj?.[this.data.optionLabel] ?? obj;
   };
 
   private _filter(filter: string): any[] {
@@ -73,7 +73,7 @@ export class AutocompleteComponent
   }
 
   isEditing(): boolean {
-    return this.data.formControl.value;
+    return !!this.data.formControl.value;
   }
 
   clear() {
