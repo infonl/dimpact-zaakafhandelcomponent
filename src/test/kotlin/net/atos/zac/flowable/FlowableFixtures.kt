@@ -271,7 +271,6 @@ data class TestPlanItemInstance(
     override fun getTenantId() = tenantId
     override fun getPlanItemInstanceLocalVariables() = planItemInstanceLocalVariables
     override fun setLocalizedName(localizedName: String) {
-         this.localizedName = localizedName
+        this.localizedName = localizedName
     }
 }
-

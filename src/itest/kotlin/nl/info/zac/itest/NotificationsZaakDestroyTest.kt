@@ -6,6 +6,7 @@ package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKeyValue
+import io.kotest.assertions.json.shouldNotContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
@@ -14,6 +15,7 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
 import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
+import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
@@ -38,7 +40,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
 
-    Given("Existing process data and Solr index data for a specific zaak in ZAC") {
+    Given("A zaak in ZAC with CMMN Flowable data and Solr index data") {
         lateinit var zaakUUID: UUID
         lateinit var zaakIdentificatie: String
         zacClient.createZaak(
@@ -55,6 +57,9 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 zaakIdentificatie = getString("identificatie")
             }
         }
+
+        // TODO: start a task for this zaak and check that it is deleted later on
+
         // reindex so that the new zaak gets added to the Solr index
         itestHttpClient.performGetRequest(
             url = "$ZAC_API_URI/indexeren/herindexeren/ZAAK",
@@ -107,11 +112,30 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 addAuthorizationHeader = false
             )
             Then(
-                """the response should be 'no content', and the zaak should be removed from the Solr index"""
+                """
+                    the response should be 'no content', the Flowable CMMN zaak data should be deleted
+                    and the zaak should be removed from the Solr index
+                """.trimIndent()
             ) {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_NO_CONTENT
+                // Retrieve the zaak and check that the zaakdata is no longer available.
+                // Note that in this test scenario the zaak is not deleted from OpenZaak
+                // and so ZAC should still return the zaak.
+                // However, all Flowable data related to the zaak should be deleted.
+                zacClient.retrieveZaak(zaakUUID).run {
+                    val responseBody = this.body!!.string()
+                    logger.info { "Response: $responseBody" }
+                    this.code shouldBe HTTP_STATUS_OK
+                    responseBody.shouldContainJsonKeyValue("uuid", zaakUUID.toString())
+                    responseBody.shouldContainJsonKeyValue("zaakdata", "")
+                }
+
+                // TODO: also call TaskRestService.listTasksForZaak (should be empty)
+                // TODO: also call TaskRestService.listHistory (should be empty)
+                // TODO: also call TaskRestService.readTask (should return 404)
+
                 // wait for the zaak to be removed from the Solr index
                 eventually(10.seconds) {
                     val searchResponseBody = itestHttpClient.performPutRequest(

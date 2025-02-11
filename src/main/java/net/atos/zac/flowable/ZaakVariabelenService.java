@@ -61,15 +61,31 @@ public class ZaakVariabelenService {
 
     @Inject
     public ZaakVariabelenService(
-             CmmnRuntimeService cmmnRuntimeService,
-             CmmnHistoryService cmmnHistoryService,
-             RuntimeService bpmnRuntimeService,
-             HistoryService bpmnHistoryService
+            CmmnRuntimeService cmmnRuntimeService,
+            CmmnHistoryService cmmnHistoryService,
+            RuntimeService bpmnRuntimeService,
+            HistoryService bpmnHistoryService
     ) {
         this.cmmnRuntimeService = cmmnRuntimeService;
         this.cmmnHistoryService = cmmnHistoryService;
         this.bpmnRuntimeService = bpmnRuntimeService;
         this.bpmnHistoryService = bpmnHistoryService;
+    }
+
+    /**
+     * Deletes all CMMN case variables for the given zaakUUID.
+     * Does not need to be called before deleting the CMMN case itself.
+     * Also deletes historical variables.
+     *
+     * @param zaakUUID the zaak UUID
+     */
+    public void deleteAllCaseVariables(final UUID zaakUUID) {
+        final CaseInstance caseInstance = cmmnRuntimeService.createCaseInstanceQuery()
+                .variableValueEquals(VAR_ZAAK_UUID, zaakUUID)
+                .singleResult();
+        if (caseInstance != null) {
+            cmmnRuntimeService.removeVariables(caseInstance.getId(), VARS);
+        }
     }
 
     public UUID readZaakUUID(final PlanItemInstance planItemInstance) {

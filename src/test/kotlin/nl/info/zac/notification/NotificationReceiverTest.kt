@@ -20,6 +20,7 @@ import jakarta.ws.rs.core.Response
 import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.event.EventingService
+import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.zoeken.IndexingService
 import nl.info.zac.flowable.cmmn.CMMNService
@@ -35,6 +36,7 @@ class NotificationReceiverTest : BehaviorSpec({
     val inboxDocumentenService = mockk<InboxDocumentenService>()
     val zaakafhandelParameterBeheerService = mockk<ZaakafhandelParameterBeheerService>()
     val cmmnService = mockk<CMMNService>()
+    val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val httpHeaders = mockk<HttpHeaders>()
     val httpSession = mockk<HttpSession>(relaxed = true)
     val httpSessionInstance = mockk<Instance<HttpSession>>()
@@ -45,6 +47,7 @@ class NotificationReceiverTest : BehaviorSpec({
         inboxDocumentenService = inboxDocumentenService,
         zaakafhandelParameterBeheerService = zaakafhandelParameterBeheerService,
         cmmnService = cmmnService,
+        zaakVariabelenService = zaakVariabelenService,
         secret = SECRET,
         httpSession = httpSessionInstance
     )
@@ -175,6 +178,7 @@ class NotificationReceiverTest : BehaviorSpec({
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
         every { cmmnService.deleteCase(zaakUUID) } returns Unit
+        every { zaakVariabelenService.deleteAllCaseVariables(zaakUUID) } just Runs
         every { indexingService.removeZaak(zaakUUID) } just Runs
 
         When("notificatieReceive is called with the zaak destroy notificatie") {
@@ -186,6 +190,7 @@ class NotificationReceiverTest : BehaviorSpec({
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
                     cmmnService.deleteCase(zaakUUID)
+                    zaakVariabelenService.deleteAllCaseVariables(zaakUUID)
                     indexingService.removeZaak(zaakUUID)
                 }
             }

@@ -22,6 +22,7 @@ import net.atos.zac.authentication.ActiveSession
 import net.atos.zac.authentication.setFunctioneelGebruiker
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.event.EventingService
+import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.websocket.event.ScreenEventType
@@ -51,6 +52,7 @@ class NotificationReceiver @Inject constructor(
     private val inboxDocumentenService: InboxDocumentenService,
     private val zaakafhandelParameterBeheerService: ZaakafhandelParameterBeheerService,
     private val cmmnService: CMMNService,
+    private val zaakVariabelenService: ZaakVariabelenService,
 
     @ConfigProperty(name = "OPEN_NOTIFICATIONS_API_SECRET_KEY")
     private val secret: String,
@@ -90,7 +92,12 @@ class NotificationReceiver @Inject constructor(
     private fun handleFlowableProcessData(notification: Notification) {
         try {
             if (notification.channel == Channel.ZAKEN && notification.resource == Resource.ZAAK && notification.action == Action.DELETE) {
-                cmmnService.deleteCase(notification.resourceUrl.extractUuid())
+                notification.resourceUrl.extractUuid().let { zaakUUID ->
+                    LOG.info { "Deleting Flowable process data for zaak '$zaakUUID'" }
+                    cmmnService.deleteCase(zaakUUID)
+                    zaakVariabelenService.deleteAllCaseVariables(zaakUUID)
+                    LOG.info { "Successfully deleted Flowable process data for zaak '$zaakUUID'" }
+                }
             }
         } catch (exception: RuntimeException) {
             warning("flowable process data", notification, exception)
