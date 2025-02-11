@@ -32,14 +32,11 @@ public class ZaakVariabelenService {
     public static final String VAR_ZAAK_IDENTIFICATIE = "zaakIdentificatie";
     public static final String VAR_ZAAKTYPE_UUUID = "zaaktypeUUID";
     public static final String VAR_ZAAKTYPE_OMSCHRIJVING = "zaaktypeOmschrijving";
-
-    private static final String VAR_ONTVANGSTBEVESTIGING_VERSTUURD = "ontvangstbevestigingVerstuurd";
-    private static final String VAR_DATUMTIJD_OPGESCHORT = "datumTijdOpgeschort";
-    private static final String VAR_VERWACHTE_DAGEN_OPGESCHORT = "verwachteDagenOpgeschort";
-
-    // Wordt gebruikt binnen het CMMN model
+    public static final String VAR_ONTVANGSTBEVESTIGING_VERSTUURD = "ontvangstbevestigingVerstuurd";
+    public static final String VAR_DATUMTIJD_OPGESCHORT = "datumTijdOpgeschort";
+    public static final String VAR_VERWACHTE_DAGEN_OPGESCHORT = "verwachteDagenOpgeschort";
+    // as used in the ZAC CMMN model
     private static final String VAR_ONTVANKELIJK = "ontvankelijk";
-
     public static final List<String> VARS = List.of(
             VAR_ZAAK_UUID,
             VAR_ZAAK_IDENTIFICATIE,
@@ -51,17 +48,29 @@ public class ZaakVariabelenService {
             VAR_ONTVANKELIJK
     );
 
-    @Inject
     private CmmnRuntimeService cmmnRuntimeService;
-
-    @Inject
     private CmmnHistoryService cmmnHistoryService;
-
-    @Inject
     private RuntimeService bpmnRuntimeService;
+    private HistoryService bpmnHistoryService;
+
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public ZaakVariabelenService() {
+    }
 
     @Inject
-    private HistoryService bpmnHistoryService;
+    public ZaakVariabelenService(
+             CmmnRuntimeService cmmnRuntimeService,
+             CmmnHistoryService cmmnHistoryService,
+             RuntimeService bpmnRuntimeService,
+             HistoryService bpmnHistoryService
+    ) {
+        this.cmmnRuntimeService = cmmnRuntimeService;
+        this.cmmnHistoryService = cmmnHistoryService;
+        this.bpmnRuntimeService = bpmnRuntimeService;
+        this.bpmnHistoryService = bpmnHistoryService;
+    }
 
     public UUID readZaakUUID(final PlanItemInstance planItemInstance) {
         return (UUID) readCaseVariable(planItemInstance, VAR_ZAAK_UUID);
@@ -138,7 +147,6 @@ public class ZaakVariabelenService {
         if (caseInstance != null) {
             return caseInstance.getCaseVariables().get(variableName);
         }
-
         final HistoricCaseInstance historicCaseInstance = cmmnHistoryService.createHistoricCaseInstanceQuery()
                 .caseInstanceId(planItemInstance.getCaseInstanceId())
                 .includeCaseVariables()
@@ -146,7 +154,6 @@ public class ZaakVariabelenService {
         if (historicCaseInstance != null) {
             return historicCaseInstance.getCaseVariables().get(variableName);
         }
-
         throw new RuntimeException(
                 String.format("No variable found with name '%s' for case instance id '%s'", variableName,
                         planItemInstance.getCaseInstanceId()));
