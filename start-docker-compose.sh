@@ -26,7 +26,7 @@ help()
    echo "   -m     Start the containers used for handling metrics and traces."
    echo "   -t     Start containers used for integration testing."
    echo "   -o     Start OpenNotificaties."
-   echo "   -a     Start ArchiefBeheerComponent."
+   echo "   -a     Start OpenArchiefbeheer."
    echo
 }
 
@@ -79,7 +79,7 @@ while getopts ':dhzblmtoa' OPTION; do
       export OPENZAAK_NOTIFICATIONS_DISABLED=false
       ;;
     a)
-      profiles+=("archiefbeheercomponent")
+      profiles+=("openarchiefbeheer")
       ;;
     \?)
       echoerr "Error: Invalid option"

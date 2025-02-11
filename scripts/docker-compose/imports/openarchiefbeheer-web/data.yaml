@@ -1,0 +1,65 @@
+zgw_consumers_config_enable: true
+zgw_consumers:
+  services:
+  - identifier: zaken-test
+    label: Open Zaak - Zaken API
+    api_root: http://localhost:8003/zaken/api/v1/
+    api_type: zrc
+    auth_type: zgw
+    client_id: test-vcr
+    secret: test-vcr
+  - identifier: documenten-test
+    label: Open Zaak - Documenten API
+    api_root: http://localhost:8003/documenten/api/v1/
+    api_type: drc
+    auth_type: zgw
+    client_id: test-vcr
+    secret: test-vcr
+  - identifier: catalogi-test
+    label: Open Zaak - Catalogi API
+    api_root: http://localhost:8003/catalogi/api/v1/
+    api_type: ztc
+    auth_type: zgw
+    client_id: test-vcr
+    secret: test-vcr
+  - identifier: besluiten-test
+    label: Open Zaak - Besluiten API
+    api_root: http://localhost:8003/besluiten/api/v1/
+    api_type: brc
+    auth_type: zgw
+    client_id: test-vcr
+    secret: test-vcr
+  - identifier: selectielijst
+    label: Open Zaak (public) - Selectielijst API
+    api_root: https://selectielijst.openzaak.nl/api/v1/
+    api_type: orc
+    auth_type: no_auth
+
+api_configuration_enabled: true
+api_configuration:
+  selectielijst_service_identifier: selectielijst
+
+
+oidc_db_config_enable: true
+oidc_db_config_admin_auth:
+  enabled: true
+  oidc_rp_client_id: "openarchiefbeheer-dev"
+  oidc_rp_client_secret: "very-secret-bla"
+  oidc_rp_sign_algo: "RS256"
+  oidc_token_use_basic_auth: false
+  username_claim: 
+    - preferred_username   
+  groups_claim:
+    - resource_access
+    - openarchiefbeheer-dev
+    - roles
+  superuser_group_names:
+    - Superuser
+  userinfo_claims_source: userinfo_endpoint
+  oidc_op_jwks_endpoint: "http://localhost:28080/realms/openarchiefbeheer-dev/protocol/openid-connect/certs"
+  oidc_op_logout_endpoint: "http://localhost:28080/realms/openarchiefbeheer-dev/protocol/openid-connect/logout"
+  oidc_rp_idp_sign_key: ""
+  endpoint_config:
+    oidc_op_authorization_endpoint: "http://localhost:28080/realms/openarchiefbeheer-dev/protocol/openid-connect/auth"
+    oidc_op_token_endpoint: "http://localhost:28080/realms/openarchiefbeheer-dev/protocol/openid-connect/token"
+    oidc_op_user_endpoint: "http://localhost:28080/realms/openarchiefbeheer-dev/protocol/openid-connect/userinfo"
