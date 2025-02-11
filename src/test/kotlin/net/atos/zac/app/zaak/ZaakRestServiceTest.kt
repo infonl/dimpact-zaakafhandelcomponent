@@ -914,4 +914,24 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
     }
+    Given("Rest zaak data") {
+        val restZaakUpdate = createRestZaak()
+        val zaak = createZaak()
+        val zaakdataMap = slot<Map<String, Any>>()
+        every { zrcClientService.readZaak(restZaakUpdate.uuid) } returns zaak
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
+        every { zaakVariabelenService.setZaakdata(restZaakUpdate.uuid, capture(zaakdataMap)) } just runs
+
+        When("the zaakdata is requested to be updated") {
+            val updatedRestZaak = zaakRestService.updateZaakdata(restZaakUpdate)
+
+            Then("the zaakdata is correctly updated") {
+                verify(exactly = 1) {
+                    zaakVariabelenService.setZaakdata(restZaakUpdate.uuid, any())
+                }
+                updatedRestZaak shouldBe restZaakUpdate
+                zaakdataMap.captured shouldBe restZaakUpdate.zaakdata
+            }
+        }
+    }
 })
