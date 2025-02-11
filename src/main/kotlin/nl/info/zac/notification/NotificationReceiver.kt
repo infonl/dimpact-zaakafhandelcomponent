@@ -26,6 +26,7 @@ import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexingService
+import nl.info.zac.flowable.cmmn.CMMNService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -49,6 +50,7 @@ class NotificationReceiver @Inject constructor(
     private val indexingService: IndexingService,
     private val inboxDocumentenService: InboxDocumentenService,
     private val zaakafhandelParameterBeheerService: ZaakafhandelParameterBeheerService,
+    private val cmmnService: CMMNService,
 
     @ConfigProperty(name = "OPEN_NOTIFICATIONS_API_SECRET_KEY")
     private val secret: String,
@@ -72,12 +74,28 @@ class NotificationReceiver @Inject constructor(
         handleProductaanvraag(notification)
         handleIndexing(notification)
         handleInboxDocuments(notification)
+        handleFlowableProcessData(notification)
         handleZaaktype(notification)
         handleWebsockets(notification)
         return Response.noContent().build()
     }
 
     private fun isAuthenticated(headers: HttpHeaders) = secret == headers.getHeaderString(HttpHeaders.AUTHORIZATION)
+
+    /**
+     * In case of a 'zaak destroy' notification, delete any Flowable process data related to the zaak,
+     * including any related Flowable task data.
+     */
+    @Suppress("TooGenericExceptionCaught")
+    private fun handleFlowableProcessData(notification: Notification) {
+        try {
+            if (notification.channel == Channel.ZAKEN && notification.resource == Resource.ZAAK && notification.action == Action.DELETE) {
+                cmmnService.deleteCase(notification.resourceUrl.extractUuid())
+            }
+        } catch (exception: RuntimeException) {
+            warning("flowable process data", notification, exception)
+        }
+    }
 
     private fun handleProductaanvraag(notification: Notification) {
         val objecttypeUri = notification.properties?.let { it[OBJECTTYPE_KENMERK] }

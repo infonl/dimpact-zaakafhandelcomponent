@@ -6,6 +6,7 @@ package nl.info.zac.notification
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
@@ -21,6 +22,7 @@ import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.zoeken.IndexingService
+import nl.info.zac.flowable.cmmn.CMMNService
 import java.net.URI
 import java.util.UUID
 
@@ -32,6 +34,7 @@ class NotificationReceiverTest : BehaviorSpec({
     val indexingService = mockk<IndexingService>()
     val inboxDocumentenService = mockk<InboxDocumentenService>()
     val zaakafhandelParameterBeheerService = mockk<ZaakafhandelParameterBeheerService>()
+    val cmmnService = mockk<CMMNService>()
     val httpHeaders = mockk<HttpHeaders>()
     val httpSession = mockk<HttpSession>(relaxed = true)
     val httpSessionInstance = mockk<Instance<HttpSession>>()
@@ -41,6 +44,7 @@ class NotificationReceiverTest : BehaviorSpec({
         indexingService = indexingService,
         inboxDocumentenService = inboxDocumentenService,
         zaakafhandelParameterBeheerService = zaakafhandelParameterBeheerService,
+        cmmnService = cmmnService,
         secret = SECRET,
         httpSession = httpSessionInstance
     )
@@ -155,6 +159,34 @@ class NotificationReceiverTest : BehaviorSpec({
                 response.status shouldBe Response.Status.FORBIDDEN.statusCode
                 verify(exactly = 0) {
                     zaakafhandelParameterBeheerService.upsertZaakafhandelParameters(zaaktypeUri)
+                }
+            }
+        }
+    }
+    Given("A CMMN case and a request containing an authorization header and a 'zaak destroy' notificatie") {
+        val zaakUUID = UUID.randomUUID()
+        val zaakUri = URI("http://example.com/dummyzaak/$zaakUUID")
+        val notificatie = createNotificatie(
+            channel = Channel.ZAKEN,
+            resource = Resource.ZAAK,
+            resourceUrl = zaakUri,
+            action = Action.DELETE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        every { cmmnService.deleteCase(zaakUUID) } returns Unit
+        every { indexingService.removeZaak(zaakUUID) } just Runs
+
+        When("notificatieReceive is called with the zaak destroy notificatie") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            Then(
+                "the CMMN case is successfully deleted and the zaak is removed from the search index"
+            ) {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 1) {
+                    cmmnService.deleteCase(zaakUUID)
+                    indexingService.removeZaak(zaakUUID)
                 }
             }
         }
