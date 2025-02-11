@@ -33,7 +33,6 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
-import org.flowable.cmmn.api.CmmnHistoryService;
 import org.flowable.cmmn.api.CmmnRepositoryService;
 import org.flowable.cmmn.api.CmmnRuntimeService;
 import org.flowable.cmmn.api.repository.CaseDefinition;
@@ -44,8 +43,6 @@ import org.flowable.cmmn.model.HumanTask;
 import org.flowable.cmmn.model.UserEventListener;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 
-import net.atos.client.or.object.ObjectsClientService;
-import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.admin.model.ZaakafhandelParameters;
@@ -54,26 +51,28 @@ import net.atos.zac.authentication.LoggedInUser;
 @ApplicationScoped
 @Transactional
 public class CMMNService {
-
     private static final Logger LOG = Logger.getLogger(CMMNService.class.getName());
 
-    @Inject
     private CmmnRuntimeService cmmnRuntimeService;
-
-    @Inject
-    private CmmnHistoryService cmmnHistoryService;
-
-    @Inject
     private CmmnRepositoryService cmmnRepositoryService;
-
-    @Inject
     private Instance<LoggedInUser> loggedInUserInstance;
 
-    @Inject
-    private ZrcClientService zrcClientService;
+    /**
+     * Default no-arg constructor, required by Weld.
+     */
+    public CMMNService() {
+    }
 
     @Inject
-    private ObjectsClientService objectsClientService;
+    public CMMNService(
+            CmmnRuntimeService cmmnRuntimeService,
+            CmmnRepositoryService cmmnRepositoryService,
+            Instance<LoggedInUser> loggedInUserInstance
+    ) {
+        this.cmmnRuntimeService = cmmnRuntimeService;
+        this.cmmnRepositoryService = cmmnRepositoryService;
+        this.loggedInUserInstance = loggedInUserInstance;
+    }
 
     public List<PlanItemInstance> listHumanTaskPlanItems(final UUID zaakUUID) {
         return cmmnRuntimeService.createPlanItemInstanceQuery()
@@ -135,7 +134,7 @@ public class CMMNService {
      * This also terminates all open tasks related to the case,
      * This will also call {@Link EndCaseLifecycleListener}
      *
-     * @param zaakUUID UUID of the zaak for which the caxse should be terminated.
+     * @param zaakUUID UUID of the zaak for which the case should be terminated.
      */
     public void terminateCase(final UUID zaakUUID) {
         final CaseInstance caseInstance = cmmnRuntimeService.createCaseInstanceQuery()
