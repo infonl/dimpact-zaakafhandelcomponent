@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.flowable.cmmn
+package nl.info.zac.flowable.cmmn
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
@@ -15,6 +15,8 @@ import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.CreateUserTaskInterceptor
+import nl.info.zac.flowable.cmmn.exception.CaseDefinitionNotFoundException
+import nl.info.zac.flowable.cmmn.exception.OpenTaskItemNotFoundException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.CmmnRepositoryService
@@ -146,7 +148,9 @@ class CMMNService @Inject constructor(
         if (planItemInstance != null) {
             return planItemInstance
         } else {
-            throw RuntimeException("No open plan item found with plan item instance id '$planItemInstanceId'")
+            throw OpenTaskItemNotFoundException(
+                "No open plan item found with plan item instance id '$planItemInstanceId'"
+            )
         }
     }
 
@@ -161,7 +165,9 @@ class CMMNService @Inject constructor(
         if (caseDefinition != null) {
             return caseDefinition
         } else {
-            throw RuntimeException("No case definition found for case definition key: '%$caseDefinitionKey'")
+            throw CaseDefinitionNotFoundException(
+                "No case definition found for case definition key: '%$caseDefinitionKey'"
+            )
         }
     }
 

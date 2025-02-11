@@ -1,8 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.flowable.cmmn
+package nl.info.zac.flowable.cmmn
 
 import net.atos.zac.flowable.processengine.ProcessEngineLookupImpl
 import org.flowable.cdi.spi.CmmnEngineLookup

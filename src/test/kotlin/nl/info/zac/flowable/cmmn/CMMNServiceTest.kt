@@ -1,4 +1,4 @@
-package net.atos.zac.flowable
+package nl.info.zac.flowable.cmmn
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.Runs
@@ -12,7 +12,7 @@ import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.authentication.LoggedInUser
-import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.flowable.ZaakVariabelenService
 import org.flowable.cmmn.api.CmmnRepositoryService
 import org.flowable.cmmn.api.CmmnRuntimeService
 import org.flowable.cmmn.api.runtime.CaseInstance
