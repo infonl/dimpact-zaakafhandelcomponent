@@ -10,7 +10,10 @@ import org.flowable.cmmn.api.runtime.CaseInstance
 import java.util.UUID
 import java.util.logging.Logger
 
-class EndCaseLifecycleListener(private val sourceState: String, private val targetState: String) : CaseInstanceLifecycleListener {
+class EndCaseLifecycleListener(
+    private val sourceState: String,
+    private val targetState: String
+) : CaseInstanceLifecycleListener {
     companion object {
         private val LOG = Logger.getLogger(EndCaseLifecycleListener::class.java.getName())
         private const val EINDSTATUS_TOELICHTING = "Zaak beeindigd"

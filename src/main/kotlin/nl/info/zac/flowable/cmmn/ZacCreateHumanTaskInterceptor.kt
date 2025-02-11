@@ -8,21 +8,23 @@ import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.engine.interceptor.CreateHumanTaskAfterContext
 import org.flowable.cmmn.engine.interceptor.CreateHumanTaskBeforeContext
 import org.flowable.cmmn.engine.interceptor.CreateHumanTaskInterceptor
 import java.util.Date
 import java.util.UUID
 
+@NoArgConstructor
 class ZacCreateHumanTaskInterceptor : CreateHumanTaskInterceptor {
     companion object {
-        const val VAR_TRANSIENT_TAAKDATA: String = "taakdata"
-        const val VAR_TRANSIENT_ZAAK_UUID: String = "zaakUUID"
-        const val VAR_TRANSIENT_DUE_DATE: String = "dueDate"
-        const val VAR_TRANSIENT_DESCRIPTION: String = "description"
-        const val VAR_TRANSIENT_CANDIDATE_GROUP: String = "candidateGroupId"
-        const val VAR_TRANSIENT_ASSIGNEE: String = "assignee"
-        const val VAR_TRANSIENT_OWNER: String = "owner"
+        const val VAR_TRANSIENT_TAAKDATA = "taakdata"
+        const val VAR_TRANSIENT_ZAAK_UUID = "zaakUUID"
+        const val VAR_TRANSIENT_DUE_DATE = "dueDate"
+        const val VAR_TRANSIENT_DESCRIPTION = "description"
+        const val VAR_TRANSIENT_CANDIDATE_GROUP = "candidateGroupId"
+        const val VAR_TRANSIENT_ASSIGNEE = "assignee"
+        const val VAR_TRANSIENT_OWNER = "owner"
 
         /**
          * This must be lower than the DEFAULT_SUSPENSION_TIMEOUT defined in `websockets.service.ts`

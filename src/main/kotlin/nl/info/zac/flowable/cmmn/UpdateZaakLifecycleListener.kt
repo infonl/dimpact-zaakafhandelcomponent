@@ -5,12 +5,14 @@
 package nl.info.zac.flowable.cmmn
 
 import net.atos.zac.flowable.FlowableHelper
+import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.delegate.DelegatePlanItemInstance
 import org.flowable.cmmn.api.listener.PlanItemInstanceLifecycleListener
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import org.flowable.common.engine.api.delegate.Expression
 import java.util.logging.Logger
 
+@NoArgConstructor
 class UpdateZaakLifecycleListener : PlanItemInstanceLifecycleListener {
     companion object {
         private val LOG = Logger.getLogger(UpdateZaakLifecycleListener::class.java.getName())
