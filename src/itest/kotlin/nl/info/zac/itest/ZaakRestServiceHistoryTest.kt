@@ -18,7 +18,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_2_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_3_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_LAST
+import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
@@ -27,7 +27,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 
-@Order(TEST_SPEC_ORDER_LAST)
+@Order(TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED)
 class ZaakRestServiceHistoryTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
@@ -43,27 +43,7 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
 
-                val expectedResponse = """[{
-                    "actie": "GEWIJZIGD",
-                    "attribuutLabel": "status",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "Intake",
-                    "toelichting": "Status gewijzigd"
-                  },
-                  {
-                    "actie": "GEKOPPELD",
-                    "attribuutLabel": "Behandelaar",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "$TEST_USER_1_NAME",
-                    "toelichting": ""
-                  },
-                  {
-                    "actie": "GEKOPPELD",
-                    "attribuutLabel": "zaakinformatieobject",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "subject",
-                    "toelichting": ""
-                  },
+                val expectedResponse = """[   
                   {
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "zaakinformatieobject",

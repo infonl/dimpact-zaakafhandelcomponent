@@ -179,7 +179,7 @@ public class DrcClientService {
      * {@link EnkelvoudigInformatieobjectListParameters}.
      *
      * @param filter {@link EnkelvoudigInformatieobjectListParameters}.
-     * @return List of {@EnkelvoudigInformatieObject} instances.
+     * @return List of {@link EnkelvoudigInformatieObject} instances.
      */
     public Results<EnkelvoudigInformatieObject> listEnkelvoudigInformatieObjecten(
             final EnkelvoudigInformatieobjectListParameters filter
@@ -201,9 +201,8 @@ public class DrcClientService {
         // for security reasons check if the provided URI starts with the value of the
         // environment variable that we use to configure the ztcClient
         if (!uri.toString().startsWith(configuratieService.readZgwApiClientMpRestUrl())) {
-            throw new RuntimeException(format(
-                    "URI '%s' does not start with value for environment variable " +
-                                              "'%s': '%s'",
+            throw new IllegalStateException(format(
+                    "URI '%s' does not start with value for environment variable '%s': '%s'",
                     uri,
                     ENV_VAR_ZGW_API_CLIENT_MP_REST_URL,
                     configuratieService.readZgwApiClientMpRestUrl()

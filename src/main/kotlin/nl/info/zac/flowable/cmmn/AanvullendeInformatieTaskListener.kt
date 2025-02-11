@@ -1,26 +1,23 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.flowable.cmmn
+package nl.info.zac.flowable.cmmn
 
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
-import net.atos.zac.configuratie.ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_INTAKE
+import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.FlowableHelper
-import net.atos.zac.flowable.processengine.ProcessEngineLookupImpl.getCmmnEngineConfiguration
+import net.atos.zac.flowable.processengine.ProcessEngineLookupImpl
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import org.flowable.engine.delegate.TaskListener
 import org.flowable.task.api.TaskInfo
-import org.flowable.task.service.delegate.BaseTaskListener.EVENTNAME_COMPLETE
-import org.flowable.task.service.delegate.BaseTaskListener.EVENTNAME_CREATE
+import org.flowable.task.service.delegate.BaseTaskListener
 import org.flowable.task.service.delegate.DelegateTask
 import java.util.logging.Logger
 
 @NoArgConstructor
 class AanvullendeInformatieTaskListener : TaskListener {
-
     companion object {
         private val LOG = Logger.getLogger(AanvullendeInformatieTaskListener::class.java.name)
 
@@ -34,30 +31,36 @@ class AanvullendeInformatieTaskListener : TaskListener {
         }
         with(delegateTask as TaskInfo) {
             when (delegateTask.eventName) {
-                EVENTNAME_CREATE -> createdEvent(subScopeId)
-                EVENTNAME_COMPLETE -> completedEvent(scopeId, subScopeId)
+                BaseTaskListener.EVENTNAME_CREATE -> createdEvent(subScopeId)
+                BaseTaskListener.EVENTNAME_COMPLETE -> completedEvent(scopeId, subScopeId)
             }
         }
     }
 
     private fun createdEvent(subScopeId: String) {
-        updateZaakStatusForTask(getPlanItemInstance(subScopeId), STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE)
+        updateZaakStatusForTask(
+            getPlanItemInstance(subScopeId),
+            ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
+        )
     }
 
     private fun completedEvent(scopeId: String, subScopeId: String) {
         if (numberOfAdditionalInfoTasks(scopeId) == 1) {
-            updateZaakStatusForTask(getPlanItemInstance(subScopeId), STATUSTYPE_OMSCHRIJVING_INTAKE)
+            updateZaakStatusForTask(
+                getPlanItemInstance(subScopeId),
+                ConfiguratieService.Companion.STATUSTYPE_OMSCHRIJVING_INTAKE
+            )
         }
     }
 
     private fun getPlanItemInstance(subScopeId: String): PlanItemInstance =
-        getCmmnEngineConfiguration().getCmmnRuntimeService()
+        ProcessEngineLookupImpl.getCmmnEngineConfiguration().getCmmnRuntimeService()
             .createPlanItemInstanceQuery()
             .planItemInstanceId(subScopeId)
             .singleResult()
 
     private fun numberOfAdditionalInfoTasks(scopeId: String) =
-        getCmmnEngineConfiguration().getCmmnRuntimeService()
+        ProcessEngineLookupImpl.getCmmnEngineConfiguration().getCmmnRuntimeService()
             .createPlanItemInstanceQuery()
             .caseInstanceId(scopeId)
             .planItemDefinitionId(TASK_AANVULLENDE_INFORMATIE_ID)

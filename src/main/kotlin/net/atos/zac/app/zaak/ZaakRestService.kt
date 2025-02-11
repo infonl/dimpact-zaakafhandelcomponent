@@ -48,7 +48,6 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_ID
 import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_REASON
 import net.atos.zac.admin.model.ZaakAfzender.Speciaal
-import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter
 import net.atos.zac.app.admin.model.RESTZaakAfzender
 import net.atos.zac.app.bag.converter.RestBagConverter
@@ -98,7 +97,6 @@ import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.bpmn.BPMNService
-import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.healthcheck.HealthCheckService
 import net.atos.zac.history.ZaakHistoryService
@@ -119,6 +117,7 @@ import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
+import nl.info.zac.flowable.cmmn.CMMNService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.collections4.CollectionUtils
@@ -457,43 +456,40 @@ class ZaakRestService @Inject constructor(
         val vandaag = LocalDate.now()
         val einddatumGeplandWaarschuwing = mutableMapOf<UUID, LocalDate>()
         val uiterlijkeEinddatumAfdoeningWaarschuwing = mutableMapOf<UUID, LocalDate>()
-        zaakafhandelParameterService.listZaakafhandelParameters().forEach(
-            Consumer { parameters: ZaakafhandelParameters ->
-                if (parameters.einddatumGeplandWaarschuwing != null) {
-                    einddatumGeplandWaarschuwing[parameters.zaakTypeUUID] = datumWaarschuwing(
-                        vandaag,
-                        parameters.einddatumGeplandWaarschuwing
-                    )
-                }
-                if (parameters.uiterlijkeEinddatumAfdoeningWaarschuwing != null) {
-                    uiterlijkeEinddatumAfdoeningWaarschuwing[parameters.zaakTypeUUID] = datumWaarschuwing(
-                        vandaag,
-                        parameters.uiterlijkeEinddatumAfdoeningWaarschuwing
-                    )
-                }
+        zaakafhandelParameterService.listZaakafhandelParameters().forEach {
+            if (it.einddatumGeplandWaarschuwing != null) {
+                einddatumGeplandWaarschuwing[it.zaakTypeUUID] = datumWaarschuwing(
+                    vandaag,
+                    it.einddatumGeplandWaarschuwing
+                )
             }
-        )
-        val zaakListParameters = ZaakListParameters()
-        zaakListParameters.rolBetrokkeneIdentificatieMedewerkerIdentificatie = loggedInUserInstance.get().id
+            if (it.uiterlijkeEinddatumAfdoeningWaarschuwing != null) {
+                uiterlijkeEinddatumAfdoeningWaarschuwing[it.zaakTypeUUID] = datumWaarschuwing(
+                    vandaag,
+                    it.uiterlijkeEinddatumAfdoeningWaarschuwing
+                )
+            }
+        }
+        val zaakListParameters = ZaakListParameters().apply {
+            rolBetrokkeneIdentificatieMedewerkerIdentificatie = loggedInUserInstance.get().id
+        }
         return zrcClientService.listZaken(zaakListParameters).results
-            .filter { obj -> obj.isOpen }
-            .filter { zaak ->
+            .filter { it.isOpen }
+            .filter {
                 isWaarschuwing(
-                    zaak,
+                    it,
                     vandaag,
                     einddatumGeplandWaarschuwing,
                     uiterlijkeEinddatumAfdoeningWaarschuwing
                 )
             }
-            .map { zaak -> restZaakOverzichtConverter.convert(zaak) }
-            .toList()
+            .map(restZaakOverzichtConverter::convert)
     }
 
     @GET
     @Path("zaaktypes")
     fun listZaaktypes(): List<RestZaaktype> =
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
-            .asSequence()
             .filter { loggedInUserInstance.get().isAuthorisedForZaaktype(it.omschrijving) }
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
@@ -501,15 +497,13 @@ class ZaakRestService @Inject constructor(
                 (configuratieService.featureFlagBpmnSupport() && it.referentieproces?.naam?.isNotEmpty() == true) ||
                     healthCheckService.controleerZaaktype(it.url).isValide
             }
-            .map { restZaaktypeConverter.convert(it) }
-            .toList()
+            .map(restZaaktypeConverter::convert)
 
     @PUT
     @Path("zaakdata")
     fun updateZaakdata(restZaak: RestZaak): RestZaak {
         val zaak = zrcClientService.readZaak(restZaak.uuid)
         assertPolicy(policyService.readZaakRechten(zaak).wijzigen)
-
         zaakVariabelenService.setZaakdata(restZaak.uuid, restZaak.zaakdata)
         return restZaak
     }

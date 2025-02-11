@@ -22,10 +22,10 @@ import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.impl.cfg.StandaloneProcessEngineConfiguration;
 
-import net.atos.zac.flowable.cmmn.CompleteTaskInterceptor;
-import net.atos.zac.flowable.cmmn.EndCaseLifecycleListener;
-import net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor;
 import net.atos.zac.flowable.task.CreateUserTaskInterceptor;
+import nl.info.zac.flowable.cmmn.CompleteTaskInterceptor;
+import nl.info.zac.flowable.cmmn.EndCaseLifecycleListener;
+import nl.info.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor;
 
 /**
  * Looks up the ZAC Flowable process engine.

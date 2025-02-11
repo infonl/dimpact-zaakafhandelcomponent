@@ -23,7 +23,7 @@ import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.TAAK_1_FATAL_DATE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_LAST
+import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_REINDEXING
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_DOCUMENTS
@@ -45,8 +45,8 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONObject
 
-// Run this test last so that all the required data is available in the Solr index
-@Order(TEST_SPEC_ORDER_LAST)
+// Run this test after reindexing so that all the required data is available in the Solr index
+@Order(TEST_SPEC_ORDER_AFTER_REINDEXING)
 @Suppress("LargeClass")
 class ZoekenRESTServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()

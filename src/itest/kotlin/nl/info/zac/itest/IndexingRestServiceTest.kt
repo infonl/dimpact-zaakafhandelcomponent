@@ -23,7 +23,7 @@ import kotlin.time.Duration.Companion.seconds
  * @see NotificationsTest
  */
 @Order(TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED)
-class IndexerenRESTServiceTest : BehaviorSpec({
+class IndexingRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
     Given("""Two zaken, a task and a document have been created""") {
@@ -50,7 +50,7 @@ class IndexerenRESTServiceTest : BehaviorSpec({
                             "zoeken": {},
                             "filters": {},
                             "datums": {},
-                            "rows": 10,
+                            "rows": 100,
                             "page": 0,
                             "type": "ZAAK"
                         }
@@ -83,7 +83,7 @@ class IndexerenRESTServiceTest : BehaviorSpec({
                             "zoeken":{},
                             "filters": {},
                             "datums": {},
-                            "rows": 10,
+                            "rows": 100,
                             "page": 0,
                             "type":"TAAK"
                         }
@@ -115,7 +115,7 @@ class IndexerenRESTServiceTest : BehaviorSpec({
                             "zoeken": {},
                             "filters": {},
                             "datums": {},
-                            "rows": 10,
+                            "rows": 100,
                             "page": 0,
                             "type":"DOCUMENT"
                         }
