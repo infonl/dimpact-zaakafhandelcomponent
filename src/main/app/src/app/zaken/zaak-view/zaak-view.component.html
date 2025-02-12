@@ -63,8 +63,10 @@
     <zac-case-details-edit
       *ngSwitchCase="'actie.zaak.wijzigen'"
       [sideNav]="actionsSidenav"
-      [readonly]="!zaak.isOpen || !zaak.rechten.wijzigen"
+      [loggedInUser]="loggedInUser"
       [zaak]="zaak"
+      [readonly]="!zaak.isOpen || !zaak.rechten.wijzigen"
+      (submit)="caseEdited()"
     ></zac-case-details-edit>
     <zac-informatie-object-create-attended
       *ngSwitchCase="'actie.document.maken'"

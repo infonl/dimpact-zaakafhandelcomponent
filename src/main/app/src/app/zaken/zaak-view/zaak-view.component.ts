@@ -154,12 +154,12 @@ export class ZaakViewComponent
     "pointer",
     true,
   );
+  loggedInUser: GeneratedType<"RestLoggedInUser">;
 
   private zaakListener: WebsocketListener;
   private zaakRollenListener: WebsocketListener;
   private zaakBesluitenListener: WebsocketListener;
   private zaakTakenListener: WebsocketListener;
-  private ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
   private datumPipe = new DatumPipe("nl");
 
   @ViewChild("actionsSidenav") actionsSidenav: MatSidenav;
@@ -259,8 +259,8 @@ export class ZaakViewComponent
   }
 
   private getIngelogdeMedewerker() {
-    this.identityService.readLoggedInUser().subscribe((ingelogdeMedewerker) => {
-      this.ingelogdeMedewerker = ingelogdeMedewerker;
+    this.identityService.readLoggedInUser().subscribe((loggedInUser) => {
+      this.loggedInUser = loggedInUser;
     });
   }
 
@@ -1057,7 +1057,7 @@ export class ZaakViewComponent
   editToewijzing(event: any) {
     if (
       event["medewerker-groep"].medewerker &&
-      event["medewerker-groep"].medewerker.id === this.ingelogdeMedewerker.id &&
+      event["medewerker-groep"].medewerker.id === this.loggedInUser.id &&
       this.zaak.groep === event["medewerker-groep"].groep
     ) {
       this.assignZaakToMe(event);
@@ -1189,8 +1189,8 @@ export class ZaakViewComponent
     return (
       taak.status !== TaakStatus.Afgerond &&
       taak.rechten.toekennen &&
-      this.ingelogdeMedewerker.id !== taak.behandelaar?.id &&
-      this.ingelogdeMedewerker.groupIds.indexOf(taak.groep.id) >= 0
+      this.loggedInUser.id !== taak.behandelaar?.id &&
+      this.loggedInUser.groupIds.indexOf(taak.groep.id) >= 0
     );
   }
 
@@ -1403,6 +1403,11 @@ export class ZaakViewComponent
 
   documentSent(): void {
     this.sluitSidenav();
+    this.updateZaak();
+  }
+
+  caseEdited(): void {
+    console.log("caseEdited");
     this.updateZaak();
   }
 

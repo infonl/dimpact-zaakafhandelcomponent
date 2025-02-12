@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+} from "@angular/core";
 import { MatDrawer } from "@angular/material/sidenav";
 import { FormGroup, Validators } from "@angular/forms";
 import {} from "../../shared/location/location.service";
@@ -27,6 +34,8 @@ import { OrderUtil } from "src/app/shared/order/order-util";
 import { DateFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/date/date-form-field-builder";
 import { DateFormField } from "src/app/shared/material-form-builder/form-components/date/date-form-field";
 import { InputFormField } from "src/app/shared/material-form-builder/form-components/input/input-form-field";
+import { ZakenService } from "../zaken.service";
+import { Zaak } from "../model/zaak";
 
 @Component({
   selector: "zac-case-details-edit",
@@ -36,7 +45,9 @@ import { InputFormField } from "src/app/shared/material-form-builder/form-compon
 export class ZaakWijzigenComponent implements OnInit, OnDestroy {
   @Input() sideNav: MatDrawer;
   @Input() readonly: boolean;
-  @Input() zaak: GeneratedType<"RestZaak">;
+  @Input() zaak: Zaak; // GeneratedType<"RestZaak">;
+  @Input() loggedInUser: GeneratedType<"RestLoggedInUser">;
+  @Output() submit = new EventEmitter<any>();
 
   formFields: Array<AbstractFormField[]>;
   formConfig: FormConfig;
@@ -51,17 +62,18 @@ export class ZaakWijzigenComponent implements OnInit, OnDestroy {
   private vertrouwelijkheidaanduidingen: { label: string; value: string }[];
   private omschrijving: TextareaFormField;
   private toelichtingField: TextareaFormField;
-  private redenField: TextareaFormField;
+  private reasonField: TextareaFormField;
   private ngDestroy = new Subject<void>();
 
   constructor(
+    private zakenService: ZakenService,
     private referentieTabelService: ReferentieTabelService,
     private navigation: NavigationService,
     private utilService: UtilService,
   ) {}
 
   ngOnInit(): void {
-    console.log("zaak", this.zaak);
+    console.log("zaak, loggedInUser", this.zaak, this.loggedInUser);
 
     this.initForm();
   }
@@ -83,7 +95,7 @@ export class ZaakWijzigenComponent implements OnInit, OnDestroy {
 
     this.medewerkerGroepFormField = this.getMedewerkerGroupFormField(
       this.zaak?.groep.id,
-      this.zaak?.behandelaar.id,
+      this.zaak?.behandelaar?.id,
     );
 
     this.communicatiekanaalField = new SelectFormFieldBuilder(
@@ -151,8 +163,8 @@ export class ZaakWijzigenComponent implements OnInit, OnDestroy {
       .maxlength(1000)
       .build();
 
-    this.redenField = new InputFormFieldBuilder()
-      .id("reden")
+    this.reasonField = new InputFormFieldBuilder()
+      .id("reason")
       .label("reden")
       .maxlength(80)
       .validators(Validators.required)
@@ -168,13 +180,21 @@ export class ZaakWijzigenComponent implements OnInit, OnDestroy {
       [this.vertrouwelijkheidaanduidingField],
       [this.omschrijving],
       [this.toelichtingField],
-      [this.redenField],
+      [this.reasonField],
     ];
   }
 
   onFormSubmit(formGroup: FormGroup): void {
     if (formGroup) {
-      const changedValues = {};
+      const changedValues: Partial<
+        GeneratedType<"RestZaak"> & {
+          assignment: {
+            groep: GeneratedType<"RestGroup">;
+            medewerker: GeneratedType<"RestUser">;
+          };
+          reason: string;
+        }
+      > = {};
       for (const [key, control] of Object.entries(formGroup.controls)) {
         if (control.dirty) {
           changedValues[key] = control.value;
@@ -182,6 +202,50 @@ export class ZaakWijzigenComponent implements OnInit, OnDestroy {
       }
 
       console.log("changedValues", changedValues);
+
+      const { reason, assignment, ...patchFields } = changedValues;
+
+      if (assignment) {
+        console.log("assignment", assignment);
+        this.zaak = { ...this.zaak, ...assignment };
+
+        if (assignment?.medewerker.id === this.loggedInUser.id) {
+          this.zakenService
+            .toekennenAanIngelogdeMedewerker(this.zaak, reason)
+            .subscribe((zaak) => {
+              this.utilService.openSnackbar("msg.zaak.toegekend", {
+                behandelaar: zaak.behandelaar?.naam,
+              });
+            });
+        } else {
+          this.zakenService.toekennen(this.zaak, reason).subscribe((zaak) => {
+            if (assignment.medewerker) {
+              this.utilService.openSnackbar("msg.zaak.toegekend", {
+                behandelaar: assignment.medewerker.naam,
+              });
+            } else {
+              this.utilService.openSnackbar("msg.vrijgegeven.zaak");
+            }
+          });
+        }
+      }
+
+      if (patchFields) {
+        const zaak: Zaak = new Zaak();
+        Object.keys(patchFields).forEach((key) => {
+          if (key in this.zaak) {
+            zaak[key] = patchFields[key];
+          }
+        });
+
+        this.zakenService
+          .updateZaak(this.zaak.uuid, zaak, reason)
+          .subscribe((updatedZaak) => {
+            console.log("updatedZaak", updatedZaak);
+          });
+      }
+
+      this.submit.emit();
       this.sideNav.close();
     }
   }
@@ -198,7 +262,7 @@ export class ZaakWijzigenComponent implements OnInit, OnDestroy {
         ? ({ id: employeeId, naam: "" } as GeneratedType<"RestUser">)
         : null,
     )
-      .id("toekenning")
+      .id("assignment")
       .groepLabel("actie.zaak.toekennen.groep")
       .groepRequired()
       .medewerkerLabel("actie.zaak.toekennen.medewerker")
