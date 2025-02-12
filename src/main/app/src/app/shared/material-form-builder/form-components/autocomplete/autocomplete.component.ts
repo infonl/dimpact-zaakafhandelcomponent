@@ -51,11 +51,14 @@ export class AutocompleteComponent
       this.filteredOptions = this.data.formControl.valueChanges.pipe(
         startWith(""),
         map((value) => {
-          return typeof value === "string"
-            ? value
-            : typeof value === "object" && value !== null
-              ? value[this.data.optionLabel]
-              : null;
+          switch (typeof value) {
+            case "string":
+              return value;
+            case "object":
+              return value[this.data.optionLabel];
+            default:
+              return null;
+          }
         }),
         map((name) => (name ? this._filter(name) : this.options?.slice())),
       );
