@@ -558,7 +558,7 @@ De Zaak verlengen knop bevindt zichin het linker menu onder Actie en is herkenba
 
 ## Verdere acties
 
-Een zaak is te behandelen met behulp van de verdere acties die in het linker menu beschikbaar zijn. Een groot deel van de acties zijn standaard en altijd beschikbaar. Per fase van het afhandelproces is een aantal extra acties beschikbaar, dit zijn met name de taken.
+Een zaak is te behandelen met behulp van de verdere acties die onder Zaak in het linker menu beschikbaar zijn. Een groot deel van de acties zijn standaard en altijd beschikbaar. Per fase van het afhandelproces is een aantal extra acties beschikbaar, dit zijn met name de taken, te vinden onder Taak starten in het linker menu.
 
 Het afhandelproces bestaat uit twee fases, in het volgende schema zijn de taken en acties die in de fases te gebruiken zijn te zien. Een actie die niet in een fase zit is altijd beschikbaar.
 ![Generiek afhandelproces](./images/generiek-afhandelproces.png)
