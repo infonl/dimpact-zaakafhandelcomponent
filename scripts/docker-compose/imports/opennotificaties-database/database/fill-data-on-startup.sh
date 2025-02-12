@@ -6,7 +6,7 @@
 DJANGO_MIGRATIONS_TABLE_RECORDS_COUNT=160
 
 echo ">>>> Waiting until Open Notificaties has initialized the database <<<<"
-useradd openklant
+useradd opennotificaties
 while true
 do
     verifier=$(psql -U opennotificaties -d opennotificaties -t -A -c "select count(*) from django_migrations")

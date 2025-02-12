@@ -565,6 +565,112 @@ services:
             condition: service_healthy
     profiles: [ "opennotificaties" ]
 
+  openarchiefbeheer-database:
+    image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
+    platform: linux/amd64
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    environment:
+      - POSTGRES_USER=openarchiefbeheer
+      - POSTGRES_PASSWORD=openarchiefbeheer
+      - POSTGRES_DB=openarchiefbeheer
+    ports:
+      - "54328:5432"
+    volumes:
+      - ./scripts/docker-compose/imports/openarchiefbeheer-database:/docker-entrypoint-initdb.d
+      - ./scripts/docker-compose/volume-data/openarchiefbeheer-database-data:/var/lib/postgresql/data
+    profiles: [ "openarchiefbeheer" ]
+
+  openarchiefbeheer-web:
+    image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
+    environment: &web_env
+      - ALLOWED_HOSTS=localhost
+      # We should be able to switch off 2FA with:
+      # - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.dev
+      # - DISABLE_2FA=true
+      # However the above config errors with `ModuleNotFoundError: No module named 'debug_toolbar'`
+      - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.docker
+      - SECRET_KEY=${SECRET_KEY:-django-insecure-!bkx+tx18&lvp(@_9)9ut(y(keqho*zhz1&^sqqgq9*i=__w(}
+      - DB_NAME=openarchiefbeheer
+      - DB_USER=openarchiefbeheer
+      - DB_PASSWORD=openarchiefbeheer
+      - DB_HOST=openarchiefbeheer-database
+      - CACHE_DEFAULT=redis:6379/0
+      - CACHE_AXES=redis:6379/0
+      - CORS_ALLOWED_ORIGINS=http://localhost:9000,http://localhost:8000
+      - CSRF_TRUSTED_ORIGINS=http://localhost:9000,http://localhost:8000
+      - CSRF_COOKIE_SAMESITE=Lax
+      - CSRF_COOKIE_SECURE=False
+      - SESSION_COOKIE_SAMESITE=Lax
+      - SESSION_COOKIE_SECURE=False
+      - TWO_FACTOR_FORCE_OTP_ADMIN=False
+      - TWO_FACTOR_PATCH_ADMIN=False
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_LOGLEVEL=DEBUG
+      - REACT_APP_API_URL=http://localhost:8000
+      - REACT_APP_API_PATH=/api/v1
+      - REACT_APP_ZAAK_URL_TEMPLATE=https://www.example.com/zaken/{identificatie}
+      - REQUESTS_READ_TIMEOUT=5000
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # This should allow for enough time for migrations to run before the max
+      # retries have passed. This healthcheck in turn allows other containers
+      # to wait for the database migrations.
+      start_period: 30s
+    ports:
+      - "8004:8000"
+    depends_on:
+      openarchiefbeheer-database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    profiles: [ "openarchiefbeheer" ]
+
+  openarchiefbeheer-web-init:
+    image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
+    environment: *web_env
+    command: /setup_configuration.sh
+    volumes:
+      - ./scripts/docker-compose/imports/openarchiefbeheer-web:/app/setup_configuration
+    depends_on:
+      openarchiefbeheer-web:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    profiles: [ "openarchiefbeheer" ]
+
+  openarchiefbeheer-celery:
+    image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
+    command: /celery_worker.sh
+    environment: *web_env
+    healthcheck:
+      test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      - openarchiefbeheer-database
+      - redis
+    profiles: [ "openarchiefbeheer" ]
+
+  openarchiefbeheer-celery-beat:
+    image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
+    command: /celery_beat.sh
+    environment: *web_env
+    depends_on:
+      - openarchiefbeheer-database
+      - redis
+    profiles: [ "openarchiefbeheer" ]
+
   zac:
     # By default, we use the most recent ZAC Docker Image. Change this if you wish to use a specific version.
     image: ${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:latest}
