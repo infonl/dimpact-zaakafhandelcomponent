@@ -40,15 +40,15 @@ api_configuration:
   selectielijst_service_identifier: selectielijst
 
 
-oidc_db_config_enable: true
+oidc_db_config_enable: false
 oidc_db_config_admin_auth:
   enabled: true
-  oidc_rp_client_id: "openarchiefbeheer-dev"
+  oidc_rp_client_id: "openarchiefbeheer"
   oidc_rp_client_secret: "very-secret-bla"
   oidc_rp_sign_algo: "RS256"
   oidc_token_use_basic_auth: false
-  username_claim: 
-    - preferred_username   
+  username_claim:
+    - preferred_username
   groups_claim:
     - resource_access
     - openarchiefbeheer-dev
@@ -56,10 +56,10 @@ oidc_db_config_admin_auth:
   superuser_group_names:
     - Superuser
   userinfo_claims_source: userinfo_endpoint
-  oidc_op_jwks_endpoint: "http://localhost:28080/realms/openarchiefbeheer-dev/protocol/openid-connect/certs"
-  oidc_op_logout_endpoint: "http://localhost:28080/realms/openarchiefbeheer-dev/protocol/openid-connect/logout"
+  oidc_op_jwks_endpoint: "http://localhost:8081/realms/openarchiefbeheer/protocol/openid-connect/certs"
+  oidc_op_logout_endpoint: "http://localhost:8081/realms/openarchiefbeheer/protocol/openid-connect/logout"
   oidc_rp_idp_sign_key: ""
   endpoint_config:
-    oidc_op_authorization_endpoint: "http://localhost:28080/realms/openarchiefbeheer-dev/protocol/openid-connect/auth"
-    oidc_op_token_endpoint: "http://localhost:28080/realms/openarchiefbeheer-dev/protocol/openid-connect/token"
-    oidc_op_user_endpoint: "http://localhost:28080/realms/openarchiefbeheer-dev/protocol/openid-connect/userinfo"
+    oidc_op_authorization_endpoint: "http://localhost:8081/realms/openarchiefbeheer/protocol/openid-connect/auth"
+    oidc_op_token_endpoint: "http://localhost:8081/realms/openarchiefbeheer/protocol/openid-connect/token"
+    oidc_op_user_endpoint: "http://localhost:8081/realms/openarchiefbeheer/protocol/openid-connect/userinfo"

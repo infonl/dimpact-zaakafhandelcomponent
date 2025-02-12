@@ -26,6 +26,9 @@ INSERT INTO zgw_consumers_service (label, api_type, api_root, client_id, secret,
 -- Unfortunately it seems that we need to use 'host.docker.internal' here to connect to Open Notificaties. Not sure why.
 -- Please see our 'testing.md' document on how to set this up.
 INSERT INTO zgw_consumers_service (label, api_type, api_root, client_id, secret, auth_type, header_key, header_value, oas, nlx, user_id, user_representation, oas_file, client_certificate_id, server_certificate_id, uuid) VALUES('Open Notificaties', 'nrc', 'http://host.docker.internal:8003/api/v1/', 'open-zaak-autorisaties', 'openZaakAutorisatiesApiSecretKey', 'zgw', '', '', 'http://host.docker.internal:8003/api/v1/schema/openapi.yaml', '', 'open-zaak-notificaties', 'Open Zaak - Notificaties', '', NULL, NULL, '031fe099-095b-4091-9f99-f81ef30561be');
+-- Set up the OpenArchiefbeheer service configuration.
+INSERT INTO zgw_consumers_service (label, api_type, api_root, client_id, secret, auth_type, header_key, header_value, oas, nlx, user_id, user_representation, oas_file, client_certificate_id, server_certificate_id, uuid) VALUES('Open Archiefbeheer', 'nrc', 'http://host.docker.internal:8003/api/v1/', 'open-archiefbeheer', 'openArchiefbeheerApiSecretKey', 'zgw', '', '', 'http://host.docker.internal:8004/api/v1/schema', '', 'open-archiefbeheer', 'Open Archiefbeheer', '', NULL, NULL, 'f21a5a4d-36c8-44a4-bf72-44da1cd30a26');
+
 
 -- Set up the Notificatiescomponentconfiguratie
 -- we assume here that a record already exists with id=1 (this is provisioned by OpenNotificaties on startup)
@@ -39,5 +42,3 @@ ALTER SEQUENCE catalogi_roltype_id_seq RESTART WITH 100;
 ALTER SEQUENCE catalogi_statustype_id_seq RESTART WITH 100;
 ALTER SEQUENCE catalogi_besluittype_zaaktypen_id_seq RESTART WITH 100;
 ALTER SEQUENCE catalogi_zaaktypeinformatieobjecttype_id_seq RESTART WITH 100;
-
-
