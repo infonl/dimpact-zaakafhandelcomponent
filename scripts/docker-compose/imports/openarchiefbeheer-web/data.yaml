@@ -3,28 +3,28 @@ zgw_consumers:
   services:
   - identifier: zaken-test
     label: Open Zaak - Zaken API
-    api_root: http://localhost:8003/zaken/api/v1/
+    api_root: http://openzaak.local:8000/zaken/api/v1/
     api_type: zrc
     auth_type: zgw
     client_id: test-vcr
     secret: test-vcr
   - identifier: documenten-test
     label: Open Zaak - Documenten API
-    api_root: http://localhost:8003/documenten/api/v1/
+    api_root: http://openzaak.local:8000/documenten/api/v1/
     api_type: drc
     auth_type: zgw
     client_id: test-vcr
     secret: test-vcr
   - identifier: catalogi-test
     label: Open Zaak - Catalogi API
-    api_root: http://localhost:8003/catalogi/api/v1/
+    api_root: http://openzaak.local:8000/catalogi/api/v1/
     api_type: ztc
     auth_type: zgw
     client_id: test-vcr
     secret: test-vcr
   - identifier: besluiten-test
     label: Open Zaak - Besluiten API
-    api_root: http://localhost:8003/besluiten/api/v1/
+    api_root: http://openzaak.local:8000/besluiten/api/v1/
     api_type: brc
     auth_type: zgw
     client_id: test-vcr
