@@ -12,7 +12,6 @@ import org.flowable.cmmn.api.runtime.PlanItemInstance
 import org.flowable.common.engine.api.delegate.Expression
 import java.util.logging.Logger
 
-
 /**
  * Custom Flowable update zaak lifecycle listener.
  *

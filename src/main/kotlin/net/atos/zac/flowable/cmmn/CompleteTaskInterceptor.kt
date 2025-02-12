@@ -9,7 +9,6 @@ import org.flowable.cmmn.engine.CmmnEngineConfiguration
 import org.flowable.cmmn.engine.impl.interceptor.DefaultCmmnIdentityLinkInterceptor
 import org.flowable.task.service.impl.persistence.entity.TaskEntity
 
-
 /**
  * Custom Flowable complete task interceptor.
  */
