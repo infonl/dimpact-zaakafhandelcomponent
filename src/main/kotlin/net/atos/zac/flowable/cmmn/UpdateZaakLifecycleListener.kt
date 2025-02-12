@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.flowable.cmmn
+package net.atos.zac.flowable.cmmn
 
 import net.atos.zac.flowable.FlowableHelper
 import nl.info.zac.util.NoArgConstructor
@@ -12,6 +12,13 @@ import org.flowable.cmmn.api.runtime.PlanItemInstance
 import org.flowable.common.engine.api.delegate.Expression
 import java.util.logging.Logger
 
+/**
+ * Custom Flowable update zaak lifecycle listener.
+ *
+ * This class is used in our [CMMN model](../../../../resources/cmmn/Generiek_zaakafhandelmodel.cmmn.xml)
+ * so be careful renaming or moving it to another package because that will break all zaken and tasks
+ * that were created with previous versions of our CMMN model.
+ */
 @NoArgConstructor
 class UpdateZaakLifecycleListener : PlanItemInstanceLifecycleListener {
     companion object {

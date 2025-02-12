@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.flowable.cmmn
+package net.atos.zac.flowable.cmmn
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
@@ -14,9 +14,9 @@ import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.cmmn.exception.CaseDefinitionNotFoundException
+import net.atos.zac.flowable.cmmn.exception.OpenTaskItemNotFoundException
 import net.atos.zac.flowable.task.CreateUserTaskInterceptor
-import nl.info.zac.flowable.cmmn.exception.CaseDefinitionNotFoundException
-import nl.info.zac.flowable.cmmn.exception.OpenTaskItemNotFoundException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.CmmnRepositoryService

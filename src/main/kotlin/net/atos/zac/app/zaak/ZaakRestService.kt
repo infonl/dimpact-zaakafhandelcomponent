@@ -97,6 +97,7 @@ import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.bpmn.BPMNService
+import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.healthcheck.HealthCheckService
 import net.atos.zac.history.ZaakHistoryService
@@ -117,7 +118,6 @@ import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
-import nl.info.zac.flowable.cmmn.CMMNService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.collections4.CollectionUtils

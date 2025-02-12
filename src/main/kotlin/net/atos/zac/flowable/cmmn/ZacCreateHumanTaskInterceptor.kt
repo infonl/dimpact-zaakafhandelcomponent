@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.flowable.cmmn
+package net.atos.zac.flowable.cmmn
 
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.signalering.event.SignaleringEventUtil
@@ -15,6 +15,9 @@ import org.flowable.cmmn.engine.interceptor.CreateHumanTaskInterceptor
 import java.util.Date
 import java.util.UUID
 
+/**
+ * Custom Flowable create human task interceptor.
+ */
 @NoArgConstructor
 class ZacCreateHumanTaskInterceptor : CreateHumanTaskInterceptor {
     companion object {

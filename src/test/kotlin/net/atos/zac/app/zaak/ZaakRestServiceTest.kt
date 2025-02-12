@@ -7,7 +7,6 @@ package net.atos.zac.app.zaak
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.doubles.exactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.checkUnnecessaryStub
@@ -84,6 +83,7 @@ import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.bpmn.BPMNService
+import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.healthcheck.HealthCheckService
 import net.atos.zac.healthcheck.createZaaktypeInrichtingscheck
@@ -107,7 +107,6 @@ import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
-import nl.info.zac.flowable.cmmn.CMMNService
 import nl.info.zac.test.date.toDate
 import org.flowable.task.api.Task
 import java.net.URI

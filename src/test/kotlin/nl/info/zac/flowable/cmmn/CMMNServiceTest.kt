@@ -17,6 +17,7 @@ import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.cmmn.CMMNService
 import org.flowable.cmmn.api.CmmnRepositoryService
 import org.flowable.cmmn.api.CmmnRuntimeService
 import org.flowable.cmmn.api.runtime.CaseInstance

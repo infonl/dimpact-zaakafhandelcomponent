@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.flowable.cmmn
+package net.atos.zac.flowable.cmmn
 
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.configuratie.ConfiguratieService
@@ -16,6 +16,13 @@ import org.flowable.task.service.delegate.BaseTaskListener
 import org.flowable.task.service.delegate.DelegateTask
 import java.util.logging.Logger
 
+/**
+ * Custom Flowable task listener for the AanvullendeInformatie task.
+ *
+ * This class is used in our [CMMN model](../../../../resources/cmmn/Generiek_zaakafhandelmodel.cmmn.xml)
+ * so be careful renaming or moving it to another package because that will break all zaken and tasks
+ * that were created with previous versions of our CMMN model.
+ */
 @NoArgConstructor
 class AanvullendeInformatieTaskListener : TaskListener {
     companion object {

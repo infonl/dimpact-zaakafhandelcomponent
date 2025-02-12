@@ -29,7 +29,7 @@
             <stage id="INTAKE" name="Intake" autoComplete="true" flowable:displayOrder="1">
                 <extensionElements>
                     <design:stencilid><![CDATA[ExpandedStage]]></design:stencilid>
-                    <flowable:planItemLifecycleListener sourceState="available" targetState="active" class="nl.info.zac.flowable.cmmn.UpdateZaakLifecycleListener">
+                    <flowable:planItemLifecycleListener sourceState="available" targetState="active" class="net.atos.zac.flowable.cmmn.UpdateZaakLifecycleListener">
                         <flowable:field name="status">
                             <flowable:string><![CDATA[Intake]]></flowable:string>
                         </flowable:field>
@@ -74,8 +74,8 @@
                         <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
                         <design:stencilid><![CDATA[HumanTask]]></design:stencilid>
                         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
-                        <flowable:taskListener event="create" class="nl.info.zac.flowable.cmmn.AanvullendeInformatieTaskListener"></flowable:taskListener>
-                        <flowable:taskListener event="complete" class="nl.info.zac.flowable.cmmn.AanvullendeInformatieTaskListener"></flowable:taskListener>
+                        <flowable:taskListener event="create" class="net.atos.zac.flowable.cmmn.AanvullendeInformatieTaskListener"></flowable:taskListener>
+                        <flowable:taskListener event="complete" class="net.atos.zac.flowable.cmmn.AanvullendeInformatieTaskListener"></flowable:taskListener>
                     </extensionElements>
                 </humanTask>
                 <milestone id="INTAKE_GEREED" name="Intake Gereed" flowable:milestoneVariable="Intake Gereed">
@@ -94,7 +94,7 @@
             <stage id="IN_BEHANDELING" name="In behandeling" autoComplete="true" flowable:displayOrder="2">
                 <extensionElements>
                     <design:stencilid><![CDATA[ExpandedStage]]></design:stencilid>
-                    <flowable:planItemLifecycleListener sourceState="available" targetState="active" class="nl.info.zac.flowable.cmmn.UpdateZaakLifecycleListener">
+                    <flowable:planItemLifecycleListener sourceState="available" targetState="active" class="net.atos.zac.flowable.cmmn.UpdateZaakLifecycleListener">
                         <flowable:field name="status">
                             <flowable:string><![CDATA[In behandeling]]></flowable:string>
                         </flowable:field>

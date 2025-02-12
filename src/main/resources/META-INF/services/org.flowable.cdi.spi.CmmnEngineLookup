@@ -3,4 +3,4 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
-nl.info.zac.flowable.cmmn.CmmnEngineLookupImpl
+net.atos.zac.flowable.cmmn.CmmnEngineLookupImpl

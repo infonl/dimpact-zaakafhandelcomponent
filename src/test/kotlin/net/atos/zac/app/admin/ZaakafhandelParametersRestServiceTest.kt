@@ -23,12 +23,12 @@ import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RestZaakafhandelParametersConverter
 import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.configuratie.ConfiguratieService
+import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
-import nl.info.zac.flowable.cmmn.CMMNService
 import java.util.UUID
 
 class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
