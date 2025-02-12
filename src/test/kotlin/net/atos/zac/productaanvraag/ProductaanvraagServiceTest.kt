@@ -39,10 +39,10 @@ import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.flowable.bpmn.BPMNService
+import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
 import net.atos.zac.productaanvraag.model.generated.Geometry
-import nl.info.zac.flowable.cmmn.CMMNService
 import nl.info.zac.test.util.createRandomStringWithAlphanumericCharacters
 import java.net.URI
 import java.util.UUID

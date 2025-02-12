@@ -15,6 +15,7 @@ import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakStatus
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.cmmn.UpdateZaakLifecycleListener
 import org.flowable.cmmn.api.delegate.DelegatePlanItemInstance
 import org.flowable.common.engine.api.delegate.Expression
 

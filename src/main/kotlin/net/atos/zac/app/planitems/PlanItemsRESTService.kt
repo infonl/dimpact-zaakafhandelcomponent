@@ -32,6 +32,7 @@ import net.atos.zac.app.planitems.model.RESTUserEventListenerData
 import net.atos.zac.app.planitems.model.UserEventListenerActie
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.mail.MailService
 import net.atos.zac.mail.model.MailAdres
@@ -45,7 +46,6 @@ import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
 import nl.info.zac.exception.InputValidationFailedException
-import nl.info.zac.flowable.cmmn.CMMNService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.runtime.PlanItemInstance

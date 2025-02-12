@@ -6,7 +6,7 @@
 package net.atos.zac.flowable.task;
 
 import static net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID;
-import static nl.info.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.SECONDS_TO_DELAY;
+import static net.atos.zac.flowable.cmmn.ZacCreateHumanTaskInterceptor.SECONDS_TO_DELAY;
 
 import java.util.UUID;
 

@@ -16,7 +16,7 @@ import org.flowable.cmmn.model.UserEventListener;
 
 import net.atos.zac.app.admin.model.RESTCaseDefinition;
 import net.atos.zac.app.admin.model.RESTPlanItemDefinition;
-import nl.info.zac.flowable.cmmn.CMMNService;
+import net.atos.zac.flowable.cmmn.CMMNService;
 
 public class RESTCaseDefinitionConverter {
 
