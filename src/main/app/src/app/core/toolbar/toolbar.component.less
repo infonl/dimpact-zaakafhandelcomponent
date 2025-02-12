@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2025 Dimpact
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -8,6 +8,18 @@
   gap: 16px;
   height: var(--mat-toolbar-standard-height);
   padding: 0px 32px;
+}
+
+.mat-mdc-menu-trigger {
+  height: inherit;
+  border-radius: 0;
+}
+
+button {
+  &.active:not(:active):not(:hover) {
+    background: var(--mat-toolbar-container-background-color);
+    filter: brightness(90%);
+  }
 }
 
 .title {

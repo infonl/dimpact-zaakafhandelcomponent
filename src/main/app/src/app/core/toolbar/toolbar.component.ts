@@ -1,14 +1,14 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2025 Dimpact
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
-import { NavigationEnd, Router } from "@angular/router";
+import { Router } from "@angular/router";
 import moment from "moment";
-import { filter, Observable, Subscription } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
 import { OverigeRechten } from "../../policy/model/overige-rechten";
 import { WerklijstRechten } from "../../policy/model/werklijst-rechten";
@@ -40,7 +40,6 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   overigeRechten = new OverigeRechten();
   werklijstRechten = new WerklijstRechten();
   medewerkerNaamToolbar = "";
-  currentUrl: string;
 
   private subscription$: Subscription;
   private signaleringListener: WebsocketListener;
@@ -90,13 +89,6 @@ export class ToolbarComponent implements OnInit, OnDestroy {
       .readWerklijstRechten()
       .subscribe((rechten) => (this.werklijstRechten = rechten));
     this.setSignaleringen();
-
-    this.currentUrl = this.router.url;
-    this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe((event) => {
-        this.currentUrl = event.urlAfterRedirects;
-      });
   }
 
   ngOnDestroy(): void {
@@ -132,5 +124,16 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   resetSearch(): void {
     this.zoekenService.reset$.next();
+  }
+
+  isCaseRouteActive() {
+    return (
+      this.router.url.startsWith("/zaken/") &&
+      !this.router.url.startsWith("/zaken/create")
+    );
+  }
+
+  isTaskRouteActive() {
+    return this.router.url.startsWith("/taken/");
   }
 }
