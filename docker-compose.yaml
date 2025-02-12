@@ -589,6 +589,10 @@ services:
     image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
     environment: &web_env
       - ALLOWED_HOSTS=localhost
+      # We should be able to switch off 2FA with:
+      # - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.dev
+      # - DISABLE_2FA=true
+      # However the above config errors with `ModuleNotFoundError: No module named 'debug_toolbar'`
       - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.docker
       - SECRET_KEY=${SECRET_KEY:-django-insecure-!bkx+tx18&lvp(@_9)9ut(y(keqho*zhz1&^sqqgq9*i=__w(}
       - DB_NAME=openarchiefbeheer
