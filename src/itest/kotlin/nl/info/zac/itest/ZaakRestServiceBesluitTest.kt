@@ -23,7 +23,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.util.sleep
+import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
@@ -66,7 +66,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
             }
         }
         // wait for OpenZaak to accept this request
-        sleep(1)
+        sleepForOpenZaakUniqueConstraint(1)
         itestHttpClient.performJSONPostRequest(
             "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
             requestBodyAsString = """

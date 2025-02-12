@@ -27,7 +27,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.util.sleep
+import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
@@ -69,7 +69,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             }
         }
         // wait for OpenZaak to accept this request
-        sleep(1)
+        sleepForOpenZaakUniqueConstraint(1)
         itestHttpClient.performJSONPostRequest(
             "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
             requestBodyAsString = """
@@ -106,7 +106,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                 }
             }
             // wait for OpenZaak to accept this request
-            sleep(1)
+            sleepForOpenZaakUniqueConstraint(1)
             itestHttpClient.performJSONPostRequest(
                 "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
                 requestBodyAsString = """{
@@ -136,7 +136,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
 
         When("the closed zaak is re-opened") {
             // wait for OpenZaak to accept this request
-            sleep(1)
+            sleepForOpenZaakUniqueConstraint(1)
             itestHttpClient.performPatchRequest(
                 "$ZAC_API_URI/zaken/zaak/$zaakUUID/heropenen",
                 requestBodyAsString = """
@@ -161,7 +161,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
 
         When("the re-opened zaak is completed again") {
             // wait for OpenZaak to accept this request
-            sleep(1)
+            sleepForOpenZaakUniqueConstraint(1)
             // Completing a re-opened zaak is done using the 'afsluiten' endpoint
             // instead of the 'doUserEventListenerPlanItem' endpoint.
             // Not sure why.
@@ -235,7 +235,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             val senderMail = "sender@example.com"
             val mailBody = "<p><b>bold</b>paragraph<i>italic</i></p>"
             // wait for OpenZaak to accept this request
-            sleep(1)
+            sleepForOpenZaakUniqueConstraint(1)
             itestHttpClient.performJSONPostRequest(
                 "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
                 requestBodyAsString = """{

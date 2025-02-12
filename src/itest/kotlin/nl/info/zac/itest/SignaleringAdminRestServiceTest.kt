@@ -29,7 +29,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELI
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakManual2Identification
-import nl.info.zac.itest.util.sleep
+import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
@@ -86,7 +86,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         getHumanTaskPlanItemsResponseBody.shouldBeJsonArray()
         val humanTaskItemId = JSONArray(getHumanTaskPlanItemsResponseBody).getJSONObject(0).getString("id")
         // wait for OpenZaak to accept this request
-        sleep(1)
+        sleepForOpenZaakUniqueConstraint(1)
         val fataleDatum = DATE_2024_01_01.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         val doHumanTaskPlanItemResponse = itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",

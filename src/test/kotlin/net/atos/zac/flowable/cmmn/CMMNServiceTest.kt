@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.flowable.cmmn
+package net.atos.zac.flowable.cmmn
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.Runs

@@ -21,9 +21,9 @@ import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.zoeken.IndexingService
-import nl.info.zac.flowable.cmmn.CMMNService
 import java.net.URI
 import java.util.UUID
 

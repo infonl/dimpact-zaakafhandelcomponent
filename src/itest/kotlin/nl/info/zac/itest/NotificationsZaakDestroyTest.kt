@@ -24,7 +24,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.util.sleep
+import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
@@ -76,7 +76,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
             this.isSuccessful shouldBe true
             humanTaskItemAanvullendeInformatieId = JSONArray(responseBody).getJSONObject(0).getString("id")
         }
-        sleep(1)
+        sleepForOpenZaakUniqueConstraint(1)
         // start the human task plan item (=task) 'aanvullende informatie'
         itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",

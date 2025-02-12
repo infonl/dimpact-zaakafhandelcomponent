@@ -23,11 +23,11 @@ import net.atos.zac.authentication.setFunctioneelGebruiker
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexingService
-import nl.info.zac.flowable.cmmn.CMMNService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
