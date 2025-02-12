@@ -16,6 +16,13 @@ import org.flowable.task.service.delegate.BaseTaskListener
 import org.flowable.task.service.delegate.DelegateTask
 import java.util.logging.Logger
 
+/**
+ * Custom Flowable task listener for the AanvullendeInformatie task.
+ *
+ * This class is used in our [CMMN model](../../../../resources/cmmn/Generiek_zaakafhandelmodel.cmmn.xml)
+ * so be careful renaming or moving it to another package because that will break all zaken and tasks
+ * that were created with previous versions of our CMMN model.
+ */
 @NoArgConstructor
 class AanvullendeInformatieTaskListener : TaskListener {
     companion object {

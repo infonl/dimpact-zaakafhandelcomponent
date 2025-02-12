@@ -10,6 +10,10 @@ import org.flowable.cmmn.api.runtime.CaseInstance
 import java.util.UUID
 import java.util.logging.Logger
 
+
+/**
+ * Custom Flowable end case lifecycle listener.
+ */
 class EndCaseLifecycleListener(
     private val sourceState: String,
     private val targetState: String

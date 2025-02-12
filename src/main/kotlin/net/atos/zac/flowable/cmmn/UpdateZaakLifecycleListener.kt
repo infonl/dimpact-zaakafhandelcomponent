@@ -12,6 +12,14 @@ import org.flowable.cmmn.api.runtime.PlanItemInstance
 import org.flowable.common.engine.api.delegate.Expression
 import java.util.logging.Logger
 
+
+/**
+ * Custom Flowable update zaak lifecycle listener.
+ *
+ * This class is used in our [CMMN model](../../../../resources/cmmn/Generiek_zaakafhandelmodel.cmmn.xml)
+ * so be careful renaming or moving it to another package because that will break all zaken and tasks
+ * that were created with previous versions of our CMMN model.
+ */
 @NoArgConstructor
 class UpdateZaakLifecycleListener : PlanItemInstanceLifecycleListener {
     companion object {
