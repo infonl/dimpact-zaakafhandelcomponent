@@ -1,11 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
+import { Router } from "@angular/router";
 import moment from "moment";
 import { Observable, Subscription } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
@@ -51,6 +52,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     private signaleringenService: SignaleringenService,
     private websocketService: WebsocketService,
     private policyService: PolicyService,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -122,5 +124,16 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   resetSearch(): void {
     this.zoekenService.reset$.next();
+  }
+
+  isCaseRouteActive() {
+    return (
+      this.router.url.startsWith("/zaken/") &&
+      !this.router.url.startsWith("/zaken/create")
+    );
+  }
+
+  isTaskRouteActive() {
+    return this.router.url.startsWith("/taken/");
   }
 }
