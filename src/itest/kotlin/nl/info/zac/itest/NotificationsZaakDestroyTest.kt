@@ -142,8 +142,8 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
             )
             Then(
                 """
-                    the response should be 'no content', the Flowable CMMN zaak data should be deleted
-                    and the zaak should be removed from the Solr index
+                    the response should be 'no content', the Flowable CMMN zaak data should be deleted,
+                    the task should be deleted and the zaak should be removed from the Solr index
                 """.trimIndent()
             ) {
                 val responseBody = response.body!!.string()
@@ -160,8 +160,16 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                     responseBody.shouldContainJsonKeyValue("uuid", zaakUUID.toString())
                     responseBody.shouldContainJsonKeyValue("zaakdata", "")
                 }
-
-                // TODO: also call TaskRestService.listTasksForZaak (should be empty)
+                // check that the task that was started for this zaak no longer exists
+                // it should have been deleted as part of the 'zaak destroy' action
+                itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/taken/zaak/$zaakUUID"
+                ).run {
+                    val responseBody = body!!.string()
+                    logger.info { "Response: $responseBody" }
+                    this.isSuccessful shouldBe true
+                    JSONArray(responseBody).length() shouldBe 0
+                }
                 // TODO: also call TaskRestService.listHistory (should be empty)
                 // TODO: also call TaskRestService.readTask (should return 404)
 
