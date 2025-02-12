@@ -51,8 +51,8 @@ export class AutocompleteComponent
       this.filteredOptions = this.data.formControl.valueChanges.pipe(
         startWith(""),
         map((value) => {
-          if(value === null) {
-            return null
+          if (value === null) {
+            return null;
           }
 
           switch (typeof value) {
