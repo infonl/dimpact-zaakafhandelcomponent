@@ -53,7 +53,7 @@ class MailServiceTest : BehaviorSpec({
         ztcClientService,
         drcClientService,
         mailTemplateHelper,
-        loggedInUserInstance,
+        loggedInUserInstance
     )
 
     beforeEach {

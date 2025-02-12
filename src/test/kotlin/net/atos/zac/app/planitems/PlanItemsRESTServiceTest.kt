@@ -26,7 +26,6 @@ import net.atos.zac.admin.model.FormulierDefinitie
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.admin.model.createHumanTaskParameters
 import net.atos.zac.admin.model.createZaakafhandelParameters
-import net.atos.zac.app.exception.InputValidationFailedException
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
 import net.atos.zac.app.mail.model.createRESTMailGegevens
 import net.atos.zac.app.planitems.converter.RESTPlanItemConverter
@@ -35,7 +34,6 @@ import net.atos.zac.app.planitems.model.createRESTHumanTaskData
 import net.atos.zac.app.planitems.model.createRESTUserEventListenerData
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.mail.MailService
 import net.atos.zac.mail.model.Bronnen
 import net.atos.zac.mailtemplates.MailTemplateService
@@ -47,6 +45,8 @@ import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
+import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.flowable.cmmn.CMMNService
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI
 import java.time.LocalDate
@@ -121,7 +121,7 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                 planItemInstanceId,
                 restHumanTaskData.groep.id,
                 null,
-                null,
+                any(),
                 restHumanTaskData.toelichting,
                 capture(taskDataSlot),
                 zaak.uuid
@@ -378,7 +378,6 @@ class PlanItemsRESTServiceTest : BehaviorSpec({
                 restMailGegevens = restMailGegevens
             )
             every { restMailGegevensConverter.convert(restMailGegevens) } returns mailGegevens
-            every { cmmnService.startUserEventListenerPlanItem(restUserEventListenerData.planItemInstanceId) } just runs
 
             planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
 

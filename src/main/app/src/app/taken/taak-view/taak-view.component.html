@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Dimpact
+  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Dimpact, 2025 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -15,18 +15,29 @@
     opened="true"
     disableClose="true"
   >
-    <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
+    <zac-side-nav
+      (mode)="menuModeChanged($event)"
+      [menu]="menu"
+      [activeItem]="activeSideAction"
+      (activeItemChange)="activeSideAction = $event"
+    ></zac-side-nav>
   </mat-drawer>
-  <mat-drawer #actionsSidenav mode="over" position="end" [ngSwitch]="action">
+  <mat-drawer
+    #actionsSidenav
+    mode="over"
+    position="end"
+    [ngSwitch]="activeSideAction"
+    (closedStart)="activeSideAction = null"
+  >
     <zac-informatie-object-create-attended
-      *ngSwitchCase="sideNavAction.DOCUMENT_MAKEN"
+      *ngSwitchCase="'actie.document.maken'"
       [sideNav]="actionsSidenav"
       [zaak]="zaak"
       [taak]="taak"
       (document)="documentCreated()"
     ></zac-informatie-object-create-attended>
     <zac-informatie-object-add
-      *ngSwitchCase="sideNavAction.DOCUMENT_TOEVOEGEN"
+      *ngSwitchCase="'actie.document.toevoegen'"
       [sideNav]="actionsSidenav"
       [taak]="taak"
       (document)="updateTaakdocumenten($event)"
@@ -69,7 +80,7 @@
           </div>
         </mat-card-content>
       </mat-card>
-      <div class="flex-col flex verkorte-taak">
+      <div class="flex-col flex w50">
         <mat-card class="taak-card">
           <mat-card-header>
             <mat-card-title>{{ "taak" | translate }}</mat-card-title>
@@ -77,19 +88,21 @@
           <mat-card-content>
             <mat-tab-group mat-stretch-tabs="false">
               <mat-tab label="{{ 'gegevens.algemeen' | translate }}">
-                <div class="content flex-row flex-wrap flex-col-xs">
-                  <div class="flex-1 w33 w50-sm">
-                    <zac-static-text
-                      [label]="'naam' | translate"
-                      [value]="taak.naam"
-                    ></zac-static-text>
-                    <zac-static-text
-                      [label]="'taak.status' | translate"
-                      [value]="'taak.status.' + taak.status | translate"
-                    ></zac-static-text>
-                  </div>
+                <div
+                  class="content flex flex-row flex-wrap justify-start gap-10"
+                >
+                  <zac-static-text
+                    [label]="'naam' | translate"
+                    [value]="taak.naam"
+                    class="flex-item"
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'taak.status' | translate"
+                    [value]="'taak.status.' + taak.status | translate"
+                    class="flex-item"
+                  ></zac-static-text>
 
-                  <div class="flex-1 w33 w50-sm">
+                  <div class="flex-double-item">
                     <zac-edit-groep-behandelaar
                       [formField]="editFormFields.get('medewerker-groep')"
                       [readonly]="
@@ -102,20 +115,20 @@
                     </zac-edit-groep-behandelaar>
                   </div>
 
-                  <div class="flex-1 w33 w100-sm">
-                    <div class="mat-divider-wrapper hide-gt-sm">
-                      <mat-divider></mat-divider>
-                    </div>
-                    <zac-static-text
-                      [label]="'creatiedatum' | translate"
-                      [value]="taak.creatiedatumTijd | datum"
-                    ></zac-static-text>
-                    <zac-static-text
-                      [label]="'fataledatum' | translate"
-                      [value]="taak.fataledatum | datum"
-                      [icon]="fataledatumIcon"
-                    ></zac-static-text>
+                  <div class="mat-divider-wrapper hide-gt-sm">
+                    <mat-divider></mat-divider>
                   </div>
+                  <zac-static-text
+                    [label]="'creatiedatum' | translate"
+                    [value]="taak.creatiedatumTijd | datum"
+                    class="flex-item"
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'fataledatum' | translate"
+                    [value]="taak.fataledatum | datum"
+                    [icon]="fataledatumIcon"
+                    class="flex-item"
+                  ></zac-static-text>
                 </div>
               </mat-tab>
               <mat-tab label="{{ 'historie' | translate }}">

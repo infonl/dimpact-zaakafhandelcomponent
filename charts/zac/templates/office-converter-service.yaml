@@ -1,7 +1,8 @@
+{{- if .Values.office_converter.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-office-converter
+  name: {{ include "zaakafhandelcomponent.office-converter.fullname" . }}
   labels:
     {{- include "zaakafhandelcomponent.office-converter.labels" . | nindent 4 }}
   {{- with .Values.office_converter.service.annotations }}
@@ -18,3 +19,4 @@ spec:
       targetPort: http
   selector:
     {{- include "zaakafhandelcomponent.office-converter.selectorLabels" . | nindent 4 }}
+  {{- end }}

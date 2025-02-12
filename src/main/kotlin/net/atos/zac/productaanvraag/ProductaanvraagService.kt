@@ -36,7 +36,6 @@ import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.flowable.bpmn.BPMNService
-import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
 import net.atos.zac.productaanvraag.model.generated.Betrokkene
@@ -48,6 +47,7 @@ import net.atos.zac.productaanvraag.util.IndicatieMachtigingEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.convertToZgwPoint
 import net.atos.zac.util.JsonbUtil
+import nl.info.zac.flowable.cmmn.CMMNService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI

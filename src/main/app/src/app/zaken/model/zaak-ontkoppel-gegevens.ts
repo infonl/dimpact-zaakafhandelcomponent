@@ -8,6 +8,6 @@ import { ZaakRelatietype } from "./zaak-relatietype";
 export class ZaakOntkoppelGegevens {
   zaakUuid: string;
   gekoppeldeZaakIdentificatie: string;
-  relatietype: ZaakRelatietype;
+  relatieType: ZaakRelatietype;
   reden: string;
 }

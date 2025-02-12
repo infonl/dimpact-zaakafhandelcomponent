@@ -234,6 +234,7 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
         every { ztcClientService.clearZaaktypeCache() } returns "Cache cleared"
         every { ztcClientService.readZaaktype(zaaktypeUri) } returns zaakType
         every { ztcClientService.readResultaattype(any<URI>()) } returns createResultaatType()
+        every { ztcClientService.readResultaattype(any<UUID>()) } returns createResultaatType()
 
         // Relaxed entity manager mocking; criteria queries and persisting
         val criteriaQuery = mockk<CriteriaQuery<ZaakafhandelParameters>>(relaxed = true)
@@ -374,6 +375,20 @@ class ZaakafhandelParameterBeheerServiceTest : BehaviorSpec({
                     new.zaakafhandelParameters shouldNotBe original.zaakafhandelParameters
                     new.zaakafhandelParameters shouldBe slotPersistZaakafhandelParameters.captured
                     new.mailTemplate shouldBe original.mailTemplate
+                }
+            }
+
+            And("The afzenders should get copied") {
+                slotPersistZaakafhandelParameters.captured.zaakAfzenders.let {
+                    it shouldBeSameSizeAs originalZaakafhandelParameters.zaakAfzenders
+                    it zip originalZaakafhandelParameters.zaakAfzenders
+                }.forEach { (new, original) ->
+                    new.id shouldNotBe original.id
+                    new.zaakafhandelParameters shouldNotBe original.zaakafhandelParameters
+                    new.zaakafhandelParameters shouldBe slotPersistZaakafhandelParameters.captured
+                    new.isDefault shouldBe original.isDefault
+                    new.mail shouldBe original.mail
+                    new.replyTo shouldBe original.replyTo
                 }
             }
 

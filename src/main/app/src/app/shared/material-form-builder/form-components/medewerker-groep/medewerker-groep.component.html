@@ -22,9 +22,7 @@
       matSuffix
       *ngIf="!hasGroep"
       [ngClass]="{
-        error:
-          data.groep.invalid &&
-          (data.formControl.touched || data.formControl.dirty),
+        error: data.groep.invalid && data.formControl.dirty,
       }"
       >search</mat-icon
     >
@@ -38,9 +36,7 @@
     >
       <mat-icon
         [ngClass]="{
-          error:
-            data.groep.invalid &&
-            (data.formControl.touched || data.formControl.dirty),
+          error: data.groep.invalid && data.formControl.dirty,
         }"
         >clear</mat-icon
       >
@@ -71,9 +67,7 @@
       matSuffix
       *ngIf="!hasMedewerker"
       [ngClass]="{
-        error:
-          data.medewerker.invalid &&
-          (data.formControl.touched || data.formControl.dirty),
+        error: data.medewerker.invalid && data.formControl.dirty,
       }"
       >search</mat-icon
     >
@@ -87,9 +81,7 @@
     >
       <mat-icon
         [ngClass]="{
-          error:
-            data.medewerker.invalid &&
-            (data.formControl.touched || data.formControl.dirty),
+          error: data.medewerker.invalid && data.formControl.dirty,
         }"
         >clear</mat-icon
       >

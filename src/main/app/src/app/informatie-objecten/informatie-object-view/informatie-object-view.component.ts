@@ -39,7 +39,6 @@ import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
 import { HrefMenuItem } from "../../shared/side-nav/menu-item/href-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
-import { SideNavAction } from "../../shared/side-nav/side-nav-action";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { Zaak } from "../../zaken/model/zaak";
 import { ZakenService } from "../../zaken/zaken.service";
@@ -65,11 +64,9 @@ export class InformatieObjectViewComponent
   documentNieuweVersieGegevens: EnkelvoudigInformatieObjectVersieGegevens;
   documentPreviewBeschikbaar = false;
   menu: MenuItem[];
-  readonly sideNavAction = SideNavAction;
-  action: SideNavAction;
+  activeSideAction: string | null;
   versieInformatie: string;
-  historie: MatTableDataSource<HistorieRegel> =
-    new MatTableDataSource<HistorieRegel>();
+  historie = new MatTableDataSource<HistorieRegel>();
 
   historieColumns: string[] = [
     "datum",
@@ -186,7 +183,6 @@ export class InformatieObjectViewComponent
               .subscribe((nieuweVersie) => {
                 this.documentNieuweVersieGegevens = nieuweVersie;
                 this.actionsSidenav.open();
-                this.action = SideNavAction.DOCUMENT_VERSIE_TOEVOEGEN;
               });
           },
           "difference",
@@ -397,6 +393,8 @@ export class InformatieObjectViewComponent
       .open(DialogComponent, { data: dialogData })
       .afterClosed()
       .subscribe((result) => {
+        this.activeSideAction = null;
+
         if (result) {
           this.utilService.openSnackbar("msg.document.verwijderen.uitgevoerd", {
             document: this.infoObject.titel,

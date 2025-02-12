@@ -5,6 +5,8 @@
 
 package net.atos.zac.admin.model
 
+import net.atos.zac.mailtemplates.model.Mail
+import net.atos.zac.mailtemplates.model.MailTemplate
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -64,7 +66,10 @@ fun createZaakafhandelParameters(
     zaaktypeUUID: UUID = UUID.randomUUID(),
     zaaktypeOmschrijving: String = "dummyZaaktypeOmschrijving",
     einddatumGeplandWaarschuwing: Int? = null,
-    productaanvraagtype: String? = null
+    productaanvraagtype: String? = null,
+    nietOntvankelijkResultaattype: UUID = UUID.randomUUID(),
+    zaakbeeindigParameters: Set<ZaakbeeindigParameter>? = emptySet(),
+    caseDefinitionId: String = "dummyCaseDefinitionId"
 ) =
     ZaakafhandelParameters().apply {
         this.id = id
@@ -74,4 +79,50 @@ fun createZaakafhandelParameters(
         this.zaaktypeOmschrijving = zaaktypeOmschrijving
         this.einddatumGeplandWaarschuwing = einddatumGeplandWaarschuwing
         this.productaanvraagtype = productaanvraagtype
+        this.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
+        this.caseDefinitionID = caseDefinitionId
+        setMailtemplateKoppelingen(
+            setOf(
+                createMailtemplateKoppelingen(
+                    zaakafhandelParameters = this,
+                    mailTemplate = createMailTemplate()
+                )
+            )
+        )
+        setZaakAfzenders(setOf(createZaakAfzender(zaakafhandelParameters = this)))
+        setZaakbeeindigParameters(zaakbeeindigParameters)
     }
+
+fun createMailtemplateKoppelingen(
+    id: Long? = 1234L,
+    zaakafhandelParameters: ZaakafhandelParameters,
+    mailTemplate: MailTemplate
+) = MailtemplateKoppeling().apply {
+    this.id = id
+    this.zaakafhandelParameters = zaakafhandelParameters
+    this.mailTemplate = mailTemplate
+}
+
+fun createMailTemplate(
+    mail: Mail = Mail.ZAAK_ALGEMEEN
+) = MailTemplate().apply {
+    this.id = 1234L
+    mailTemplateNaam = "dummyName"
+    onderwerp = "dummyOnderwerp"
+    body = "dummyBody"
+    this.mail = mail
+}
+
+fun createZaakAfzender(
+    id: Long? = 1234L,
+    zaakafhandelParameters: ZaakafhandelParameters,
+    defaultMail: Boolean = false,
+    mail: String? = "mail@example.com",
+    replyTo: String? = "replyTo@example.com",
+) = ZaakAfzender().apply {
+    this.id = id
+    this.zaakafhandelParameters = zaakafhandelParameters
+    this.isDefault = defaultMail
+    this.mail = mail
+    this.replyTo = replyTo
+}

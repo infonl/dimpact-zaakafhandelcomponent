@@ -86,9 +86,9 @@ class KlantRestServiceTest : BehaviorSpec({
                     the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases
                     """
             ) {
-                response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_OK
                 responseBody shouldEqualJson """
                     {
                       "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
@@ -97,7 +97,7 @@ class KlantRestServiceTest : BehaviorSpec({
                       "geslacht": "$TEST_PERSON_HENDRIKA_JANSE_GENDER",
                       "identificatie": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
                       "identificatieType": "BSN",
-                      "indicaties": [ "OPSCHORTING_BIJHOUDING" ],
+                      "indicaties": [ "EMIGRATIE", "OPSCHORTING_BIJHOUDING" ],
                       "naam": "$TEST_PERSON_HENDRIKA_JANSE_FULLNAME",
                       "telefoonnummer": "$TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER",
                       "verblijfplaats": "$TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE"

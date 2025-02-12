@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Atos
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -8,19 +8,19 @@
     class="mode-slider"
     color="primary"
     id="dashboardEdit_toggle"
-    [(ngModel)]="editmode"
+    [formControl]="editMode"
     aria-label="Dashboard aanpassen"
   >
     {{ "actie.dashboard.wijzigen" | translate }}
   </mat-slide-toggle>
   <button
-    *ngIf="!editmode"
+    *ngIf="!editMode.value"
     [disabled]="true"
     id="spacer_button"
     mat-icon-button
   ></button>
   <button
-    *ngIf="editmode"
+    *ngIf="editMode.value"
     [disabled]="this.available.length == 0"
     id="cardToevoegen_button"
     mat-icon-button
@@ -46,16 +46,16 @@
 
 <div
   class="cards"
-  [ngClass]="editmode ? 'edit-mode' : 'view-mode'"
+  [ngClass]="editMode.value ? 'edit-mode' : 'view-mode'"
   cdkDropListGroup
 >
   <ng-container *ngFor="let column of grid">
     <div
-      *ngIf="editmode || 0 < column.length"
-      class="grid-column-{{ editmode ? '3' : width }}"
+      *ngIf="editMode.value || 0 < column.length"
+      class="grid-column-{{ editMode.value ? '3' : width }}"
       cdkDropList
       cdkDropListOrientation="vertical"
-      cdkDropListDisabled="{{ !editmode }}"
+      cdkDropListDisabled="{{ !editMode.value }}"
       (cdkDropListDropped)="move($event)"
       [cdkDropListData]="column"
     >
@@ -83,7 +83,7 @@
               </mat-card-title>
 
               <button
-                *ngIf="editmode"
+                *ngIf="editMode.value"
                 class="delete"
                 [id]="'cardVerwijderen_' + card.id + '_button'"
                 mat-icon-button

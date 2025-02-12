@@ -9,6 +9,10 @@ on:
     types:
       - closed
 
+permissions:
+  contents: write
+  actions: write
+
 jobs:
   cleanup-branch-cache:
     runs-on: ubuntu-24.04

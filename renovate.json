@@ -27,6 +27,16 @@
       "depNameTemplate": "infonl/dimpact-zaakafhandelcomponent",
       "datasourceTemplate": "github-releases",
       "autoReplaceStringTemplate": "softwareVersion: \"{{{newValue}}}\"\nreleaseDate: \"{{{releaseTimestamp}}}\""
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["workflows/.+\\.ya?ml$"],
+      "matchStrings": [
+        "\\sJAVA_VERSION: \"(?<currentValue>[^\"]+)\""
+      ],
+      "datasourceTemplate": "java-version",
+      "depNameTemplate": "java-jre",
+      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)[+]"
     }
   ],
   "packageRules": [
@@ -44,7 +54,7 @@
     {
       "groupName": "Dependencies provided by WildFly",
       "matchPackageNames": [
-	"jakarta.platform:jakarta.jakartaee-api",
+        "jakarta.platform:jakarta.jakartaee-api",
         "org.eclipse.microprofile.config:microprofile-config-api",
         "org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api",
         "org.eclipse.microprofile.health:microprofile-health-api",
@@ -54,19 +64,27 @@
         "org.hibernate.validator:hibernate-validator"
       ],
       "matchManagers": [
-	    "gradle"
+        "gradle"
       ],
       "enabled": false,
       "description": ["Updates for dependencies that are provided by WildFly"]
     },
     {
       "matchPackageNames": [
-        "quay.io/keycloak/keycloak",
+        "quay.io/keycloak/keycloak"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "<= 25.0.6",
+      "description": ["Pinned by the next Dimpact PodiumD release"]
+    },
+    {
+      "matchPackageNames": [
         "org.keycloak:keycloak-admin-client"
       ],
       "matchDatasources": [
-        "docker",
-        "gradle"
+        "maven"
       ],
       "allowedVersions": "<= 25.0.6",
       "description": ["Pinned by the next Dimpact PodiumD release"]
@@ -163,7 +181,9 @@
       "matchDatasources": [
         "github-releases"
       ],
-      "automerge": true
+      "automerge": true,
+      "schedule": ["* 0-8 1,15 * *"],
+      "description": ["automerge the updates to publiccode.yaml on the 1st and 15th day of the month before 08:00"]
     },
     {
       "matchPackageNames": [
@@ -174,10 +194,27 @@
       ],
       "matchUpdateTypes": [
         "patch",
-	"minor",
-	"major"
+        "minor",
+        "major"
       ],
       "automerge": true
+    },
+    {
+      "matchPackageNames": [
+        "com.diffplug.spotless"
+      ],
+      "allowedVersions": "< 7",
+      "description": ["Pinned - version 7 causes Connection refused and node/npm discovery issues"]
+    },
+    {
+      "matchPackageNames": [
+        "docker.io/eclipse-temurin"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "versioning": "loose",
+      "allowedVersions": "/jre-ubi9-minimal$/"
     }
   ]
 }

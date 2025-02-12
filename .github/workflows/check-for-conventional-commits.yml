@@ -8,6 +8,10 @@ on:
   pull_request:
     types: [opened, edited, synchronize]
 
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   check-for-conventional-commits:
     runs-on: ubuntu-24.04

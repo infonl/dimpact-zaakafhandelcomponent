@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021-2022 Atos
+ * SPDX-FileCopyrightText: 2021-2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -24,8 +24,8 @@ export class DateRangeFilterComponent implements OnChanges {
   @Input() label: string;
   @Output() changed = new EventEmitter<DatumRange>();
 
-  dateVan: FormControl<Date> = new FormControl<Date>(null);
-  dateTM: FormControl<Date> = new FormControl<Date>(null);
+  dateVan = new FormControl<Date>(null);
+  dateTM = new FormControl<Date>(null);
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!this.range) {

@@ -25,7 +25,6 @@ import { ZaakBetrokkene } from "./model/zaak-betrokkene";
 import { ZaakBetrokkeneGegevens } from "./model/zaak-betrokkene-gegevens";
 import { ZaakEditMetRedenGegevens } from "./model/zaak-edit-met-reden-gegevens";
 import { ZaakHeropenenGegevens } from "./model/zaak-heropenen-gegevens";
-import { ZaakKoppelGegevens } from "./model/zaak-koppel-gegevens";
 import { ZaakLocatieGegevens } from "./model/zaak-locatie-gegevens";
 import { ZaakToekennenGegevens } from "./model/zaak-toekennen-gegevens";
 import { Zaaktype } from "./model/zaaktype";
@@ -430,19 +429,21 @@ export class ZakenService {
       );
   }
 
-  koppelZaak(zaakKoppelGegevens: ZaakKoppelGegevens): Observable<void> {
+  koppelZaak(
+    restZaakLinkData: GeneratedType<"RestZaakLinkData">,
+  ): Observable<void> {
     return this.http
-      .patch<void>(`${this.basepath}/zaak/koppel`, zaakKoppelGegevens)
+      .patch<void>(`${this.basepath}/zaak/koppel`, restZaakLinkData)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
   }
 
   ontkoppelZaak(
-    zaakOntkoppelGegevens: GeneratedType<"RESTZaakOntkoppelGegevens">,
+    restZaakUnlinkData: GeneratedType<"RestZaakUnlinkData">,
   ): Observable<void> {
     return this.http
-      .patch<void>(`${this.basepath}/zaak/ontkoppel`, zaakOntkoppelGegevens)
+      .patch<void>(`${this.basepath}/zaak/ontkoppel`, restZaakUnlinkData)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );

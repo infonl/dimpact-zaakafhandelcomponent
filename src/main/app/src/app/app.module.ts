@@ -1,9 +1,13 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient, HttpClientModule } from "@angular/common/http";
+import {
+  HttpClient,
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
 import { Injector, NgModule } from "@angular/core";
 
 import {
@@ -43,8 +47,9 @@ const httpLoaderFactory = (http: HttpClient) =>
 
 @NgModule({
   declarations: [AppComponent, ToolbarComponent, ActionBarComponent],
+  exports: [ToolbarComponent],
+  bootstrap: [AppComponent],
   imports: [
-    HttpClientModule,
     CoreModule,
     SharedModule,
     DashboardModule,
@@ -69,13 +74,12 @@ const httpLoaderFactory = (http: HttpClient) =>
       },
     }),
   ],
-  exports: [ToolbarComponent],
   providers: [
     { provide: APP_BASE_HREF, useValue: "/" },
     { provide: LocationStrategy, useClass: PathLocationStrategy },
     provideAngularQuery(new QueryClient()),
+    provideHttpClient(withInterceptorsFromDi()),
   ],
-  bootstrap: [AppComponent],
 })
 export class AppModule {
   static injector: Injector;

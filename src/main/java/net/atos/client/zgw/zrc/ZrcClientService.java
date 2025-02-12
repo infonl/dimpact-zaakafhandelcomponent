@@ -26,6 +26,8 @@ import jakarta.ws.rs.core.UriBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.atos.client.util.JAXRSClientFactory;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
@@ -61,6 +63,7 @@ import net.atos.zac.configuratie.ConfiguratieService;
 @ApplicationScoped
 public class ZrcClientService {
 
+    private static final Logger log = LoggerFactory.getLogger(ZrcClientService.class);
     @Inject
     @ConfigProperty(name = "ZGW_API_URL_EXTERN")
     private String zgwApiUrlExtern;
@@ -531,9 +534,9 @@ public class ZrcClientService {
         // for security reasons check if the provided URI starts with the value of the
         // environment variable that we use to configure the ztcClient
         if (!uri.toString().startsWith(configuratieService.readZgwApiClientMpRestUrl())) {
-            throw new RuntimeException(format(
+            throw new IllegalStateException(format(
                     "URI '%s' does not start with value for environment variable " +
-                                              "'%s': '%s'",
+                                                   "'%s': '%s'",
                     uri,
                     ENV_VAR_ZGW_API_CLIENT_MP_REST_URL,
                     configuratieService.readZgwApiClientMpRestUrl()

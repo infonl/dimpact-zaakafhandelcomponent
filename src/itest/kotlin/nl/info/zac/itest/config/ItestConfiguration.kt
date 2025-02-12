@@ -36,6 +36,8 @@ object ItestConfiguration {
 
     const val ACTIE_INTAKE_AFRONDEN = "INTAKE_AFRONDEN"
     const val ACTIE_ZAAK_AFHANDELEN = "ZAAK_AFHANDELEN"
+    const val BAG_MOCK_BASE_URI = "http://bag-wiremock.local:8080"
+    const val BAG_TEST_ADRES_1_IDENTIFICATION = "0363200003761447"
     const val BETROKKENE_TYPE_NATUURLIJK_PERSOON = "NATUURLIJK_PERSOON"
     const val BETROKKENE_IDENTIFICATION_TYPE_BSN = "BSN"
     const val BETROKKENE_IDENTIFACTION_TYPE_VESTIGING = "VN"
@@ -109,9 +111,9 @@ object ItestConfiguration {
     const val TEST_SPEC_ORDER_AFTER_ZAKEN_TAKEN_DOCUMENTEN_ADDED = 6
     const val TEST_SPEC_ORDER_AFTER_REINDEXING = 7
     const val TEST_SPEC_ORDER_AFTER_SEARCH = 8
-    const val TEST_SPEC_ORDER_LAST = 100
 
-    const val TOTAL_COUNT_ZAKEN = 7
+    const val TOTAL_COUNT_ZAKEN = 10
+    const val TOTAL_COUNT_ZAKEN_AFGEROND = 2
     const val TOTAL_COUNT_TASKS = 2
     const val TOTAL_COUNT_DOCUMENTS = 7
 
@@ -297,9 +299,19 @@ object ItestConfiguration {
     const val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_BETROKKENE_PLAATSVERVANGER =
         "74799b20-0350-457d-8773-a0f1ab16b299"
 
+    /**
+     * Zaak beeindig constants
+     */
+    const val ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_ID = "-1"
+    const val ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_NAME = "Verzoek is door initiator ingetrokken"
+    const val ZAAK_BEEINDIG_ZAAK_IS_EEN_DUPLICAAT_ID = "-2"
+    const val ZAAK_BEEINDIG_ZAAK_IS_EEN_DUPLICAAT_NAME = "Zaak is een duplicaat"
+    const val ZAAK_BEEINDIG_VERZOEK_IS_BIJ_VERKEERDE_ORGANISATIE_INGEDIEND_ID = "-3"
+    const val ZAAK_BEEINDIG_VERZOEK_IS_BIJ_VERKEERDE_ORGANISATIE_INGEDIEND_NAME =
+        "Verzoek is bij verkeerde organisatie ingediend"
+
     @Suppress("MagicNumber")
-    val DATE_TIME_2000_01_01: ZonedDateTime = LocalDate.of(2000, Month.JANUARY, 1)
-        .atStartOfDay(TimeZone.getDefault().toZoneId())
+    val DATE_2000_01_01: LocalDate = LocalDate.of(2000, Month.JANUARY, 1)
 
     @Suppress("MagicNumber")
     val DATE_2020_01_01: LocalDate = LocalDate.of(2020, Month.JANUARY, 1)
@@ -319,8 +331,10 @@ object ItestConfiguration {
     @Suppress("MagicNumber")
     val DATE_2024_01_31: LocalDate = LocalDate.of(2024, Month.JANUARY, 31)
 
+    val DATE_TIME_2000_01_01: ZonedDateTime = DATE_2000_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
     val DATE_TIME_2020_01_01: ZonedDateTime = DATE_2020_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
     val DATE_TIME_2024_01_01: ZonedDateTime = DATE_2024_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
+    val DATE_TIME_2024_01_31: ZonedDateTime = DATE_2024_01_31.atStartOfDay(TimeZone.getDefault().toZoneId())
 
     val ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
     val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID: UUID =

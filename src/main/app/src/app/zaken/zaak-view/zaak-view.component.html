@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
+  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024-2025 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -16,17 +16,23 @@
     opened="true"
     disableClose="true"
   >
-    <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
+    <zac-side-nav
+      (mode)="menuModeChanged($event)"
+      [menu]="menu"
+      [activeItem]="activeSideAction"
+      (activeItemChange)="menuItemChanged($event)"
+    ></zac-side-nav>
   </mat-drawer>
   <mat-drawer
     #actionsSidenav
     mode="over"
     position="end"
-    [ngSwitch]="action"
+    [ngSwitch]="activeSideAction"
+    (closedStart)="activeSideAction = null"
     class="zaak-actions-drawer"
   >
     <zac-klant-koppel
-      *ngSwitchCase="sideNavAction.ZOEK_INITIATOR"
+      *ngSwitchCase="'actie.initiator.toevoegen'"
       [sideNav]="actionsSidenav"
       (klantGegevens)="initiatorGeselecteerd($event.klant)"
       [initiator]="true"
@@ -34,7 +40,7 @@
       [allowPersoon]="zaak.rechten.toevoegenInitiatorPersoon"
     ></zac-klant-koppel>
     <zac-klant-koppel
-      *ngSwitchCase="sideNavAction.ZOEK_BETROKKENE"
+      *ngSwitchCase="'actie.betrokkene.toevoegen'"
       (klantGegevens)="betrokkeneGeselecteerd($event)"
       [sideNav]="actionsSidenav"
       [zaaktypeUUID]="zaak.zaaktype.uuid"
@@ -42,76 +48,76 @@
       [allowPersoon]="zaak.rechten.toevoegenBetrokkenePersoon"
     ></zac-klant-koppel>
     <zac-bag-zoek
-      *ngSwitchCase="sideNavAction.ZOEK_BAG_ADRES"
+      *ngSwitchCase="'actie.bagObject.toevoegen'"
       [gekoppeldeBagObjecten]="gekoppeldeBagObjecten"
       [sideNav]="actionsSidenav"
       (bagObject)="adresGeselecteerd($event)"
     ></zac-bag-zoek>
     <zac-locatie-zoek
-      *ngSwitchCase="sideNavAction.ZOEK_LOCATIE"
+      *ngSwitchCase="'actie.locatie.toevoegen'"
       [sideNav]="actionsSidenav"
       [huidigeLocatie]="zaak.zaakgeometrie"
       [readonly]="!zaak.isOpen || !zaak.rechten.wijzigen"
       (locatie)="locatieGeselecteerd($event)"
     ></zac-locatie-zoek>
     <zac-informatie-object-create-attended
-      *ngSwitchCase="sideNavAction.DOCUMENT_MAKEN"
+      *ngSwitchCase="'actie.document.maken'"
       [sideNav]="actionsSidenav"
       [zaak]="zaak"
       (document)="documentCreated()"
     ></zac-informatie-object-create-attended>
     <zac-informatie-object-add
-      *ngSwitchCase="sideNavAction.DOCUMENT_TOEVOEGEN"
+      *ngSwitchCase="'actie.document.toevoegen'"
       [sideNav]="actionsSidenav"
       [zaak]="zaak"
       (document)="documentToegevoegd()"
     ></zac-informatie-object-add>
     <zac-informatie-verzenden
-      *ngSwitchCase="sideNavAction.DOCUMENT_VERZENDEN"
+      *ngSwitchCase="'actie.document.verzenden'"
       [sideNav]="actionsSidenav"
       [zaak]="zaak"
       (documentSent)="documentSent()"
     ></zac-informatie-verzenden>
     <zac-human-task-do
-      *ngSwitchCase="sideNavAction.TAAK_STARTEN"
+      *ngSwitchCase="actiefPlanItem?.naam ?? 'none'"
       (done)="taakGestart()"
       [sideNav]="actionsSidenav"
       [zaak]="zaak"
       [planItem]="actiefPlanItem"
     ></zac-human-task-do>
     <zac-process-task-do
-      *ngSwitchCase="sideNavAction.PROCESS_STARTEN"
+      *ngSwitchCase="actiefPlanItem?.naam ?? 'none'"
       (done)="processGestart()"
       [zaak]="zaak"
       [planItem]="actiefPlanItem"
     ></zac-process-task-do>
     <zac-mail-create
-      *ngSwitchCase="sideNavAction.MAIL_VERSTUREN"
+      *ngSwitchCase="'actie.mail.versturen'"
       (mailVerstuurd)="mailVerstuurd($event)"
       [sideNav]="actionsSidenav"
       [zaak]="zaak"
     ></zac-mail-create>
     <zac-ontvangstbevestiging
-      *ngSwitchCase="sideNavAction.ONTVANGSTBEVESTIGING"
+      *ngSwitchCase="'actie.ontvangstbevestiging.versturen'"
       (ontvangstBevestigd)="ontvangstBevestigd($event)"
       [sideNav]="actionsSidenav"
       [zaak]="zaak"
     ></zac-ontvangstbevestiging>
     <zac-besluit-create
-      *ngSwitchCase="sideNavAction.BESLUIT_VASTLEGGEN"
+      *ngSwitchCase="'actie.besluit.vastleggen'"
       (besluitVastgelegd)="besluitVastgelegd()"
       [sideNav]="actionsSidenav"
       [zaak]="zaak"
     ></zac-besluit-create>
     <zac-besluit-edit
-      *ngSwitchCase="sideNavAction.BESLUIT_WIJZIGEN"
+      *ngSwitchCase="'actie.besluit.wijzigen'"
       (besluitGewijzigd)="besluitVastgelegd()"
       [sideNav]="actionsSidenav"
       [besluit]="teWijzigenBesluit"
       [zaak]="zaak"
     ></zac-besluit-edit>
     <zac-zaakdata
-      *ngSwitchCase="sideNavAction.ZAAKDATA_TONEN"
+      *ngSwitchCase="'actie.zaakdata.bekijken'"
       [readonly]="true"
       [sideNav]="actionsSidenav"
       [zaak]="zaak"
@@ -182,8 +188,8 @@
                 <mat-icon>topic</mat-icon>
                 {{ "gegevens.algemeen" | translate }}</ng-template
               >
-              <div id="algemeneGegevens_tab" class="content flex-row flex-wrap">
-                <div class="flex w33 w50-md w100-sm">
+              <div id="algemeneGegevens_tab" class="content">
+                <div class="flex flex-row flex-wrap justify-start gap-10">
                   <zac-static-text
                     [label]="'status' | translate"
                     [value]="zaak.status | empty: 'naam'"
@@ -191,54 +197,12 @@
                     [matTooltip]="zaak.status?.toelichting"
                     [attr.role]="zaak.status?.toelichting ? 'tooltip' : null"
                     [attr.aria-label]="zaak.status?.toelichting"
+                    class="flex-item"
                   ></zac-static-text>
-                  <zac-edit-select
-                    [formField]="editFormFields.get('communicatiekanaal')"
-                    [reasonField]="editFormFields.get('reden')"
-                    [readonly]="!zaak.rechten.wijzigen"
-                    (onSave)="editZaakMetReden($event, 'communicatiekanaal')"
-                  >
-                  </zac-edit-select>
-                  <zac-edit-select
-                    [formField]="
-                      editFormFields.get('vertrouwelijkheidaanduiding')
-                    "
-                    [reasonField]="editFormFields.get('reden')"
-                    [readonly]="!zaak.rechten.wijzigen"
-                    (onSave)="
-                      editZaakMetReden($event, 'vertrouwelijkheidaanduiding')
-                    "
-                  >
-                  </zac-edit-select>
-                </div>
-                <div class="flex w33 w50-md w100-sm">
-                  <zac-edit-groep-behandelaar
-                    [formField]="editFormFields.get('medewerker-groep')"
-                    [reasonField]="editFormFields.get('redenNietVerplicht')"
-                    [readonly]="!zaak.isOpen || !zaak.rechten.toekennen"
-                    (onSave)="editToewijzing($event)"
-                  >
-                  </zac-edit-groep-behandelaar>
-                  <zac-static-text
-                    *ngIf="zaak.archiefNominatie === 'VERNIETIGEN'"
-                    [label]="
-                      'archiefNominatie.datum.' + zaak.archiefNominatie
-                        | translate
-                    "
-                    [value]="zaak.archiefActiedatum | datum | empty"
-                  ></zac-static-text>
-                  <zac-static-text
-                    *ngIf="zaak.archiefNominatie === 'BLIJVEND_BEWAREN'"
-                    [label]="'archiefNominatie' | translate"
-                    [value]="
-                      'archiefNominatie.' + zaak.archiefNominatie | translate
-                    "
-                  ></zac-static-text>
-                </div>
-                <div class="flex w33 w50-md w100-sm">
                   <zac-static-text
                     [label]="'registratiedatum' | translate"
                     [value]="zaak.registratiedatum | datum"
+                    class="flex-item"
                   ></zac-static-text>
                   <zac-static-text
                     [label]="'resultaat' | translate"
@@ -247,37 +211,53 @@
                     [matTooltip]="zaak.resultaat?.toelichting"
                     [attr.role]="zaak.resultaat?.toelichting ? 'tooltip' : null"
                     [attr.aria-label]="zaak.resultaat?.toelichting"
+                    class="flex-item"
                   ></zac-static-text>
                   <zac-static-text
                     *ngIf="zaak.einddatum"
                     [label]="'einddatum' | translate"
                     [value]="zaak.einddatum | datum"
+                    class="flex-item"
+                  ></zac-static-text>
+                  <zac-static-text
+                    *ngIf="zaak.archiefNominatie === 'VERNIETIGEN'"
+                    [label]="
+                      'archiefNominatie.datum.' + zaak.archiefNominatie
+                        | translate
+                    "
+                    [value]="zaak.archiefActiedatum | datum | empty"
+                    class="flex-item"
+                  ></zac-static-text>
+                  <zac-static-text
+                    *ngIf="zaak.archiefNominatie === 'BLIJVEND_BEWAREN'"
+                    [label]="'archiefNominatie' | translate"
+                    [value]="
+                      'archiefNominatie.' + zaak.archiefNominatie | translate
+                    "
+                    class="flex-item"
                   ></zac-static-text>
                 </div>
+                <mat-divider class="mat-divider-wrapper"></mat-divider>
 
-                <div class="flex-1 w100">
-                  <div
-                    class="location-text"
-                    [class.readonly]="!zaak.isOpen || !zaak.rechten.wijzigen"
-                    (click)="showOrEditZaakLocatie()"
+                <div class="flex flex-row flex-wrap justify-start gap-10">
+                  <zac-edit-groep-behandelaar
+                    [formField]="editFormFields.get('medewerker-groep')"
+                    [reasonField]="editFormFields.get('redenNietVerplicht')"
+                    [readonly]="!zaak.isOpen || !zaak.rechten.toekennen"
+                    (onSave)="editToewijzing($event)"
+                    class="flex-double-item"
                   >
-                    <label class="static-text-label" translate="locatie">
-                      <mat-icon>edit</mat-icon>
-                    </label>
-                    <div
-                      class="static-text-content"
-                      [ngClass]="{ nopanel: zaak.zaakgeometrie == null }"
-                    >
-                      {{ zaak.zaakgeometrie | location | empty }}
-                      <div class="edit-icon">
-                        <mat-icon>place</mat-icon>
-                      </div>
-                    </div>
-                  </div>
+                  </zac-edit-groep-behandelaar>
+                  <zac-edit-select
+                    [formField]="editFormFields.get('communicatiekanaal')"
+                    [reasonField]="editFormFields.get('reden')"
+                    [readonly]="!zaak.rechten.wijzigen"
+                    (onSave)="editZaakMetReden($event, 'communicatiekanaal')"
+                    class="flex-item"
+                  >
+                  </zac-edit-select>
                 </div>
-
-                <div class="flex-1 w100">
-                  <mat-divider></mat-divider>
+                <div class="flex w100">
                   <zac-edit-datum-groep
                     [startDatumField]="editFormFields.get('startdatum')"
                     [einddatumGeplandField]="
@@ -299,10 +279,42 @@
                     [readonly]="!zaak.rechten.wijzigen || zaak.isProcesGestuurd"
                     (onSave)="editDatumGroep($event)"
                   ></zac-edit-datum-groep>
-                  <mat-divider></mat-divider>
                 </div>
 
-                <div class="flex-1 w100">
+                <div class="flex flex-row flex-wrap justify-start gap-10">
+                  <zac-edit-select
+                    [formField]="
+                      editFormFields.get('vertrouwelijkheidaanduiding')
+                    "
+                    [reasonField]="editFormFields.get('reden')"
+                    [readonly]="!zaak.rechten.wijzigen"
+                    (onSave)="
+                      editZaakMetReden($event, 'vertrouwelijkheidaanduiding')
+                    "
+                    class="flex-item"
+                  >
+                  </zac-edit-select>
+                  <div
+                    class="location-text flex-item"
+                    [class.readonly]="!zaak.isOpen || !zaak.rechten.wijzigen"
+                    (click)="showOrEditZaakLocatie()"
+                  >
+                    <label class="static-text-label" translate="locatie">
+                      <mat-icon>edit</mat-icon>
+                    </label>
+                    <div
+                      class="static-text-content"
+                      [ngClass]="{ nopanel: zaak.zaakgeometrie == null }"
+                    >
+                      {{ zaak.zaakgeometrie | location | empty }}
+                      <div class="edit-icon">
+                        <mat-icon>place</mat-icon>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="w100">
                   <zac-edit-tekst
                     [formField]="editFormFields.get('omschrijving')"
                     [reasonField]="editFormFields.get('reden')"
@@ -310,7 +322,7 @@
                     (onSave)="editZaakMetReden($event, 'omschrijving')"
                   ></zac-edit-tekst>
                 </div>
-                <div class="flex-1 w100">
+                <div class="w100 replace_me_margin">
                   <zac-edit-tekst
                     [formField]="editFormFields.get('toelichting')"
                     [reasonField]="editFormFields.get('reden')"
@@ -736,7 +748,7 @@
           <mat-card-header>
             <mat-card-title>{{ "taken" | translate }}</mat-card-title>
             <mat-slide-toggle
-              [(ngModel)]="toonAfgerondeTaken"
+              [formControl]="toonAfgerondeTaken"
               color="primary"
               id="takenAfgerondeToon_toggle"
               (change)="filterTakenOpStatus()"

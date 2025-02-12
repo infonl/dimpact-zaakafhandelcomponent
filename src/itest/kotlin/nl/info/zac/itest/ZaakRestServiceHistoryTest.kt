@@ -13,14 +13,12 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
-import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE
-import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE
 import nl.info.zac.itest.config.ItestConfiguration.SMART_DOCUMENTS_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_2_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_3_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
-import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_LAST
+import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
@@ -29,7 +27,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 
-@Order(TEST_SPEC_ORDER_LAST)
+@Order(TEST_SPEC_ORDER_AFTER_ZAAK_UPDATED)
 class ZaakRestServiceHistoryTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
@@ -45,27 +43,7 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
 
-                val expectedResponse = """[{
-                    "actie": "GEWIJZIGD",
-                    "attribuutLabel": "status",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "Intake",
-                    "toelichting": "Status gewijzigd"
-                  },
-                  {
-                    "actie": "GEKOPPELD",
-                    "attribuutLabel": "Behandelaar",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "$TEST_USER_1_NAME",
-                    "toelichting": ""
-                  },
-                  {
-                    "actie": "GEKOPPELD",
-                    "attribuutLabel": "zaakinformatieobject",
-                    "door": "$TEST_USER_1_NAME",
-                    "nieuweWaarde": "subject",
-                    "toelichting": ""
-                  },
+                val expectedResponse = """[   
                   {
                     "actie": "GEKOPPELD",
                     "attribuutLabel": "zaakinformatieobject",
@@ -128,13 +106,6 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                     "door": "Functionele gebruiker",
                     "nieuweWaarde": "$TEST_USER_2_NAME",
                     "toelichting": "dummyLijstVerdelenReason"
-                  },
-                  {
-                    "actie": "GEWIJZIGD",
-                    "attribuutLabel": "zaakgeometrie",
-                    "door": "$TEST_USER_1_NAME",
-                    "oudeWaarde": "POINT($PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE $PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE)",
-                    "toelichting": "Aanvullende informatie opgevraagd"
                   },
                   {
                     "actie": "GEWIJZIGD",

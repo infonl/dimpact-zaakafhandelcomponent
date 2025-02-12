@@ -1,6 +1,7 @@
 # zaakafhandelcomponent
 
-![Version: 0.4.3](https://img.shields.io/badge/Version-0.4.3-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.4.4](https://img.shields.io/badge/Version-0.4.4-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -16,6 +17,7 @@ A Helm chart for installing Zaakafhandelcomponent
 |------------|------|---------|
 | @bitnami | solr | 9.5.1 |
 | @opentelemetry | opentelemetry-collector | 0.104.0 |
+| @solr | solr-operator | 0.8.1 |
 
 ## Values
 
@@ -49,7 +51,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | gemeente.naam | string | `""` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/infonl/zaakafhandelcomponent"` |  |
-| image.tag | string | `"1.12.269@sha256:79178b78f60b25e0052fb5d763dd123f0d2e6a215d14515d55fa1d65c545ca89"` | Overrides the image tag whose default is the chart appVersion. |
+| image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | specifies image pull secrets |
 | ingress.annotations | object | `{}` |  |
 | ingress.className | string | `""` |  |
@@ -64,10 +66,10 @@ A Helm chart for installing Zaakafhandelcomponent
 | klantinteractiesApi.url | string | `""` |  |
 | kvkApi.apiKey | string | `""` |  |
 | kvkApi.url | string | `""` |  |
-| mail.smtp.password | string | `""` |  |
-| mail.smtp.port | string | `"587"` |  |
-| mail.smtp.server | string | `""` |  |
-| mail.smtp.username | string | `""` |  |
+| mail.smtp.password | string | `""` | SMTP server password if authentication is required. Optional |
+| mail.smtp.port | string | `"587"` | SMTP server port: 587 for TLS, port 25 for relaying. Required |
+| mail.smtp.server | string | `""` | SMTP server host (for example localhost or in-v3.mailjet.com). Required |
+| mail.smtp.username | string | `""` | SMTP server username if authentication is required. Optional |
 | maxFileSizeMB | int | `80` | Maximum size (in Mega Bytes) of files that can be uploaded. |
 | nameOverride | string | `""` | name to use |
 | nginx.allowedHosts | string | `""` |  |
@@ -244,10 +246,70 @@ A Helm chart for installing Zaakafhandelcomponent
 | signaleringen.sendZaakSignaleringenSchedule | string | `"0 2 * * *"` | Schedule of the signaleringen send zaken job in CRON job format |
 | signaleringen.successfulJobsHistoryLimit | int | `1` | k8s settings for the signaleren jobs |
 | signaleringen.tolerations | list | `[]` |  |
-| smartDocuments.authentication | string | `""` |  |
-| smartDocuments.enabled | bool | `false` |  |
-| smartDocuments.fixedUserName | string | `""` |  |
-| smartDocuments.url | string | `""` |  |
+| smartDocuments.authentication | string | `""` | Authentication token |
+| smartDocuments.enabled | bool | `false` | Enable SmartDocuments integration for creating a new document |
+| smartDocuments.fixedUserName | string | `""` | Fixed username for authentication |
+| smartDocuments.url | string | `""` | URL to SmartDocuments instance. For example: https://partners.smartdocuments.com |
+| solr-operator.affinity | object | `{}` | affinity for solr-operator |
+| solr-operator.annotations | object | `{}` | annotations for solr-operator |
+| solr-operator.enabled | bool | `false` | set enabled to actually use the solr-operator helm chart |
+| solr-operator.fullnameOverride | string | `"solr-operator"` | set fullname for solr-operator |
+| solr-operator.image.pullPolicy | string | `"IfNotPresent"` | solr-operator imagePullPolicy |
+| solr-operator.image.repository | string | `"apache/solr-operator"` | solr-operator repository |
+| solr-operator.image.tag | string | `"v0.8.1"` | solr-operator tag |
+| solr-operator.metrics.enabled | bool | `true` | enable to have solr-operator metric endpoints |
+| solr-operator.nodeSelector | object | `{}` | nodeSelector for solr-operator |
+| solr-operator.solr.affinity | object | `{}` | affinity for solr in solrcloud |
+| solr-operator.solr.annotations | object | `{}` | annotations for solr in solrcloud |
+| solr-operator.solr.busyBoxImage.pullPolicy | string | `"IfNotPresent"` | solr busybox image imagePullPolicy |
+| solr-operator.solr.busyBoxImage.repository | string | `"library/busybox"` | solr busybox image reposity |
+| solr-operator.solr.busyBoxImage.tag | string | `"1.28.0-glibc"` | solr busybox image tag |
+| solr-operator.solr.enabled | bool | `true` | enable configuration of a solrcloud |
+| solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
+| solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
+| solr-operator.solr.image.tag | string | `"9.6.1"` | solr image tag |
+| solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` | solr memory settings |
+| solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
+| solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |
+| solr-operator.solr.jobs.createZacCore | bool | `true` | enable createZacCore to have a curl statement generate the zac core in the provided solrcloud if it does not exist yet |
+| solr-operator.solr.jobs.image.pullPolicy | string | `"IfNotPresent"` | solr jobs imagePullPolicy |
+| solr-operator.solr.jobs.image.repository | string | `"curlimages/curl"` | solr jobs repository |
+| solr-operator.solr.jobs.image.tag | string | `"8.10.1"` | solr jobs tag |
+| solr-operator.solr.jobs.nodeSelector | object | `{}` | nodeSelector for jobs |
+| solr-operator.solr.jobs.tolerations | list | `[]` | tolerations for jobs |
+| solr-operator.solr.logLevel | string | `"INFO"` | solr loglevel |
+| solr-operator.solr.name | string | `"solr"` | solrcloud name |
+| solr-operator.solr.nodeSelector | object | `{}` | nodeSelector for solr in solrcloud |
+| solr-operator.solr.replicas | int | `3` | replicas for solr in solrcloud, should be an odd number |
+| solr-operator.solr.storage.reclaimPolicy | string | `"Delete"` | solr storage reclaimPolicy |
+| solr-operator.solr.storage.size | string | `"1Gi"` | solr storage size |
+| solr-operator.solr.storage.storageClassName | string | `"managed-csi"` | solr storage storageClassName |
+| solr-operator.solr.tolerations | list | `[]` | tolerations for solr in solrcloud |
+| solr-operator.tolerations | list | `[]` | tolerations for solr-operator |
+| solr-operator.watchNamespaces | string | `"default"` | a comma-seperated list of namespaces to watch, watches all namespaces if empty |
+| solr-operator.zookeeper-operator.affinity | object | `{}` | affinity for zookeeper-operator |
+| solr-operator.zookeeper-operator.annotations | object | `{}` | annotations for zookeeper-operator |
+| solr-operator.zookeeper-operator.fullnameOverride | string | `"zookeeper-operator"` | set fullname for zookeeper-operator |
+| solr-operator.zookeeper-operator.hooks.image.pullPolicy | string | `"IfNotPresent"` | zookeeper-operator hooks imagePullPolicy |
+| solr-operator.zookeeper-operator.hooks.image.repository | string | `"lachlanevenson/k8s-kubectl"` | zookeeper-operator hooks repository |
+| solr-operator.zookeeper-operator.hooks.image.tag | string | `"v1.23.2"` | zookeeper-operator hooks tag |
+| solr-operator.zookeeper-operator.image.pullPolicy | string | `"IfNotPresent"` | zookeeper-operator imagePullPolicy |
+| solr-operator.zookeeper-operator.image.repository | string | `"pravega/zookeeper-operator"` | zookeeper-operator image repository |
+| solr-operator.zookeeper-operator.image.tag | string | `"0.2.15"` | zookeeper-operator image tag |
+| solr-operator.zookeeper-operator.nodeSelector | object | `{}` | nodeSelector for solr-operator |
+| solr-operator.zookeeper-operator.tolerations | list | `[]` | tolerations for solr-operator |
+| solr-operator.zookeeper-operator.watchNamespace | string | `"default"` | a comma-seperated list of namespaces to watch, watches all namespaces if empty |
+| solr-operator.zookeeper-operator.zookeeper.affinity | object | `{}` | affinity for zookeeper |
+| solr-operator.zookeeper-operator.zookeeper.annotations | object | `{}` | annotations for zookeeper |
+| solr-operator.zookeeper-operator.zookeeper.image.pullPolicy | string | `"IfNotPresent"` | zookeeper imagePullPolicy |
+| solr-operator.zookeeper-operator.zookeeper.image.repository | string | `"pravega/zookeeper"` | zookeeper image repository |
+| solr-operator.zookeeper-operator.zookeeper.image.tag | string | `"0.2.14"` | zookeeper image tag |
+| solr-operator.zookeeper-operator.zookeeper.nodeSelector | object | `{}` | nodeSelector for zookeeper |
+| solr-operator.zookeeper-operator.zookeeper.replicas | int | `3` | replicas for zookeeper, should be an odd number |
+| solr-operator.zookeeper-operator.zookeeper.storage.reclaimPolicy | string | `"Delete"` | zookeeper storage reclaimPolicy |
+| solr-operator.zookeeper-operator.zookeeper.storage.size | string | `"1Gi"` | zookeeper storage size |
+| solr-operator.zookeeper-operator.zookeeper.storage.storageClassName | string | `"managed-csi"` | zookeeper storageClassName |
+| solr-operator.zookeeper-operator.zookeeper.tolerations | list | `[]` | tolerations for zookeeper |
 | solr.auth.enabled | bool | `false` |  |
 | solr.cloudBootstrap | bool | `false` |  |
 | solr.cloudEnabled | bool | `false` |  |

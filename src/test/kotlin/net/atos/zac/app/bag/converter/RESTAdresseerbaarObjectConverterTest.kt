@@ -16,17 +16,15 @@ import net.atos.zac.app.bag.createStandplaatsAdresseerbaarObject
 import net.atos.zac.app.bag.createVerblijfsAdresseerbaarObject
 
 class RESTAdresseerbaarObjectConverterTest : BehaviorSpec({
-    val restAdresseerbaarObjectConverter = RESTAdresseerbaarObjectConverter()
-
     beforeEach {
         checkUnnecessaryStub()
     }
 
     Given("Ligplaats addressbaar object") {
-        val adresseerbaarObjectIOHal = createLigplaatsAdresseerbaarObject(StatusPlaats.AANGEWEZEN)
+        val adresseerbaarObjectIOHal = createLigplaatsAdresseerbaarObject(StatusPlaats.PLAATS_AANGEWEZEN)
 
         When("converted to rest representation") {
-            val result = restAdresseerbaarObjectConverter.convertToREST(adresseerbaarObjectIOHal)
+            val result = RestAdresseerbaarObjectConverter.convertToREST(adresseerbaarObjectIOHal)
 
             Then("it should return the correct data") {
                 with(result) {
@@ -49,11 +47,11 @@ class RESTAdresseerbaarObjectConverterTest : BehaviorSpec({
         }
     }
 
-    Given("Standplaats addressbaar object") {
-        val adresseerbaarObjectIOHal = createStandplaatsAdresseerbaarObject(StatusPlaats.AANGEWEZEN)
+    Given("Standplaats adresseerbaar object") {
+        val adresseerbaarObjectIOHal = createStandplaatsAdresseerbaarObject(StatusPlaats.PLAATS_AANGEWEZEN)
 
         When("converted to rest representation") {
-            val result = restAdresseerbaarObjectConverter.convertToREST(adresseerbaarObjectIOHal)
+            val result = RestAdresseerbaarObjectConverter.convertToREST(adresseerbaarObjectIOHal)
 
             Then("it should return the correct data") {
                 with(result) {
@@ -80,7 +78,7 @@ class RESTAdresseerbaarObjectConverterTest : BehaviorSpec({
         val adresseerbaarObjectIOHal = createVerblijfsAdresseerbaarObject(StatusVerblijfsobject.VERBLIJFSOBJECT_GEVORMD)
 
         When("converted to rest representation") {
-            val result = restAdresseerbaarObjectConverter.convertToREST(adresseerbaarObjectIOHal)
+            val result = RestAdresseerbaarObjectConverter.convertToREST(adresseerbaarObjectIOHal)
 
             Then("it should return the correct data") {
                 with(result) {

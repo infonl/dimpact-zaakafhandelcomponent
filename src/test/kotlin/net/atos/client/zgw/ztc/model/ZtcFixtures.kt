@@ -85,7 +85,9 @@ fun createZaakType(
     resultTypes: List<URI>? = listOf(URI("dummyResultaatType1"), URI("dummyResultaatType2")),
     concept: Boolean = false,
     doorloopTijd: String = "P10D",
-    servicenorm: String? = null
+    servicenorm: String? = null,
+    beginGeldigheid: LocalDate = LocalDate.now(),
+    eindeGeldigheid: LocalDate? = null
 ) = ZaakType(
     uri,
     concept,
@@ -102,6 +104,8 @@ fun createZaakType(
     this.identificatie = identification
     this.doorlooptijd = doorloopTijd
     this.servicenorm = servicenorm
+    this.beginGeldigheid = beginGeldigheid
+    this.eindeGeldigheid = eindeGeldigheid
 }
 
 fun createInformatieObjectType(

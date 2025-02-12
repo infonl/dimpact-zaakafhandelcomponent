@@ -53,7 +53,8 @@ public class InboxDocumentenService {
 
     public InboxDocument create(final UUID enkelvoudiginformatieobejctUUID) {
         final EnkelvoudigInformatieObject informatieobject = drcClientService.readEnkelvoudigInformatieobject(
-                enkelvoudiginformatieobejctUUID);
+                enkelvoudiginformatieobejctUUID
+        );
         final InboxDocument inboxDocument = new InboxDocument();
         inboxDocument.setEnkelvoudiginformatieobjectID(informatieobject.getIdentificatie());
         inboxDocument.setEnkelvoudiginformatieobjectUUID(enkelvoudiginformatieobejctUUID);

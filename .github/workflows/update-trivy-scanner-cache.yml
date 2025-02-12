@@ -11,6 +11,9 @@ on:
     - cron: "0 2 * * 1-5"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   update-trivy-db:
     runs-on: ubuntu-24.04
@@ -18,6 +21,9 @@ jobs:
       - name: Get current date
         id: date
         run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: Setup ORAS as it is used by the Trivvy update files
+        uses: oras-project/setup-oras@5c0b487ce3fe0ce3ab0d034e63669e426e294e4d # v1.2.2
 
       - name: Download and extract the Trivy vulnerability DB
         run: |

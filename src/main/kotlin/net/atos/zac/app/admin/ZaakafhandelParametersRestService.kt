@@ -19,6 +19,8 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.admin.ReferenceTableService
 import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.admin.ZaakafhandelParameterService
+import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_ID
+import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_REASON
 import net.atos.zac.admin.model.FormulierDefinitie
 import net.atos.zac.admin.model.ReferenceTable
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
@@ -31,18 +33,18 @@ import net.atos.zac.app.admin.model.RESTTaakFormulierDefinitie
 import net.atos.zac.app.admin.model.RESTTaakFormulierVeldDefinitie
 import net.atos.zac.app.admin.model.RESTZaakbeeindigReden
 import net.atos.zac.app.admin.model.RestZaakafhandelParameters
-import net.atos.zac.app.exception.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
-import net.atos.zac.app.exception.InputValidationFailedException
 import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.app.zaak.model.RestResultaattype
 import net.atos.zac.configuratie.ConfiguratieService
-import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.RestSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.isSubsetOf
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
+import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.flowable.cmmn.CMMNService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
@@ -182,11 +184,20 @@ class ZaakafhandelParametersRestService @Inject constructor(
     fun listZaakbeeindigRedenenForZaaktype(
         @PathParam("zaaktypeUUID") zaaktypeUUID: UUID?
     ): List<RESTZaakbeeindigReden> =
+        createHardcodedZaakTerminationReasons() + readManagedZaakTerminationReasons(zaaktypeUUID)
+
+    private fun createHardcodedZaakTerminationReasons() =
+        listOf(
+            RESTZaakbeeindigReden().apply {
+                id = INADMISSIBLE_TERMINATION_ID
+                naam = INADMISSIBLE_TERMINATION_REASON
+            }
+        )
+
+    private fun readManagedZaakTerminationReasons(zaaktypeUUID: UUID?): List<RESTZaakbeeindigReden> =
         zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUUID).zaakbeeindigParameters
             .map { it.zaakbeeindigReden }
-            .let {
-                RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(it)
-            }
+            .let { RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(it) }
 
     /**
      * Retrieve all resultaattypes for a zaaktype

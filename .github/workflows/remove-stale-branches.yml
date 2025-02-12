@@ -11,6 +11,9 @@ on:
   # Allow workflow to be manually run from the GitHub UI
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   remove_stale_branches:
     runs-on: ubuntu-24.04

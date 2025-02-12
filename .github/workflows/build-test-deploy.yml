@@ -16,9 +16,9 @@ on:
       - 'publiccode.yaml'
 
 env:
-  JAVA_VERSION: '21'
-  CONTAINER_REGISTRY_URL: 'ghcr.io/infonl'
-  APPLICATION_NAME: 'zaakafhandelcomponent'
+  JAVA_VERSION: "21.0.6"
+  CONTAINER_REGISTRY_URL: "ghcr.io/infonl"
+  APPLICATION_NAME: "zaakafhandelcomponent"
 
 permissions:
   contents: write
@@ -67,7 +67,7 @@ jobs:
         run: echo "ZAC_DOCKER_IMAGE=${{ env.CONTAINER_REGISTRY_URL }}/${{ env.APPLICATION_NAME }}:${{ steps.gen_build_number.outputs.BUILD_NUMBER }}" >> $GITHUB_OUTPUT
 
       - name: Setup JDK
-        uses: actions/setup-java@7a6d8a8234af8eb26422e24e3006232cccaa061b # v4.6.0
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4.7.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
@@ -75,10 +75,10 @@ jobs:
           cache: 'maven'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@0bdd871935719febd78681f197cd39af5b6e16a6 # v4.2.2
+        uses: gradle/actions/setup-gradle@94baf225fe0a508e581a564467443d0e2379123b # v4.3.0
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@0bdd871935719febd78681f197cd39af5b6e16a6 # v4.2.2
+        uses: gradle/actions/wrapper-validation@94baf225fe0a508e581a564467443d0e2379123b # v4.3.0
 
       # The Gradle build also executes a Maven command to build the WildFly bootable JAR.
       # Disable the Gradle Configuration Cache for now because we sometimes run into a similar issue to:
@@ -127,13 +127,13 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup JDK
-        uses: actions/setup-java@7a6d8a8234af8eb26422e24e3006232cccaa061b # v4.6.0
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4.7.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@0bdd871935719febd78681f197cd39af5b6e16a6 # v4.2.2
+        uses: gradle/actions/setup-gradle@94baf225fe0a508e581a564467443d0e2379123b # v4.3.0
 
       - name: Restore Gradle build artefacts
         uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
@@ -161,18 +161,25 @@ jobs:
 
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@170bf24d20d201b842d7a52403b73ed297e6645b # v2.18.0
-        if: always()
+        if: ${{ !cancelled() }}
         with:
           check_name: unit-test-results
           files: |
             build/test-results/**/*.xml
             src/main/app/reports/*.xml
 
+      - name: Upload unit test results to CodeCov
+        uses: codecov/test-results-action@44ecb3a270cd942bdf0fa8f2ce14cb32493e810a # v1.0.3
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unittests
+
       - name: Generate unit test code coverage report
         run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x test -x itest -x npmRunBuild npmRunTestCoverage jacocoTestReport --info
 
       - name: Upload unit test coverage report to Codecov
-        uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # v5.1.2
+        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
         with:
           flags: unittests
         env:
@@ -182,7 +189,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.get-version.outputs.replaced }}
-      tag: ${{ steps.get-tag.outputs.new_tag }}
+      tag: ${{ github.ref == 'refs/heads/main' && steps.get-tag-main.outputs.new_tag || steps.get-tag-non-main.outputs.new_tag }}
     steps:
       # Checkout the repository including tags
       - name: Checkout
@@ -190,8 +197,9 @@ jobs:
         with:
           fetch-depth: 0
       # Determine the next semantic version based on the commit message tags
-      - name: Get next tag
-        id: get-tag
+      - name: Get next tag on main
+        id: get-tag-main
+        if: ${{ github.ref == 'refs/heads/main'}}
         uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297 # 1.71.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -199,21 +207,35 @@ jobs:
           DEFAULT_BUMP: patch
           WITH_V: true
           RELEASE_BRANCHES: main
+      # If not on main, Determine the next semantic version based on the commit message tags without pushing tags`
+      - name: Get next tag on non-main
+        id: get-tag-non-main
+        if: ${{ github.ref != 'refs/heads/main'}}
+        uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297 # 1.71.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PRERELEASE: false
+          DEFAULT_BUMP: patch
+          WITH_V: true
+          RELEASE_BRANCHES: main
+          DRY_RUN: true
       - name: Get next version
         id: get-version
         uses: frabert/replace-string-action@b6828c5a4cb6371753ff873b0d1c4c4fbd9a63cb # v2.5
         with:
           pattern: 'v(.*)'
-          string: ${{ steps.get-tag.outputs.new_tag }}
+          string: ${{ github.ref == 'refs/heads/main' && steps.get-tag-main.outputs.new_tag || steps.get-tag-non-main.outputs.new_tag }}
           replace-with: '$1'
       - name: Print new tag and version
         run: |
           echo "Next version: ${{ steps.get-version.outputs.replaced }}"
-          echo "Next version tag: ${{ steps.get-tag.outputs.new_tag }}"
+          echo "Next version tag: ${{ github.ref == 'refs/heads/main' && steps.get-tag-main.outputs.new_tag || steps.get-tag-non-main.outputs.new_tag }}"
 
   build-docker-image-and-run-itests:
     needs: [build, paths-ignore, next-version]
-    if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
+    # Do not run in the merge queue and do not run if the paths-ignore step defines it to skip
+    # but always run for the main branch
+    if: ${{ (github.event_name != 'merge_group' && needs.paths-ignore.outputs.skip != 'true') || github.ref == 'refs/heads/main'}}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
@@ -238,13 +260,13 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup JDK
-        uses: actions/setup-java@7a6d8a8234af8eb26422e24e3006232cccaa061b # v4.6.0
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4.7.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@0bdd871935719febd78681f197cd39af5b6e16a6 # v4.2.2
+        uses: gradle/actions/setup-gradle@94baf225fe0a508e581a564467443d0e2379123b # v4.3.0
 
       - name: Restore built ZAC JAR
         uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
@@ -254,10 +276,10 @@ jobs:
           key: zac-jar-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
+        uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca # v3.9.0
 
       - name: Build Docker image
-        uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d # v6.12.0
+        uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991 # v6.13.0
         with:
           tags: ${{ env.ZAC_DOCKER_IMAGE }}
           build-args: |
@@ -285,9 +307,16 @@ jobs:
             -x compileJava -x processResources -x compileKotlin -x classes -x buildDockerImage \
             itest --info
 
+      - name: Upload integration test results to CodeCov
+        uses: codecov/test-results-action@44ecb3a270cd942bdf0fa8f2ce14cb32493e810a # v1.0.3
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: integrationtests
+
       - name: Publish integration test results
         uses: EnricoMi/publish-unit-test-result-action@170bf24d20d201b842d7a52403b73ed297e6645b # v2.18.0
-        if: always()
+        if: ${{ !cancelled() }}
         with:
           check_name: integration-test-results
           files: |
@@ -306,13 +335,14 @@ jobs:
         run: ./gradlew jacocoIntegrationTestReport -x itest --info
 
       - name: Upload integration test coverage report to Codecov
-        uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # v5.1.2
+        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
         with:
           flags: integrationtests
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Run Trivy vulnerability scanner
+        if: github.ref == 'refs/heads/main'
         uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # 0.29.0
         with:
           image-ref: '${{ env.ZAC_DOCKER_IMAGE }}'
@@ -329,7 +359,8 @@ jobs:
           TRIVY_SKIP_JAVA_DB_UPDATE: true
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@d68b2d4edb4189fd2a5366ac14e72027bd4b37dd # v3.28.2
+        if: github.ref == 'refs/heads/main'
+        uses: github/codeql-action/upload-sarif@9e8d0789d4a0fa9ceb6b1738f7e269594bdd67f0 # v3.28.9
         with:
           sarif_file: 'trivy-results.sarif'
 
@@ -343,22 +374,6 @@ jobs:
         with:
           path: docker-image.tar
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
-
-  dependabot-auto-merge:
-    needs: [run-unit-tests, build-docker-image-and-run-itests]
-    runs-on: ubuntu-24.04
-    if: github.actor == 'dependabot[bot]'
-    permissions:
-      pull-requests: write
-      contents: write
-    steps:
-      - uses: fastify/github-action-merge-dependabot@c3bde0759d4f24db16f7b250b2122bc2df57e817 # v3.11.0
-        with:
-          # Our Dependabot PRs are not merged automatically because an automatically merged PR
-          # does not trigger our push workflow (and so no release would be made).
-          # see: https://github.com/fastify/github-action-merge-dependabot/issues/134
-          approve-only: true
-          target: minor
 
   push-docker-image:
     needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version]
@@ -391,7 +406,13 @@ jobs:
 
       - name: Tag Docker Image with next version tag
         if: env.NEXT_VERSION != ''
-        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}
+        run: |
+          docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}
+          # Additionaly tag the image with '$major' and '$major.$minor' tags
+          MAJOR_VERSION=$(echo ${NEXT_VERSION} | cut -d '.' -f 1)
+          MINOR_VERSION=$(echo ${NEXT_VERSION} | cut -d '.' -f 2)
+          docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${MAJOR_VERSION}
+          docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${MAJOR_VERSION}.${MINOR_VERSION}
 
       - name: Push Docker Image with all tags
         run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}

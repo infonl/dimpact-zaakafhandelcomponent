@@ -4,4 +4,7 @@
  */
 package net.atos.zac.smartdocuments.exception
 
-class SmartDocumentsDisabledException(message: String) : SmartDocumentsConfigurationException(message)
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_SMARTDOCUMENTS_DISABLED
+import nl.info.zac.exception.InputValidationFailedException
+
+class SmartDocumentsDisabledException : InputValidationFailedException(ERROR_CODE_SMARTDOCUMENTS_DISABLED)

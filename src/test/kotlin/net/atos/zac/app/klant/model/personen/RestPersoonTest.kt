@@ -21,7 +21,7 @@ import java.util.EnumSet
 
 class RestPersoonTest : BehaviorSpec({
 
-    Given("BRP Persoon with all flags") {
+    Given("BRP Persoon with all flags but MINISTERIELE_REGELING and EMIGRATION") {
         val date = AbstractDatum().apply {
             type = "type"
             langFormaat = "langFormaat"
@@ -46,12 +46,73 @@ class RestPersoonTest : BehaviorSpec({
 
             Then("conversion is correct") {
                 restPersoon.bsn shouldBe persoon.burgerservicenummer
-                restPersoon.indicaties shouldBe EnumSet.allOf(RestPersoonIndicaties::class.java)
+                restPersoon.indicaties shouldBe EnumSet.complementOf(
+                    EnumSet.of(
+                        RestPersoonIndicaties.MINISTERIELE_REGELING,
+                        RestPersoonIndicaties.EMIGRATIE
+                    )
+                )
             }
         }
     }
 
-    Given("BRP PersoonBeperkt with all flags") {
+    Given("BRP Persoon with MINISTERIELE_REGELING") {
+        val date = AbstractDatum().apply {
+            type = "type"
+            langFormaat = "langFormaat"
+        }
+        val persoon = createPersoon(
+            suspensionMaintenance = OpschortingBijhouding().apply {
+                reden = Waardetabel().apply {
+                    code = "M"
+                    omschrijving = "ministerieel besluit"
+                }
+                datum = date
+            },
+        )
+
+        When("converted to RestPersoon") {
+            val restPersoon = persoon.toRestPersoon()
+
+            Then("conversion is correct") {
+                restPersoon.bsn shouldBe persoon.burgerservicenummer
+                restPersoon.indicaties shouldBe EnumSet.of(
+                    RestPersoonIndicaties.OPSCHORTING_BIJHOUDING,
+                    RestPersoonIndicaties.MINISTERIELE_REGELING
+                )
+            }
+        }
+    }
+
+    Given("BRP Persoon with EMIGRATION") {
+        val date = AbstractDatum().apply {
+            type = "type"
+            langFormaat = "langFormaat"
+        }
+        val persoon = createPersoon(
+            suspensionMaintenance = OpschortingBijhouding().apply {
+                reden = Waardetabel().apply {
+                    code = "E"
+                    omschrijving = "emigratie"
+                }
+                datum = date
+            },
+        )
+
+        When("converted to RestPersoon") {
+            val restPersoon = persoon.toRestPersoon()
+
+            Then("conversion is correct") {
+                restPersoon.bsn shouldBe persoon.burgerservicenummer
+                restPersoon.indicaties shouldBe EnumSet.of(
+                    RestPersoonIndicaties.OPSCHORTING_BIJHOUDING,
+                    RestPersoonIndicaties.EMIGRATIE
+                )
+            }
+        }
+    }
+
+    Given("BRP PersoonBeperkt with all flags but OVERLEDEN and EMIGRATION") {
         val date = AbstractDatum().apply {
             type = "type"
             langFormaat = "langFormaat"
@@ -60,8 +121,8 @@ class RestPersoonTest : BehaviorSpec({
             confidentialPersonalData = true,
             suspensionMaintenance = OpschortingBijhouding().apply {
                 reden = Waardetabel().apply {
-                    code = "O"
-                    omschrijving = "overlijden"
+                    code = "M"
+                    omschrijving = "ministerieel besluit"
                 }
                 datum = date
             },
@@ -75,8 +136,70 @@ class RestPersoonTest : BehaviorSpec({
 
             Then("conversion is correct") {
                 restPersoon.bsn shouldBe persoonBeperkt.burgerservicenummer
-                // check for all but ONDER_CURATELE
-                restPersoon.indicaties shouldBe EnumSet.complementOf(EnumSet.of(RestPersoonIndicaties.ONDER_CURATELE))
+                // check for all but OVERLIJDEN and EMIGRATION
+                restPersoon.indicaties shouldBe EnumSet.complementOf(
+                    EnumSet.of(
+                        RestPersoonIndicaties.ONDER_CURATELE,
+                        RestPersoonIndicaties.OVERLEDEN,
+                        RestPersoonIndicaties.EMIGRATIE
+                    )
+                )
+            }
+        }
+    }
+
+    Given("BRP PersoonBeperkt with MINISTERIELE_REGELING") {
+        val date = AbstractDatum().apply {
+            type = "type"
+            langFormaat = "langFormaat"
+        }
+        val persoonBeperkt = createPersoonBeperkt(
+            suspensionMaintenance = OpschortingBijhouding().apply {
+                reden = Waardetabel().apply {
+                    code = "M"
+                    omschrijving = "ministerieel besluit"
+                }
+                datum = date
+            },
+        )
+
+        When("converted to RestPersoon") {
+            val restPersoon = persoonBeperkt.toRestPersoon()
+
+            Then("conversion is correct") {
+                restPersoon.bsn shouldBe persoonBeperkt.burgerservicenummer
+                restPersoon.indicaties shouldBe EnumSet.of(
+                    RestPersoonIndicaties.OPSCHORTING_BIJHOUDING,
+                    RestPersoonIndicaties.MINISTERIELE_REGELING
+                )
+            }
+        }
+    }
+
+    Given("BRP PersoonBeperkt with EMIGRATION") {
+        val date = AbstractDatum().apply {
+            type = "type"
+            langFormaat = "langFormaat"
+        }
+        val persoonBeperkt = createPersoonBeperkt(
+            suspensionMaintenance = OpschortingBijhouding().apply {
+                reden = Waardetabel().apply {
+                    code = "E"
+                    omschrijving = "emigratie"
+                }
+                datum = date
+            },
+        )
+
+        When("converted to RestPersoon") {
+            val restPersoon = persoonBeperkt.toRestPersoon()
+
+            Then("conversion is correct") {
+                restPersoon.bsn shouldBe persoonBeperkt.burgerservicenummer
+                restPersoon.indicaties shouldBe EnumSet.of(
+                    RestPersoonIndicaties.OPSCHORTING_BIJHOUDING,
+                    RestPersoonIndicaties.EMIGRATIE
+                )
             }
         }
     }

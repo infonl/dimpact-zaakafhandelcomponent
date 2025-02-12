@@ -112,6 +112,8 @@ services:
       - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
       - DJANGO_SUPERUSER_PASSWORD=admin
       - LOG_LEVEL=DEBUG
+      # uncomment to enable logging of outgoing requests; can be helpful for debugging
+      #- LOG_REQUESTS=true
       - NOTIFICATIONS_DISABLED=${OPENZAAK_NOTIFICATIONS_DISABLED:-true}
       - OPENZAAK_SUPERUSER_USERNAME=admin
       - OPENZAAK_SUPERUSER_EMAIL=noreply@example.com
@@ -345,7 +347,7 @@ services:
         condition: service_started
 
   smartdocuments-wiremock:
-    image: docker.io/wiremock/wiremock:3.10.0@sha256:052f7d05b585d5cc956ecf2f1543b1a721858ec83baf0d11b507a113e3b023ee
+    image: docker.io/wiremock/wiremock:3.11.0@sha256:dd1530e0db539130da9a708778cebe3b516f083f7524d9609528f32f780977f8
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
@@ -356,7 +358,7 @@ services:
     profiles: [ "itest" ]
 
   kvk-wiremock:
-    image: docker.io/wiremock/wiremock:3.10.0@sha256:052f7d05b585d5cc956ecf2f1543b1a721858ec83baf0d11b507a113e3b023ee
+    image: docker.io/wiremock/wiremock:3.11.0@sha256:dd1530e0db539130da9a708778cebe3b516f083f7524d9609528f32f780977f8
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/kvk-wiremock/mappings:/home/wiremock/mappings
@@ -364,6 +366,19 @@ services:
     entrypoint: [ "/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose" ]
     ports:
       - "18081:8080"
+    profiles: [ "itest" ]
+
+  # This container name must contain a '.' or else Open Zaak will respond with a 400
+  # error on certain API requests caused by an internal 'invalid URL' error.
+  bag-wiremock.local:
+    image: docker.io/wiremock/wiremock:3.11.0@sha256:dd1530e0db539130da9a708778cebe3b516f083f7524d9609528f32f780977f8
+    volumes:
+      # these WireMock mappings are used by the ZAC integration tests
+      - ./scripts/docker-compose/imports/bag-wiremock/mappings:/home/wiremock/mappings
+      - ./scripts/docker-compose/imports/bag-wiremock/__files:/home/wiremock/__files
+    entrypoint: [ "/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose" ]
+    ports:
+      - "18082:8080"
     profiles: [ "itest" ]
 
   opa-tests:
@@ -377,14 +392,14 @@ services:
 
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
-    image: ghcr.io/eugenmayer/kontextwork-converter:1.7.0@sha256:8660b8d329b1ca0315c04725cfc855f03e7d34c918d292497216bb98c5c8dd89
+    image: ghcr.io/eugenmayer/kontextwork-converter:1.7.1@sha256:21cf2abf83c6b14b50188bc66ecde970081d5e6493f0c0fdfd435ebbc3145b34
     platform: linux/amd64
     ports:
       - "8083:8080"
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.118.0@sha256:3b70e78f044c5d3145a00fc6ba28a771caa769c51eae60311b882e2a229af927
+    image: docker.io/otel/opentelemetry-collector:0.119.0@sha256:3805724e26351df55a45032a793c9b64a2117ac9a58f13f070674a9723fab373
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -425,7 +440,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: docker.io/grafana/grafana:11.4.0@sha256:d8ea37798ccc41061a62ab080f2676dda6bf7815558499f901bdb0f533a456fb
+    image: docker.io/grafana/grafana:11.5.1@sha256:5781759b3d27734d4d548fcbaf60b1180dbf4290e708f01f292faa6ae764c5e6
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -448,7 +463,7 @@ services:
     profiles: [ "metrics" ]
 
   greenmail:
-    image: docker.io/greenmail/standalone:2.1.2@sha256:572d22796908375678119a13fabfcdc5416c9003404ab975fe824692fe02ba03
+    image: docker.io/greenmail/standalone:2.1.3@sha256:d6db42a4fc258fec0948b1ae7b579fd06947cc92087c162ec0597972a6c36850
     environment:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0
@@ -558,7 +573,7 @@ services:
       - AUTH_RESOURCE=zaakafhandelcomponent
       - AUTH_SECRET=keycloakZaakafhandelcomponentClientSecret
       - AUTH_SERVER=http://keycloak:8080
-      - BAG_API_CLIENT_MP_REST_URL=https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/
+      - BAG_API_CLIENT_MP_REST_URL=${BAG_API_CLIENT_MP_REST_URL:-https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/}
       - BAG_API_KEY=${BAG_API_KEY:-dummyBagApiKey}
       - BRP_API_CLIENT_MP_REST_URL=http://brp-personen-mock:5010/haalcentraal/api/brp
       - BRON_ORGANISATIE_RSIN=${BRON_ORGANISATIE_RSIN:-123443210}
@@ -578,8 +593,6 @@ services:
       - KEYCLOAK_ADMIN_CLIENT_SECRET=zaakafhandelcomponentAdminClientSecret
       - KVK_API_CLIENT_MP_REST_URL=${KVK_API_CLIENT_MP_REST_URL:-dummyKvkApiUrl}
       - KVK_API_KEY=${KVK_API_KEY:-dummyKvkApiKey}
-      - MAILJET_API_KEY=${MAILJET_API_KEY:-dummyMailjetApiKey}
-      - MAILJET_API_SECRET_KEY=${MAILJET_API_SECRET_KEY:-dummyMailjetApiSecretKey}
       - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://office-converter:8080
       - OBJECTS_API_CLIENT_MP_REST_URL=http://objecten-api.local:8000
       - OBJECTS_API_TOKEN=dummyZacObjectsToken

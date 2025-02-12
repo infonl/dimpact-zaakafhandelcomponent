@@ -1,4 +1,14 @@
 
+-- add a parent-child (hoofdzaak-deelzaaktype) relation between the two zaaktypes created previously
+-- so that we can test the functionality in ZAC to manage hoofdzaak - deelzaak relations
+INSERT INTO catalogi_zaaktype_deelzaaktypen (id, from_zaaktype_id, to_zaaktype_id)
+VALUES
+(
+1,
+   (SELECT id FROM catalogi_zaaktype WHERE identificatie = 'indienen-aansprakelijkstelling-behandelen'),
+   (SELECT id FROM catalogi_zaaktype WHERE identificatie = 'melding-evenement-organiseren-behandelen')
+);
+
 -- Insert productaanvraag PDF document as enkelvoudig informatieobject.
 -- This assumes that the PDF in question is available in the OpenZaak container in: '/app/private-media/uploads/2023/10/dummy-test-document.pdf'
 -- Note that we use an id of '999' for both the canonical and the enkelvoudig informatieobject records to avoid duplicate key conflicts

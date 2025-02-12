@@ -73,6 +73,10 @@ class ZaakRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
+    val longitude = Random.nextFloat()
+    val latitude = Random.nextFloat()
+    val startDateNew = LocalDate.now()
+    val fatalDateNew = startDateNew.plusDays(1)
 
     lateinit var zaak2UUID: UUID
 
@@ -388,8 +392,6 @@ class ZaakRestServiceTest : BehaviorSpec({
             and also the communication channel is changed
             """
         ) {
-            val startDateNew = LocalDate.now()
-            val fatalDateNew = startDateNew.plusDays(1)
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID",
                 requestBodyAsString = """
@@ -469,8 +471,6 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
         When("the 'update Zaak Locatie' endpoint is called with a valid location") {
-            val longitude = Random.nextFloat()
-            val latitude = Random.nextFloat()
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/$zaak2UUID/zaaklocatie",
                 requestBodyAsString = """
@@ -504,7 +504,66 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
         }
-
+        When("the update zaak endpoint is called with a changed zaak description") {
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID",
+                requestBodyAsString = """
+                    { 
+                        "zaak": {
+                            "omschrijving": "changedDescription"
+                        },
+                        "reden": "dummyReason"
+                    }
+                """.trimIndent()
+            )
+            Then(
+                "the response should be a 200 HTTP response with only the changed zaak description and no other changes"
+            ) {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_OK
+                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                    {
+                      "besluiten": [],
+                      "bronorganisatie": "$BRON_ORGANISATIE",
+                      "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_2",
+                      "gerelateerdeZaken": [],
+                      "groep": {
+                        "id": "$TEST_GROUP_A_ID",
+                        "naam": "$TEST_GROUP_A_DESCRIPTION"
+                      },
+                      "identificatie": "$ZAAK_MANUAL_1_IDENTIFICATION",
+                      "indicaties": [],
+                      "isBesluittypeAanwezig": false,
+                      "isDeelzaak": false,
+                      "isHeropend": false,
+                      "isHoofdzaak": false,
+                      "isInIntakeFase": true,
+                      "isOntvangstbevestigingVerstuurd": false,
+                      "isOpen": true,
+                      "isOpgeschort": false,
+                      "isProcesGestuurd": false,
+                      "isVerlengd": false,
+                      "kenmerken": [],
+                      "omschrijving": "changedDescription",         
+                      "registratiedatum": "${LocalDate.now()}",
+                      "startdatum": "$startDateNew",
+                      "toelichting": "$ZAAK_EXPLANATION_1",
+                      "uiterlijkeEinddatumAfdoening": "$fatalDateNew",
+                      "uuid" : "$zaak2UUID",
+                      "verantwoordelijkeOrganisatie" : "$VERANTWOORDELIJKE_ORGANISATIE",
+                      "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
+                      "zaakgeometrie" : {
+                        "point" : {
+                            "latitude" : $latitude,
+                            "longitude" : $longitude
+                         },
+                         "type" : "Point"
+                      }
+                   }
+                """.trimIndent()
+            }
+        }
         When("the 'update Zaak Locatie' endpoint is called with a null value as location") {
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/$zaak2UUID/zaaklocatie",

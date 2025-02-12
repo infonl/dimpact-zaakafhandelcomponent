@@ -11,6 +11,10 @@ on:
   merge_group:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   helm-lint:
     runs-on: ubuntu-24.04
@@ -32,6 +36,7 @@ jobs:
         run: | 
           helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
           helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo add solr https://solr.apache.org/charts
 
       - name: Run chart-testing (list-changed)
         id: list-changed
