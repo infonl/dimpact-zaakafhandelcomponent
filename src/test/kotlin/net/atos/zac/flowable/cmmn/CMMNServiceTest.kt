@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.flowable.cmmn
+package net.atos.zac.flowable.cmmn
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.Runs
@@ -17,7 +17,7 @@ import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.cmmn.CMMNService
+import org.flowable.cmmn.api.CmmnHistoryService
 import org.flowable.cmmn.api.CmmnRepositoryService
 import org.flowable.cmmn.api.CmmnRuntimeService
 import org.flowable.cmmn.api.runtime.CaseInstance
@@ -28,9 +28,11 @@ import java.util.UUID
 class CMMNServiceTest : BehaviorSpec({
     val cmmnRuntimeService = mockk<CmmnRuntimeService>()
     val cmmnRepositoryService = mockk<CmmnRepositoryService>()
+    val cmmnHistoryService = mockk<CmmnHistoryService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val cmmnService = CMMNService(
         cmmnRuntimeService,
+        cmmnHistoryService,
         cmmnRepositoryService,
         loggedInUserInstance
     )
@@ -97,6 +99,30 @@ class CMMNServiceTest : BehaviorSpec({
             Then("it is successfully terminated") {
                 verify(exactly = 1) {
                     cmmnRuntimeService.terminateCaseInstance(caseInstanceID)
+                }
+            }
+        }
+    }
+    Given("A CMMN case for a certain zaak UUID") {
+        val zaakUUID = UUID.randomUUID()
+        val caseInstanceID = "dummyCaseInstanceID"
+        val caseInstance = mockk<CaseInstance>()
+        every {
+            cmmnRuntimeService.createCaseInstanceQuery()
+                .variableValueEquals(ZaakVariabelenService.VAR_ZAAK_UUID, zaakUUID)
+                .singleResult()
+        } returns caseInstance
+        every { caseInstance.id } returns caseInstanceID
+        every { cmmnRuntimeService.deleteCaseInstance(caseInstanceID) } just Runs
+        every { cmmnHistoryService.deleteHistoricCaseInstance(caseInstanceID) } just Runs
+
+        When("the case is requested to be deleted") {
+            cmmnService.deleteCase(zaakUUID)
+
+            Then("the case is successfully deleted") {
+                verify(exactly = 1) {
+                    cmmnRuntimeService.deleteCaseInstance(caseInstanceID)
+                    cmmnHistoryService.deleteHistoricCaseInstance(caseInstanceID)
                 }
             }
         }

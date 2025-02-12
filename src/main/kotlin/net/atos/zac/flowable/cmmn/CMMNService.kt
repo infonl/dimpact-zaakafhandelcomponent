@@ -19,6 +19,7 @@ import net.atos.zac.flowable.cmmn.exception.OpenTaskItemNotFoundException
 import net.atos.zac.flowable.task.CreateUserTaskInterceptor
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import org.flowable.cmmn.api.CmmnHistoryService
 import org.flowable.cmmn.api.CmmnRepositoryService
 import org.flowable.cmmn.api.CmmnRuntimeService
 import org.flowable.cmmn.api.repository.CaseDefinition
@@ -38,12 +39,23 @@ import java.util.logging.Logger
 @Suppress("TooManyFunctions")
 class CMMNService @Inject constructor(
     private val cmmnRuntimeService: CmmnRuntimeService,
+    private val cmmnHistoryService: CmmnHistoryService,
     private val cmmnRepositoryService: CmmnRepositoryService,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
         private val LOG = Logger.getLogger(CMMNService::class.java.getName())
     }
+
+    fun deleteCase(zaakUUID: UUID) =
+        cmmnRuntimeService.createCaseInstanceQuery()
+            .variableValueEquals(ZaakVariabelenService.VAR_ZAAK_UUID, zaakUUID)
+            .singleResult()?.let {
+                // delete the case instance
+                cmmnRuntimeService.deleteCaseInstance(it.id)
+                // delete any historic case instances
+                cmmnHistoryService.deleteHistoricCaseInstance(it.id)
+            }
 
     fun listHumanTaskPlanItems(zaakUUID: UUID): MutableList<PlanItemInstance> =
         cmmnRuntimeService.createPlanItemInstanceQuery()

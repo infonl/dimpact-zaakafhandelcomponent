@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.flowable.cmmn
+package net.atos.zac.flowable.cmmn
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.every
@@ -15,7 +15,6 @@ import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.createZaakStatus
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.cmmn.UpdateZaakLifecycleListener
 import org.flowable.cmmn.api.delegate.DelegatePlanItemInstance
 import org.flowable.common.engine.api.delegate.Expression
 

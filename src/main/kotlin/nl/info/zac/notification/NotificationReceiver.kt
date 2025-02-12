@@ -22,6 +22,8 @@ import net.atos.zac.authentication.ActiveSession
 import net.atos.zac.authentication.setFunctioneelGebruiker
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.event.EventingService
+import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.websocket.event.ScreenEventType
@@ -49,6 +51,8 @@ class NotificationReceiver @Inject constructor(
     private val indexingService: IndexingService,
     private val inboxDocumentenService: InboxDocumentenService,
     private val zaakafhandelParameterBeheerService: ZaakafhandelParameterBeheerService,
+    private val cmmnService: CMMNService,
+    private val zaakVariabelenService: ZaakVariabelenService,
 
     @ConfigProperty(name = "OPEN_NOTIFICATIONS_API_SECRET_KEY")
     private val secret: String,
@@ -72,12 +76,33 @@ class NotificationReceiver @Inject constructor(
         handleProductaanvraag(notification)
         handleIndexing(notification)
         handleInboxDocuments(notification)
+        handleFlowableProcessData(notification)
         handleZaaktype(notification)
         handleWebsockets(notification)
         return Response.noContent().build()
     }
 
     private fun isAuthenticated(headers: HttpHeaders) = secret == headers.getHeaderString(HttpHeaders.AUTHORIZATION)
+
+    /**
+     * In case of a 'zaak destroy' notification, delete any Flowable process data related to the zaak,
+     * including any related Flowable task data.
+     */
+    @Suppress("TooGenericExceptionCaught")
+    private fun handleFlowableProcessData(notification: Notification) {
+        try {
+            if (notification.channel == Channel.ZAKEN && notification.resource == Resource.ZAAK && notification.action == Action.DELETE) {
+                notification.resourceUrl.extractUuid().let { zaakUUID ->
+                    LOG.info { "Deleting Flowable process data for zaak '$zaakUUID'" }
+                    cmmnService.deleteCase(zaakUUID)
+                    zaakVariabelenService.deleteAllCaseVariables(zaakUUID)
+                    LOG.info { "Successfully deleted Flowable process data for zaak '$zaakUUID'" }
+                }
+            }
+        } catch (exception: RuntimeException) {
+            warning("flowable process data", notification, exception)
+        }
+    }
 
     private fun handleProductaanvraag(notification: Notification) {
         val objecttypeUri = notification.properties?.let { it[OBJECTTYPE_KENMERK] }
