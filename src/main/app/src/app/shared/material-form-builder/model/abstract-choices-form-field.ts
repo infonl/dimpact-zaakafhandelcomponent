@@ -71,7 +71,7 @@ export abstract class AbstractChoicesFormField extends AbstractFormControlField 
       }),
       tap((value) => {
         this.valueOptions = value;
-        value.sort(this.optionOrderFn || OrderUtil.orderBy(this.optionLabel));
+        value?.sort(this.optionOrderFn || OrderUtil.orderBy(this.optionLabel));
       }),
     );
     this.optionsChanged$.next();
