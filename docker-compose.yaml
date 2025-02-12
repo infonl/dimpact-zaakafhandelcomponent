@@ -347,7 +347,7 @@ services:
         condition: service_started
 
   smartdocuments-wiremock:
-    image: docker.io/wiremock/wiremock:3.11.0@sha256:dd1530e0db539130da9a708778cebe3b516f083f7524d9609528f32f780977f8
+    image: docker.io/wiremock/wiremock:3.12.0@sha256:9795e41d03213aba2b55ae3ed1c2b37becd297ba14a74dcc29bcc6b3133911bc
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
@@ -358,7 +358,7 @@ services:
     profiles: [ "itest" ]
 
   kvk-wiremock:
-    image: docker.io/wiremock/wiremock:3.11.0@sha256:dd1530e0db539130da9a708778cebe3b516f083f7524d9609528f32f780977f8
+    image: docker.io/wiremock/wiremock:3.12.0@sha256:9795e41d03213aba2b55ae3ed1c2b37becd297ba14a74dcc29bcc6b3133911bc
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/kvk-wiremock/mappings:/home/wiremock/mappings
@@ -371,7 +371,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   bag-wiremock.local:
-    image: docker.io/wiremock/wiremock:3.11.0@sha256:dd1530e0db539130da9a708778cebe3b516f083f7524d9609528f32f780977f8
+    image: docker.io/wiremock/wiremock:3.12.0@sha256:9795e41d03213aba2b55ae3ed1c2b37becd297ba14a74dcc29bcc6b3133911bc
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/bag-wiremock/mappings:/home/wiremock/mappings
