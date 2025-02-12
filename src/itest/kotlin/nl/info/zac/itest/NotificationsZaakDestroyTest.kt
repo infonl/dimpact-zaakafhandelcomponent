@@ -6,6 +6,7 @@ package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKeyValue
+import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
@@ -13,6 +14,7 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
+import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NOT_FOUND
 import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
@@ -22,7 +24,9 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.ItestConfiguration.task1ID
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
+import nl.info.zac.itest.util.sleep
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
@@ -50,6 +54,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
         lateinit var zaakUUID: UUID
         lateinit var zaakIdentificatie: String
         lateinit var humanTaskItemAanvullendeInformatieId: String
+        lateinit var aanvullendeInformatieTaskID: String
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
             groupId = TEST_GROUP_A_ID,
@@ -73,6 +78,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
             this.isSuccessful shouldBe true
             humanTaskItemAanvullendeInformatieId = JSONArray(responseBody).getJSONObject(0).getString("id")
         }
+        sleep(1)
         // start the human task plan item (=task) 'aanvullende informatie'
         itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
@@ -88,6 +94,16 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
             val responseBody = body!!.string()
             logger.info { "Response: $responseBody" }
             this.isSuccessful shouldBe true
+        }
+        // get the list of taken for the zaak to set the task ID for the 'aanvullende informatie' task
+        itestHttpClient.performGetRequest(
+            url = "$ZAC_API_URI/taken/zaak/$zaakUUID"
+        ).run {
+            val responseBody = body!!.string()
+            logger.info { "Response: $responseBody" }
+            this.isSuccessful shouldBe true
+            JSONArray(responseBody).length() shouldBe 1
+            aanvullendeInformatieTaskID = JSONArray(responseBody).getJSONObject(0).getString("id")
         }
         // reindex so that the new zaak gets added to the Solr index
         itestHttpClient.performGetRequest(
@@ -160,8 +176,8 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                     responseBody.shouldContainJsonKeyValue("uuid", zaakUUID.toString())
                     responseBody.shouldContainJsonKeyValue("zaakdata", "")
                 }
-                // check that the task that was started for this zaak no longer exists
-                // it should have been deleted as part of the 'zaak destroy' action
+                // check that there are no tasks left for the zaak
+                // any tasks should have been deleted as part of the 'zaak destroy' action
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/taken/zaak/$zaakUUID"
                 ).run {
@@ -170,9 +186,17 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                     this.isSuccessful shouldBe true
                     JSONArray(responseBody).length() shouldBe 0
                 }
-                // TODO: also call TaskRestService.listHistory (should be empty)
-                // TODO: also call TaskRestService.readTask (should return 404)
-
+                // to be sure, also explicitly check if the task that was started earlier has been deleted
+                itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/taken/$aanvullendeInformatieTaskID"
+                ).run {
+                    val responseBody = body!!.string()
+                    logger.info { "Response: $responseBody" }
+                    this.code shouldBe HTTP_STATUS_NOT_FOUND
+                    responseBody shouldEqualJson """
+                        {"message":"No historic task with id '$aanvullendeInformatieTaskID' found"}
+                    """.trimIndent()
+                }
                 // wait for the zaak to be removed from the Solr index
                 eventually(10.seconds) {
                     val searchResponseBody = itestHttpClient.performPutRequest(
