@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 #  SPDX-FileCopyrightText: 2024 Lifely
 #  SPDX-License-Identifier: EUPL-1.2+
 
@@ -45,7 +47,7 @@ def __main():
 
     # Add arguments
     parser.add_argument('-o', '--old_version', type=str, help='Version to base comparison on', required=True)
-    parser.add_argument('-n', '--new_version', type=str, help='Version to comparison with. Defaults to the latest on main.', required=False)
+    parser.add_argument('-n', '--new_version', type=str, help='Version to compare with. Defaults to the latest on main.', required=False)
     parser.add_argument('-b', '--new_version_branch', type=str, help='Branch to comparison on. Defaults to the main branch.', required=False)
 
     # Parse the arguments
