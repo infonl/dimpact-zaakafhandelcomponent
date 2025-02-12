@@ -65,14 +65,7 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                 intakeId = getString("id").toInt()
             }
         }
-        // Wait before setting the status of a zaak (implicitly)
-        // because OpenZaak does not allow setting multiple statuses for one zaak
-        // within the same timeframe of one second.
-        // If we do not wait in these cases we get a 400 response from OpenZaak with:
-        // "rest_framework.exceptions.ValidationError: {'non_field_errors':
-        // [ErrorDetail(string='De velden zaak, datum_status_gezet moeten een unieke set zijn.', code='unique')]}"
-        //
-        // Related OpenZaak issue: https://github.com/open-zaak/open-zaak/issues/1639
+        // wait for OpenZaak to accept this request
         sleep(1)
         itestHttpClient.performJSONPostRequest(
             "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",

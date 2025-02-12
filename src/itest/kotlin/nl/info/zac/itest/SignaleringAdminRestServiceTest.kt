@@ -85,16 +85,8 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         getHumanTaskPlanItemsResponse.isSuccessful shouldBe true
         getHumanTaskPlanItemsResponseBody.shouldBeJsonArray()
         val humanTaskItemId = JSONArray(getHumanTaskPlanItemsResponseBody).getJSONObject(0).getString("id")
-
-        // Wait before starting an Additional Info task, because that sets the status of the zaak to "Additional info"
-        // and OpenZaak does not allow setting multiple statuses for one zaak within the same timeframe of one second.
-        // If we do not wait in these cases we get a 400 response from OpenZaak with:
-        // "rest_framework.exceptions.ValidationError: {'non_field_errors':
-        // [ErrorDetail(string='De velden zaak, datum_status_gezet moeten een unieke set zijn.', code='unique')]}"
-        //
-        // Related OpenZaak issue: https://github.com/open-zaak/open-zaak/issues/1639
+        // wait for OpenZaak to accept this request
         sleep(1)
-
         val fataleDatum = DATE_2024_01_01.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         val doHumanTaskPlanItemResponse = itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",

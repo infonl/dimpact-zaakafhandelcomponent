@@ -6,7 +6,6 @@ package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKeyValue
-import io.kotest.assertions.json.shouldNotContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.Order
 import io.kotest.core.spec.style.BehaviorSpec
@@ -23,7 +22,9 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import okhttp3.Headers
+import org.json.JSONArray
 import org.json.JSONObject
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -31,7 +32,7 @@ import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
 /**
- * This test creates a zaak and because we do not want this test to impact [ZoekenRESTServiceTest]
+ * This test creates a zaak and a task and because we do not want this test to impact e.g. [ZoekenRESTServiceTest]
  * we run it afterward.
  */
 @Order(TEST_SPEC_ORDER_AFTER_SEARCH)
@@ -40,9 +41,15 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
 
-    Given("A zaak in ZAC with CMMN Flowable data and Solr index data") {
+    Given(
+        """
+            A zaak in ZAC which has been started using the ZAC CMMN model 
+            and which has been indexed in the Solr search index
+        """.trimIndent()
+    ) {
         lateinit var zaakUUID: UUID
         lateinit var zaakIdentificatie: String
+        lateinit var humanTaskItemAanvullendeInformatieId: String
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
             groupId = TEST_GROUP_A_ID,
@@ -57,9 +64,31 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
                 zaakIdentificatie = getString("identificatie")
             }
         }
-
-        // TODO: start a task for this zaak and check that it is deleted later on
-
+        // retrieve the human task plan items for the zaak so that we can start the task 'aanvullende informatie'
+        itestHttpClient.performGetRequest(
+            "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems"
+        ).run {
+            val responseBody = body!!.string()
+            logger.info { "Response: $responseBody" }
+            this.isSuccessful shouldBe true
+            humanTaskItemAanvullendeInformatieId = JSONArray(responseBody).getJSONObject(0).getString("id")
+        }
+        // start the human task plan item (=task) 'aanvullende informatie'
+        itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
+            requestBodyAsString = """
+                {
+                    "planItemInstanceId": "$humanTaskItemAanvullendeInformatieId",
+                    "taakStuurGegevens": {"sendMail":false},
+                    "medewerker":null,"groep":{"id":"$TEST_GROUP_A_ID","naam":"$TEST_GROUP_A_DESCRIPTION"},
+                    "taakdata": { "dummyTestKey": "dummyTestValue" }
+                }
+            """.trimIndent()
+        ).run {
+            val responseBody = body!!.string()
+            logger.info { "Response: $responseBody" }
+            this.isSuccessful shouldBe true
+        }
         // reindex so that the new zaak gets added to the Solr index
         itestHttpClient.performGetRequest(
             url = "$ZAC_API_URI/indexeren/herindexeren/ZAAK",
