@@ -22,7 +22,7 @@ export class AutocompleteComponent
 {
   data: AutocompleteFormField;
 
-  options: any[];
+  options: Record<string, string>[];
   filteredOptions: Observable<any[]>;
   optionsChanged$: Subscription;
 
@@ -43,19 +43,28 @@ export class AutocompleteComponent
     this.data.formControl.setAsyncValidators(
       AutocompleteValidators.asyncOptionInList(this.data.options),
     );
+    this.data.formControl.updateValueAndValidity();
+
     this.data.options.subscribe((options) => {
       this.options = options;
 
       this.filteredOptions = this.data.formControl.valueChanges.pipe(
         startWith(""),
-        map((value) =>
-          typeof value === "string"
-            ? value
-            : typeof value === "object"
-              ? value[this.data.optionLabel]
-              : null,
-        ),
-        map((name) => (name ? this._filter(name) : this.options.slice())),
+        map((value) => {
+          if (value === null) {
+            return null;
+          }
+
+          switch (typeof value) {
+            case "string":
+              return value;
+            case "object":
+              return value[this.data.optionLabel];
+            default:
+              return null;
+          }
+        }),
+        map((name) => (name ? this._filter(name) : this.options?.slice())),
       );
     });
   }
@@ -67,13 +76,13 @@ export class AutocompleteComponent
   private _filter(filter: string): any[] {
     const filterValue = filter.toLowerCase();
 
-    return this.options.filter((option) =>
-      option[this.data.optionLabel].toLowerCase().includes(filterValue),
-    );
+    return this.options.filter((option) => {
+      return option[this.data.optionLabel].toLowerCase().includes(filterValue);
+    });
   }
 
   isEditing(): boolean {
-    return !!this.data.formControl.value;
+    return Boolean(this.data.formControl.value);
   }
 
   clear() {
