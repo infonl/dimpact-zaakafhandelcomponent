@@ -88,8 +88,7 @@ fun getSignaleringVerzondenWhere(
     }
     if (parameters.types.isNotEmpty()) {
         where.add(
-            root.get<Any>("type").get<Any>("id")
-                .`in`(parameters.types.map { it.toString() })
+            root.get<Any>("type").get<Any>("id").`in`(parameters.types.map { it.toString() })
         )
     }
     parameters.subjecttype?.let { subjecttype ->
