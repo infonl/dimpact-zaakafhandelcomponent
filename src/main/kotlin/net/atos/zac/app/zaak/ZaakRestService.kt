@@ -110,8 +110,6 @@ import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.signalering.SignaleringService
-import net.atos.zac.signalering.model.SignaleringType
-import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.util.time.LocalDateUtil
 import net.atos.zac.websocket.event.ScreenEventType
@@ -183,7 +181,7 @@ class ZaakRestService @Inject constructor(
         zrcClientService.readZaak(zaakUUID).let { zaak ->
             restZaakConverter.toRestZaak(zaak).also {
                 assertPolicy(it.rechten.lezen)
-                deleteSignaleringen(zaak)
+                signaleringService.deleteSignaleringenForZaak(zaak)
             }
         }
 
@@ -193,7 +191,7 @@ class ZaakRestService @Inject constructor(
         zrcClientService.readZaakByID(identificatie).let { zaak ->
             restZaakConverter.toRestZaak(zaak).also {
                 assertPolicy(it.rechten.lezen)
-                deleteSignaleringen(zaak)
+                signaleringService.deleteSignaleringenForZaak(zaak)
             }
         }
 
@@ -954,14 +952,6 @@ class ZaakRestService @Inject constructor(
     }
 
     private fun datumWaarschuwing(vandaag: LocalDate, dagen: Int): LocalDate = vandaag.plusDays(dagen + 1L)
-
-    private fun deleteSignaleringen(zaak: Zaak) {
-        signaleringService.deleteSignaleringen(
-            SignaleringZoekParameters(loggedInUserInstance.get())
-                .types(SignaleringType.Type.ZAAK_OP_NAAM, SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD)
-                .subject(zaak)
-        )
-    }
 
     private fun assignLoggedInUserToZaak(
         zaakUUID: UUID,

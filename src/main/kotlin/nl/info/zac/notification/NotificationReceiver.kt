@@ -25,7 +25,10 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.productaanvraag.ProductaanvraagService
+import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.event.SignaleringEventUtil
+import net.atos.zac.signalering.model.SignaleringSubject
+import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexingService
 import nl.info.zac.util.AllOpen
@@ -53,6 +56,7 @@ class NotificationReceiver @Inject constructor(
     private val zaakafhandelParameterBeheerService: ZaakafhandelParameterBeheerService,
     private val cmmnService: CMMNService,
     private val zaakVariabelenService: ZaakVariabelenService,
+    private val signaleringService: SignaleringService,
 
     @ConfigProperty(name = "OPEN_NOTIFICATIONS_API_SECRET_KEY")
     private val secret: String,
@@ -129,6 +133,19 @@ class NotificationReceiver @Inject constructor(
     @Suppress("TooGenericExceptionCaught")
     private fun handleSignaleringen(notification: Notification) {
         try {
+            // in case of a 'zaak destroy' notification remove any existing signaleringen for this zaak
+            if (notification.channel == Channel.ZAKEN && notification.resource == Resource.ZAAK && notification.action == Action.DELETE) {
+                val zaakUUID = notification.resourceUrl.extractUuid().toString()
+                signaleringService.deleteSignaleringen(
+                    SignaleringZoekParameters(
+                        SignaleringSubject.ZAAK,
+                        zaakUUID
+                    )
+                ).also {
+                    LOG.info("Deleted $it zaak signaleringen for zaak with UUID '$zaakUUID'.")
+                }
+            }
+            // send signalering events for this notification
             SignaleringEventUtil.getEvents(
                 notification.channel,
                 notification.getMainResourceInfo(),

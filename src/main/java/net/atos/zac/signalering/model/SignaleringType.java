@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -51,6 +51,14 @@ public class SignaleringType implements Comparable<SignaleringType> {
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public SignaleringSubject getSubjecttype() {
