@@ -37,10 +37,10 @@ import { Zaak } from "../model/zaak";
 
 @Component({
   selector: "zac-case-details-edit",
-  templateUrl: "./zaak-wijzigen.component.html",
-  styleUrls: ["./zaak-wijzigen.component.less"],
+  templateUrl: "./zaak-details-wijzigen.component.html",
+  styleUrls: ["./zaak-details-wijzigen.component.less"],
 })
-export class ZaakWijzigenComponent implements OnInit, OnDestroy {
+export class CaseDetailsEditComponent implements OnInit, OnDestroy {
   @Input() sideNav: MatDrawer;
   @Input() readonly: boolean;
   @Input() zaak: Zaak; // GeneratedType<"RestZaak">;
@@ -57,7 +57,7 @@ export class ZaakWijzigenComponent implements OnInit, OnDestroy {
   private einddatumGepland: DateFormField | InputFormField;
   private uiterlijkeEinddatumAfdoening: DateFormField;
   private vertrouwelijkheidaanduidingField: SelectFormField;
-  private vertrouwelijkheidaanduidingen: { label: string; value: string }[];
+  private vertrouwelijkheidaanduidingenList: { label: string; value: string }[];
   private omschrijving: TextareaFormField;
   private toelichtingField: TextareaFormField;
   private reasonField: TextareaFormField;
@@ -85,10 +85,11 @@ export class ZaakWijzigenComponent implements OnInit, OnDestroy {
     this.communicatiekanalen =
       this.referentieTabelService.listCommunicatiekanalen();
 
-    this.vertrouwelijkheidaanduidingen = this.utilService.getEnumAsSelectList(
-      "vertrouwelijkheidaanduiding",
-      Vertrouwelijkheidaanduiding,
-    );
+    this.vertrouwelijkheidaanduidingenList =
+      this.utilService.getEnumAsSelectList(
+        "vertrouwelijkheidaanduiding",
+        Vertrouwelijkheidaanduiding,
+      );
 
     this.medewerkerGroepFormField = this.getMedewerkerGroupFormField(
       this.zaak?.groep.id,
@@ -129,14 +130,14 @@ export class ZaakWijzigenComponent implements OnInit, OnDestroy {
       .build();
 
     this.vertrouwelijkheidaanduidingField = new SelectFormFieldBuilder(
-      this.vertrouwelijkheidaanduidingen.find(
+      this.vertrouwelijkheidaanduidingenList.find(
         (o) => o.value === this.zaak.vertrouwelijkheidaanduiding.toLowerCase(),
       ),
     )
       .id("vertrouwelijkheidaanduiding")
       .label("vertrouwelijkheidaanduiding")
       .optionLabel("label")
-      .options(this.vertrouwelijkheidaanduidingen)
+      .options(this.vertrouwelijkheidaanduidingenList)
       .optionsOrder(OrderUtil.orderAsIs())
       .validators(Validators.required)
       .build();
