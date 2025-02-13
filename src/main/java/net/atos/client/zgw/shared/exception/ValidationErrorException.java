@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -8,20 +8,20 @@ package net.atos.client.zgw.shared.exception;
 import java.net.URI;
 import java.util.stream.Collectors;
 
-import net.atos.client.zgw.shared.model.ValidatieZgwError;
+import net.atos.client.zgw.shared.model.ValidationZgwError;
 
 /**
  * Exception to indicate a validation error that occurred in an external service.
  */
 public class ValidationErrorException extends RuntimeException {
 
-    private final ValidatieZgwError validatieFout;
+    private final ValidationZgwError validatieFout;
 
-    public ValidationErrorException(final ValidatieZgwError validatieFout) {
+    public ValidationErrorException(final ValidationZgwError validatieFout) {
         this.validatieFout = validatieFout;
     }
 
-    public ValidatieZgwError getValidatieFout() {
+    public ValidationZgwError getValidatieFout() {
         return validatieFout;
     }
 

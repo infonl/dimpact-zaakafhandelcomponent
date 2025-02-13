@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.shared.exception;
 
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -10,7 +9,7 @@ import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 
-import net.atos.client.zgw.shared.model.ValidatieZgwError;
+import net.atos.client.zgw.shared.model.ValidationZgwError;
 
 /**
  * Maps all responses with status code 400 (Bad Request) from the ZGW APIs to {@link ValidationErrorException}s.
@@ -27,6 +26,6 @@ public class ZgwValidationErrorResponseExceptionMapper implements ResponseExcept
 
     @Override
     public ValidationErrorException toThrowable(final Response response) {
-        return new ValidationErrorException(response.readEntity(ValidatieZgwError.class));
+        return new ValidationErrorException(response.readEntity(ValidationZgwError.class));
     }
 }

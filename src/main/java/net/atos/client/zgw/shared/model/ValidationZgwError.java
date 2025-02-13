@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.shared.model;
 
 import java.net.URI;
@@ -12,14 +11,14 @@ import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 
 /**
- *
+ * ZGW error indicating a validation error.
  */
-public class ValidatieZgwError extends ZgwError {
+public class ValidationZgwError extends ZgwError {
 
     private final List<FieldValidationError> invalidParams;
 
     @JsonbCreator
-    public ValidatieZgwError(
+    public ValidationZgwError(
             @JsonbProperty("type") final URI type,
             @JsonbProperty("code") final String code,
             @JsonbProperty("title") final String title,
