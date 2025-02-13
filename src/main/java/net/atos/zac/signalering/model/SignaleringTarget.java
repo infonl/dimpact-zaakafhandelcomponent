@@ -6,7 +6,6 @@
 package net.atos.zac.signalering.model;
 
 public enum SignaleringTarget {
-
     GROUP,
     USER;
 

@@ -21,7 +21,9 @@ fun getSignaleringWhere(
     root: Root<Signalering>
 ): Predicate {
     val where = mutableListOf<Predicate>()
-    where.add(builder.equal(root.get<Any>("targettype"), parameters.targettype))
+    parameters.targettype?.let {
+        where.add(builder.equal(root.get<Any>("targettype"), it))
+    }
     parameters.target?.let {
         where.add(builder.equal(root.get<Any>("target"), it))
     }
@@ -77,8 +79,10 @@ fun getSignaleringVerzondenWhere(
     builder: CriteriaBuilder,
     root: Root<SignaleringVerzonden>
 ): Predicate {
-    val where: MutableList<Predicate> = ArrayList()
-    where.add(builder.equal(root.get<Any>("targettype"), parameters.targettype))
+    val where = mutableListOf<Predicate>()
+    parameters.targettype?.let {
+        where.add(builder.equal(root.get<Any>("targettype"), it))
+    }
     parameters.target?.let {
         where.add(builder.equal(root.get<Any>("target"), it))
     }

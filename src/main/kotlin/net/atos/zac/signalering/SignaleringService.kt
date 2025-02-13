@@ -67,9 +67,6 @@ class SignaleringService @Inject constructor(
         private val LOG = Logger.getLogger(SignaleringService::class.java.name)
     }
 
-    private fun Instance<LoggedInUser>.getSignaleringZoekParameters() =
-        SignaleringZoekParameters(get())
-
     /**
      * Factory method for constructing Signalering instances.
      *
@@ -149,24 +146,6 @@ class SignaleringService @Inject constructor(
     }
 
     /**
-     * Deletes signaleringen based on the given parameters
-     * and sends a screen event for each deletion.
-     */
-    @Transactional(REQUIRED)
-    fun deleteSignaleringen(parameters: SignaleringZoekParameters) {
-        val removed: MutableMap<String, Signalering> = HashMap()
-        listSignaleringen(parameters)
-            .forEach {
-                removed[it.target + ';' + it.type.type] = it
-                entityManager.remove(it)
-            }
-        removed.values
-            .forEach {
-                eventingService.send(ScreenEventType.SIGNALERINGEN.updated(it))
-            }
-    }
-
-    /**
      * Deletes all signaleringen older than the specified number of days regardless of the type.
      * Does not send any screen events for these deletions.
      *
@@ -187,6 +166,40 @@ class SignaleringService @Inject constructor(
         return entityManager.createQuery(query).executeUpdate().also {
             LOG.info("Deleted $it signaleringen.")
         }
+    }
+
+    /**
+     * Deletes signaleringen based on the given parameters and sends a screen event for each deletion.
+     */
+    @Transactional(REQUIRED)
+    fun deleteSignaleringen(parameters: SignaleringZoekParameters) {
+        val removed = mutableMapOf<String, Signalering>()
+        listSignaleringen(parameters)
+            .forEach {
+                removed[it.target + ';' + it.type.type] = it
+                entityManager.remove(it)
+            }
+        removed.values
+            .forEach {
+                eventingService.send(ScreenEventType.SIGNALERINGEN.updated(it))
+            }
+    }
+
+    /**
+     * Deletes zaak signaleringen for the given zaak for the logged-in user.
+     * Does not send any screen events.
+     */
+    @Transactional(REQUIRED)
+    fun deleteSignaleringenForZaak(zaak: Zaak) =
+        deleteSignaleringen(
+            loggedInUserInstance.getSignaleringZoekParameters()
+                .types(SignaleringType.Type.ZAAK_OP_NAAM, SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD)
+                .subject(zaak)
+        )
+
+    @Transactional(REQUIRED)
+    fun deleteSignaleringVerzonden(verzonden: SignaleringVerzondenZoekParameters) {
+        findSignaleringVerzonden(verzonden).ifPresent(entityManager::remove)
     }
 
     fun listSignaleringen(parameters: SignaleringZoekParameters): List<Signalering> {
@@ -228,32 +241,14 @@ class SignaleringService @Inject constructor(
             .resultList
     }
 
-    private fun signaleringenCount(parameters: SignaleringZoekParameters): Long =
-        entityManager.criteriaBuilder.let { builder ->
-            builder.createQuery(Long::class.java).let { criteriaQuery ->
-                criteriaQuery.from(Signalering::class.java).let { root ->
-                    entityManager.createQuery(
-                        criteriaQuery
-                            .select(builder.count(root))
-                            .where(getSignaleringWhere(parameters, builder, root))
-                    ).resultList.firstOrNull() ?: 0
-                }
-            }
-        }
-
     fun latestSignaleringOccurrence(): ZonedDateTime? {
         val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(
-            ZonedDateTime::class.java
-        )
+        val query = builder.createQuery(ZonedDateTime::class.java)
         val root = query.from(Signalering::class.java)
-
         query.select(root.get("tijdstip"))
             .where(getSignaleringWhere(loggedInUserInstance.getSignaleringZoekParameters(), builder, root))
             .orderBy(builder.desc(root.get<Any>("tijdstip")))
-
         val resultList = entityManager.createQuery(query).resultList
-
         return if (resultList?.isNotEmpty() == true) {
             resultList[0]
         } else {
@@ -308,21 +303,11 @@ class SignaleringService @Inject constructor(
         return entityManager.merge(instellingen)
     }
 
-    fun readInstellingenGroup(type: SignaleringType.Type, target: String): SignaleringInstellingen {
-        signaleringInstance(type).apply {
-            setTargetGroup(target)
-        }.let {
-            return readInstellingen(it)
-        }
-    }
+    fun readInstellingenGroup(type: SignaleringType.Type, target: String) =
+        readInstellingen(signaleringInstance(type).apply { setTargetGroup(target) })
 
-    fun readInstellingenUser(type: SignaleringType.Type, target: String): SignaleringInstellingen {
-        signaleringInstance(type).apply {
-            setTargetUser(target)
-        }.let {
-            return readInstellingen(it)
-        }
-    }
+    fun readInstellingenUser(type: SignaleringType.Type, target: String) =
+        readInstellingen(signaleringInstance(type).apply { setTargetUser(target) })
 
     fun readInstellingen(signalering: Signalering): SignaleringInstellingen {
         val instellingen = listInstellingen(
@@ -367,11 +352,6 @@ class SignaleringService @Inject constructor(
         val signaleringVerzonden = signaleringVerzondenInstance(signalering)
         ValidationUtil.valideerObject(signaleringVerzonden)
         return entityManager.merge(signaleringVerzonden)
-    }
-
-    @Transactional(REQUIRED)
-    fun deleteSignaleringVerzonden(verzonden: SignaleringVerzondenZoekParameters) {
-        findSignaleringVerzonden(verzonden).ifPresent { entityManager.remove(it) }
     }
 
     fun findSignaleringVerzonden(
@@ -465,9 +445,24 @@ class SignaleringService @Inject constructor(
     private fun getDocument(documentUUID: String) =
         drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(documentUUID))
 
+    private fun Instance<LoggedInUser>.getSignaleringZoekParameters() = SignaleringZoekParameters(get())
+
     private fun getTask(taakID: String) = flowableTaskService.readTask(taakID)
 
     private fun getZaak(zaakUUID: String): Zaak = zrcClientService.readZaak(UUID.fromString(zaakUUID))
+
+    private fun signaleringenCount(parameters: SignaleringZoekParameters): Long =
+        entityManager.criteriaBuilder.let { builder ->
+            builder.createQuery(Long::class.java).let { criteriaQuery ->
+                criteriaQuery.from(Signalering::class.java).let { root ->
+                    entityManager.createQuery(
+                        criteriaQuery
+                            .select(builder.count(root))
+                            .where(getSignaleringWhere(parameters, builder, root))
+                    ).resultList.firstOrNull() ?: 0
+                }
+            }
+        }
 
     private fun signaleringTypeInstance(signaleringsType: SignaleringType.Type): SignaleringType =
         entityManager.find(SignaleringType::class.java, signaleringsType.toString())

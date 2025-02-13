@@ -12,6 +12,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
+import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
@@ -23,6 +24,9 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.productaanvraag.ProductaanvraagService
+import net.atos.zac.signalering.SignaleringService
+import net.atos.zac.signalering.model.SignaleringSubject
+import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.zoeken.IndexingService
 import java.net.URI
 import java.util.UUID
@@ -34,6 +38,7 @@ class NotificationReceiverTest : BehaviorSpec({
     val productaanvraagService = mockk<ProductaanvraagService>()
     val indexingService = mockk<IndexingService>()
     val inboxDocumentenService = mockk<InboxDocumentenService>()
+    val signaleringService = mockk<SignaleringService>()
     val zaakafhandelParameterBeheerService = mockk<ZaakafhandelParameterBeheerService>()
     val cmmnService = mockk<CMMNService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
@@ -48,6 +53,7 @@ class NotificationReceiverTest : BehaviorSpec({
         zaakafhandelParameterBeheerService = zaakafhandelParameterBeheerService,
         cmmnService = cmmnService,
         zaakVariabelenService = zaakVariabelenService,
+        signaleringService = signaleringService,
         secret = SECRET,
         httpSession = httpSessionInstance
     )
@@ -175,11 +181,13 @@ class NotificationReceiverTest : BehaviorSpec({
             resourceUrl = zaakUri,
             action = Action.DELETE
         )
+        val signaleringZoekParametersSlot = slot<SignaleringZoekParameters>()
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
         every { cmmnService.deleteCase(zaakUUID) } returns Unit
         every { zaakVariabelenService.deleteAllCaseVariables(zaakUUID) } just Runs
         every { indexingService.removeZaak(zaakUUID) } just Runs
+        every { signaleringService.deleteSignaleringen(capture(signaleringZoekParametersSlot)) } just Runs
 
         When("notificatieReceive is called with the zaak destroy notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
@@ -192,6 +200,11 @@ class NotificationReceiverTest : BehaviorSpec({
                     cmmnService.deleteCase(zaakUUID)
                     zaakVariabelenService.deleteAllCaseVariables(zaakUUID)
                     indexingService.removeZaak(zaakUUID)
+                    signaleringService.deleteSignaleringen(any())
+                }
+                signaleringZoekParametersSlot.captured.run {
+                    subjecttype shouldBe SignaleringSubject.ZAAK
+                    subject shouldBe zaakUUID.toString()
                 }
             }
         }

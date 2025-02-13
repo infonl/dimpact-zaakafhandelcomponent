@@ -74,6 +74,7 @@ import net.atos.zac.app.zaak.model.createRestGroup
 import net.atos.zac.app.zaak.model.createRestZaak
 import net.atos.zac.app.zaak.model.createRestZaakLinkData
 import net.atos.zac.app.zaak.model.createRestZaakLocatieGegevens
+import net.atos.zac.app.zaak.model.createRestZaakRechten
 import net.atos.zac.app.zaak.model.createRestZaakUnlinkData
 import net.atos.zac.app.zaak.model.createRestZaaktype
 import net.atos.zac.authentication.LoggedInUser
@@ -930,6 +931,28 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
                 updatedRestZaak shouldBe restZaakUpdate
                 zaakdataMap.captured shouldBe restZaakUpdate.zaakdata
+            }
+        }
+    }
+    Given("A zaak for which signaleringen exist") {
+        val zaakUUID = UUID.randomUUID()
+        val zaak = createZaak(uuid = zaakUUID)
+        val restZaak = createRestZaak(
+            uuid = zaakUUID,
+            rechten = createRestZaakRechten(lezen = true)
+        )
+        every { zrcClientService.readZaak(zaakUUID) } returns zaak
+        every { restZaakConverter.toRestZaak(zaak) } returns restZaak
+        every { signaleringService.deleteSignaleringenForZaak(zaak) } just runs
+
+        When("the zaak is read") {
+            val returnedRestZaak = zaakRestService.readZaak(zaakUUID)
+
+            Then("the zaak is returned and any zaak signaleringen are deleted") {
+                returnedRestZaak shouldBe restZaak
+                verify(exactly = 1) {
+                    signaleringService.deleteSignaleringenForZaak(zaak)
+                }
             }
         }
     }
