@@ -33,7 +33,6 @@ import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
-import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { KlantenService } from "../../klanten/klanten.service";
 import { Klant } from "../../klanten/model/klanten/klant";
 import { KlantGegevens } from "../../klanten/model/klanten/klant-gegevens";
@@ -252,7 +251,6 @@ export class ZaakViewComponent
     this.loadHistorie();
     this.loadBetrokkenen();
     this.loadBagObjecten();
-    this.setEditableFormFields();
     this.setupMenu();
     this.loadOpschorting();
     ViewResourceUtil.actieveZaak = zaak;
@@ -301,142 +299,6 @@ export class ZaakViewComponent
     this.websocketService.removeListener(this.zaakBesluitenListener);
     this.websocketService.removeListener(this.zaakRollenListener);
     this.websocketService.removeListener(this.zaakTakenListener);
-  }
-
-  private setEditableFormFields(): void {
-    this.editFormFields.set(
-      "communicatiekanaal",
-      new SelectFormFieldBuilder(this.zaak.communicatiekanaal)
-        .id("communicatiekanaal")
-        .label("communicatiekanaal")
-        .validators(Validators.required)
-        .options(this.referentieTabelService.listCommunicatiekanalen())
-        .build(),
-    );
-
-    this.editFormFields.set(
-      "medewerker-groep",
-      new MedewerkerGroepFieldBuilder(this.zaak.groep, this.zaak.behandelaar)
-        .id("medewerker-groep")
-        .groepLabel("groep.-kies-")
-        .groepRequired()
-        .medewerkerLabel("behandelaar.-kies-")
-        .build(),
-    );
-    this.editFormFields.set(
-      "omschrijving",
-      new TextareaFormFieldBuilder(this.zaak.omschrijving)
-        .id("omschrijving")
-        .label("omschrijving")
-        .maxlength(80)
-        .build(),
-    );
-    this.editFormFields.set(
-      "toelichting",
-      new TextareaFormFieldBuilder(this.zaak.toelichting)
-        .id("toelichting")
-        .label("toelichting")
-        .maxlength(1000)
-        .build(),
-    );
-    this.editFormFields.set(
-      "vertrouwelijkheidaanduiding",
-      new SelectFormFieldBuilder({
-        label: this.translate.instant(
-          this.vertrouwelijkaanduidingToTranslationKeyPipe.transform(
-            this.zaak.vertrouwelijkheidaanduiding,
-          ),
-        ),
-        value:
-          "vertrouwelijkheidaanduiding." +
-          this.zaak.vertrouwelijkheidaanduiding,
-      })
-        .id("vertrouwelijkheidaanduiding")
-        .label("vertrouwelijkheidaanduiding")
-        .validators(Validators.required)
-        .optionLabel("label")
-        .options(
-          this.utilService.getEnumAsSelectList(
-            "vertrouwelijkheidaanduiding",
-            Vertrouwelijkheidaanduiding,
-          ),
-        )
-        .optionsOrder(OrderUtil.orderAsIs())
-        .build(),
-    );
-
-    this.editFormFields.set(
-      "startdatum",
-      new DateFormFieldBuilder(this.zaak.startdatum)
-        .id("startdatum")
-        .label("startdatum")
-        .validators(Validators.required)
-        .build(),
-    );
-
-    this.editFormFields.set(
-      "einddatumGepland",
-      new DateFormFieldBuilder(this.zaak.einddatumGepland)
-        .id("einddatumGepland")
-        .label("einddatumGepland")
-        .readonly(!this.zaak.einddatumGepland)
-        .validators(
-          this.zaak.einddatumGepland
-            ? Validators.required
-            : Validators.nullValidator,
-        )
-        .build(),
-    );
-    this.editFormFieldIcons.set(
-      "einddatumGepland",
-      new TextIcon(
-        DateConditionals.provideFormControlValue(
-          DateConditionals.isExceeded,
-          this.zaak.einddatum,
-        ),
-        "report_problem",
-        "warningVerlopen_icon",
-        "msg.datum.overschreden",
-        "warning",
-      ),
-    );
-
-    this.editFormFields.set(
-      "uiterlijkeEinddatumAfdoening",
-      new DateFormFieldBuilder(this.zaak.uiterlijkeEinddatumAfdoening)
-        .id("uiterlijkeEinddatumAfdoening")
-        .label("uiterlijkeEinddatumAfdoening")
-        .validators(Validators.required)
-        .build(),
-    );
-    this.editFormFieldIcons.set(
-      "uiterlijkeEinddatumAfdoening",
-      new TextIcon(
-        DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
-        "report_problem",
-        "errorVerlopen_icon",
-        "msg.datum.overschreden",
-        "error",
-      ),
-    );
-
-    this.editFormFields.set(
-      "reden",
-      new InputFormFieldBuilder()
-        .id("reden")
-        .label("reden")
-        .validators(Validators.required)
-        .maxlength(80)
-        .build(),
-    );
-    this.editFormFields.set(
-      "redenNietVerplicht",
-      new InputFormFieldBuilder()
-        .id("reden")
-        .label("reden")
-        .maxlength(80)
-        .build(),
-    );
   }
 
   private createUserEventListenerPlanItemMenuItem(
@@ -1031,19 +893,6 @@ export class ZaakViewComponent
       });
   }
 
-  editDatumGroep(event: any): void {
-    const zaak: Zaak = new Zaak();
-    zaak.startdatum = event.startdatum;
-    zaak.einddatumGepland = event.einddatumGepland;
-    zaak.uiterlijkeEinddatumAfdoening = event.uiterlijkeEinddatumAfdoening;
-    this.websocketService.suspendListener(this.zaakListener);
-    this.zakenService
-      .updateZaak(this.zaak.uuid, zaak, event.reden)
-      .subscribe((updatedZaak) => {
-        this.init(updatedZaak);
-      });
-  }
-
   private loadOpschorting(): void {
     if (this.zaak.isOpgeschort) {
       this.zakenService
@@ -1052,41 +901,6 @@ export class ZaakViewComponent
           this.zaakOpschorting = objectData;
         });
     }
-  }
-
-  editToewijzing(event: any) {
-    if (
-      event["medewerker-groep"].medewerker &&
-      event["medewerker-groep"].medewerker.id === this.loggedInUser.id &&
-      this.zaak.groep === event["medewerker-groep"].groep
-    ) {
-      this.assignZaakToMe(event);
-    } else {
-      this.zaak.groep = event["medewerker-groep"].groep;
-      this.zaak.behandelaar = event["medewerker-groep"].medewerker;
-      this.websocketService.doubleSuspendListener(this.zaakRollenListener);
-      this.zakenService.toekennen(this.zaak, event.reden).subscribe((zaak) => {
-        if (this.zaak.behandelaar) {
-          this.utilService.openSnackbar("msg.zaak.toegekend", {
-            behandelaar: this.zaak.behandelaar.naam,
-          });
-        } else {
-          this.utilService.openSnackbar("msg.vrijgegeven.zaak");
-        }
-        this.init(zaak);
-      });
-    }
-  }
-
-  editZaakMetReden(event: any, field: string): void {
-    const zaak: Zaak = new Zaak();
-    zaak[field] = event[field].value ? event[field].value : event[field];
-    this.websocketService.suspendListener(this.zaakListener);
-    this.zakenService
-      .updateZaak(this.zaak.uuid, zaak, event.reden)
-      .subscribe((updatedZaak) => {
-        this.init(updatedZaak);
-      });
   }
 
   public updateZaak(): void {
@@ -1192,18 +1006,6 @@ export class ZaakViewComponent
       this.loggedInUser.id !== taak.behandelaar?.id &&
       this.loggedInUser.groupIds.indexOf(taak.groep.id) >= 0
     );
-  }
-
-  private assignZaakToMe(event: any): void {
-    this.websocketService.doubleSuspendListener(this.zaakRollenListener);
-    this.zakenService
-      .toekennenAanIngelogdeMedewerker(this.zaak, event.reden)
-      .subscribe((zaak) => {
-        this.init(zaak);
-        this.utilService.openSnackbar("msg.zaak.toegekend", {
-          behandelaar: zaak.behandelaar?.naam,
-        });
-      });
   }
 
   locatieGeselecteerd(locatie: GeometryGegevens): void {
@@ -1404,10 +1206,6 @@ export class ZaakViewComponent
   documentSent(): void {
     this.sluitSidenav();
     this.updateZaak();
-  }
-
-  caseEdited(): void {
-    // this.sluitSidenav();
   }
 
   startZaakOntkoppelenDialog(

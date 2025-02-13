@@ -66,7 +66,6 @@
       [loggedInUser]="loggedInUser"
       [zaak]="zaak"
       [readonly]="!zaak.isOpen || !zaak.rechten.wijzigen"
-      (caseEdit)="caseEdited()"
     ></zac-case-details-edit>
     <zac-informatie-object-create-attended
       *ngSwitchCase="'actie.document.maken'"
@@ -197,14 +196,10 @@
                 {{ "gegevens.algemeen" | translate }}</ng-template
               >
               <div id="algemeneGegevens_tab" class="content">
-                <div class="flex flex-row flex-wrap justify-start gap-10">
+                <div class="flex flex-row justify-start gap-10">
                   <zac-static-text
                     [label]="'status' | translate"
                     [value]="zaak.status | empty: 'naam'"
-                    [icon]="zaak.status?.toelichting ? toolTipIcon : null"
-                    [matTooltip]="zaak.status?.toelichting"
-                    [attr.role]="zaak.status?.toelichting ? 'tooltip' : null"
-                    [attr.aria-label]="zaak.status?.toelichting"
                     class="flex-item"
                   ></zac-static-text>
                   <zac-static-text
@@ -215,10 +210,6 @@
                   <zac-static-text
                     [label]="'resultaat' | translate"
                     [value]="zaak.resultaat?.resultaattype | empty: 'naam'"
-                    [icon]="zaak.resultaat?.toelichting ? toolTipIcon : null"
-                    [matTooltip]="zaak.resultaat?.toelichting"
-                    [attr.role]="zaak.resultaat?.toelichting ? 'tooltip' : null"
-                    [attr.aria-label]="zaak.resultaat?.toelichting"
                     class="flex-item"
                   ></zac-static-text>
                   <zac-static-text
@@ -247,25 +238,7 @@
                 </div>
                 <mat-divider class="mat-divider-wrapper"></mat-divider>
 
-                <div
-                  class="flex flex-row flex-wrap justify-start gap-10 editable"
-                >
-                  <zac-edit-groep-behandelaar
-                    [formField]="editFormFields.get('medewerker-groep')"
-                    [reasonField]="editFormFields.get('redenNietVerplicht')"
-                    [readonly]="!zaak.isOpen || !zaak.rechten.toekennen"
-                    (onSave)="editToewijzing($event)"
-                    class="flex-double-item"
-                  >
-                  </zac-edit-groep-behandelaar>
-                  <zac-edit-select
-                    [formField]="editFormFields.get('communicatiekanaal')"
-                    [reasonField]="editFormFields.get('reden')"
-                    [readonly]="!zaak.rechten.wijzigen"
-                    (onSave)="editZaakMetReden($event, 'communicatiekanaal')"
-                    class="flex-item"
-                  >
-                  </zac-edit-select>
+                <div class="flex flex-row justify-start gap-10 editable">
                   <button
                     mat-icon-button
                     mat-small-icon-button
@@ -273,44 +246,46 @@
                   >
                     <mat-icon>edit</mat-icon>
                   </button>
-                </div>
-                <div class="flex w100">
-                  <zac-edit-datum-groep
-                    [startDatumField]="editFormFields.get('startdatum')"
-                    [einddatumGeplandField]="
-                      editFormFields.get('einddatumGepland')
-                    "
-                    [uiterlijkeEinddatumAfdoeningField]="
-                      editFormFields.get('uiterlijkeEinddatumAfdoening')
-                    "
-                    [einddatumGeplandIcon]="
-                      editFormFieldIcons.get('einddatumGepland')
-                    "
-                    [uiterlijkeEinddatumAfdoeningIcon]="
-                      editFormFieldIcons.get('uiterlijkeEinddatumAfdoening')
-                    "
-                    [reasonField]="editFormFields.get('reden')"
-                    [opgeschort]="zaak.isOpgeschort"
-                    [opschortDuur]="zaakOpschorting?.duurDagen"
-                    [verlengDuur]="zaak.duurVerlenging"
-                    [readonly]="!zaak.rechten.wijzigen || zaak.isProcesGestuurd"
-                    (onSave)="editDatumGroep($event)"
-                  ></zac-edit-datum-groep>
-                </div>
 
-                <div class="flex flex-row flex-wrap justify-start gap-10">
-                  <zac-edit-select
-                    [formField]="
-                      editFormFields.get('vertrouwelijkheidaanduiding')
-                    "
-                    [reasonField]="editFormFields.get('reden')"
-                    [readonly]="!zaak.rechten.wijzigen"
-                    (onSave)="
-                      editZaakMetReden($event, 'vertrouwelijkheidaanduiding')
-                    "
+                  <zac-static-text
+                    [label]="'groep' | translate"
+                    [value]="zaak.groep.naam | empty"
                     class="flex-item"
-                  >
-                  </zac-edit-select>
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'behandelaar' | translate"
+                    [value]="zaak.behandelaar.naam | empty"
+                    class="flex-item"
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'communicatiekanaal' | translate"
+                    [value]="zaak.communicatiekanaal | empty"
+                    class="flex-item"
+                  ></zac-static-text>
+                </div>
+                <div class="flex flex-row justify-start gap-10">
+                  <zac-static-text
+                    [label]="'startdatum' | translate"
+                    [value]="zaak.startdatum | empty"
+                    class="flex-item"
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'streefdatum' | translate"
+                    [value]="zaak.einddatumGepland | empty"
+                    class="flex-item"
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'fataledatum' | translate"
+                    [value]="zaak.uiterlijkeEinddatumAfdoening | empty"
+                    class="flex-item"
+                  ></zac-static-text>
+                </div>
+                <div class="flex flex-row justify-start gap-10">
+                  <zac-static-text
+                    [label]="'vertrouwelijkheidaanduiding' | translate"
+                    [value]="zaak.vertrouwelijkheidaanduiding | empty"
+                    class="flex-item"
+                  ></zac-static-text>
                   <div
                     class="location-text flex-item"
                     [class.readonly]="!zaak.isOpen || !zaak.rechten.wijzigen"
@@ -331,21 +306,15 @@
                   </div>
                 </div>
 
-                <div class="w100">
-                  <zac-edit-tekst
-                    [formField]="editFormFields.get('omschrijving')"
-                    [reasonField]="editFormFields.get('reden')"
-                    [readonly]="!zaak.rechten.wijzigen"
-                    (onSave)="editZaakMetReden($event, 'omschrijving')"
-                  ></zac-edit-tekst>
-                </div>
-                <div class="w100 replace_me_margin">
-                  <zac-edit-tekst
-                    [formField]="editFormFields.get('toelichting')"
-                    [reasonField]="editFormFields.get('reden')"
-                    [readonly]="!zaak.rechten.wijzigen"
-                    (onSave)="editZaakMetReden($event, 'toelichting')"
-                  ></zac-edit-tekst>
+                <div class="flex flex-col gap-10">
+                  <zac-static-text
+                    [label]="'omschrijving' | translate"
+                    [value]="zaak.omschrijving | empty"
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'toelichting' | translate"
+                    [value]="zaak.toelichting | empty"
+                  ></zac-static-text>
                 </div>
               </div>
             </mat-tab>

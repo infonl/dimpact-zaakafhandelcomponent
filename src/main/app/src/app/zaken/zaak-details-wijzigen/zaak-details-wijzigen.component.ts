@@ -130,8 +130,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       .build();
 
     this.einddatumGeplandField = new DateFormFieldBuilder(
-      // this.zaak.einddatumGepland,
-      this.zaak.startdatum,
+      this.zaak.einddatumGepland,
     )
       .id("einddatumGepland")
       .label("einddatumGepland")
@@ -314,14 +313,10 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
             : patchFields[key];
         });
 
-        console.log("zaak", zaak);
-
         subscriptions.push(
           this.zakenService
             .updateZaak(this.zaak.uuid, zaak, reason)
-            .subscribe((updatedZaak) => {
-              console.log("updatedZaak", updatedZaak);
-            }),
+            .subscribe(() => {}),
         );
       }
 
