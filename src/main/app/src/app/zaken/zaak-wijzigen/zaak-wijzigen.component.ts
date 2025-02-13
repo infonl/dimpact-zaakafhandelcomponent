@@ -259,6 +259,7 @@ export class ZaakWijzigenComponent implements OnInit, OnDestroy {
       if (patchFields) {
         const zaak: Zaak = new Zaak();
         Object.keys(patchFields).forEach((key) => {
+          // circumvent the TypeScript type check (pattern copied from zaak-view.component.ts)
           zaak[key] = patchFields[key].value
             ? patchFields[key].value
             : patchFields[key];
