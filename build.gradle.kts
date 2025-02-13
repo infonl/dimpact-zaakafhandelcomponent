@@ -318,16 +318,11 @@ configure<SpotlessExtension> {
     format("app") {
         target("src/main/app/**/*.js", "src/main/app/**/*.ts")
         targetExclude(
-            "src/main/app/node_modules/**",
-            "src/main/app/dist/**",
-            "src/main/app/.angular/**"
-        )
-        targetExclude(
-            "src/main/app/node_modules/**",
-            "src/main/app/src/generated/**",
-            "src/main/app/coverage/**",
-            "src/main/app/dist/**",
-            "src/main/app/.angular/**"
+            "src/main/app/node_modules/**/*.*",
+            "src/main/app/src/generated/**/*.*",
+            "src/main/app/coverage/**/*.*",
+            "src/main/app/dist/**/*.*",
+            "src/main/app/.angular/**/*.*"
         )
 
         prettier(
