@@ -4,7 +4,6 @@ This folder contains some python scripts that might be useful. Further details o
 is described below.
 
 ## Setup Python virtual environment
-
 There's a simple shell [init script](./init-pyenv.sh) that can be used to create the virtual environment. It will use command 
 `python3 -m venv .venv` and therefore requires a python 3 version to be available, and will then install this in folder 
 `.venv`, with the required [requirements](./requirements.txt) applied. Once the python environment is available, the scripts from the 
