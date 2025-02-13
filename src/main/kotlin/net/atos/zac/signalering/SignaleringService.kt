@@ -204,9 +204,7 @@ class SignaleringService @Inject constructor(
 
     fun listSignaleringen(parameters: SignaleringZoekParameters): List<Signalering> {
         val builder = entityManager.criteriaBuilder
-        val query = builder.createQuery(
-            Signalering::class.java
-        )
+        val query = builder.createQuery(Signalering::class.java)
         val root = query.from(Signalering::class.java)
         return entityManager.createQuery(
             query.select(root)

@@ -49,6 +49,8 @@ import net.atos.zac.signalering.model.SignaleringTarget
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.createSignalering
 import net.atos.zac.signalering.model.createSignaleringType
+import net.atos.zac.signalering.model.createSignaleringZoekParameters
+import net.atos.zac.websocket.event.ScreenEvent
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -224,6 +226,49 @@ class SignaleringServiceTest : BehaviorSpec({
                     typedQuery.setFirstResult(pageNumber)
                     typedQuery.setMaxResults(pageSize)
                     typedQuery.resultList
+                }
+            }
+        }
+    }
+    Given(
+        """
+        Two zaak signaleringen and corresponding signalering zoek parameters with a subject type and subject
+        """
+    ) {
+        val signaleringenZoekParameters = createSignaleringZoekParameters()
+        val signaleringen = listOf(
+            createSignalering(),
+            createSignalering()
+        )
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
+        every { criteriaQuery.from(Signalering::class.java) } returns rootSignalering
+        every { criteriaQuery.select(rootSignalering) } returns criteriaQuery
+        every { rootSignalering.get<Any>("type") } returns pathTarget
+        every { rootSignalering.get<Any>("subject") } returns pathTarget
+        every { pathTarget.get<Any>("subjecttype") } returns pathTarget
+        every { rootSignalering.get<Any>("tijdstip") } returns pathTarget
+        every { criteriaBuilder.equal(pathTarget, signaleringenZoekParameters.subjecttype) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, signaleringenZoekParameters.subject) } returns predicate
+        every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
+        every { criteriaQuery.where(any()) } returns criteriaQuery
+        every { criteriaQuery.orderBy(any<Order>()) } returns criteriaQuery
+        every { criteriaBuilder.desc(pathTarget) } returns order
+        every { entityManager.createQuery(any<CriteriaQuery<Signalering>>()).resultList } returns signaleringen
+        every { entityManager.remove(any<Signalering>()) } returns Unit
+        every { eventingService.send(any<ScreenEvent>()) } returns Unit
+
+        When("signaleringen are requested to be deleted") {
+            signaleringService.deleteSignaleringen(signaleringenZoekParameters)
+
+            Then("the two signaleringen are deleted and one screen event is sent") {
+                verify(exactly = 2) {
+                    entityManager.remove(any<Signalering>())
+                }
+                verify(exactly = 1) {
+                    // we expect only one screen event since it concerns to signaleringen
+                    // with the same target and type
+                    eventingService.send(any<ScreenEvent>())
                 }
             }
         }
