@@ -13,12 +13,11 @@ import {
 } from "@angular/core";
 import { MatDrawer } from "@angular/material/sidenav";
 import { FormGroup, Validators } from "@angular/forms";
-import {} from "../../shared/location/location.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { MedewerkerGroepFormField } from "src/app/shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-form-field";
 import { FormConfig } from "src/app/shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "src/app/shared/material-form-builder/model/form-config-builder";
-import { Observable, Subject } from "rxjs";
+import { Observable, Subject, forkJoin, takeUntil } from "rxjs";
 import { SelectFormField } from "src/app/shared/material-form-builder/form-components/select/select-form-field";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { UtilService } from "src/app/core/service/util.service";
@@ -29,7 +28,6 @@ import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form
 import { TextareaFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { TextareaFormField } from "src/app/shared/material-form-builder/form-components/textarea/textarea-form-field";
 import { AbstractFormField } from "src/app/shared/material-form-builder/model/abstract-form-field";
-import { NavigationService } from "src/app/shared/navigation/navigation.service";
 import { OrderUtil } from "src/app/shared/order/order-util";
 import { DateFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/date/date-form-field-builder";
 import { DateFormField } from "src/app/shared/material-form-builder/form-components/date/date-form-field";
@@ -47,7 +45,7 @@ export class ZaakWijzigenComponent implements OnInit, OnDestroy {
   @Input() readonly: boolean;
   @Input() zaak: Zaak; // GeneratedType<"RestZaak">;
   @Input() loggedInUser: GeneratedType<"RestLoggedInUser">;
-  @Output() submit = new EventEmitter<any>();
+  @Output() caseEdit = new EventEmitter<any>();
 
   formFields: Array<AbstractFormField[]>;
   formConfig: FormConfig;
@@ -68,7 +66,6 @@ export class ZaakWijzigenComponent implements OnInit, OnDestroy {
   constructor(
     private zakenService: ZakenService,
     private referentieTabelService: ReferentieTabelService,
-    private navigation: NavigationService,
     private utilService: UtilService,
   ) {}
 
@@ -113,21 +110,15 @@ export class ZaakWijzigenComponent implements OnInit, OnDestroy {
       .validators(Validators.required)
       .build();
 
-    this.einddatumGepland = this.zaak.einddatumGepland
-      ? new DateFormFieldBuilder(this.zaak.einddatumGepland)
-          .id("einddatumGepland")
-          .label("einddatumGepland")
-          .validators(
-            this.zaak.einddatumGepland
-              ? Validators.required
-              : Validators.nullValidator,
-          )
-          .build()
-      : new InputFormFieldBuilder("-")
-          .id("einddatumGepland")
-          .label("einddatumGepland")
-          .disabled()
-          .build();
+    this.einddatumGepland = new DateFormFieldBuilder(this.zaak.einddatumGepland)
+      .id("einddatumGepland")
+      .label("einddatumGepland")
+      .validators(
+        this.zaak.einddatumGepland
+          ? Validators.required
+          : Validators.nullValidator,
+      )
+      .build();
 
     this.uiterlijkeEinddatumAfdoening = new DateFormFieldBuilder(
       this.zaak.uiterlijkeEinddatumAfdoening,
@@ -167,6 +158,7 @@ export class ZaakWijzigenComponent implements OnInit, OnDestroy {
       .id("reason")
       .label("reden")
       .maxlength(80)
+      .disabled()
       .validators(Validators.required)
       .build();
 
@@ -182,6 +174,31 @@ export class ZaakWijzigenComponent implements OnInit, OnDestroy {
       [this.toelichtingField],
       [this.reasonField],
     ];
+
+    if (this.readonly) {
+      this.formFields.flat().forEach((field) => {
+        field.formControl.disable();
+      });
+    } else {
+      this.formFields.flat().forEach((field) => {
+        // Enable reason field when any other field is dirty
+        const subscription$ = field.formControl.valueChanges
+          .pipe(takeUntil(this.ngDestroy))
+          .subscribe(() => {
+            if (field.formControl.dirty) {
+              this.reasonField.formControl.enable({ emitEvent: false });
+              subscription$.unsubscribe();
+            }
+          });
+
+        // Disable einddatumGepland field when startdatum is changed;
+        // Workaround; the .disable() method does not work as expected
+        if (field.id === "einddatumGepland") {
+          field.formControl.disable();
+          return;
+        }
+      });
+    }
   }
 
   onFormSubmit(formGroup: FormGroup): void {
@@ -200,53 +217,69 @@ export class ZaakWijzigenComponent implements OnInit, OnDestroy {
           changedValues[key] = control.value;
         }
       }
-
-      console.log("changedValues", changedValues);
-
       const { reason, assignment, ...patchFields } = changedValues;
 
-      if (assignment) {
-        console.log("assignment", assignment);
-        this.zaak = { ...this.zaak, ...assignment };
+      console.log("assignment", assignment);
+      console.log("changedValues", changedValues);
 
-        if (assignment?.medewerker.id === this.loggedInUser.id) {
-          this.zakenService
-            .toekennenAanIngelogdeMedewerker(this.zaak, reason)
-            .subscribe((zaak) => {
-              this.utilService.openSnackbar("msg.zaak.toegekend", {
-                behandelaar: zaak.behandelaar?.naam,
-              });
-            });
+      const subscriptions = [];
+
+      if (assignment) {
+        this.zaak = {
+          ...this.zaak,
+          ...assignment.groep,
+          behandelaar: assignment.medewerker,
+        };
+
+        if (this.zaak.behandelaar?.id === this.loggedInUser.id) {
+          subscriptions.push(
+            this.zakenService
+              .toekennenAanIngelogdeMedewerker(this.zaak, reason)
+              .subscribe((zaak) => {
+                this.utilService.openSnackbar("msg.zaak.toegekend", {
+                  behandelaar: zaak.behandelaar?.naam,
+                });
+              }),
+          );
         } else {
-          this.zakenService.toekennen(this.zaak, reason).subscribe((zaak) => {
-            if (assignment.medewerker) {
-              this.utilService.openSnackbar("msg.zaak.toegekend", {
-                behandelaar: assignment.medewerker.naam,
-              });
-            } else {
-              this.utilService.openSnackbar("msg.vrijgegeven.zaak");
-            }
-          });
+          subscriptions.push(
+            this.zakenService.toekennen(this.zaak, reason).subscribe((zaak) => {
+              if (zaak?.behandelaar?.id) {
+                this.utilService.openSnackbar("msg.zaak.toegekend", {
+                  behandelaar: zaak.behandelaar.naam,
+                });
+              } else {
+                this.utilService.openSnackbar("msg.vrijgegeven.zaak");
+              }
+            }),
+          );
         }
       }
 
       if (patchFields) {
         const zaak: Zaak = new Zaak();
         Object.keys(patchFields).forEach((key) => {
-          if (key in this.zaak) {
-            zaak[key] = patchFields[key];
-          }
+          zaak[key] = patchFields[key].value
+            ? patchFields[key].value
+            : patchFields[key];
         });
 
-        this.zakenService
-          .updateZaak(this.zaak.uuid, zaak, reason)
-          .subscribe((updatedZaak) => {
-            console.log("updatedZaak", updatedZaak);
-          });
+        console.log("zaak", zaak);
+
+        subscriptions.push(
+          this.zakenService
+            .updateZaak(this.zaak.uuid, zaak, reason)
+            .subscribe((updatedZaak) => {
+              console.log("updatedZaak", updatedZaak);
+            }),
+        );
       }
 
-      this.submit.emit();
-      this.sideNav.close();
+      if (subscriptions.length > 0) {
+        forkJoin([subscriptions]).subscribe(() => {
+          this.sideNav.close();
+        });
+      }
     }
   }
 

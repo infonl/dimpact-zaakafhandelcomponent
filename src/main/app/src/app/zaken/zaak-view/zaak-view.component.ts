@@ -1407,8 +1407,7 @@ export class ZaakViewComponent
   }
 
   caseEdited(): void {
-    console.log("caseEdited");
-    this.updateZaak();
+    // this.sluitSidenav();
   }
 
   startZaakOntkoppelenDialog(
