@@ -76,7 +76,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
 
   private initForm(): void {
     this.formConfig = new FormConfigBuilder()
-      .saveText("actie.aanmaken")
+      .saveText("actie.opslaan")
       .cancelText("actie.annuleren")
       .requireUserChanges(true)
       .build();
@@ -118,18 +118,20 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
             const uiterlijkeEinddatumAfdoening = moment(
               this.uiterlijkeEinddatumAfdoeningField.formControl.value,
             );
-            return (this.einddatumGeplandField.formControl.value &&
-              startDatum.isAfter(einddatumGepland)) ||
-              startDatum.isAfter(uiterlijkeEinddatumAfdoening)
-              ? null
-              : { dateOrder: true };
+
+            return startDatum.isAfter(uiterlijkeEinddatumAfdoening) ||
+              (this.einddatumGeplandField.formControl.value &&
+                startDatum.isAfter(einddatumGepland))
+              ? { dateOrder: true }
+              : null;
           },
         ],
       )
       .build();
 
     this.einddatumGeplandField = new DateFormFieldBuilder(
-      this.zaak.einddatumGepland,
+      // this.zaak.einddatumGepland,
+      this.zaak.startdatum,
     )
       .id("einddatumGepland")
       .label("einddatumGepland")
@@ -144,10 +146,11 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
             const uiterlijkeEinddatumAfdoening = moment(
               this.uiterlijkeEinddatumAfdoeningField.formControl.value,
             );
+
             return einddatumGepland.isBefore(startDatum) ||
               einddatumGepland.isAfter(uiterlijkeEinddatumAfdoening)
-              ? null
-              : { dateOrder: true };
+              ? { dateOrder: true }
+              : null;
           },
         ],
       )
@@ -167,11 +170,12 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
               this.einddatumGeplandField.formControl.value,
             );
             const uiterlijkeEinddatumAfdoening = moment(control.value);
+
             return uiterlijkeEinddatumAfdoening.isBefore(startDatum) ||
               (this.einddatumGeplandField.formControl.value &&
                 uiterlijkeEinddatumAfdoening.isBefore(einddatumGepland))
-              ? null
-              : { dateOrder: true };
+              ? { dateOrder: true }
+              : null;
           },
         ],
       )
@@ -328,27 +332,6 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       }
     }
   }
-
-  // validateOld(): void {
-  //   const start: Moment = moment(this.startDatumField.formControl.value);
-  //   const uiterlijkeEinddatumAfdoening: Moment = moment(
-  //     this.uiterlijkeEinddatumAfdoeningField.formControl.value,
-  //   );
-  //   if (this.einddatumGeplandField.formControl.value) {
-  //     const einddatumGepland: Moment = moment(
-  //       this.einddatumGeplandField.formControl.value,
-  //     );
-  //     this.showEinddatumGeplandError =
-  //       einddatumGepland.isBefore(start) ||
-  //       uiterlijkeEinddatumAfdoening.isBefore(einddatumGepland);
-  //     this.showUiterlijkeEinddatumAfdoeningError =
-  //       uiterlijkeEinddatumAfdoening.isBefore(start) ||
-  //       uiterlijkeEinddatumAfdoening.isBefore(einddatumGepland);
-  //   } else {
-  //     this.showUiterlijkeEinddatumAfdoeningError =
-  //       uiterlijkeEinddatumAfdoening.isBefore(start);
-  //   }
-  // }
 
   private getMedewerkerGroupFormField(
     groupId?: string,
