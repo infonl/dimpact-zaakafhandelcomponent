@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.shared.model;
 
 import static java.lang.String.format;
@@ -13,9 +12,9 @@ import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 
 /**
- *
+ * An error that occurred in one of the ZGW APIs.
  */
-public class Fout {
+public class ZgwError {
 
     // URI referentie naar het type fout, bedoeld voor developers
     private final URI type;
@@ -37,7 +36,7 @@ public class Fout {
     private final URI instance;
 
     @JsonbCreator
-    public Fout(
+    public ZgwError(
             @JsonbProperty("type") final URI type,
             @JsonbProperty("code") final String code,
             @JsonbProperty("title") final String title,

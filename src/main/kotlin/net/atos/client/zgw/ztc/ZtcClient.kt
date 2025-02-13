@@ -10,8 +10,8 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.client.zgw.shared.exception.ZgwFoutExceptionMapper
-import net.atos.client.zgw.shared.exception.ZgwValidatieFoutResponseExceptionMapper
+import net.atos.client.zgw.shared.exception.ZgwErrorExceptionMapper
+import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.shared.util.JsonbConfiguration
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
@@ -44,8 +44,8 @@ import java.util.UUID
  */
 @RegisterRestClient(configKey = "ZGW-API-Client")
 @RegisterClientHeaders(ZGWClientHeadersFactory::class)
-@RegisterProvider(ZgwFoutExceptionMapper::class)
-@RegisterProvider(ZgwValidatieFoutResponseExceptionMapper::class)
+@RegisterProvider(ZgwErrorExceptionMapper::class)
+@RegisterProvider(ZgwValidationErrorResponseExceptionMapper::class)
 @RegisterProvider(ZtcResponseExceptionMapper::class)
 @RegisterProvider(JsonbConfiguration::class)
 @Path("catalogi/api/v1")

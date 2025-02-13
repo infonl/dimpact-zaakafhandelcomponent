@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.app.informatieobjecten.converter;
 
 import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
@@ -31,7 +30,7 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreate
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest;
 import net.atos.client.zgw.drc.model.generated.StatusEnum;
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
-import net.atos.client.zgw.shared.exception.FoutException;
+import net.atos.client.zgw.shared.exception.ZgwErrorException;
 import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
@@ -399,8 +398,8 @@ public class RestInformatieobjectConverter {
                                 drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID),
                                 zaak
                         );
-                    } catch (FoutException e) {
-                        if (e.getFout().getStatus() != HttpStatus.NOT_FOUND_404) {
+                    } catch (ZgwErrorException e) {
+                        if (e.getZgwError().getStatus() != HttpStatus.NOT_FOUND_404) {
                             throw e;
                         }
                         LOG.severe(() -> "Document niet gevonden: %s".formatted(enkelvoudigInformatieobjectUUID));
