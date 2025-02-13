@@ -15,6 +15,11 @@ permissions:
   contents: read
   checks: write
 
+# Only allow a single concurrent run per branch. Cancel in-progress runs on multiple pushes when not on main branch.  
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !contains(github.ref, 'main')}}
+
 jobs:
   helm-lint:
     runs-on: ubuntu-24.04

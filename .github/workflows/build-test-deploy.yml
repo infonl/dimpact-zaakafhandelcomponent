@@ -28,6 +28,11 @@ permissions:
   # Required for uploading SARIF reports
   security-events: write
 
+# Only allow a single concurrent run per branch. Cancel in-progress runs on multiple pushes when not on main branch.  
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !contains(github.ref, 'main')}}
+
 jobs:
   paths-ignore:
     runs-on: ubuntu-24.04
