@@ -10,14 +10,15 @@ import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 
-import net.atos.client.zgw.shared.model.ValidatieFout;
+import net.atos.client.zgw.shared.model.ValidatieZgwError;
 
 /**
- * Maps all responses with status code 400 (Bad Request) from the ZGW APIs.
+ * Maps all responses with status code 400 (Bad Request) from the ZGW APIs to {@link ValidationErrorException}s.
+ * <p>
  * These responses are expected to have a JSON payload according to
  * <a href="https://datatracker.ietf.org/doc/html/rfc7807">the Problem Details Standard</a>.
  */
-public class ZgwValidatieFoutResponseExceptionMapper implements ResponseExceptionMapper<ValidatieFoutException> {
+public class ZgwValidationErrorResponseExceptionMapper implements ResponseExceptionMapper<ValidationErrorException> {
 
     @Override
     public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {
@@ -25,7 +26,7 @@ public class ZgwValidatieFoutResponseExceptionMapper implements ResponseExceptio
     }
 
     @Override
-    public ValidatieFoutException toThrowable(final Response response) {
-        return new ValidatieFoutException(response.readEntity(ValidatieFout.class));
+    public ValidationErrorException toThrowable(final Response response) {
+        return new ValidationErrorException(response.readEntity(ValidatieZgwError.class));
     }
 }

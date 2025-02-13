@@ -42,8 +42,8 @@ public class ScreenEventObserver extends AbstractEventObserver<ScreenEvent> {
             LOG.fine(() -> String.format("Received screen event: %s", event.toString()));
             event.delay();
             sendToWebsocketSubscribers(event);
-        } catch (final Throwable ex) {
-            LOG.log(Level.SEVERE, "asynchronous guard", ex);
+        } catch (final Throwable exception) {
+            LOG.log(Level.WARNING, "asynchronous guard", exception);
         }
     }
 
@@ -55,7 +55,7 @@ public class ScreenEventObserver extends AbstractEventObserver<ScreenEvent> {
                 subscribers.forEach(session -> session.getAsyncRemote().sendText(json));
             }
         } catch (final JsonProcessingException e) {
-            LOG.log(Level.SEVERE, "Failed to convert the ScreenUpdateEvent to JSON.", e);
+            LOG.log(Level.WARNING, "Failed to convert the ScreenUpdateEvent to JSON.", e);
         }
     }
 }

@@ -26,8 +26,8 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.zgw.shared.exception.ZgwFoutExceptionMapper;
-import net.atos.client.zgw.shared.exception.ZgwValidatieFoutResponseExceptionMapper;
+import net.atos.client.zgw.shared.exception.ZgwErrorExceptionMapper;
+import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel;
 import net.atos.client.zgw.shared.util.JsonbConfiguration;
@@ -48,8 +48,8 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters;
 
 @RegisterRestClient(configKey = "ZGW-API-Client")
 @RegisterClientHeaders(ZGWClientHeadersFactory.class)
-@RegisterProvider(ZgwFoutExceptionMapper.class)
-@RegisterProvider(ZgwValidatieFoutResponseExceptionMapper.class)
+@RegisterProvider(ZgwErrorExceptionMapper.class)
+@RegisterProvider(ZgwValidationErrorResponseExceptionMapper.class)
 @RegisterProvider(ZrcResponseExceptionMapper.class)
 @RegisterProvider(JsonbConfiguration.class)
 @Path("zaken/api/v1")

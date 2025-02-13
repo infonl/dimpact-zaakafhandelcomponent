@@ -10,6 +10,10 @@ import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 
+/**
+ * Maps ZRC API responses with status code greater than or equal to 500 (Internal Server Error)
+ * to a {@link ZrcRuntimeException}s.
+ */
 public class ZrcResponseExceptionMapper implements ResponseExceptionMapper<RuntimeException> {
 
     @Override

@@ -14,12 +14,12 @@ import jakarta.json.bind.annotation.JsonbProperty;
 /**
  *
  */
-public class ValidatieFout extends Fout {
+public class ValidatieZgwError extends ZgwError {
 
     private final List<FieldValidationError> invalidParams;
 
     @JsonbCreator
-    public ValidatieFout(
+    public ValidatieZgwError(
             @JsonbProperty("type") final URI type,
             @JsonbProperty("code") final String code,
             @JsonbProperty("title") final String title,

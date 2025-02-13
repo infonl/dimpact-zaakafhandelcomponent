@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import net.atos.client.util.JAXRSClientFactory;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.shared.exception.ZgwFoutExceptionMapper;
-import net.atos.client.zgw.shared.exception.ZgwValidatieFoutResponseExceptionMapper;
+import net.atos.client.zgw.shared.exception.ZgwErrorExceptionMapper;
+import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel;
 import net.atos.client.zgw.shared.util.JsonbConfiguration;
@@ -544,8 +544,8 @@ public class ZrcClientService {
         }
 
         return JAXRSClientFactory.getOrCreateClient().target(uri)
-                .register(ZgwFoutExceptionMapper.class)
-                .register(ZgwValidatieFoutResponseExceptionMapper.class)
+                .register(ZgwErrorExceptionMapper.class)
+                .register(ZgwValidationErrorResponseExceptionMapper.class)
                 .register(ZrcResponseExceptionMapper.class)
                 .register(JsonbConfiguration.class)
                 .request(MediaType.APPLICATION_JSON)

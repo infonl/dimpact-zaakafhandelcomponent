@@ -8,20 +8,20 @@ package net.atos.client.zgw.shared.exception;
 import java.net.URI;
 import java.util.stream.Collectors;
 
-import net.atos.client.zgw.shared.model.ValidatieFout;
+import net.atos.client.zgw.shared.model.ValidatieZgwError;
 
 /**
- *
+ * Exception to indicate a validation error that occurred in an external service.
  */
-public class ValidatieFoutException extends RuntimeException {
+public class ValidationErrorException extends RuntimeException {
 
-    private final ValidatieFout validatieFout;
+    private final ValidatieZgwError validatieFout;
 
-    public ValidatieFoutException(final ValidatieFout validatieFout) {
+    public ValidationErrorException(final ValidatieZgwError validatieFout) {
         this.validatieFout = validatieFout;
     }
 
-    public ValidatieFout getValidatieFout() {
+    public ValidatieZgwError getValidatieFout() {
         return validatieFout;
     }
 

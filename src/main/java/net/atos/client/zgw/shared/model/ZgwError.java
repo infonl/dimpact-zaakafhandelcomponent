@@ -13,9 +13,9 @@ import jakarta.json.bind.annotation.JsonbCreator;
 import jakarta.json.bind.annotation.JsonbProperty;
 
 /**
- *
+ * An error that occurred in one of the ZGW APIs.
  */
-public class Fout {
+public class ZgwError {
 
     // URI referentie naar het type fout, bedoeld voor developers
     private final URI type;
@@ -37,7 +37,7 @@ public class Fout {
     private final URI instance;
 
     @JsonbCreator
-    public Fout(
+    public ZgwError(
             @JsonbProperty("type") final URI type,
             @JsonbProperty("code") final String code,
             @JsonbProperty("title") final String title,
