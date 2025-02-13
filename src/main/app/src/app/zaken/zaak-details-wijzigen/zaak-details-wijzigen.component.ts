@@ -34,6 +34,7 @@ import { DateFormField } from "src/app/shared/material-form-builder/form-compone
 import { InputFormField } from "src/app/shared/material-form-builder/form-components/input/input-form-field";
 import { ZakenService } from "../zaken.service";
 import { Zaak } from "../model/zaak";
+import moment, { Moment } from "moment";
 
 @Component({
   selector: "zac-case-details-edit",
@@ -53,9 +54,9 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
   private medewerkerGroepFormField: MedewerkerGroepFormField;
   private communicatiekanalen: Observable<string[]>;
   private communicatiekanaalField: SelectFormField;
-  private startdatum: DateFormField;
-  private einddatumGepland: DateFormField | InputFormField;
-  private uiterlijkeEinddatumAfdoening: DateFormField;
+  private startDatumField: DateFormField;
+  private einddatumGeplandField: DateFormField | InputFormField;
+  private uiterlijkeEinddatumAfdoeningField: DateFormField;
   private vertrouwelijkheidaanduidingField: SelectFormField;
   private vertrouwelijkheidaanduidingenList: { label: string; value: string }[];
   private omschrijving: TextareaFormField;
@@ -70,8 +71,6 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    console.log("zaak, loggedInUser", this.zaak, this.loggedInUser);
-
     this.initForm();
   }
 
@@ -105,28 +104,77 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       .validators(Validators.required)
       .build();
 
-    this.startdatum = new DateFormFieldBuilder(this.zaak.startdatum)
+    this.startDatumField = new DateFormFieldBuilder(this.zaak.startdatum)
       .id("startdatum")
       .label("startdatum")
-      .validators(Validators.required)
-      .build();
-
-    this.einddatumGepland = new DateFormFieldBuilder(this.zaak.einddatumGepland)
-      .id("einddatumGepland")
-      .label("einddatumGepland")
       .validators(
-        this.zaak.einddatumGepland
-          ? Validators.required
-          : Validators.nullValidator,
+        ...[
+          Validators.required,
+          (control) => {
+            const startDatum = moment(control.value);
+            const einddatumGepland = moment(
+              this.einddatumGeplandField.formControl.value,
+            );
+            const uiterlijkeEinddatumAfdoening = moment(
+              this.uiterlijkeEinddatumAfdoeningField.formControl.value,
+            );
+            return (this.einddatumGeplandField.formControl.value &&
+              startDatum.isAfter(einddatumGepland)) ||
+              startDatum.isAfter(uiterlijkeEinddatumAfdoening)
+              ? null
+              : { dateOrder: true };
+          },
+        ],
       )
       .build();
 
-    this.uiterlijkeEinddatumAfdoening = new DateFormFieldBuilder(
+    this.einddatumGeplandField = new DateFormFieldBuilder(
+      this.zaak.einddatumGepland,
+    )
+      .id("einddatumGepland")
+      .label("einddatumGepland")
+      .validators(
+        ...[
+          this.zaak.einddatumGepland
+            ? Validators.required
+            : Validators.nullValidator,
+          (control) => {
+            const startDatum = moment(this.startDatumField.formControl.value);
+            const einddatumGepland = moment(control.value);
+            const uiterlijkeEinddatumAfdoening = moment(
+              this.uiterlijkeEinddatumAfdoeningField.formControl.value,
+            );
+            return einddatumGepland.isBefore(startDatum) ||
+              einddatumGepland.isAfter(uiterlijkeEinddatumAfdoening)
+              ? null
+              : { dateOrder: true };
+          },
+        ],
+      )
+      .build();
+
+    this.uiterlijkeEinddatumAfdoeningField = new DateFormFieldBuilder(
       this.zaak.uiterlijkeEinddatumAfdoening,
     )
       .id("uiterlijkeEinddatumAfdoening")
       .label("uiterlijkeEinddatumAfdoening")
-      .validators(Validators.required)
+      .validators(
+        ...[
+          Validators.required,
+          (control) => {
+            const startDatum = moment(this.startDatumField.formControl.value);
+            const einddatumGepland = moment(
+              this.einddatumGeplandField.formControl.value,
+            );
+            const uiterlijkeEinddatumAfdoening = moment(control.value);
+            return uiterlijkeEinddatumAfdoening.isBefore(startDatum) ||
+              (this.einddatumGeplandField.formControl.value &&
+                uiterlijkeEinddatumAfdoening.isBefore(einddatumGepland))
+              ? null
+              : { dateOrder: true };
+          },
+        ],
+      )
       .build();
 
     this.vertrouwelijkheidaanduidingField = new SelectFormFieldBuilder(
@@ -166,9 +214,9 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
     this.formFields = [
       [this.medewerkerGroepFormField, this.communicatiekanaalField],
       [
-        this.startdatum,
-        this.einddatumGepland,
-        this.uiterlijkeEinddatumAfdoening,
+        this.startDatumField,
+        this.einddatumGeplandField,
+        this.uiterlijkeEinddatumAfdoeningField,
       ],
       [this.vertrouwelijkheidaanduidingField],
       [this.omschrijving],
@@ -194,7 +242,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
 
         // Disable einddatumGepland field when startdatum is changed;
         // Workaround; the .disable() method does not work as expected
-        if (field.id === "einddatumGepland") {
+        if (field.id === "einddatumGepland" && !field.formControl.value) {
           field.formControl.disable();
           return;
         }
@@ -219,10 +267,6 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
         }
       }
       const { reason, assignment, ...patchFields } = changedValues;
-
-      console.log("assignment", assignment);
-      console.log("changedValues", changedValues);
-
       const subscriptions = [];
 
       if (assignment) {
@@ -284,6 +328,27 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       }
     }
   }
+
+  // validateOld(): void {
+  //   const start: Moment = moment(this.startDatumField.formControl.value);
+  //   const uiterlijkeEinddatumAfdoening: Moment = moment(
+  //     this.uiterlijkeEinddatumAfdoeningField.formControl.value,
+  //   );
+  //   if (this.einddatumGeplandField.formControl.value) {
+  //     const einddatumGepland: Moment = moment(
+  //       this.einddatumGeplandField.formControl.value,
+  //     );
+  //     this.showEinddatumGeplandError =
+  //       einddatumGepland.isBefore(start) ||
+  //       uiterlijkeEinddatumAfdoening.isBefore(einddatumGepland);
+  //     this.showUiterlijkeEinddatumAfdoeningError =
+  //       uiterlijkeEinddatumAfdoening.isBefore(start) ||
+  //       uiterlijkeEinddatumAfdoening.isBefore(einddatumGepland);
+  //   } else {
+  //     this.showUiterlijkeEinddatumAfdoeningError =
+  //       uiterlijkeEinddatumAfdoening.isBefore(start);
+  //   }
+  // }
 
   private getMedewerkerGroupFormField(
     groupId?: string,

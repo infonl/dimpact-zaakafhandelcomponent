@@ -162,54 +162,57 @@ export class CustomValidators {
     translate: TranslateService,
   ): string {
     const params = { label: translate.instant(label) };
-    if (formControl.hasError("required")) {
-      return translate.instant("msg.error.required", params);
-    } else if (formControl.hasError("min")) {
-      return translate.instant("msg.error.teklein", {
-        label: label,
-        min: formControl.errors.min.min,
-        actual: formControl.errors.min.actual,
-      });
-    } else if (formControl.hasError("max")) {
-      return translate.instant("msg.error.tegroot", {
-        label: label,
-        max: formControl.errors.max.max,
-        actual: formControl.errors.max.actual,
-      });
-    } else if (formControl.hasError("minlength")) {
-      return translate.instant("msg.error.tekort", {
-        label: label,
-        requiredLength: formControl.errors.minlength.requiredLength,
-        actualLength: formControl.errors.minlength.actualLength,
-      });
-    } else if (formControl.hasError("maxlength")) {
-      return translate.instant("msg.error.telang", {
-        label: label,
-        requiredLength: formControl.errors.maxlength.requiredLength,
-        actualLength: formControl.errors.maxlength.actualLength,
-      });
-    } else if (formControl.hasError("email")) {
-      return translate.instant("msg.error.invalid.email", params);
-    } else if (formControl.hasError("pattern")) {
-      return translate.instant("msg.error.invalid.formaat", {
-        label: label,
-        requiredPattern: formControl.errors.pattern.requiredPattern,
-        actualValue: formControl.errors.pattern.actualValue,
-      });
-    } else if (formControl.hasError("bsn")) {
-      return translate.instant("msg.error.invalid.bsn", params);
-    } else if (formControl.hasError("kvk")) {
-      return translate.instant("msg.error.invalid.kvk", params);
-    } else if (formControl.hasError("vestigingsnummer")) {
-      return translate.instant("msg.error.invalid.vestigingsnummer", params);
-    } else if (formControl.hasError("rsin")) {
-      return translate.instant("msg.error.invalid.rsin", params);
-    } else if (formControl.hasError("postcode")) {
-      return translate.instant("msg.error.invalid.postcode", params);
-    } else if (formControl.hasError("huisnummer")) {
-      return translate.instant("msg.error.invalid.huisnummer", params);
-    } else {
-      return "";
+    const errorKey = Object.keys(formControl.errors || {})[0];
+
+    switch (errorKey) {
+      case "required":
+        return translate.instant("msg.error.required", params);
+      case "min":
+        return translate.instant("msg.error.teklein", {
+          label: label,
+          min: formControl.errors.min.min,
+          actual: formControl.errors.min.actual,
+        });
+      case "max":
+        return translate.instant("msg.error.tegroot", {
+          label: label,
+          max: formControl.errors.max.max,
+          actual: formControl.errors.max.actual,
+        });
+      case "minlength":
+        return translate.instant("msg.error.tekort", {
+          label: label,
+          requiredLength: formControl.errors.minlength.requiredLength,
+          actualLength: formControl.errors.minlength.actualLength,
+        });
+      case "maxlength":
+        return translate.instant("msg.error.telang", {
+          label: label,
+          requiredLength: formControl.errors.maxlength.requiredLength,
+          actualLength: formControl.errors.maxlength.actualLength,
+        });
+      case "email":
+        return translate.instant("msg.error.invalid.email", params);
+      case "pattern":
+        return translate.instant("msg.error.invalid.formaat", {
+          label: label,
+          requiredPattern: formControl.errors.pattern.requiredPattern,
+          actualValue: formControl.errors.pattern.actualValue,
+        });
+      case "bsn":
+        return translate.instant("msg.error.invalid.bsn", params);
+      case "kvk":
+        return translate.instant("msg.error.invalid.kvk", params);
+      case "vestigingsnummer":
+        return translate.instant("msg.error.invalid.vestigingsnummer", params);
+      case "rsin":
+        return translate.instant("msg.error.invalid.rsin", params);
+      case "postcode":
+        return translate.instant("msg.error.invalid.postcode", params);
+      case "huisnummer":
+        return translate.instant("msg.error.invalid.huisnummer", params);
+      default:
+        return "";
     }
   }
 }
