@@ -5,7 +5,6 @@ is described below.
 
 ## Setup Python virtual environment
 
-### Manually
 There's a simple shell [init script](./init-pyenv.sh) that can be used to create the virtual environment. It will use command 
 `python3 -m venv .venv` and therefore requires a python 3 version to be available, and will then install this in folder 
 `.venv`, with the required [requirements](./requirements.txt) applied. Once the python environment is available, the scripts from the 
@@ -16,12 +15,6 @@ immediately make use of the installed environment and installed libraries.
 Use the following command:
 ```shell
    source init-pyenv.sh
-```
-
-### direnv
-Allow sourcing of Python init script with:
-```shell
-   direnv allow
 ```
 
 ## Dependencies scripts
