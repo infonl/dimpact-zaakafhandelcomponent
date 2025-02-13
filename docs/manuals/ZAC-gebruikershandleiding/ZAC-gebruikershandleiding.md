@@ -617,7 +617,7 @@ Deze actie maakt het mogelijk om een document met sjablonen in een documentcreat
 
 4 Klik op de Toevoegen knop om de documentcreatieapplicatie te starten. Deze opent in een nieuw tabblad
 
-4 Maak het document en klik op Klaar en sluit deze tabblad af
+4 Maak het document en klik op Klaar en sluit dit tabblad af
 
 5 Het document is aan de zaak toegevoegd en beschikbaar in het documentenoverzicht
 
