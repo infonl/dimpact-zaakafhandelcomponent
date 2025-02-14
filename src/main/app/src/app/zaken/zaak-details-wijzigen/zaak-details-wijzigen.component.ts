@@ -119,11 +119,38 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
               this.uiterlijkeEinddatumAfdoeningField.formControl.value,
             );
 
-            return startDatum.isAfter(uiterlijkeEinddatumAfdoening) ||
-              (this.einddatumGeplandField.formControl.value &&
-                startDatum.isAfter(einddatumGepland))
-              ? { dateOrder: true }
-              : null;
+            if(startDatum.isAfter(uiterlijkeEinddatumAfdoening)) {
+              // @Marcel, the `min` key in the return object corresponds to the `case` in the `customValidators.ts - getErrorMessage`
+              // in this case (pun intended) it will end up in
+              // case "min":
+              //   return translate.instant("msg.error.teklein", {
+              //     label: label,
+              //     min: formControl.errors.min.min,
+              //     actual: formControl.errors.min.actual,
+              //   });
+              //
+              // It is possible to add a new custom error to pass a custom error message
+              // I see that in the translation table there are the `msg.error.date.invalid.streef`, `msg.error.date.invalid.fatale1` and `msg.error.date.invalid.fatale2`
+              //
+              // I think they can be removed and we can utulise the `teKlein`.
+              //
+              // If you disagree you could send something like:
+              //
+              // return { custom: { message: 'msg.error.date.invalid.streef' }
+              //
+              // and add a new case in the `getErrorMessage` like:
+              //
+              // case "custom":
+              //   return translate.instant(formControl.errors.custom.message);
+
+              return { min: { min: uiterlijkeEinddatumAfdoening.toJSON(), actual: startDatum.toJSON() }}
+            }
+
+            if(this.einddatumGeplandField.formControl.value && startDatum.isAfter(einddatumGepland)) {
+              return { min: { min: einddatumGepland.toJSON(), actual: startDatum.toJSON() }}
+            }
+
+            return null
           },
         ],
       )
@@ -146,10 +173,15 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
               this.uiterlijkeEinddatumAfdoeningField.formControl.value,
             );
 
-            return einddatumGepland.isBefore(startDatum) ||
-              einddatumGepland.isAfter(uiterlijkeEinddatumAfdoening)
-              ? { dateOrder: true }
-              : null;
+            if(einddatumGepland.isBefore(startDatum)) {
+              return { min: { min: einddatumGepland.toJSON(), actual: startDatum.toJSON() }}
+            }
+
+            if(einddatumGepland.isAfter(uiterlijkeEinddatumAfdoening)) {
+              return { max: { max: uiterlijkeEinddatumAfdoening.toJSON(), actual: startDatum.toJSON() }}
+            }
+
+            return null
           },
         ],
       )
@@ -170,11 +202,15 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
             );
             const uiterlijkeEinddatumAfdoening = moment(control.value);
 
-            return uiterlijkeEinddatumAfdoening.isBefore(startDatum) ||
-              (this.einddatumGeplandField.formControl.value &&
-                uiterlijkeEinddatumAfdoening.isBefore(einddatumGepland))
-              ? { dateOrder: true }
-              : null;
+            if(uiterlijkeEinddatumAfdoening.isBefore(startDatum)) {
+              return { min: { min: startDatum.toJSON(), actual: uiterlijkeEinddatumAfdoening.toJSON() } }
+            }
+
+            if(this.einddatumGeplandField.formControl.value && uiterlijkeEinddatumAfdoening.isBefore(einddatumGepland)) {
+              return { min: { min: einddatumGepland.toJSON(), actual: uiterlijkeEinddatumAfdoening.toJSON() } }
+            }
+
+            return null
           },
         ],
       )
