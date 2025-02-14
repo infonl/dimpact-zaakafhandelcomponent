@@ -87,10 +87,18 @@ val zacDockerImage by extra {
     }
 }
 
+fun Directory.toProjectRelativePath() = toString().replace("${layout.projectDirectory}/", "")
+
+// For consistency, the layout of some known paths are determined here, and below as relative paths.
+// This means that we can use these and are less likely to make mistakes when using them
 val srcGenerated = layout.projectDirectory.dir("src/generated")
-val srcMainResources = layout.projectDirectory.dir("src/main/resources")
-val srcMainApp = layout.projectDirectory.dir("src/main/app")
+val generatedPath = srcGenerated.toProjectRelativePath()
+val srcResources = layout.projectDirectory.dir("src/main/resources")
+val resourcesPath = srcResources.toProjectRelativePath()
+val srcApp = layout.projectDirectory.dir("src/main/app")
+val appPath = srcApp.toProjectRelativePath()
 val srcE2e = layout.projectDirectory.dir("src/e2e")
+val e2ePath = srcE2e.toProjectRelativePath()
 
 sourceSets {
     // create custom integration test source set
@@ -232,7 +240,7 @@ java {
 
 jsonSchema2Pojo {
     // generates Java model files for the "productaanvraag" JSON schema(s)
-    setSource(srcMainResources.dir("json-schemas/productaanvraag").asFileTree)
+    setSource(srcResources.dir("json-schemas/productaanvraag").asFileTree)
     setSourceType("jsonschema")
     targetDirectory = srcGenerated.dir("productaanvraag/java").asFile
     targetPackage = "net.atos.zac.productaanvraag.model.generated"
@@ -257,7 +265,7 @@ node {
     download.set(true)
     version.set(libs.versions.nodejs.get())
     distBaseUrl.set("https://nodejs.org/dist")
-    nodeProjectDir.set(srcMainApp.asFile)
+    nodeProjectDir.set(srcApp.asFile)
     if (System.getenv("CI") != null) {
         npmInstallCommand.set("ci")
     } else {
@@ -287,7 +295,8 @@ configure<SpotlessExtension> {
         endWithNewline()
     }
     java {
-        targetExclude("src/generated/**", "build/generated/**")
+        val genPath = srcGenerated.toProjectRelativePath()
+        targetExclude("$genPath/**", "build/**")
 
         removeUnusedImports()
         importOrderFile("config/importOrder.txt")
@@ -299,8 +308,8 @@ configure<SpotlessExtension> {
         eclipse(libs.versions.spotless.eclipse.formatter.get()).configFile("config/zac.xml")
     }
     format("e2e") {
-        target("src/e2e/**/*.js", "src/e2e/**/*.ts")
-        targetExclude("src/e2e/node_modules/**")
+        target("$e2ePath/**/*.js", "$e2ePath/**/*.ts")
+        targetExclude("$e2ePath/node_modules/**")
 
         prettier(
             mapOf(
@@ -310,19 +319,19 @@ configure<SpotlessExtension> {
         ).config(mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports")))
     }
     gherkin {
-        target("src/e2e/**/*.feature")
-        targetExclude("src/e2e/node_modules/**")
+        target("$e2ePath/**/*.feature")
+        targetExclude("$e2ePath/node_modules/**")
 
         gherkinUtils()
     }
     format("app") {
-        target("src/main/app/**/*.js", "src/main/app/**/*.ts")
+        target("$appPath/**/*.js", "$appPath/**/*.ts")
         targetExclude(
-            "src/main/app/node_modules/**/*.*",
-            "src/main/app/src/generated/**/*.*",
-            "src/main/app/coverage/**/*.*",
-            "src/main/app/dist/**/*.*",
-            "src/main/app/.angular/**/*.*"
+            "$appPath/node_modules/**",
+            "$appPath/src/generated/**",
+            "$appPath/coverage/**",
+            "$appPath/dist/**",
+            "$appPath/.angular/**"
         )
 
         prettier(
@@ -335,13 +344,13 @@ configure<SpotlessExtension> {
     format("json") {
         target("src/**/*.json")
         targetExclude(
-            "src/e2e/node_modules/**",
-            "src/e2e/reports/**",
-            "src/main/app/node_modules/**",
-            "src/main/app/dist/**",
-            "src/main/app/.angular/**",
+            "$e2ePath/node_modules/**",
+            "$e2ePath/reports/**",
+            "$appPath/node_modules/**",
+            "$appPath/dist/**",
+            "$appPath/.angular/**",
             "src/**/package-lock.json",
-            "src/main/app/coverage/**.json"
+            "$appPath/coverage/**"
         )
 
         prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "json"))
@@ -349,11 +358,12 @@ configure<SpotlessExtension> {
     format("html") {
         target("src/**/*.html", "src/**/*.htm")
         targetExclude(
-            "src/e2e/node_modules/**",
-            "src/e2e/reports/**",
-            "src/main/app/node_modules/**",
-            "src/main/app/dist/**",
-            "src/main/app/.angular/**",
+            "$e2ePath/node_modules/**",
+            "$e2ePath/reports/**",
+            "$appPath/node_modules/**",
+            "$appPath/dist/**",
+            "$appPath/.angular/**",
+            "$appPath/coverage/**",
         )
 
         prettier(
@@ -363,11 +373,11 @@ configure<SpotlessExtension> {
     format("less") {
         target("src/**/*.less")
         targetExclude(
-            "src/e2e/node_modules/**",
-            "src/e2e/reports/**",
-            "src/main/app/node_modules/**",
-            "src/main/app/dist/**",
-            "src/main/app/.angular/**",
+            "$e2ePath/node_modules/**",
+            "$e2ePath/reports/**",
+            "$appPath/node_modules/**",
+            "$appPath/dist/**",
+            "$appPath/.angular/**",
         )
 
         prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "less"))
@@ -388,10 +398,10 @@ tasks {
         description = "Deletes the App build output"
         group = "build"
 
-        delete(srcMainApp.dir("dist"))
-        delete(srcMainApp.dir("reports"))
-        delete(srcMainApp.dir("src/generated"))
-        delete(srcMainApp.dir("coverage"))
+        delete(srcApp.dir("dist"))
+        delete(srcApp.dir("reports"))
+        delete(srcApp.dir("src/generated"))
+        delete(srcApp.dir("coverage"))
     }
 
     register<Delete>("cleanE2e") {
@@ -482,7 +492,7 @@ tasks {
         dependsOn("npmRunBuild")
 
         // add built frontend resources to WAR archive
-        from("src/main/app/dist/zaakafhandelcomponent")
+        from("$appPath/dist/zaakafhandelcomponent")
 
         // explicitly add our 'warLib' 'transitive' dependencies that are required in the generated WAR
         classpath(files(configurations["warLib"]))
@@ -655,8 +665,8 @@ tasks {
     getByName("npmInstall") {
         description = "Installs the frontend application dependencies"
         group = "build"
-        inputs.file("src/main/app/package.json")
-        outputs.dir("src/main/app/node_modules")
+        inputs.file("$appPath/package.json")
+        outputs.dir("$appPath/node_modules")
     }
 
     register<NpmTask>("npmRunBuild") {
@@ -667,10 +677,10 @@ tasks {
 
         npmCommand.set(listOf("run", "build"))
 
-        inputs.files(fileTree("src/main/app/node_modules"))
-        inputs.files(fileTree("src/main/app/src"))
-        outputs.files(fileTree("src/main/app/dist/zaakafhandelcomponent"))
-        outputs.files(fileTree("src/main/app/src/generated/types"))
+        inputs.files(fileTree("$appPath/node_modules"))
+        inputs.files(fileTree("$appPath/src"))
+        outputs.files(fileTree("$appPath/dist/zaakafhandelcomponent"))
+        outputs.files(fileTree("$appPath/src/generated/types"))
         outputs.cacheIf { true }
     }
 
@@ -681,11 +691,11 @@ tasks {
 
         npmCommand.set(listOf("run", "test"))
 
-        inputs.files(fileTree("src/main/app/node_modules"))
-        inputs.files(fileTree("src/main/app/src"))
+        inputs.files(fileTree("$appPath/node_modules"))
+        inputs.files(fileTree("$appPath/src"))
 
         // directory used by the Jest reporter(s) that we have configured
-        outputs.dir("src/main/app/reports")
+        outputs.dir("$appPath/reports")
     }
 
     register<NpmTask>("npmRunTestCoverage") {
@@ -694,7 +704,7 @@ tasks {
         dependsOn("npmRunTest")
 
         npmCommand.set(listOf("run", "test:report"))
-        outputs.dir("src/main/app/coverage")
+        outputs.dir("$appPath/coverage")
     }
 
     register<Exec>("buildDockerImage") {
@@ -795,7 +805,7 @@ tasks {
         dependsOn("war")
         execGoal("wildfly:package")
 
-        val wildflyResources = srcMainResources.dir("wildfly")
+        val wildflyResources = srcResources.dir("wildfly")
         inputs.files(wildflyResources.asFileTree)
         inputs.file(layout.buildDirectory.file("libs/zaakafhandelcomponent.war"))
         inputs.file(layout.projectDirectory.file("pom.xml"))
