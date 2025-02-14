@@ -5,9 +5,9 @@
 
 ***
 > **Colofon** <br>
-> Datum : 19-8-2024 <br>
-> Versie :   1.6.1 <br>
-> Verandering : Toevoeging indicaties voor personen <br>
+> Datum : 14-2-2025 <br>
+> Versie :   1.6.2 <br>
+> Verandering : Laatste aanpassingen tekstueel verwerkt <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -29,6 +29,7 @@ Versiegeschiedenis:
 | 1.5.1 | Update zoekfunctie bedrijf en rechtspersoon                                                                                                |
 | 1.6.0 | Gebruikershandleiding geconverteerd naar Markdown                                                                                          |
 | 1.6.1 | Toevoeging indicaties voor personen |
+| 1.6.2 | Laatste veranderingen tekstueel verwerkt; opschorten, verlengen en andere kleine aanpassingen |
 
 <div style="page-break-after: always"></div>
 
