@@ -28,6 +28,7 @@ import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringSubject
+import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexingService
@@ -143,6 +144,14 @@ class NotificationReceiver @Inject constructor(
                     )
                 ).also {
                     LOG.info("Deleted $it zaak signaleringen for zaak with UUID '$zaakUUID'.")
+                }
+                signaleringService.deleteSignaleringVerzonden(
+                    SignaleringVerzondenZoekParameters(
+                        SignaleringSubject.ZAAK,
+                        zaakUUID
+                    )
+                ).also {
+                    LOG.info("Deleted $it 'zaak signaleringen verzonden' records for zaak with UUID '$zaakUUID'.")
                 }
             }
             // send signalering events for this notification

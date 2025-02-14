@@ -253,8 +253,7 @@ class ZaakRestService @Inject constructor(
             policyService.readOverigeRechten().startenZaak &&
                 loggedInUserInstance.get().isAuthorisedForZaaktype(zaaktype.omschrijving)
         )
-        val zaak = restZaakConverter.toZaak(restZaak, zaaktype)
-            .let(zgwApiService::createZaak)
+        val zaak = restZaakConverter.toZaak(restZaak, zaaktype).let(zgwApiService::createZaak)
         restZaak.initiatorIdentificatie?.takeIf { it.isNotEmpty() }?.let {
             addInitiator(
                 restZaak.initiatorIdentificatieType!!,
@@ -263,12 +262,18 @@ class ZaakRestService @Inject constructor(
             )
         }
         restZaak.groep?.let {
-            val group = identityService.readGroup(it.id)
-            zrcClientService.updateRol(zaak, zaakService.bepaalRolGroep(group, zaak), AANMAKEN_ZAAK_REDEN)
+            zrcClientService.updateRol(
+                zaak,
+                zaakService.bepaalRolGroep(identityService.readGroup(it.id), zaak),
+                AANMAKEN_ZAAK_REDEN
+            )
         }
         restZaak.behandelaar?.let {
-            val user = identityService.readUser(it.id)
-            zrcClientService.updateRol(zaak, zaakService.bepaalRolMedewerker(user, zaak), AANMAKEN_ZAAK_REDEN)
+            zrcClientService.updateRol(
+                zaak,
+                zaakService.bepaalRolMedewerker(identityService.readUser(it.id), zaak),
+                AANMAKEN_ZAAK_REDEN
+            )
         }
         if (configuratieService.featureFlagBpmnSupport() && zaaktype.referentieproces?.naam?.isNotEmpty() == true) {
             bpmnService.startProcess(
