@@ -719,6 +719,8 @@ Als relevant voor de toegekende initiator zal er een indicatie zichtbaar worden 
  - Onder curatele
  - Blokkering vanwege verhuizing
  - Opschorten bijhouden
+ - Emigratie
+ - Ministerieel besluit
  
 ![Initiator indicatie](./images/Inidicator-initiator.png)
 
@@ -853,6 +855,10 @@ Deze taak is bedoeld om aan een adviseur die niet in de ZAC werkt een advies ove
 Taak: Goedkeuren
 
 Deze taak is bedoeld om aan een goedkeuring van iets over de zaak te vragen, bijvoorbeeld een voorgenomen oplossingsrichting of besluit. De goedkeurder is een groep of een medewerker die ook in de ZAC werkt. De goedkeuring kan betrekking hebben op een document, maar dat is niet verplicht.
+
+Taak: Document verzenden
+
+Deze taak is bedoeld om een document door een interne groep of medewerker te laten verzenden.
 
 ### Inzien en behandelen van taken
 
