@@ -262,10 +262,18 @@ class ZaakRestService @Inject constructor(
             )
         }
         restZaak.groep?.let {
-            zrcClientService.updateRol(zaak, zaakService.bepaalRolGroep(identityService.readGroup(it.id), zaak), AANMAKEN_ZAAK_REDEN)
+            zrcClientService.updateRol(
+                zaak,
+                zaakService.bepaalRolGroep(identityService.readGroup(it.id), zaak),
+                AANMAKEN_ZAAK_REDEN
+            )
         }
         restZaak.behandelaar?.let {
-            zrcClientService.updateRol(zaak, zaakService.bepaalRolMedewerker(identityService.readUser(it.id), zaak), AANMAKEN_ZAAK_REDEN)
+            zrcClientService.updateRol(
+                zaak,
+                zaakService.bepaalRolMedewerker(identityService.readUser(it.id), zaak),
+                AANMAKEN_ZAAK_REDEN
+            )
         }
         if (configuratieService.featureFlagBpmnSupport() && zaaktype.referentieproces?.naam?.isNotEmpty() == true) {
             bpmnService.startProcess(
