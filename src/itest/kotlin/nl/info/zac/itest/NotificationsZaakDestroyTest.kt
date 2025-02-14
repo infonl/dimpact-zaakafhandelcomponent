@@ -22,6 +22,7 @@ import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GROUP_A_ID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_SEARCH
+import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_2_ID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
@@ -57,6 +58,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
             zaakTypeUUID = ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID,
             groupId = TEST_GROUP_A_ID,
             groupName = TEST_GROUP_A_DESCRIPTION,
+            behandelaarId = TEST_USER_2_ID,
             startDate = DATE_TIME_2024_01_31
         ).run {
             val responseBody = body!!.string()
