@@ -52,17 +52,17 @@ public class SignaleringZoekParameters {
         this.target = target;
     }
 
+    public SignaleringZoekParameters(final SignaleringSubject subjectType, final String subject) {
+        this.subjecttype = subjectType;
+        this.subject = subject;
+    }
+
     public SignaleringZoekParameters(final Group target) {
         this(GROUP, target.getId());
     }
 
     public SignaleringZoekParameters(final User target) {
         this(USER, target.getId());
-    }
-
-    public SignaleringZoekParameters(final SignaleringSubject subjectType, final String subject) {
-        this.subjecttype = subjectType;
-        this.subject = subject;
     }
 
     public SignaleringTarget getTargettype() {

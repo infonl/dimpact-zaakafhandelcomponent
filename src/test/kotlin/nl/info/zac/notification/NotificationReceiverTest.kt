@@ -26,7 +26,9 @@ import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringSubject
+import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
+import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.zoeken.IndexingService
 import java.net.URI
 import java.util.UUID
@@ -182,18 +184,25 @@ class NotificationReceiverTest : BehaviorSpec({
             action = Action.DELETE
         )
         val signaleringZoekParametersSlot = slot<SignaleringZoekParameters>()
+        val signaleringVerzondenZoekParametersSlot = slot<SignaleringVerzondenZoekParameters>()
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
         every { cmmnService.deleteCase(zaakUUID) } returns Unit
         every { zaakVariabelenService.deleteAllCaseVariables(zaakUUID) } just Runs
         every { indexingService.removeZaak(zaakUUID) } just Runs
         every { signaleringService.deleteSignaleringen(capture(signaleringZoekParametersSlot)) } just Runs
+        every { signaleringService.deleteSignaleringVerzonden(capture(signaleringVerzondenZoekParametersSlot)) } just Runs
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
 
         When("notificatieReceive is called with the zaak destroy notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
 
             Then(
-                "the CMMN case is successfully deleted and the zaak is removed from the search index"
+                """
+                   the CMMN case is successfully deleted, the zaak is removed from the search index
+                   any signaleringen and signaleringen verzonden records are deleted, 
+                   a screen event is sent and a 'no content' response is returned  
+                """.trimIndent()
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
@@ -201,8 +210,14 @@ class NotificationReceiverTest : BehaviorSpec({
                     zaakVariabelenService.deleteAllCaseVariables(zaakUUID)
                     indexingService.removeZaak(zaakUUID)
                     signaleringService.deleteSignaleringen(any())
+                    signaleringService.deleteSignaleringVerzonden(any())
+                    eventingService.send(any<ScreenEvent>())
                 }
                 signaleringZoekParametersSlot.captured.run {
+                    subjecttype shouldBe SignaleringSubject.ZAAK
+                    subject shouldBe zaakUUID.toString()
+                }
+                signaleringVerzondenZoekParametersSlot.captured.run {
                     subjecttype shouldBe SignaleringSubject.ZAAK
                     subject shouldBe zaakUUID.toString()
                 }

@@ -27,7 +27,7 @@ fun getSignaleringWhere(
     parameters.target?.let {
         where.add(builder.equal(root.get<Any>("target"), it))
     }
-    if (parameters.types.isNotEmpty()) {
+    parameters.types?.isNotEmpty().let {
         where.add(
             root.get<Any>("type").get<Any>("id")
                 .`in`(parameters.types.map { it.toString() })
@@ -86,7 +86,7 @@ fun getSignaleringVerzondenWhere(
     parameters.target?.let {
         where.add(builder.equal(root.get<Any>("target"), it))
     }
-    if (parameters.types.isNotEmpty()) {
+    parameters.types?.isNotEmpty()?.let {
         where.add(
             root.get<Any>("type").get<Any>("id").`in`(parameters.types.map { it.toString() })
         )
