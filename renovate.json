@@ -22,6 +22,9 @@
     "bitnami": "https://charts.bitnami.com/bitnami",
     "solr": "https://solr.apache.org/charts"
   },
+  "helm": {
+    "fileMatch": "(^|/)ci/.+values\\.ya?ml$"
+  },
   "customManagers": [
     {
       "customType": "regex",
