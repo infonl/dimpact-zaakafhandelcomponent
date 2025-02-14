@@ -5,9 +5,9 @@
 
 ***
 > **Colofon** <br>
-> Datum : 19-8-2024 <br>
-> Versie :   1.6.1 <br>
-> Verandering : Toevoeging indicaties voor personen <br>
+> Datum : 14-2-2025 <br>
+> Versie :   1.6.2 <br>
+> Verandering : Laatste aanpassingen tekstueel verwerkt <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -29,6 +29,7 @@ Versiegeschiedenis:
 | 1.5.1 | Update zoekfunctie bedrijf en rechtspersoon                                                                                                |
 | 1.6.0 | Gebruikershandleiding geconverteerd naar Markdown                                                                                          |
 | 1.6.1 | Toevoeging indicaties voor personen |
+| 1.6.2 | Laatste veranderingen tekstueel verwerkt; opschorten, verlengen en andere kleine aanpassingen |
 
 <div style="page-break-after: always"></div>
 
@@ -513,28 +514,28 @@ Als de streef- en fatale datum van een zaak aanwezig zijn, kunnen deze eenmalig 
 
 Merk op: een zaak kan ook opgeschort worden via het starten van de ‘Aanvullende informatie opvragen’ taak, als niet eerder een opschortingsactie is uitgevoerd.
 
-De opschorten-knop bevindt zich in het datumblok van het tabblad ‘Gegevens’ en is herkenbaar aan het afspelen icoon (de zaakdoorlooptijd loopt en is aan het ‘afspelen’). Zodra met de muisaanwijzer boven de knop gezweefd wordt, verandert het icoon in de pauze en daarmee de opschorten-knop.
+De opschorten-knop bevindt zich in het linker menu onder Actie en is herkenbaar aan het pauze knop icooen.
 ![Zaak opschorten](./images/zaak-opschorten.png)
 
 **Stappen:**
 
-1 In een zaak in het tabblad ‘Gegevens’ ga je met je muisaanwijzer naar het afspelen icoon. Deze verandert in het pauze icoon zodra je erop staat, hier klik je op.
+1 In een zaak in het linker menu onder Actie ga naar Zaak opschorten en klik hier op.
 
 2 Vul de opschortduur in kalenderdagen in óf kies de nieuwe streef- en/of fatale datum die de zaak moet krijgen. Als een van de velden wordt ingevuld dan berekent het systeem automatisch de waarde van de andere.
 ![Opschortduur](./images/opschortduur.png)
 
 3 Kik op ‘Zaak opschorten’ om de opschorting door te voeren
 
-Een opgeschorte zaak kan door een behandelaar hervat worden vanaf dezelfde plek in het datumblok als opschorten. Een opgeschorte zaak is te herkennen aan een indicatie en aan het pauze icoon dat bij het datumblok zichtbaar is en aangeeft dat de zaak ‘gepauzeerd’ is. De verwachte duur van de opschorting wordt ook aangegeven.
+Een opgeschorte zaak kan door een behandelaar hervat worden vanaf dezelfde plek in het linker menu onder Actie als Zaak opschorten, met Zaak hervatten. Een opgeschorte zaak is te herkennen aan een indicatie en aan het pauze icoon dat bij het datumblok zichtbaar is en aangeeft dat de zaak ‘gepauzeerd’ is. De verwachte duur van de opschorting wordt ook aangegeven onder de startdatum.
 
 Merk op: een zaak kan ook hervat worden bij het afronden van de ‘Aanvullende informatie opvragen’ taak. Nadat de hervatting is uitgevoerd dan wordt de daadwerkelijke duur van de opschorting berekend en opgeteld bij de oorspronkelijke fatale datum.
 ![Zaak hervatten](./images/zaak-hervatten.png)
 
 **Stappen:**
 
-1 In een zaak in het tabblad ‘Gegevens’ ga je met je muisaanwijzer naar het pauze icoon. Deze verandert in het afspelen icoon zodra je erop staat, hier klik je op.
+1 In een zaak in het linker menu onder Actie kies Zaak hervatten.
 
-2 Vul de reden voor het hervatten in. Standaard wordt hier de reden die bij het opschorten was opgegeven al ingevuld.
+2 Vul de reden voor het hervatten in.
 
 3 Klik op ‘Zaak hervatten’ om de opschorting te beëindigen
 
@@ -542,23 +543,23 @@ Merk op: een zaak kan ook hervat worden bij het afronden van de ‘Aanvullende i
 
 Als de streef- en fatale datum van een zaak aanwezig zijn, kunnen deze eenmalig vanuit de zaakgegevenspagina verlengd worden. De behandelaar kan zelf de duur (in kalenderdagen) van de verlenging invullen waarmee het systeem de nieuwe streef- en fatale datum berekent. De maximaal toegestane duur van de verlenging is afhankelijk van het zaaktype.
 
-De verlengen knop bevindt zich in het datumblok van het tabblad ‘Gegevens’ en is herkenbaar aan het klok icoon met de pijl eromheen.
+De Zaak verlengen knop bevindt zichin het linker menu onder Actie en is herkenbaar aan het klok icoon met de pijl eromheen.
 ![Zaak verlengen](./images/zaak-verlengen.png)
 
 **Stappen:**
 
-1 In een zaak in het tabblad ‘Gegevens’ klik je op het klok icoon
+1 In een zaak in het linker menu onder Actie kies Zaak verlengen.
 
-2 Vul de verlengingsduur in kalenderdagen in óf kies de nieuwe streef- en/of fatale datum die de zaak moet krijgen. Als een van de velden wordt ingevuld dan berekent het systeem automatisch de waarde van de andere.
+2 Vul de verlengingsduur in kalenderdagen in óf kies de nieuwe streef- en/of fatale datum die de zaak moet krijgen. Als een van de velden wordt ingevuld dan berekent het systeem automatisch de waarde van de andere. De maximale verlengduur is per zaaktype ingesteld en kan niet overschreden worden, deze is aangegeven onder het Verlengduur veld.
 
 3 Geef aan of de streefdatum van de openstaande taken ook verlengd moeten worden
 ![Streefdatum ook verlengen](./images/streefdatum-ook-verlengen.png)
 
 4 Kik op ‘Zaak verlengen’ om de verlenging door te voeren
 
-## Zaak acties
+## Verdere acties
 
-Een zaak is te behandelen met behulp van de acties die in het linker menu beschikbaar zijn. Een groot deel van de acties zijn standaard en altijd beschikbaar. Per fase van het afhandelproces is een aantal extra acties beschikbaar, dit zijn met name de taken.
+Een zaak is te behandelen met behulp van de verdere acties die onder Zaak in het linker menu beschikbaar zijn. Een groot deel van de acties zijn standaard en altijd beschikbaar. Per fase van het afhandelproces is een aantal extra acties beschikbaar, dit zijn met name de taken, te vinden onder Taak starten in het linker menu.
 
 Het afhandelproces bestaat uit twee fases, in het volgende schema zijn de taken en acties die in de fases te gebruiken zijn te zien. Een actie die niet in een fase zit is altijd beschikbaar.
 ![Generiek afhandelproces](./images/generiek-afhandelproces.png)
@@ -617,7 +618,7 @@ Deze actie maakt het mogelijk om een document met sjablonen in een documentcreat
 
 4 Klik op de Toevoegen knop om de documentcreatieapplicatie te starten. Deze opent in een nieuw tabblad
 
-4 Maak het document en klik op Klaar en sluit deze tabblad af
+4 Maak het document en klik op Klaar en sluit dit tabblad af
 
 5 Het document is aan de zaak toegevoegd en beschikbaar in het documentenoverzicht
 
@@ -719,6 +720,8 @@ Als relevant voor de toegekende initiator zal er een indicatie zichtbaar worden 
  - Onder curatele
  - Blokkering vanwege verhuizing
  - Opschorten bijhouden
+ - Emigratie
+ - Ministerieel besluit
  
 ![Initiator indicatie](./images/Inidicator-initiator.png)
 
@@ -853,6 +856,10 @@ Deze taak is bedoeld om aan een adviseur die niet in de ZAC werkt een advies ove
 Taak: Goedkeuren
 
 Deze taak is bedoeld om aan een goedkeuring van iets over de zaak te vragen, bijvoorbeeld een voorgenomen oplossingsrichting of besluit. De goedkeurder is een groep of een medewerker die ook in de ZAC werkt. De goedkeuring kan betrekking hebben op een document, maar dat is niet verplicht.
+
+Taak: Document verzenden
+
+Deze taak is bedoeld om een document door een interne groep of medewerker te laten verzenden.
 
 ### Inzien en behandelen van taken
 
