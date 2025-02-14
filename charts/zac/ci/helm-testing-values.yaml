@@ -39,13 +39,16 @@ gemeente:
   naam: "DummyZacGemeente"
   mail: "gemeente-zac-test@example.com"
 
-# mail Configuration email sending connection
+# -- Email sending connection. SPF record needs to be properly setup in DNS
 mail:
-  # SMTP server and port are required, spf record needs to be properly setup in DNS
   smtp:
-    server: "in-v3.mailjet.com"  # -- SMTP server host (for example localhost or in-v3.mailjet.com)
-    port: "587"  # -- port 587 for TLS, port 25 for relaying
+    # -- SMTP server host (for example localhost or in-v3.mailjet.com). Required
+    server: "in-v3.mailjet.com"
+    # -- SMTP server port: 587 for TLS, port 25 for relaying. Required
+    port: "587"
+    # -- SMTP server username if authentication is required. Optional
     username: "dummyMailjetApiKey"
+    # -- SMTP server password if authentication is required. Optional
     password: "dummyMailjetApiSecretKey"
 
 # zgwApis Configuration of ZGW API's provider (Open Zaak)
@@ -96,11 +99,14 @@ bagApi:
 openForms:
   url: "http://localhost:9999"  # https://open-forms.example.com
 
-# smartDocuments Configuration of the SmartDocuments connection
 smartDocuments:
+  # -- Enable SmartDocuments integration for creating a new document
   enabled: false
-  url: "http://smartdocuments-wiremock:8080"  # https://partners.smartdocuments.com
+  # -- URL to SmartDocuments instance. For example: https://partners.smartdocuments.com
+  url: "http://smartdocuments-wiremock:8080"
+  # -- Authentication token
   authentication: "dummySmartDocumentsAuthentication"
+  # -- Fixed username for authentication
   fixedUserName: "dummy"
 
 # signaleringen Configuration of the signaleren job
@@ -118,7 +124,7 @@ signaleringen:
   restartPolicy: Never
   image:
     repository: curlimages/curl
-    tag: 8.11.1@sha256:c1fe1679c34d9784c1b0d1e5f62ac0a79fca01fb6377cdd33e90473c6f9f9a69
+    tag: 8.12.0@sha256:3dfa70a646c5d03ddf0e7c0ff518a5661e95b8bcbc82079f0fb7453a96eaae35
     pullPolicy: IfNotPresent
   imagePullSecrets: []
   resources: {}
@@ -336,6 +342,158 @@ solr:
   zookeeper:
     enabled: false
 
+# requires the installation of the solr-operator crds: kubectl create -f https://solr.apache.org/operator/downloads/crds/v0.8.1/all-with-dependencies.yaml
+solr-operator:
+  # -- annotations for solr-operator
+  annotations: {}
+  # -- affinity for solr-operator
+  affinity: {}
+  # -- set enabled to actually use the solr-operator helm chart
+  enabled: false
+  # -- set fullname for solr-operator
+  fullnameOverride: solr-operator
+  # solr-operator image parameters
+  image:
+    # -- solr-operator imagePullPolicy
+    pullPolicy: IfNotPresent
+    # -- solr-operator repository
+    repository: apache/solr-operator
+    # -- solr-operator tag
+    tag: v0.8.1@sha256:eccb92c2dbc468de0fcdcd41b0430d918ae0598bafbb94b7afb8e234a3ade47e
+  metrics:
+    # -- enable to have solr-operator metric endpoints
+    enabled: true
+  # -- nodeSelector for solr-operator
+  nodeSelector: {}
+  # settings for solrcloud
+  solr:
+    # -- affinity for solr in solrcloud
+    affinity: {}
+    # -- annotations for solr in solrcloud
+    annotations: {}
+    # solr busybox image parameters
+    busyBoxImage:
+      # -- solr busybox image imagePullPolicy
+      pullPolicy: IfNotPresent
+      # -- solr busybox image reposity
+      repository: library/busybox
+      # -- solr busybox image tag
+      tag: 1.37.0-glibc@sha256:04c3917ae1ad16d8be9702176a1e1ecd3cfe6b374a274bd52382c001b4ecd088
+    # -- enable configuration of a solrcloud
+    enabled: true
+    # solr image parameters
+    image:
+      # -- solr imagePullPolicy
+      pullPolicy: IfNotPresent
+      # -- solr image repository
+      repository: library/solr
+      # -- solr image tag
+      tag: 9.6.1@sha256:8e47adc0da374463605dd9a9084b7053674eda6e2c95059b8ce8f138af99dcb2
+    # -- solr memory settings
+    javaMem: -Xms512m -Xmx768m
+    # jobs settings
+    jobs:
+      # -- affinity for jobs
+      affinity: {}
+      # -- annotations for jobs
+      annotations: {}
+      # -- enable createZacCore to have a curl statement generate the zac core in the provided solrcloud if it does not exist yet
+      createZacCore: true
+      # solr jobs image parameters
+      image:
+        # -- solr jobs imagePullPolicy
+        pullPolicy: IfNotPresent
+        # -- solr jobs repository
+        repository: curlimages/curl
+        # -- solr jobs tag
+        tag: 8.12.0@sha256:3dfa70a646c5d03ddf0e7c0ff518a5661e95b8bcbc82079f0fb7453a96eaae35
+      # -- nodeSelector for jobs
+      nodeSelector: {}
+      # -- tolerations for jobs
+      tolerations: []
+    # -- solr loglevel
+    logLevel: INFO
+    # -- override for solrcloud name
+    # name:
+    # -- nodeSelector for solr in solrcloud
+    nodeSelector: {}
+    # -- replicas for solr in solrcloud, should be an odd number
+    replicas: 3
+    # solr storage parameters
+    storage:
+      # -- solr storage reclaimPolicy
+      reclaimPolicy: Delete
+      # -- solr storage storageClassName
+      storageClassName: managed-csi
+      # -- solr storage size
+      size: 1Gi
+    # -- tolerations for solr in solrcloud
+    tolerations: []
+  # -- tolerations for solr-operator
+  tolerations: []
+  # -- a comma-seperated list of namespaces to watch, watches all namespaces if empty
+  watchNamespaces: "default"
+  # zookeeper-operator settings
+  zookeeper-operator:
+    # -- affinity for zookeeper-operator
+    affinity: {}
+    # -- annotations for zookeeper-operator
+    annotations: {}
+    # -- set fullname for zookeeper-operator
+    fullnameOverride: zookeeper-operator
+    # zookeeper-operator hooks parameters
+    hooks:
+      # zookeeper-operator hooks image parameters
+      image:
+        # -- zookeeper-operator hooks imagePullPolicy
+        pullPolicy: IfNotPresent
+        # -- zookeeper-operator hooks repository
+        repository: lachlanevenson/k8s-kubectl
+        # -- zookeeper-operator hooks tag
+        tag: v1.25.4@sha256:af5cea3f2e40138df90660c0c073d8b1506fb76c8602a9f48aceb5f4fb052ddc
+    # zookeeper-operator image parameters
+    image:
+      # -- zookeeper-operator imagePullPolicy
+      pullPolicy: IfNotPresent
+      # -- zookeeper-operator image repository
+      repository: pravega/zookeeper-operator
+      # -- zookeeper-operator image tag
+      tag: 0.2.15@sha256:b2bc4042fdd8fea6613b04f2f602ba4aff1201e79ba35cd0e2df9f3327111b0e
+    # -- nodeSelector for solr-operator
+    nodeSelector: {}
+    # -- tolerations for solr-operator
+    tolerations: []
+    # -- a comma-seperated list of namespaces to watch, watches all namespaces if empty
+    watchNamespace: "default"
+    # zookeeper parameters
+    zookeeper:
+      # -- affinity for zookeeper
+      affinity: {}
+      # -- annotations for zookeeper
+      annotations: {}
+      # zookeeper image parameters
+      image:
+        # -- zookeeper imagePullPolicy
+        pullPolicy: IfNotPresent
+        # -- zookeeper image repository
+        repository: pravega/zookeeper
+        # -- zookeeper image tag
+        tag: 0.2.15@sha256:c498ebfb76a66f038075e2fa6148528d74d31ca1664f3257fdf82ee779eec9c8
+      # -- nodeSelector for zookeeper
+      nodeSelector: {}
+      # -- replicas for zookeeper, should be an odd number
+      replicas: 3
+      # zookeeper storage parameters
+      storage:
+        # -- zookeeper storage reclaimPolicy
+        reclaimPolicy: Delete
+        # -- zookeeper storageClassName
+        storageClassName: managed-csi
+        # -- zookeeper storage size
+        size: 1Gi
+      # -- tolerations for zookeeper
+      tolerations: []
+
 # office_converter use the office converter specified, prefilled resources values are the minimum recommended
 office_converter:
   enabled: true
@@ -344,7 +502,7 @@ office_converter:
   # url: ""
   image:
     repository: ghcr.io/eugenmayer/kontextwork-converter
-    tag: "1.6.2@sha256:3d1eb99e88bd2944a9a5349f8e5e7b3e81b90841cdc07f17688f96a8f8d8dd72"
+    tag: "1.7.1@sha256:21cf2abf83c6b14b50188bc66ecde970081d5e6493f0c0fdfd435ebbc3145b34"
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1
