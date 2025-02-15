@@ -726,38 +726,6 @@ tasks {
         )
     }
 
-    register<Download>("downloadHelmDocsArchive") {
-        description = "Download helm-docs release archive"
-        group = "build setup"
-
-        val version = libs.versions.helm.docs.get()
-        val osClassifier = "${osdetector.os}_${osdetector.arch}".replace("osx", "Darwin").replace("aarch_64", "arm64")
-        src(
-            "https://github.com/norwoodj/helm-docs/releases/download/v$version/" +
-                "helm-docs_${version}_$osClassifier.tar.gz"
-        )
-        onlyIfModified(true)
-        dest(layout.buildDirectory.file("helm-docs.tar.gz"))
-    }
-
-    register<Copy>("downloadAndUnpackHelmDocs") {
-        description = "Download and unpack helm-docs executable"
-        group = "build setup"
-        dependsOn("downloadHelmDocsArchive")
-
-        from(tarTree(layout.buildDirectory.file("helm-docs.tar.gz")))
-        into(layout.buildDirectory.dir("helm-docs"))
-    }
-
-    register<Exec>("buildHelmChartReadme") {
-        description = "Builds the Docker image for the Zaakafhandelcomponent"
-        group = "build"
-        dependsOn("downloadAndUnpackHelmDocs")
-
-        workingDir("charts/zac")
-        commandLine("$rootDir/build/helm-docs/helm-docs", "values.yaml")
-    }
-
     register<Copy>("copyJacocoAgentForItest") {
         description = "Copies and renames the JaCoCo agent runtime JAR file for instrumentation during the integration tests"
         from(configurations.getByName("jacocoAgentJarForItest"))
