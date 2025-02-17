@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -200,17 +200,17 @@ export class CustomValidators {
           actualValue: formControl.errors.pattern.actualValue,
         });
       case "bsn":
-        return translate.instant("msg.error.invalid.bsn", params);
       case "kvk":
-        return translate.instant("msg.error.invalid.kvk", params);
       case "vestigingsnummer":
-        return translate.instant("msg.error.invalid.vestigingsnummer", params);
       case "rsin":
-        return translate.instant("msg.error.invalid.rsin", params);
       case "postcode":
-        return translate.instant("msg.error.invalid.postcode", params);
       case "huisnummer":
-        return translate.instant("msg.error.invalid.huisnummer", params);
+        return translate.instant(
+          `msg.error.invalid.huisnummer.${errorKey}`,
+          params,
+        );
+      case "custom":
+        return translate.instant(formControl.errors.custom.message);
       default:
         return "";
     }

@@ -119,38 +119,24 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
               this.uiterlijkeEinddatumAfdoeningField.formControl.value,
             );
 
-            if(startDatum.isAfter(uiterlijkeEinddatumAfdoening)) {
-              // @Marcel, the `min` key in the return object corresponds to the `case` in the `customValidators.ts - getErrorMessage`
-              // in this case (pun intended) it will end up in
-              // case "min":
-              //   return translate.instant("msg.error.teklein", {
-              //     label: label,
-              //     min: formControl.errors.min.min,
-              //     actual: formControl.errors.min.actual,
-              //   });
-              //
-              // It is possible to add a new custom error to pass a custom error message
-              // I see that in the translation table there are the `msg.error.date.invalid.streef`, `msg.error.date.invalid.fatale1` and `msg.error.date.invalid.fatale2`
-              //
-              // I think they can be removed and we can utulise the `teKlein`.
-              //
-              // If you disagree you could send something like:
-              //
-              // return { custom: { message: 'msg.error.date.invalid.streef' }
-              //
-              // and add a new case in the `getErrorMessage` like:
-              //
-              // case "custom":
-              //   return translate.instant(formControl.errors.custom.message);
+            if (
+              this.einddatumGeplandField.formControl.value &&
+              startDatum.isAfter(einddatumGepland)
+            )
+              return {
+                custom: {
+                  message: "msg.error.date.invalid.datum.start-na-streef",
+                },
+              };
 
-              return { min: { min: uiterlijkeEinddatumAfdoening.toJSON(), actual: startDatum.toJSON() }}
-            }
+            if (startDatum.isAfter(uiterlijkeEinddatumAfdoening))
+              return {
+                custom: {
+                  message: "msg.error.date.invalid.datum.start-na-fatale",
+                },
+              };
 
-            if(this.einddatumGeplandField.formControl.value && startDatum.isAfter(einddatumGepland)) {
-              return { min: { min: einddatumGepland.toJSON(), actual: startDatum.toJSON() }}
-            }
-
-            return null
+            return null;
           },
         ],
       )
@@ -173,15 +159,23 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
               this.uiterlijkeEinddatumAfdoeningField.formControl.value,
             );
 
-            if(einddatumGepland.isBefore(startDatum)) {
-              return { min: { min: einddatumGepland.toJSON(), actual: startDatum.toJSON() }}
+            if (einddatumGepland.isBefore(startDatum)) {
+              return {
+                custom: {
+                  message: "msg.error.date.invalid.datum.streef-voor-start",
+                },
+              };
             }
 
-            if(einddatumGepland.isAfter(uiterlijkeEinddatumAfdoening)) {
-              return { max: { max: uiterlijkeEinddatumAfdoening.toJSON(), actual: startDatum.toJSON() }}
+            if (einddatumGepland.isAfter(uiterlijkeEinddatumAfdoening)) {
+              return {
+                custom: {
+                  message: "msg.error.date.invalid.datum.streef-na-fatale",
+                },
+              };
             }
 
-            return null
+            return null;
           },
         ],
       )
@@ -202,15 +196,26 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
             );
             const uiterlijkeEinddatumAfdoening = moment(control.value);
 
-            if(uiterlijkeEinddatumAfdoening.isBefore(startDatum)) {
-              return { min: { min: startDatum.toJSON(), actual: uiterlijkeEinddatumAfdoening.toJSON() } }
+            if (uiterlijkeEinddatumAfdoening.isBefore(startDatum)) {
+              return {
+                custom: {
+                  message: "msg.error.date.invalid.datum.fatale-voor-start",
+                },
+              };
             }
 
-            if(this.einddatumGeplandField.formControl.value && uiterlijkeEinddatumAfdoening.isBefore(einddatumGepland)) {
-              return { min: { min: einddatumGepland.toJSON(), actual: uiterlijkeEinddatumAfdoening.toJSON() } }
+            if (
+              this.einddatumGeplandField.formControl.value &&
+              uiterlijkeEinddatumAfdoening.isBefore(einddatumGepland)
+            ) {
+              return {
+                custom: {
+                  message: "msg.error.date.invalid.datum.fatale--voor-streef",
+                },
+              };
             }
 
-            return null
+            return null;
           },
         ],
       )
@@ -270,16 +275,39 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
     } else {
       this.formFields.flat().forEach((field) => {
         // Enable reason field when any other field is dirty
-        const subscription$ = field.formControl.valueChanges
+        field.formControl.valueChanges
           .pipe(takeUntil(this.ngDestroy))
           .subscribe(() => {
-            if (field.formControl.dirty) {
+            if (
+              this.reasonField.formControl.disabled &&
+              field.formControl.dirty
+            ) {
               this.reasonField.formControl.enable({ emitEvent: false });
-              subscription$.unsubscribe();
             }
           });
 
-        // Disable einddatumGepland field when startdatum is changed;
+        // revalidate the 'other' two date fields after a date change, since error can be fixed for them as well
+        if (field instanceof DateFormField) {
+          field.formControl.valueChanges
+            .pipe(takeUntil(this.ngDestroy))
+            .subscribe(() => {
+              this.formFields
+                .flat()
+                .filter(
+                  (f) =>
+                    f instanceof DateFormField &&
+                    f.id !== field.id &&
+                    f.formControl.hasError("custom"),
+                )
+                .forEach((otherDateField) =>
+                  otherDateField.formControl.updateValueAndValidity({
+                    emitEvent: false,
+                  }),
+                );
+            });
+        }
+
+        // Disable einddatumGepland if not set
         // Workaround; the .disable() method does not work as expected
         if (field.id === "einddatumGepland" && !field.formControl.value) {
           field.formControl.disable();
