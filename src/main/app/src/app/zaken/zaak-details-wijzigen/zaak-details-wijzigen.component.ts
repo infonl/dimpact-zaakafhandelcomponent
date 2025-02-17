@@ -397,6 +397,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       .groepLabel("actie.zaak.toekennen.groep")
       .medewerkerLabel("actie.zaak.toekennen.medewerker")
       .groepRequired()
+      .styleClass("form-medewerker-groep row")
       .build();
   }
 
