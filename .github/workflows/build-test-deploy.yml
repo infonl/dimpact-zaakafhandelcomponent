@@ -166,7 +166,7 @@ jobs:
 
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@170bf24d20d201b842d7a52403b73ed297e6645b # v2.18.0
-        if: ${{ !cancelled() }}
+        if: ${{ github.event_name != 'merge_group' && !cancelled() }}
         with:
           check_name: unit-test-results
           files: |
@@ -175,15 +175,17 @@ jobs:
 
       - name: Upload unit test results to CodeCov
         uses: codecov/test-results-action@44ecb3a270cd942bdf0fa8f2ce14cb32493e810a # v1.0.3
-        if: ${{ !cancelled() }}
+        if: ${{ github.event_name != 'merge_group' && !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: unittests
 
       - name: Generate unit test code coverage report
+        if: ${{ github.event_name != 'merge_group' }}
         run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x test -x itest -x npmRunBuild npmRunTestCoverage jacocoTestReport --info
 
       - name: Upload unit test coverage report to Codecov
+        if: ${{ github.event_name != 'merge_group' }}
         uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
         with:
           flags: unittests
