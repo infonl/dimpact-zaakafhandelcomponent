@@ -104,122 +104,31 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       .validators(Validators.required)
       .build();
 
-    this.startDatumField = new DateFormFieldBuilder(this.zaak.startdatum)
-      .id("startdatum")
-      .label("startdatum")
-      .validators(
-        ...[
-          Validators.required,
-          (control) => {
-            const startDatum = moment(control.value);
-            const einddatumGepland = moment(
-              this.einddatumGeplandField.formControl.value,
-            );
-            const uiterlijkeEinddatumAfdoening = moment(
-              this.uiterlijkeEinddatumAfdoeningField.formControl.value,
-            );
+    this.startDatumField = this.createDateFormField(
+      "startdatum",
+      this.zaak.startdatum,
+      [Validators.required, (control) => this.validateStartDatum(control)],
+    );
 
-            if (
-              this.einddatumGeplandField.formControl.value &&
-              startDatum.isAfter(einddatumGepland)
-            )
-              return {
-                custom: {
-                  message: "msg.error.date.invalid.datum.start-na-streef",
-                },
-              };
-
-            if (startDatum.isAfter(uiterlijkeEinddatumAfdoening))
-              return {
-                custom: {
-                  message: "msg.error.date.invalid.datum.start-na-fatale",
-                },
-              };
-
-            return null;
-          },
-        ],
-      )
-      .build();
-
-    this.einddatumGeplandField = new DateFormFieldBuilder(
+    this.einddatumGeplandField = this.createDateFormField(
+      "einddatumGepland",
       this.zaak.einddatumGepland,
-    )
-      .id("einddatumGepland")
-      .label("einddatumGepland")
-      .validators(
-        ...[
-          this.zaak.einddatumGepland
-            ? Validators.required
-            : Validators.nullValidator,
-          (control) => {
-            const startDatum = moment(this.startDatumField.formControl.value);
-            const einddatumGepland = moment(control.value);
-            const uiterlijkeEinddatumAfdoening = moment(
-              this.uiterlijkeEinddatumAfdoeningField.formControl.value,
-            );
+      [
+        this.zaak.einddatumGepland
+          ? Validators.required
+          : Validators.nullValidator,
+        (control) => this.validateEinddatumGepland(control),
+      ],
+    );
 
-            if (einddatumGepland.isBefore(startDatum)) {
-              return {
-                custom: {
-                  message: "msg.error.date.invalid.datum.streef-voor-start",
-                },
-              };
-            }
-
-            if (einddatumGepland.isAfter(uiterlijkeEinddatumAfdoening)) {
-              return {
-                custom: {
-                  message: "msg.error.date.invalid.datum.streef-na-fatale",
-                },
-              };
-            }
-
-            return null;
-          },
-        ],
-      )
-      .build();
-
-    this.uiterlijkeEinddatumAfdoeningField = new DateFormFieldBuilder(
+    this.uiterlijkeEinddatumAfdoeningField = this.createDateFormField(
+      "uiterlijkeEinddatumAfdoening",
       this.zaak.uiterlijkeEinddatumAfdoening,
-    )
-      .id("uiterlijkeEinddatumAfdoening")
-      .label("uiterlijkeEinddatumAfdoening")
-      .validators(
-        ...[
-          Validators.required,
-          (control) => {
-            const startDatum = moment(this.startDatumField.formControl.value);
-            const einddatumGepland = moment(
-              this.einddatumGeplandField.formControl.value,
-            );
-            const uiterlijkeEinddatumAfdoening = moment(control.value);
-
-            if (uiterlijkeEinddatumAfdoening.isBefore(startDatum)) {
-              return {
-                custom: {
-                  message: "msg.error.date.invalid.datum.fatale-voor-start",
-                },
-              };
-            }
-
-            if (
-              this.einddatumGeplandField.formControl.value &&
-              uiterlijkeEinddatumAfdoening.isBefore(einddatumGepland)
-            ) {
-              return {
-                custom: {
-                  message: "msg.error.date.invalid.datum.fatale-voor-streef",
-                },
-              };
-            }
-
-            return null;
-          },
-        ],
-      )
-      .build();
+      [
+        Validators.required,
+        (control) => this.validateUiterlijkeEinddatumAfdoening(control),
+      ],
+    );
 
     this.vertrouwelijkheidaanduidingField = new SelectFormFieldBuilder(
       this.vertrouwelijkheidaanduidingenList.find(
@@ -314,6 +223,86 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
           return;
         }
       });
+    }
+  }
+
+  private createDateFormField(
+    id: string,
+    value: any,
+    validators: any[],
+  ): DateFormField {
+    return new DateFormFieldBuilder(value)
+      .id(id)
+      .label(id)
+      .validators(...validators)
+      .build();
+  }
+
+  private validateStartDatum(control): any {
+    const startDatum = moment(control.value);
+    const einddatumGepland = moment(
+      this.einddatumGeplandField.formControl.value,
+    );
+    const uiterlijkeEinddatumAfdoening = moment(
+      this.uiterlijkeEinddatumAfdoeningField.formControl.value,
+    );
+
+    if (startDatum.isAfter(uiterlijkeEinddatumAfdoening)) {
+      return {
+        custom: { message: "msg.error.date.invalid.datum.start-na-fatale" },
+      };
+    }
+
+    if (!this.einddatumGeplandField.formControl.value) return null;
+
+    if (startDatum.isAfter(einddatumGepland)) {
+      return {
+        custom: { message: "msg.error.date.invalid.datum.start-na-streef" },
+      };
+    }
+  }
+
+  private validateEinddatumGepland(control): any {
+    const startDatum = moment(this.startDatumField.formControl.value);
+    const einddatumGepland = moment(control.value);
+    const uiterlijkeEinddatumAfdoening = moment(
+      this.uiterlijkeEinddatumAfdoeningField.formControl.value,
+    );
+
+    if (einddatumGepland.isBefore(startDatum)) {
+      return {
+        custom: { message: "msg.error.date.invalid.datum.streef-voor-start" },
+      };
+    }
+
+    if (einddatumGepland.isAfter(uiterlijkeEinddatumAfdoening)) {
+      return {
+        custom: { message: "msg.error.date.invalid.datum.streef-na-fatale" },
+      };
+    }
+
+    return null;
+  }
+
+  private validateUiterlijkeEinddatumAfdoening(control): any {
+    const startDatum = moment(this.startDatumField.formControl.value);
+    const einddatumGepland = moment(
+      this.einddatumGeplandField.formControl.value,
+    );
+    const uiterlijkeEinddatumAfdoening = moment(control.value);
+
+    if (uiterlijkeEinddatumAfdoening.isBefore(startDatum)) {
+      return {
+        custom: { message: "msg.error.date.invalid.datum.fatale-voor-start" },
+      };
+    }
+
+    if (!this.einddatumGeplandField.formControl.value) return null;
+
+    if (uiterlijkeEinddatumAfdoening.isBefore(einddatumGepland)) {
+      return {
+        custom: { message: "msg.error.date.invalid.datum.fatale-voor-streef" },
+      };
     }
   }
 
