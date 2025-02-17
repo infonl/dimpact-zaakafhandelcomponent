@@ -133,16 +133,3 @@ Make sure to commit every update command you run with a format like:
     git commit -m "update @angular/core to [version]"
 ```
 
-## Upgrading Helm Chart README
-
-```bash
-    ./gradlew buildHelmChartReadme
-
-    # Review and add changes
-    git co -b feature/PZ-<number>-update-helm-chart-readme
-    git add -p charts/zac/README.md
-   
-    # Commit and push the changes
-    git commit -m 'Update Helm Chart README'
-    git push origin feature/PZ-<number>-update-helm-chart-readme
-```

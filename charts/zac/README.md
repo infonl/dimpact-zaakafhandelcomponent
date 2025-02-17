@@ -1,7 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 0.4.4](https://img.shields.io/badge/Version-0.4.4-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
-
+![Version: 1.0.6](https://img.shields.io/badge/Version-1.0.6-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -18,6 +17,28 @@ A Helm chart for installing Zaakafhandelcomponent
 | @bitnami | solr | 9.5.1 |
 | @opentelemetry | opentelemetry-collector | 0.104.0 |
 | @solr | solr-operator | 0.8.1 |
+
+## Usage
+
+Make sure you have helm installed. Add the required repositories as follows:
+```
+helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add solr https://solr.apache.org/charts
+```
+
+If you had already added this repo earlier, run `helm repo update` to retrieve
+the latest versions of the packages
+
+Now add the ZAC repo:
+```
+helm repo add zac https://infonl.github.io/dimpact-zaakafhandelcomponent
+```
+
+And install zac:
+```
+helm install my-release zac/zaakafhandelcomponent
+```
 
 ## Values
 
@@ -66,6 +87,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | klantinteractiesApi.url | string | `""` |  |
 | kvkApi.apiKey | string | `""` |  |
 | kvkApi.url | string | `""` |  |
+| mail | object | `{"smtp":{"password":"","port":"587","server":"","username":""}}` | Email sending connection. SPF record needs to be properly setup in DNS |
 | mail.smtp.password | string | `""` | SMTP server password if authentication is required. Optional |
 | mail.smtp.port | string | `"587"` | SMTP server port: 587 for TLS, port 25 for relaying. Required |
 | mail.smtp.server | string | `""` | SMTP server host (for example localhost or in-v3.mailjet.com). Required |
@@ -132,7 +154,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | nginx.existingConfigmap | string | `nil` | mount existing nginx vhost config |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.27.3@sha256:d0ebbd60453d566b6c497adb4c0c220ba0aa1bc0d654a6975aa65e16ae11d8fb"` |  |
+| nginx.image.tag | string | `"1.27.4@sha256:840f33319fb642e32a15a1772400e017e1175891c98afdff3a47871c925cb0e9"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -164,7 +186,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | office_converter.enabled | bool | `true` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
 | office_converter.image.repository | string | `"ghcr.io/eugenmayer/kontextwork-converter"` |  |
-| office_converter.image.tag | string | `"1.7.0@sha256:8660b8d329b1ca0315c04725cfc855f03e7d34c918d292497216bb98c5c8dd89"` |  |
+| office_converter.image.tag | string | `"1.7.1@sha256:21cf2abf83c6b14b50188bc66ecde970081d5e6493f0c0fdfd435ebbc3145b34"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
@@ -236,7 +258,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | signaleringen.failedJobsHistoryLimit | int | `3` |  |
 | signaleringen.image.pullPolicy | string | `"IfNotPresent"` |  |
 | signaleringen.image.repository | string | `"curlimages/curl"` |  |
-| signaleringen.image.tag | string | `"8.11.1@sha256:c1fe1679c34d9784c1b0d1e5f62ac0a79fca01fb6377cdd33e90473c6f9f9a69"` |  |
+| signaleringen.image.tag | string | `"8.12.0@sha256:3dfa70a646c5d03ddf0e7c0ff518a5661e95b8bcbc82079f0fb7453a96eaae35"` |  |
 | signaleringen.imagePullSecrets | list | `[]` |  |
 | signaleringen.nodeSelector | object | `{}` |  |
 | signaleringen.podSecurityContext | object | `{}` |  |
@@ -256,29 +278,28 @@ A Helm chart for installing Zaakafhandelcomponent
 | solr-operator.fullnameOverride | string | `"solr-operator"` | set fullname for solr-operator |
 | solr-operator.image.pullPolicy | string | `"IfNotPresent"` | solr-operator imagePullPolicy |
 | solr-operator.image.repository | string | `"apache/solr-operator"` | solr-operator repository |
-| solr-operator.image.tag | string | `"v0.8.1"` | solr-operator tag |
+| solr-operator.image.tag | string | `"v0.8.1@sha256:eccb92c2dbc468de0fcdcd41b0430d918ae0598bafbb94b7afb8e234a3ade47e"` | solr-operator tag |
 | solr-operator.metrics.enabled | bool | `true` | enable to have solr-operator metric endpoints |
 | solr-operator.nodeSelector | object | `{}` | nodeSelector for solr-operator |
 | solr-operator.solr.affinity | object | `{}` | affinity for solr in solrcloud |
 | solr-operator.solr.annotations | object | `{}` | annotations for solr in solrcloud |
 | solr-operator.solr.busyBoxImage.pullPolicy | string | `"IfNotPresent"` | solr busybox image imagePullPolicy |
 | solr-operator.solr.busyBoxImage.repository | string | `"library/busybox"` | solr busybox image reposity |
-| solr-operator.solr.busyBoxImage.tag | string | `"1.28.0-glibc"` | solr busybox image tag |
+| solr-operator.solr.busyBoxImage.tag | string | `"1.37.0-glibc@sha256:04c3917ae1ad16d8be9702176a1e1ecd3cfe6b374a274bd52382c001b4ecd088"` | solr busybox image tag |
 | solr-operator.solr.enabled | bool | `true` | enable configuration of a solrcloud |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
-| solr-operator.solr.image.tag | string | `"9.6.1"` | solr image tag |
+| solr-operator.solr.image.tag | string | `"9.6.1@sha256:8e47adc0da374463605dd9a9084b7053674eda6e2c95059b8ce8f138af99dcb2"` | solr image tag |
 | solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` | solr memory settings |
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |
 | solr-operator.solr.jobs.createZacCore | bool | `true` | enable createZacCore to have a curl statement generate the zac core in the provided solrcloud if it does not exist yet |
 | solr-operator.solr.jobs.image.pullPolicy | string | `"IfNotPresent"` | solr jobs imagePullPolicy |
 | solr-operator.solr.jobs.image.repository | string | `"curlimages/curl"` | solr jobs repository |
-| solr-operator.solr.jobs.image.tag | string | `"8.10.1"` | solr jobs tag |
+| solr-operator.solr.jobs.image.tag | string | `"8.12.0@sha256:3dfa70a646c5d03ddf0e7c0ff518a5661e95b8bcbc82079f0fb7453a96eaae35"` | solr jobs tag |
 | solr-operator.solr.jobs.nodeSelector | object | `{}` | nodeSelector for jobs |
 | solr-operator.solr.jobs.tolerations | list | `[]` | tolerations for jobs |
 | solr-operator.solr.logLevel | string | `"INFO"` | solr loglevel |
-| solr-operator.solr.name | string | `"solr"` | solrcloud name |
 | solr-operator.solr.nodeSelector | object | `{}` | nodeSelector for solr in solrcloud |
 | solr-operator.solr.replicas | int | `3` | replicas for solr in solrcloud, should be an odd number |
 | solr-operator.solr.storage.reclaimPolicy | string | `"Delete"` | solr storage reclaimPolicy |
@@ -292,10 +313,10 @@ A Helm chart for installing Zaakafhandelcomponent
 | solr-operator.zookeeper-operator.fullnameOverride | string | `"zookeeper-operator"` | set fullname for zookeeper-operator |
 | solr-operator.zookeeper-operator.hooks.image.pullPolicy | string | `"IfNotPresent"` | zookeeper-operator hooks imagePullPolicy |
 | solr-operator.zookeeper-operator.hooks.image.repository | string | `"lachlanevenson/k8s-kubectl"` | zookeeper-operator hooks repository |
-| solr-operator.zookeeper-operator.hooks.image.tag | string | `"v1.23.2"` | zookeeper-operator hooks tag |
+| solr-operator.zookeeper-operator.hooks.image.tag | string | `"v1.25.4@sha256:af5cea3f2e40138df90660c0c073d8b1506fb76c8602a9f48aceb5f4fb052ddc"` | zookeeper-operator hooks tag |
 | solr-operator.zookeeper-operator.image.pullPolicy | string | `"IfNotPresent"` | zookeeper-operator imagePullPolicy |
 | solr-operator.zookeeper-operator.image.repository | string | `"pravega/zookeeper-operator"` | zookeeper-operator image repository |
-| solr-operator.zookeeper-operator.image.tag | string | `"0.2.15"` | zookeeper-operator image tag |
+| solr-operator.zookeeper-operator.image.tag | string | `"0.2.15@sha256:b2bc4042fdd8fea6613b04f2f602ba4aff1201e79ba35cd0e2df9f3327111b0e"` | zookeeper-operator image tag |
 | solr-operator.zookeeper-operator.nodeSelector | object | `{}` | nodeSelector for solr-operator |
 | solr-operator.zookeeper-operator.tolerations | list | `[]` | tolerations for solr-operator |
 | solr-operator.zookeeper-operator.watchNamespace | string | `"default"` | a comma-seperated list of namespaces to watch, watches all namespaces if empty |
@@ -303,7 +324,7 @@ A Helm chart for installing Zaakafhandelcomponent
 | solr-operator.zookeeper-operator.zookeeper.annotations | object | `{}` | annotations for zookeeper |
 | solr-operator.zookeeper-operator.zookeeper.image.pullPolicy | string | `"IfNotPresent"` | zookeeper imagePullPolicy |
 | solr-operator.zookeeper-operator.zookeeper.image.repository | string | `"pravega/zookeeper"` | zookeeper image repository |
-| solr-operator.zookeeper-operator.zookeeper.image.tag | string | `"0.2.14"` | zookeeper image tag |
+| solr-operator.zookeeper-operator.zookeeper.image.tag | string | `"0.2.15@sha256:c498ebfb76a66f038075e2fa6148528d74d31ca1664f3257fdf82ee779eec9c8"` | zookeeper image tag |
 | solr-operator.zookeeper-operator.zookeeper.nodeSelector | object | `{}` | nodeSelector for zookeeper |
 | solr-operator.zookeeper-operator.zookeeper.replicas | int | `3` | replicas for zookeeper, should be an odd number |
 | solr-operator.zookeeper-operator.zookeeper.storage.reclaimPolicy | string | `"Delete"` | zookeeper storage reclaimPolicy |
@@ -344,3 +365,4 @@ A Helm chart for installing Zaakafhandelcomponent
 
 ----------------------------------------------
 Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)
+
