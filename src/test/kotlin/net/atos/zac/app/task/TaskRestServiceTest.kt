@@ -40,6 +40,7 @@ import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.createTestTask
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
@@ -390,6 +391,32 @@ class TaskRestServiceTest : BehaviorSpec({
             Then("the tasks are assigned to the group and user") {
                 verify(exactly = 1) {
                     taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
+                }
+            }
+        }
+    }
+    Given("Two Flowable tasks for a zaak") {
+        val zaak = createZaak()
+        val tasks = listOf(
+            createTestTask(id = "dummyId1"),
+            createTestTask(id = "dummyId2")
+        )
+        val restTasks = listOf(
+            createRestTask(id = "dummyId1"),
+            createRestTask(id = "dummyId2")
+        )
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { policyService.readZaakRechten(zaak).lezen } returns true
+        every { taskService.listTasksForZaak(zaak.uuid) } returns tasks
+        every { restTaskConverter.convert(tasks) } returns restTasks
+
+        When("the tasks are listed for this zaak") {
+            val returnedRestTasks = taskRestService.listTasksForZaak(zaak.uuid)
+
+            Then("the tasks are returned") {
+                returnedRestTasks shouldBe restTasks
+                verify(exactly = 1) {
+                    taskService.listTasksForZaak(zaak.uuid)
                 }
             }
         }

@@ -112,7 +112,7 @@ class TaskRestService @Inject constructor(
     @Path("zaak/{zaakUUID}")
     fun listTasksForZaak(@PathParam("zaakUUID") zaakUUID: UUID): List<RestTask> {
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen)
-        return restTaskConverter.convert(flowableTaskService.listTasksForZaak(zaakUUID))
+        return restTaskConverter.convert(taskService.listTasksForZaak(zaakUUID))
     }
 
     @GET
@@ -386,7 +386,8 @@ class TaskRestService @Inject constructor(
         loggedInUserInstance.get().let { loggedInUser ->
             signaleringService.deleteSignaleringen(
                 SignaleringZoekParameters(loggedInUser)
-                    .types(SignaleringType.Type.TAAK_OP_NAAM).subject(taskInfo)
+                    .types(SignaleringType.Type.TAAK_OP_NAAM)
+                    .subject(taskInfo)
             )
             signaleringService.deleteSignaleringen(
                 SignaleringZoekParameters(loggedInUser)
