@@ -16,7 +16,7 @@ dependencies:
   version: 0.104.0
   # Deprecated, will be removed in the near future
 - name: solr
-  version: 9.5.1
+  version: 9.5.3
   repository: '@bitnami'
   condition: solr.enabled
   # Will be used instead of solr
