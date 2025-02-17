@@ -191,7 +191,8 @@ class NotificationReceiverTest : BehaviorSpec({
             resourceUrl = zaakUri,
             action = Action.DELETE
         )
-        val tasks = listOf(createTestTask())
+        val taskId = "dummyTaskId"
+        val tasks = listOf(createTestTask(id = taskId))
         val signaleringZoekParametersSlot = mutableListOf<SignaleringZoekParameters>()
         val signaleringVerzondenZoekParameters = mutableListOf<SignaleringVerzondenZoekParameters>()
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
@@ -199,6 +200,7 @@ class NotificationReceiverTest : BehaviorSpec({
         every { cmmnService.deleteCase(zaakUUID) } returns Unit
         every { zaakVariabelenService.deleteAllCaseVariables(zaakUUID) } just Runs
         every { indexingService.removeZaak(zaakUUID) } just Runs
+        every { indexingService.removeTaak(taskId) } just Runs
         every { signaleringService.deleteSignaleringen(capture(signaleringZoekParametersSlot)) } just Runs
         every { signaleringService.deleteSignaleringVerzonden(capture(signaleringVerzondenZoekParameters)) } just Runs
         every { taskService.listTasksForZaak(zaakUUID) } returns tasks
@@ -218,6 +220,7 @@ class NotificationReceiverTest : BehaviorSpec({
                     cmmnService.deleteCase(zaakUUID)
                     zaakVariabelenService.deleteAllCaseVariables(zaakUUID)
                     indexingService.removeZaak(zaakUUID)
+                    indexingService.removeTaak(taskId)
                     eventingService.send(any<ScreenEvent>())
                 }
                 // signaleringen and signalering verzonden records should be deleted

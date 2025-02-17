@@ -36,6 +36,7 @@ import net.atos.zac.zoeken.IndexingService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
+import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -49,7 +50,7 @@ import java.util.logging.Logger
 @Singleton
 @NoArgConstructor
 @AllOpen
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class NotificationReceiver @Inject constructor(
     private val eventingService: EventingService,
     private val productaanvraagService: ProductaanvraagService,
@@ -87,6 +88,50 @@ class NotificationReceiver @Inject constructor(
         handleZaaktype(notification)
         handleWebsockets(notification)
         return Response.noContent().build()
+    }
+
+    private fun deleteSignaleringenForZaak(zaakUUID: UUID) {
+        signaleringService.deleteSignaleringen(
+            SignaleringZoekParameters(
+                SignaleringSubject.ZAAK,
+                zaakUUID.toString()
+            )
+        ).also {
+            LOG.info("Deleted $it zaak-signaleringen for zaak with UUID '$zaakUUID'.")
+        }
+        signaleringService.deleteSignaleringVerzonden(
+            SignaleringVerzondenZoekParameters(
+                SignaleringSubject.ZAAK,
+                zaakUUID.toString()
+            )
+        ).also {
+            LOG.info("Deleted $it 'zaak signaleringen verzonden' records for zaak with UUID '$zaakUUID'.")
+        }
+        taskService.listTasksForZaak(zaakUUID).forEach { task ->
+            signaleringService.deleteSignaleringen(
+                SignaleringZoekParameters(
+                    SignaleringSubject.TAAK,
+                    task.id
+                )
+            ).also {
+                LOG.info(
+                    "Deleted $it taak-signalering for task with ID '${task.id}' and zaak with UUID: '$zaakUUID'."
+                )
+            }
+            signaleringService.deleteSignaleringVerzonden(
+                SignaleringVerzondenZoekParameters(
+                    SignaleringSubject.TAAK,
+                    task.id
+                )
+            ).also {
+                LOG.info(
+                    """
+                            Deleted $it 'taak signaleringen verzonden' records for task with ID '${task.id}' and 
+                            zaak with UUID: '$zaakUUID'.
+                    """.trimIndent()
+                )
+            }
+        }
     }
 
     private fun isAuthenticated(headers: HttpHeaders) = secret == headers.getHeaderString(HttpHeaders.AUTHORIZATION)
@@ -139,48 +184,7 @@ class NotificationReceiver @Inject constructor(
             // in case of a 'zaak destroy' notification remove any existing zaak
             // and task signaleringen for this zaak
             if (notification.channel == Channel.ZAKEN && notification.resource == Resource.ZAAK && notification.action == Action.DELETE) {
-                val zaakUUID = notification.resourceUrl.extractUuid()
-                signaleringService.deleteSignaleringen(
-                    SignaleringZoekParameters(
-                        SignaleringSubject.ZAAK,
-                        zaakUUID.toString()
-                    )
-                ).also {
-                    LOG.info("Deleted $it zaak-signaleringen for zaak with UUID '$zaakUUID'.")
-                }
-                signaleringService.deleteSignaleringVerzonden(
-                    SignaleringVerzondenZoekParameters(
-                        SignaleringSubject.ZAAK,
-                        zaakUUID.toString()
-                    )
-                ).also {
-                    LOG.info("Deleted $it 'zaak signaleringen verzonden' records for zaak with UUID '$zaakUUID'.")
-                }
-                taskService.listTasksForZaak(zaakUUID).forEach { task ->
-                    signaleringService.deleteSignaleringen(
-                        SignaleringZoekParameters(
-                            SignaleringSubject.TAAK,
-                            task.id
-                        )
-                    ).also {
-                        LOG.info(
-                            "Deleted $it taak-signalering for task with ID '${task.id}' and zaak with UUID: '$zaakUUID'."
-                        )
-                    }
-                    signaleringService.deleteSignaleringVerzonden(
-                        SignaleringVerzondenZoekParameters(
-                            SignaleringSubject.TAAK,
-                            task.id
-                        )
-                    ).also {
-                        LOG.info(
-                            """
-                            Deleted $it 'taak signaleringen verzonden' records for task with ID '${task.id}' and 
-                            zaak with UUID: '$zaakUUID'.
-                            """.trimIndent()
-                        )
-                    }
-                }
+                deleteSignaleringenForZaak(notification.resourceUrl.extractUuid())
             }
             // send signalering events for this notification
             SignaleringEventUtil.getEvents(
@@ -200,12 +204,18 @@ class NotificationReceiver @Inject constructor(
                 Channel.ZAKEN -> {
                     when (notification.resource) {
                         Resource.ZAAK -> {
+                            val zaakUUID = notification.resourceUrl.extractUuid()
                             when (notification.action) {
                                 Action.CREATE, Action.UPDATE -> indexingService.addOrUpdateZaak(
-                                    notification.resourceUrl.extractUuid(),
+                                    zaakUUID,
                                     notification.action == Action.UPDATE
                                 )
-                                Action.DELETE -> indexingService.removeZaak(notification.resourceUrl.extractUuid())
+                                Action.DELETE -> {
+                                    indexingService.removeZaak(zaakUUID)
+                                    taskService.listTasksForZaak(zaakUUID).forEach {
+                                        indexingService.removeTaak(it.id)
+                                    }
+                                }
                                 else -> {}
                             }
                         }
