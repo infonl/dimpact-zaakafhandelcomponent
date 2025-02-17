@@ -204,12 +204,18 @@ class NotificationReceiver @Inject constructor(
                 Channel.ZAKEN -> {
                     when (notification.resource) {
                         Resource.ZAAK -> {
+                            val zaakUUID = notification.resourceUrl.extractUuid()
                             when (notification.action) {
                                 Action.CREATE, Action.UPDATE -> indexingService.addOrUpdateZaak(
-                                    notification.resourceUrl.extractUuid(),
+                                    zaakUUID,
                                     notification.action == Action.UPDATE
                                 )
-                                Action.DELETE -> indexingService.removeZaak(notification.resourceUrl.extractUuid())
+                                Action.DELETE -> {
+                                    indexingService.removeZaak(zaakUUID)
+                                    taskService.listTasksForZaak(zaakUUID).forEach {
+                                        indexingService.removeTaak(it.id)
+                                    }
+                                }
                                 else -> {}
                             }
                         }
