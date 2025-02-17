@@ -216,6 +216,7 @@ class ZacClient {
         zaakTypeUUID: UUID,
         groupId: String,
         groupName: String,
+        behandelaarId: String? = null,
         description: String? = "dummyOmschrijving",
         toelichting: String? = null,
         startDate: ZonedDateTime,
@@ -225,26 +226,36 @@ class ZacClient {
         logger.info {
             "Creating zaak with group id: $groupId and group name: $groupName"
         }
+        val behandelaarString = behandelaarId?.let {
+            """
+                "behandelaar": {
+                    "id": "$it"
+                },
+            """
+        } ?: ""
         return itestHttpClient.performJSONPostRequest(
             url = "${ZAC_API_URI}/zaken/zaak",
-            requestBodyAsString = """{
-              "zaak": {
-                "zaaktype": {
-                  "uuid": "$zaakTypeUUID"
+            requestBodyAsString = """
+            {
+                "zaak": {
+                    "zaaktype": {
+                        "uuid": "$zaakTypeUUID"
+                    },
+                    "initiatorIdentificatie": null,
+                    "startdatum": "$startDate",
+                    "groep": {
+                        "id": "$groupId",
+                        "naam": "$groupName"
+                    },
+                    $behandelaarString
+                    "communicatiekanaal": "$communicatiekanaal",
+                    "vertrouwelijkheidaanduiding": "$vertrouwelijkheidaanduiding",
+                    "omschrijving": "$description",
+                    "toelichting": "$toelichting"
                 },
-                "initiatorIdentificatie": null,
-                "startdatum": "$startDate",
-                "groep": {
-                  "id": "$groupId",
-                  "naam": "$groupName"
-                },
-                "communicatiekanaal": "$communicatiekanaal",
-                "vertrouwelijkheidaanduiding": "$vertrouwelijkheidaanduiding",
-                "omschrijving": "$description",
-                "toelichting": "$toelichting"
-              },
-              "bagObjecten": []
-            }"""
+                "bagObjecten": [] 
+            }
+            """.trimIndent()
         )
     }
 
