@@ -8,6 +8,7 @@ import net.atos.client.zgw.ztc.model.generated.ArchiefnominatieEnum
 import net.atos.client.zgw.ztc.model.generated.BesluitType
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import net.atos.client.zgw.ztc.model.generated.ReferentieProces
 import net.atos.client.zgw.ztc.model.generated.ResultaatType
 import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.client.zgw.ztc.model.generated.StatusType
@@ -87,7 +88,8 @@ fun createZaakType(
     doorloopTijd: String = "P10D",
     servicenorm: String? = null,
     beginGeldigheid: LocalDate = LocalDate.now(),
-    eindeGeldigheid: LocalDate? = null
+    eindeGeldigheid: LocalDate? = null,
+    referentieProces: ReferentieProces? = null
 ) = ZaakType(
     uri,
     concept,
@@ -106,6 +108,7 @@ fun createZaakType(
     this.servicenorm = servicenorm
     this.beginGeldigheid = beginGeldigheid
     this.eindeGeldigheid = eindeGeldigheid
+    this.referentieproces = referentieProces
 }
 
 fun createInformatieObjectType(
@@ -124,6 +127,14 @@ fun createInformatieObjectType(
     this.omschrijving = omschrijving
     this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
     this.beginGeldigheid = beginGeldigheid
+}
+
+fun createReferentieProcess(
+    name: String = "dummyNaam",
+    uri: URI = URI("http://example.com/referentieproces/${UUID.randomUUID()}")
+) = ReferentieProces().apply {
+    this.naam = name
+    this.link = uri
 }
 
 @Suppress("LongParameterList")

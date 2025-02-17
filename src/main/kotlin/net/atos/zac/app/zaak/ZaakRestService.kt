@@ -96,7 +96,7 @@ import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.bpmn.BPMNService
+import net.atos.zac.flowable.bpmn.BpmnService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.healthcheck.HealthCheckService
@@ -149,7 +149,7 @@ class ZaakRestService @Inject constructor(
     private val indexingService: IndexingService,
     private val policyService: PolicyService,
     private val cmmnService: CMMNService,
-    private val bpmnService: BPMNService,
+    private val bpmnService: BpmnService,
     private val flowableTaskService: FlowableTaskService,
     private val objectsClientService: ObjectsClientService,
     private val inboxProductaanvraagService: InboxProductaanvraagService,

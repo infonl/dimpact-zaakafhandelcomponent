@@ -83,7 +83,7 @@ import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.bpmn.BPMNService
+import net.atos.zac.flowable.bpmn.BpmnService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.healthcheck.HealthCheckService
@@ -117,7 +117,7 @@ import java.util.UUID
 @Suppress("LongParameterList", "LargeClass")
 class ZaakRestServiceTest : BehaviorSpec({
     val decisionService = mockk<DecisionService>()
-    val bpmnService = mockk<BPMNService>()
+    val bpmnService = mockk<BpmnService>()
     val brcClientService = mockk<BrcClientService>()
     val configuratieService = mockk<ConfiguratieService>()
     val cmmnService = mockk<CMMNService>()

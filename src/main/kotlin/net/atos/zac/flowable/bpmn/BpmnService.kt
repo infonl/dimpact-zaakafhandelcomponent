@@ -10,10 +10,7 @@ import jakarta.transaction.Transactional
 import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.model.generated.ZaakType
-import net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING
-import net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
-import net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE
-import net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID
+import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.engine.ProcessEngine
@@ -29,13 +26,14 @@ import java.util.logging.Logger
 @ApplicationScoped
 @Transactional
 @NoArgConstructor
-open class BPMNService @Inject constructor(
+@AllOpen
+class BpmnService @Inject constructor(
     private val repositoryService: RepositoryService,
     private val runtimeService: RuntimeService,
     private val processEngine: ProcessEngine
 ) {
     companion object {
-        private val LOG = Logger.getLogger(BPMNService::class.java.getName())
+        private val LOG = Logger.getLogger(BpmnService::class.java.getName())
     }
 
     /**
@@ -62,7 +60,7 @@ open class BPMNService @Inject constructor(
                 )
         }
 
-    fun isProcesGestuurd(zaakUUID: UUID): Boolean = findProcessInstance(zaakUUID) != null
+    fun isProcessDriven(zaakUUID: UUID): Boolean = findProcessInstance(zaakUUID) != null
 
     fun findProcessDefinitionByprocessDefinitionKey(processDefinitionKey: String?): ProcessDefinition? =
         repositoryService.createProcessDefinitionQuery()
@@ -71,7 +69,7 @@ open class BPMNService @Inject constructor(
             .latestVersion()
             .singleResult()
 
-    @Suppress("TooGenericExceptionCaught")
+    @Suppress("TooGenericExceptionThrown")
     fun readProcessDefinitionByprocessDefinitionKey(processDefinitionKey: String): ProcessDefinition =
         findProcessDefinitionByprocessDefinitionKey(processDefinitionKey)
             ?: throw RuntimeException("No process definition found with process definition key: '$processDefinitionKey'")
@@ -79,17 +77,18 @@ open class BPMNService @Inject constructor(
     fun startProcess(
         zaak: Zaak,
         zaaktype: ZaakType,
-        zaakData: MutableMap<String, Any>? = mutableMapOf()
+        zaakData: Map<String, Any>? = mapOf()
     ) {
-        val processDefinitionKey = zaaktype.referentieproces.naam
+        val processDefinitionKey = zaaktype.referentieproces?.naam
+            ?: throw IllegalArgumentException("No referentieproces found for zaaktype with UUID: '${zaaktype.url.extractUuid()}'")
         LOG.info("Starting zaak '${zaak.uuid}' using BPMN model '$processDefinitionKey'")
         runtimeService.createProcessInstanceBuilder()
             .processDefinitionKey(processDefinitionKey)
             .businessKey(zaak.uuid.toString())
-            .variable(VAR_ZAAK_UUID, zaak.uuid)
-            .variable(VAR_ZAAK_IDENTIFICATIE, zaak.identificatie)
-            .variable(VAR_ZAAKTYPE_UUUID, zaaktype.url.extractUuid())
-            .variable(VAR_ZAAKTYPE_OMSCHRIJVING, zaaktype.omschrijving)
+            .variable(ZaakVariabelenService.VAR_ZAAK_UUID, zaak.uuid)
+            .variable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE, zaak.identificatie)
+            .variable(ZaakVariabelenService.VAR_ZAAKTYPE_UUUID, zaaktype.url.extractUuid())
+            .variable(ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING, zaaktype.omschrijving)
             .variables(zaakData)
             .start()
     }
