@@ -109,7 +109,11 @@ import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import nl.info.zac.test.date.toDate
+import org.apache.http.HttpStatus
 import org.flowable.task.api.Task
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.InputStream
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
@@ -914,6 +918,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("Rest zaak data") {
         val restZaakUpdate = createRestZaak()
         val zaak = createZaak()
@@ -934,6 +939,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("A zaak for which signaleringen exist") {
         val zaakUUID = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUUID)
@@ -952,6 +958,23 @@ class ZaakRestServiceTest : BehaviorSpec({
                 returnedRestZaak shouldBe restZaak
                 verify(exactly = 1) {
                     signaleringService.deleteSignaleringenForZaak(zaak)
+                }
+            }
+        }
+    }
+
+    Given("An existing BPMN process diagram for a given zaak UUID") {
+        val uuid = UUID.randomUUID()
+        every { bpmnService.getProcessDiagram(uuid) } returns ByteArrayInputStream("dummyDiagram".toByteArray())
+
+        When("the process diagram is requested") {
+            val response = zaakRestService.downloadProcessDiagram(uuid)
+
+            Then("a HTTP OK response is returned with a 'Content-Disposition' HTTP header and the diagram as input stream") {
+                with(response) {
+                    status shouldBe HttpStatus.SC_OK
+                    headers["Content-Disposition"]!![0] shouldBe """attachment; filename="procesdiagram.gif"""".trimIndent()
+                    (entity as InputStream).bufferedReader().use { it.readText() } shouldBe "dummyDiagram"
                 }
             }
         }
