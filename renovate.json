@@ -25,11 +25,6 @@
   "helm-values": {
     "fileMatch": "(^|/)ci/.+values\\.ya?ml$"
   },
-  "force": {
-    "constraints": {
-      "node": "^20"
-    }
-  },
   "customManagers": [
     {
       "customType": "regex",
