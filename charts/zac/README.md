@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.6](https://img.shields.io/badge/Version-1.0.6-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
+![Version: 1.0.7](https://img.shields.io/badge/Version-1.0.7-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -258,7 +258,7 @@ helm install my-release zac/zaakafhandelcomponent
 | signaleringen.failedJobsHistoryLimit | int | `3` |  |
 | signaleringen.image.pullPolicy | string | `"IfNotPresent"` |  |
 | signaleringen.image.repository | string | `"curlimages/curl"` |  |
-| signaleringen.image.tag | string | `"8.12.0@sha256:3dfa70a646c5d03ddf0e7c0ff518a5661e95b8bcbc82079f0fb7453a96eaae35"` |  |
+| signaleringen.image.tag | string | `"8.12.1@sha256:94e9e444bcba979c2ea12e27ae39bee4cd10bc7041a472c4727a558e213744e6"` |  |
 | signaleringen.imagePullSecrets | list | `[]` |  |
 | signaleringen.nodeSelector | object | `{}` |  |
 | signaleringen.podSecurityContext | object | `{}` |  |
@@ -296,7 +296,7 @@ helm install my-release zac/zaakafhandelcomponent
 | solr-operator.solr.jobs.createZacCore | bool | `true` | enable createZacCore to have a curl statement generate the zac core in the provided solrcloud if it does not exist yet |
 | solr-operator.solr.jobs.image.pullPolicy | string | `"IfNotPresent"` | solr jobs imagePullPolicy |
 | solr-operator.solr.jobs.image.repository | string | `"curlimages/curl"` | solr jobs repository |
-| solr-operator.solr.jobs.image.tag | string | `"8.12.0@sha256:3dfa70a646c5d03ddf0e7c0ff518a5661e95b8bcbc82079f0fb7453a96eaae35"` | solr jobs tag |
+| solr-operator.solr.jobs.image.tag | string | `"8.12.1@sha256:94e9e444bcba979c2ea12e27ae39bee4cd10bc7041a472c4727a558e213744e6"` | solr jobs tag |
 | solr-operator.solr.jobs.nodeSelector | object | `{}` | nodeSelector for jobs |
 | solr-operator.solr.jobs.tolerations | list | `[]` | tolerations for jobs |
 | solr-operator.solr.logLevel | string | `"INFO"` | solr loglevel |
