@@ -210,7 +210,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
             ) {
               return {
                 custom: {
-                  message: "msg.error.date.invalid.datum.fatale--voor-streef",
+                  message: "msg.error.date.invalid.datum.fatale-voor-streef",
                 },
               };
             }
