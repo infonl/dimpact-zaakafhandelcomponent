@@ -3,8 +3,9 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<fieldset>
-  <legend>{{ data.label | translate }}</legend>
+<fieldset [class]="data.styleClass">
+    <legend>{{ data.label | translate }}</legend>
+    <div class="fields">
   <mat-form-field appearance="fill" class="full-width" floatLabel="always">
     <mat-label>{{ data.groepLabel | translate }}</mat-label>
     <input
@@ -97,4 +98,5 @@
       getMessage(data.medewerker, "Medewerker")
     }}</mat-error>
   </mat-form-field>
+    </div>
 </fieldset>
