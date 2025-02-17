@@ -11,30 +11,30 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { MatDrawer } from "@angular/material/sidenav";
 import { FormGroup, Validators } from "@angular/forms";
-import { GeneratedType } from "src/app/shared/utils/generated-types";
-import { MedewerkerGroepFormField } from "src/app/shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-form-field";
-import { FormConfig } from "src/app/shared/material-form-builder/model/form-config";
-import { FormConfigBuilder } from "src/app/shared/material-form-builder/model/form-config-builder";
+import { MatDrawer } from "@angular/material/sidenav";
+import moment from "moment";
 import { Observable, Subject, forkJoin, takeUntil } from "rxjs";
-import { SelectFormField } from "src/app/shared/material-form-builder/form-components/select/select-form-field";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { UtilService } from "src/app/core/service/util.service";
 import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
-import { MedewerkerGroepFieldBuilder } from "src/app/shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
-import { SelectFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/select/select-form-field-builder";
-import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
-import { TextareaFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
-import { TextareaFormField } from "src/app/shared/material-form-builder/form-components/textarea/textarea-form-field";
-import { AbstractFormField } from "src/app/shared/material-form-builder/model/abstract-form-field";
-import { OrderUtil } from "src/app/shared/order/order-util";
-import { DateFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/date/date-form-field-builder";
 import { DateFormField } from "src/app/shared/material-form-builder/form-components/date/date-form-field";
+import { DateFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/date/date-form-field-builder";
 import { InputFormField } from "src/app/shared/material-form-builder/form-components/input/input-form-field";
-import { ZakenService } from "../zaken.service";
+import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
+import { MedewerkerGroepFieldBuilder } from "src/app/shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
+import { MedewerkerGroepFormField } from "src/app/shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-form-field";
+import { SelectFormField } from "src/app/shared/material-form-builder/form-components/select/select-form-field";
+import { SelectFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/select/select-form-field-builder";
+import { TextareaFormField } from "src/app/shared/material-form-builder/form-components/textarea/textarea-form-field";
+import { TextareaFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
+import { AbstractFormField } from "src/app/shared/material-form-builder/model/abstract-form-field";
+import { FormConfig } from "src/app/shared/material-form-builder/model/form-config";
+import { FormConfigBuilder } from "src/app/shared/material-form-builder/model/form-config-builder";
+import { OrderUtil } from "src/app/shared/order/order-util";
+import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { Zaak } from "../model/zaak";
-import moment, { Moment } from "moment";
+import { ZakenService } from "../zaken.service";
 
 @Component({
   selector: "zac-case-details-edit",

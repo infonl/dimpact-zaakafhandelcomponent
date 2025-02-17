@@ -24,6 +24,7 @@ import { BesluitViewComponent } from "./besluit-view/besluit-view.component";
 import { IntakeAfrondenDialogComponent } from "./intake-afronden-dialog/intake-afronden-dialog.component";
 import { ZaakAfhandelenDialogComponent } from "./zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
 import { ZaakCreateComponent } from "./zaak-create/zaak-create.component";
+import { CaseDetailsEditComponent } from "./zaak-details-wijzigen/zaak-details-wijzigen.component";
 import { ZaakDocumentenComponent } from "./zaak-documenten/zaak-documenten.component";
 import { ZaakInitiatorToevoegenComponent } from "./zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZaakKoppelenDialogComponent } from "./zaak-koppelen/zaak-koppelen-dialog.component";
@@ -41,7 +42,6 @@ import { ZakenVerdelenDialogComponent } from "./zaken-verdelen-dialog/zaken-verd
 import { ZakenVrijgevenDialogComponent } from "./zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component";
 import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorraad.component";
 import { LocatieZoekComponent } from "./zoek/locatie-zoek/locatie-zoek.component";
-import { CaseDetailsEditComponent } from "./zaak-details-wijzigen/zaak-details-wijzigen.component";
 
 @NgModule({
   declarations: [
