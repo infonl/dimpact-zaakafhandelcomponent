@@ -196,7 +196,7 @@
                 {{ "gegevens.algemeen" | translate }}</ng-template
               >
               <div id="algemeneGegevens_tab" class="content">
-                <div class="flex flex-row justify-start gap-10">
+                <div class="flex flex-row flex-wrap justify-start gap-10">
                   <zac-static-text
                     [label]="'status' | translate"
                     [value]="zaak.status | empty: 'naam'"
@@ -240,6 +240,7 @@
 
                 <div class="flex flex-row justify-start gap-10 editable">
                   <button
+                    *ngIf="zaak.isOpen && zaak.rechten.wijzigen"
                     mat-icon-button
                     mat-small-icon-button
                     (click)="editCaseDetails()"
