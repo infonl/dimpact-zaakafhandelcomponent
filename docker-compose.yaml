@@ -529,6 +529,9 @@ services:
       - PUBLISH_BROKER_URL=amqp://guest:guest@rabbitmq:5672/%2F
       - RABBITMQ_HOST=rabbitmq
       - SECRET_KEY=opennotificatiesApiSecretKey
+      - REACT_APP_API_URL=http://localhost:8004
+      - REACT_APP_API_PATH=/api/v1
+      - REACT_APP_ZAAK_URL_TEMPLATE=https://www.example.com/zaken/{identificatie}
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
       interval: 30s
@@ -669,6 +672,19 @@ services:
     depends_on:
       - openarchiefbeheer-database
       - redis
+    profiles: [ "openarchiefbeheer" ]
+
+  openarchiefbeheer-ui:
+    build: ./scripts/docker-compose/imports/openarchiefbeheer-ui
+    environment:
+      REACT_APP_API_URL: http://localhost:8004
+      REACT_APP_API_PATH: /api/v1
+      REACT_APP_ZAAK_URL_TEMPLATE: https://www.example.com/zaken/{identificatie}
+    ports:
+      - "8005:80"
+    depends_on:
+      openarchiefbeheer-web:
+        condition: service_healthy
     profiles: [ "openarchiefbeheer" ]
 
   zac:
