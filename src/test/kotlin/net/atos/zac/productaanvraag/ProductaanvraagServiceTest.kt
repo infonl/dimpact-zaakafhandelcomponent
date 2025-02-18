@@ -38,7 +38,7 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documenten.InboxDocumentenService
-import net.atos.zac.flowable.bpmn.BPMNService
+import net.atos.zac.flowable.bpmn.BpmnService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
@@ -60,7 +60,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     val inboxDocumentenService = mockk<InboxDocumentenService>()
     val inboxProductaanvraagService = mockk<InboxProductaanvraagService>()
     val cmmnService = mockk<CMMNService>()
-    val bpmnService = mockk<BPMNService>()
+    val bpmnService = mockk<BpmnService>()
     val configuratieService = mockk<ConfiguratieService>()
     val productaanvraagService = ProductaanvraagService(
         objectsClientService,

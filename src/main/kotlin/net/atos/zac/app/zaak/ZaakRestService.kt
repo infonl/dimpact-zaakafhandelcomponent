@@ -96,7 +96,7 @@ import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.bpmn.BPMNService
+import net.atos.zac.flowable.bpmn.BpmnService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.healthcheck.HealthCheckService
@@ -149,7 +149,7 @@ class ZaakRestService @Inject constructor(
     private val indexingService: IndexingService,
     private val policyService: PolicyService,
     private val cmmnService: CMMNService,
-    private val bpmnService: BPMNService,
+    private val bpmnService: BpmnService,
     private val flowableTaskService: FlowableTaskService,
     private val objectsClientService: ObjectsClientService,
     private val inboxProductaanvraagService: InboxProductaanvraagService,
@@ -275,6 +275,9 @@ class ZaakRestService @Inject constructor(
                 AANMAKEN_ZAAK_REDEN
             )
         }
+        // if BPMN support is enabled and if a referentieproces is defined for the zaaktype, start a BPMN process
+        // note that we misuse the referentieproces-name field to indicate that we use BPMN for a certain zaaktype
+        // however this needs to be changed because this field is actually filled for all our 'CMMN' zaaktypes currently..
         if (configuratieService.featureFlagBpmnSupport() && zaaktype.referentieproces?.naam?.isNotEmpty() == true) {
             bpmnService.startProcess(
                 zaak,
@@ -891,14 +894,13 @@ class ZaakRestService @Inject constructor(
     @GET
     @Path("{uuid}/procesdiagram")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    fun downloadProcessDiagram(@PathParam("uuid") uuid: UUID?): Response {
-        return Response.ok(bpmnService.getProcessDiagram(uuid))
+    fun downloadProcessDiagram(@PathParam("uuid") uuid: UUID): Response =
+        Response.ok(bpmnService.getProcessDiagram(uuid))
             .header(
                 "Content-Disposition",
-                "attachment; filename=\"procesdiagram.gif\""
+                """attachment; filename="procesdiagram.gif"""".trimIndent()
             )
             .build()
-    }
 
     @GET
     @Path("procesvariabelen")

@@ -31,7 +31,7 @@ import net.atos.zac.app.zaak.model.toRestGeometry
 import net.atos.zac.app.zaak.model.toRestZaakStatus
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.bpmn.BPMNService
+import net.atos.zac.flowable.bpmn.BpmnService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.util.time.PeriodUtil
 import net.atos.zac.zoeken.model.ZaakIndicatie
@@ -55,7 +55,7 @@ class RestZaakConverter @Inject constructor(
     private val restZaaktypeConverter: RestZaaktypeConverter,
     private val policyService: PolicyService,
     private val zaakVariabelenService: ZaakVariabelenService,
-    private val bpmnService: BPMNService,
+    private val bpmnService: BpmnService,
     private val configuratieService: ConfiguratieService
 ) {
     companion object {
@@ -137,7 +137,7 @@ class RestZaakConverter @Inject constructor(
                 zaak.uuid
             ).orElse(false),
             isBesluittypeAanwezig = zaaktype.besluittypen?.isNotEmpty() ?: false,
-            isProcesGestuurd = bpmnService.isProcesGestuurd(zaak.uuid),
+            isProcesGestuurd = bpmnService.isProcessDriven(zaak.uuid),
             rechten = policyService.readZaakRechten(zaak, zaaktype).let(RestRechtenConverter::convert),
             zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid),
             indicaties = when {
