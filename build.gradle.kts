@@ -232,7 +232,6 @@ java {
         .srcDir(srcGenerated.dir("zgw/zrc/java"))
         .srcDir(srcGenerated.dir("zgw/ztc/java"))
         .srcDir(srcGenerated.dir("or/objects/java"))
-        .srcDir(srcGenerated.dir("or/objecttypes/java"))
 }
 
 jsonSchema2Pojo {
@@ -633,13 +632,6 @@ tasks {
         modelPackage.set("net.atos.client.or.objects.model.generated")
     }
 
-    register<GenerateTask>("generateOrObjectTypesClient") {
-        description = "Generates Java client code for the Object Types API"
-        inputSpec.set("$rootDir/src/main/resources/api-specs/or/objecttypes-openapi.yaml")
-        outputDir.set("$rootDir/src/generated/or/objecttypes/java")
-        modelPackage.set("net.atos.client.or.objecttypes.model.generated")
-    }
-
     register("generateJavaClients") {
         description = "Generates Java client code for the various REST APIs"
         dependsOn(
@@ -654,8 +646,7 @@ tasks {
             "generateZgwDrcClient",
             "generateZgwZrcClient",
             "generateZgwZtcClient",
-            "generateOrObjectsClient",
-            "generateOrObjectTypesClient"
+            "generateOrObjectsClient"
         )
     }
 

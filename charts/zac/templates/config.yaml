@@ -32,7 +32,6 @@ data:
   MP_HEALTH_EMPTY_LIVENESS_CHECKS_STATUS: DOWN
   MP_HEALTH_EMPTY_READINESS_CHECKS_STATUS: DOWN
   OBJECTS_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.objectenApi.url entry required!" .Values.objectenApi.url }}
-  OBJECTTYPES_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.objecttypenApi.url entry required!" .Values.objecttypenApi.url }}
   {{- if .Values.office_converter.url }}
   OFFICE_CONVERTER_CLIENT_MP_REST_URL: {{ .Values.office_converter.url }}
   {{- else }}

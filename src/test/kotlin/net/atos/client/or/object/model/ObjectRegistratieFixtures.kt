@@ -9,7 +9,6 @@ package net.atos.client.or.`object`.model
 
 import net.atos.client.or.objects.model.generated.ModelObject
 import net.atos.client.or.objects.model.generated.ObjectRecord
-import net.atos.client.or.objecttypes.model.generated.ObjectType
 import java.net.URI
 import java.util.UUID
 
@@ -28,13 +27,3 @@ fun createObjectRecord(
 ) = ObjectRecord().apply {
     this.data = data
 }
-
-fun createObjecttype(
-    url: URI = URI("https://example.com/objecttypes/1"),
-    uuid: UUID = UUID.randomUUID(),
-    name: String = "dummyName"
-) =
-    ObjectType(url, null, null, null).apply {
-        this.uuid = uuid
-        this.name = name
-    }
