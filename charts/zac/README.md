@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.8](https://img.shields.io/badge/Version-1.0.8-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
+![Version: 1.0.9](https://img.shields.io/badge/Version-1.0.9-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -180,8 +180,6 @@ helm install my-release zac/zaakafhandelcomponent
 | notificationsSecretKey | string | `""` | Configuration of the notifications receiving endpoint. |
 | objectenApi.token | string | `""` |  |
 | objectenApi.url | string | `""` |  |
-| objecttypenApi.token | string | `""` |  |
-| objecttypenApi.url | string | `""` |  |
 | office_converter.affinity | object | `{}` |  |
 | office_converter.enabled | bool | `true` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
