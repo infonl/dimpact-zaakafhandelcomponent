@@ -176,7 +176,9 @@ class NotificationReceiver @Inject constructor(
                 notification.channel,
                 notification.getMainResourceInfo(),
                 notification.getResourceInfo()
-            ).forEach(eventingService::send)
+            ).forEach {
+                eventingService.send(it)
+            }
         } catch (exception: RuntimeException) {
             warning("websockets", notification, exception)
         }

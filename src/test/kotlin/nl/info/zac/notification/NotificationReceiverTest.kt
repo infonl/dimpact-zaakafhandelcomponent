@@ -273,6 +273,11 @@ class NotificationReceiverTest : BehaviorSpec({
                 verify(exactly = 1) {
                     indexingService.addOrUpdateInformatieobject(informatieobjectUUID)
                 }
+                verify(exactly = 0) {
+                    // no screen event should be sent because it concerns a 'create' action
+                    // (no websocket can be listening for events on a resource that does not yet exis)
+                    eventingService.send(any<ScreenEvent>())
+                }
             }
         }
     }
