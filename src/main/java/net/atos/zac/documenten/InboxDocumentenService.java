@@ -51,13 +51,13 @@ public class InboxDocumentenService {
     @Inject
     private DrcClientService drcClientService;
 
-    public InboxDocument create(final UUID enkelvoudiginformatieobjectUUID) {
+    public InboxDocument create(final UUID enkelvoudiginformatieobejctUUID) {
         final EnkelvoudigInformatieObject informatieobject = drcClientService.readEnkelvoudigInformatieobject(
-                enkelvoudiginformatieobjectUUID
+                enkelvoudiginformatieobejctUUID
         );
         final InboxDocument inboxDocument = new InboxDocument();
         inboxDocument.setEnkelvoudiginformatieobjectID(informatieobject.getIdentificatie());
-        inboxDocument.setEnkelvoudiginformatieobjectUUID(enkelvoudiginformatieobjectUUID);
+        inboxDocument.setEnkelvoudiginformatieobjectUUID(enkelvoudiginformatieobejctUUID);
         inboxDocument.setCreatiedatum(informatieobject.getCreatiedatum().atStartOfDay(ZoneId.systemDefault()));
         inboxDocument.setTitel(informatieobject.getTitel());
         inboxDocument.setBestandsnaam(informatieobject.getBestandsnaam());
