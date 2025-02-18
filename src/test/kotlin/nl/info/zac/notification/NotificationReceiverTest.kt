@@ -19,6 +19,7 @@ import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.Response
 import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.documenten.InboxDocumentenService
+import net.atos.zac.documenten.model.InboxDocument
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -244,6 +245,64 @@ class NotificationReceiverTest : BehaviorSpec({
                 signaleringVerzondenZoekParameters[1].run {
                     subjecttype shouldBe SignaleringSubject.TAAK
                     subject shouldBe tasks[0].id
+                }
+            }
+        }
+    }
+    Given("A 'create informatieobject' notification") {
+        val informatieobjectUUID = UUID.randomUUID()
+        val informatieobjectURI = URI("http://example.com/dummyzaak/$informatieobjectUUID")
+        val notificatie = createNotificatie(
+            channel = Channel.INFORMATIEOBJECTEN,
+            resource = Resource.INFORMATIEOBJECT,
+            resourceUrl = informatieobjectURI,
+            action = Action.CREATE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        every { indexingService.addOrUpdateInformatieobject(informatieobjectUUID) } just Runs
+        every { inboxDocumentenService.create(informatieobjectUUID) } returns mockk<InboxDocument>()
+
+        When("the notification is handled") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            Then(
+                "an inbox document is created, the informatieobject is added to the search index, and no screen event is sent"
+            ) {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 1) {
+                    indexingService.addOrUpdateInformatieobject(informatieobjectUUID)
+                }
+                verify(exactly = 0) {
+                    // no screen event should be sent because it concerns a 'create' action
+                    // (no websocket can be listening for events on a resource that does not yet exis)
+                    eventingService.send(any<ScreenEvent>())
+                }
+            }
+        }
+    }
+    Given("A 'destroy informatieobject' notification") {
+        val informatieobjectUUID = UUID.randomUUID()
+        val informatieobjectURI = URI("http://example.com/dummyzaak/$informatieobjectUUID")
+        val notificatie = createNotificatie(
+            channel = Channel.INFORMATIEOBJECTEN,
+            resource = Resource.INFORMATIEOBJECT,
+            resourceUrl = informatieobjectURI,
+            action = Action.DELETE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        every { indexingService.removeInformatieobject(informatieobjectUUID) } just Runs
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
+
+        When("the notification is handled") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            Then("the informatieobject is added to the search index and a screen event is sent") {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 1) {
+                    indexingService.removeInformatieobject(informatieobjectUUID)
+                    eventingService.send(any<ScreenEvent>())
                 }
             }
         }
