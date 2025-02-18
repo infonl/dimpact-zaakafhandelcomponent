@@ -221,7 +221,6 @@ export class MedewerkerGroepComponent
   clearField(formControl: FormControl) {
     if (formControl) {
       formControl.setValue(null);
-      formControl.markAsDirty();
     }
   }
 }
