@@ -112,7 +112,6 @@ import nl.info.zac.test.date.toDate
 import org.apache.http.HttpStatus
 import org.flowable.task.api.Task
 import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.net.URI
 import java.time.LocalDate
@@ -970,7 +969,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         When("the process diagram is requested") {
             val response = zaakRestService.downloadProcessDiagram(uuid)
 
-            Then("a HTTP OK response is returned with a 'Content-Disposition' HTTP header and the diagram as input stream") {
+            Then(
+                "a HTTP OK response is returned with a 'Content-Disposition' HTTP header and the diagram as input stream"
+            ) {
                 with(response) {
                     status shouldBe HttpStatus.SC_OK
                     headers["Content-Disposition"]!![0] shouldBe """attachment; filename="procesdiagram.gif"""".trimIndent()
