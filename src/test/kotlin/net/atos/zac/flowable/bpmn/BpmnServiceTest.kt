@@ -6,7 +6,6 @@ package net.atos.zac.flowable.bpmn
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.floats.exactly
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk

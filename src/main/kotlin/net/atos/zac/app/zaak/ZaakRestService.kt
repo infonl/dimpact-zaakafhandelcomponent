@@ -275,6 +275,9 @@ class ZaakRestService @Inject constructor(
                 AANMAKEN_ZAAK_REDEN
             )
         }
+        // if BPMN support is enabled and if a referentieproces is defined for the zaaktype, start a BPMN process
+        // note that we misuse the referentieproces-name field to indicate that we use BPMN for a certain zaaktype
+        // however this needs to be changed because this field is actually filled for all our 'CMMN' zaaktypes currently..
         if (configuratieService.featureFlagBpmnSupport() && zaaktype.referentieproces?.naam?.isNotEmpty() == true) {
             bpmnService.startProcess(
                 zaak,
