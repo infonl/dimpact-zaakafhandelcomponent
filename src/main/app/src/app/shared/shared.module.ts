@@ -21,7 +21,6 @@ import { SortPipe } from "./dynamic-table/pipes/sort.pipe";
 import { TooltipListPipe } from "./dynamic-table/pipes/tooltip-list.pipe";
 import { EditAutocompleteComponent } from "./edit/edit-autocomplete/edit-autocomplete.component";
 import { EditBehandelaarComponent } from "./edit/edit-behandelaar/edit-behandelaar.component";
-import { EditDatumGroepComponent } from "./edit/edit-datum-groep/edit-datum-groep.component";
 import { EditDatumComponent } from "./edit/edit-datum/edit-datum.component";
 import { EditGroepBehandelaarComponent } from "./edit/edit-groep-behandelaar/edit-groep-behandelaar.component";
 import { EditGroepComponent } from "./edit/edit-groep/edit-groep.component";
@@ -61,7 +60,6 @@ import { VersionComponent } from "./version/version.component";
     EditGroepComponent,
     EditGroepBehandelaarComponent,
     EditDatumComponent,
-    EditDatumGroepComponent,
     EditAutocompleteComponent,
     EditInputComponent,
     EditTekstComponent,
@@ -111,7 +109,6 @@ import { VersionComponent } from "./version/version.component";
     EditGroepComponent,
     EditGroepBehandelaarComponent,
     EditDatumComponent,
-    EditDatumGroepComponent,
     EditAutocompleteComponent,
     EditInputComponent,
     EditTekstComponent,
