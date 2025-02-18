@@ -8,7 +8,21 @@
 }
 
 ::ng-deep .form-medewerker-groep {
+  background-color: teal;
+  padding-top: 0px !important;
+
   @media screen and (min-width: 959px) {
     width: 558px;
+  }
+}
+
+::ng-deep .form-medewerker-groep .row {
+  & .fields {
+    @media screen and (min-width: 959px) {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      gap: 5px;
+    }
   }
 }
