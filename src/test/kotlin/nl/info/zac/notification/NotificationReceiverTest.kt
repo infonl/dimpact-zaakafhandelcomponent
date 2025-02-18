@@ -88,7 +88,7 @@ class NotificationReceiverTest : BehaviorSpec({
 
             Then(
                 "the 'functional user' is added to the HTTP sessionm the productaanvraag service is invoked " +
-                        "and a 'no content' response is returned"
+                    "and a 'no content' response is returned"
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
