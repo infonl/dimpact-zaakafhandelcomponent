@@ -6,7 +6,17 @@ name: Build, test & deploy
 
 on:
   pull_request:
+    paths-ignore:
+      # skip on changes to files which do not require a PR build
+      - '**.md'
+      - 'helm/**'
+      - 'renovate.json'
   merge_group:
+    paths-ignore:
+      # skip on changes to files which do not require a build in the merge queue
+      - '**.md'
+      - 'helm/**'
+      - 'renovate.json'
   workflow_dispatch:
   push:
     branches:
@@ -33,25 +43,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ !contains(github.ref, 'main')}}
 
-jobs:
-  paths-ignore:
-    runs-on: ubuntu-24.04
-    outputs:
-      skip: ${{ steps.paths-ignore.outputs.skip }}
-    steps:
-      - name: Skip job when only Markdown files are changed
-        uses: kunitsucom/github-actions-paths-ignore-alternative@d1b27090d1a610f8cdde46d8d937a4a9c9127619 # v1.0.1
-        id: paths-ignore
-        with:
-          paths-ignore: |-
-            ^.*\.md$
-            ^helm/
-
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     needs: paths-ignore
-    if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
+    if: ${{ github.ref == 'refs/heads/main'}}
     outputs:
       branch_name: ${{ steps.gen_branch_name.outputs.BRANCH_NAME }}
       build_number: ${{ steps.gen_build_number.outputs.BUILD_NUMBER }}
@@ -122,7 +118,7 @@ jobs:
 
   run-unit-tests:
     needs: [build, paths-ignore]
-    if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
+    if: ${{ github.ref == 'refs/heads/main'}}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
@@ -242,7 +238,7 @@ jobs:
     needs: [build, paths-ignore, next-version]
     # Do not run in the merge queue and do not run if the paths-ignore step defines it to skip
     # but always run for the main branch
-    if: ${{ (github.event_name != 'merge_group' && needs.paths-ignore.outputs.skip != 'true') || github.ref == 'refs/heads/main'}}
+    if: ${{ github.event_name != 'merge_group' || github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
