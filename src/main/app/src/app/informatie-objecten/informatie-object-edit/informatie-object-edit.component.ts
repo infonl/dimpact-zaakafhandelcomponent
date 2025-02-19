@@ -48,7 +48,7 @@ export class InformatieObjectEditComponent
 {
   @Input() infoObject?: EnkelvoudigInformatieObjectVersieGegevens;
   @Input() sideNav: MatDrawer;
-  @Input() zaakUuid: string;
+  @Input() zaakUuid?: string;
   @Output() document = new EventEmitter<
     GeneratedType<"RestEnkelvoudigInformatieobject">
   >();
@@ -82,6 +82,7 @@ export class InformatieObjectEditComponent
     if (!changes.infoObject.currentValue) {
       return;
     }
+    console.log("changes", changes);
     this.getIngelogdeMedewerker();
     this.initializeFormFields();
   }

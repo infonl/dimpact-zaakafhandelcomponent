@@ -33,7 +33,7 @@
       *ngSwitchCase="'actie.nieuwe.versie.toevoegen'"
       [sideNav]="actionsSidenav"
       [infoObject]="documentNieuweVersieGegevens"
-      [zaakUuid]="zaak.uuid"
+      [zaakUuid]="zaak?.uuid"
       (document)="versieToegevoegd($event)"
     >
     </zac-informatie-object-edit>

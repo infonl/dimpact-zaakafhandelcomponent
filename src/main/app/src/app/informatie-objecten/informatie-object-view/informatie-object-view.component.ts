@@ -60,7 +60,7 @@ export class InformatieObjectViewComponent
   infoObject: GeneratedType<"RestEnkelvoudigInformatieobject">;
   laatsteVersieInfoObject: GeneratedType<"RestEnkelvoudigInformatieobject">;
   zaakInformatieObjecten: ZaakInformatieobject[];
-  zaak: Zaak;
+  zaak?: Zaak;
   documentNieuweVersieGegevens: EnkelvoudigInformatieObjectVersieGegevens;
   documentPreviewBeschikbaar = false;
   menu: MenuItem[];
@@ -171,19 +171,24 @@ export class InformatieObjectViewComponent
       );
     }
 
-    if (this.laatsteVersieInfoObject.rechten.toevoegenNieuweVersie) {
+    if (
+      this.laatsteVersieInfoObject.rechten.toevoegenNieuweVersie &&
+      this.zaak
+    ) {
       this.menu.push(
         new ButtonMenuItem(
           "actie.nieuwe.versie.toevoegen",
           () => {
+            console.log("test", this.infoObject);
             this.informatieObjectenService
               .readHuidigeVersieEnkelvoudigInformatieObject(
                 this.infoObject.uuid,
               )
-              .subscribe((nieuweVersie) => {
-                this.documentNieuweVersieGegevens = nieuweVersie;
-                this.actionsSidenav.open();
+              .subscribe((infoObject) => {
+                console.log(infoObject);
+                this.documentNieuweVersieGegevens = infoObject;
               });
+            // this.actionsSidenav.open()
           },
           "difference",
         ),
@@ -191,6 +196,7 @@ export class InformatieObjectViewComponent
     }
 
     if (
+      this.zaak &&
       this.laatsteVersieInfoObject.rechten.wijzigen &&
       FileFormatUtil.isOffice(this.infoObject.formaat as FileFormat)
     ) {
@@ -287,6 +293,7 @@ export class InformatieObjectViewComponent
     }
 
     if (
+      this.zaak &&
       this.laatsteVersieInfoObject.rechten.wijzigen &&
       FileFormatUtil.isOffice(this.infoObject.formaat as FileFormat)
     ) {
@@ -341,7 +348,7 @@ export class InformatieObjectViewComponent
       "/informatie-objecten",
       this.infoObject.uuid,
       versie,
-      this.zaak.uuid,
+      this.zaak?.uuid,
     ]);
   }
 
@@ -416,7 +423,7 @@ export class InformatieObjectViewComponent
       },
       this.informatieObjectenService.ondertekenInformatieObject(
         this.infoObject.uuid,
-        this.zaak.uuid,
+        this.zaak?.uuid,
       ),
     );
 
