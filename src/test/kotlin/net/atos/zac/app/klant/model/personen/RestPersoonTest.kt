@@ -16,7 +16,6 @@ import net.atos.client.brp.model.generated.OpschortingBijhouding
 import net.atos.client.brp.model.generated.PersoonInOnderzoek
 import net.atos.client.brp.model.generated.PersoonInOnderzoekBeperkt
 import net.atos.client.brp.model.generated.RniDeelnemer
-import net.atos.client.brp.model.generated.VerblijfadresBinnenland
 import net.atos.client.brp.model.generated.VerblijfadresBuitenland
 import net.atos.client.brp.model.generated.VerblijfplaatsBuitenland
 import net.atos.client.brp.model.generated.Waardetabel
