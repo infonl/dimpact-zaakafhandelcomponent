@@ -479,9 +479,6 @@ services:
       - PUBLISH_BROKER_URL=amqp://guest:guest@rabbitmq:5672/%2F
       - RABBITMQ_HOST=rabbitmq
       - SECRET_KEY=opennotificatiesApiSecretKey
-      - REACT_APP_API_URL=http://localhost:8004
-      - REACT_APP_API_PATH=/api/v1
-      - REACT_APP_ZAAK_URL_TEMPLATE=https://www.example.com/zaken/{identificatie}
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
       interval: 30s
