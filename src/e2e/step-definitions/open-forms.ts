@@ -25,8 +25,9 @@ Given(
     const id = uniqid();
     this.testStorage.set("open-forms-testid", id);
 
-    const firstNameInput = await this.page.locator(`input:not([disabled]) + label:has-text("Voornaam")`);
-
+    const firstNameInput = this.page
+      .getByLabel("Voornaam").
+      locator(':not([disabled])');
 
     const firstLetterInput = this.page
       .getByLabel("Voorletter(s)")
