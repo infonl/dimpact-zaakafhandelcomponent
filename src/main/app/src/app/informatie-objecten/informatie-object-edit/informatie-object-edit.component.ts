@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024-2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -34,7 +34,6 @@ import { FormConfigBuilder } from "../../shared/material-form-builder/model/form
 import { OrderUtil } from "../../shared/order/order-util";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
-import { EnkelvoudigInformatieObjectVersieGegevens } from "../model/enkelvoudig-informatie-object-versie-gegevens";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 
@@ -46,7 +45,8 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
 export class InformatieObjectEditComponent
   implements OnInit, OnDestroy, OnChanges
 {
-  @Input() infoObject?: EnkelvoudigInformatieObjectVersieGegevens;
+  @Input()
+  infoObject?: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
   @Input() sideNav: MatDrawer;
   @Input() zaakUuid?: string;
   @Output() document = new EventEmitter<
@@ -55,7 +55,7 @@ export class InformatieObjectEditComponent
 
   @ViewChild(FormComponent) form: FormComponent;
 
-  fields: Array<AbstractFormField[]>;
+  fields: Array<AbstractFormField[]> = [];
   formConfig: FormConfig;
   private ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
 
@@ -82,7 +82,7 @@ export class InformatieObjectEditComponent
     if (!changes.infoObject.currentValue) {
       return;
     }
-    console.log("changes", changes);
+
     this.getIngelogdeMedewerker();
     this.initializeFormFields();
   }
@@ -277,8 +277,11 @@ export class InformatieObjectEditComponent
       this.sideNav.close();
       return;
     }
-    const nieuweVersie = new EnkelvoudigInformatieObjectVersieGegevens();
-    nieuweVersie.uuid = this.infoObject.uuid;
+    const nieuweVersie: Partial<
+      GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">
+    > = {
+      uuid: this.infoObject.uuid,
+    };
     Object.keys(formGroup.controls).forEach((key) => {
       const control = formGroup.controls[key];
       const value = control.value;
@@ -310,7 +313,7 @@ export class InformatieObjectEditComponent
       .updateEnkelvoudigInformatieobject(
         nieuweVersie.uuid,
         this.zaakUuid,
-        nieuweVersie,
+        nieuweVersie as GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">,
       )
       .subscribe((document) => {
         this.document.emit(document);

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -43,7 +43,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { Zaak } from "../../zaken/model/zaak";
 import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
-import { EnkelvoudigInformatieObjectVersieGegevens } from "../model/enkelvoudig-informatie-object-versie-gegevens";
 import { FileFormat, FileFormatUtil } from "../model/file-format";
 import { FileIcon } from "../model/file-icon";
 import { ZaakInformatieobject } from "../model/zaak-informatieobject";
@@ -57,11 +56,11 @@ export class InformatieObjectViewComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   readonly indicatiesLayout = IndicatiesLayout;
-  infoObject: GeneratedType<"RestEnkelvoudigInformatieobject">;
+  infoObject?: GeneratedType<"RestEnkelvoudigInformatieobject">;
   laatsteVersieInfoObject: GeneratedType<"RestEnkelvoudigInformatieobject">;
-  zaakInformatieObjecten: ZaakInformatieobject[];
+  zaakInformatieObjecten: ZaakInformatieobject[] = [];
   zaak?: Zaak;
-  documentNieuweVersieGegevens: EnkelvoudigInformatieObjectVersieGegevens;
+  documentNieuweVersieGegevens?: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
   documentPreviewBeschikbaar = false;
   menu: MenuItem[];
   activeSideAction: string | null;
@@ -171,6 +170,7 @@ export class InformatieObjectViewComponent
       );
     }
 
+    console.log(this.laatsteVersieInfoObject, this.zaak)
     if (
       this.laatsteVersieInfoObject.rechten.toevoegenNieuweVersie &&
       this.zaak
@@ -185,10 +185,9 @@ export class InformatieObjectViewComponent
                 this.infoObject.uuid,
               )
               .subscribe((infoObject) => {
-                console.log(infoObject);
                 this.documentNieuweVersieGegevens = infoObject;
               });
-            // this.actionsSidenav.open()
+            this.actionsSidenav.open()
           },
           "difference",
         ),
