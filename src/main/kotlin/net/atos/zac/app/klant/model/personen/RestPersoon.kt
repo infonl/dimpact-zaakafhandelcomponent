@@ -210,11 +210,11 @@ private fun VerblijfadresBinnenland.toStringRepresentation() =
         Objects.toString(this.huisnummer, null),
         this.huisnummertoevoeging,
         this.huisletter,
-        this.postcode,
-        this.woonplaats
-    )
-        .joinToString()
-        .replace(StringUtils.SPACE, StringUtil.NON_BREAKING_SPACE)
+    ).joinToString(StringUtil.NON_BREAKING_SPACE).let { address ->
+        listOfNotNull(address, this.postcode, this.woonplaats)
+            .joinToString()
+            .replace(StringUtils.SPACE, StringUtil.NON_BREAKING_SPACE)
+    }
 
 private fun VerblijfadresBuitenland.toStringRepresentation() =
     listOfNotNull(
