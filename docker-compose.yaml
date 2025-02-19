@@ -617,7 +617,7 @@ services:
       - CELERY_LOGLEVEL=DEBUG
       - REACT_APP_API_URL=http://localhost:8004
       - REACT_APP_API_PATH=/api/v1
-      - REACT_APP_ZAAK_URL_TEMPLATE=http://openzaak.local:8000/zaken/ZAAK
+      - REACT_APP_ZAAK_URL_TEMPLATE=https://localhost:8080/zaken/{identificatie}
       - REQUESTS_READ_TIMEOUT=5000
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
