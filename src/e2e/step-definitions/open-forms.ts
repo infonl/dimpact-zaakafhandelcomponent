@@ -25,6 +25,12 @@ Given(
     const id = uniqid();
     this.testStorage.set("open-forms-testid", id);
 
+    const firstNameInput = this.page.getByLabel("Voornaam").filter({ hasNot: this.page.locator('input[disabled]') })
+    const firstLetterInput = this.page.getByLabel("Voorletter(s)").filter({ hasNot: this.page.locator('input[disabled]') })
+    const infixInput = this.page.getByLabel("Tussenvoegsel(s)").filter({ hasNot: this.page.locator('input[disabled]') })
+    const lastNameInput = this.page.getByLabel("Achternaam").filter({ hasNot: this.page.locator('input[disabled]') })
+
+
     await this.page.goto(
       `${this.worldParameters.urls.openForms}/indienen-aansprakelijkstelling-door-derden-behandelen-2/startpagina`,
     );
@@ -32,21 +38,21 @@ Given(
     await this.page.getByRole("button", { name: "Formulier starten" }).click();
 
     // Personal details
-    await this.page.getByLabel("Voornaam").click();
+    await firstNameInput.click();
     await this.page.getByLabel("Voornaam").fill(profile.personalDetails.firstName + `:e2eid=${id}`);
 
 
-    await this.page.getByLabel("Voorletter(s)").click();
-    await this.page.getByLabel("Voorletter(s)")
+    await firstLetterInput.click();
+    await firstLetterInput
       .fill(profile.personalDetails.initials);
 
 
-    await this.page.getByLabel("Tussenvoegsel(s)").click();
-    await this.page.getByLabel("Tussenvoegsel(s)")
+    await infixInput.click();
+    await infixInput
       .fill(profile.personalDetails.prefix);
 
-    await this.page.getByLabel("Achternaam").click();
-    await this.page.getByLabel("Achternaam")
+    await lastNameInput.click();
+    await lastNameInput
       .fill(profile.personalDetails.lastName);
     await this.page.getByRole("button", { name: "Volgende" }).click();
 
