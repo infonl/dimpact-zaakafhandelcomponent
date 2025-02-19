@@ -273,11 +273,15 @@
                   <zac-static-text
                     [label]="'streefdatum' | translate"
                     [value]="zaak.einddatumGepland | empty"
+                    [icon]="dateFieldIcon.get('einddatumGepland')"
                     class="flex-item"
-                  ></zac-static-text>
+                  >
+                    <mat-icon>label-icon</mat-icon>
+                  </zac-static-text>
                   <zac-static-text
                     [label]="'fataledatum' | translate"
                     [value]="zaak.uiterlijkeEinddatumAfdoening | empty"
+                    [icon]="dateFieldIcon.get('uiterlijkeEinddatumAfdoening')"
                     class="flex-item"
                   ></zac-static-text>
                 </div>

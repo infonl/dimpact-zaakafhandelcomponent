@@ -140,7 +140,7 @@ export class ZaakViewComponent
   ];
   notitieType = NotitieType.ZAAK;
   editFormFields = new Map<string, any>();
-  editFormFieldIcons = new Map<string, TextIcon>();
+  dateFieldIcon = new Map<string, TextIcon>();
   viewInitialized = false;
   toolTipIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.always),
@@ -250,6 +250,7 @@ export class ZaakViewComponent
     this.loadBagObjecten();
     this.setupMenu();
     this.loadOpschorting();
+    this.setDateFieldIconSet();
     ViewResourceUtil.actieveZaak = zaak;
   }
 
@@ -296,6 +297,32 @@ export class ZaakViewComponent
     this.websocketService.removeListener(this.zaakBesluitenListener);
     this.websocketService.removeListener(this.zaakRollenListener);
     this.websocketService.removeListener(this.zaakTakenListener);
+  }
+
+  private setDateFieldIconSet() {
+    this.dateFieldIcon.set(
+      "einddatumGepland",
+      new TextIcon(
+        DateConditionals.provideFormControlValue(
+          DateConditionals.isExceeded,
+          this.zaak.einddatum,
+        ),
+        "report_problem",
+        "warningVerlopen_icon",
+        "msg.datum.overschreden",
+        "warning",
+      ),
+    );
+    this.dateFieldIcon.set(
+      "uiterlijkeEinddatumAfdoening",
+      new TextIcon(
+        DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
+        "report_problem",
+        "errorVerlopen_icon",
+        "msg.datum.overschreden",
+        "error",
+      ),
+    );
   }
 
   private createUserEventListenerPlanItemMenuItem(
