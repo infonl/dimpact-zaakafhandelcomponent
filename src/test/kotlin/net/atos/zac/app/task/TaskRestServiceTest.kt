@@ -17,6 +17,7 @@ import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -88,7 +89,7 @@ class TaskRestServiceTest : BehaviorSpec({
     val taskService = mockk<TaskService>()
     val formulierRuntimeService = mockk<FormulierRuntimeService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
-
+    val testDispatcher = StandardTestDispatcher()
     val taskRestService = TaskRestService(
         drcClientService = drcClientService,
         enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService,
@@ -108,7 +109,8 @@ class TaskRestServiceTest : BehaviorSpec({
         zgwApiService = zgwApiService,
         taskService = taskService,
         formulierRuntimeService = formulierRuntimeService,
-        zaakVariabelenService = zaakVariabelenService
+        zaakVariabelenService = zaakVariabelenService,
+        dispatcher = testDispatcher
     )
     val loggedInUser = createLoggedInUser()
 
@@ -344,9 +346,8 @@ class TaskRestServiceTest : BehaviorSpec({
                 policyService.readWerklijstRechten()
             } returns createWerklijstRechtenAllDeny(zakenTakenVerdelen = true)
 
-            runTest {
+            runTest(testDispatcher) {
                 taskRestService.distributeFromList(restTaakVerdelenGegevens)
-                testScheduler.advanceUntilIdle()
             }
 
             Then("the tasks are assigned to the group and user") {
@@ -383,9 +384,8 @@ class TaskRestServiceTest : BehaviorSpec({
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("the 'verdelen vanuit lijst' function is called") {
-            runTest {
+            runTest(testDispatcher) {
                 taskRestService.releaseFromList(restTaakVrijgevenGegevens)
-                testScheduler.advanceUntilIdle()
             }
 
             Then("the tasks are assigned to the group and user") {

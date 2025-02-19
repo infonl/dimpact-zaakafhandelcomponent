@@ -17,6 +17,7 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
@@ -150,7 +151,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaakHistoryService = mockk<ZaakHistoryService>()
-
+    val testDispatcher = StandardTestDispatcher()
     val zaakRestService = ZaakRestService(
         decisionService = decisionService,
         cmmnService = cmmnService,
@@ -182,7 +183,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         flowableTaskService = flowableTaskService,
         restZaaktypeConverter = restZaaktypeConverter,
         zaakHistoryService = zaakHistoryService,
-        zgwApiService = zgwApiService
+        zgwApiService = zgwApiService,
+        dispatcher = testDispatcher
     )
 
     beforeEach {
@@ -434,9 +436,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { identityService.readUser(restZakenVerdeelGegevens.behandelaarGebruikersnaam!!) } returns user
 
         When("the assign zaken from a list function is called") {
-            runTest {
+            runTest(testDispatcher) {
                 zaakRestService.assignFromList(restZakenVerdeelGegevens)
-                testScheduler.advanceUntilIdle()
             }
 
             Then("the zaken are assigned to the group and user") {

@@ -20,8 +20,8 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.brc.BrcClientService
@@ -165,7 +165,13 @@ class ZaakRestService @Inject constructor(
     private val healthCheckService: HealthCheckService,
     private val opschortenZaakHelper: SuspensionZaakHelper,
     private val zaakService: ZaakService,
-    private val zaakHistoryService: ZaakHistoryService
+    private val zaakHistoryService: ZaakHistoryService,
+
+    /**
+     * Declare a Kotlin coroutine dispatcher here so that it can be overridden in unit tests with a test dispatcher
+     * while in normal operation it will be injected using [nl.info.zac.util.CoroutineDispatcherProducer].
+     */
+    private val dispatcher: CoroutineDispatcher
 ) {
     companion object {
         private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
@@ -568,7 +574,7 @@ class ZaakRestService @Inject constructor(
     fun assignFromList(@Valid restZakenVerdeelGegevens: RESTZakenVerdeelGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(dispatcher).launch {
             zaakService.assignZaken(
                 zaakUUIDs = restZakenVerdeelGegevens.uuids,
                 explanation = restZakenVerdeelGegevens.reden,
@@ -594,7 +600,7 @@ class ZaakRestService @Inject constructor(
     fun releaseFromList(@Valid restZakenVrijgevenGegevens: RESTZakenVrijgevenGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(dispatcher).launch {
             zaakService.releaseZaken(
                 zaakUUIDs = restZakenVrijgevenGegevens.uuids,
                 explanation = restZakenVrijgevenGegevens.reden,
