@@ -26,18 +26,16 @@ Given(
     this.testStorage.set("open-forms-testid", id);
 
     const firstNameInput = this.page
-      .getByLabel("Voornaam").
-      locator(':not([disabled])');
+      .getByLabel("Voornaam").first();
 
     const firstLetterInput = this.page
-      .getByLabel("Voorletter(s)")
-      .filter({ hasNot: this.page.locator("input[disabled]") });
+      .getByLabel("Voorletter(s)").first();
+
     const infixInput = this.page
-      .getByLabel("Tussenvoegsel(s)")
-      .filter({ hasNot: this.page.locator("input[disabled]") });
+      .getByLabel("Tussenvoegsel(s)").first();
+
     const lastNameInput = this.page
-      .getByLabel("Achternaam")
-      .filter({ hasNot: this.page.locator("input[disabled]") });
+      .getByLabel("Achternaam").first();
 
     await this.page.goto(
       `${this.worldParameters.urls.openForms}/indienen-aansprakelijkstelling-door-derden-behandelen-2/startpagina`,
