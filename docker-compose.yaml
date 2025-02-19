@@ -675,13 +675,11 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    build: ./scripts/docker-compose/imports/openarchiefbeheer-ui
-    environment:
-      REACT_APP_API_URL: http://localhost:8004
-      REACT_APP_API_PATH: /api/v1
-      REACT_APP_ZAAK_URL_TEMPLATE: https://www.example.com/zaken/{identificatie}
+    image: nginx
     ports:
       - "8005:80"
+    volumes:
+      - ./scripts/docker-compose/imports/openarchiefbeheer-ui/nginx.conf:/etc/nginx/conf.d/openarchiefbeheer-ui.conf
     depends_on:
       openarchiefbeheer-web:
         condition: service_healthy
