@@ -14,7 +14,7 @@ export class CustomValidators {
   static rsin = CustomValidators.rsinVFn();
   static email = CustomValidators.emailVFn(false);
   static emails = CustomValidators.emailVFn(true);
-  static bedrijfssnaam = CustomValidators.bedrijfsnaamVFn();
+  static bedrijfsnaam = CustomValidators.bedrijfsnaamVFn();
   static huisnummer = CustomValidators.huisnummerVFn();
 
   private static postcodeRegex = /^[1-9][0-9]{3}(?!sa|sd|ss)[a-z]{2}$/i;
@@ -47,13 +47,11 @@ export class CustomValidators {
 
   private static bsnVFn(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: boolean } | null => {
-      if (!control.value) {
-        return null;
-      }
       const val = control.value;
-      if (!this.isValidBSN(val)) {
+      if (!val || !this.isValidBSN(val)) {
         return { bsn: true };
       }
+      return null;
     };
   }
 
@@ -71,88 +69,71 @@ export class CustomValidators {
 
   private static kvkVFn(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: boolean } | null => {
-      if (!control.value) {
-        return null;
-      }
       const val = control.value;
-      if (!CustomValidators.nummerRegex.test(val) || val.length !== 8) {
-        return { kvk: true };
-      }
+      return !val || !CustomValidators.nummerRegex.test(val) || val.length !== 8
+        ? { kvk: true }
+        : null;
     };
   }
 
   static vestigingsnummerVFn(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: boolean } | null => {
-      if (!control.value) {
-        return null;
-      }
       const val = control.value;
-      if (!CustomValidators.nummerRegex.test(val) || val.length !== 12) {
-        return { vestigingsnummer: true };
-      }
+      return !val ||
+        !CustomValidators.nummerRegex.test(val) ||
+        val.length !== 12
+        ? { vestigingsnummer: true }
+        : null;
     };
   }
 
   static rsinVFn(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: boolean } | null => {
-      if (!control.value) {
-        return null;
-      }
       const val = control.value;
-      if (!CustomValidators.nummerRegex.test(val) || val.length !== 9) {
-        return { rsin: true };
-      }
+      return !val || !CustomValidators.nummerRegex.test(val) || val.length !== 9
+        ? { rsin: true }
+        : null;
     };
   }
 
   private static postcodeVFn(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: boolean } | null => {
-      if (!control.value) {
-        return null;
-      }
       const val = control.value;
-      if (!CustomValidators.postcodeRegex.test(val)) {
-        return { postcode: true };
-      }
+      return !val || !CustomValidators.postcodeRegex.test(val)
+        ? { postcode: true }
+        : null;
     };
   }
 
   private static emailVFn(multi: boolean): ValidatorFn {
     return (control: AbstractControl): { [key: string]: boolean } | null => {
-      if (!control.value) {
-        return null;
-      }
       const val = control.value;
       if (
-        multi
+        val &&
+        (multi
           ? !CustomValidators.emailsRegex.test(val)
-          : !CustomValidators.emailRegex.test(val)
+          : !CustomValidators.emailRegex.test(val))
       ) {
         return { email: true };
       }
+      return null;
     };
   }
 
   private static bedrijfsnaamVFn(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: boolean } | null => {
-      if (!control.value) {
-        return null;
-      }
-      const val = control.value;
-      if (CustomValidators.bedrijfsnaamRegex.test(val)) {
-        return { bedrijfsnaam: true };
-      }
+      return !control.value ||
+        CustomValidators.bedrijfsnaamRegex.test(control.value)
+        ? { bedrijfsnaam: true }
+        : null;
     };
   }
 
   private static huisnummerVFn(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: boolean } | null => {
-      if (!control.value) {
-        return null;
-      }
-      if (!CustomValidators.nummerRegex.test(control.value)) {
-        return { huisnummer: true };
-      }
+      return !control.value || !CustomValidators.nummerRegex.test(control.value)
+        ? { huisnummer: true }
+        : null;
     };
   }
 

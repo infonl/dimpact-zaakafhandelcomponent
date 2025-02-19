@@ -965,7 +965,7 @@ export class ZaakViewComponent
   }
 
   editCaseDetails(): void {
-    if (this.zaak.isOpen && this.zaak.rechten.wijzigen) {
+    if (this.zaak.rechten.wijzigen || this.zaak.rechten.toekennen) {
       this.activeSideAction = "actie.zaak.wijzigen";
       this.actionsSidenav.open();
     }

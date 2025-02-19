@@ -43,3 +43,20 @@ mat-icon {
     color: var(--mat-form-field-error-text-color);
   }
 }
+
+::ng-deep .row {
+  padding-top: 0px !important;
+
+  & .fields {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 5px;
+  }
+}
+
+::ng-deep .form-medewerker-groep {
+  @media screen and (min-width: 959px) {
+    width: 558px;
+  }
+}

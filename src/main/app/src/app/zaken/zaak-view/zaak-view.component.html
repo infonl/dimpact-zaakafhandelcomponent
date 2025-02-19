@@ -65,7 +65,6 @@
       [sideNav]="actionsSidenav"
       [loggedInUser]="loggedInUser"
       [zaak]="zaak"
-      [readonly]="!zaak.isOpen || !zaak.rechten.wijzigen"
     ></zac-case-details-edit>
     <zac-informatie-object-create-attended
       *ngSwitchCase="'actie.document.maken'"
@@ -240,7 +239,7 @@
 
                 <div class="flex flex-row justify-start gap-10 editable">
                   <button
-                    *ngIf="zaak.isOpen && zaak.rechten.wijzigen"
+                    *ngIf="zaak.rechten.wijzigen || zaak.rechten.toekennen"
                     mat-icon-button
                     mat-small-icon-button
                     (click)="editCaseDetails()"

@@ -43,7 +43,6 @@ import { ZakenService } from "../zaken.service";
 })
 export class CaseDetailsEditComponent implements OnInit, OnDestroy {
   @Input() sideNav: MatDrawer;
-  @Input() readonly: boolean;
   @Input() zaak: Zaak; // GeneratedType<"RestZaak">;
   @Input() loggedInUser: GeneratedType<"RestLoggedInUser">;
   @Output() caseEdit = new EventEmitter<any>();
@@ -177,13 +176,34 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       [this.reasonField],
     ];
 
-    if (this.readonly) {
-      this.formFields.flat().forEach((field) => {
+    if (!this.zaak.rechten.wijzigen) {
+      // Disable all fields
+      this.formFields.flat().forEach((field) => field.formControl.disable());
+    }
+
+    if (!this.zaak.rechten.toekennen) {
+      // Disable MedewerkerGroep field
+      this.formFields
+        .flat()
+        .find((field) => field.id === "assignment")
+        .formControl.disable();
+    }
+
+    if (!this.zaak.rechten.wijzigen && !this.zaak.rechten.toekennen) {
+      // All fields are disabled, no need to continue setting subscribers etc
+      return;
+    }
+
+    this.formFields.flat().forEach((field) => {
+      // Disable einddatumGepland if not set
+      // Workaround; the .disable() method does not work as expected
+      if (field.id === "einddatumGepland" && !field.formControl.value) {
         field.formControl.disable();
-      });
-    } else {
-      this.formFields.flat().forEach((field) => {
-        // Enable reason field when any other field is dirty
+        return;
+      }
+
+      //Subscriptions to enable reason field when any other field changes and becomes dirty
+      field.formControl.enabled &&
         field.formControl.valueChanges
           .pipe(takeUntil(this.ngDestroy))
           .subscribe(() => {
@@ -195,35 +215,27 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
             }
           });
 
-        // revalidate the 'other' two date fields after a date change, since error can be fixed for them as well
-        if (field instanceof DateFormField) {
-          field.formControl.valueChanges
-            .pipe(takeUntil(this.ngDestroy))
-            .subscribe(() => {
-              this.formFields
-                .flat()
-                .filter(
-                  (f) =>
-                    f instanceof DateFormField &&
-                    f.id !== field.id &&
-                    f.formControl.hasError("custom"),
-                )
-                .forEach((otherDateField) =>
-                  otherDateField.formControl.updateValueAndValidity({
-                    emitEvent: false,
-                  }),
-                );
-            });
-        }
-
-        // Disable einddatumGepland if not set
-        // Workaround; the .disable() method does not work as expected
-        if (field.id === "einddatumGepland" && !field.formControl.value) {
-          field.formControl.disable();
-          return;
-        }
-      });
-    }
+      // Subscription(s) to revalidate the 'other' enabled date field(s) after a date change, since error can be fixed for them as well
+      if (field instanceof DateFormField && field.formControl.enabled) {
+        field.formControl.valueChanges
+          .pipe(takeUntil(this.ngDestroy))
+          .subscribe(() => {
+            this.formFields
+              .flat()
+              .filter(
+                (f) =>
+                  f instanceof DateFormField &&
+                  f.id !== field.id &&
+                  f.formControl.hasError("custom"),
+              )
+              .forEach((otherDateField) =>
+                otherDateField.formControl.updateValueAndValidity({
+                  emitEvent: false,
+                }),
+              );
+          });
+      }
+    });
   }
 
   private createDateFormField(
@@ -397,7 +409,8 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       .groepLabel("actie.zaak.toekennen.groep")
       .medewerkerLabel("actie.zaak.toekennen.medewerker")
       .groepRequired()
-      .styleClass("form-medewerker-groep row")
+      .styleClass("row form-medewerker-groep")
+      .readonly(!this.zaak.rechten.toekennen)
       .build();
   }
 
