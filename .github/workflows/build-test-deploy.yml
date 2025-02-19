@@ -28,6 +28,11 @@ permissions:
   # Required for uploading SARIF reports
   security-events: write
 
+# Only allow a single concurrent run per branch. Cancel in-progress runs on multiple pushes when not on main branch.  
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !contains(github.ref, 'main')}}
+
 jobs:
   paths-ignore:
     runs-on: ubuntu-24.04
@@ -170,15 +175,17 @@ jobs:
 
       - name: Upload unit test results to CodeCov
         uses: codecov/test-results-action@44ecb3a270cd942bdf0fa8f2ce14cb32493e810a # v1.0.3
-        if: ${{ !cancelled() }}
+        if: ${{ github.event_name != 'merge_group' && !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: unittests
 
       - name: Generate unit test code coverage report
+        if: ${{ github.event_name != 'merge_group' }}
         run: ./gradlew -x compileJava -x processResources -x compileKotlin -x classes -x test -x itest -x npmRunBuild npmRunTestCoverage jacocoTestReport --info
 
       - name: Upload unit test coverage report to Codecov
+        if: ${{ github.event_name != 'merge_group' }}
         uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
         with:
           flags: unittests
@@ -189,7 +196,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.get-version.outputs.replaced }}
-      tag: ${{ steps.get-tag.outputs.new_tag }}
+      tag: ${{ github.ref == 'refs/heads/main' && steps.get-tag-main.outputs.new_tag || steps.get-tag-non-main.outputs.new_tag }}
     steps:
       # Checkout the repository including tags
       - name: Checkout
@@ -197,8 +204,9 @@ jobs:
         with:
           fetch-depth: 0
       # Determine the next semantic version based on the commit message tags
-      - name: Get next tag
-        id: get-tag
+      - name: Get next tag on main
+        id: get-tag-main
+        if: ${{ github.ref == 'refs/heads/main'}}
         uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297 # 1.71.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -206,21 +214,35 @@ jobs:
           DEFAULT_BUMP: patch
           WITH_V: true
           RELEASE_BRANCHES: main
+      # If not on main, Determine the next semantic version based on the commit message tags without pushing tags`
+      - name: Get next tag on non-main
+        id: get-tag-non-main
+        if: ${{ github.ref != 'refs/heads/main'}}
+        uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297 # 1.71.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PRERELEASE: false
+          DEFAULT_BUMP: patch
+          WITH_V: true
+          RELEASE_BRANCHES: main
+          DRY_RUN: true
       - name: Get next version
         id: get-version
         uses: frabert/replace-string-action@b6828c5a4cb6371753ff873b0d1c4c4fbd9a63cb # v2.5
         with:
           pattern: 'v(.*)'
-          string: ${{ steps.get-tag.outputs.new_tag }}
+          string: ${{ github.ref == 'refs/heads/main' && steps.get-tag-main.outputs.new_tag || steps.get-tag-non-main.outputs.new_tag }}
           replace-with: '$1'
       - name: Print new tag and version
         run: |
           echo "Next version: ${{ steps.get-version.outputs.replaced }}"
-          echo "Next version tag: ${{ steps.get-tag.outputs.new_tag }}"
+          echo "Next version tag: ${{ github.ref == 'refs/heads/main' && steps.get-tag-main.outputs.new_tag || steps.get-tag-non-main.outputs.new_tag }}"
 
   build-docker-image-and-run-itests:
     needs: [build, paths-ignore, next-version]
-    if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
+    # Do not run in the merge queue and do not run if the paths-ignore step defines it to skip
+    # but always run for the main branch
+    if: ${{ (github.event_name != 'merge_group' && needs.paths-ignore.outputs.skip != 'true') || github.ref == 'refs/heads/main'}}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
@@ -360,22 +382,6 @@ jobs:
           path: docker-image.tar
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
-  dependabot-auto-merge:
-    needs: [run-unit-tests, build-docker-image-and-run-itests]
-    runs-on: ubuntu-24.04
-    if: github.actor == 'dependabot[bot]'
-    permissions:
-      pull-requests: write
-      contents: write
-    steps:
-      - uses: fastify/github-action-merge-dependabot@c3bde0759d4f24db16f7b250b2122bc2df57e817 # v3.11.0
-        with:
-          # Our Dependabot PRs are not merged automatically because an automatically merged PR
-          # does not trigger our push workflow (and so no release would be made).
-          # see: https://github.com/fastify/github-action-merge-dependabot/issues/134
-          approve-only: true
-          target: minor
-
   push-docker-image:
     needs: [build, run-unit-tests, build-docker-image-and-run-itests, next-version]
     runs-on: ubuntu-24.04
@@ -407,7 +413,13 @@ jobs:
 
       - name: Tag Docker Image with next version tag
         if: env.NEXT_VERSION != ''
-        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}
+        run: |
+          docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}
+          # Additionaly tag the image with '$major' and '$major.$minor' tags
+          MAJOR_VERSION=$(echo ${NEXT_VERSION} | cut -d '.' -f 1)
+          MINOR_VERSION=$(echo ${NEXT_VERSION} | cut -d '.' -f 2)
+          docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${MAJOR_VERSION}
+          docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${MAJOR_VERSION}.${MINOR_VERSION}
 
       - name: Push Docker Image with all tags
         run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}

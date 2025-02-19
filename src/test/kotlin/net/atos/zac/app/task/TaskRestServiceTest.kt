@@ -17,6 +17,7 @@ import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -40,6 +41,7 @@ import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.createTestTask
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
@@ -87,7 +89,7 @@ class TaskRestServiceTest : BehaviorSpec({
     val taskService = mockk<TaskService>()
     val formulierRuntimeService = mockk<FormulierRuntimeService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
-
+    val testDispatcher = StandardTestDispatcher()
     val taskRestService = TaskRestService(
         drcClientService = drcClientService,
         enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService,
@@ -107,7 +109,8 @@ class TaskRestServiceTest : BehaviorSpec({
         zgwApiService = zgwApiService,
         taskService = taskService,
         formulierRuntimeService = formulierRuntimeService,
-        zaakVariabelenService = zaakVariabelenService
+        zaakVariabelenService = zaakVariabelenService,
+        dispatcher = testDispatcher
     )
     val loggedInUser = createLoggedInUser()
 
@@ -343,9 +346,8 @@ class TaskRestServiceTest : BehaviorSpec({
                 policyService.readWerklijstRechten()
             } returns createWerklijstRechtenAllDeny(zakenTakenVerdelen = true)
 
-            runTest {
+            runTest(testDispatcher) {
                 taskRestService.distributeFromList(restTaakVerdelenGegevens)
-                testScheduler.advanceUntilIdle()
             }
 
             Then("the tasks are assigned to the group and user") {
@@ -382,14 +384,39 @@ class TaskRestServiceTest : BehaviorSpec({
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("the 'verdelen vanuit lijst' function is called") {
-            runTest {
+            runTest(testDispatcher) {
                 taskRestService.releaseFromList(restTaakVrijgevenGegevens)
-                testScheduler.advanceUntilIdle()
             }
 
             Then("the tasks are assigned to the group and user") {
                 verify(exactly = 1) {
                     taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
+                }
+            }
+        }
+    }
+    Given("Two Flowable tasks for a zaak") {
+        val zaak = createZaak()
+        val tasks = listOf(
+            createTestTask(id = "dummyId1"),
+            createTestTask(id = "dummyId2")
+        )
+        val restTasks = listOf(
+            createRestTask(id = "dummyId1"),
+            createRestTask(id = "dummyId2")
+        )
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { policyService.readZaakRechten(zaak).lezen } returns true
+        every { taskService.listTasksForZaak(zaak.uuid) } returns tasks
+        every { restTaskConverter.convert(tasks) } returns restTasks
+
+        When("the tasks are listed for this zaak") {
+            val returnedRestTasks = taskRestService.listTasksForZaak(zaak.uuid)
+
+            Then("the tasks are returned") {
+                returnedRestTasks shouldBe restTasks
+                verify(exactly = 1) {
+                    taskService.listTasksForZaak(zaak.uuid)
                 }
             }
         }

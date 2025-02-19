@@ -217,6 +217,15 @@ class ZaakService @Inject constructor(
         }
     }
 
+    fun checkZaakAfsluitbaar(zaak: Zaak) {
+        if (zrcClientService.heeftOpenDeelzaken(zaak)) {
+            throw CaseHasOpenSubcasesException("Case ${zaak.uuid} has open subcases")
+        }
+        if (lockService.hasLockedInformatieobjecten(zaak)) {
+            throw CaseHasLockedInformationObjectsException("Case ${zaak.uuid} has locked information objects")
+        }
+    }
+
     private fun addRoleToZaak(
         roleType: RolType,
         identificationType: IdentificatieType,
@@ -250,14 +259,5 @@ class ZaakService @Inject constructor(
                 )
         }
         zrcClientService.createRol(role, explanation)
-    }
-
-    fun checkZaakAfsluitbaar(zaak: Zaak) {
-        if (zrcClientService.heeftOpenDeelzaken(zaak)) {
-            throw CaseHasOpenSubcasesException("Case ${zaak.uuid} has open subcases")
-        }
-        if (lockService.hasLockedInformatieobjecten(zaak)) {
-            throw CaseHasLockedInformationObjectsException("Case ${zaak.uuid} has locked information objects")
-        }
     }
 }

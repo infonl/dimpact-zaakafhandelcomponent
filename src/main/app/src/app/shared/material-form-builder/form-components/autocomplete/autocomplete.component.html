@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely
+  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Lifely, 2025 Dimpact
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -14,7 +14,7 @@
     [maxlength]="data.maxlength"
   />
   <mat-icon
-    *ngIf="!isEditing"
+    *ngIf="!isEditing()"
     [ngClass]="{
       error: data.formControl.invalid && data.formControl.dirty,
     }"
@@ -22,7 +22,7 @@
     >search</mat-icon
   >
   <button
-    *ngIf="isEditing"
+    *ngIf="isEditing()"
     type="button"
     mat-icon-button
     matSuffix

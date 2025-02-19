@@ -29,7 +29,7 @@ import net.atos.zac.app.zaak.model.createRestUser
 import net.atos.zac.app.zaak.model.createRestZaaktype
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.bpmn.BPMNService
+import net.atos.zac.flowable.bpmn.BpmnService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.createZaakRechten
 import java.util.Optional
@@ -47,7 +47,7 @@ class RestZaakConverterTest : BehaviorSpec({
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
     val policyService = mockk<PolicyService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
-    val bpmnService = mockk<BPMNService>()
+    val bpmnService = mockk<BpmnService>()
     val configuratieService = mockk<ConfiguratieService>()
 
     val restZaakConverter = RestZaakConverter(
@@ -102,7 +102,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restDecisionConverter.convertToRestDecision(besluit) } returns restBesluit
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
-        every { bpmnService.isProcesGestuurd(zaak.uuid) } returns false
+        every { bpmnService.isProcessDriven(zaak.uuid) } returns false
         every { policyService.readZaakRechten(zaak, zaakType) } returns zaakrechten
 
         When("converting a zaak to a rest zaak") {

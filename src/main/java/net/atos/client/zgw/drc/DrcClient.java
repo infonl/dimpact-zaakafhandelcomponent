@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -35,8 +35,8 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreate
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest;
 import net.atos.client.zgw.drc.model.generated.Gebruiksrechten;
 import net.atos.client.zgw.drc.model.generated.ObjectInformatieObject;
-import net.atos.client.zgw.shared.exception.ZgwFoutExceptionMapper;
-import net.atos.client.zgw.shared.exception.ZgwValidatieFoutResponseExceptionMapper;
+import net.atos.client.zgw.shared.exception.ZgwErrorExceptionMapper;
+import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import net.atos.client.zgw.shared.util.JsonbConfiguration;
@@ -44,8 +44,8 @@ import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
 
 @RegisterRestClient(configKey = "ZGW-API-Client")
 @RegisterClientHeaders(ZGWClientHeadersFactory.class)
-@RegisterProvider(ZgwFoutExceptionMapper.class)
-@RegisterProvider(ZgwValidatieFoutResponseExceptionMapper.class)
+@RegisterProvider(ZgwErrorExceptionMapper.class)
+@RegisterProvider(ZgwValidationErrorResponseExceptionMapper.class)
 @RegisterProvider(DrcRuntimeResponseExceptionMapper.class)
 @RegisterProvider(JsonbConfiguration.class)
 @Path("documenten/api/v1")

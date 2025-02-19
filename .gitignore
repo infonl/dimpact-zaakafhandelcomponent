@@ -20,6 +20,9 @@ src/main/app/.nvmrc
 scripts/python/.venv
 scripts/python/.venv/*
 
+### Python cache ###
+**/__pycache__/
+
 ### INTELLIJ ###
 *.iml
 .idea

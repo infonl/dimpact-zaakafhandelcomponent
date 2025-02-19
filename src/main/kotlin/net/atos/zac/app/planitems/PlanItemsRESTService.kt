@@ -223,10 +223,10 @@ class PlanItemsRESTService @Inject constructor(
         }
         when (userEventListenerData.actie) {
             UserEventListenerActie.INTAKE_AFRONDEN -> {
-                val planItemInstance = cmmnService.readOpenPlanItem(
-                    userEventListenerData.planItemInstanceId
-                )
-                zaakVariabelenService.setOntvankelijk(planItemInstance, userEventListenerData.zaakOntvankelijk)
+                userEventListenerData.planItemInstanceId?.let {
+                    val planItemInstance = cmmnService.readOpenPlanItem(it)
+                    zaakVariabelenService.setOntvankelijk(planItemInstance, userEventListenerData.zaakOntvankelijk)
+                }
                 if (!userEventListenerData.zaakOntvankelijk) {
                     zaakService.checkZaakAfsluitbaar(zaak)
                     val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
@@ -255,7 +255,9 @@ class PlanItemsRESTService @Inject constructor(
                 }
             }
         }
-        cmmnService.startUserEventListenerPlanItem(userEventListenerData.planItemInstanceId)
+        userEventListenerData.planItemInstanceId?.let {
+            cmmnService.startUserEventListenerPlanItem(it)
+        }
         if (userEventListenerData.restMailGegevens != null) {
             mailService.sendMail(
                 restMailGegevensConverter.convert(userEventListenerData.restMailGegevens),

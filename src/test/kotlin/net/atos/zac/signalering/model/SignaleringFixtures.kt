@@ -62,3 +62,11 @@ fun createSignaleringInstellingen(
         this.isDashboard = isDashboard
         this.isMail = isMail
     }
+
+fun createSignaleringZoekParameters(
+    signaleringSubject: SignaleringSubject = SignaleringSubject.ZAAK,
+    subject: String = "dummySubject"
+) = SignaleringZoekParameters(
+    signaleringSubject,
+    subject
+)

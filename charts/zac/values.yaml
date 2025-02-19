@@ -75,11 +75,6 @@ objectenApi:
   url: ""  # http://objecten.internal
   token: ""
 
-# objecttypenApi Configuration of the Objecttypen API provider (Overige Registraties)
-objecttypenApi:
-  url: ""  # http://objecttypen.internal
-  token: ""
-
 # brpApi Configuration of the BRP Api provider (Haal Centraal)
 brpApi:
   url: ""  # https://www.haalcentraal.nl/haalcentraal
@@ -124,7 +119,7 @@ signaleringen:
   restartPolicy: Never
   image:
     repository: curlimages/curl
-    tag: 8.12.0@sha256:3dfa70a646c5d03ddf0e7c0ff518a5661e95b8bcbc82079f0fb7453a96eaae35
+    tag: 8.12.1@sha256:94e9e444bcba979c2ea12e27ae39bee4cd10bc7041a472c4727a558e213744e6
     pullPolicy: IfNotPresent
   imagePullSecrets: []
   resources: {}
@@ -406,7 +401,7 @@ solr-operator:
         # -- solr jobs repository
         repository: curlimages/curl
         # -- solr jobs tag
-        tag: 8.12.0@sha256:3dfa70a646c5d03ddf0e7c0ff518a5661e95b8bcbc82079f0fb7453a96eaae35
+        tag: 8.12.1@sha256:94e9e444bcba979c2ea12e27ae39bee4cd10bc7041a472c4727a558e213744e6
       # -- nodeSelector for jobs
       nodeSelector: {}
       # -- tolerations for jobs
@@ -570,7 +565,7 @@ nginx:
   image:
     repository: nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.27.3@sha256:d0ebbd60453d566b6c497adb4c0c220ba0aa1bc0d654a6975aa65e16ae11d8fb
+    tag: 1.27.4@sha256:840f33319fb642e32a15a1772400e017e1175891c98afdff3a47871c925cb0e9
   service:
     type: ClusterIP
     port: 80

@@ -7,4 +7,4 @@ package nl.info.zac.itest.client
 
 import java.net.URLEncoder
 
-fun String.urlEncode() = URLEncoder.encode(this, Charsets.UTF_8.name())
+fun String.urlEncode(): String = URLEncoder.encode(this, Charsets.UTF_8.name())

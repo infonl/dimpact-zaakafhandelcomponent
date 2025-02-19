@@ -28,7 +28,7 @@ import org.eclipse.jetty.http.HttpStatus;
 
 import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.shared.exception.FoutException;
+import net.atos.client.zgw.shared.exception.ZgwErrorException;
 import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.zac.app.identity.converter.RestUserConverter;
@@ -118,8 +118,8 @@ public class OntkoppeldeDocumentenRESTService {
                 .get().getDocumentUUID();
         try {
             enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(documentUUID);
-        } catch (FoutException e) {
-            if (e.getFout().getStatus() != HttpStatus.NOT_FOUND_404) {
+        } catch (ZgwErrorException e) {
+            if (e.getZgwError().getStatus() != HttpStatus.NOT_FOUND_404) {
                 throw e;
             }
             LOG.info(String.format("Document met UUID '%s' wel gevonden in de database, maar niet in OpenZaak", documentUUID));

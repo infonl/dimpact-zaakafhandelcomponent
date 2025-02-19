@@ -66,7 +66,7 @@ class ProjectConfig : AbstractProjectConfig() {
         "SMTP_SERVER" to "greenmail",
         "SMTP_PORT" to SMTP_SERVER_PORT.toString(),
         "SIGNALERINGEN_DELETE_OLDER_THAN_DAYS" to "0",
-        // override default entrypoint for ZAC Docker container to add JaCoCo agent
+        // override default entrypoint for ZAC Docker container to add JaCoCo agent for recording integration test coverage
         "ZAC_DOCKER_ENTRYPOINT" to
             "java" +
             " -javaagent:/jacoco-agent/org.jacoco.agent-runtime.jar=destfile=/jacoco-report/jacoco-it.exec" +

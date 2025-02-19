@@ -2,13 +2,40 @@
  * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.zac.flowable
 
+import org.flowable.cmmn.api.runtime.PlanItemInstance
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.task.api.DelegationState
 import org.flowable.task.api.Task
 import java.util.Date
+
+@Suppress("LongParameterList")
+fun createTestPlanItemInstance(
+    id: String = "dummyId",
+    name: String = "dummyName",
+    state: String = "dummyState",
+    caseDefinitionId: String = "dummyCaseDefinitionId",
+    derivedCaseDefinitionId: String = "dummyDerivedCaseDefinitionId",
+    caseInstanceId: String = "dummyCaseInstanceId",
+    stageInstanceId: String = "dummyStageInstanceId",
+    isStage: Boolean = false,
+    elementId: String = "dummyElementId",
+    planItemDefinitionId: String = "dummyPlanItemDefinitionId",
+    planItemDefinitionType: String = "dummyPlanItemDefinitionType",
+) = TestPlanItemInstance(
+    id,
+    name,
+    state,
+    caseDefinitionId,
+    derivedCaseDefinitionId,
+    caseInstanceId,
+    stageInstanceId,
+    isStage,
+    elementId,
+    planItemDefinitionId,
+    planItemDefinitionType
+)
 
 @Suppress("LongParameterList")
 fun createTestTask(
@@ -172,4 +199,78 @@ data class TestTask(
     override fun setTenantId(tenantId: String) { this.tenantId = tenantId }
     override fun setFormKey(formKey: String) { this.formKey = formKey }
     override fun isSuspended() = suspended
+}
+
+data class TestPlanItemInstance(
+    private val id: String,
+    private val name: String,
+    private val state: String,
+    private val caseDefinitionId: String,
+    private val derivedCaseDefinitionId: String,
+    private val caseInstanceId: String,
+    private val stageInstanceId: String,
+    private val isStage: Boolean,
+    private val elementId: String,
+    private val planItemDefinitionId: String,
+    private val planItemDefinitionType: String,
+    private val createTime: Date? = null,
+    private val lastAvailableTime: Date? = null,
+    private val lastUnavailableTime: Date? = null,
+    private val lastEnabledTime: Date? = null,
+    private val lastDisabledTime: Date? = null,
+    private val lastStartedTime: Date? = null,
+    private val lastSuspendedTime: Date? = null,
+    private val completedTime: Date? = null,
+    private val occurredTime: Date? = null,
+    private val terminatedTime: Date? = null,
+    private val exitTime: Date? = null,
+    private val endedTime: Date? = null,
+    private val startUserId: String? = null,
+    private val referenceId: String? = null,
+    private val referenceType: String? = null,
+    private val completable: Boolean = false,
+    private val entryCriterionId: String? = null,
+    private val exitCriterionId: String? = null,
+    private val formKey: String? = null,
+    private val extraValue: String? = null,
+    private val tenantId: String? = null,
+    private val planItemInstanceLocalVariables: Map<String, Any>? = null,
+    private var localizedName: String? = null
+) : PlanItemInstance {
+    override fun getId() = id
+    override fun getName() = name
+    override fun getState() = state
+    override fun getCaseDefinitionId() = caseDefinitionId
+    override fun getDerivedCaseDefinitionId() = derivedCaseDefinitionId
+    override fun getCaseInstanceId() = caseInstanceId
+    override fun getStageInstanceId() = stageInstanceId
+    override fun isStage() = isStage
+    override fun getElementId() = elementId
+    override fun getPlanItemDefinitionId() = planItemDefinitionId
+    override fun getPlanItemDefinitionType() = planItemDefinitionType
+    override fun getCreateTime() = createTime
+    override fun getLastAvailableTime() = lastAvailableTime
+    override fun getLastUnavailableTime() = lastUnavailableTime
+    override fun getLastEnabledTime() = lastEnabledTime
+    override fun getLastDisabledTime() = lastDisabledTime
+    override fun getLastStartedTime() = lastStartedTime
+    override fun getLastSuspendedTime() = lastSuspendedTime
+    override fun getCompletedTime() = completedTime
+    override fun getOccurredTime() = occurredTime
+    override fun getTerminatedTime() = terminatedTime
+    override fun getExitTime() = exitTime
+    override fun getEndedTime() = endedTime
+    override fun getStartUserId() = startUserId
+    override fun getReferenceId() = referenceId
+    override fun getReferenceType() = referenceType
+    override fun isCompletable() = completable
+    override fun getEntryCriterionId() = entryCriterionId
+    override fun getExitCriterionId() = exitCriterionId
+    override fun getFormKey() = formKey
+    override fun getExtraValue() = extraValue
+    override fun getTenantId() = tenantId
+    override fun getPlanItemInstanceLocalVariables() = planItemInstanceLocalVariables
+    override fun setLocalizedName(localizedName: String) {
+        this.localizedName = localizedName
+    }
 }

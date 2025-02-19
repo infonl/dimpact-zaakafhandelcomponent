@@ -34,7 +34,10 @@ When(
   "Employee {string} enters and submits the form to start the SmartDocuments wizard",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
-    const submitButton = this.page.locator("#opslaan_button");
+    const submitButton = this.page.getByRole("button", {
+      name: /Toevoegen/,
+    });
+
     await submitButton.waitFor({ state: "visible" });
 
     await this.expect(submitButton).toBeDisabled();
@@ -48,23 +51,23 @@ When(
     await this.page.getByLabel("Sjabloon").last().click();
     await this.page.getByRole("option", { name: "OpenZaakTest" }).click();
 
-    const inputTitle = this.page.locator("#title_tekstfield");
+    const inputTitle = this.page.getByLabel(/Titel/i);
     await inputTitle.click();
     await inputTitle.fill(documentInput.title);
     await expect(inputTitle).toHaveValue(documentInput.title);
 
-    const inputDescription = this.page.locator("#description_tekstfield");
+    const inputDescription = this.page.getByLabel(/Beschrijving/i);
     await inputDescription.click();
     await inputDescription.fill(documentInput.description);
     await expect(inputDescription).toHaveValue(documentInput.description);
 
-    const inputAuthor = this.page.locator("#author_tekstfield");
+    const inputAuthor = this.page.getByLabel(/Auteur/i);
     await inputAuthor.click();
     await inputAuthor.fill(documentInput.author);
     await expect(inputAuthor).toHaveValue(documentInput.author);
 
     await this.expect(submitButton).toBeEnabled();
-    await this.page.click("#opslaan_button");
+    await submitButton.click();
   },
 );
 
@@ -77,9 +80,10 @@ When(
       smartDocumentsWizardPage.getByRole("link", { name: "SmartDocuments" }),
     ).toBeVisible();
 
-    const klaarButton = smartDocumentsWizardPage.locator(
-      "#gwt-debug-wizardEngine_panelControls_nextButton",
-    );
+    const klaarButton = smartDocumentsWizardPage.getByRole("button", {
+      name: /Klaar/i,
+    });
+
     await klaarButton.waitFor({ state: "visible" });
     await klaarButton.click();
   },
@@ -95,7 +99,9 @@ When(
     );
     await expect(caseNumberLocator).toHaveCount(2);
 
-    const wizardResultDiv = smartDocumentsWizardPage.locator("#wizard-result");
+    const wizardResultDiv = smartDocumentsWizardPage.locator(
+      '[role="status"][aria-live="polite"]',
+    );
     await wizardResultDiv.waitFor({ state: "attached" });
     await expect(wizardResultDiv).toBeVisible();
 

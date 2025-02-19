@@ -30,9 +30,9 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.app.zaak.model.RestZaakOverzicht;
 import net.atos.zac.event.Opcode;
-import net.atos.zac.notificaties.Channel;
-import net.atos.zac.notificaties.Notificatie;
 import net.atos.zac.signalering.model.Signalering;
+import nl.info.zac.notification.Channel;
+import nl.info.zac.notification.Notification;
 
 /**
  * Enumeration of the type of objects that can be referenced by a {@link ScreenEvent} event.
@@ -226,8 +226,8 @@ public enum ScreenEventType {
 
     private ScreenEvent event(
             final Opcode opcode,
-            final Notificatie.ResourceInfo resource,
-            final Notificatie.ResourceInfo detail
+            final Notification.ResourceInfo resource,
+            final Notification.ResourceInfo detail
     ) {
         return instance(opcode, this,
                 resource.getUrl(),
@@ -430,8 +430,8 @@ public enum ScreenEventType {
 
     private void addEvent(
             final Set<ScreenEvent> events,
-            final Notificatie.ResourceInfo resource,
-            final Notificatie.ResourceInfo detail
+            final Notification.ResourceInfo resource,
+            final Notification.ResourceInfo detail
     ) {
         switch (resource.getAction()) {
             case CREATE:
@@ -459,8 +459,8 @@ public enum ScreenEventType {
      */
     public static Set<ScreenEvent> getEvents(
             final Channel channel,
-            final Notificatie.ResourceInfo mainResource,
-            final Notificatie.ResourceInfo resource
+            final Notification.ResourceInfo mainResource,
+            final Notification.ResourceInfo resource
     ) {
         final Set<ScreenEvent> events = new HashSet<>();
         switch (channel) {

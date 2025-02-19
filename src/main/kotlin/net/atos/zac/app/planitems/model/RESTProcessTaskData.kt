@@ -8,7 +8,7 @@ import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 data class RESTProcessTaskData(
-    var planItemInstanceId: String? = null,
+    var planItemInstanceId: String,
 
-    var data: Map<String, Any>? = null
+    var data: Map<String, Any>
 )
