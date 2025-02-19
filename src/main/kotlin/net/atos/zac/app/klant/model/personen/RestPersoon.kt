@@ -210,7 +210,7 @@ private fun VerblijfadresBinnenland.toStringRepresentation(): String {
             this.officieleStraatnaam,
             Objects.toString(this.huisnummer, null),
             this.huisnummertoevoeging,
-            this.huisletter,
+            this.huisletter
         ),
         StringUtils.SPACE,
         StringUtil.NON_BREAKING_SPACE
