@@ -538,7 +538,7 @@ services:
   openarchiefbeheer-web:
     image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
     environment: &web_env
-      - ALLOWED_HOSTS=localhost
+      - ALLOWED_HOSTS="*"
       # We should be able to switch off 2FA with:
       # - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.dev
       # - DISABLE_2FA=true
@@ -551,8 +551,8 @@ services:
       - DB_HOST=openarchiefbeheer-database
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
-      - CORS_ALLOWED_ORIGINS=http://localhost:9000,http://localhost:8000
-      - CSRF_TRUSTED_ORIGINS=http://localhost:9000,http://localhost:8000
+      - CORS_ALLOWED_ORIGINS=http://localhost:8005,http://localhost:8004
+      - CSRF_TRUSTED_ORIGINS=http://localhost:8005,http://localhost:8004
       - CSRF_COOKIE_SAMESITE=Lax
       - CSRF_COOKIE_SECURE=False
       - SESSION_COOKIE_SAMESITE=Lax
@@ -562,9 +562,9 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - CELERY_LOGLEVEL=DEBUG
-      - REACT_APP_API_URL=http://localhost:8000
+      - REACT_APP_API_URL=http://localhost:8004
       - REACT_APP_API_PATH=/api/v1
-      - REACT_APP_ZAAK_URL_TEMPLATE=https://www.example.com/zaken/{identificatie}
+      - REACT_APP_ZAAK_URL_TEMPLATE=https://localhost:8080/zaken/{identificatie}
       - REQUESTS_READ_TIMEOUT=5000
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
@@ -619,6 +619,17 @@ services:
     depends_on:
       - openarchiefbeheer-database
       - redis
+    profiles: [ "openarchiefbeheer" ]
+
+  openarchiefbeheer-ui:
+    image: nginx
+    ports:
+      - "8005:80"
+    volumes:
+      - ./scripts/docker-compose/imports/openarchiefbeheer-ui/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      openarchiefbeheer-web:
+        condition: service_healthy
     profiles: [ "openarchiefbeheer" ]
 
   zac:
