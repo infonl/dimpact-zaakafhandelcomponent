@@ -38,7 +38,6 @@ permissions:
   # Required for uploading SARIF reports
   security-events: write
 
-
 # Only allow a single concurrent run per branch. Cancel in-progress runs on multiple pushes when not on main branch.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -48,7 +47,6 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
-    if: ${{ github.ref == 'refs/heads/main'}}
     outputs:
       branch_name: ${{ steps.gen_branch_name.outputs.BRANCH_NAME }}
       build_number: ${{ steps.gen_build_number.outputs.BUILD_NUMBER }}
@@ -119,7 +117,6 @@ jobs:
 
   run-unit-tests:
     needs: build
-    if: ${{ github.ref == 'refs/heads/main'}}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
