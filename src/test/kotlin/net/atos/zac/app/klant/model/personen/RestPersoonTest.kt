@@ -131,7 +131,7 @@ class RestPersoonTest : BehaviorSpec({
             val restPersoon = persoon.toRestPersoon()
 
             Then("conversion contains the country description") {
-                restPersoon.verblijfplaats shouldBe "first line, Far away"
+                restPersoon.verblijfplaats shouldBe "first line, Far away"
             }
         }
     }
@@ -307,7 +307,7 @@ class RestPersoonTest : BehaviorSpec({
             val restPersoon = persoon.toRestPersoon()
 
             Then("conversion contains the country description") {
-                restPersoon.verblijfplaats shouldBe "first line, Far away"
+                restPersoon.verblijfplaats shouldBe "first line, Far away"
             }
         }
     }
