@@ -75,11 +75,6 @@ objectenApi:
   url: "http://objecten-api.local:8000"  # http://objecten.internal
   token: "dummyZacObjectsToken"
 
-# objecttypenApi Configuration of the Objecttypen API provider (Overige Registraties)
-objecttypenApi:
-  url: "http://objecttypen-api:8000"  # http://objecttypen.internal
-  token: "123456"
-
 # brpApi Configuration of the BRP Api provider (Haal Centraal)
 brpApi:
   url: "http://brp-personen-mock:5010/haalcentraal/api/brp"  # https://www.haalcentraal.nl/haalcentraal

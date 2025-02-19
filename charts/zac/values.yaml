@@ -75,11 +75,6 @@ objectenApi:
   url: ""  # http://objecten.internal
   token: ""
 
-# objecttypenApi Configuration of the Objecttypen API provider (Overige Registraties)
-objecttypenApi:
-  url: ""  # http://objecttypen.internal
-  token: ""
-
 # brpApi Configuration of the BRP Api provider (Haal Centraal)
 brpApi:
   url: ""  # https://www.haalcentraal.nl/haalcentraal

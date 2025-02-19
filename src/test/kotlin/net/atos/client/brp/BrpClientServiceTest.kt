@@ -11,6 +11,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.brp.model.createPersoon
+import net.atos.client.brp.model.createRaadpleegMetBurgerservicenummer
 import net.atos.client.brp.model.createRaadpleegMetBurgerservicenummerResponse
 
 class BrpClientServiceTest : BehaviorSpec({
@@ -22,7 +23,7 @@ class BrpClientServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A person") {
+    Given("A person for a given BSN") {
         val bsn = "123456789"
         val person = createPersoon(
             bsn = bsn
@@ -50,6 +51,39 @@ class BrpClientServiceTest : BehaviorSpec({
 
             Then("it should return null") {
                 personResponse shouldBe null
+            }
+        }
+    }
+    Given("Multiple persons for a given BSN") {
+        val persons = listOf(
+            createPersoon(bsn = "123456789"),
+            createPersoon(bsn = "123456789")
+        )
+        every { personenApi.personen(any()) } returns createRaadpleegMetBurgerservicenummerResponse(persons = persons)
+
+        When("find person is called with the BSN of the person") {
+            val personResponse = brpClientService.retrievePersoon("123456789")
+
+            Then("it should return the first person") {
+                personResponse shouldBe persons[0]
+            }
+        }
+    }
+    Given("Another person for a given BSN") {
+        val bsn = "123456789"
+        val person = createPersoon(
+            bsn = bsn
+        )
+        val raadpleegMetBurgerservicenummerResponse = createRaadpleegMetBurgerservicenummerResponse(
+            persons = listOf(person)
+        )
+        every { personenApi.personen(any()) } returns raadpleegMetBurgerservicenummerResponse
+
+        When("a query is run on personen for this BSN") {
+            val personResponse = brpClientService.queryPersonen(createRaadpleegMetBurgerservicenummer(listOf(bsn)))
+
+            Then("it should return the person") {
+                personResponse shouldBe raadpleegMetBurgerservicenummerResponse
             }
         }
     }
