@@ -457,7 +457,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   opennotificaties:
-    image: docker.io/openzaak/open-notificaties:1.7.1@sha256:feaf6f1da046bd4a8beb727563deda171fc66bc68371fd6f9192cbb1ceee9e6f
+    image: docker.io/openzaak/open-notificaties:1.8.0@sha256:2ad8eaf1121ad6071d4171b83f5eb3b5925804db549c8196b0384bb551e2979b
     platform: linux/amd64
     environment: &opennotificaties-env
       - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local,zac
@@ -500,7 +500,7 @@ services:
     profiles: [ "opennotificaties" ]
 
   opennotificaties-celery:
-    image: docker.io/openzaak/open-notificaties:1.7.1@sha256:feaf6f1da046bd4a8beb727563deda171fc66bc68371fd6f9192cbb1ceee9e6f
+    image: docker.io/openzaak/open-notificaties:1.8.0@sha256:2ad8eaf1121ad6071d4171b83f5eb3b5925804db549c8196b0384bb551e2979b
     platform: linux/amd64
     environment: *opennotificaties-env
     command: /celery_worker.sh
