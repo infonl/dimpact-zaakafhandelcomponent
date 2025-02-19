@@ -7,9 +7,11 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnDestroy,
   OnInit,
   Output,
+  SimpleChanges,
   ViewChild,
 } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
@@ -41,8 +43,10 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
   templateUrl: "./informatie-object-edit.component.html",
   styleUrls: ["./informatie-object-edit.component.less"],
 })
-export class InformatieObjectEditComponent implements OnInit, OnDestroy {
-  @Input() infoObject: EnkelvoudigInformatieObjectVersieGegevens;
+export class InformatieObjectEditComponent
+  implements OnInit, OnDestroy, OnChanges
+{
+  @Input() infoObject?: EnkelvoudigInformatieObjectVersieGegevens;
   @Input() sideNav: MatDrawer;
   @Input() zaakUuid: string;
   @Output() document = new EventEmitter<
@@ -53,7 +57,7 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
 
   fields: Array<AbstractFormField[]>;
   formConfig: FormConfig;
-  ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
+  private ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
 
   private subscriptions$: Subscription[] = [];
 
@@ -66,14 +70,23 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
     private vertrouwelijkaanduidingToTranslationKeyPipe: VertrouwelijkaanduidingToTranslationKeyPipe,
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.formConfig = new FormConfigBuilder()
       .saveText("actie.toevoegen")
       .cancelText("actie.annuleren")
       .requireUserChanges()
       .build();
-    this.getIngelogdeMedewerker();
+  }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!changes.infoObject.currentValue) {
+      return;
+    }
+    this.getIngelogdeMedewerker();
+    this.initializeFormFields();
+  }
+
+  private initializeFormFields() {
     const vertrouwelijkheidsAanduidingen = this.utilService.getEnumAsSelectList(
       "vertrouwelijkheidaanduiding",
       Vertrouwelijkheidaanduiding,
@@ -252,62 +265,59 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     for (const subscription of this.subscriptions$) {
       subscription.unsubscribe();
     }
   }
 
   onFormSubmit(formGroup: FormGroup): void {
-    if (formGroup) {
-      const nieuweVersie = new EnkelvoudigInformatieObjectVersieGegevens();
-      nieuweVersie.uuid = this.infoObject.uuid;
-      Object.keys(formGroup.controls).forEach((key) => {
-        const control = formGroup.controls[key];
-        const value = control.value;
-
-        switch (key) {
-          case "status":
-            nieuweVersie[key] =
-              InformatieobjectStatus[value.value.toUpperCase()];
-            break;
-          case "vertrouwelijkheidaanduiding":
-            nieuweVersie[key] = value.value;
-            break;
-          case "bestand":
-            if (value) {
-              nieuweVersie["bestandsnaam"] = value.name;
-              nieuweVersie["file"] = value;
-              nieuweVersie["formaat"] = value.type;
-            }
-            break;
-          case "informatieobjectTypeUUID":
-            nieuweVersie[key] = value.uuid;
-            break;
-          default:
-            nieuweVersie[key] = value;
-            break;
-        }
-      });
-
-      this.informatieObjectenService
-        .updateEnkelvoudigInformatieobject(
-          nieuweVersie.uuid,
-          this.zaakUuid,
-          nieuweVersie,
-        )
-        .subscribe((document) => {
-          this.document.emit(document);
-          this.utilService.openSnackbar(
-            "msg.document.nieuwe.versie.toegevoegd",
-          );
-          this.ngOnInit();
-          this.sideNav.close();
-          this.form.reset();
-        });
-    } else {
+    if (!formGroup) {
       this.sideNav.close();
+      return;
     }
+    const nieuweVersie = new EnkelvoudigInformatieObjectVersieGegevens();
+    nieuweVersie.uuid = this.infoObject.uuid;
+    Object.keys(formGroup.controls).forEach((key) => {
+      const control = formGroup.controls[key];
+      const value = control.value;
+
+      switch (key) {
+        case "status":
+          nieuweVersie[key] = InformatieobjectStatus[value.value.toUpperCase()];
+          break;
+        case "vertrouwelijkheidaanduiding":
+          nieuweVersie[key] = value.value;
+          break;
+        case "bestand":
+          if (value) {
+            nieuweVersie["bestandsnaam"] = value.name;
+            nieuweVersie["file"] = value;
+            nieuweVersie["formaat"] = value.type;
+          }
+          break;
+        case "informatieobjectTypeUUID":
+          nieuweVersie[key] = value.uuid;
+          break;
+        default:
+          nieuweVersie[key] = value;
+          break;
+      }
+    });
+
+    this.informatieObjectenService
+      .updateEnkelvoudigInformatieobject(
+        nieuweVersie.uuid,
+        this.zaakUuid,
+        nieuweVersie,
+      )
+      .subscribe((document) => {
+        this.document.emit(document);
+        this.utilService.openSnackbar("msg.document.nieuwe.versie.toegevoegd");
+        this.ngOnInit();
+        this.sideNav.close();
+        this.form.reset();
+      });
   }
 
   private getIngelogdeMedewerker() {
