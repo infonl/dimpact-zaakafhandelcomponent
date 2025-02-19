@@ -28,24 +28,25 @@ Given(
     await this.page.goto(
       `${this.worldParameters.urls.openForms}/indienen-aansprakelijkstelling-door-derden-behandelen-2/startpagina`,
     );
+
     await this.page.getByRole("button", { name: "Formulier starten" }).click();
 
     // Personal details
-    await this.page.locator("#e67qrl9-demovoornaam").click();
-    await this.page
-      .locator("#e67qrl9-demovoornaam")
-      .fill(profile.personalDetails.firstName + `:e2eid=${id}`);
-    await this.page.locator("#e5c2pwf-demovoorletters").click();
-    await this.page
-      .locator("#e5c2pwf-demovoorletters")
+    await this.page.getByLabel("Voornaam").click();
+    await this.page.getByLabel("Voornaam").fill(profile.personalDetails.firstName + `:e2eid=${id}`);
+
+
+    await this.page.getByLabel("Voorletter(s)").click();
+    await this.page.getByLabel("Voorletter(s)")
       .fill(profile.personalDetails.initials);
-    await this.page.locator("#ew8j534-demotussenvoegsels").click();
-    await this.page
-      .locator("#ew8j534-demotussenvoegsels")
+
+
+    await this.page.getByLabel("Tussenvoegsel(s)").click();
+    await this.page.getByLabel("Tussenvoegsel(s)")
       .fill(profile.personalDetails.prefix);
-    await this.page.locator("#efjsdnh-demoachternaam").click();
-    await this.page
-      .locator("#efjsdnh-demoachternaam")
+
+    await this.page.getByLabel("Achternaam").click();
+    await this.page.getByLabel("Achternaam")
       .fill(profile.personalDetails.lastName);
     await this.page.getByRole("button", { name: "Volgende" }).click();
 
@@ -60,13 +61,17 @@ Given(
       .fill(profile.incidentDetails.date);
     await this.page.getByLabel("materiële schade aan een").check();
     await this.page.getByLabel("ja", { exact: true }).check();
-    await this.page.waitForSelector("#ej3ph74-hoeveelGetuigen", {
-      state: "attached",
-    });
+
+    await this.page.getByLabel("Hoeveel getuigen?").waitFor({ state: "attached" });
+
+
     await this.page.getByText("Hoeveel getuigen?", { exact: true });
     await this.page
-      .locator("#ej3ph74-hoeveelGetuigen")
+    this.page.getByLabel("Hoeveel getuigen?")
       .evaluate((node) => node.click());
+
+
+
     await this.page.getByRole("option", { name: "1" }).click();
     await this.page.getByLabel("ja, digitaal bij deze melding").check();
     await this.page.getByRole("combobox").nth(1).click();
