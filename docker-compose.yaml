@@ -615,9 +615,9 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - CELERY_LOGLEVEL=DEBUG
-      - REACT_APP_API_URL=http://localhost:8000
+      - REACT_APP_API_URL=http://localhost:8004
       - REACT_APP_API_PATH=/api/v1
-      - REACT_APP_ZAAK_URL_TEMPLATE=https://www.example.com/zaken/{identificatie}
+      - REACT_APP_ZAAK_URL_TEMPLATE=http://openzaak.local:8000/zaken/ZAAK
       - REQUESTS_READ_TIMEOUT=5000
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
@@ -679,7 +679,7 @@ services:
     ports:
       - "8005:80"
     volumes:
-      - ./scripts/docker-compose/imports/openarchiefbeheer-ui/nginx.conf:/etc/nginx/conf.d/openarchiefbeheer-ui.conf
+      - ./scripts/docker-compose/imports/openarchiefbeheer-ui/nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       openarchiefbeheer-web:
         condition: service_healthy
