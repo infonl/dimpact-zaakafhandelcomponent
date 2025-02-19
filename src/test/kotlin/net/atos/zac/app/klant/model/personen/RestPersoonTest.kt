@@ -10,12 +10,14 @@ import io.kotest.matchers.shouldBe
 import net.atos.client.brp.model.createPersoon
 import net.atos.client.brp.model.createPersoonBeperkt
 import net.atos.client.brp.model.generated.AbstractDatum
+import net.atos.client.brp.model.generated.Adres
 import net.atos.client.brp.model.generated.Adressering
 import net.atos.client.brp.model.generated.AdresseringBeperkt
 import net.atos.client.brp.model.generated.OpschortingBijhouding
 import net.atos.client.brp.model.generated.PersoonInOnderzoek
 import net.atos.client.brp.model.generated.PersoonInOnderzoekBeperkt
 import net.atos.client.brp.model.generated.RniDeelnemer
+import net.atos.client.brp.model.generated.VerblijfadresBinnenland
 import net.atos.client.brp.model.generated.VerblijfadresBuitenland
 import net.atos.client.brp.model.generated.VerblijfplaatsBuitenland
 import net.atos.client.brp.model.generated.Waardetabel
@@ -114,6 +116,27 @@ class RestPersoonTest : BehaviorSpec({
         }
     }
 
+    Given("BRP Persoon with domestic address") {
+        val persoon = createPersoon(
+            verblijfplaats = Adres().apply {
+                verblijfadres = VerblijfadresBinnenland().apply {
+                    officieleStraatnaam = "street name"
+                    huisnummer = 11
+                    huisnummertoevoeging = "number description"
+                    huisletter = "a"
+                }
+            }
+        )
+
+        When("converted to RestPersoon") {
+            val restPersoon = persoon.toRestPersoon()
+
+            Then("conversion contains the address details, separated with NBSP") {
+                restPersoon.verblijfplaats shouldBe "street name 11 number description a"
+            }
+        }
+    }
+
     Given("BRP Persoon with foreign address") {
         val persoon = createPersoon(
             verblijfplaats = VerblijfplaatsBuitenland().apply {
@@ -130,7 +153,7 @@ class RestPersoonTest : BehaviorSpec({
         When("converted to RestPersoon") {
             val restPersoon = persoon.toRestPersoon()
 
-            Then("conversion contains the country description") {
+            Then("conversion contains the address details, separated with NBSP") {
                 restPersoon.verblijfplaats shouldBe "first line, Far away"
             }
         }
