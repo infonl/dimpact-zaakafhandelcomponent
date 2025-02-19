@@ -26,8 +26,9 @@ Given(
     this.testStorage.set("open-forms-testid", id);
 
     const firstNameInput = this.page
-      .getByLabel("Voornaam")
-      .filter({ hasNot: this.page.locator("input[disabled]") });
+      .getByLabel("Voornaam").
+      locator(":not([disabled])");
+
     const firstLetterInput = this.page
       .getByLabel("Voorletter(s)")
       .filter({ hasNot: this.page.locator("input[disabled]") });
