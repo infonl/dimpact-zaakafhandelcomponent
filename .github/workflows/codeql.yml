@@ -6,8 +6,17 @@ name: "CodeQL"
 
 on:
   pull_request:
-    branches: [main]
+    paths-ignore:
+      # skip on changes to files which do not require a PR build
+      - '**.md'
+      - 'helm/**'
+      - 'renovate.json'
   merge_group:
+    paths-ignore:
+      # skip on changes to files which do not require a PR build
+      - '**.md'
+      - 'helm/**'
+      - 'renovate.json'
   push:
     branches:
       - main
@@ -26,23 +35,9 @@ concurrency:
   cancel-in-progress: ${{ !contains(github.ref, 'main')}}
 
 jobs:
-  paths-ignore:
-    runs-on: ubuntu-24.04
-    outputs:
-      skip: ${{ steps.paths-ignore.outputs.skip }}
-    steps:
-      - name: Skip job when only Markdown files are changed
-        uses: kunitsucom/github-actions-paths-ignore-alternative@d1b27090d1a610f8cdde46d8d937a4a9c9127619 # v1.0.1
-        id: paths-ignore
-        with:
-          paths-ignore: |-
-            ^.*\.md$
-            ^helm/
-
   analyze:
     name: Analyze
     runs-on: ubuntu-24.04
-    needs: paths-ignore
     if: ${{ needs.paths-ignore.outputs.skip != 'true' }}
     permissions:
       actions: read
@@ -82,9 +77,7 @@ jobs:
 
   check_codeql_status:
     name: Check CodeQL Status
-    needs:
-      - analyze
-      - paths-ignore
+    needs: analyze
     runs-on: ubuntu-24.04
     permissions:
       contents: read

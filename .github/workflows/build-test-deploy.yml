@@ -38,15 +38,16 @@ permissions:
   # Required for uploading SARIF reports
   security-events: write
 
-# Only allow a single concurrent run per branch. Cancel in-progress runs on multiple pushes when not on main branch.  
+
+# Only allow a single concurrent run per branch. Cancel in-progress runs on multiple pushes when not on main branch.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ !contains(github.ref, 'main')}}
 
+jobs:
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
-    needs: paths-ignore
     if: ${{ github.ref == 'refs/heads/main'}}
     outputs:
       branch_name: ${{ steps.gen_branch_name.outputs.BRANCH_NAME }}
@@ -117,7 +118,7 @@ concurrency:
           key: zac-jar-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   run-unit-tests:
-    needs: [build, paths-ignore]
+    needs: build
     if: ${{ github.ref == 'refs/heads/main'}}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -235,7 +236,7 @@ concurrency:
           echo "Next version tag: ${{ github.ref == 'refs/heads/main' && steps.get-tag-main.outputs.new_tag || steps.get-tag-non-main.outputs.new_tag }}"
 
   build-docker-image-and-run-itests:
-    needs: [build, paths-ignore, next-version]
+    needs: [build, next-version]
     # Do not run in the merge queue and do not run if the paths-ignore step defines it to skip
     # but always run for the main branch
     if: ${{ github.event_name != 'merge_group' || github.ref == 'refs/heads/main' }}
