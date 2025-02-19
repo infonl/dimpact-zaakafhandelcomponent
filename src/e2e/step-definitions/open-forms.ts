@@ -25,11 +25,18 @@ Given(
     const id = uniqid();
     this.testStorage.set("open-forms-testid", id);
 
-    const firstNameInput = this.page.getByLabel("Voornaam").filter({ hasNot: this.page.locator('input[disabled]') })
-    const firstLetterInput = this.page.getByLabel("Voorletter(s)").filter({ hasNot: this.page.locator('input[disabled]') })
-    const infixInput = this.page.getByLabel("Tussenvoegsel(s)").filter({ hasNot: this.page.locator('input[disabled]') })
-    const lastNameInput = this.page.getByLabel("Achternaam").filter({ hasNot: this.page.locator('input[disabled]') })
-
+    const firstNameInput = this.page
+      .getByLabel("Voornaam")
+      .filter({ hasNot: this.page.locator("input[disabled]") });
+    const firstLetterInput = this.page
+      .getByLabel("Voorletter(s)")
+      .filter({ hasNot: this.page.locator("input[disabled]") });
+    const infixInput = this.page
+      .getByLabel("Tussenvoegsel(s)")
+      .filter({ hasNot: this.page.locator("input[disabled]") });
+    const lastNameInput = this.page
+      .getByLabel("Achternaam")
+      .filter({ hasNot: this.page.locator("input[disabled]") });
 
     await this.page.goto(
       `${this.worldParameters.urls.openForms}/indienen-aansprakelijkstelling-door-derden-behandelen-2/startpagina`,
@@ -39,21 +46,18 @@ Given(
 
     // Personal details
     await firstNameInput.click();
-    await this.page.getByLabel("Voornaam").fill(profile.personalDetails.firstName + `:e2eid=${id}`);
-
+    await this.page
+      .getByLabel("Voornaam")
+      .fill(profile.personalDetails.firstName + `:e2eid=${id}`);
 
     await firstLetterInput.click();
-    await firstLetterInput
-      .fill(profile.personalDetails.initials);
-
+    await firstLetterInput.fill(profile.personalDetails.initials);
 
     await infixInput.click();
-    await infixInput
-      .fill(profile.personalDetails.prefix);
+    await infixInput.fill(profile.personalDetails.prefix);
 
     await lastNameInput.click();
-    await lastNameInput
-      .fill(profile.personalDetails.lastName);
+    await lastNameInput.fill(profile.personalDetails.lastName);
     await this.page.getByRole("button", { name: "Volgende" }).click();
 
     // Incident details
@@ -68,15 +72,13 @@ Given(
     await this.page.getByLabel("materiële schade aan een").check();
     await this.page.getByLabel("ja", { exact: true }).check();
 
-    await this.page.getByLabel("Hoeveel getuigen?").waitFor({ state: "attached" });
-
+    await this.page
+      .getByLabel("Hoeveel getuigen?")
+      .waitFor({ state: "attached" });
 
     await this.page.getByText("Hoeveel getuigen?", { exact: true });
-    await this.page
-    this.page.getByLabel("Hoeveel getuigen?")
-      .evaluate((node) => node.click());
-
-
+    await this.page;
+    this.page.getByLabel("Hoeveel getuigen?").evaluate((node) => node.click());
 
     await this.page.getByRole("option", { name: "1" }).click();
     await this.page.getByLabel("ja, digitaal bij deze melding").check();
