@@ -7,7 +7,6 @@ package net.atos.zac.app.zaak
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.doubles.exactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.checkUnnecessaryStub
@@ -18,6 +17,7 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
@@ -75,17 +75,20 @@ import net.atos.zac.app.zaak.model.createRestGroup
 import net.atos.zac.app.zaak.model.createRestZaak
 import net.atos.zac.app.zaak.model.createRestZaakLinkData
 import net.atos.zac.app.zaak.model.createRestZaakLocatieGegevens
+import net.atos.zac.app.zaak.model.createRestZaakRechten
 import net.atos.zac.app.zaak.model.createRestZaakUnlinkData
+import net.atos.zac.app.zaak.model.createRestZaaktype
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.bpmn.BPMNService
+import net.atos.zac.flowable.bpmn.BpmnService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.healthcheck.HealthCheckService
+import net.atos.zac.healthcheck.createZaaktypeInrichtingscheck
 import net.atos.zac.history.ZaakHistoryService
 import net.atos.zac.history.converter.ZaakHistoryLineConverter
 import net.atos.zac.identity.IdentityService
@@ -107,13 +110,18 @@ import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import nl.info.zac.test.date.toDate
+import org.apache.http.HttpStatus
 import org.flowable.task.api.Task
+import java.io.ByteArrayInputStream
+import java.io.InputStream
+import java.net.URI
+import java.time.LocalDate
 import java.util.UUID
 
 @Suppress("LongParameterList", "LargeClass")
 class ZaakRestServiceTest : BehaviorSpec({
     val decisionService = mockk<DecisionService>()
-    val bpmnService = mockk<BPMNService>()
+    val bpmnService = mockk<BpmnService>()
     val brcClientService = mockk<BrcClientService>()
     val configuratieService = mockk<ConfiguratieService>()
     val cmmnService = mockk<CMMNService>()
@@ -143,7 +151,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaakHistoryService = mockk<ZaakHistoryService>()
-
+    val testDispatcher = StandardTestDispatcher()
     val zaakRestService = ZaakRestService(
         decisionService = decisionService,
         cmmnService = cmmnService,
@@ -175,7 +183,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         flowableTaskService = flowableTaskService,
         restZaaktypeConverter = restZaaktypeConverter,
         zaakHistoryService = zaakHistoryService,
-        zgwApiService = zgwApiService
+        zgwApiService = zgwApiService,
+        dispatcher = testDispatcher
     )
 
     beforeEach {
@@ -427,9 +436,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { identityService.readUser(restZakenVerdeelGegevens.behandelaarGebruikersnaam!!) } returns user
 
         When("the assign zaken from a list function is called") {
-            runTest {
+            runTest(testDispatcher) {
                 zaakRestService.assignFromList(restZakenVerdeelGegevens)
-                testScheduler.advanceUntilIdle()
             }
 
             Then("the zaken are assigned to the group and user") {
@@ -790,7 +798,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             )
         } just runs
         every { zgwApiService.endZaak(zaak, "Zaak is niet ontvankelijk") } just runs
-        every { cmmnService.terminateCase(zaak.uuid) } just runs
+        every { cmmnService.terminateCase(zaak.uuid) } returns Unit
 
         When("aborted with the hardcoded 'niet ontvankelijk' zaakbeeindigreden") {
             zaakRestService.afbreken(
@@ -838,7 +846,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         } returns zaakAfhandelParameters
         every { zgwApiService.createResultaatForZaak(zaak, resultTypeUUID, "-2 name") } just runs
         every { zgwApiService.endZaak(zaak, "-2 name") } just runs
-        every { cmmnService.terminateCase(zaak.uuid) } just runs
+        every { cmmnService.terminateCase(zaak.uuid) } returns Unit
 
         When("aborted with managed zaakbeeindigreden") {
             zaakRestService.afbreken(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = "-2"))
@@ -859,6 +867,117 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             Then("it throws an error") {
                 exception.message shouldBe "For input string: \"not a number\""
+            }
+        }
+    }
+
+    Given(
+        """
+        Existing zaaktypes in the configured catalogue for which the logged in user is authorised
+        and which are valid on the current date
+        """
+    ) {
+        val defaultCatalogueURI = URI("http://example.com/dummyCatalogue")
+        val now = LocalDate.now()
+        val zaaktypes = listOf(
+            createZaakType(
+                omschrijving = "Zaaktype 1",
+                identification = "ZAAKTYPE1",
+                beginGeldigheid = now.minusDays(1)
+            ),
+            createZaakType(
+                omschrijving = "Zaaktype 2",
+                identification = "ZAAKTYPE2",
+                beginGeldigheid = now.minusDays(2),
+                eindeGeldigheid = now.plusDays(1)
+            )
+        )
+        val restZaaktypes = listOf(createRestZaaktype(), createRestZaaktype())
+        val loggedInUser = createLoggedInUser(
+            zaakTypes = zaaktypes.map { it.omschrijving }.toSet()
+        )
+        val zaaktypeInrichtingscheck = createZaaktypeInrichtingscheck()
+        every { configuratieService.readDefaultCatalogusURI() } returns defaultCatalogueURI
+        every { configuratieService.featureFlagBpmnSupport() } returns false
+        every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
+        every { loggedInUserInstance.get() } returns loggedInUser
+        zaaktypes.forEach {
+            every { healthCheckService.controleerZaaktype(it.url) } returns zaaktypeInrichtingscheck
+            every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
+        }
+
+        When("the zaaktypes are requested") {
+            val returnedRestZaaktypes = zaakRestService.listZaaktypes()
+
+            Then("the zaaktypes are returned for which the user is authorised") {
+                verify(exactly = 1) {
+                    ztcClientService.listZaaktypen(defaultCatalogueURI)
+                }
+                returnedRestZaaktypes shouldHaveSize 2
+                returnedRestZaaktypes shouldBe restZaaktypes
+            }
+        }
+    }
+
+    Given("Rest zaak data") {
+        val restZaakUpdate = createRestZaak()
+        val zaak = createZaak()
+        val zaakdataMap = slot<Map<String, Any>>()
+        every { zrcClientService.readZaak(restZaakUpdate.uuid) } returns zaak
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
+        every { zaakVariabelenService.setZaakdata(restZaakUpdate.uuid, capture(zaakdataMap)) } just runs
+
+        When("the zaakdata is requested to be updated") {
+            val updatedRestZaak = zaakRestService.updateZaakdata(restZaakUpdate)
+
+            Then("the zaakdata is correctly updated") {
+                verify(exactly = 1) {
+                    zaakVariabelenService.setZaakdata(restZaakUpdate.uuid, any())
+                }
+                updatedRestZaak shouldBe restZaakUpdate
+                zaakdataMap.captured shouldBe restZaakUpdate.zaakdata
+            }
+        }
+    }
+
+    Given("A zaak for which signaleringen exist") {
+        val zaakUUID = UUID.randomUUID()
+        val zaak = createZaak(uuid = zaakUUID)
+        val restZaak = createRestZaak(
+            uuid = zaakUUID,
+            rechten = createRestZaakRechten(lezen = true)
+        )
+        every { zrcClientService.readZaak(zaakUUID) } returns zaak
+        every { restZaakConverter.toRestZaak(zaak) } returns restZaak
+        every { signaleringService.deleteSignaleringenForZaak(zaak) } just runs
+
+        When("the zaak is read") {
+            val returnedRestZaak = zaakRestService.readZaak(zaakUUID)
+
+            Then("the zaak is returned and any zaak signaleringen are deleted") {
+                returnedRestZaak shouldBe restZaak
+                verify(exactly = 1) {
+                    signaleringService.deleteSignaleringenForZaak(zaak)
+                }
+            }
+        }
+    }
+
+    Given("An existing BPMN process diagram for a given zaak UUID") {
+        val uuid = UUID.randomUUID()
+        every { bpmnService.getProcessDiagram(uuid) } returns ByteArrayInputStream("dummyDiagram".toByteArray())
+
+        When("the process diagram is requested") {
+            val response = zaakRestService.downloadProcessDiagram(uuid)
+
+            Then(
+                "a HTTP OK response is returned with a 'Content-Disposition' HTTP header and the diagram as input stream"
+            ) {
+                with(response) {
+                    status shouldBe HttpStatus.SC_OK
+                    headers["Content-Disposition"]!![0] shouldBe """attachment; filename="procesdiagram.gif"""".trimIndent()
+                    (entity as InputStream).bufferedReader().use { it.readText() } shouldBe "dummyDiagram"
+                }
             }
         }
     }

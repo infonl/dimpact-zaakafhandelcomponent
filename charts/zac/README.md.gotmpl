@@ -1,0 +1,41 @@
+{{ template "chart.header" . }}
+{{ template "chart.deprecationWarning" . }}
+
+{{ template "chart.badgesSection" . }}
+
+{{ template "chart.description" . }}
+
+{{ template "chart.homepageLine" . }}
+
+{{ template "chart.maintainersSection" . }}
+
+{{ template "chart.sourcesSection" . }}
+
+{{ template "chart.requirementsSection" . }}
+
+## Usage
+
+Make sure you have helm installed. Add the required repositories as follows:
+```
+helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add solr https://solr.apache.org/charts
+```
+
+If you had already added this repo earlier, run `helm repo update` to retrieve
+the latest versions of the packages
+
+Now add the ZAC repo:
+```
+helm repo add zac https://infonl.github.io/dimpact-zaakafhandelcomponent
+```
+
+And install zac:
+```
+helm install my-release zac/zaakafhandelcomponent
+```
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "helm-docs.versionFooter" . }}
+

@@ -20,6 +20,7 @@ spec:
         command: ["curl","-XPOST","-k","http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}-solrcloud-common/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml"]
         {{- end }}
         name: create-zac-core
+        imagePullPolicy: {{ (index .Values "solr-operator").solr.jobs.image.pullPolicy }}
       {{- with (index .Values "solr-operator").solr.jobs.nodeSelector }}
       nodeSelector: 
         {{ toYaml . | nindent 8 }}

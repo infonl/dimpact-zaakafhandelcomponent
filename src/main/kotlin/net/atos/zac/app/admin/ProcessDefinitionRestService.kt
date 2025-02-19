@@ -18,7 +18,7 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import net.atos.zac.app.admin.model.RestProcessDefinition
 import net.atos.zac.app.admin.model.RestProcessDefinitionContent
-import net.atos.zac.flowable.bpmn.BPMNService
+import net.atos.zac.flowable.bpmn.BpmnService
 import net.atos.zac.policy.PolicyService
 import nl.info.zac.util.NoArgConstructor
 
@@ -28,7 +28,7 @@ import nl.info.zac.util.NoArgConstructor
 @Produces(MediaType.APPLICATION_JSON)
 @NoArgConstructor
 class ProcessDefinitionRestService @Inject constructor(
-    private val bpmnService: BPMNService,
+    private val bpmnService: BpmnService,
     private val policyService: PolicyService
 ) {
     @GET

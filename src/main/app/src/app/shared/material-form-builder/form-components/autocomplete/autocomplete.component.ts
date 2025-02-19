@@ -1,9 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely, 2025 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AfterViewInit, Component, OnDestroy } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Observable, Subscription } from "rxjs";
 import { map, startWith } from "rxjs/operators";
@@ -18,11 +18,11 @@ import { AutocompleteValidators } from "./autocomplete-validators";
 })
 export class AutocompleteComponent
   extends FormComponent
-  implements AfterViewInit, OnDestroy
+  implements OnInit, OnDestroy
 {
   data: AutocompleteFormField;
 
-  options: any[];
+  options: Record<string, string>[];
   filteredOptions: Observable<any[]>;
   optionsChanged$: Subscription;
 
@@ -30,7 +30,7 @@ export class AutocompleteComponent
     super();
   }
 
-  ngAfterViewInit() {
+  ngOnInit() {
     this.initOptions();
     this.optionsChanged$ = this.data.optionsChanged$.subscribe(() => {
       this.data.formControl.clearAsyncValidators();
@@ -43,37 +43,46 @@ export class AutocompleteComponent
     this.data.formControl.setAsyncValidators(
       AutocompleteValidators.asyncOptionInList(this.data.options),
     );
+    this.data.formControl.updateValueAndValidity();
+
     this.data.options.subscribe((options) => {
       this.options = options;
 
       this.filteredOptions = this.data.formControl.valueChanges.pipe(
         startWith(""),
-        map((value) =>
-          typeof value === "string"
-            ? value
-            : value
-              ? value[this.data.optionLabel]
-              : null,
-        ),
-        map((name) => (name ? this._filter(name) : this.options.slice())),
+        map((value) => {
+          if (value === null) {
+            return null;
+          }
+
+          switch (typeof value) {
+            case "string":
+              return value;
+            case "object":
+              return value[this.data.optionLabel];
+            default:
+              return null;
+          }
+        }),
+        map((name) => (name ? this._filter(name) : this.options?.slice())),
       );
     });
   }
 
   displayFn = (obj: any): string => {
-    return obj && obj[this.data.optionLabel] ? obj[this.data.optionLabel] : obj;
+    return obj?.[this.data.optionLabel] ?? obj;
   };
 
   private _filter(filter: string): any[] {
     const filterValue = filter.toLowerCase();
 
-    return this.options.filter((option) =>
-      option[this.data.optionLabel].toLowerCase().includes(filterValue),
-    );
+    return this.options.filter((option) => {
+      return option[this.data.optionLabel].toLowerCase().includes(filterValue);
+    });
   }
 
   isEditing(): boolean {
-    return this.data.formControl.value;
+    return Boolean(this.data.formControl.value);
   }
 
   clear() {

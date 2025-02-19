@@ -1,8 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package net.atos.client.zgw.zrc;
 
 import static java.lang.String.format;
@@ -31,8 +30,8 @@ import org.slf4j.LoggerFactory;
 
 import net.atos.client.util.JAXRSClientFactory;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.shared.exception.ZgwFoutExceptionMapper;
-import net.atos.client.zgw.shared.exception.ZgwValidatieFoutResponseExceptionMapper;
+import net.atos.client.zgw.shared.exception.ZgwErrorExceptionMapper;
+import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel;
 import net.atos.client.zgw.shared.util.JsonbConfiguration;
@@ -534,9 +533,9 @@ public class ZrcClientService {
         // for security reasons check if the provided URI starts with the value of the
         // environment variable that we use to configure the ztcClient
         if (!uri.toString().startsWith(configuratieService.readZgwApiClientMpRestUrl())) {
-            throw new RuntimeException(format(
+            throw new IllegalStateException(format(
                     "URI '%s' does not start with value for environment variable " +
-                                              "'%s': '%s'",
+                                                   "'%s': '%s'",
                     uri,
                     ENV_VAR_ZGW_API_CLIENT_MP_REST_URL,
                     configuratieService.readZgwApiClientMpRestUrl()
@@ -544,8 +543,8 @@ public class ZrcClientService {
         }
 
         return JAXRSClientFactory.getOrCreateClient().target(uri)
-                .register(ZgwFoutExceptionMapper.class)
-                .register(ZgwValidatieFoutResponseExceptionMapper.class)
+                .register(ZgwErrorExceptionMapper.class)
+                .register(ZgwValidationErrorResponseExceptionMapper.class)
                 .register(ZrcResponseExceptionMapper.class)
                 .register(JsonbConfiguration.class)
                 .request(MediaType.APPLICATION_JSON)

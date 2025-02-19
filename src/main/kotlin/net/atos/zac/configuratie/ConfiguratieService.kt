@@ -85,7 +85,6 @@ class ConfiguratieService @Inject constructor(
 
         const val INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL = "e-mail"
 
-        // ~TODO
         const val ENV_VAR_ZGW_API_CLIENT_MP_REST_URL = "ZGW_API_CLIENT_MP_REST_URL"
 
         /**

@@ -26,9 +26,9 @@ import net.atos.zac.identity.model.Group;
 import net.atos.zac.identity.model.User;
 
 public class SignaleringVerzondenZoekParameters {
-    private final SignaleringTarget targettype;
+    private SignaleringTarget targettype;
 
-    private final String target;
+    private String target;
 
     private Set<SignaleringType.Type> types;
 
@@ -41,6 +41,11 @@ public class SignaleringVerzondenZoekParameters {
     public SignaleringVerzondenZoekParameters(final SignaleringTarget targettype, final String target) {
         this.targettype = targettype;
         this.target = target;
+    }
+
+    public SignaleringVerzondenZoekParameters(final SignaleringSubject subjectType, final String subject) {
+        this.subjecttype = subjectType;
+        this.subject = subject;
     }
 
     public SignaleringVerzondenZoekParameters(final Group target) {

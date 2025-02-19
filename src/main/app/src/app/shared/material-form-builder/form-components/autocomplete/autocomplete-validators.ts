@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -9,7 +9,7 @@ import {
   ValidationErrors,
   ValidatorFn,
 } from "@angular/forms";
-import { Observable, of } from "rxjs";
+import { Observable, of, take } from "rxjs";
 import { map } from "rxjs/operators";
 
 export class AutocompleteValidators {
@@ -20,10 +20,12 @@ export class AutocompleteValidators {
       }
 
       return options.pipe(
-        map((o) => {
-          const find: any = o.find((option) =>
+        take(1), // Force observable to complete
+        map((options) => {
+          const find = options.find((option) =>
             AutocompleteValidators.equals(option, control.value),
           );
+
           return find ? null : { match: true };
         }),
       );

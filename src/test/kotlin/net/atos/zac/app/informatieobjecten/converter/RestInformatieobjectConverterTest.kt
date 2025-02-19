@@ -20,8 +20,8 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
-import net.atos.client.zgw.shared.exception.FoutException
-import net.atos.client.zgw.shared.model.Fout
+import net.atos.client.zgw.shared.exception.ZgwErrorException
+import net.atos.client.zgw.shared.model.ZgwError
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
@@ -265,7 +265,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         val uuid = UUID.randomUUID()
         every {
             drcClientService.readEnkelvoudigInformatieobject(uuid)
-        } throws FoutException(Fout(null, null, null, HttpStatus.NOT_FOUND_404, null, null))
+        } throws ZgwErrorException(ZgwError(null, null, null, HttpStatus.NOT_FOUND_404, null, null))
         When("We try to convert a list with that uuid") {
             val result = restInformatieobjectConverter.convertUUIDsToREST(ImmutableList.of(uuid), null)
             Then("An empty list is returned") {
@@ -276,13 +276,13 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
 
     Given("A uuid that causes an error response other than 404 in open zaak") {
         val uuid = UUID.randomUUID()
-        val expectedException = FoutException(Fout(null, null, null, 500, null, null))
+        val expectedException = ZgwErrorException(ZgwError(null, null, null, 500, null, null))
         every {
             drcClientService.readEnkelvoudigInformatieobject(uuid)
         } throws expectedException
         When("We try to convert a list with that uuid") {
             Then("The exception bubbles up") {
-                val exception = shouldThrow<FoutException> {
+                val exception = shouldThrow<ZgwErrorException> {
                     restInformatieobjectConverter.convertUUIDsToREST(ImmutableList.of(uuid), null)
                 }
                 exception.shouldBe(expectedException)

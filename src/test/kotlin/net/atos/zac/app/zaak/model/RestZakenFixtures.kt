@@ -125,14 +125,17 @@ fun createRestUser(
     naam = name
 )
 
+@Suppress("LongParameterList")
 fun createRestZaak(
     behandelaar: RestUser = createRestUser(),
     restGroup: RestGroup = createRestGroup(),
     indicaties: EnumSet<ZaakIndicatie> = EnumSet.noneOf(ZaakIndicatie::class.java),
     restZaakType: RestZaaktype = createRestZaaktype(),
-    uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.of(2023, 10, 10)
+    uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.of(2023, 10, 10),
+    uuid: UUID = UUID.randomUUID(),
+    rechten: RestZaakRechten = createRestZaakRechten()
 ) = RestZaak(
-    uuid = UUID.randomUUID(),
+    uuid = uuid,
     identificatie = "ZA2023001",
     omschrijving = "Sample Zaak",
     toelichting = "This is a test zaak",
@@ -174,7 +177,7 @@ fun createRestZaak(
     isBesluittypeAanwezig = false,
     isInIntakeFase = true,
     isProcesGestuurd = false,
-    rechten = createRestZaakRechten()
+    rechten = rechten
 )
 
 fun createRESTZaakAanmaakGegevens(
@@ -259,7 +262,11 @@ fun createRestZaakUnlinkData(
     reden = reason
 )
 
-fun createRestZaakRechten() = RestZaakRechten()
+fun createRestZaakRechten(
+    lezen: Boolean = true,
+) = RestZaakRechten().apply {
+    this.lezen = lezen
+}
 
 fun createRestZaakResultaat() = RestZaakResultaat()
 

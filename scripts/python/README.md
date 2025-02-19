@@ -13,7 +13,7 @@ The init script will have to be run from the context of the current session (in 
 immediately make use of the installed environment and installed libraries. 
 Use the following command:
 ```shell
-source init-pyenv.sh
+   source init-pyenv.sh
 ```
 
 ## Dependencies scripts
@@ -23,7 +23,7 @@ a defined list of dependencies of components that ZAC integrates with.
 
 To run the script use the following command (in `scripts/python`):
 ```shell
-python ./dependencies/versions-of-components.py
+   ./dependencies/versions.py
 ```
 
 ## PodiumD scripts
@@ -34,14 +34,14 @@ and Version files from [GitHub PodiumD Helm Charts](https://github.com/Dimpact-S
 
 To run the script use the following command:
 ```shell
-python ./podiumd/podiumd_versions.py -o 3.2.0
+   ./podiumd/versions.py -o 3.2.0
 ```
 
 ### PodiumD versions script options
 The script has a number of parameters to be able to compare specific versions, this from the help:
 
 ```
-usage: podiumd_versions.py [-h] -o OLD_VERSION [-n NEW_VERSION] [-b NEW_VERSION_BRANCH]
+usage: versions.py [-h] -o OLD_VERSION [-n NEW_VERSION] [-b NEW_VERSION_BRANCH]
 
 Script for comparing PodiumD version details between specific versions
 

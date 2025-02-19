@@ -17,8 +17,8 @@ import io.mockk.runs
 import io.mockk.verify
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import net.atos.client.zgw.shared.exception.FoutException
-import net.atos.client.zgw.shared.model.Fout
+import net.atos.client.zgw.shared.exception.ZgwErrorException
+import net.atos.client.zgw.shared.model.ZgwError
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.app.identity.converter.RestUserConverter
@@ -84,7 +84,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         } returns Optional.of(document)
         every {
             drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
-        } throws FoutException(Fout(null, null, null, 404, null, null))
+        } throws ZgwErrorException(ZgwError(null, null, null, 404, null, null))
         every {
             ontkoppeldeDocumentenService.delete(document.id)
         } just runs
@@ -113,13 +113,13 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         } returns Optional.of(document)
         every {
             drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
-        } throws FoutException(Fout(null, null, null, 400, null, null))
+        } throws ZgwErrorException(ZgwError(null, null, null, 400, null, null))
 
         When("the delete endpoint is called with the id of that document") {
-            val exception = shouldThrow<FoutException> { ontkoppeldeDocumentenRESTService.delete(document.id) }
+            val exception = shouldThrow<ZgwErrorException> { ontkoppeldeDocumentenRESTService.delete(document.id) }
 
             Then("the exception from OpenZaak is rethrown") {
-                exception.fout.status shouldBe 400
+                exception.zgwError.status shouldBe 400
             }
         }
     }
