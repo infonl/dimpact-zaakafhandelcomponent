@@ -38,7 +38,6 @@ jobs:
   analyze:
     name: Analyze
     runs-on: ubuntu-24.04
-    if: ${{ needs.paths-ignore.outputs.skip != 'true' }}
     permissions:
       actions: read
       contents: read
@@ -83,7 +82,7 @@ jobs:
       contents: read
       checks: read
       pull-requests: read
-    if: ${{ needs.paths-ignore.outputs.skip != 'true' && github.event_name == 'pull_request' }}
+    if: ${{ github.event_name == 'pull_request' }}
     steps:
       - name: Check CodeQL Status
         uses: eldrick19/code-scanning-status-checker@868f78ef588214f12e365604583b7673d18941ce # v2.0.1

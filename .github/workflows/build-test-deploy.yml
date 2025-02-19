@@ -237,8 +237,7 @@ jobs:
 
   build-docker-image-and-run-itests:
     needs: [build, next-version]
-    # Do not run in the merge queue and do not run if the paths-ignore step defines it to skip
-    # but always run for the main branch
+    # Do not run in the merge queue but always run for the main branch
     if: ${{ github.event_name != 'merge_group' || github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
