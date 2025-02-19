@@ -26,7 +26,6 @@ import net.atos.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
-import java.util.logging.Logger
 
 @ApplicationScoped
 @AllOpen
@@ -43,7 +42,6 @@ class BrpClientService @Inject constructor(
         private const val ADRESSERING = "adressering"
         private const val INDICATIE_CURATELE_REGISTER = "indicatieCurateleRegister"
 
-        private val LOG = Logger.getLogger(BrpClientService::class.java.name)
         private val FIELDS_PERSOON = listOf(
             BURGERSERVICENUMMER,
             GESLACHT,
@@ -68,22 +66,11 @@ class BrpClientService @Inject constructor(
      */
     fun retrievePersoon(burgerservicenummer: String): Persoon? =
         (
-            personenApi.personen(personenQuery = createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer))
-                as RaadpleegMetBurgerservicenummerResponse
-            ).personen?.let { persons ->
-            if (persons.isNotEmpty()) {
-                if (persons.size > 1) {
-                    LOG.warning(
-                        "Multiple persons found for burgerservicenummer: '$burgerservicenummer'. " +
-                            "Returning the first one."
-                    )
-                }
-                persons.first()
-            } else {
-                LOG.info("No person found for burgerservicenummer: $burgerservicenummer")
-                null
-            }
-        }
+            personenApi.personen(
+                createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer)
+            ) as RaadpleegMetBurgerservicenummerResponse
+            )
+            .personen?.firstOrNull()
 
     private fun createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer: String) =
         RaadpleegMetBurgerservicenummer().apply {
@@ -91,42 +78,16 @@ class BrpClientService @Inject constructor(
             fields = FIELDS_PERSOON
         }.addBurgerservicenummerItem(burgerservicenummer)
 
-    private fun updateQuery(personenQuery: PersonenQuery): PersonenQuery =
-        personenQuery.apply {
-            when (personenQuery) {
-                is RaadpleegMetBurgerservicenummer -> {
-                    type = RAADPLEEG_MET_BURGERSERVICENUMMER
-                    fields = FIELDS_PERSOON
-                }
-
-                is ZoekMetGeslachtsnaamEnGeboortedatum -> {
-                    type = ZOEK_MET_GESLACHTSNAAM_EN_GEBOORTEDATUM
-                    fields = FIELDS_PERSOON_BEPERKT
-                }
-
-                is ZoekMetNaamEnGemeenteVanInschrijving -> {
-                    type = ZOEK_MET_NAAM_EN_GEMEENTE_VAN_INSCHRIJVING
-                    fields = FIELDS_PERSOON_BEPERKT
-                }
-
-                is ZoekMetNummeraanduidingIdentificatie -> {
-                    type = ZOEK_MET_NUMMERAANDUIDING_IDENTIFICATIE
-                    fields = FIELDS_PERSOON_BEPERKT
-                }
-
-                is ZoekMetPostcodeEnHuisnummer -> {
-                    type = ZOEK_MET_POSTCODE_EN_HUISNUMMER
-                    fields = FIELDS_PERSOON_BEPERKT
-                }
-
-                is ZoekMetStraatHuisnummerEnGemeenteVanInschrijving -> {
-                    type = ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING
-                    fields = FIELDS_PERSOON_BEPERKT
-                }
-
-                else -> error(
-                    "Must use one of the subclasses of '${PersonenQuery::class.java.simpleName}'"
-                )
-            }
+    private fun updateQuery(personenQuery: PersonenQuery): PersonenQuery = personenQuery.apply {
+        type = when (personenQuery) {
+            is RaadpleegMetBurgerservicenummer -> RAADPLEEG_MET_BURGERSERVICENUMMER
+            is ZoekMetGeslachtsnaamEnGeboortedatum -> ZOEK_MET_GESLACHTSNAAM_EN_GEBOORTEDATUM
+            is ZoekMetNaamEnGemeenteVanInschrijving -> ZOEK_MET_NAAM_EN_GEMEENTE_VAN_INSCHRIJVING
+            is ZoekMetNummeraanduidingIdentificatie -> ZOEK_MET_NUMMERAANDUIDING_IDENTIFICATIE
+            is ZoekMetPostcodeEnHuisnummer -> ZOEK_MET_POSTCODE_EN_HUISNUMMER
+            is ZoekMetStraatHuisnummerEnGemeenteVanInschrijving -> ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING
+            else -> error("Must use one of the subclasses of '${PersonenQuery::class.java.simpleName}'")
         }
+        fields = if (personenQuery is RaadpleegMetBurgerservicenummer) FIELDS_PERSOON else FIELDS_PERSOON_BEPERKT
+    }
 }
