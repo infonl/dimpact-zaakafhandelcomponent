@@ -117,7 +117,8 @@ fun PersoonBeperkt.toRestPersoon() = RestPersoon(
             ", ",
             it.adresregel1,
             it.adresregel2,
-            it.adresregel3
+            it.adresregel3,
+            it.land.omschrijving
         )
     },
 ).apply {
@@ -209,7 +210,7 @@ private fun VerblijfadresBinnenland.toStringRepresentation(): String {
             this.officieleStraatnaam,
             Objects.toString(this.huisnummer, null),
             this.huisnummertoevoeging,
-            this.huisletter
+            this.huisletter,
         ),
         StringUtils.SPACE,
         StringUtil.NON_BREAKING_SPACE
@@ -224,6 +225,7 @@ private fun VerblijfadresBuitenland.toStringRepresentation(): String {
         ", ",
         this.regel1,
         this.regel2,
-        this.regel3
+        this.regel3,
+        land.omschrijving
     )
 }

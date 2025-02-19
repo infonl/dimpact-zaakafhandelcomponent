@@ -16,6 +16,8 @@ import net.atos.client.brp.model.generated.OpschortingBijhouding
 import net.atos.client.brp.model.generated.PersoonInOnderzoek
 import net.atos.client.brp.model.generated.PersoonInOnderzoekBeperkt
 import net.atos.client.brp.model.generated.RniDeelnemer
+import net.atos.client.brp.model.generated.VerblijfadresBuitenland
+import net.atos.client.brp.model.generated.VerblijfplaatsBuitenland
 import net.atos.client.brp.model.generated.Waardetabel
 import java.util.EnumSet
 
@@ -111,6 +113,29 @@ class RestPersoonTest : BehaviorSpec({
             }
         }
     }
+
+    Given("BRP Persoon with foreign address") {
+        val persoon = createPersoon(
+            verblijfplaats = VerblijfplaatsBuitenland().apply {
+                verblijfadres = VerblijfadresBuitenland().apply {
+                    regel1 = "first line"
+                    land = Waardetabel().apply {
+                        code = "Galaxy"
+                        omschrijving = "Far away"
+                    }
+                }
+            }
+        )
+
+        When("converted to RestPersoon") {
+            val restPersoon = persoon.toRestPersoon()
+
+            Then("conversion contains the country description") {
+                restPersoon.verblijfplaats shouldBe "first line, Far away"
+            }
+        }
+    }
+
 
     Given("BRP PersoonBeperkt with all flags but OVERLEDEN and EMIGRATION") {
         val date = AbstractDatum().apply {
@@ -267,4 +292,25 @@ class RestPersoonTest : BehaviorSpec({
             }
         }
     }
+
+    Given("BRP PersoonBeperkt with foreign address") {
+        val persoon = createPersoonBeperkt(
+            address = AdresseringBeperkt().apply {
+                adresregel1 = "first line"
+                land = Waardetabel().apply {
+                    code = "Galaxy"
+                    omschrijving = "Far away"
+                }
+            }
+        )
+
+        When("converted to RestPersoon") {
+            val restPersoon = persoon.toRestPersoon()
+
+            Then("conversion contains the country description") {
+                restPersoon.verblijfplaats shouldBe "first line, Far away"
+            }
+        }
+    }
+
 })
