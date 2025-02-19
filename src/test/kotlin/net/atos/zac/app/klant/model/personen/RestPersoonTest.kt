@@ -136,7 +136,6 @@ class RestPersoonTest : BehaviorSpec({
         }
     }
 
-
     Given("BRP PersoonBeperkt with all flags but OVERLEDEN and EMIGRATION") {
         val date = AbstractDatum().apply {
             type = "type"
@@ -312,5 +311,4 @@ class RestPersoonTest : BehaviorSpec({
             }
         }
     }
-
 })
