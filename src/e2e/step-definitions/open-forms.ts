@@ -25,17 +25,21 @@ Given(
     const id = uniqid();
     this.testStorage.set("open-forms-testid", id);
 
-    const firstNameInput = this.page
-      .getByLabel("Voornaam").first();
+    const firstNameInput = this.page.locator(
+      'input[aria-labelledby="e67qrl9-demovoornaam"]:not([disabled])',
+    );
 
-    const firstLetterInput = this.page
-      .getByLabel("Voorletter(s)").first();
+    const firstLetterInput = this.page.locator(
+      'input[aria-labelledby="voorletters"]:not([disabled])',
+    );
 
-    const infixInput = this.page
-      .getByLabel("Tussenvoegsel(s)").first();
+    const infixInput = this.page.locator(
+      'input[aria-labelledby="tussenvoegsel"]:not([disabled])',
+    );
 
-    const lastNameInput = this.page
-      .getByLabel("Achternaam").first();
+    const lastNameInput = this.page.locator(
+      'input[aria-labelledby="achternaam"]:not([disabled])',
+    );
 
     await this.page.goto(
       `${this.worldParameters.urls.openForms}/indienen-aansprakelijkstelling-door-derden-behandelen-2/startpagina`,
@@ -45,9 +49,8 @@ Given(
 
     // Personal details
     await firstNameInput.click();
-    await this.page
-      .getByLabel("Voornaam")
-      .fill(profile.personalDetails.firstName + `:e2eid=${id}`);
+    await this.page;
+    firstNameInput.fill(profile.personalDetails.firstName + `:e2eid=${id}`);
 
     await firstLetterInput.click();
     await firstLetterInput.fill(profile.personalDetails.initials);
