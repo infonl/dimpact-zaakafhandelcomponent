@@ -14,6 +14,7 @@ import net.atos.client.brp.model.generated.Persoon
 import net.atos.client.brp.model.generated.PersoonBeperkt
 import net.atos.client.brp.model.generated.PersoonInOnderzoek
 import net.atos.client.brp.model.generated.PersoonInOnderzoekBeperkt
+import net.atos.client.brp.model.generated.RaadpleegMetBurgerservicenummer
 import net.atos.client.brp.model.generated.RaadpleegMetBurgerservicenummerResponse
 import net.atos.client.brp.model.generated.RniDeelnemer
 import net.atos.client.brp.model.generated.VerblijfadresBinnenland
@@ -79,6 +80,12 @@ fun createPersoonBeperkt(
     opschortingBijhouding = suspensionMaintenance
     rni = rniDeelnemerList
     adressering = address
+}
+
+fun createRaadpleegMetBurgerservicenummer(
+    burgerservicenummers: List<String> = listOf("123456789")
+) = RaadpleegMetBurgerservicenummer().apply {
+    this.burgerservicenummer = burgerservicenummers
 }
 
 fun createRaadpleegMetBurgerservicenummerResponse(
