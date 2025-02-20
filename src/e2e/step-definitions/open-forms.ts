@@ -25,21 +25,13 @@ Given(
     const id = uniqid();
     this.testStorage.set("open-forms-testid", id);
 
-    const firstNameInput = this.page.locator(
-      'input[aria-labelledby="e67qrl9-demovoornaam"]:not([disabled])',
-    );
+    const firstNameInput = this.page.getByLabel("Voornaam").nth(0);
 
-    const firstLetterInput = this.page.locator(
-      'input[aria-labelledby="voorletters"]:not([disabled])',
-    );
+    const firstLetterInput = this.page.getByLabel("Voorletter(s)").nth(0);
 
-    const infixInput = this.page.locator(
-      'input[aria-labelledby="tussenvoegsel"]:not([disabled])',
-    );
+    const infixInput = this.page.getByLabel("Tussenvoegsel(s)").nth(0);
 
-    const lastNameInput = this.page.locator(
-      'input[aria-labelledby="achternaam"]:not([disabled])',
-    );
+    const lastNameInput = this.page.getByLabel("Achternaam").nth(0);
 
     await this.page.goto(
       `${this.worldParameters.urls.openForms}/indienen-aansprakelijkstelling-door-derden-behandelen-2/startpagina`,
