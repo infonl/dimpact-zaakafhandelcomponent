@@ -266,12 +266,12 @@
                 <div class="flex flex-row justify-start gap-10">
                   <zac-static-text
                     [label]="'startdatum' | translate"
-                    [value]="zaak.startdatum | empty"
+                    [value]="zaak.startdatum | datum | empty"
                     class="flex-item"
                   ></zac-static-text>
                   <zac-static-text
                     [label]="'streefdatum' | translate"
-                    [value]="zaak.einddatumGepland | empty"
+                    [value]="zaak.einddatumGepland | datum | empty"
                     [icon]="dateFieldIcon.get('einddatumGepland')"
                     class="flex-item"
                   >
@@ -279,7 +279,7 @@
                   </zac-static-text>
                   <zac-static-text
                     [label]="'fataledatum' | translate"
-                    [value]="zaak.uiterlijkeEinddatumAfdoening | empty"
+                    [value]="zaak.uiterlijkeEinddatumAfdoening | datum | empty"
                     [icon]="dateFieldIcon.get('uiterlijkeEinddatumAfdoening')"
                     class="flex-item"
                   ></zac-static-text>
@@ -287,7 +287,12 @@
                 <div class="flex flex-row justify-start gap-10">
                   <zac-static-text
                     [label]="'vertrouwelijkheidaanduiding' | translate"
-                    [value]="zaak.vertrouwelijkheidaanduiding | empty"
+                    [value]="
+                      zaak.vertrouwelijkheidaanduiding
+                        | vertrouwelijkaanduidingToTranslationKey
+                        | translate
+                        | empty
+                    "
                     class="flex-item"
                   ></zac-static-text>
                   <div

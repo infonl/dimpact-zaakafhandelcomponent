@@ -90,6 +90,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       );
 
     this.medewerkerGroepFormField = this.getMedewerkerGroupFormField(
+      !this.zaak.isOpen || !this.zaak.rechten.toekennen,
       this.zaak?.groep.id,
       this.zaak?.behandelaar?.id,
     );
@@ -100,18 +101,22 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       .id("communicatiekanaal")
       .label("communicatiekanaal")
       .options(this.communicatiekanalen)
+      .disabled(!this.zaak.rechten.wijzigen)
       .validators(Validators.required)
       .build();
 
     this.startDatumField = this.createDateFormField(
       "startdatum",
       this.zaak.startdatum,
+      !this.zaak.rechten.wijzigen || this.zaak.isProcesGestuurd,
       [Validators.required, (control) => this.validateStartDatum(control)],
     );
 
     this.einddatumGeplandField = this.createDateFormField(
       "einddatumGepland",
       this.zaak.einddatumGepland,
+      this.zaak.einddatumGepland &&
+        (!this.zaak.rechten.wijzigen || this.zaak.isProcesGestuurd),
       [
         this.zaak.einddatumGepland
           ? Validators.required
@@ -123,6 +128,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
     this.uiterlijkeEinddatumAfdoeningField = this.createDateFormField(
       "uiterlijkeEinddatumAfdoening",
       this.zaak.uiterlijkeEinddatumAfdoening,
+      !this.zaak.rechten.wijzigen || this.zaak.isProcesGestuurd,
       [
         Validators.required,
         (control) => this.validateUiterlijkeEinddatumAfdoening(control),
@@ -139,6 +145,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       .optionLabel("label")
       .options(this.vertrouwelijkheidaanduidingenList)
       .optionsOrder(OrderUtil.orderAsIs())
+      .disabled(!this.zaak.rechten.wijzigen)
       .validators(Validators.required)
       .build();
 
@@ -146,6 +153,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       .id("omschrijving")
       .label("omschrijving")
       .maxlength(80)
+      .disabled(!this.zaak.rechten.wijzigen)
       .validators(Validators.required)
       .build();
 
@@ -153,6 +161,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       .id("toelichting")
       .label("toelichting")
       .maxlength(1000)
+      .disabled(!this.zaak.rechten.wijzigen)
       .build();
 
     this.reasonField = new InputFormFieldBuilder()
@@ -176,32 +185,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       [this.reasonField],
     ];
 
-    if (!this.zaak.rechten.wijzigen) {
-      // Disable all fields
-      this.formFields.flat().forEach((field) => field.formControl.disable());
-    }
-
-    if (!this.zaak.rechten.toekennen) {
-      // Disable MedewerkerGroep field
-      this.formFields
-        .flat()
-        .find((field) => field.id === "assignment")
-        .formControl.disable();
-    }
-
-    if (!this.zaak.rechten.wijzigen && !this.zaak.rechten.toekennen) {
-      // All fields are disabled, no need to continue setting subscribers etc
-      return;
-    }
-
     this.formFields.flat().forEach((field) => {
-      // Disable einddatumGepland if not set
-      // Workaround; the .disable() method does not work as expected
-      if (field.id === "einddatumGepland" && !field.formControl.value) {
-        field.formControl.disable();
-        return;
-      }
-
       //Subscriptions to enable reason field when any other field changes and becomes dirty
       field.formControl.enabled &&
         field.formControl.valueChanges
@@ -217,23 +201,24 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
 
       // Subscription(s) to revalidate the 'other' enabled date field(s) after a date change, since error can be fixed for them as well
       if (field instanceof DateFormField && field.formControl.enabled) {
-        field.formControl.valueChanges
-          .pipe(takeUntil(this.ngDestroy))
-          .subscribe(() => {
-            this.formFields
-              .flat()
-              .filter(
-                (f) =>
-                  f instanceof DateFormField &&
-                  f.id !== field.id &&
-                  f.formControl.hasError("custom"),
-              )
-              .forEach((otherDateField) =>
-                otherDateField.formControl.updateValueAndValidity({
-                  emitEvent: false,
-                }),
-              );
-          });
+        field.formControl.enabled &&
+          field.formControl.valueChanges
+            .pipe(takeUntil(this.ngDestroy))
+            .subscribe(() => {
+              this.formFields
+                .flat()
+                .filter(
+                  (f) =>
+                    f instanceof DateFormField &&
+                    f.id !== field.id &&
+                    f.formControl.hasError("custom"),
+                )
+                .forEach((otherDateField) =>
+                  otherDateField.formControl.updateValueAndValidity({
+                    emitEvent: false,
+                  }),
+                );
+            });
       }
     });
   }
@@ -241,12 +226,14 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
   private createDateFormField(
     id: string,
     value: any,
+    disabled: boolean,
     validators: any[],
   ): DateFormField {
     return new DateFormFieldBuilder(value)
       .id(id)
       .label(id)
       .validators(...validators)
+      .disabled(disabled)
       .build();
   }
 
@@ -394,6 +381,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
   }
 
   private getMedewerkerGroupFormField(
+    disabled: boolean = false,
     groupId?: string,
     employeeId?: string,
   ): MedewerkerGroepFormField {
@@ -410,7 +398,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       .medewerkerLabel("actie.zaak.toekennen.medewerker")
       .groepRequired()
       .styleClass("row form-medewerker-groep")
-      .readonly(!this.zaak.rechten.toekennen)
+      .disabled(disabled)
       .build();
   }
 

@@ -32,4 +32,11 @@ export class DateFormFieldBuilder extends AbstractFormFieldBuilder {
     this.formField.showDays = true;
     return this;
   }
+
+  disabled(disable: boolean = true) {
+    if (disable) {
+      this.formField.formControl.disable();
+    }
+    return this;
+  }
 }
