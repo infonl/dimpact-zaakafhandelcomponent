@@ -2,19 +2,16 @@
 INSERT INTO accounts_user (id, password, last_login, is_superuser, username, first_name, last_name, email, is_staff, is_active, date_joined) VALUES (1, 'pbkdf2_sha256$260000$gtIe19cI1vW9RzIsRDpriC$o8G6cItI5vXqbGFcXuu0pbullajpvMDc6Hze70mf+jE=', null, true, 'admin', '', '', 'admin@example.com', true, true, '2023-08-08 15:14:56.735552 +00:00');
 
 -- Set up the Autorisatiecomponentconfiguratie
--- Unfortunately it seems that we need to use 'host.docker.internal' here to connect to Open Zaak. Not sure why.
--- Please see our 'testing.md' document on how to set this up.
-INSERT INTO authorizations_authorizationsconfig (component, authorizations_api_service_id) VALUES('ac', (SELECT id FROM zgw_consumers_service WHERE label = 'Authorization API service'));
+INSERT INTO authorizations_authorizationsconfig (component, authorizations_api_service_id) VALUES('ac', (SELECT id FROM zgw_consumers_service WHERE slug = 'authorization-api-service'));
 
 -- Set up the Notificatiescomponentconfiguratie
 -- We assume here that a record already exists with id=1 (this is provisioned by OpenNotificaties on startup)
-UPDATE notifications_api_common_notificationsconfig SET notifications_api_service_id=(SELECT id FROM zgw_consumers_service WHERE label = 'Authorization API service'), notification_delivery_max_retries=5, notification_delivery_retry_backoff=3, notification_delivery_retry_backoff_max=48 WHERE id=1;
+UPDATE notifications_api_common_notificationsconfig SET notifications_api_service_id=(SELECT id FROM zgw_consumers_service WHERE slug = 'authorization-api-service'), notification_delivery_max_retries=5, notification_delivery_retry_backoff=3, notification_delivery_retry_backoff_max=48 WHERE id=1;
 
 -- Set up the External API credentials
 -- Unfortunately it seems that we need to use 'host.docker.internal' here to connect to Open Zaak. Not sure why.
 -- Please see our 'testing.md' document on how to set this up.
--- TODO: table no longer exists
--- INSERT INTO vng_api_common_apicredential (api_root, client_id, secret, label, user_id, user_representation) VALUES('http://host.docker.internal:8001/autorisaties/api/v1/', 'open-zaak-autorisaties', 'openZaakAutorisatiesApiSecretKey', 'Open Zaak - Autorisaties', 'open-zaak-autorisaties', 'Open Zaak - Autorisaties');
+UPDATE zgw_consumers_service SET (api_root, client_id, secret) = ('http://host.docker.internal:8001/autorisaties/api/v1/', 'open-zaak-autorisaties', 'openZaakAutorisatiesApiSecretKey') WHERE slug = 'authorization-api-service';
 
 -- Set up the Autorisatiegegevens
 INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES('open-zaak-autorisaties', 'openZaakAutorisatiesApiSecretKey');
