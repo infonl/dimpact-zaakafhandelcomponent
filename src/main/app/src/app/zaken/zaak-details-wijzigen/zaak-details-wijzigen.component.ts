@@ -42,10 +42,9 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./zaak-details-wijzigen.component.less"],
 })
 export class CaseDetailsEditComponent implements OnInit, OnDestroy {
-  @Input() sideNav: MatDrawer;
   @Input() zaak: Zaak; // GeneratedType<"RestZaak">;
   @Input() loggedInUser: GeneratedType<"RestLoggedInUser">;
-  @Output() caseEdit = new EventEmitter<any>();
+  @Input() sideNav: MatDrawer;
 
   formFields: Array<AbstractFormField[]>;
   formConfig: FormConfig;
