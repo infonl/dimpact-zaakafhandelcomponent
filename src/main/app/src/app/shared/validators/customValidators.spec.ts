@@ -1,11 +1,11 @@
-import { AbstractControl, FormControl } from "@angular/forms";
-import { TranslateService } from "@ngx-translate/core";
-import { CustomValidators } from "./customValidators";
-
 /*
  * SPDX-FileCopyrightText: 2022 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
+import { AbstractControl, FormControl } from "@angular/forms";
+import { TranslateService } from "@ngx-translate/core";
+import { CustomValidators } from "./customValidators";
 
 describe("CustomValidators", () => {
   let translateService: TranslateService;
