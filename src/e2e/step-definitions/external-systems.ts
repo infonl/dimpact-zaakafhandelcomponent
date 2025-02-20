@@ -27,7 +27,7 @@ When(
     const sidebar = this.page.locator("div.sidenav-title");
     await sidebar.waitFor({ state: "visible" });
     await sidebar.getByText("Document maken");
-  }
+  },
 );
 
 When(
@@ -68,7 +68,7 @@ When(
 
     await this.expect(submitButton).toBeEnabled();
     await submitButton.click();
-  }
+  },
 );
 
 When(
@@ -77,7 +77,7 @@ When(
   async function (this: CustomWorld, user) {
     smartDocumentsWizardPage = await this.page.waitForEvent("popup");
     await this.expect(
-      smartDocumentsWizardPage.getByRole("link", { name: "SmartDocuments" })
+      smartDocumentsWizardPage.getByRole("link", { name: "SmartDocuments" }),
     ).toBeVisible();
 
     const klaarButton = smartDocumentsWizardPage.getByRole("button", {
@@ -86,7 +86,7 @@ When(
 
     await klaarButton.waitFor({ state: "visible" });
     await klaarButton.click();
-  }
+  },
 );
 
 When(
@@ -95,16 +95,16 @@ When(
   async function (this: CustomWorld, user) {
     const caseNumber = this.testStorage.get("caseNumber");
     const caseNumberLocator = smartDocumentsWizardPage.locator(
-      `text=${caseNumber}`
+      `text=${caseNumber}`,
     );
     await expect(caseNumberLocator).toHaveCount(2);
 
     // This locator selects the status message container of the wizard.
     // The status message container is only visible when the wizard has been completed.
     const wizardResultDiv = smartDocumentsWizardPage.locator(
-      '[role="status"][aria-live="polite"]'
+      '[role="status"][aria-live="polite"]',
     );
-    
+
     await wizardResultDiv.waitFor({ state: "attached" });
     await expect(wizardResultDiv).toBeVisible();
 
@@ -112,7 +112,7 @@ When(
     await expect(wizardResultDiv.getByText("succes")).toBeVisible();
 
     await smartDocumentsWizardPage.close();
-  }
+  },
 );
 
 When(
@@ -132,7 +132,7 @@ When(
 
     const anchorLocator = this.page.locator('a[title="Document bekijken"]');
     await anchorLocator.click();
-  }
+  },
 );
 
 Then(
@@ -146,21 +146,21 @@ Then(
     await expect(tabPanelLocator).toBeVisible();
 
     const documentTitleText = tabPanelLocator.locator(
-      `text=${documentInput.title}`
+      `text=${documentInput.title}`,
     );
     await documentTitleText.waitFor({ state: "attached" });
     await expect(documentTitleText).toBeVisible();
 
     const documnentDescriptionText = tabPanelLocator.locator(
-      `text=${documentInput.description}`
+      `text=${documentInput.description}`,
     );
     await documnentDescriptionText.waitFor({ state: "attached" });
     await expect(documnentDescriptionText).toBeVisible();
 
     const documnentAuthor = tabPanelLocator.locator(
-      `text=${documentInput.author}`
+      `text=${documentInput.author}`,
     );
     await documnentAuthor.waitFor({ state: "attached" });
     await expect(documnentAuthor).toBeVisible();
-  }
+  },
 );
