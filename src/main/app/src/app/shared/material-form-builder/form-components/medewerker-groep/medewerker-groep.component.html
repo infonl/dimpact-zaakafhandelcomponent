@@ -22,9 +22,7 @@
       <mat-icon
         matSuffix
         *ngIf="!hasGroep"
-        [ngClass]="{
-          error: data.groep.invalid && data.formControl.dirty,
-        }"
+        [ngClass]="{ error: data.groep.invalid && data.formControl.dirty }"
         >search</mat-icon
       >
       <button
@@ -32,13 +30,12 @@
         type="button"
         mat-icon-button
         matSuffix
+        disabled="data.groep.disabled"
         [attr.aria-label]="'actie.wissen.aria-label' | translate"
         (click)="clearField(data.groep)"
       >
         <mat-icon
-          [ngClass]="{
-            error: data.groep.invalid && data.formControl.dirty,
-          }"
+          [ngClass]="{ error: data.groep.invalid && data.formControl.dirty }"
           >clear</mat-icon
         >
       </button>
@@ -77,6 +74,7 @@
         type="button"
         mat-icon-button
         matSuffix
+        disabled="data.groep.disabled"
         [attr.aria-label]="'actie.wissen.aria-label' | translate"
         (click)="clearField(data.medewerker)"
       >
