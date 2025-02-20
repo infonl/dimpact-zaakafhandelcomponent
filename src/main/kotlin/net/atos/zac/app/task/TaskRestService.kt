@@ -21,8 +21,8 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.SoortEnum
@@ -106,13 +106,19 @@ class TaskRestService @Inject constructor(
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
     private val opschortenZaakHelper: SuspensionZaakHelper,
     private val formulierRuntimeService: FormulierRuntimeService,
-    private val zaakVariabelenService: ZaakVariabelenService
+    private val zaakVariabelenService: ZaakVariabelenService,
+
+    /**
+     * Declare a Kotlin coroutine dispatcher here so that it can be overridden in unit tests with a test dispatcher
+     * while in normal operation it will be injected using [nl.info.zac.util.CoroutineDispatcherProducer].
+     */
+    private val dispatcher: CoroutineDispatcher
 ) {
     @GET
     @Path("zaak/{zaakUUID}")
     fun listTasksForZaak(@PathParam("zaakUUID") zaakUUID: UUID): List<RestTask> {
         assertPolicy(policyService.readZaakRechten(zrcClientService.readZaak(zaakUUID)).lezen)
-        return restTaskConverter.convert(flowableTaskService.listTasksForZaak(zaakUUID))
+        return restTaskConverter.convert(taskService.listTasksForZaak(zaakUUID))
     }
 
     @GET
@@ -177,7 +183,7 @@ class TaskRestService @Inject constructor(
     fun distributeFromList(@Valid restTaskDistributeData: RestTaskDistributeData) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(dispatcher).launch {
             taskService.assignTasks(
                 restTaskDistributeData = restTaskDistributeData,
                 loggedInUser = loggedInUserInstance.get(),
@@ -191,7 +197,7 @@ class TaskRestService @Inject constructor(
     fun releaseFromList(@Valid restTaskReleaseData: RestTaskReleaseData) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(dispatcher).launch {
             taskService.releaseTasks(
                 restTaskReleaseData = restTaskReleaseData,
                 loggedInUser = loggedInUserInstance.get(),
@@ -386,7 +392,8 @@ class TaskRestService @Inject constructor(
         loggedInUserInstance.get().let { loggedInUser ->
             signaleringService.deleteSignaleringen(
                 SignaleringZoekParameters(loggedInUser)
-                    .types(SignaleringType.Type.TAAK_OP_NAAM).subject(taskInfo)
+                    .types(SignaleringType.Type.TAAK_OP_NAAM)
+                    .subject(taskInfo)
             )
             signaleringService.deleteSignaleringen(
                 SignaleringZoekParameters(loggedInUser)

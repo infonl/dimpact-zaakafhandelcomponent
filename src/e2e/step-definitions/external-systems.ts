@@ -35,7 +35,7 @@ When(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
     const submitButton = this.page.getByRole("button", {
-      name: /Toevoegen|Add/, // Matches "Toevoegen" OR "Add"
+      name: /Toevoegen/,
     });
 
     await submitButton.waitFor({ state: "visible" });
@@ -51,17 +51,17 @@ When(
     await this.page.getByLabel("Sjabloon").last().click();
     await this.page.getByRole("option", { name: "OpenZaakTest" }).click();
 
-    const inputTitle = this.page.getByLabel(/Titel|Title/i);
+    const inputTitle = this.page.getByLabel(/Titel/i);
     await inputTitle.click();
     await inputTitle.fill(documentInput.title);
     await expect(inputTitle).toHaveValue(documentInput.title);
 
-    const inputDescription = this.page.getByLabel(/Beschrijving|Description/i);
+    const inputDescription = this.page.getByLabel(/Beschrijving/i);
     await inputDescription.click();
     await inputDescription.fill(documentInput.description);
     await expect(inputDescription).toHaveValue(documentInput.description);
 
-    const inputAuthor = this.page.getByLabel(/Auteur|Author/i);
+    const inputAuthor = this.page.getByLabel(/Auteur/i);
     await inputAuthor.click();
     await inputAuthor.fill(documentInput.author);
     await expect(inputAuthor).toHaveValue(documentInput.author);
@@ -81,7 +81,7 @@ When(
     ).toBeVisible();
 
     const klaarButton = smartDocumentsWizardPage.getByRole("button", {
-      name: /Klaar|Done/, // Matches "Klaar" OR "Done"
+      name: /Klaar/i,
     });
 
     await klaarButton.waitFor({ state: "visible" });

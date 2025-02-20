@@ -20,8 +20,8 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.brc.BrcClientService
@@ -96,7 +96,7 @@ import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.flowable.bpmn.BPMNService
+import net.atos.zac.flowable.bpmn.BpmnService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.healthcheck.HealthCheckService
@@ -110,8 +110,6 @@ import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.signalering.SignaleringService
-import net.atos.zac.signalering.model.SignaleringType
-import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.util.time.LocalDateUtil
 import net.atos.zac.websocket.event.ScreenEventType
@@ -151,7 +149,7 @@ class ZaakRestService @Inject constructor(
     private val indexingService: IndexingService,
     private val policyService: PolicyService,
     private val cmmnService: CMMNService,
-    private val bpmnService: BPMNService,
+    private val bpmnService: BpmnService,
     private val flowableTaskService: FlowableTaskService,
     private val objectsClientService: ObjectsClientService,
     private val inboxProductaanvraagService: InboxProductaanvraagService,
@@ -167,7 +165,13 @@ class ZaakRestService @Inject constructor(
     private val healthCheckService: HealthCheckService,
     private val opschortenZaakHelper: SuspensionZaakHelper,
     private val zaakService: ZaakService,
-    private val zaakHistoryService: ZaakHistoryService
+    private val zaakHistoryService: ZaakHistoryService,
+
+    /**
+     * Declare a Kotlin coroutine dispatcher here so that it can be overridden in unit tests with a test dispatcher
+     * while in normal operation it will be injected using [nl.info.zac.util.CoroutineDispatcherProducer].
+     */
+    private val dispatcher: CoroutineDispatcher
 ) {
     companion object {
         private const val ROL_VERWIJDER_REDEN = "Verwijderd door de medewerker tijdens het behandelen van de zaak"
@@ -183,7 +187,7 @@ class ZaakRestService @Inject constructor(
         zrcClientService.readZaak(zaakUUID).let { zaak ->
             restZaakConverter.toRestZaak(zaak).also {
                 assertPolicy(it.rechten.lezen)
-                deleteSignaleringen(zaak)
+                signaleringService.deleteSignaleringenForZaak(zaak)
             }
         }
 
@@ -193,7 +197,7 @@ class ZaakRestService @Inject constructor(
         zrcClientService.readZaakByID(identificatie).let { zaak ->
             restZaakConverter.toRestZaak(zaak).also {
                 assertPolicy(it.rechten.lezen)
-                deleteSignaleringen(zaak)
+                signaleringService.deleteSignaleringenForZaak(zaak)
             }
         }
 
@@ -255,8 +259,7 @@ class ZaakRestService @Inject constructor(
             policyService.readOverigeRechten().startenZaak &&
                 loggedInUserInstance.get().isAuthorisedForZaaktype(zaaktype.omschrijving)
         )
-        val zaak = restZaakConverter.toZaak(restZaak, zaaktype)
-            .let(zgwApiService::createZaak)
+        val zaak = restZaakConverter.toZaak(restZaak, zaaktype).let(zgwApiService::createZaak)
         restZaak.initiatorIdentificatie?.takeIf { it.isNotEmpty() }?.let {
             addInitiator(
                 restZaak.initiatorIdentificatieType!!,
@@ -265,13 +268,22 @@ class ZaakRestService @Inject constructor(
             )
         }
         restZaak.groep?.let {
-            val group = identityService.readGroup(it.id)
-            zrcClientService.updateRol(zaak, zaakService.bepaalRolGroep(group, zaak), AANMAKEN_ZAAK_REDEN)
+            zrcClientService.updateRol(
+                zaak,
+                zaakService.bepaalRolGroep(identityService.readGroup(it.id), zaak),
+                AANMAKEN_ZAAK_REDEN
+            )
         }
         restZaak.behandelaar?.let {
-            val user = identityService.readUser(it.id)
-            zrcClientService.updateRol(zaak, zaakService.bepaalRolMedewerker(user, zaak), AANMAKEN_ZAAK_REDEN)
+            zrcClientService.updateRol(
+                zaak,
+                zaakService.bepaalRolMedewerker(identityService.readUser(it.id), zaak),
+                AANMAKEN_ZAAK_REDEN
+            )
         }
+        // if BPMN support is enabled and if a referentieproces is defined for the zaaktype, start a BPMN process
+        // note that we misuse the referentieproces-name field to indicate that we use BPMN for a certain zaaktype
+        // however this needs to be changed because this field is actually filled for all our 'CMMN' zaaktypes currently..
         if (configuratieService.featureFlagBpmnSupport() && zaaktype.referentieproces?.naam?.isNotEmpty() == true) {
             bpmnService.startProcess(
                 zaak,
@@ -562,7 +574,7 @@ class ZaakRestService @Inject constructor(
     fun assignFromList(@Valid restZakenVerdeelGegevens: RESTZakenVerdeelGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(dispatcher).launch {
             zaakService.assignZaken(
                 zaakUUIDs = restZakenVerdeelGegevens.uuids,
                 explanation = restZakenVerdeelGegevens.reden,
@@ -588,7 +600,7 @@ class ZaakRestService @Inject constructor(
     fun releaseFromList(@Valid restZakenVrijgevenGegevens: RESTZakenVrijgevenGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(dispatcher).launch {
             zaakService.releaseZaken(
                 zaakUUIDs = restZakenVrijgevenGegevens.uuids,
                 explanation = restZakenVrijgevenGegevens.reden,
@@ -888,14 +900,13 @@ class ZaakRestService @Inject constructor(
     @GET
     @Path("{uuid}/procesdiagram")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    fun downloadProcessDiagram(@PathParam("uuid") uuid: UUID?): Response {
-        return Response.ok(bpmnService.getProcessDiagram(uuid))
+    fun downloadProcessDiagram(@PathParam("uuid") uuid: UUID): Response =
+        Response.ok(bpmnService.getProcessDiagram(uuid))
             .header(
                 "Content-Disposition",
-                "attachment; filename=\"procesdiagram.gif\""
+                """attachment; filename="procesdiagram.gif"""".trimIndent()
             )
             .build()
-    }
 
     @GET
     @Path("procesvariabelen")
@@ -954,14 +965,6 @@ class ZaakRestService @Inject constructor(
     }
 
     private fun datumWaarschuwing(vandaag: LocalDate, dagen: Int): LocalDate = vandaag.plusDays(dagen + 1L)
-
-    private fun deleteSignaleringen(zaak: Zaak) {
-        signaleringService.deleteSignaleringen(
-            SignaleringZoekParameters(loggedInUserInstance.get())
-                .types(SignaleringType.Type.ZAAK_OP_NAAM, SignaleringType.Type.ZAAK_DOCUMENT_TOEGEVOEGD)
-                .subject(zaak)
-        )
-    }
 
     private fun assignLoggedInUserToZaak(
         zaakUUID: UUID,

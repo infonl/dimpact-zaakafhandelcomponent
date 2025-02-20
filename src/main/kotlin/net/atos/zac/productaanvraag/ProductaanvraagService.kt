@@ -35,7 +35,7 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documenten.InboxDocumentenService
-import net.atos.zac.flowable.bpmn.BPMNService
+import net.atos.zac.flowable.bpmn.BpmnService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
@@ -72,7 +72,7 @@ class ProductaanvraagService @Inject constructor(
     private val inboxDocumentenService: InboxDocumentenService,
     private val inboxProductaanvraagService: InboxProductaanvraagService,
     private val cmmnService: CMMNService,
-    private val bpmnService: BPMNService,
+    private val bpmnService: BpmnService,
     private val configuratieService: ConfiguratieService
 ) {
     companion object {

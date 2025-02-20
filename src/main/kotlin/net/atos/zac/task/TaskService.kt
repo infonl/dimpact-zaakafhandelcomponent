@@ -22,6 +22,7 @@ import net.atos.zac.zoeken.IndexingService
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import org.flowable.task.api.Task
+import org.flowable.task.api.TaskInfo
 import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -127,6 +128,11 @@ class TaskService @Inject constructor(
         )
         updatedTask
     }
+
+    /**
+     * Returns any Flowable tasks that are part of a zaak for a given ZAAK UUID.
+     */
+    fun listTasksForZaak(zaakUUID: UUID): List<TaskInfo> = flowableTaskService.listTasksForZaak(zaakUUID)
 
     /**
      * Releases a list of tasks from any assigned user, sends corresponding screen events

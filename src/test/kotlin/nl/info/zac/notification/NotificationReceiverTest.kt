@@ -19,10 +19,18 @@ import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.Response
 import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.documenten.InboxDocumentenService
+import net.atos.zac.documenten.model.InboxDocument
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.flowable.createTestTask
 import net.atos.zac.productaanvraag.ProductaanvraagService
+import net.atos.zac.signalering.SignaleringService
+import net.atos.zac.signalering.model.SignaleringSubject
+import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
+import net.atos.zac.signalering.model.SignaleringZoekParameters
+import net.atos.zac.task.TaskService
+import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.zoeken.IndexingService
 import java.net.URI
 import java.util.UUID
@@ -34,9 +42,11 @@ class NotificationReceiverTest : BehaviorSpec({
     val productaanvraagService = mockk<ProductaanvraagService>()
     val indexingService = mockk<IndexingService>()
     val inboxDocumentenService = mockk<InboxDocumentenService>()
+    val signaleringService = mockk<SignaleringService>()
     val zaakafhandelParameterBeheerService = mockk<ZaakafhandelParameterBeheerService>()
     val cmmnService = mockk<CMMNService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
+    val taskService = mockk<TaskService>()
     val httpHeaders = mockk<HttpHeaders>()
     val httpSession = mockk<HttpSession>(relaxed = true)
     val httpSessionInstance = mockk<Instance<HttpSession>>()
@@ -48,6 +58,8 @@ class NotificationReceiverTest : BehaviorSpec({
         zaakafhandelParameterBeheerService = zaakafhandelParameterBeheerService,
         cmmnService = cmmnService,
         zaakVariabelenService = zaakVariabelenService,
+        signaleringService = signaleringService,
+        taskService = taskService,
         secret = SECRET,
         httpSession = httpSessionInstance
     )
@@ -166,7 +178,12 @@ class NotificationReceiverTest : BehaviorSpec({
             }
         }
     }
-    Given("A CMMN case and a request containing an authorization header and a 'zaak destroy' notificatie") {
+    Given(
+        """
+            A CMMN case with a related task and a request containing an authorization header
+             and a 'zaak destroy' notificatie
+        """.trimIndent()
+    ) {
         val zaakUUID = UUID.randomUUID()
         val zaakUri = URI("http://example.com/dummyzaak/$zaakUUID")
         val notificatie = createNotificatie(
@@ -175,23 +192,117 @@ class NotificationReceiverTest : BehaviorSpec({
             resourceUrl = zaakUri,
             action = Action.DELETE
         )
+        val taskId = "dummyTaskId"
+        val tasks = listOf(createTestTask(id = taskId))
+        val signaleringZoekParametersSlot = mutableListOf<SignaleringZoekParameters>()
+        val signaleringVerzondenZoekParameters = mutableListOf<SignaleringVerzondenZoekParameters>()
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
         every { cmmnService.deleteCase(zaakUUID) } returns Unit
         every { zaakVariabelenService.deleteAllCaseVariables(zaakUUID) } just Runs
         every { indexingService.removeZaak(zaakUUID) } just Runs
+        every { indexingService.removeTaak(taskId) } just Runs
+        every { signaleringService.deleteSignaleringen(capture(signaleringZoekParametersSlot)) } just Runs
+        every { signaleringService.deleteSignaleringVerzonden(capture(signaleringVerzondenZoekParameters)) } just Runs
+        every { taskService.listTasksForZaak(zaakUUID) } returns tasks
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
 
         When("notificatieReceive is called with the zaak destroy notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
 
             Then(
-                "the CMMN case is successfully deleted and the zaak is removed from the search index"
+                """
+                   the CMMN case is successfully deleted, the zaak is removed from the search index,
+                   any signaleringen related to the zaak are deleted and a screen event is sent
+               """
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
                     cmmnService.deleteCase(zaakUUID)
                     zaakVariabelenService.deleteAllCaseVariables(zaakUUID)
                     indexingService.removeZaak(zaakUUID)
+                    indexingService.removeTaak(taskId)
+                    eventingService.send(any<ScreenEvent>())
+                }
+                // signaleringen and signalering verzonden records should be deleted
+                // both for the zaak and the related task
+                verify(exactly = 2) {
+                    signaleringService.deleteSignaleringen(any())
+                    signaleringService.deleteSignaleringVerzonden(any())
+                }
+                signaleringZoekParametersSlot[0].run {
+                    subjecttype shouldBe SignaleringSubject.ZAAK
+                    subject shouldBe zaakUUID.toString()
+                }
+                signaleringZoekParametersSlot[1].run {
+                    subjecttype shouldBe SignaleringSubject.TAAK
+                    subject shouldBe tasks[0].id
+                }
+                signaleringVerzondenZoekParameters[0].run {
+                    subjecttype shouldBe SignaleringSubject.ZAAK
+                    subject shouldBe zaakUUID.toString()
+                }
+                signaleringVerzondenZoekParameters[1].run {
+                    subjecttype shouldBe SignaleringSubject.TAAK
+                    subject shouldBe tasks[0].id
+                }
+            }
+        }
+    }
+    Given("A 'create informatieobject' notification") {
+        val informatieobjectUUID = UUID.randomUUID()
+        val informatieobjectURI = URI("http://example.com/dummyzaak/$informatieobjectUUID")
+        val notificatie = createNotificatie(
+            channel = Channel.INFORMATIEOBJECTEN,
+            resource = Resource.INFORMATIEOBJECT,
+            resourceUrl = informatieobjectURI,
+            action = Action.CREATE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        every { indexingService.addOrUpdateInformatieobject(informatieobjectUUID) } just Runs
+        every { inboxDocumentenService.create(informatieobjectUUID) } returns mockk<InboxDocument>()
+
+        When("the notification is handled") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            Then(
+                "an inbox document is created, the informatieobject is added to the search index, and no screen event is sent"
+            ) {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 1) {
+                    indexingService.addOrUpdateInformatieobject(informatieobjectUUID)
+                }
+                verify(exactly = 0) {
+                    // no screen event should be sent because it concerns a 'create' action
+                    // (no websocket can be listening for events on a resource that does not yet exis)
+                    eventingService.send(any<ScreenEvent>())
+                }
+            }
+        }
+    }
+    Given("A 'destroy informatieobject' notification") {
+        val informatieobjectUUID = UUID.randomUUID()
+        val informatieobjectURI = URI("http://example.com/dummyzaak/$informatieobjectUUID")
+        val notificatie = createNotificatie(
+            channel = Channel.INFORMATIEOBJECTEN,
+            resource = Resource.INFORMATIEOBJECT,
+            resourceUrl = informatieobjectURI,
+            action = Action.DELETE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        every { indexingService.removeInformatieobject(informatieobjectUUID) } just Runs
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
+
+        When("the notification is handled") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            Then("the informatieobject is added to the search index and a screen event is sent") {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 1) {
+                    indexingService.removeInformatieobject(informatieobjectUUID)
+                    eventingService.send(any<ScreenEvent>())
                 }
             }
         }

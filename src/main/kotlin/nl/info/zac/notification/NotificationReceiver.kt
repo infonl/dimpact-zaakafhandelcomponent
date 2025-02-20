@@ -25,12 +25,18 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.productaanvraag.ProductaanvraagService
+import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.event.SignaleringEventUtil
+import net.atos.zac.signalering.model.SignaleringSubject
+import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
+import net.atos.zac.signalering.model.SignaleringZoekParameters
+import net.atos.zac.task.TaskService
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zoeken.IndexingService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
+import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -44,7 +50,7 @@ import java.util.logging.Logger
 @Singleton
 @NoArgConstructor
 @AllOpen
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class NotificationReceiver @Inject constructor(
     private val eventingService: EventingService,
     private val productaanvraagService: ProductaanvraagService,
@@ -53,6 +59,8 @@ class NotificationReceiver @Inject constructor(
     private val zaakafhandelParameterBeheerService: ZaakafhandelParameterBeheerService,
     private val cmmnService: CMMNService,
     private val zaakVariabelenService: ZaakVariabelenService,
+    private val signaleringService: SignaleringService,
+    private val taskService: TaskService,
 
     @ConfigProperty(name = "OPEN_NOTIFICATIONS_API_SECRET_KEY")
     private val secret: String,
@@ -82,6 +90,54 @@ class NotificationReceiver @Inject constructor(
         return Response.noContent().build()
     }
 
+    /**
+     * Deletes zaak and related task signaleringen as well as 'zaak sent (verzonden)' and 'task sent (verzonden)' records
+     * for the given zaak UUID.
+     */
+    private fun deleteSignaleringenForZaak(zaakUUID: UUID) {
+        signaleringService.deleteSignaleringen(
+            SignaleringZoekParameters(
+                SignaleringSubject.ZAAK,
+                zaakUUID.toString()
+            )
+        ).also {
+            LOG.info("Deleted $it zaak signaleringen for zaak with UUID '$zaakUUID'.")
+        }
+        signaleringService.deleteSignaleringVerzonden(
+            SignaleringVerzondenZoekParameters(
+                SignaleringSubject.ZAAK,
+                zaakUUID.toString()
+            )
+        ).also {
+            LOG.info("Deleted $it 'zaak signaleringen verzonden' records for zaak with UUID '$zaakUUID'.")
+        }
+        taskService.listTasksForZaak(zaakUUID).forEach { task ->
+            signaleringService.deleteSignaleringen(
+                SignaleringZoekParameters(
+                    SignaleringSubject.TAAK,
+                    task.id
+                )
+            ).also {
+                LOG.info(
+                    "Deleted $it taak signaleringen for task with ID '${task.id}' and zaak with UUID: '$zaakUUID'."
+                )
+            }
+            signaleringService.deleteSignaleringVerzonden(
+                SignaleringVerzondenZoekParameters(
+                    SignaleringSubject.TAAK,
+                    task.id
+                )
+            ).also {
+                LOG.info(
+                    """
+                        Deleted $it 'taak signaleringen verzonden' records for task with ID '${task.id}' and 
+                        zaak with UUID: '$zaakUUID'.
+                    """.trimIndent()
+                )
+            }
+        }
+    }
+
     private fun isAuthenticated(headers: HttpHeaders) = secret == headers.getHeaderString(HttpHeaders.AUTHORIZATION)
 
     /**
@@ -93,10 +149,10 @@ class NotificationReceiver @Inject constructor(
         try {
             if (notification.channel == Channel.ZAKEN && notification.resource == Resource.ZAAK && notification.action == Action.DELETE) {
                 notification.resourceUrl.extractUuid().let { zaakUUID ->
-                    LOG.info { "Deleting Flowable process data for zaak '$zaakUUID'" }
+                    LOG.info { "Deleting Flowable process data for zaak with UUID '$zaakUUID'" }
                     cmmnService.deleteCase(zaakUUID)
                     zaakVariabelenService.deleteAllCaseVariables(zaakUUID)
-                    LOG.info { "Successfully deleted Flowable process data for zaak '$zaakUUID'" }
+                    LOG.info { "Successfully deleted Flowable process data for zaak with UUID '$zaakUUID'" }
                 }
             }
         } catch (exception: RuntimeException) {
@@ -120,7 +176,9 @@ class NotificationReceiver @Inject constructor(
                 notification.channel,
                 notification.getMainResourceInfo(),
                 notification.getResourceInfo()
-            ).forEach(eventingService::send)
+            ).forEach {
+                eventingService.send(it)
+            }
         } catch (exception: RuntimeException) {
             warning("websockets", notification, exception)
         }
@@ -129,6 +187,12 @@ class NotificationReceiver @Inject constructor(
     @Suppress("TooGenericExceptionCaught")
     private fun handleSignaleringen(notification: Notification) {
         try {
+            // in case of a 'zaak destroy' notification remove any existing zaak
+            // and task signaleringen for this zaak
+            if (notification.channel == Channel.ZAKEN && notification.resource == Resource.ZAAK && notification.action == Action.DELETE) {
+                deleteSignaleringenForZaak(notification.resourceUrl.extractUuid())
+            }
+            // send signalering events for this notification
             SignaleringEventUtil.getEvents(
                 notification.channel,
                 notification.getMainResourceInfo(),
@@ -146,12 +210,18 @@ class NotificationReceiver @Inject constructor(
                 Channel.ZAKEN -> {
                     when (notification.resource) {
                         Resource.ZAAK -> {
+                            val zaakUUID = notification.resourceUrl.extractUuid()
                             when (notification.action) {
                                 Action.CREATE, Action.UPDATE -> indexingService.addOrUpdateZaak(
-                                    notification.resourceUrl.extractUuid(),
+                                    zaakUUID,
                                     notification.action == Action.UPDATE
                                 )
-                                Action.DELETE -> indexingService.removeZaak(notification.resourceUrl.extractUuid())
+                                Action.DELETE -> {
+                                    indexingService.removeZaak(zaakUUID)
+                                    taskService.listTasksForZaak(zaakUUID).forEach {
+                                        indexingService.removeTaak(it.id)
+                                    }
+                                }
                                 else -> {}
                             }
                         }
@@ -170,13 +240,12 @@ class NotificationReceiver @Inject constructor(
                 }
                 Channel.INFORMATIEOBJECTEN -> {
                     if (notification.resource == Resource.INFORMATIEOBJECT) {
+                        val informatieobjectUUID = notification.resourceUrl.extractUuid()
                         when (notification.action) {
                             Action.CREATE, Action.UPDATE -> indexingService.addOrUpdateInformatieobject(
-                                notification.resourceUrl.extractUuid()
+                                informatieobjectUUID
                             )
-                            Action.DELETE -> indexingService.removeInformatieobject(
-                                notification.resourceUrl.extractUuid()
-                            )
+                            Action.DELETE -> indexingService.removeInformatieobject(informatieobjectUUID)
                             else -> {}
                         }
                     }
@@ -192,13 +261,10 @@ class NotificationReceiver @Inject constructor(
     private fun handleInboxDocuments(notification: Notification) {
         try {
             if (notification.action == Action.CREATE) {
+                val enkelvoudigInformatieobjectUuid = notification.resourceUrl.extractUuid()
                 when (notification.resource) {
-                    Resource.INFORMATIEOBJECT -> inboxDocumentenService.create(
-                        notification.resourceUrl.extractUuid()
-                    )
-                    Resource.ZAAKINFORMATIEOBJECT -> inboxDocumentenService.delete(
-                        notification.resourceUrl.extractUuid()
-                    )
+                    Resource.INFORMATIEOBJECT -> inboxDocumentenService.create(enkelvoudigInformatieobjectUuid)
+                    Resource.ZAAKINFORMATIEOBJECT -> inboxDocumentenService.delete(enkelvoudigInformatieobjectUuid)
                     else -> {}
                 }
             }

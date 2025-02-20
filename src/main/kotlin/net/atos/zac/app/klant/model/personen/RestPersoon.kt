@@ -113,12 +113,14 @@ fun PersoonBeperkt.toRestPersoon() = RestPersoon(
     geboortedatum = this.geboorte?.datum?.toStringRepresentation(),
     naam = this.naam?.volledigeNaam,
     verblijfplaats = this.adressering?.let {
-        StringUtil.joinNonBlankWith(
-            ", ",
+        listOfNotNull(
             it.adresregel1,
             it.adresregel2,
-            it.adresregel3
+            it.adresregel3,
+            it.land?.omschrijving
         )
+            .joinToString()
+            .replace(StringUtils.SPACE, StringUtil.NON_BREAKING_SPACE)
     },
 ).apply {
     if (inOnderzoek != null) {
@@ -202,28 +204,24 @@ private fun AbstractVerblijfplaats.toStringRepresentation(): String? =
         else -> null
     }
 
-private fun VerblijfadresBinnenland.toStringRepresentation(): String {
-    val adres = StringUtils.replace(
-        StringUtil.joinNonBlankWith(
-            StringUtil.NON_BREAKING_SPACE,
-            this.officieleStraatnaam,
-            Objects.toString(this.huisnummer, null),
-            this.huisnummertoevoeging,
-            this.huisletter
-        ),
-        StringUtils.SPACE,
-        StringUtil.NON_BREAKING_SPACE
-    )
-    val postcode = StringUtils.replace(this.postcode, StringUtils.SPACE, StringUtil.NON_BREAKING_SPACE)
-    val woonplaats = StringUtils.replace(this.woonplaats, StringUtils.SPACE, StringUtil.NON_BREAKING_SPACE)
-    return StringUtil.joinNonBlankWith(", ", adres, postcode, woonplaats)
-}
+private fun VerblijfadresBinnenland.toStringRepresentation() =
+    listOfNotNull(
+        this.officieleStraatnaam,
+        Objects.toString(this.huisnummer, null),
+        this.huisnummertoevoeging,
+        this.huisletter,
+    ).joinToString(StringUtil.NON_BREAKING_SPACE).let { address ->
+        listOfNotNull(address, this.postcode, this.woonplaats)
+            .joinToString()
+            .replace(StringUtils.SPACE, StringUtil.NON_BREAKING_SPACE)
+    }
 
-private fun VerblijfadresBuitenland.toStringRepresentation(): String {
-    return StringUtil.joinNonBlankWith(
-        ", ",
+private fun VerblijfadresBuitenland.toStringRepresentation() =
+    listOfNotNull(
         this.regel1,
         this.regel2,
-        this.regel3
+        this.regel3,
+        land?.omschrijving
     )
-}
+        .joinToString()
+        .replace(StringUtils.SPACE, StringUtil.NON_BREAKING_SPACE)
