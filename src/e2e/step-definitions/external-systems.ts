@@ -99,9 +99,12 @@ When(
     );
     await expect(caseNumberLocator).toHaveCount(2);
 
+    // This locator selects the status message container of the wizard.
+    // The status message container is only visible when the wizard has been completed.
     const wizardResultDiv = smartDocumentsWizardPage.locator(
       '[role="status"][aria-live="polite"]',
     );
+
     await wizardResultDiv.waitFor({ state: "attached" });
     await expect(wizardResultDiv).toBeVisible();
 

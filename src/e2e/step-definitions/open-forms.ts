@@ -25,28 +25,33 @@ Given(
     const id = uniqid();
     this.testStorage.set("open-forms-testid", id);
 
+    const firstNameInput = this.page.getByLabel("Voornaam").nth(0);
+
+    const firstLetterInput = this.page.getByLabel("Voorletter(s)").nth(0);
+
+    const infixInput = this.page.getByLabel("Tussenvoegsel(s)").nth(0);
+
+    const lastNameInput = this.page.getByLabel("Achternaam").nth(0);
+
     await this.page.goto(
       `${this.worldParameters.urls.openForms}/indienen-aansprakelijkstelling-door-derden-behandelen-2/startpagina`,
     );
+
     await this.page.getByRole("button", { name: "Formulier starten" }).click();
 
     // Personal details
-    await this.page.locator("#e67qrl9-demovoornaam").click();
-    await this.page
-      .locator("#e67qrl9-demovoornaam")
-      .fill(profile.personalDetails.firstName + `:e2eid=${id}`);
-    await this.page.locator("#e5c2pwf-demovoorletters").click();
-    await this.page
-      .locator("#e5c2pwf-demovoorletters")
-      .fill(profile.personalDetails.initials);
-    await this.page.locator("#ew8j534-demotussenvoegsels").click();
-    await this.page
-      .locator("#ew8j534-demotussenvoegsels")
-      .fill(profile.personalDetails.prefix);
-    await this.page.locator("#efjsdnh-demoachternaam").click();
-    await this.page
-      .locator("#efjsdnh-demoachternaam")
-      .fill(profile.personalDetails.lastName);
+    await firstNameInput.click();
+    await this.page;
+    firstNameInput.fill(profile.personalDetails.firstName + `:e2eid=${id}`);
+
+    await firstLetterInput.click();
+    await firstLetterInput.fill(profile.personalDetails.initials);
+
+    await infixInput.click();
+    await infixInput.fill(profile.personalDetails.prefix);
+
+    await lastNameInput.click();
+    await lastNameInput.fill(profile.personalDetails.lastName);
     await this.page.getByRole("button", { name: "Volgende" }).click();
 
     // Incident details
@@ -60,13 +65,15 @@ Given(
       .fill(profile.incidentDetails.date);
     await this.page.getByLabel("materiële schade aan een").check();
     await this.page.getByLabel("ja", { exact: true }).check();
-    await this.page.waitForSelector("#ej3ph74-hoeveelGetuigen", {
-      state: "attached",
-    });
-    await this.page.getByText("Hoeveel getuigen?", { exact: true });
+
     await this.page
-      .locator("#ej3ph74-hoeveelGetuigen")
-      .evaluate((node) => node.click());
+      .getByLabel("Hoeveel getuigen?")
+      .waitFor({ state: "attached" });
+
+    await this.page.getByText("Hoeveel getuigen?", { exact: true });
+    await this.page;
+    this.page.getByLabel("Hoeveel getuigen?").evaluate((node) => node.click());
+
     await this.page.getByRole("option", { name: "1" }).click();
     await this.page.getByLabel("ja, digitaal bij deze melding").check();
     await this.page.getByRole("combobox").nth(1).click();
