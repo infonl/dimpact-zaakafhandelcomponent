@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.9](https://img.shields.io/badge/Version-1.0.9-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
+![Version: 1.0.10](https://img.shields.io/badge/Version-1.0.10-informational?style=flat-square) ![AppVersion: 3.0](https://img.shields.io/badge/AppVersion-3.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -184,7 +184,7 @@ helm install my-release zac/zaakafhandelcomponent
 | office_converter.enabled | bool | `true` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
 | office_converter.image.repository | string | `"ghcr.io/eugenmayer/kontextwork-converter"` |  |
-| office_converter.image.tag | string | `"1.7.1@sha256:21cf2abf83c6b14b50188bc66ecde970081d5e6493f0c0fdfd435ebbc3145b34"` |  |
+| office_converter.image.tag | string | `"1.7.2@sha256:475b52be29912d5cf3c2751003833f4fe70f44167275aed9b401c768ff91f093"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
