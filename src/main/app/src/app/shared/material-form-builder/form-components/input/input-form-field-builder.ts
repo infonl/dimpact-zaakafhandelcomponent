@@ -26,8 +26,10 @@ export class InputFormFieldBuilder extends AbstractFormFieldBuilder {
     return this;
   }
 
-  disabled() {
-    this.formField.formControl.disable();
+  disabled(disable: boolean = true) {
+    if (disable) {
+      this.formField.formControl.disable();
+    }
     return this;
   }
 

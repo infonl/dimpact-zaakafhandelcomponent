@@ -17,11 +17,11 @@
     ></read-more>
     <ng-container *ngIf="!maxLength">{{ value | empty }}</ng-container>
     <mat-icon
-      class="label-icon"
+      *ngIf="hasIcon"
       [attr.outlined]="icon.outlined"
       [ngClass]="icon.styleClass"
-      *ngIf="hasIcon"
       (click)="iconClicked.emit()"
+      class="label-icon"
       title="{{ icon.title | translate }}"
     >
       {{ icon.icon }}

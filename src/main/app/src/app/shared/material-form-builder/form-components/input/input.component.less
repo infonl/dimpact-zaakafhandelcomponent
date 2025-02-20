@@ -39,3 +39,15 @@ button {
     }
   }
 }
+
+button {
+  &:hover mat-icon {
+    color: var(--mat-form-field-trailing-icon-color);
+  }
+
+  &.mat-mdc-button-disabled {
+    mat-icon {
+      color: var(--mat-form-field-disabled-select-arrow-color);
+    }
+  }
+}

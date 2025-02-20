@@ -20,4 +20,11 @@ export class TextareaFormFieldBuilder extends AbstractFormFieldBuilder {
     this.formField.showCount = showCount;
     return this;
   }
+
+  disabled(disable: boolean = true) {
+    if (disable) {
+      this.formField.formControl.disable();
+    }
+    return this;
+  }
 }
