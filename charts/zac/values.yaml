@@ -497,7 +497,7 @@ office_converter:
   # url: ""
   image:
     repository: ghcr.io/eugenmayer/kontextwork-converter
-    tag: "1.7.1@sha256:21cf2abf83c6b14b50188bc66ecde970081d5e6493f0c0fdfd435ebbc3145b34"
+    tag: "1.7.2@sha256:475b52be29912d5cf3c2751003833f4fe70f44167275aed9b401c768ff91f093"
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1

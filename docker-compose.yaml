@@ -342,14 +342,14 @@ services:
 
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
-    image: ghcr.io/eugenmayer/kontextwork-converter:1.7.1@sha256:21cf2abf83c6b14b50188bc66ecde970081d5e6493f0c0fdfd435ebbc3145b34
+    image: ghcr.io/eugenmayer/kontextwork-converter:1.7.2@sha256:475b52be29912d5cf3c2751003833f4fe70f44167275aed9b401c768ff91f093
     platform: linux/amd64
     ports:
       - "8083:8080"
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.119.0@sha256:3805724e26351df55a45032a793c9b64a2117ac9a58f13f070674a9723fab373
+    image: docker.io/otel/opentelemetry-collector:0.120.0@sha256:1daa4312b48312dbae2d543e67b77e897dd5d9c48e7651d1416cdb417026ad06
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -622,7 +622,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginx
+    image: nginx@sha256:91734281c0ebfc6f1aea979cffeed5079cfe786228a71cc6f1f46a228cde6e34
     ports:
       - "8005:80"
     volumes:
