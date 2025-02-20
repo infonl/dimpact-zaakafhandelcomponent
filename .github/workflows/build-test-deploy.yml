@@ -174,7 +174,7 @@ jobs:
             src/main/app/reports/*.xml
 
       - name: Upload unit test results to CodeCov
-        uses: codecov/test-results-action@44ecb3a270cd942bdf0fa8f2ce14cb32493e810a # v1.0.3
+        uses: codecov/test-results-action@5c441a7bcc06f8706cde90192857d337c5dab8a6 # v1.0.4
         if: ${{ github.event_name != 'merge_group' && !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -315,7 +315,7 @@ jobs:
             itest --info
 
       - name: Upload integration test results to CodeCov
-        uses: codecov/test-results-action@44ecb3a270cd942bdf0fa8f2ce14cb32493e810a # v1.0.3
+        uses: codecov/test-results-action@5c441a7bcc06f8706cde90192857d337c5dab8a6 # v1.0.4
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
