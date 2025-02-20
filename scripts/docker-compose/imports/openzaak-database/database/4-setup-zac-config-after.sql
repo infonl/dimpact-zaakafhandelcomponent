@@ -29,6 +29,7 @@ INSERT INTO zgw_consumers_service (label, api_type, api_root, client_id, secret,
 -- Set up the OpenArchiefbeheer service configuration.
 INSERT INTO zgw_consumers_service (label, api_type, api_root, client_id, secret, auth_type, header_key, header_value, oas, nlx, user_id, user_representation, oas_file, client_certificate_id, server_certificate_id, uuid, timeout, api_connection_check_path, slug) VALUES('Open Archiefbeheer', 'nrc', 'http://host.docker.internal:8004/api/v1/', 'open-archiefbeheer', 'openArchiefbeheerApiSecretKey', 'zgw', '', '', 'http://host.docker.internal:8004/api/v1/schema', '', 'open-archiefbeheer', 'Open Archiefbeheer', '', NULL, NULL, 'f21a5a4d-36c8-44a4-bf72-44da1cd30a26', 10, '', 'open-archiefbeheer');
 
+-- TODO: do we need to update the existing 'Authorization API service' record in the zgw_consumers_service table here?
 
 -- Set up the Notificatiescomponentconfiguratie
 -- we assume here that a record already exists with id=1 (this is provisioned by OpenNotificaties on startup)
