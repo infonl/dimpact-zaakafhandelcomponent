@@ -18,13 +18,12 @@ import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { InformatieObjectViewComponent } from "./informatie-object-view.component";
 
-import { By } from "@angular/platform-browser";
+import { queryByText } from "../../../test-helpers.spec";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
-import {queryByText} from "../../../test-helpers.spec";
 
 describe(InformatieObjectViewComponent.name, () => {
   let component: InformatieObjectViewComponent;
@@ -108,7 +107,11 @@ describe(InformatieObjectViewComponent.name, () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      const button = queryByText(fixture, 'button', 'actie.nieuwe.versie.toevoegen');
+      const button = queryByText(
+        fixture,
+        "button",
+        "actie.nieuwe.versie.toevoegen",
+      );
 
       expect(button).toBeUndefined();
     });
@@ -128,7 +131,11 @@ describe(InformatieObjectViewComponent.name, () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      const button = queryByText(fixture, 'button', 'actie.nieuwe.versie.toevoegen');
+      const button = queryByText(
+        fixture,
+        "button",
+        "actie.nieuwe.versie.toevoegen",
+      );
       await button.nativeElement.click();
 
       const sidebar = component.actionsSidenav;

@@ -10,8 +10,8 @@ import {
   SimpleChange,
   SimpleChanges,
 } from "@angular/core";
+import { ComponentFixture } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import {ComponentFixture} from "@angular/core/testing";
 
 export function updateComponentInputs<T extends OnChanges>(
   component: T,
@@ -37,11 +37,78 @@ export function queryByText<T>(
   text: string,
 ): DebugElement | null {
   const elements = fixture.debugElement.queryAll(By.css(selector));
-  return (
-    elements.find(({ nativeElement }) =>
-      nativeElement.textContent.includes(text),
-    )
+  return elements.find(({ nativeElement }) =>
+    nativeElement.textContent.includes(text),
   );
 }
 
-type ValidHTMLTags = 'div' | 'span' | 'p' | 'a' | 'ul' | 'li' | 'table' | 'tr' | 'td' | 'th' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'button' | 'input' | 'textarea' | 'select' | 'option' | 'form' | 'label' | 'img' | 'nav' | 'header' | 'footer' | 'section' | 'article' | 'aside' | 'main' | 'figure' | 'figcaption' | 'blockquote' | 'code' | 'pre' | 'video' | 'audio' | 'canvas' | 'svg' | 'iframe' | 'details' | 'summary' | 'mark' | 'progress' | 'meter' | 'time' | 'output' | 'abbr' | 'address' | 'b' | 'bdi' | 'bdo' | 'cite' | 'data' | 'dfn' | 'em' | 'i' | 'kbd' | 'q' | 's' | 'samp' | 'small' | 'strong' | 'sub' | 'sup' | 'u' | 'var' | 'wbr';
+type ValidHTMLTags =
+  | "div"
+  | "span"
+  | "p"
+  | "a"
+  | "ul"
+  | "li"
+  | "table"
+  | "tr"
+  | "td"
+  | "th"
+  | "h1"
+  | "h2"
+  | "h3"
+  | "h4"
+  | "h5"
+  | "h6"
+  | "button"
+  | "input"
+  | "textarea"
+  | "select"
+  | "option"
+  | "form"
+  | "label"
+  | "img"
+  | "nav"
+  | "header"
+  | "footer"
+  | "section"
+  | "article"
+  | "aside"
+  | "main"
+  | "figure"
+  | "figcaption"
+  | "blockquote"
+  | "code"
+  | "pre"
+  | "video"
+  | "audio"
+  | "canvas"
+  | "svg"
+  | "iframe"
+  | "details"
+  | "summary"
+  | "mark"
+  | "progress"
+  | "meter"
+  | "time"
+  | "output"
+  | "abbr"
+  | "address"
+  | "b"
+  | "bdi"
+  | "bdo"
+  | "cite"
+  | "data"
+  | "dfn"
+  | "em"
+  | "i"
+  | "kbd"
+  | "q"
+  | "s"
+  | "samp"
+  | "small"
+  | "strong"
+  | "sub"
+  | "sup"
+  | "u"
+  | "var"
+  | "wbr";
