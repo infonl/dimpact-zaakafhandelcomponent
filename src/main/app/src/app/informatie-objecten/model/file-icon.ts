@@ -41,6 +41,10 @@ export class FileIcon {
   private static readonly mpeg = new FileIcon("mpeg", "fa-file-video");
   private static readonly wmv = new FileIcon("wmv", "fa-file-video");
   private static readonly msg = new FileIcon("msg", "fa-file-lines");
+  private static readonly unknown = new FileIcon(
+    "unknown",
+    "fa-file-circle-question",
+  );
 
   public static readonly fileIcons = [
     FileIcon.pdf,
@@ -84,17 +88,9 @@ export class FileIcon {
     return this.type.localeCompare(other.type);
   }
 
-  static getIconByBestandsnaam(bestandsnaam) {
-    const extension = bestandsnaam.split(".").pop();
-    const obj = FileIcon.fileIcons.filter((row) => {
-      if (row.type === extension) {
-        return true;
-      }
-    });
-    if (obj.length > 0) {
-      return obj[0];
-    } else {
-      return { type: "unknown", icon: "fa-file-circle-question", color: "" };
-    }
+  static getIconByBestandsnaam(bestandsnaam: unknown) {
+    const fileType = String(bestandsnaam).split(".").pop();
+    const fileIcon = FileIcon.fileIcons.find(({ type }) => type === fileType);
+    return fileIcon ?? FileIcon.unknown;
   }
 }
