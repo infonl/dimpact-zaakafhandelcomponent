@@ -8,7 +8,7 @@ This feature consists of 2 packages:
 
 - [openapi-typescript](https://github.com/drwpow/openapi-typescript/tree/main/packages/openapi-typescript)
   - This is a package that can read an openapi.yaml file and generate typescript code from it.
-- [openapi-typescript-fetch](https://github.com/drwpow/openapi-typescript/tree/main/packages/openapi-typescript-fetch)
+- [openapi-typescript-fetch](https://github.com/openapi-ts/openapi-typescript/tree/main/packages/openapi-fetch)
   - This code is a wrapper around axios fetch that has made the axios API completely type-safe. We don't use this package directly in ZAC; we only use the types in this package to write our wrapper around Angular's httpclient.
 
 ## The ZacHttpClient

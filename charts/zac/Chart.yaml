@@ -6,7 +6,7 @@
 apiVersion: v2
 name: zaakafhandelcomponent
 description: A Helm chart for installing Zaakafhandelcomponent
-version: 1.0.10
+version: 1.0.11
 appVersion: '3.0'
 icon: https://raw.githubusercontent.com/infonl/dimpact-zaakafhandelcomponent/49f8dee60948282b546ebdfdc5cff6f8bbef0305/docs/manuals/ZAC-gebruikershandleiding/images/pic.svg
 dependencies:
@@ -27,4 +27,4 @@ dependencies:
 maintainers:
 - name: Team Dimpact, INFO
   email: teamdimpact@info.nl
-  url: https://github.com/infonl/dimpact-zaakafhandelcomponent/discussion
+  url: https://github.com/infonl/dimpact-zaakafhandelcomponent/discussions

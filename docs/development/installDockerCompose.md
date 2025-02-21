@@ -4,14 +4,14 @@ The ZAC Docker Compose setup runs various services required by ZAC and optionall
 It was created to be able to run ZAC locally for development and testing purposes.
 For general ZAC installation instructions please see the [INSTALL.md](INSTALL.md) file.
 
-The setup consists of a [docker-compose.yml](../docker-compose.yaml) file as well as various data import scripts.
+The setup consists of a [docker-compose.yaml](../../docker-compose.yaml) file as well as various data import scripts.
 
 This setup was initially based on https://github.com/generiekzaakafhandelcomponent/gzac-docker-compose and credits go out to Valtimo for this.
 It was extended and made specific for the needs of ZAC.
 
 ## Prerequisites
 
-- [Docker Desktop](https://docs.docker.com/desktop/install/)
+- [Docker Desktop](https://docs.docker.com/desktop/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - [1Password CLI extensions](https://developer.1password.com/docs/cli/) (optional)
 - On Windows: to run .sh scripts use [git bash](https://gitforwindows.org/)
