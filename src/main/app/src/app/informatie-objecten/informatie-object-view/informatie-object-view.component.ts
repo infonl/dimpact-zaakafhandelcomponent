@@ -170,7 +170,6 @@ export class InformatieObjectViewComponent
       );
     }
 
-    console.log(this.laatsteVersieInfoObject, this.zaak)
     if (
       this.laatsteVersieInfoObject.rechten.toevoegenNieuweVersie &&
       this.zaak
@@ -179,7 +178,6 @@ export class InformatieObjectViewComponent
         new ButtonMenuItem(
           "actie.nieuwe.versie.toevoegen",
           () => {
-            console.log("test", this.infoObject);
             this.informatieObjectenService
               .readHuidigeVersieEnkelvoudigInformatieObject(
                 this.infoObject.uuid,
@@ -187,7 +185,7 @@ export class InformatieObjectViewComponent
               .subscribe((infoObject) => {
                 this.documentNieuweVersieGegevens = infoObject;
               });
-            this.actionsSidenav.open()
+            this.actionsSidenav.open();
           },
           "difference",
         ),

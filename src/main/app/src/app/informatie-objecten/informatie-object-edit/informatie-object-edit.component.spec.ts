@@ -64,6 +64,8 @@ describe(InformatieObjectEditComponent.name, () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(InformatieObjectEditComponent);
+    fixture.detectChanges();
+
     component = fixture.componentInstance;
     identityService = TestBed.inject(IdentityService);
 
@@ -74,9 +76,6 @@ describe(InformatieObjectEditComponent.name, () => {
 
   describe("when no `infoObject` is present", () => {
     it("should not build the form", () => {
-      component.ngOnInit();
-      fixture.detectChanges();
-
       updateComponentInputs(component, { infoObject: null });
 
       expect(component.fields).toBeDefined();
@@ -85,9 +84,6 @@ describe(InformatieObjectEditComponent.name, () => {
 
     it("should not call `identityService.readLoggedInUser`", () => {
       const readLoggedInUser = jest.spyOn(identityService, "readLoggedInUser");
-      component.ngOnInit();
-      fixture.detectChanges();
-
       updateComponentInputs(component, { infoObject: null });
 
       expect(readLoggedInUser).not.toHaveBeenCalled();
@@ -96,9 +92,6 @@ describe(InformatieObjectEditComponent.name, () => {
 
   describe("when an `infoObject` is passed", () => {
     it("should build the form", () => {
-      component.ngOnInit();
-      fixture.detectChanges();
-
       updateComponentInputs(component, {
         infoObject: enkelvoudigInformatieObjectVersieGegevens,
       });
@@ -106,10 +99,8 @@ describe(InformatieObjectEditComponent.name, () => {
       expect(component.fields.length).toBe(8);
     });
 
-    it("should call `identityService.readLoggedInUser`", () => {
+    it("should call `identityService.readLoggedInUser`", async () => {
       const readLoggedInUser = jest.spyOn(identityService, "readLoggedInUser");
-      component.ngOnInit();
-      fixture.detectChanges();
 
       updateComponentInputs(component, { infoObject: null });
 

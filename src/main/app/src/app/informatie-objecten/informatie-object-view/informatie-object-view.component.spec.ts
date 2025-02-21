@@ -7,7 +7,7 @@
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import {BrowserAnimationsModule, NoopAnimationsModule} from "@angular/platform-browser/animations";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
@@ -18,15 +18,18 @@ import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { InformatieObjectViewComponent } from "./informatie-object-view.component";
 
+import { By } from "@angular/platform-browser";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
-import { By } from "@angular/platform-browser";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import {Vertrouwelijkheidaanduiding} from "../model/vertrouwelijkheidaanduiding.enum";
+import { InformatieObjectenService } from "../informatie-objecten.service";
+import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
+import {queryByText} from "../../../test-helpers.spec";
 
 describe(InformatieObjectViewComponent.name, () => {
   let component: InformatieObjectViewComponent;
   let fixture: ComponentFixture<typeof component>;
+  let informatieObjectenService: InformatieObjectenService;
 
   const zaak: GeneratedType<"RestZaak"> = {
     uuid: "zaak-001",
@@ -42,10 +45,12 @@ describe(InformatieObjectViewComponent.name, () => {
 
   const enkelvoudigInformatieobject: GeneratedType<"RestEnkelvoudigInformatieobject"> =
     {
+      uuid: "enkelvoudig-informatieobject-001",
       informatieobjectTypeUUID: "test-uuid",
       indicaties: [],
       titel: "test informatieobject",
-      vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding.openbaar
+      vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding.openbaar,
+      rechten: {},
     };
 
   beforeEach(async () => {
@@ -77,21 +82,57 @@ describe(InformatieObjectViewComponent.name, () => {
       ],
     }).compileComponents();
 
+    informatieObjectenService = TestBed.inject(InformatieObjectenService);
+    jest
+      .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
+      .mockReturnValue(of(enkelvoudigInformatieobject));
+
     fixture = TestBed.createComponent(InformatieObjectViewComponent);
+
     component = fixture.componentInstance;
   });
 
-  it("should create", () => {
-    expect(component).toBeTruthy();
-  });
+  describe("actie.nieuwe.versie.toevoegen", () => {
+    it("should not have a button when the user does not have the right to add a new version", async () => {
+      jest
+        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
+        .mockReturnValue(
+          of({
+            ...enkelvoudigInformatieobject,
+            rechten: {
+              toevoegenNieuweVersie: false,
+            },
+          }),
+        );
 
-  it("should display the sidebar when 'actie.nieuwe.versie.toevoegen' is clicked", () => {
-    component.activeSideAction = "actie.nieuwe.versie.toevoegen";
-    fixture.detectChanges();
+      fixture.detectChanges();
+      await fixture.whenStable();
 
-    const sidebar = fixture.debugElement.query(
-      By.css("zac-informatie-object-edit"),
-    );
-    expect(sidebar).toBeTruthy();
+      const button = queryByText(fixture, 'button', 'actie.nieuwe.versie.toevoegen');
+
+      expect(button).toBeUndefined();
+    });
+
+    it("should open the sidebar when clicked", async () => {
+      jest
+        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
+        .mockReturnValue(
+          of({
+            ...enkelvoudigInformatieobject,
+            rechten: {
+              toevoegenNieuweVersie: true,
+            },
+          }),
+        );
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const button = queryByText(fixture, 'button', 'actie.nieuwe.versie.toevoegen');
+      await button.nativeElement.click();
+
+      const sidebar = component.actionsSidenav;
+      expect(sidebar.opened).toBe(true);
+    });
   });
 });
