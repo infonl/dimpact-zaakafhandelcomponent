@@ -111,4 +111,4 @@ Furthermore, ZAC integrates with the following external services:
 | [SmartDocuments](https://www.smartdocuments.eu/)                                     | Document creation service. Maybe used to create documents in your own look & feel. | Start a document creation 'wizard' with pre-filled zaak data where the resulting document is stored by SmartDocuments in Open Zaak. | <ul><li>SmartDocuments REST API (latest version)</li></ul>                                                                                                                                                                                                                                     |
 
 
-For some of these external services ZAC uses mocks when running ZAC locally (please see: [development](../development/)) and (optionally) also when running ZAC on a test environment.
+For some of these external services ZAC uses mocks when running ZAC locally (please see: [development](../development/README.md)) and (optionally) also when running ZAC on a test environment.
