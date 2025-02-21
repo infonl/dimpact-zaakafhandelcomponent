@@ -18,8 +18,8 @@ The act runner reads the local configuration from the [`.actrc`](.actrc) file in
 this directory.
 
 ## Environment
-The environment variables required by the GitHub workflow are provided in the
-[`.env`](.env) file in this directory.
+The environment variables required by the GitHub workflow should be provided in an
+`.env` file in this directory.
 
 ## Secrets
 Secrets are by default loaded from the [`.secrets`](.secrets) file in this

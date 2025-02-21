@@ -6,9 +6,9 @@ A Helm chart for installing Zaakafhandelcomponent
 
 ## Maintainers
 
-| Name | Email | Url |
-| ---- | ------ | --- |
-| Team Dimpact, INFO | <teamdimpact@info.nl> | <https://github.com/infonl/dimpact-zaakafhandelcomponent/discussion> |
+| Name | Email | Url                                                                   |
+| ---- | ------ |-----------------------------------------------------------------------|
+| Team Dimpact, INFO | <teamdimpact@info.nl> | <https://github.com/infonl/dimpact-zaakafhandelcomponent/discussions> |
 
 ## Requirements
 
