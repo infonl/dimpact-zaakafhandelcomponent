@@ -18,7 +18,7 @@ import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { InformatieObjectViewComponent } from "./informatie-object-view.component";
 
-import { queryByText } from "../../../test-helpers.spec";
+import { queryByText } from "../../../test-helpers";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
 import { GeneratedType } from "../../shared/utils/generated-types";

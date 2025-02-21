@@ -13,7 +13,7 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { FormComponent } from "src/app/shared/material-form-builder/form/form/form.component";
-import { updateComponentInputs } from "../../../test-helpers.spec";
+import { updateComponentInputs } from "../../../test-helpers";
 import { Taal } from "../../configuratie/model/taal";
 import { IdentityService } from "../../identity/identity.service";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
