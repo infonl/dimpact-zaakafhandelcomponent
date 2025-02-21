@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -17,7 +17,6 @@ import { DocumentCreationResponse } from "./model/document-creation-response";
 import { DocumentVerplaatsGegevens } from "./model/document-verplaats-gegevens";
 import { DocumentVerwijderenGegevens } from "./model/document-verwijderen-gegevens";
 import { DocumentVerzendGegevens } from "./model/document-verzend-gegevens";
-import { EnkelvoudigInformatieObjectVersieGegevens } from "./model/enkelvoudig-informatie-object-versie-gegevens";
 import { InformatieobjectZoekParameters } from "./model/informatieobject-zoek-parameters";
 import { Informatieobjecttype } from "./model/informatieobjecttype";
 import { ZaakInformatieobject } from "./model/zaak-informatieobject";
@@ -133,13 +132,11 @@ export class InformatieObjectenService {
       );
   }
 
-  readHuidigeVersieEnkelvoudigInformatieObject(
-    uuid: string,
-  ): Observable<EnkelvoudigInformatieObjectVersieGegevens> {
+  readHuidigeVersieEnkelvoudigInformatieObject(uuid: string) {
     return this.http
-      .get<EnkelvoudigInformatieObjectVersieGegevens>(
-        `${this.basepath}/informatieobject/${uuid}/huidigeversie`,
-      )
+      .get<
+        GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">
+      >(`${this.basepath}/informatieobject/${uuid}/huidigeversie`)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -148,7 +145,7 @@ export class InformatieObjectenService {
   updateEnkelvoudigInformatieobject(
     uuid: string,
     zaakUuid: string,
-    infoObject: EnkelvoudigInformatieObjectVersieGegevens,
+    infoObject: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">,
   ) {
     const mergedInfoObject = {
       ...infoObject,
@@ -165,7 +162,7 @@ export class InformatieObjectenService {
       taal: ([k, v]) => [k, JSON.stringify(v)],
       bestandsnaam: true,
       formaat: true,
-      file: ([k, v]) => [k, v, infoObject.bestandsnaam],
+      file: ([k, v]) => [k, v as unknown as Blob, infoObject.bestandsnaam],
       beschrijving: true,
       verzenddatum: formatDateForFormData,
       ontvangstdatum: formatDateForFormData,
