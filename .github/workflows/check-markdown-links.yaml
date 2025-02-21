@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run linkspector
-        uses: umbrelladocs/action-linkspector@0ad5e25e0c45c6c9e32a99776f64eb410b4a5657 # v1.4.0
+        uses: umbrelladocs/action-linkspector@de84085e0f51452a470558693d7d308fbb2fa261 # v1.2.5
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
