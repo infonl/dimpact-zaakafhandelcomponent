@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 - 2023 Atos
+ * SPDX-FileCopyrightText: 2022 - 2023 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
