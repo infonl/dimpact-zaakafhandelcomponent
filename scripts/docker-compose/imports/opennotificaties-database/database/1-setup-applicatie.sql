@@ -28,9 +28,9 @@ INSERT INTO datamodel_kanaal (uuid, naam, documentatie_link, filters) VALUES('c4
 -- Set up the abonnement to ZAC
 -- This assumes ZAC is running and available on 'host.docker.internal' and port 8080.
 -- Please see our 'testing.md' document on how to set this up.
-INSERT INTO datamodel_abonnement (uuid, callback_url, auth, client_id) VALUES('fb4e3474-18c8-474b-94ae-980850ea4a7f', 'http://host.docker.internal:8080/rest/notificaties', 'openNotificatiesApiSecretKey', 'opennotificaties');
-INSERT INTO datamodel_filtergroup (abonnement_id, kanaal_id) VALUES((SELECT ID FROM datamodel_abonnement where client_id = 'opennotificaties'), (SELECT ID FROM datamodel_kanaal where naam = 'zaaktypen'));
-INSERT INTO datamodel_filtergroup (abonnement_id, kanaal_id) VALUES((SELECT ID FROM datamodel_abonnement where client_id = 'opennotificaties'), (SELECT ID FROM datamodel_kanaal where naam = 'zaken'));
-INSERT INTO datamodel_filtergroup (abonnement_id, kanaal_id) VALUES((SELECT ID FROM datamodel_abonnement where client_id = 'opennotificaties'), (SELECT ID FROM datamodel_kanaal where naam = 'documenten'));
-INSERT INTO datamodel_filtergroup (abonnement_id, kanaal_id) VALUES((SELECT ID FROM datamodel_abonnement where client_id = 'opennotificaties'), (SELECT ID FROM datamodel_kanaal where naam = 'besluittypen'));
-INSERT INTO datamodel_filtergroup (abonnement_id, kanaal_id) VALUES((SELECT ID FROM datamodel_abonnement where client_id = 'opennotificaties'), (SELECT ID FROM datamodel_kanaal where naam = 'besluiten'));
+INSERT INTO datamodel_abonnement (uuid, callback_url, auth, client_id) VALUES('fb4e3474-18c8-474b-94ae-980850ea4a7f', 'http://host.docker.internal:8080/rest/notificaties', 'openNotificatiesApiSecretKey', 'open-notificaties');
+INSERT INTO datamodel_filtergroup (abonnement_id, kanaal_id) VALUES((SELECT ID FROM datamodel_abonnement where client_id = 'open-notificaties'), (SELECT ID FROM datamodel_kanaal where naam = 'zaaktypen'));
+INSERT INTO datamodel_filtergroup (abonnement_id, kanaal_id) VALUES((SELECT ID FROM datamodel_abonnement where client_id = 'open-notificaties'), (SELECT ID FROM datamodel_kanaal where naam = 'zaken'));
+INSERT INTO datamodel_filtergroup (abonnement_id, kanaal_id) VALUES((SELECT ID FROM datamodel_abonnement where client_id = 'open-notificaties'), (SELECT ID FROM datamodel_kanaal where naam = 'documenten'));
+INSERT INTO datamodel_filtergroup (abonnement_id, kanaal_id) VALUES((SELECT ID FROM datamodel_abonnement where client_id = 'open-notificaties'), (SELECT ID FROM datamodel_kanaal where naam = 'besluittypen'));
+INSERT INTO datamodel_filtergroup (abonnement_id, kanaal_id) VALUES((SELECT ID FROM datamodel_abonnement where client_id = 'open-notificaties'), (SELECT ID FROM datamodel_kanaal where naam = 'besluiten'));
