@@ -23,7 +23,6 @@ import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { Subscription, forkJoin } from "rxjs";
-import { switchMap, tap } from "rxjs/operators";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -88,24 +87,24 @@ export class ParameterEditComponent
   zaakbeeindigFormGroup: FormGroup;
   smartDocumentsEnabledForm: FormGroup;
 
-  mailOpties: { label: string; value: string }[];
+  mailOpties: { label: string; value: string }[] = [];
 
-  caseDefinitions: CaseDefinition[];
-  domeinen: string[];
+  caseDefinitions: CaseDefinition[] = [];
+  domeinen: string[] = [];
   groepen: GeneratedType<"RestGroup">[];
-  medewerkers: GeneratedType<"RestLoggedInUser">[];
-  resultaattypes: GeneratedType<"RestResultaattype">[];
-  referentieTabellen: ReferentieTabel[];
-  formulierDefinities: FormulierDefinitie[];
-  zaakbeeindigRedenen: ZaakbeeindigReden[];
-  mailtemplates: Mailtemplate[];
-  replyTos: ReplyTo[];
+  medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
+  resultaattypes: GeneratedType<"RestResultaattype">[] = [];
+  referentieTabellen: ReferentieTabel[] = [];
+  formulierDefinities: FormulierDefinitie[] = [];
+  zaakbeeindigRedenen: ZaakbeeindigReden[] = [];
+  mailtemplates: Mailtemplate[] = [];
+  replyTos: ReplyTo[] = [];
   loading: boolean;
   subscriptions$: Subscription[] = [];
 
   constructor(
     public utilService: UtilService,
-    public adminService: ZaakafhandelParametersService,
+    public zaakafhandelParametersService: ZaakafhandelParametersService,
     public configuratieService: ConfiguratieService,
     private identityService: IdentityService,
     private route: ActivatedRoute,
@@ -116,6 +115,7 @@ export class ParameterEditComponent
   ) {
     super(utilService, configuratieService);
     this.route.data.subscribe((data) => {
+
       this.parameters = data.parameters;
       this.parameters.intakeMail = this.parameters.intakeMail
         ? this.parameters.intakeMail
@@ -126,20 +126,19 @@ export class ParameterEditComponent
       this.userEventListenerParameters =
         this.parameters.userEventListenerParameters;
       this.humanTaskParameters = this.parameters.humanTaskParameters;
-      adminService
-        .listResultaattypes(this.parameters.zaaktype.uuid)
-        .subscribe((resultaattypes) => (this.resultaattypes = resultaattypes));
+
       forkJoin([
-        adminService.listCaseDefinitions(),
-        adminService.listFormulierDefinities(),
+        zaakafhandelParametersService.listCaseDefinitions(),
+        zaakafhandelParametersService.listFormulierDefinities(),
         referentieTabelService.listReferentieTabellen(),
         referentieTabelService.listDomeinen(),
         referentieTabelService.listAfzenders(),
-        adminService.listReplyTos(),
+        zaakafhandelParametersService.listReplyTos(),
         identityService.listGroups(),
-        identityService.listUsers(),
-        adminService.listZaakbeeindigRedenen(),
+        zaakafhandelParametersService.listZaakbeeindigRedenen(),
         mailtemplateBeheerService.listKoppelbareMailtemplates(),
+        zaakafhandelParametersService
+            .listResultaattypes(this.parameters.zaaktype.uuid)
       ]).subscribe(
         ([
           caseDefinitions,
@@ -149,20 +148,21 @@ export class ParameterEditComponent
           afzenders,
           replyTos,
           groepen,
-          medewerkers,
           zaakbeeindigRedenen,
           mailtemplates,
+           resultaattypes
         ]) => {
+          console.log({groepen})
           this.caseDefinitions = caseDefinitions;
           this.formulierDefinities = formulierDefinities;
           this.referentieTabellen = referentieTabellen;
           this.domeinen = domeinen;
           this.groepen = groepen;
-          this.medewerkers = medewerkers;
           this.zaakbeeindigRedenen = zaakbeeindigRedenen;
           this.mailtemplates = mailtemplates;
           this.zaakAfzenders = afzenders;
           this.replyTos = replyTos;
+          this.resultaattypes = resultaattypes
           this.createForm();
         },
       );
@@ -248,6 +248,7 @@ export class ParameterEditComponent
   }
 
   createForm() {
+    console.log('createForm')
     this.algemeenFormGroup = this.formBuilder.group({
       caseDefinition: [this.parameters.caseDefinition, [Validators.required]],
       domein: [this.parameters.domein],
@@ -266,17 +267,12 @@ export class ParameterEditComponent
     this.createMailForm();
     this.createZaakbeeindigForm();
     this.createSmartDocumentsEnabledForm();
+    this.setMedewerkersForGroup(this.parameters.defaultGroepId);
 
     this.subscriptions$.push(
-      this.algemeenFormGroup.controls.defaultGroepId.valueChanges
-        .pipe(
-          switchMap((groepId) =>
-            this.identityService
-              .listUsersInGroup(groepId)
-              .pipe(tap((medewerkers) => (this.medewerkers = medewerkers))),
-          ),
-        )
-        .subscribe(),
+      this.algemeenFormGroup.controls.defaultGroepId.valueChanges.subscribe(
+        this.setMedewerkersForGroup,
+      ),
     );
 
     this.subscriptions$.push(
@@ -300,6 +296,16 @@ export class ParameterEditComponent
         },
       ),
     );
+  }
+
+  private setMedewerkersForGroup(groepId: string) {
+    console.log('setMedewerkersForGroup', groepId, this.identityService.listUsersInGroup)
+    return this.identityService
+      .listUsersInGroup(groepId)
+      .subscribe((medewerkers) => {
+        console.log({medewerkers})
+        this.medewerkers = medewerkers
+      });
   }
 
   isHumanTaskParameterValid(humanTaskParameter: HumanTaskParameter): boolean {
@@ -687,7 +693,7 @@ export class ParameterEditComponent
     this.parameters.smartDocuments.enabledForZaaktype =
       this.smartDocumentsEnabledForm.value.enabledForZaaktype;
 
-    this.adminService.updateZaakafhandelparameters(this.parameters).subscribe(
+    this.zaakafhandelParametersService.updateZaakafhandelparameters(this.parameters).subscribe(
       (data) => {
         this.loading = false;
         this.utilService.openSnackbar("msg.zaakafhandelparameters.opgeslagen");

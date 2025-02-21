@@ -54,6 +54,7 @@
     "@angular/cli": "18.2.14",
     "@angular/compiler-cli": "18.2.13",
     "@angular/language-service": "18.2.13",
+    "@total-typescript/shoehorn": "^0.1.2",
     "@types/jest": "29.5.14",
     "@types/node": "22.13.4",
     "@typescript-eslint/eslint-plugin": "8.24.1",
