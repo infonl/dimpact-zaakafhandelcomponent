@@ -8,7 +8,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Name | Email | Url |
 | ---- | ------ | --- |
-| Team Dimpact, INFO | <teamdimpact@info.nl> | <https://github.com/infonl/dimpact-zaakafhandelcomponent/discussion> |
+| Team Dimpact, INFO | <teamdimpact@info.nl> | <https://github.com/infonl/dimpact-zaakafhandelcomponent/discussions> |
 
 ## Requirements
 
