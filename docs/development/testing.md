@@ -57,7 +57,8 @@ In a .feature file you should be able to write out tests based on the predefined
 
 ### Generating e2e tests with playwright codegen
 
-You can use the playwright codegen tool to generate e2e tests. This is a great way to get started with e2e tests. You can find more information about this tool [here](https://playwright.dev/docs/cli/#generate-code-for-a-scenario).
+You can use the playwright codegen tool to generate e2e tests. This is a great way to get started with e2e tests. You 
+can find more information about this tool [here](https://playwright.dev/docs/codegen).
 
 you can run the following command to generate a test with taking the test environment as a base:
 

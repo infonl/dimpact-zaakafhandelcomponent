@@ -41,7 +41,7 @@ To build the ZAC Docker image using the generated JAR archive from the previous 
 There are various ways to run ZAC locally.
 - For local backend development purposes we recommend to run ZAC from the IntelliJ IDE.
 - For local frontend development and testing purposes we recommend to run ZAC in a Docker container.
-- For local e2e testing you can follow the [end-to-end-testing](end-to-end-testing.md) documentation.
+- For local e2e testing you can follow the [end-to-end-testing](testing.md#end-to-end-e2e-tests) from the [testing](testing.md) documentation.
 
 ### Prerequisites
 
