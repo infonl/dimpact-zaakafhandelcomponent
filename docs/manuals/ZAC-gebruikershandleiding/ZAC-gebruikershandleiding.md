@@ -69,7 +69,7 @@ Versiegeschiedenis:
 - [Locatie vastleggen](#locatie-vastleggen-of-wijzigen)
 - [Zaak opschorten](#zaak-opschorten)
 - [Zaak verlengen](#zaak-verlengen)
-- [Zaak acties](#zaak-acties)
+- [Zaak acties](#verdere-acties)
     - [Ontvangstbevestiging sturen](#ontvangstbevestiging-sturen)
     - [E-mail versturen](#e-mail-versturen)
     - [Document maken](#document-maken)

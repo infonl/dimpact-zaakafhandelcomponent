@@ -325,3 +325,13 @@ fun createRestCoordinates(
     latitude = latitude,
     longitude = longitude
 )
+
+fun createRestDocumentOntkoppelGegevens(
+    zaakUUID: UUID = UUID.randomUUID(),
+    documentUUID: UUID = UUID.randomUUID(),
+    reden: String = "dummyReason“"
+) = RESTDocumentOntkoppelGegevens(
+    zaakUUID = zaakUUID,
+    documentUUID = documentUUID,
+    reden = reden
+)

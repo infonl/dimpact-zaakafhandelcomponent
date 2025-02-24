@@ -11,9 +11,9 @@ import java.util.UUID
 @NoArgConstructor
 @AllOpen
 data class RESTDocumentOntkoppelGegevens(
-    var zaakUUID: UUID? = null,
+    var zaakUUID: UUID,
 
-    var documentUUID: UUID? = null,
+    var documentUUID: UUID,
 
-    var reden: String? = null
+    var reden: String
 )
