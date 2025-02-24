@@ -25,11 +25,9 @@ INSERT INTO zgw_consumers_service (label, api_type, api_root, client_id, secret,
 -- Set up the OpenNotificaties service configuration.
 -- Unfortunately it seems that we need to use 'host.docker.internal' here to connect to Open Notificaties. Not sure why.
 -- Please see our 'testing.md' document on how to set this up.
-INSERT INTO zgw_consumers_service (label, api_type, api_root, client_id, secret, auth_type, header_key, header_value, oas, nlx, user_id, user_representation, oas_file, client_certificate_id, server_certificate_id, uuid, timeout, api_connection_check_path, slug) VALUES('Open Notificaties', 'nrc', 'http://host.docker.internal:8003/api/v1/', 'open-zaak-autorisaties', 'openZaakAutorisatiesApiSecretKey', 'zgw', '', '', 'http://host.docker.internal:8003/api/v1/schema/openapi.yaml', '', 'open-zaak-notificaties', 'Open Zaak - Notificaties', '', NULL, NULL, '031fe099-095b-4091-9f99-f81ef30561be', 10,'', 'open-notificaties');
+INSERT INTO zgw_consumers_service (label, api_type, api_root, client_id, secret, auth_type, header_key, header_value, oas, nlx, user_id, user_representation, oas_file, client_certificate_id, server_certificate_id, uuid, timeout, api_connection_check_path, slug) VALUES('Open Notificaties', 'nrc', 'http://host.docker.internal:8003/api/v1/', 'open-zaak', 'opennotificatiesOpenzaakSecret', 'zgw', '', '', 'http://host.docker.internal:8003/api/v1/schema/openapi.yaml', '', 'open-zaak-notificaties', 'Open Zaak - Notificaties', '', NULL, NULL, '031fe099-095b-4091-9f99-f81ef30561be', 10,'', 'open-notificaties');
 -- Set up the OpenArchiefbeheer service configuration.
 INSERT INTO zgw_consumers_service (label, api_type, api_root, client_id, secret, auth_type, header_key, header_value, oas, nlx, user_id, user_representation, oas_file, client_certificate_id, server_certificate_id, uuid, timeout, api_connection_check_path, slug) VALUES('Open Archiefbeheer', 'nrc', 'http://host.docker.internal:8004/api/v1/', 'open-archiefbeheer', 'openArchiefbeheerApiSecretKey', 'zgw', '', '', 'http://host.docker.internal:8004/api/v1/schema', '', 'open-archiefbeheer', 'Open Archiefbeheer', '', NULL, NULL, 'f21a5a4d-36c8-44a4-bf72-44da1cd30a26', 10, '', 'open-archiefbeheer');
-
--- TODO: do we need to update the existing 'Authorization API service' record in the zgw_consumers_service table here?
 
 -- Set up the Notificatiescomponentconfiguratie
 -- we assume here that a record already exists with id=1 (this is provisioned by OpenNotificaties on startup)

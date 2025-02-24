@@ -9,6 +9,6 @@ INSERT INTO authorizations_applicatie (uuid, client_ids, label, heeft_alle_autor
 INSERT INTO authorizations_applicatie (uuid, client_ids, label, heeft_alle_autorisaties) VALUES (uuid_generate_v4(), '{open-notificaties}', 'Open notificaties', true);
 
 INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('zac_client', 'openzaakZaakafhandelcomponentClientSecret');
-INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('open-zaak', 'openZaakAutorisatiesApiSecretKey');
+INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('open-zaak', 'opennotificatiesOpenzaakSecret');
 INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('open-archiefbeheer', 'openArchiefbeheerApiSecretKey');
-INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('open-notificaties', 'openNotificatiesApiSecretKey');
+INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('open-notificaties', 'opennotificatiesAutorisatieApiSecret');

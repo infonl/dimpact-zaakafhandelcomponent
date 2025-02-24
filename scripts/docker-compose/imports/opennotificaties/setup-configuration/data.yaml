@@ -1,0 +1,133 @@
+oidc_db_config_enable: True
+oidc_db_config_admin_auth:
+  items:
+    - identifier: admin-oidc
+      enabled: True
+      oidc_rp_client_id: testid
+      oidc_rp_client_secret: testIdClientSecret
+      oidc_rp_scopes_list:
+        - openid
+        - email
+        - profile
+      oidc_rp_sign_algo: RS256
+      endpoint_config:
+        oidc_op_authorization_endpoint: https://example.com/realms/test/protocol/openid-connect/auth
+        oidc_op_token_endpoint: https://example.com/realms/test/protocol/openid-connect/token
+        oidc_op_user_endpoint: https://example.com/realms/test/protocol/openid-connect/userinfo
+        oidc_op_jwks_endpoint: https://example.com/realms/test/protocol/openid-connect/certs
+      username_claim:
+        - sub
+      groups_claim:
+        - roles
+      claim_mapping:
+        first_name:
+          - given_name
+      sync_groups: true
+      sync_groups_glob_pattern: "*"
+      default_groups:
+        - Functioneel beheer
+      make_users_staff: true
+      superuser_group_names:
+        - superuser
+      oidc_use_nonce: true
+      oidc_nonce_size: 32
+      oidc_state_size: 32
+      userinfo_claims_source: id_token
+
+zgw_consumers_config_enable: True
+zgw_consumers:
+  services:
+    - identifier: autorisaties-api
+      label: Autorisaties API
+      api_root: http://openzaak.local:8000/autorisaties/api/v1/
+      api_type: ac
+      auth_type: zgw
+      client_id: open-notificaties
+      secret: opennotificatiesAutorisatieApiSecret
+      user_id: open-notificaties
+      user_representation: Open Notificaties
+    - identifier: notificaties-api
+      label: Notificaties API
+      api_root: http://opennotificaties:8000/api/v1/
+      api_type: nrc
+      auth_type: zgw
+      client_id: open-notificaties
+      secret: opennotificatiesAutorisatieApiSecret
+      user_id: open-notificaties
+      user_representation: Open Notificaties Demodam
+
+autorisaties_api_config_enable: True
+autorisaties_api:
+  # Configure Open Notificaties to make use of Open Zaak's Autorisaties API
+  authorizations_api_service_identifier: autorisaties-api
+
+vng_api_common_credentials_config_enable: True
+vng_api_common_credentials:
+  items:
+    # Credentials for Open Zaak to be able to make requests to Open Notificaties
+    - identifier: open-zaak
+      secret: opennotificatiesOpenzaakSecret
+    # Credentials for Open Notificaties, required for autorisaties subscription
+    - identifier: open-notificaties
+      secret: opennotificatiesAutorisatieApiSecret
+
+notifications_kanalen_config_enable: true
+notifications_kanalen_config:
+  items:
+    - naam: autorisaties
+      documentatie_link: http://openzaak.local:8000/ref/kanalen/#/autorisaties
+      filters:
+        - autorisaties
+    - naam: besluittypen
+      documentatie_link: http://openzaak.local:8000/ref/kanalen/#/besluittypen
+      filters:
+        - catalogus
+    - naam: informatieobjecttypen
+      documentatie_link: http://openzaak.local:8000/ref/kanalen/#/informatieobjecttypen
+      filters:
+        - catalogus
+    - naam: zaaktypen
+      documentatie_link: http://openzaak.local:8000/ref/kanalen/#/zaaktypen
+      filters:
+        - catalogus
+    - naam: zaken
+      documentatie_link: http://openzaak.local:8000/ref/kanalen/#/zaken
+      filters:
+        - bronorganisatie
+        - zaaktype
+        - vertrouwelijkheidaanduiding
+    - naam: documenten
+      documentatie_link: http://openzaak.local:8000/ref/kanalen/#/documenten
+      filters:
+        - bronorganisatie
+        - informatieobjecttype
+        - vertrouwelijkheidaanduiding
+    - naam: besluiten
+      documentatie_link: http://openzaak.local:8000/ref/kanalen/#/besluiten
+      filters:
+        - verantwoordelijke_organisatie
+        - besluittype
+
+sites_config_enable: true
+sites_config:
+  items:
+    - domain: example.com
+      name: Open Notificaties
+
+notifications_config_enable: true
+notifications_config:
+  notifications_api_service_identifier: notificaties-api
+  notification_delivery_max_retries: 1
+  notification_delivery_retry_backoff: 2
+  notification_delivery_retry_backoff_max: 3
+
+notifications_subscriptions_config_enable: true
+notifications_subscriptions_config:
+  items:
+    - identifier: autorisaties-subscription
+      callback_url: http://opennotificaties:8000/api/v1/callbacks
+      client_id: open-notificaties
+      secret: opennotificatiesAutorisatieApiSecret
+      uuid: 0f616bfd-aacc-4d85-a140-2af17a56217b
+      channels:
+        - autorisaties

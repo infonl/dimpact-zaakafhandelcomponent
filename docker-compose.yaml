@@ -100,7 +100,7 @@ services:
     image: docker.io/openzaak/open-zaak:1.18.0@sha256:d023f76c72b0608aede93651b56422ac9863e49f69bd151d3d0e0ae676a099bd
     platform: linux/amd64
     environment: &openzaak-env
-      - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local,opennotificaties
+      - ALLOWED_HOSTS="*"
       - DB_HOST=openzaak-database
       - DB_NAME=openzaak
       - DB_PASSWORD=openzaak
@@ -172,7 +172,7 @@ services:
     ports:
       - "8010:8000"
     environment: &objects-env
-      - ALLOWED_HOSTS=localhost,host.docker.internal,objecten-api.local
+      - ALLOWED_HOSTS="*"
       - CORS_ALLOW_ALL_ORIGINS=true
       - DB_HOST=objecten-api-database
       - DEBUG=true
@@ -275,7 +275,7 @@ services:
     image: docker.io/maykinmedia/open-klant:2.3.0@sha256:deeccf6c1e0c76538169443ffe960895da98188540fec69e127d9e78fdce23da
     platform: linux/amd64
     environment:
-      - ALLOWED_HOSTS=localhost,host.docker.internal,openklant.local
+      - ALLOWED_HOSTS="*"
       - DB_HOST=openklant-database
       - DB_USER=openklant
       - DB_PASSWORD=openklant
@@ -448,11 +448,12 @@ services:
       retries: 10
       start_period: 30s
     environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
       - POSTGRES_USER=opennotificaties
       - POSTGRES_PASSWORD=opennotificaties
       - POSTGRES_DB=opennotificaties
+    command: postgres -c max_connections=300 -c log_min_messages=LOG
     volumes:
-      - ./scripts/docker-compose/imports/opennotificaties-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/opennotificaties-database-data:/var/lib/postgresql/data
     profiles: [ "opennotificaties" ]
 
@@ -460,25 +461,27 @@ services:
     image: docker.io/openzaak/open-notificaties:1.8.0@sha256:2ad8eaf1121ad6071d4171b83f5eb3b5925804db549c8196b0384bb551e2979b
     platform: linux/amd64
     environment: &opennotificaties-env
-      - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local,zac
-      - CACHE_DEFAULT=redis:6379/0
-      - CACHE_AXES=redis:6379/0
-      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
-      - CELERY_RESULT_BACKEND=redis://redis:6379/1
-      - CELERY_LOGLEVEL=DEBUG
-      - DB_HOST=opennotificaties-database
-      - DB_NAME=opennotificaties
-      - DB_PASSWORD=opennotificaties
-      - DB_USER=opennotificaties
-      - DEBUG=true
-      - DISABLE_2FA=true
-      - DJANGO_SETTINGS_MODULE=nrc.conf.docker
-      - DJANGO_SUPERUSER_PASSWORD=admin
-      - LOG_LEVEL=DEBUG
-      - LOG_NOTIFICATIONS_IN_DB=true
-      - PUBLISH_BROKER_URL=amqp://guest:guest@rabbitmq:5672/%2F
-      - RABBITMQ_HOST=rabbitmq
-      - SECRET_KEY=opennotificatiesApiSecretKey
+      ALLOWED_HOSTS: "*"
+      CACHE_DEFAULT: redis:6379/0
+      CACHE_AXES: redis:6379/0
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      CELERY_LOGLEVEL: DEBUG
+      DB_HOST: opennotificaties-database
+      DB_NAME: opennotificaties
+      DB_PASSWORD: opennotificaties
+      DB_USER: opennotificaties
+      DEBUG: true
+      DISABLE_2FA: true
+      DJANGO_SETTINGS_MODULE: nrc.conf.docker
+      DJANGO_SUPERUSER_PASSWORD: admin
+      LOG_LEVEL: DEBUG
+      LOG_NOTIFICATIONS_IN_DB: true
+      OPENNOTIFICATIES_SUPERUSER_USERNAME: admin
+      OPENNOTIFICATIES_SUPERUSER_EMAIL: admin@example.com
+      PUBLISH_BROKER_URL: amqp://guest:guest@rabbitmq:5672/%2F
+      RABBITMQ_HOST: rabbitmq
+      SECRET_KEY: opennotificatiesApiSecretKey
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
       interval: 30s
@@ -490,13 +493,29 @@ services:
       start_period: 30s
     ports:
       - "8003:8000"
+    volumes: &opennotificaties-volumes
+      - ./scripts/docker-compose/imports/opennotificaties/setup-configuration:/app/setup_configuration
+    depends_on:
+      opennotificaties-init:
+          condition: service_completed_successfully
+    profiles: [ "opennotificaties" ]
+
+  opennotificaties-init:
+    image: docker.io/openzaak/open-notificaties:1.8.0@sha256:2ad8eaf1121ad6071d4171b83f5eb3b5925804db549c8196b0384bb551e2979b
+    platform: linux/amd64
+    environment:
+      <<: *opennotificaties-env
+      # Run Django setup configuration
+      RUN_SETUP_CONFIG: ${RUN_SETUP_CONFIG:-true}
+    command: /setup_configuration.sh
     depends_on:
       opennotificaties-database:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
       redis:
         condition: service_started
-      rabbitmq:
-        condition: service_started
+    volumes: *opennotificaties-volumes
     profiles: [ "opennotificaties" ]
 
   opennotificaties-celery:
