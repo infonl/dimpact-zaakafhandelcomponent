@@ -26,13 +26,6 @@ export class InputFormFieldBuilder extends AbstractFormFieldBuilder {
     return this;
   }
 
-  disabled(disable: boolean = true) {
-    if (disable) {
-      this.formField.formControl.disable();
-    }
-    return this;
-  }
-
   // NOTE: intended for making a field disabled but not looking like it's disabled,
   // it should be used for fields that will only display values that will be filled by external components, like a modal
   externalInput() {

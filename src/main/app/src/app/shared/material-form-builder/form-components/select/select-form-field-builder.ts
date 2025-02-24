@@ -14,11 +14,4 @@ export class SelectFormFieldBuilder extends AbstractChoicesFormFieldBuilder {
     this.formField = new SelectFormField();
     this.formField.initControl(value);
   }
-
-  disabled(disable: boolean = true) {
-    if (disable) {
-      this.formField.formControl.disable();
-    }
-    return this;
-  }
 }

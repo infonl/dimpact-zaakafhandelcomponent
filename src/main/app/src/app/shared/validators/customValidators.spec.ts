@@ -6,6 +6,7 @@
 import { AbstractControl, FormControl } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { CustomValidators } from "./customValidators";
+import { fromPartial } from "@total-typescript/shoehorn";
 
 describe("CustomValidators", () => {
   let translateService: TranslateService;
@@ -103,9 +104,9 @@ describe("CustomValidators error messages", () => {
   let translateService: TranslateService;
 
   beforeEach(() => {
-    translateService = {
-      instant: jest.fn((key) => key),
-    } as unknown as TranslateService;
+    translateService = fromPartial<TranslateService>({
+      instant: jest.fn((key: string) => key),
+    });
   });
 
   const createControl = (value: any): AbstractControl => new FormControl(value);

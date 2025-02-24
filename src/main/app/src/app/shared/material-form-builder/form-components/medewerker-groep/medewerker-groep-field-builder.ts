@@ -62,13 +62,6 @@ export class MedewerkerGroepFieldBuilder extends AbstractFormFieldBuilder {
     return this;
   }
 
-  disabled(disable: boolean = true) {
-    if (disable) {
-      this.formField.formControl.disable();
-    }
-    return this;
-  }
-
   validate() {
     if (!this.formField.id) {
       throw new Error("id is required");
