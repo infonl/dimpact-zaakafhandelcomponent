@@ -92,7 +92,6 @@ When(
       .getByText("E2etestuser1@team-dimpact.info.nl")
       .first()
       .click();
-    await this.page.getByLabel("E-mailadres").first().click();
     await this.page
       .getByLabel("E-mailadres")
       .first()
@@ -144,9 +143,6 @@ When(
       .click();
     await this.page
       .getByPlaceholder("Zoeken op adres, postcode of woonplaats")
-      .click();
-    await this.page
-      .getByPlaceholder("Zoeken op adres, postcode of woonplaats")
       .fill("1112gv");
     await this.page
       .getByPlaceholder("Zoeken op adres, postcode of woonplaats")
@@ -168,7 +164,6 @@ When(
     await this.page.getByRole("option", { name: " E-mail " }).click();
     // Openbaar should be automatically selected on openbaar
     await this.expect(this.page.getByText("Openbaar").first()).toBeVisible();
-    await this.page.getByLabel("Omschrijving").click();
     await this.page.getByLabel("Omschrijving").fill("E2etest1");
     await this.page.getByRole("button", { name: "Aanmaken" }).click();
 

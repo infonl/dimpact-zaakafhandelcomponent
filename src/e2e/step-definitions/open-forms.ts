@@ -46,10 +46,8 @@ Given(
 
     await firstLetterInput.fill(profile.personalDetails.initials);
 
-    await infixInput.click();
     await infixInput.fill(profile.personalDetails.prefix);
 
-    await lastNameInput.click();
     await lastNameInput.fill(profile.personalDetails.lastName);
     await this.page.getByRole("button", { name: "Volgende" }).click();
 
@@ -58,7 +56,6 @@ Given(
     await this.page
       .getByLabel("Omschrijving van het voorval")
       .fill(profile.incidentDetails.description);
-    await this.page.getByRole("textbox", { name: "dd-MM-yyyy HH:mm" }).click();
     await this.page
       .getByRole("textbox", { name: "dd-MM-yyyy HH:mm" })
       .fill(profile.incidentDetails.date);
@@ -71,36 +68,28 @@ Given(
     await this.page.getByLabel("ja, digitaal bij deze melding").check();
     await this.page.getByRole("combobox").nth(1).click();
     await this.page.getByRole("option", { name: "Enschede" }).click();
-    await this.page.getByLabel("Straat").click();
     await this.page.getByLabel("Straat").fill("teststraat");
-    await this.page.getByLabel("Nadere omschrijving van de").click();
     await this.page
       .getByLabel("Nadere omschrijving van de")
       .fill(profile.incidentDetails.location.furtherDescription);
-    await this.page.getByLabel("U kunt hier aangeven waarom").click();
     await this.page
       .getByLabel("U kunt hier aangeven waarom")
       .fill(profile.incidentDetails.reasonForMunicipalityLiability);
     await this.page.getByRole("button", { name: "Volgende" }).click();
 
     // Damage details
-    await this.page.getByLabel("Omschrijving schade voertuig").click();
     await this.page
       .getByLabel("Omschrijving schade voertuig")
       .fill(profile.damageDetails.description);
-    await this.page.getByLabel("Merk voertuig").click();
     await this.page
       .getByLabel("Merk voertuig")
       .fill(profile.damageDetails.vehicle.make);
-    await this.page.getByLabel("Kenteken voertuig").click();
     await this.page
       .getByLabel("Kenteken voertuig")
       .fill(profile.damageDetails.vehicle.licensePlate);
-    await this.page.getByLabel("Bedrijfsnaam").click();
     await this.page
       .getByLabel("Bedrijfsnaam")
       .fill(profile.damageDetails.insurance.companyName);
-    await this.page.getByLabel("Polisnummer").click();
     await this.page
       .getByLabel("Polisnummer")
       .fill(profile.damageDetails.insurance.policyNumber);
@@ -109,23 +98,18 @@ Given(
     await this.page.getByRole("button", { name: "Volgende" }).click();
 
     // Witness details
-    await this.page.getByLabel("Achternaam").click();
     await this.page
       .getByLabel("Achternaam")
       .fill(profile.witnessDetails[0].lastName);
-    await this.page.getByLabel("Tussenvoegsels").click();
     await this.page
       .getByLabel("Tussenvoegsels")
       .fill(profile.witnessDetails[0].prefix ?? "");
-    await this.page.getByLabel("Voornamen").click();
     await this.page
       .getByLabel("Voornamen")
       .fill(profile.witnessDetails[0].firstName ?? "");
-    await this.page.getByPlaceholder("____ __").click();
     await this.page
       .getByPlaceholder("____ __")
       .fill(profile.witnessDetails[0].postalCode ?? "");
-    await this.page.getByLabel("Huisnummer").click();
     await this.page
       .getByLabel("Huisnummer")
       .fill(profile.witnessDetails[0].houseNumber ?? "");
