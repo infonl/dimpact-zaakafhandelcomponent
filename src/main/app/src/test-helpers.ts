@@ -4,14 +4,7 @@
  *
  */
 
-import {
-  DebugElement,
-  OnChanges,
-  SimpleChange,
-  SimpleChanges,
-} from "@angular/core";
-import { ComponentFixture } from "@angular/core/testing";
-import { By } from "@angular/platform-browser";
+import { OnChanges, SimpleChange, SimpleChanges } from "@angular/core";
 
 export function updateComponentInputs<T extends OnChanges>(
   component: T,
