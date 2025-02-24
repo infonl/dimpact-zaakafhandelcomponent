@@ -23,81 +23,81 @@ describe("CustomValidators", () => {
       errors: null,
     }) as AbstractControl;
 
-  it("should validate BSN correctly", () => {
-    const validBsnControl = createControl("123456782");
-    const invalidBsnControl = createControl("123456789");
-
-    expect(CustomValidators.bsn(validBsnControl)).toBeNull();
-    expect(CustomValidators.bsn(invalidBsnControl)).toEqual({ bsn: true });
+  it.each([
+    ["123456782", null],
+    ["123456789", { bsn: true }],
+  ])("BSN validation: for %s it should return %p", (bsn, expected) => {
+    const control = createControl(bsn);
+    expect(CustomValidators.bsn(control)).toEqual(expected);
   });
 
-  it("should validate KVK correctly", () => {
-    const validKvkControl = createControl("12345678");
-    const invalidKvkControl = createControl("1234567");
-
-    expect(CustomValidators.kvk(validKvkControl)).toBeNull();
-    expect(CustomValidators.kvk(invalidKvkControl)).toEqual({ kvk: true });
+  it.each([
+    ["12345678", null],
+    ["1234567", { kvk: true }],
+  ])("KVK validation: for %s it should return %p", (kvk, expected) => {
+    const control = createControl(kvk);
+    expect(CustomValidators.kvk(control)).toEqual(expected);
   });
 
-  it("should validate vestigingsnummer correctly", () => {
-    const validVestigingsnummerControl = createControl("123456789012");
-    const invalidVestigingsnummerControl = createControl("12345678901");
+  it.each([
+    ["123456789012", null],
+    ["12345678901", { vestigingsnummer: true }],
+  ])(
+    "Vestigingsnummer validation: for %s it should return %p",
+    (vestigingsnummer, expected) => {
+      const control = createControl(vestigingsnummer);
+      expect(CustomValidators.vestigingsnummer(control)).toEqual(expected);
+    },
+  );
 
-    expect(
-      CustomValidators.vestigingsnummer(validVestigingsnummerControl),
-    ).toBeNull();
-    expect(
-      CustomValidators.vestigingsnummer(invalidVestigingsnummerControl),
-    ).toEqual({ vestigingsnummer: true });
+  it.each([
+    ["123456789", null],
+    ["12345678", { rsin: true }],
+  ])("RSIN validation: for %s it should return %p", (rsin, expected) => {
+    const control = createControl(rsin);
+    expect(CustomValidators.rsin(control)).toEqual(expected);
   });
 
-  it("should validate RSIN correctly", () => {
-    const validRsinControl = createControl("123456789");
-    const invalidRsinControl = createControl("12345678");
+  it.each([
+    ["1234AB", null],
+    ["1234A", { postcode: true }],
+  ])(
+    "Postal code validation: for %s it should return %p",
+    (postcode, expected) => {
+      const control = createControl(postcode);
+      expect(CustomValidators.postcode(control)).toEqual(expected);
+    },
+  );
 
-    expect(CustomValidators.rsin(validRsinControl)).toBeNull();
-    expect(CustomValidators.rsin(invalidRsinControl)).toEqual({ rsin: true });
+  it.each([
+    ["test@example.com", null],
+    ["test@", { email: true }],
+  ])("Email validation: for %s it should return %p", (email, expected) => {
+    const control = createControl(email);
+    expect(CustomValidators.email(control)).toEqual(expected);
   });
 
-  it("should validate postcode correctly", () => {
-    const validPostcodeControl = createControl("1234AB");
-    const invalidPostcodeControl = createControl("1234A");
+  it.each([
+    ["ValidName", null],
+    ["Invalid*Name", { bedrijfsnaam: true }],
+  ])(
+    "Company name validation: for %s it should return %p",
+    (bedrijfsnaam, expected) => {
+      const control = createControl(bedrijfsnaam);
+      expect(CustomValidators.bedrijfsnaam(control)).toEqual(expected);
+    },
+  );
 
-    expect(CustomValidators.postcode(validPostcodeControl)).toBeNull();
-    expect(CustomValidators.postcode(invalidPostcodeControl)).toEqual({
-      postcode: true,
-    });
-  });
-
-  it("should validate email correctly", () => {
-    const validEmailControl = createControl("test@example.com");
-    const invalidEmailControl = createControl("test@");
-
-    expect(CustomValidators.email(validEmailControl)).toBeNull();
-    expect(CustomValidators.email(invalidEmailControl)).toEqual({
-      email: true,
-    });
-  });
-
-  it("should validate bedrijfsnaam correctly", () => {
-    const validBedrijfsnaamControl = createControl("ValidName");
-    const invalidBedrijfsnaamControl = createControl("Invalid*Name");
-
-    expect(CustomValidators.bedrijfsnaam(validBedrijfsnaamControl)).toBeNull();
-    expect(CustomValidators.bedrijfsnaam(invalidBedrijfsnaamControl)).toEqual({
-      bedrijfsnaam: true,
-    });
-  });
-
-  it("should validate huisnummer correctly", () => {
-    const validHuisnummerControl = createControl("123");
-    const invalidHuisnummerControl = createControl("123A");
-
-    expect(CustomValidators.huisnummer(validHuisnummerControl)).toBeNull();
-    expect(CustomValidators.huisnummer(invalidHuisnummerControl)).toEqual({
-      huisnummer: true,
-    });
-  });
+  it.each([
+    ["123", null],
+    ["123A", { huisnummer: true }],
+  ])(
+    "House number validation: for %s it should return %p",
+    (huisnummer, expected) => {
+      const control = createControl(huisnummer);
+      expect(CustomValidators.huisnummer(control)).toEqual(expected);
+    },
+  );
 });
 
 describe("CustomValidators error messages", () => {
@@ -111,191 +111,40 @@ describe("CustomValidators error messages", () => {
 
   const createControl = (value: any): AbstractControl => new FormControl(value);
 
-  it("should return required error message", () => {
-    const control = createControl("");
-    control.setErrors({ required: true });
-    const label = "testLabel";
+  it.each([
+    [{ required: true }, "msg.error.required"],
+    [{ min: { min: 5, actual: 3 } }, "msg.error.teklein"],
+    [{ max: { max: 10, actual: 12 } }, "msg.error.tegroot"],
+    [{ minlength: { requiredLength: 5, actualLength: 3 } }, "msg.error.tekort"],
+    [{ maxlength: { requiredLength: 5, actualLength: 7 } }, "msg.error.telang"],
+    [{ email: true }, "msg.error.invalid.email"],
+    [
+      { pattern: { requiredPattern: "^[a-zA-Z]+$", actualValue: "123" } },
+      "msg.error.invalid.formaat",
+    ],
+    [{ bsn: true }, "msg.error.invalid.huisnummer.bsn"],
+    [{ kvk: true }, "msg.error.invalid.huisnummer.kvk"],
+    [
+      { vestigingsnummer: true },
+      "msg.error.invalid.huisnummer.vestigingsnummer",
+    ],
+    [{ rsin: true }, "msg.error.invalid.huisnummer.rsin"],
+    [{ postcode: true }, "msg.error.invalid.huisnummer.postcode"],
+    [{ huisnummer: true }, "msg.error.invalid.huisnummer.huisnummer"],
+    [{ custom: { message: "custom.error.message" } }, "custom.error.message"],
+  ])(
+    "should return correct error message for %p",
+    (errors, expectedMessage) => {
+      const control = createControl("");
+      control.setErrors(errors);
+      const label = "testLabel";
 
-    const errorMessage = CustomValidators.getErrorMessage(
-      control,
-      label,
-      translateService,
-    );
-    expect(errorMessage).toBe("msg.error.required");
-  });
-
-  it("should return min error message", () => {
-    const control = createControl("");
-    control.setErrors({ min: { min: 5, actual: 3 } });
-    const label = "testLabel";
-
-    const errorMessage = CustomValidators.getErrorMessage(
-      control,
-      label,
-      translateService,
-    );
-    expect(errorMessage).toBe("msg.error.teklein");
-  });
-
-  it("should return max error message", () => {
-    const control = createControl("");
-    control.setErrors({ max: { max: 10, actual: 12 } });
-    const label = "testLabel";
-
-    const errorMessage = CustomValidators.getErrorMessage(
-      control,
-      label,
-      translateService,
-    );
-    expect(errorMessage).toBe("msg.error.tegroot");
-  });
-
-  it("should return minlength error message", () => {
-    const control = createControl("");
-    control.setErrors({
-      minlength: { requiredLength: 5, actualLength: 3 },
-    });
-    const label = "testLabel";
-
-    const errorMessage = CustomValidators.getErrorMessage(
-      control,
-      label,
-      translateService,
-    );
-    expect(errorMessage).toBe("msg.error.tekort");
-  });
-
-  it("should return maxlength error message", () => {
-    const control = createControl("");
-    control.setErrors({
-      maxlength: { requiredLength: 5, actualLength: 7 },
-    });
-    const label = "testLabel";
-
-    const errorMessage = CustomValidators.getErrorMessage(
-      control,
-      label,
-      translateService,
-    );
-    expect(errorMessage).toBe("msg.error.telang");
-  });
-
-  it("should return email error message", () => {
-    const control = createControl("");
-    control.setErrors({ email: true });
-    const label = "testLabel";
-
-    const errorMessage = CustomValidators.getErrorMessage(
-      control,
-      label,
-      translateService,
-    );
-    expect(errorMessage).toBe("msg.error.invalid.email");
-  });
-
-  it("should return pattern error message", () => {
-    const control = createControl("");
-    control.setErrors({
-      pattern: { requiredPattern: "^[a-zA-Z]+$", actualValue: "123" },
-    });
-    const label = "testLabel";
-
-    const errorMessage = CustomValidators.getErrorMessage(
-      control,
-      label,
-      translateService,
-    );
-    expect(errorMessage).toBe("msg.error.invalid.formaat");
-  });
-
-  it("should return custom error message", () => {
-    const control = createControl("");
-    control.setErrors({ custom: { message: "custom.error.message" } });
-    const label = "testLabel";
-
-    const errorMessage = CustomValidators.getErrorMessage(
-      control,
-      label,
-      translateService,
-    );
-    expect(errorMessage).toBe("custom.error.message");
-  });
-
-  it("should return bsn error message", () => {
-    const control = createControl("");
-    control.setErrors({ bsn: true });
-    const label = "testLabel";
-
-    const errorMessage = CustomValidators.getErrorMessage(
-      control,
-      label,
-      translateService,
-    );
-    expect(errorMessage).toBe("msg.error.invalid.huisnummer.bsn");
-  });
-
-  it("should return kvk error message", () => {
-    const control = createControl("");
-    control.setErrors({ kvk: true });
-    const label = "testLabel";
-
-    const errorMessage = CustomValidators.getErrorMessage(
-      control,
-      label,
-      translateService,
-    );
-    expect(errorMessage).toBe("msg.error.invalid.huisnummer.kvk");
-  });
-
-  it("should return vestigingsnummer error message", () => {
-    const control = createControl("");
-    control.setErrors({ vestigingsnummer: true });
-    const label = "testLabel";
-
-    const errorMessage = CustomValidators.getErrorMessage(
-      control,
-      label,
-      translateService,
-    );
-    expect(errorMessage).toBe("msg.error.invalid.huisnummer.vestigingsnummer");
-  });
-
-  it("should return rsin error message", () => {
-    const control = createControl("");
-    control.setErrors({ rsin: true });
-    const label = "testLabel";
-
-    const errorMessage = CustomValidators.getErrorMessage(
-      control,
-      label,
-      translateService,
-    );
-    expect(errorMessage).toBe("msg.error.invalid.huisnummer.rsin");
-  });
-
-  it("should return postcode error message", () => {
-    const control = createControl("");
-    control.setErrors({ postcode: true });
-    const label = "testLabel";
-
-    const errorMessage = CustomValidators.getErrorMessage(
-      control,
-      label,
-      translateService,
-    );
-    expect(errorMessage).toBe("msg.error.invalid.huisnummer.postcode");
-  });
-
-  it("should return huisnummer error message", () => {
-    const control = createControl("");
-    control.setErrors({ huisnummer: true });
-    const label = "testLabel";
-
-    const errorMessage = CustomValidators.getErrorMessage(
-      control,
-      label,
-      translateService,
-    );
-    expect(errorMessage).toBe("msg.error.invalid.huisnummer.huisnummer");
-  });
+      const errorMessage = CustomValidators.getErrorMessage(
+        control,
+        label,
+        translateService,
+      );
+      expect(errorMessage).toBe(expectedMessage);
+    },
+  );
 });
