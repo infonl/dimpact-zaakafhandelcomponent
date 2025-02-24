@@ -104,6 +104,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       .validators(Validators.required)
       .build();
 
+    //
     this.startDatumField = this.createDateFormField(
       "startdatum",
       this.zaak.startdatum,
@@ -185,20 +186,20 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
     ];
 
     this.formFields.flat().forEach((field) => {
-      //Subscriptions to enable reason field when any other field changes and becomes dirty
+      //Subscriptions to enable reason field on field changes
       field.formControl.enabled &&
         field.formControl.valueChanges
           .pipe(takeUntil(this.ngDestroy))
           .subscribe(() => {
             if (
-              this.reasonField.formControl.disabled &&
-              field.formControl.dirty
+              field.formControl.dirty &&
+              this.reasonField.formControl.disabled
             ) {
               this.reasonField.formControl.enable({ emitEvent: false });
             }
           });
 
-      // Subscription(s) to revalidate the 'other' enabled date field(s) after a date change, since error can be fixed for them as well
+      // Subscription(s) to revalidate 'other' enabled date field(s) after a date change, so 'other' date error messages are updated
       if (field instanceof DateFormField && field.formControl.enabled) {
         field.formControl.enabled &&
           field.formControl.valueChanges
