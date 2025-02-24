@@ -52,17 +52,14 @@ When(
     await this.page.getByRole("option", { name: "OpenZaakTest" }).click();
 
     const inputTitle = this.page.getByLabel(/Titel/i);
-    await inputTitle.click();
     await inputTitle.fill(documentInput.title);
     await expect(inputTitle).toHaveValue(documentInput.title);
 
     const inputDescription = this.page.getByLabel(/Beschrijving/i);
-    await inputDescription.click();
     await inputDescription.fill(documentInput.description);
     await expect(inputDescription).toHaveValue(documentInput.description);
 
     const inputAuthor = this.page.getByLabel(/Auteur/i);
-    await inputAuthor.click();
     await inputAuthor.fill(documentInput.author);
     await expect(inputAuthor).toHaveValue(documentInput.author);
 
@@ -99,9 +96,12 @@ When(
     );
     await expect(caseNumberLocator).toHaveCount(2);
 
+    // This locator selects the status message container of the wizard.
+    // The status message container is only visible when the wizard has been completed.
     const wizardResultDiv = smartDocumentsWizardPage.locator(
       '[role="status"][aria-live="polite"]',
     );
+
     await wizardResultDiv.waitFor({ state: "attached" });
     await expect(wizardResultDiv).toBeVisible();
 

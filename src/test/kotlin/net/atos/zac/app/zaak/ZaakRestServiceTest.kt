@@ -9,6 +9,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
@@ -23,6 +24,7 @@ import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.drc.DrcClientService
+import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.util.extractUuid
@@ -36,11 +38,13 @@ import net.atos.client.zgw.zrc.model.Point
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.Zaak
+import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.client.zgw.zrc.model.createMedewerker
 import net.atos.client.zgw.zrc.model.createOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.createRolMedewerker
 import net.atos.client.zgw.zrc.model.createRolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.createZaak
+import net.atos.client.zgw.zrc.model.createZaakInformatieobject
 import net.atos.client.zgw.zrc.model.createZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.createZaakobjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
@@ -71,6 +75,7 @@ import net.atos.zac.app.zaak.model.createRESTZaakAanmaakGegevens
 import net.atos.zac.app.zaak.model.createRESTZaakAssignmentData
 import net.atos.zac.app.zaak.model.createRESTZaakBetrokkeneGegevens
 import net.atos.zac.app.zaak.model.createRESTZakenVerdeelGegevens
+import net.atos.zac.app.zaak.model.createRestDocumentOntkoppelGegevens
 import net.atos.zac.app.zaak.model.createRestGroup
 import net.atos.zac.app.zaak.model.createRestZaak
 import net.atos.zac.app.zaak.model.createRestZaakLinkData
@@ -82,6 +87,7 @@ import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
+import net.atos.zac.documenten.model.OntkoppeldDocument
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.bpmn.BpmnService
@@ -977,6 +983,57 @@ class ZaakRestServiceTest : BehaviorSpec({
                     status shouldBe HttpStatus.SC_OK
                     headers["Content-Disposition"]!![0] shouldBe """attachment; filename="procesdiagram.gif"""".trimIndent()
                     (entity as InputStream).bufferedReader().use { it.readText() } shouldBe "dummyDiagram"
+                }
+            }
+        }
+    }
+
+    Given("A zaak with a zaakinformatieobject where the corresponding informatieobject is only linked to this zaak") {
+        val zaakUUID = UUID.randomUUID()
+        val informatieobjectUUID = UUID.randomUUID()
+        val zaak = createZaak(uuid = zaakUUID)
+        val enkelvoudiginformatieobject = createEnkelvoudigInformatieObject(uuid = informatieobjectUUID)
+        val zaakinformatiebject = createZaakInformatieobject(
+            zaakUUID = zaakUUID,
+            informatieobjectUUID = informatieobjectUUID
+        )
+        val restOntkoppelGegevens = createRestDocumentOntkoppelGegevens(
+            zaakUUID = zaakUUID,
+            documentUUID = informatieobjectUUID,
+            reden = "veryDummyReason"
+        )
+        every { zrcClientService.readZaak(zaakUUID) } returns zaak
+        every { drcClientService.readEnkelvoudigInformatieobject(informatieobjectUUID) } returns enkelvoudiginformatieobject
+        every { policyService.readDocumentRechten(enkelvoudiginformatieobject, zaak).ontkoppelen } returns true
+        every {
+            zrcClientService.listZaakinformatieobjecten(any<ZaakInformatieobjectListParameters>())
+        } returns listOf(zaakinformatiebject)
+        every { zrcClientService.listZaakinformatieobjecten(enkelvoudiginformatieobject) } returns emptyList()
+        every {
+            zrcClientService.deleteZaakInformatieobject(zaakinformatiebject.uuid, "veryDummyReason", "Ontkoppeld")
+        } just Runs
+        every { indexingService.removeInformatieobject(informatieobjectUUID) } just Runs
+        every {
+            ontkoppeldeDocumentenService.create(enkelvoudiginformatieobject, zaak, "veryDummyReason")
+        } returns mockk<OntkoppeldDocument>()
+
+        When("a request is done to unlink the zaakinformatieobject from the zaak") {
+            zaakRestService.ontkoppelInformatieObject(restOntkoppelGegevens)
+
+            Then(
+                """
+                    the zaakinformatieobject is unlinked from the zaak and the related informatieobject is removed from the search index 
+                    and is added as an inboxdocument
+                """.trimIndent()
+            ) {
+                verify(exactly = 1) {
+                    zrcClientService.deleteZaakInformatieobject(
+                        zaakinformatiebject.uuid,
+                        "veryDummyReason",
+                        "Ontkoppeld"
+                    )
+                    indexingService.removeInformatieobject(informatieobjectUUID)
+                    ontkoppeldeDocumentenService.create(enkelvoudiginformatieobject, zaak, "veryDummyReason")
                 }
             }
         }
