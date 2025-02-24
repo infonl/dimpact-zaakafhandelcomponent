@@ -115,7 +115,6 @@ export class ParameterEditComponent
   ) {
     super(utilService, configuratieService);
     this.route.data.subscribe((data) => {
-
       this.parameters = data.parameters;
       this.parameters.intakeMail = this.parameters.intakeMail
         ? this.parameters.intakeMail
@@ -137,8 +136,9 @@ export class ParameterEditComponent
         identityService.listGroups(),
         zaakafhandelParametersService.listZaakbeeindigRedenen(),
         mailtemplateBeheerService.listKoppelbareMailtemplates(),
-        zaakafhandelParametersService
-            .listResultaattypes(this.parameters.zaaktype.uuid)
+        zaakafhandelParametersService.listResultaattypes(
+          this.parameters.zaaktype.uuid,
+        ),
       ]).subscribe(
         ([
           caseDefinitions,
@@ -150,7 +150,7 @@ export class ParameterEditComponent
           groepen,
           zaakbeeindigRedenen,
           mailtemplates,
-           resultaattypes
+          resultaattypes,
         ]) => {
           this.caseDefinitions = caseDefinitions;
           this.formulierDefinities = formulierDefinities;
@@ -161,7 +161,7 @@ export class ParameterEditComponent
           this.mailtemplates = mailtemplates;
           this.zaakAfzenders = afzenders;
           this.replyTos = replyTos;
-          this.resultaattypes = resultaattypes
+          this.resultaattypes = resultaattypes;
           this.createForm();
         },
       );
@@ -269,7 +269,7 @@ export class ParameterEditComponent
 
     this.subscriptions$.push(
       this.algemeenFormGroup.controls.defaultGroepId.valueChanges.subscribe(
-        this.setMedewerkersForGroup,
+        this.setMedewerkersForGroup.bind(this),
       ),
     );
 
@@ -300,7 +300,7 @@ export class ParameterEditComponent
     return this.identityService
       .listUsersInGroup(groepId)
       .subscribe((medewerkers) => {
-        this.medewerkers = medewerkers
+        this.medewerkers = medewerkers;
       });
   }
 
@@ -689,24 +689,28 @@ export class ParameterEditComponent
     this.parameters.smartDocuments.enabledForZaaktype =
       this.smartDocumentsEnabledForm.value.enabledForZaaktype;
 
-    this.zaakafhandelParametersService.updateZaakafhandelparameters(this.parameters).subscribe(
-      (data) => {
-        this.loading = false;
-        this.utilService.openSnackbar("msg.zaakafhandelparameters.opgeslagen");
-        this.parameters = data;
-        for (const afzender of this.parameters.zaakAfzenders) {
-          for (let i = 0; i < index.length; i++) {
-            if (index[i] === afzender.mail) {
-              afzender.index = i;
-              break;
+    this.zaakafhandelParametersService
+      .updateZaakafhandelparameters(this.parameters)
+      .subscribe(
+        (data) => {
+          this.loading = false;
+          this.utilService.openSnackbar(
+            "msg.zaakafhandelparameters.opgeslagen",
+          );
+          this.parameters = data;
+          for (const afzender of this.parameters.zaakAfzenders) {
+            for (let i = 0; i < index.length; i++) {
+              if (index[i] === afzender.mail) {
+                afzender.index = i;
+                break;
+              }
             }
           }
-        }
-      },
-      (error) => {
-        this.loading = false;
-      },
-    );
+        },
+        (error) => {
+          this.loading = false;
+        },
+      );
 
     if (
       this.parameters.smartDocuments.enabledGlobally &&

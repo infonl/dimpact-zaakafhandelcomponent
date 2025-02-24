@@ -3,27 +3,28 @@
  * SPDX-License-Identifier: EUPL-1.2+
  *
  */
+
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatSelectHarness } from "@angular/material/select/testing";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
+import { MaterialModule } from "../../shared/material/material.module";
+import { PipesModule } from "../../shared/pipes/pipes.module";
+import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParameterEditComponent } from "./parameter-edit.component";
-import { MaterialModule } from "../../shared/material/material.module";
-import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
-import {StaticTextComponent} from "../../shared/static-text/static-text.component";
-import {PipesModule} from "../../shared/pipes/pipes.module";
-import {HarnessLoader} from "@angular/cdk/testing";
-import {TestbedHarnessEnvironment} from "@angular/cdk/testing/testbed";
-import {MatSelectHarness} from "@angular/material/select/testing";
 
 describe(ParameterEditComponent.name, () => {
   let component: ParameterEditComponent;
@@ -38,36 +39,41 @@ describe(ParameterEditComponent.name, () => {
     GeneratedType<"RestZaakafhandelParameters">
   >({
     defaultGroepId: "test-group-id",
+    defaultBehandelaarId: "test-user-id",
     zaaktype: {
-        uuid: "test-uuid",
+      uuid: "test-uuid",
     },
     humanTaskParameters: [],
     userEventListenerParameters: [],
     mailtemplateKoppelingen: [],
     zaakAfzenders: [],
-    smartDocuments: {}
+    smartDocuments: {},
   });
 
-  const users: GeneratedType<'RestUser'>[] = [
-    { id: 'test-user-id', naam: 'test-user' },
-    { id: 'test-user-id2', naam: 'test-user-2' },
-  ]
+  const users: GeneratedType<"RestUser">[] = [
+    { id: "test-user-id", naam: "test-user" },
+    { id: "test-user-id-2", naam: "test-user-2" },
+  ];
 
-  const groups: GeneratedType<'RestGroup'>[] = [
-    { id: 'test-group-id', naam: 'test-group' },
-    { id: 'test-group-id2', naam: 'test-group-2' },
-  ]
+  const groups: GeneratedType<"RestGroup">[] = [
+    { id: "test-group-id", naam: "test-group" },
+    { id: "test-group-id-2", naam: "test-group-2" },
+  ];
 
   describe("Case handler", () => {
     beforeEach(async () => {
       await TestBed.configureTestingModule({
-        declarations: [ParameterEditComponent, SideNavComponent, StaticTextComponent],
+        declarations: [
+          ParameterEditComponent,
+          SideNavComponent,
+          StaticTextComponent,
+        ],
         imports: [
           TranslateModule.forRoot(),
           MaterialModule,
           NoopAnimationsModule,
           RouterModule,
-            PipesModule
+          PipesModule,
         ],
         providers: [
           provideHttpClient(),
@@ -81,7 +87,7 @@ describe(ParameterEditComponent.name, () => {
         ],
       }).compileComponents();
 
-       zaakafhandelParametersService = TestBed.inject(
+      zaakafhandelParametersService = TestBed.inject(
         ZaakafhandelParametersService,
       );
       jest
@@ -96,7 +102,9 @@ describe(ParameterEditComponent.name, () => {
       jest
         .spyOn(zaakafhandelParametersService, "listZaakbeeindigRedenen")
         .mockReturnValue(of([]));
-      jest.spyOn(zaakafhandelParametersService, "listResultaattypes").mockReturnValue(of([]));
+      jest
+        .spyOn(zaakafhandelParametersService, "listResultaattypes")
+        .mockReturnValue(of([]));
 
       referentieTabelService = TestBed.inject(ReferentieTabelService);
       jest
@@ -109,50 +117,41 @@ describe(ParameterEditComponent.name, () => {
         .spyOn(referentieTabelService, "listAfzenders")
         .mockReturnValue(of([]));
 
-       identityService = TestBed.inject(IdentityService);
+      identityService = TestBed.inject(IdentityService);
       jest.spyOn(identityService, "listGroups").mockReturnValue(of(groups));
-      jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of(users));
+      jest
+        .spyOn(identityService, "listUsersInGroup")
+        .mockReturnValueOnce(of(users))
+        .mockReturnValue(of([]));
 
-      mailtemplateBeheerService = TestBed.inject(
-        MailtemplateBeheerService,
-      );
+      mailtemplateBeheerService = TestBed.inject(MailtemplateBeheerService);
       jest
         .spyOn(mailtemplateBeheerService, "listKoppelbareMailtemplates")
         .mockReturnValue(of([]));
 
       fixture = TestBed.createComponent(ParameterEditComponent);
       component = fixture.componentInstance;
-
-      fixture.detectChanges();
-      loader = TestbedHarnessEnvironment.loader(fixture)
+      loader = TestbedHarnessEnvironment.loader(fixture);
     });
 
     it("should set the case handlers which are in the selected group", async () => {
-      const listUsersInGroup = jest.spyOn(identityService, "listUsersInGroup")
+      const selectFields = await loader.getAllHarnesses(MatSelectHarness);
+      const caseHandlerSelect = selectFields[3];
 
-      await fixture.whenStable();
-
-      expect(listUsersInGroup).toHaveBeenCalledWith("test-group-id");
-      expect(component.medewerkers).toBe(users);
+      const value = await caseHandlerSelect.getValueText();
+      expect(value).toBe("test-user");
     });
 
     it("should update the case handlers when the group changes", async () => {
-      const listUsersInGroup = jest.spyOn(identityService, "listUsersInGroup")
+      const selectFields = await loader.getAllHarnesses(MatSelectHarness);
 
-      await fixture.whenStable();
+      const groupField = selectFields[2];
+      await groupField.clickOptions({ text: "test-group-2" });
 
-      const select = await loader.getAllHarnesses(MatSelectHarness)
-      console.log({select})
-      // select.click();
-      // fixture.detectChanges();
-      // await fixture.whenStable();
-      // const option = queryByText(fixture, 'mat-option', 'test-group-2');
-      // console.log(option.nativeElement)
-      // option.nativeElement.select();
-      // fixture.detectChanges();
-      // await fixture.whenStable();
+      const caseHandlerSelect = selectFields[3];
 
-      expect(listUsersInGroup).toHaveBeenCalledWith("test-group-id2");
+      const value = await caseHandlerSelect.getValueText();
+      expect(value).toBe("behandelaar.-geen-");
     });
   });
 });
