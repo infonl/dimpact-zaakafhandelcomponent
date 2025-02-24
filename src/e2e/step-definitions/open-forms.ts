@@ -40,11 +40,10 @@ Given(
     await this.page.getByRole("button", { name: "Formulier starten" }).click();
 
     // Personal details
-    await firstNameInput.click();
-    await this.page;
-    firstNameInput.fill(profile.personalDetails.firstName + `:e2eid=${id}`);
+    await firstNameInput.fill(
+      profile.personalDetails.firstName + `:e2eid=${id}`,
+    );
 
-    await firstLetterInput.click();
     await firstLetterInput.fill(profile.personalDetails.initials);
 
     await infixInput.click();
@@ -66,12 +65,6 @@ Given(
     await this.page.getByLabel("materiële schade aan een").check();
     await this.page.getByLabel("ja", { exact: true }).check();
 
-    await this.page
-      .getByLabel("Hoeveel getuigen?")
-      .waitFor({ state: "attached" });
-
-    await this.page.getByText("Hoeveel getuigen?", { exact: true });
-    await this.page;
     this.page.getByLabel("Hoeveel getuigen?").evaluate((node) => node.click());
 
     await this.page.getByRole("option", { name: "1" }).click();
