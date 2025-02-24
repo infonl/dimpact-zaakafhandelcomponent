@@ -15,9 +15,7 @@ export async function login(
   username: string,
   password: string,
 ) {
-  await world.page.getByLabel("Username or email").click();
   await world.page.getByLabel("Username or email").fill(username);
-  await world.page.getByText("Password").click();
   await world.page.getByText("Password").fill(password);
   await world.page.getByRole("button", { name: "Sign In" }).click();
 }
