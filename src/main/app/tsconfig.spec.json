@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
     "types": ["jest", "node", "@angular/google-maps"],
-    "lib": ["DOM", "DOM.Iterable"]
+    "lib": ["DOM", "DOM.Iterable"],
+    "target": "ES2016",
   },
   "include": ["src/**/*.spec.ts", "src/**/*.d.ts"]
 }
