@@ -152,7 +152,6 @@ export class ParameterEditComponent
           mailtemplates,
            resultaattypes
         ]) => {
-          console.log({groepen})
           this.caseDefinitions = caseDefinitions;
           this.formulierDefinities = formulierDefinities;
           this.referentieTabellen = referentieTabellen;
@@ -248,7 +247,6 @@ export class ParameterEditComponent
   }
 
   createForm() {
-    console.log('createForm')
     this.algemeenFormGroup = this.formBuilder.group({
       caseDefinition: [this.parameters.caseDefinition, [Validators.required]],
       domein: [this.parameters.domein],
@@ -299,11 +297,9 @@ export class ParameterEditComponent
   }
 
   private setMedewerkersForGroup(groepId: string) {
-    console.log('setMedewerkersForGroup', groepId, this.identityService.listUsersInGroup)
     return this.identityService
       .listUsersInGroup(groepId)
       .subscribe((medewerkers) => {
-        console.log({medewerkers})
         this.medewerkers = medewerkers
       });
   }

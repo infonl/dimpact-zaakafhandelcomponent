@@ -31,15 +31,40 @@ export function updateComponentInputs<T extends OnChanges>(
   component.ngOnChanges(simpleChanges);
 }
 
-export function queryByText<T>(
-  fixture: ComponentFixture<T>,
+export function queryByText<Component, Selector extends ValidHTMLTags>(
+  fixture: ComponentFixture<Component>,
+  selector: Selector,
+): DebugElement[];
+export function queryByText<
+  Component,
+  Selector extends ValidHTMLTags,
+  Filter extends string,
+>(
+  fixture: ComponentFixture<Component>,
+  selector: Selector,
+  text: Filter,
+): DebugElement | null;
+
+export function queryByText<
+  Component,
+  Selector extends ValidHTMLTags,
+  Filter extends string,
+>(
+  fixture: ComponentFixture<Component>,
   selector: ValidHTMLTags,
-  text: string,
-): DebugElement | null {
+  text?: Filter,
+) {
   const elements = fixture.debugElement.queryAll(By.css(selector));
-  return elements.find(({ nativeElement }) =>
-    nativeElement.textContent.includes(text),
-  );
+
+  if (text === undefined) {
+    return elements;
+  }
+
+  const foundElement = elements.find(({ nativeElement }) => {
+    return nativeElement.textContent.includes(text as unknown as string);
+  });
+
+  return foundElement;
 }
 
 type ValidHTMLTags =
@@ -111,4 +136,5 @@ type ValidHTMLTags =
   | "sup"
   | "u"
   | "var"
-  | "wbr";
+  | "wbr"
+  | string;

@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  *
  */
-
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
@@ -18,12 +17,13 @@ import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParameterEditComponent } from "./parameter-edit.component";
 import { MaterialModule } from "../../shared/material/material.module";
-import { CommonModule } from "@angular/common";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import {StaticTextComponent} from "../../shared/static-text/static-text.component";
-import {EmptyPipe} from "../../shared/pipes/empty.pipe";
 import {PipesModule} from "../../shared/pipes/pipes.module";
+import {HarnessLoader} from "@angular/cdk/testing";
+import {TestbedHarnessEnvironment} from "@angular/cdk/testing/testbed";
+import {MatSelectHarness} from "@angular/material/select/testing";
 
 describe(ParameterEditComponent.name, () => {
   let component: ParameterEditComponent;
@@ -32,6 +32,7 @@ describe(ParameterEditComponent.name, () => {
   let referentieTabelService: ReferentieTabelService;
   let identityService: IdentityService;
   let mailtemplateBeheerService: MailtemplateBeheerService;
+  let loader: HarnessLoader;
 
   const zaakAfhandelParamaters = fromPartial<
     GeneratedType<"RestZaakafhandelParameters">
@@ -46,6 +47,16 @@ describe(ParameterEditComponent.name, () => {
     zaakAfzenders: [],
     smartDocuments: {}
   });
+
+  const users: GeneratedType<'RestUser'>[] = [
+    { id: 'test-user-id', naam: 'test-user' },
+    { id: 'test-user-id2', naam: 'test-user-2' },
+  ]
+
+  const groups: GeneratedType<'RestGroup'>[] = [
+    { id: 'test-group-id', naam: 'test-group' },
+    { id: 'test-group-id2', naam: 'test-group-2' },
+  ]
 
   describe("Case handler", () => {
     beforeEach(async () => {
@@ -99,8 +110,8 @@ describe(ParameterEditComponent.name, () => {
         .mockReturnValue(of([]));
 
        identityService = TestBed.inject(IdentityService);
-      jest.spyOn(identityService, "listGroups").mockReturnValue(of([]));
-      jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of([]));
+      jest.spyOn(identityService, "listGroups").mockReturnValue(of(groups));
+      jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of(users));
 
       mailtemplateBeheerService = TestBed.inject(
         MailtemplateBeheerService,
@@ -109,19 +120,16 @@ describe(ParameterEditComponent.name, () => {
         .spyOn(mailtemplateBeheerService, "listKoppelbareMailtemplates")
         .mockReturnValue(of([]));
 
-    });
-
-    it("should not set a case handler when no group is selected", async () => {});
-
-    it("should set the case handlers which are in the selected group", async () => {
-      const users: GeneratedType<'RestUser'>[] = [{ id: 'test-user-id', naam: 'test-user' }]
-      const listUsersInGroup = jest.spyOn(identityService, "listUsersInGroup")
-      listUsersInGroup.mockReturnValue(of(users));
-
       fixture = TestBed.createComponent(ParameterEditComponent);
       component = fixture.componentInstance;
 
       fixture.detectChanges();
+      loader = TestbedHarnessEnvironment.loader(fixture)
+    });
+
+    it("should set the case handlers which are in the selected group", async () => {
+      const listUsersInGroup = jest.spyOn(identityService, "listUsersInGroup")
+
       await fixture.whenStable();
 
       expect(listUsersInGroup).toHaveBeenCalledWith("test-group-id");
@@ -129,7 +137,22 @@ describe(ParameterEditComponent.name, () => {
     });
 
     it("should update the case handlers when the group changes", async () => {
+      const listUsersInGroup = jest.spyOn(identityService, "listUsersInGroup")
+
       await fixture.whenStable();
+
+      const select = await loader.getAllHarnesses(MatSelectHarness)
+      console.log({select})
+      // select.click();
+      // fixture.detectChanges();
+      // await fixture.whenStable();
+      // const option = queryByText(fixture, 'mat-option', 'test-group-2');
+      // console.log(option.nativeElement)
+      // option.nativeElement.select();
+      // fixture.detectChanges();
+      // await fixture.whenStable();
+
+      expect(listUsersInGroup).toHaveBeenCalledWith("test-group-id2");
     });
   });
 });
