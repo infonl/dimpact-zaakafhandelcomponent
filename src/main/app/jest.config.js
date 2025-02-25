@@ -19,4 +19,5 @@ module.exports = {
     ["jest-junit", { outputDirectory: "reports", outputName: "report.xml" }],
     "summary",
   ],
+  collectCoverageFrom: ["src/**/*.{js,ts}", "!src/**/*.spec.{js,ts}"],
 };

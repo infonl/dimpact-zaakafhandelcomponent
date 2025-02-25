@@ -7,9 +7,9 @@
     "start": "npm run generate:types:zac-openapi && ng serve --proxy-config proxy.conf.json",
     "build": "npm run generate:types:zac-openapi && ng build --configuration=production --base-href=/",
     "test": "ng test",
-    "test:watch": "jest --watch",
+    "test:watch": "ng test --watch",
     "test:ci": "npx jest -t",
-    "test:report": "jest --coverage",
+    "test:report": "ng test --coverage",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "generate:types:zac-openapi": "npx openapi-typescript ./../../../build/generated/openapi/META-INF/openapi/openapi.yaml -o ./src/generated/types/zac-openapi-types.d.ts"
