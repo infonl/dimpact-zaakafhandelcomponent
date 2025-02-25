@@ -115,6 +115,9 @@ class RestZaakConverterTest : BehaviorSpec({
                     omschrijving shouldBe zaak.omschrijving
                     toelichting shouldBe zaak.toelichting
                     this.zaaktype shouldBe zaaktype
+                    isVerlengd shouldBe zaak.isVerlengd
+                    isOpgeschort shouldBe zaak.isOpgeschort
+                    isEerderOpgeschort shouldBe zaak.isEerderOpgeschort
                 }
             }
         }
