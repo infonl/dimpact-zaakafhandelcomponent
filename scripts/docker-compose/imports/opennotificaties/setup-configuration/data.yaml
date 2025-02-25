@@ -1,3 +1,6 @@
+# Open Notificaties setup configuration
+# Note that this file cannot be renamed. It needs to be named 'data.yaml'.
+
 # We do not use OIDC support in our Docker Compose setup
 oidc_db_config_enable: False
 
