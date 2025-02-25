@@ -157,7 +157,7 @@ fun createRestZaak(
     vertrouwelijkheidaanduiding = "Sample Vertrouwelijkheidaanduiding",
     zaakgeometrie = createRESTGeometry(),
     isOpgeschort = true,
-    isOpgeschortVroeger = false,
+    isEerderOpgeschort = false,
     redenOpschorting = "Sample Reden Opschorting",
     isVerlengd = true,
     redenVerlenging = "Sample Reden Verlenging",
