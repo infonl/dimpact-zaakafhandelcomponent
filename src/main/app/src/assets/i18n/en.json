@@ -758,6 +758,7 @@
   "msg.error.field.generic": "This field has an error",
   "msg.error.search.indexing.exception": "Unfortunately a technical error has occurred during the search indexing process.",
   "msg.error.search.search.exception": "Unfortunately a technical error has occurred. No search results could be retrieved.",
+  "msg.error.user.not.in.group": "The selected user is not part of the selected group.",
   "msg.error.server.generic": "Unfortunately a technical error has occurred.",
   "msg.error.server.forbidden": "You do not have permission to perform this action.",
   "msg.error.bag.client.exception": "Unfortunately a technical error has occurred. No BAG objects could be retrieved.",

@@ -33,6 +33,7 @@ import net.atos.zac.app.admin.model.RESTTaakFormulierDefinitie
 import net.atos.zac.app.admin.model.RESTTaakFormulierVeldDefinitie
 import net.atos.zac.app.admin.model.RESTZaakbeeindigReden
 import net.atos.zac.app.admin.model.RestZaakafhandelParameters
+import net.atos.zac.app.identity.IdentityRestService
 import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.app.zaak.model.RestResultaattype
 import net.atos.zac.configuratie.ConfiguratieService
@@ -43,6 +44,7 @@ import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.RestSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.isSubsetOf
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_USER_NOT_IN_GROUP
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.util.AllOpen
@@ -68,7 +70,8 @@ class ZaakafhandelParametersRestService @Inject constructor(
     private val caseDefinitionConverter: RESTCaseDefinitionConverter,
     private val resultaattypeConverter: RestResultaattypeConverter,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
-    private val policyService: PolicyService
+    private val policyService: PolicyService,
+    private val identityRestService: IdentityRestService
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZaakafhandelParametersRestService::class.java.name)
@@ -143,6 +146,11 @@ class ZaakafhandelParametersRestService @Inject constructor(
         assertPolicy(policyService.readOverigeRechten().beheren)
         restZaakafhandelParameters.productaanvraagtype?.also {
             checkIfProductaanvraagtypeIsNotAlreadyInUse(it, restZaakafhandelParameters.zaaktype.omschrijving)
+        }
+        restZaakafhandelParameters.defaultBehandelaarId?.let { defaultBehandelaarId ->
+            restZaakafhandelParameters.defaultGroepId?.let { defaultGroepId ->
+                checkIfUserIsInGroup(defaultBehandelaarId, defaultGroepId)
+            }
         }
         return zaakafhandelParametersConverter.toZaakafhandelParameters(
             restZaakafhandelParameters
@@ -304,6 +312,22 @@ class ZaakafhandelParametersRestService @Inject constructor(
                     "Please use a unique productaanvraagtype per active zaakafhandelparameters."
             )
             throw InputValidationFailedException(ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE)
+        }
+    }
+
+    private fun checkIfUserIsInGroup(
+        userId: String,
+        groupId: String
+    ) {
+        val behandelaarIdsInGroup = identityRestService
+            .listUsersInGroup(groupId)
+            .map { it.id }
+
+        if (!behandelaarIdsInGroup.contains(userId)) {
+            LOG.warning(
+                "User '$userId' is not in group '$groupId' and can therefore not be set as default case worker."
+            )
+            throw InputValidationFailedException(ERROR_CODE_USER_NOT_IN_GROUP)
         }
     }
 }
