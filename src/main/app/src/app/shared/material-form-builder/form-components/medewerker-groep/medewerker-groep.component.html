@@ -3,98 +3,101 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<fieldset>
+<fieldset [class]="data.styleClass">
   <legend>{{ data.label | translate }}</legend>
-  <mat-form-field appearance="fill" class="full-width" floatLabel="always">
-    <mat-label>{{ data.groepLabel | translate }}</mat-label>
-    <input
-      placeholder="{{
-        (data.required ? 'groep.-kies-' : 'groep.-geen-') | translate
-      }}"
-      [formControl]="data.groep"
-      [id]="data.id + '_groep'"
-      [matAutocomplete]="groepAC"
-      matInput
-      type="text"
-      [maxlength]="data.maxlength"
-    />
-    <mat-icon
-      matSuffix
-      *ngIf="!hasGroep"
-      [ngClass]="{
-        error: data.groep.invalid && data.formControl.dirty,
-      }"
-      >search</mat-icon
-    >
-    <button
-      *ngIf="hasGroep"
-      type="button"
-      mat-icon-button
-      matSuffix
-      [attr.aria-label]="'actie.wissen.aria-label' | translate"
-      (click)="clearField(data.groep)"
-    >
+  <div class="fields">
+    <mat-form-field appearance="fill" class="full-width" floatLabel="always">
+      <mat-label>{{ data.groepLabel | translate }}</mat-label>
+      <input
+        placeholder="{{
+          (data.required ? 'groep.-kies-' : 'groep.-geen-') | translate
+        }}"
+        [formControl]="data.groep"
+        [id]="data.id + '_groep'"
+        [matAutocomplete]="groepAC"
+        matInput
+        type="text"
+        [maxlength]="data.maxlength"
+      />
       <mat-icon
-        [ngClass]="{
-          error: data.groep.invalid && data.formControl.dirty,
-        }"
-        >clear</mat-icon
+        matSuffix
+        *ngIf="!hasGroep"
+        [ngClass]="{ error: data.groep.invalid && data.formControl.dirty }"
+        >search</mat-icon
       >
-    </button>
-    <mat-autocomplete #groepAC="matAutocomplete" [displayWith]="displayFn">
-      <mat-option
-        *ngFor="let groep of filteredGroepen | async"
-        [value]="groep"
-        >{{ groep.naam }}</mat-option
+      <button
+        *ngIf="hasGroep"
+        type="button"
+        mat-icon-button
+        matSuffix
+        [disabled]="data.groep.disabled"
+        [attr.aria-label]="'actie.wissen.aria-label' | translate"
+        (click)="clearField(data.groep)"
       >
-    </mat-autocomplete>
-    <mat-error appEnhanceMatError *ngIf="data.groep.invalid">{{
-      getMessage(data.groep, "Groep")
-    }}</mat-error>
-  </mat-form-field>
-  <mat-form-field appearance="fill" class="full-width" floatLabel="always">
-    <mat-label>{{ data.medewerkerLabel | translate }}</mat-label>
-    <input
-      placeholder="{{ 'behandelaar.-geen-' | translate }}"
-      [formControl]="data.medewerker"
-      [matAutocomplete]="medewerkerAC"
-      [id]="data.id + '_medewerker'"
-      matInput
-      type="text"
-      [maxlength]="data.maxlength"
-    />
-    <mat-icon
-      matSuffix
-      *ngIf="!hasMedewerker"
-      [ngClass]="{
-        error: data.medewerker.invalid && data.formControl.dirty,
-      }"
-      >search</mat-icon
-    >
-    <button
-      *ngIf="hasMedewerker"
-      type="button"
-      mat-icon-button
-      matSuffix
-      [attr.aria-label]="'actie.wissen.aria-label' | translate"
-      (click)="clearField(data.medewerker)"
-    >
+        <mat-icon
+          [ngClass]="{ error: data.groep.invalid && data.formControl.dirty }"
+          >clear</mat-icon
+        >
+      </button>
+      <mat-autocomplete #groepAC="matAutocomplete" [displayWith]="displayFn">
+        <mat-option
+          *ngFor="let groep of filteredGroepen | async"
+          [value]="groep"
+          >{{ groep.naam }}</mat-option
+        >
+      </mat-autocomplete>
+      <mat-error appEnhanceMatError *ngIf="data.groep.invalid">{{
+        getMessage(data.groep, "Groep")
+      }}</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="fill" class="full-width" floatLabel="always">
+      <mat-label>{{ data.medewerkerLabel | translate }}</mat-label>
+      <input
+        placeholder="{{ 'behandelaar.-geen-' | translate }}"
+        [formControl]="data.medewerker"
+        [matAutocomplete]="medewerkerAC"
+        [id]="data.id + '_medewerker'"
+        matInput
+        type="text"
+        [maxlength]="data.maxlength"
+      />
       <mat-icon
+        matSuffix
+        *ngIf="!hasMedewerker"
         [ngClass]="{
           error: data.medewerker.invalid && data.formControl.dirty,
         }"
-        >clear</mat-icon
+        >search</mat-icon
       >
-    </button>
-    <mat-autocomplete #medewerkerAC="matAutocomplete" [displayWith]="displayFn">
-      <mat-option
-        *ngFor="let medewerker of filteredMedewerkers | async"
-        [value]="medewerker"
-        >{{ medewerker.naam }}</mat-option
+      <button
+        *ngIf="hasMedewerker"
+        type="button"
+        mat-icon-button
+        matSuffix
+        [disabled]="data.groep.disabled"
+        [attr.aria-label]="'actie.wissen.aria-label' | translate"
+        (click)="clearField(data.medewerker)"
       >
-    </mat-autocomplete>
-    <mat-error appEnhanceMatError *ngIf="data.medewerker.invalid">{{
-      getMessage(data.medewerker, "Medewerker")
-    }}</mat-error>
-  </mat-form-field>
+        <mat-icon
+          [ngClass]="{
+            error: data.medewerker.invalid && data.formControl.dirty,
+          }"
+          >clear</mat-icon
+        >
+      </button>
+      <mat-autocomplete
+        #medewerkerAC="matAutocomplete"
+        [displayWith]="displayFn"
+      >
+        <mat-option
+          *ngFor="let medewerker of filteredMedewerkers | async"
+          [value]="medewerker"
+          >{{ medewerker.naam }}</mat-option
+        >
+      </mat-autocomplete>
+      <mat-error appEnhanceMatError *ngIf="data.medewerker.invalid">{{
+        getMessage(data.medewerker, "Medewerker")
+      }}</mat-error>
+    </mat-form-field>
+  </div>
 </fieldset>
