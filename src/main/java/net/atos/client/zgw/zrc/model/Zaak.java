@@ -516,6 +516,11 @@ public class Zaak {
     }
 
     @JsonbTransient
+    public boolean isEerderOpgeschort() {
+        return opschorting != null;
+    }
+
+    @JsonbTransient
     public boolean isVerlengd() {
         return verlenging != null && verlenging.getDuur() != null;
     }
