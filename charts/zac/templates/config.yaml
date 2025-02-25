@@ -43,7 +43,7 @@ data:
   {{- if .Values.opa.url }}
   OPA_API_CLIENT_MP_REST_URL: {{ .Values.opa.url }}
   {{- else }}
-  OPA_API_CLIENT_MP_REST_URL: http://{{ include "zaakafhandelcomponent.opa.fullname" . }}
+  OPA_API_CLIENT_MP_REST_URL: http://{{ include "zaakafhandelcomponent.opa.fullname" . }}:{{ .Values.opa.service.port }}
   {{- end }}
   {{- end }}
   OPEN_FORMS_URL: {{ required "Valid .Values.openForms.url entry required!" .Values.openForms.url }}
