@@ -44,8 +44,8 @@ import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.RestSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.isSubsetOf
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_USER_NOT_IN_GROUP
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_USER_NOT_IN_GROUP
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
