@@ -157,6 +157,7 @@ fun createRestZaak(
     vertrouwelijkheidaanduiding = "Sample Vertrouwelijkheidaanduiding",
     zaakgeometrie = createRESTGeometry(),
     isOpgeschort = true,
+    isEerderOpgeschort = false,
     redenOpschorting = "Sample Reden Opschorting",
     isVerlengd = true,
     redenVerlenging = "Sample Reden Verlenging",
@@ -324,4 +325,14 @@ fun createRestCoordinates(
 ) = RestCoordinates(
     latitude = latitude,
     longitude = longitude
+)
+
+fun createRestDocumentOntkoppelGegevens(
+    zaakUUID: UUID = UUID.randomUUID(),
+    documentUUID: UUID = UUID.randomUUID(),
+    reden: String = "dummyReason“"
+) = RESTDocumentOntkoppelGegevens(
+    zaakUUID = zaakUUID,
+    documentUUID = documentUUID,
+    reden = reden
 )

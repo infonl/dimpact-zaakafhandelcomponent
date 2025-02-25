@@ -102,6 +102,7 @@ class RestZaakConverter @Inject constructor(
             status = status?.let { toRestZaakStatus(it, statustype!!) },
             resultaat = zaak.resultaat?.let(restZaakResultaatConverter::convert),
             isOpgeschort = zaak.isOpgeschort,
+            isEerderOpgeschort = zaak.isEerderOpgeschort,
             redenOpschorting = takeIf { zaak.isOpgeschort }?.let { zaak.opschorting?.reden },
             isVerlengd = zaak.isVerlengd,
             duurVerlenging = if (zaak.isVerlengd) PeriodUtil.format(zaak.verlenging.duur) else null,

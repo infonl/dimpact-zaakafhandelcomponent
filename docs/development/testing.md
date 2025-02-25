@@ -55,9 +55,28 @@ We have predefined steps that you can use to write tests. You can find them in t
 In a .feature file you should be able to write out tests based on the predefined steps with auto complete.
 ![Alt text](./attachments/images/cucumber-auto-complete.png)
 
+### Using the right selectors in the e2e tests
+
+For selecting elements in our end-to-end (e2e) tests, we follow best practices from [Testing Library](https://testing-library.com/docs/queries/about/#priority). This ensures that our tests reflect real user interactions and are more resilient to UI changes.
+
+The categories we use for selecting an element:
+
+1. Queries accesible for everyone
+   
+    We prioritize queries like getByRole, getByText, getByLabel, which mimic how users interact with the UI (e.g., buttons, text inputs). These ensure our tests are aligned with user experience.
+
+3. Semantic Queries
+   
+    These selectors are based on accessible properties such as aria-label or aria-role, helping us target elements that are meaningful for screen readers and assistive technologies.
+
+5. ID Selectors
+
+    We avoid using id selectors or data-testid in most cases as they can be less stable and a user cannot see the id of a element which goes against testing regulations. IDs are prone to being altered during development making tests fragile and hard to maintain.
+
 ### Generating e2e tests with playwright codegen
 
-You can use the playwright codegen tool to generate e2e tests. This is a great way to get started with e2e tests. You can find more information about this tool [here](https://playwright.dev/docs/cli/#generate-code-for-a-scenario).
+You can use the playwright codegen tool to generate e2e tests. This is a great way to get started with e2e tests. You 
+can find more information about this tool [here](https://playwright.dev/docs/codegen).
 
 you can run the following command to generate a test with taking the test environment as a base:
 

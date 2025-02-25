@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Atos
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -33,7 +33,7 @@
       *ngSwitchCase="'actie.nieuwe.versie.toevoegen'"
       [sideNav]="actionsSidenav"
       [infoObject]="documentNieuweVersieGegevens"
-      [zaakUuid]="zaak.uuid"
+      [zaakUuid]="zaak?.uuid"
       (document)="versieToegevoegd($event)"
     >
     </zac-informatie-object-edit>

@@ -26,7 +26,6 @@ import kotlinx.coroutines.launch
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
@@ -38,7 +37,6 @@ import net.atos.client.zgw.zrc.model.RelevanteZaak
 import net.atos.client.zgw.zrc.model.RelevantezaakZaakPatch
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.client.zgw.zrc.util.StatusTypeUtil
@@ -123,7 +121,6 @@ import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.function.Consumer
 import java.util.stream.Collectors
 import java.util.stream.Stream
 
@@ -429,36 +426,36 @@ class ZaakRestService @Inject constructor(
 
     @PUT
     @Path("zaakinformatieobjecten/ontkoppel")
-    fun ontkoppelInformatieObject(ontkoppelGegevens: RESTDocumentOntkoppelGegevens) {
-        val zaak: Zaak = zrcClientService.readZaak(ontkoppelGegevens.zaakUUID)
-        val informatieobject: EnkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
-            ontkoppelGegevens.documentUUID
+    fun ontkoppelInformatieObject(restDocumentOntkoppelGegevens: RESTDocumentOntkoppelGegevens) {
+        val zaak = zrcClientService.readZaak(restDocumentOntkoppelGegevens.zaakUUID)
+        val informatieobject = drcClientService.readEnkelvoudigInformatieobject(
+            restDocumentOntkoppelGegevens.documentUUID
         )
         assertPolicy(policyService.readDocumentRechten(informatieobject, zaak).ontkoppelen)
-        val parameters = ZaakInformatieobjectListParameters()
-        parameters.informatieobject = informatieobject.url
-        parameters.zaak = zaak.url
-        val zaakInformatieobjecten: List<ZaakInformatieobject> = zrcClientService.listZaakinformatieobjecten(
-            parameters
+        val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
+            ZaakInformatieobjectListParameters().apply {
+                this.informatieobject = informatieobject.url
+                this.zaak = zaak.url
+            }
         )
         if (zaakInformatieobjecten.isEmpty()) {
             throw NotFoundException(
-                "Geen ZaakInformatieobject gevonden voor Zaak: '${ontkoppelGegevens.zaakUUID}' " +
-                    "en InformatieObject: '${ontkoppelGegevens.documentUUID}'"
+                "Geen ZaakInformatieobject gevonden voor Zaak: '${restDocumentOntkoppelGegevens.zaakUUID}' " +
+                    "en InformatieObject: '${restDocumentOntkoppelGegevens.documentUUID}'"
             )
         }
-        zaakInformatieobjecten.forEach(
-            Consumer { zaakInformatieobject: ZaakInformatieobject ->
-                zrcClientService.deleteZaakInformatieobject(
-                    zaakInformatieobject.uuid,
-                    ontkoppelGegevens.reden,
-                    "Ontkoppeld"
-                )
-            }
-        )
+        zaakInformatieobjecten.forEach {
+            zrcClientService.deleteZaakInformatieobject(
+                it.uuid,
+                restDocumentOntkoppelGegevens.reden,
+                "Ontkoppeld"
+            )
+        }
+        // if this informatieobject is not linked to any other zaken, remove it from the
+        // Solr index and add it to the list of 'ontkoppelde documenten'
         if (zrcClientService.listZaakinformatieobjecten(informatieobject).isEmpty()) {
             indexingService.removeInformatieobject(informatieobject.url.extractUuid())
-            ontkoppeldeDocumentenService.create(informatieobject, zaak, ontkoppelGegevens.reden)
+            ontkoppeldeDocumentenService.create(informatieobject, zaak, restDocumentOntkoppelGegevens.reden)
         }
     }
 

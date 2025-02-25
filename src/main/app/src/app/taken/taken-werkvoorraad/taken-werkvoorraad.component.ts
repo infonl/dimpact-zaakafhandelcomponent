@@ -25,7 +25,6 @@ import { ObjectType } from "src/app/core/websocket/model/object-type";
 import { Opcode } from "src/app/core/websocket/model/opcode";
 import { BatchProcessService } from "src/app/shared/batch-progress/batch-process.service";
 import { SorteerVeld } from "src/app/zoeken/model/sorteer-veld";
-import { v4 as uuidv4 } from "uuid";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { Werklijst } from "../../gebruikersvoorkeuren/model/werklijst";
@@ -242,7 +241,7 @@ export class TakenWerkvoorraadComponent
     singleToken: string,
     multipleToken: string,
   ) {
-    const screenEventResourceId = uuidv4();
+    const screenEventResourceId = crypto.randomUUID();
     const taken = this.selection.selected;
 
     this.batchProcessService.subscribe({
