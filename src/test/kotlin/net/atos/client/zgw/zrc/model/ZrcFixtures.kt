@@ -175,8 +175,10 @@ fun createZaakobjectOpenbareRuimte(
 )
 
 fun createZaakInformatieobject(
-    informatieObjectURL: URI = URI("http://example.com/${UUID.randomUUID()}"),
-    zaakURL: URI = URI("http://example.com/${UUID.randomUUID()}")
+    informatieobjectUUID: UUID = UUID.randomUUID(),
+    zaakUUID: UUID = UUID.randomUUID(),
+    informatieObjectURL: URI = URI("http://example.com/$informatieobjectUUID"),
+    zaakURL: URI = URI("http://example.com/$zaakUUID")
 ) = ZaakInformatieobject(
     informatieObjectURL,
     zaakURL

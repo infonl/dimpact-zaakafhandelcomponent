@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024-2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -7,9 +7,11 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnDestroy,
   OnInit,
   Output,
+  SimpleChanges,
   ViewChild,
 } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
@@ -32,7 +34,6 @@ import { FormConfigBuilder } from "../../shared/material-form-builder/model/form
 import { OrderUtil } from "../../shared/order/order-util";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
-import { EnkelvoudigInformatieObjectVersieGegevens } from "../model/enkelvoudig-informatie-object-versie-gegevens";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 
@@ -41,19 +42,22 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
   templateUrl: "./informatie-object-edit.component.html",
   styleUrls: ["./informatie-object-edit.component.less"],
 })
-export class InformatieObjectEditComponent implements OnInit, OnDestroy {
-  @Input() infoObject: EnkelvoudigInformatieObjectVersieGegevens;
+export class InformatieObjectEditComponent
+  implements OnInit, OnDestroy, OnChanges
+{
+  @Input()
+  infoObject?: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
   @Input() sideNav: MatDrawer;
-  @Input() zaakUuid: string;
+  @Input() zaakUuid?: string;
   @Output() document = new EventEmitter<
     GeneratedType<"RestEnkelvoudigInformatieobject">
   >();
 
   @ViewChild(FormComponent) form: FormComponent;
 
-  fields: Array<AbstractFormField[]>;
+  fields: Array<AbstractFormField[]> = [];
   formConfig: FormConfig;
-  ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
+  private ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
 
   private subscriptions$: Subscription[] = [];
 
@@ -66,14 +70,24 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
     private vertrouwelijkaanduidingToTranslationKeyPipe: VertrouwelijkaanduidingToTranslationKeyPipe,
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.formConfig = new FormConfigBuilder()
       .saveText("actie.toevoegen")
       .cancelText("actie.annuleren")
       .requireUserChanges()
       .build();
-    this.getIngelogdeMedewerker();
+  }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!changes.infoObject.currentValue) {
+      return;
+    }
+
+    this.getIngelogdeMedewerker();
+    this.initializeFormFields();
+  }
+
+  private initializeFormFields() {
     const vertrouwelijkheidsAanduidingen = this.utilService.getEnumAsSelectList(
       "vertrouwelijkheidaanduiding",
       Vertrouwelijkheidaanduiding,
@@ -252,62 +266,62 @@ export class InformatieObjectEditComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     for (const subscription of this.subscriptions$) {
       subscription.unsubscribe();
     }
   }
 
   onFormSubmit(formGroup: FormGroup): void {
-    if (formGroup) {
-      const nieuweVersie = new EnkelvoudigInformatieObjectVersieGegevens();
-      nieuweVersie.uuid = this.infoObject.uuid;
-      Object.keys(formGroup.controls).forEach((key) => {
-        const control = formGroup.controls[key];
-        const value = control.value;
-
-        switch (key) {
-          case "status":
-            nieuweVersie[key] =
-              InformatieobjectStatus[value.value.toUpperCase()];
-            break;
-          case "vertrouwelijkheidaanduiding":
-            nieuweVersie[key] = value.value;
-            break;
-          case "bestand":
-            if (value) {
-              nieuweVersie["bestandsnaam"] = value.name;
-              nieuweVersie["file"] = value;
-              nieuweVersie["formaat"] = value.type;
-            }
-            break;
-          case "informatieobjectTypeUUID":
-            nieuweVersie[key] = value.uuid;
-            break;
-          default:
-            nieuweVersie[key] = value;
-            break;
-        }
-      });
-
-      this.informatieObjectenService
-        .updateEnkelvoudigInformatieobject(
-          nieuweVersie.uuid,
-          this.zaakUuid,
-          nieuweVersie,
-        )
-        .subscribe((document) => {
-          this.document.emit(document);
-          this.utilService.openSnackbar(
-            "msg.document.nieuwe.versie.toegevoegd",
-          );
-          this.ngOnInit();
-          this.sideNav.close();
-          this.form.reset();
-        });
-    } else {
+    if (!formGroup) {
       this.sideNav.close();
+      return;
     }
+    const nieuweVersie: Partial<
+      GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">
+    > = {
+      uuid: this.infoObject.uuid,
+    };
+    Object.keys(formGroup.controls).forEach((key) => {
+      const control = formGroup.controls[key];
+      const value = control.value;
+
+      switch (key) {
+        case "status":
+          nieuweVersie[key] = InformatieobjectStatus[value.value.toUpperCase()];
+          break;
+        case "vertrouwelijkheidaanduiding":
+          nieuweVersie[key] = value.value;
+          break;
+        case "bestand":
+          if (value) {
+            nieuweVersie["bestandsnaam"] = value.name;
+            nieuweVersie["file"] = value;
+            nieuweVersie["formaat"] = value.type;
+          }
+          break;
+        case "informatieobjectTypeUUID":
+          nieuweVersie[key] = value.uuid;
+          break;
+        default:
+          nieuweVersie[key] = value;
+          break;
+      }
+    });
+
+    this.informatieObjectenService
+      .updateEnkelvoudigInformatieobject(
+        nieuweVersie.uuid,
+        this.zaakUuid,
+        nieuweVersie as GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">,
+      )
+      .subscribe((document) => {
+        this.document.emit(document);
+        this.utilService.openSnackbar("msg.document.nieuwe.versie.toegevoegd");
+        this.ngOnInit();
+        this.sideNav.close();
+        this.form.reset();
+      });
   }
 
   private getIngelogdeMedewerker() {

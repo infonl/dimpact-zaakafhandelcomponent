@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -43,7 +43,6 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { Zaak } from "../../zaken/model/zaak";
 import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectenService } from "../informatie-objecten.service";
-import { EnkelvoudigInformatieObjectVersieGegevens } from "../model/enkelvoudig-informatie-object-versie-gegevens";
 import { FileFormat, FileFormatUtil } from "../model/file-format";
 import { FileIcon } from "../model/file-icon";
 import { ZaakInformatieobject } from "../model/zaak-informatieobject";
@@ -57,11 +56,11 @@ export class InformatieObjectViewComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   readonly indicatiesLayout = IndicatiesLayout;
-  infoObject: GeneratedType<"RestEnkelvoudigInformatieobject">;
+  infoObject?: GeneratedType<"RestEnkelvoudigInformatieobject">;
   laatsteVersieInfoObject: GeneratedType<"RestEnkelvoudigInformatieobject">;
-  zaakInformatieObjecten: ZaakInformatieobject[];
-  zaak: Zaak;
-  documentNieuweVersieGegevens: EnkelvoudigInformatieObjectVersieGegevens;
+  zaakInformatieObjecten: ZaakInformatieobject[] = [];
+  zaak?: Zaak;
+  documentNieuweVersieGegevens?: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
   documentPreviewBeschikbaar = false;
   menu: MenuItem[];
   activeSideAction: string | null;
@@ -171,7 +170,10 @@ export class InformatieObjectViewComponent
       );
     }
 
-    if (this.laatsteVersieInfoObject.rechten.toevoegenNieuweVersie) {
+    if (
+      this.laatsteVersieInfoObject.rechten.toevoegenNieuweVersie &&
+      this.zaak
+    ) {
       this.menu.push(
         new ButtonMenuItem(
           "actie.nieuwe.versie.toevoegen",
@@ -180,10 +182,10 @@ export class InformatieObjectViewComponent
               .readHuidigeVersieEnkelvoudigInformatieObject(
                 this.infoObject.uuid,
               )
-              .subscribe((nieuweVersie) => {
-                this.documentNieuweVersieGegevens = nieuweVersie;
-                this.actionsSidenav.open();
+              .subscribe((infoObject) => {
+                this.documentNieuweVersieGegevens = infoObject;
               });
+            this.actionsSidenav.open();
           },
           "difference",
         ),
@@ -191,6 +193,7 @@ export class InformatieObjectViewComponent
     }
 
     if (
+      this.zaak &&
       this.laatsteVersieInfoObject.rechten.wijzigen &&
       FileFormatUtil.isOffice(this.infoObject.formaat as FileFormat)
     ) {
@@ -287,6 +290,7 @@ export class InformatieObjectViewComponent
     }
 
     if (
+      this.zaak &&
       this.laatsteVersieInfoObject.rechten.wijzigen &&
       FileFormatUtil.isOffice(this.infoObject.formaat as FileFormat)
     ) {
@@ -341,7 +345,7 @@ export class InformatieObjectViewComponent
       "/informatie-objecten",
       this.infoObject.uuid,
       versie,
-      this.zaak.uuid,
+      this.zaak?.uuid,
     ]);
   }
 
@@ -416,7 +420,7 @@ export class InformatieObjectViewComponent
       },
       this.informatieObjectenService.ondertekenInformatieObject(
         this.infoObject.uuid,
-        this.zaak.uuid,
+        this.zaak?.uuid,
       ),
     );
 
