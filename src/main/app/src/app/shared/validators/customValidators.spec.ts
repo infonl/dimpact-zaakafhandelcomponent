@@ -5,8 +5,8 @@
 
 import { AbstractControl, FormControl } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { CustomValidators } from "./customValidators";
 import { fromPartial } from "@total-typescript/shoehorn";
+import { CustomValidators } from "./customValidators";
 
 describe("CustomValidators", () => {
   let translateService: TranslateService;
