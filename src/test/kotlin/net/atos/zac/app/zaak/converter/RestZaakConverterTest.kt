@@ -117,7 +117,7 @@ class RestZaakConverterTest : BehaviorSpec({
                     this.zaaktype shouldBe zaaktype
                     isVerlengd shouldBe zaak.isVerlengd
                     isOpgeschort shouldBe zaak.isOpgeschort
-                    isSuspendedBefore shouldBe zaak.isSuspendedBefore
+                    isOpgeschortVroeger shouldBe zaak.isOpgeschortVroeger
                 }
             }
         }

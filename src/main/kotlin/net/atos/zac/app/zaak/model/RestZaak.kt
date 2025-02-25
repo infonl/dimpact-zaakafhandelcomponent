@@ -43,8 +43,8 @@ data class RestZaak(
     @get:JsonbProperty("isOpgeschort")
     var isOpgeschort: Boolean,
 
-    @get:JsonbProperty("isSuspendedBefore")
-    var isSuspendedBefore: Boolean,
+    @get:JsonbProperty("isOpgeschortVroeger")
+    var isOpgeschortVroeger: Boolean,
 
     @get:JsonbProperty("isOpen")
     var isOpen: Boolean,

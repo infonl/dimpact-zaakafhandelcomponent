@@ -516,7 +516,7 @@ public class Zaak {
     }
 
     @JsonbTransient
-    public boolean isSuspendedBefore() {
+    public boolean isOpgeschortVroeger() {
         return opschorting != null;
     }
 
