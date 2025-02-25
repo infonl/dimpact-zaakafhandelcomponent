@@ -66,7 +66,7 @@ export class BedrijfZoekComponent implements OnInit {
       .id("naam")
       .label("bedrijfsnaam")
       .maxlength(100)
-      .validators(CustomValidators.bedrijfssnaam)
+      .validators(CustomValidators.bedrijfsnaam)
       .build();
     this.kvkFormField = new InputFormFieldBuilder()
       .id("kvknummer")
