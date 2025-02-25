@@ -33,11 +33,11 @@ class PodiumdVersionBuilder:
             'openformulieren': 'Open Formulieren',
             'openinwoner': 'Open Inwoner',
             'kiss.frontend': 'Contact',
-            'clamav': 'ClamAV'
+            'clamav': 'ClamAV',
+            'keycloak': 'Keycloak'
         }
         self.chart_dependencies_table = {
             'keycloak': 'Keycloak',
-            'openldap': 'OpenLDAP',
             'clamav': 'ClamAV',
             'brpmock': 'BRP Mock',
             'openzaak': 'Open Zaak',
