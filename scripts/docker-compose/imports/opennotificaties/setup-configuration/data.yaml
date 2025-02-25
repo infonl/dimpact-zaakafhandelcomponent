@@ -1,38 +1,5 @@
-oidc_db_config_enable: True
-oidc_db_config_admin_auth:
-  items:
-    - identifier: admin-oidc
-      enabled: True
-      oidc_rp_client_id: testid
-      oidc_rp_client_secret: testIdClientSecret
-      oidc_rp_scopes_list:
-        - openid
-        - email
-        - profile
-      oidc_rp_sign_algo: RS256
-      endpoint_config:
-        oidc_op_authorization_endpoint: https://example.com/realms/test/protocol/openid-connect/auth
-        oidc_op_token_endpoint: https://example.com/realms/test/protocol/openid-connect/token
-        oidc_op_user_endpoint: https://example.com/realms/test/protocol/openid-connect/userinfo
-        oidc_op_jwks_endpoint: https://example.com/realms/test/protocol/openid-connect/certs
-      username_claim:
-        - sub
-      groups_claim:
-        - roles
-      claim_mapping:
-        first_name:
-          - given_name
-      sync_groups: true
-      sync_groups_glob_pattern: "*"
-      default_groups:
-        - Functioneel beheer
-      make_users_staff: true
-      superuser_group_names:
-        - superuser
-      oidc_use_nonce: true
-      oidc_nonce_size: 32
-      oidc_state_size: 32
-      userinfo_claims_source: id_token
+# We do not use OIDC support in our Docker Compose setup
+oidc_db_config_enable: False
 
 zgw_consumers_config_enable: True
 zgw_consumers:
@@ -131,3 +98,20 @@ notifications_subscriptions_config:
       uuid: 0f616bfd-aacc-4d85-a140-2af17a56217b
       channels:
         - autorisaties
+
+notifications_abonnementen_config_enable: true
+notifications_abonnementen_config:
+  items:
+    - uuid: fb4e3474-18c8-474b-94ae-980850ea4a7f
+      callback_url: http://host.docker.internal:8080/rest/notificaties
+      # TODO: how do we set the client id?
+      # client_id: opennotificaties
+      auth: openNotificatiesApiSecretKey
+      kanalen:
+        - naam: zaaktypen
+        - naam: zaken
+        - naam: documenten
+        - naam: besluittypen
+        - naam: besluiten
+
+
