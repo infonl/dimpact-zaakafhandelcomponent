@@ -1,10 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2024-2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  *
  */
 
-import { HttpClientTestingModule } from "@angular/common/http/testing";
+import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { FormControl } from "@angular/forms";
 import { MatAutocomplete } from "@angular/material/autocomplete";
@@ -30,10 +31,14 @@ describe(MedewerkerGroepComponent.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [MedewerkerGroepComponent],
-      providers: [IdentityService],
+      providers: [
+        IdentityService,
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ],
       imports: [
         TranslateModule.forRoot(),
-        HttpClientTestingModule,
+
         MatFormField,
         MatLabel,
         MatAutocomplete,
