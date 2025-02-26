@@ -1,0 +1,62 @@
+# Open Notificaties setup configuration
+# Note that this file cannot be renamed. It needs to be named 'data.yaml'.
+
+# We do not use OIDC support in our Docker Compose setup
+oidc_db_config_enable: False
+
+zgw_consumers_config_enable: True
+zgw_consumers:
+  services:
+    - identifier: autorisaties-api
+      label: Autorisaties API
+      api_root: http://openzaak.local:8000/autorisaties/api/v1/
+      api_type: ac
+      auth_type: zgw
+      client_id: open-notificaties
+      secret: opennotificatiesAutorisatieApiSecret
+      user_id: open-notificaties
+      user_representation: Open Notificaties
+    - identifier: notificaties-api
+      label: Notificaties API
+      api_root: http://opennotificaties:8000/api/v1/
+      api_type: nrc
+      auth_type: zgw
+      client_id: open-notificaties
+      secret: opennotificatiesAutorisatieApiSecret
+      user_id: open-notificaties
+      user_representation: Open Notificaties Demodam
+
+autorisaties_api_config_enable: True
+autorisaties_api:
+  # Configure Open Notificaties to make use of Open Zaak's Autorisaties API
+  authorizations_api_service_identifier: autorisaties-api
+
+vng_api_common_credentials_config_enable: True
+vng_api_common_credentials:
+  items:
+    # Credentials for Open Zaak to be able to make requests to Open Notificaties
+    - identifier: open-zaak
+      secret: opennotificatiesOpenzaakSecret
+    # Credentials for Open Notificaties, required for autorisaties subscription
+    - identifier: open-notificaties
+      secret: opennotificatiesAutorisatieApiSecret
+
+notifications_config_enable: true
+notifications_config:
+  notifications_api_service_identifier: notificaties-api
+  notification_delivery_max_retries: 1
+  notification_delivery_retry_backoff: 2
+  notification_delivery_retry_backoff_max: 3
+
+notifications_subscriptions_config_enable: true
+notifications_subscriptions_config:
+  items:
+    - identifier: autorisaties-subscription
+      callback_url: http://opennotificaties:8000/api/v1/callbacks
+      client_id: open-notificaties
+      secret: opennotificatiesAutorisatieApiSecret
+      uuid: 0f616bfd-aacc-4d85-a140-2af17a56217b
+      channels:
+        - autorisaties
+
+
