@@ -18,7 +18,6 @@ import java.util.UUID;
 import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.json.bind.annotation.JsonbTransient;
 
-import net.atos.zac.util.StringUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Length;
