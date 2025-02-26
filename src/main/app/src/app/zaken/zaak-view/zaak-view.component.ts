@@ -269,7 +269,7 @@ export class ZaakViewComponent
         case "groep":
           return item.data.groep.naam;
         case "behandelaar":
-          return item.data.behandelaar.naam;
+          return item.data.behandelaar?.naam;
         default:
           return item.data[property];
       }
@@ -1169,7 +1169,7 @@ export class ZaakViewComponent
         taak.behandelaar = returnTaak.behandelaar;
         taak.status = returnTaak.status;
         this.utilService.openSnackbar("msg.taak.toegekend", {
-          behandelaar: taak.behandelaar.naam,
+          behandelaar: taak.behandelaar?.naam,
         });
       });
   }
