@@ -377,7 +377,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: docker.io/prom/prometheus:v3.2.0@sha256:5888c188cf09e3f7eebc97369c3b2ce713e844cdbd88ccf36f5047c958aea120
+    image: docker.io/prom/prometheus:v3.2.1@sha256:6927e0919a144aa7616fd0137d4816816d42f6b816de3af269ab065250859a62
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
