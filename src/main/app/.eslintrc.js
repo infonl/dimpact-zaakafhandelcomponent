@@ -29,26 +29,7 @@ module.exports = {
             suffixes: ["Component", "Page", "Dialog"],
           },
         ],
-        "@angular-eslint/no-empty-lifecycle-method": "off",
-        "@angular-eslint/no-output-on-prefix": "off",
-        "@angular-eslint/no-output-native": "off",
-
-        "@typescript-eslint/ban-types": "off",
-        "@typescript-eslint/no-empty-function": "off",
-        "@typescript-eslint/no-explicit-any": "off",
-        "@typescript-eslint/no-non-null-assertion": "off",
-        "@typescript-eslint/no-unused-vars": "off",
-        "@typescript-eslint/strict-boolean-expressions": [
-          "error",
-          {
-            allowNullableObject: false,
-            allowNullableString: false,
-            allowNullableNumber: false,
-            allowNullableBoolean: false,
-          },
-        ],
-
-        "no-prototype-builtins": "off",
+        "@typescript-eslint/no-explicit-any": "warn"
       },
     },
   ],
