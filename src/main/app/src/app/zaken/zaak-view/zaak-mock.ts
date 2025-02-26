@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2025 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ *
+ */
+
 import { ZaakRechten } from "src/app/policy/model/zaak-rechten";
 import { Zaak } from "../model/zaak";
 import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
