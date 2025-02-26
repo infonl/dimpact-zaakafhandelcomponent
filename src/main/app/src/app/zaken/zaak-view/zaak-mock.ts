@@ -14,7 +14,7 @@ const zaakMock: Zaak = {
   omschrijving: "test omschrijving",
   toelichting: "Some toelichting",
   zaaktype: {
-    uuid: "zaaktype-001", 
+    uuid: "zaaktype-001",
     identificatie: "zaaktype-identificatie",
     doel: "Doel example",
     omschrijving: "Omschrijving of Zaaktype",
