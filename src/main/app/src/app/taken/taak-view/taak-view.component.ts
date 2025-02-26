@@ -444,7 +444,7 @@ export class TaakViewComponent
       this.takenService.toekennen(this.taak, reden).subscribe(() => {
         if (this.taak.behandelaar) {
           this.utilService.openSnackbar("msg.taak.toegekend", {
-            behandelaar: this.taak.behandelaar.naam,
+            behandelaar: this.taak.behandelaar?.naam,
           });
         } else {
           this.utilService.openSnackbar("msg.vrijgegeven.taak");
@@ -473,7 +473,7 @@ export class TaakViewComponent
       .subscribe((taak) => {
         this.taak.behandelaar = taak.behandelaar;
         this.utilService.openSnackbar("msg.taak.toegekend", {
-          behandelaar: taak.behandelaar.naam,
+          behandelaar: taak.behandelaar?.naam,
         });
         this.init(this.taak, false);
       });
