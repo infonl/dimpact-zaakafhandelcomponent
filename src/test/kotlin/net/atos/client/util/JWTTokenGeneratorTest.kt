@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2025 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 package net.atos.client.util
 
 import com.auth0.jwt.JWT
