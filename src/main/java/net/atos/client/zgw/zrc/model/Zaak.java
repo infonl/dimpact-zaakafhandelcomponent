@@ -19,6 +19,7 @@ import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.json.bind.annotation.JsonbTransient;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Length;
 
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
@@ -517,7 +518,7 @@ public class Zaak {
 
     @JsonbTransient
     public boolean isEerderOpgeschort() {
-        return opschorting != null;
+        return opschorting != null && StringUtils.isNotEmpty(opschorting.getReden());
     }
 
     @JsonbTransient
