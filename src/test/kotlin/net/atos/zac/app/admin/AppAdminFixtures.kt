@@ -58,11 +58,14 @@ fun createRestReferenceTableValue(
     isSystemValue = isSystemValue
 )
 
+@Suppress("LongParameterList")
 fun createRestZaakAfhandelParameters(
     id: Long? = 1234L,
     domein: String = "dummyDomein",
     restZaaktypeOverzicht: RESTZaaktypeOverzicht = createRestZaaktypeOverzicht(),
-    productaanvraagtype: String? = null
+    productaanvraagtype: String? = null,
+    defaultGroupId: String? = null,
+    defaultBehandelaarId: String? = null
 ) = RestZaakafhandelParameters(
     id = id,
     domein = domein,
@@ -71,7 +74,9 @@ fun createRestZaakAfhandelParameters(
     smartDocuments = RestSmartDocuments(
         enabledGlobally = true,
         enabledForZaaktype = false
-    )
+    ),
+    defaultBehandelaarId = defaultBehandelaarId,
+    defaultGroepId = defaultGroupId
 )
 
 @Suppress("LongParameterList")
