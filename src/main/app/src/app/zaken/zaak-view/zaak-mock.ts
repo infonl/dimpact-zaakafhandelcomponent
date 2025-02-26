@@ -4,18 +4,18 @@
  *
  */
 
+import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { ZaakRechten } from "src/app/policy/model/zaak-rechten";
 import { Zaak } from "../model/zaak";
-import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 
 const zaakMock: Zaak = {
   uuid: "zaak-001",
   identificatie: "test",
   omschrijving: "test omschrijving",
-  toelichting: "Some toelichting", // Required in Zaak
+  toelichting: "Some toelichting",
   zaaktype: {
-    uuid: "zaaktype-001",  // Assuming Zaaktype requires a uuid property
-    identificatie: "zaaktype-identificatie", // Assuming identificatie is a required field
+    uuid: "zaaktype-001", 
+    identificatie: "zaaktype-identificatie",
     doel: "Doel example",
     omschrijving: "Omschrijving of Zaaktype",
     referentieproces: "Reference process",
@@ -24,7 +24,7 @@ const zaakMock: Zaak = {
     beginGeldigheid: "2024-01-01",
     eindeGeldigheid: "2024-12-31",
     nuGeldig: true,
-    vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding.openbaar, // Assuming it's a string or enum value
+    vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding.openbaar,
     opschortingMogelijk: true,
     verlengingMogelijk: true,
     verlengingstermijn: 30,
@@ -32,13 +32,11 @@ const zaakMock: Zaak = {
     zaakafhandelparameters: null,
   },
   status: {
-    naam: "open", // Assuming a status name
+    naam: "open",
     toelichting: "Status toelichting",
   },
   resultaat: null,
-  besluiten: [
-    null,
-  ],
+  besluiten: [null],
   bronorganisatie: "Organization A",
   verantwoordelijkeOrganisatie: "Organization B",
   registratiedatum: "2024-01-01",
@@ -50,7 +48,7 @@ const zaakMock: Zaak = {
   archiefActiedatum: "2024-01-01",
   archiefNominatie: "2024-01-01",
   communicatiekanaal: "email",
-  vertrouwelijkheidaanduiding: "openbaar",  // This can be an enum if needed
+  vertrouwelijkheidaanduiding: "openbaar",
   zaakgeometrie: null,
   isOpgeschort: false,
   redenOpschorting: "",

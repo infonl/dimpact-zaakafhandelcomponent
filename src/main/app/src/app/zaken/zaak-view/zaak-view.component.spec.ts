@@ -4,24 +4,23 @@
  *
  */
 
+import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatSortModule } from "@angular/material/sort";
+import { MatTableModule } from "@angular/material/table";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
-import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
-import { ZaakViewComponent } from "./zaak-view.component";
-import { GeneratedType } from "../../shared/utils/generated-types";
-import { MaterialModule } from "../../shared/material/material.module";
-import { PipesModule } from "../../shared/pipes/pipes.module";
-import { MatSortModule } from "@angular/material/sort";
-import { MatTableModule } from "@angular/material/table";
-import { HttpClient, provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
-import zaakMock from "./zaak-mock";
 import { queryByText } from "src/test-helpers";
+import { MaterialModule } from "../../shared/material/material.module";
+import { PipesModule } from "../../shared/pipes/pipes.module";
+import { GeneratedType } from "../../shared/utils/generated-types";
+import zaakMock from "./zaak-mock";
+import { ZaakViewComponent } from "./zaak-view.component";
 
 describe(ZaakViewComponent.name, () => {
   let component: ZaakViewComponent;
@@ -33,7 +32,7 @@ describe(ZaakViewComponent.name, () => {
     indicaties: [],
     omschrijving: "test omschrijving",
     vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding.openbaar,
-    isEerderOpgeschort: false, // Toggle this for the test cases
+    isEerderOpgeschort: false,
     toelichting: "Some toelichting",
     rechten: {},
     zaaktype: {
@@ -61,7 +60,7 @@ describe(ZaakViewComponent.name, () => {
             data: of({ zaak }),
           },
         },
-        VertrouwelijkaanduidingToTranslationKeyPipe, // Ensure the pipe is provided
+        VertrouwelijkaanduidingToTranslationKeyPipe,
       ],
     }).compileComponents();
 
