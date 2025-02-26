@@ -319,11 +319,12 @@ class ZaakafhandelParametersRestService @Inject constructor(
         userId: String,
         groupId: String
     ) {
-        val behandelaarIdsInGroup = identityRestService
+        val isUserInGroup = identityRestService
             .listUsersInGroup(groupId)
             .map { it.id }
+            .contains(userId)
 
-        if (!behandelaarIdsInGroup.contains(userId)) {
+        if (!isUserInGroup) {
             LOG.warning(
                 "User '$userId' is not in group '$groupId' and can therefore not be set as default case worker."
             )
