@@ -15,13 +15,12 @@ import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
+import { queryByText } from "../../../test-helpers";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import zaakMock from "./zaak-mock";
 import { ZaakViewComponent } from "./zaak-view.component";
-import { queryByText } from "../../../test-helpers";
-
 
 describe(ZaakViewComponent.name, () => {
   let component: ZaakViewComponent;
