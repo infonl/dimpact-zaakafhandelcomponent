@@ -551,7 +551,6 @@ services:
     ports:
       - "54328:5432"
     volumes:
-      - ./scripts/docker-compose/imports/openarchiefbeheer-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/openarchiefbeheer-database-data:/var/lib/postgresql/data
     profiles: [ "openarchiefbeheer" ]
 
