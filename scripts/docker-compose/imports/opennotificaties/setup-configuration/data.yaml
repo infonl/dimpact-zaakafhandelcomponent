@@ -59,4 +59,54 @@ notifications_subscriptions_config:
       channels:
         - autorisaties
 
+notifications_kanalen_config_enable: true
+notifications_kanalen_config:
+  items:
+    - naam: autorisaties
+      documentatie_link: http://openzaak.local:8000/ref/kanalen/#/autorisaties
+      filters:
+        - autorisaties
+    - naam: besluittypen
+      documentatie_link: http://openzaak.local:8000/ref/kanalen/#/besluittypen
+      filters:
+        - catalogus
+    - naam: informatieobjecttypen
+      documentatie_link: http://openzaak.local:8000/ref/kanalen/#/informatieobjecttypen
+      filters:
+        - catalogus
+    - naam: zaaktypen
+      documentatie_link: http://openzaak.local:8000/ref/kanalen/#/zaaktypen
+      filters:
+        - catalogus
+    - naam: zaken
+      documentatie_link: http://openzaak.local:8000/ref/kanalen/#/zaken
+      filters:
+        - bronorganisatie
+        - zaaktype
+        - vertrouwelijkheidaanduiding
+    - naam: documenten
+      documentatie_link: http://openzaak.local:8000/ref/kanalen/#/documenten
+      filters:
+        - bronorganisatie
+        - informatieobjecttype
+        - vertrouwelijkheidaanduiding
+    - naam: besluiten
+      documentatie_link: http://openzaak.local:8000/ref/kanalen/#/besluiten
+      filters:
+        - verantwoordelijke_organisatie
+        - besluittype
+
+notifications_abonnementen_config_enable: true
+notifications_abonnementen_config:
+  items:
+    - uuid: fb4e3474-18c8-474b-94ae-980850ea4a7f
+      callback_url: http://host.docker.internal:8080/rest/notificaties
+      auth: openNotificatiesApiSecretKey
+      kanalen:
+        - naam: zaaktypen
+        - naam: zaken
+        - naam: documenten
+        - naam: besluittypen
+        - naam: besluiten
+
 
