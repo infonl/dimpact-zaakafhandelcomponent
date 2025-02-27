@@ -81,7 +81,6 @@ class PlanItemsRESTService @Inject constructor(
     private var restMailGegevensConverter: RESTMailGegevensConverter,
     private var zaakService: ZaakService
 ) {
-
     companion object {
         private const val REDEN_OPSCHORTING = "Aanvullende informatie opgevraagd"
         private const val REDEN_PAST_FATALE_DATUM = "Aanvullende informatie opgevraagd"
@@ -174,9 +173,9 @@ class PlanItemsRESTService @Inject constructor(
                     MailGegevens(
                         TaakVariabelenService.readMailFrom(taakdata)
                             .map { MailAdres(it, afzender) }
-                            .orElseGet { mailService.gemeenteMailAdres },
+                            .orElseGet { mailService.getGemeenteMailAdres() },
                         TaakVariabelenService.readMailTo(taakdata)
-                            .map { MailAdres(it) }
+                            .map { MailAdres(it, null) }
                             .orElse(null),
                         TaakVariabelenService.readMailReplyTo(taakdata)
                             .map { MailAdres(it, afzender) }

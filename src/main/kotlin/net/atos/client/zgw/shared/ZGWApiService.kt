@@ -194,8 +194,8 @@ class ZGWApiService @Inject constructor(
      */
     fun createZaakInformatieobjectForZaak(
         zaak: Zaak,
-        enkelvoudigInformatieObjectCreateLockRequest: EnkelvoudigInformatieObjectCreateLockRequest?,
-        titel: String?,
+        enkelvoudigInformatieObjectCreateLockRequest: EnkelvoudigInformatieObjectCreateLockRequest,
+        titel: String,
         beschrijving: String?,
         omschrijvingVoorwaardenGebruiksrechten: String?
     ): ZaakInformatieobject {

@@ -7,7 +7,7 @@ package net.atos.zac.mail.model
 import jakarta.json.bind.annotation.JsonbProperty
 
 data class Attachment(
-    @field:JsonbProperty("ContentType") var contentType: String,
-    @field:JsonbProperty("Filename") var filename: String,
-    @field:JsonbProperty("Base64Content") var base64Content: String
+    @field:JsonbProperty("ContentType") val contentType: String,
+    @field:JsonbProperty("Filename") val filename: String,
+    @field:JsonbProperty("Base64Content") val base64Content: String
 )

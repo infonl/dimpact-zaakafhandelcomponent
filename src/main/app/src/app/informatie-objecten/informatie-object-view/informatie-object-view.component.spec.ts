@@ -18,7 +18,9 @@ import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { InformatieObjectViewComponent } from "./informatie-object-view.component";
 
-import { queryByText } from "../../../test-helpers";
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -28,6 +30,8 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
 describe(InformatieObjectViewComponent.name, () => {
   let component: InformatieObjectViewComponent;
   let fixture: ComponentFixture<typeof component>;
+  let loader: HarnessLoader;
+
   let informatieObjectenService: InformatieObjectenService;
 
   const zaak: GeneratedType<"RestZaak"> = {
@@ -87,8 +91,8 @@ describe(InformatieObjectViewComponent.name, () => {
       .mockReturnValue(of(enkelvoudigInformatieobject));
 
     fixture = TestBed.createComponent(InformatieObjectViewComponent);
-
     component = fixture.componentInstance;
+    loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
   describe("actie.nieuwe.versie.toevoegen", () => {
@@ -104,16 +108,11 @@ describe(InformatieObjectViewComponent.name, () => {
           }),
         );
 
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      const button = queryByText(
-        fixture,
-        "button",
-        "actie.nieuwe.versie.toevoegen",
+      const button = await loader.getHarnessOrNull(
+        MatNavListItemHarness.with({ title: "actie.nieuwe.versie.toevoegen" }),
       );
 
-      expect(button).toBeUndefined();
+      expect(button).toBeNull();
     });
 
     it("should open the sidebar when clicked", async () => {
@@ -128,15 +127,11 @@ describe(InformatieObjectViewComponent.name, () => {
           }),
         );
 
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      const button = queryByText(
-        fixture,
-        "button",
-        "actie.nieuwe.versie.toevoegen",
+      const button = await loader.getHarness(
+        MatNavListItemHarness.with({ title: "actie.nieuwe.versie.toevoegen" }),
       );
-      await button.nativeElement.click();
+      const host = await button.host();
+      await host.click();
 
       const sidebar = component.actionsSidenav;
       expect(sidebar.opened).toBe(true);

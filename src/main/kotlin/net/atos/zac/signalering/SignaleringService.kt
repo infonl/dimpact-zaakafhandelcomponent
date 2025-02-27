@@ -256,9 +256,7 @@ class SignaleringService @Inject constructor(
 
     fun sendSignalering(signalering: Signalering) {
         ValidationUtil.valideerObject(signalering)
-        signaleringenMailHelper.getTargetMail(signalering)?.let {
-            val from = mailService.gemeenteMailAdres
-            val to = formatTo(it)
+        signaleringenMailHelper.getTargetMail(signalering)?.let { mail ->
             val mailTemplate = signaleringenMailHelper.getMailTemplate(signalering)
             val bronnenBuilder = Bronnen.Builder()
             when (signalering.subjecttype) {
@@ -283,7 +281,12 @@ class SignaleringService @Inject constructor(
                 else -> {}
             }
             mailService.sendMail(
-                MailGegevens(from, to, mailTemplate.onderwerp, mailTemplate.body),
+                MailGegevens(
+                    mailService.getGemeenteMailAdres(),
+                    formatTo(mail),
+                    mailTemplate.onderwerp,
+                    mailTemplate.body
+                ),
                 bronnenBuilder.build()
             )
         }

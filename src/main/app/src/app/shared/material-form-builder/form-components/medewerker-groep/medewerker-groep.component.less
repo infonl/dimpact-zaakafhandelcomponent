@@ -22,10 +22,10 @@ button {
     &.error {
       color: var(--mat-form-field-error-text-color);
     }
+  }
 
-    &:hover {
-      color: inherit;
-    }
+  &:hover mat-icon {
+    color: var(--mat-form-field-trailing-icon-color);
   }
 
   &.mat-mdc-button-disabled {
@@ -41,5 +41,22 @@ mat-icon {
 
   &.error {
     color: var(--mat-form-field-error-text-color);
+  }
+}
+
+::ng-deep .row {
+  padding-top: 0px !important;
+
+  & .fields {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 5px;
+  }
+}
+
+::ng-deep .case-details-edit-form {
+  @media screen and (min-width: 959px) {
+    width: 558px;
   }
 }

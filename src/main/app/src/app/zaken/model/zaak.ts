@@ -40,7 +40,7 @@ export class Zaak {
   redenVerlenging: string;
   duurVerlenging: string;
   groep: GeneratedType<"RestGroup">;
-  behandelaar: GeneratedType<"RestUser">;
+  behandelaar?: GeneratedType<"RestUser">;
   gerelateerdeZaken: GeneratedType<"RestGerelateerdeZaak">[];
   kenmerken: ZaakKenmerk[];
   initiatorIdentificatieType: GeneratedType<"IdentificatieType">;

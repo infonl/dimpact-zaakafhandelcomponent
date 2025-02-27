@@ -9,19 +9,15 @@ import jakarta.mail.Address
 import jakarta.mail.internet.InternetAddress
 import net.atos.zac.util.ValidationUtil
 
-class MailAdres(
-    @field:JsonbProperty("Email") var email: String,
-    @field:JsonbProperty("Name") var name: String?
+data class MailAdres(
+    @field:JsonbProperty("Email") val email: String,
+    @field:JsonbProperty("Name") val name: String?
 ) {
     init {
         require(ValidationUtil.isValidEmail(email)) { "Email '$email' is not valid" }
     }
 
-    constructor(email: String) : this(email, null)
-
     fun toAddress(): Address = InternetAddress(email, name)
 
-    override fun toString(): String {
-        return "$email ($name)"
-    }
+    override fun toString() = "$email ($name)"
 }

@@ -39,7 +39,7 @@ services:
       - "--health-enabled=true"
 
   keycloak-database:
-    image: docker.io/postgres:17.3@sha256:6e3358e46e34dae6c184f48fd06fe1b3dbf958ad5b83480031907e52b9ec2a7d
+    image: docker.io/postgres:17.4@sha256:1c47b7139517eeb5e9747882983297a745517c3d70d2451e376f9fd5cc7cf1ef
     ports:
       - "54326:5432"
     healthcheck:
@@ -56,7 +56,7 @@ services:
       - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
 
   zac-database:
-    image: docker.io/postgres:17.3@sha256:6e3358e46e34dae6c184f48fd06fe1b3dbf958ad5b83480031907e52b9ec2a7d
+    image: docker.io/postgres:17.4@sha256:1c47b7139517eeb5e9747882983297a745517c3d70d2451e376f9fd5cc7cf1ef
     ports:
       - "54320:5432"
     healthcheck:
@@ -100,7 +100,7 @@ services:
     image: docker.io/openzaak/open-zaak:1.18.0@sha256:d023f76c72b0608aede93651b56422ac9863e49f69bd151d3d0e0ae676a099bd
     platform: linux/amd64
     environment: &openzaak-env
-      - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local,opennotificaties
+      - ALLOWED_HOSTS="*"
       - DB_HOST=openzaak-database
       - DB_NAME=openzaak
       - DB_PASSWORD=openzaak
@@ -172,7 +172,7 @@ services:
     ports:
       - "8010:8000"
     environment: &objects-env
-      - ALLOWED_HOSTS=localhost,host.docker.internal,objecten-api.local
+      - ALLOWED_HOSTS="*"
       - CORS_ALLOW_ALL_ORIGINS=true
       - DB_HOST=objecten-api-database
       - DEBUG=true
@@ -254,7 +254,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: docker.io/postgres:17.3@sha256:6e3358e46e34dae6c184f48fd06fe1b3dbf958ad5b83480031907e52b9ec2a7d
+    image: docker.io/postgres:17.4@sha256:1c47b7139517eeb5e9747882983297a745517c3d70d2451e376f9fd5cc7cf1ef
     ports:
       - "54325:5432"
     healthcheck:
@@ -275,7 +275,7 @@ services:
     image: docker.io/maykinmedia/open-klant:2.3.0@sha256:deeccf6c1e0c76538169443ffe960895da98188540fec69e127d9e78fdce23da
     platform: linux/amd64
     environment:
-      - ALLOWED_HOSTS=localhost,host.docker.internal,openklant.local
+      - ALLOWED_HOSTS="*"
       - DB_HOST=openklant-database
       - DB_USER=openklant
       - DB_PASSWORD=openklant
@@ -377,7 +377,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: docker.io/prom/prometheus:v3.2.0@sha256:5888c188cf09e3f7eebc97369c3b2ce713e844cdbd88ccf36f5047c958aea120
+    image: docker.io/prom/prometheus:v3.2.1@sha256:6927e0919a144aa7616fd0137d4816816d42f6b816de3af269ab065250859a62
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -428,7 +428,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.0.6-alpine@sha256:303f899f3b8e8cd00784c9f2a55fa881ab42e7ef27144eb91bf63c60c66f7e85
+    image: rabbitmq:4.0.7-alpine@sha256:da3287900b84c368fde75b6d5d0d3154208d25d8a7a6cfab1da4854e83bc9501
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 30s
@@ -448,9 +448,11 @@ services:
       retries: 10
       start_period: 30s
     environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
       - POSTGRES_USER=opennotificaties
       - POSTGRES_PASSWORD=opennotificaties
       - POSTGRES_DB=opennotificaties
+    command: postgres -c max_connections=300 -c log_min_messages=LOG
     volumes:
       - ./scripts/docker-compose/imports/opennotificaties-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/opennotificaties-database-data:/var/lib/postgresql/data
@@ -460,25 +462,27 @@ services:
     image: docker.io/openzaak/open-notificaties:1.8.0@sha256:2ad8eaf1121ad6071d4171b83f5eb3b5925804db549c8196b0384bb551e2979b
     platform: linux/amd64
     environment: &opennotificaties-env
-      - ALLOWED_HOSTS=localhost,host.docker.internal,openzaak.local,zac
-      - CACHE_DEFAULT=redis:6379/0
-      - CACHE_AXES=redis:6379/0
-      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
-      - CELERY_RESULT_BACKEND=redis://redis:6379/1
-      - CELERY_LOGLEVEL=DEBUG
-      - DB_HOST=opennotificaties-database
-      - DB_NAME=opennotificaties
-      - DB_PASSWORD=opennotificaties
-      - DB_USER=opennotificaties
-      - DEBUG=true
-      - DISABLE_2FA=true
-      - DJANGO_SETTINGS_MODULE=nrc.conf.docker
-      - DJANGO_SUPERUSER_PASSWORD=admin
-      - LOG_LEVEL=DEBUG
-      - LOG_NOTIFICATIONS_IN_DB=true
-      - PUBLISH_BROKER_URL=amqp://guest:guest@rabbitmq:5672/%2F
-      - RABBITMQ_HOST=rabbitmq
-      - SECRET_KEY=opennotificatiesApiSecretKey
+      ALLOWED_HOSTS: "*"
+      CACHE_DEFAULT: redis:6379/0
+      CACHE_AXES: redis:6379/0
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      CELERY_LOGLEVEL: DEBUG
+      DB_HOST: opennotificaties-database
+      DB_NAME: opennotificaties
+      DB_PASSWORD: opennotificaties
+      DB_USER: opennotificaties
+      DEBUG: true
+      DISABLE_2FA: true
+      DJANGO_SETTINGS_MODULE: nrc.conf.docker
+      DJANGO_SUPERUSER_PASSWORD: admin
+      LOG_LEVEL: DEBUG
+      LOG_NOTIFICATIONS_IN_DB: true
+      OPENNOTIFICATIES_SUPERUSER_USERNAME: admin
+      OPENNOTIFICATIES_SUPERUSER_EMAIL: admin@example.com
+      PUBLISH_BROKER_URL: amqp://guest:guest@rabbitmq:5672/%2F
+      RABBITMQ_HOST: rabbitmq
+      SECRET_KEY: opennotificatiesApiSecretKey
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
       interval: 30s
@@ -490,13 +494,29 @@ services:
       start_period: 30s
     ports:
       - "8003:8000"
+    volumes: &opennotificaties-volumes
+      - ./scripts/docker-compose/imports/opennotificaties/setup-configuration:/app/setup_configuration
+    depends_on:
+      opennotificaties-init:
+          condition: service_completed_successfully
+    profiles: [ "opennotificaties" ]
+
+  opennotificaties-init:
+    image: docker.io/openzaak/open-notificaties:1.8.0@sha256:2ad8eaf1121ad6071d4171b83f5eb3b5925804db549c8196b0384bb551e2979b
+    platform: linux/amd64
+    environment:
+      <<: *opennotificaties-env
+      # Run Django setup configuration
+      RUN_SETUP_CONFIG: ${RUN_SETUP_CONFIG:-true}
+    command: /setup_configuration.sh
     depends_on:
       opennotificaties-database:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
       redis:
         condition: service_started
-      rabbitmq:
-        condition: service_started
+    volumes: *opennotificaties-volumes
     profiles: [ "opennotificaties" ]
 
   opennotificaties-celery:
@@ -531,12 +551,12 @@ services:
     ports:
       - "54328:5432"
     volumes:
-      - ./scripts/docker-compose/imports/openarchiefbeheer-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/openarchiefbeheer-database-data:/var/lib/postgresql/data
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web:
     image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
+    platform: linux/amd64
     environment: &web_env
       - ALLOWED_HOSTS="*"
       # We should be able to switch off 2FA with:
@@ -544,7 +564,7 @@ services:
       # - DISABLE_2FA=true
       # However the above config errors with `ModuleNotFoundError: No module named 'debug_toolbar'`
       - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.docker
-      - SECRET_KEY=${SECRET_KEY:-django-insecure-!bkx+tx18&lvp(@_9)9ut(y(keqho*zhz1&^sqqgq9*i=__w(}
+      - SECRET_KEY=${SECRET_KEY:-oabSecretKey}
       - DB_NAME=openarchiefbeheer
       - DB_USER=openarchiefbeheer
       - DB_PASSWORD=openarchiefbeheer
@@ -586,6 +606,7 @@ services:
 
   openarchiefbeheer-web-init:
     image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
+    platform: linux/amd64
     environment: *web_env
     command: /setup_configuration.sh
     volumes:
@@ -599,6 +620,7 @@ services:
 
   openarchiefbeheer-celery:
     image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
+    platform: linux/amd64
     command: /celery_worker.sh
     environment: *web_env
     healthcheck:
@@ -614,6 +636,7 @@ services:
 
   openarchiefbeheer-celery-beat:
     image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
+    platform: linux/amd64
     command: /celery_beat.sh
     environment: *web_env
     depends_on:

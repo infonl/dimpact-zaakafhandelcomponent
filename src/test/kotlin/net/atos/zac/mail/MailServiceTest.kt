@@ -109,14 +109,11 @@ class MailServiceTest : BehaviorSpec({
                 zaak, any(), resolvedSubject, resolvedSubject, "geen"
             )
         } returns zaakInformatieobject
-
         mockkObject(MailService.Companion)
         every { MailService.Companion.mailSession.properties } returns Properties()
-
         mockkStatic(Transport::class)
         val transportSendRequest = slot<Message>()
         every { Transport.send(capture(transportSendRequest)) } just runs
-
         every { configuratieService.readBronOrganisatie() } returns "123443210"
 
         When("the send mail function is invoked") {
