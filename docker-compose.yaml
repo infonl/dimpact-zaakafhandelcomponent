@@ -564,7 +564,7 @@ services:
       # - DISABLE_2FA=true
       # However the above config errors with `ModuleNotFoundError: No module named 'debug_toolbar'`
       - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.docker
-      - SECRET_KEY=${SECRET_KEY:-django-insecure-!bkx+tx18&lvp(@_9)9ut(y(keqho*zhz1&^sqqgq9*i=__w(}
+      - SECRET_KEY=${SECRET_KEY:-oabSecretKey}
       - DB_NAME=openarchiefbeheer
       - DB_USER=openarchiefbeheer
       - DB_PASSWORD=openarchiefbeheer
