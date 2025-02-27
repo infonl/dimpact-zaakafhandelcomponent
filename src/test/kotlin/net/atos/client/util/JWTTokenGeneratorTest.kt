@@ -29,7 +29,6 @@ class JWTTokenGeneratorTest : BehaviorSpec({
             val token = JWTTokenGenerator.generate(clientId, clientSecret, null)
 
             Then("it should be a valid JWT token") {
-                println(token)
                 val tokenParts = token.split(" ")
                 tokenParts[0] shouldBe "Bearer"
                 val decodedToken = JWT.decode(tokenParts[1])
@@ -54,7 +53,6 @@ class JWTTokenGeneratorTest : BehaviorSpec({
             val token = JWTTokenGenerator.generate(clientId, clientSecret, loggedInUser)
 
             Then("it should be a valid JWT token") {
-                println(token)
                 val tokenParts = token.split(" ")
                 tokenParts[0] shouldBe "Bearer"
                 val decodedToken = JWT.decode(tokenParts[1])
