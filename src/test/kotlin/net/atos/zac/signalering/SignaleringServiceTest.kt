@@ -146,7 +146,7 @@ class SignaleringServiceTest : BehaviorSpec({
         val mailBody = "dummyMailBody"
         val mailGegevensSlot = slot<MailGegevens>()
         every { signaleringenMailHelper.getTargetMail(signalering) } returns signaleringMail
-        every { mailService.gemeenteMailAdres } returns gemeenteMailAdres
+        every { mailService.getGemeenteMailAdres() } returns gemeenteMailAdres
         every { signaleringenMailHelper.getMailTemplate(signalering) } returns mailTemplate
         every { flowableTaskService.readTask(task.id) } returns task
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
