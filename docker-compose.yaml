@@ -428,7 +428,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.0.6-alpine@sha256:303f899f3b8e8cd00784c9f2a55fa881ab42e7ef27144eb91bf63c60c66f7e85
+    image: rabbitmq:4.0.7-alpine@sha256:da3287900b84c368fde75b6d5d0d3154208d25d8a7a6cfab1da4854e83bc9501
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 30s
