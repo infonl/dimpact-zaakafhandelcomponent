@@ -104,6 +104,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                     opschorting.reden shouldBe postPonementReason
                     einddatumGepland shouldBe null
                     uiterlijkeEinddatumAfdoening shouldBe postponedZaak.uiterlijkeEinddatumAfdoening
+                    isEerderOpgeschort shouldBe true
                 }
             }
         }
@@ -171,6 +172,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                     opschorting.reden shouldBe reasonResumed
                     einddatumGepland shouldBe null
                     uiterlijkeEinddatumAfdoening shouldBe resumedZaak.uiterlijkeEinddatumAfdoening
+                    isEerderOpgeschort shouldBe true
                 }
             }
         }
