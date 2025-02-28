@@ -3,7 +3,7 @@
 # The number of expected records in the django_migrations table after Open Notificaties has finished with the database
 # migration scripts.
 # Note that this is expected to change in future versions of Open Notificaties, so this value should be updated accordingly.
-DJANGO_MIGRATIONS_TABLE_RECORDS_COUNT=160
+DJANGO_MIGRATIONS_TABLE_RECORDS_COUNT=167
 
 echo ">>>> Waiting until Open Notificaties has initialized the database <<<<"
 useradd opennotificaties
