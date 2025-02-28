@@ -13,9 +13,11 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
-import { queryByText } from "../../../test-helpers";
+import { HarnessLoader } from "@angular/cdk/testing";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -25,6 +27,7 @@ import { ZaakViewComponent } from "./zaak-view.component";
 describe(ZaakViewComponent.name, () => {
   let component: ZaakViewComponent;
   let fixture: ComponentFixture<ZaakViewComponent>;
+  let loader: HarnessLoader;
 
   const zaak: GeneratedType<"RestZaak"> = {
     uuid: "zaak-001",
@@ -42,14 +45,15 @@ describe(ZaakViewComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ZaakViewComponent],
+      declarations: [ZaakViewComponent], // Do not declare the pipe here!
       imports: [
         MatSortModule,
         MatTableModule,
         TranslateModule.forRoot(),
         NoopAnimationsModule,
-        PipesModule,
+        PipesModule, // Ensure it's here if other shared pipes are used
         MaterialModule,
+        VertrouwelijkaanduidingToTranslationKeyPipe, // Import pipe directly here
       ],
       providers: [
         provideHttpClient(),
@@ -68,7 +72,6 @@ describe(ZaakViewComponent.name, () => {
     component = fixture.componentInstance;
 
     jest.spyOn(component as any, "loadHistorie").mockReturnValueOnce(undefined);
-
     jest
       .spyOn(component as any, "loadBetrokkenen")
       .mockReturnValueOnce(undefined);
@@ -76,11 +79,13 @@ describe(ZaakViewComponent.name, () => {
       .spyOn(component as any, "loadBagObjecten")
       .mockReturnValueOnce(undefined);
     jest
-      .spyOn(component as any, "setEditableFormFields")
-      .mockReturnValueOnce(undefined);
-    jest
       .spyOn(component as any, "loadOpschorting")
       .mockReturnValueOnce(undefined);
+    jest
+      .spyOn(component as any, "setDateFieldIconSet")
+      .mockReturnValueOnce(undefined);
+
+    loader = TestbedHarnessEnvironment.loader(fixture);
 
     component.init(zaakMock);
   });
@@ -89,8 +94,9 @@ describe(ZaakViewComponent.name, () => {
     it("should not show the opschorten button when isEerderOpgeschort is true", async () => {
       component.zaak.isEerderOpgeschort = true;
 
-      const button = queryByText(fixture, "button", "actie.zaak.opschorten");
-
+      const button = await loader.getHarnessOrNull(
+        MatNavListItemHarness.with({ title: "actie.taak.opschorten" })
+      );
       expect(button).toBeUndefined();
     });
   });
