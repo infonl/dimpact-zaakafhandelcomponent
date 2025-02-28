@@ -4,20 +4,20 @@
  *
  */
 
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { MatSortModule } from "@angular/material/sort";
 import { MatTableModule } from "@angular/material/table";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
-import { HarnessLoader } from "@angular/cdk/testing";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -95,7 +95,7 @@ describe(ZaakViewComponent.name, () => {
       component.zaak.isEerderOpgeschort = true;
 
       const button = await loader.getHarnessOrNull(
-        MatNavListItemHarness.with({ title: "actie.taak.opschorten" })
+        MatNavListItemHarness.with({ title: "actie.taak.opschorten" }),
       );
       expect(button).toBeUndefined();
     });
