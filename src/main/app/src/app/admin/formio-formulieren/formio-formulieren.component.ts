@@ -55,8 +55,9 @@ export class FormioFormulierenComponent
     this.fileInput.nativeElement.click();
   }
 
-  fileSelected(event: any) {
-    const file = event.target.files[0];
+  fileSelected(event: Event) {
+    const target = event.target as HTMLInputElement | null;
+    const file = target?.files?.[0];
     if (file) {
       this.readFileContent(file)
         .then((content) => {
