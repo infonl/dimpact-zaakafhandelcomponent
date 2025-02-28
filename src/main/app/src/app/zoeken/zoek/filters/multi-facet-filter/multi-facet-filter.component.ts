@@ -61,7 +61,11 @@ export class MultiFacetFilterComponent implements OnInit {
   }
 
   isVertaalbaar(veld: string): boolean {
-    return this.VERTAALBARE_FACETTEN[veld as keyof typeof this.VERTAALBARE_FACETTEN] !== undefined;
+    return (
+      this.VERTAALBARE_FACETTEN[
+        veld as keyof typeof this.VERTAALBARE_FACETTEN
+      ] !== undefined
+    );
   }
 
   invert() {
