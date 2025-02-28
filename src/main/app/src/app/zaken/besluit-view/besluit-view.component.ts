@@ -48,9 +48,9 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./besluit-view.component.less"],
 })
 export class BesluitViewComponent implements OnInit, OnChanges {
-  @Input() besluiten: GeneratedType<"RestDecision">[];
-  @Input() result: GeneratedType<"RestZaakResultaat">;
-  @Input() readonly: boolean;
+  @Input({ required: true }) besluiten!: GeneratedType<"RestDecision">[];
+  @Input({ required: true }) result!: GeneratedType<"RestZaakResultaat">;
+  @Input({ required: true }) readonly!: boolean;
   @Output() besluitWijzigen = new EventEmitter<GeneratedType<"RestDecision">>();
   @Output() doIntrekking: EventEmitter<any> = new EventEmitter<any>();
   readonly indicatiesLayout = IndicatiesLayout;
@@ -81,17 +81,17 @@ export class BesluitViewComponent implements OnInit, OnChanges {
 
   ngOnChanges() {
     for (const key in this.besluitInformatieobjecten) {
-      if (this.besluitInformatieobjecten.hasOwnProperty(key)) {
-        this.besluitInformatieobjecten[key].updateDocumenten(
-          of(this.getBesluit(key).informatieobjecten),
-        );
+      const besluit = this.getBesluit(key);
+      if (!besluit?.informatieobjecten) {
+        return;
       }
+      this.besluitInformatieobjecten[key].updateDocumenten(
+        of(besluit.informatieobjecten!),
+      );
     }
 
     for (const historieKey in this.histories) {
-      if (this.histories.hasOwnProperty(historieKey)) {
-        this.loadHistorie(historieKey);
-      }
+      this.loadHistorie(historieKey);
     }
   }
 
@@ -102,6 +102,9 @@ export class BesluitViewComponent implements OnInit, OnChanges {
 
     if (!this.besluitInformatieobjecten[uuid]) {
       const besluit = this.getBesluit(uuid);
+      if (!besluit?.informatieobjecten) {
+        return;
+      }
       this.besluitInformatieobjecten[uuid] = new DocumentenLijstFieldBuilder()
         .id("documenten")
         .label("documenten")
@@ -145,7 +148,7 @@ export class BesluitViewComponent implements OnInit, OnChanges {
     });
   }
 
-  saveIntrekking(results: any[]): Observable<void> {
+  saveIntrekking(results: any[]): Observable<null> {
     this.doIntrekking.emit(results);
     return of(null);
   }
@@ -201,12 +204,10 @@ export class BesluitViewComponent implements OnInit, OnChanges {
   private maakMessageField(
     besluit: GeneratedType<"RestDecision">,
   ): MessageFormField {
-    const documentenVerstuurd: boolean = besluit.informatieobjecten.some(
-      (document) => {
-        return document.verzenddatum != null;
-      },
+    const documentenVerstuurd = besluit.informatieobjecten?.some(
+      ({ verzenddatum }) => verzenddatum != null,
     );
-    return new MessageFormFieldBuilder(documentenVerstuurd)
+    return new MessageFormFieldBuilder(!!documentenVerstuurd)
       .id("documentenverstuurd")
       .level(MessageLevel.WARNING)
       .text("msg.besluit.documenten.verstuurd")
