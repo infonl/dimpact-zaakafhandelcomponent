@@ -4,7 +4,8 @@
  *
  */
 
-import {HttpClientTestingModule, provideHttpClientTesting} from "@angular/common/http/testing";
+import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { provideAnimations } from "@angular/platform-browser/animations";
@@ -21,7 +22,6 @@ import { ZaakStatusmailOptie } from "../model/zaak-statusmail-optie";
 import { Zaaktype } from "../model/zaaktype";
 import { ZakenService } from "../zaken.service";
 import { ZaakCreateComponent } from "./zaak-create.component";
-import {provideHttpClient} from "@angular/common/http";
 
 describe(ZaakCreateComponent.name, () => {
   let component: ZaakCreateComponent;
