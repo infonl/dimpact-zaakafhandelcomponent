@@ -111,6 +111,7 @@ export class ZaakdataComponent implements OnInit {
 
   mergeDeep(dest: Record<string, any>, src: Record<string, any>): void {
     Object.keys(src).forEach((key) => {
+      if (key === "__proto__" || key === "constructor") return;
       const destVal = dest[key];
       const srcVal = src[key];
       if (this.isArray(destVal) && this.isArray(srcVal)) {
