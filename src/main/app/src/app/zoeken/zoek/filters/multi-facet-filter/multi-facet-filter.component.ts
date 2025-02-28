@@ -15,13 +15,13 @@ import { FilterResultaat } from "../../../model/filter-resultaat";
 })
 export class MultiFacetFilterComponent implements OnInit {
   formGroup: FormGroup;
-  @Input() filter: FilterParameters;
-  @Input() opties: FilterResultaat[];
-  @Input() label: string;
+  @Input({ required: true }) filter!: FilterParameters;
+  @Input({ required: true }) opties!: FilterResultaat[];
+  @Input({ required: true }) label!: string;
   @Output() changed = new EventEmitter<FilterParameters>();
 
-  inverse: boolean;
-  selected: string[];
+  inverse = false;
+  selected: string[] = [];
 
   /* veld: prefix */
   public VERTAALBARE_FACETTEN = {
@@ -35,11 +35,12 @@ export class MultiFacetFilterComponent implements OnInit {
     ZAAK_ARCHIEF_NOMINATIE: "archiefNominatie.",
   };
 
-  constructor(private _formBuilder: FormBuilder) {}
+  constructor(private _formBuilder: FormBuilder) {
+    this.formGroup = this._formBuilder.group({});
+  }
 
   ngOnInit(): void {
     this.inverse = this.filter?.inverse === "true";
-    this.formGroup = this._formBuilder.group({});
     this.selected = this.filter?.values ? this.filter.values : [];
     this.opties.forEach((value, index) => {
       this.formGroup.addControl(
@@ -60,7 +61,7 @@ export class MultiFacetFilterComponent implements OnInit {
   }
 
   isVertaalbaar(veld: string): boolean {
-    return this.VERTAALBARE_FACETTEN[veld] !== undefined;
+    return this.VERTAALBARE_FACETTEN[veld as keyof typeof this.VERTAALBARE_FACETTEN] !== undefined;
   }
 
   invert() {
