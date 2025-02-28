@@ -357,15 +357,19 @@ export class ZaakDocumentenComponent
       });
   }
 
-  updateAll($event: MatCheckboxChange) {
+  updateAll($event?: MatCheckboxChange) {
     this.selectAll = !this.selectAll;
-    if ($event) {
-      this.enkelvoudigInformatieObjecten.data.forEach((document) => {
-        $event.checked
-          ? this.downloadAlsZipSelection.select(document)
-          : this.downloadAlsZipSelection.deselect(document);
-      });
+    if (!$event) {
+      return;
     }
+
+    this.enkelvoudigInformatieObjecten.data.forEach((document) => {
+      if ($event.checked) {
+        this.downloadAlsZipSelection.select(document);
+        return;
+      }
+      this.downloadAlsZipSelection.deselect(document);
+    });
   }
 
   getDownloadURL(
