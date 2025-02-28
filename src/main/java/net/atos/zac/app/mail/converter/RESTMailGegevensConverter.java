@@ -22,7 +22,7 @@ public class RESTMailGegevensConverter {
         final String afzender = configuratieService.readGemeenteNaam();
         return new MailGegevens(
                 new MailAdres(restMailGegevens.verzender, afzender),
-                new MailAdres(restMailGegevens.ontvanger),
+                new MailAdres(restMailGegevens.ontvanger, null),
                 restMailGegevens.replyTo == null ? null : new MailAdres(restMailGegevens.replyTo, afzender),
                 restMailGegevens.onderwerp,
                 restMailGegevens.body,

@@ -18,24 +18,10 @@ class Bronnen private constructor(
         private var document: EnkelvoudigInformatieObject? = null
         private var taskInfo: TaskInfo? = null
 
-        fun add(zaak: Zaak): Builder {
-            this.zaak = zaak
-            return this
-        }
-
-        fun add(document: EnkelvoudigInformatieObject): Builder {
-            this.document = document
-            return this
-        }
-
-        fun add(taskInfo: TaskInfo): Builder {
-            this.taskInfo = taskInfo
-            return this
-        }
-
-        fun build(): Bronnen {
-            return Bronnen(zaak, document, taskInfo)
-        }
+        fun add(zaak: Zaak) = apply { this.zaak = zaak }
+        fun add(document: EnkelvoudigInformatieObject) = apply { this.document = document }
+        fun add(taskInfo: TaskInfo) = apply { this.taskInfo = taskInfo }
+        fun build() = Bronnen(zaak, document, taskInfo)
     }
 }
 

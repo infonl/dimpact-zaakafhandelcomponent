@@ -428,7 +428,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.0.6-alpine@sha256:303f899f3b8e8cd00784c9f2a55fa881ab42e7ef27144eb91bf63c60c66f7e85
+    image: rabbitmq:4.0.7-alpine@sha256:da3287900b84c368fde75b6d5d0d3154208d25d8a7a6cfab1da4854e83bc9501
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 30s
@@ -551,12 +551,12 @@ services:
     ports:
       - "54328:5432"
     volumes:
-      - ./scripts/docker-compose/imports/openarchiefbeheer-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/openarchiefbeheer-database-data:/var/lib/postgresql/data
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web:
     image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
+    platform: linux/amd64
     environment: &web_env
       - ALLOWED_HOSTS="*"
       # We should be able to switch off 2FA with:
@@ -564,7 +564,7 @@ services:
       # - DISABLE_2FA=true
       # However the above config errors with `ModuleNotFoundError: No module named 'debug_toolbar'`
       - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.docker
-      - SECRET_KEY=${SECRET_KEY:-django-insecure-!bkx+tx18&lvp(@_9)9ut(y(keqho*zhz1&^sqqgq9*i=__w(}
+      - SECRET_KEY=${SECRET_KEY:-oabSecretKey}
       - DB_NAME=openarchiefbeheer
       - DB_USER=openarchiefbeheer
       - DB_PASSWORD=openarchiefbeheer
@@ -606,6 +606,7 @@ services:
 
   openarchiefbeheer-web-init:
     image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
+    platform: linux/amd64
     environment: *web_env
     command: /setup_configuration.sh
     volumes:
@@ -619,6 +620,7 @@ services:
 
   openarchiefbeheer-celery:
     image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
+    platform: linux/amd64
     command: /celery_worker.sh
     environment: *web_env
     healthcheck:
@@ -634,6 +636,7 @@ services:
 
   openarchiefbeheer-celery-beat:
     image: maykinmedia/open-archiefbeheer:0.1.0-beta.39@sha256:79f3c59248c6e7143606a096b0885e2acc2b1545a4ec1fb004c2d31bc6b61ca4
+    platform: linux/amd64
     command: /celery_beat.sh
     environment: *web_env
     depends_on:

@@ -14,7 +14,6 @@ import com.itextpdf.kernel.pdf.PdfDocument
 import com.itextpdf.kernel.pdf.PdfWriter
 import com.itextpdf.layout.Document
 import com.itextpdf.layout.element.IBlockElement
-import com.itextpdf.layout.element.IElement
 import com.itextpdf.layout.element.Paragraph
 import jakarta.annotation.PostConstruct
 import jakarta.annotation.Resource
@@ -53,8 +52,6 @@ import java.io.IOException
 import java.time.LocalDate
 import java.util.Base64
 import java.util.Optional
-import java.util.UUID
-import java.util.function.Consumer
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -73,7 +70,6 @@ class MailService @Inject constructor(
     @ConfigProperty(name = "SMTP_USERNAME")
     private val smtpUsername: Optional<String> = Optional.empty(),
 ) {
-
     companion object {
         private val LOG = Logger.getLogger(MailService::class.java.name)
 
@@ -94,24 +90,11 @@ class MailService @Inject constructor(
         private const val JAVAMAIL_SMTP_AUTH_KEY = "mail.smtp.auth"
     }
 
-    @PostConstruct
-    @Suppress("UnusedPrivateMember")
-    private fun initPasswordAuthentication() {
-        // If there's no SMTP_USERNAME environment variable set, we consider this as a case, where SMTP server
-        // has no authentication. In this case we disable SMTP authentication in the mail session to prevent sending
-        // the default dummy credentials configured in src/main/resources/wildfly/configure-wildfly.cli
-        //
-        // Without the dummy credentials, the SMTP mail session is not properly configured, and:
-        //    - Weld fails to instantiate the mail session and satisfy the @Resource dependency above
-        //    - mail Transport below throws AuthenticationFailedException because of insufficient configuration
-        if (!smtpUsername.isPresent) {
-            mailSession.properties.setProperty(JAVAMAIL_SMTP_AUTH_KEY, "false")
-            LOG.warning { "SMTP authentication disabled" }
-        }
-    }
-
-    val gemeenteMailAdres
-        get() = MailAdres(configuratieService.readGemeenteMail(), configuratieService.readGemeenteNaam())
+    fun getGemeenteMailAdres() =
+        MailAdres(
+            configuratieService.readGemeenteMail(),
+            configuratieService.readGemeenteNaam()
+        )
 
     fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String {
         val subject = StringUtils.abbreviate(
@@ -121,9 +104,7 @@ class MailService @Inject constructor(
         val body = resolveVariabelen(mailGegevens.body, bronnen)
         val attachments = getAttachments(mailGegevens.attachments)
         val fromAddress = mailGegevens.from.toAddress()
-        val replyToAddress = mailGegevens.replyTo?.toAddress().let {
-            if (fromAddress == it) null else it
-        }
+        val replyToAddress = mailGegevens.replyTo?.toAddress()?.takeIf { fromAddress != it }
         val message = MailMessageBuilder(
             fromAddress = fromAddress,
             toAddress = mailGegevens.to.toAddress(),
@@ -132,7 +113,6 @@ class MailService @Inject constructor(
             body = body,
             attachments = attachments
         ).build(mailSession)
-
         try {
             Transport.send(message)
             LOG.fine("Sent mail to ${mailGegevens.to} with subject '$subject'.")
@@ -151,6 +131,22 @@ class MailService @Inject constructor(
         }
 
         return body
+    }
+
+    @PostConstruct
+    @Suppress("UnusedPrivateMember")
+    private fun initPasswordAuthentication() {
+        // If there's no SMTP_USERNAME environment variable set, we consider this as a case, where SMTP server
+        // has no authentication. In this case we disable SMTP authentication in the mail session to prevent sending
+        // the default dummy credentials configured in src/main/resources/wildfly/configure-wildfly.cli
+        //
+        // Without the dummy credentials, the SMTP mail session is not properly configured, and:
+        //    - Weld fails to instantiate the mail session and satisfy the @Resource dependency above
+        //    - mail Transport below throws AuthenticationFailedException because of insufficient configuration
+        if (!smtpUsername.isPresent) {
+            mailSession.properties.setProperty(JAVAMAIL_SMTP_AUTH_KEY, "false")
+            LOG.warning { "SMTP authentication disabled" }
+        }
     }
 
     @Suppress("LongParameterList")
@@ -179,7 +175,6 @@ class MailService @Inject constructor(
             vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
             verzenddatum = LocalDate.now()
         }
-
         zgwApiService.createZaakInformatieobjectForZaak(
             zaak,
             enkelvoudigInformatieobjectWithInhoud,
@@ -203,49 +198,41 @@ class MailService @Inject constructor(
                 PdfDocument(pdfWriter).use { pdfDoc ->
                     Document(pdfDoc).use { document ->
                         val font = PdfFontFactory.createFont(StandardFonts.COURIER)
-
                         document.add(
                             Paragraph().apply {
                                 setFont(font).setFontSize(FONT_SIZE).setFontColor(ColorConstants.BLACK)
                                 add("$MAIL_VERZENDER: $verzender \n\n")
                                 add("$MAIL_ONTVANGER: $ontvanger \n\n")
                                 if (attachments.isNotEmpty()) {
-                                    val content = attachments.joinToString(",") { attachment: Attachment ->
-                                        attachment.filename
-                                    }
+                                    val content = attachments.joinToString(",") { it.filename }
                                     add("$MAIL_BIJLAGE: $content \n\n")
                                 }
                                 add("$MAIL_ONDERWERP: $subject \n\n")
                                 add("$MAIL_BERICHT \n")
                             }
                         )
-
                         val cleaner = HtmlCleaner()
                         val rootTagNode = cleaner.clean(body)
                         val cleanerProperties = cleaner.properties.apply {
                             isOmitXmlDeclaration = true
                         }
                         val html = PrettyXmlSerializer(cleanerProperties).getAsString(rootTagNode)
-
                         val emailBodyParagraph = Paragraph()
-                        HtmlConverter.convertToElements(html).forEach(
-                            Consumer { element: IElement? ->
-                                emailBodyParagraph.add(element as IBlockElement?)
-                                // the individual (HTML paragraph) block elements are not separated
-                                // with new lines, so we add them explicitly here
-                                emailBodyParagraph.add("\n")
-                            }
-                        )
+                        HtmlConverter.convertToElements(html).forEach {
+                            emailBodyParagraph.add(it as IBlockElement)
+                            // the individual (HTML paragraph) block elements are not separated
+                            // with new lines, so we add them explicitly here
+                            emailBodyParagraph.add("\n")
+                        }
                         document.add(emailBodyParagraph)
                     }
                 }
             }
-        } catch (e: PdfException) {
-            LOG.log(Level.SEVERE, "Failed to create pdf document", e)
-        } catch (e: IOException) {
-            LOG.log(Level.SEVERE, "Failed to create pdf document", e)
+        } catch (pdfException: PdfException) {
+            LOG.log(Level.SEVERE, "Failed to create PDF document", pdfException)
+        } catch (ioException: IOException) {
+            LOG.log(Level.SEVERE, "Failed to create PDF document", ioException)
         }
-
         return byteArrayOutputStream.toByteArray()
     }
 
@@ -255,13 +242,13 @@ class MailService @Inject constructor(
             .first { it.omschrijving == ConfiguratieService.INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL }
 
     private fun getAttachments(bijlagenString: Array<String>): List<Attachment> =
-        bijlagenString.map { UUIDUtil.uuid(it) }.map { uuid: UUID ->
+        bijlagenString.map(UUIDUtil::uuid).map { uuid ->
             val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid)
             val byteArrayInputStream = drcClientService.downloadEnkelvoudigInformatieobject(uuid)
             Attachment(
-                enkelvoudigInformatieobject.formaat,
-                enkelvoudigInformatieobject.bestandsnaam,
-                String(Base64.getEncoder().encode(byteArrayInputStream.readAllBytes()))
+                contentType = enkelvoudigInformatieobject.formaat,
+                filename = enkelvoudigInformatieobject.bestandsnaam,
+                base64Content = String(Base64.getEncoder().encode(byteArrayInputStream.readAllBytes()))
             )
         }
 

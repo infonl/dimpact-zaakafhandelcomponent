@@ -13,7 +13,7 @@ class MailAdresTest : BehaviorSpec({
 
     Given("a valid email address") {
         When("constructing and object") {
-            MailAdres("valid@email.address")
+            MailAdres("valid@email.address", "dummyName")
             Then("it should succeed") {}
         }
     }
@@ -21,7 +21,7 @@ class MailAdresTest : BehaviorSpec({
     Given("an invalid email address") {
         When("constructing and object") {
             val exception = shouldThrow<IllegalArgumentException> {
-                MailAdres("fake email")
+                MailAdres("fake email", null)
             }
 
             Then("it should error") {
