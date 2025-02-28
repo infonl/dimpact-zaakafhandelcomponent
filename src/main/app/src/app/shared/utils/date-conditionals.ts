@@ -4,7 +4,8 @@
  */
 
 import { FormControl } from "@angular/forms";
-import moment from "moment";
+// @ts-ignore-next-line allow to import moment
+import moment, { Moment } from "moment";
 
 export declare type ConditionalFn = (control: FormControl) => boolean;
 
@@ -23,11 +24,11 @@ export class DateConditionals {
   }
 
   static isExceeded(
-    value: Date | moment.Moment | string,
-    actual?: Date | moment.Moment | string,
+    value: Date | Moment | string,
+    actual?: Date | Moment | string,
   ): boolean {
     if (value) {
-      const limit: moment.Moment = moment(value);
+      const limit: Moment = moment(value);
       if (actual) {
         const actualDate = moment(actual);
         return limit.isBefore(actualDate, "day");
@@ -40,7 +41,7 @@ export class DateConditionals {
   }
 
   static always(_value: Date | moment.Moment | string) {
-    console.debug(`Returning true for`, {_value})
+    console.debug(`Returning true for`, { _value });
     return true;
   }
 }

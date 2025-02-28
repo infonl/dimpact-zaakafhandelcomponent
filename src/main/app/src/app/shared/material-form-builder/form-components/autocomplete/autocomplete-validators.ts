@@ -49,17 +49,17 @@ export class AutocompleteValidators {
       return object1 === object2;
     }
     if (object1 && object2) {
-      if ('key' in object1) {
+      if ("key" in object1) {
         return object1.key === object2.key;
-      } else if ('uuid' in object1) {
+      } else if ("uuid" in object1) {
         return object1.uuid === object2.uuid;
-      } else if ('identificatie' in object1) {
+      } else if ("identificatie" in object1) {
         return object1.identificatie === object2.identificatie;
-      } else if ('id' in object1) {
+      } else if ("id" in object1) {
         return object1.id === object2.id;
-      } else if ('naam' in object1) {
+      } else if ("naam" in object1) {
         return object1.naam === object2.naam;
-      } else if ('name' in object1) {
+      } else if ("name" in object1) {
         return object1.name === object2.name;
       }
 

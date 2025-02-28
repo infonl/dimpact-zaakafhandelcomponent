@@ -11,6 +11,7 @@ import {
   Validators,
 } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
+// @ts-ignore-next-line allow to import moment
 import moment from "moment";
 import { Observable, Subject, Subscription, forkJoin, takeUntil } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
@@ -358,9 +359,9 @@ export class CaseDetailsEditComponent implements OnDestroy {
 
       Object.keys(patchFields).forEach((key) => {
         // circumvent the TypeScript type check (pattern copied from zaak-view.component.ts)
-        zaak[key] = patchFields[key].value
-            patchFields[key].value
-            patchFields[key];
+        zaak[key] = patchFields[key].value;
+        patchFields[key].value;
+        patchFields[key];
       });
 
       subscriptions.push(
