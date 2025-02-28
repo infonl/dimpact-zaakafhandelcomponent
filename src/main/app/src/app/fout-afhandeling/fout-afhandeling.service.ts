@@ -123,7 +123,7 @@ export class FoutAfhandelingService {
       return throwError(() => err.message);
     }
 
-    const errorDetail = err.error?.exception || err.message;
+    const errorDetail = err.error?.message || err.message || err.error?.exception;
 
     if (err.status === 400) {
       return this.openFoutDialog(

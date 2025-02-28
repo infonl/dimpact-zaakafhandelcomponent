@@ -59,7 +59,19 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
     }
 
     /**
-     * Converts an exception to a JAX-RS response depending on the exception type.
+     * Converts an exception to a JAX-RS response based on the exception type.
+     * <p>
+     * The output response format for most exceptions follows this structure:
+     * <pre>
+     * {"message": errorCode}
+     * </pre>
+     * Example:
+     * <pre>
+     * {"message": "msg.error.case.has.open.subcases"}
+     * </pre>
+     *
+     * @param exception The exception to be converted into a response.
+     * @return A JAX-RS Response object containing the appropriate error message.
      */
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     override fun toResponse(exception: Exception): Response =
