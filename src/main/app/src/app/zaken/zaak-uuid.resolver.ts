@@ -4,7 +4,7 @@
  */
 
 import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
+import { ActivatedRouteSnapshot } from "@angular/router";
 import { Observable } from "rxjs";
 import { Zaak } from "./model/zaak";
 import { ZakenService } from "./zaken.service";
@@ -15,11 +15,11 @@ import { ZakenService } from "./zaken.service";
 export class ZaakUuidResolver {
   constructor(private zakenService: ZakenService) {}
 
-  resolve(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot,
-  ): Observable<Zaak> {
-    const zaakUuid: string = route.paramMap.get("zaakUuid");
+  resolve(route: ActivatedRouteSnapshot): Observable<Zaak> {
+    const zaakUuid = route.paramMap.get("zaakUuid");
+    if (!zaakUuid) {
+      throw new Error("'zaakUuid' is missing in the route parameters");
+    }
     return this.zakenService.readZaak(zaakUuid);
   }
 }
