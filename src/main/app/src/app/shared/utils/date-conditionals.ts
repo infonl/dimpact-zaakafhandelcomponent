@@ -39,7 +39,7 @@ export class DateConditionals {
     return false;
   }
 
-  static always(_value: Date | moment.Moment | string) {
+  static always() {
     return true;
   }
 }

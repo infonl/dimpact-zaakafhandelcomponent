@@ -55,17 +55,17 @@ export class TaakViewComponent
   extends ActionsViewComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  @ViewChild("actionsSidenav") actionsSidenav: MatSidenav;
-  @ViewChild("menuSidenav") menuSidenav: MatSidenav;
-  @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
-  @ViewChild("historieSort") historieSort: MatSort;
+  @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
+  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
+  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
+  @ViewChild("historieSort") historieSort!: MatSort;
 
   taak: Taak;
   zaak: Zaak;
   formulier: AbstractTaakFormulier;
   formConfig: FormConfig;
   formulierDefinitie: FormulierDefinitie;
-  formioFormulier;
+  formioFormulier: Record<string, any> = {};
   formioChangeData;
 
   menu: MenuItem[] = [];
@@ -202,7 +202,7 @@ export class TaakViewComponent
     });
   }
 
-  private createFormioForm(formioFormulier: { [key: string]: any }): void {
+  private createFormioForm(formioFormulier: Record<string, any>): void {
     this.formioFormulier = formioFormulier;
     this.initializeSpecializedFormioComponents(formioFormulier.components);
     this.utilService.setTitle("title.taak", {

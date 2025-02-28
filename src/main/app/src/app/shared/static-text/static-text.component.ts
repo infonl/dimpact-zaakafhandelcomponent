@@ -10,7 +10,6 @@ import {
   OnChanges,
   OnInit,
   Output,
-  SimpleChanges,
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { TextIcon } from "../edit/text-icon";
@@ -21,13 +20,13 @@ import { TextIcon } from "../edit/text-icon";
   styleUrls: ["./static-text.component.less"],
 })
 export class StaticTextComponent implements OnInit, OnChanges {
-  @Input() label: string;
-  @Input() value: any;
-  @Input() icon: TextIcon;
-  @Input() maxLength: number;
+  @Input({ required: true }) label!: string;
+  @Input({ required: true }) value: any;
+  @Input({ required: true }) icon!: TextIcon;
+  @Input({ required: true }) maxLength!: number;
   @Output() iconClicked = new EventEmitter<void>();
 
-  showIcon: boolean;
+  showIcon = false;
 
   constructor() {}
 
@@ -35,7 +34,7 @@ export class StaticTextComponent implements OnInit, OnChanges {
     this.setIcon();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(): void {
     this.setIcon();
   }
 

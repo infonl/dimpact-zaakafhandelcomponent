@@ -13,7 +13,7 @@ import { ParagraphFormField } from "./paragraph-form-field";
   styleUrls: ["./paragraph.component.less"],
 })
 export class ParagraphComponent extends FormComponent implements OnInit {
-  data: ParagraphFormField;
+  data!: ParagraphFormField;
 
   constructor(public translate: TranslateService) {
     super();

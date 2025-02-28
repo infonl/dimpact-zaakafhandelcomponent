@@ -25,39 +25,34 @@ function parseFormValue(v: unknown) {
   return v.toString();
 }
 
-export function createFormData<T extends {}>(
+export function createFormData<T extends Record<string, any>>(
   obj: T,
   mapper: FormDataMapper<T>,
 ): FormData {
   const formData = new FormData();
-  Object.entries(mapper).forEach(
-    ([key, mappingFunction]: [
-      string,
-      FormDataMappingFunction<unknown> | true,
-    ]) => {
-      const value = obj[key];
-      if (Array.isArray(value)) {
-        value.forEach(add);
-      } else {
-        add(value);
-      }
-      function add(value: unknown) {
-        if (typeof mappingFunction === "function") {
-          const [newKey, stringOrBlob, maybeFileName] = mappingFunction([
-            key,
-            value,
-          ]);
-          if (stringOrBlob instanceof Blob) {
-            formData.append(newKey, stringOrBlob, maybeFileName);
-          } else if (stringOrBlob) {
-            formData.append(newKey, stringOrBlob);
-          }
-        } else {
-          const parsed = parseFormValue(value);
-          parsed && formData.append(key, parsed);
+  Object.entries(mapper).forEach(([key, mappingFunction]) => {
+    const value: unknown = obj[key];
+    if (Array.isArray(value)) {
+      value.forEach(add);
+    } else {
+      add(value);
+    }
+    function add(value: unknown) {
+      if (typeof mappingFunction === "function") {
+        const [newKey, stringOrBlob, maybeFileName] = mappingFunction([
+          key,
+          value,
+        ]);
+        if (stringOrBlob instanceof Blob) {
+          formData.append(newKey, stringOrBlob, maybeFileName);
+        } else if (stringOrBlob) {
+          formData.append(newKey, stringOrBlob);
         }
+      } else {
+        const parsed = parseFormValue(value);
+        parsed && formData.append(key, parsed);
       }
-    },
-  );
+    }
+  });
   return formData;
 }

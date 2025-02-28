@@ -14,7 +14,7 @@ import { DateFormField } from "./date-form-field";
   styleUrls: ["./date.component.less"],
 })
 export class DateComponent extends FormComponent implements OnInit {
-  data: DateFormField;
+  data!: DateFormField;
 
   constructor(public translate: TranslateService) {
     super();
