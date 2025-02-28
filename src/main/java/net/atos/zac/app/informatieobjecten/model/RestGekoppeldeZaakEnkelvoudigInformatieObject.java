@@ -8,6 +8,7 @@ package net.atos.zac.app.informatieobjecten.model;
 import java.util.UUID;
 
 import jakarta.ws.rs.FormParam;
+
 import net.atos.zac.app.zaak.model.RelatieType;
 
 public class RestGekoppeldeZaakEnkelvoudigInformatieObject extends RestEnkelvoudigInformatieobject {

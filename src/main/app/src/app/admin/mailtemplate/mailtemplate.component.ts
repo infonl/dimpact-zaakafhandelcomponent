@@ -14,7 +14,7 @@ import { Validators } from "@angular/forms";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { Observable, of } from "rxjs";
+import { of } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -87,7 +87,7 @@ export class MailtemplateComponent
     const mails = this.utilService.getEnumAsSelectList("mail", Mail);
 
     this.naamFormField = new InputFormFieldBuilder(
-        mailtemplate.mailTemplateNaam,
+      mailtemplate.mailTemplateNaam,
     )
       .id(this.fields.NAAM)
       .label(this.fields.NAAM)
@@ -110,7 +110,7 @@ export class MailtemplateComponent
         .build();
     }
     this.onderwerpFormField = new HtmlEditorFormFieldBuilder(
-        mailtemplate.onderwerp,
+      mailtemplate.onderwerp,
     )
       .id(this.fields.ONDERWERP)
       .label(this.fields.ONDERWERP)
@@ -126,7 +126,7 @@ export class MailtemplateComponent
       .validators(Validators.required)
       .build();
     this.defaultMailtemplateFormField = new InputFormFieldBuilder(
-        mailtemplate.defaultMailtemplate,
+      mailtemplate.defaultMailtemplate,
     )
       .id(this.fields.DEFAULT_MAILTEMPLATE)
       .label(this.fields.DEFAULT_MAILTEMPLATE)
@@ -138,10 +138,10 @@ export class MailtemplateComponent
           this.service
             .ophalenVariabelenVoorMail(value.value)
             .subscribe((variabelen) => {
-              if(this.onderwerpFormField) {
+              if (this.onderwerpFormField) {
                 this.onderwerpFormField.variabelen = variabelen;
               }
-              if(this.bodyFormField) {
+              if (this.bodyFormField) {
                 this.bodyFormField.variabelen = variabelen;
               }
             });
@@ -157,7 +157,8 @@ export class MailtemplateComponent
   }
 
   saveMailtemplate(): void {
-    this.template.defaultMailtemplate = this.defaultMailtemplateFormField?.formControl.value
+    this.template.defaultMailtemplate = this.defaultMailtemplateFormField
+      ?.formControl.value
       ? this.defaultMailtemplateFormField.formControl.value
       : false;
     this.template.mailTemplateNaam = this.naamFormField?.formControl.value;
@@ -173,7 +174,8 @@ export class MailtemplateComponent
   }
 
   private persistMailtemplate(): void {
-      this.service.persistMailtemplate(this.template)
+    this.service
+      .persistMailtemplate(this.template)
       .pipe(catchError((error) => of(this.template)))
       .subscribe(() => {
         this.utilService.openSnackbar("msg.mailtemplate.opgeslagen");

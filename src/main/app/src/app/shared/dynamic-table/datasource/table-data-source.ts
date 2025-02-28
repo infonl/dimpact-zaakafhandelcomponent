@@ -28,7 +28,7 @@ export abstract class TableDataSource<OBJECT> extends DataSource<OBJECT> {
 
   private subscription$?: Subscription;
 
-  connect( ): Observable<OBJECT[] | ReadonlyArray<OBJECT>> {
+  connect(): Observable<OBJECT[] | ReadonlyArray<OBJECT>> {
     // reset pageindex on sort change
     this.subscription$ = this.sort.sortChange.subscribe(
       () => (this.paginator.pageIndex = 0),
