@@ -303,10 +303,10 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
     return new MedewerkerGroepFieldBuilder(
       groupId
         ? ({ id: groupId, naam: "" } as GeneratedType<"RestGroup">)
-        : null,
+        : undefined,
       employeeId
         ? ({ id: employeeId, naam: "" } as GeneratedType<"RestUser">)
-        : null,
+        : undefined,
     )
       .id("toekenning")
       .groepLabel("actie.zaak.toekennen.groep")
