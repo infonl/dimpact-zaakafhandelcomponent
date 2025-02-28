@@ -52,7 +52,7 @@ export class BesluitViewComponent implements OnInit, OnChanges {
   @Input({ required: true }) result!: GeneratedType<"RestZaakResultaat">;
   @Input({ required: true }) readonly!: boolean;
   @Output() besluitWijzigen = new EventEmitter<GeneratedType<"RestDecision">>();
-  @Output() doIntrekking: EventEmitter<any> = new EventEmitter<any>();
+  @Output() doIntrekking = new EventEmitter<any>();
   readonly indicatiesLayout = IndicatiesLayout;
   histories: Record<string, MatTableDataSource<HistorieRegel>> = {};
 

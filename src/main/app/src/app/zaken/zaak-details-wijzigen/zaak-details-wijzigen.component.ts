@@ -315,7 +315,6 @@ export class CaseDetailsEditComponent implements OnDestroy {
     > = {};
     for (const [key, control] of Object.entries(formGroup.controls)) {
       if (control.dirty) {
-        // @ts-expect-error TODO fix this type issue
         changedValues[key] = control.value;
       }
     }
@@ -359,11 +358,8 @@ export class CaseDetailsEditComponent implements OnDestroy {
 
       Object.keys(patchFields).forEach((key) => {
         // circumvent the TypeScript type check (pattern copied from zaak-view.component.ts)
-        // @ts-expect-error TODO fix this type issue
         zaak[key] = patchFields[key].value
-          ? // @ts-expect-error TODO fix this type issue
             patchFields[key].value
-          : // @ts-expect-error TODO fix this type issue
             patchFields[key];
       });
 

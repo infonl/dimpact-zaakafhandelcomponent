@@ -39,7 +39,8 @@ export class DateConditionals {
     return false;
   }
 
-  static always() {
+  static always(_value: Date | moment.Moment | string) {
+    console.debug(`Returning true for`, {_value})
     return true;
   }
 }

@@ -20,10 +20,10 @@ import { TextIcon } from "../edit/text-icon";
   styleUrls: ["./static-text.component.less"],
 })
 export class StaticTextComponent implements OnInit, OnChanges {
-  @Input({ required: true }) label!: string;
-  @Input({ required: true }) value: any;
-  @Input({ required: true }) icon!: TextIcon;
-  @Input({ required: true }) maxLength!: number;
+  @Input() label?: string;
+  @Input() value?: any;
+  @Input() icon?: TextIcon;
+  @Input() maxLength?: number;
   @Output() iconClicked = new EventEmitter<void>();
 
   showIcon = false;

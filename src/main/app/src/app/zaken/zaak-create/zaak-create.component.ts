@@ -262,7 +262,6 @@ export class ZaakCreateComponent implements OnDestroy {
             }
             break;
           default:
-            // @ts-expect-error TODO fix type
             zaak[key] = formGroup.controls[key].value;
             break;
         }

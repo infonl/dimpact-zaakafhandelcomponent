@@ -91,7 +91,6 @@ describe(ZaakCreateComponent.name, () => {
         },
       };
 
-      component.ngOnInit();
       component.zaaktypeGeselecteerd(zaakType);
 
       expect(getMedewerkerGroupFormField).toHaveBeenCalledTimes(2); // one for the init
