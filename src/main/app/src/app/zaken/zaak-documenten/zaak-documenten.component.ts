@@ -56,10 +56,8 @@ export class ZaakDocumentenComponent
   implements OnInit, AfterViewInit, OnDestroy, OnChanges
 {
   readonly indicatiesLayout = IndicatiesLayout;
-  @Input() zaak: Zaak;
+  @Input({ required: true }) zaak!: Zaak;
 
-  zaakUUID: string;
-  zaakIdentificatie: string;
   heeftGerelateerdeZaken = false;
   selectAll = false;
   toonGekoppeldeZaakDocumenten = new FormControl(false);
@@ -77,12 +75,12 @@ export class ZaakDocumentenComponent
   ];
   isLoadingResults = true;
   @ViewChild("documentenTable", { read: MatSort, static: true })
-  docSort: MatSort;
+  docSort!: MatSort;
 
   enkelvoudigInformatieObjecten = new MatTableDataSource<
     GeneratedType<"RestEnkelvoudigInformatieobject">
   >();
-  documentPreviewRow: GeneratedType<"RestEnkelvoudigInformatieobject"> | null;
+  documentPreviewRow?: GeneratedType<"RestEnkelvoudigInformatieobject"> | null;
   downloadAlsZipSelection = new SelectionModel<
     GeneratedType<"RestEnkelvoudigInformatieobject">
   >(true, []);
@@ -105,8 +103,6 @@ export class ZaakDocumentenComponent
   }
 
   init(zaak: Zaak, reload: boolean) {
-    this.zaakUUID = zaak.uuid;
-    this.zaakIdentificatie = zaak.identificatie;
     this.heeftGerelateerdeZaken = zaak.gerelateerdeZaken?.length > 0;
 
     if (reload) {
@@ -118,7 +114,7 @@ export class ZaakDocumentenComponent
       this.websocketService.addListener(
         Opcode.UPDATED,
         ObjectType.ZAAK_INFORMATIEOBJECTEN,
-        this.zaakUUID,
+        zaak.uuid,
         (event) => this.loadInformatieObjecten(event),
       ),
     );
@@ -127,7 +123,7 @@ export class ZaakDocumentenComponent
       this.websocketService.addListener(
         Opcode.UPDATED,
         ObjectType.ZAAK_BESLUITEN,
-        this.zaakUUID,
+        zaak.uuid,
         () => this.loadInformatieObjecten(),
       ),
     );
@@ -178,9 +174,9 @@ export class ZaakDocumentenComponent
 
   private searchEnkelvoudigeInformatieObjecten(): void {
     const zoekParameters = new InformatieobjectZoekParameters();
-    zoekParameters.zaakUUID = this.zaakUUID;
+    zoekParameters.zaakUUID = this.zaak.uuid;
     zoekParameters.gekoppeldeZaakDocumenten =
-      this.toonGekoppeldeZaakDocumenten.value;
+      !!this.toonGekoppeldeZaakDocumenten.value;
     this.isLoadingResults = true;
 
     this.informatieObjectenService
@@ -197,13 +193,19 @@ export class ZaakDocumentenComponent
   ): void {
     this.informatieObjectVerplaatsService.addTeVerplaatsenDocument(
       informatieobject,
-      this.zaakIdentificatie,
+      this.zaak.identificatie,
     );
   }
 
   documentOntkoppelen(
-    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
+    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject"> & {
+      loading?: boolean;
+    },
   ): void {
+    if (!informatieobject.uuid) {
+      return;
+    }
+
     informatieobject["loading"] = true;
     this.utilService.setLoading(true);
     this.informatieObjectenService
@@ -213,7 +215,7 @@ export class ZaakDocumentenComponent
           delete informatieobject["loading"];
           this.utilService.setLoading(false);
           return zaakIDs
-            .filter((zaakID) => zaakID !== this.zaakIdentificatie)
+            .filter((zaakID) => zaakID !== this.zaak.identificatie)
             .join(", ");
         }),
       )
@@ -238,11 +240,11 @@ export class ZaakDocumentenComponent
               .validators(Validators.required)
               .build(),
           ],
-          (results: any[]) =>
+          (results: Record<string, any>) =>
             this.zakenService.ontkoppelInformatieObject({
-              zaakUUID: this.zaakUUID,
+              zaakUUID: this.zaak.uuid,
               documentUUID: informatieobject.uuid,
-              reden: results["reden"],
+              reden: results?.reden,
             }),
           melding,
         );
@@ -272,7 +274,9 @@ export class ZaakDocumentenComponent
   }
 
   isOntkoppelenDisabled(
-    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
+    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject"> & {
+      loading?: boolean;
+    },
   ): boolean {
     return (
       informatieobject["loading"] ||
@@ -322,10 +326,13 @@ export class ZaakDocumentenComponent
   ): string {
     return informatieObject.zaakUUID
       ? informatieObject.zaakUUID
-      : this.zaakUUID;
+      : this.zaak.uuid;
   }
 
-  updateSelected($event: MatCheckboxChange, document): void {
+  updateSelected(
+    $event: MatCheckboxChange,
+    document: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ): void {
     if ($event) {
       this.downloadAlsZipSelection.toggle(document);
     }
@@ -343,7 +350,10 @@ export class ZaakDocumentenComponent
     return this.informatieObjectenService
       .getZIPDownload(uuids)
       .subscribe((response) => {
-        this.utilService.downloadBlobResponse(response, this.zaakIdentificatie);
+        this.utilService.downloadBlobResponse(
+          response,
+          this.zaak.identificatie,
+        );
       });
   }
 
@@ -380,7 +390,7 @@ export class ZaakDocumentenComponent
     enkelvoudigInformatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
   ): boolean {
     return (
-      enkelvoudigInformatieobject.rechten.wijzigen &&
+      Boolean(enkelvoudigInformatieobject.rechten?.wijzigen) &&
       FileFormatUtil.isOffice(enkelvoudigInformatieobject.formaat as FileFormat)
     );
   }
