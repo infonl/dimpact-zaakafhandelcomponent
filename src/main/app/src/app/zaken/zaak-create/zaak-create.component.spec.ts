@@ -4,7 +4,7 @@
  *
  */
 
-import { HttpClientTestingModule } from "@angular/common/http/testing";
+import {HttpClientTestingModule, provideHttpClientTesting} from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { provideAnimations } from "@angular/platform-browser/animations";
@@ -21,11 +21,37 @@ import { ZaakStatusmailOptie } from "../model/zaak-statusmail-optie";
 import { Zaaktype } from "../model/zaaktype";
 import { ZakenService } from "../zaken.service";
 import { ZaakCreateComponent } from "./zaak-create.component";
+import {provideHttpClient} from "@angular/common/http";
 
 describe(ZaakCreateComponent.name, () => {
   let component: ZaakCreateComponent;
 
   let identityService: IdentityService;
+
+  const zaakType = new Zaaktype();
+  zaakType.zaakafhandelparameters = {
+    defaultBehandelaarId: "default-behandelaar",
+    defaultGroepId: "default-group",
+    einddatumGeplandWaarschuwing: 10,
+    zaaktype: zaakType,
+    afrondenMail: ZaakStatusmailOptie.BESCHIKBAAR_AAN,
+    caseDefinition: new CaseDefinition(),
+    creatiedatum: new Date().toJSON(),
+    domein: "test",
+    humanTaskParameters: [],
+    intakeMail: ZaakStatusmailOptie.BESCHIKBAAR_AAN,
+    mailtemplateKoppelingen: [],
+    productaanvraagtype: "",
+    uiterlijkeEinddatumAfdoeningWaarschuwing: 10,
+    valide: true,
+    userEventListenerParameters: [],
+    zaakAfzenders: [],
+    zaakbeeindigParameters: [],
+    smartDocuments: {},
+    zaakNietOntvankelijkResultaattype: {
+      id: "1",
+    },
+  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -38,11 +64,12 @@ describe(ZaakCreateComponent.name, () => {
         UtilService,
         IdentityService,
         provideAnimations(),
+        provideHttpClient(),
+        provideHttpClientTesting(),
       ],
       imports: [
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
-        HttpClientTestingModule,
         MatSidenavModule,
       ],
     }).compileComponents();
@@ -66,34 +93,9 @@ describe(ZaakCreateComponent.name, () => {
         "getMedewerkerGroupFormField",
       );
 
-      const zaakType = new Zaaktype();
-      zaakType.zaakafhandelparameters = {
-        defaultBehandelaarId: "default-behandelaar",
-        defaultGroepId: "default-group",
-        einddatumGeplandWaarschuwing: 10,
-        zaaktype: zaakType,
-        afrondenMail: ZaakStatusmailOptie.BESCHIKBAAR_AAN,
-        caseDefinition: new CaseDefinition(),
-        creatiedatum: new Date().toJSON(),
-        domein: "test",
-        humanTaskParameters: [],
-        intakeMail: ZaakStatusmailOptie.BESCHIKBAAR_AAN,
-        mailtemplateKoppelingen: [],
-        productaanvraagtype: "",
-        uiterlijkeEinddatumAfdoeningWaarschuwing: 10,
-        valide: true,
-        userEventListenerParameters: [],
-        zaakAfzenders: [],
-        zaakbeeindigParameters: [],
-        smartDocuments: {},
-        zaakNietOntvankelijkResultaattype: {
-          id: "1",
-        },
-      };
-
       component.zaaktypeGeselecteerd(zaakType);
 
-      expect(getMedewerkerGroupFormField).toHaveBeenCalledTimes(2); // one for the init
+      expect(getMedewerkerGroupFormField).toHaveBeenCalledTimes(1);
       expect(getMedewerkerGroupFormField).toHaveBeenCalledWith(
         zaakType.zaakafhandelparameters.defaultGroepId,
         zaakType.zaakafhandelparameters.defaultBehandelaarId,

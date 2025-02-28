@@ -147,7 +147,6 @@ export class ZaakCreateComponent implements OnDestroy {
       .build();
 
     this.medewerkerGroepFormField = this.getMedewerkerGroupFormField();
-
     this.initiatorField = new InputFormFieldBuilder()
       .id("initiatorIdentificatie")
       .styleClass("input-fake-enabled")
@@ -313,28 +312,30 @@ export class ZaakCreateComponent implements OnDestroy {
       .build();
   }
 
-  zaaktypeGeselecteerd(zaaktype: Zaaktype): void {
-    if (zaaktype) {
-      this.medewerkerGroepFormField = this.getMedewerkerGroupFormField(
-        zaaktype.zaakafhandelparameters.defaultGroepId,
-        zaaktype.zaakafhandelparameters.defaultBehandelaarId,
-      );
-      const index = this.createZaakFields.findIndex((formRow) =>
-        formRow.find(
-          (formField) => formField.fieldType === FieldType.MEDEWERKER_GROEP,
-        ),
-      );
-      this.createZaakFields[index] = [this.medewerkerGroepFormField];
-
-      // update reference of the array to apply changes
-      this.createZaakFields = [...this.createZaakFields];
-
-      this.vertrouwelijkheidaanduidingField.formControl.setValue(
-        this.vertrouwelijkheidaanduidingen.find(
-          (o) => o.value === zaaktype.vertrouwelijkheidaanduiding,
-        ),
-      );
+  zaaktypeGeselecteerd(zaaktype?: Zaaktype): void {
+    if (!zaaktype) {
+      return;
     }
+
+    this.medewerkerGroepFormField = this.getMedewerkerGroupFormField(
+      zaaktype.zaakafhandelparameters.defaultGroepId,
+      zaaktype.zaakafhandelparameters.defaultBehandelaarId,
+    );
+    const index = this.createZaakFields.findIndex((formRow) =>
+      formRow.find(
+        (formField) => formField.fieldType === FieldType.MEDEWERKER_GROEP,
+      ),
+    );
+    this.createZaakFields[index] = [this.medewerkerGroepFormField];
+
+    // update reference of the array to apply changes
+    this.createZaakFields = [...this.createZaakFields];
+
+    this.vertrouwelijkheidaanduidingField.formControl.setValue(
+      this.vertrouwelijkheidaanduidingen.find(
+        (o) => o.value === zaaktype.vertrouwelijkheidaanduiding,
+      ),
+    );
   }
 
   private iconNext(action: string) {
