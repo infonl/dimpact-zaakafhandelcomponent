@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject } from "@angular/core";
 import { Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import moment from "moment";
@@ -23,10 +23,9 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "zaak-opschorten-dialog.component.html",
   styleUrls: ["./zaak-opschorten-dialog.component.less"],
 })
-export class ZaakOpschortenDialogComponent implements OnInit {
-  formFields: AbstractFormField[];
-  zaak: Zaak;
-  loading: boolean = true;
+export class ZaakOpschortenDialogComponent {
+  formFields: AbstractFormField[][] = [];
+  loading = true;
 
   duurDagenField: InputFormField;
   einddatumGeplandField: DateFormField | HiddenFormField;
@@ -39,30 +38,20 @@ export class ZaakOpschortenDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<ZaakOpschortenDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { zaak: Zaak },
     private zakenService: ZakenService,
-  ) {}
-
-  ngOnInit(): void {
-    this.initFormFields();
-
-    this.dialogRef.afterOpened().subscribe(() => {
-      this.loading = false;
-    });
-  }
-
-  initFormFields(): void {
+  ) {
     this.duurDagenField = new InputFormFieldBuilder()
       .id("opschortduur")
       .label("opschortduur")
       .validators(Validators.required, Validators.min(1))
       .build();
 
-    this.einddatumGeplandField = this.data.zaak?.einddatumGepland
-      ? new DateFormFieldBuilder(this.data.zaak.einddatumGepland)
+    this.einddatumGeplandField = data.zaak.einddatumGepland
+      ? new DateFormFieldBuilder(data.zaak.einddatumGepland)
           .id("einddatumGepland")
           .label("einddatumGepland")
-          .readonly(!this.data.zaak.einddatumGepland)
+          .readonly(!data.zaak.einddatumGepland)
           .validators(
-            this.data.zaak.einddatumGepland
+            data.zaak.einddatumGepland
               ? Validators.required
               : Validators.nullValidator,
           )
@@ -70,7 +59,7 @@ export class ZaakOpschortenDialogComponent implements OnInit {
       : new HiddenFormFieldBuilder().id("einddatumGepland").build();
 
     this.uiterlijkeEinddatumAfdoeningField = new DateFormFieldBuilder(
-      this.data.zaak.uiterlijkeEinddatumAfdoening,
+      data.zaak.uiterlijkeEinddatumAfdoening,
     )
       .id("uiterlijkeEinddatumAfdoening")
       .label("uiterlijkeEinddatumAfdoening")
@@ -84,10 +73,10 @@ export class ZaakOpschortenDialogComponent implements OnInit {
       .build();
 
     this.formFields = [
-      this.duurDagenField,
-      this.einddatumGeplandField,
-      this.uiterlijkeEinddatumAfdoeningField,
-      this.redenOpschortingField,
+      [this.duurDagenField],
+      [this.einddatumGeplandField],
+      [this.uiterlijkeEinddatumAfdoeningField],
+      [this.redenOpschortingField],
     ];
 
     this.duurDagenField.formControl.valueChanges
@@ -107,7 +96,7 @@ export class ZaakOpschortenDialogComponent implements OnInit {
           this.resetFields();
         }
         this.updateDateFields(
-          moment(value).diff(this.data.zaak.einddatumGepland, "days"),
+          moment(value).diff(data.zaak.einddatumGepland, "days"),
         );
       });
 
@@ -118,12 +107,13 @@ export class ZaakOpschortenDialogComponent implements OnInit {
           this.resetFields();
         }
         this.updateDateFields(
-          moment(value).diff(
-            this.data.zaak.uiterlijkeEinddatumAfdoening,
-            "days",
-          ),
+          moment(value).diff(data.zaak.uiterlijkeEinddatumAfdoening, "days"),
         );
       });
+
+    this.dialogRef.afterOpened().subscribe(() => {
+      this.loading = false;
+    });
   }
 
   private updateDateFields(duur: number): void {
@@ -182,7 +172,7 @@ export class ZaakOpschortenDialogComponent implements OnInit {
           this.loading = false;
           this.dialogRef.close(result);
         },
-        error: (err) => {
+        error: () => {
           this.loading = false;
           this.dialogRef.disableClose = false;
         },
@@ -197,7 +187,7 @@ export class ZaakOpschortenDialogComponent implements OnInit {
     return (
       this.loading ||
       (this.data.zaak &&
-        this.formFields.some((field) => field.formControl.invalid))
+        this.formFields.flat().some((field) => field.formControl.invalid))
     );
   }
 

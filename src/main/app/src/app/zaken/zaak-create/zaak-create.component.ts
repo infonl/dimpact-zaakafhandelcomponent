@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Component, OnDestroy, ViewChild } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
@@ -49,14 +49,14 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaak-create.component.html",
   styleUrls: ["./zaak-create.component.less"],
 })
-export class ZaakCreateComponent implements OnInit, OnDestroy {
+export class ZaakCreateComponent implements OnDestroy {
   static KANAAL_E_FORMULIER = "E-formulier";
   createZaakFields: Array<AbstractFormField[]>;
   bagObjecten: BAGObject[] = [];
   formConfig: FormConfig;
-  @ViewChild("actionsSideNav") actionsSidenav: MatSidenav;
-  @ViewChild("mfbForm") mfbForm: FormComponent;
-  activeSideAction: string | null;
+  @ViewChild("actionsSideNav") actionsSidenav!: MatSidenav;
+  @ViewChild("mfbForm") mfbForm!: FormComponent;
+  activeSideAction: string | null = null;
   private initiatorField: InputFormField;
   private toelichtingField: TextareaFormField;
   private bagObjectenField: InputFormField;
@@ -74,7 +74,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
     "actie.bagObject.toevoegen",
     new Subject<void>(),
   );
-  private initiator: Klant;
+  private initiator: Klant | null = null;
   private readonly inboxProductaanvraag: InboxProductaanvraag;
   private communicatiekanalen: Observable<string[]>;
   private communicatiekanaalField: SelectFormField;
@@ -90,9 +90,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
   ) {
     this.inboxProductaanvraag =
       this.router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
-  }
 
-  ngOnInit(): void {
     this.utilService.setTitle("title.zaak.aanmaken");
 
     this.formConfig = new FormConfigBuilder()
@@ -149,7 +147,6 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
       .build();
 
     this.medewerkerGroepFormField = this.getMedewerkerGroupFormField();
-
     this.initiatorField = new InputFormFieldBuilder()
       .id("initiatorIdentificatie")
       .styleClass("input-fake-enabled")
@@ -277,7 +274,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
           ),
         )
         .pipe(
-          catchError((err, caught) => {
+          catchError(() => {
             this.mfbForm.reset();
             return of();
           }),
@@ -303,10 +300,10 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
     return new MedewerkerGroepFieldBuilder(
       groupId
         ? ({ id: groupId, naam: "" } as GeneratedType<"RestGroup">)
-        : null,
+        : undefined,
       employeeId
         ? ({ id: employeeId, naam: "" } as GeneratedType<"RestUser">)
-        : null,
+        : undefined,
     )
       .id("toekenning")
       .groepLabel("actie.zaak.toekennen.groep")
@@ -315,28 +312,30 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
       .build();
   }
 
-  zaaktypeGeselecteerd(zaaktype: Zaaktype): void {
-    if (zaaktype) {
-      this.medewerkerGroepFormField = this.getMedewerkerGroupFormField(
-        zaaktype.zaakafhandelparameters.defaultGroepId,
-        zaaktype.zaakafhandelparameters.defaultBehandelaarId,
-      );
-      const index = this.createZaakFields.findIndex((formRow) =>
-        formRow.find(
-          (formField) => formField.fieldType === FieldType.MEDEWERKER_GROEP,
-        ),
-      );
-      this.createZaakFields[index] = [this.medewerkerGroepFormField];
-
-      // update reference of the array to apply changes
-      this.createZaakFields = [...this.createZaakFields];
-
-      this.vertrouwelijkheidaanduidingField.formControl.setValue(
-        this.vertrouwelijkheidaanduidingen.find(
-          (o) => o.value === zaaktype.vertrouwelijkheidaanduiding,
-        ),
-      );
+  zaaktypeGeselecteerd(zaaktype?: Zaaktype): void {
+    if (!zaaktype) {
+      return;
     }
+
+    this.medewerkerGroepFormField = this.getMedewerkerGroupFormField(
+      zaaktype.zaakafhandelparameters.defaultGroepId,
+      zaaktype.zaakafhandelparameters.defaultBehandelaarId,
+    );
+    const index = this.createZaakFields.findIndex((formRow) =>
+      formRow.find(
+        (formField) => formField.fieldType === FieldType.MEDEWERKER_GROEP,
+      ),
+    );
+    this.createZaakFields[index] = [this.medewerkerGroepFormField];
+
+    // update reference of the array to apply changes
+    this.createZaakFields = [...this.createZaakFields];
+
+    this.vertrouwelijkheidaanduidingField.formControl.setValue(
+      this.vertrouwelijkheidaanduidingen.find(
+        (o) => o.value === zaaktype.vertrouwelijkheidaanduiding,
+      ),
+    );
   }
 
   private iconNext(action: string) {
@@ -379,7 +378,7 @@ export class ZaakCreateComponent implements OnInit, OnDestroy {
     this.toelichtingField.formControl.setValue(defaultToelichting);
   }
 
-  bagGeselecteerd($event: BAGObject): void {
+  bagGeselecteerd(): void {
     this.bagObjectenField.formControl.setValue(
       this.bagObjecten.map((b) => b.omschrijving).join(" | "),
     );

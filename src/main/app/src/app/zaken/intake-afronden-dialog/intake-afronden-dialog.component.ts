@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
+import { Component, Inject, OnDestroy } from "@angular/core";
 import {
   AbstractControl,
   FormBuilder,
@@ -34,13 +34,13 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "intake-afronden-dialog.component.html",
   styleUrls: ["./intake-afronden-dialog.component.less"],
 })
-export class IntakeAfrondenDialogComponent implements OnInit, OnDestroy {
+export class IntakeAfrondenDialogComponent implements OnDestroy {
   loading = false;
-  zaakOntvankelijkMail: Mailtemplate;
-  zaakNietOntvankelijkMail: Mailtemplate;
+  zaakOntvankelijkMail?: Mailtemplate;
+  zaakNietOntvankelijkMail?: Mailtemplate;
   mailBeschikbaar = false;
   sendMailDefault = false;
-  initiatorEmail: string;
+  initiatorEmail?: string;
   initiatorToevoegenIcon: ActionIcon = new ActionIcon(
     "person",
     "actie.initiator.email.toevoegen",
@@ -73,9 +73,7 @@ export class IntakeAfrondenDialogComponent implements OnInit, OnDestroy {
       .subscribe((mailtemplate) => {
         this.zaakNietOntvankelijkMail = mailtemplate;
       });
-  }
 
-  ngOnInit(): void {
     const zap = this.data.zaak.zaaktype.zaakafhandelparameters;
     this.mailBeschikbaar =
       zap.intakeMail !== ZaakStatusmailOptie.NIET_BESCHIKBAAR;
@@ -110,31 +108,31 @@ export class IntakeAfrondenDialogComponent implements OnInit, OnDestroy {
     this.zakenService
       .readDefaultAfzenderVoorZaak(this.data.zaak.uuid)
       .subscribe((afzender) => {
-        this.formGroup.get("verzender").setValue(afzender);
+        this.formGroup.get("verzender")?.setValue(afzender);
       });
     this.formGroup
       .get("ontvankelijk")
-      .valueChanges.pipe(takeUntil(this.ngDestroy))
+      ?.valueChanges.pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
         this.formGroup
           .get("reden")
-          .setValidators(value ? null : Validators.required);
-        this.formGroup.get("reden").updateValueAndValidity();
+          ?.setValidators(value ? null : Validators.required);
+        this.formGroup.get("reden")?.updateValueAndValidity();
       });
     this.formGroup
       .get("sendMail")
-      .valueChanges.pipe(takeUntil(this.ngDestroy))
+      ?.valueChanges.pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
         this.formGroup
           .get("verzender")
-          .setValidators(value ? [Validators.required] : null);
-        this.formGroup.get("verzender").updateValueAndValidity();
+          ?.setValidators(value ? [Validators.required] : null);
+        this.formGroup.get("verzender")?.updateValueAndValidity();
         this.formGroup
           .get("ontvanger")
-          .setValidators(
+          ?.setValidators(
             value ? [Validators.required, CustomValidators.email] : null,
           );
-        this.formGroup.get("ontvanger").updateValueAndValidity();
+        this.formGroup.get("ontvanger")?.updateValueAndValidity();
       });
   }
 
@@ -143,7 +141,7 @@ export class IntakeAfrondenDialogComponent implements OnInit, OnDestroy {
   }
 
   setInitatorEmail() {
-    this.formGroup.get("ontvanger").setValue(this.initiatorEmail);
+    this.formGroup.get("ontvanger")?.setValue(this.initiatorEmail);
   }
 
   close(): void {
@@ -198,13 +196,13 @@ export class IntakeAfrondenDialogComponent implements OnInit, OnDestroy {
       return object1 === object2;
     }
     if (object1 && object2) {
-      if (object1.hasOwnProperty("key")) {
+      if ("key" in object1) {
         return object1.key === object2.key;
-      } else if (object1.hasOwnProperty("id")) {
+      } else if ("id" in object1) {
         return object1.id === object2.id;
-      } else if (object1.hasOwnProperty("naam")) {
+      } else if ("naam" in object1) {
         return object1.naam === object2.naam;
-      } else if (object1.hasOwnProperty("name")) {
+      } else if ("name" in object1) {
         return object1.name === object2.name;
       }
       return object1 === object2;

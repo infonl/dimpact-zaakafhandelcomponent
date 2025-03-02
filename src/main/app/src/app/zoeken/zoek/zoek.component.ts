@@ -35,14 +35,14 @@ import { ZoekenService } from "../zoeken.service";
   styleUrls: ["./zoek.component.less"],
 })
 export class ZoekComponent implements AfterViewInit, OnInit {
-  @ViewChild("paginator") paginator: MatPaginator;
-  @Input() zoekenSideNav: MatSidenav;
+  @ViewChild("paginator") paginator!: MatPaginator;
+  @Input({ required: true }) zoekenSideNav!: MatSidenav;
 
   zoekType: ZoekType = ZoekType.ZAC;
   ZoekType = ZoekType;
   ZoekVeld = ZoekVeld;
   readonly zoekObjectType = ZoekObjectType;
-  zoekResultaat: ZoekResultaat<ZoekObject> = new ZoekResultaat<ZoekObject>();
+  zoekResultaat = new ZoekResultaat<ZoekObject>();
   zoekParameters: ZoekParameters = new ZoekParameters();
   isLoadingResults = true;
   slow = false;
@@ -67,12 +67,18 @@ export class ZoekComponent implements AfterViewInit, OnInit {
       }
     });
     this.trefwoordenControl.valueChanges.subscribe((trefwoorden) => {
+      if (!trefwoorden) {
+        return;
+      }
+
       this.zoekService.trefwoorden$.next(trefwoorden);
     });
     this.zoekenSideNav.openedStart.subscribe(() => {
-      if (this.trefwoordenControl.value) {
-        this.zoek.emit();
+      if (!this.trefwoordenControl.value) {
+        return;
       }
+
+      this.zoek.emit();
     });
     this.zoekService.reset$.subscribe(() => this.reset());
   }
@@ -108,19 +114,17 @@ export class ZoekComponent implements AfterViewInit, OnInit {
   }
 
   bepaalContext(): void {
-    this.hasZaken =
-      this.zoekResultaat.filters.TYPE.find(
-        (f) => f.naam === ZoekObjectType.ZAAK,
-      )?.aantal > 0;
-    this.hasTaken =
-      this.zoekResultaat.filters.TYPE.find(
-        (f) => f.naam === ZoekObjectType.TAAK,
-      )?.aantal > 0;
-    this.hasDocument =
-      this.zoekResultaat.filters.TYPE.find(
-        (f) => f.naam === ZoekObjectType.DOCUMENT,
-      )?.aantal > 0;
-    if (this.zoekParameters.filters.TYPE?.values.length > 0) {
+    this.hasZaken = !!this.zoekResultaat.filters.TYPE?.find(
+      ({ naam }) => naam === ZoekObjectType.ZAAK,
+    )?.aantal;
+    this.hasTaken = !!this.zoekResultaat.filters.TYPE?.find(
+      ({ naam }) => naam === ZoekObjectType.TAAK,
+    )?.aantal;
+    this.hasDocument = !!this.zoekResultaat.filters.TYPE?.find(
+      ({ naam }) => naam === ZoekObjectType.DOCUMENT,
+    )?.aantal;
+
+    if (this.zoekParameters.filters.TYPE?.values?.length) {
       if (this.hasZaken) {
         this.hasZaken = this.zoekParameters.filters.TYPE.values.includes(
           ZoekObjectType.ZAAK,
@@ -132,16 +136,20 @@ export class ZoekComponent implements AfterViewInit, OnInit {
         );
       }
       if (this.hasDocument) {
-        this.hasDocument = this.zoekParameters.filters.TYPE.values.includes(
-          ZoekObjectType.DOCUMENT,
-        );
+        this.hasDocument =
+          this.zoekParameters.filters.TYPE?.values.includes(
+            ZoekObjectType.DOCUMENT,
+          ) ?? false;
       }
     }
   }
 
   getZoekParameters(): ZoekParameters {
-    this.zoekParameters.zoeken[this.zoekveldControl.value] =
-      this.trefwoordenControl.value;
+    if (this.zoekveldControl.value && this.trefwoordenControl.value) {
+      this.zoekParameters.zoeken[this.zoekveldControl.value] =
+        this.trefwoordenControl.value;
+    }
+
     this.zoekParameters.page = this.paginator.pageIndex;
     this.zoekParameters.rows = this.paginator.pageSize;
     return this.zoekParameters;
@@ -167,8 +175,9 @@ export class ZoekComponent implements AfterViewInit, OnInit {
 
   keywordsChange() {
     if (
+      this.zoekveldControl.value &&
       this.trefwoordenControl.value !==
-      this.zoekParameters.zoeken[this.zoekveldControl.value]
+        this.zoekParameters.zoeken[this.zoekveldControl.value]
     ) {
       this.zoek.emit();
     }
@@ -200,6 +209,10 @@ export class ZoekComponent implements AfterViewInit, OnInit {
 
   zoekVeldChanged() {
     delete this.zoekParameters.zoeken[this.huidigZoekVeld];
+    if (!this.zoekveldControl.value) {
+      return;
+    }
+
     this.huidigZoekVeld = this.zoekveldControl.value;
     if (this.trefwoordenControl.value) {
       this.zoek.emit();

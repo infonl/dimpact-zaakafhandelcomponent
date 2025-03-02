@@ -56,10 +56,10 @@ export class NavigationService {
         // on a full browser navigation, if a route resolver throws,
         // Angular by default redirects to the root url.
         // we want to override this behaviour so the target url remains in the address bar.
-        window.history.replaceState(null, null, e.url);
+        window.history.replaceState(null, "", e.url);
         break;
 
-      case e instanceof NavigationEnd:
+      case e instanceof NavigationEnd: {
         const history = SessionStorageUtil.getItem(
           NavigationService.NAVIGATION_HISTORY,
           [],
@@ -68,7 +68,7 @@ export class NavigationService {
           history.length === 0 ||
           history[history.length - 1] !== e.urlAfterRedirects
         ) {
-          history.push(e.urlAfterRedirects);
+          history.push(e.urlAfterRedirects as never);
         }
         SessionStorageUtil.setItem(
           NavigationService.NAVIGATION_HISTORY,
@@ -76,6 +76,7 @@ export class NavigationService {
         );
         this.backDisabled.next(history.length <= 1);
         break;
+      }
     }
 
     this.utilService.setLoading(false);

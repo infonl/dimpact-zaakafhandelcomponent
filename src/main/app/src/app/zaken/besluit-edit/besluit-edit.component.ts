@@ -8,18 +8,15 @@ import {
   EventEmitter,
   Input,
   OnDestroy,
-  OnInit,
   Output,
 } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
-import { Subject } from "rxjs";
+import { of, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { DividerFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/divider/divider-form-field-builder";
-import { MessageFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/message/message-form-field-builder";
-import { MessageLevel } from "src/app/shared/material-form-builder/form-components/message/message-level.enum";
 import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
@@ -42,11 +39,11 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./besluit-edit.component.html",
   styleUrls: ["./besluit-edit.component.less"],
 })
-export class BesluitEditComponent implements OnInit, OnDestroy {
+export class BesluitEditComponent implements OnDestroy {
   formConfig: FormConfig;
-  @Input() besluit: GeneratedType<"RestDecision">;
-  @Input() zaak: Zaak;
-  @Input() sideNav: MatDrawer;
+  @Input({ required: true }) besluit!: GeneratedType<"RestDecision">;
+  @Input({ required: true }) zaak!: Zaak;
+  @Input({ required: true }) sideNav!: MatDrawer;
   @Output() besluitGewijzigd = new EventEmitter<boolean>();
 
   fields: Array<AbstractFormField[]>;
@@ -58,9 +55,7 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
     private informatieObjectenService: InformatieObjectenService,
     protected translate: TranslateService,
     public utilService: UtilService,
-  ) {}
-
-  ngOnInit(): void {
+  ) {
     this.formConfig = new FormConfigBuilder()
       .saveText("actie.wijzigen")
       .cancelText("actie.annuleren")
@@ -75,7 +70,7 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
       .options(this.zakenService.listResultaattypes(this.zaak.zaaktype.uuid))
       .build();
     const besluittypeField = new InputFormFieldBuilder(
-      this.besluit.besluittype.naam,
+      this.besluit.besluittype?.naam,
     )
       .id("besluittype")
       .label("besluit")
@@ -108,7 +103,11 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
           ? this.besluit.informatieobjecten.map((i) => i.uuid)
           : [],
       )
-      .documenten(this.listInformatieObjecten(this.besluit.besluittype.id))
+      .documenten(
+        this.besluit.besluittype?.id
+          ? this.listInformatieObjecten(this.besluit.besluittype.id)
+          : of([]),
+      )
       .build();
     const redenField = new InputFormFieldBuilder()
       .id("reden")
@@ -120,20 +119,6 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
     const divider = new DividerFormFieldBuilder().id("divider").build();
     const publicationParagraph = new ParagraphFormFieldBuilder()
       .text(this.translate.instant(`besluit.publicatie.indicatie.koptitel`))
-      .build();
-
-    const publicationMessageField = new MessageFormFieldBuilder()
-      .id("messageField")
-      .text(
-        this.translate.instant(
-          `besluit.publicatie.indicatie.onderschrift${this.besluit.besluittype.publication.publicationTermDays > 1 ? ".meervoud" : ""}`,
-          {
-            publicationTermDays:
-              this.besluit.besluittype.publication.publicationTermDays,
-          },
-        ),
-      )
-      .level(MessageLevel.INFO)
       .build();
 
     const publicationDateField = new DateFormFieldBuilder(
@@ -158,7 +143,7 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
       [vervaldatumField],
       [toelichtingField],
       [documentenField],
-      ...(this.besluit.besluittype.publication.enabled
+      ...(this.besluit.besluittype?.publication.enabled
         ? [
             [divider],
             [publicationParagraph],
@@ -174,9 +159,10 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
         if (value) {
-          vervaldatumField.required = (
-            value as GeneratedType<"RestResultaattype">
-          ).vervaldatumBesluitVerplicht;
+          vervaldatumField.required = Boolean(
+            (value as GeneratedType<"RestResultaattype">)
+              .vervaldatumBesluitVerplicht,
+          );
         }
       });
     ingangsdatumField.formControl.valueChanges
@@ -197,7 +183,10 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
         if (value) {
           const adjustedLastResponseDate: Moment = value
             .clone()
-            .add(this.besluit.besluittype.publication.responseTermDays, "days");
+            .add(
+              this.besluit.besluittype?.publication.responseTermDays ?? 0,
+              "days",
+            );
 
           lastResponseDateField.formControl.setValue(adjustedLastResponseDate);
           (lastResponseDateField as DateFormField).minDate =
@@ -215,36 +204,36 @@ export class BesluitEditComponent implements OnInit, OnDestroy {
     );
   }
 
-  onFormSubmit(formGroup: FormGroup): void {
-    if (formGroup) {
-      const gegevens: GeneratedType<"RestDecisionChangeData"> = {
-        besluitUuid: this.besluit.uuid,
-        resultaattypeUuid: (
-          formGroup.controls["resultaattype"]
-            .value as GeneratedType<"RestResultaattype">
-        ).id,
-        toelichting: formGroup.controls["toelichting"].value,
-        ingangsdatum: formGroup.controls["ingangsdatum"].value,
-        vervaldatum: formGroup.controls["vervaldatum"].value,
-        informatieobjecten: formGroup.controls["documenten"].value
-          ? formGroup.controls["documenten"].value.split(";")
-          : [],
-        ...(this.besluit.besluittype.publication.enabled
-          ? {
-              publicationDate: formGroup.controls["publicationDate"].value,
-              lastResponseDate: formGroup.controls["lastResponseDate"].value,
-            }
-          : {}),
-        reden: formGroup.controls["reden"].value,
-      };
-
-      this.zakenService.updateBesluit(gegevens).subscribe(() => {
-        this.utilService.openSnackbar("msg.besluit.gewijzigd");
-        this.besluitGewijzigd.emit(true);
-      });
-    } else {
+  onFormSubmit(formGroup?: FormGroup): void {
+    if (!formGroup) {
       this.besluitGewijzigd.emit(false);
+      return;
     }
+    const gegevens: GeneratedType<"RestDecisionChangeData"> = {
+      besluitUuid: this.besluit.uuid,
+      resultaattypeUuid: (
+        formGroup.controls["resultaattype"]
+          .value as GeneratedType<"RestResultaattype">
+      ).id,
+      toelichting: formGroup.controls["toelichting"].value,
+      ingangsdatum: formGroup.controls["ingangsdatum"].value,
+      vervaldatum: formGroup.controls["vervaldatum"].value,
+      informatieobjecten: formGroup.controls["documenten"].value
+        ? formGroup.controls["documenten"].value.split(";")
+        : [],
+      ...(this.besluit.besluittype?.publication.enabled
+        ? {
+            publicationDate: formGroup.controls["publicationDate"].value,
+            lastResponseDate: formGroup.controls["lastResponseDate"].value,
+          }
+        : {}),
+      reden: formGroup.controls["reden"].value,
+    };
+
+    this.zakenService.updateBesluit(gegevens).subscribe(() => {
+      this.utilService.openSnackbar("msg.besluit.gewijzigd");
+      this.besluitGewijzigd.emit(true);
+    });
   }
 
   ngOnDestroy(): void {

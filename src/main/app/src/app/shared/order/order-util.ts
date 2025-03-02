@@ -4,7 +4,7 @@
  */
 
 export class OrderUtil {
-  static orderBy<T>(sortKey?: keyof T): { (a: T, b: T) } {
+  static orderBy<T>(sortKey?: keyof T) {
     return (a: T, b: T): number => {
       const valueA = sortKey ? a[sortKey] : a;
       const valueB = sortKey ? b[sortKey] : b;
@@ -15,9 +15,9 @@ export class OrderUtil {
     };
   }
 
-  static orderAsIs(): { (a: any, b: any) } {
+  static orderAsIs() {
     // Array sort is stable since node.js 12
-    return (a: any, b: any): number => {
+    return (): number => {
       return 0;
     };
   }

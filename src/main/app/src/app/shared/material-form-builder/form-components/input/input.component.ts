@@ -15,7 +15,7 @@ import { InputFormField } from "./input-form-field";
   styleUrls: ["./input.component.less"],
 })
 export class InputComponent extends FormComponent implements OnInit, OnDestroy {
-  data: InputFormField;
+  data!: InputFormField;
   destroyed$ = new Subject<void>();
 
   clearDisabled$ = new BehaviorSubject<boolean>(false);
@@ -29,7 +29,7 @@ export class InputComponent extends FormComponent implements OnInit, OnDestroy {
     this.setDisabled();
     this.data.formControl.statusChanges
       .pipe(takeUntil(this.destroyed$))
-      .subscribe((v) => {
+      .subscribe(() => {
         this.setDisabled();
       });
     this.data.onClear.pipe(takeUntil(this.destroyed$)).subscribe(() => {

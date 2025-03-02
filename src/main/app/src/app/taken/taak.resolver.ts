@@ -4,7 +4,7 @@
  */
 
 import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
+import { ActivatedRouteSnapshot } from "@angular/router";
 import { Observable } from "rxjs";
 import { Taak } from "./model/taak";
 import { TakenService } from "./taken.service";
@@ -15,11 +15,11 @@ import { TakenService } from "./taken.service";
 export class TaakResolver {
   constructor(private takenService: TakenService) {}
 
-  resolve(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot,
-  ): Observable<Taak> {
-    const taakID: string = route.paramMap.get("id");
+  resolve(route: ActivatedRouteSnapshot): Observable<Taak> {
+    const taakID = route.paramMap.get("id");
+    if (!taakID) {
+      throw new Error(`${TaakResolver.name}: No 'id' found in route`);
+    }
     return this.takenService.readTaak(taakID);
   }
 }

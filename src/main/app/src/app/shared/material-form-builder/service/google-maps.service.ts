@@ -49,7 +49,7 @@ export class GoogleMapsService {
       catchError(() => of(false)),
     );
 
-    loading.subscribe((loaded) => {
+    loading.subscribe(() => {
       this.$loaded.next(true);
     });
   }

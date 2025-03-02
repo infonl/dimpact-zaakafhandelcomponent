@@ -6,6 +6,7 @@
 import {
   AfterViewInit,
   Component,
+  OnDestroy,
   OnInit,
   signal,
   ViewChild,
@@ -53,16 +54,16 @@ import { ZakenWerkvoorraadDatasource } from "./zaken-werkvoorraad-datasource";
 })
 export class ZakenWerkvoorraadComponent
   extends WerklijstComponent
-  implements AfterViewInit, OnInit
+  implements AfterViewInit, OnInit, OnDestroy
 {
   readonly indicatiesLayout = IndicatiesLayout;
   selection = new SelectionModel<ZaakZoekObject>(true, []);
   dataSource: ZakenWerkvoorraadDatasource;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild(MatTable) table: MatTable<ZaakZoekObject>;
-  ingelogdeMedewerker: GeneratedType<"RestLoggedInUser">;
-  expandedRow: ZaakZoekObject | null;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatTable) table!: MatTable<ZaakZoekObject>;
+  ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
+  expandedRow: ZaakZoekObject | null = null;
   readonly zoekenColumn = ZoekenColumn;
   sorteerVeld = SorteerVeld;
 
@@ -200,7 +201,7 @@ export class ZakenWerkvoorraadComponent
     this.selection.clear();
   }
 
-  isAfterDate(datum): boolean {
+  isAfterDate(datum: Date | moment.Moment | string): boolean {
     return DateConditionals.isExceeded(datum);
   }
 
@@ -213,13 +214,16 @@ export class ZakenWerkvoorraadComponent
     this.dataSource.filtersChanged();
   }
 
-  assignToMe(zaakZoekObject: ZaakZoekObject, $event) {
+  assignToMe(zaakZoekObject: ZaakZoekObject, $event: Event) {
     $event.stopPropagation();
 
     this.zakenService
       .toekennenAanIngelogdeMedewerkerVanuitLijst(zaakZoekObject)
       .subscribe((zaak) => {
-        zaakZoekObject.behandelaarNaam = zaak.behandelaar.naam;
+        if (!zaak.behandelaar) {
+          return;
+        }
+        zaakZoekObject.behandelaarNaam = zaak.behandelaar?.naam;
         zaakZoekObject.behandelaarGebruikersnaam = zaak.behandelaar.id;
         this.utilService.openSnackbar("msg.zaak.toegekend", {
           behandelaar: zaak.behandelaar.naam,
@@ -230,10 +234,11 @@ export class ZakenWerkvoorraadComponent
   showAssignToMe(zaakZoekObject: ZaakZoekObject): boolean {
     return (
       zaakZoekObject.rechten.toekennen &&
-      this.ingelogdeMedewerker &&
-      this.ingelogdeMedewerker.id !==
+      this.ingelogdeMedewerker?.id !==
         zaakZoekObject.behandelaarGebruikersnaam &&
-      this.ingelogdeMedewerker.groupIds.indexOf(zaakZoekObject.groepId) >= 0
+      Boolean(
+        this.ingelogdeMedewerker?.groupIds?.indexOf(zaakZoekObject.groepId),
+      )
     );
   }
 
@@ -271,8 +276,10 @@ export class ZakenWerkvoorraadComponent
           if (this.toekenning && zaak) {
             zaak.groepNaam = this.toekenning.groep?.naam || zaak.groepNaam;
             zaak.groepId = this.toekenning.groep?.id || zaak.groepId;
-            zaak.behandelaarGebruikersnaam = this.toekenning.medewerker?.id;
-            zaak.behandelaarNaam = this.toekenning.medewerker?.naam;
+            if (this.toekenning.medewerker) {
+              zaak.behandelaarGebruikersnaam = this.toekenning.medewerker.id;
+              zaak.behandelaarNaam = this.toekenning.medewerker.naam;
+            }
           }
         },
       },
@@ -307,8 +314,7 @@ export class ZakenWerkvoorraadComponent
         const notChanged = zaken
           .filter(
             (x) =>
-              (!this.toekenning.groep ||
-                this.toekenning.groep.id === x.groepId) &&
+              this.toekenning?.groep?.id === x.groepId &&
               this.toekenning.medewerker?.id === x.behandelaarGebruikersnaam,
           )
           .map(({ id }) => id);
@@ -320,7 +326,7 @@ export class ZakenWerkvoorraadComponent
   }
 
   ngOnDestroy(): void {
-    // Make sure when returning to this comnponent, the very first page is loaded
+    // Make sure when returning to this component, the very first page is loaded
     this.dataSource.zoekopdrachtResetToFirstPage();
   }
 }

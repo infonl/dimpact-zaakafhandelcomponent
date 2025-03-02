@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, OnDestroy, ViewChild } from "@angular/core";
 
 import { detailExpand } from "../../shared/animations/animations";
 
@@ -33,14 +33,14 @@ import { ZakenMijnDatasource } from "./zaken-mijn-datasource";
 })
 export class ZakenMijnComponent
   extends WerklijstComponent
-  implements AfterViewInit, OnInit
+  implements AfterViewInit, OnDestroy
 {
   readonly indicatiesLayout = IndicatiesLayout;
   dataSource: ZakenMijnDatasource;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild(MatTable) table: MatTable<ZaakZoekObject>;
-  expandedRow: ZaakZoekObject | null;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatTable) table!: MatTable<ZaakZoekObject>;
+  expandedRow: ZaakZoekObject | null = null;
   readonly zoekenColumn = ZoekenColumn;
   sorteerVeld = SorteerVeld;
 
@@ -67,10 +67,6 @@ export class ZakenMijnComponent
     public utilService: UtilService,
   ) {
     super();
-  }
-
-  ngOnInit(): void {
-    super.ngOnInit();
     this.dataSource = new ZakenMijnDatasource(
       this.zoekenService,
       this.utilService,
@@ -107,7 +103,7 @@ export class ZakenMijnComponent
     this.table.dataSource = this.dataSource;
   }
 
-  isAfterDate(datum): boolean {
+  isAfterDate(datum: any): boolean {
     return DateConditionals.isExceeded(datum);
   }
 
@@ -124,7 +120,7 @@ export class ZakenMijnComponent
   }
 
   ngOnDestroy(): void {
-    // Make sure when returning to this comnponent, the very first page is loaded
+    // Make sure when returning to this component, the very first page is loaded
     this.dataSource.zoekopdrachtResetToFirstPage();
   }
 }
