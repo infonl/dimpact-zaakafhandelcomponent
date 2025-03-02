@@ -23,7 +23,6 @@ import net.atos.zac.zoeken.model.DocumentIndicatie;
  */
 public class RestEnkelvoudigInformatieobject extends RestEnkelvoudigInformatieFileUpload {
 
-    @NotNull @FormParam("uuid")
     public UUID uuid;
 
     @FormParam("identificatie")
