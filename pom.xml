@@ -18,10 +18,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- please follow the instructions in 'updatingDependencies.md' when upgrading WildFly -->
-        <wildfly.version>34.0.1.Final</wildfly.version>
+        <!-- TODO: upgrade to WildFly 35 does not work (yet)  -->
+        <!-- all Java LocalDate fields in our ZAC API endpoints result in empty JSON fields for some reason-->
+        <!-- for example the 'versiedatum' field in the RESTZaaktypeOverzicht class -->
+        <!-- maybe a bug in WildFly 35 related to JSON-B serialization? -->
+        <wildfly.version>35.0.1.Final</wildfly.version>
         <wildfly-maven-plugin.version>5.1.2.Final</wildfly-maven-plugin.version>
         <wildfly-datasources-galleon-pack.version>9.1.0.Final</wildfly-datasources-galleon-pack.version>
-        <wildfly-cloud-galleon-pack.version>7.0.2.Final</wildfly-cloud-galleon-pack.version>
+        <wildfly-cloud-galleon-pack.version>8.0.0.Final</wildfly-cloud-galleon-pack.version>
     </properties>
 
     <build>
