@@ -8,6 +8,7 @@ import {
   EventEmitter,
   Input,
   OnDestroy,
+  OnInit,
   Output,
 } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
@@ -39,7 +40,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./besluit-edit.component.html",
   styleUrls: ["./besluit-edit.component.less"],
 })
-export class BesluitEditComponent implements OnDestroy {
+export class BesluitEditComponent implements OnDestroy, OnInit {
   formConfig: FormConfig;
   @Input({ required: true }) besluit!: GeneratedType<"RestDecision">;
   @Input({ required: true }) zaak!: Zaak;
@@ -55,7 +56,9 @@ export class BesluitEditComponent implements OnDestroy {
     private informatieObjectenService: InformatieObjectenService,
     protected translate: TranslateService,
     public utilService: UtilService,
-  ) {
+  ) {}
+
+  ngOnInit(): void {
     this.formConfig = new FormConfigBuilder()
       .saveText("actie.wijzigen")
       .cancelText("actie.annuleren")

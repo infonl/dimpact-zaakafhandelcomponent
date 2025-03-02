@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Input, OnDestroy } from "@angular/core";
+import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import {
   AbstractControl,
   FormGroup,
@@ -40,7 +40,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaak-details-wijzigen.component.html",
   styleUrls: ["./zaak-details-wijzigen.component.less"],
 })
-export class CaseDetailsEditComponent implements OnDestroy {
+export class CaseDetailsEditComponent implements OnDestroy, OnInit {
   @Input({ required: true }) zaak!: Zaak; // GeneratedType<"RestZaak">;
   @Input({ required: true }) loggedInUser!: GeneratedType<"RestLoggedInUser">;
   @Input({ required: true }) sideNav!: MatDrawer;
@@ -65,7 +65,9 @@ export class CaseDetailsEditComponent implements OnDestroy {
     private zakenService: ZakenService,
     private referentieTabelService: ReferentieTabelService,
     private utilService: UtilService,
-  ) {
+  ) {}
+
+  ngOnInit() {
     this.formConfig = new FormConfigBuilder()
       .saveText("actie.opslaan")
       .cancelText("actie.annuleren")
