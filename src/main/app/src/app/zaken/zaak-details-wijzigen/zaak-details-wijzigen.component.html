@@ -8,34 +8,40 @@
     <mat-icon>edit</mat-icon>
     {{ "actie.zaak.wijzigen" | translate }}
   </h3>
-  <button mat-icon-button (click)="sideNav.close()">
+  <button mat-icon-button (click)="exit()">
     <mat-icon>close</mat-icon>
   </button>
 </div>
 
 <div>
   <mat-tab-group mat-stretch-tabs="false">
-    <mat-tab label="Tab 1">
+    <mat-tab label="{{ 'gegevens.algemeen' | translate }}">
       <ng-template mat-tab-label>
         <mat-icon>topic</mat-icon>
         {{ "gegevens.algemeen" | translate }}</ng-template
       >
       <div class="form">
         <mfb-form
-          #mfbForm
           *ngIf="formFields"
           [formFields]="formFields"
           [config]="formConfig"
-          (formSubmit)="onFormSubmit($event)"
+          (formSubmit)="saveFromFormView($event)"
+          (formPartial)="saveFromFormView($event)"
         ></mfb-form>
       </div>
     </mat-tab>
-    <mat-tab label="Tab 2" *ngIf="false">
+    <mat-tab label="{{ 'locatie' | translate }}">
       <ng-template mat-tab-label>
         <mat-icon>place</mat-icon>
         {{ "locatie" | translate }}
       </ng-template>
-      <div>Location Content - Todo</div>
+      <zac-locatie-zoek
+        [huidigeLocatie]="zaak.zaakgeometrie"
+        [readonly]="!zaak.isOpen || !zaak.rechten.wijzigen"
+        [reasonControl]="reasonField.formControl"
+        (locatie)="saveFromMapView()"
+        (locationChanged)="locationChanged($event)"
+      ></zac-locatie-zoek>
     </mat-tab>
   </mat-tab-group>
 </div>

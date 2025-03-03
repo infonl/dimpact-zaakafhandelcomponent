@@ -63,7 +63,6 @@ import { Taak } from "../../taken/model/taak";
 import { TaakStatus } from "../../taken/model/taak-status.enum";
 import { TakenService } from "../../taken/taken.service";
 import { IntakeAfrondenDialogComponent } from "../intake-afronden-dialog/intake-afronden-dialog.component";
-import { GeometryGegevens } from "../model/geometry-gegevens";
 import { Zaak } from "../model/zaak";
 import { ZaakBetrokkene } from "../model/zaak-betrokkene";
 import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
@@ -954,16 +953,6 @@ export class ZaakViewComponent
     });
   }
 
-  showOrEditZaakLocatie(): void {
-    if (
-      (this.zaak.isOpen && this.zaak.rechten.wijzigen) ||
-      this.zaak.zaakgeometrie != null
-    ) {
-      this.activeSideAction = "actie.locatie.toevoegen";
-      this.actionsSidenav.open();
-    }
-  }
-
   editCaseDetails(): void {
     if (this.zaak.rechten.wijzigen || this.zaak.rechten.toekennen) {
       this.activeSideAction = "actie.zaak.wijzigen";
@@ -1028,16 +1017,6 @@ export class ZaakViewComponent
       this.loggedInUser.id !== taak.behandelaar?.id &&
       this.loggedInUser.groupIds.indexOf(taak.groep.id) >= 0
     );
-  }
-
-  locatieGeselecteerd(locatie: GeometryGegevens): void {
-    this.actionsSidenav.close();
-    this.websocketService.suspendListener(this.zaakListener);
-    this.zakenService
-      .updateZaakLocatie(this.zaak.uuid, locatie.geometry, locatie.reden)
-      .subscribe((updatedZaak) => {
-        this.init(updatedZaak);
-      });
   }
 
   initiatorGeselecteerd(initiator: Klant): void {
