@@ -50,6 +50,9 @@ jackson = "2.18.3"
 
 # versions of dependencies provided by Wildfly
 eclipse-microprofile-rest-client-api = "3.0.1"
+# Unfortunately the OpenAPI Generator library that we use to generate model classes from OpenAPI specs
+# does not support the latest version of the Eclipse MicroProfile Rest Client API.
+openapi-generator-eclipse-microprofile-rest-client-api = "3.0"
 eclipse-microprofile-config-api = "3.1"
 eclipse-microprofile-health-api = "4.0.1"
 eclipse-microprofile-fault-tolerance-api = "4.0.2"
