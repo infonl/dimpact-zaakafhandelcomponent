@@ -71,7 +71,7 @@ export class ZakenService {
   updateZaak(
     uuid: string,
     update: {
-      zaak: Omit<Partial<Zaak>, 'zaakgeometrie' | 'behandelaar'>;
+      zaak: Omit<Partial<Zaak>, "zaakgeometrie" | "behandelaar">;
       reden?: string;
     },
   ) {
