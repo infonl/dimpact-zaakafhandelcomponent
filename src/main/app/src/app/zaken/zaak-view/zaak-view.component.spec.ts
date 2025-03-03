@@ -26,34 +26,18 @@ import { ZaakViewComponent } from "./zaak-view.component";
 
 describe(ZaakViewComponent.name, () => {
   let component: ZaakViewComponent;
-  let fixture: ComponentFixture<ZaakViewComponent>;
+  let fixture: ComponentFixture<typeof component>;
   let loader: HarnessLoader;
-
-  const zaak: GeneratedType<"RestZaak"> = {
-    uuid: "zaak-001",
-    identificatie: "test",
-    indicaties: [],
-    omschrijving: "test omschrijving",
-    vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding.openbaar,
-    isEerderOpgeschort: false,
-    toelichting: "Some toelichting",
-    rechten: {},
-    zaaktype: {
-      uuid: "zaaktype-001",
-    },
-  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ZaakViewComponent], // Do not declare the pipe here!
       imports: [
-        MatSortModule,
-        MatTableModule,
         TranslateModule.forRoot(),
         NoopAnimationsModule,
-        PipesModule, // Ensure it's here if other shared pipes are used
+        PipesModule,
         MaterialModule,
-        VertrouwelijkaanduidingToTranslationKeyPipe, // Import pipe directly here
+        VertrouwelijkaanduidingToTranslationKeyPipe,
       ],
       providers: [
         provideHttpClient(),
@@ -61,7 +45,7 @@ describe(ZaakViewComponent.name, () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            data: of({ zaak }),
+            data: of({ zaakMock }),
           },
         },
         VertrouwelijkaanduidingToTranslationKeyPipe,

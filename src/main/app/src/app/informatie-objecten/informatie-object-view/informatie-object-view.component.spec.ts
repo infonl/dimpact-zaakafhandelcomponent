@@ -17,7 +17,6 @@ import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { InformatieObjectViewComponent } from "./informatie-object-view.component";
-
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
