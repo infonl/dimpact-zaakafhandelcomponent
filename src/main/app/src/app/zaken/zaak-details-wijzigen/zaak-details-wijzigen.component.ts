@@ -356,35 +356,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     const reason = this.reasonField.formControl.value;
     const subscriptions: Subscription[] = [];
 
-    if (zaak.behandelaar?.id === this.loggedInUser.id) {
-      subscriptions.push(
-        this.zakenService
-          .toekennenAanIngelogdeMedewerker(this.zaak.uuid, reason)
-          .subscribe((updatedZaak) => {
-            this.utilService.openSnackbar("msg.zaak.toegekend", {
-              behandelaar: updatedZaak.behandelaar?.naam,
-            });
-          }),
-      );
-    } else {
-      subscriptions.push(
-        this.zakenService
-          .toekennen(this.zaak.uuid, {
-            reason,
-            groupId: zaak.groep?.id,
-            behandelaarId: zaak?.behandelaar?.id,
-          })
-          .subscribe((updatedZaak) => {
-            if (updatedZaak.behandelaar?.id) {
-              this.utilService.openSnackbar("msg.zaak.toegekend", {
-                behandelaar: updatedZaak.behandelaar?.naam,
-              });
-            } else {
-              this.utilService.openSnackbar("msg.vrijgegeven.zaak");
-            }
-          }),
-      );
-    }
+    subscriptions.push(this.patchBehandelaar(zaak, reason));
 
     this.zakenService
       .updateZaakLocatie(this.zaak.uuid, this.zaak.zaakgeometrie, reason)
@@ -397,6 +369,38 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
         );
 
         forkJoin([subscriptions]).subscribe(() => this.sideNav.close());
+      });
+  }
+
+  private patchBehandelaar(zaak: Partial<Zaak>, reason?: string) {
+    if (zaak.behandelaar?.id === this.zaak.behandelaar?.id) {
+      return;
+    }
+
+    if (zaak.behandelaar?.id === this.loggedInUser.id) {
+      return this.zakenService
+        .toekennenAanIngelogdeMedewerker(this.zaak.uuid, reason)
+        .subscribe((updatedZaak) => {
+          this.utilService.openSnackbar("msg.zaak.toegekend", {
+            behandelaar: updatedZaak.behandelaar?.naam,
+          });
+        });
+    }
+
+    return this.zakenService
+      .toekennen(this.zaak.uuid, {
+        reason,
+        groupId: zaak.groep?.id,
+        behandelaarId: zaak?.behandelaar?.id,
+      })
+      .subscribe((updatedZaak) => {
+        if (updatedZaak.behandelaar?.id) {
+          this.utilService.openSnackbar("msg.zaak.toegekend", {
+            behandelaar: updatedZaak.behandelaar?.naam,
+          });
+        } else {
+          this.utilService.openSnackbar("msg.vrijgegeven.zaak");
+        }
       });
   }
 
