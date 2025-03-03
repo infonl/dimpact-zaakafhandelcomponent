@@ -323,7 +323,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
       {},
     );
 
-    void this.updateZaak(this.mergeUpdateOntoZaak(updates));
+    void this.updateZaak(this.createZaakPatch(updates));
   }
 
   saveFromMapView() {
@@ -336,60 +336,68 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
       return acc;
     }, {});
 
-    void this.updateZaak(this.mergeUpdateOntoZaak(updates));
+    void this.updateZaak(this.createZaakPatch(updates));
   }
 
   locationChanged(update: Geometry) {
     this.zaak.zaakgeometrie = update;
   }
 
-  private mergeUpdateOntoZaak(update: Record<string, any>) {
+  private createZaakPatch(update: Record<string, any>) {
     const { assignment, reason, ...updates } = update;
 
     return {
-      ...this.zaak,
       ...updates,
       behandelaar: assignment?.medewerker,
-    } as Zaak;
+    } satisfies Partial<Zaak>;
   }
 
-  private async updateZaak(zaak: Zaak) {
+  private async updateZaak(zaak: Partial<Zaak>) {
     const reason = this.reasonField.formControl.value;
     const subscriptions: Subscription[] = [];
 
     if (zaak.behandelaar?.id === this.loggedInUser.id) {
       subscriptions.push(
         this.zakenService
-          .toekennenAanIngelogdeMedewerker(zaak, reason)
-          .subscribe((zaak) => {
+          .toekennenAanIngelogdeMedewerker(this.zaak.uuid, reason)
+          .subscribe((updatedZaak) => {
             this.utilService.openSnackbar("msg.zaak.toegekend", {
-              behandelaar: zaak.behandelaar?.naam,
+              behandelaar: updatedZaak.behandelaar?.naam,
             });
           }),
       );
     } else {
       subscriptions.push(
-        this.zakenService.toekennen(zaak, reason).subscribe((updatedZaak) => {
-          if (updatedZaak.behandelaar?.id) {
-            this.utilService.openSnackbar("msg.zaak.toegekend", {
-              behandelaar: updatedZaak.behandelaar?.naam,
-            });
-          } else {
-            this.utilService.openSnackbar("msg.vrijgegeven.zaak");
-          }
-        }),
+        this.zakenService
+          .toekennen(this.zaak.uuid, {
+            reason,
+            groupId: zaak.groep?.id,
+            behandelaarId: zaak?.behandelaar?.id,
+          })
+          .subscribe((updatedZaak) => {
+            if (updatedZaak.behandelaar?.id) {
+              this.utilService.openSnackbar("msg.zaak.toegekend", {
+                behandelaar: updatedZaak.behandelaar?.naam,
+              });
+            } else {
+              this.utilService.openSnackbar("msg.vrijgegeven.zaak");
+            }
+          }),
       );
     }
 
-    subscriptions.push(
-      this.zakenService
-        .updateZaak(this.zaak.uuid, zaak, reason)
-        .subscribe(() => {}),
-    );
+    this.zakenService
+      .updateZaakLocatie(this.zaak.uuid, this.zaak.zaakgeometrie, reason)
+      .subscribe(() => {
+        // To prevent a race condition we need to first update the `zaakgeometrie` and then the other fields
+        subscriptions.push(
+          this.zakenService
+            .updateZaak(this.zaak.uuid, { zaak, reden: reason })
+            .subscribe(() => {}),
+        );
 
-    forkJoin([subscriptions]).subscribe(async () => {
-      await this.sideNav.close();
-    });
+        forkJoin([subscriptions]).subscribe(() => this.sideNav.close());
+      });
   }
 
   exit() {

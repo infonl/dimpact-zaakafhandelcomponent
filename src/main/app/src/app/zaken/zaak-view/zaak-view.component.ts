@@ -1020,16 +1020,6 @@ export class ZaakViewComponent
     );
   }
 
-  locatieGeselecteerd(locatie: GeometryGegevens): void {
-    this.actionsSidenav.close();
-    this.websocketService.suspendListener(this.zaakListener);
-    this.zakenService
-      .updateZaakLocatie(this.zaak.uuid, locatie.geometry, locatie.reden)
-      .subscribe((updatedZaak) => {
-        this.init(updatedZaak);
-      });
-  }
-
   initiatorGeselecteerd(initiator: Klant): void {
     this.websocketService.suspendListener(this.zaakRollenListener);
     this.actionsSidenav.close();
