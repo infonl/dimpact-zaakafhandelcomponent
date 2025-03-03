@@ -327,7 +327,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     if (assignment) {
       this.zaak = {
         ...this.zaak,
-        ...assignment.groep,
+        groep: assignment.groep,
         behandelaar: assignment.medewerker,
       };
 
