@@ -9,7 +9,7 @@ import { AbstractFormField } from "../material-form-builder/model/abstract-form-
 export class DialogData<T extends unknown = unknown> {
   public confirmButtonActionKey = "actie.ja";
   public cancelButtonActionKey = "actie.annuleren";
-  public value: T;
+  public value: T = null as T;
 
   constructor(
     public formFields: AbstractFormField[],

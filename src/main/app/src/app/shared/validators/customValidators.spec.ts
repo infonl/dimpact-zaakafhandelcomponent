@@ -8,13 +8,13 @@ import { TranslateService } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { CustomValidators } from "./customValidators";
 
-describe("CustomValidators", () => {
+describe(CustomValidators.name, () => {
   let translateService: TranslateService;
 
   beforeEach(() => {
-    translateService = {
-      instant: jest.fn((key) => key),
-    } as unknown as TranslateService;
+    translateService = fromPartial<TranslateService>({
+      instant: jest.fn((key: string) => key),
+    });
   });
 
   const createControl = (value: any): AbstractControl =>
@@ -98,53 +98,52 @@ describe("CustomValidators", () => {
       expect(CustomValidators.huisnummer(control)).toEqual(expected);
     },
   );
-});
 
-describe("CustomValidators error messages", () => {
-  let translateService: TranslateService;
+  describe("error messages", () => {
+    const createControl = (value: any): AbstractControl =>
+      new FormControl(value);
 
-  beforeEach(() => {
-    translateService = fromPartial<TranslateService>({
-      instant: jest.fn((key: string) => key),
-    });
+    it.each([
+      [{ required: true }, "msg.error.required"],
+      [{ min: { min: 5, actual: 3 } }, "msg.error.teklein"],
+      [{ max: { max: 10, actual: 12 } }, "msg.error.tegroot"],
+      [
+        { minlength: { requiredLength: 5, actualLength: 3 } },
+        "msg.error.tekort",
+      ],
+      [
+        { maxlength: { requiredLength: 5, actualLength: 7 } },
+        "msg.error.telang",
+      ],
+      [{ email: true }, "msg.error.invalid.email"],
+      [
+        { pattern: { requiredPattern: "^[a-zA-Z]+$", actualValue: "123" } },
+        "msg.error.invalid.formaat",
+      ],
+      [{ bsn: true }, "msg.error.invalid.huisnummer.bsn"],
+      [{ kvk: true }, "msg.error.invalid.huisnummer.kvk"],
+      [
+        { vestigingsnummer: true },
+        "msg.error.invalid.huisnummer.vestigingsnummer",
+      ],
+      [{ rsin: true }, "msg.error.invalid.huisnummer.rsin"],
+      [{ postcode: true }, "msg.error.invalid.huisnummer.postcode"],
+      [{ huisnummer: true }, "msg.error.invalid.huisnummer.huisnummer"],
+      [{ custom: { message: "custom.error.message" } }, "custom.error.message"],
+    ])(
+      "for the error %p it should return the message %s",
+      (errors, expectedMessage) => {
+        const control = createControl("");
+        control.setErrors(errors);
+        const label = "testLabel";
+
+        const errorMessage = CustomValidators.getErrorMessage(
+          control,
+          label,
+          translateService,
+        );
+        expect(errorMessage).toBe(expectedMessage);
+      },
+    );
   });
-
-  const createControl = (value: any): AbstractControl => new FormControl(value);
-
-  it.each([
-    [{ required: true }, "msg.error.required"],
-    [{ min: { min: 5, actual: 3 } }, "msg.error.teklein"],
-    [{ max: { max: 10, actual: 12 } }, "msg.error.tegroot"],
-    [{ minlength: { requiredLength: 5, actualLength: 3 } }, "msg.error.tekort"],
-    [{ maxlength: { requiredLength: 5, actualLength: 7 } }, "msg.error.telang"],
-    [{ email: true }, "msg.error.invalid.email"],
-    [
-      { pattern: { requiredPattern: "^[a-zA-Z]+$", actualValue: "123" } },
-      "msg.error.invalid.formaat",
-    ],
-    [{ bsn: true }, "msg.error.invalid.huisnummer.bsn"],
-    [{ kvk: true }, "msg.error.invalid.huisnummer.kvk"],
-    [
-      { vestigingsnummer: true },
-      "msg.error.invalid.huisnummer.vestigingsnummer",
-    ],
-    [{ rsin: true }, "msg.error.invalid.huisnummer.rsin"],
-    [{ postcode: true }, "msg.error.invalid.huisnummer.postcode"],
-    [{ huisnummer: true }, "msg.error.invalid.huisnummer.huisnummer"],
-    [{ custom: { message: "custom.error.message" } }, "custom.error.message"],
-  ])(
-    "should return correct error message for %p",
-    (errors, expectedMessage) => {
-      const control = createControl("");
-      control.setErrors(errors);
-      const label = "testLabel";
-
-      const errorMessage = CustomValidators.getErrorMessage(
-        control,
-        label,
-        translateService,
-      );
-      expect(errorMessage).toBe(expectedMessage);
-    },
-  );
 });

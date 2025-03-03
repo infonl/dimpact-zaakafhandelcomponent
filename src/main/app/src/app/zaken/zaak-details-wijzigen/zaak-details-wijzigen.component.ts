@@ -4,10 +4,16 @@
  */
 
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
-import { FormGroup, Validators } from "@angular/forms";
+import {
+  AbstractControl,
+  FormGroup,
+  ValidatorFn,
+  Validators,
+} from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
+// @ts-ignore-next-line allow to import moment
 import moment from "moment";
-import { Observable, Subject, forkJoin, takeUntil } from "rxjs";
+import { Observable, Subject, Subscription, forkJoin, takeUntil } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { UtilService } from "src/app/core/service/util.service";
 import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
@@ -34,12 +40,12 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaak-details-wijzigen.component.html",
   styleUrls: ["./zaak-details-wijzigen.component.less"],
 })
-export class CaseDetailsEditComponent implements OnInit, OnDestroy {
-  @Input() zaak: Zaak; // GeneratedType<"RestZaak">;
-  @Input() loggedInUser: GeneratedType<"RestLoggedInUser">;
-  @Input() sideNav: MatDrawer;
+export class CaseDetailsEditComponent implements OnDestroy, OnInit {
+  @Input({ required: true }) zaak!: Zaak; // GeneratedType<"RestZaak">;
+  @Input({ required: true }) loggedInUser!: GeneratedType<"RestLoggedInUser">;
+  @Input({ required: true }) sideNav!: MatDrawer;
 
-  formFields: Array<AbstractFormField[]>;
+  formFields: Array<AbstractFormField[]> = [];
   formConfig: FormConfig;
 
   private medewerkerGroepFormField: MedewerkerGroepFormField;
@@ -61,11 +67,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
     private utilService: UtilService,
   ) {}
 
-  ngOnInit(): void {
-    this.initForm();
-  }
-
-  private initForm(): void {
+  ngOnInit() {
     this.formConfig = new FormConfigBuilder()
       .saveText("actie.opslaan")
       .cancelText("actie.annuleren")
@@ -108,7 +110,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
     this.einddatumGeplandField = this.createDateFormField(
       "einddatumGepland",
       this.zaak.einddatumGepland,
-      this.zaak.einddatumGepland &&
+      !!this.zaak.einddatumGepland &&
         (!this.zaak.rechten.wijzigen || this.zaak.isProcesGestuurd),
       [
         this.zaak.einddatumGepland
@@ -180,7 +182,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
 
     this.formFields.flat().forEach((field) => {
       //Subscriptions to enable reason field on field changes
-      field.formControl.enabled &&
+      if (field.formControl.enabled) {
         field.formControl.valueChanges
           .pipe(takeUntil(this.ngDestroy))
           .subscribe(() => {
@@ -191,10 +193,11 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
               this.reasonField.formControl.enable({ emitEvent: false });
             }
           });
+      }
 
       // Subscription(s) to revalidate 'other' enabled date field(s) after a date change, so 'other' date error messages are updated
       if (field instanceof DateFormField && field.formControl.enabled) {
-        field.formControl.enabled &&
+        if (field.formControl.enabled) {
           field.formControl.valueChanges
             .pipe(takeUntil(this.ngDestroy))
             .subscribe(() => {
@@ -212,6 +215,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
                   }),
                 );
             });
+        }
       }
     });
   }
@@ -220,7 +224,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
     id: string,
     value: any,
     disabled: boolean,
-    validators: any[],
+    validators: ValidatorFn[],
   ): DateFormField {
     return new DateFormFieldBuilder(value)
       .id(id)
@@ -230,7 +234,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
       .build();
   }
 
-  private validateStartDatum(control): any {
+  private validateStartDatum(control: AbstractControl) {
     const startDatum = moment(control.value);
     const einddatumGepland = moment(
       this.einddatumGeplandField.formControl.value,
@@ -252,9 +256,11 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
         custom: { message: "msg.error.date.invalid.datum.start-na-streef" },
       };
     }
+
+    return null;
   }
 
-  private validateEinddatumGepland(control): any {
+  private validateEinddatumGepland(control: AbstractControl) {
     const startDatum = moment(this.startDatumField.formControl.value);
     const einddatumGepland = moment(control.value);
     const uiterlijkeEinddatumAfdoening = moment(
@@ -276,7 +282,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
     return null;
   }
 
-  private validateUiterlijkeEinddatumAfdoening(control): any {
+  private validateUiterlijkeEinddatumAfdoening(control: AbstractControl) {
     const startDatum = moment(this.startDatumField.formControl.value);
     const einddatumGepland = moment(
       this.einddatumGeplandField.formControl.value,
@@ -296,80 +302,81 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
         custom: { message: "msg.error.date.invalid.datum.fatale-voor-streef" },
       };
     }
+
+    return null;
   }
 
   onFormSubmit(formGroup: FormGroup): void {
-    if (formGroup) {
-      const changedValues: Partial<
-        GeneratedType<"RestZaak"> & {
-          assignment: {
-            groep: GeneratedType<"RestGroup">;
-            medewerker: GeneratedType<"RestUser">;
-          };
-          reason: string;
-        }
-      > = {};
-      for (const [key, control] of Object.entries(formGroup.controls)) {
-        if (control.dirty) {
-          changedValues[key] = control.value;
-        }
-      }
-      const { reason, assignment, ...patchFields } = changedValues;
-      const subscriptions = [];
-
-      if (assignment) {
-        this.zaak = {
-          ...this.zaak,
-          ...assignment.groep,
-          behandelaar: assignment.medewerker,
+    const changedValues: Partial<
+      GeneratedType<"RestZaak"> & {
+        assignment: {
+          groep: GeneratedType<"RestGroup">;
+          medewerker: GeneratedType<"RestUser">;
         };
-
-        if (this.zaak.behandelaar?.id === this.loggedInUser.id) {
-          subscriptions.push(
-            this.zakenService
-              .toekennenAanIngelogdeMedewerker(this.zaak, reason)
-              .subscribe((zaak) => {
-                this.utilService.openSnackbar("msg.zaak.toegekend", {
-                  behandelaar: zaak.behandelaar?.naam,
-                });
-              }),
-          );
-        } else {
-          subscriptions.push(
-            this.zakenService.toekennen(this.zaak, reason).subscribe((zaak) => {
-              if (zaak?.behandelaar?.id) {
-                this.utilService.openSnackbar("msg.zaak.toegekend", {
-                  behandelaar: zaak.behandelaar.naam,
-                });
-              } else {
-                this.utilService.openSnackbar("msg.vrijgegeven.zaak");
-              }
-            }),
-          );
-        }
+        reason: string;
       }
+    > = {};
+    for (const [key, control] of Object.entries(formGroup.controls)) {
+      if (control.dirty) {
+        changedValues[key] = control.value;
+      }
+    }
+    const { reason, assignment, ...patchFields } = changedValues;
+    const subscriptions: Subscription[] = [];
 
-      if (patchFields) {
-        const zaak: Zaak = new Zaak();
-        Object.keys(patchFields).forEach((key) => {
-          // circumvent the TypeScript type check (pattern copied from zaak-view.component.ts)
-          zaak[key] = patchFields[key].value
-            ? patchFields[key].value
-            : patchFields[key];
-        });
+    if (assignment) {
+      this.zaak = {
+        ...this.zaak,
+        ...assignment.groep,
+        behandelaar: assignment.medewerker,
+      };
 
+      if (this.zaak.behandelaar?.id === this.loggedInUser.id) {
         subscriptions.push(
           this.zakenService
-            .updateZaak(this.zaak.uuid, zaak, reason)
-            .subscribe(() => {}),
+            .toekennenAanIngelogdeMedewerker(this.zaak, reason)
+            .subscribe((zaak) => {
+              this.utilService.openSnackbar("msg.zaak.toegekend", {
+                behandelaar: zaak.behandelaar?.naam,
+              });
+            }),
+        );
+      } else {
+        subscriptions.push(
+          this.zakenService.toekennen(this.zaak, reason).subscribe((zaak) => {
+            if (zaak?.behandelaar?.id) {
+              this.utilService.openSnackbar("msg.zaak.toegekend", {
+                behandelaar: zaak.behandelaar.naam,
+              });
+            } else {
+              this.utilService.openSnackbar("msg.vrijgegeven.zaak");
+            }
+          }),
         );
       }
+    }
 
-      if (subscriptions.length > 0) {
-        forkJoin([subscriptions]).subscribe(() => {
-          this.sideNav.close();
-        });
-      }
+    if (patchFields) {
+      const zaak = new Zaak();
+
+      Object.keys(patchFields).forEach((key) => {
+        // circumvent the TypeScript type check (pattern copied from zaak-view.component.ts)
+        zaak[key] = patchFields[key].value;
+        patchFields[key].value;
+        patchFields[key];
+      });
+
+      subscriptions.push(
+        this.zakenService
+          .updateZaak(this.zaak.uuid, zaak, reason)
+          .subscribe(() => {}),
+      );
+    }
+
+    if (subscriptions.length > 0) {
+      forkJoin([subscriptions]).subscribe(async () => {
+        await this.sideNav.close();
+      });
     }
   }
 
@@ -381,10 +388,10 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
     return new MedewerkerGroepFieldBuilder(
       groupId
         ? ({ id: groupId, naam: "" } as GeneratedType<"RestGroup">)
-        : null,
+        : undefined,
       employeeId
         ? ({ id: employeeId, naam: "" } as GeneratedType<"RestUser">)
-        : null,
+        : undefined,
     )
       .id("assignment")
       .groepLabel("actie.zaak.toekennen.groep")

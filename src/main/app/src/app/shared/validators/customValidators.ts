@@ -142,8 +142,12 @@ export class CustomValidators {
     label: string,
     translate: TranslateService,
   ): string {
+    if (!formControl.errors) {
+      return "";
+    }
+
     const params = { label: translate.instant(label) };
-    const errorKey = Object.keys(formControl.errors || {})[0];
+    const errorKey = Object.keys(formControl.errors)[0];
 
     switch (errorKey) {
       case "required":

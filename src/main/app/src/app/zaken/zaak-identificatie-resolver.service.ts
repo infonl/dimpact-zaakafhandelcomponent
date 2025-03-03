@@ -4,7 +4,7 @@
  */
 
 import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
+import { ActivatedRouteSnapshot } from "@angular/router";
 import { Observable } from "rxjs";
 import { Zaak } from "./model/zaak";
 import { ZakenService } from "./zaken.service";
@@ -15,11 +15,14 @@ import { ZakenService } from "./zaken.service";
 export class ZaakIdentificatieResolver {
   constructor(private zakenService: ZakenService) {}
 
-  resolve(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot,
-  ): Observable<Zaak> {
-    const zaakID: string = route.paramMap.get("zaakIdentificatie");
+  resolve(route: ActivatedRouteSnapshot): Observable<Zaak> {
+    const zaakID = route.paramMap.get("zaakIdentificatie");
+    if (!zaakID) {
+      throw new Error(
+        `${ZaakIdentificatieResolver.name}: No 'zaakID' found in route`,
+      );
+    }
+
     return this.zakenService.readZaakByID(zaakID);
   }
 }

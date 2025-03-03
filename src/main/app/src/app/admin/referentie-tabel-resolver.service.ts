@@ -4,7 +4,7 @@
  */
 
 import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
+import { ActivatedRouteSnapshot } from "@angular/router";
 import { Observable } from "rxjs";
 import { ReferentieTabel } from "./model/referentie-tabel";
 import { ReferentieTabelService } from "./referentie-tabel.service";
@@ -15,10 +15,14 @@ import { ReferentieTabelService } from "./referentie-tabel.service";
 export class ReferentieTabelResolver {
   constructor(private adminService: ReferentieTabelService) {}
 
-  resolve(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot,
-  ): Observable<ReferentieTabel> {
-    return this.adminService.readReferentieTabel(route.paramMap.get("id"));
+  resolve(route: ActivatedRouteSnapshot): Observable<ReferentieTabel> {
+    const id = route.paramMap.get("id");
+    if (!id) {
+      throw new Error(
+        `${ReferentieTabelResolver.name}: 'id' in not defined in route`,
+      );
+    }
+
+    return this.adminService.readReferentieTabel(id);
   }
 }

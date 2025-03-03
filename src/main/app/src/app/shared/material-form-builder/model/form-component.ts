@@ -9,7 +9,7 @@ import { AbstractFormField } from "./abstract-form-field";
 
 export abstract class FormComponent {
   abstract translate: TranslateService;
-  data: AbstractFormField;
+  data!: AbstractFormField;
 
   constructor() {}
 

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
 import { FormComponent } from "../../model/form-component";
@@ -13,8 +13,8 @@ import { DateFormField } from "./date-form-field";
   templateUrl: "./date.component.html",
   styleUrls: ["./date.component.less"],
 })
-export class DateComponent extends FormComponent implements OnInit {
-  data: DateFormField;
+export class DateComponent extends FormComponent {
+  data!: DateFormField;
 
   constructor(public translate: TranslateService) {
     super();
@@ -30,8 +30,6 @@ export class DateComponent extends FormComponent implements OnInit {
     }
     return super.getErrorMessage();
   }
-
-  ngOnInit(): void {}
 
   days() {
     return moment(this.data.formControl.value).diff(

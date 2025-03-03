@@ -55,5 +55,5 @@ export class Zaak {
   isProcesGestuurd: boolean;
   rechten: ZaakRechten;
   indicaties: ZaakIndicatie[];
-  zaakdata: {};
+  zaakdata: Record<string, any>;
 }
