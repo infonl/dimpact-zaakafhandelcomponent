@@ -7,6 +7,8 @@
 import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { ZaakRechten } from "src/app/policy/model/zaak-rechten";
 import { Zaak } from "../model/zaak";
+import { GeneratedType } from "../../shared/utils/generated-types";
+
 
 const zaakMock: Zaak = {
   uuid: "zaak-001",
@@ -63,7 +65,7 @@ const zaakMock: Zaak = {
   },
   gerelateerdeZaken: null,
   kenmerken: [],
-  initiatorIdentificatieType: null,
+  initiatorIdentificatieType: "BSN",
   initiatorIdentificatie: "initiator-001",
   isOpen: true,
   isHeropend: false,

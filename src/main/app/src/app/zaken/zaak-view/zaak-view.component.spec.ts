@@ -16,11 +16,9 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
-import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
-import { GeneratedType } from "../../shared/utils/generated-types";
 import zaakMock from "./zaak-mock";
 import { ZaakViewComponent } from "./zaak-view.component";
 
@@ -71,12 +69,20 @@ describe(ZaakViewComponent.name, () => {
 
     loader = TestbedHarnessEnvironment.loader(fixture);
 
-    component.init(zaakMock);
+    component.zaak = { ...zaakMock };
+    fixture.detectChanges();
+    console.log("MOCK: " + zaakMock);
+
+    console.log("Initiator Identificatie Type: ", component.zaak.initiatorIdentificatieType);
+
+    
+    console.log("ZAAK: " + component.zaak);
   });
 
   describe("actie.zaak.opschorten", () => {
     it("should not show the opschorten button when isEerderOpgeschort is true", async () => {
       component.zaak.isEerderOpgeschort = true;
+      
 
       const button = await loader.getHarnessOrNull(
         MatNavListItemHarness.with({ title: "actie.taak.opschorten" }),
