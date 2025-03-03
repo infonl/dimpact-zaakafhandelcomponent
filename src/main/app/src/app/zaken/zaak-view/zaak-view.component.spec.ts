@@ -13,12 +13,25 @@ import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { of } from "rxjs";
+import { fromPartial } from "@total-typescript/shoehorn";
+import { of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
+import { BAGService } from "../../bag/bag.service";
+import { PersoonsgegevensComponent } from "../../klanten/persoonsgegevens/persoonsgegevens.component";
+import { NotitiesComponent } from "../../notities/notities.component";
+import { PlanItemsService } from "../../plan-items/plan-items.service";
+import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
-import { zaakMock } from "./zaak-mock";
+import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
+import { GeneratedType } from "../../shared/utils/generated-types";
+import { Zaak } from "../model/zaak";
+import { Zaaktype } from "../model/zaaktype";
+import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
+import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
+import { ZakenService } from "../zaken.service";
 import { ZaakViewComponent } from "./zaak-view.component";
 
 describe(ZaakViewComponent.name, () => {
@@ -27,14 +40,38 @@ describe(ZaakViewComponent.name, () => {
   let loader: HarnessLoader;
 
   let utilService: UtilService;
+  let zakenService: ZakenService;
+  let bagService: BAGService;
+  let planItemsService: PlanItemsService;
 
-  const mockUtilService = {
-    disableActionBar: jest.fn(),
+  const mockActivatedRoute = {
+    data: new ReplaySubject<{ zaak: Zaak }>(1),
   };
+
+  const zaak = fromPartial<Zaak>({
+    zaaktype: fromPartial<Zaaktype>({
+      omschrijving: "mock description",
+    }),
+    indicaties: [],
+    rechten: {},
+    groep: {},
+    vertrouwelijkheidaanduiding: "OPENBAAR",
+    gerelateerdeZaken: [],
+    initiatorIdentificatieType: "BSN",
+  });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ZaakViewComponent],
+      declarations: [
+        ZaakViewComponent,
+        ZaakIndicatiesComponent,
+        StaticTextComponent,
+        ZaakDocumentenComponent,
+        NotitiesComponent,
+        SideNavComponent,
+        PersoonsgegevensComponent,
+        ZaakInitiatorToevoegenComponent,
+      ],
       imports: [
         TranslateModule.forRoot(),
         NoopAnimationsModule,
@@ -47,49 +84,90 @@ describe(ZaakViewComponent.name, () => {
         provideHttpClientTesting(),
         {
           provide: ActivatedRoute,
-          useValue: {
-            data: of({ zaak: zaakMock }),
-          },
+          useValue: mockActivatedRoute,
         },
-        { provide: UtilService, useValue: mockUtilService }, // Mock UtilService
         VertrouwelijkaanduidingToTranslationKeyPipe,
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ZaakViewComponent);
-    component = fixture.componentInstance;
-
     utilService = TestBed.inject(UtilService);
+    jest.spyOn(utilService, "disableActionBar").mockReturnValue(undefined);
+    jest.spyOn(utilService, "setTitle").mockImplementation();
 
+    zakenService = TestBed.inject(ZakenService);
+    jest.spyOn(zakenService, "listHistorieVoorZaak").mockReturnValue(of([]));
+    jest.spyOn(zakenService, "listBetrokkenenVoorZaak").mockReturnValue(of([]));
     jest
-      .spyOn(utilService as any, "disableActionBar")
-      .mockReturnValueOnce(undefined);
-    jest.spyOn(component as any, "loadHistorie").mockReturnValueOnce(undefined);
-    jest
-      .spyOn(component as any, "loadBetrokkenen")
-      .mockReturnValueOnce(undefined);
-    jest
-      .spyOn(component as any, "loadBagObjecten")
-      .mockReturnValueOnce(undefined);
-    jest
-      .spyOn(component as any, "loadOpschorting")
-      .mockReturnValueOnce(undefined);
-    jest
-      .spyOn(component as any, "setDateFieldIconSet")
-      .mockReturnValueOnce(undefined);
+      .spyOn(zakenService, "readOpschortingZaak")
+      .mockReturnValue(
+        of(fromPartial<GeneratedType<"RESTZaakOpschorting">>({})),
+      );
 
+    bagService = TestBed.inject(BAGService);
+    jest.spyOn(bagService, "list").mockReturnValue(of([]));
+
+    planItemsService = TestBed.inject(PlanItemsService);
+    jest
+      .spyOn(planItemsService, "listUserEventListenerPlanItems")
+      .mockReturnValue(of([]));
+    jest
+      .spyOn(planItemsService, "listHumanTaskPlanItems")
+      .mockReturnValue(of([]));
+    jest
+      .spyOn(planItemsService, "listProcessTaskPlanItems")
+      .mockReturnValue(of([]));
+
+    fixture = TestBed.createComponent(ZaakViewComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
-    component.init(zaakMock);
+
+    component = fixture.componentInstance;
   });
 
   describe("actie.zaak.opschorten", () => {
-    it("should not show the opschorten button when isEerderOpgeschort is true", async () => {
-      component.zaak.isEerderOpgeschort = true;
+    const opschortenZaak = {
+      ...zaak,
+      isOpen: true,
+      rechten: {
+        ...zaak.rechten,
+        behandelen: true,
+      },
+      zaaktype: {
+        ...zaak.zaaktype,
+        opschortingMogelijk: true,
+      },
+      isHeropend: false,
+      isOpgeschort: false,
+      isEerderOpgeschort: false,
+      isProcesGestuurd: false,
+    } satisfies Zaak;
 
-      const button = await loader.getHarnessOrNull(
+    beforeEach(() => {
+      mockActivatedRoute.data.next({ zaak: opschortenZaak });
+    });
+
+    it("should show the button", async () => {
+      const button = await loader.getHarness(
         MatNavListItemHarness.with({ title: "actie.zaak.opschorten" }),
       );
-      expect(button).toBeUndefined();
+      expect(button).toBeTruthy();
+    });
+
+    describe("isEerderOpgeschort", () => {
+      beforeEach(() => {
+        mockActivatedRoute.data.next({
+          zaak: {
+            ...opschortenZaak,
+            isEerderOpgeschort: true,
+          },
+        });
+      });
+
+      it("should not show the button", async () => {
+        const button = await loader.getHarnessOrNull(
+          MatNavListItemHarness.with({ title: "actie.zaak.opschorten" }),
+        );
+        expect(button).toBeNull();
+      });
     });
   });
 });
