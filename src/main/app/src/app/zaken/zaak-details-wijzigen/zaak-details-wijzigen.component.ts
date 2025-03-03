@@ -340,7 +340,6 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
   }
 
   locationChanged(update: Geometry) {
-    // TODO: reset when cancelling
     this.zaak.zaakgeometrie = update;
   }
 
