@@ -32,6 +32,7 @@ import { FormConfig } from "src/app/shared/material-form-builder/model/form-conf
 import { FormConfigBuilder } from "src/app/shared/material-form-builder/model/form-config-builder";
 import { OrderUtil } from "src/app/shared/order/order-util";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
+import { Geometry } from "../model/geometry";
 import { Zaak } from "../model/zaak";
 import { ZakenService } from "../zaken.service";
 
@@ -58,16 +59,15 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
   private vertrouwelijkheidaanduidingenList: { label: string; value: string }[];
   private omschrijving: TextareaFormField;
   private toelichtingField: TextareaFormField;
-  private reasonField: TextareaFormField;
+  reasonField: TextareaFormField;
   private ngDestroy = new Subject<void>();
+  private initialZaakGeometry: Geometry;
 
   constructor(
     private zakenService: ZakenService,
     private referentieTabelService: ReferentieTabelService,
     private utilService: UtilService,
-  ) {}
-
-  ngOnInit() {
+  ) {
     this.formConfig = new FormConfigBuilder()
       .saveText("actie.opslaan")
       .cancelText("actie.annuleren")
@@ -82,6 +82,22 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
         "vertrouwelijkheidaanduiding",
         Vertrouwelijkheidaanduiding,
       );
+
+    this.reasonField = new InputFormFieldBuilder()
+      .id("reason")
+      .label("reden")
+      .maxlength(80)
+      .validators(Validators.required)
+      .build();
+
+    // Forcing the set value to sync tabs
+    this.reasonField.formControl.valueChanges.subscribe((value) => {
+      this.reasonField.formControl.setValue(value, { emitEvent: false });
+    });
+  }
+
+  ngOnInit() {
+    this.initialZaakGeometry = this.zaak.zaakgeometrie;
 
     this.medewerkerGroepFormField = this.getMedewerkerGroupFormField(
       !this.zaak.isOpen || !this.zaak.rechten.toekennen,
@@ -99,7 +115,6 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
       .validators(Validators.required)
       .build();
 
-    //
     this.startDatumField = this.createDateFormField(
       "startdatum",
       this.zaak.startdatum,
@@ -157,14 +172,6 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
       .label("toelichting")
       .maxlength(1000)
       .disabled(!this.zaak.rechten.wijzigen)
-      .build();
-
-    this.reasonField = new InputFormFieldBuilder()
-      .id("reason")
-      .label("reden")
-      .maxlength(80)
-      .disabled()
-      .validators(Validators.required)
       .build();
 
     this.formFields = [
@@ -306,78 +313,89 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     return null;
   }
 
-  onFormSubmit(formGroup: FormGroup): void {
-    const changedValues: Partial<
-      GeneratedType<"RestZaak"> & {
-        assignment: {
-          groep: GeneratedType<"RestGroup">;
-          medewerker: GeneratedType<"RestUser">;
-        };
-        reason: string;
-      }
-    > = {};
-    for (const [key, control] of Object.entries(formGroup.controls)) {
-      if (control.dirty) {
-        changedValues[key] = control.value;
-      }
-    }
-    const { reason, assignment, ...patchFields } = changedValues;
+  saveFromFormView(formGroup: FormGroup): void {
+    const updates = Object.entries(formGroup.controls).reduce(
+      (acc, [key, control]) => {
+        const value = control.value;
+        acc[key] = key === "vertrouwelijkheidaanduiding" ? value.value : value;
+        return acc;
+      },
+      {},
+    );
+
+    void this.updateZaak(this.mergeUpdateOntoZaak(updates));
+  }
+
+  saveFromMapView() {
+    const updates = this.formFields.reduce((acc, fields) => {
+      fields.forEach((field) => {
+        const value = field.formControl.value;
+        acc[field.id] =
+          field.id === "vertrouwelijkheidaanduiding" ? value.value : value;
+      });
+      return acc;
+    }, {});
+
+    void this.updateZaak(this.mergeUpdateOntoZaak(updates));
+  }
+
+  locationChanged(update: Geometry) {
+    // TODO: reset when cancelling
+    this.zaak.zaakgeometrie = update;
+  }
+
+  private mergeUpdateOntoZaak(update: Record<string, any>) {
+    const { assignment, reason, ...updates } = update;
+
+    return {
+      ...this.zaak,
+      ...updates,
+      behandelaar: assignment?.medewerker,
+    } as Zaak;
+  }
+
+  private async updateZaak(zaak: Zaak) {
+    const reason = this.reasonField.formControl.value;
     const subscriptions: Subscription[] = [];
 
-    if (assignment) {
-      this.zaak = {
-        ...this.zaak,
-        ...assignment.groep,
-        behandelaar: assignment.medewerker,
-      };
-
-      if (this.zaak.behandelaar?.id === this.loggedInUser.id) {
-        subscriptions.push(
-          this.zakenService
-            .toekennenAanIngelogdeMedewerker(this.zaak, reason)
-            .subscribe((zaak) => {
-              this.utilService.openSnackbar("msg.zaak.toegekend", {
-                behandelaar: zaak.behandelaar?.naam,
-              });
-            }),
-        );
-      } else {
-        subscriptions.push(
-          this.zakenService.toekennen(this.zaak, reason).subscribe((zaak) => {
-            if (zaak?.behandelaar?.id) {
-              this.utilService.openSnackbar("msg.zaak.toegekend", {
-                behandelaar: zaak.behandelaar.naam,
-              });
-            } else {
-              this.utilService.openSnackbar("msg.vrijgegeven.zaak");
-            }
-          }),
-        );
-      }
-    }
-
-    if (patchFields) {
-      const zaak = new Zaak();
-
-      Object.keys(patchFields).forEach((key) => {
-        // circumvent the TypeScript type check (pattern copied from zaak-view.component.ts)
-        zaak[key] = patchFields[key].value;
-        patchFields[key].value;
-        patchFields[key];
-      });
-
+    if (zaak.behandelaar?.id === this.loggedInUser.id) {
       subscriptions.push(
         this.zakenService
-          .updateZaak(this.zaak.uuid, zaak, reason)
-          .subscribe(() => {}),
+          .toekennenAanIngelogdeMedewerker(zaak, reason)
+          .subscribe((zaak) => {
+            this.utilService.openSnackbar("msg.zaak.toegekend", {
+              behandelaar: zaak.behandelaar?.naam,
+            });
+          }),
+      );
+    } else {
+      subscriptions.push(
+        this.zakenService.toekennen(zaak, reason).subscribe((updatedZaak) => {
+          if (updatedZaak.behandelaar?.id) {
+            this.utilService.openSnackbar("msg.zaak.toegekend", {
+              behandelaar: updatedZaak.behandelaar?.naam,
+            });
+          } else {
+            this.utilService.openSnackbar("msg.vrijgegeven.zaak");
+          }
+        }),
       );
     }
 
-    if (subscriptions.length > 0) {
-      forkJoin([subscriptions]).subscribe(async () => {
-        await this.sideNav.close();
-      });
-    }
+    subscriptions.push(
+      this.zakenService
+        .updateZaak(this.zaak.uuid, zaak, reason)
+        .subscribe(() => {}),
+    );
+
+    forkJoin([subscriptions]).subscribe(async () => {
+      await this.sideNav.close();
+    });
+  }
+
+  exit() {
+    this.zaak.zaakgeometrie = this.initialZaakGeometry;
+    void this.sideNav.close();
   }
 
   private getMedewerkerGroupFormField(

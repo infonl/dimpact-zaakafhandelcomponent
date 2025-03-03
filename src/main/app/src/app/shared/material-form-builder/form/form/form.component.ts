@@ -33,9 +33,8 @@ export class FormComponent {
     }
   }
 
-  @Output() formSubmit: EventEmitter<FormGroup> = new EventEmitter<FormGroup>();
-  @Output() formPartial: EventEmitter<FormGroup> =
-    new EventEmitter<FormGroup>();
+  @Output() formSubmit = new EventEmitter<FormGroup>();
+  @Output() formPartial = new EventEmitter<FormGroup>();
 
   data: Array<AbstractFormField[]>;
   formGroup: FormGroup;
@@ -44,8 +43,6 @@ export class FormComponent {
   submittingForm: boolean;
 
   private _config: FormConfig;
-
-  constructor() {}
 
   refreshFormfields(formFields: Array<AbstractFormField[]>): void {
     this.data = formFields;
