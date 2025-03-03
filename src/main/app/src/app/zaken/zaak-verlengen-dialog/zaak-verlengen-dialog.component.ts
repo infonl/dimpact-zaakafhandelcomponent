@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnDestroy } from "@angular/core";
 import { Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { TranslateService } from "@ngx-translate/core";
@@ -26,10 +26,9 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "zaak-verlengen-dialog.component.html",
   styleUrls: ["./zaak-verlengen-dialog.component.less"],
 })
-export class ZaakVerlengenDialogComponent implements OnInit {
-  formFields: AbstractFormField[];
-  zaak: Zaak;
-  loading: boolean = true;
+export class ZaakVerlengenDialogComponent implements OnDestroy {
+  formFields: AbstractFormField[][] = [];
+  loading = true;
 
   duurDagenField: InputFormField;
   einddatumGeplandField: DateFormField | HiddenFormField;
@@ -44,47 +43,37 @@ export class ZaakVerlengenDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<ZaakVerlengenDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { zaak: Zaak },
     private zakenService: ZakenService,
-  ) {}
-
-  ngOnInit(): void {
-    this.initFormFields();
-
-    this.dialogRef.afterOpened().subscribe(() => {
-      this.loading = false;
-    });
-  }
-
-  initFormFields(): void {
+  ) {
     this.duurDagenField = new InputFormFieldBuilder()
       .id("verlengduur")
       .label("verlengduur")
       .validators(
         Validators.required,
         Validators.min(1),
-        Validators.max(this.data.zaak.zaaktype.verlengingstermijn),
+        Validators.max(data.zaak.zaaktype.verlengingstermijn),
       )
       .hint(
         this.translateService.instant(
-          `hint.zaak.dialoog.verlengen.verlengduur${this.data.zaak.zaaktype.verlengingstermijn > 1 ? ".meervoud" : ""}`,
+          `hint.zaak.dialoog.verlengen.verlengduur${data.zaak.zaaktype.verlengingstermijn > 1 ? ".meervoud" : ""}`,
           {
-            verlengDuur: this.data.zaak.zaaktype.verlengingstermijn,
+            verlengDuur: data.zaak.zaaktype.verlengingstermijn,
           },
         ),
       )
       .styleClass("form-field-hint")
       .build();
 
-    const maxDateEinddatumGepland = moment(this.data.zaak.einddatumGepland)
-      .add(this.data.zaak.zaaktype.verlengingstermijn, "days")
+    const maxDateEinddatumGepland = moment(data.zaak.einddatumGepland)
+      .add(data.zaak.zaaktype.verlengingstermijn, "days")
       .toDate();
 
-    this.einddatumGeplandField = this.data.zaak?.einddatumGepland
-      ? new DateFormFieldBuilder(this.data.zaak.einddatumGepland)
+    this.einddatumGeplandField = data.zaak?.einddatumGepland
+      ? new DateFormFieldBuilder(data.zaak.einddatumGepland)
           .id("einddatumGepland")
           .label("einddatumGepland")
-          .readonly(!this.data.zaak.einddatumGepland)
+          .readonly(!data.zaak.einddatumGepland)
           .validators(
-            this.data.zaak.einddatumGepland
+            data.zaak.einddatumGepland
               ? Validators.required
               : Validators.nullValidator,
           )
@@ -93,13 +82,13 @@ export class ZaakVerlengenDialogComponent implements OnInit {
       : new HiddenFormFieldBuilder().id("einddatumGepland").build();
 
     const maxDateUiterlijkeEinddatumAfdoening = moment(
-      this.data.zaak.uiterlijkeEinddatumAfdoening,
+      data.zaak.uiterlijkeEinddatumAfdoening,
     )
-      .add(this.data.zaak.zaaktype.verlengingstermijn, "days")
+      .add(data.zaak.zaaktype.verlengingstermijn, "days")
       .toDate();
 
     this.uiterlijkeEinddatumAfdoeningField = new DateFormFieldBuilder(
-      this.data.zaak.uiterlijkeEinddatumAfdoening,
+      data.zaak.uiterlijkeEinddatumAfdoening,
     )
       .id("uiterlijkeEinddatumAfdoening")
       .label("uiterlijkeEinddatumAfdoening")
@@ -119,10 +108,10 @@ export class ZaakVerlengenDialogComponent implements OnInit {
       .build();
 
     this.formFields = [
-      this.duurDagenField,
-      this.einddatumGeplandField,
-      this.uiterlijkeEinddatumAfdoeningField,
-      this.redenVerlengingField,
+      [this.duurDagenField],
+      [this.einddatumGeplandField],
+      [this.uiterlijkeEinddatumAfdoeningField],
+      [this.redenVerlengingField],
     ];
 
     this.duurDagenField.formControl.valueChanges
@@ -142,7 +131,7 @@ export class ZaakVerlengenDialogComponent implements OnInit {
           this.resetFields();
         }
         this.updateDateFields(
-          moment(value).diff(this.data.zaak.einddatumGepland, "days"),
+          moment(value).diff(data.zaak.einddatumGepland, "days"),
         );
       });
 
@@ -153,12 +142,13 @@ export class ZaakVerlengenDialogComponent implements OnInit {
           this.resetFields();
         }
         this.updateDateFields(
-          moment(value).diff(
-            this.data.zaak.uiterlijkeEinddatumAfdoening,
-            "days",
-          ),
+          moment(value).diff(data.zaak.uiterlijkeEinddatumAfdoening, "days"),
         );
       });
+
+    this.dialogRef.afterOpened().subscribe(() => {
+      this.loading = false;
+    });
   }
 
   private updateDateFields(duur: number): void {
@@ -167,17 +157,17 @@ export class ZaakVerlengenDialogComponent implements OnInit {
       return;
     }
 
-    this.duurDagenField.formControl.setValue(duur, { emitEvent: false });
-    this.uiterlijkeEinddatumAfdoeningField.formControl.setValue(
+    this.duurDagenField?.formControl.setValue(duur, { emitEvent: false });
+    this.uiterlijkeEinddatumAfdoeningField?.formControl.setValue(
       moment(this.data.zaak.uiterlijkeEinddatumAfdoening).add(duur, "days"),
       { emitEvent: false },
     );
 
-    if (this.einddatumGeplandField.formControl.value === null) {
+    if (this.einddatumGeplandField?.formControl.value === null) {
       return;
     }
 
-    this.einddatumGeplandField.formControl.setValue(
+    this.einddatumGeplandField?.formControl.setValue(
       moment(this.data.zaak.einddatumGepland).add(duur, "days"),
       { emitEvent: false },
     );
@@ -185,7 +175,7 @@ export class ZaakVerlengenDialogComponent implements OnInit {
 
   private resetFields(): void {
     this.duurDagenField.formControl.setValue(null, { emitEvent: false });
-    this.einddatumGeplandField.formControl.setValue(
+    this.einddatumGeplandField?.formControl.setValue(
       moment(this.data.zaak.einddatumGepland),
       { emitEvent: false },
     );
@@ -216,7 +206,7 @@ export class ZaakVerlengenDialogComponent implements OnInit {
           this.loading = false;
           this.dialogRef.close(result);
         },
-        error: (err) => {
+        error: () => {
           this.loading = false;
           this.dialogRef.disableClose = false;
         },
@@ -231,7 +221,7 @@ export class ZaakVerlengenDialogComponent implements OnInit {
     return (
       this.loading ||
       (this.data.zaak &&
-        this.formFields.some((field) => field.formControl.invalid))
+        this.formFields.flat().some((field) => field.formControl.invalid))
     );
   }
 

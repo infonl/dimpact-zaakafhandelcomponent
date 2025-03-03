@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ValidatorFn, Validators } from "@angular/forms";
+import { Validators } from "@angular/forms";
 import { GeneratedType } from "../../../utils/generated-types";
 import { AbstractFormField } from "../../model/abstract-form-field";
 import { AbstractFormFieldBuilder } from "../../model/abstract-form-field-builder";
@@ -34,10 +34,6 @@ export class MedewerkerGroepFieldBuilder extends AbstractFormFieldBuilder {
   medewerkerLabel(medewerkerLabel: string): this {
     this.formField.medewerkerLabel = medewerkerLabel;
     return this;
-  }
-
-  validators(...validators: ValidatorFn[]): this {
-    throw new Error("Not implemented");
   }
 
   groepRequired(): this {

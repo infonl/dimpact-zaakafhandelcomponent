@@ -60,80 +60,76 @@ describe(ParameterEditComponent.name, () => {
     { id: "test-group-id-2", naam: "test-group-2" },
   ];
 
-  describe("Case handler", () => {
-    beforeEach(async () => {
-      await TestBed.configureTestingModule({
-        declarations: [
-          ParameterEditComponent,
-          SideNavComponent,
-          StaticTextComponent,
-        ],
-        imports: [
-          TranslateModule.forRoot(),
-          MaterialModule,
-          NoopAnimationsModule,
-          RouterModule,
-          PipesModule,
-        ],
-        providers: [
-          provideHttpClient(),
-          provideHttpClientTesting(),
-          {
-            provide: ActivatedRoute,
-            useValue: {
-              data: of({ parameters: zaakAfhandelParamaters }),
-            },
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [
+        ParameterEditComponent,
+        SideNavComponent,
+        StaticTextComponent,
+      ],
+      imports: [
+        TranslateModule.forRoot(),
+        MaterialModule,
+        NoopAnimationsModule,
+        RouterModule,
+        PipesModule,
+      ],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            data: of({ parameters: zaakAfhandelParamaters }),
           },
-        ],
-      }).compileComponents();
+        },
+      ],
+    }).compileComponents();
 
-      zaakafhandelParametersService = TestBed.inject(
-        ZaakafhandelParametersService,
-      );
-      jest
-        .spyOn(zaakafhandelParametersService, "listCaseDefinitions")
-        .mockReturnValue(of([]));
-      jest
-        .spyOn(zaakafhandelParametersService, "listFormulierDefinities")
-        .mockReturnValue(of([]));
-      jest
-        .spyOn(zaakafhandelParametersService, "listReplyTos")
-        .mockReturnValue(of([]));
-      jest
-        .spyOn(zaakafhandelParametersService, "listZaakbeeindigRedenen")
-        .mockReturnValue(of([]));
-      jest
-        .spyOn(zaakafhandelParametersService, "listResultaattypes")
-        .mockReturnValue(of([]));
+    zaakafhandelParametersService = TestBed.inject(
+      ZaakafhandelParametersService,
+    );
+    jest
+      .spyOn(zaakafhandelParametersService, "listCaseDefinitions")
+      .mockReturnValue(of([]));
+    jest
+      .spyOn(zaakafhandelParametersService, "listFormulierDefinities")
+      .mockReturnValue(of([]));
+    jest
+      .spyOn(zaakafhandelParametersService, "listReplyTos")
+      .mockReturnValue(of([]));
+    jest
+      .spyOn(zaakafhandelParametersService, "listZaakbeeindigRedenen")
+      .mockReturnValue(of([]));
+    jest
+      .spyOn(zaakafhandelParametersService, "listResultaattypes")
+      .mockReturnValue(of([]));
 
-      referentieTabelService = TestBed.inject(ReferentieTabelService);
-      jest
-        .spyOn(referentieTabelService, "listReferentieTabellen")
-        .mockReturnValue(of([]));
-      jest
-        .spyOn(referentieTabelService, "listDomeinen")
-        .mockReturnValue(of([]));
-      jest
-        .spyOn(referentieTabelService, "listAfzenders")
-        .mockReturnValue(of([]));
+    referentieTabelService = TestBed.inject(ReferentieTabelService);
+    jest
+      .spyOn(referentieTabelService, "listReferentieTabellen")
+      .mockReturnValue(of([]));
+    jest.spyOn(referentieTabelService, "listDomeinen").mockReturnValue(of([]));
+    jest.spyOn(referentieTabelService, "listAfzenders").mockReturnValue(of([]));
 
-      identityService = TestBed.inject(IdentityService);
-      jest.spyOn(identityService, "listGroups").mockReturnValue(of(groups));
-      jest
-        .spyOn(identityService, "listUsersInGroup")
-        .mockReturnValueOnce(of(users))
-        .mockReturnValue(of([]));
+    identityService = TestBed.inject(IdentityService);
+    jest.spyOn(identityService, "listGroups").mockReturnValue(of(groups));
+    jest
+      .spyOn(identityService, "listUsersInGroup")
+      .mockReturnValueOnce(of(users))
+      .mockReturnValue(of([]));
 
-      mailtemplateBeheerService = TestBed.inject(MailtemplateBeheerService);
-      jest
-        .spyOn(mailtemplateBeheerService, "listKoppelbareMailtemplates")
-        .mockReturnValue(of([]));
+    mailtemplateBeheerService = TestBed.inject(MailtemplateBeheerService);
+    jest
+      .spyOn(mailtemplateBeheerService, "listKoppelbareMailtemplates")
+      .mockReturnValue(of([]));
 
-      fixture = TestBed.createComponent(ParameterEditComponent);
-      component = fixture.componentInstance;
-      loader = TestbedHarnessEnvironment.loader(fixture);
-    });
+    fixture = TestBed.createComponent(ParameterEditComponent);
+    component = fixture.componentInstance;
+    loader = TestbedHarnessEnvironment.loader(fixture);
+  });
 
+  describe("Case handler", () => {
     it("should set the case handlers which are in the selected group", async () => {
       const selectFields = await loader.getAllHarnesses(MatSelectHarness);
       const caseHandlerSelect = selectFields[3];

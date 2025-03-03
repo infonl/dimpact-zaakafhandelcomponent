@@ -5,9 +5,9 @@ nodejs = "20.17.0"
 jsonschema2pojo = "1.2.2"
 kotlin-csv = "1.10.0"
 openapi = "4.0.8"
-openapi-generator = "7.11.0"
+openapi-generator = "7.12.0"
 opentelemetry = "1.47.0"
-opentelemetry-instrumentation = "2.13.2"
+opentelemetry-instrumentation = "2.13.3"
 node-gradle = "7.1.0"
 taskinfo = "2.2.0"
 swagger-generator = "2.19.2"
@@ -46,10 +46,13 @@ jakarta-mail = "2.1.3"
 
 caffeine = "3.2.0"
 
-jackson = "2.18.2"
+jackson = "2.18.3"
 
 # versions of dependencies provided by Wildfly
 eclipse-microprofile-rest-client-api = "3.0.1"
+# Unfortunately the OpenAPI Generator library that we use to generate model classes from OpenAPI specs
+# does not support the latest version of the Eclipse MicroProfile Rest Client API.
+openapi-generator-eclipse-microprofile-rest-client-api = "3.0"
 eclipse-microprofile-config-api = "3.1"
 eclipse-microprofile-health-api = "4.0.1"
 eclipse-microprofile-fault-tolerance-api = "4.0.2"

@@ -21,12 +21,13 @@ describe(MedewerkerGroepComponent.name, () => {
   let component: MedewerkerGroepComponent;
 
   let identityService: IdentityService;
-  let medewerkerGroepFormField = new MedewerkerGroepFormField();
-  let medewerkerFormControl: FormControl;
+
   const user: GeneratedType<"RestUser"> = {
     id: "test-user-id",
     naam: "test-medewerker",
   };
+  const medewerkerGroepFormField = new MedewerkerGroepFormField();
+  const medewerkerFormControl = new FormControl(user, { nonNullable: true });
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -48,14 +49,13 @@ describe(MedewerkerGroepComponent.name, () => {
     const fixture = TestBed.createComponent(MedewerkerGroepComponent);
     component = fixture.componentInstance;
 
-    medewerkerFormControl = new FormControl(user, { nonNullable: true });
     const groepFormControl = new FormControl({ id: "1", naam: "test-groep" });
     jest
       .spyOn(medewerkerGroepFormField, "medewerker", "get")
       .mockReturnValue(medewerkerFormControl);
     jest
       .spyOn(medewerkerGroepFormField, "groep", "get")
-      .mockReturnValue(groepFormControl);
+      .mockReturnValue(groepFormControl as FormControl);
     component.data = medewerkerGroepFormField;
 
     identityService = TestBed.inject(IdentityService);

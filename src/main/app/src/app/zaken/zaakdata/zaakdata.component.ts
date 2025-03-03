@@ -21,12 +21,12 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./zaakdata.component.less"],
 })
 export class ZaakdataComponent implements OnInit {
-  @Input() zaak: Zaak;
-  @Input() sideNav: MatDrawer;
+  @Input({ required: true }) zaak!: Zaak;
+  @Input({ required: true }) sideNav!: MatDrawer;
   @Input() readonly = false;
   bezigMetOpslaan = false;
-  form: FormGroup;
-  procesVariabelen: string[];
+  form?: FormGroup;
+  procesVariabelen: string[] = [];
 
   constructor(
     private formBuilder: FormBuilder,
@@ -46,7 +46,7 @@ export class ZaakdataComponent implements OnInit {
     });
   }
 
-  buildForm(data: {}, formData: FormGroup): FormGroup {
+  buildForm(data: Record<string, any>, formData: FormGroup): FormGroup {
     for (const [k, v] of Object.entries(data)) {
       formData.addControl(k, this.getControl(v, this.isProcesVariabele(k)));
     }
@@ -72,30 +72,36 @@ export class ZaakdataComponent implements OnInit {
     } else if (this.isObject(value)) {
       return this.buildForm(value, this.formBuilder.group({}));
     }
+
+    return new FormControl({ value: value, disabled: proces });
   }
 
-  isProcesVariabele(key): boolean {
+  isProcesVariabele(key: string): boolean {
     return this.procesVariabelen.includes(key);
   }
 
-  isFile(data): boolean {
-    return data?.hasOwnProperty("originalName");
+  isFile(data?: File): boolean {
+    if (!data) {
+      return false;
+    }
+
+    return "originalName" in data;
   }
 
-  isArray(data): boolean {
+  isArray(data: unknown): boolean {
     return Array.isArray(data);
   }
 
-  isObject(data): boolean {
+  isObject(data: unknown): boolean {
     return typeof data === "object" && !Array.isArray(data) && data !== null;
   }
 
-  isValue(data): boolean {
+  isValue(data: unknown): boolean {
     return !this.isObject(data) && !this.isArray(data);
   }
 
   opslaan(): void {
-    this.mergeDeep(this.zaak.zaakdata, this.form.value);
+    this.mergeDeep(this.zaak.zaakdata, this.form?.value);
     this.bezigMetOpslaan = true;
     this.zakenService.updateZaakdata(this.zaak).subscribe(() => {
       this.bezigMetOpslaan = false;
@@ -103,22 +109,21 @@ export class ZaakdataComponent implements OnInit {
     });
   }
 
-  mergeDeep(dest: {}, src: {}): void {
+  mergeDeep(dest: Record<string, any>, src: Record<string, any>): void {
     Object.keys(src).forEach((key) => {
-      if (src.hasOwnProperty(key)) {
-        const destVal = dest[key];
-        const srcVal = src[key];
-        if (this.isArray(destVal) && this.isArray(srcVal)) {
-          dest[key] = destVal.concat(...srcVal);
-        } else if (
-          dest.hasOwnProperty(key) &&
-          this.isObject(destVal) &&
-          this.isObject(srcVal)
-        ) {
-          this.mergeDeep(destVal, srcVal);
-        } else {
-          dest[key] = srcVal;
-        }
+      if (key === "__proto__" || key === "constructor") return;
+      const destVal = dest[key];
+      const srcVal = src[key];
+      if (this.isArray(destVal) && this.isArray(srcVal)) {
+        dest[key] = destVal.concat(...srcVal);
+      } else if (
+        key in dest &&
+        this.isObject(destVal) &&
+        this.isObject(srcVal)
+      ) {
+        this.mergeDeep(destVal, srcVal);
+      } else {
+        dest[key] = srcVal;
       }
     });
   }

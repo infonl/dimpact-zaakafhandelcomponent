@@ -21,16 +21,14 @@ export abstract class TableDataSource<OBJECT> extends DataSource<OBJECT> {
   sort: MatSort;
   filters: {} = {};
 
-  private _columns: Map<string, ColumnPickerValue>;
-  private _visibleColumns: Array<string>;
-  private _filterColumns: Array<string>;
-  private _detailExpandColumns: Array<string>;
+  private _columns: Map<string, ColumnPickerValue> = new Map();
+  private _visibleColumns: Array<string> = [];
+  private _filterColumns: Array<string> = [];
+  private _detailExpandColumns: Array<string> = [];
 
-  private subscription$: Subscription;
+  private subscription$?: Subscription;
 
-  connect(
-    collectionViewer: CollectionViewer,
-  ): Observable<OBJECT[] | ReadonlyArray<OBJECT>> {
+  connect(): Observable<OBJECT[] | ReadonlyArray<OBJECT>> {
     // reset pageindex on sort change
     this.subscription$ = this.sort.sortChange.subscribe(
       () => (this.paginator.pageIndex = 0),
@@ -96,7 +94,7 @@ export abstract class TableDataSource<OBJECT> extends DataSource<OBJECT> {
         pageSize: this.paginator?.pageSize,
       },
       sort: {
-        predicate: this.sort?.direction ? this.sort?.active : null,
+        predicate: this.sort?.direction ? this.sort?.active : undefined,
         direction: this.sort?.direction,
       },
       search: {

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
+import { Component, Inject, OnDestroy } from "@angular/core";
 import {
   AbstractControl,
   FormBuilder,
@@ -34,16 +34,15 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "zaak-afhandelen-dialog.component.html",
   styleUrls: ["./zaak-afhandelen-dialog.component.less"],
 })
-export class ZaakAfhandelenDialogComponent implements OnInit, OnDestroy {
+export class ZaakAfhandelenDialogComponent implements OnDestroy {
   loading = false;
   mailBeschikbaar = false;
   sendMailDefault = false;
   formGroup: FormGroup;
   besluitVastleggen = false;
-  mailtemplate: Mailtemplate;
-  zaak: Zaak;
+  mailtemplate?: Mailtemplate;
   planItem: PlanItem;
-  initiatorEmail: string;
+  initiatorEmail?: string;
   initiatorToevoegenIcon: ActionIcon = new ActionIcon(
     "person",
     "actie.initiator.email.toevoegen",
@@ -63,7 +62,6 @@ export class ZaakAfhandelenDialogComponent implements OnInit, OnDestroy {
     private mailtemplateService: MailtemplateService,
     private klantenService: KlantenService,
   ) {
-    this.zaak = data.zaak;
     this.planItem = data.planItem;
     this.resultaattypes = this.zakenService.listResultaattypes(
       this.data.zaak.zaaktype.uuid,
@@ -76,10 +74,7 @@ export class ZaakAfhandelenDialogComponent implements OnInit, OnDestroy {
       .subscribe((mailtemplate) => {
         this.mailtemplate = mailtemplate;
       });
-  }
-
-  ngOnInit(): void {
-    const zap = this.zaak.zaaktype.zaakafhandelparameters;
+    const zap = this.data.zaak.zaaktype.zaakafhandelparameters;
     this.mailBeschikbaar =
       zap.afrondenMail !== ZaakStatusmailOptie.NIET_BESCHIKBAAR;
     this.sendMailDefault =
@@ -99,7 +94,10 @@ export class ZaakAfhandelenDialogComponent implements OnInit, OnDestroy {
     }
 
     this.formGroup = this.formBuilder.group({
-      resultaattype: [null, this.zaak.resultaat ? null : [Validators.required]],
+      resultaattype: [
+        null,
+        this.data.zaak.resultaat ? null : [Validators.required],
+      ],
       toelichting: "",
       sendMail: this.sendMailDefault,
       verzender: [null, this.sendMailDefault ? [Validators.required] : null],
@@ -113,38 +111,38 @@ export class ZaakAfhandelenDialogComponent implements OnInit, OnDestroy {
     this.zakenService
       .readDefaultAfzenderVoorZaak(this.data.zaak.uuid)
       .subscribe((afzender) => {
-        this.formGroup.get("verzender").setValue(afzender);
+        this.formGroup.get("verzender")?.setValue(afzender);
       });
     this.formGroup
       .get("sendMail")
-      .valueChanges.pipe(takeUntil(this.ngDestroy))
+      ?.valueChanges.pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
         this.formGroup
-          .get("verzender")
-          .setValidators(value ? [Validators.required] : null);
-        this.formGroup.get("verzender").updateValueAndValidity();
+          ?.get("verzender")
+          ?.setValidators(value ? [Validators.required] : null);
+        this.formGroup?.get("verzender")?.updateValueAndValidity();
         this.formGroup
-          .get("ontvanger")
-          .setValidators(
+          ?.get("ontvanger")
+          ?.setValidators(
             value ? [Validators.required, CustomValidators.email] : null,
           );
-        this.formGroup.get("ontvanger").updateValueAndValidity();
+        this.formGroup?.get("ontvanger")?.updateValueAndValidity();
       });
     this.formGroup
-      .get("resultaattype")
-      .valueChanges.pipe(takeUntil(this.ngDestroy))
+      ?.get("resultaattype")
+      ?.valueChanges.pipe(takeUntil(this.ngDestroy))
       .subscribe((value: GeneratedType<"RestResultaattype">) => {
-        this.besluitVastleggen = value.besluitVerplicht;
+        this.besluitVastleggen = !!value.besluitVerplicht;
         if (this.besluitVastleggen) {
-          this.formGroup.get("toelichting").disable();
-          this.formGroup.get("sendMail").disable();
-          this.formGroup.get("verzender").disable();
-          this.formGroup.get("ontvanger").disable();
+          this.formGroup?.get("toelichting")?.disable();
+          this.formGroup?.get("sendMail")?.disable();
+          this.formGroup?.get("verzender")?.disable();
+          this.formGroup?.get("ontvanger")?.disable();
         } else {
-          this.formGroup.get("toelichting").enable();
-          this.formGroup.get("sendMail").enable();
-          this.formGroup.get("verzender").enable();
-          this.formGroup.get("ontvanger").enable();
+          this.formGroup?.get("toelichting")?.enable();
+          this.formGroup?.get("sendMail")?.enable();
+          this.formGroup?.get("verzender")?.enable();
+          this.formGroup?.get("ontvanger")?.enable();
         }
       });
   }
@@ -160,10 +158,10 @@ export class ZaakAfhandelenDialogComponent implements OnInit, OnDestroy {
     const userEventListenerData = new UserEventListenerData(
       UserEventListenerActie.ZaakAfhandelen,
       this.planItem.id,
-      this.zaak.uuid,
+      this.data.zaak.uuid,
     );
-    userEventListenerData.resultaattypeUuid = this.zaak.resultaat
-      ? this.zaak.resultaat.resultaattype.id
+    userEventListenerData.resultaattypeUuid = this.data.zaak.resultaat
+      ? this.data.zaak.resultaat.resultaattype?.id
       : values.resultaattype.id;
     userEventListenerData.resultaatToelichting = values.toelichting;
 
@@ -191,7 +189,7 @@ export class ZaakAfhandelenDialogComponent implements OnInit, OnDestroy {
   }
 
   setInitatorEmail() {
-    this.formGroup.get("ontvanger").setValue(this.initiatorEmail);
+    this.formGroup.get("ontvanger")?.setValue(this.initiatorEmail);
   }
 
   getError(fc: AbstractControl, label: string) {
@@ -212,13 +210,13 @@ export class ZaakAfhandelenDialogComponent implements OnInit, OnDestroy {
       return object1 === object2;
     }
     if (object1 && object2) {
-      if (object1.hasOwnProperty("key")) {
+      if ("key" in object1) {
         return object1.key === object2.key;
-      } else if (object1.hasOwnProperty("id")) {
+      } else if ("id" in object1) {
         return object1.id === object2.id;
-      } else if (object1.hasOwnProperty("naam")) {
+      } else if ("naam" in object1) {
         return object1.naam === object2.naam;
-      } else if (object1.hasOwnProperty("name")) {
+      } else if ("name" in object1) {
         return object1.name === object2.name;
       }
       return object1 === object2;

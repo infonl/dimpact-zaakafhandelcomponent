@@ -32,14 +32,7 @@ describe("UtilService", () => {
     };
 
     const snackbarMock = {
-      open: jest
-        .fn()
-        .mockImplementation(
-          (message: string, action?: string, config?: any) => {
-            // Return a mock MatSnackBarRef instance
-            return new MatSnackBarRefMock();
-          },
-        ),
+      open: jest.fn().mockReturnValue(new MatSnackBarRefMock()),
     };
 
     const dialogMock = {
@@ -78,9 +71,9 @@ describe("UtilService", () => {
     const translatedTitle = "Translated Page Title";
     const translatedFullTitle = "Translated Full Title";
 
-    // Mock the behavior of the translate service
+    // Mock the behavior of the translation service
     (translateService.instant as jest.Mock).mockImplementation(
-      (key: string, params?: {}) => {
+      (key: string) => {
         if (key === title) return translatedTitle;
         if (key === "title") return `Translated Full Title`;
         return key;
