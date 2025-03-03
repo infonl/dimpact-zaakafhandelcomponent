@@ -348,7 +348,8 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
 
     return {
       ...updates,
-      behandelaar: assignment?.medewerker,
+      groep: assignment.groep,
+      behandelaar: assignment.medewerker,
     } satisfies Partial<Zaak>;
   }
 
@@ -358,18 +359,34 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
 
     subscriptions.push(this.patchBehandelaar(zaak, reason));
 
-    this.zakenService
-      .updateZaakLocatie(this.zaak.uuid, this.zaak.zaakgeometrie, reason)
-      .subscribe(() => {
-        // To prevent a race condition we need to first update the `zaakgeometrie` and then the other fields
-        subscriptions.push(
-          this.zakenService
-            .updateZaak(this.zaak.uuid, { zaak, reden: reason })
-            .subscribe(() => {}),
-        );
+    this.patchLocation(reason).subscribe(() => {
+      // To prevent a race condition we need to first update the `zaakgeometrie` and then the other fields
+      subscriptions.push(
+        this.zakenService
+          .updateZaak(this.zaak.uuid, { zaak, reden: reason })
+          .subscribe(() => {}),
+      );
 
-        forkJoin([subscriptions]).subscribe(() => this.sideNav.close());
+      forkJoin([subscriptions]).subscribe(() => this.sideNav.close());
+    });
+  }
+
+  private patchLocation(reason?: string) {
+    if (
+      JSON.stringify(this.zaak.zaakgeometrie) ===
+      JSON.stringify(this.initialZaakGeometry)
+    ) {
+      return new Observable((observer) => {
+        observer.next(null);
+        observer.complete();
       });
+    }
+
+    return this.zakenService.updateZaakLocatie(
+      this.zaak.uuid,
+      this.zaak.zaakgeometrie,
+      reason,
+    );
   }
 
   private patchBehandelaar(zaak: Partial<Zaak>, reason?: string) {
