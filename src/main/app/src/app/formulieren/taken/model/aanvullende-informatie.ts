@@ -72,7 +72,8 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
       this.zaak.zaaktype.opschortingMogelijk &&
       !this.zaak.redenOpschorting &&
       !this.zaak.isHeropend &&
-      this.zaak.rechten.behandelen
+      this.zaak.rechten.behandelen &&
+      !this.zaak.isEerderOpgeschort
     );
   }
 

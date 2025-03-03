@@ -36,6 +36,7 @@ export class Zaak {
   isOpgeschort: boolean;
   redenOpschorting: string;
   isVerlengd: boolean;
+  isEerderOpgeschort: boolean;
   redenVerlenging: string;
   duurVerlenging: string;
   groep: GeneratedType<"RestGroup">;
