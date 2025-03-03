@@ -752,7 +752,7 @@
   "msg.error.date.invalid.datum.streef-voor-start": "Streefdatum voor startdatum",
   "msg.error.date.invalid.datum.streef-na-fatale": "Streefdatum na  fatale datum",
   "msg.error.date.invalid.datum.fatale-voor-start": "Fatale datum voor startdatum",
-  "msg.error.date.invalid.datum.fatale-voor-streef": "Fatake datum voor streefdatum",
+  "msg.error.date.invalid.datum.fatale-voor-streef": "Fatale datum voor streefdatum",
   "msg.error.group.invalid.id": "De identificatie van deze groep is te lang. Gelieve deze te wijzigen naar maximaal {{max}} tekens.",
   "msg.error.group.invalid.name": "De naam van deze groep is te lang. Gelieve deze te wijzigen naar maximaal {{max}} tekens.",
   "msg.error.field.generic": "Dit veld bevat een fout",

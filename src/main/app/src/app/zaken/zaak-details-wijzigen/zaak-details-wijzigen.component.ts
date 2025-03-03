@@ -125,7 +125,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     this.einddatumGeplandField = this.createDateFormField(
       "einddatumGepland",
       this.zaak.einddatumGepland,
-      !!this.zaak.einddatumGepland &&
+      this.zaak.einddatumGepland &&
         (!this.zaak.rechten.wijzigen || this.zaak.isProcesGestuurd),
       [
         this.zaak.einddatumGepland
