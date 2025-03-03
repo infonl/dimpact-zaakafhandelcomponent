@@ -7,10 +7,8 @@
 import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { ZaakRechten } from "src/app/policy/model/zaak-rechten";
 import { Zaak } from "../model/zaak";
-import { GeneratedType } from "../../shared/utils/generated-types";
 
-
-const zaakMock: Zaak = {
+export const zaakMock: Zaak = {
   uuid: "zaak-001",
   identificatie: "test",
   omschrijving: "test omschrijving",
@@ -38,7 +36,7 @@ const zaakMock: Zaak = {
     toelichting: "Status toelichting",
   },
   resultaat: null,
-  besluiten: [null],
+  besluiten: [],
   bronorganisatie: "Organization A",
   verantwoordelijkeOrganisatie: "Organization B",
   registratiedatum: "2024-01-01",
@@ -59,11 +57,8 @@ const zaakMock: Zaak = {
   redenVerlenging: "",
   duurVerlenging: "",
   groep: null,
-  behandelaar: {
-    id: "user-001",
-    naam: "John Doe",
-  },
-  gerelateerdeZaken: null,
+  behandelaar: null,
+  gerelateerdeZaken: [],
   kenmerken: [],
   initiatorIdentificatieType: "BSN",
   initiatorIdentificatie: "initiator-001",
@@ -79,5 +74,3 @@ const zaakMock: Zaak = {
   indicaties: [],
   zaakdata: {},
 };
-
-export default zaakMock;

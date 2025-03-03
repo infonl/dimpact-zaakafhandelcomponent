@@ -4,32 +4,38 @@
  *
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatNavListItemHarness } from "@angular/material/list/testing";
-import { MatSortModule } from "@angular/material/sort";
-import { MatTableModule } from "@angular/material/table";
-import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
-import { of } from "rxjs";
-import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
-import { MaterialModule } from "../../shared/material/material.module";
-import { PipesModule } from "../../shared/pipes/pipes.module";
-import zaakMock from "./zaak-mock";
-import { ZaakViewComponent } from "./zaak-view.component";
+import { TestBed, ComponentFixture } from '@angular/core/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { ZaakViewComponent } from './zaak-view.component';
+import { of } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { MatNavListItemHarness } from '@angular/material/list/testing';
+import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
+import { TranslateModule } from '@ngx-translate/core';
+import { PipesModule } from '../../shared/pipes/pipes.module';
+import { MaterialModule } from '../../shared/material/material.module';
+import { VertrouwelijkaanduidingToTranslationKeyPipe } from '../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe';
+import { HarnessLoader } from '@angular/cdk/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { zaakMock } from './zaak-mock';
+import { UtilService } from 'src/app/core/service/util.service';
+
 
 describe(ZaakViewComponent.name, () => {
   let component: ZaakViewComponent;
-  let fixture: ComponentFixture<typeof component>;
+  let fixture: ComponentFixture<ZaakViewComponent>;
   let loader: HarnessLoader;
 
+  let utilService: UtilService;
+
+  const mockUtilService = {
+    disableActionBar: jest.fn(),
+  };
+  
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ZaakViewComponent], // Do not declare the pipe here!
+      declarations: [ZaakViewComponent],
       imports: [
         TranslateModule.forRoot(),
         NoopAnimationsModule,
@@ -43,49 +49,38 @@ describe(ZaakViewComponent.name, () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            data: of({ zaakMock }),
+            data: of({ zaak: zaakMock }),
           },
         },
+        { provide: UtilService, useValue: mockUtilService }, // Mock UtilService
         VertrouwelijkaanduidingToTranslationKeyPipe,
       ],
     }).compileComponents();
-
+  
     fixture = TestBed.createComponent(ZaakViewComponent);
     component = fixture.componentInstance;
 
-    jest.spyOn(component as any, "loadHistorie").mockReturnValueOnce(undefined);
-    jest
-      .spyOn(component as any, "loadBetrokkenen")
-      .mockReturnValueOnce(undefined);
-    jest
-      .spyOn(component as any, "loadBagObjecten")
-      .mockReturnValueOnce(undefined);
-    jest
-      .spyOn(component as any, "loadOpschorting")
-      .mockReturnValueOnce(undefined);
-    jest
-      .spyOn(component as any, "setDateFieldIconSet")
-      .mockReturnValueOnce(undefined);
+    utilService = TestBed.inject(UtilService);
+
+    jest.spyOn(utilService as any, 'disableActionBar').mockReturnValueOnce(undefined);
+    jest.spyOn(component as any, 'loadHistorie').mockReturnValueOnce(undefined);
+    jest.spyOn(component as any, 'loadBetrokkenen').mockReturnValueOnce(undefined);
+    jest.spyOn(component as any, 'loadBagObjecten').mockReturnValueOnce(undefined);
+    jest.spyOn(component as any, 'loadOpschorting').mockReturnValueOnce(undefined);
+    jest.spyOn(component as any, 'setDateFieldIconSet').mockReturnValueOnce(undefined);
+  
 
     loader = TestbedHarnessEnvironment.loader(fixture);
-
-    component.zaak = { ...zaakMock };
-    fixture.detectChanges();
-    console.log("MOCK: " + zaakMock);
-
-    console.log("Initiator Identificatie Type: ", component.zaak.initiatorIdentificatieType);
-
-    
-    console.log("ZAAK: " + component.zaak);
+    component.init(zaakMock);
   });
+  
+  describe('actie.zaak.opschorten', () => {
+    it('should not show the opschorten button when isEerderOpgeschort is true', async () => {
 
-  describe("actie.zaak.opschorten", () => {
-    it("should not show the opschorten button when isEerderOpgeschort is true", async () => {
       component.zaak.isEerderOpgeschort = true;
-      
 
       const button = await loader.getHarnessOrNull(
-        MatNavListItemHarness.with({ title: "actie.taak.opschorten" }),
+        MatNavListItemHarness.with({ title: 'actie.zaak.opschorten' })
       );
       expect(button).toBeUndefined();
     });
