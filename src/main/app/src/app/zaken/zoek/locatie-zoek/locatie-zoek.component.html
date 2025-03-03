@@ -2,15 +2,6 @@
   ~ SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
-<div class="sidenav-title">
-  <h3>
-    <mat-icon>location_on</mat-icon>
-    {{ "actie.locatie." + (readonly ? "bekijken" : "toevoegen") | translate }}
-  </h3>
-  <button mat-icon-button (click)="sideNav.close()">
-    <mat-icon>close</mat-icon>
-  </button>
-</div>
 
 <div class="form">
   <div class="flex-row flex-col-md gap-10 flex-wrap">
@@ -57,17 +48,18 @@
           matInput
           type="text"
           id="reden"
-          [formControl]="redenControl"
+          [formControl]="reasonControl"
           required="true"
-          maxlength="80"
         />
-        <mat-hint>{{ redenControl.value.length }}/80</mat-hint>
+        <mat-hint *ngIf="reasonControl.value?.length"
+          >{{ reasonControl.value?.length }}/80</mat-hint
+        >
       </mat-form-field>
       <div *ngIf="!readonly" class="full-width">
         <button
           mat-raised-button
           color="primary"
-          [disabled]="!redenControl.valid"
+          [disabled]="!reasonControl.valid"
           id="opslaan_button"
           (click)="save()"
           type="button"
@@ -76,7 +68,7 @@
         </button>
         <button
           mat-raised-button
-          [disabled]="!redenControl.valid"
+          [disabled]="!reasonControl.valid"
           id="verwijder_button"
           (click)="clear()"
           type="button"

@@ -53,13 +53,6 @@
       [sideNav]="actionsSidenav"
       (bagObject)="adresGeselecteerd($event)"
     ></zac-bag-zoek>
-    <zac-locatie-zoek
-      *ngSwitchCase="'actie.locatie.toevoegen'"
-      [sideNav]="actionsSidenav"
-      [huidigeLocatie]="zaak.zaakgeometrie"
-      [readonly]="!zaak.isOpen || !zaak.rechten.wijzigen"
-      (locatie)="locatieGeselecteerd($event)"
-    ></zac-locatie-zoek>
     <zac-case-details-edit
       *ngSwitchCase="'actie.zaak.wijzigen'"
       [zaak]="zaak"
@@ -295,24 +288,11 @@
                     "
                     class="flex-item"
                   ></zac-static-text>
-                  <div
-                    class="location-text flex-item"
-                    [class.readonly]="!zaak.isOpen || !zaak.rechten.wijzigen"
-                    (click)="showOrEditZaakLocatie()"
-                  >
-                    <label class="static-text-label" translate="locatie">
-                      <mat-icon>edit</mat-icon>
-                    </label>
-                    <div
-                      class="static-text-content"
-                      [ngClass]="{ nopanel: zaak.zaakgeometrie == null }"
-                    >
-                      {{ zaak.zaakgeometrie | location | empty }}
-                      <div class="edit-icon">
-                        <mat-icon>place</mat-icon>
-                      </div>
-                    </div>
-                  </div>
+                  <zac-static-text
+                    [label]="'locatie' | translate"
+                    [value]="zaak.zaakgeometrie | location | empty"
+                    class="flex-item"
+                  ></zac-static-text>
                 </div>
 
                 <div class="flex flex-col gap-10">

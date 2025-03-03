@@ -516,7 +516,7 @@ tasks {
         configOptions.set(
             mapOf(
                 "library" to "microprofile",
-                "microprofileRestClientVersion" to libs.versions.microprofile.rest.client.get(),
+                "microprofileRestClientVersion" to libs.versions.openapi.generator.eclipse.microprofile.rest.client.api.get(),
                 "sourceFolder" to "",
                 "dateLibrary" to "java8",
                 "disallowAdditionalPropertiesIfNotPresent" to "false",
@@ -570,7 +570,7 @@ tasks {
         configOptions.set(
             mapOf(
                 "library" to "microprofile",
-                "microprofileRestClientVersion" to libs.versions.microprofile.rest.client.get(),
+                "microprofileRestClientVersion" to libs.versions.openapi.generator.eclipse.microprofile.rest.client.api.get(),
                 "sourceFolder" to "",
                 "dateLibrary" to "java8-localdatetime",
                 "disallowAdditionalPropertiesIfNotPresent" to "false",

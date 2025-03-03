@@ -23,7 +23,6 @@ import { ZaakAfbrekenGegevens } from "./model/zaak-afbreken-gegevens";
 import { ZaakAfsluitenGegevens } from "./model/zaak-afsluiten-gegevens";
 import { ZaakBetrokkene } from "./model/zaak-betrokkene";
 import { ZaakBetrokkeneGegevens } from "./model/zaak-betrokkene-gegevens";
-import { ZaakEditMetRedenGegevens } from "./model/zaak-edit-met-reden-gegevens";
 import { ZaakHeropenenGegevens } from "./model/zaak-heropenen-gegevens";
 import { ZaakLocatieGegevens } from "./model/zaak-locatie-gegevens";
 import { ZaakToekennenGegevens } from "./model/zaak-toekennen-gegevens";
@@ -69,12 +68,15 @@ export class ZakenService {
       );
   }
 
-  updateZaak(uuid: string, zaak: Zaak, reden?: string): Observable<Zaak> {
+  updateZaak(
+    uuid: string,
+    update: {
+      zaak: Omit<Partial<Zaak>, "zaakgeometrie" | "behandelaar">;
+      reden?: string;
+    },
+  ) {
     return this.http
-      .patch<Zaak>(
-        `${this.basepath}/zaak/${uuid}`,
-        new ZaakEditMetRedenGegevens(zaak, reden),
-      )
+      .patch<Zaak>(`${this.basepath}/zaak/${uuid}`, update)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
@@ -146,13 +148,15 @@ export class ZakenService {
       );
   }
 
-  toekennen(zaak: Zaak, reden?: string): Observable<Zaak> {
-    const toekennenGegevens: ZaakToekennenGegevens =
-      new ZaakToekennenGegevens();
-    toekennenGegevens.zaakUUID = zaak.uuid;
-    toekennenGegevens.behandelaarGebruikersnaam = zaak.behandelaar?.id;
-    toekennenGegevens.groepId = zaak.groep?.id;
-    toekennenGegevens.reden = reden;
+  toekennen(
+    zaakUuid: string,
+    options?: { behandelaarId?: string; groupId?: string; reason?: string },
+  ) {
+    const toekennenGegevens = new ZaakToekennenGegevens();
+    toekennenGegevens.zaakUUID = zaakUuid;
+    toekennenGegevens.behandelaarGebruikersnaam = options?.behandelaarId;
+    toekennenGegevens.groepId = options?.groupId;
+    toekennenGegevens.reden = options?.reason;
 
     return this.http
       .patch<Zaak>(`${this.basepath}/toekennen`, toekennenGegevens)
@@ -194,13 +198,10 @@ export class ZakenService {
       );
   }
 
-  toekennenAanIngelogdeMedewerker(
-    zaak: Zaak,
-    reden?: string,
-  ): Observable<Zaak> {
+  toekennenAanIngelogdeMedewerker(zaakUuid: string, reden?: string) {
     const toekennenGegevens: ZaakToekennenGegevens =
       new ZaakToekennenGegevens();
-    toekennenGegevens.zaakUUID = zaak.uuid;
+    toekennenGegevens.zaakUUID = zaakUuid;
     toekennenGegevens.reden = reden;
 
     return this.http

@@ -50,13 +50,14 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() huidigeLocatie: Geometry;
   @Input() readonly: boolean;
   @Input() sideNav: MatDrawer;
+  @Input({ required: true }) reasonControl: FormControl<string>;
   @Output() locatie = new EventEmitter<GeometryGegevens>();
+  @Output() locationChanged = new EventEmitter<Geometry>();
   @ViewChild("openLayersMap", { static: true }) openLayersMapRef: ElementRef;
   markerLocatie: Geometry;
   nearestAddress: AddressResult;
-  searchControl: FormControl = new FormControl();
+  searchControl = new FormControl();
   searchResults: SuggestResult[];
-  redenControl: FormControl = new FormControl("");
 
   private unsubscribe$: Subject<void> = new Subject<void>();
 
@@ -224,27 +225,30 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  private setLokatie(geometry: Geometry, fromSearch: boolean) {
-    if (geometry && geometry.type == GeometryType.POINT) {
-      this.markerLocatie = geometry;
-      const coordinate: Coordinate = LocationUtil.pointToCoordinate(
-        geometry.point,
-      );
-      this.addMarker(coordinate);
-      if (fromSearch) {
-        this.zoomToMarker(coordinate);
-      } else {
-        if (this.map.getView().getZoom() < this.MAX_ZOOM) {
+  private setLokatie(geometry?: Geometry, fromSearch = true) {
+    switch (geometry?.type) {
+      case GeometryType.POINT:
+        this.markerLocatie = geometry;
+        const coordinate: Coordinate = LocationUtil.pointToCoordinate(
+          geometry.point,
+        );
+        this.addMarker(coordinate);
+        if (fromSearch) {
           this.zoomToMarker(coordinate);
+        } else {
+          if (this.map.getView().getZoom() < this.MAX_ZOOM) {
+            this.zoomToMarker(coordinate);
+          }
+          this.locationService
+            .coordinateToAddress(coordinate)
+            .subscribe((objectData) => {
+              this.nearestAddress = objectData.response.docs[0];
+              this.searchControl.reset();
+            });
         }
-        this.locationService
-          .coordinateToAddress(coordinate)
-          .subscribe((objectData) => {
-            this.nearestAddress = objectData.response.docs[0];
-            this.searchControl.reset();
-          });
-      }
     }
+
+    this.locationChanged.emit(geometry);
   }
 
   private addMarker(coordinate: Coordinate) {
@@ -279,7 +283,7 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
 
   save(): void {
     this.locatie.next(
-      new GeometryGegevens(this.markerLocatie, this.redenControl.value),
+      new GeometryGegevens(this.markerLocatie, this.reasonControl.value),
     );
   }
 }
