@@ -8,18 +8,4 @@ enum class BedrijfType(val type: String) {
     HOOFDVESTIGING("hoofdvestiging"),
     NEVENVESTIGING("nevenvestiging"),
     RECHTSPERSOON("rechtspersoon");
-
-    companion object {
-        fun getType(type: String?): BedrijfType? {
-            if (type == null) {
-                return null
-            }
-            for (bedrijfType in entries) {
-                if (bedrijfType.type == type) {
-                    return bedrijfType
-                }
-            }
-            error("BedrijfType: '$type' not found")
-        }
-    }
 }
