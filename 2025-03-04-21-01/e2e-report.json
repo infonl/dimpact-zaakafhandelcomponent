@@ -1,0 +1,1595 @@
+[
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "login;bob-wants-to-login-to-zac",
+        "keyword": "Scenario",
+        "line": 7,
+        "name": "Bob wants to login to ZAC",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 2156888804
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 8,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2198176394
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 9,
+            "name": "\"Bob\" logs in",
+            "match": {
+              "location": "step-definitions/authentication.ts:73"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 821285830
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 10,
+            "name": "\"Bob\" sees the text: \"Dashboard\"",
+            "match": {
+              "location": "step-definitions/common.ts:54"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2325776332
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 117415084
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "login;bob-wants-to-log-out-of-the-application-after-being-logged-in",
+        "keyword": "Scenario",
+        "line": 12,
+        "name": "Bob wants to log out of the application after being logged in",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 134053572
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 13,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2151282318
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 14,
+            "name": "\"Bob\" clicks on element with accessibility label: \"Gebruikers profiel\"",
+            "match": {
+              "location": "step-definitions/common.ts:64"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 435981551
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 15,
+            "name": "\"Bob\" clicks on element with text: \"Uitloggen\"",
+            "match": {
+              "location": "step-definitions/common.ts:78"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 873946847
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 16,
+            "name": "\"Bob\" sees the text: \"Sign in to your account\"",
+            "match": {
+              "location": "step-definitions/common.ts:54"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 23353739
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 88980876
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "login;bob-logs-back-in",
+        "keyword": "Scenario",
+        "line": 18,
+        "name": "Bob logs back in",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 137381798
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 19,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1860744190
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 20,
+            "name": "\"Bob\" sees the text: \"Sign in to your account\"",
+            "match": {
+              "location": "step-definitions/common.ts:54"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 31086742
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 21,
+            "name": "\"Bob\" logs in",
+            "match": {
+              "location": "step-definitions/authentication.ts:73"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 584107359
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 22,
+            "name": "\"Bob\" sees the text: \"Dashboard\"",
+            "match": {
+              "location": "step-definitions/common.ts:54"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2302328350
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 109021144
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "login;bob-wants-to-log-out-of-the-application-after-being-logged-in",
+        "keyword": "Scenario",
+        "line": 24,
+        "name": "Bob wants to log out of the application after being logged in",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 142207801
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 25,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2035041771
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 26,
+            "name": "\"Bob\" clicks on element with accessibility label: \"Gebruikers profiel\"",
+            "match": {
+              "location": "step-definitions/common.ts:64"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 413987647
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 27,
+            "name": "\"Bob\" clicks on element with text: \"Uitloggen\"",
+            "match": {
+              "location": "step-definitions/common.ts:78"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 878929527
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 28,
+            "name": "\"Bob\" sees the text: \"Sign in to your account\"",
+            "match": {
+              "location": "step-definitions/common.ts:54"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 29549354
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 104040267
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "login;bob-logs-back-in",
+        "keyword": "Scenario",
+        "line": 30,
+        "name": "Bob logs back in",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 141515939
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 31,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1858007618
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 32,
+            "name": "\"Bob\" sees the text: \"Sign in to your account\"",
+            "match": {
+              "location": "step-definitions/common.ts:54"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 29950323
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 33,
+            "name": "\"Bob\" logs in",
+            "match": {
+              "location": "step-definitions/authentication.ts:73"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 643566923
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 34,
+            "name": "\"Bob\" sees the text: \"Dashboard\"",
+            "match": {
+              "location": "step-definitions/common.ts:54"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2220218232
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 107944174
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "login",
+    "line": 5,
+    "keyword": "Feature",
+    "name": "Login",
+    "tags": [],
+    "uri": "features/1-authentication.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "zaak;bob-wants-to-create-a-new-zaak",
+        "keyword": "Scenario",
+        "line": 7,
+        "name": "Bob wants to create a new zaak",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 141521053
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 8,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:81"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2508583528
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 9,
+            "name": "\"Bob\" wants to create a new zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:120"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 15244444036
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 10,
+            "name": "\"Bob\" sees the created zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:230"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 5020565
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 11,
+            "name": "\"Bob\" sees the zaak initiator",
+            "match": {
+              "location": "step-definitions/zaak.ts:243"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 911817168
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 12,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/zaken/werkvoorraad\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1436192954
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 13,
+            "name": "\"Bob\" sees the created zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:230"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2421952864
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 65061861
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "zaak",
+    "line": 5,
+    "keyword": "Feature",
+    "name": "Zaak",
+    "tags": [],
+    "uri": "features/2-zaken-toevoegen.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "resident-submits-form-in-open-forms;resident-fills-in-indienen-aansprakelijkheid-behandelen-open-forms-form",
+        "keyword": "Scenario",
+        "line": 8,
+        "name": "Resident fills in indienen-aansprakelijkheid-behandelen open-forms form",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 155455539
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 9,
+            "name": "Resident \"Alice\" fills in the indienen-aansprakelijkheid-behandelen open-forms form",
+            "match": {
+              "location": "step-definitions/open-forms.ts:16"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 22774299536
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 10,
+            "name": "Resident \"Alice\" submits the open-forms form",
+            "match": {
+              "location": "step-definitions/open-forms.ts:146"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 40345807
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:81"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 34536258913,
+              "error_message": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByText('account_circle').or(getByText('ZAAKAFHANDELCOMPONENT')) to be visible\n\n    at waitForPage (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:33:41)\n    at isLoggedIn (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:44:9)\n    at CustomWorld.<anonymous> (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:88:20)"
+            },
+            "embeddings": [
+              {
+                "data": "iVBORw0KGgoAAAANSUhEUgAABQAAAALQCAIAAABAH0oBAAAAAXNSR0IArs4c6QAAFcBJREFUeJzt3S3UKud+xuFnn9W1gjsjkbgikSOnKtQhp46qchwSiUQicR1JHXIkdUjqqENSR9xstY/ImzRp9k7eN83Xzn1djq//DLjf4pln3n348KEAAADAn91ffu8TAAAAgN+CAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACDCrxfAz0u3WUxHo/b0qx0CAAAAXuuTAfw4H9btrHr3bjxrmqZp6tl0Om3aXX9/5eSqXu5W9egHzw/XbrOsx+/eVdNvB9eLdXcd/j/fAwAAAH7UP3zqhXGz2lf383/cp7vzcV5KKeXZr+p/XizK9bqZ/vwjjmbL3Xa4HK+jzalfVqWU4d619b/On+N7N/9hMP/6Huf+Uc9nv8ehAQAA+K28ZQl0NV/O//H97Xx5/rLnMJq0y+aL/7n011927usM591q/0t/JQAAAP5o3nYN8DAMpRqPX/4rvXdt0yzatm1mddvdXpYwP867tqmbRbtcLveX161rHoahfFGNq28eP8+7tmkW7aKp5+vTy6Lr5+Ww/GZw20yqefcoj/O+nY7Gy76UMtxOu3Y6qpb9p4c8L/uvz3nR1IvDrTwv3WrT/ff1sFy0m14FAwAA/Hl9cgn0Dz2vh91p+HK7+Wad8jDM1qfNoirDqR0vt+f2OB/dD+3iMDlez/OqlNIvT+efTuDnZXc4V/PD8mVh9eO4bLvJ6bqvR8N5PVusulu/LMfVYjvsrufluJRyWU9Ot68XarezzbmUUspouti0x13/I0Oeh/WubG6nRVWGftcNpaqXq2Z3vKy602r8M34+AAAAPhc/GcBfnTfz+b6U4XG93Kv5ald/G4rT1cu1wKNqXA23x1DK/dhdqsVuXv3YyK+9v+4X8+Poeb9cH7P18bKdvwx+9l1fmr4elVJGdT0duv4yzJ/daZif2tdW6keHLMeP5/N+uw9lNhrNN6tXzgIAAOBP4CcD+K/Nrn/ZBKs8r92qrWdddz61k1Ie/X7bXYaqGj0uzzIupZT77VYmy8lrjvzFbH3ql9Xj2M7+5fIo1bd7UN1vjzLcd217KKWU53M6mY7K/Xork2b86o2qPjqk1Kt1ffxbPTnO29V6vWwmNr4CAABI8YYl0KVUs+Vu1U03u+Ot3ZT9ou0W58tmNirndd/fSillePO9jMbtbnuYrtfb1XX/vzdNqubb477+ztsufSmlvK1XfzCklOnqfGv6U3fYb/7p2P/75fS6WAcAAOCz97ZNsL7ToMPtci2z2f+5edBkMi7322tvFfzymeVuPb0fVvuXTaAn03F53O/f35FqPJ2U+/X28b7+yLMfHVKej8dQTefL3ely+rdRf7L5MwAAQIy3BfDjvD9cymy5mJZRVY2H2/U6lDLc7veXBp0tFpPHcdd9/fj5fFVgjurNrh3/1269v5VSSjVvm1G/2/aPl9eHUspkvqiHfr+/DuVl1+hvPlxV4+Han5+llOH+eL688NEh5brfHF+eGI1G4/F4VMqoGpXn/VEAAAD4U/tkAD/O+9W2v5evzpvmRT1rNrd6f+7X01JKs94unrt6PKnb7jmelGu3Od5LvT0e5o/tbDKZ1c3q9BiVy37Tfy8vb8f1pru9f389rFab00vz7rZflv/ctot1dx3Gy+60nZxX0/FkVjfzZXcdSpmsu+OydPPxeDprlofbt+Oa9XY+dPPJZDZfH29lNFz2u/5RPjpkPB0Oi2bRtovF5r44bJtRKbP5sn4c5tNmsb/8ur81AAAAv6N3Hz58+L3P4We4bqb1dXPvl+5dBAAAwKu8+RrgP4bh7bttAQAAEO0zDWAAAAB4m88xgB/9bnd+vr92+97eVQAAALzOZ3oNMAAAALzN5/gPMAAAALyZAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACDC3wHwMUupzqd+rAAAAABJRU5ErkJggg==",
+                "mime_type": "image/png"
+              }
+            ]
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 12,
+            "name": "Employee \"Bob\" navigates to \"/zaken/werkvoorraad\"",
+            "match": {
+              "location": "step-definitions/common.ts:23"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 13,
+            "name": "Employee \"Bob\" clicks on the first zaak in the zaak-werkvoorraad with delay",
+            "match": {
+              "location": "step-definitions/zaak.ts:258"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 14,
+            "name": "Employee \"Bob\" sees the zaak that \"Alice\" created in open-forms",
+            "match": {
+              "location": "step-definitions/zaak.ts:268"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 1522198111
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@live-env-only",
+            "line": 7
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "resident-submits-form-in-open-forms",
+    "line": 5,
+    "keyword": "Feature",
+    "name": "Resident submits form in open-forms",
+    "tags": [],
+    "uri": "features/3-open-formulieren.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "external-systems;employee-wants-to-create-a-new-document-for-a-zaak-using-the-smartdocuments-wizard",
+        "keyword": "Scenario",
+        "line": 7,
+        "name": "Employee wants to create a new document for a zaak Using the SmartDocuments wizard",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 138360823
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 8,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:81"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 38491481484,
+              "error_message": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByText('account_circle').or(getByText('ZAAKAFHANDELCOMPONENT')) to be visible\n\n    at waitForPage (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:33:41)\n    at isLoggedIn (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:44:9)\n    at CustomWorld.<anonymous> (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:88:20)"
+            },
+            "embeddings": [
+              {
+                "data": "iVBORw0KGgoAAAANSUhEUgAABQAAAALQCAIAAABAH0oBAAAAAXNSR0IArs4c6QAAFcBJREFUeJzt3S3UKud+xuFnn9W1gjsjkbgikSOnKtQhp46qchwSiUQicR1JHXIkdUjqqENSR9xstY/ImzRp9k7eN83Xzn1djq//DLjf4pln3n348KEAAADAn91ffu8TAAAAgN+CAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACDCrxfAz0u3WUxHo/b0qx0CAAAAXuuTAfw4H9btrHr3bjxrmqZp6tl0Om3aXX9/5eSqXu5W9egHzw/XbrOsx+/eVdNvB9eLdXcd/j/fAwAAAH7UP3zqhXGz2lf383/cp7vzcV5KKeXZr+p/XizK9bqZ/vwjjmbL3Xa4HK+jzalfVqWU4d619b/On+N7N/9hMP/6Huf+Uc9nv8ehAQAA+K28ZQl0NV/O//H97Xx5/rLnMJq0y+aL/7n011927usM591q/0t/JQAAAP5o3nYN8DAMpRqPX/4rvXdt0yzatm1mddvdXpYwP867tqmbRbtcLveX161rHoahfFGNq28eP8+7tmkW7aKp5+vTy6Lr5+Ww/GZw20yqefcoj/O+nY7Gy76UMtxOu3Y6qpb9p4c8L/uvz3nR1IvDrTwv3WrT/ff1sFy0m14FAwAA/Hl9cgn0Dz2vh91p+HK7+Wad8jDM1qfNoirDqR0vt+f2OB/dD+3iMDlez/OqlNIvT+efTuDnZXc4V/PD8mVh9eO4bLvJ6bqvR8N5PVusulu/LMfVYjvsrufluJRyWU9Ot68XarezzbmUUspouti0x13/I0Oeh/WubG6nRVWGftcNpaqXq2Z3vKy602r8M34+AAAAPhc/GcBfnTfz+b6U4XG93Kv5ald/G4rT1cu1wKNqXA23x1DK/dhdqsVuXv3YyK+9v+4X8+Poeb9cH7P18bKdvwx+9l1fmr4elVJGdT0duv4yzJ/daZif2tdW6keHLMeP5/N+uw9lNhrNN6tXzgIAAOBP4CcD+K/Nrn/ZBKs8r92qrWdddz61k1Ie/X7bXYaqGj0uzzIupZT77VYmy8lrjvzFbH3ql9Xj2M7+5fIo1bd7UN1vjzLcd217KKWU53M6mY7K/Xork2b86o2qPjqk1Kt1ffxbPTnO29V6vWwmNr4CAABI8YYl0KVUs+Vu1U03u+Ot3ZT9ou0W58tmNirndd/fSillePO9jMbtbnuYrtfb1XX/vzdNqubb477+ztsufSmlvK1XfzCklOnqfGv6U3fYb/7p2P/75fS6WAcAAOCz97ZNsL7ToMPtci2z2f+5edBkMi7322tvFfzymeVuPb0fVvuXTaAn03F53O/f35FqPJ2U+/X28b7+yLMfHVKej8dQTefL3ely+rdRf7L5MwAAQIy3BfDjvD9cymy5mJZRVY2H2/U6lDLc7veXBp0tFpPHcdd9/fj5fFVgjurNrh3/1269v5VSSjVvm1G/2/aPl9eHUspkvqiHfr+/DuVl1+hvPlxV4+Han5+llOH+eL688NEh5brfHF+eGI1G4/F4VMqoGpXn/VEAAAD4U/tkAD/O+9W2v5evzpvmRT1rNrd6f+7X01JKs94unrt6PKnb7jmelGu3Od5LvT0e5o/tbDKZ1c3q9BiVy37Tfy8vb8f1pru9f389rFab00vz7rZflv/ctot1dx3Gy+60nZxX0/FkVjfzZXcdSpmsu+OydPPxeDprlofbt+Oa9XY+dPPJZDZfH29lNFz2u/5RPjpkPB0Oi2bRtovF5r44bJtRKbP5sn4c5tNmsb/8ur81AAAAv6N3Hz58+L3P4We4bqb1dXPvl+5dBAAAwKu8+RrgP4bh7bttAQAAEO0zDWAAAAB4m88xgB/9bnd+vr92+97eVQAAALzOZ3oNMAAAALzN5/gPMAAAALyZAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACDC3wHwMUupzqd+rAAAAABJRU5ErkJggg==",
+                "mime_type": "image/png"
+              }
+            ]
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 9,
+            "name": "\"Bob\" wants to create a new zaak",
+            "match": {
+              "location": "step-definitions/zaak.ts:120"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 10,
+            "name": "Employee \"Bob\" clicks on Create Document button for the new zaak",
+            "match": {
+              "location": "step-definitions/external-systems.ts:21"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "Employee \"Bob\" enters and submits the form to start the SmartDocuments wizard",
+            "match": {
+              "location": "step-definitions/external-systems.ts:33"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 12,
+            "name": "Employee \"Bob\" completes the SmartDocuments wizard",
+            "match": {
+              "location": "step-definitions/external-systems.ts:71"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 13,
+            "name": "Employee \"Bob\" closes the wizard result page",
+            "match": {
+              "location": "step-definitions/external-systems.ts:89"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 14,
+            "name": "Employee \"Bob\" views the created document",
+            "match": {
+              "location": "step-definitions/external-systems.ts:115"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 15,
+            "name": "Employee \"Bob\" sees all added details in the created document meta data",
+            "match": {
+              "location": "step-definitions/external-systems.ts:135"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 1430079612
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "external-systems",
+    "line": 5,
+    "keyword": "Feature",
+    "name": "External Systems",
+    "tags": [],
+    "uri": "features/4-external-systems.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "taken;employee-\"bob\"-does-not-have-enough-information-to-finish-intake-and-assigns-a-task-to-employee-\"oscar\"",
+        "keyword": "Scenario",
+        "line": 7,
+        "name": "Employee \"Bob\" does not have enough information to finish Intake and assigns a task to Employee \"Oscar\"",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 137554831
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 8,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:81"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 35101850912,
+              "error_message": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByText('account_circle').or(getByText('ZAAKAFHANDELCOMPONENT')) to be visible\n\n    at waitForPage (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:33:41)\n    at isLoggedIn (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:44:9)\n    at CustomWorld.<anonymous> (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:88:20)"
+            },
+            "embeddings": [
+              {
+                "data": "iVBORw0KGgoAAAANSUhEUgAABQAAAALQCAIAAABAH0oBAAAAAXNSR0IArs4c6QAAFcBJREFUeJzt3S3UKud+xuFnn9W1gjsjkbgikSOnKtQhp46qchwSiUQicR1JHXIkdUjqqENSR9xstY/ImzRp9k7eN83Xzn1djq//DLjf4pln3n348KEAAADAn91ffu8TAAAAgN+CAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACDCrxfAz0u3WUxHo/b0qx0CAAAAXuuTAfw4H9btrHr3bjxrmqZp6tl0Om3aXX9/5eSqXu5W9egHzw/XbrOsx+/eVdNvB9eLdXcd/j/fAwAAAH7UP3zqhXGz2lf383/cp7vzcV5KKeXZr+p/XizK9bqZ/vwjjmbL3Xa4HK+jzalfVqWU4d619b/On+N7N/9hMP/6Huf+Uc9nv8ehAQAA+K28ZQl0NV/O//H97Xx5/rLnMJq0y+aL/7n011927usM591q/0t/JQAAAP5o3nYN8DAMpRqPX/4rvXdt0yzatm1mddvdXpYwP867tqmbRbtcLveX161rHoahfFGNq28eP8+7tmkW7aKp5+vTy6Lr5+Ww/GZw20yqefcoj/O+nY7Gy76UMtxOu3Y6qpb9p4c8L/uvz3nR1IvDrTwv3WrT/ff1sFy0m14FAwAA/Hl9cgn0Dz2vh91p+HK7+Wad8jDM1qfNoirDqR0vt+f2OB/dD+3iMDlez/OqlNIvT+efTuDnZXc4V/PD8mVh9eO4bLvJ6bqvR8N5PVusulu/LMfVYjvsrufluJRyWU9Ot68XarezzbmUUspouti0x13/I0Oeh/WubG6nRVWGftcNpaqXq2Z3vKy602r8M34+AAAAPhc/GcBfnTfz+b6U4XG93Kv5ald/G4rT1cu1wKNqXA23x1DK/dhdqsVuXv3YyK+9v+4X8+Poeb9cH7P18bKdvwx+9l1fmr4elVJGdT0duv4yzJ/daZif2tdW6keHLMeP5/N+uw9lNhrNN6tXzgIAAOBP4CcD+K/Nrn/ZBKs8r92qrWdddz61k1Ie/X7bXYaqGj0uzzIupZT77VYmy8lrjvzFbH3ql9Xj2M7+5fIo1bd7UN1vjzLcd217KKWU53M6mY7K/Xork2b86o2qPjqk1Kt1ffxbPTnO29V6vWwmNr4CAABI8YYl0KVUs+Vu1U03u+Ot3ZT9ou0W58tmNirndd/fSillePO9jMbtbnuYrtfb1XX/vzdNqubb477+ztsufSmlvK1XfzCklOnqfGv6U3fYb/7p2P/75fS6WAcAAOCz97ZNsL7ToMPtci2z2f+5edBkMi7322tvFfzymeVuPb0fVvuXTaAn03F53O/f35FqPJ2U+/X28b7+yLMfHVKej8dQTefL3ely+rdRf7L5MwAAQIy3BfDjvD9cymy5mJZRVY2H2/U6lDLc7veXBp0tFpPHcdd9/fj5fFVgjurNrh3/1269v5VSSjVvm1G/2/aPl9eHUspkvqiHfr+/DuVl1+hvPlxV4+Han5+llOH+eL688NEh5brfHF+eGI1G4/F4VMqoGpXn/VEAAAD4U/tkAD/O+9W2v5evzpvmRT1rNrd6f+7X01JKs94unrt6PKnb7jmelGu3Od5LvT0e5o/tbDKZ1c3q9BiVy37Tfy8vb8f1pru9f389rFab00vz7rZflv/ctot1dx3Gy+60nZxX0/FkVjfzZXcdSpmsu+OydPPxeDprlofbt+Oa9XY+dPPJZDZfH29lNFz2u/5RPjpkPB0Oi2bRtovF5r44bJtRKbP5sn4c5tNmsb/8ur81AAAAv6N3Hz58+L3P4We4bqb1dXPvl+5dBAAAwKu8+RrgP4bh7bttAQAAEO0zDWAAAAB4m88xgB/9bnd+vr92+97eVQAAALzOZ3oNMAAAALzN5/gPMAAAALyZAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACDC3wHwMUupzqd+rAAAAABJRU5ErkJggg==",
+                "mime_type": "image/png"
+              }
+            ]
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 9,
+            "name": "Employee \"Bob\" is on the newly created zaak with status \"Intake\"",
+            "match": {
+              "location": "step-definitions/zaak.ts:52"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 10,
+            "name": "Employee \"Bob\" does not have enough information to finish Intake and assigns a task to Employee \"Oscar\"",
+            "match": {
+              "location": "step-definitions/zaak.ts:76"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "Employee \"Bob\" logs out of zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:65"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 12,
+            "name": "\"Oscar\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:81"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 13,
+            "name": "Employee \"Oscar\" sees the task assigned to them by Employee \"Bob\" in my task list",
+            "match": {
+              "location": "step-definitions/zaak.ts:203"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 14,
+            "name": "Employee \"Oscar\" is on the newly created zaak with status \"Wacht op aanvullende informatie\"",
+            "match": {
+              "location": "step-definitions/zaak.ts:52"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 15,
+            "name": "Employee \"Oscar\" sees the task assigned to them by Employee \"Bob\" in the newly created zaak tasks list",
+            "match": {
+              "location": "step-definitions/zaak.ts:191"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 1546718389
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "taken",
+    "line": 5,
+    "keyword": "Feature",
+    "name": "Taken",
+    "tags": [],
+    "uri": "features/5-taken-toevoegen.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "zaken-verdelen-/-vrijgeven;bob-distributes-zaken-to-a-group",
+        "keyword": "Scenario",
+        "line": 7,
+        "name": "Bob distributes zaken to a group",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 138833450
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 8,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:81"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 38281767533,
+              "error_message": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByText('account_circle').or(getByText('ZAAKAFHANDELCOMPONENT')) to be visible\n\n    at waitForPage (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:33:41)\n    at isLoggedIn (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:44:9)\n    at CustomWorld.<anonymous> (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:88:20)"
+            },
+            "embeddings": [
+              {
+                "data": "iVBORw0KGgoAAAANSUhEUgAABQAAAALQCAIAAABAH0oBAAAAAXNSR0IArs4c6QAAFcBJREFUeJzt3S3UKud+xuFnn9W1gjsjkbgikSOnKtQhp46qchwSiUQicR1JHXIkdUjqqENSR9xstY/ImzRp9k7eN83Xzn1djq//DLjf4pln3n348KEAAADAn91ffu8TAAAAgN+CAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACDCrxfAz0u3WUxHo/b0qx0CAAAAXuuTAfw4H9btrHr3bjxrmqZp6tl0Om3aXX9/5eSqXu5W9egHzw/XbrOsx+/eVdNvB9eLdXcd/j/fAwAAAH7UP3zqhXGz2lf383/cp7vzcV5KKeXZr+p/XizK9bqZ/vwjjmbL3Xa4HK+jzalfVqWU4d619b/On+N7N/9hMP/6Huf+Uc9nv8ehAQAA+K28ZQl0NV/O//H97Xx5/rLnMJq0y+aL/7n011927usM591q/0t/JQAAAP5o3nYN8DAMpRqPX/4rvXdt0yzatm1mddvdXpYwP867tqmbRbtcLveX161rHoahfFGNq28eP8+7tmkW7aKp5+vTy6Lr5+Ww/GZw20yqefcoj/O+nY7Gy76UMtxOu3Y6qpb9p4c8L/uvz3nR1IvDrTwv3WrT/ff1sFy0m14FAwAA/Hl9cgn0Dz2vh91p+HK7+Wad8jDM1qfNoirDqR0vt+f2OB/dD+3iMDlez/OqlNIvT+efTuDnZXc4V/PD8mVh9eO4bLvJ6bqvR8N5PVusulu/LMfVYjvsrufluJRyWU9Ot68XarezzbmUUspouti0x13/I0Oeh/WubG6nRVWGftcNpaqXq2Z3vKy602r8M34+AAAAPhc/GcBfnTfz+b6U4XG93Kv5ald/G4rT1cu1wKNqXA23x1DK/dhdqsVuXv3YyK+9v+4X8+Poeb9cH7P18bKdvwx+9l1fmr4elVJGdT0duv4yzJ/daZif2tdW6keHLMeP5/N+uw9lNhrNN6tXzgIAAOBP4CcD+K/Nrn/ZBKs8r92qrWdddz61k1Ie/X7bXYaqGj0uzzIupZT77VYmy8lrjvzFbH3ql9Xj2M7+5fIo1bd7UN1vjzLcd217KKWU53M6mY7K/Xork2b86o2qPjqk1Kt1ffxbPTnO29V6vWwmNr4CAABI8YYl0KVUs+Vu1U03u+Ot3ZT9ou0W58tmNirndd/fSillePO9jMbtbnuYrtfb1XX/vzdNqubb477+ztsufSmlvK1XfzCklOnqfGv6U3fYb/7p2P/75fS6WAcAAOCz97ZNsL7ToMPtci2z2f+5edBkMi7322tvFfzymeVuPb0fVvuXTaAn03F53O/f35FqPJ2U+/X28b7+yLMfHVKej8dQTefL3ely+rdRf7L5MwAAQIy3BfDjvD9cymy5mJZRVY2H2/U6lDLc7veXBp0tFpPHcdd9/fj5fFVgjurNrh3/1269v5VSSjVvm1G/2/aPl9eHUspkvqiHfr+/DuVl1+hvPlxV4+Han5+llOH+eL688NEh5brfHF+eGI1G4/F4VMqoGpXn/VEAAAD4U/tkAD/O+9W2v5evzpvmRT1rNrd6f+7X01JKs94unrt6PKnb7jmelGu3Od5LvT0e5o/tbDKZ1c3q9BiVy37Tfy8vb8f1pru9f389rFab00vz7rZflv/ctot1dx3Gy+60nZxX0/FkVjfzZXcdSpmsu+OydPPxeDprlofbt+Oa9XY+dPPJZDZfH29lNFz2u/5RPjpkPB0Oi2bRtovF5r44bJtRKbP5sn4c5tNmsb/8ur81AAAAv6N3Hz58+L3P4We4bqb1dXPvl+5dBAAAwKu8+RrgP4bh7bttAQAAEO0zDWAAAAB4m88xgB/9bnd+vr92+97eVQAAALzOZ3oNMAAAALzN5/gPMAAAALyZAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACDC3wHwMUupzqd+rAAAAABJRU5ErkJggg==",
+                "mime_type": "image/png"
+              }
+            ]
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 9,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/zaken/werkvoorraad\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 10,
+            "name": "the page is done searching",
+            "match": {
+              "location": "step-definitions/common.ts:45"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "there are at least 3 zaken",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:14"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 12,
+            "name": "\"Bob\" selects that number of zaken",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:25"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 13,
+            "name": "\"Bob\" distributes the zaken to the first group available",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:37"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 14,
+            "name": "\"Bob\" gets a message confirming that the distribution of zaken is starting",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:58"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 15,
+            "name": "after a while the snackbar disappears",
+            "match": {
+              "location": "step-definitions/common.ts:85"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 1460489532
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "zaken-verdelen-/-vrijgeven;bob-releases-zaken",
+        "keyword": "Scenario",
+        "line": 17,
+        "name": "Bob releases zaken",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 134480643
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 18,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:81"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 35014455639,
+              "error_message": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByText('account_circle').or(getByText('ZAAKAFHANDELCOMPONENT')) to be visible\n\n    at waitForPage (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:33:41)\n    at isLoggedIn (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:44:9)\n    at CustomWorld.<anonymous> (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:88:20)"
+            },
+            "embeddings": [
+              {
+                "data": "iVBORw0KGgoAAAANSUhEUgAABQAAAALQCAIAAABAH0oBAAAAAXNSR0IArs4c6QAAFcBJREFUeJzt3S3UKud+xuFnn9W1gjsjkbgikSOnKtQhp46qchwSiUQicR1JHXIkdUjqqENSR9xstY/ImzRp9k7eN83Xzn1djq//DLjf4pln3n348KEAAADAn91ffu8TAAAAgN+CAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACDCrxfAz0u3WUxHo/b0qx0CAAAAXuuTAfw4H9btrHr3bjxrmqZp6tl0Om3aXX9/5eSqXu5W9egHzw/XbrOsx+/eVdNvB9eLdXcd/j/fAwAAAH7UP3zqhXGz2lf383/cp7vzcV5KKeXZr+p/XizK9bqZ/vwjjmbL3Xa4HK+jzalfVqWU4d619b/On+N7N/9hMP/6Huf+Uc9nv8ehAQAA+K28ZQl0NV/O//H97Xx5/rLnMJq0y+aL/7n011927usM591q/0t/JQAAAP5o3nYN8DAMpRqPX/4rvXdt0yzatm1mddvdXpYwP867tqmbRbtcLveX161rHoahfFGNq28eP8+7tmkW7aKp5+vTy6Lr5+Ww/GZw20yqefcoj/O+nY7Gy76UMtxOu3Y6qpb9p4c8L/uvz3nR1IvDrTwv3WrT/ff1sFy0m14FAwAA/Hl9cgn0Dz2vh91p+HK7+Wad8jDM1qfNoirDqR0vt+f2OB/dD+3iMDlez/OqlNIvT+efTuDnZXc4V/PD8mVh9eO4bLvJ6bqvR8N5PVusulu/LMfVYjvsrufluJRyWU9Ot68XarezzbmUUspouti0x13/I0Oeh/WubG6nRVWGftcNpaqXq2Z3vKy602r8M34+AAAAPhc/GcBfnTfz+b6U4XG93Kv5ald/G4rT1cu1wKNqXA23x1DK/dhdqsVuXv3YyK+9v+4X8+Poeb9cH7P18bKdvwx+9l1fmr4elVJGdT0duv4yzJ/daZif2tdW6keHLMeP5/N+uw9lNhrNN6tXzgIAAOBP4CcD+K/Nrn/ZBKs8r92qrWdddz61k1Ie/X7bXYaqGj0uzzIupZT77VYmy8lrjvzFbH3ql9Xj2M7+5fIo1bd7UN1vjzLcd217KKWU53M6mY7K/Xork2b86o2qPjqk1Kt1ffxbPTnO29V6vWwmNr4CAABI8YYl0KVUs+Vu1U03u+Ot3ZT9ou0W58tmNirndd/fSillePO9jMbtbnuYrtfb1XX/vzdNqubb477+ztsufSmlvK1XfzCklOnqfGv6U3fYb/7p2P/75fS6WAcAAOCz97ZNsL7ToMPtci2z2f+5edBkMi7322tvFfzymeVuPb0fVvuXTaAn03F53O/f35FqPJ2U+/X28b7+yLMfHVKej8dQTefL3ely+rdRf7L5MwAAQIy3BfDjvD9cymy5mJZRVY2H2/U6lDLc7veXBp0tFpPHcdd9/fj5fFVgjurNrh3/1269v5VSSjVvm1G/2/aPl9eHUspkvqiHfr+/DuVl1+hvPlxV4+Han5+llOH+eL688NEh5brfHF+eGI1G4/F4VMqoGpXn/VEAAAD4U/tkAD/O+9W2v5evzpvmRT1rNrd6f+7X01JKs94unrt6PKnb7jmelGu3Od5LvT0e5o/tbDKZ1c3q9BiVy37Tfy8vb8f1pru9f389rFab00vz7rZflv/ctot1dx3Gy+60nZxX0/FkVjfzZXcdSpmsu+OydPPxeDprlofbt+Oa9XY+dPPJZDZfH29lNFz2u/5RPjpkPB0Oi2bRtovF5r44bJtRKbP5sn4c5tNmsb/8ur81AAAAv6N3Hz58+L3P4We4bqb1dXPvl+5dBAAAwKu8+RrgP4bh7bttAQAAEO0zDWAAAAB4m88xgB/9bnd+vr92+97eVQAAALzOZ3oNMAAAALzN5/gPMAAAALyZAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACDC3wHwMUupzqd+rAAAAABJRU5ErkJggg==",
+                "mime_type": "image/png"
+              }
+            ]
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 19,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/zaken/werkvoorraad\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 20,
+            "name": "the page is done searching",
+            "match": {
+              "location": "step-definitions/common.ts:45"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 21,
+            "name": "there are at least 3 zaken",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:14"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 22,
+            "name": "\"Bob\" selects that number of zaken",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:25"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 23,
+            "name": "\"Bob\" releases the zaken",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:49"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 24,
+            "name": "\"Bob\" gets a message confirming that the releasement of zaken is starting",
+            "match": {
+              "location": "step-definitions/zaken-verdelen.ts:68"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 25,
+            "name": "after a while the snackbar disappears",
+            "match": {
+              "location": "step-definitions/common.ts:85"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 1558521314
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "zaken-verdelen-/-vrijgeven",
+    "line": 5,
+    "keyword": "Feature",
+    "name": "Zaken verdelen / vrijgeven",
+    "tags": [],
+    "uri": "features/6-zaken-verdelen.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "taken-verdelen-/-vrijgeven;bob-distributes-taken-to-a-group",
+        "keyword": "Scenario",
+        "line": 7,
+        "name": "Bob distributes taken to a group",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 137925897
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 8,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:81"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 35037931629,
+              "error_message": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByText('account_circle').or(getByText('ZAAKAFHANDELCOMPONENT')) to be visible\n\n    at waitForPage (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:33:41)\n    at isLoggedIn (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:44:9)\n    at CustomWorld.<anonymous> (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:88:20)"
+            },
+            "embeddings": [
+              {
+                "data": "iVBORw0KGgoAAAANSUhEUgAABQAAAALQCAIAAABAH0oBAAAAAXNSR0IArs4c6QAAFcBJREFUeJzt3S3UKud+xuFnn9W1gjsjkbgikSOnKtQhp46qchwSiUQicR1JHXIkdUjqqENSR9xstY/ImzRp9k7eN83Xzn1djq//DLjf4pln3n348KEAAADAn91ffu8TAAAAgN+CAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACDCrxfAz0u3WUxHo/b0qx0CAAAAXuuTAfw4H9btrHr3bjxrmqZp6tl0Om3aXX9/5eSqXu5W9egHzw/XbrOsx+/eVdNvB9eLdXcd/j/fAwAAAH7UP3zqhXGz2lf383/cp7vzcV5KKeXZr+p/XizK9bqZ/vwjjmbL3Xa4HK+jzalfVqWU4d619b/On+N7N/9hMP/6Huf+Uc9nv8ehAQAA+K28ZQl0NV/O//H97Xx5/rLnMJq0y+aL/7n011927usM591q/0t/JQAAAP5o3nYN8DAMpRqPX/4rvXdt0yzatm1mddvdXpYwP867tqmbRbtcLveX161rHoahfFGNq28eP8+7tmkW7aKp5+vTy6Lr5+Ww/GZw20yqefcoj/O+nY7Gy76UMtxOu3Y6qpb9p4c8L/uvz3nR1IvDrTwv3WrT/ff1sFy0m14FAwAA/Hl9cgn0Dz2vh91p+HK7+Wad8jDM1qfNoirDqR0vt+f2OB/dD+3iMDlez/OqlNIvT+efTuDnZXc4V/PD8mVh9eO4bLvJ6bqvR8N5PVusulu/LMfVYjvsrufluJRyWU9Ot68XarezzbmUUspouti0x13/I0Oeh/WubG6nRVWGftcNpaqXq2Z3vKy602r8M34+AAAAPhc/GcBfnTfz+b6U4XG93Kv5ald/G4rT1cu1wKNqXA23x1DK/dhdqsVuXv3YyK+9v+4X8+Poeb9cH7P18bKdvwx+9l1fmr4elVJGdT0duv4yzJ/daZif2tdW6keHLMeP5/N+uw9lNhrNN6tXzgIAAOBP4CcD+K/Nrn/ZBKs8r92qrWdddz61k1Ie/X7bXYaqGj0uzzIupZT77VYmy8lrjvzFbH3ql9Xj2M7+5fIo1bd7UN1vjzLcd217KKWU53M6mY7K/Xork2b86o2qPjqk1Kt1ffxbPTnO29V6vWwmNr4CAABI8YYl0KVUs+Vu1U03u+Ot3ZT9ou0W58tmNirndd/fSillePO9jMbtbnuYrtfb1XX/vzdNqubb477+ztsufSmlvK1XfzCklOnqfGv6U3fYb/7p2P/75fS6WAcAAOCz97ZNsL7ToMPtci2z2f+5edBkMi7322tvFfzymeVuPb0fVvuXTaAn03F53O/f35FqPJ2U+/X28b7+yLMfHVKej8dQTefL3ely+rdRf7L5MwAAQIy3BfDjvD9cymy5mJZRVY2H2/U6lDLc7veXBp0tFpPHcdd9/fj5fFVgjurNrh3/1269v5VSSjVvm1G/2/aPl9eHUspkvqiHfr+/DuVl1+hvPlxV4+Han5+llOH+eL688NEh5brfHF+eGI1G4/F4VMqoGpXn/VEAAAD4U/tkAD/O+9W2v5evzpvmRT1rNrd6f+7X01JKs94unrt6PKnb7jmelGu3Od5LvT0e5o/tbDKZ1c3q9BiVy37Tfy8vb8f1pru9f389rFab00vz7rZflv/ctot1dx3Gy+60nZxX0/FkVjfzZXcdSpmsu+OydPPxeDprlofbt+Oa9XY+dPPJZDZfH29lNFz2u/5RPjpkPB0Oi2bRtovF5r44bJtRKbP5sn4c5tNmsb/8ur81AAAAv6N3Hz58+L3P4We4bqb1dXPvl+5dBAAAwKu8+RrgP4bh7bttAQAAEO0zDWAAAAB4m88xgB/9bnd+vr92+97eVQAAALzOZ3oNMAAAALzN5/gPMAAAALyZAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACDC3wHwMUupzqd+rAAAAABJRU5ErkJggg==",
+                "mime_type": "image/png"
+              }
+            ]
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 9,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/taken/werkvoorraad\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 10,
+            "name": "the page is done searching",
+            "match": {
+              "location": "step-definitions/common.ts:45"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "there are at least 3 taken",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:13"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 12,
+            "name": "\"Bob\" selects that number of taken",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:24"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 13,
+            "name": "\"Bob\" distributes the taken to the first group available",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:36"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 14,
+            "name": "\"Bob\" gets a message confirming that the distribution of taken is starting",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:57"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 15,
+            "name": "after a while the snackbar disappears",
+            "match": {
+              "location": "step-definitions/common.ts:85"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 1498940518
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "taken-verdelen-/-vrijgeven;bob-releases-taken",
+        "keyword": "Scenario",
+        "line": 17,
+        "name": "Bob releases taken",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 136404185
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 18,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:81"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 35064644069,
+              "error_message": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByText('account_circle').or(getByText('ZAAKAFHANDELCOMPONENT')) to be visible\n\n    at waitForPage (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:33:41)\n    at isLoggedIn (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:44:9)\n    at CustomWorld.<anonymous> (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:88:20)"
+            },
+            "embeddings": [
+              {
+                "data": "iVBORw0KGgoAAAANSUhEUgAABQAAAALQCAIAAABAH0oBAAAAAXNSR0IArs4c6QAAFcBJREFUeJzt3S3UKud+xuFnn9W1gjsjkbgikSOnKtQhp46qchwSiUQicR1JHXIkdUjqqENSR9xstY/ImzRp9k7eN83Xzn1djq//DLjf4pln3n348KEAAADAn91ffu8TAAAAgN+CAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACDCrxfAz0u3WUxHo/b0qx0CAAAAXuuTAfw4H9btrHr3bjxrmqZp6tl0Om3aXX9/5eSqXu5W9egHzw/XbrOsx+/eVdNvB9eLdXcd/j/fAwAAAH7UP3zqhXGz2lf383/cp7vzcV5KKeXZr+p/XizK9bqZ/vwjjmbL3Xa4HK+jzalfVqWU4d619b/On+N7N/9hMP/6Huf+Uc9nv8ehAQAA+K28ZQl0NV/O//H97Xx5/rLnMJq0y+aL/7n011927usM591q/0t/JQAAAP5o3nYN8DAMpRqPX/4rvXdt0yzatm1mddvdXpYwP867tqmbRbtcLveX161rHoahfFGNq28eP8+7tmkW7aKp5+vTy6Lr5+Ww/GZw20yqefcoj/O+nY7Gy76UMtxOu3Y6qpb9p4c8L/uvz3nR1IvDrTwv3WrT/ff1sFy0m14FAwAA/Hl9cgn0Dz2vh91p+HK7+Wad8jDM1qfNoirDqR0vt+f2OB/dD+3iMDlez/OqlNIvT+efTuDnZXc4V/PD8mVh9eO4bLvJ6bqvR8N5PVusulu/LMfVYjvsrufluJRyWU9Ot68XarezzbmUUspouti0x13/I0Oeh/WubG6nRVWGftcNpaqXq2Z3vKy602r8M34+AAAAPhc/GcBfnTfz+b6U4XG93Kv5ald/G4rT1cu1wKNqXA23x1DK/dhdqsVuXv3YyK+9v+4X8+Poeb9cH7P18bKdvwx+9l1fmr4elVJGdT0duv4yzJ/daZif2tdW6keHLMeP5/N+uw9lNhrNN6tXzgIAAOBP4CcD+K/Nrn/ZBKs8r92qrWdddz61k1Ie/X7bXYaqGj0uzzIupZT77VYmy8lrjvzFbH3ql9Xj2M7+5fIo1bd7UN1vjzLcd217KKWU53M6mY7K/Xork2b86o2qPjqk1Kt1ffxbPTnO29V6vWwmNr4CAABI8YYl0KVUs+Vu1U03u+Ot3ZT9ou0W58tmNirndd/fSillePO9jMbtbnuYrtfb1XX/vzdNqubb477+ztsufSmlvK1XfzCklOnqfGv6U3fYb/7p2P/75fS6WAcAAOCz97ZNsL7ToMPtci2z2f+5edBkMi7322tvFfzymeVuPb0fVvuXTaAn03F53O/f35FqPJ2U+/X28b7+yLMfHVKej8dQTefL3ely+rdRf7L5MwAAQIy3BfDjvD9cymy5mJZRVY2H2/U6lDLc7veXBp0tFpPHcdd9/fj5fFVgjurNrh3/1269v5VSSjVvm1G/2/aPl9eHUspkvqiHfr+/DuVl1+hvPlxV4+Han5+llOH+eL688NEh5brfHF+eGI1G4/F4VMqoGpXn/VEAAAD4U/tkAD/O+9W2v5evzpvmRT1rNrd6f+7X01JKs94unrt6PKnb7jmelGu3Od5LvT0e5o/tbDKZ1c3q9BiVy37Tfy8vb8f1pru9f389rFab00vz7rZflv/ctot1dx3Gy+60nZxX0/FkVjfzZXcdSpmsu+OydPPxeDprlofbt+Oa9XY+dPPJZDZfH29lNFz2u/5RPjpkPB0Oi2bRtovF5r44bJtRKbP5sn4c5tNmsb/8ur81AAAAv6N3Hz58+L3P4We4bqb1dXPvl+5dBAAAwKu8+RrgP4bh7bttAQAAEO0zDWAAAAB4m88xgB/9bnd+vr92+97eVQAAALzOZ3oNMAAAALzN5/gPMAAAALyZAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACDC3wHwMUupzqd+rAAAAABJRU5ErkJggg==",
+                "mime_type": "image/png"
+              }
+            ]
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 19,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/taken/werkvoorraad\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 20,
+            "name": "the page is done searching",
+            "match": {
+              "location": "step-definitions/common.ts:45"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 21,
+            "name": "there are at least 3 taken",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:13"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 22,
+            "name": "\"Bob\" selects that number of taken",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:24"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 23,
+            "name": "\"Bob\" releases the taken",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:48"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 24,
+            "name": "\"Bob\" gets a message confirming that the releasement of taken is starting",
+            "match": {
+              "location": "step-definitions/taken-verdelen.ts:67"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 25,
+            "name": "after a while the snackbar disappears",
+            "match": {
+              "location": "step-definitions/common.ts:85"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 1407472959
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "taken-verdelen-/-vrijgeven",
+    "line": 5,
+    "keyword": "Feature",
+    "name": "Taken verdelen / vrijgeven",
+    "tags": [],
+    "uri": "features/7-taken-verdelen.feature"
+  },
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "persoon;bob-wants-to-view-a-person",
+        "keyword": "Scenario",
+        "line": 7,
+        "name": "Bob wants to view a person",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 134596095
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 8,
+            "name": "\"Bob\" is logged in to zac",
+            "match": {
+              "location": "step-definitions/authentication.ts:81"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 38637100324,
+              "error_message": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByText('account_circle').or(getByText('ZAAKAFHANDELCOMPONENT')) to be visible\n\n    at waitForPage (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:33:41)\n    at isLoggedIn (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:44:9)\n    at CustomWorld.<anonymous> (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:88:20)"
+            },
+            "embeddings": [
+              {
+                "data": "iVBORw0KGgoAAAANSUhEUgAABQAAAALQCAIAAABAH0oBAAAAAXNSR0IArs4c6QAAFcBJREFUeJzt3S3UKud+xuFnn9W1gjsjkbgikSOnKtQhp46qchwSiUQicR1JHXIkdUjqqENSR9xstY/ImzRp9k7eN83Xzn1djq//DLjf4pln3n348KEAAADAn91ffu8TAAAAgN+CAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACDCrxfAz0u3WUxHo/b0qx0CAAAAXuuTAfw4H9btrHr3bjxrmqZp6tl0Om3aXX9/5eSqXu5W9egHzw/XbrOsx+/eVdNvB9eLdXcd/j/fAwAAAH7UP3zqhXGz2lf383/cp7vzcV5KKeXZr+p/XizK9bqZ/vwjjmbL3Xa4HK+jzalfVqWU4d619b/On+N7N/9hMP/6Huf+Uc9nv8ehAQAA+K28ZQl0NV/O//H97Xx5/rLnMJq0y+aL/7n011927usM591q/0t/JQAAAP5o3nYN8DAMpRqPX/4rvXdt0yzatm1mddvdXpYwP867tqmbRbtcLveX161rHoahfFGNq28eP8+7tmkW7aKp5+vTy6Lr5+Ww/GZw20yqefcoj/O+nY7Gy76UMtxOu3Y6qpb9p4c8L/uvz3nR1IvDrTwv3WrT/ff1sFy0m14FAwAA/Hl9cgn0Dz2vh91p+HK7+Wad8jDM1qfNoirDqR0vt+f2OB/dD+3iMDlez/OqlNIvT+efTuDnZXc4V/PD8mVh9eO4bLvJ6bqvR8N5PVusulu/LMfVYjvsrufluJRyWU9Ot68XarezzbmUUspouti0x13/I0Oeh/WubG6nRVWGftcNpaqXq2Z3vKy602r8M34+AAAAPhc/GcBfnTfz+b6U4XG93Kv5ald/G4rT1cu1wKNqXA23x1DK/dhdqsVuXv3YyK+9v+4X8+Poeb9cH7P18bKdvwx+9l1fmr4elVJGdT0duv4yzJ/daZif2tdW6keHLMeP5/N+uw9lNhrNN6tXzgIAAOBP4CcD+K/Nrn/ZBKs8r92qrWdddz61k1Ie/X7bXYaqGj0uzzIupZT77VYmy8lrjvzFbH3ql9Xj2M7+5fIo1bd7UN1vjzLcd217KKWU53M6mY7K/Xork2b86o2qPjqk1Kt1ffxbPTnO29V6vWwmNr4CAABI8YYl0KVUs+Vu1U03u+Ot3ZT9ou0W58tmNirndd/fSillePO9jMbtbnuYrtfb1XX/vzdNqubb477+ztsufSmlvK1XfzCklOnqfGv6U3fYb/7p2P/75fS6WAcAAOCz97ZNsL7ToMPtci2z2f+5edBkMi7322tvFfzymeVuPb0fVvuXTaAn03F53O/f35FqPJ2U+/X28b7+yLMfHVKej8dQTefL3ely+rdRf7L5MwAAQIy3BfDjvD9cymy5mJZRVY2H2/U6lDLc7veXBp0tFpPHcdd9/fj5fFVgjurNrh3/1269v5VSSjVvm1G/2/aPl9eHUspkvqiHfr+/DuVl1+hvPlxV4+Han5+llOH+eL688NEh5brfHF+eGI1G4/F4VMqoGpXn/VEAAAD4U/tkAD/O+9W2v5evzpvmRT1rNrd6f+7X01JKs94unrt6PKnb7jmelGu3Od5LvT0e5o/tbDKZ1c3q9BiVy37Tfy8vb8f1pru9f389rFab00vz7rZflv/ctot1dx3Gy+60nZxX0/FkVjfzZXcdSpmsu+OydPPxeDprlofbt+Oa9XY+dPPJZDZfH29lNFz2u/5RPjpkPB0Oi2bRtovF5r44bJtRKbP5sn4c5tNmsb/8ur81AAAAv6N3Hz58+L3P4We4bqb1dXPvl+5dBAAAwKu8+RrgP4bh7bttAQAAEO0zDWAAAAB4m88xgB/9bnd+vr92+97eVQAAALzOZ3oNMAAAALzN5/gPMAAAALyZAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACCCAAYAACDC3wHwMUupzqd+rAAAAABJRU5ErkJggg==",
+                "mime_type": "image/png"
+              }
+            ]
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 9,
+            "name": "\"Bob\" navigates to \"zac\" with path \"/persoon/999993896\"",
+            "match": {
+              "location": "step-definitions/common.ts:34"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 10,
+            "name": "\"Bob\" sees the person",
+            "match": {
+              "location": "step-definitions/persoon.ts:20"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 1499342465
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "persoon",
+    "line": 5,
+    "keyword": "Feature",
+    "name": "Persoon",
+    "tags": [],
+    "uri": "features/8-persoon.feature"
+  }
+]
