@@ -297,14 +297,9 @@ class ZaakRestService @Inject constructor(
                 null
             )
         }
-        restZaakAanmaakGegevens.inboxProductaanvraag?.let { inboxProductaanvraag ->
-            koppelInboxProductaanvraag(zaak, inboxProductaanvraag)
-        }
-        restZaakAanmaakGegevens.bagObjecten?.let { restbagObjecten ->
-            for (restbagObject in restbagObjecten) {
-                val zaakobject = RestBagConverter.convertToZaakobject(restbagObject, zaak)
-                zrcClientService.createZaakobject(zaakobject)
-            }
+        restZaakAanmaakGegevens.inboxProductaanvraag?.let { koppelInboxProductaanvraag(zaak, it) }
+        restZaakAanmaakGegevens.bagObjecten?.forEach {
+            zrcClientService.createZaakobject(RestBagConverter.convertToZaakobject(it, zaak))
         }
         return restZaakConverter.toRestZaak(zaak)
     }
