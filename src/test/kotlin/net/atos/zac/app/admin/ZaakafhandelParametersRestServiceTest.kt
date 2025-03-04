@@ -31,9 +31,9 @@ import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationExceptio
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_USER_NOT_IN_GROUP
 import nl.info.zac.exception.InputValidationFailedException
-import org.keycloak.admin.client.resource.GroupResource
-import org.keycloak.admin.client.resource.GroupsResource
 import org.keycloak.admin.client.resource.RealmResource
+import org.keycloak.admin.client.resource.UserResource
+import org.keycloak.admin.client.resource.UsersResource
 import org.keycloak.representations.idm.GroupRepresentation
 import org.keycloak.representations.idm.UserRepresentation
 import java.util.UUID
@@ -252,18 +252,17 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         When("the behandelaar is not part of the behandelaar group") {
             every { policyService.readOverigeRechten().beheren } returns true
 
-            val groupId = "1"
-            val groupResource = mockk<GroupsResource> {
-                every { groups(any(), true, 0, 1, true) } returns listOf(
-                    mockk<GroupRepresentation> {
-                        every { id } returns groupId
-                    }
-                )
-                every { group(groupId) } returns mockk<GroupResource> {
-                    every { members() } returns emptyList<UserRepresentation>()
+            val userId = "1"
+            val userResources = mockk<UsersResource>()
+            every { userResources.searchByUsername(any(), true) } returns listOf(
+                mockk<UserRepresentation> {
+                    every { id } returns userId
                 }
+            )
+            every { userResources.get(userId) } returns mockk<UserResource> {
+                every { groups() } returns emptyList<GroupRepresentation>()
             }
-            every { realmResource.groups() } returns groupResource
+            every { realmResource.users() } returns userResources
 
             val restZaakafhandelParameters = createRestZaakAfhandelParameters(
                 defaultBehandelaarId = "defaultBehandelaarId",

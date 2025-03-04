@@ -18,7 +18,6 @@ import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.keycloak.admin.client.resource.RealmResource
-import java.util.logging.Logger
 
 @AllOpen
 @NoArgConstructor
@@ -28,10 +27,6 @@ class IdentityService @Inject constructor(
     @Named("keycloakZacRealmResource")
     private val keycloakZacRealmResource: RealmResource
 ) {
-    companion object {
-        private val LOG = Logger.getLogger(IdentityService::class.java.name)
-    }
-
     fun listUsers(): List<User> = keycloakZacRealmResource.users()
         .list()
         .map { it.toUser() }
@@ -68,15 +63,18 @@ class IdentityService @Inject constructor(
             .sortedBy { it.getFullName() }
     }
 
-    fun listGroupNamesForUser(userId: String): List<String> =
-        keycloakZacRealmResource.users()
-            // retrieve groups with 'full representation' or else the group attributes will not be filled
-            .search(userId, null, null, null, 0, 1, null, false)
-            .firstOrNull()?.groups ?: throw IdentityRuntimeException("User with id '$userId' not found in Keycloak")
+    fun listGroupNamesForUser(userId: String): List<String> {
+        val keycloakUserId = keycloakZacRealmResource.users()
+            .searchByUsername(userId, true).firstOrNull()?.id
+            ?: throw IdentityRuntimeException("User with name '$userId' not found in Keycloak")
+        return keycloakZacRealmResource.users()
+            .get(keycloakUserId)
+            .groups()
+            .map { it.name }
+    }
 
     fun checkIfUserIsInGroup(userId: String, groupId: String) {
         if (!listGroupNamesForUser(userId).contains(groupId)) {
-            LOG.warning("User '$userId' is not in group '$groupId' and can therefore not be set as case worker.")
             throw InputValidationFailedException(ERROR_CODE_USER_NOT_IN_GROUP)
         }
     }

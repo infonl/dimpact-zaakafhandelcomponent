@@ -609,6 +609,10 @@ class ZaakRestServiceTest : BehaviorSpec({
         val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaak, changeDescription)
         val patchedZaak = createZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate)
         val task = mockk<Task>()
+        val user = createLoggedInUser()
+        val group = createGroup()
+        val rolMedewerker = createRolMedewerker()
+        val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid()
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
@@ -622,7 +626,14 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { task.id } returns "id"
         every { eventingService.send(any<ScreenEvent>()) } just runs
         every { restZaakConverter.toRestZaak(patchedZaak) } returns restZaak
+
         every { identityService.checkIfUserIsInGroup(restZaak.behandelaar!!.id, restZaak.groep!!.id) } just runs
+        every { identityService.readGroup(restZaak.groep!!.id) } returns group
+        every { identityService.readUser(restZaak.behandelaar!!.id) } returns user
+
+        every { zaakService.bepaalRolGroep(group, zaak) } returns rolOrganisatorischeEenheid
+        every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
+        every { zrcClientService.updateRol(zaak, any(), any()) } just runs
 
         When("zaak final date is set to a later date") {
             val updatedRestZaak = zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)

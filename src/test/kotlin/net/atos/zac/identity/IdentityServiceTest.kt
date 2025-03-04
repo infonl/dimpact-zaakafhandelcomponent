@@ -11,13 +11,10 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import net.atos.zac.identity.exception.IdentityRuntimeException
 import net.atos.zac.identity.model.getFullName
 import nl.info.test.org.keycloak.representations.idm.createGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createUserRepresentation
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_USER_NOT_IN_GROUP
-import nl.info.zac.exception.InputValidationFailedException
 import org.keycloak.admin.client.resource.RealmResource
 
 class IdentityServiceTest : BehaviorSpec({
@@ -163,7 +160,7 @@ class IdentityServiceTest : BehaviorSpec({
             email = "test2@example.com"
         )
         every {
-            realmResource.users().search(userName1, null, null, null, 0, 1, null, false)
+            realmResource.users().searchByUsername(userName1, true)
         } returns listOf(
             userRepresentation1.apply {
                 groups = listOf(groupId)
@@ -172,6 +169,9 @@ class IdentityServiceTest : BehaviorSpec({
                 groups = listOf(groupId)
             }
         )
+        every {
+            realmResource.users().get(userRepresentation1.id).groups()
+        } returns listOf(createGroupRepresentation(name = groupId))
 
         When("the group names for a user are listed") {
             val groupNames = identityService.listGroupNamesForUser("dummyUsername1")
@@ -193,7 +193,7 @@ class IdentityServiceTest : BehaviorSpec({
         val groupId = "dummyGroupId"
         val userName = "unknown"
         every {
-            realmResource.users().search(userName, null, null, null, 0, 1, null, false)
+            realmResource.users().searchByUsername(userName, true)
         } returns emptyList()
 
         When("a check if an unknown user is in a group is performed") {
