@@ -7,6 +7,7 @@ package net.atos.zac.app.klant.model.personen
 import net.atos.zac.app.klant.model.bedrijven.BedrijfType
 import net.atos.zac.app.klant.model.bedrijven.RestListBedrijvenParameters
 
+@Suppress("LongParameterList")
 fun createRestListBedrijvenParameters(
     kvkNummer: String = "123456789",
     vestigingsnummer: String? = "dummyVestigingsnummer",

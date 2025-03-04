@@ -7,5 +7,5 @@ package net.atos.zac.app.klant.model.bedrijven
 enum class BedrijfType(val type: String) {
     HOOFDVESTIGING("hoofdvestiging"),
     NEVENVESTIGING("nevenvestiging"),
-    RECHTSPERSOON("rechtspersoon");
+    RECHTSPERSOON("rechtspersoon")
 }

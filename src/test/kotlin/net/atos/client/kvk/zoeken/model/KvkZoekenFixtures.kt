@@ -33,6 +33,7 @@ fun createAdresWithBinnenlandsAdres(
     }
 }
 
+@Suppress("LongParameterList")
 fun createResultaatItem(
     adres: Adres = createAdresWithBinnenlandsAdres(),
     naam: String = "dummyNaam",
