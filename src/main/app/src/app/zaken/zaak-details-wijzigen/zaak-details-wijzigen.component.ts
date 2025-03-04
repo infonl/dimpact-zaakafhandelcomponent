@@ -390,7 +390,10 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
   }
 
   private patchBehandelaar(zaak: Partial<Zaak>, reason?: string) {
-    if (zaak.behandelaar?.id === this.zaak.behandelaar?.id) {
+    if (
+      zaak.behandelaar?.id === this.zaak.behandelaar?.id &&
+      zaak.groep?.id === this.zaak.groep?.id
+    ) {
       return;
     }
 
