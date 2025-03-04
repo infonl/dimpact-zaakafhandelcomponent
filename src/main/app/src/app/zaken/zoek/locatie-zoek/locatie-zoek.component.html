@@ -6,6 +6,23 @@
 <div class="form">
   <div class="flex-row flex-col-md gap-10 flex-wrap">
     <div class="w100">
+      <mat-card class="location-coordinates">
+        <mat-card-content class="flex-row items-center">
+          <div>{{ "coordinates" | translate }}</div>
+          <zac-static-text
+            [value]="markerLocatie | location | empty"
+            class="flex-item flex-1"
+          ></zac-static-text>
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="clearLocation()"
+            disabled="{{ !markerLocatie }}"
+          >
+            <mat-icon>link_off</mat-icon>
+          </button>
+        </mat-card-content>
+      </mat-card>
       <mat-form-field *ngIf="!readonly" appearance="fill" class="full-width">
         <mat-icon matSuffix>search</mat-icon>
         <mat-label>{{ "adres" | translate }}</mat-label>
@@ -60,20 +77,12 @@
           mat-raised-button
           color="primary"
           [disabled]="!reasonControl.valid"
-          id="opslaan_button"
           (click)="save()"
-          type="button"
         >
           {{ "actie.opslaan" | translate }}
         </button>
-        <button
-          mat-raised-button
-          [disabled]="!reasonControl.valid"
-          id="verwijder_button"
-          (click)="clear()"
-          type="button"
-        >
-          {{ "actie.verwijderen" | translate }}
+        <button mat-raised-button (click)="cancel()">
+          {{ "actie.annuleren" | translate }}
         </button>
       </div>
     </div>

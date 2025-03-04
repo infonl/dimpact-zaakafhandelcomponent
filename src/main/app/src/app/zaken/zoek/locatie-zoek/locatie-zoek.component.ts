@@ -47,17 +47,18 @@ import { GeometryType } from "../../model/geometryType";
   styleUrls: ["./locatie-zoek.component.less"],
 })
 export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
-  @Input() huidigeLocatie: Geometry;
-  @Input() readonly: boolean;
-  @Input() sideNav: MatDrawer;
-  @Input({ required: true }) reasonControl: FormControl<string>;
+  @Input({ required: true }) currentLocation!: Geometry;
+  @Input() readonly = false;
+  @Input({ required: true }) sideNav!: MatDrawer;
+  @Input({ required: true }) reasonControl!: FormControl<string>;
   @Output() locatie = new EventEmitter<GeometryGegevens>();
-  @Output() locationChanged = new EventEmitter<Geometry>();
+  @Output() locationChanged = new EventEmitter<Geometry | undefined>();
   @ViewChild("openLayersMap", { static: true }) openLayersMapRef: ElementRef;
   markerLocatie: Geometry;
   nearestAddress: AddressResult;
   searchControl = new FormControl();
-  searchResults: SuggestResult[];
+  searchResults: SuggestResult[] = [];
+  initialLocation: Geometry;
 
   private unsubscribe$: Subject<void> = new Subject<void>();
 
@@ -100,6 +101,7 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(private locationService: LocationService) {}
 
   ngOnInit(): void {
+    this.initialLocation = this.currentLocation;
     const projection = proj.get(this.EPSG3857);
     const projectionExtent = projection.getExtent();
     const size = extent.getWidth(projectionExtent) / 256;
@@ -179,7 +181,7 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
           "EPSG:3857",
           "EPSG:4326",
         );
-        this.setLokatie(LocationUtil.coordinateToPoint(coordinate), false);
+        this.setLocation(LocationUtil.coordinateToPoint(coordinate), false);
       });
     }
 
@@ -191,8 +193,8 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
       this.openLayersMapRef.nativeElement.focus();
     });
 
-    if (this.huidigeLocatie) {
-      this.setLokatie(this.huidigeLocatie, false);
+    if (this.currentLocation) {
+      this.setLocation(this.currentLocation, false);
     }
   }
 
@@ -218,20 +220,27 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
       .addressLookup($event.option.value.id)
       .subscribe((objectData) => {
         this.nearestAddress = objectData.response.docs[0];
-        this.setLokatie(
+        this.setLocation(
           LocationUtil.wktToPoint(this.nearestAddress.centroide_ll),
           true,
         );
+        this.reasonControl.enable();
       });
   }
 
-  private setLokatie(geometry?: Geometry, fromSearch = true) {
+  clearLocation() {
+    this.setLocation();
+    this.reasonControl.enable();
+  }
+
+  private setLocation(geometry?: Geometry, fromSearch = true) {
+    this.markerLocatie = geometry;
+    this.clearPreviousMarker();
+    this.searchControl.reset();
+
     switch (geometry?.type) {
       case GeometryType.POINT:
-        this.markerLocatie = geometry;
-        const coordinate: Coordinate = LocationUtil.pointToCoordinate(
-          geometry.point,
-        );
+        const coordinate = LocationUtil.pointToCoordinate(geometry.point);
         this.addMarker(coordinate);
         if (fromSearch) {
           this.zoomToMarker(coordinate);
@@ -243,7 +252,6 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
             .coordinateToAddress(coordinate)
             .subscribe((objectData) => {
               this.nearestAddress = objectData.response.docs[0];
-              this.searchControl.reset();
             });
         }
     }
@@ -256,10 +264,13 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
       geometry: new geom.Point(proj.fromLonLat(coordinate)),
     });
     marker.setStyle(this.pointStyle);
+    this.locationSource.addFeature(marker);
+  }
+
+  private clearPreviousMarker() {
     const features = this.locationSource.getFeatures();
     features.forEach((feature) => this.locationSource.removeFeature(feature));
     this.locationSource.refresh();
-    this.locationSource.addFeature(marker);
   }
 
   private zoomToMarker(coordinate: Array<number>): void {
@@ -276,9 +287,10 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  clear(): void {
-    this.markerLocatie = null;
-    this.save();
+  cancel(): void {
+    this.currentLocation = this.initialLocation;
+    this.locationChanged.emit(this.initialLocation);
+    void this.sideNav.close();
   }
 
   save(): void {
