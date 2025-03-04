@@ -13,6 +13,8 @@ import net.atos.zac.identity.model.User
 import net.atos.zac.identity.model.getFullName
 import net.atos.zac.identity.model.toGroup
 import net.atos.zac.identity.model.toUser
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_USER_NOT_IN_GROUP
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.keycloak.admin.client.resource.RealmResource
@@ -59,5 +61,21 @@ class IdentityService @Inject constructor(
             .members()
             .map { it.toUser() }
             .sortedBy { it.getFullName() }
+    }
+
+    fun listGroupNamesForUser(userId: String): List<String> {
+        val keycloakUserId = keycloakZacRealmResource.users()
+            .searchByUsername(userId, true).firstOrNull()?.id
+            ?: throw IdentityRuntimeException("User with name '$userId' not found in Keycloak")
+        return keycloakZacRealmResource.users()
+            .get(keycloakUserId)
+            .groups()
+            .map { it.name }
+    }
+
+    fun checkIfUserIsInGroup(userId: String, groupId: String) {
+        if (!listGroupNamesForUser(userId).contains(groupId)) {
+            throw InputValidationFailedException(ERROR_CODE_USER_NOT_IN_GROUP)
+        }
     }
 }

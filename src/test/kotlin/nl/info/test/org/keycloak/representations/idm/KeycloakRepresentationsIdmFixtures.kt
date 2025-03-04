@@ -7,13 +7,16 @@ package nl.info.test.org.keycloak.representations.idm
 
 import org.keycloak.representations.idm.GroupRepresentation
 import org.keycloak.representations.idm.UserRepresentation
+import java.util.UUID
 
 fun createUserRepresentation(
+    id: String = UUID.randomUUID().toString(),
     username: String = "dummyUsername",
     firstName: String? = "dummyFirstName",
     lastName: String? = "dummyLastName",
     email: String = "dummy@example.com"
 ) = UserRepresentation().apply {
+    this.id = id
     this.username = username
     this.firstName = firstName
     this.lastName = lastName
