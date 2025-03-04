@@ -36,14 +36,16 @@ fun createAdresWithBinnenlandsAdres(
 fun createResultaatItem(
     adres: Adres = createAdresWithBinnenlandsAdres(),
     naam: String = "dummyNaam",
-    kvkNummer: String = "dummyKvkNummer",
+    kvkNummer: String? = "dummyKvkNummer",
+    rsin: String? = "dummyRsin",
     type: String = "nevenvestiging",
-    vestingsnummer: String = "dummyVestigingsnummer",
+    vestingsnummer: String? = "dummyVestigingsnummer",
 ) = ResultaatItem().apply {
     this.adres = adres
     this.naam = naam
     this.type = type
     this.kvkNummer = kvkNummer
+    this.rsin = rsin
     this.vestigingsnummer = vestingsnummer
 }
 
