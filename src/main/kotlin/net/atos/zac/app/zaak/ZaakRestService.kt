@@ -320,7 +320,9 @@ class ZaakRestService @Inject constructor(
             assertPolicy(wijzigen && verlengenDoorlooptijd)
         }
         with(restZaakEditMetRedenGegevens.zaak) {
-            identityService.checkIfUserIsInGroup(behandelaar?.id, groep?.id)
+            if (behandelaar?.id != null && groep?.id != null) {
+                identityService.checkIfUserIsInGroup(behandelaar!!.id, groep!!.id)
+            }
         }
 
         val updatedZaak = zrcClientService.patchZaak(

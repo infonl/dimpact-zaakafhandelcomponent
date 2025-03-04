@@ -68,20 +68,15 @@ class IdentityService @Inject constructor(
             .sortedBy { it.getFullName() }
     }
 
-    fun checkIfUserIsInGroup(userId: String?, groupId: String?) {
-        if (userId == null || groupId == null) {
-            LOG.fine { "Missing user id '$userId' or group id '$groupId'. Cannot check is user is in group!" }
-            return
-        }
+    fun listGroupNamesForUser(userId: String): List<String> =
+        keycloakZacRealmResource.users()
+            // retrieve groups with 'full representation' or else the group attributes will not be filled
+            .search(userId, null, null, null, 0, 1, null, false)
+            .firstOrNull()?.groups ?: throw IdentityRuntimeException("User with id '$userId' not found in Keycloak")
 
-        val isUserInGroup = listUsersInGroup(groupId)
-            .map { it.id }
-            .contains(userId)
-
-        if (!isUserInGroup) {
-            LOG.warning(
-                "User '$userId' is not in group '$groupId' and can therefore not be set as case worker."
-            )
+    fun checkIfUserIsInGroup(userId: String, groupId: String) {
+        if (!listGroupNamesForUser(userId).contains(groupId)) {
+            LOG.warning("User '$userId' is not in group '$groupId' and can therefore not be set as case worker.")
             throw InputValidationFailedException(ERROR_CODE_USER_NOT_IN_GROUP)
         }
     }

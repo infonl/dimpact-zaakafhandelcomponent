@@ -12,6 +12,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import net.atos.zac.identity.exception.IdentityRuntimeException
 import net.atos.zac.identity.model.getFullName
 import nl.info.test.org.keycloak.representations.idm.createGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createUserRepresentation
@@ -102,22 +103,24 @@ class IdentityServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("Users in a group in the Keycloak realm") {
         val groupId = "dummyGroupId"
-        val userRepresentations = listOf(
-            createUserRepresentation(
-                username = "dummyUsername1",
-                firstName = "dummyFirstName1",
-                lastName = "dummyLastName1",
-                email = "test1@example.com"
-            ),
-            createUserRepresentation(
-                username = "dummyUsername2",
-                firstName = "dummyFirstName2",
-                lastName = "dummyLastName2",
-                email = "test2@example.com"
-            )
+        val userName1 = "dummyUsername1"
+        val userName2 = "dummyUsername2"
+        val userRepresentation1 = createUserRepresentation(
+            username = userName1,
+            firstName = "dummyFirstName1",
+            lastName = "dummyLastName1",
+            email = "test1@example.com"
         )
+        val userRepresentation2 = createUserRepresentation(
+            username = userName2,
+            firstName = "dummyFirstName2",
+            lastName = "dummyLastName2",
+            email = "test2@example.com"
+        )
+        val userRepresentations = listOf(userRepresentation1, userRepresentation2)
         val keycloakGroup = createGroupRepresentation(id = groupId)
         every { realmResource.groups().groups(groupId, true, 0, 1, true) } returns listOf(keycloakGroup)
         every { realmResource.groups().group(groupId).members() } returns userRepresentations
@@ -141,58 +144,64 @@ class IdentityServiceTest : BehaviorSpec({
                 }
             }
         }
+    }
+
+    Given("Users in the same group in the Keycloak realm") {
+        val groupId = "dummyGroupId"
+        val userName1 = "dummyUsername1"
+        val userName2 = "dummyUsername2"
+        val userRepresentation1 = createUserRepresentation(
+            username = userName1,
+            firstName = "dummyFirstName1",
+            lastName = "dummyLastName1",
+            email = "test1@example.com"
+        )
+        val userRepresentation2 = createUserRepresentation(
+            username = userName2,
+            firstName = "dummyFirstName2",
+            lastName = "dummyLastName2",
+            email = "test2@example.com"
+        )
+        every {
+            realmResource.users().search(userName1, null, null, null, 0, 1, null, false)
+        } returns listOf(
+            userRepresentation1.apply {
+                groups = listOf(groupId)
+            },
+            userRepresentation2.apply {
+                groups = listOf(groupId)
+            }
+        )
+
+        When("the group names for a user are listed") {
+            val groupNames = identityService.listGroupNamesForUser("dummyUsername1")
+
+            Then("the groups for the user are retrieved") {
+                groupNames.size shouldBe 1
+                groupNames[0] shouldBe groupId
+            }
+        }
 
         When("a check if an existing user is in a group is performed") {
             identityService.checkIfUserIsInGroup("dummyUsername1", groupId)
 
             Then("the check succeeds") {}
         }
+    }
+
+    Given("A group without users in the Keycloak realm") {
+        val groupId = "dummyGroupId"
+        val userName = "unknown"
+        every {
+            realmResource.users().search(userName, null, null, null, 0, 1, null, false)
+        } returns emptyList()
 
         When("a check if an unknown user is in a group is performed") {
-            val exception = shouldThrow<InputValidationFailedException> {
-                identityService.checkIfUserIsInGroup("unknown", groupId)
+            shouldThrow<IdentityRuntimeException> {
+                identityService.checkIfUserIsInGroup(userName, groupId)
             }
 
-            Then("an exception is thrown") {
-                exception.errorCode shouldBe ERROR_CODE_USER_NOT_IN_GROUP
-                exception.message shouldBe null
-            }
-        }
-    }
-
-    Given("no group") {
-        When("a check if a user is in a group is performed") {
-            identityService.checkIfUserIsInGroup("user", null)
-
-            Then("the check is not executed") {
-                verify(exactly = 0) {
-                    realmResource.groups()
-                }
-            }
-        }
-    }
-
-    Given("no user") {
-        When("a check if a user is in a group is performed") {
-            identityService.checkIfUserIsInGroup(null, "group")
-
-            Then("the check is not executed") {
-                verify(exactly = 0) {
-                    realmResource.groups()
-                }
-            }
-        }
-    }
-
-    Given("no user and no group") {
-        When("a check if a user is in a group is performed") {
-            identityService.checkIfUserIsInGroup(null, null)
-
-            Then("the check is not executed") {
-                verify(exactly = 0) {
-                    realmResource.groups()
-                }
-            }
+            Then("an exception is thrown") {}
         }
     }
 })
