@@ -357,7 +357,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     const reason = this.reasonField.formControl.value;
     const subscriptions: Subscription[] = [];
 
-    subscriptions.push(this.patchBehandelaar(zaak, reason));
+    this.patchBehandelaar(zaak, reason);
 
     this.patchLocation(reason).subscribe(() => {
       // To prevent a race condition we need to first update the `zaakgeometrie` and then the other fields
@@ -400,11 +400,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     if (zaak.behandelaar?.id === this.loggedInUser.id) {
       return this.zakenService
         .toekennenAanIngelogdeMedewerker(this.zaak.uuid, reason)
-        .subscribe((updatedZaak) => {
-          this.utilService.openSnackbar("msg.zaak.toegekend", {
-            behandelaar: updatedZaak.behandelaar?.naam,
-          });
-        });
+        .subscribe(() => {});
     }
 
     return this.zakenService
@@ -413,15 +409,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
         groupId: zaak.groep?.id,
         behandelaarId: zaak?.behandelaar?.id,
       })
-      .subscribe((updatedZaak) => {
-        if (updatedZaak.behandelaar?.id) {
-          this.utilService.openSnackbar("msg.zaak.toegekend", {
-            behandelaar: updatedZaak.behandelaar?.naam,
-          });
-        } else {
-          this.utilService.openSnackbar("msg.vrijgegeven.zaak");
-        }
-      });
+      .subscribe(() => {});
   }
 
   exit() {
