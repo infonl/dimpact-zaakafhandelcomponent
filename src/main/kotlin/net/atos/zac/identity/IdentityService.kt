@@ -13,9 +13,12 @@ import net.atos.zac.identity.model.User
 import net.atos.zac.identity.model.getFullName
 import net.atos.zac.identity.model.toGroup
 import net.atos.zac.identity.model.toUser
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_USER_NOT_IN_GROUP
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.keycloak.admin.client.resource.RealmResource
+import java.util.logging.Logger
 
 @AllOpen
 @NoArgConstructor
@@ -25,6 +28,10 @@ class IdentityService @Inject constructor(
     @Named("keycloakZacRealmResource")
     private val keycloakZacRealmResource: RealmResource
 ) {
+    companion object {
+        private val LOG = Logger.getLogger(IdentityService::class.java.name)
+    }
+
     fun listUsers(): List<User> = keycloakZacRealmResource.users()
         .list()
         .map { it.toUser() }
@@ -59,5 +66,23 @@ class IdentityService @Inject constructor(
             .members()
             .map { it.toUser() }
             .sortedBy { it.getFullName() }
+    }
+
+    fun checkIfUserIsInGroup(userId: String?, groupId: String?) {
+        if (userId == null || groupId == null) {
+            LOG.fine { "User id '$userId' or group id '$groupId' is null. Will not check for correctness" }
+            return
+        }
+
+        val isUserInGroup = listUsersInGroup(groupId)
+            .map { it.id }
+            .contains(userId)
+
+        if (!isUserInGroup) {
+            LOG.warning(
+                "User '$userId' is not in group '$groupId' and can therefore not be set as default case worker."
+            )
+            throw InputValidationFailedException(ERROR_CODE_USER_NOT_IN_GROUP)
+        }
     }
 }

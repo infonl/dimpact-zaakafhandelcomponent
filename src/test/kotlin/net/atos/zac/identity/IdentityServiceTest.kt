@@ -5,14 +5,18 @@
 
 package net.atos.zac.identity
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import net.atos.zac.identity.model.getFullName
 import nl.info.test.org.keycloak.representations.idm.createGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createUserRepresentation
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_USER_NOT_IN_GROUP
+import nl.info.zac.exception.InputValidationFailedException
 import org.keycloak.admin.client.resource.RealmResource
 
 class IdentityServiceTest : BehaviorSpec({
@@ -137,5 +141,59 @@ class IdentityServiceTest : BehaviorSpec({
                 }
             }
         }
+
+        When("a check if an existing user is in a group is performed") {
+            identityService.checkIfUserIsInGroup("dummyUsername1", groupId)
+
+            Then("the check succeeds") {}
+        }
+
+        When("a check if an unknown user is in a group is performed") {
+            val exception = shouldThrow<InputValidationFailedException> {
+                identityService.checkIfUserIsInGroup("unknown", groupId)
+            }
+
+            Then("an exception is thrown") {
+                exception.errorCode shouldBe ERROR_CODE_USER_NOT_IN_GROUP
+                exception.message shouldBe null
+            }
+        }
     }
+
+    Given("no group") {
+        When("a check if a user is in a group is performed") {
+            identityService.checkIfUserIsInGroup("user", null)
+
+            Then("the check is not executed") {
+                verify(exactly = 0) {
+                    realmResource.groups()
+                }
+            }
+        }
+    }
+
+    Given("no user") {
+        When("a check if a user is in a group is performed") {
+            identityService.checkIfUserIsInGroup(null, "group")
+
+            Then("the check is not executed") {
+                verify(exactly = 0) {
+                    realmResource.groups()
+                }
+            }
+        }
+    }
+
+    Given("no user and no group") {
+        When("a check if a user is in a group is performed") {
+            identityService.checkIfUserIsInGroup(null, null)
+
+            Then("the check is not executed") {
+                verify(exactly = 0) {
+                    realmResource.groups()
+                }
+            }
+        }
+    }
+
 })
