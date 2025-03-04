@@ -36,11 +36,12 @@
         {{ "locatie" | translate }}
       </ng-template>
       <zac-locatie-zoek
-        [huidigeLocatie]="zaak.zaakgeometrie"
+        [currentLocation]="zaak.zaakgeometrie"
         [readonly]="!zaak.isOpen || !zaak.rechten.wijzigen"
         [reasonControl]="reasonField.formControl"
         (locatie)="saveFromMapView()"
         (locationChanged)="locationChanged($event)"
+        [sideNav]="sideNav"
       ></zac-locatie-zoek>
     </mat-tab>
   </mat-tab-group>

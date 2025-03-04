@@ -332,6 +332,7 @@
   "caseDefinition": "CMMN model",
   "zaakgeometrie": "Location",
   "locatie": "Location",
+  "coordinates": "Coordinates",
   "locatie.zoeken.melding": "The address is being looked up, please wait...",
   "model.-kies-": "- Select a CMMN model -",
   "notities": "Notes",
