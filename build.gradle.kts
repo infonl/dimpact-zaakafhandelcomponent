@@ -722,7 +722,7 @@ tasks {
             "org.jacoco.agent-runtime.jar"
         }
         into(layout.buildDirectory.dir("jacoco/itest/jacoco-agent"))
-	filePermissions {
+        filePermissions {
             user {
                 read = true
                 execute = true
@@ -733,23 +733,23 @@ tasks {
                 read = true
                 write = true
             }
-	    group {
+            group {
                 execute = true
                 read = true
                 write = true
-	    }
+            }
         }
         dirPermissions {
             user {
                 read = true
                 execute = true
                 write = true
-            }   
+            }
             other {
                 execute = true
                 read = true
                 write = true
-            }   
+            }
             group {
                 execute = true
                 read = true
