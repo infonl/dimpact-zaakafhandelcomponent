@@ -722,6 +722,21 @@ tasks {
             "org.jacoco.agent-runtime.jar"
         }
         into(layout.buildDirectory.dir("jacoco/itest/jacoco-agent"))
+	filePermissions {
+            user {
+                read = true
+                execute = true
+                write = true
+            }
+            other {
+                execute = true
+                read = true
+                write = true
+            }
+        }
+        dirPermissions {
+            unix('rwxrwxrwx')
+        }
     }
 
     register<Test>("itest") {
