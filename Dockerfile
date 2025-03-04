@@ -35,10 +35,8 @@ RUN keytool -importcert -cacerts -alias SmartDocuments -file /certificates/smart
     keytool -importcert -cacerts -alias Staat_der_Nederlanden_Private_Services_CA -file /certificates/kvk/Staat_der_Nederlanden_Private_Services_CA_-_G1.crt -storepass changeit -noprompt
 
 # Add user to run our application
-RUN groupadd -r default && \
-    useradd -r -g default --no-log-init -s /sbin/nologin -c "Default Application User" default && \
-    mkdir -p /jacoco-report && \
-    chown -R default:default /jacoco-report
+RUN groupadd -g 121 default && \
+    useradd -u 1001 -g default --no-log-init -s /sbin/nologin -c "Default Application User" default
 
 # Copy build timestamp (used by HealthCheckService.java)
 RUN date -Iseconds > /build_timestamp.txt
