@@ -570,7 +570,8 @@ export class ZaakViewComponent
       this.zaak.zaaktype.opschortingMogelijk &&
       !this.zaak.isHeropend &&
       !this.zaak.isOpgeschort &&
-      !this.zaak.isProcesGestuurd
+      !this.zaak.isProcesGestuurd &&
+      !this.zaak.isEerderOpgeschort
     ) {
       actionMenuItems.push(
         new ButtonMenuItem(
