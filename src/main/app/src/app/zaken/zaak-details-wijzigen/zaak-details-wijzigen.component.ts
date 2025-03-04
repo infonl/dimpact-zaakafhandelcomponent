@@ -314,7 +314,11 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     return null;
   }
 
-  saveFromFormView(formGroup: FormGroup): void {
+  saveFromFormView(formGroup?: FormGroup): void {
+    if (!formGroup) {
+      void this.sideNav.close();
+      return;
+    }
     const updates = Object.entries(formGroup.controls).reduce(
       (acc, [key, control]) => {
         const value = control.value;
