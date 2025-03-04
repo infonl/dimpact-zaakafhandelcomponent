@@ -88,6 +88,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
       .label("reden")
       .maxlength(80)
       .validators(Validators.required)
+      .disabled()
       .build();
 
     // Forcing the set value to sync tabs
@@ -339,7 +340,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     void this.updateZaak(this.createZaakPatch(updates));
   }
 
-  locationChanged(update: Geometry) {
+  locationChanged(update?: Geometry) {
     this.zaak.zaakgeometrie = update;
   }
 
@@ -384,8 +385,8 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
 
     return this.zakenService.updateZaakLocatie(
       this.zaak.uuid,
-      this.zaak.zaakgeometrie,
       reason,
+      this.zaak.zaakgeometrie,
     );
   }
 

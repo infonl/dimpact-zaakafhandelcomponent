@@ -10,10 +10,10 @@
 }
 
 .open-layers-map {
-  height: calc(100vh - 431px);
+  height: calc(100vh - 531px);
 
   &.readonly {
-    height: calc(100vh - 239px);
+    height: calc(100vh - 339px);
   }
 }
 
@@ -32,5 +32,17 @@
     padding: 12px;
     border-radius: 6px;
     backdrop-filter: brightness(112.5%) saturate(75%) blur(2.5px);
+  }
+}
+
+.location-coordinates {
+  margin-bottom: 8px;
+
+  .mat-mdc-card-content {
+    display: flex;
+  }
+
+  zac-static-text {
+    text-align: center;
   }
 }

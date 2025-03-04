@@ -264,8 +264,8 @@ export class ZakenService {
 
   updateZaakLocatie(
     uuid: string,
-    locatie: Geometry,
     reden: string,
+    locatie?: Geometry,
   ): Observable<Zaak> {
     return this.http
       .patch<Zaak>(
