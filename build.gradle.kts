@@ -733,9 +733,28 @@ tasks {
                 read = true
                 write = true
             }
+	    group {
+                execute = true
+                read = true
+                write = true
+	    }
         }
         dirPermissions {
-            unix('777')
+            user {
+                read = true
+                execute = true
+                write = true
+            }   
+            other {
+                execute = true
+                read = true
+                write = true
+            }   
+            group {
+                execute = true
+                read = true
+                write = true
+            }	
         }
     }
 
