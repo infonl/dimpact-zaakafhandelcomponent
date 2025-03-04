@@ -101,7 +101,7 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(private locationService: LocationService) {}
 
   ngOnInit(): void {
-    this.initialLocation = this.currentLocation
+    this.initialLocation = this.currentLocation;
     const projection = proj.get(this.EPSG3857);
     const projectionExtent = projection.getExtent();
     const size = extent.getWidth(projectionExtent) / 256;
@@ -288,8 +288,8 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   cancel(): void {
-    this.currentLocation = this.initialLocation
-    this.locationChanged.emit(this.initialLocation)
+    this.currentLocation = this.initialLocation;
+    this.locationChanged.emit(this.initialLocation);
     void this.sideNav.close();
   }
 
