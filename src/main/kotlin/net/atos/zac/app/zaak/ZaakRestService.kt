@@ -264,8 +264,20 @@ class ZaakRestService @Inject constructor(
                 zaak
             )
         }
-        assignZaak(zaak, restZaak)
-
+        restZaak.groep?.let {
+            zrcClientService.updateRol(
+                zaak,
+                zaakService.bepaalRolGroep(identityService.readGroup(it.id), zaak),
+                AANMAKEN_ZAAK_REDEN
+            )
+        }
+        restZaak.behandelaar?.let {
+            zrcClientService.updateRol(
+                zaak,
+                zaakService.bepaalRolMedewerker(identityService.readUser(it.id), zaak),
+                AANMAKEN_ZAAK_REDEN
+            )
+        }
         // if BPMN support is enabled and if a referentieproces is defined for the zaaktype, start a BPMN process
         // note that we misuse the referentieproces-name field to indicate that we use BPMN for a certain zaaktype
         // however this needs to be changed because this field is actually filled for all our 'CMMN' zaaktypes currently..
@@ -285,14 +297,9 @@ class ZaakRestService @Inject constructor(
                 null
             )
         }
-        restZaakAanmaakGegevens.inboxProductaanvraag?.let { inboxProductaanvraag ->
-            koppelInboxProductaanvraag(zaak, inboxProductaanvraag)
-        }
-        restZaakAanmaakGegevens.bagObjecten?.let { restbagObjecten ->
-            for (restbagObject in restbagObjecten) {
-                val zaakobject = RestBagConverter.convertToZaakobject(restbagObject, zaak)
-                zrcClientService.createZaakobject(zaakobject)
-            }
+        restZaakAanmaakGegevens.inboxProductaanvraag?.let { koppelInboxProductaanvraag(zaak, it) }
+        restZaakAanmaakGegevens.bagObjecten?.forEach {
+            zrcClientService.createZaakobject(RestBagConverter.convertToZaakobject(it, zaak))
         }
         return restZaakConverter.toRestZaak(zaak)
     }
@@ -311,7 +318,6 @@ class ZaakRestService @Inject constructor(
             if (behandelaar?.id != null && groep?.id != null) {
                 identityService.checkIfUserIsInGroup(behandelaar!!.id, groep!!.id)
             }
-            assignZaak(zaak, this)
         }
 
         val updatedZaak = zrcClientService.patchZaak(
@@ -328,23 +334,6 @@ class ZaakRestService @Inject constructor(
         }
 
         return restZaakConverter.toRestZaak(updatedZaak)
-    }
-
-    private fun assignZaak(zaak: Zaak, restZaak: RestZaak) {
-        restZaak.groep?.let {
-            zrcClientService.updateRol(
-                zaak,
-                zaakService.bepaalRolGroep(identityService.readGroup(it.id), zaak),
-                AANMAKEN_ZAAK_REDEN
-            )
-        }
-        restZaak.behandelaar?.let {
-            zrcClientService.updateRol(
-                zaak,
-                zaakService.bepaalRolMedewerker(identityService.readUser(it.id), zaak),
-                AANMAKEN_ZAAK_REDEN
-            )
-        }
     }
 
     @PATCH
