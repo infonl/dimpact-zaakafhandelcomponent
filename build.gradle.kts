@@ -735,7 +735,7 @@ tasks {
             }
         }
         dirPermissions {
-            unix('0777')
+            unix('777')
         }
     }
 
