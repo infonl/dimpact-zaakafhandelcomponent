@@ -70,7 +70,7 @@ class IdentityService @Inject constructor(
 
     fun checkIfUserIsInGroup(userId: String?, groupId: String?) {
         if (userId == null || groupId == null) {
-            LOG.fine { "User id '$userId' or group id '$groupId' is null. Will not check for correctness" }
+            LOG.fine { "Missing user id '$userId' or group id '$groupId'. Cannot check is user is in group!" }
             return
         }
 
@@ -80,7 +80,7 @@ class IdentityService @Inject constructor(
 
         if (!isUserInGroup) {
             LOG.warning(
-                "User '$userId' is not in group '$groupId' and can therefore not be set as default case worker."
+                "User '$userId' is not in group '$groupId' and can therefore not be set as case worker."
             )
             throw InputValidationFailedException(ERROR_CODE_USER_NOT_IN_GROUP)
         }
