@@ -77,20 +77,12 @@
           mat-raised-button
           color="primary"
           [disabled]="!reasonControl.valid"
-          id="opslaan_button"
           (click)="save()"
-          type="button"
         >
           {{ "actie.opslaan" | translate }}
         </button>
-        <button
-          mat-raised-button
-          [disabled]="!reasonControl.valid"
-          id="verwijder_button"
-          (click)="clear()"
-          type="button"
-        >
-          {{ "actie.verwijderen" | translate }}
+        <button mat-raised-button (click)="cancel()">
+          {{ "actie.annuleren" | translate }}
         </button>
       </div>
     </div>
