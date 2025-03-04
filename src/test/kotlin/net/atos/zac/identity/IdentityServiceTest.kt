@@ -195,5 +195,4 @@ class IdentityServiceTest : BehaviorSpec({
             }
         }
     }
-
 })
