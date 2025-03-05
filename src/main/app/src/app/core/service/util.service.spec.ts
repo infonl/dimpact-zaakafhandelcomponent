@@ -14,7 +14,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { ProgressDialogComponent } from "src/app/shared/progress-dialog/progress-dialog.component";
 import { UtilService } from "./util.service";
 
-class MatSnackBarRefMock<T> {
+class MatSnackBarRefMock {
   onAction = jest.fn().mockReturnValue(of(0));
 }
 

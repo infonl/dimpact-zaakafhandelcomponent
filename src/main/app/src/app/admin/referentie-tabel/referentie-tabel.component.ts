@@ -159,7 +159,7 @@ export class ReferentieTabelComponent extends AdminComponent implements OnInit {
         ? this.service.updateReferentieTabel(this.tabel)
         : this.service.createReferentieTabel(this.tabel);
     persistReferentieTabel
-      .pipe(catchError((error) => of(this.tabel)))
+      .pipe(catchError(() => of(this.tabel)))
       .subscribe((persistedTabel) => {
         this.init(persistedTabel);
       });

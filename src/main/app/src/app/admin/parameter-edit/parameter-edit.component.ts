@@ -5,6 +5,7 @@
 
 import { SelectionModel } from "@angular/cdk/collections";
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   OnDestroy,
@@ -60,7 +61,7 @@ import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-docume
 })
 export class ParameterEditComponent
   extends AdminComponent
-  implements OnInit, OnDestroy
+  implements OnInit, OnDestroy, AfterViewInit
 {
   @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
   @ViewChild("menuSidenav") menuSidenav: MatSidenav;
