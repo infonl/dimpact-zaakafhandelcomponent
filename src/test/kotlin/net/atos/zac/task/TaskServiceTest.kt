@@ -54,20 +54,14 @@ class TaskServiceTest : BehaviorSpec({
     }
 
     Given("A task that has not yet been assigned to a specific group and user") {
-        val restTaakToekennenGegevens = createRestTaskAssignData()
         val taskId = "dummyTaskId"
+        val restTaakToekennenGegevens = createRestTaskAssignData(taakId = taskId, behandelaarId = null)
         val task = mockk<Task>()
-        val identityLinks = mutableListOf<IdentityLinkInfo>()
         val updatedTaskAfterAssigningGroup = mockk<Task>()
-        val updatedTaskAfterAssigningUser = mockk<Task>()
-        val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val screenEventSlot = mutableListOf<ScreenEvent>()
 
-        every { loggedInUser.id } returns "dummyLoggedInUserId"
-        every { task.assignee } returns null
         every { task.id } returns taskId
-        every { task.identityLinks } returns identityLinks
-        every { updatedTaskAfterAssigningUser.id } returns taskId
+        every { task.assignee } returns null
         every {
             flowableTaskService.assignTaskToGroup(
                 task,
@@ -75,16 +69,9 @@ class TaskServiceTest : BehaviorSpec({
                 restTaakToekennenGegevens.reden
             )
         } returns updatedTaskAfterAssigningGroup
-        every {
-            flowableTaskService.assignTaskToUser(
-                taskId,
-                restTaakToekennenGegevens.behandelaarId,
-                restTaakToekennenGegevens.reden
-            )
-        } returns updatedTaskAfterAssigningUser
-        every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
+        every { flowableTaskService.readOpenTask(taskId) } returns task
         every { eventingService.send(capture(screenEventSlot)) } just runs
-        every { indexingService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, true) } just runs
+        every { indexingService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, any()) } returns Unit
 
         When("the 'assign task' function is called with REST taak toekennen gegevens with a group and WITHOUT a user") {
             taskService.assignOrReleaseTask(
@@ -92,16 +79,24 @@ class TaskServiceTest : BehaviorSpec({
                 task,
                 loggedInUser
             )
-            Then("the tasks are assigned to the group and user") {
+
+            Then("the task is assigned to the group") {
                 verify(exactly = 1) {
                     flowableTaskService.assignTaskToGroup(
                         task,
                         restTaakToekennenGegevens.groepId,
                         restTaakToekennenGegevens.reden
                     )
-                    flowableTaskService.assignTaskToUser(any(), any(), any())
-                    indexingService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, true)
                 }
+            }
+
+            And("the indexing service is called") {
+                verify(exactly = 1) {
+                    indexingService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, false)
+                }
+            }
+
+            And("the correct screen events should be created") {
                 screenEventSlot.size shouldBe 2
                 screenEventSlot.map { it.objectType } shouldContainExactlyInAnyOrder listOf(
                     ScreenEventType.TAAK,
@@ -114,11 +109,10 @@ class TaskServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A task has been assigned to a user") {
+    Given("A task has already been assigned to a user") {
         val taskId = "dummyTaskId"
         val restTaakToekennenGegevens = createRestTaskAssignData(behandelaarId = null, taakId = taskId)
         val task = mockk<Task>()
-        val identityLinks = mutableListOf<IdentityLinkInfo>()
         val updatedTaskAfterAssigningUser = mockk<Task>()
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val screenEventSlot = mutableListOf<ScreenEvent>()
@@ -141,7 +135,7 @@ class TaskServiceTest : BehaviorSpec({
             flowableTaskService.assignTaskToGroup(task, restTaakToekennenGegevens.groepId, restTaakToekennenGegevens.reden)
         } returns task
 
-        When("No user is set in the update") {
+        When("the 'assign task' function is called with REST taak toekennen gegevens with a group and WITHOUT a user") {
             taskService.assignOrReleaseTask(restTaakToekennenGegevens, task, loggedInUser)
 
             Then("the task is released") {
