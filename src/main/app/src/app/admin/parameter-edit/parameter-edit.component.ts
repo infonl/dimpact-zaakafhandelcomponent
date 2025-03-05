@@ -707,7 +707,7 @@ export class ParameterEditComponent
             }
           }
         },
-        (error) => {
+        () => {
           this.loading = false;
         },
       );
@@ -720,24 +720,7 @@ export class ParameterEditComponent
     }
   }
 
-  compareObject(object1: any, object2: any): boolean {
-    if (typeof object1 === "string") {
-      return object1 === object2;
-    }
-    if (object1 && object2) {
-      if (object1.hasOwnProperty("key")) {
-        return object1.key === object2.key;
-      } else if (object1.hasOwnProperty("id")) {
-        return object1.id === object2.id;
-      } else if (object1.hasOwnProperty("naam")) {
-        return object1.naam === object2.naam;
-      } else if (object1.hasOwnProperty("name")) {
-        return object1.name === object2.name;
-      }
-      return object1 === object2;
-    }
-    return false;
-  }
+  compareObject = (a: unknown, b: unknown) => this.utilService.compare(a, b);
 
   formulierDefinitieChanged(
     $event: MatSelectChange,

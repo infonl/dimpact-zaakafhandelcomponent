@@ -245,4 +245,32 @@ export class UtilService {
     link.remove();
     window.URL.revokeObjectURL(link.href);
   }
+
+  /**
+   * Compares two variables, if objects it will check some `keysToCompareOn` are equal
+   */
+  public compare<T extends unknown>(
+    a: T,
+    b: T,
+    keysToCompareOn = ["key", "id", "naam", "name"],
+  ): boolean {
+    switch (typeof a) {
+      case "undefined":
+        return false;
+      case "string":
+      case "number":
+        return a === b;
+      case "object":
+        return keysToCompareOn.some((key) => {
+          if (a === null || a === undefined) return false;
+          if (b === null || b === undefined) return false;
+
+          return (
+            key in a && a[key as keyof typeof a] === b[key as keyof typeof b]
+          );
+        });
+      default:
+        return false;
+    }
+  }
 }

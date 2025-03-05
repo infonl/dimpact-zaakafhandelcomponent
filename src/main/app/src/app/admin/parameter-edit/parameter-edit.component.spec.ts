@@ -15,6 +15,7 @@ import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
+import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
@@ -27,13 +28,13 @@ import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.servic
 import { ParameterEditComponent } from "./parameter-edit.component";
 
 describe(ParameterEditComponent.name, () => {
-  let component: ParameterEditComponent;
-  let fixture: ComponentFixture<typeof component>;
+  let fixture: ComponentFixture<ParameterEditComponent>;
   let zaakafhandelParametersService: ZaakafhandelParametersService;
   let referentieTabelService: ReferentieTabelService;
   let identityService: IdentityService;
   let mailtemplateBeheerService: MailtemplateBeheerService;
   let loader: HarnessLoader;
+  let utilService: UtilService;
 
   const zaakAfhandelParamaters = fromPartial<
     GeneratedType<"RestZaakafhandelParameters">
@@ -119,13 +120,15 @@ describe(ParameterEditComponent.name, () => {
       .mockReturnValueOnce(of(users))
       .mockReturnValue(of([]));
 
+    utilService = TestBed.inject(UtilService);
+    jest.spyOn(utilService, "compare").mockReturnValue(true);
+
     mailtemplateBeheerService = TestBed.inject(MailtemplateBeheerService);
     jest
       .spyOn(mailtemplateBeheerService, "listKoppelbareMailtemplates")
       .mockReturnValue(of([]));
 
     fixture = TestBed.createComponent(ParameterEditComponent);
-    component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
   });
 

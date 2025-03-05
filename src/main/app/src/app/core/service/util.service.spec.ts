@@ -14,12 +14,11 @@ import { TranslateService } from "@ngx-translate/core";
 import { ProgressDialogComponent } from "src/app/shared/progress-dialog/progress-dialog.component";
 import { UtilService } from "./util.service";
 
-// Mock MatSnackBarRef type
 class MatSnackBarRefMock<T> {
-  onAction = jest.fn().mockReturnValue(of(void 0)); // Mock onAction to return an observable
+  onAction = jest.fn().mockReturnValue(of(0));
 }
 
-describe("UtilService", () => {
+describe(UtilService.name, () => {
   let service: UtilService;
   let titleService: Title;
   let snackbar: MatSnackBar;
@@ -266,5 +265,26 @@ describe("UtilService", () => {
     });
 
     expect(result).toBe(dialogRefMock.afterClosed());
+  });
+
+  describe(UtilService.prototype.compare.name, () => {
+    it.each([
+      [1, 2, [], false],
+      [2, 1, [], false],
+      [1, 1, [], true],
+      ["1", 1, [], false],
+      [{ a: 1 }, { a: 1 }, ["a"], true],
+      [{ a: 1 }, { a: 1 }, ["b"], false],
+      [{ a: 1, b: "foo" }, { a: 1, b: "foo" }, ["b"], true],
+      [{ a: 1, b: "foo" }, { a: 1, b: "bar" }, ["b"], false],
+      [{ a: 1, b: "foo" }, { a: 1 }, ["b"], false],
+      [{ a: 1 }, { a: 1, b: "bar" }, ["b"], false],
+      [{ a: 20, b: "foo" }, { a: 18, b: "foo" }, ["a", "b"], true],
+    ])(
+      "when comparing %p with %p and looking for keys %p it should return %p",
+      (a, b, keysToCheck, expected) => {
+        expect(service.compare(a, b, keysToCheck)).toBe(expected);
+      },
+    );
   });
 });
