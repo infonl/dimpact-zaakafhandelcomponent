@@ -17,7 +17,6 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.zac.app.task.converter.RestTaskConverter
 import net.atos.zac.app.task.model.createRestTaskAssignData
 import net.atos.zac.app.task.model.createRestTaskDistributeData
 import net.atos.zac.app.task.model.createRestTaskDistributeTask
@@ -39,7 +38,6 @@ class TaskServiceTest : BehaviorSpec({
     val flowableTaskService = mockk<FlowableTaskService>()
     val indexingService = mockk<IndexingService>()
     val eventingService = mockk<EventingService>()
-    val restTaskConverter = mockk<RestTaskConverter>()
     val loggedInUser = mockk<LoggedInUser>()
     val task1 = mockk<Task>()
     val task2 = mockk<Task>()
@@ -47,7 +45,6 @@ class TaskServiceTest : BehaviorSpec({
         flowableTaskService = flowableTaskService,
         indexingService = indexingService,
         eventingService = eventingService,
-        restTaskConverter = restTaskConverter,
     )
     val taskId1 = "dummyTaskId1"
     val taskId2 = "dummyTaskId2"
@@ -63,7 +60,6 @@ class TaskServiceTest : BehaviorSpec({
         val identityLinks = mutableListOf<IdentityLinkInfo>()
         val updatedTaskAfterAssigningGroup = mockk<Task>()
         val updatedTaskAfterAssigningUser = mockk<Task>()
-        val groupId = "dummyCurrentGroupId"
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val screenEventSlot = mutableListOf<ScreenEvent>()
 
@@ -72,7 +68,6 @@ class TaskServiceTest : BehaviorSpec({
         every { task.id } returns taskId
         every { task.identityLinks } returns identityLinks
         every { updatedTaskAfterAssigningUser.id } returns taskId
-        every { restTaskConverter.extractGroupId(identityLinks) } returns groupId
         every {
             flowableTaskService.assignTaskToGroup(
                 task,
@@ -120,21 +115,18 @@ class TaskServiceTest : BehaviorSpec({
     }
 
     Given("A task has been assigned to a user") {
-        val restTaakToekennenGegevens = createRestTaskAssignData(behandelaarId = null)
         val taskId = "dummyTaskId"
+        val restTaakToekennenGegevens = createRestTaskAssignData(behandelaarId = null, taakId = taskId)
         val task = mockk<Task>()
         val identityLinks = mutableListOf<IdentityLinkInfo>()
         val updatedTaskAfterAssigningUser = mockk<Task>()
-        val groupId = "dummyCurrentGroupId"
         val taakOpNaamSignaleringEventSlot = slot<SignaleringEvent<String>>()
         val screenEventSlot = mutableListOf<ScreenEvent>()
 
         every { loggedInUser.id } returns "dummyLoggedInUserId"
         every { task.assignee } returns "dummyCurrentAssignee"
         every { task.id } returns taskId
-        every { task.identityLinks } returns identityLinks
         every { updatedTaskAfterAssigningUser.id } returns taskId
-        every { restTaskConverter.extractGroupId(identityLinks) } returns groupId
         every {
             flowableTaskService.releaseTask(
                 task,
@@ -143,14 +135,25 @@ class TaskServiceTest : BehaviorSpec({
         } returns updatedTaskAfterAssigningUser
         every { eventingService.send(capture(taakOpNaamSignaleringEventSlot)) } just runs
         every { eventingService.send(capture(screenEventSlot)) } just runs
-        every { indexingService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, true) } just runs
+        every { indexingService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, any()) } returns Unit
+        every { flowableTaskService.readOpenTask(taskId) } returns task
+        every {
+            flowableTaskService.assignTaskToGroup(task, restTaakToekennenGegevens.groepId, restTaakToekennenGegevens.reden)
+        } returns task
 
         When("No user is set in the update") {
             taskService.assignOrReleaseTask(restTaakToekennenGegevens, task, loggedInUser)
 
-            verify(exactly = 1) {
-                flowableTaskService.releaseTask(task, restTaakToekennenGegevens.reden)
-                indexingService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, true)
+            Then("the task is released") {
+                verify(exactly = 1) {
+                    flowableTaskService.releaseTask(task, restTaakToekennenGegevens.reden)
+                }
+            }
+
+            And("The indexing service is called") {
+                verify(exactly = 1) {
+                    indexingService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, false)
+                }
             }
         }
     }
