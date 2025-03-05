@@ -85,7 +85,7 @@ export class UtilService {
     return overlayElements;
   }
 
-  setTitle(title: string, params?: {}): void {
+  setTitle(title: string, params?: Record<string, unknown>): void {
     const _title = this.translate.instant(title, params);
     this.titleService.setTitle(
       this.translate.instant("title", { title: _title }),
@@ -137,18 +137,18 @@ export class UtilService {
     return Object.keys(enum_)[Object.values(enum_).indexOf(value)];
   }
 
-  openSnackbarError(message: string, params?: {}) {
+  openSnackbarError(message: string, params?: Record<string, unknown>) {
     this.openSnackbar(message, params, null);
   }
 
-  openSnackbar(message: string, params?: {}, duration = 3) {
+  openSnackbar(message: string, params?: Record<string, unknown>, duration = 3) {
     this.openSnackbarAction(message, "actie.sluiten", params, duration);
   }
 
   openSnackbarAction(
     message: string,
     action: string,
-    params?: {},
+    params?: Record<string, unknown>,
     durationSeconden?: number,
   ): Observable<void> {
     return this.snackbar
