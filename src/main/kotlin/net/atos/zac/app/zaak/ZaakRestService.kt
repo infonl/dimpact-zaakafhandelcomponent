@@ -314,9 +314,11 @@ class ZaakRestService @Inject constructor(
         with(policyService.readZaakRechten(zaak)) {
             assertPolicy(wijzigen && verlengenDoorlooptijd)
         }
-        with(restZaakEditMetRedenGegevens.zaak) {
-            if (behandelaar?.id != null && groep?.id != null) {
-                identityService.checkIfUserIsInGroup(behandelaar!!.id, groep!!.id)
+        restZaakEditMetRedenGegevens.zaak.run {
+            behandelaar?.id?.let { behandelaarId ->
+                groep?.id?.let { groepId ->
+                    identityService.checkIfUserIsInGroup(behandelaarId, groepId)
+                }
             }
         }
 

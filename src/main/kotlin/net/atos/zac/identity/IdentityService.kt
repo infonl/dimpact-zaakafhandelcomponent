@@ -7,14 +7,14 @@ package net.atos.zac.identity
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.inject.Named
-import net.atos.zac.identity.exception.IdentityRuntimeException
+import net.atos.zac.identity.exception.GroupNotFoundException
+import net.atos.zac.identity.exception.UserNotFoundException
+import net.atos.zac.identity.exception.UserNotInGroupException
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
 import net.atos.zac.identity.model.getFullName
 import net.atos.zac.identity.model.toGroup
 import net.atos.zac.identity.model.toUser
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_USER_NOT_IN_GROUP
-import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.keycloak.admin.client.resource.RealmResource
@@ -54,8 +54,8 @@ class IdentityService @Inject constructor(
     fun listUsersInGroup(groupId: String): List<User> {
         val keycloakGroupId = keycloakZacRealmResource.groups()
             .groups(groupId, true, 0, 1, true)
-            // better throw a custom 'GroupNotFoundException' here
-            .firstOrNull()?.id ?: throw IdentityRuntimeException("Group with name '$groupId' not found in Keycloak")
+            .firstOrNull()?.id
+            ?: throw GroupNotFoundException()
         return keycloakZacRealmResource.groups()
             .group(keycloakGroupId)
             .members()
@@ -66,7 +66,7 @@ class IdentityService @Inject constructor(
     fun listGroupNamesForUser(userId: String): List<String> {
         val keycloakUserId = keycloakZacRealmResource.users()
             .searchByUsername(userId, true).firstOrNull()?.id
-            ?: throw IdentityRuntimeException("User with name '$userId' not found in Keycloak")
+            ?: throw UserNotFoundException()
         return keycloakZacRealmResource.users()
             .get(keycloakUserId)
             .groups()
@@ -75,7 +75,7 @@ class IdentityService @Inject constructor(
 
     fun checkIfUserIsInGroup(userId: String, groupId: String) {
         if (!listGroupNamesForUser(userId).contains(groupId)) {
-            throw InputValidationFailedException(ERROR_CODE_USER_NOT_IN_GROUP)
+            throw UserNotInGroupException()
         }
     }
 }

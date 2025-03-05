@@ -41,5 +41,8 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS("msg.error.case.has.locked.information.objects"),
     ERROR_CODE_SEARCH_INDEXING("msg.error.search.indexing.exception"),
     ERROR_CODE_SEARCH_SEARCH("msg.error.search.search.exception"),
+
     ERROR_CODE_USER_NOT_IN_GROUP("msg.error.user.not.in.group"),
+    ERROR_CODE_USER_NOT_FOUND_IN_KEYCLOAK("msg.error.user.not.in.keycloak"),
+    ERROR_CODE_GROUP_NOT_FOUND_IN_KEYCLOAK("msg.error.group.not.in.keycloak"),
 }

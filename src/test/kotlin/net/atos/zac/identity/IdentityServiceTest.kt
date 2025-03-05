@@ -11,7 +11,9 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.identity.exception.IdentityRuntimeException
+import net.atos.zac.identity.exception.GroupNotFoundException
+import net.atos.zac.identity.exception.UserNotFoundException
+import net.atos.zac.identity.exception.UserNotInGroupException
 import net.atos.zac.identity.model.getFullName
 import nl.info.test.org.keycloak.representations.idm.createGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createUserRepresentation
@@ -84,7 +86,9 @@ class IdentityServiceTest : BehaviorSpec({
             lastName = "dummyLastName",
             email = "test@example.com"
         )
-        every { realmResource.users().searchByUsername(userRepresentation.username, true) } returns listOf(userRepresentation)
+        every {
+            realmResource.users().searchByUsername(userRepresentation.username, true)
+        } returns listOf(userRepresentation)
 
         When("the user is retrieved") {
             val user = identityService.readUser(userRepresentation.username)
@@ -174,7 +178,7 @@ class IdentityServiceTest : BehaviorSpec({
         } returns listOf(createGroupRepresentation(name = groupId))
 
         When("the group names for a user are listed") {
-            val groupNames = identityService.listGroupNamesForUser("dummyUsername1")
+            val groupNames = identityService.listGroupNamesForUser(userName1)
 
             Then("the groups for the user are retrieved") {
                 groupNames.size shouldBe 1
@@ -183,22 +187,92 @@ class IdentityServiceTest : BehaviorSpec({
         }
 
         When("a check if an existing user is in a group is performed") {
-            identityService.checkIfUserIsInGroup("dummyUsername1", groupId)
+            identityService.checkIfUserIsInGroup(userName1, groupId)
 
             Then("the check succeeds") {}
         }
     }
 
+    Given("Users in the same group present in the Keycloak realm") {
+        val groupId = "dummyGroupId"
+        val userName1 = "dummyUsername1"
+        val userName2 = "dummyUsername2"
+        val unknownGroupName = "unknownGroupName"
+        val userRepresentation1 = createUserRepresentation(
+            username = userName1,
+            firstName = "dummyFirstName1",
+            lastName = "dummyLastName1",
+            email = "test1@example.com"
+        )
+        val userRepresentation2 = createUserRepresentation(
+            username = userName2,
+            firstName = "dummyFirstName2",
+            lastName = "dummyLastName2",
+            email = "test2@example.com"
+        )
+        every {
+            realmResource.users().searchByUsername(userName1, true)
+        } returns listOf(
+            userRepresentation1.apply {
+                groups = listOf(groupId)
+            },
+            userRepresentation2.apply {
+                groups = listOf(groupId)
+            }
+        )
+        every {
+            realmResource.users().get(userRepresentation1.id).groups()
+        } returns listOf(createGroupRepresentation(name = groupId))
+
+        When("a check if a user is in an unknown group is performed") {
+            shouldThrow<UserNotInGroupException> {
+                identityService.checkIfUserIsInGroup(userName1, unknownGroupName)
+            }
+
+            Then("an exception is thrown") {}
+        }
+    }
+
     Given("A group without users in the Keycloak realm") {
         val groupId = "dummyGroupId"
-        val userName = "unknown"
+        val unknownUserName = "unknownUser"
         every {
-            realmResource.users().searchByUsername(userName, true)
+            realmResource.users().searchByUsername(unknownUserName, true)
         } returns emptyList()
 
         When("a check if an unknown user is in a group is performed") {
-            shouldThrow<IdentityRuntimeException> {
-                identityService.checkIfUserIsInGroup(userName, groupId)
+            shouldThrow<UserNotFoundException> {
+                identityService.checkIfUserIsInGroup(unknownUserName, groupId)
+            }
+
+            Then("an exception is thrown") {}
+        }
+    }
+
+    Given("An unknown user in the Keycloak realm") {
+        val unknownUserName = "unknownUser"
+        every {
+            realmResource.users().searchByUsername(unknownUserName, true)
+        } returns emptyList()
+
+        When("listing group names of an unknown user ") {
+            shouldThrow<UserNotFoundException> {
+                identityService.listGroupNamesForUser(unknownUserName)
+            }
+
+            Then("an exception is thrown") {}
+        }
+    }
+
+    Given("An unknown group in the Keycloak realm") {
+        val unknownGroupName = "unknownGroup"
+        every {
+            realmResource.groups().groups(unknownGroupName, true, 0, 1, true)
+        } returns emptyList()
+
+        When("listing users of an unknown user ") {
+            shouldThrow<GroupNotFoundException> {
+                identityService.listUsersInGroup(unknownGroupName)
             }
 
             Then("an exception is thrown") {}
