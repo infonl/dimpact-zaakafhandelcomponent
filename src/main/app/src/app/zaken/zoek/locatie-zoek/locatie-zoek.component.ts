@@ -224,13 +224,11 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
           LocationUtil.wktToPoint(this.nearestAddress.centroide_ll),
           true,
         );
-        this.reasonControl.enable();
       });
   }
 
   clearLocation() {
     this.setLocation();
-    this.reasonControl.enable();
   }
 
   private setLocation(geometry?: Geometry, fromSearch = true) {
@@ -256,6 +254,9 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
+    if(JSON.stringify(geometry) === JSON.stringify(this.initialLocation)) {
+      return
+    }
     this.locationChanged.emit(geometry);
   }
 
@@ -294,6 +295,7 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   save(): void {
+    this.initialLocation = this.currentLocation;
     this.locatie.next(
       new GeometryGegevens(this.markerLocatie, this.reasonControl.value),
     );
