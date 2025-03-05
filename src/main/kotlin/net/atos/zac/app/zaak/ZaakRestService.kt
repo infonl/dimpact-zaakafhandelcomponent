@@ -314,6 +314,13 @@ class ZaakRestService @Inject constructor(
         with(policyService.readZaakRechten(zaak)) {
             assertPolicy(wijzigen && verlengenDoorlooptijd)
         }
+        restZaakEditMetRedenGegevens.zaak.run {
+            behandelaar?.id?.let { behandelaarId ->
+                groep?.id?.let { groepId ->
+                    identityService.checkIfUserIsInGroup(behandelaarId, groepId)
+                }
+            }
+        }
 
         val updatedZaak = zrcClientService.patchZaak(
             zaakUUID,
