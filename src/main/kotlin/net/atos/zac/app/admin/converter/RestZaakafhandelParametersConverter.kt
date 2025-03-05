@@ -14,8 +14,8 @@ import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter.convertRESTZaa
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters
 import net.atos.zac.app.admin.model.RestSmartDocuments
 import net.atos.zac.app.admin.model.RestZaakafhandelParameters
-import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.app.zaak.model.RESTZaakStatusmailOptie
+import net.atos.zac.app.zaak.model.toRestResultaatType
 import net.atos.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -25,7 +25,6 @@ import nl.info.zac.util.NoArgConstructor
 @Suppress("LongParameterList")
 class RestZaakafhandelParametersConverter @Inject constructor(
     val caseDefinitionConverter: RESTCaseDefinitionConverter,
-    val resultaattypeConverter: RestResultaattypeConverter,
     val zaakbeeindigParameterConverter: RESTZaakbeeindigParameterConverter,
     val humanTaskParametersConverter: RESTHumanTaskParametersConverter,
     val ztcClientService: ZtcClientService,
@@ -63,8 +62,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
         restZaakafhandelParameters.caseDefinition?.takeIf { inclusiefRelaties }?.let { caseDefinition ->
             zaakafhandelParameters.nietOntvankelijkResultaattype?.let {
                 ztcClientService.readResultaattype(it).let { resultaatType ->
-                    restZaakafhandelParameters.zaakNietOntvankelijkResultaattype =
-                        resultaattypeConverter.convertResultaattype(resultaatType)
+                    restZaakafhandelParameters.zaakNietOntvankelijkResultaattype = resultaatType.toRestResultaatType()
                 }
             }
             restZaakafhandelParameters.humanTaskParameters =
