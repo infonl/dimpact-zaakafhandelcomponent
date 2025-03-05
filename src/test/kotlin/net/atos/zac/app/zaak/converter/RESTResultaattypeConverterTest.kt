@@ -7,16 +7,13 @@ package net.atos.zac.app.zaak.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.mockk
-import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createResultaatType
 import net.atos.client.zgw.ztc.model.generated.ArchiefnominatieEnum
 import java.net.URI
 import java.util.UUID
 
 class RESTResultaattypeConverterTest : BehaviorSpec({
-    val ztcClientService = mockk<ZtcClientService>()
-    val restResultaattypeConverter = RestResultaattypeConverter(ztcClientService)
+    val restResultaattypeConverter = RestResultaattypeConverter()
 
     Given("A resultaattype without archiefactietermijn") {
         val resultaattypeUUID = UUID.randomUUID()

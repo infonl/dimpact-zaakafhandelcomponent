@@ -115,10 +115,11 @@ fun createInformatieObjectType(
     uri: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
     omschrijving: String = "dummyOmschrijving",
     vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
-    beginGeldigheid: LocalDate = LocalDate.now()
+    beginGeldigheid: LocalDate = LocalDate.now(),
+    concept: Boolean = false,
 ) = InformatieObjectType(
     uri,
-    false,
+    concept,
     null,
     null,
     null,

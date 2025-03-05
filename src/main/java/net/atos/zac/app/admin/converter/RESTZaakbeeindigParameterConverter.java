@@ -29,9 +29,11 @@ public class RESTZaakbeeindigParameterConverter {
                 .toList();
     }
 
-    public List<ZaakbeeindigParameter> convertRESTZaakbeeindigParameters(final List<RESTZaakbeeindigParameter> restZaakbeeindigParameters) {
+    public static List<ZaakbeeindigParameter> convertRESTZaakbeeindigParameters(
+            final List<RESTZaakbeeindigParameter> restZaakbeeindigParameters
+    ) {
         return restZaakbeeindigParameters.stream()
-                .map(this::convertRESTZaakbeeindigParameter)
+                .map(RESTZaakbeeindigParameterConverter::convertRESTZaakbeeindigParameter)
                 .toList();
     }
 
@@ -47,7 +49,7 @@ public class RESTZaakbeeindigParameterConverter {
         return restZaakbeeindigParameter;
     }
 
-    private ZaakbeeindigParameter convertRESTZaakbeeindigParameter(final RESTZaakbeeindigParameter restZaakbeeindigParameter) {
+    private static ZaakbeeindigParameter convertRESTZaakbeeindigParameter(final RESTZaakbeeindigParameter restZaakbeeindigParameter) {
         final ZaakbeeindigParameter zaakbeeindigParameter = new ZaakbeeindigParameter();
         zaakbeeindigParameter.setId(restZaakbeeindigParameter.id);
         zaakbeeindigParameter.setZaakbeeindigReden(

@@ -115,7 +115,6 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
             zaakafhandelParameterService.readZaakafhandelParameters(restZaakafhandelParameters.zaaktype.uuid)
         } returns zaakafhandelParameters
         every { restHumanTaskParametersConverter.convertRESTHumanTaskParameters(any()) } returns emptyList()
-        every { zaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters(any()) } returns emptyList()
 
         When("converted to DB model representation") {
             val zaakafhandelParameters = restZaakafhandelParametersConverter.toZaakafhandelParameters(

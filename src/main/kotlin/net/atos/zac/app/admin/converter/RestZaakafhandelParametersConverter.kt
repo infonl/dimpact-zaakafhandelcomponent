@@ -8,6 +8,10 @@ import jakarta.inject.Inject
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter.convertRESTmailtemplateKoppelingen
+import net.atos.zac.app.admin.converter.RESTUserEventListenerParametersConverter.convertRESTUserEventListenerParameters
+import net.atos.zac.app.admin.converter.RESTZaakAfzenderConverter.convertRESTZaakAfzenders
+import net.atos.zac.app.admin.converter.RESTZaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters
 import net.atos.zac.app.admin.model.RestSmartDocuments
 import net.atos.zac.app.admin.model.RestZaakafhandelParameters
 import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
@@ -116,22 +120,22 @@ class RestZaakafhandelParametersConverter @Inject constructor(
                 )
             )
             it.setUserEventListenerParametersCollection(
-                RESTUserEventListenerParametersConverter.convertRESTUserEventListenerParameters(
+                convertRESTUserEventListenerParameters(
                     restZaakafhandelParameters.userEventListenerParameters
                 )
             )
             it.setZaakbeeindigParameters(
-                zaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters(
+                convertRESTZaakbeeindigParameters(
                     restZaakafhandelParameters.zaakbeeindigParameters
                 )
             )
             it.setMailtemplateKoppelingen(
-                RESTMailtemplateKoppelingConverter.convertRESTmailtemplateKoppelingen(
+                convertRESTmailtemplateKoppelingen(
                     restZaakafhandelParameters.mailtemplateKoppelingen
                 )
             )
             it.setZaakAfzenders(
-                RESTZaakAfzenderConverter.convertRESTZaakAfzenders(restZaakafhandelParameters.zaakAfzenders)
+                convertRESTZaakAfzenders(restZaakafhandelParameters.zaakAfzenders)
             )
         }
 }
