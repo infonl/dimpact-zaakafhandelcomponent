@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 224 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Component, EventEmitter, Output, input } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
-import { switchMap } from "rxjs";
+import { shareReplay, switchMap } from "rxjs";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
@@ -27,6 +27,7 @@ export class PersoonsgegevensComponent {
 
   persoon$ = this.bsn$.pipe(
     switchMap((bsn) => this.klantenService.readPersoon(bsn)),
+    shareReplay(1),
   );
 
   constructor(private klantenService: KlantenService) {}
