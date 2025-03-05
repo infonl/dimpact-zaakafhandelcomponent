@@ -21,6 +21,11 @@ const mockTranslateService = {
   onDefaultLangChange: of({}),
 };
 
+const persoon: GeneratedType<"RestPersoon"> = {
+  bsn: "987654321",
+  indicaties: [],
+};
+
 describe("PersoonsgegevensComponent", () => {
   let component: PersoonsgegevensComponent;
   let fixture: ComponentFixture<PersoonsgegevensComponent>;
@@ -48,23 +53,16 @@ describe("PersoonsgegevensComponent", () => {
     fixture.detectChanges();
   });
 
-  it("should create", () => {
+  it("should have created component", () => {
     expect(component).toBeTruthy();
   });
 
-  it("should call readPersoon method of KlantenService once", () => {
-    component.bsn = new Input("987654321");
-    fixture.detectChanges();
-
+  it("should have called KlantenService readPersoon method once", () => {
     expect(klantenServiceMock.readPersoon).toHaveBeenCalledTimes(1);
   });
 
   it("should emit delete event", () => {
     const deleteSpy = jest.spyOn(component.delete, "emit");
-    const persoon: GeneratedType<"RestPersoon"> = {
-      bsn: "987654321",
-      indicaties: [],
-    } as any;
 
     component.delete.emit(persoon);
     expect(deleteSpy).toHaveBeenCalledWith(persoon);
@@ -72,10 +70,6 @@ describe("PersoonsgegevensComponent", () => {
 
   it("should emit edit event", () => {
     const editSpy = jest.spyOn(component.edit, "emit");
-    const persoon: GeneratedType<"RestPersoon"> = {
-      bsn: "987654321",
-      indicaties: [],
-    } as any;
 
     component.edit.emit(persoon);
     expect(editSpy).toHaveBeenCalledWith(persoon);
