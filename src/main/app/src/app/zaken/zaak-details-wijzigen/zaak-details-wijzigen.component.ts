@@ -346,6 +346,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
 
   locationChanged(update?: Geometry) {
     this.zaak.zaakgeometrie = update;
+    this.reasonField.formControl.enable();
   }
 
   private createZaakPatch(update: Record<string, any>) {
