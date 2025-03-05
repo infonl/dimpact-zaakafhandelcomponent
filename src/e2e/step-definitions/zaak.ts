@@ -62,10 +62,10 @@ Given(
 
     const parsedStatus = zaakStatus.parse(status);
 
-    await this.page.waitForTimeout(2000);
-    await this.page.goto(
-      `${this.worldParameters.urls.zac}/zaken/${caseNumber}`,
-    );
+    await this.page.goto(`${this.worldParameters.urls.zac}/zaken/${caseNumber}`, {
+      waitUntil: "networkidle", // Ensures all requests finish loading
+    });
+    
 
     await this.expect(
       this.page.getByText(`Status ${parsedStatus}`),
@@ -111,7 +111,7 @@ When(
     await this.page.getByRole("button", { name: "Start" }).first().click();
 
     await this.expect(
-      this.page.getByRole("cell", { name: "Aanvullende informatie" }),
+      this.page.getByRole("cell", { name: "Aanvullende informatie" }).nth(0),
     ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
     await checkZaakAssignment.call(this, zaakNumber, user2Profile);
   },
@@ -259,8 +259,8 @@ Then(
   "Employee {string} clicks on the first zaak in the zaak-werkvoorraad with delay",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
-    await this.page.waitForTimeout(FIFTEEN_SECONDS_IN_MS);
     await this.page.reload();
+    await this.page.waitForSelector("text=visibility", { timeout: ONE_MINUTE_IN_MS });
     await this.page.getByText("visibility").first().click();
   },
 );
@@ -270,8 +270,12 @@ Then(
   { timeout: ONE_MINUTE_IN_MS + 30000 },
   async function (this: CustomWorld, user, profile) {
     const openFormsTestId = this.testStorage.get("open-forms-testid");
+    const formId = this.testStorage.get("form-id");
+    console.log("id " + formId);
+    
 
-    await this.page.getByText("plagiarism").nth(1).click();
+    await this.page.getByText("plagiarism").nth(0).click();
+    
     await this.expect(
       this.page.getByAltText("Bijgevoegd document"),
     ).toBeVisible();

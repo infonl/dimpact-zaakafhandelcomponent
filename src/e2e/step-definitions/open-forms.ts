@@ -18,7 +18,7 @@ Given(
   { timeout: ONE_MINUTE_IN_MS },
   async function (
     this: CustomWorld,
-    profileType: z.infer<typeof profilesSchema>,
+    profileType: z.infer<typeof profilesSchema>
   ) {
     const parsedProfile = profilesSchema.parse(profileType);
     const profile = profiles[parsedProfile];
@@ -34,14 +34,14 @@ Given(
     const lastNameInput = this.page.getByLabel("Achternaam").nth(0);
 
     await this.page.goto(
-      `${this.worldParameters.urls.openForms}/indienen-aansprakelijkstelling-door-derden-behandelen-2/startpagina`,
+      `${this.worldParameters.urls.openForms}/indienen-aansprakelijkstelling-door-derden-behandelen-2/startpagina`
     );
 
     await this.page.getByRole("button", { name: "Formulier starten" }).click();
 
     // Personal details
     await firstNameInput.fill(
-      profile.personalDetails.firstName + `:e2eid=${id}`,
+      profile.personalDetails.firstName + `:e2eid=${id}`
     );
 
     await firstLetterInput.fill(profile.personalDetails.initials);
@@ -51,15 +51,13 @@ Given(
     await lastNameInput.fill(profile.personalDetails.lastName);
     await this.page.getByRole("button", { name: "Volgende" }).click();
 
-    // Incident details
-    await this.page.getByLabel("Omschrijving van het voorval").click();
     await this.page
       .getByLabel("Omschrijving van het voorval")
       .fill(profile.incidentDetails.description);
     await this.page
       .getByRole("textbox", { name: "dd-MM-yyyy HH:mm" })
       .fill(profile.incidentDetails.date);
-    await this.page.getByLabel("materiële schade aan een").check();
+    await this.page.getByLabel("materiële schade aan een voertuig").check();
     await this.page.getByLabel("ja", { exact: true }).check();
 
     this.page.getByLabel("Hoeveel getuigen?").evaluate((node) => node.click());
@@ -70,7 +68,7 @@ Given(
     await this.page.getByRole("option", { name: "Enschede" }).click();
     await this.page.getByLabel("Straat").fill("teststraat");
     await this.page
-      .getByLabel("Nadere omschrijving van de")
+      .getByLabel("Nadere omschrijving van de locatie")
       .fill(profile.incidentDetails.location.furtherDescription);
     await this.page
       .getByLabel("U kunt hier aangeven waarom")
@@ -127,7 +125,7 @@ Given(
     await this.page.getByRole("link", { name: "blader" }).first().click();
     const fileChooser2 = await fileChooserPromise2;
     await fileChooser2.setFiles(
-      path.join(__dirname, profile.documents.invoice),
+      path.join(__dirname, profile.documents.invoice)
     );
     const loader2 = await this.page.getByText("Bezig met uploaden...");
     await this.expect(loader2).toHaveCount(0);
@@ -137,10 +135,10 @@ Given(
     await this.page.getByRole("button", { name: "Volgende" }).click();
     await this.page
       .getByLabel(
-        "Ja, ik heb kennis genomen van het  en geef uitdrukkelijk toestemming voor het verwerken van de door mij opgegeven gegevens.",
+        "Ja, ik heb kennis genomen van het  en geef uitdrukkelijk toestemming voor het verwerken van de door mij opgegeven gegevens."
       )
       .check();
-  },
+  }
 );
 
 When(
@@ -148,9 +146,14 @@ When(
   { timeout: ONE_MINUTE_IN_MS },
   async function (
     this: CustomWorld,
-    profileType: z.infer<typeof profilesSchema>,
+    profileType: z.infer<typeof profilesSchema>
   ) {
     profilesSchema.parse(profileType);
     await this.page.getByText("Verzenden").click();
-  },
+
+    const formId = await this.page.locator(".openforms-title").first().innerText();
+    
+    this.testStorage.set("form-id", formId);
+
+  }
 );
