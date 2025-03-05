@@ -54,7 +54,8 @@ class TaskService @Inject constructor(
                 reden = restTaskAssignData.reden,
                 behandelaarGebruikersnaam = restTaskAssignData.behandelaarId
             ),
-            loggedInUser, mutableListOf<String>()
+            loggedInUser,
+            mutableListOf<String>()
         )
     }
 
