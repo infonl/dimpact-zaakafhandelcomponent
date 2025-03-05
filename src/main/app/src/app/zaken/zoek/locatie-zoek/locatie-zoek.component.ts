@@ -254,8 +254,8 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
-    if(JSON.stringify(geometry) === JSON.stringify(this.initialLocation)) {
-      return
+    if (JSON.stringify(geometry) === JSON.stringify(this.initialLocation)) {
+      return;
     }
     this.locationChanged.emit(geometry);
   }
