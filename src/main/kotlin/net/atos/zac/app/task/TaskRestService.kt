@@ -222,7 +222,7 @@ class TaskRestService @Inject constructor(
     fun assign(restTaskAssignData: RestTaskAssignData) {
         val task = flowableTaskService.readOpenTask(restTaskAssignData.taakId)
         assertPolicy(TaskUtil.isOpen(task) && policyService.readTaakRechten(task).toekennen)
-        taskService.assignTask(
+        taskService.assignOrReleaseTask(
             restTaskAssignData,
             task,
             loggedInUserInstance.get()
