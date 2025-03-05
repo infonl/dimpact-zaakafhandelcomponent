@@ -21,16 +21,21 @@ import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RestZaakafhandelParametersConverter
-import net.atos.zac.app.identity.IdentityRestService
 import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.cmmn.CMMNService
+import net.atos.zac.identity.IdentityService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_USER_NOT_IN_GROUP
 import nl.info.zac.exception.InputValidationFailedException
+import org.keycloak.admin.client.resource.RealmResource
+import org.keycloak.admin.client.resource.UserResource
+import org.keycloak.admin.client.resource.UsersResource
+import org.keycloak.representations.idm.GroupRepresentation
+import org.keycloak.representations.idm.UserRepresentation
 import java.util.UUID
 
 class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
@@ -45,7 +50,8 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
     val resultaattypeConverter = mockk<RestResultaattypeConverter>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val policyService = mockk<PolicyService>()
-    val identityRestService = mockk<IdentityRestService>()
+    val realmResource = mockk<RealmResource>()
+    val identityService = IdentityService(realmResource)
 
     val zaakafhandelParametersRestService = ZaakafhandelParametersRestService(
         ztcClientService = ztcClientService,
@@ -59,7 +65,7 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
         resultaattypeConverter = resultaattypeConverter,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
         policyService = policyService,
-        identityRestService = identityRestService
+        identityService = identityService
     )
 
     beforeEach {
@@ -245,7 +251,18 @@ class ZaakafhandelParametersRestServiceTest : BehaviorSpec({
     Given("A behandelaar is set") {
         When("the behandelaar is not part of the behandelaar group") {
             every { policyService.readOverigeRechten().beheren } returns true
-            every { identityRestService.listUsersInGroup(any()) } returns emptyList()
+
+            val userId = "1"
+            val userResources = mockk<UsersResource>()
+            every { userResources.searchByUsername(any(), true) } returns listOf(
+                mockk<UserRepresentation> {
+                    every { id } returns userId
+                }
+            )
+            every { userResources.get(userId) } returns mockk<UserResource> {
+                every { groups() } returns emptyList<GroupRepresentation>()
+            }
+            every { realmResource.users() } returns userResources
 
             val restZaakafhandelParameters = createRestZaakAfhandelParameters(
                 defaultBehandelaarId = "defaultBehandelaarId",

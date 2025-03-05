@@ -139,7 +139,11 @@ dependencies {
     implementation(libs.opentelemetry.api)
     implementation(libs.opentelemetry.instrumentation.annotations)
     implementation(libs.opentelemetry.extension.kotlin)
-    implementation(libs.keycloak.admin.client)
+    implementation(libs.keycloak.admin.client) {
+        // exclude RESTEasy transitive dependencies because RESTEasy is already provided for by WildFly
+        // and these transitive dependencies may cause conflicts with the RESTEasy version provided by WildFly
+        exclude(group = "org.jboss.resteasy")
+    }
 
     swaggerUI(libs.swagger.ui)
 
