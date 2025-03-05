@@ -38,7 +38,7 @@ class TaskService @Inject constructor(
         private val LOG = Logger.getLogger(TaskService::class.java.name)
     }
 
-    fun assignTask(
+    fun assignOrReleaseTask(
         restTaskAssignData: RestTaskAssignData,
         task: Task,
         loggedInUser: LoggedInUser
@@ -62,6 +62,11 @@ class TaskService @Inject constructor(
                     loggedInUser = loggedInUser,
                     explanation = restTaskAssignData.reden
                 )
+                changed = true
+            }
+        } ?: run {
+            if (task.assignee != null) {
+                updatedTask = releaseTask(updatedTask, loggedInUser, restTaskAssignData.reden)
                 changed = true
             }
         }
@@ -256,15 +261,13 @@ class TaskService @Inject constructor(
         task: Task,
         loggedInUser: LoggedInUser,
         reden: String?
-    ) {
-        flowableTaskService.releaseTask(task, reden).run {
-            eventingService.send(
-                SignaleringEventUtil.event(
-                    SignaleringType.Type.TAAK_OP_NAAM,
-                    this,
-                    loggedInUser
-                )
+    ) = flowableTaskService.releaseTask(task, reden).apply {
+        eventingService.send(
+            SignaleringEventUtil.event(
+                SignaleringType.Type.TAAK_OP_NAAM,
+                this,
+                loggedInUser
             )
-        }
+        )
     }
 }
