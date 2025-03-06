@@ -714,8 +714,8 @@ services:
     volumes:
       # mount volumes for (optional) JaCoCo test coverage for our integration tests
       # see: https://blog.akquinet.de/2018/09/06/test-coverage-for-containerized-java-apps/
-      - ./build/jacoco/itest/jacoco-agent:/jacoco-agent
-      - ./build/jacoco/itest/jacoco-report:/jacoco-report
+      - ./build/jacoco/itest/jacoco-agent:/tmp/jacoco-agent
+      - ./build/jacoco/itest/jacoco-report:/tmp/jacoco-report
     entrypoint: [
       "sh",
       "-c",

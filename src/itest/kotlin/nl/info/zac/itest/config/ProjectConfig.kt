@@ -69,7 +69,7 @@ class ProjectConfig : AbstractProjectConfig() {
         // override default entrypoint for ZAC Docker container to add JaCoCo agent for recording integration test coverage
         "ZAC_DOCKER_ENTRYPOINT" to
             "java" +
-            " -javaagent:/jacoco-agent/org.jacoco.agent-runtime.jar=destfile=/jacoco-report/jacoco-it.exec" +
+            " -javaagent:/tmp/jacoco-agent/org.jacoco.agent-runtime.jar=destfile=/tmp/jacoco-report/jacoco-it.exec" +
             // make sure that the WildFly management port is accessible from outside the container
             " -Djboss.bind.address.management=0.0.0.0" +
             " -Xms1024m" +
