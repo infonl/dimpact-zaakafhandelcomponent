@@ -18,7 +18,7 @@ Given(
   { timeout: ONE_MINUTE_IN_MS },
   async function (
     this: CustomWorld,
-    profileType: z.infer<typeof profilesSchema>
+    profileType: z.infer<typeof profilesSchema>,
   ) {
     const parsedProfile = profilesSchema.parse(profileType);
     const profile = profiles[parsedProfile];
@@ -34,14 +34,14 @@ Given(
     const lastNameInput = this.page.getByLabel("Achternaam").nth(0);
 
     await this.page.goto(
-      `${this.worldParameters.urls.openForms}/indienen-aansprakelijkstelling-door-derden-behandelen-2/startpagina`
+      `${this.worldParameters.urls.openForms}/indienen-aansprakelijkstelling-door-derden-behandelen-2/startpagina`,
     );
 
     await this.page.getByRole("button", { name: "Formulier starten" }).click();
 
     // Personal details
     await firstNameInput.fill(
-      profile.personalDetails.firstName + `:e2eid=${id}`
+      profile.personalDetails.firstName + `:e2eid=${id}`,
     );
 
     await firstLetterInput.fill(profile.personalDetails.initials);
@@ -127,23 +127,24 @@ Given(
     await this.page.getByRole("link", { name: "blader" }).first().click();
     const fileChooser2 = await fileChooserPromise2;
     await fileChooser2.setFiles(
-      path.join(__dirname, profile.documents.invoice)
+      path.join(__dirname, profile.documents.invoice),
     );
 
-    
     await this.page.waitForSelector("text=Bezig met uploaden...", {
       state: "hidden",
     });
-    
-    await this.page.getByText("invoice.pdf", { exact: true }).waitFor({ state: "visible", timeout: 5000 });
+
+    await this.page
+      .getByText("invoice.pdf", { exact: true })
+      .waitFor({ state: "visible", timeout: 5000 });
 
     await this.page.getByRole("button", { name: "Volgende" }).click();
     await this.page
       .getByLabel(
-        "Ja, ik heb kennis genomen van het  en geef uitdrukkelijk toestemming voor het verwerken van de door mij opgegeven gegevens."
+        "Ja, ik heb kennis genomen van het  en geef uitdrukkelijk toestemming voor het verwerken van de door mij opgegeven gegevens.",
       )
       .check();
-  }
+  },
 );
 
 When(
@@ -151,9 +152,9 @@ When(
   { timeout: ONE_MINUTE_IN_MS },
   async function (
     this: CustomWorld,
-    profileType: z.infer<typeof profilesSchema>
+    profileType: z.infer<typeof profilesSchema>,
   ) {
     profilesSchema.parse(profileType);
     await this.page.getByText("Verzenden").click();
-  }
+  },
 );

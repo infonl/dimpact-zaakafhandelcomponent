@@ -62,10 +62,12 @@ Given(
 
     const parsedStatus = zaakStatus.parse(status);
 
-    await this.page.goto(`${this.worldParameters.urls.zac}/zaken/${caseNumber}`, {
-      waitUntil: "networkidle", // Ensures all requests finish loading
-    });
-    
+    await this.page.goto(
+      `${this.worldParameters.urls.zac}/zaken/${caseNumber}`,
+      {
+        waitUntil: "networkidle", // Ensures all requests finish loading
+      },
+    );
 
     await this.expect(
       this.page.getByText(`Status ${parsedStatus}`),
@@ -260,7 +262,9 @@ Then(
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
     await this.page.reload();
-    await this.page.waitForSelector("text=visibility", { timeout: ONE_MINUTE_IN_MS });
+    await this.page.waitForSelector("text=visibility", {
+      timeout: 5000,
+    });
     await this.page.getByText("visibility").first().click();
   },
 );
