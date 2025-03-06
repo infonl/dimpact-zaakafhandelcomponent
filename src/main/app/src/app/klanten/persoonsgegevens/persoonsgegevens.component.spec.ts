@@ -3,14 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { PersoonsgegevensComponent } from "./persoonsgegevens.component";
-import { KlantenService } from "../klanten.service";
-import { of } from "rxjs";
-import { GeneratedType } from "../../shared/utils/generated-types";
 import { Input } from "@angular/core";
-import { TranslateService, TranslateModule } from "@ngx-translate/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { of } from "rxjs";
 import { PipesModule } from "src/app/shared/pipes/pipes.module";
+import { GeneratedType } from "../../shared/utils/generated-types";
+import { KlantenService } from "../klanten.service";
+import { PersoonsgegevensComponent } from "./persoonsgegevens.component";
 
 const mockTranslateService = {
   get(key: any): any {
