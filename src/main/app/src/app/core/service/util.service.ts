@@ -11,7 +11,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar, MatSnackBarConfig } from "@angular/material/snack-bar";
 import { Title } from "@angular/platform-browser";
 import { Router } from "@angular/router";
-import { TranslateService } from "@ngx-translate/core";
+import { InterpolationParameters, TranslateService } from "@ngx-translate/core";
 import { BehaviorSubject, Observable, Subject, iif, of } from "rxjs";
 import { delay, map, shareReplay, switchMap } from "rxjs/operators";
 import { ProgressDialogComponent } from "src/app/shared/progress-dialog/progress-dialog.component";
@@ -85,7 +85,7 @@ export class UtilService {
     return overlayElements;
   }
 
-  setTitle(title: string, params?: Record<string, unknown>): void {
+  setTitle(title: string, params?: InterpolationParameters): void {
     const _title = this.translate.instant(title, params);
     this.titleService.setTitle(
       this.translate.instant("title", { title: _title }),
@@ -141,7 +141,11 @@ export class UtilService {
     this.openSnackbar(message, params, null);
   }
 
-  openSnackbar(message: string, params?: Record<string, unknown>, duration = 3) {
+  openSnackbar(
+    message: string,
+    params?: Record<string, unknown>,
+    duration = 3,
+  ) {
     this.openSnackbarAction(message, "actie.sluiten", params, duration);
   }
 
