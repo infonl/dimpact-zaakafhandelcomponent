@@ -64,9 +64,6 @@ Given(
 
     await this.page.goto(
       `${this.worldParameters.urls.zac}/zaken/${caseNumber}`,
-      {
-        waitUntil: "networkidle", // Ensures all requests finish loading
-      },
     );
 
     await this.expect(
@@ -113,7 +110,7 @@ When(
     await this.page.getByRole("button", { name: "Start" }).first().click();
 
     await this.expect(
-      this.page.getByRole("cell", { name: "Aanvullende informatie" }).nth(0),
+      this.page.getByRole("cell", { name: "Aanvullende informatie" }),
     ).toBeVisible({ timeout: FIFTEEN_SECONDS_IN_MS });
     await checkZaakAssignment.call(this, zaakNumber, user2Profile);
   },
@@ -261,10 +258,9 @@ Then(
   "Employee {string} clicks on the first zaak in the zaak-werkvoorraad with delay",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
+    // Load duration is necessary in order for added documents to load into the zaak
+    await this.page.waitForTimeout(FIFTEEN_SECONDS_IN_MS);
     await this.page.reload();
-    await this.page.waitForSelector("text=visibility", {
-      timeout: 5000,
-    });
     await this.page.getByText("visibility").first().click();
   },
 );

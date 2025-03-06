@@ -51,13 +51,15 @@ Given(
     await lastNameInput.fill(profile.personalDetails.lastName);
     await this.page.getByRole("button", { name: "Volgende" }).click();
 
+    // Incident details
+    await this.page.getByLabel("Omschrijving van het voorval").click();
     await this.page
       .getByLabel("Omschrijving van het voorval")
       .fill(profile.incidentDetails.description);
     await this.page
       .getByRole("textbox", { name: "dd-MM-yyyy HH:mm" })
       .fill(profile.incidentDetails.date);
-    await this.page.getByLabel("materiële schade aan een voertuig").check();
+    await this.page.getByLabel("materiële schade aan een").check();
     await this.page.getByLabel("ja", { exact: true }).check();
 
     this.page.getByLabel("Hoeveel getuigen?").evaluate((node) => node.click());
@@ -68,7 +70,7 @@ Given(
     await this.page.getByRole("option", { name: "Enschede" }).click();
     await this.page.getByLabel("Straat").fill("teststraat");
     await this.page
-      .getByLabel("Nadere omschrijving van de locatie")
+      .getByLabel("Nadere omschrijving van de")
       .fill(profile.incidentDetails.location.furtherDescription);
     await this.page
       .getByLabel("U kunt hier aangeven waarom")
@@ -118,10 +120,8 @@ Given(
     await this.page.getByRole("link", { name: "blader" }).first().click();
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles(path.join(__dirname, profile.documents.photo));
-
-    await this.page.waitForSelector("text=Bezig met uploaden...", {
-      state: "hidden",
-    });
+    const loader = await this.page.getByText("Bezig met uploaden...");
+    await this.expect(loader).toHaveCount(0);
 
     const fileChooserPromise2 = this.page.waitForEvent("filechooser");
     await this.page.getByRole("link", { name: "blader" }).first().click();
@@ -129,14 +129,8 @@ Given(
     await fileChooser2.setFiles(
       path.join(__dirname, profile.documents.invoice),
     );
-
-    await this.page.waitForSelector("text=Bezig met uploaden...", {
-      state: "hidden",
-    });
-
-    await this.page
-      .getByText("invoice.pdf", { exact: true })
-      .waitFor({ state: "visible", timeout: 5000 });
+    const loader2 = await this.page.getByText("Bezig met uploaden...");
+    await this.expect(loader2).toHaveCount(0);
 
     await this.page.getByRole("button", { name: "Volgende" }).click();
     await this.page

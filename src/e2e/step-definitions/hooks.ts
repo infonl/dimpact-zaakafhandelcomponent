@@ -19,6 +19,7 @@ Before(async function (this: CustomWorld, { gherkinDocument, pickle }) {
   if (this.context) {
     await this.context.clearCookies();
   }
+
   await this.init({ videoFolder });
 });
 
