@@ -7,9 +7,9 @@ package net.atos.zac.task
 import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
-import net.atos.zac.app.task.converter.RestTaskConverter
 import net.atos.zac.app.task.model.RestTaskAssignData
 import net.atos.zac.app.task.model.RestTaskDistributeData
+import net.atos.zac.app.task.model.RestTaskDistributeTask
 import net.atos.zac.app.task.model.RestTaskReleaseData
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
@@ -32,47 +32,31 @@ class TaskService @Inject constructor(
     private val flowableTaskService: FlowableTaskService,
     private val indexingService: IndexingService,
     private val eventingService: EventingService,
-    private val restTaskConverter: RestTaskConverter,
 ) {
     companion object {
         private val LOG = Logger.getLogger(TaskService::class.java.name)
     }
 
-    fun assignTask(
+    fun assignOrReleaseTask(
         restTaskAssignData: RestTaskAssignData,
         task: Task,
         loggedInUser: LoggedInUser
     ) {
-        val groupId = restTaskConverter.extractGroupId(task.identityLinks)
-        var changed = false
-        var updatedTask = task
-        restTaskAssignData.behandelaarId?.let {
-            if (groupId != restTaskAssignData.groepId) {
-                flowableTaskService.assignTaskToGroup(
-                    updatedTask,
-                    restTaskAssignData.groepId,
-                    restTaskAssignData.reden
-                )
-                changed = true
-            }
-            if (task.assignee != it) {
-                updatedTask = assignTaskToUser(
-                    taskId = task.id,
-                    assignee = it,
-                    loggedInUser = loggedInUser,
-                    explanation = restTaskAssignData.reden
-                )
-                changed = true
-            }
-        }
-        if (changed) {
-            sendScreenEventsOnTaskChange(updatedTask, restTaskAssignData.zaakUuid)
-            indexingService.indexeerDirect(
-                restTaskAssignData.taakId,
-                ZoekObjectType.TAAK,
-                true
-            )
-        }
+        assignTasks(
+            RestTaskDistributeData(
+                taken = listOf(
+                    RestTaskDistributeTask(
+                        taakId = task.id,
+                        zaakUuid = restTaskAssignData.zaakUuid
+                    )
+                ),
+                groepId = restTaskAssignData.groepId,
+                reden = restTaskAssignData.reden,
+                behandelaarGebruikersnaam = restTaskAssignData.behandelaarId
+            ),
+            loggedInUser,
+            mutableListOf<String>()
+        )
     }
 
     /**
@@ -174,21 +158,21 @@ class TaskService @Inject constructor(
     private fun assignTasks(
         restTaskDistributeData: RestTaskDistributeData,
         loggedInUser: LoggedInUser,
-        succesfullyAssignedTaskIds: MutableList<String>
+        successfullyAssignedTaskIds: MutableList<String>
     ) {
-        restTaskDistributeData.taken.forEach { restTaakVerdelenTaak ->
+        restTaskDistributeData.taken.forEach { restTask ->
             try {
-                flowableTaskService.readOpenTask(restTaakVerdelenTaak.taakId).let { task ->
-                    assignTaskAndOptionallyReleaseFromAssignee(task, restTaskDistributeData, loggedInUser)
-                    sendScreenEventsOnTaskChange(task, restTaakVerdelenTaak.zaakUuid)
+                flowableTaskService.readOpenTask(restTask.taakId).let {
+                    assignTaskAndOptionallyReleaseFromAssignee(it, restTaskDistributeData, loggedInUser)
+                    sendScreenEventsOnTaskChange(it, restTask.zaakUuid)
                 }
-                indexingService.indexeerDirect(restTaakVerdelenTaak.taakId, ZoekObjectType.TAAK, false)
-                succesfullyAssignedTaskIds.add(restTaakVerdelenTaak.taakId)
+                indexingService.indexeerDirect(restTask.taakId, ZoekObjectType.TAAK, false)
+                successfullyAssignedTaskIds.add(restTask.taakId)
             } catch (taskNotFoundException: TaskNotFoundException) {
                 // continue assigning remaining tasks if particular open task could not be found
                 LOG.log(
                     Level.SEVERE,
-                    "No open task with ID '${restTaakVerdelenTaak.taakId}' found while assigning tasks. Skipping task.",
+                    "No open task with ID '${restTask.taakId}' found while assigning tasks. Skipping task.",
                     taskNotFoundException
                 )
             }
@@ -233,13 +217,13 @@ class TaskService @Inject constructor(
         restTaskReleaseData.taken.forEach {
             try {
                 flowableTaskService.readOpenTask(it.taakId).let { task ->
-                    releaseTask(
+                    val updatedTask = releaseTask(
                         task = task,
                         loggedInUser = loggedInUser,
                         reden = restTaskReleaseData.reden
                     )
                     indexingService.indexeerDirect(task.id, ZoekObjectType.TAAK, false)
-                    sendScreenEventsOnTaskChange(task, it.zaakUuid)
+                    sendScreenEventsOnTaskChange(updatedTask, it.zaakUuid)
                     taskIds.add(task.id)
                 }
             } catch (taskNotFoundException: TaskNotFoundException) {
@@ -256,15 +240,13 @@ class TaskService @Inject constructor(
         task: Task,
         loggedInUser: LoggedInUser,
         reden: String?
-    ) {
-        flowableTaskService.releaseTask(task, reden).run {
-            eventingService.send(
-                SignaleringEventUtil.event(
-                    SignaleringType.Type.TAAK_OP_NAAM,
-                    this,
-                    loggedInUser
-                )
+    ) = flowableTaskService.releaseTask(task, reden).also {
+        eventingService.send(
+            SignaleringEventUtil.event(
+                SignaleringType.Type.TAAK_OP_NAAM,
+                it,
+                loggedInUser
             )
-        }
+        )
     }
 }
