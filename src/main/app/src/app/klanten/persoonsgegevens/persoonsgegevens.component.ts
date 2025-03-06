@@ -27,7 +27,7 @@ export class PersoonsgegevensComponent {
 
   persoon$ = this.bsn$.pipe(
     switchMap((bsn) => this.klantenService.readPersoon(bsn)),
-    shareReplay(1),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   constructor(private klantenService: KlantenService) {}
