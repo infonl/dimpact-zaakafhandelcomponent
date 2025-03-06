@@ -17,6 +17,7 @@ import { takeUntil } from "rxjs/operators";
 import { Mail } from "../../admin/model/mail";
 import { Mailtemplate } from "../../admin/model/mailtemplate";
 import { ZaakAfzender } from "../../admin/model/zaakafzender";
+import { UtilService } from "../../core/service/util.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { PlanItem } from "../../plan-items/model/plan-item";
@@ -61,6 +62,7 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
     private planItemsService: PlanItemsService,
     private mailtemplateService: MailtemplateService,
     private klantenService: KlantenService,
+    private utilService: UtilService,
   ) {
     this.planItem = data.planItem;
     this.resultaattypes = this.zakenService.listResultaattypes(
@@ -205,22 +207,5 @@ export class ZaakAfhandelenDialogComponent implements OnDestroy {
     this.dialogRef.close("openBesluitVastleggen");
   }
 
-  compareObject(object1: any, object2: any): boolean {
-    if (typeof object1 === "string") {
-      return object1 === object2;
-    }
-    if (object1 && object2) {
-      if ("key" in object1) {
-        return object1.key === object2.key;
-      } else if ("id" in object1) {
-        return object1.id === object2.id;
-      } else if ("naam" in object1) {
-        return object1.naam === object2.naam;
-      } else if ("name" in object1) {
-        return object1.name === object2.name;
-      }
-      return object1 === object2;
-    }
-    return false;
-  }
+  compareObject = (a: unknown, b: unknown) => this.utilService.compare(a, b);
 }

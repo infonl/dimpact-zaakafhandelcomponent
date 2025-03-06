@@ -4,7 +4,7 @@
  */
 
 import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
+import { ActivatedRouteSnapshot } from "@angular/router";
 import { Observable } from "rxjs";
 import { ZaakafhandelParameters } from "./model/zaakafhandel-parameters";
 import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service";
@@ -15,12 +15,15 @@ import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service
 export class ZaakafhandelParametersResolver {
   constructor(private adminService: ZaakafhandelParametersService) {}
 
-  resolve(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot,
-  ): Observable<ZaakafhandelParameters> {
-    return this.adminService.readZaakafhandelparameters(
-      route.paramMap.get("uuid"),
-    );
+  resolve(route: ActivatedRouteSnapshot): Observable<ZaakafhandelParameters> {
+    const uuid = route.paramMap.get("uuid");
+
+    if (!uuid) {
+      throw new Error(
+        `${ZaakafhandelParametersResolver.name}: no 'uuid' parameter found in route`,
+      );
+    }
+
+    return this.adminService.readZaakafhandelparameters(uuid);
   }
 }

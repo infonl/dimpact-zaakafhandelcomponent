@@ -23,7 +23,7 @@ export abstract class AdminComponent extends ViewComponent {
     super();
   }
 
-  setupMenu(title: string, params?: unknown): void {
+  setupMenu(title: string, params?: Record<string, any>): void {
     this.utilService.setTitle((this.activeMenu = title), params);
     this.menu = [];
     this.menu.push(new HeaderMenuItem("actie.admin"));

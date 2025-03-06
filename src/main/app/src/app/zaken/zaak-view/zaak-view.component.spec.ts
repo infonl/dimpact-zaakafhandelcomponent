@@ -35,7 +35,6 @@ import { ZakenService } from "../zaken.service";
 import { ZaakViewComponent } from "./zaak-view.component";
 
 describe(ZaakViewComponent.name, () => {
-  let component: ZaakViewComponent;
   let fixture: ComponentFixture<ZaakViewComponent>;
   let loader: HarnessLoader;
 
@@ -119,8 +118,6 @@ describe(ZaakViewComponent.name, () => {
 
     fixture = TestBed.createComponent(ZaakViewComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
-
-    component = fixture.componentInstance;
   });
 
   describe("actie.zaak.opschorten", () => {

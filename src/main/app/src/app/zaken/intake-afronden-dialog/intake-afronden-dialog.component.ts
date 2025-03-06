@@ -17,6 +17,7 @@ import { takeUntil } from "rxjs/operators";
 import { Mail } from "../../admin/model/mail";
 import { Mailtemplate } from "../../admin/model/mailtemplate";
 import { ZaakAfzender } from "../../admin/model/zaakafzender";
+import { UtilService } from "../../core/service/util.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { PlanItem } from "../../plan-items/model/plan-item";
@@ -59,6 +60,7 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     private mailtemplateService: MailtemplateService,
     private klantenService: KlantenService,
     private zakenService: ZakenService,
+    private utilService: UtilService,
   ) {
     this.afzenders = this.zakenService.listAfzendersVoorZaak(
       this.data.zaak.uuid,
@@ -191,22 +193,5 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     this.ngDestroy.complete();
   }
 
-  compareObject(object1: any, object2: any): boolean {
-    if (typeof object1 === "string") {
-      return object1 === object2;
-    }
-    if (object1 && object2) {
-      if ("key" in object1) {
-        return object1.key === object2.key;
-      } else if ("id" in object1) {
-        return object1.id === object2.id;
-      } else if ("naam" in object1) {
-        return object1.naam === object2.naam;
-      } else if ("name" in object1) {
-        return object1.name === object2.name;
-      }
-      return object1 === object2;
-    }
-    return false;
-  }
+  compareObject = (a: unknown, b: unknown) => this.utilService.compare(a, b);
 }
