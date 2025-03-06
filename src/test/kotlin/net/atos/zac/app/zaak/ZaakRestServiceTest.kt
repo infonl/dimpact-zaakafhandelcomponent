@@ -98,6 +98,7 @@ import net.atos.zac.healthcheck.createZaaktypeInrichtingscheck
 import net.atos.zac.history.ZaakHistoryService
 import net.atos.zac.history.converter.ZaakHistoryLineConverter
 import net.atos.zac.identity.IdentityService
+import net.atos.zac.identity.exception.UserNotInGroupException
 import net.atos.zac.identity.model.createGroup
 import net.atos.zac.identity.model.createUser
 import net.atos.zac.policy.PolicyService
@@ -332,6 +333,12 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         When("the zaak is assigned to a user and a group") {
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(toekennen = true)
+            every {
+                identityService.checkIfUserIsInGroup(
+                    restZaakToekennenGegevens.assigneeUserName!!,
+                    restZaakToekennenGegevens.groupId
+                )
+            } just runs
 
             val returnedRestZaak = zaakRestService.assign(restZaakToekennenGegevens)
 
@@ -360,6 +367,28 @@ class ZaakRestServiceTest : BehaviorSpec({
                     omschrijving shouldBe rolType.omschrijving
                 }
             }
+        }
+    }
+
+    Given("a zaak with no user and group assigned and zaak assignment data is provided") {
+        val restZaakToekennenGegevensUnknownGroup = createRESTZaakAssignmentData(groepId = "unknown")
+        val zaak = createZaak()
+
+        every { zrcClientService.readZaak(restZaakToekennenGegevensUnknownGroup.zaakUUID) } returns zaak
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(toekennen = true)
+        every {
+            identityService.checkIfUserIsInGroup(
+                restZaakToekennenGegevensUnknownGroup.assigneeUserName!!,
+                restZaakToekennenGegevensUnknownGroup.groupId
+            )
+        } throws UserNotInGroupException()
+
+        When("the zaak is assigned to an unknown group") {
+            shouldThrow<UserNotInGroupException> {
+                zaakRestService.assign(restZaakToekennenGegevensUnknownGroup)
+            }
+
+            Then("an exception is thrown") {}
         }
     }
 
@@ -396,6 +425,12 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         When("the zaak is assigned to a user and a group") {
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(toekennen = true)
+            every {
+                identityService.checkIfUserIsInGroup(
+                    restZaakToekennenGegevens.assigneeUserName!!,
+                    restZaakToekennenGegevens.groupId
+                )
+            } just runs
 
             val returnedRestZaak = zaakRestService.assign(restZaakToekennenGegevens)
 
