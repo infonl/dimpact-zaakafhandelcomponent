@@ -41,6 +41,7 @@ RUN useradd -u 1001 -g users --no-log-init -s /sbin/nologin -c "Default Applicat
 RUN date -Iseconds > /build_timestamp.txt
 
 USER default
+RUN mkdir -p /tmp/jacoco-report && mkdir -p /tmp/jacoco-agent
 
 # Copy zaakafhandelcomponent bootable jar
 COPY target/zaakafhandelcomponent.jar /
