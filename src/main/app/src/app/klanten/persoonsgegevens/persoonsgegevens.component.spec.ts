@@ -57,7 +57,7 @@ describe("PersoonsgegevensComponent", () => {
     expect(component).toBeTruthy();
   });
 
-  it("should have called KlantenService readPersoon method once", () => {
+  it("should call service method just once", () => {
     expect(klantenServiceMock.readPersoon).toHaveBeenCalledTimes(1);
   });
 
