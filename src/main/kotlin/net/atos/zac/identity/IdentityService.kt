@@ -7,7 +7,9 @@ package net.atos.zac.identity
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.inject.Named
-import net.atos.zac.identity.exception.IdentityRuntimeException
+import net.atos.zac.identity.exception.GroupNotFoundException
+import net.atos.zac.identity.exception.UserNotFoundException
+import net.atos.zac.identity.exception.UserNotInGroupException
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
 import net.atos.zac.identity.model.getFullName
@@ -52,12 +54,28 @@ class IdentityService @Inject constructor(
     fun listUsersInGroup(groupId: String): List<User> {
         val keycloakGroupId = keycloakZacRealmResource.groups()
             .groups(groupId, true, 0, 1, true)
-            // better throw a custom 'GroupNotFoundException' here
-            .firstOrNull()?.id ?: throw IdentityRuntimeException("Group with name '$groupId' not found in Keycloak")
+            .firstOrNull()?.id
+            ?: throw GroupNotFoundException()
         return keycloakZacRealmResource.groups()
             .group(keycloakGroupId)
             .members()
             .map { it.toUser() }
             .sortedBy { it.getFullName() }
+    }
+
+    fun listGroupNamesForUser(userId: String): List<String> {
+        val keycloakUserId = keycloakZacRealmResource.users()
+            .searchByUsername(userId, true).firstOrNull()?.id
+            ?: throw UserNotFoundException()
+        return keycloakZacRealmResource.users()
+            .get(keycloakUserId)
+            .groups()
+            .map { it.name }
+    }
+
+    fun checkIfUserIsInGroup(userId: String, groupId: String) {
+        if (!listGroupNamesForUser(userId).contains(groupId)) {
+            throw UserNotInGroupException()
+        }
     }
 }

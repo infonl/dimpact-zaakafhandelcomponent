@@ -115,6 +115,7 @@ import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.test.date.toDate
 import org.apache.http.HttpStatus
 import org.flowable.task.api.Task
@@ -621,6 +622,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { task.id } returns "id"
         every { eventingService.send(any<ScreenEvent>()) } just runs
         every { restZaakConverter.toRestZaak(patchedZaak) } returns restZaak
+        every { identityService.checkIfUserIsInGroup(restZaak.behandelaar!!.id, restZaak.groep!!.id) } just runs
 
         When("zaak final date is set to a later date") {
             val updatedRestZaak = zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
@@ -642,6 +644,25 @@ class ZaakRestServiceTest : BehaviorSpec({
                     eventingService.send(any<ScreenEvent>())
                 }
             }
+        }
+    }
+
+    Given("a zaak and user not part of any group") {
+        val changeDescription = "change description"
+        val zaak = createZaak()
+        val restZaak = createRestZaak()
+        val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaak, changeDescription)
+
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
+        every { identityService.checkIfUserIsInGroup(any(), any()) } throws InputValidationFailedException()
+
+        When("zaak update is requested") {
+            shouldThrow<InputValidationFailedException> {
+                zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+            }
+
+            Then("exception is thrown") {}
         }
     }
 
