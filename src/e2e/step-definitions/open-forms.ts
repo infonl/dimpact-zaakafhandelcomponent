@@ -118,8 +118,10 @@ Given(
     await this.page.getByRole("link", { name: "blader" }).first().click();
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles(path.join(__dirname, profile.documents.photo));
-    const loader = await this.page.getByText("Bezig met uploaden...");
-    await this.expect(loader).toHaveCount(0);
+
+    await this.page.waitForSelector("text=Bezig met uploaden...", {
+      state: "hidden",
+    });
 
     const fileChooserPromise2 = this.page.waitForEvent("filechooser");
     await this.page.getByRole("link", { name: "blader" }).first().click();
@@ -127,10 +129,13 @@ Given(
     await fileChooser2.setFiles(
       path.join(__dirname, profile.documents.invoice)
     );
-    const loader2 = await this.page.getByText("Bezig met uploaden...");
-    await this.expect(loader2).toHaveCount(0);
 
-    await this.page.waitForTimeout(5000);
+    
+    await this.page.waitForSelector("text=Bezig met uploaden...", {
+      state: "hidden",
+    });
+    
+    await this.page.getByText("invoice.pdf", { exact: true }).waitFor({ state: "visible", timeout: 5000 });
 
     await this.page.getByRole("button", { name: "Volgende" }).click();
     await this.page
@@ -150,10 +155,5 @@ When(
   ) {
     profilesSchema.parse(profileType);
     await this.page.getByText("Verzenden").click();
-
-    const formId = await this.page.locator(".openforms-title").first().innerText();
-    
-    this.testStorage.set("form-id", formId);
-
   }
 );

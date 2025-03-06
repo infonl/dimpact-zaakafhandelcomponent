@@ -270,12 +270,8 @@ Then(
   { timeout: ONE_MINUTE_IN_MS + 30000 },
   async function (this: CustomWorld, user, profile) {
     const openFormsTestId = this.testStorage.get("open-forms-testid");
-    const formId = this.testStorage.get("form-id");
-    console.log("id " + formId);
-    
 
-    await this.page.getByText("plagiarism").nth(0).click();
-    
+    await this.page.getByText("plagiarism").nth(1).click();
     await this.expect(
       this.page.getByAltText("Bijgevoegd document"),
     ).toBeVisible();

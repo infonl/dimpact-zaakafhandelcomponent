@@ -5,7 +5,7 @@
 
 import NodeFS from "fs";
 
-type Keys = "caseNumber" | "open-forms-testid" | "form-id";
+type Keys = "caseNumber" | "open-forms-testid";
 export const testStorageFile = "test-storage.json";
 export class TestStorageService {
   constructor() {
