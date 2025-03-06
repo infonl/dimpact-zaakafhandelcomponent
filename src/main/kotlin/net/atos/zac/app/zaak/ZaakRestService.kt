@@ -525,6 +525,12 @@ class ZaakRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(toekennenGegevens.zaakUUID).also {
             assertPolicy(policyService.readZaakRechten(it).toekennen)
         }
+        toekennenGegevens.assigneeUserName?.let { behandelaarId ->
+            toekennenGegevens.groupId.let { groepId ->
+                identityService.checkIfUserIsInGroup(behandelaarId, groepId)
+            }
+        }
+
         val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
             ?.betrokkeneIdentificatie?.identificatie
         val isUpdated = AtomicBoolean(false)

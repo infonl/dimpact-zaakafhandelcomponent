@@ -237,13 +237,13 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
     this.searchControl.reset();
 
     switch (geometry?.type) {
-      case GeometryType.POINT:
+      case GeometryType.POINT: {
         const coordinate = LocationUtil.pointToCoordinate(geometry.point);
         this.addMarker(coordinate);
         if (fromSearch) {
           this.zoomToMarker(coordinate);
         } else {
-          if (this.map.getView().getZoom() < this.MAX_ZOOM) {
+          if ((this.map.getView()?.getZoom() ?? 0) < this.MAX_ZOOM) {
             this.zoomToMarker(coordinate);
           }
           this.locationService
@@ -252,6 +252,7 @@ export class LocatieZoekComponent implements OnInit, AfterViewInit, OnDestroy {
               this.nearestAddress = objectData.response.docs[0];
             });
         }
+      }
     }
 
     if (JSON.stringify(geometry) === JSON.stringify(this.initialLocation)) {
