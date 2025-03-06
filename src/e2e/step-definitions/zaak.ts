@@ -235,7 +235,7 @@ Then(
     await this.page
       .getByText(caseNumber)
       .first()
-      .waitFor({ timeout: ONE_MINUTE_IN_MS });
+      .waitFor({ timeout: FIFTEEN_SECONDS_IN_MS });
   },
 );
 
