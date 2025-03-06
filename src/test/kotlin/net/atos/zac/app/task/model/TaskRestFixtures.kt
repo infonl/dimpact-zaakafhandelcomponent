@@ -42,7 +42,7 @@ fun createRestTaskAssignData(
     taakId: String = "dummyTaakId",
     zaakUuid: UUID = UUID.randomUUID(),
     groepId: String = "dummyGroepId",
-    behandelaarId: String = "dummyBehandelaarId",
+    behandelaarId: String? = "dummyBehandelaarId",
     reden: String = "dummyReden"
 ) = RestTaskAssignData(
     taakId = taakId,
