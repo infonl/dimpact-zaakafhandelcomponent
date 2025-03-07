@@ -7,7 +7,6 @@
 #
 package net.atos.zac.taak
 
-import future.keywords
 import data.net.atos.zac.rol.beheerder
 import data.net.atos.zac.rol.behandelaar
 import data.net.atos.zac.rol.recordmanager
@@ -23,41 +22,41 @@ taak_rechten := {
 }
 
 default zaaktype_allowed := false
-zaaktype_allowed {
+zaaktype_allowed if {
     not user.zaaktypen
 }
-zaaktype_allowed {
+zaaktype_allowed if {
     taak.zaaktype in user.zaaktypen
 }
 
 default lezen := false
-lezen {
+lezen if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default wijzigen := false
-wijzigen {
+wijzigen if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default toekennen := false
-toekennen {
+toekennen if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default creeeren_document := false
-creeeren_document {
+creeeren_document if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
-    taak.open == true
+    zaaktype_allowed
+    taak.open
 }
 
 default toevoegen_document := false
-toevoegen_document {
+toevoegen_document if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
-    taak.open == true
+    zaaktype_allowed
+    taak.open
 }
