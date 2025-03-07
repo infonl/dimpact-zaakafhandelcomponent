@@ -7,6 +7,7 @@ package net.atos.zac.app.zaak.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.zgw.shared.ZGWApiService
@@ -28,7 +29,6 @@ class RestZaakOverzichtConverterTest : BehaviorSpec({
     val openstaandeTakenConverter = mockk<RestOpenstaandeTakenConverter>()
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZrcClientService>()
-
     val restZaakOverzichtConverter = RestZaakOverzichtConverter(
         ztcClientService,
         zgwApiService,
@@ -39,6 +39,10 @@ class RestZaakOverzichtConverterTest : BehaviorSpec({
         policyService,
         zrcClientService
     )
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given("A zaak") {
         val zaak = createZaak()

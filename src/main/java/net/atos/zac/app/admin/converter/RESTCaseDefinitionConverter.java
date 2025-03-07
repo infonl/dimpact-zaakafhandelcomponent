@@ -32,21 +32,21 @@ public class RESTCaseDefinitionConverter {
         final RESTCaseDefinition restCaseDefinition = new RESTCaseDefinition(caseDefinition.getName(), caseDefinition.getKey());
         if (inclusiefRelaties) {
             restCaseDefinition.humanTaskDefinitions = cmmnService.listHumanTasks(caseDefinition.getId()).stream()
-                    .map(this::convertHumanTaskDefinition)
+                    .map(RESTCaseDefinitionConverter::convertHumanTaskDefinition)
                     .toList();
             restCaseDefinition.userEventListenerDefinitions = cmmnService.listUserEventListeners(caseDefinition.getId())
                     .stream()
-                    .map(this::convertUserEventListenerDefinition)
+                    .map(RESTCaseDefinitionConverter::convertUserEventListenerDefinition)
                     .toList();
         }
         return restCaseDefinition;
     }
 
-    private RESTPlanItemDefinition convertHumanTaskDefinition(final HumanTask humanTaskDefinition) {
+    private static RESTPlanItemDefinition convertHumanTaskDefinition(final HumanTask humanTaskDefinition) {
         return new RESTPlanItemDefinition(humanTaskDefinition.getId(), humanTaskDefinition.getName(), HUMAN_TASK);
     }
 
-    private RESTPlanItemDefinition convertUserEventListenerDefinition(final UserEventListener userEventListenerDefinition) {
+    private static RESTPlanItemDefinition convertUserEventListenerDefinition(final UserEventListener userEventListenerDefinition) {
         return new RESTPlanItemDefinition(userEventListenerDefinition.getId(), userEventListenerDefinition.getName(), USER_EVENT_LISTENER);
     }
 }
