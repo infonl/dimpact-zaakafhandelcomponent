@@ -7,12 +7,14 @@
 #
 package net.atos.zac.werklijst
 
-import future.keywords
 import data.net.atos.zac.rol.behandelaar
 import data.net.atos.zac.rol.beheerder
 import data.net.atos.zac.rol.coordinator
 import data.net.atos.zac.rol.recordmanager
 import input.user
+
+# Ensure user.rollen is iterable
+user_rollen := {r | r := user.rollen[_]}
 
 werklijst_rechten := {
     "inbox": inbox,
@@ -24,31 +26,31 @@ werklijst_rechten := {
 }
 
 default inbox := false
-inbox {
-    behandelaar.rol in user.rollen
+inbox if {
+    behandelaar.rol in user_rollen
 }
 
 default ontkoppelde_documenten_verwijderen := false
-ontkoppelde_documenten_verwijderen {
-    recordmanager.rol in user.rollen
+ontkoppelde_documenten_verwijderen if {
+    recordmanager.rol in user_rollen
 }
 
 default inbox_productaanvragen_verwijderen := false
-inbox_productaanvragen_verwijderen {
-    recordmanager.rol in user.rollen
+inbox_productaanvragen_verwijderen if {
+    recordmanager.rol in user_rollen
 }
 
 default zaken_taken := false
-zaken_taken {
-    behandelaar.rol in user.rollen
+zaken_taken if {
+    behandelaar.rol in user_rollen
 }
 
 default zaken_taken_verdelen := false
-zaken_taken_verdelen {
-    coordinator.rol in user.rollen
+zaken_taken_verdelen if {
+    coordinator.rol in user_rollen
 }
 
 default zaken_taken_exporteren := false
-zaken_taken_exporteren {
-    beheerder.rol in user.rollen
+zaken_taken_exporteren if {
+    beheerder.rol in user_rollen
 }

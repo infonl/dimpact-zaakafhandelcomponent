@@ -8,7 +8,6 @@
 #
 package net.atos.zac.zaak
 
-import future.keywords
 import data.net.atos.zac.rol.beheerder
 import data.net.atos.zac.rol.behandelaar
 import data.net.atos.zac.rol.coordinator
@@ -46,230 +45,240 @@ zaak_rechten := {
 }
 
 default zaaktype_allowed := false
-zaaktype_allowed {
+zaaktype_allowed if {
     not user.zaaktypen
 }
-zaaktype_allowed {
+zaaktype_allowed if {
     zaak.zaaktype in user.zaaktypen
 }
 
 default lezen := false
-lezen {
+lezen if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default wijzigen := false
-wijzigen {
+wijzigen if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
-    zaak.open == true
+    zaaktype_allowed
+    zaak.open
 }
-wijzigen {
+
+wijzigen if {
     recordmanager.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default toekennen := false
-toekennen {
+toekennen if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default behandelen := false
-behandelen {
+behandelen if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default afbreken := false
-afbreken {
+afbreken if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default heropenen := false
-heropenen {
+heropenen if {
     recordmanager.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default bekijken_zaakdata := false
-bekijken_zaakdata {
+bekijken_zaakdata if {
     beheerder.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default wijzigen_doorlooptijd := false
-wijzigen_doorlooptijd {
+wijzigen_doorlooptijd if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default verlengen := false
-verlengen {
+verlengen if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
-    zaak.open == true
-    zaak.heropend == false
-    zaak.opgeschort == false
-    zaak.verlengd == false
+    zaaktype_allowed
+    zaak.open
+    not zaak.heropend
+    not zaak.opgeschort
+    not zaak.verlengd
 }
 
 default opschorten := false
-opschorten {
+opschorten if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
-    zaak.open == true
-    zaak.heropend == false
-    zaak.opgeschort == false
+    zaaktype_allowed
+    zaak.open
+    not zaak.heropend
+    not zaak.opgeschort
 }
 
 default hervatten := false
-hervatten {
+hervatten if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default creeeren_document := false
-creeeren_document {
+creeeren_document if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
-    zaak.open == true
+    zaaktype_allowed
+    zaak.open
 }
 
 default toevoegen_document := false
-toevoegen_document {
+toevoegen_document if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
-    zaak.open == true
+    zaaktype_allowed
+    zaak.open
 }
-toevoegen_document {
+
+toevoegen_document if {
     recordmanager.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default koppelen := false
-koppelen {
+koppelen if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
-    zaak.open == true
+    zaaktype_allowed
+    zaak.open
 }
-koppelen {
+
+koppelen if {
     recordmanager.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default versturen_email := false
-versturen_email {
+versturen_email if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
-    zaak.open == true
+    zaaktype_allowed
+    zaak.open
 }
 
 default versturen_ontvangstbevestiging := false
-versturen_ontvangstbevestiging {
+versturen_ontvangstbevestiging if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
-    zaak.open == true
+    zaaktype_allowed
+    zaak.open
 }
 
 default toevoegen_initiator_persoon := false
-toevoegen_initiator_persoon {
+toevoegen_initiator_persoon if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
-    zaak.open == true
+    zaaktype_allowed
+    zaak.open
 }
-toevoegen_initiator_persoon {
+
+toevoegen_initiator_persoon if {
     recordmanager.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default toevoegen_initiator_bedrijf := false
-toevoegen_initiator_bedrijf {
+toevoegen_initiator_bedrijf if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
-    zaak.open == true
+    zaaktype_allowed
+    zaak.open
 }
-toevoegen_initiator_bedrijf {
+
+toevoegen_initiator_bedrijf if {
     recordmanager.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default verwijderen_initiator := false
-verwijderen_initiator {
+verwijderen_initiator if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
-    zaak.open == true
+    zaaktype_allowed
+    zaak.open
 }
-verwijderen_initiator {
+
+verwijderen_initiator if {
     recordmanager.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default toevoegen_betrokkene_persoon := false
-toevoegen_betrokkene_persoon {
+toevoegen_betrokkene_persoon if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
-    zaak.open == true
+    zaaktype_allowed
+    zaak.open
 }
-toevoegen_betrokkene_persoon {
+
+toevoegen_betrokkene_persoon if {
     recordmanager.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default toevoegen_betrokkene_bedrijf := false
-toevoegen_betrokkene_bedrijf {
+toevoegen_betrokkene_bedrijf if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
-    zaak.open == true
+    zaaktype_allowed
+    zaak.open
 }
-toevoegen_betrokkene_bedrijf {
+
+toevoegen_betrokkene_bedrijf if {
     recordmanager.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default verwijderen_betrokkene := false
-verwijderen_betrokkene {
+verwijderen_betrokkene if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
-    zaak.open == true
+    zaaktype_allowed
+    zaak.open
 }
-verwijderen_betrokkene {
+
+verwijderen_betrokkene if {
     recordmanager.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default toevoegen_bag_object := false
-toevoegen_bag_object {
+toevoegen_bag_object if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
-    zaak.open == true
+    zaaktype_allowed
+    zaak.open
 }
-toevoegen_bag_object {
+
+toevoegen_bag_object if {
     recordmanager.rol in user.rollen
-    zaaktype_allowed == true
+    zaaktype_allowed
 }
 
 default starten_taak := false
-starten_taak {
+starten_taak if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
-    zaak.open == true
+    zaaktype_allowed
+    zaak.open
 }
 
 default vastleggen_besluit := false
-vastleggen_besluit {
+vastleggen_besluit if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
-    zaak.open == true
-    zaak.intake == false
-    zaak.besloten == true
+    zaaktype_allowed
+    zaak.open
+    not zaak.intake
+    zaak.besloten
 }
 
 default verlengen_doorlooptijd := false
-verlengen_doorlooptijd {
+verlengen_doorlooptijd if {
     behandelaar.rol in user.rollen
-    zaaktype_allowed == true
-    zaak.open == true
+    zaaktype_allowed
+    zaak.open
 }
