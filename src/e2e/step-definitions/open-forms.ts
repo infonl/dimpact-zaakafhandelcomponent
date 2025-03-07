@@ -132,8 +132,6 @@ Given(
     const loader2 = await this.page.getByText("Bezig met uploaden...");
     await this.expect(loader2).toHaveCount(0);
 
-    await this.page.waitForTimeout(5000);
-
     await this.page.getByRole("button", { name: "Volgende" }).click();
     await this.page
       .getByLabel(
