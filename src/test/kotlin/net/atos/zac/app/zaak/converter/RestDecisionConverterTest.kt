@@ -56,7 +56,6 @@ class RestDecisionConverterTest : BehaviorSpec({
         val besluittype = createBesluitType()
 
         every { ztcClientService.readBesluittype(decisionCreateData.besluittypeUuid) } returns besluittype
-        every { configuratieService.readBronOrganisatie() } returns "123443210"
         every { configuratieService.readVerantwoordelijkeOrganisatie() } returns "316245124"
 
         When("this data is converted to a besluit") {

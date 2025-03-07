@@ -18,9 +18,7 @@ import net.atos.client.zgw.zrc.model.createRolMedewerker
 import net.atos.client.zgw.zrc.model.createRolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.createRolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.createZaak
-import net.atos.client.zgw.zrc.model.createZaakStatus
 import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.model.createStatusType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.app.identity.converter.RestGroupConverter
 import net.atos.zac.app.identity.converter.RestUserConverter
@@ -73,8 +71,6 @@ class RestZaakConverterTest : BehaviorSpec({
 
     Given("A zaak") {
         val zaak = createZaak()
-        val status = createZaakStatus()
-        val statusType = createStatusType()
         val zaakType = createZaakType()
         val rolOrganistorischeEenheid = createRolOrganisatorischeEenheid()
         val restGroup = createRestGroup()
@@ -87,9 +83,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val zaakrechten = createZaakRechten()
         val zaakdata = mapOf("dummyKey" to "dummyValue")
 
-        every { zrcClientService.readStatus(zaak.status) } returns status
         with(ztcClientService) {
-            every { readStatustype(status.statustype) } returns statusType
             every { readZaaktype(zaak.zaaktype) } returns zaakType
         }
         with(zgwApiService) {
