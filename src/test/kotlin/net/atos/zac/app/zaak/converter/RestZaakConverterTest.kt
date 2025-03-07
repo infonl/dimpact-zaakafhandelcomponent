@@ -7,6 +7,7 @@ package net.atos.zac.app.zaak.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.zgw.brc.BrcClientService
@@ -49,7 +50,6 @@ class RestZaakConverterTest : BehaviorSpec({
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val bpmnService = mockk<BpmnService>()
     val configuratieService = mockk<ConfiguratieService>()
-
     val restZaakConverter = RestZaakConverter(
         ztcClientService = ztcClientService,
         zrcClientService = zrcClientService,
@@ -66,6 +66,10 @@ class RestZaakConverterTest : BehaviorSpec({
         bpmnService = bpmnService,
         configuratieService = configuratieService
     )
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given("A zaak") {
         val zaak = createZaak()

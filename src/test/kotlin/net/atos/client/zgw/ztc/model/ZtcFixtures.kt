@@ -4,8 +4,10 @@
  */
 package net.atos.client.zgw.ztc.model
 
+import net.atos.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import net.atos.client.zgw.ztc.model.generated.ArchiefnominatieEnum
 import net.atos.client.zgw.ztc.model.generated.BesluitType
+import net.atos.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.client.zgw.ztc.model.generated.ReferentieProces
@@ -53,6 +55,12 @@ fun createBesluitType(
         publicatietermijn = publicationPeriod
         reactietermijn = reactionPeriod
     }
+
+fun createBrondatumArchiefprocedure(
+    afleidingswijze: AfleidingswijzeEnum? = AfleidingswijzeEnum.VERVALDATUM_BESLUIT
+) = BrondatumArchiefprocedure().apply {
+    this.afleidingswijze = afleidingswijze
+}
 
 @Suppress("LongParameterList")
 fun createRolType(
@@ -149,7 +157,8 @@ fun createResultaatType(
     beginObject: LocalDate = LocalDate.now(),
     eindeObject: LocalDate = LocalDate.now().plusDays(1),
     archiefnominatie: ArchiefnominatieEnum = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
-    archiefactietermijn: String? = null
+    archiefactietermijn: String? = null,
+    brondatumArchiefprocedure: BrondatumArchiefprocedure? = null,
 ) = ResultaatType(
     url,
     zaaktypeIdentificatie,
@@ -162,6 +171,7 @@ fun createResultaatType(
 ).apply {
     this.archiefnominatie = archiefnominatie
     this.archiefactietermijn = archiefactietermijn
+    this.brondatumArchiefprocedure = brondatumArchiefprocedure
 }
 
 @Suppress("LongParameterList")

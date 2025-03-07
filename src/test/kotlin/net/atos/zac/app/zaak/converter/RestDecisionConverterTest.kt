@@ -8,6 +8,7 @@ package net.atos.zac.app.zaak.converter
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.zgw.brc.BrcClientService
@@ -39,6 +40,10 @@ class RestDecisionConverterTest : BehaviorSpec({
         ztcClientService,
         configuratieService
     )
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given("Besluit toevoegen data with a vervaldatum") {
         val zaak = createZaak()
