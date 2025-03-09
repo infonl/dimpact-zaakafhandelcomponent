@@ -36,8 +36,6 @@ RUN keytool -importcert -cacerts -alias SmartDocuments -file /certificates/smart
 
 # Add user to run our application
 RUN useradd -u 1001 -g users --no-log-init -s /sbin/nologin -c "Default Application User" default
-RUN mkdir -p /jacoco-report && mkdir -p /jacoco-agent && \
-    chown -R default:users /jacoco-report && chown -R default:users /jacoco-agent 
 
 # Copy build timestamp (used by HealthCheckService.java)
 RUN date -Iseconds > /build_timestamp.txt
