@@ -29,16 +29,23 @@ LABEL version=""
 
 # Import certificates into Java truststore
 ADD certificates /certificates
-RUN keytool -importcert -cacerts -alias SmartDocuments -file /certificates/smartdocuments/smartdocuments_com.cer -storepass changeit -noprompt
-RUN keytool -importcert -cacerts -alias QuoVadis_PKIoverheid_Private_Services_CA -file /certificates/kvk/QuoVadis_PKIoverheid_Private_Services_CA_-_G1.crt  -storepass changeit -noprompt
-RUN keytool -importcert -cacerts -alias Staat_der_Nederlanden_Private_Root_CA -file /certificates/kvk/Staat_der_Nederlanden_Private_Root_CA_-_G1.crt -storepass changeit -noprompt
-RUN keytool -importcert -cacerts -alias Staat_der_Nederlanden_Private_Services_CA -file /certificates/kvk/Staat_der_Nederlanden_Private_Services_CA_-_G1.crt -storepass changeit -noprompt
+RUN keytool -importcert -cacerts -alias SmartDocuments -file /certificates/smartdocuments/smartdocuments_com.cer -storepass changeit -noprompt && \
+    keytool -importcert -cacerts -alias QuoVadis_PKIoverheid_Private_Services_CA -file /certificates/kvk/QuoVadis_PKIoverheid_Private_Services_CA_-_G1.crt  -storepass changeit -noprompt && \
+    keytool -importcert -cacerts -alias Staat_der_Nederlanden_Private_Root_CA -file /certificates/kvk/Staat_der_Nederlanden_Private_Root_CA_-_G1.crt -storepass changeit -noprompt && \
+    keytool -importcert -cacerts -alias Staat_der_Nederlanden_Private_Services_CA -file /certificates/kvk/Staat_der_Nederlanden_Private_Services_CA_-_G1.crt -storepass changeit -noprompt
 
-# Copy zaakafhandelcomponent bootable jar
-COPY target/zaakafhandelcomponent.jar /
+# Add user to run our application
+RUN useradd -u 1001 -g users --no-log-init -s /sbin/nologin -c "Default Application User" default
+RUN mkdir -p /jacoco-report && mkdir -p /jacoco-agent && \
+    chown -R default:users /jacoco-report && chown -R default:users /jacoco-agent 
 
 # Copy build timestamp (used by HealthCheckService.java)
 RUN date -Iseconds > /build_timestamp.txt
+
+USER default
+
+# Copy zaakafhandelcomponent bootable jar
+COPY target/zaakafhandelcomponent.jar /
 
 # Turn on ability to be able to override WildFly settings using environment variables
 ENV WILDFLY_OVERRIDING_ENV_VARS=1
