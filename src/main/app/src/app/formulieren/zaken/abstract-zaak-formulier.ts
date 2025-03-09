@@ -10,7 +10,7 @@ import { Zaak } from "../../zaken/model/zaak";
 
 export abstract class AbstractZaakFormulier {
   zaak: Zaak;
-  dataElementen: {};
+  dataElementen: Record<string, unknown>;
   form: Array<AbstractFormField[]>;
 
   constructor(protected translate: TranslateService) {}
@@ -34,7 +34,7 @@ export abstract class AbstractZaakFormulier {
     return this.zaak;
   }
 
-  private getDataElementen(formGroup: FormGroup): {} {
+  private getDataElementen(formGroup: FormGroup): Record<string, unknown> {
     if (!this.dataElementen) {
       this.dataElementen = {};
     }

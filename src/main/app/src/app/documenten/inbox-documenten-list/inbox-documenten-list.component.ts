@@ -7,6 +7,7 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  OnDestroy,
   OnInit,
   ViewChild,
 } from "@angular/core";
@@ -40,7 +41,7 @@ import { InboxDocumentListParameters } from "../model/inbox-document-list-parame
 })
 export class InboxDocumentenListComponent
   extends WerklijstComponent
-  implements OnInit, AfterViewInit
+  implements OnInit, AfterViewInit, OnDestroy
 {
   isLoadingResults = true;
   dataSource: MatTableDataSource<InboxDocument> =
@@ -205,7 +206,7 @@ export class InboxDocumentenListComponent
   }
 
   ngOnDestroy(): void {
-    // Make sure when returning to this comnponent, the very first page is loaded
+    // Make sure when returning to this component, the very first page is loaded
     this.listParameters.page = 0;
     SessionStorageUtil.setItem(
       Werklijst.INBOX_DOCUMENTEN + "_ZOEKPARAMETERS",
