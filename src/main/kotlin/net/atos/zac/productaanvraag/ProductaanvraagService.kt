@@ -48,7 +48,6 @@ import net.atos.zac.productaanvraag.util.IndicatieMachtigingEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.convertToZgwPoint
 import net.atos.zac.util.JsonbUtil
-import net.atos.zac.zaak.model.Betrokkenen
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI
@@ -210,7 +209,7 @@ class ProductaanvraagService @Inject constructor(
             Betrokkene.RolOmschrijvingGeneriek.BEHANDELAAR.toString() -> {
                 LOG.warning(
                     "Betrokkene with role '$betrokkene.roltypeOmschrijving' is not supported in the mapping from a " +
-                            "productaanvraag. No betrokkene role created for zaak '$zaak'."
+                        "productaanvraag. No betrokkene role created for zaak '$zaak'."
                 )
             }
 
