@@ -4,10 +4,8 @@
  */
 
 import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
-import { Observable } from "rxjs";
+import { ActivatedRouteSnapshot } from "@angular/router";
 import { KlantenService } from "../klanten.service";
-import { Bedrijf } from "../model/bedrijven/bedrijf";
 
 @Injectable({
   providedIn: "root",
@@ -15,11 +13,15 @@ import { Bedrijf } from "../model/bedrijven/bedrijf";
 export class BedrijfResolverService {
   constructor(private klantenService: KlantenService) {}
 
-  resolve(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot,
-  ): Observable<Bedrijf> {
-    const id: string = route.paramMap.get("vesOrRSIN");
+  resolve(route: ActivatedRouteSnapshot) {
+    const id = route.paramMap.get("vesOrRSIN");
+
+    if (!id) {
+      throw new Error(
+        `${BedrijfResolverService.name}: no 'vesOrRSIN' found in route`,
+      );
+    }
+
     return this.klantenService.readBedrijf(id);
   }
 }
