@@ -133,7 +133,8 @@ fun createRestZaak(
     restZaakType: RestZaaktype = createRestZaaktype(),
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.of(2023, 10, 10),
     uuid: UUID = UUID.randomUUID(),
-    rechten: RestZaakRechten = createRestZaakRechten()
+    rechten: RestZaakRechten = createRestZaakRechten(),
+    einddatumGepland: LocalDate? = LocalDate.of(2023, 10, 10)
 ) = RestZaak(
     uuid = uuid,
     identificatie = "ZA2023001",
@@ -147,7 +148,7 @@ fun createRestZaak(
     verantwoordelijkeOrganisatie = "Sample Verantwoordelijke Organisatie",
     registratiedatum = LocalDate.of(2023, 9, 14),
     startdatum = LocalDate.of(2023, 9, 15),
-    einddatumGepland = LocalDate.of(2023, 10, 1),
+    einddatumGepland = einddatumGepland,
     einddatum = LocalDate.of(2023, 10, 5),
     uiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening,
     publicatiedatum = LocalDate.of(2023, 9, 16),

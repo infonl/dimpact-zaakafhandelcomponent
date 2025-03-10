@@ -704,19 +704,35 @@ class ZaakRestServiceTest : BehaviorSpec({
     Given("no verlengenDoorlooptijd policy") {
         val zaak = createZaak()
         val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.minusDays(10)
-        val restZaak = createRestZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate)
+        val restZaak = createRestZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate, einddatumGepland = null)
         val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaak, "change description")
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten(verlengenDoorlooptijd = false)
 
-        When("zaak update is requested") {
+        When("zaak update is requested with a new final date") {
             val exception = shouldThrow<PolicyException> {
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
             }
 
             Then("it fails") {
                 exception.message shouldBe null
+            }
+        }
+
+        When("zaak update is requested without a new final date") {
+            val zaakWithoutDateChange = restZaak.copy(uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening)
+            every { identityService.checkIfUserIsInGroup(any(), any()) } just runs
+            every { restZaakConverter.convertToPatch(zaakWithoutDateChange) } returns zaak
+            every { restZaakConverter.toRestZaak(any()) } returns zaakWithoutDateChange
+            every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
+
+            zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens.copy(zaak = zaakWithoutDateChange))
+
+            Then("it succeeds") {
+                verify(exactly = 1) {
+                    zrcClientService.patchZaak(zaak.uuid, any(), any())
+                }
             }
         }
     }
