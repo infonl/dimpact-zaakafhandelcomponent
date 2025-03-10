@@ -428,6 +428,7 @@ class ZtcClientService @Inject constructor(
     }
 
     fun clearRoltypeCache(): String {
+        uriOmschrijvingEnumToRolTypeCache.invalidateAll()
         uriOmschrijvingGeneriekEnumToRolTypeCache.invalidateAll()
         uriToRolTypeListCache.invalidateAll()
         rolTypeListCache.invalidateAll()
