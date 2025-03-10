@@ -547,7 +547,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
     }
-    given(
+    Given(
         """
         a productaanvraag-dimpact object registration object containing a list of supported betrokkenen
         including behandelaar but no initiator
@@ -615,11 +615,11 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         ),
                         mapOf(
                             "vestigingsNummer" to belanghebbendeVestigingsnummer1,
-                            "rolOmschrijvingGeneriek" to "belanghebbende"
+                            "roltypeOmschrijving" to "Belanghebbende"
                         ),
                         mapOf(
                             "vestigingsNummer" to belanghebbendeVestigingsnummer2,
-                            "rolOmschrijvingGeneriek" to "belanghebbende"
+                            "roltypeOmschrijving" to "Belanghebbende"
                         ),
                         mapOf(
                             "inpBsn" to beslisserBsn,
@@ -635,6 +635,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         ),
                         mapOf(
                             "inpBsn" to medeInitiatorBsn,
+                            "roltypeOmschrijving" to "Medeaanvrager",
                             "rolOmschrijvingGeneriek" to "mede_initiator"
                         ),
                         mapOf(
@@ -655,15 +656,17 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         // here we simulate the case that no role types have been defined for the adviseur role
         every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.ADVISEUR) } returns emptyList()
         every {
-            ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.BELANGHEBBENDE)
+            ztcClientService.findRoltypen(any(), "Belanghebbende")
         } returns listOf(rolTypeBelanghebbende)
-        every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.BESLISSER) } returns listOf(rolTypeBeslisser)
+        every {
+            ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.BESLISSER)
+        } returns listOf(rolTypeBeslisser)
         // here we simulate the case that multiple role types have been defined for the klantcontacter role
         every {
             ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.KLANTCONTACTER)
         } returns listOf(rolTypeKlantcontacter1, rolTypeKlantcontacter2)
         every {
-            ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.MEDE_INITIATOR)
+            ztcClientService.findRoltypen(any(), "Medeaanvrager")
         } returns listOf(rolTypeMedeInitiator)
         every {
             ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.ZAAKCOORDINATOR)
