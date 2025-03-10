@@ -15,7 +15,7 @@ export interface Pagination {
 }
 
 export interface Search {
-  predicateObject?: {};
+  predicateObject?: Record<string, unknown>;
 }
 
 export interface Sort {

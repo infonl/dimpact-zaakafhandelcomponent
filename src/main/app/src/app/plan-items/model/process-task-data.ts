@@ -5,5 +5,5 @@
 
 export class ProcessTaskData {
   planItemInstanceId: string;
-  data: {};
+  data: Record<string, unknown>;
 }

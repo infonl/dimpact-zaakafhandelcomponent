@@ -150,6 +150,10 @@ export class FileComponent extends FormComponent implements OnInit {
   }
 
   droppedFile(files: FileList): void {
-    files.length && this.uploadFile(files[0]);
+    if (!files.length) {
+      return;
+    }
+
+    this.uploadFile(files[0]);
   }
 }

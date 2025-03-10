@@ -53,7 +53,7 @@ import { MatFileInput } from "./file-input-control";
     `,
   ],
   template: `
-    <div DropZone (onFileDropped)="handleDrop($event)">
+    <div DropZone (fileDropped)="handleDrop($event)">
       <mat-form-field
         appearance="fill"
         subscriptSizing="dynamic"

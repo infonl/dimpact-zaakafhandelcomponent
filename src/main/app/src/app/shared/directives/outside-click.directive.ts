@@ -35,7 +35,7 @@ export class OutsideClickDirective implements OnInit, OnDestroy {
   constructor(
     private element: ElementRef,
     @Optional() @Inject(DOCUMENT) private document: any,
-    @Inject(PLATFORM_ID) private platformId: {},
+    @Inject(PLATFORM_ID) private platformId: Record<string, unknown>,
     private utilService: UtilService,
   ) {}
 
