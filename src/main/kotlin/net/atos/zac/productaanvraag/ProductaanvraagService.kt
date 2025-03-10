@@ -48,6 +48,7 @@ import net.atos.zac.productaanvraag.util.IndicatieMachtigingEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.convertToZgwPoint
 import net.atos.zac.util.JsonbUtil
+import net.atos.zac.zaak.model.Betrokkenen
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI
@@ -162,8 +163,8 @@ class ProductaanvraagService @Inject constructor(
 
     /**
      * Adds all betrokkenen which are present in the provided productaanvraag to the zaak for the set
-     * of provided (role types)[Betrokkene.RoltypeOmschrijving] but only for those role types which are defined
-     * in the zaaktype of the specified zaak.
+     * of provided (role types)[Betrokkene.RoltypeOmschrijving] or [Betrokkene.roltypeOmschrijving] but only for those
+     * role types which are defined in the zaaktype of the specified zaak.
      * An exception is made for betrokkenen of role type (behandelaar)[Betrokkene.RolOmschrijvingGeneriek.BEHANDELAAR]].
      * Behandelaar betrokkenen cannot be set from a productaanvraag.
      *
@@ -194,7 +195,7 @@ class ProductaanvraagService @Inject constructor(
         initiatorAdded: Boolean,
         zaak: Zaak
     ): Boolean {
-        when (betrokkene.roltypeOmschrijving) {
+        when (betrokkene.roltypeOmschrijving.lowercase()) {
             Betrokkene.RolOmschrijvingGeneriek.INITIATOR.toString() -> {
                 if (initiatorAdded) {
                     LOG.warning(
@@ -206,13 +207,19 @@ class ProductaanvraagService @Inject constructor(
                 }
                 return true
             }
+            Betrokkene.RolOmschrijvingGeneriek.BEHANDELAAR.toString() -> {
+                LOG.warning(
+                    "Betrokkene with role '$betrokkene.roltypeOmschrijving' is not supported in the mapping from a " +
+                            "productaanvraag. No betrokkene role created for zaak '$zaak'."
+                )
+            }
 
             else -> {
                 addBetrokkene(betrokkene, betrokkene.roltypeOmschrijving, zaak)
             }
         }
 
-        return false
+        return initiatorAdded
     }
 
     private fun addBetrokkenenWithGenericRole(
@@ -267,7 +274,7 @@ class ProductaanvraagService @Inject constructor(
             }
         }
 
-        return false
+        return initiatorAdded
     }
 
     private fun addBetrokkeneGeneriek(

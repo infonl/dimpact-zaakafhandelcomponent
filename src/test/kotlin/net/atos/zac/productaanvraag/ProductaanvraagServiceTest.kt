@@ -614,6 +614,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                             "rolOmschrijvingGeneriek" to "behandelaar"
                         ),
                         mapOf(
+                            "inpBsn" to behandelaarBsn,
+                            "roltypeOmschrijving" to "Behandelaar"
+                        ),
+                        mapOf(
                             "vestigingsNummer" to belanghebbendeVestigingsnummer1,
                             "roltypeOmschrijving" to "Belanghebbende"
                         ),

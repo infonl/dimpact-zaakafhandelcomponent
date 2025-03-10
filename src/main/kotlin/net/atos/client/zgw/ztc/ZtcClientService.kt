@@ -319,13 +319,13 @@ class ZtcClientService @Inject constructor(
         }
 
     /**
-     * Retrieves the [RolType] of the specified zaak type and a role type description.
+     * Retrieves the [RolType] of the specified zaak type and generic role type description.
      * If there are multiple role types found the first one is returned.
      * This method should only be used for role type descriptions for which you are sure there is one and only
      * one role type defined in the zaaktype.
      *
      * @param zaaktypeURI URI of the zaak type
-     * @param roltypeOmschrijving the role type description
+     * @param omschrijvingGeneriekEnum the generic role type description
      * @return [RolType] the first role type for the zaak type and generic role type description
      * @throws RoltypeNotFoundException if no role type could be found
      */
