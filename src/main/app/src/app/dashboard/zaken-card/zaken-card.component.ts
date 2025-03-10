@@ -71,7 +71,7 @@ export class ZakenCardComponent
     this.pageNumber.set(pageIndex);
   }
 
-  protected onLoad(afterLoad: () => void): void {
+  protected onLoad(): void {
     this.zakenQuery.refetch();
   }
 }
