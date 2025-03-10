@@ -4,7 +4,7 @@
  */
 
 import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
+import { ActivatedRouteSnapshot } from "@angular/router";
 import { InformatieObjectenService } from "./informatie-objecten.service";
 
 @Injectable({
@@ -13,9 +13,15 @@ import { InformatieObjectenService } from "./informatie-objecten.service";
 export class InformatieObjectResolver {
   constructor(private informatieObjectenService: InformatieObjectenService) {}
 
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    const informatieObjectUUID: string = route.paramMap.get("uuid");
-    const informatieObjectVersie: string = route.paramMap.get("versie");
+  resolve(route: ActivatedRouteSnapshot) {
+    const informatieObjectUUID = route.paramMap.get("uuid");
+    const informatieObjectVersie = route.paramMap.get("versie");
+
+    if (!informatieObjectUUID) {
+      throw new Error(
+        `${InformatieObjectResolver.name}: 'uuid' is not defined in route`,
+      );
+    }
 
     if (informatieObjectVersie) {
       return this.informatieObjectenService.readEnkelvoudigInformatieobjectVersie(

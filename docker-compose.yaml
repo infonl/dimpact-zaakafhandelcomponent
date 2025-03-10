@@ -131,8 +131,8 @@ services:
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
       interval: 30s
-      timeout: 5s
-      retries: 3
+      timeout: 10s
+      retries: 5
       # This should allow for enough time for migrations to run before the max
       # retries have passed. This healthcheck in turn allows other containers
       # to wait for the database migrations.
@@ -241,7 +241,7 @@ services:
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
     image: docker.io/openpolicyagent/opa:1.2.0-static@sha256:2636af0937bf7c5ab7f79271399c53c45d4b4d2af8a2b9cc43f65c6598b49064
-    command: run --server --addr :8181 --log-level debug
+    command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
 
@@ -711,6 +711,8 @@ services:
     ports:
       - "8080:8080"
       - "9990:9990"
+    # only for integration testing purpose, override to root user
+    user: root
     volumes:
       # mount volumes for (optional) JaCoCo test coverage for our integration tests
       # see: https://blog.akquinet.de/2018/09/06/test-coverage-for-containerized-java-apps/

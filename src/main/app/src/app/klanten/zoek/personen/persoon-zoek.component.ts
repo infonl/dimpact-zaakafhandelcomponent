@@ -42,7 +42,7 @@ export class PersoonZoekComponent implements OnInit {
   straatFormField: AbstractFormControlField;
   postcodeFormField: AbstractFormControlField;
   huisnummerFormField: AbstractFormControlField;
-  queryFields;
+  queryFields: Record<string, AbstractFormControlField>;
   queries: PersonenParameters[] = [];
   persoonColumns: string[] = [
     "bsn",
@@ -230,18 +230,13 @@ export class PersoonZoekComponent implements OnInit {
 
   private updateControls(potential: PersonenParameters[]) {
     for (const key in this.queryFields) {
-      if (this.queryFields.hasOwnProperty(key)) {
-        const control: AbstractFormControlField = this.queryFields[key];
-        if (this.all(potential, key, Cardinaliteit.NON)) {
-          this.requireField(control, false);
-          this.enableField(control, false);
-        } else {
-          this.requireField(
-            control,
-            this.all(potential, key, Cardinaliteit.REQ),
-          );
-          this.enableField(control, true);
-        }
+      const control = this.queryFields[key];
+      if (this.all(potential, key, Cardinaliteit.NON)) {
+        this.requireField(control, false);
+        this.enableField(control, false);
+      } else {
+        this.requireField(control, this.all(potential, key, Cardinaliteit.REQ));
+        this.enableField(control, true);
       }
     }
   }

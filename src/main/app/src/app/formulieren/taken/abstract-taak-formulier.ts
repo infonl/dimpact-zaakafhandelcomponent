@@ -29,13 +29,13 @@ export abstract class AbstractTaakFormulier {
   taakNaam: string;
   humanTaskData: HumanTaskData;
   taak: Taak;
-  tabellen: { [key: string]: string[] };
+  tabellen: Record<string, string[]>;
   abstract taakinformatieMapping: {
     uitkomst: string;
     bijlagen?: string;
     opmerking?: string;
   };
-  dataElementen: { [key: string]: string } = {};
+  dataElementen: Record<string, string> = {};
   readonly: boolean;
   form: AbstractFormField[][];
   disablePartialSave = false;
@@ -158,7 +158,7 @@ export abstract class AbstractTaakFormulier {
     return documentNamen.join(", ");
   }
 
-  private getDataElementen(formGroup: FormGroup): {} {
+  private getDataElementen(formGroup: FormGroup): Record<string, unknown> {
     Object.entries(formGroup.value)
       .filter(([key]) => key !== AbstractTaakFormulier.TAAK_TOEKENNING)
       .filter(([key]) => key !== AbstractTaakFormulier.TAAK_FATALEDATUM)

@@ -4,9 +4,7 @@
  */
 
 import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
-import { Observable } from "rxjs";
-import { GeneratedType } from "../../shared/utils/generated-types";
+import { ActivatedRouteSnapshot } from "@angular/router";
 import { KlantenService } from "../klanten.service";
 
 @Injectable({
@@ -15,11 +13,15 @@ import { KlantenService } from "../klanten.service";
 export class PersoonResolverService {
   constructor(private klantenService: KlantenService) {}
 
-  resolve(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot,
-  ): Observable<GeneratedType<"RestPersoon">> {
-    const bsn: string = route.paramMap.get("bsn");
+  resolve(route: ActivatedRouteSnapshot) {
+    const bsn = route.paramMap.get("bsn");
+
+    if (!bsn) {
+      throw new Error(
+        `${PersoonResolverService.name}: no 'bsn' found in route`,
+      );
+    }
+
     return this.klantenService.readPersoon(bsn);
   }
 }

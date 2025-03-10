@@ -117,9 +117,11 @@ export class OntvangstbevestigingComponent implements OnInit {
               "actie.initiator.email.toevoegen",
               new Subject<void>(),
             );
-            ontvanger.icons
-              ? ontvanger.icons.push(initiatorToevoegenIcon)
-              : (ontvanger.icons = [initiatorToevoegenIcon]);
+            if (Array.isArray(ontvanger.icons)) {
+              ontvanger.icons.push(initiatorToevoegenIcon);
+            } else {
+              ontvanger.icons = [initiatorToevoegenIcon];
+            }
             initiatorToevoegenIcon.iconClicked.subscribe(() => {
               ontvanger.value(gegevens.emailadres);
             });

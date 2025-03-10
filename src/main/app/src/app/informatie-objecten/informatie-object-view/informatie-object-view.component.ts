@@ -219,7 +219,7 @@ export class InformatieObjectViewComponent
       !this.laatsteVersieInfoObject.gelockedDoor &&
       this.laatsteVersieInfoObject.rechten.vergrendelen
     ) {
-      let button = new ButtonMenuItem(
+      const button = new ButtonMenuItem(
         "actie.lock",
         () => {
           button.disabled = true;
@@ -243,7 +243,7 @@ export class InformatieObjectViewComponent
       this.laatsteVersieInfoObject.gelockedDoor &&
       this.laatsteVersieInfoObject.rechten.ontgrendelen
     ) {
-      let button = new ButtonMenuItem(
+      const button = new ButtonMenuItem(
         "actie.unlock",
         () => {
           button.disabled = true;

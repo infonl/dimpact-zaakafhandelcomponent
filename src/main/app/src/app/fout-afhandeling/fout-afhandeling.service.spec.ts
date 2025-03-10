@@ -68,7 +68,6 @@ describe("FoutAfhandelingService", () => {
   });
 
   it("should return an observable error message when httpErrorAfhandelen is called with a 400 error", async () => {
-    const exceptionMessage = "dummyBadRequestException";
     const message = "dummyBadRequestMessage";
     const errorResponse = new HttpErrorResponse({
       error: {
