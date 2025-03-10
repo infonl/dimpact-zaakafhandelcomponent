@@ -39,7 +39,6 @@ describe(MedewerkerGroepComponent.name, () => {
       ],
       imports: [
         TranslateModule.forRoot(),
-
         MatFormField,
         MatLabel,
         MatAutocomplete,
