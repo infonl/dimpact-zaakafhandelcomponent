@@ -9,14 +9,7 @@ import java.net.URI
 
 class RoltypeListParameters(
     private val zaaktype: URI,
-    private val roltypeOmschrijving: String? = null
 ) : AbstractZtcListParameters() {
-    /**
-     * Algemeen gehanteerde omschrijving van de aard van de ROL.
-     */
-    @QueryParam("roltypeOmschrijving")
-    fun getRoltypeOmschrijving() = roltypeOmschrijving?.toString()
-
     /**
      * URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken kunnen zijn.
      */

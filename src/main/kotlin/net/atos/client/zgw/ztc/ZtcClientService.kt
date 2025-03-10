@@ -298,7 +298,11 @@ class ZtcClientService @Inject constructor(
      */
     fun findRoltypen(zaaktypeURI: URI, roltypeOmschrijving: String?): List<RolType> =
         uriOmschrijvingEnumToRolTypeCache.get("$zaaktypeURI$roltypeOmschrijving") {
-            ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI, roltypeOmschrijving)).results
+            ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI)).results.filter {
+                // No query parameter is available for roltypeOmschrijving, so we filter here. See:
+                // https://github.com/open-zaak/open-zaak/issues/1933
+                it.omschrijving == roltypeOmschrijving
+            }
         }
 
     /**
