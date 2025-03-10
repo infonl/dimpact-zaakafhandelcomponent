@@ -61,6 +61,36 @@
   max-width: 300px;
 }
 
+.mat-column-toelichting,
+.mat-column-toelichting_filter {
+  max-width: 300px;
+}
+
+.mat-column-zaakToelichting,
+.mat-column-toelichting_filter {
+  max-width: 300px;
+}
+
+.mat-mdc-cell {
+  &.mat-column-omschrijving,
+  &.mat-column-toelichting,
+  &.mat-column-zaakOmschrijving,
+  &.mat-column-zaakToelichting {
+    & span {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      box-orient: vertical;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      max-height: 60px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-wrap: break-word;
+      white-space: normal;
+    }
+  }
+}
+
 .mat-column-zaaktypeOmschrijving,
 .mat-column-zaaktypeOmschrijving_filter {
   max-width: 300px;
