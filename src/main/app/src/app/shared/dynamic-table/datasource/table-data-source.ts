@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { CollectionViewer, DataSource } from "@angular/cdk/collections";
+import { DataSource } from "@angular/cdk/collections";
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
@@ -19,7 +19,7 @@ export abstract class TableDataSource<OBJECT> extends DataSource<OBJECT> {
 
   paginator: MatPaginator;
   sort: MatSort;
-  filters: {} = {};
+  filters: Record<string, unknown> = {};
 
   private _columns: Map<string, ColumnPickerValue> = new Map();
   private _visibleColumns: Array<string> = [];
@@ -69,7 +69,7 @@ export abstract class TableDataSource<OBJECT> extends DataSource<OBJECT> {
    *  Called when the table is being destroyed. Use this function, to clean up
    * any open connections or free any held resources that were set up during connect.
    */
-  disconnect(collectionViewer: CollectionViewer): void {
+  disconnect(): void {
     if (this.subscription$) {
       this.subscription$.unsubscribe();
     }

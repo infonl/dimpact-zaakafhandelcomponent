@@ -4,10 +4,8 @@
  */
 
 import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
-import { Observable } from "rxjs";
+import { ActivatedRouteSnapshot } from "@angular/router";
 import { GebruikersvoorkeurenService } from "../../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { TabelGegevens } from "../model/tabel-gegevens";
 
 @Injectable({
   providedIn: "root",
@@ -17,10 +15,7 @@ export class TabelGegevensResolver {
     private gebruikersvoorkeurenService: GebruikersvoorkeurenService,
   ) {}
 
-  resolve(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot,
-  ): Observable<TabelGegevens> {
+  resolve(route: ActivatedRouteSnapshot) {
     return this.gebruikersvoorkeurenService.readTabelGegevens(
       route.data.werklijst,
     );

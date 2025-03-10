@@ -31,7 +31,7 @@ const mockIdentityService = {
   },
 };
 const mockNotitieService = {
-  listNotities(type: string, uuid: string): Observable<Notitie[]> {
+  listNotities(): Observable<Notitie[]> {
     return of([]);
   },
   updateNotitie(notitie: Notitie) {
