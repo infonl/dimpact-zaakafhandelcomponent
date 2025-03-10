@@ -1,8 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.brp.util
+package nl.info.client.brp.util
 
 import jakarta.ws.rs.core.MultivaluedMap
 import org.eclipse.microprofile.config.ConfigProvider

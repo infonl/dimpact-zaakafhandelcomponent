@@ -9,7 +9,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.brp.BrpClientService
 import net.atos.client.brp.model.createAdres
 import net.atos.client.brp.model.createAdressering
 import net.atos.client.brp.model.createPersoon
@@ -34,6 +33,7 @@ import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.getFullName
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
+import nl.info.client.brp.BrpClientService
 
 class DocumentCreationDataConverterTest : BehaviorSpec({
     val zgwApiService = mockk<ZGWApiService>()

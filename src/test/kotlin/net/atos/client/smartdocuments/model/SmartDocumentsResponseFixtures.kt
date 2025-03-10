@@ -5,22 +5,22 @@
 
 package net.atos.client.smartdocuments.model
 
-import net.atos.client.smartdocuments.model.document.AttendedResponse
-import net.atos.client.smartdocuments.model.document.Document
-import net.atos.client.smartdocuments.model.document.File
-import net.atos.client.smartdocuments.model.document.Selection
-import net.atos.client.smartdocuments.model.document.SmartDocument
-import net.atos.client.smartdocuments.model.document.Variables
-import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseDocumentsStructure
-import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseGroupsAccess
-import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseHeadersStructure
-import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseTemplate
-import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseTemplateGroup
-import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseTemplatesStructure
-import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseUserGroup
-import net.atos.client.smartdocuments.model.template.SmartDocumentsResponseUsersStructure
-import net.atos.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
-import net.atos.client.smartdocuments.model.template.User
+import nl.info.client.smartdocuments.model.document.AttendedResponse
+import nl.info.client.smartdocuments.model.document.Document
+import nl.info.client.smartdocuments.model.document.File
+import nl.info.client.smartdocuments.model.document.Selection
+import nl.info.client.smartdocuments.model.document.SmartDocument
+import nl.info.client.smartdocuments.model.document.Variables
+import nl.info.client.smartdocuments.model.template.SmartDocumentsResponseDocumentsStructure
+import nl.info.client.smartdocuments.model.template.SmartDocumentsResponseGroupsAccess
+import nl.info.client.smartdocuments.model.template.SmartDocumentsResponseHeadersStructure
+import nl.info.client.smartdocuments.model.template.SmartDocumentsResponseTemplate
+import nl.info.client.smartdocuments.model.template.SmartDocumentsResponseTemplateGroup
+import nl.info.client.smartdocuments.model.template.SmartDocumentsResponseTemplatesStructure
+import nl.info.client.smartdocuments.model.template.SmartDocumentsResponseUserGroup
+import nl.info.client.smartdocuments.model.template.SmartDocumentsResponseUsersStructure
+import nl.info.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
+import nl.info.client.smartdocuments.model.template.User
 import java.util.UUID
 
 fun createAttendedResponse(

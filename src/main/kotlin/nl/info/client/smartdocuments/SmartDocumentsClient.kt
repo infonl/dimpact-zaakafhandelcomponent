@@ -1,9 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
-package net.atos.client.smartdocuments
+package nl.info.client.smartdocuments
 
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
@@ -13,12 +12,12 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
-import net.atos.client.smartdocuments.exception.SmartDocumentsBadRequestResponseExceptionMapper
-import net.atos.client.smartdocuments.exception.SmartDocumentsResponseExceptionMapper
-import net.atos.client.smartdocuments.model.document.AttendedResponse
-import net.atos.client.smartdocuments.model.document.Deposit
-import net.atos.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
-import net.atos.client.smartdocuments.rest.DownloadedFile
+import nl.info.client.smartdocuments.exception.SmartDocumentsBadRequestResponseExceptionMapper
+import nl.info.client.smartdocuments.exception.SmartDocumentsResponseExceptionMapper
+import nl.info.client.smartdocuments.model.document.AttendedResponse
+import nl.info.client.smartdocuments.model.document.Deposit
+import nl.info.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
+import nl.info.client.smartdocuments.rest.DownloadedFile
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 

@@ -13,6 +13,8 @@ import io.mockk.mockk
 import net.atos.client.brp.model.createPersoon
 import net.atos.client.brp.model.createRaadpleegMetBurgerservicenummer
 import net.atos.client.brp.model.createRaadpleegMetBurgerservicenummerResponse
+import nl.info.client.brp.BrpClientService
+import nl.info.client.brp.PersonenApi
 
 class BrpClientServiceTest : BehaviorSpec({
     val personenApi: PersonenApi = mockk<PersonenApi>()

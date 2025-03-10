@@ -10,8 +10,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.brp.BrpClientService
-import net.atos.client.brp.exception.BrpPersonNotFoundException
 import net.atos.client.brp.model.createPersoon
 import net.atos.client.klant.KlantClientService
 import net.atos.client.klant.createDigitalAddresses
@@ -24,6 +22,8 @@ import net.atos.client.kvk.zoeken.model.createVestigingsAdres
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.klant.exception.VestigingNotFoundException
 import net.atos.zac.app.klant.model.personen.createRestListBedrijvenParameters
+import nl.info.client.brp.BrpClientService
+import nl.info.client.brp.exception.BrpPersonNotFoundException
 import java.util.Optional
 
 const val NON_BREAKING_SPACE = '\u00A0'.toString()

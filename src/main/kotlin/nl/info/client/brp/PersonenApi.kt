@@ -1,19 +1,19 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.brp
+package nl.info.client.brp
 
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.client.brp.exception.BrpResponseExceptionMapper
 import net.atos.client.brp.model.generated.PersonenQuery
 import net.atos.client.brp.model.generated.PersonenQueryResponse
-import net.atos.client.brp.util.BRPClientHeadersFactory
-import net.atos.client.brp.util.JsonbConfiguration
+import nl.info.client.brp.exception.BrpResponseExceptionMapper
+import nl.info.client.brp.util.BRPClientHeadersFactory
+import nl.info.client.brp.util.JsonbConfiguration
 import org.eclipse.microprofile.faulttolerance.Timeout
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider

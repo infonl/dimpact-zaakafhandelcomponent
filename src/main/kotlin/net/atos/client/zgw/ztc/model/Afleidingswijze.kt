@@ -7,9 +7,6 @@ package net.atos.client.zgw.ztc.model
 import jakarta.json.bind.annotation.JsonbTypeAdapter
 import net.atos.client.zgw.shared.model.AbstractEnum
 
-/**
- *
- */
 @JsonbTypeAdapter(Afleidingswijze.Adapter::class)
 enum class Afleidingswijze(private val value: String) : AbstractEnum<Afleidingswijze> {
     /**

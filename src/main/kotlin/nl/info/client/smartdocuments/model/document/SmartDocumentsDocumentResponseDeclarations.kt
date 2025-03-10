@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.smartdocuments.model.document
+package nl.info.client.smartdocuments.model.document
 
 import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.util.NoArgConstructor

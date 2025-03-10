@@ -8,10 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.UriBuilder
-import net.atos.client.smartdocuments.model.document.OutputFormat
-import net.atos.client.smartdocuments.model.document.Selection
-import net.atos.client.smartdocuments.model.document.SmartDocument
-import net.atos.client.smartdocuments.model.document.Variables
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
@@ -24,6 +20,10 @@ import net.atos.zac.identity.model.getFullName
 import net.atos.zac.smartdocuments.SmartDocumentsService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.util.MediaTypes
+import nl.info.client.smartdocuments.model.document.OutputFormat
+import nl.info.client.smartdocuments.model.document.Selection
+import nl.info.client.smartdocuments.model.document.SmartDocument
+import nl.info.client.smartdocuments.model.document.Variables
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI

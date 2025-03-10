@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2023 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.brp.util
+package nl.info.client.brp.util
 
 import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig

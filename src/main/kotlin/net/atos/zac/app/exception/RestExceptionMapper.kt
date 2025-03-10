@@ -13,7 +13,6 @@ import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.ext.ExceptionMapper
 import jakarta.ws.rs.ext.Provider
 import net.atos.client.bag.BagClientService
-import net.atos.client.brp.BrpClientService
 import net.atos.client.klant.KlantClientService
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.brc.BrcClientService
@@ -27,6 +26,7 @@ import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.exception.ZtcRuntimeException
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
+import nl.info.client.brp.BrpClientService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BAG_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK

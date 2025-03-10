@@ -50,7 +50,6 @@ import org.flowable.identitylink.api.IdentityLinkInfo;
 import org.flowable.identitylink.api.IdentityLinkType;
 import org.flowable.task.api.TaskInfo;
 
-import net.atos.client.brp.BrpClientService;
 import net.atos.client.brp.model.generated.Adres;
 import net.atos.client.brp.model.generated.Persoon;
 import net.atos.client.brp.model.generated.VerblijfadresBinnenland;
@@ -78,6 +77,7 @@ import net.atos.zac.identity.model.UserKt;
 import net.atos.zac.mailtemplates.model.MailLink;
 import net.atos.zac.mailtemplates.model.MailTemplateVariabelen;
 import net.atos.zac.util.time.DateTimeConverterUtil;
+import nl.info.client.brp.BrpClientService;
 
 public class MailTemplateHelper {
     public static final Pattern PTAGS = Pattern.compile("</?p>", Pattern.CASE_INSENSITIVE);

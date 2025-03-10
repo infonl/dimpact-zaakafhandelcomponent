@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Lifely, 2025 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.client.zgw.brc
@@ -35,7 +35,7 @@ import java.net.URI
 import java.util.UUID
 
 /**
- * BRC Client
+ * ZGW Besluiten API Client voor integratie met een Besluitregistratiecomponent (BRC).
  */
 @RegisterRestClient(configKey = "ZGW-API-Client")
 @RegisterClientHeaders(ZGWClientHeadersFactory::class)
