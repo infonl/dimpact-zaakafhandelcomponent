@@ -126,7 +126,7 @@ class TaskRestServiceTest : BehaviorSpec({
         every { getTaakStatus(task) } returns TaakStatus.NIET_TOEGEKEND
         every { task.assignee } returns ""
         every {
-            taskService.assignTask(
+            taskService.assignOrReleaseTask(
                 restTaakToekennenGegevens,
                 task,
                 loggedInUser
@@ -142,7 +142,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 "the task is correctly assigned"
             ) {
                 verify(exactly = 1) {
-                    taskService.assignTask(
+                    taskService.assignOrReleaseTask(
                         restTaakToekennenGegevens,
                         task,
                         loggedInUser

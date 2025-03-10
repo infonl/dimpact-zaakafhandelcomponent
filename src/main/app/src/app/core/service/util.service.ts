@@ -11,7 +11,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar, MatSnackBarConfig } from "@angular/material/snack-bar";
 import { Title } from "@angular/platform-browser";
 import { Router } from "@angular/router";
-import { TranslateService } from "@ngx-translate/core";
+import { InterpolationParameters, TranslateService } from "@ngx-translate/core";
 import { BehaviorSubject, Observable, Subject, iif, of } from "rxjs";
 import { delay, map, shareReplay, switchMap } from "rxjs/operators";
 import { ProgressDialogComponent } from "src/app/shared/progress-dialog/progress-dialog.component";
@@ -85,7 +85,7 @@ export class UtilService {
     return overlayElements;
   }
 
-  setTitle(title: string, params?: {}): void {
+  setTitle(title: string, params?: InterpolationParameters): void {
     const _title = this.translate.instant(title, params);
     this.titleService.setTitle(
       this.translate.instant("title", { title: _title }),
@@ -137,18 +137,22 @@ export class UtilService {
     return Object.keys(enum_)[Object.values(enum_).indexOf(value)];
   }
 
-  openSnackbarError(message: string, params?: {}) {
+  openSnackbarError(message: string, params?: Record<string, unknown>) {
     this.openSnackbar(message, params, null);
   }
 
-  openSnackbar(message: string, params?: {}, duration = 3) {
+  openSnackbar(
+    message: string,
+    params?: Record<string, unknown>,
+    duration = 3,
+  ) {
     this.openSnackbarAction(message, "actie.sluiten", params, duration);
   }
 
   openSnackbarAction(
     message: string,
     action: string,
-    params?: {},
+    params?: Record<string, unknown>,
     durationSeconden?: number,
   ): Observable<void> {
     return this.snackbar
@@ -244,5 +248,33 @@ export class UtilService {
     );
     link.remove();
     window.URL.revokeObjectURL(link.href);
+  }
+
+  /**
+   * Compares two variables, if objects it will check some `keysToCompareOn` are equal
+   */
+  public compare<T extends unknown>(
+    a: T,
+    b: T,
+    keysToCompareOn = ["key", "id", "naam", "name"],
+  ): boolean {
+    switch (typeof a) {
+      case "undefined":
+        return false;
+      case "string":
+      case "number":
+        return a === b;
+      case "object":
+        return keysToCompareOn.some((key) => {
+          if (a === null || a === undefined) return false;
+          if (b === null || b === undefined) return false;
+
+          return (
+            key in a && a[key as keyof typeof a] === b[key as keyof typeof b]
+          );
+        });
+      default:
+        return false;
+    }
   }
 }

@@ -27,6 +27,7 @@ import net.atos.client.zgw.zrc.model.createZaakInformatieobject
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.createBesluitType
 import net.atos.client.zgw.ztc.model.createInformatieObjectType
+import net.atos.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
 import net.atos.zac.app.informatieobjecten.converter.RestZaakInformatieobjectConverter
@@ -34,7 +35,6 @@ import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
 import net.atos.zac.app.informatieobjecten.model.createRESTInformatieobjectZoekParameters
 import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
 import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
-import net.atos.zac.app.informatieobjecten.model.createRestInformatieobjecttype
 import net.atos.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.documenten.InboxDocumentenService
@@ -464,8 +464,22 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     }
     Given("A zaak with two informatieobjecttypes") {
         val zaak = createZaak()
-        val informatieObjectTypes = listOf(createInformatieObjectType(), createInformatieObjectType())
-        val restInformatieobjecttypes = listOf(createRestInformatieobjecttype(), createRestInformatieobjecttype())
+        val informatieObjectTypeUUID1 = UUID.randomUUID()
+        val informatieObjectTypeUUID2 = UUID.randomUUID()
+        val informatieObjectTypes = listOf(
+            createInformatieObjectType(
+                uri = URI("http://example.com/catalogus/$informatieObjectTypeUUID1"),
+                omschrijving = "dummyOmschrijving1",
+                vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR,
+                concept = true
+            ),
+            createInformatieObjectType(
+                uri = URI("http://example.com/catalogus/$informatieObjectTypeUUID2"),
+                omschrijving = "dummyOmschrijving2",
+                vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.BEPERKT_OPENBAAR,
+                concept = false
+            )
+        )
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         with(ztcClientService) {
             every { readZaaktype(zaak.zaaktype).informatieobjecttypen } returns informatieObjectTypes.map { it.url }
@@ -473,7 +487,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 every { readInformatieobjecttype(informatieObjectType.url) } returns informatieObjectTypes[index]
             }
         }
-        every { restInformatieobjecttypeConverter.convert(informatieObjectTypes) } returns restInformatieobjecttypes
 
         When("the informatieobjecttypes for the zaak are requested") {
             val returnedRestInformatieobjecttypes = enkelvoudigInformatieObjectRestService.listInformatieobjecttypesForZaak(
@@ -481,7 +494,21 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             )
 
             Then("the information object types are returned") {
-                returnedRestInformatieobjecttypes shouldBe restInformatieobjecttypes
+                returnedRestInformatieobjecttypes.size shouldBe 2
+                with(returnedRestInformatieobjecttypes) {
+                    with(this[0]) {
+                        uuid shouldBe informatieObjectTypeUUID1
+                        omschrijving shouldBe "dummyOmschrijving1"
+                        vertrouwelijkheidaanduiding shouldBe "OPENBAAR"
+                        concept shouldBe true
+                    }
+                    with(this[1]) {
+                        uuid shouldBe informatieObjectTypeUUID2
+                        omschrijving shouldBe "dummyOmschrijving2"
+                        vertrouwelijkheidaanduiding shouldBe "BEPERKT_OPENBAAR"
+                        concept shouldBe false
+                    }
+                }
             }
         }
     }

@@ -30,9 +30,6 @@ public class RestZaakInformatieobjectConverter {
     private ZrcClientService zrcClientService;
 
     @Inject
-    private RestRechtenConverter rechtenConverter;
-
-    @Inject
     private PolicyService policyService;
 
     public RestZaakInformatieobject convert(final ZaakInformatieobject zaakInformatieObject) {
@@ -41,7 +38,7 @@ public class RestZaakInformatieobjectConverter {
         final ZaakRechten zaakrechten = policyService.readZaakRechten(zaak, zaaktype);
         final RestZaakInformatieobject restZaakInformatieobject = new RestZaakInformatieobject();
         restZaakInformatieobject.zaakIdentificatie = zaak.getIdentificatie();
-        restZaakInformatieobject.zaakRechten = rechtenConverter.convert(zaakrechten);
+        restZaakInformatieobject.zaakRechten = RestRechtenConverter.convert(zaakrechten);
         if (zaakrechten.lezen()) {
             restZaakInformatieobject.zaakStartDatum = zaak.getStartdatum();
             restZaakInformatieobject.zaakEinddatumGepland = zaak.getEinddatumGepland();

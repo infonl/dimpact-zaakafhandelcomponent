@@ -240,8 +240,8 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:0.70.0-static@sha256:5679cbbedd1908063b7a68e8af28e662dce4ae3e069b4b5459531b141c6b6ff0
-    command: run --server --log-level debug
+    image: docker.io/openpolicyagent/opa:1.2.0-static@sha256:2636af0937bf7c5ab7f79271399c53c45d4b4d2af8a2b9cc43f65c6598b49064
+    command: run --server --addr :8181 --log-level debug
     ports:
       - "8181:8181"
 
@@ -297,7 +297,7 @@ services:
         condition: service_started
 
   smartdocuments-wiremock:
-    image: docker.io/wiremock/wiremock:3.12.0@sha256:9795e41d03213aba2b55ae3ed1c2b37becd297ba14a74dcc29bcc6b3133911bc
+    image: docker.io/wiremock/wiremock:3.12.1@sha256:be850ea239193d9497b264115e7071f1f2605bbff05b41f1fa22799904b2e019
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
@@ -308,7 +308,7 @@ services:
     profiles: [ "itest" ]
 
   kvk-wiremock:
-    image: docker.io/wiremock/wiremock:3.12.0@sha256:9795e41d03213aba2b55ae3ed1c2b37becd297ba14a74dcc29bcc6b3133911bc
+    image: docker.io/wiremock/wiremock:3.12.1@sha256:be850ea239193d9497b264115e7071f1f2605bbff05b41f1fa22799904b2e019
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/kvk-wiremock/mappings:/home/wiremock/mappings
@@ -321,7 +321,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   bag-wiremock.local:
-    image: docker.io/wiremock/wiremock:3.12.0@sha256:9795e41d03213aba2b55ae3ed1c2b37becd297ba14a74dcc29bcc6b3133911bc
+    image: docker.io/wiremock/wiremock:3.12.1@sha256:be850ea239193d9497b264115e7071f1f2605bbff05b41f1fa22799904b2e019
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/bag-wiremock/mappings:/home/wiremock/mappings
@@ -333,7 +333,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:0.70.0@sha256:2b1c4b231f6dfa6a2baea4af4109203b10cd4b65e836d72f03bfe5d8dfce7095
+    image: docker.io/openpolicyagent/opa:1.2.0@sha256:96f7ee5dbcc634853c55e0fc6090fe421d8c853da967ee0246f98bd186e2083f
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -349,7 +349,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.120.0@sha256:1daa4312b48312dbae2d543e67b77e897dd5d9c48e7651d1416cdb417026ad06
+    image: docker.io/otel/opentelemetry-collector:0.121.0@sha256:5fdfd70f8e54b0dfb1ce3f403978a56054aba49a2922b6b118bb30d301812cde
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z

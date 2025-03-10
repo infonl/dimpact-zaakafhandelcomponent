@@ -23,6 +23,7 @@ import net.atos.client.kvk.zoeken.model.createVestiging
 import net.atos.client.kvk.zoeken.model.createVestigingsAdres
 import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.klant.exception.VestigingNotFoundException
+import net.atos.zac.app.klant.model.personen.createRestListBedrijvenParameters
 import java.util.Optional
 
 const val NON_BREAKING_SPACE = '\u00A0'.toString()
@@ -301,6 +302,51 @@ class KlantRestServiceTest : BehaviorSpec({
                     this.sbiHoofdActiviteit shouldBe null
                     this.adressen shouldBe null
                 }
+            }
+        }
+    }
+    Given("A KVK company with a KVK number and a vestigings number") {
+        val restListBedrijvenParameters = createRestListBedrijvenParameters()
+        val resultaatItem = createResultaatItem(
+            naam = "dummyName",
+            kvkNummer = "dummyKvkNummer",
+            type = "dummyType",
+            vestingsnummer = "dummyVestigingsnummer",
+            rsin = null
+        )
+        every { kvkClientService.list(any()).resultaten } returns listOf(resultaatItem)
+
+        When("the listBedrijven function is called") {
+            val result = klantRestService.listBedrijven(restListBedrijvenParameters)
+
+            Then("the result should contain the expected company") {
+                result.resultaten.size shouldBe 1
+                with(result.resultaten.first()) {
+                    this.naam shouldBe "dummyName"
+                    this.kvkNummer shouldBe "dummyKvkNummer"
+                    // the type should be converted to uppercase in the response
+                    this.type shouldBe "DUMMYTYPE"
+                    this.vestigingsnummer shouldBe "dummyVestigingsnummer"
+                }
+            }
+        }
+    }
+    Given("A KVK company without a vestigings number and without a RSIN") {
+        val restListBedrijvenParameters = createRestListBedrijvenParameters()
+        val resultaatItem = createResultaatItem(
+            naam = "dummyName",
+            kvkNummer = "dummyKvkNummer",
+            rsin = null,
+            type = "dummyType",
+            vestingsnummer = null
+        )
+        every { kvkClientService.list(any()).resultaten } returns listOf(resultaatItem)
+
+        When("the listBedrijven function is called") {
+            val result = klantRestService.listBedrijven(restListBedrijvenParameters)
+
+            Then("the result should contain no companies since the available company is not koppelbaar") {
+                result.resultaten.size shouldBe 0
             }
         }
     }

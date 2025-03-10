@@ -297,14 +297,9 @@ class ZaakRestService @Inject constructor(
                 null
             )
         }
-        restZaakAanmaakGegevens.inboxProductaanvraag?.let { inboxProductaanvraag ->
-            koppelInboxProductaanvraag(zaak, inboxProductaanvraag)
-        }
-        restZaakAanmaakGegevens.bagObjecten?.let { restbagObjecten ->
-            for (restbagObject in restbagObjecten) {
-                val zaakobject = RestBagConverter.convertToZaakobject(restbagObject, zaak)
-                zrcClientService.createZaakobject(zaakobject)
-            }
+        restZaakAanmaakGegevens.inboxProductaanvraag?.let { koppelInboxProductaanvraag(zaak, it) }
+        restZaakAanmaakGegevens.bagObjecten?.forEach {
+            zrcClientService.createZaakobject(RestBagConverter.convertToZaakobject(it, zaak))
         }
         return restZaakConverter.toRestZaak(zaak)
     }
@@ -318,6 +313,13 @@ class ZaakRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUUID)
         with(policyService.readZaakRechten(zaak)) {
             assertPolicy(wijzigen && verlengenDoorlooptijd)
+        }
+        restZaakEditMetRedenGegevens.zaak.run {
+            behandelaar?.id?.let { behandelaarId ->
+                groep?.id?.let { groepId ->
+                    identityService.checkIfUserIsInGroup(behandelaarId, groepId)
+                }
+            }
         }
 
         val updatedZaak = zrcClientService.patchZaak(
@@ -523,6 +525,12 @@ class ZaakRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(toekennenGegevens.zaakUUID).also {
             assertPolicy(policyService.readZaakRechten(it).toekennen)
         }
+        toekennenGegevens.assigneeUserName?.let { behandelaarId ->
+            toekennenGegevens.groupId.let { groepId ->
+                identityService.checkIfUserIsInGroup(behandelaarId, groepId)
+            }
+        }
+
         val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
             ?.betrokkeneIdentificatie?.identificatie
         val isUpdated = AtomicBoolean(false)

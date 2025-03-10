@@ -98,6 +98,7 @@ import net.atos.zac.healthcheck.createZaaktypeInrichtingscheck
 import net.atos.zac.history.ZaakHistoryService
 import net.atos.zac.history.converter.ZaakHistoryLineConverter
 import net.atos.zac.identity.IdentityService
+import net.atos.zac.identity.exception.UserNotInGroupException
 import net.atos.zac.identity.model.createGroup
 import net.atos.zac.identity.model.createUser
 import net.atos.zac.policy.PolicyService
@@ -115,6 +116,7 @@ import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.zaak.ZaakService
 import net.atos.zac.zoeken.IndexingService
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.test.date.toDate
 import org.apache.http.HttpStatus
 import org.flowable.task.api.Task
@@ -331,6 +333,12 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         When("the zaak is assigned to a user and a group") {
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(toekennen = true)
+            every {
+                identityService.checkIfUserIsInGroup(
+                    restZaakToekennenGegevens.assigneeUserName!!,
+                    restZaakToekennenGegevens.groupId
+                )
+            } just runs
 
             val returnedRestZaak = zaakRestService.assign(restZaakToekennenGegevens)
 
@@ -359,6 +367,28 @@ class ZaakRestServiceTest : BehaviorSpec({
                     omschrijving shouldBe rolType.omschrijving
                 }
             }
+        }
+    }
+
+    Given("a zaak with no user and group assigned and zaak assignment data is provided") {
+        val restZaakToekennenGegevensUnknownGroup = createRESTZaakAssignmentData(groepId = "unknown")
+        val zaak = createZaak()
+
+        every { zrcClientService.readZaak(restZaakToekennenGegevensUnknownGroup.zaakUUID) } returns zaak
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(toekennen = true)
+        every {
+            identityService.checkIfUserIsInGroup(
+                restZaakToekennenGegevensUnknownGroup.assigneeUserName!!,
+                restZaakToekennenGegevensUnknownGroup.groupId
+            )
+        } throws UserNotInGroupException()
+
+        When("the zaak is assigned to an unknown group") {
+            shouldThrow<UserNotInGroupException> {
+                zaakRestService.assign(restZaakToekennenGegevensUnknownGroup)
+            }
+
+            Then("an exception is thrown") {}
         }
     }
 
@@ -395,6 +425,12 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         When("the zaak is assigned to a user and a group") {
             every { policyService.readZaakRechten(zaak) } returns createZaakRechtenAllDeny(toekennen = true)
+            every {
+                identityService.checkIfUserIsInGroup(
+                    restZaakToekennenGegevens.assigneeUserName!!,
+                    restZaakToekennenGegevens.groupId
+                )
+            } just runs
 
             val returnedRestZaak = zaakRestService.assign(restZaakToekennenGegevens)
 
@@ -621,6 +657,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         every { task.id } returns "id"
         every { eventingService.send(any<ScreenEvent>()) } just runs
         every { restZaakConverter.toRestZaak(patchedZaak) } returns restZaak
+        every { identityService.checkIfUserIsInGroup(restZaak.behandelaar!!.id, restZaak.groep!!.id) } just runs
 
         When("zaak final date is set to a later date") {
             val updatedRestZaak = zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
@@ -642,6 +679,25 @@ class ZaakRestServiceTest : BehaviorSpec({
                     eventingService.send(any<ScreenEvent>())
                 }
             }
+        }
+    }
+
+    Given("a zaak and user not part of any group") {
+        val changeDescription = "change description"
+        val zaak = createZaak()
+        val restZaak = createRestZaak()
+        val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaak, changeDescription)
+
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { policyService.readZaakRechten(zaak) } returns createZaakRechten()
+        every { identityService.checkIfUserIsInGroup(any(), any()) } throws InputValidationFailedException()
+
+        When("zaak update is requested") {
+            shouldThrow<InputValidationFailedException> {
+                zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+            }
+
+            Then("exception is thrown") {}
         }
     }
 

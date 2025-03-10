@@ -5,6 +5,8 @@
 
 package net.atos.zac.app.admin.converter;
 
+import static net.atos.zac.app.zaak.model.RestResultaattypeKt.toRestResultaatType;
+
 import java.util.List;
 import java.util.Set;
 
@@ -13,12 +15,8 @@ import jakarta.inject.Inject;
 import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.zac.admin.model.ZaakbeeindigParameter;
 import net.atos.zac.app.admin.model.RESTZaakbeeindigParameter;
-import net.atos.zac.app.zaak.converter.RestResultaattypeConverter;
 
 public class RESTZaakbeeindigParameterConverter {
-
-    @Inject
-    private RestResultaattypeConverter restResultaattypeConverter;
 
     @Inject
     private ZtcClientService ztcClientService;
@@ -29,9 +27,11 @@ public class RESTZaakbeeindigParameterConverter {
                 .toList();
     }
 
-    public List<ZaakbeeindigParameter> convertRESTZaakbeeindigParameters(final List<RESTZaakbeeindigParameter> restZaakbeeindigParameters) {
+    public static List<ZaakbeeindigParameter> convertRESTZaakbeeindigParameters(
+            final List<RESTZaakbeeindigParameter> restZaakbeeindigParameters
+    ) {
         return restZaakbeeindigParameters.stream()
-                .map(this::convertRESTZaakbeeindigParameter)
+                .map(RESTZaakbeeindigParameterConverter::convertRESTZaakbeeindigParameter)
                 .toList();
     }
 
@@ -41,13 +41,12 @@ public class RESTZaakbeeindigParameterConverter {
         restZaakbeeindigParameter.zaakbeeindigReden = RESTZaakbeeindigRedenConverter.convertZaakbeeindigReden(zaakbeeindigParameter
                 .getZaakbeeindigReden()
         );
-        restZaakbeeindigParameter.resultaattype = restResultaattypeConverter.convertResultaattype(
-                ztcClientService.readResultaattype(zaakbeeindigParameter.getResultaattype())
-        );
+        restZaakbeeindigParameter.resultaattype = toRestResultaatType(ztcClientService.readResultaattype(zaakbeeindigParameter
+                .getResultaattype()));
         return restZaakbeeindigParameter;
     }
 
-    private ZaakbeeindigParameter convertRESTZaakbeeindigParameter(final RESTZaakbeeindigParameter restZaakbeeindigParameter) {
+    private static ZaakbeeindigParameter convertRESTZaakbeeindigParameter(final RESTZaakbeeindigParameter restZaakbeeindigParameter) {
         final ZaakbeeindigParameter zaakbeeindigParameter = new ZaakbeeindigParameter();
         zaakbeeindigParameter.setId(restZaakbeeindigParameter.id);
         zaakbeeindigParameter.setZaakbeeindigReden(

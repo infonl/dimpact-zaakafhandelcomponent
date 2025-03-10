@@ -19,14 +19,12 @@ import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.app.admin.createRestZaakAfhandelParameters
 import net.atos.zac.app.admin.model.RESTCaseDefinition
 import net.atos.zac.app.admin.model.RestSmartDocuments
-import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.app.zaak.model.toRestResultaatType
 import net.atos.zac.smartdocuments.SmartDocumentsService
 import java.time.LocalDate
 
 class RestZaakafhandelParametersConverterTest : BehaviorSpec({
     val caseDefinitionConverter = mockk<RESTCaseDefinitionConverter>()
-    val resultaattypeConverter = mockk<RestResultaattypeConverter>()
     val zaakbeeindigParameterConverter = mockk<RESTZaakbeeindigParameterConverter>()
     val restHumanTaskParametersConverter = mockk<RESTHumanTaskParametersConverter>()
     val ztcClientService = mockk<ZtcClientService>()
@@ -35,7 +33,6 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
 
     val restZaakafhandelParametersConverter = RestZaakafhandelParametersConverter(
         caseDefinitionConverter,
-        resultaattypeConverter,
         zaakbeeindigParameterConverter,
         restHumanTaskParametersConverter,
         ztcClientService,
@@ -115,7 +112,6 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
             zaakafhandelParameterService.readZaakafhandelParameters(restZaakafhandelParameters.zaaktype.uuid)
         } returns zaakafhandelParameters
         every { restHumanTaskParametersConverter.convertRESTHumanTaskParameters(any()) } returns emptyList()
-        every { zaakbeeindigParameterConverter.convertRESTZaakbeeindigParameters(any()) } returns emptyList()
 
         When("converted to DB model representation") {
             val zaakafhandelParameters = restZaakafhandelParametersConverter.toZaakafhandelParameters(

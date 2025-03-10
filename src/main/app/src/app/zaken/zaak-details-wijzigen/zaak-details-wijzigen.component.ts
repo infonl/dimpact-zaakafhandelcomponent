@@ -88,6 +88,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
       .label("reden")
       .maxlength(80)
       .validators(Validators.required)
+      .disabled()
       .build();
 
     // Forcing the set value to sync tabs
@@ -313,7 +314,11 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     return null;
   }
 
-  saveFromFormView(formGroup: FormGroup): void {
+  saveFromFormView(formGroup?: FormGroup): void {
+    if (!formGroup) {
+      void this.sideNav.close();
+      return;
+    }
     const updates = Object.entries(formGroup.controls).reduce(
       (acc, [key, control]) => {
         const value = control.value;
@@ -339,8 +344,9 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     void this.updateZaak(this.createZaakPatch(updates));
   }
 
-  locationChanged(update: Geometry) {
+  locationChanged(update?: Geometry) {
     this.zaak.zaakgeometrie = update;
+    this.reasonField.formControl.enable();
   }
 
   private createZaakPatch(update: Record<string, any>) {
@@ -357,7 +363,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
     const reason = this.reasonField.formControl.value;
     const subscriptions: Subscription[] = [];
 
-    subscriptions.push(this.patchBehandelaar(zaak, reason));
+    this.patchBehandelaar(zaak, reason);
 
     this.patchLocation(reason).subscribe(() => {
       // To prevent a race condition we need to first update the `zaakgeometrie` and then the other fields
@@ -384,24 +390,23 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
 
     return this.zakenService.updateZaakLocatie(
       this.zaak.uuid,
-      this.zaak.zaakgeometrie,
       reason,
+      this.zaak.zaakgeometrie,
     );
   }
 
   private patchBehandelaar(zaak: Partial<Zaak>, reason?: string) {
-    if (zaak.behandelaar?.id === this.zaak.behandelaar?.id) {
+    if (
+      zaak.behandelaar?.id === this.zaak.behandelaar?.id &&
+      zaak.groep?.id === this.zaak.groep?.id
+    ) {
       return;
     }
 
     if (zaak.behandelaar?.id === this.loggedInUser.id) {
       return this.zakenService
         .toekennenAanIngelogdeMedewerker(this.zaak.uuid, reason)
-        .subscribe((updatedZaak) => {
-          this.utilService.openSnackbar("msg.zaak.toegekend", {
-            behandelaar: updatedZaak.behandelaar?.naam,
-          });
-        });
+        .subscribe(() => {});
     }
 
     return this.zakenService
@@ -410,15 +415,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
         groupId: zaak.groep?.id,
         behandelaarId: zaak?.behandelaar?.id,
       })
-      .subscribe((updatedZaak) => {
-        if (updatedZaak.behandelaar?.id) {
-          this.utilService.openSnackbar("msg.zaak.toegekend", {
-            behandelaar: updatedZaak.behandelaar?.naam,
-          });
-        } else {
-          this.utilService.openSnackbar("msg.vrijgegeven.zaak");
-        }
-      });
+      .subscribe(() => {});
   }
 
   exit() {

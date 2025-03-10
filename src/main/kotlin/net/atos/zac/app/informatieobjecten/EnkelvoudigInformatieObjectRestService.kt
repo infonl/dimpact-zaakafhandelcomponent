@@ -265,7 +265,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             .let { ztcClientService.readZaaktype(it).informatieobjecttypen }
             .map(ztcClientService::readInformatieobjecttype)
             .filter { it.isNuGeldig() }
-            .let(restInformatieobjecttypeConverter::convert)
+            .let(RestInformatieobjecttypeConverter::convert)
 
     @GET
     @Path("zaakinformatieobject/{uuid}/informatieobject")

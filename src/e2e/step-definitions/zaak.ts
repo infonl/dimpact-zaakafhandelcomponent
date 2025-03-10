@@ -62,7 +62,6 @@ Given(
 
     const parsedStatus = zaakStatus.parse(status);
 
-    await this.page.waitForTimeout(2000);
     await this.page.goto(
       `${this.worldParameters.urls.zac}/zaken/${caseNumber}`,
     );
@@ -236,7 +235,7 @@ Then(
     await this.page
       .getByText(caseNumber)
       .first()
-      .waitFor({ timeout: ONE_MINUTE_IN_MS });
+      .waitFor({ timeout: FIFTEEN_SECONDS_IN_MS });
   },
 );
 
@@ -259,6 +258,7 @@ Then(
   "Employee {string} clicks on the first zaak in the zaak-werkvoorraad with delay",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user) {
+    // Load duration is necessary in order for added documents to load into the zaak
     await this.page.waitForTimeout(FIFTEEN_SECONDS_IN_MS);
     await this.page.reload();
     await this.page.getByText("visibility").first().click();

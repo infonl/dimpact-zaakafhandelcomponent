@@ -7,6 +7,7 @@ package net.atos.zac.app.zaak.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.zgw.brc.BrcClientService
@@ -17,9 +18,7 @@ import net.atos.client.zgw.zrc.model.createRolMedewerker
 import net.atos.client.zgw.zrc.model.createRolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.createRolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.createZaak
-import net.atos.client.zgw.zrc.model.createZaakStatus
 import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.model.createStatusType
 import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.app.identity.converter.RestGroupConverter
 import net.atos.zac.app.identity.converter.RestUserConverter
@@ -49,7 +48,6 @@ class RestZaakConverterTest : BehaviorSpec({
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val bpmnService = mockk<BpmnService>()
     val configuratieService = mockk<ConfiguratieService>()
-
     val restZaakConverter = RestZaakConverter(
         ztcClientService = ztcClientService,
         zrcClientService = zrcClientService,
@@ -67,10 +65,12 @@ class RestZaakConverterTest : BehaviorSpec({
         configuratieService = configuratieService
     )
 
+    beforeEach {
+        checkUnnecessaryStub()
+    }
+
     Given("A zaak") {
         val zaak = createZaak()
-        val status = createZaakStatus()
-        val statusType = createStatusType()
         val zaakType = createZaakType()
         val rolOrganistorischeEenheid = createRolOrganisatorischeEenheid()
         val restGroup = createRestGroup()
@@ -83,9 +83,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val zaakrechten = createZaakRechten()
         val zaakdata = mapOf("dummyKey" to "dummyValue")
 
-        every { zrcClientService.readStatus(zaak.status) } returns status
         with(ztcClientService) {
-            every { readStatustype(status.statustype) } returns statusType
             every { readZaaktype(zaak.zaaktype) } returns zaakType
         }
         with(zgwApiService) {
