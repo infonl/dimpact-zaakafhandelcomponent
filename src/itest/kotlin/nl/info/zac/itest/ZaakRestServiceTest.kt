@@ -52,6 +52,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEM
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_2
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_EXPLANATION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_1_IDENTIFICATION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_UPDATE_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Betrokkene1Uuid
 import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
@@ -389,8 +390,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
         When(
             """"
-            the 'update zaak' endpoint is called where the start and fatal dates are changed,
-            and also the communication channel is changed
+            the 'update zaak' endpoint is called where the communication channel and description are changed
             """
         ) {
             val response = itestHttpClient.performPatchRequest(
@@ -398,9 +398,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                     { 
                         "zaak": {
-                            "startdatum": "$startDateNew",
-                            "uiterlijkeEinddatumAfdoening": "$fatalDateNew",
-                            "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_2"
+                            "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_2",
+                            "omschrijving": "$ZAAK_UPDATE_OMSCHRIJVING", 
                         },
                         "reden": "dummyReason"
                     }
@@ -412,9 +411,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_STATUS_OK
                 with(responseBody) {
                     shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
-                    shouldContainJsonKeyValue("startdatum", startDateNew.toString())
-                    shouldContainJsonKeyValue("uiterlijkeEinddatumAfdoening", fatalDateNew.toString())
                     shouldContainJsonKeyValue("communicatiekanaal", COMMUNICATIEKANAAL_TEST_2)
+                    shouldContainJsonKeyValue("omschrijving", ZAAK_UPDATE_OMSCHRIJVING)
                 }
             }
         }
