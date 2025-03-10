@@ -131,8 +131,8 @@ services:
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
       interval: 30s
-      timeout: 5s
-      retries: 3
+      timeout: 10s
+      retries: 5
       # This should allow for enough time for migrations to run before the max
       # retries have passed. This healthcheck in turn allows other containers
       # to wait for the database migrations.
