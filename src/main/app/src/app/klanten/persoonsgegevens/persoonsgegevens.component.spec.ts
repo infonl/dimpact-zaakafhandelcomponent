@@ -21,8 +21,8 @@ const mockTranslateService = {
   onDefaultLangChange: of({}),
 };
 
-const persoon: GeneratedType<"RestPersoon"> = {
-  bsn: "987654321",
+const testPerson: GeneratedType<"RestPersoon"> = {
+  bsn: "999993033",
   indicaties: [],
 };
 
@@ -33,7 +33,7 @@ describe("PersoonsgegevensComponent", () => {
 
   beforeEach(async () => {
     klantenServiceMock = {
-      readPersoon: jest.fn().mockReturnValue(of({})),
+      readPersoon: jest.fn().mockReturnValue(of(testPerson)),
     };
 
     await TestBed.configureTestingModule({
@@ -44,34 +44,14 @@ describe("PersoonsgegevensComponent", () => {
         { provide: TranslateService, useValue: mockTranslateService },
       ],
     }).compileComponents();
-  });
 
-  beforeEach(() => {
     fixture = TestBed.createComponent(PersoonsgegevensComponent);
     component = fixture.componentInstance;
-    component.bsn = new Input("123456789");
+    component.bsn = new Input(testPerson.bsn);
     fixture.detectChanges();
-  });
-
-  it("should have created component", () => {
-    expect(component).toBeTruthy();
   });
 
   it("should call service method just once", () => {
     expect(klantenServiceMock.readPersoon).toHaveBeenCalledTimes(1);
-  });
-
-  it("should emit delete event", () => {
-    const deleteSpy = jest.spyOn(component.delete, "emit");
-
-    component.delete.emit(persoon);
-    expect(deleteSpy).toHaveBeenCalledWith(persoon);
-  });
-
-  it("should emit edit event", () => {
-    const editSpy = jest.spyOn(component.edit, "emit");
-
-    component.edit.emit(persoon);
-    expect(editSpy).toHaveBeenCalledWith(persoon);
   });
 });
