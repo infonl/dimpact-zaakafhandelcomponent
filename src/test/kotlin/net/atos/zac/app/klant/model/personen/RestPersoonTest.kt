@@ -6,8 +6,6 @@ package net.atos.zac.app.klant.model.personen
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import net.atos.client.brp.model.createPersoon
-import net.atos.client.brp.model.createPersoonBeperkt
 import net.atos.client.brp.model.generated.AbstractDatum
 import net.atos.client.brp.model.generated.Adres
 import net.atos.client.brp.model.generated.Adressering
@@ -20,6 +18,8 @@ import net.atos.client.brp.model.generated.VerblijfadresBinnenland
 import net.atos.client.brp.model.generated.VerblijfadresBuitenland
 import net.atos.client.brp.model.generated.VerblijfplaatsBuitenland
 import net.atos.client.brp.model.generated.Waardetabel
+import nl.info.client.brp.model.createPersoon
+import nl.info.client.brp.model.createPersoonBeperkt
 import java.util.EnumSet
 
 class RestPersoonTest : BehaviorSpec({

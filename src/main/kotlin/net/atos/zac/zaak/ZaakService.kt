@@ -21,7 +21,6 @@ import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.RolVestiging
 import net.atos.client.zgw.zrc.model.Vestiging
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.zac.app.klant.model.klant.IdentificatieType
@@ -34,6 +33,7 @@ import net.atos.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import net.atos.zac.zaak.exception.CaseHasLockedInformationObjectsException
 import net.atos.zac.zaak.exception.CaseHasOpenSubcasesException
 import net.atos.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
+import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.util.AllOpen
 import java.util.Locale
 import java.util.UUID

@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.informatieobjecten;
 
-import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
+import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;

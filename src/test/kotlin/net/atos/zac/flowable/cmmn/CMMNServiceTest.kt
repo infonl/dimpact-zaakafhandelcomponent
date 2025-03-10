@@ -12,11 +12,11 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.client.zgw.zrc.model.createZaak
-import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.flowable.ZaakVariabelenService
+import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.ztc.model.createZaakType
 import org.flowable.cmmn.api.CmmnHistoryService
 import org.flowable.cmmn.api.CmmnRepositoryService
 import org.flowable.cmmn.api.CmmnRuntimeService

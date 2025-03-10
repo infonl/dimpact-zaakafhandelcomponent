@@ -13,10 +13,6 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.client.smartdocuments.model.createFile
-import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
-import net.atos.client.zgw.zrc.model.createZaak
-import net.atos.client.zgw.zrc.model.createZaakInformatieobject
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.authentication.createLoggedInUser
@@ -29,6 +25,10 @@ import net.atos.zac.identity.model.User
 import net.atos.zac.identity.model.getFullName
 import net.atos.zac.smartdocuments.SmartDocumentsService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
+import nl.info.client.smartdocuments.model.createFile
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createZaakInformatieobject
 import java.net.URI
 import java.time.ZoneOffset
 import java.time.ZonedDateTime

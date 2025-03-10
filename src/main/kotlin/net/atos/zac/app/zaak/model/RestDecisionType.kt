@@ -4,9 +4,9 @@
  */
 package net.atos.zac.app.zaak.model
 
-import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.ztc.model.generated.BesluitType
 import net.atos.zac.util.time.PeriodUtil
+import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI

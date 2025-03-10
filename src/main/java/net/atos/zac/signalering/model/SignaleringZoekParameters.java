@@ -5,12 +5,12 @@
 
 package net.atos.zac.signalering.model;
 
-import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 import static net.atos.zac.signalering.model.SignaleringSubject.DOCUMENT;
 import static net.atos.zac.signalering.model.SignaleringSubject.TAAK;
 import static net.atos.zac.signalering.model.SignaleringSubject.ZAAK;
 import static net.atos.zac.signalering.model.SignaleringTarget.GROUP;
 import static net.atos.zac.signalering.model.SignaleringTarget.USER;
+import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
 
 import java.util.Arrays;
 import java.util.Collections;

@@ -9,9 +9,9 @@ import jakarta.inject.Inject
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.generated.Ondertekening
 import net.atos.client.zgw.shared.model.audit.AuditWijziging
-import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.history.converter.addHistorieRegel
 import net.atos.zac.history.model.HistoryLine
+import nl.info.client.zgw.ztc.ZtcClientService
 import org.apache.commons.lang3.ObjectUtils
 import java.net.URI
 import java.time.LocalDate

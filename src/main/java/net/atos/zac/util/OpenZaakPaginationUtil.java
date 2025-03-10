@@ -5,7 +5,7 @@
 
 package net.atos.zac.util;
 
-import static net.atos.client.zgw.shared.ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS;
+import static nl.info.client.zgw.shared.ZGWApiService.FIRST_PAGE_NUMBER_ZGW_APIS;
 
 import java.util.List;
 

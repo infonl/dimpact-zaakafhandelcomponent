@@ -13,10 +13,7 @@ import jakarta.ws.rs.WebApplicationException
 import jakarta.xml.bind.JAXBException
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
-import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.shared.exception.ZgwRuntimeException
 import net.atos.client.zgw.shared.model.Results
-import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.app.task.model.TaakSortering
@@ -25,6 +22,9 @@ import net.atos.zac.shared.model.SorteerRichting
 import net.atos.zac.zoeken.converter.AbstractZoekObjectConverter
 import net.atos.zac.zoeken.model.zoekobject.ZoekObject
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
+import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.shared.exception.ZgwRuntimeException
+import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.util.AllOpen
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.SolrQuery

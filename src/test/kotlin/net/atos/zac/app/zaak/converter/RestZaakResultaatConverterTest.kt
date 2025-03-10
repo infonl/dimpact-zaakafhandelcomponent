@@ -10,11 +10,11 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.zrc.model.createResultaat
-import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.model.createBrondatumArchiefprocedure
-import net.atos.client.zgw.ztc.model.createResultaatType
 import net.atos.client.zgw.ztc.model.generated.AfleidingswijzeEnum
+import nl.info.client.zgw.model.createResultaat
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createBrondatumArchiefprocedure
+import nl.info.client.zgw.ztc.model.createResultaatType
 import java.net.URI
 import java.util.UUID
 

@@ -5,17 +5,17 @@
 package net.atos.zac.history
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel
-import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Objecttype
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
-import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.history.converter.ZaakHistoryPartialUpdateConverter
 import net.atos.zac.history.model.HistoryAction
 import net.atos.zac.history.model.HistoryLine
+import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.util.asMapWithKeyOfString
 import nl.info.zac.util.getTypedValue
 import nl.info.zac.util.stringProperty
