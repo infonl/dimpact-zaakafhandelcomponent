@@ -193,6 +193,7 @@ services:
     depends_on:
       objecten-api-database:
         condition: service_healthy
+    profiles: [ "objecten", "itest" ]
 
   objecten-api-database:
     image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
@@ -209,6 +210,7 @@ services:
       - POSTGRES_USER=objects
       - POSTGRES_PASSWORD=objects
       - POSTGRES_DB=objects
+    profiles: [ "objecten", "itest" ]
 
   objecten-api-import:
     image: docker.io/maykinmedia/objects-api:2.4.4@sha256:2980ce1b62c4ae9575003a694c700e06d0ed77a55e8214a4984aded2d9e7d8c4
@@ -222,6 +224,7 @@ services:
     depends_on:
       objecten-api.local:
         condition: service_healthy
+    profiles: [ "objecten", "itest" ]
 
   solr:
     image: docker.io/solr:9.7.0-slim@sha256:5eb3e2e6791020c6d098514594bc6bd16f2a95a7df0f855801af6f5af98169f5
