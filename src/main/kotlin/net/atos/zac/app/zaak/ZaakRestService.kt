@@ -314,7 +314,7 @@ class ZaakRestService @Inject constructor(
         with(policyService.readZaakRechten(zaak)) {
             assertPolicy(wijzigen)
             if (zaak.einddatumGepland != restZaakEditMetRedenGegevens.zaak.einddatumGepland ||
-                !zaak.uiterlijkeEinddatumAfdoening.isEqual(restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening)
+                zaak.uiterlijkeEinddatumAfdoening != restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening
             ) {
                 assertPolicy(verlengenDoorlooptijd)
             }
