@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, Output } from "@angular/core";
 import { Klant } from "../../model/klanten/klant";
 
 @Component({
@@ -11,12 +11,10 @@ import { Klant } from "../../model/klanten/klant";
   templateUrl: "./klant-zoek.component.html",
   styleUrls: ["./klant-zoek.component.less"],
 })
-export class KlantZoekComponent implements OnInit {
+export class KlantZoekComponent {
   @Output() klant = new EventEmitter<Klant>();
 
   constructor() {}
-
-  ngOnInit(): void {}
 
   klantGeselecteerd(klant: Klant): void {
     this.klant.emit(klant);

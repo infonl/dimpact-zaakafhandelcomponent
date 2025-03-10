@@ -146,9 +146,11 @@ export class MailCreateComponent implements OnInit {
               "actie.initiator.email.toevoegen",
               new Subject<void>(),
             );
-            this.ontvangerFormField.icons
-              ? this.ontvangerFormField.icons.push(initiatorToevoegenIcon)
-              : (this.ontvangerFormField.icons = [initiatorToevoegenIcon]);
+            if (Array.isArray(this.ontvangerFormField.icons)) {
+              this.ontvangerFormField.icons.push(initiatorToevoegenIcon);
+            } else {
+              this.ontvangerFormField.icons = [initiatorToevoegenIcon];
+            }
             initiatorToevoegenIcon.iconClicked.subscribe(() => {
               this.ontvangerFormField.value(gegevens.emailadres);
             });
