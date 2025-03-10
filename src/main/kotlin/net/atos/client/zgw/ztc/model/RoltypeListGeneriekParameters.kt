@@ -1,21 +1,22 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
+ * SPDX-FileCopyrightText: 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.client.zgw.ztc.model
 
 import jakarta.ws.rs.QueryParam
+import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import java.net.URI
 
-class RoltypeListParameters(
+class RoltypeListGeneriekParameters(
     private val zaaktype: URI,
-    private val omschrijving: String? = null
+    private val omschrijvingGeneriek: OmschrijvingGeneriekEnum? = null
 ) : AbstractZtcListParameters() {
     /**
      * Algemeen gehanteerde omschrijving van de aard van de ROL.
      */
-    @QueryParam("omschrijving")
-    fun getOmschrijving() = omschrijving?.toString()
+    @QueryParam("omschrijvingGeneriek")
+    fun getOmschrijvingGeneriek() = omschrijvingGeneriek?.toString()
 
     /**
      * URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken kunnen zijn.

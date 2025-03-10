@@ -254,13 +254,13 @@
       },
       "betrokkenen": [
         {
-          "inpBsn": "999993896",
+          "inpBsn": "111222333",
           "rolOmschrijvingGeneriek": "initiator",
           "indicatieMachtiging": "gemachtigde",
           "indicatieCorrespondentie": true
         },
         {
-          "inpBsn": "999992958",
+          "inpBsn": "222333444",
           "rolOmschrijvingGeneriek": "mede_initiator",
           "indicatieMachtiging": "machtiginggever",
           "indicatieCorrespondentie": false
@@ -275,7 +275,7 @@
         "bedrag": 19.2,
         "status": "niet_geslaagd",
         "transactieId": "123456784",
-        "transactiedatumtijd": "2021-04-25T21:30:05+00",
+        "transactiedatumtijd": "2021-04-25T21:30:05.123+00:00",
         "statusCode": "5",
         "melding": "Saldo tekort"
       },
@@ -298,7 +298,7 @@
           "type": "string",
           "minLength": 9,
           "maxLength": 9,
-          "examples": ["999993896"]
+          "examples": ["111222333"]
         },
         "innNnpId": {
           "title": "Inn nnp id",
@@ -339,6 +339,11 @@
             "mede_initiator"
           ]
         },
+        "roltypeOmschrijving": {
+          "title": "Roltype omschrijving",
+          "description": "Omschrijving van de aard van de rol van de betrokkene",
+          "type": "string"
+        },
         "indicatieMachtiging": {
           "title": "Indicatie machtiging",
           "description": "Uitleg bij mogelijke waarden: `gemachtigde` - Betrokkene is door een andere betrokkene gemachtigd om namens hem of haar te handelen. * `machtiginggever` - Betrokkene heeft een andere betrokkene gemachtigd om namens hem of haar te handelen",
@@ -356,10 +361,19 @@
           "required": ["inpBsn", "rolOmschrijvingGeneriek"]
         },
         {
+          "required": ["inpBsn", "roltypeOmschrijving"]
+        },
+        {
           "required": ["innNnpId", "rolOmschrijvingGeneriek"]
         },
         {
+          "required": ["innNnpId", "roltypeOmschrijving"]
+        },
+        {
           "required": ["vestigingsNummer", "rolOmschrijvingGeneriek"]
+        },
+        {
+          "required": ["vestigingsNummer", "roltypeOmschrijving"]
         },
         {
           "required": [
@@ -368,7 +382,16 @@
           ]
         },
         {
+          "required": [
+            "organisatorischeEenheidIdentificatie",
+            "roltypeOmschrijving"
+          ]
+        },
+        {
           "required": ["medewerkerIdentificatie", "rolOmschrijvingGeneriek"]
+        },
+        {
+          "required": ["medewerkerIdentificatie", "roltypeOmschrijving"]
         }
       ]
     }

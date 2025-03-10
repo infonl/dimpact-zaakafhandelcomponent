@@ -849,27 +849,27 @@
                 "betrokkenen" : [
                     {
                         "inpBsn" : "999993896",
-                        "rolOmschrijvingGeneriek" : "initiator",
+                        "rolOmschrijving" : "initiator",
                         "indicatieMachtiging" : "gemachtigde",
                         "indicatieCorrespondentie" : true
                     },
                     {
                         "inpBsn" : "999992958",
-                        "rolOmschrijvingGeneriek" : "mede_initiator",
+                        "rolOmschrijving" : "mede_initiator",
                         "indicatieMachtiging" : "machtiginggever",
                         "indicatieCorrespondentie" : false
                     },
                     {
                         "inpBsn" : "999991838",
-                        "rolOmschrijvingGeneriek" : "belanghebbende"
+                        "rolOmschrijving" : "belanghebbende"
                     },
                     {
                         "inpBsn" : "999992958",
-                        "rolOmschrijvingGeneriek" : "belanghebbende"
+                        "rolOmschrijving" : "belanghebbende"
                     },
                     {
                         "medewerkerIdentificatie" : "MDW123",
-                        "rolOmschrijvingGeneriek" : "klantcontacter"
+                        "rolOmschrijving" : "klantcontacter"
                     }
                 ],
                 "betaling" : {
@@ -917,23 +917,23 @@
                 "betrokkenen" : [
                     {
                         "vestigingsNummer" : "000012345678",
-                        "rolOmschrijvingGeneriek" : "initiator"
+                        "rolOmschrijving" : "initiator"
                     },
                     {
                         "inpBsn" : "999991838",
-                        "rolOmschrijvingGeneriek" : "mede_initiator"
+                        "rolOmschrijving" : "mede_initiator"
                     },
                     {
                         "inpBsn" : "999991838",
-                        "rolOmschrijvingGeneriek" : "belanghebbende"
+                        "rolOmschrijving" : "belanghebbende"
                     },
                     {
                         "inpBsn" : "999992958",
-                        "rolOmschrijvingGeneriek" : "belanghebbende"
+                        "rolOmschrijving" : "belanghebbende"
                     },
                     {
                         "inpBsn" : "999992958",
-                        "rolOmschrijvingGeneriek" : "adviseur"
+                        "rolOmschrijving" : "adviseur"
                     }
                 ],
                 "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e"

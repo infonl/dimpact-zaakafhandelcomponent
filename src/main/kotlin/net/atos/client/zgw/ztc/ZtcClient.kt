@@ -20,6 +20,7 @@ import net.atos.client.zgw.ztc.model.BesluittypeListParameters
 import net.atos.client.zgw.ztc.model.CatalogusListParameters
 import net.atos.client.zgw.ztc.model.EigenschapListParameters
 import net.atos.client.zgw.ztc.model.ResultaattypeListParameters
+import net.atos.client.zgw.ztc.model.RoltypeListGeneriekParameters
 import net.atos.client.zgw.ztc.model.RoltypeListParameters
 import net.atos.client.zgw.ztc.model.StatustypeListParameters
 import net.atos.client.zgw.ztc.model.ZaaktypeInformatieobjecttypeListParameters
@@ -81,6 +82,10 @@ interface ZtcClient {
     @GET
     @Path("roltypen")
     fun roltypeList(@BeanParam parameters: RoltypeListParameters? = null): Results<RolType>
+
+    @GET
+    @Path("roltypen")
+    fun roltypeListGeneriek(@BeanParam parameters: RoltypeListGeneriekParameters? = null): Results<RolType>
 
     @GET
     @Path("statustypen")

@@ -20,6 +20,7 @@ import net.atos.client.zgw.ztc.exception.RoltypeNotFoundException
 import net.atos.client.zgw.ztc.model.BesluittypeListParameters
 import net.atos.client.zgw.ztc.model.CatalogusListParameters
 import net.atos.client.zgw.ztc.model.ResultaattypeListParameters
+import net.atos.client.zgw.ztc.model.RoltypeListGeneriekParameters
 import net.atos.client.zgw.ztc.model.RoltypeListParameters
 import net.atos.client.zgw.ztc.model.StatustypeListParameters
 import net.atos.client.zgw.ztc.model.ZaaktypeInformatieobjecttypeListParameters
@@ -105,6 +106,8 @@ class ZtcClientService @Inject constructor(
         private val uuidToBesluitTypeCache: Cache<UUID, BesluitType> = createCache("UUID -> BesluitType")
         private val uriToBesluitTypeListCache: Cache<URI, List<BesluitType>> = createCache("URI -> List<BesluitType>")
 
+        private val uriOmschrijvingEnumToRolTypeCache: Cache<String, List<RolType>> =
+            createCache("URI & OmschrijvingEnumT -> RolType")
         private val uriOmschrijvingGeneriekEnumToRolTypeCache: Cache<String, List<RolType>> =
             createCache("URI & OmschrijvingGeneriekEnumT -> RolType")
         private val uriToRolTypeListCache: Cache<URI, List<RolType>> = createCache("URI -> List<RolType>")
@@ -286,32 +289,45 @@ class ZtcClientService @Inject constructor(
     }
 
     /**
+     * Find all [RolType]s for a [ZaakType] and a role type description.
+     *
+     * @param zaaktypeURI thr URI of the zaak type
+     * @param roltypeOmschrijving the role type description
+     * @return the list of [RolType]s; may be empty if no rol types have been defined for the zaak type
+     * and generic role type description.
+     */
+    fun findRoltypen(zaaktypeURI: URI, roltypeOmschrijving: String?): List<RolType> =
+        uriOmschrijvingEnumToRolTypeCache.get("$zaaktypeURI$roltypeOmschrijving") {
+            ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI, roltypeOmschrijving)).results
+        }
+
+    /**
      * Find all [RolType]s for a [ZaakType] and generic role type description.
      *
      * @param zaaktypeURI thr URI of the zaak type
-     * @param omschrijvingGeneriekEnum [OmschrijvingG
+     * @param omschrijvingGeneriekEnum the generic role type description
      * @return the list of [RolType]s; may be empty if no rol types have been defined for the zaak type
      * and generic role type description.
      */
     fun findRoltypen(zaaktypeURI: URI, omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum): List<RolType> =
         uriOmschrijvingGeneriekEnumToRolTypeCache.get("$zaaktypeURI$omschrijvingGeneriekEnum") {
-            ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum)).results
+            ztcClient.roltypeListGeneriek(RoltypeListGeneriekParameters(zaaktypeURI, omschrijvingGeneriekEnum)).results
         }
 
     /**
-     * Retrieves the [RolType] of the specified zaak type and generic role type description.
+     * Retrieves the [RolType] of the specified zaak type and a role type description.
      * If there are multiple role types found the first one is returned.
      * This method should only be used for role type descriptions for which you are sure there is one and only
      * one role type defined in the zaaktype.
      *
      * @param zaaktypeURI URI of the zaak type
-     * @param omschrijvingGeneriekEnum the generic role type description
+     * @param roltypeOmschrijving the role type description
      * @return [RolType] the first role type for the zaak type and generic role type description
      * @throws RoltypeNotFoundException if no role type could be found
      */
     fun readRoltype(zaaktypeURI: URI, omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum): RolType =
         uriOmschrijvingGeneriekEnumToRolTypeCache.get("$zaaktypeURI$omschrijvingGeneriekEnum") {
-            ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum)).results
+            ztcClient.roltypeListGeneriek(RoltypeListGeneriekParameters(zaaktypeURI, omschrijvingGeneriekEnum)).results
         }.firstOrNull() ?: throw
             RoltypeNotFoundException(
                 "Roltype with aard '$omschrijvingGeneriekEnum' not found for zaaktype '$zaaktypeURI':"
