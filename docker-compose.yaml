@@ -711,6 +711,8 @@ services:
     ports:
       - "8080:8080"
       - "9990:9990"
+    # only for integration testing purpose, override to root user
+    user: root
     volumes:
       # mount volumes for (optional) JaCoCo test coverage for our integration tests
       # see: https://blog.akquinet.de/2018/09/06/test-coverage-for-containerized-java-apps/
