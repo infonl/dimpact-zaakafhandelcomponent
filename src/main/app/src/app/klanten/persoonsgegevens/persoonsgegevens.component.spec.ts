@@ -23,7 +23,7 @@ const mockTranslateService = {
 
 const testPerson: GeneratedType<"RestPersoon"> = {
   bsn: "999993033",
-  indicaties: ["OPSCHORTING_BIJHOUDING", "NIET_INGEZETENE"],
+  indicaties: [],
 };
 
 describe("PersoonsgegevensComponent", () => {
