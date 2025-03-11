@@ -50,7 +50,7 @@ export class MedewerkerGroepComponent
     this.initGroepen();
 
     this.subscriptions$.push(
-      this.data.groep.valueChanges.subscribe((value) => {
+      this.data.groep.valueChanges.subscribe(() => {
         if (!this.data.groep.dirty) {
           return;
         }

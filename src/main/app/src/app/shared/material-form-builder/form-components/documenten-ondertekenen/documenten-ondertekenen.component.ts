@@ -6,6 +6,7 @@
 import { Component, DoCheck, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { InformatieObjectenService } from "../../../../informatie-objecten/informatie-objecten.service";
+import { GeneratedType } from "../../../utils/generated-types";
 import { DocumentenLijstComponent } from "../documenten-lijst/documenten-lijst.component";
 import { DocumentenOndertekenenFormField } from "./documenten-ondertekenen-form-field";
 
@@ -38,15 +39,21 @@ export class DocumentenOndertekenenComponent
     return false;
   }
 
-  selectDisabled(document): boolean {
+  selectDisabled(
+    document: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ): boolean {
     return (
       this.data.readonly ||
-      !document.rechten.ondertekenen ||
-      document.ondertekening
+      (document.rechten && !document.rechten?.ondertekenen) ||
+      Boolean(document.ondertekening)
     );
   }
 
-  isSelected(document): boolean {
-    return this.selection.isSelected(document) || document.ondertekening;
+  isSelected(
+    document: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ): boolean {
+    return (
+      this.selection.isSelected(document) || Boolean(document.ondertekening)
+    );
   }
 }

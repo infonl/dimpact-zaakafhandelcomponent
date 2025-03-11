@@ -30,6 +30,7 @@ import nl.info.client.zgw.ztc.exception.RoltypeNotFoundException
 import nl.info.client.zgw.ztc.model.BesluittypeListParameters
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
 import nl.info.client.zgw.ztc.model.ResultaattypeListParameters
+import nl.info.client.zgw.ztc.model.RoltypeListGeneriekParameters
 import nl.info.client.zgw.ztc.model.RoltypeListParameters
 import nl.info.client.zgw.ztc.model.StatustypeListParameters
 import nl.info.client.zgw.ztc.model.ZaaktypeInformatieobjecttypeListParameters
@@ -105,6 +106,8 @@ class ZtcClientService @Inject constructor(
         private val uuidToBesluitTypeCache: Cache<UUID, BesluitType> = createCache("UUID -> BesluitType")
         private val uriToBesluitTypeListCache: Cache<URI, List<BesluitType>> = createCache("URI -> List<BesluitType>")
 
+        private val uriOmschrijvingEnumToRolTypeCache: Cache<String, List<RolType>> =
+            createCache("URI & OmschrijvingEnumT -> RolType")
         private val uriOmschrijvingGeneriekEnumToRolTypeCache: Cache<String, List<RolType>> =
             createCache("URI & OmschrijvingGeneriekEnumT -> RolType")
         private val uriToRolTypeListCache: Cache<URI, List<RolType>> = createCache("URI -> List<RolType>")
@@ -286,16 +289,33 @@ class ZtcClientService @Inject constructor(
     }
 
     /**
+     * Find all [RolType]s for a [ZaakType] and a role type description.
+     *
+     * @param zaaktypeURI thr URI of the zaak type
+     * @param roltypeOmschrijving the role type description
+     * @return the list of [RolType]s; may be empty if no rol types have been defined for the zaak type
+     * and generic role type description.
+     */
+    fun findRoltypen(zaaktypeURI: URI, roltypeOmschrijving: String?): List<RolType> =
+        uriOmschrijvingEnumToRolTypeCache.get("$zaaktypeURI$roltypeOmschrijving") {
+            ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI)).results.filter {
+                // No query parameter is available for roltypeOmschrijving, so we filter here. See:
+                // https://github.com/open-zaak/open-zaak/issues/1933
+                it.omschrijving == roltypeOmschrijving
+            }
+        }
+
+    /**
      * Find all [RolType]s for a [ZaakType] and generic role type description.
      *
      * @param zaaktypeURI thr URI of the zaak type
-     * @param omschrijvingGeneriekEnum [OmschrijvingG
+     * @param omschrijvingGeneriekEnum the generic role type description
      * @return the list of [RolType]s; may be empty if no rol types have been defined for the zaak type
      * and generic role type description.
      */
     fun findRoltypen(zaaktypeURI: URI, omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum): List<RolType> =
         uriOmschrijvingGeneriekEnumToRolTypeCache.get("$zaaktypeURI$omschrijvingGeneriekEnum") {
-            ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum)).results
+            ztcClient.roltypeListGeneriek(RoltypeListGeneriekParameters(zaaktypeURI, omschrijvingGeneriekEnum)).results
         }
 
     /**
@@ -311,7 +331,7 @@ class ZtcClientService @Inject constructor(
      */
     fun readRoltype(zaaktypeURI: URI, omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum): RolType =
         uriOmschrijvingGeneriekEnumToRolTypeCache.get("$zaaktypeURI$omschrijvingGeneriekEnum") {
-            ztcClient.roltypeList(RoltypeListParameters(zaaktypeURI, omschrijvingGeneriekEnum)).results
+            ztcClient.roltypeListGeneriek(RoltypeListGeneriekParameters(zaaktypeURI, omschrijvingGeneriekEnum)).results
         }.firstOrNull() ?: throw
             RoltypeNotFoundException(
                 "Roltype with aard '$omschrijvingGeneriekEnum' not found for zaaktype '$zaaktypeURI':"
@@ -412,6 +432,7 @@ class ZtcClientService @Inject constructor(
     }
 
     fun clearRoltypeCache(): String {
+        uriOmschrijvingEnumToRolTypeCache.invalidateAll()
         uriOmschrijvingGeneriekEnumToRolTypeCache.invalidateAll()
         uriToRolTypeListCache.invalidateAll()
         rolTypeListCache.invalidateAll()
