@@ -181,15 +181,14 @@ class ProductaanvraagService @Inject constructor(
         var initiatorAdded = false
         productaanvraag.betrokkenen?.forEach {
             initiatorAdded = if (it.roltypeOmschrijving != null) {
-                addBetrokkenenWithRole(productaanvraag, it, initiatorAdded, zaak)
+                addBetrokkenenWithRole(it, initiatorAdded, zaak)
             } else {
-                addBetrokkenenWithGenericRole(productaanvraag, it, initiatorAdded, zaak)
+                addBetrokkenenWithGenericRole(it, initiatorAdded, zaak)
             }
         }
     }
 
     private fun addBetrokkenenWithRole(
-        productaanvraag: ProductaanvraagDimpact,
         betrokkene: Betrokkene,
         initiatorAdded: Boolean,
         zaak: Zaak
@@ -198,8 +197,8 @@ class ProductaanvraagService @Inject constructor(
             Betrokkene.RolOmschrijvingGeneriek.INITIATOR.toString() -> {
                 if (initiatorAdded) {
                     LOG.warning(
-                        "Multiple initiator betrokkenen found in productaanvraag with aanvraaggegevens: " +
-                            "${productaanvraag.aanvraaggegevens}. Only the first one will be used."
+                        "Multiple initiator betrokkenen found in productaanvraag for zaak '$zaak'. " +
+                                "Only the first one will be used."
                     )
                 } else {
                     addBetrokkene(betrokkene, OmschrijvingGeneriekEnum.INITIATOR.toString(), zaak)
@@ -222,7 +221,6 @@ class ProductaanvraagService @Inject constructor(
     }
 
     private fun addBetrokkenenWithGenericRole(
-        productaanvraag: ProductaanvraagDimpact,
         betrokkene: Betrokkene,
         initiatorAdded: Boolean,
         zaak: Zaak
@@ -243,8 +241,8 @@ class ProductaanvraagService @Inject constructor(
             Betrokkene.RolOmschrijvingGeneriek.INITIATOR -> {
                 if (initiatorAdded) {
                     LOG.warning(
-                        "Multiple initiator betrokkenen found in productaanvraag with aanvraaggegevens: " +
-                            "${productaanvraag.aanvraaggegevens}. Only the first one will be used."
+                        "Multiple initiator betrokkenen found in productaanvraag for zaak '$zaak'. " +
+                                "Only the first one will be used."
                     )
                 } else {
                     addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.INITIATOR, zaak)
@@ -267,8 +265,7 @@ class ProductaanvraagService @Inject constructor(
             else -> {
                 LOG.warning(
                     "Betrokkene with generic role '${betrokkene.rolOmschrijvingGeneriek}' is not supported in the " +
-                        "mapping from a productaanvraag. No role created for productaanvraag with " +
-                        "aanvraaggegevens: '${productaanvraag.aanvraaggegevens}'."
+                        "mapping from a productaanvraag. No role created for zaak '$zaak'."
                 )
             }
         }
@@ -306,7 +303,7 @@ class ProductaanvraagService @Inject constructor(
         roltypeOmschrijving: String?,
         generiek: Boolean = false
     ) {
-        val prefix = if (generiek) "generic" else ""
+        val prefix = if (generiek) "generic " else ""
 
         if (types.isEmpty()) {
             LOG.warning(
