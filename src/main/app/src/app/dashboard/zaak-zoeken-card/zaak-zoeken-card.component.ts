@@ -12,7 +12,7 @@ import { ZakenMijnDatasource } from "../../zaken/zaken-mijn/zaken-mijn-datasourc
 import { SorteerVeld } from "../../zoeken/model/sorteer-veld";
 import { ZoekObject } from "../../zoeken/model/zoek-object";
 import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
-import { ZoekenService } from "../../zoeken/zoeken.service";
+import { SearchService } from "../../zoeken/search.service";
 import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 
 @Component({
@@ -52,7 +52,7 @@ export class ZaakZoekenCardComponent extends DashboardCardComponent<ZoekObject> 
   }));
 
   constructor(
-    private zoekenService: ZoekenService,
+    private zoekenService: SearchService,
     protected identityService: IdentityService,
     protected websocketService: WebsocketService,
   ) {

@@ -33,8 +33,8 @@ import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.zac.documenten.model.InboxDocument;
 import net.atos.zac.documenten.model.InboxDocumentListParameters;
+import net.atos.zac.search.model.DatumRange;
 import net.atos.zac.shared.model.SorteerRichting;
-import net.atos.zac.zoeken.model.DatumRange;
 
 @ApplicationScoped
 @Transactional

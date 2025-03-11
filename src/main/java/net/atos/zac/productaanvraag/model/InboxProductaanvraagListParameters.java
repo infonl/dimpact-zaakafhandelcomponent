@@ -5,8 +5,8 @@
 
 package net.atos.zac.productaanvraag.model;
 
+import net.atos.zac.search.model.DatumRange;
 import net.atos.zac.shared.model.ListParameters;
-import net.atos.zac.zoeken.model.DatumRange;
 
 
 public class InboxProductaanvraagListParameters extends ListParameters {

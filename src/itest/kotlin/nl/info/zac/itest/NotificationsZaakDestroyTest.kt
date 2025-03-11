@@ -35,7 +35,7 @@ import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
 /**
- * This test creates a zaak and a task and because we do not want this test to impact e.g. [ZoekenRESTServiceTest]
+ * This test creates a zaak and a task and because we do not want this test to impact e.g. [SearchRestServiceTest]
  * we run it afterward.
  */
 @Order(TEST_SPEC_ORDER_AFTER_SEARCH)

@@ -56,6 +56,8 @@ import net.atos.zac.flowable.util.TaskUtil
 import net.atos.zac.formulieren.FormulierRuntimeService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
+import net.atos.zac.search.IndexingService
+import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringType
@@ -63,8 +65,6 @@ import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.task.TaskService
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEventType
-import net.atos.zac.zoeken.IndexingService
-import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.util.AllOpen

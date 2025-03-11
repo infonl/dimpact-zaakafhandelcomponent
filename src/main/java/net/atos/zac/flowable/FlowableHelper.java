@@ -13,7 +13,7 @@ import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.zac.event.EventingService;
 import net.atos.zac.flowable.task.TaakVariabelenService;
 import net.atos.zac.identity.IdentityService;
-import net.atos.zac.zoeken.IndexingService;
+import net.atos.zac.search.IndexingService;
 import nl.info.client.zgw.shared.ZGWApiService;
 import nl.info.client.zgw.ztc.ZtcClientService;
 

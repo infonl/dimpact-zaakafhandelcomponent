@@ -27,7 +27,7 @@ import { ZoekObjectType } from "../../zoeken/model/zoek-object-type";
 import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
 import { ZoekVeld } from "../../zoeken/model/zoek-veld";
-import { ZoekenService } from "../../zoeken/zoeken.service";
+import { SearchService } from "../../zoeken/search.service";
 import { KlantenService } from "../klanten.service";
 
 @Component({
@@ -74,7 +74,7 @@ export class KlantZakenTabelComponent
 
   constructor(
     private utilService: UtilService,
-    private zoekenService: ZoekenService,
+    private zoekenService: SearchService,
     private klantenService: KlantenService,
   ) {}
 

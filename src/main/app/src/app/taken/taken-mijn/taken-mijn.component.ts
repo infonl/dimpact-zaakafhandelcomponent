@@ -18,7 +18,7 @@ import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/colu
 import { TextIcon } from "../../shared/edit/text-icon";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
-import { ZoekenService } from "../../zoeken/zoeken.service";
+import { SearchService } from "../../zoeken/search.service";
 import { TakenService } from "../taken.service";
 
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
@@ -57,7 +57,7 @@ export class TakenMijnComponent
     private takenService: TakenService,
     public utilService: UtilService,
     private identityService: IdentityService,
-    private zoekenService: ZoekenService,
+    private zoekenService: SearchService,
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
   ) {
     super();
