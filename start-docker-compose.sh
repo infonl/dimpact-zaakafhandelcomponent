@@ -46,7 +46,7 @@ profiles=()
 
 [ -f fix-permissions.sh ] && ./fix-permissions.sh
 
-while getopts ':dhzblmtoa' OPTION; do
+while getopts ':dhzblmtona' OPTION; do
   case $OPTION in
     d)
       echo "Deleting local Docker volume data folder: '$volumeDataFolder'.."
