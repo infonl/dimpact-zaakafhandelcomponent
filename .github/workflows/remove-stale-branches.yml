@@ -62,7 +62,7 @@ jobs:
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": "I have identified some branches on the ZAC repository that seem stale and could probably be removed:"
+                  "text": "I have identified some <https://github.com/${{ github.repository }}/branches|branches> on `${{ github.event.repository.name }}` that seem stale and could probably be removed:"
                 }
               },
               {
@@ -89,7 +89,7 @@ jobs:
                 "elements": [
                   {
                     "type": "mrkdwn",
-                    "text": "Powered by GitHub Actions | <https://github.com/infonl/dimpact-provisioning|View Workflow>"
+                    "text": "Powered by GitHub Actions | <https://github.com/${{ github.event.repository.name }}|View Workflow>"
                   }
                 ]
               }
