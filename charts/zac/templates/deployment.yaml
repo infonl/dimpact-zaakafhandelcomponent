@@ -121,6 +121,7 @@ spec:
           args:
             - run
             - --server
+            - --addr=0.0.0.0:8181
             - --ignore=.*  # exclude hidden dirs created by Kubernetes
           livenessProbe:
             httpGet:
