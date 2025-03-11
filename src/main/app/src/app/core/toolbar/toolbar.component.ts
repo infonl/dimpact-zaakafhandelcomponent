@@ -17,7 +17,7 @@ import { NavigationService } from "../../shared/navigation/navigation.service";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { SignaleringenService } from "../../signaleringen.service";
-import { SearchService } from "../../zoeken/search.service";
+import { ZoekenService } from "../../zoeken/zoeken.service";
 import { UtilService } from "../service/util.service";
 import { ObjectType } from "../websocket/model/object-type";
 import { Opcode } from "../websocket/model/opcode";
@@ -48,7 +48,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     public utilService: UtilService,
     public navigation: NavigationService,
     private identityService: IdentityService,
-    private zoekenService: SearchService,
+    private zoekenService: ZoekenService,
     private signaleringenService: SignaleringenService,
     private websocketService: WebsocketService,
     private policyService: PolicyService,

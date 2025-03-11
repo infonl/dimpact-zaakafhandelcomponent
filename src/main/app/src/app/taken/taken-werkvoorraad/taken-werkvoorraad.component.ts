@@ -36,7 +36,7 @@ import { TextIcon } from "../../shared/edit/text-icon";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
-import { SearchService } from "../../zoeken/search.service";
+import { ZoekenService } from "../../zoeken/zoeken.service";
 import { TakenVerdelenDialogComponent } from "../taken-verdelen-dialog/taken-verdelen-dialog.component";
 import { TakenVrijgevenDialogComponent } from "../taken-vrijgeven-dialog/taken-vrijgeven-dialog.component";
 import { TakenService } from "../taken.service";
@@ -83,7 +83,7 @@ export class TakenWerkvoorraadComponent
     public utilService: UtilService,
     private identityService: IdentityService,
     public dialog: MatDialog,
-    private zoekenService: SearchService,
+    private zoekenService: ZoekenService,
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
     private translateService: TranslateService,
     private batchProcessService: BatchProcessService,

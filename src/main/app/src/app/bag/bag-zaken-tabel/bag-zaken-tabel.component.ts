@@ -26,7 +26,7 @@ import { ZoekObjectType } from "../../zoeken/model/zoek-object-type";
 import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
 import { ZoekVeld } from "../../zoeken/model/zoek-veld";
-import { SearchService } from "../../zoeken/search.service";
+import { ZoekenService } from "../../zoeken/zoeken.service";
 
 @Component({
   selector: "zac-bag-zaken-tabel",
@@ -62,7 +62,7 @@ export class BagZakenTabelComponent
 
   constructor(
     private utilService: UtilService,
-    private zoekenService: SearchService,
+    private zoekenService: ZoekenService,
   ) {}
 
   ngOnInit(): void {

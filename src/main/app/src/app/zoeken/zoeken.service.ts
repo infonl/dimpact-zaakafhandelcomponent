@@ -15,7 +15,7 @@ import { ZoekResultaat } from "./model/zoek-resultaat";
 @Injectable({
   providedIn: "root",
 })
-export class SearchService {
+export class ZoekenService {
   private basepath = "/rest/zoeken";
   public trefwoorden$ = new Subject<string>();
   public hasSearched$ = new Subject<boolean>();

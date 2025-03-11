@@ -12,7 +12,7 @@ import { TakenMijnDatasource } from "../../taken/taken-mijn/taken-mijn-datasourc
 import { SorteerVeld } from "../../zoeken/model/sorteer-veld";
 import { ZoekObject } from "../../zoeken/model/zoek-object";
 import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
-import { SearchService } from "../../zoeken/search.service";
+import { ZoekenService } from "../../zoeken/zoeken.service";
 import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
 
 @Component({
@@ -52,7 +52,7 @@ export class TaakZoekenCardComponent extends DashboardCardComponent<ZoekObject> 
   }));
 
   constructor(
-    private zoekenService: SearchService,
+    private zoekenService: ZoekenService,
     protected identityService: IdentityService,
     protected websocketService: WebsocketService,
   ) {
