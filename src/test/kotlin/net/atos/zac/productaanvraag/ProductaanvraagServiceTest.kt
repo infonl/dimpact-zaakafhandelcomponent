@@ -18,20 +18,12 @@ import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
 import net.atos.client.or.`object`.model.createObjectRecord
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
-import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Point
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.client.zgw.zrc.model.createZaak
-import net.atos.client.zgw.zrc.model.createZaakInformatieobject
-import net.atos.client.zgw.zrc.model.createZaakobjectProductaanvraag
-import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.model.createRolType
-import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.admin.ZaakafhandelParameterService
@@ -43,6 +35,14 @@ import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
 import net.atos.zac.productaanvraag.model.generated.Geometry
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createZaakInformatieobject
+import nl.info.client.zgw.model.createZaakobjectProductaanvraag
+import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createRolType
+import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.test.util.createRandomStringWithAlphanumericCharacters
 import java.net.URI
 import java.util.UUID
@@ -547,7 +547,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
     }
-    given(
+    Given(
         """
         a productaanvraag-dimpact object registration object containing a list of supported betrokkenen
         including behandelaar but no initiator
@@ -614,12 +614,16 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                             "rolOmschrijvingGeneriek" to "behandelaar"
                         ),
                         mapOf(
+                            "inpBsn" to behandelaarBsn,
+                            "roltypeOmschrijving" to "Behandelaar"
+                        ),
+                        mapOf(
                             "vestigingsNummer" to belanghebbendeVestigingsnummer1,
-                            "rolOmschrijvingGeneriek" to "belanghebbende"
+                            "roltypeOmschrijving" to "Belanghebbende"
                         ),
                         mapOf(
                             "vestigingsNummer" to belanghebbendeVestigingsnummer2,
-                            "rolOmschrijvingGeneriek" to "belanghebbende"
+                            "roltypeOmschrijving" to "Belanghebbende"
                         ),
                         mapOf(
                             "inpBsn" to beslisserBsn,
@@ -635,6 +639,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         ),
                         mapOf(
                             "inpBsn" to medeInitiatorBsn,
+                            "roltypeOmschrijving" to "Medeaanvrager",
                             "rolOmschrijvingGeneriek" to "mede_initiator"
                         ),
                         mapOf(
@@ -655,15 +660,17 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         // here we simulate the case that no role types have been defined for the adviseur role
         every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.ADVISEUR) } returns emptyList()
         every {
-            ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.BELANGHEBBENDE)
+            ztcClientService.findRoltypen(any(), "Belanghebbende")
         } returns listOf(rolTypeBelanghebbende)
-        every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.BESLISSER) } returns listOf(rolTypeBeslisser)
+        every {
+            ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.BESLISSER)
+        } returns listOf(rolTypeBeslisser)
         // here we simulate the case that multiple role types have been defined for the klantcontacter role
         every {
             ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.KLANTCONTACTER)
         } returns listOf(rolTypeKlantcontacter1, rolTypeKlantcontacter2)
         every {
-            ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.MEDE_INITIATOR)
+            ztcClientService.findRoltypen(any(), "Medeaanvrager")
         } returns listOf(rolTypeMedeInitiator)
         every {
             ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.ZAAKCOORDINATOR)

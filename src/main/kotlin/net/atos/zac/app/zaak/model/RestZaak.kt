@@ -13,7 +13,7 @@ import net.atos.zac.app.identity.model.RestGroup
 import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.policy.model.RestZaakRechten
-import net.atos.zac.zoeken.model.ZaakIndicatie
+import net.atos.zac.search.model.ZaakIndicatie
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate

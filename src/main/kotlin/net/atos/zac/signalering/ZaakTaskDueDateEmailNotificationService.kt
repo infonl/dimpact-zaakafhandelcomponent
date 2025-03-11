@@ -7,28 +7,28 @@ package net.atos.zac.signalering
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
+import net.atos.zac.search.SearchService
+import net.atos.zac.search.model.DatumRange
+import net.atos.zac.search.model.DatumVeld
+import net.atos.zac.search.model.FilterVeld
+import net.atos.zac.search.model.FilterWaarde
+import net.atos.zac.search.model.ZoekParameters
+import net.atos.zac.search.model.zoekobject.ZaakZoekObject
+import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import net.atos.zac.signalering.model.Signalering
 import net.atos.zac.signalering.model.SignaleringDetail
 import net.atos.zac.signalering.model.SignaleringTarget
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringVerzendInfo
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
-import net.atos.zac.zoeken.ZoekenService
-import net.atos.zac.zoeken.model.DatumRange
-import net.atos.zac.zoeken.model.DatumVeld
-import net.atos.zac.zoeken.model.FilterVeld
-import net.atos.zac.zoeken.model.FilterWaarde
-import net.atos.zac.zoeken.model.ZoekParameters
-import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
-import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.task.api.Task
@@ -46,7 +46,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     private val configuratieService: ConfiguratieService,
     private val ztcClientService: ZtcClientService,
     private val zaakafhandelParameterService: ZaakafhandelParameterService,
-    private val zoekenService: ZoekenService,
+    private val searchService: SearchService,
     private val flowableTaskService: FlowableTaskService
 ) {
     companion object {
@@ -122,7 +122,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
      * Sends einddatum gepland zaak email notifications
      */
     private fun zaakEinddatumGeplandVerzenden(zaaktype: ZaakType, venster: Int): Int =
-        zoekenService.zoek(getZaakSignaleringTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster))
+        searchService.zoek(getZaakSignaleringTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster))
             .items
             .map { it as ZaakZoekObject }
             .filter { hasZaakSignaleringTarget(it, SignaleringDetail.STREEFDATUM) }
@@ -136,7 +136,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
         zaaktype: ZaakType,
         venster: Int
     ): Int =
-        zoekenService.zoek(getZaakSignaleringTeVerzendenZoekParameters(DatumVeld.ZAAK_FATALE_DATUM, zaaktype, venster))
+        searchService.zoek(getZaakSignaleringTeVerzendenZoekParameters(DatumVeld.ZAAK_FATALE_DATUM, zaaktype, venster))
             .items
             .map { it as ZaakZoekObject }
             .filter { hasZaakSignaleringTarget(it, SignaleringDetail.FATALE_DATUM) }
@@ -180,7 +180,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     private fun zaakEinddatumGeplandOnterechtVerzondenVerwijderen(
         zaaktype: ZaakType,
         venster: Int
-    ) = zoekenService.zoek(
+    ) = searchService.zoek(
         getZaakSignaleringLaterTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster)
     ).items.map { it as ZaakZoekObject }
         .map {
@@ -198,7 +198,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     private fun zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(
         zaaktype: ZaakType,
         venster: Int
-    ) = zoekenService.zoek(
+    ) = searchService.zoek(
         getZaakSignaleringLaterTeVerzendenZoekParameters(DatumVeld.ZAAK_FATALE_DATUM, zaaktype, venster)
     ).items.map { it as ZaakZoekObject }
         .map {

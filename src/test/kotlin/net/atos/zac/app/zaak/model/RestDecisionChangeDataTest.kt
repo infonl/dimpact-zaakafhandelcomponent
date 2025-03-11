@@ -7,8 +7,8 @@ package net.atos.zac.app.zaak.model
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import net.atos.client.zgw.brc.model.createBesluit
 import net.atos.client.zgw.brc.model.generated.VervalredenEnum
+import nl.info.client.zgw.brc.model.createBesluit
 
 class RestDecisionChangeDataTest : BehaviorSpec({
 

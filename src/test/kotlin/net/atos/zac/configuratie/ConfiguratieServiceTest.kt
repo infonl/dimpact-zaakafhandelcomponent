@@ -12,9 +12,9 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.persistence.EntityManager
-import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.model.CatalogusListParameters
 import net.atos.client.zgw.ztc.model.generated.Catalogus
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.CatalogusListParameters
 import java.net.URI
 import java.util.UUID
 

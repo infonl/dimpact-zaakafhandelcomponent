@@ -9,13 +9,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.inject.Inject;
 
-import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZrcClientService;
-import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.zac.event.EventingService;
 import net.atos.zac.flowable.task.TaakVariabelenService;
 import net.atos.zac.identity.IdentityService;
-import net.atos.zac.zoeken.IndexingService;
+import net.atos.zac.search.IndexingService;
+import nl.info.client.zgw.shared.ZGWApiService;
+import nl.info.client.zgw.ztc.ZtcClientService;
 
 /**
  * A Helper for Flowable CMMN and BPMN LifecycleListener's, Interceptors etc. in order to get access to CDI resources.

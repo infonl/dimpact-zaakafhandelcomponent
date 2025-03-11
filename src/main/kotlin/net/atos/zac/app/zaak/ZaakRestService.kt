@@ -24,10 +24,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.atos.client.or.`object`.ObjectsClientService
-import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.BetrokkeneType
@@ -40,8 +37,6 @@ import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.client.zgw.zrc.util.StatusTypeUtil
-import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.model.extensions.isNuGeldig
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_ID
 import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_REASON
@@ -106,14 +101,19 @@ import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.ProductaanvraagService
+import net.atos.zac.search.IndexingService
+import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.util.time.LocalDateUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zaak.ZaakService
-import net.atos.zac.zoeken.IndexingService
-import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
+import nl.info.client.zgw.brc.BrcClientService
+import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.collections4.CollectionUtils
@@ -312,7 +312,12 @@ class ZaakRestService @Inject constructor(
     ): RestZaak {
         val zaak = zrcClientService.readZaak(zaakUUID)
         with(policyService.readZaakRechten(zaak)) {
-            assertPolicy(wijzigen && verlengenDoorlooptijd)
+            assertPolicy(wijzigen)
+            if (zaak.einddatumGepland != restZaakEditMetRedenGegevens.zaak.einddatumGepland ||
+                zaak.uiterlijkeEinddatumAfdoening != restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening
+            ) {
+                assertPolicy(verlengenDoorlooptijd)
+            }
         }
         restZaakEditMetRedenGegevens.zaak.run {
             behandelaar?.id?.let { behandelaarId ->

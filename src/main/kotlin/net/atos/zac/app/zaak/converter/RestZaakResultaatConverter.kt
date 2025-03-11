@@ -6,9 +6,9 @@ package net.atos.zac.app.zaak.converter
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.zaak.model.RestZaakResultaat
 import net.atos.zac.app.zaak.model.toRestResultaatType
+import nl.info.client.zgw.ztc.ZtcClientService
 import java.net.URI
 
 class RestZaakResultaatConverter @Inject constructor(

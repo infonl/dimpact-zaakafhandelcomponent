@@ -28,7 +28,6 @@ import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.shared.RestPageParameters
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
@@ -51,6 +50,7 @@ import net.atos.zac.signalering.model.createSignalering
 import net.atos.zac.signalering.model.createSignaleringType
 import net.atos.zac.signalering.model.createSignaleringZoekParameters
 import net.atos.zac.websocket.event.ScreenEvent
+import nl.info.client.zgw.model.createZaak
 import java.time.ZonedDateTime
 import java.util.UUID
 

@@ -6,12 +6,12 @@
 package net.atos.zac.policy;
 
 import static net.atos.client.zgw.drc.model.generated.StatusEnum.DEFINITIEF;
-import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isHeropend;
 import static net.atos.client.zgw.zrc.util.StatusTypeUtil.isIntake;
 import static net.atos.zac.enkelvoudiginformatieobject.util.EnkelvoudigInformatieObjectCheckersKt.isSigned;
 import static net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving;
 import static net.atos.zac.flowable.util.TaskUtil.isOpen;
+import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
@@ -25,7 +25,6 @@ import net.atos.client.opa.model.RuleQuery;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.authentication.LoggedInUser;
@@ -44,11 +43,12 @@ import net.atos.zac.policy.output.OverigeRechten;
 import net.atos.zac.policy.output.TaakRechten;
 import net.atos.zac.policy.output.WerklijstRechten;
 import net.atos.zac.policy.output.ZaakRechten;
-import net.atos.zac.zoeken.model.DocumentIndicatie;
-import net.atos.zac.zoeken.model.ZaakIndicatie;
-import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject;
-import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject;
-import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
+import net.atos.zac.search.model.DocumentIndicatie;
+import net.atos.zac.search.model.ZaakIndicatie;
+import net.atos.zac.search.model.zoekobject.DocumentZoekObject;
+import net.atos.zac.search.model.zoekobject.TaakZoekObject;
+import net.atos.zac.search.model.zoekobject.ZaakZoekObject;
+import nl.info.client.zgw.ztc.ZtcClientService;
 
 @ApplicationScoped
 public class PolicyService {

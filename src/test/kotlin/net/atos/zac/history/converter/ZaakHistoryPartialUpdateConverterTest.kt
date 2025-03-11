@@ -9,10 +9,10 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.mockk
 import net.atos.client.zgw.shared.model.Bron
-import net.atos.client.zgw.shared.model.audit.createZRCAuditTrailRegel
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.generated.Wijzigingen
 import net.atos.zac.history.model.HistoryAction
+import nl.info.client.zgw.shared.model.audit.createZRCAuditTrailRegel
 import java.math.BigDecimal
 import java.net.URI
 import java.time.ZoneOffset

@@ -12,6 +12,6 @@ export class HumanTaskData {
   medewerker: GeneratedType<"RestUser">;
   fataledatum: string;
   toelichting: string;
-  taakdata: {};
+  taakdata: Record<string, unknown>;
   taakStuurGegevens: TaakStuurGegevens;
 }

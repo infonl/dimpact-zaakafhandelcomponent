@@ -9,11 +9,11 @@ import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.RelevanteZaak
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.policy.converter.RestRechtenConverter
 import net.atos.zac.app.zaak.model.RelatieType
 import net.atos.zac.app.zaak.model.RestGerelateerdeZaak
 import net.atos.zac.policy.PolicyService
+import nl.info.client.zgw.ztc.ZtcClientService
 
 class RestGerelateerdeZaakConverter @Inject constructor(
     private val zrcClientService: ZrcClientService,

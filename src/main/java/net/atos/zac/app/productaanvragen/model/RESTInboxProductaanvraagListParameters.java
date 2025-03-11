@@ -6,7 +6,7 @@
 package net.atos.zac.app.productaanvragen.model;
 
 import net.atos.zac.app.shared.RESTListParameters;
-import net.atos.zac.app.zoeken.model.RestDatumRange;
+import nl.info.zac.app.search.model.RestDatumRange;
 
 public class RESTInboxProductaanvraagListParameters extends RESTListParameters {
 

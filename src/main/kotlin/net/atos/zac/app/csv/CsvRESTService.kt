@@ -12,14 +12,14 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.zac.app.zoeken.converter.RestZoekParametersConverter
-import net.atos.zac.app.zoeken.model.RestZoekParameters
 import net.atos.zac.csv.CsvService
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
+import net.atos.zac.search.SearchService
 import net.atos.zac.util.MediaTypes
-import net.atos.zac.zoeken.ZoekenService
+import nl.info.zac.app.search.converter.RestZoekParametersConverter
+import nl.info.zac.app.search.model.RestZoekParameters
 import nl.info.zac.util.NoArgConstructor
 
 @Path("csv")
@@ -28,7 +28,7 @@ import nl.info.zac.util.NoArgConstructor
 @Singleton
 @NoArgConstructor
 class CsvRESTService @Inject constructor(
-    private val zoekenService: ZoekenService,
+    private val searchService: SearchService,
     private val restZoekParametersConverter: RestZoekParametersConverter,
     private val csvService: CsvService,
     private val policyService: PolicyService
@@ -44,7 +44,7 @@ class CsvRESTService @Inject constructor(
             }
             it
         }
-        val streamingOutput = zoekenService.zoek(zoekParameters).let {
+        val streamingOutput = searchService.zoek(zoekParameters).let {
             csvService.exportToCsv(it)
         }
         return Response.ok(streamingOutput).header("Content-Type", MediaTypes.Text.CSV.mediaType).build()

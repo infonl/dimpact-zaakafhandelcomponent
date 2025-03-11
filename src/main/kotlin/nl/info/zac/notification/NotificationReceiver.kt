@@ -16,7 +16,6 @@ import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.client.zgw.util.extractUuid
 import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.authentication.ActiveSession
 import net.atos.zac.authentication.setFunctioneelGebruiker
@@ -25,6 +24,7 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.productaanvraag.ProductaanvraagService
+import net.atos.zac.search.IndexingService
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringSubject
@@ -32,7 +32,7 @@ import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.task.TaskService
 import net.atos.zac.websocket.event.ScreenEventType
-import net.atos.zac.zoeken.IndexingService
+import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty

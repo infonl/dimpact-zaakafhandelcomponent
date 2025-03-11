@@ -15,11 +15,8 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.brc.model.generated.Besluit
-import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.client.zgw.zrc.model.generated.Resultaat
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.FormulierDefinitie
@@ -42,10 +39,13 @@ import net.atos.zac.mailtemplates.model.createMailGegevens
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
+import net.atos.zac.search.IndexingService
 import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.zaak.ZaakService
-import net.atos.zac.zoeken.IndexingService
+import nl.info.client.zgw.brc.BrcClientService
+import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.zac.exception.InputValidationFailedException
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI

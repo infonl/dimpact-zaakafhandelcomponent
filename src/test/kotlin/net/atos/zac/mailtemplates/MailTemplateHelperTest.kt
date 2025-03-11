@@ -9,17 +9,17 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.brp.BrpClientService
 import net.atos.client.kvk.KvkClientService
-import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.zrc.model.createZaak
-import net.atos.client.zgw.zrc.model.createZaakStatus
-import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.model.createStatusType
-import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.identity.IdentityService
+import nl.info.client.brp.BrpClientService
+import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createZaakStatus
+import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createStatusType
+import nl.info.client.zgw.ztc.model.createZaakType
 import java.net.URI
 import java.time.LocalDate
 

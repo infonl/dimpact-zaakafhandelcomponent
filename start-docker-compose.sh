@@ -11,7 +11,7 @@ help()
 {
    echo "Starts the ZAC Docker Compose environment using the 1Password CLI tools to retrieve secrets."
    echo
-   echo "Syntax: $0 [-d|h|z|b|l|m|t|o|a]"
+   echo "Syntax: $0 [-d|h|z|b|l|m|t|o|n|a]"
    echo
    echo "General:"
    echo "   -d     Delete local Docker volume data before starting Docker Compose."
@@ -25,7 +25,8 @@ help()
    echo "Additional components:"
    echo "   -m     Start the containers used for handling metrics and traces."
    echo "   -t     Start containers used for integration testing."
-   echo "   -o     Start OpenNotificaties."
+   echo "   -o     Start Objecten (required e.g. for the Dimpact productaanvraag flow)."
+   echo "   -n     Start OpenNotificaties."
    echo "   -a     Start OpenArchiefbeheer."
    echo
 }
@@ -45,7 +46,7 @@ profiles=()
 
 [ -f fix-permissions.sh ] && ./fix-permissions.sh
 
-while getopts ':dhzblmtoa' OPTION; do
+while getopts ':dhzblmtona' OPTION; do
   case $OPTION in
     d)
       echo "Deleting local Docker volume data folder: '$volumeDataFolder'.."
@@ -75,6 +76,9 @@ while getopts ':dhzblmtoa' OPTION; do
       profiles+=("itest")
       ;;
     o)
+      profiles+=("objecten")
+      ;;
+    n)
       profiles+=("opennotificaties")
       export OPENZAAK_NOTIFICATIONS_DISABLED=false
       ;;

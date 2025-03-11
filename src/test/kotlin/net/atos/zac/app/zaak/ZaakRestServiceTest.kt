@@ -22,12 +22,8 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.or.`object`.model.createORObject
-import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
-import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.shared.model.Archiefnominatie
-import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.AardRelatie
 import net.atos.client.zgw.zrc.model.BetrokkeneType
@@ -39,19 +35,8 @@ import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
-import net.atos.client.zgw.zrc.model.createMedewerker
-import net.atos.client.zgw.zrc.model.createOrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.createRolMedewerker
-import net.atos.client.zgw.zrc.model.createRolOrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.createZaak
-import net.atos.client.zgw.zrc.model.createZaakInformatieobject
-import net.atos.client.zgw.zrc.model.createZaakobjectOpenbareRuimte
-import net.atos.client.zgw.zrc.model.createZaakobjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
-import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.model.createRolType
-import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.ZaakafhandelParameterService.INADMISSIBLE_TERMINATION_ID
@@ -110,12 +95,27 @@ import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.productaanvraag.createProductaanvraagDimpact
+import net.atos.zac.search.IndexingService
+import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.zaak.ZaakService
-import net.atos.zac.zoeken.IndexingService
-import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
+import nl.info.client.zgw.brc.BrcClientService
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import nl.info.client.zgw.model.createMedewerker
+import nl.info.client.zgw.model.createOrganisatorischeEenheid
+import nl.info.client.zgw.model.createRolMedewerker
+import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
+import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createZaakInformatieobject
+import nl.info.client.zgw.model.createZaakobjectOpenbareRuimte
+import nl.info.client.zgw.model.createZaakobjectPand
+import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createRolType
+import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.test.date.toDate
 import org.apache.http.HttpStatus
@@ -704,19 +704,35 @@ class ZaakRestServiceTest : BehaviorSpec({
     Given("no verlengenDoorlooptijd policy") {
         val zaak = createZaak()
         val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.minusDays(10)
-        val restZaak = createRestZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate)
+        val restZaak = createRestZaak(uiterlijkeEinddatumAfdoening = newZaakFinalDate, einddatumGepland = null)
         val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaak, "change description")
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readZaakRechten(zaak) } returns createZaakRechten(verlengenDoorlooptijd = false)
 
-        When("zaak update is requested") {
+        When("zaak update is requested with a new final date") {
             val exception = shouldThrow<PolicyException> {
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
             }
 
             Then("it fails") {
                 exception.message shouldBe null
+            }
+        }
+
+        When("zaak update is requested without a new final date") {
+            val zaakWithoutDateChange = restZaak.copy(uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening)
+            every { identityService.checkIfUserIsInGroup(any(), any()) } just runs
+            every { restZaakConverter.convertToPatch(zaakWithoutDateChange) } returns zaak
+            every { restZaakConverter.toRestZaak(any()) } returns zaakWithoutDateChange
+            every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
+
+            zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens.copy(zaak = zaakWithoutDateChange))
+
+            Then("it succeeds") {
+                verify(exactly = 1) {
+                    zrcClientService.patchZaak(zaak.uuid, any(), any())
+                }
             }
         }
     }

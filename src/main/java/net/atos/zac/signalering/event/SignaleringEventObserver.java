@@ -5,7 +5,7 @@
 
 package net.atos.zac.signalering.event;
 
-import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
+import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
 
 import java.net.URI;
 import java.util.Optional;
@@ -28,7 +28,6 @@ import net.atos.client.zgw.zrc.model.RolMedewerker;
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
-import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.zac.event.AbstractEventObserver;
@@ -38,6 +37,7 @@ import net.atos.zac.identity.model.User;
 import net.atos.zac.signalering.SignaleringService;
 import net.atos.zac.signalering.model.Signalering;
 import net.atos.zac.signalering.model.SignaleringInstellingen;
+import nl.info.client.zgw.ztc.ZtcClientService;
 
 /**
  * This bean listens for SignaleringEvents and handles them.

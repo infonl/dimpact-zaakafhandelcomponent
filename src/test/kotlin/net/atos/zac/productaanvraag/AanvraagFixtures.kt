@@ -7,7 +7,6 @@ package net.atos.zac.productaanvraag
 
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
 import net.atos.zac.productaanvraag.model.generated.Betrokkene
-import net.atos.zac.productaanvraag.model.generated.Betrokkene.RolOmschrijvingGeneriek
 import net.atos.zac.productaanvraag.model.generated.Bron
 import net.atos.zac.productaanvraag.model.generated.ProductaanvraagDimpact
 import java.net.URI
@@ -16,11 +15,11 @@ import java.util.UUID
 
 fun createBetrokkene(
     inBsn: String = "dummyBsn",
-    rolOmschrijvingGeneriek: RolOmschrijvingGeneriek = RolOmschrijvingGeneriek.INITIATOR
+    roltypeOmschrijving: String = "dummyRoltypeOmschrijving",
 ) =
     Betrokkene().apply {
         this.inpBsn = inBsn
-        this.rolOmschrijvingGeneriek = rolOmschrijvingGeneriek
+        this.roltypeOmschrijving = roltypeOmschrijving
     }
 
 fun createBron(
@@ -53,12 +52,7 @@ fun createInboxProductaanvraag(
 @Suppress("LongParameterList")
 fun createProductaanvraagDimpact(
     type: String = "dummyType",
-    betrokkenen: List<Betrokkene> = listOf(
-        createBetrokkene(
-            inBsn = "dummyBsn",
-            rolOmschrijvingGeneriek = RolOmschrijvingGeneriek.INITIATOR
-        )
-    ),
+    betrokkenen: List<Betrokkene> = listOf(createBetrokkene()),
     pdfUrl: URI = URI("http://example.com/dummyPdf"),
     csvUrl: URI = URI("http://example.com/dummyCsv"),
     attachments: List<URI> = listOf(

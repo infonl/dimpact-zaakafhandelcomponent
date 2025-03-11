@@ -14,9 +14,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.client.zgw.brc.BrcClientService
-import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.admin.ZaakafhandelParameterService
@@ -41,10 +38,13 @@ import net.atos.zac.mailtemplates.MailTemplateService
 import net.atos.zac.mailtemplates.model.Mail
 import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.policy.PolicyService
+import net.atos.zac.search.IndexingService
 import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.zaak.ZaakService
-import net.atos.zac.zoeken.IndexingService
+import nl.info.client.zgw.brc.BrcClientService
+import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
