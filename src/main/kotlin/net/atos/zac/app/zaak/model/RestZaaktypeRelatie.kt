@@ -4,8 +4,8 @@
  */
 package net.atos.zac.app.zaak.model
 
-import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.ztc.model.generated.ZaakTypenRelatie
+import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI

@@ -16,8 +16,8 @@ import jakarta.json.stream.JsonGenerator
 import net.atos.client.zgw.zrc.model.GeometryCollection
 import net.atos.client.zgw.zrc.model.GeometryToBeDeleted
 import net.atos.client.zgw.zrc.model.Polygon
-import net.atos.client.zgw.zrc.model.createPoint
-import net.atos.client.zgw.zrc.model.createPoint2D
+import nl.info.client.zgw.model.createPoint
+import nl.info.client.zgw.model.createPoint2D
 import java.lang.IllegalArgumentException
 
 class GeometryJsonbSerializerTest : BehaviorSpec({

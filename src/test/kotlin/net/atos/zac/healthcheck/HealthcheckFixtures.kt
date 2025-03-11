@@ -5,9 +5,9 @@
 
 package net.atos.zac.healthcheck
 
-import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.zac.healthcheck.model.ZaaktypeInrichtingscheck
+import nl.info.client.zgw.ztc.model.createZaakType
 
 @Suppress("LongParameterList")
 fun createZaaktypeInrichtingscheck(

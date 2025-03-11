@@ -7,9 +7,9 @@ package net.atos.zac.signalering.model
 
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.zac.identity.model.Group
 import net.atos.zac.identity.model.User
+import nl.info.client.zgw.model.createZaak
 import org.flowable.task.api.TaskInfo
 import java.time.ZonedDateTime
 

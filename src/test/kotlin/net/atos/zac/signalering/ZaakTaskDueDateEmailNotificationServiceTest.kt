@@ -12,9 +12,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import net.atos.client.zgw.zrc.model.createZaak
-import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.app.zoeken.createZaakZoekObject
@@ -27,6 +24,9 @@ import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.createSignalering
 import net.atos.zac.signalering.model.createSignaleringInstellingen
 import net.atos.zac.zoeken.ZoekenService
+import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createZaakType
 import org.flowable.task.api.Task
 import java.net.URI
 import java.util.Optional

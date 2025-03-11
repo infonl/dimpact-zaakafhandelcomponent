@@ -5,14 +5,14 @@
 
 package net.atos.zac.documentcreation.model
 
-import net.atos.client.smartdocuments.model.document.AanvragerData
-import net.atos.client.smartdocuments.model.document.Data
-import net.atos.client.smartdocuments.model.document.GebruikerData
-import net.atos.client.smartdocuments.model.document.StartformulierData
-import net.atos.client.smartdocuments.model.document.TaskData
-import net.atos.client.smartdocuments.model.document.ZaakData
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.zrc.model.createZaak
+import nl.info.client.smartdocuments.model.document.AanvragerData
+import nl.info.client.smartdocuments.model.document.Data
+import nl.info.client.smartdocuments.model.document.GebruikerData
+import nl.info.client.smartdocuments.model.document.StartformulierData
+import nl.info.client.smartdocuments.model.document.TaskData
+import nl.info.client.smartdocuments.model.document.ZaakData
+import nl.info.client.zgw.model.createZaak
 import java.net.URI
 import java.time.ZonedDateTime
 

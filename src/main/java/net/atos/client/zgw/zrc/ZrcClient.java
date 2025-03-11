@@ -28,7 +28,6 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import net.atos.client.zgw.shared.exception.ZgwErrorExceptionMapper;
 import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper;
 import net.atos.client.zgw.shared.model.Results;
-import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel;
 import net.atos.client.zgw.shared.util.JsonbConfiguration;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
 import net.atos.client.zgw.zrc.exception.ZrcResponseExceptionMapper;
@@ -44,6 +43,7 @@ import net.atos.client.zgw.zrc.model.generated.Resultaat;
 import net.atos.client.zgw.zrc.model.generated.ZaakEigenschap;
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters;
+import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel;
 
 @RegisterRestClient(configKey = "ZGW-API-Client")
 @RegisterClientHeaders(ZGWClientHeadersFactory.class)

@@ -5,8 +5,8 @@
 package net.atos.client.zgw.zrc;
 
 import static java.lang.String.format;
-import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 import static net.atos.zac.configuratie.ConfiguratieService.ENV_VAR_ZGW_API_CLIENT_MP_REST_URL;
+import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
 
 import java.net.URI;
 import java.util.Collection;
@@ -33,7 +33,6 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.exception.ZgwErrorExceptionMapper;
 import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper;
 import net.atos.client.zgw.shared.model.Results;
-import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel;
 import net.atos.client.zgw.shared.util.JsonbConfiguration;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
 import net.atos.client.zgw.zrc.exception.ZrcResponseExceptionMapper;
@@ -51,6 +50,7 @@ import net.atos.client.zgw.zrc.model.generated.ZaakEigenschap;
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters;
 import net.atos.zac.configuratie.ConfiguratieService;
+import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel;
 
 /**
  * Careful!

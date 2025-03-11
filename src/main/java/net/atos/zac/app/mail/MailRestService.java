@@ -21,7 +21,6 @@ import jakarta.ws.rs.core.MediaType;
 
 import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter;
 import net.atos.zac.app.mail.model.RESTMailGegevens;
@@ -29,6 +28,7 @@ import net.atos.zac.flowable.ZaakVariabelenService;
 import net.atos.zac.mail.MailService;
 import net.atos.zac.mail.model.BronnenKt;
 import net.atos.zac.policy.PolicyService;
+import nl.info.client.zgw.ztc.ZtcClientService;
 
 @Singleton
 @Path("mail")

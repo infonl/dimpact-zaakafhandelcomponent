@@ -5,7 +5,7 @@
 
 package net.atos.client.zgw.zrc.exception;
 
-import net.atos.client.zgw.shared.exception.ZgwRuntimeException;
+import nl.info.client.zgw.shared.exception.ZgwRuntimeException;
 
 public class ZrcRuntimeException extends ZgwRuntimeException {
     public ZrcRuntimeException(final String message) {

@@ -20,12 +20,6 @@ import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.createNatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.createRolNatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.createRolOrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.createZaak
-import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.model.createRolType
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
@@ -38,6 +32,12 @@ import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import net.atos.zac.zaak.exception.CaseHasLockedInformationObjectsException
 import net.atos.zac.zaak.exception.CaseHasOpenSubcasesException
+import nl.info.client.zgw.model.createNatuurlijkPersoon
+import nl.info.client.zgw.model.createRolNatuurlijkPersoon
+import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
+import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_OPEN_SUBCASES
 import java.net.URI

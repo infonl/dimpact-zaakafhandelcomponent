@@ -7,9 +7,7 @@ package net.atos.zac.signalering
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.configuratie.ConfiguratieService
@@ -29,6 +27,8 @@ import net.atos.zac.zoeken.model.FilterWaarde
 import net.atos.zac.zoeken.model.ZoekParameters
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.task.api.Task

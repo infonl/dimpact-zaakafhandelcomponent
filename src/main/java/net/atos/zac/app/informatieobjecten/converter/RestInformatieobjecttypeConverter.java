@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
-import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
+import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
 
 import java.net.URI;
 import java.util.List;
@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 
-import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType;
 import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype;
+import nl.info.client.zgw.ztc.ZtcClientService;
 
 public class RestInformatieobjecttypeConverter {
 
