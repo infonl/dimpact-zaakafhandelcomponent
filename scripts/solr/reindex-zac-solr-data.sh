@@ -63,15 +63,15 @@ done
 
 if [ "$reindexDocuments" = true ] ; then
     echo "Sending request to ZAC to reindex document data in Solr using ZAC base URL: '$zacBaseURL'."
-    curl ${zacBaseURL}/rest/indexeren/herindexeren/DOCUMENT
+    curl ${zacBaseURL}/rest/internal/indexeren/herindexeren/DOCUMENT
 fi
 if [ "$reindexTasks" = true ] ; then
     echo "Sending request to ZAC to reindex task data in Solr using ZAC base URL: '$zacBaseURL'."
-    curl ${zacBaseURL}/rest/indexeren/herindexeren/TAAK
+    curl ${zacBaseURL}/rest/internal/indexeren/herindexeren/TAAK
 fi
 if [ "$reindexZaken" = true ] ; then
     echo "Sending request to ZAC to reindex zaak data in Solr using ZAC base URL: '$zacBaseURL'."
-    curl ${zacBaseURL}/rest/indexeren/herindexeren/ZAAK
+    curl ${zacBaseURL}/rest/internal/indexeren/herindexeren/ZAAK
 fi
 echo "Finished reindexing data."
 

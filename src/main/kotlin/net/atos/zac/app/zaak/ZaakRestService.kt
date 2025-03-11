@@ -101,14 +101,14 @@ import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.ProductaanvraagService
+import net.atos.zac.search.IndexingService
+import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.util.time.LocalDateUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import net.atos.zac.zaak.ZaakService
-import net.atos.zac.zoeken.IndexingService
-import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid

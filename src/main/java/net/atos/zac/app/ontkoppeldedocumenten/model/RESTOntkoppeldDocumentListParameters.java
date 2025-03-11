@@ -7,7 +7,7 @@ package net.atos.zac.app.ontkoppeldedocumenten.model;
 
 import net.atos.zac.app.identity.model.RestUser;
 import net.atos.zac.app.shared.RESTListParameters;
-import net.atos.zac.app.zoeken.model.RestDatumRange;
+import nl.info.zac.app.search.model.RestDatumRange;
 
 public class RESTOntkoppeldDocumentListParameters extends RESTListParameters {
     public String titel;
