@@ -107,7 +107,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
         }
         // reindex so that the new zaak gets added to the Solr index
         itestHttpClient.performGetRequest(
-            url = "$ZAC_API_URI/indexeren/herindexeren/ZAAK",
+            url = "$ZAC_API_URI/internal/indexeren/herindexeren/ZAAK",
             addAuthorizationHeader = false
         ).run {
             logger.info { "Response: ${body!!.string()}" }

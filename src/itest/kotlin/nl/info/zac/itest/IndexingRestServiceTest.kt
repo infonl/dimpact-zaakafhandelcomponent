@@ -25,8 +25,7 @@ class IndexingRestServiceTest : BehaviorSpec({
         When("""the commit pending changes to search index endpoint is called""") {
             val response = itestHttpClient.performPostRequest(
                 url = "$ZAC_API_URI/indexeren/commit-pending-changes-to-search-index",
-                requestBody = "".toRequestBody(),
-                addAuthorizationHeader = false
+                requestBody = "".toRequestBody()
             )
             Then(
                 """the response is successful"""

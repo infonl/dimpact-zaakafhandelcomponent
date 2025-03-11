@@ -29,7 +29,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
     Given("""Two zaken, a task and a document have been created""") {
         When("""the reindexing endpoint is called for type 'zaak'""") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/indexeren/herindexeren/ZAAK",
+                url = "$ZAC_API_URI/internal/indexeren/herindexeren/ZAAK",
                 addAuthorizationHeader = false
             )
             Then(
@@ -62,7 +62,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
         }
         When("""the reindexing endpoint is called for type 'task'""") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/indexeren/herindexeren/TAAK",
+                url = "$ZAC_API_URI/internal/indexeren/herindexeren/TAAK",
                 addAuthorizationHeader = false
             )
             Then(
@@ -95,7 +95,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
         }
         When("""the reindexing endpoint is called for type 'document'""") {
             val response = itestHttpClient.performGetRequest(
-                "$ZAC_API_URI/indexeren/herindexeren/DOCUMENT"
+                "$ZAC_API_URI/internal/indexeren/herindexeren/DOCUMENT"
             )
             Then(
                 """the response is successful and all documents are indexed"""
