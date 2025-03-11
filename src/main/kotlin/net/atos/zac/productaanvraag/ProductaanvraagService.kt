@@ -198,7 +198,7 @@ class ProductaanvraagService @Inject constructor(
                 if (initiatorAdded) {
                     LOG.warning(
                         "Multiple initiator betrokkenen found in productaanvraag for zaak '$zaak'. " +
-                                "Only the first one will be used."
+                            "Only the first one will be used."
                     )
                 } else {
                     addBetrokkene(betrokkene, OmschrijvingGeneriekEnum.INITIATOR.toString(), zaak)
@@ -242,7 +242,7 @@ class ProductaanvraagService @Inject constructor(
                 if (initiatorAdded) {
                     LOG.warning(
                         "Multiple initiator betrokkenen found in productaanvraag for zaak '$zaak'. " +
-                                "Only the first one will be used."
+                            "Only the first one will be used."
                     )
                 } else {
                     addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.INITIATOR, zaak)
