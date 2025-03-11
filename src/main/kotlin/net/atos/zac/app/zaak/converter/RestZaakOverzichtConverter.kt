@@ -5,10 +5,8 @@
 package net.atos.zac.app.zaak.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.app.identity.converter.RestGroupConverter
 import net.atos.zac.app.identity.converter.RestUserConverter
 import net.atos.zac.app.identity.model.RestGroup
@@ -16,6 +14,8 @@ import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.policy.converter.RestRechtenConverter
 import net.atos.zac.app.zaak.model.RestZaakOverzicht
 import net.atos.zac.policy.PolicyService
+import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.ztc.ZtcClientService
 
 @Suppress("LongParameterList")
 class RestZaakOverzichtConverter @Inject constructor(

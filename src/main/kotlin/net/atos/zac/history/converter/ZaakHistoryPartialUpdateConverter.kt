@@ -5,12 +5,12 @@
 package net.atos.zac.history.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Geometry
 import net.atos.zac.history.model.HistoryAction
 import net.atos.zac.history.model.HistoryLine
 import net.atos.zac.util.time.LocalDateUtil
+import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import nl.info.zac.util.asMapWithKeyOfString
 import nl.info.zac.util.diff
 import nl.info.zac.util.getTypedValue

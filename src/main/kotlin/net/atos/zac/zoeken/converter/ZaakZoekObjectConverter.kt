@@ -5,13 +5,10 @@
 package net.atos.zac.zoeken.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import net.atos.client.zgw.zrc.util.StatusTypeUtil
-import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.Group
@@ -21,6 +18,9 @@ import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
 import net.atos.zac.zoeken.model.ZaakIndicatie
 import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
+import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.ZtcClientService
 import java.util.UUID
 
 class ZaakZoekObjectConverter @Inject constructor(

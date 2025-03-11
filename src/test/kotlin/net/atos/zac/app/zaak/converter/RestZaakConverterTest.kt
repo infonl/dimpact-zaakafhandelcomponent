@@ -10,16 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.zgw.brc.BrcClientService
-import net.atos.client.zgw.brc.model.createBesluit
-import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.zrc.model.createRolMedewerker
-import net.atos.client.zgw.zrc.model.createRolNatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.createRolOrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.createZaak
-import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.app.identity.converter.RestGroupConverter
 import net.atos.zac.app.identity.converter.RestUserConverter
 import net.atos.zac.app.zaak.model.createRestDecision
@@ -31,6 +22,15 @@ import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.bpmn.BpmnService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.createZaakRechten
+import nl.info.client.zgw.brc.BrcClientService
+import nl.info.client.zgw.brc.model.createBesluit
+import nl.info.client.zgw.model.createRolMedewerker
+import nl.info.client.zgw.model.createRolNatuurlijkPersoon
+import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
+import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createZaakType
 import java.util.Optional
 
 class RestZaakConverterTest : BehaviorSpec({

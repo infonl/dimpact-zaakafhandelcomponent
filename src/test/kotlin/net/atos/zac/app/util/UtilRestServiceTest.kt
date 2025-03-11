@@ -9,8 +9,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.string.shouldContain
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.admin.ZaakafhandelParameterService
+import nl.info.client.zgw.ztc.ZtcClientService
 
 class UtilRestServiceTest : BehaviorSpec({
 

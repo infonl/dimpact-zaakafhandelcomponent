@@ -5,7 +5,7 @@
 
 package net.atos.zac.documenten;
 
-import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
+import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
 
 import java.time.ZoneId;
 import java.util.ArrayList;

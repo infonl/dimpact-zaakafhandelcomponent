@@ -17,12 +17,12 @@ import io.mockk.slot
 import io.mockk.verify
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.zrc.model.createOpschorting
-import net.atos.client.zgw.zrc.model.createZaak
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.exception.PolicyException
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
+import nl.info.client.zgw.model.createOpschorting
+import nl.info.client.zgw.model.createZaak
 import java.time.LocalDate
 import java.util.Optional
 

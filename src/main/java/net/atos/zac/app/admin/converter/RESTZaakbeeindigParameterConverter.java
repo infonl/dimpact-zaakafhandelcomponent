@@ -12,9 +12,9 @@ import java.util.Set;
 
 import jakarta.inject.Inject;
 
-import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.zac.admin.model.ZaakbeeindigParameter;
 import net.atos.zac.app.admin.model.RESTZaakbeeindigParameter;
+import nl.info.client.zgw.ztc.ZtcClientService;
 
 public class RESTZaakbeeindigParameterConverter {
 

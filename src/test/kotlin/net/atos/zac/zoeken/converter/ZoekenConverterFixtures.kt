@@ -5,11 +5,11 @@
 
 package net.atos.zac.zoeken.converter
 
-import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.identity.IdentityService
+import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.ztc.ZtcClientService
 
 @Suppress("LongParameterList")
 fun createZaakZoekObjectConverter(
