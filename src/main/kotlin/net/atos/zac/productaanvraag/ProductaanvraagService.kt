@@ -83,6 +83,8 @@ class ProductaanvraagService @Inject constructor(
         private const val PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS = "aanvraaggegevens"
         private const val PRODUCTAANVRAAG_FORMULIER_VELD_BRON = "bron"
         private const val PRODUCTAANVRAAG_FORMULIER_VELD_TYPE = "type"
+        private const val ROLTYPE_OMSCHRIJVING_INITIATOR = "Initiator"
+        private const val ROLTYPE_OMSCHRIJVING_BEHANDELAAR = "Behandelaar"
         private const val ROL_TOELICHTING = "Overgenomen vanuit de product aanvraag"
         private const val ZAAK_INFORMATIEOBJECT_REDEN =
             "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
@@ -162,14 +164,20 @@ class ProductaanvraagService @Inject constructor(
 
     /**
      * Adds all betrokkenen which are present in the provided productaanvraag to the zaak for the set
-     * of provided (role types)[Betrokkene.RolOmschrijvingGeneriek] but only for those role types which are defined
-     * in the zaaktype of the specified zaak.
+     * of provided role types, [Betrokkene.RoltypeOmschrijving] or [Betrokkene.roltypeOmschrijving], but only for those
+     * role types which are defined in the zaaktype of the specified zaak.
      * An exception is made for betrokkenen of role type (behandelaar)[Betrokkene.RolOmschrijvingGeneriek.BEHANDELAAR]].
      * Behandelaar betrokkenen cannot be set from a productaanvraag.
      *
      * For all supported role types except for (initiator)[Betrokkene.RolOmschrijvingGeneriek.INITIATOR] there can be
      * multiple betrokkenen. Either a (BSN)[Betrokkene.inpBsn] or a (KVK vestigingsnummer)[Betrokkene.vestigingsNummer]
      * are supported as identification of the betrokkene.
+     *
+     * If a product request person specifies only a [Betrokkene.rolOmschrijvingGeneriek] field then that is used
+     * If a product request person specifies only a [Betrokkene.roltypeOmschrijving] field then that is used
+     * If a product request person specifies both [Betrokkene.rolOmschrijvingGeneriek] and
+     * [Betrokkene.roltypeOmschrijving] fields, then the [Betrokkene.roltypeOmschrijving] field is used,
+     * because it is more specific
      *
      * @param productaanvraag the productaanvraag to add the betrokkenen from
      * @param zaak the zaak to add the betrokkenen to
@@ -180,101 +188,177 @@ class ProductaanvraagService @Inject constructor(
     ) {
         var initiatorAdded = false
         productaanvraag.betrokkenen?.forEach {
-            when (it.rolOmschrijvingGeneriek) {
-                Betrokkene.RolOmschrijvingGeneriek.ADVISEUR -> {
-                    addBetrokkene(it, OmschrijvingGeneriekEnum.ADVISEUR, zaak)
-                }
-
-                Betrokkene.RolOmschrijvingGeneriek.BELANGHEBBENDE -> {
-                    addBetrokkene(it, OmschrijvingGeneriekEnum.BELANGHEBBENDE, zaak)
-                }
-
-                Betrokkene.RolOmschrijvingGeneriek.BESLISSER -> {
-                    addBetrokkene(it, OmschrijvingGeneriekEnum.BESLISSER, zaak)
-                }
-
-                Betrokkene.RolOmschrijvingGeneriek.INITIATOR -> {
-                    if (initiatorAdded) {
-                        LOG.warning(
-                            "Multiple initiator betrokkenen found in productaanvraag with aanvraaggegevens: " +
-                                "${productaanvraag.aanvraaggegevens}. " +
-                                "Only the first one will be used. "
-                        )
-                    } else {
-                        addBetrokkene(it, OmschrijvingGeneriekEnum.INITIATOR, zaak)
-                        initiatorAdded = true
-                    }
-                }
-
-                Betrokkene.RolOmschrijvingGeneriek.KLANTCONTACTER -> {
-                    addBetrokkene(it, OmschrijvingGeneriekEnum.KLANTCONTACTER, zaak)
-                }
-
-                Betrokkene.RolOmschrijvingGeneriek.MEDE_INITIATOR -> {
-                    addBetrokkene(it, OmschrijvingGeneriekEnum.MEDE_INITIATOR, zaak)
-                }
-
-                Betrokkene.RolOmschrijvingGeneriek.ZAAKCOORDINATOR -> {
-                    addBetrokkene(it, OmschrijvingGeneriekEnum.ZAAKCOORDINATOR, zaak)
-                }
-
-                else -> {
-                    LOG.warning(
-                        "Betrokkene with role '${it.rolOmschrijvingGeneriek}' is not supported in the mapping " +
-                            "from a productaanvraag. No role created for productaanvraag with aanvraaggegevens: " +
-                            "'${productaanvraag.aanvraaggegevens}'."
-                    )
-                }
+            initiatorAdded = if (it.roltypeOmschrijving != null) {
+                addBetrokkenenWithRole(it, initiatorAdded, zaak)
+            } else {
+                addBetrokkenenWithGenericRole(it, initiatorAdded, zaak)
             }
         }
     }
 
-    private fun addBetrokkene(
+    private fun addBetrokkenenWithRole(
+        betrokkene: Betrokkene,
+        initiatorAdded: Boolean,
+        zaak: Zaak
+    ): Boolean {
+        when (betrokkene.roltypeOmschrijving) {
+            ROLTYPE_OMSCHRIJVING_INITIATOR -> {
+                if (initiatorAdded) {
+                    LOG.warning(
+                        "Multiple initiator betrokkenen found in productaanvraag for zaak '$zaak'. " +
+                            "Only the first one will be used."
+                    )
+                } else {
+                    addBetrokkene(betrokkene, OmschrijvingGeneriekEnum.INITIATOR.toString(), zaak)
+                }
+                return true
+            }
+            ROLTYPE_OMSCHRIJVING_BEHANDELAAR -> {
+                LOG.warning(
+                    "Betrokkene with role 'Behandelaar' is not supported in the mapping from a productaanvraag. " +
+                        "No betrokkene role created for zaak '$zaak'."
+                )
+            }
+
+            else -> {
+                addBetrokkene(betrokkene, betrokkene.roltypeOmschrijving, zaak)
+            }
+        }
+
+        return initiatorAdded
+    }
+
+    private fun addBetrokkenenWithGenericRole(
+        betrokkene: Betrokkene,
+        initiatorAdded: Boolean,
+        zaak: Zaak
+    ): Boolean {
+        when (betrokkene.rolOmschrijvingGeneriek) {
+            Betrokkene.RolOmschrijvingGeneriek.ADVISEUR -> {
+                addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.ADVISEUR, zaak)
+            }
+
+            Betrokkene.RolOmschrijvingGeneriek.BELANGHEBBENDE -> {
+                addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.BELANGHEBBENDE, zaak)
+            }
+
+            Betrokkene.RolOmschrijvingGeneriek.BESLISSER -> {
+                addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.BESLISSER, zaak)
+            }
+
+            Betrokkene.RolOmschrijvingGeneriek.INITIATOR -> {
+                if (initiatorAdded) {
+                    LOG.warning(
+                        "Multiple initiator betrokkenen found in productaanvraag for zaak '$zaak'. " +
+                            "Only the first one will be used."
+                    )
+                } else {
+                    addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.INITIATOR, zaak)
+                }
+                return true
+            }
+
+            Betrokkene.RolOmschrijvingGeneriek.KLANTCONTACTER -> {
+                addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.KLANTCONTACTER, zaak)
+            }
+
+            Betrokkene.RolOmschrijvingGeneriek.MEDE_INITIATOR -> {
+                addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.MEDE_INITIATOR, zaak)
+            }
+
+            Betrokkene.RolOmschrijvingGeneriek.ZAAKCOORDINATOR -> {
+                addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.ZAAKCOORDINATOR, zaak)
+            }
+
+            else -> {
+                LOG.warning(
+                    "Betrokkene with generic role '${betrokkene.rolOmschrijvingGeneriek}' is not supported in the " +
+                        "mapping from a productaanvraag. No role created for zaak '$zaak'."
+                )
+            }
+        }
+
+        return initiatorAdded
+    }
+
+    private fun addBetrokkeneGeneriek(
         betrokkene: Betrokkene,
         roltypeOmschrijvingGeneriek: OmschrijvingGeneriekEnum,
         zaak: Zaak
     ) {
         ztcClientService.findRoltypen(zaak.zaaktype, roltypeOmschrijvingGeneriek)
-            .also {
-                if (it.isEmpty()) {
-                    LOG.warning(
-                        "No roltypen found for zaaktype '${zaak.zaaktype}' and generic roltype description " +
-                            "'$roltypeOmschrijvingGeneriek'. No betrokkene role created for zaak '$zaak'."
-                    )
-                } else if (it.size > 1) {
-                    LOG.warning(
-                        "Multiple roltypen found for zaaktype '${zaak.zaaktype}', generic roltype description " +
-                            "'$roltypeOmschrijvingGeneriek' and zaak '$zaak'. " +
-                            "Using the first one (description: '${it.first().omschrijving}')."
-                    )
-                }
-            }
-            .firstOrNull()?.let {
-                when {
-                    betrokkene.inpBsn != null -> {
-                        addNatuurlijkPersoonRole(
-                            it,
-                            betrokkene.inpBsn,
-                            zaak.url
-                        )
-                    }
+            .also { logRoltypenWarnings(it, zaak, roltypeOmschrijvingGeneriek.toString(), true) }
+            .firstOrNull()?.let { addRoles(betrokkene, it, zaak, roltypeOmschrijvingGeneriek.toString(), true) }
+    }
 
-                    betrokkene.vestigingsNummer != null -> {
-                        addVestigingRole(
-                            it,
-                            betrokkene.vestigingsNummer,
-                            zaak.url
-                        )
-                    }
+    private fun addBetrokkene(
+        betrokkene: Betrokkene,
+        roltypeOmschrijving: String?,
+        zaak: Zaak
+    ) {
+        ztcClientService.findRoltypen(zaak.zaaktype, roltypeOmschrijving)
+            .also { logRoltypenWarnings(it, zaak, roltypeOmschrijving) }
+            .firstOrNull()?.let { addRoles(betrokkene, it, zaak, roltypeOmschrijving) }
+            ?: LOG.warning(
+                "Betrokkene with role '$roltypeOmschrijving' is not supported in the mapping from a " +
+                    "productaanvraag. No betrokkene role created for zaak '$zaak'."
+            )
+    }
 
-                    else -> {
-                        LOG.warning(
-                            "Betrokkene with generic roletype description `$roltypeOmschrijvingGeneriek` " +
-                                "does not contain a BSN or KVK vestigingsnummer. No betrokkene role created for zaak '$zaak'."
-                        )
-                    }
-                }
+    private fun logRoltypenWarnings(
+        types: List<RolType>,
+        zaak: Zaak,
+        roltypeOmschrijving: String?,
+        generiek: Boolean = false
+    ) {
+        val prefix = if (generiek) "generic " else ""
+
+        if (types.isEmpty()) {
+            LOG.warning(
+                "No roltypen found for zaaktype '${zaak.zaaktype}' and ${prefix}roltype description " +
+                    "'$roltypeOmschrijving'. No betrokkene role created for zaak '$zaak'."
+            )
+        } else if (types.size > 1) {
+            LOG.warning(
+                "Multiple ${prefix}roltypen found for zaaktype '${zaak.zaaktype}', ${prefix}roltype description " +
+                    "'$roltypeOmschrijving' and zaak '$zaak'. " +
+                    "Using the first one (description: '${types.first().omschrijving}')."
+            )
+        }
+    }
+
+    private fun addRoles(
+        betrokkene: Betrokkene,
+        type: RolType,
+        zaak: Zaak,
+        roltypeOmschrijving: String?,
+        generiek: Boolean = false
+    ) {
+        val prefix = if (generiek) "generic " else ""
+        when {
+            betrokkene.inpBsn != null -> {
+                addNatuurlijkPersoonRole(
+                    type,
+                    betrokkene.inpBsn,
+                    zaak.url
+                )
             }
+
+            betrokkene.vestigingsNummer != null -> {
+                addVestigingRole(
+                    type,
+                    betrokkene.vestigingsNummer,
+                    zaak.url
+                )
+            }
+
+            else -> {
+                LOG.warning(
+                    "Betrokkene with ${prefix}roletype description `$roltypeOmschrijving` does not contain a BSN " +
+                        "or KVK vestigingsnummer. No betrokkene role created for zaak '$zaak'."
+                )
+            }
+        }
     }
 
     private fun addNatuurlijkPersoonRole(

@@ -29,6 +29,7 @@ import nl.info.client.zgw.ztc.model.BesluittypeListParameters
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
 import nl.info.client.zgw.ztc.model.EigenschapListParameters
 import nl.info.client.zgw.ztc.model.ResultaattypeListParameters
+import nl.info.client.zgw.ztc.model.RoltypeListGeneriekParameters
 import nl.info.client.zgw.ztc.model.RoltypeListParameters
 import nl.info.client.zgw.ztc.model.StatustypeListParameters
 import nl.info.client.zgw.ztc.model.ZaaktypeInformatieobjecttypeListParameters
@@ -81,6 +82,10 @@ interface ZtcClient {
     @GET
     @Path("roltypen")
     fun roltypeList(@BeanParam parameters: RoltypeListParameters? = null): Results<RolType>
+
+    @GET
+    @Path("roltypen")
+    fun roltypeListGeneriek(@BeanParam parameters: RoltypeListGeneriekParameters? = null): Results<RolType>
 
     @GET
     @Path("statustypen")

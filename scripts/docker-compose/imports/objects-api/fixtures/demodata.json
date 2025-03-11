@@ -856,12 +856,13 @@
                     {
                         "inpBsn" : "999992958",
                         "rolOmschrijvingGeneriek" : "mede_initiator",
+                        "roltypeOmschrijving" : "Medeaanvrager",
                         "indicatieMachtiging" : "machtiginggever",
                         "indicatieCorrespondentie" : false
                     },
                     {
                         "inpBsn" : "999991838",
-                        "rolOmschrijvingGeneriek" : "belanghebbende"
+                        "roltypeOmschrijving" : "Bewindvoerder"
                     },
                     {
                         "inpBsn" : "999992958",
@@ -921,11 +922,12 @@
                     },
                     {
                         "inpBsn" : "999991838",
+                        "roltypeOmschrijving" : "Medeaanvrager",
                         "rolOmschrijvingGeneriek" : "mede_initiator"
                     },
                     {
                         "inpBsn" : "999991838",
-                        "rolOmschrijvingGeneriek" : "belanghebbende"
+                        "roltypeOmschrijving" : "Bewindvoerder"
                     },
                     {
                         "inpBsn" : "999992958",
