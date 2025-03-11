@@ -35,7 +35,7 @@ import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
 /**
- * This test creates a zaak and a task and because we do not want this test to impact e.g. [ZoekenRESTServiceTest]
+ * This test creates a zaak and a task and because we do not want this test to impact e.g. [SearchRestServiceTest]
  * we run it afterward.
  */
 @Order(TEST_SPEC_ORDER_AFTER_SEARCH)
@@ -107,7 +107,7 @@ class NotificationsZaakDestroyTest : BehaviorSpec({
         }
         // reindex so that the new zaak gets added to the Solr index
         itestHttpClient.performGetRequest(
-            url = "$ZAC_API_URI/indexeren/herindexeren/ZAAK",
+            url = "$ZAC_API_URI/internal/indexeren/herindexeren/ZAAK",
             addAuthorizationHeader = false
         ).run {
             logger.info { "Response: ${body!!.string()}" }

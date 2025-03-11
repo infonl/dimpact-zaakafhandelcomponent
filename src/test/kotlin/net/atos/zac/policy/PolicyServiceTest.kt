@@ -28,8 +28,8 @@ import net.atos.zac.policy.input.ZaakInput
 import net.atos.zac.policy.output.createDocumentRechten
 import net.atos.zac.policy.output.createWerklijstRechten
 import net.atos.zac.policy.output.createZaakRechten
-import net.atos.zac.zoeken.model.ZaakIndicatie
-import net.atos.zac.zoeken.model.createZaakZoekObject
+import net.atos.zac.search.model.ZaakIndicatie
+import net.atos.zac.search.model.createZaakZoekObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createVerlenging
 import nl.info.client.zgw.model.createZaak

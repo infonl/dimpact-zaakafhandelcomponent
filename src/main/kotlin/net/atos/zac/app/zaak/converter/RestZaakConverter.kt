@@ -30,8 +30,8 @@ import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.bpmn.BpmnService
 import net.atos.zac.policy.PolicyService
+import net.atos.zac.search.model.ZaakIndicatie
 import net.atos.zac.util.time.PeriodUtil
-import net.atos.zac.zoeken.model.ZaakIndicatie
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.ztc.ZtcClientService

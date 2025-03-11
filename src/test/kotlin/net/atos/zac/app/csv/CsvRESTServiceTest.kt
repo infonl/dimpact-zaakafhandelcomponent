@@ -10,21 +10,21 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.ws.rs.core.StreamingOutput
-import net.atos.zac.app.zoeken.converter.RestZoekParametersConverter
-import net.atos.zac.app.zoeken.createRESTZoekParameters
-import net.atos.zac.app.zoeken.createZoekParameters
-import net.atos.zac.app.zoeken.createZoekResultaatForZaakZoekObjecten
 import net.atos.zac.csv.CsvService
 import net.atos.zac.policy.PolicyService
-import net.atos.zac.zoeken.ZoekenService
+import net.atos.zac.search.SearchService
+import nl.info.zac.app.search.converter.RestZoekParametersConverter
+import nl.info.zac.app.search.createRESTZoekParameters
+import nl.info.zac.app.search.createZoekParameters
+import nl.info.zac.app.search.createZoekResultaatForZaakZoekObjecten
 
 class CsvRESTServiceTest : BehaviorSpec({
-    val zoekenService = mockk<ZoekenService>()
+    val searchService = mockk<SearchService>()
     val restZoekParametersConverter = mockk<RestZoekParametersConverter>()
     val csvService = mockk<CsvService>()
     val policyService = mockk<PolicyService>()
     val csvRESTService = CsvRESTService(
-        zoekenService,
+        searchService,
         restZoekParametersConverter,
         csvService,
         policyService
@@ -42,7 +42,7 @@ class CsvRESTServiceTest : BehaviorSpec({
 
         every { policyService.readWerklijstRechten().zakenTakenExporteren } returns true
         every { restZoekParametersConverter.convert(restZoekParameters) } returns zoekParameters
-        every { zoekenService.zoek(zoekParameters) } returns zoekResultaat
+        every { searchService.zoek(zoekParameters) } returns zoekResultaat
         every { csvService.exportToCsv(zoekResultaat) } returns csvStreamingOutput
 
         When("the download CSV function is called") {

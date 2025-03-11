@@ -16,7 +16,7 @@ import jakarta.ws.rs.FormParam;
 import net.atos.client.zgw.drc.model.generated.StatusEnum;
 import net.atos.zac.app.identity.model.RestUser;
 import net.atos.zac.app.policy.model.RestDocumentRechten;
-import net.atos.zac.zoeken.model.DocumentIndicatie;
+import net.atos.zac.search.model.DocumentIndicatie;
 
 /**
  * Representation of an 'enkelvoudig informatieobject' (e.g. a document) in the ZAC REST API.
