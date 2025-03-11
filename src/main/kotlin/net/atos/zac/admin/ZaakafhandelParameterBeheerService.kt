@@ -8,8 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import net.atos.client.zgw.util.extractUuid
-import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.client.zgw.ztc.model.generated.ResultaatType
 import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.zac.admin.model.HumanTaskParameters
@@ -25,6 +23,8 @@ import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.admin.model.ZaakbeeindigReden
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.util.ValidationUtil
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI

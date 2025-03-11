@@ -8,22 +8,23 @@ package net.atos.zac.app.zaak.converter
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.zgw.brc.BrcClientService
-import net.atos.client.zgw.brc.model.createBesluit
 import net.atos.client.zgw.brc.model.generated.VervalredenEnum
-import net.atos.client.zgw.brc.model.generated.createBesluitInformatieObject
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
-import net.atos.client.zgw.util.extractUuid
-import net.atos.client.zgw.zrc.model.createZaak
-import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.model.createBesluitType
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
 import net.atos.zac.app.zaak.model.createRestDecisionCreateData
 import net.atos.zac.configuratie.ConfiguratieService
+import nl.info.client.zgw.brc.BrcClientService
+import nl.info.client.zgw.brc.model.createBesluit
+import nl.info.client.zgw.brc.model.generated.createBesluitInformatieObject
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createBesluitType
 import java.time.LocalDate
 
 class RestDecisionConverterTest : BehaviorSpec({
@@ -40,6 +41,10 @@ class RestDecisionConverterTest : BehaviorSpec({
         configuratieService
     )
 
+    beforeEach {
+        checkUnnecessaryStub()
+    }
+
     Given("Besluit toevoegen data with a vervaldatum") {
         val zaak = createZaak()
         val decisionCreateData = createRestDecisionCreateData(
@@ -51,7 +56,6 @@ class RestDecisionConverterTest : BehaviorSpec({
         val besluittype = createBesluitType()
 
         every { ztcClientService.readBesluittype(decisionCreateData.besluittypeUuid) } returns besluittype
-        every { configuratieService.readBronOrganisatie() } returns "123443210"
         every { configuratieService.readVerantwoordelijkeOrganisatie() } returns "316245124"
 
         When("this data is converted to a besluit") {

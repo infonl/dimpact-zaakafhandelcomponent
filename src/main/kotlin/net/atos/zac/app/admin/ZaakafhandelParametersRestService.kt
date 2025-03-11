@@ -14,8 +14,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.client.zgw.util.extractUuid
-import net.atos.client.zgw.ztc.ZtcClientService
 import net.atos.zac.admin.ReferenceTableService
 import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.admin.ZaakafhandelParameterService
@@ -33,8 +31,8 @@ import net.atos.zac.app.admin.model.RESTTaakFormulierDefinitie
 import net.atos.zac.app.admin.model.RESTTaakFormulierVeldDefinitie
 import net.atos.zac.app.admin.model.RESTZaakbeeindigReden
 import net.atos.zac.app.admin.model.RestZaakafhandelParameters
-import net.atos.zac.app.zaak.converter.RestResultaattypeConverter
 import net.atos.zac.app.zaak.model.RestResultaattype
+import net.atos.zac.app.zaak.model.toRestResultaatTypes
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.identity.IdentityService
@@ -44,6 +42,8 @@ import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.RestSmartDocumentsTemplateGroup
 import net.atos.zac.smartdocuments.rest.isSubsetOf
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.util.AllOpen
@@ -67,7 +67,6 @@ class ZaakafhandelParametersRestService @Inject constructor(
     private val referenceTableService: ReferenceTableService,
     private val zaakafhandelParametersConverter: RestZaakafhandelParametersConverter,
     private val caseDefinitionConverter: RESTCaseDefinitionConverter,
-    private val resultaattypeConverter: RestResultaattypeConverter,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
     private val policyService: PolicyService,
     private val identityService: IdentityService
@@ -214,11 +213,11 @@ class ZaakafhandelParametersRestService @Inject constructor(
      */
     @GET
     @Path("resultaattypes/{zaaktypeUUID}")
-    fun listResultaattypes(@PathParam("zaaktypeUUID") zaaktypeUUID: UUID?): List<RestResultaattype> {
+    fun listResultaattypes(@PathParam("zaaktypeUUID") zaaktypeUUID: UUID): List<RestResultaattype> {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        return resultaattypeConverter.convertResultaattypes(
-            ztcClientService.readResultaattypen(ztcClientService.readZaaktype(zaaktypeUUID!!).url)
-        )
+        return ztcClientService.readResultaattypen(
+            ztcClientService.readZaaktype(zaaktypeUUID).url
+        ).toRestResultaatTypes()
     }
 
     /**

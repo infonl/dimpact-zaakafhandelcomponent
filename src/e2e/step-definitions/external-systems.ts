@@ -46,7 +46,6 @@ When(
     await this.page
       .getByRole("option", { name: "Melding evenement organiseren behandelen" })
       .click();
-    await this.page.waitForTimeout(1000);
 
     await this.page.getByLabel("Sjabloon").last().click();
     await this.page.getByRole("option", { name: "OpenZaakTest" }).click();

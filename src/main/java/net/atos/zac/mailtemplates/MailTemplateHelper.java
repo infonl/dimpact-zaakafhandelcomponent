@@ -4,7 +4,6 @@
  */
 package net.atos.zac.mailtemplates;
 
-import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 import static net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie;
 import static net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving;
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.DOCUMENT_LINK;
@@ -32,6 +31,7 @@ import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.ZAAK_TOELI
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.ZAAK_TYPE;
 import static net.atos.zac.mailtemplates.model.MailTemplateVariabelen.ZAAK_URL;
 import static net.atos.zac.util.StringUtil.joinNonBlankWith;
+import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
@@ -50,7 +50,6 @@ import org.flowable.identitylink.api.IdentityLinkInfo;
 import org.flowable.identitylink.api.IdentityLinkType;
 import org.flowable.task.api.TaskInfo;
 
-import net.atos.client.brp.BrpClientService;
 import net.atos.client.brp.model.generated.Adres;
 import net.atos.client.brp.model.generated.Persoon;
 import net.atos.client.brp.model.generated.VerblijfadresBinnenland;
@@ -60,7 +59,6 @@ import net.atos.client.kvk.KvkClientService;
 import net.atos.client.kvk.zoeken.model.generated.BinnenlandsAdres;
 import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.shared.ZGWApiService;
 import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.BetrokkeneType;
 import net.atos.client.zgw.zrc.model.Rol;
@@ -68,7 +66,6 @@ import net.atos.client.zgw.zrc.model.RolMedewerker;
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
 import net.atos.client.zgw.zrc.model.Status;
 import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.configuratie.ConfiguratieService;
@@ -78,6 +75,9 @@ import net.atos.zac.identity.model.UserKt;
 import net.atos.zac.mailtemplates.model.MailLink;
 import net.atos.zac.mailtemplates.model.MailTemplateVariabelen;
 import net.atos.zac.util.time.DateTimeConverterUtil;
+import nl.info.client.brp.BrpClientService;
+import nl.info.client.zgw.shared.ZGWApiService;
+import nl.info.client.zgw.ztc.ZtcClientService;
 
 public class MailTemplateHelper {
     public static final Pattern PTAGS = Pattern.compile("</?p>", Pattern.CASE_INSENSITIVE);

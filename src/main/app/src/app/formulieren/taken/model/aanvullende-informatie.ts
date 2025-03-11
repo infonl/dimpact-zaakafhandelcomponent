@@ -201,9 +201,11 @@ export class AanvullendeInformatie extends AbstractTaakFormulier {
             const emailInput = this.getFormField(
               this.fields.EMAILADRES,
             ) as InputFormField;
-            emailInput.icons
-              ? emailInput.icons.push(initiatorToevoegenIcon)
-              : (emailInput.icons = [initiatorToevoegenIcon]);
+            if (Array.isArray(emailInput.icons)) {
+              emailInput.icons.push(initiatorToevoegenIcon);
+            } else {
+              emailInput.icons = [initiatorToevoegenIcon];
+            }
             initiatorToevoegenIcon.iconClicked.subscribe(() => {
               emailInput.value(gegevens.emailadres);
             });

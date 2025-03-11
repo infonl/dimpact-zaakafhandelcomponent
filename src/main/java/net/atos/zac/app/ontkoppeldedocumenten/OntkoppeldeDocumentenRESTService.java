@@ -5,8 +5,8 @@
 
 package net.atos.zac.app.ontkoppeldedocumenten;
 
-import static net.atos.client.zgw.util.UriUtilsKt.extractUuid;
 import static net.atos.zac.policy.PolicyService.assertPolicy;
+import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
 
 import java.util.List;
 import java.util.Optional;

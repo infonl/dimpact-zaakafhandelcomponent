@@ -23,9 +23,9 @@ export class FormulierComponent implements OnInit {
   @Input() definitie: FormulierDefinitie;
   @Input() readonly: boolean;
   @Input() zaak: Zaak;
-  @Input() waarden: {};
-  @Output() formPartial = new EventEmitter<{}>();
-  @Output() formSubmit = new EventEmitter<{}>();
+  @Input() waarden: Record<string, unknown>;
+  @Output() formPartial = new EventEmitter<Record<string, unknown>>();
+  @Output() formSubmit = new EventEmitter<Record<string, unknown>>();
 
   formGroup: FormGroup;
   FormulierVeldtype = FormulierVeldtype;

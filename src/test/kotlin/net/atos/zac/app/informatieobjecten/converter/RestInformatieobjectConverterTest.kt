@@ -15,16 +15,12 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
-import net.atos.client.zgw.brc.BrcClientService
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.exception.ZgwErrorException
 import net.atos.client.zgw.shared.model.ZgwError
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.model.createInformatieObjectType
 import net.atos.zac.app.informatieobjecten.model.createRESTFileUpload
 import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
 import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
@@ -38,6 +34,10 @@ import net.atos.zac.identity.model.getFullName
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.DocumentRechten
 import net.atos.zac.policy.output.createDocumentRechtenAllDeny
+import nl.info.client.zgw.brc.BrcClientService
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import org.eclipse.jetty.http.HttpStatus
 import java.net.URI
 import java.time.LocalDate

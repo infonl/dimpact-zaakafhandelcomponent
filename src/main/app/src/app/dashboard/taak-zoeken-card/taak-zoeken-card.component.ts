@@ -68,7 +68,7 @@ export class TaakZoekenCardComponent extends DashboardCardComponent<ZoekObject> 
     this.pageNumber.set(pageIndex);
   }
 
-  protected onLoad(afterLoad: () => void): void {
+  protected onLoad(): void {
     this.zoekQuery.refetch();
   }
 }

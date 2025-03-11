@@ -8,7 +8,6 @@ package net.atos.zac.smartdocuments.templates
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
-import net.atos.client.smartdocuments.model.createsmartDocumentsTemplatesResponse
 import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.smartdocuments.rest.createRestMappedSmartDocumentsTemplate
 import net.atos.zac.smartdocuments.rest.createRestMappedSmartDocumentsTemplateGroup
@@ -17,6 +16,7 @@ import net.atos.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroupSet
 import net.atos.zac.smartdocuments.rest.toSmartDocumentsTemplateGroupSet
 import net.atos.zac.smartdocuments.templates.model.createSmartDocumentsTemplate
 import net.atos.zac.smartdocuments.templates.model.createSmartDocumentsTemplateGroup
+import nl.info.client.smartdocuments.model.createsmartDocumentsTemplatesResponse
 import java.util.UUID
 
 class SmartDocumentsTemplateConverterTest : BehaviorSpec({

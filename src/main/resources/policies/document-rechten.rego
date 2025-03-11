@@ -7,7 +7,6 @@
 #
 package net.atos.zac.document
 
-import future.keywords
 import data.net.atos.zac.rol.behandelaar
 import data.net.atos.zac.rol.beheerder
 import data.net.atos.zac.rol.coordinator
@@ -29,77 +28,77 @@ document_rechten := {
 }
 
 default zaaktype_allowed := false
-zaaktype_allowed {
+zaaktype_allowed if {
     not document.zaaktype
 }
-zaaktype_allowed {
+zaaktype_allowed if {
     not user.zaaktypen
 }
-zaaktype_allowed {
+zaaktype_allowed if {
     document.zaaktype in user.zaaktypen
 }
 
 default onvergrendeld_of_vergrendeld_door_user := false
-onvergrendeld_of_vergrendeld_door_user {
+onvergrendeld_of_vergrendeld_door_user if {
     document.vergrendeld == false
 }
-onvergrendeld_of_vergrendeld_door_user {
+onvergrendeld_of_vergrendeld_door_user if {
     document.vergrendeld == true
     document.vergrendeld_door == user.id
 }
 
 default lezen := false
-lezen {
+lezen if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
 }
 
 default wijzigen := false
-wijzigen {
+wijzigen if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     document.zaak_open == true
     document.definitief == false
     onvergrendeld_of_vergrendeld_door_user == true
 }
-wijzigen {
+wijzigen if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
 }
 
 default verwijderen := false
-verwijderen {
+verwijderen if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     document.zaak_open == true
     document.definitief == false
     document.vergrendeld == false
 }
-verwijderen {
+verwijderen if {
     recordmanager.rol in user.rollen
     document.vergrendeld == false
 }
 
 default vergrendelen := false
-vergrendelen {
+vergrendelen if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     document.zaak_open == true
 }
 
 default ontgrendelen := false
-ontgrendelen {
+ontgrendelen if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     document.vergrendeld_door == user.id
 }
-ontgrendelen {
+ontgrendelen if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
 }
 
 default ondertekenen := false
-ondertekenen {
+ondertekenen if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     document.zaak_open == true
@@ -107,47 +106,47 @@ ondertekenen {
 }
 
 default toevoegen_nieuwe_versie := false
-toevoegen_nieuwe_versie {
+toevoegen_nieuwe_versie if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     document.zaak_open == true
     document.definitief == false
     onvergrendeld_of_vergrendeld_door_user == true
 }
-toevoegen_nieuwe_versie {
+toevoegen_nieuwe_versie if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
     document.ondertekend == false
 }
 
 default verplaatsen := false
-verplaatsen {
+verplaatsen if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     document.zaak_open == true
     document.definitief == false
     onvergrendeld_of_vergrendeld_door_user == true
 }
-verplaatsen {
+verplaatsen if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
 }
 
 default ontkoppelen := false
-ontkoppelen {
+ontkoppelen if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
     document.zaak_open == true
     document.definitief == false
     onvergrendeld_of_vergrendeld_door_user == true
 }
-ontkoppelen {
+ontkoppelen if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
 }
 
 default downloaden := false
-downloaden {
+downloaden if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
 }

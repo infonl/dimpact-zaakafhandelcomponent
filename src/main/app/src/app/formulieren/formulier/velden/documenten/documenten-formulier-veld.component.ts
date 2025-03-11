@@ -90,11 +90,13 @@ export class DocumentenFormulierVeldComponent implements OnInit {
     );
   }
 
-  selectDisabled(document): boolean {
+  selectDisabled(): boolean {
     return this.control.disabled;
   }
 
-  isSelected(document): boolean {
+  isSelected(
+    document: GeneratedType<"RestEnkelvoudigInformatieobject">,
+  ): boolean {
     return this.selection.isSelected(document);
   }
 

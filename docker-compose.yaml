@@ -131,8 +131,8 @@ services:
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
       interval: 30s
-      timeout: 5s
-      retries: 3
+      timeout: 10s
+      retries: 5
       # This should allow for enough time for migrations to run before the max
       # retries have passed. This healthcheck in turn allows other containers
       # to wait for the database migrations.
@@ -193,6 +193,7 @@ services:
     depends_on:
       objecten-api-database:
         condition: service_healthy
+    profiles: [ "objecten", "itest" ]
 
   objecten-api-database:
     image: docker.io/postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
@@ -209,6 +210,7 @@ services:
       - POSTGRES_USER=objects
       - POSTGRES_PASSWORD=objects
       - POSTGRES_DB=objects
+    profiles: [ "objecten", "itest" ]
 
   objecten-api-import:
     image: docker.io/maykinmedia/objects-api:2.4.4@sha256:2980ce1b62c4ae9575003a694c700e06d0ed77a55e8214a4984aded2d9e7d8c4
@@ -222,6 +224,7 @@ services:
     depends_on:
       objecten-api.local:
         condition: service_healthy
+    profiles: [ "objecten", "itest" ]
 
   solr:
     image: docker.io/solr:9.7.0-slim@sha256:5eb3e2e6791020c6d098514594bc6bd16f2a95a7df0f855801af6f5af98169f5
@@ -240,8 +243,8 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:0.70.0-static@sha256:5679cbbedd1908063b7a68e8af28e662dce4ae3e069b4b5459531b141c6b6ff0
-    command: run --server --log-level debug
+    image: docker.io/openpolicyagent/opa:1.2.0-static@sha256:2636af0937bf7c5ab7f79271399c53c45d4b4d2af8a2b9cc43f65c6598b49064
+    command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
 
@@ -333,7 +336,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: docker.io/openpolicyagent/opa:0.70.0@sha256:2b1c4b231f6dfa6a2baea4af4109203b10cd4b65e836d72f03bfe5d8dfce7095
+    image: docker.io/openpolicyagent/opa:1.2.0@sha256:96f7ee5dbcc634853c55e0fc6090fe421d8c853da967ee0246f98bd186e2083f
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -711,6 +714,8 @@ services:
     ports:
       - "8080:8080"
       - "9990:9990"
+    # only for integration testing purpose, override to root user
+    user: root
     volumes:
       # mount volumes for (optional) JaCoCo test coverage for our integration tests
       # see: https://blog.akquinet.de/2018/09/06/test-coverage-for-containerized-java-apps/

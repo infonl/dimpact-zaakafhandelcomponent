@@ -7,17 +7,18 @@ package net.atos.zac.app.zaak.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.zgw.shared.ZGWApiService
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.zrc.model.createZaak
-import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.app.identity.converter.RestGroupConverter
 import net.atos.zac.app.identity.converter.RestUserConverter
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.createZaakRechten
+import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createZaakType
 
 class RestZaakOverzichtConverterTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
@@ -28,7 +29,6 @@ class RestZaakOverzichtConverterTest : BehaviorSpec({
     val openstaandeTakenConverter = mockk<RestOpenstaandeTakenConverter>()
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZrcClientService>()
-
     val restZaakOverzichtConverter = RestZaakOverzichtConverter(
         ztcClientService,
         zgwApiService,
@@ -39,6 +39,10 @@ class RestZaakOverzichtConverterTest : BehaviorSpec({
         policyService,
         zrcClientService
     )
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given("A zaak") {
         val zaak = createZaak()

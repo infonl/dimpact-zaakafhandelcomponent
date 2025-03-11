@@ -27,12 +27,8 @@ import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
 import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
-import net.atos.client.zgw.shared.ZGWApiService
-import net.atos.client.zgw.util.extractUuid
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.ztc.ZtcClientService
-import net.atos.client.zgw.ztc.model.extensions.isNuGeldig
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
 import net.atos.zac.app.informatieobjecten.converter.RestZaakInformatieobjectConverter
@@ -59,6 +55,10 @@ import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.util.MediaTypes
 import net.atos.zac.webdav.WebdavHelper
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
@@ -265,7 +265,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             .let { ztcClientService.readZaaktype(it).informatieobjecttypen }
             .map(ztcClientService::readInformatieobjecttype)
             .filter { it.isNuGeldig() }
-            .let(restInformatieobjecttypeConverter::convert)
+            .let(RestInformatieobjecttypeConverter::convert)
 
     @GET
     @Path("zaakinformatieobject/{uuid}/informatieobject")

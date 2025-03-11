@@ -19,14 +19,14 @@ import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.ZaakListParameters
 import net.atos.client.zgw.zrc.model.ZaakUuid
-import net.atos.client.zgw.zrc.model.createZaak
-import net.atos.client.zgw.ztc.model.createZaakType
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.zoeken.converter.AbstractZoekObjectConverter
 import net.atos.zac.zoeken.converter.ZaakZoekObjectConverter
 import net.atos.zac.zoeken.model.createZaakZoekObject
 import net.atos.zac.zoeken.model.zoekobject.ZoekObject
 import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
+import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.ztc.model.createZaakType
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.client.solrj.response.QueryResponse

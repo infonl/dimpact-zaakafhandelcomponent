@@ -13,13 +13,13 @@ import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Status;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
-import net.atos.client.zgw.ztc.ZtcClientService;
 import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.app.informatieobjecten.model.RestZaakInformatieobject;
 import net.atos.zac.app.policy.converter.RestRechtenConverter;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.policy.output.ZaakRechten;
+import nl.info.client.zgw.ztc.ZtcClientService;
 
 public class RestZaakInformatieobjectConverter {
 
@@ -30,9 +30,6 @@ public class RestZaakInformatieobjectConverter {
     private ZrcClientService zrcClientService;
 
     @Inject
-    private RestRechtenConverter rechtenConverter;
-
-    @Inject
     private PolicyService policyService;
 
     public RestZaakInformatieobject convert(final ZaakInformatieobject zaakInformatieObject) {
@@ -41,7 +38,7 @@ public class RestZaakInformatieobjectConverter {
         final ZaakRechten zaakrechten = policyService.readZaakRechten(zaak, zaaktype);
         final RestZaakInformatieobject restZaakInformatieobject = new RestZaakInformatieobject();
         restZaakInformatieobject.zaakIdentificatie = zaak.getIdentificatie();
-        restZaakInformatieobject.zaakRechten = rechtenConverter.convert(zaakrechten);
+        restZaakInformatieobject.zaakRechten = RestRechtenConverter.convert(zaakrechten);
         if (zaakrechten.lezen()) {
             restZaakInformatieobject.zaakStartDatum = zaak.getStartdatum();
             restZaakInformatieobject.zaakEinddatumGepland = zaak.getEinddatumGepland();

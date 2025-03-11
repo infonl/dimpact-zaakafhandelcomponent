@@ -7,7 +7,6 @@
 #
 package net.atos.zac.overig
 
-import future.keywords
 import data.net.atos.zac.rol.behandelaar
 import data.net.atos.zac.rol.beheerder
 import data.net.atos.zac.rol.coordinator
@@ -21,16 +20,16 @@ overige_rechten := {
 }
 
 default starten_zaak := false
-starten_zaak {
+starten_zaak if {
     behandelaar.rol in user.rollen
 }
 
-default beheren:= false
-beheren {
+default beheren := false
+beheren if {
     beheerder.rol in user.rollen
 }
 
 default zoeken := false
-zoeken {
+zoeken if {
     behandelaar.rol in user.rollen
 }
