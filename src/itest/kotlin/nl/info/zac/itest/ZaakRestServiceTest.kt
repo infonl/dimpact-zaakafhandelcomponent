@@ -398,8 +398,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                     { 
                         "zaak": {
+                            "startdatum": "$startDateNew",
+                            "uiterlijkeEinddatumAfdoening": "$fatalDateNew",
                             "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_2",
-                            "omschrijving": "$ZAAK_DESCRIPTION_1", 
+                            "omschrijving": "$ZAAK_DESCRIPTION_1"
                         },
                         "reden": "dummyReason"
                     }
@@ -509,6 +511,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                     { 
                         "zaak": {
+                            "startdatum": "$startDateNew",
+                            "uiterlijkeEinddatumAfdoening": "$fatalDateNew",
                             "omschrijving": "changedDescription"
                         },
                         "reden": "dummyReason"
