@@ -83,6 +83,8 @@ class ProductaanvraagService @Inject constructor(
         private const val PRODUCTAANVRAAG_FORMULIER_VELD_AANVRAAGGEGEVENS = "aanvraaggegevens"
         private const val PRODUCTAANVRAAG_FORMULIER_VELD_BRON = "bron"
         private const val PRODUCTAANVRAAG_FORMULIER_VELD_TYPE = "type"
+        private const val ROLTYPE_OMSCHRIJVING_INITIATOR = "Initiator"
+        private const val ROLTYPE_OMSCHRIJVING_BEHANDELAAR = "Behandelaar"
         private const val ROL_TOELICHTING = "Overgenomen vanuit de product aanvraag"
         private const val ZAAK_INFORMATIEOBJECT_REDEN =
             "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
@@ -199,11 +201,8 @@ class ProductaanvraagService @Inject constructor(
         initiatorAdded: Boolean,
         zaak: Zaak
     ): Boolean {
-        when {
-            betrokkene.roltypeOmschrijving.equals(
-                Betrokkene.RolOmschrijvingGeneriek.INITIATOR.toString(),
-                ignoreCase = true
-            ) -> {
+        when (betrokkene.roltypeOmschrijving) {
+            ROLTYPE_OMSCHRIJVING_INITIATOR -> {
                 if (initiatorAdded) {
                     LOG.warning(
                         "Multiple initiator betrokkenen found in productaanvraag for zaak '$zaak'. " +
@@ -214,10 +213,7 @@ class ProductaanvraagService @Inject constructor(
                 }
                 return true
             }
-            betrokkene.roltypeOmschrijving.equals(
-                Betrokkene.RolOmschrijvingGeneriek.BEHANDELAAR.toString(),
-                ignoreCase = true
-            ) -> {
+            ROLTYPE_OMSCHRIJVING_BEHANDELAAR -> {
                 LOG.warning(
                     "Betrokkene with role 'Behandelaar' is not supported in the mapping from a productaanvraag. " +
                         "No betrokkene role created for zaak '$zaak'."
