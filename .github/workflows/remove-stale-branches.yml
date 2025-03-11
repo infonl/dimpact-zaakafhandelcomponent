@@ -24,7 +24,7 @@ jobs:
         id: deleted_branches
         with:
           github_token: ${{ github.token }}
-          last_commit_age_days: 50
+          last_commit_age_days: 100
           dry_run: yes
           ignore_suffix: _keep_me
 
@@ -89,7 +89,7 @@ jobs:
                 "elements": [
                   {
                     "type": "mrkdwn",
-                    "text": "Powered by GitHub Actions | <https://github.com/${{ github.event.repository.name }}|View Workflow>"
+                    "text": "Powered by GitHub Actions | <https://github.com/${{ github.repository }}|View Workflow>"
                   }
                 ]
               }
