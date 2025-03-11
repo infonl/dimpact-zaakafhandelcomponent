@@ -162,7 +162,7 @@ class ProductaanvraagService @Inject constructor(
 
     /**
      * Adds all betrokkenen which are present in the provided productaanvraag to the zaak for the set
-     * of provided (role types)[Betrokkene.RoltypeOmschrijving] or [Betrokkene.roltypeOmschrijving] but only for those
+     * of provided role types, [Betrokkene.RoltypeOmschrijving] or [Betrokkene.roltypeOmschrijving], but only for those
      * role types which are defined in the zaaktype of the specified zaak.
      * An exception is made for betrokkenen of role type (behandelaar)[Betrokkene.RolOmschrijvingGeneriek.BEHANDELAAR]].
      * Behandelaar betrokkenen cannot be set from a productaanvraag.
@@ -170,6 +170,12 @@ class ProductaanvraagService @Inject constructor(
      * For all supported role types except for (initiator)[Betrokkene.RolOmschrijvingGeneriek.INITIATOR] there can be
      * multiple betrokkenen. Either a (BSN)[Betrokkene.inpBsn] or a (KVK vestigingsnummer)[Betrokkene.vestigingsNummer]
      * are supported as identification of the betrokkene.
+     *
+     * If a product request person specifies only a [Betrokkene.rolOmschrijvingGeneriek] field then that is used
+     * If a product request person specifies only a [Betrokkene.roltypeOmschrijving] field then that is used
+     * If a product request person specifies both [Betrokkene.rolOmschrijvingGeneriek] and
+     * [Betrokkene.roltypeOmschrijving] fields, then the [Betrokkene.roltypeOmschrijving] field is used,
+     * because it is more specific
      *
      * @param productaanvraag the productaanvraag to add the betrokkenen from
      * @param zaak the zaak to add the betrokkenen to
@@ -193,8 +199,11 @@ class ProductaanvraagService @Inject constructor(
         initiatorAdded: Boolean,
         zaak: Zaak
     ): Boolean {
-        when (betrokkene.roltypeOmschrijving.lowercase()) {
-            Betrokkene.RolOmschrijvingGeneriek.INITIATOR.toString() -> {
+        when {
+            betrokkene.roltypeOmschrijving.equals(
+                Betrokkene.RolOmschrijvingGeneriek.INITIATOR.toString(),
+                ignoreCase = true
+            ) -> {
                 if (initiatorAdded) {
                     LOG.warning(
                         "Multiple initiator betrokkenen found in productaanvraag for zaak '$zaak'. " +
@@ -205,10 +214,13 @@ class ProductaanvraagService @Inject constructor(
                 }
                 return true
             }
-            Betrokkene.RolOmschrijvingGeneriek.BEHANDELAAR.toString() -> {
+            betrokkene.roltypeOmschrijving.equals(
+                Betrokkene.RolOmschrijvingGeneriek.BEHANDELAAR.toString(),
+                ignoreCase = true
+            ) -> {
                 LOG.warning(
-                    "Betrokkene with role '$betrokkene.roltypeOmschrijving' is not supported in the mapping from a " +
-                        "productaanvraag. No betrokkene role created for zaak '$zaak'."
+                    "Betrokkene with role 'Behandelaar' is not supported in the mapping from a productaanvraag. " +
+                        "No betrokkene role created for zaak '$zaak'."
                 )
             }
 

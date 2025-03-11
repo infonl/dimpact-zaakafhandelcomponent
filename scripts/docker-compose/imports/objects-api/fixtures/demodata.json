@@ -849,7 +849,7 @@
                 "betrokkenen" : [
                     {
                         "inpBsn" : "999993896",
-                        "roltypeOmschrijving" : "Melder",
+                        "rolOmschrijvingGeneriek" : "initiator",
                         "indicatieMachtiging" : "gemachtigde",
                         "indicatieCorrespondentie" : true
                     },
@@ -866,7 +866,7 @@
                     },
                     {
                         "inpBsn" : "999992958",
-                        "roltypeOmschrijving" : "Bewindvoerder"
+                        "rolOmschrijvingGeneriek" : "belanghebbende"
                     },
                     {
                         "medewerkerIdentificatie" : "MDW123",
@@ -918,7 +918,7 @@
                 "betrokkenen" : [
                     {
                         "vestigingsNummer" : "000012345678",
-                        "roltypeOmschrijving" : "Melder"
+                        "rolOmschrijvingGeneriek" : "initiator"
                     },
                     {
                         "inpBsn" : "999991838",
@@ -931,7 +931,7 @@
                     },
                     {
                         "inpBsn" : "999992958",
-                        "roltypeOmschrijving" : "Bewindvoerder"
+                        "rolOmschrijvingGeneriek" : "belanghebbende"
                     },
                     {
                         "inpBsn" : "999992958",

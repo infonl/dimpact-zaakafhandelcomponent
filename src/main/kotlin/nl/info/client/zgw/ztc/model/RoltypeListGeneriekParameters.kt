@@ -10,13 +10,13 @@ import java.net.URI
 
 class RoltypeListGeneriekParameters(
     private val zaaktype: URI,
-    private val omschrijvingGeneriek: OmschrijvingGeneriekEnum? = null
+    private val omschrijvingGeneriek: OmschrijvingGeneriekEnum
 ) : AbstractZtcListParameters() {
     /**
      * Algemeen gehanteerde omschrijving van de aard van de ROL.
      */
     @QueryParam("omschrijvingGeneriek")
-    fun getOmschrijvingGeneriek() = omschrijvingGeneriek?.toString()
+    fun getOmschrijvingGeneriek() = omschrijvingGeneriek.toString()
 
     /**
      * URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken kunnen zijn.
