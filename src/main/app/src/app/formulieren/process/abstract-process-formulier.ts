@@ -7,6 +7,7 @@ import { FormGroup } from "@angular/forms";
 import { ProcessTaskData } from "../../plan-items/model/process-task-data";
 
 export abstract class AbstractProcessFormulier {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getData(formGroup: FormGroup): ProcessTaskData {
     return null;
   }

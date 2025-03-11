@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+} from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
@@ -28,7 +35,7 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   templateUrl: "./persoon-zoek.component.html",
   styleUrls: ["./persoon-zoek.component.less"],
 })
-export class PersoonZoekComponent implements OnInit {
+export class PersoonZoekComponent implements OnInit, OnDestroy {
   @Output() persoon? = new EventEmitter<GeneratedType<"RestPersoon">>();
   @Input() sideNav?: MatSidenav;
   @Input() syncEnabled: boolean = false;

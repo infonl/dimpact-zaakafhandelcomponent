@@ -7,6 +7,7 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  OnDestroy,
   OnInit,
   ViewChild,
 } from "@angular/core";
@@ -43,7 +44,7 @@ import { InboxProductaanvraagListParameters } from "../model/inbox-productaanvra
 })
 export class InboxProductaanvragenListComponent
   extends WerklijstComponent
-  implements OnInit, AfterViewInit
+  implements OnInit, AfterViewInit, OnDestroy
 {
   isLoadingResults = true;
   dataSource = new MatTableDataSource<InboxProductaanvraag>();

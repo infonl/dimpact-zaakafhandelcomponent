@@ -25,13 +25,13 @@
             <zac-edit-input
               [formField]="codeFormField"
               [readonly]="tabel.systeem"
-              (onSave)="editTabel($event, 'code')"
+              (saveField)="editTabel($event, 'code')"
             ></zac-edit-input>
           </div>
           <div class="w33 w100-md">
             <zac-edit-input
               [formField]="naamFormField"
-              (onSave)="editTabel($event, 'naam')"
+              (saveField)="editTabel($event, 'naam')"
             ></zac-edit-input>
           </div>
         </div>
@@ -57,7 +57,7 @@
                 <zac-edit-input
                   [formField]="waardeFormField[row.id]"
                   [readonly]="row.systemValue"
-                  (onSave)="editTabelWaarde($event, row)"
+                  (saveField)="editTabelWaarde($event, row)"
                 ></zac-edit-input>
               </td>
             </ng-container>
