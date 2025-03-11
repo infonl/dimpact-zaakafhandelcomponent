@@ -70,8 +70,8 @@
               [submission]="{ data: taak.taakdata }"
               [form]="formioFormulier"
               [readOnly]="isReadonly()"
-              (submit)="onFormioFormSubmit($event)"
-              (change)="onFormioFormChange($event)"
+              (formSubmit)="onFormioFormSubmit($event)"
+              (formChange)="onFormioFormChange($event)"
             ></zac-formio-wrapper>
             <mat-progress-bar
               *ngIf="!formulier && !formulierDefinitie && !formioFormulier"
