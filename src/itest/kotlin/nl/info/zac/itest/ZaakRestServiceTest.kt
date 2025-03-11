@@ -49,6 +49,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEM
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_REFERENTIEPROCES
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_2
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_EXPLANATION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_1_IDENTIFICATION
@@ -384,6 +385,34 @@ class ZaakRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 with(responseBody) {
                     shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
+                }
+            }
+        }
+        When(
+            """"
+            the 'update zaak' endpoint is called where the communication channel and description are changed
+            """
+        ) {
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID",
+                requestBodyAsString = """
+                    { 
+                        "zaak": {
+                            "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_2",
+                            "omschrijving": "$ZAAK_DESCRIPTION_1", 
+                        },
+                        "reden": "dummyReason"
+                    }
+                """.trimIndent()
+            )
+            Then("the response should be a 200 HTTP response with the changed zaak data") {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_STATUS_OK
+                with(responseBody) {
+                    shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
+                    shouldContainJsonKeyValue("communicatiekanaal", COMMUNICATIEKANAAL_TEST_2)
+                    shouldContainJsonKeyValue("omschrijving", ZAAK_DESCRIPTION_1)
                 }
             }
         }
