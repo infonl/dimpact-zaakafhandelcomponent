@@ -3,7 +3,7 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<mat-drawer-container
+  <mat-drawer-container
   class="inner-sidenav-container"
   #sideNavContainer
   [class]="sideNaveMode"
@@ -56,108 +56,21 @@
                 <mat-icon>topic</mat-icon>
                 {{ "gegevens.algemeen" | translate }}
               </ng-template>
-              <div class="content flex-row flex-wrap flex-col-xs">
-                <div class="w33 w50-sm">
-                  <zac-static-text
-                    [label]="'titel' | translate"
-                    [value]="infoObject.titel"
-                  ></zac-static-text>
-                  <zac-static-text
-                    [label]="'identificatie' | translate"
-                    [value]="infoObject.identificatie"
-                  ></zac-static-text>
-                  <zac-static-text
-                    [label]="'vertrouwelijkheidaanduiding' | translate"
-                    [value]="
-                      infoObject.vertrouwelijkheidaanduiding
-                        | vertrouwelijkaanduidingToTranslationKey
-                        | translate
-                    "
-                  ></zac-static-text>
-                  <zac-static-text
-                    [label]="'bestandsnaam' | translate"
-                    [value]="infoObject.bestandsnaam"
-                  >
-                    <zac-document-icon
-                      position="content-before"
-                      [bestandsnaam]="infoObject.bestandsnaam"
-                    ></zac-document-icon>
-                    <span position="content-before">&nbsp;</span>
-                  </zac-static-text>
-                </div>
-                <div class="w33 w50-sm">
-                  <div class="mat-divider-wrapper hide-gt-sm">
-                    <mat-divider></mat-divider>
-                  </div>
-                  <zac-static-text
-                    [label]="'documentType' | translate"
-                    [value]="infoObject.informatieobjectTypeOmschrijving"
-                  ></zac-static-text>
-                  <zac-static-text
-                    [label]="'auteur' | translate"
-                    [value]="infoObject.auteur"
-                  ></zac-static-text>
-                  <zac-static-text
-                    [label]="'beschrijving' | translate"
-                    [value]="infoObject.beschrijving"
-                  ></zac-static-text>
-                  <div class="flex-row fex-wrap">
-                    <button
-                      [disabled]="infoObject.versie === 1"
-                      mat-icon-button
-                      (click)="haalVersieOp(infoObject.versie - 1)"
-                    >
-                      <mat-icon>chevron_left</mat-icon>
-                    </button>
-                    <zac-static-text
-                      [value]="versieInformatie"
-                    ></zac-static-text>
-                    <button
-                      [disabled]="
-                        laatsteVersieInfoObject &&
-                        infoObject.versie === laatsteVersieInfoObject.versie
-                      "
-                      mat-icon-button
-                      (click)="haalVersieOp(infoObject.versie + 1)"
-                    >
-                      <mat-icon>chevron_right</mat-icon>
-                    </button>
-                  </div>
-                </div>
-                <div class="w33 w50-sm">
-                  <div class="mat-divider-wrapper hide-gt-sm">
-                    <mat-divider></mat-divider>
-                  </div>
-                  <zac-static-text
-                    [label]="'informatieobject.status' | translate"
-                    [value]="
-                      'informatieobject.status.' + infoObject.status | translate
-                    "
-                    *ngIf="infoObject.status"
-                  ></zac-static-text>
-                  <zac-static-text
-                    [label]="'bronorganisatie' | translate"
-                    *ngIf="infoObject.bronorganisatie"
-                    [value]="infoObject.bronorganisatie"
-                  ></zac-static-text>
-                  <zac-static-text
-                    [label]="'taal' | translate"
-                    [value]="infoObject.taal"
-                  ></zac-static-text>
-                  <zac-static-text
-                    [label]="'bestandsomvang' | translate"
-                    [value]="infoObject.bestandsomvang | bestandsomvang"
-                  ></zac-static-text>
-                </div>
+              <div class="top-wrapper">
+                <zac-static-text
+                  [label]="'identificatie' | translate"
+                  [value]="infoObject.identificatie"
+                >
+                </zac-static-text>
               </div>
-              <div class="content flex-row flex-wrap flex-col-xs">
-                <div class="w33 w50-sm">
+              <div class="top-wrapper flex-row flex-wrap flex-col-xs">
+                <div class="w33 w50-sm top-wrapper-height">
                   <zac-static-text
                     [label]="'creatiedatum' | translate"
                     [value]="infoObject.creatiedatum | datum"
                   ></zac-static-text>
                 </div>
-                <div class="w33 w50-sm">
+                <div class="w33 w50-sm top-wrapper-height">
                   <div class="mat-divider-wrapper hide-gt-sm">
                     <mat-divider></mat-divider>
                   </div>
@@ -180,6 +93,98 @@
                     *ngIf="infoObject.ontvangstdatum"
                     [value]="infoObject.ontvangstdatum | datum"
                   ></zac-static-text>
+                </div>
+              </div>
+              <mat-divider class="mat-divider-wrapper"></mat-divider>
+              <div class="content flex-row flex-wrap flex-col-xs">
+                <div class="w33 w50-sm">
+                  <zac-static-text
+                    [label]="'titel' | translate"
+                    [value]="infoObject.titel"
+                  >
+                  </zac-static-text>
+                  <zac-static-text
+                    [label]="'documentType' | translate"
+                    [value]="infoObject.informatieobjectTypeOmschrijving"
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'informatieobject.status' | translate"
+                    [value]="
+                      'informatieobject.status.' + infoObject.status | translate
+                    "
+                    *ngIf="infoObject.status"
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'beschrijving' | translate"
+                    [value]="infoObject.beschrijving"
+                  ></zac-static-text>
+                </div>
+                <div class="w33 w50-sm">
+                  <div class="mat-divider-wrapper hide-gt-sm">
+                    <mat-divider></mat-divider>
+                  </div>
+                  <zac-static-text
+                    [label]="'auteur' | translate"
+                    [value]="infoObject.auteur"
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'bestandsnaam' | translate"
+                    [value]="infoObject.bestandsnaam"
+                  >
+                    <zac-document-icon
+                      position="content-before"
+                      [bestandsnaam]="infoObject.bestandsnaam"
+                    ></zac-document-icon>
+                    <span position="content-before">&nbsp;</span>
+                  </zac-static-text>
+                  <zac-static-text
+                    [label]="'vertrouwelijkheidaanduiding' | translate"
+                    [value]="
+                      infoObject.vertrouwelijkheidaanduiding
+                        | vertrouwelijkaanduidingToTranslationKey
+                        | translate
+                    "
+                  ></zac-static-text>
+                </div>
+                <div class="w33 w50-sm">
+                  <div class="mat-divider-wrapper hide-gt-sm">
+                    <mat-divider></mat-divider>
+                  </div>
+                  <zac-static-text
+                    [label]="'taal' | translate"
+                    [value]="infoObject.taal"
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'bestandsomvang' | translate"
+                    [value]="infoObject.bestandsomvang | bestandsomvang"
+                  ></zac-static-text>
+                  <zac-static-text
+                    [label]="'versie' | translate"
+                    [value]="infoObject.versie"
+                  ></zac-static-text>
+                </div>
+              </div>
+              <mat-divider class="mat-divider-wrapper"></mat-divider>
+              <div class="version-navigation">
+                <div class="flex-row fex-wrap">
+                  <button
+                    [disabled]="infoObject.versie === 1"
+                    mat-icon-button
+                    (click)="haalVersieOp(infoObject.versie - 1)"
+                  >
+                    <mat-icon>chevron_left</mat-icon>
+                  </button>
+                  <zac-static-text [value]="versieInformatie"></zac-static-text>
+                  <button
+                    [disabled]="
+                      laatsteVersieInfoObject &&
+                      infoObject.versie === laatsteVersieInfoObject.versie
+                    "
+                    mat-icon-button
+                    (click)="haalVersieOp(infoObject.versie + 1)"
+                  >
+                    <mat-icon>chevron_right</mat-icon>
+                  </button>
                 </div>
               </div>
             </mat-tab>
