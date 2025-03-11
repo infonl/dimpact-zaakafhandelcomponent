@@ -8,7 +8,7 @@ package net.atos.zac.app.productaanvragen.converter;
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraagListParameters;
 import net.atos.zac.app.shared.RESTListParametersConverter;
 import net.atos.zac.productaanvraag.model.InboxProductaanvraagListParameters;
-import net.atos.zac.zoeken.model.DatumRange;
+import net.atos.zac.search.model.DatumRange;
 
 public class RESTInboxProductaanvraagListParametersConverter extends
                                                              RESTListParametersConverter<InboxProductaanvraagListParameters, RESTInboxProductaanvraagListParameters> {

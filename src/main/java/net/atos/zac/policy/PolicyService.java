@@ -43,11 +43,11 @@ import net.atos.zac.policy.output.OverigeRechten;
 import net.atos.zac.policy.output.TaakRechten;
 import net.atos.zac.policy.output.WerklijstRechten;
 import net.atos.zac.policy.output.ZaakRechten;
-import net.atos.zac.zoeken.model.DocumentIndicatie;
-import net.atos.zac.zoeken.model.ZaakIndicatie;
-import net.atos.zac.zoeken.model.zoekobject.DocumentZoekObject;
-import net.atos.zac.zoeken.model.zoekobject.TaakZoekObject;
-import net.atos.zac.zoeken.model.zoekobject.ZaakZoekObject;
+import net.atos.zac.search.model.DocumentIndicatie;
+import net.atos.zac.search.model.ZaakIndicatie;
+import net.atos.zac.search.model.zoekobject.DocumentZoekObject;
+import net.atos.zac.search.model.zoekobject.TaakZoekObject;
+import net.atos.zac.search.model.zoekobject.ZaakZoekObject;
 import nl.info.client.zgw.ztc.ZtcClientService;
 
 @ApplicationScoped

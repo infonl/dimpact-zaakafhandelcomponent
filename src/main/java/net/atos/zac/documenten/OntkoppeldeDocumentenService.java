@@ -36,8 +36,8 @@ import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.documenten.model.OntkoppeldDocument;
 import net.atos.zac.documenten.model.OntkoppeldDocumentListParameters;
 import net.atos.zac.documenten.model.OntkoppeldeDocumentenResultaat;
+import net.atos.zac.search.model.DatumRange;
 import net.atos.zac.shared.model.SorteerRichting;
-import net.atos.zac.zoeken.model.DatumRange;
 
 
 @ApplicationScoped

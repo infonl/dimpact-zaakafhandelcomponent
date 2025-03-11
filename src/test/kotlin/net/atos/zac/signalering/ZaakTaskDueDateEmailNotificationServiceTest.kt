@@ -14,19 +14,19 @@ import io.mockk.runs
 import io.mockk.verify
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.createZaakafhandelParameters
-import net.atos.zac.app.zoeken.createZaakZoekObject
-import net.atos.zac.app.zoeken.createZoekResultaatForZaakZoekObjecten
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.task.FlowableTaskService
+import net.atos.zac.search.SearchService
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringTarget
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.createSignalering
 import net.atos.zac.signalering.model.createSignaleringInstellingen
-import net.atos.zac.zoeken.ZoekenService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.app.search.createZaakZoekObject
+import nl.info.zac.app.search.createZoekResultaatForZaakZoekObjecten
 import org.flowable.task.api.Task
 import java.net.URI
 import java.util.Optional
@@ -37,7 +37,7 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
     val configuratieService = mockk<ConfiguratieService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaakafhandelParameterService = mockk<ZaakafhandelParameterService>()
-    val zoekenService = mockk<ZoekenService>()
+    val searchService = mockk<SearchService>()
     val flowableTaskService = mockk<FlowableTaskService>()
 
     val zaakTaskDueDateEmailNotificationService = ZaakTaskDueDateEmailNotificationService(
@@ -45,7 +45,7 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         configuratieService,
         ztcClientService,
         zaakafhandelParameterService,
-        zoekenService,
+        searchService,
         flowableTaskService
     )
 
@@ -104,7 +104,7 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         every { signaleringService.sendSignalering(zaakVerlopendSignalering) } just runs
         every { signaleringService.createSignaleringVerzonden(zaakVerlopendSignalering) } returns mockk()
         every { flowableTaskService.listOpenTasksDueLater() } returns emptyList()
-        every { zoekenService.zoek(any()) } returns zoekResultaat
+        every { searchService.zoek(any()) } returns zoekResultaat
         every { signaleringService.deleteSignaleringVerzonden(any()) } just runs
 
         When("the send due date email notifications method is called") {

@@ -13,8 +13,8 @@ import io.mockk.mockkConstructor
 import io.mockk.verify
 import jakarta.enterprise.concurrent.ManagedExecutorService
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.zoeken.IndexingService
-import net.atos.zac.zoeken.model.zoekobject.ZoekObjectType
+import net.atos.zac.search.IndexingService
+import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import org.apache.solr.client.solrj.request.SolrPing
 import org.apache.solr.client.solrj.request.schema.SchemaRequest
 import org.apache.solr.client.solrj.request.schema.SchemaRequest.Fields
