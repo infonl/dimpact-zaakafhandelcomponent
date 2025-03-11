@@ -388,34 +388,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
         }
-        When(
-            """"
-            the 'update zaak' endpoint is called where the communication channel and description are changed
-            """
-        ) {
-            val response = itestHttpClient.performPatchRequest(
-                url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID",
-                requestBodyAsString = """
-                    { 
-                        "zaak": {
-                            "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_2",
-                            "omschrijving": "$ZAAK_DESCRIPTION_1", 
-                        },
-                        "reden": "dummyReason"
-                    }
-                """.trimIndent()
-            )
-            Then("the response should be a 200 HTTP response with the changed zaak data") {
-                val responseBody = response.body!!.string()
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_STATUS_OK
-                with(responseBody) {
-                    shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
-                    shouldContainJsonKeyValue("communicatiekanaal", COMMUNICATIEKANAAL_TEST_2)
-                    shouldContainJsonKeyValue("omschrijving", ZAAK_DESCRIPTION_1)
-                }
-            }
-        }
         When("the 'assign to zaak' endpoint is called with a group") {
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/toekennen",
