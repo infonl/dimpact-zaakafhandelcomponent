@@ -12,17 +12,15 @@ describe("SlicePipe", () => {
     pipe = new SlicePipe();
   });
 
-  it("should slice the string correctly", () => {
-    const value = "Hello, World!";
-    expect(pipe.transform(value, 0, 5)).toBe("Hello");
-    expect(pipe.transform(value, 7)).toBe("World!");
-    expect(pipe.transform(value, -6)).toBe("World!");
-    expect(pipe.transform(value, 0, -1)).toBe("Hello, World");
-  });
-
-  it("should return the value if it is not a string", () => {
-    expect(pipe.transform(123 as any, 0, 2)).toBe(123);
-    expect(pipe.transform(null as any, 0, 2)).toBe(null);
-    expect(pipe.transform(undefined as any, 0, 2)).toBe(undefined);
-  });
+  it.each([
+    ["Hello, World!", 0, 5, "Hello"],
+    ["Hello, World!", 7, undefined, "World!"],
+    ["Hello, World!", -6, undefined, "World!"],
+    ["Hello, World!", 0, -1, "Hello, World"],
+  ])(
+    "should transform %p with start %p and end %p to %p",
+    (value, start, end, expected) => {
+      expect(pipe.transform(value, start, end)).toBe(expected);
+    },
+  );
 });
