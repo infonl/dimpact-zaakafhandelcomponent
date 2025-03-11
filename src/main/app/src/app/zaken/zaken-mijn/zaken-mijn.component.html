@@ -392,7 +392,7 @@
         {{ "toelichting" | translate }}
       </th>
       <td mat-cell *matCellDef="let row">
-        <span>{{ row.toelichting | empty }}</span>
+        <span>{{ row.toelichting | slice: 0 : 350 | empty }}</span>
       </td>
     </ng-container>
 
