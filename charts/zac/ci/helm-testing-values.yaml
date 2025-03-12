@@ -383,7 +383,7 @@ solr-operator:
       # -- solr image repository
       repository: library/solr
       # -- solr image tag
-      tag: 9.6.1@sha256:8e47adc0da374463605dd9a9084b7053674eda6e2c95059b8ce8f138af99dcb2
+      tag: 9.8.1@sha256:16983468366aaf62417bb6a2a4b703b486b199b8461192df131455071c263916
     # -- solr memory settings
     javaMem: -Xms512m -Xmx768m
     # jobs settings
