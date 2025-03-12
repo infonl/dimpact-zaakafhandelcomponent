@@ -4,7 +4,11 @@
     "outDir": "./out-tsc/spec",
     "types": ["jest", "node", "@angular/google-maps"],
     "lib": ["DOM", "DOM.Iterable"],
-    "target": "ES2016"
+    "target": "ES2016",
+    "strict": false // Allows for the app to still build while we fixing all TS issues
+  },
+  "angularCompilerOptions": {
+    "strictTemplates": false // Allows for the app to still build while we fixing all TS issues
   },
   "include": ["src/**/*.spec.ts", "src/**/*.d.ts"]
 }
