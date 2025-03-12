@@ -66,28 +66,28 @@
               <div
                 class="flex top-wrapper flex-row flex-wrap justify-start gap-10"
               >
-                  <zac-static-text
-                    [label]="'creatiedatum' | translate"
-                    [value]="infoObject.creatiedatum | datum"
-                    class="flex-item"
-                  ></zac-static-text>
-                  <zac-static-text
-                    [label]="'registratiedatum' | translate"
-                    [value]="infoObject.registratiedatumTijd | datum: 'short'"
-                    class="flex-item"
-                  ></zac-static-text>
-                  <zac-static-text
-                    [label]="'verzenddatum' | translate"
-                    [value]="infoObject.verzenddatum | datum"
-                    *ngIf="!infoObject.verzenddatum"
-                    class="flex-item"
-                  ></zac-static-text>
-                  <zac-static-text
-                    [label]="'ontvangstdatum' | translate"
-                    *ngIf="!infoObject.ontvangstdatum"
-                    [value]="infoObject.ontvangstdatum | datum"
-                    class="flex-item"
-                  ></zac-static-text>
+                <zac-static-text
+                  [label]="'creatiedatum' | translate"
+                  [value]="infoObject.creatiedatum | datum"
+                  class="flex-item"
+                ></zac-static-text>
+                <zac-static-text
+                  [label]="'registratiedatum' | translate"
+                  [value]="infoObject.registratiedatumTijd | datum: 'short'"
+                  class="flex-item"
+                ></zac-static-text>
+                <zac-static-text
+                  [label]="'verzenddatum' | translate"
+                  [value]="infoObject.verzenddatum | datum"
+                  *ngIf="!infoObject.verzenddatum"
+                  class="flex-item"
+                ></zac-static-text>
+                <zac-static-text
+                  [label]="'ontvangstdatum' | translate"
+                  *ngIf="!infoObject.ontvangstdatum"
+                  [value]="infoObject.ontvangstdatum | datum"
+                  class="flex-item"
+                ></zac-static-text>
               </div>
               <mat-divider class="mat-divider-wrapper"></mat-divider>
 
