@@ -63,7 +63,9 @@
                 >
                 </zac-static-text>
               </div>
-              <div class="flex top-wrapper flex-row flex-wrap justify-start gap-10">
+              <div
+                class="flex top-wrapper flex-row flex-wrap justify-start gap-10"
+              >
                 <div class="flex-row justify-start">
                   <zac-static-text
                     [label]="'creatiedatum' | translate"
@@ -76,7 +78,10 @@
                     class="flex-item"
                   ></zac-static-text>
                 </div>
-                <div class="flex-row justify-start" *ngIf="infoObject.verzenddatum || infoObject.ontvangstdatum">
+                <div
+                  class="flex-row justify-start"
+                  *ngIf="infoObject.verzenddatum || infoObject.ontvangstdatum"
+                >
                   <zac-static-text
                     [label]="'verzenddatum' | translate"
                     [value]="infoObject.verzenddatum | datum"
