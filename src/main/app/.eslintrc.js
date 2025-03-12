@@ -42,7 +42,7 @@ module.exports = {
       extends: [
         "plugin:@angular-eslint/template/recommended",
         "plugin:@angular-eslint/template/accessibility",
-        "plugin:prettier/recommended"
+        "plugin:prettier/recommended",
       ],
       rules: {
         /**
