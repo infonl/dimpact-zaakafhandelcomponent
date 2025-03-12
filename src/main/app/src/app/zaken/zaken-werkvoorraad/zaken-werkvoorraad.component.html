@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos
+  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos, 2025 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -139,7 +139,9 @@
       <th mat-header-cell cdkDrag *matHeaderCellDef>
         {{ "omschrijving" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">{{ row.omschrijving | empty }}</td>
+      <td mat-cell *matCellDef="let row">
+        <span>{{ row.omschrijving | empty }}</span>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="groep_filter">
@@ -419,7 +421,9 @@
       <th mat-header-cell cdkDrag *matHeaderCellDef>
         {{ "toelichting" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">{{ row.toelichting | empty }}</td>
+      <td mat-cell *matCellDef="let row">
+        <span>{{ row.toelichting | slice: 0 : 350 | empty }}</span>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="openstaandeTaken_filter">

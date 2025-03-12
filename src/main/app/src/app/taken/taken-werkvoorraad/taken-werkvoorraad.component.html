@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos
+  ~ SPDX-FileCopyrightText: 2021 - 2022 Atos, 2025 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -259,7 +259,9 @@
       <th mat-header-cell cdkDrag *matHeaderCellDef>
         {{ "zaakOmschrijving" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">{{ row.zaakOmschrijving }}</td>
+      <td mat-cell *matCellDef="let row">
+        <span>{{ row.zaakOmschrijving | empty }}</span>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="zaakToelichting_filter">
@@ -277,7 +279,9 @@
       <th mat-header-cell cdkDrag *matHeaderCellDef>
         {{ "zaakToelichting" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">{{ row.zaakToelichting }}</td>
+      <td mat-cell *matCellDef="let row">
+        <span>{{ row.zaakToelichting | slice: 0 : 350 | empty }}</span>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="toelichting_filter">
@@ -295,7 +299,9 @@
       <th mat-header-cell cdkDrag *matHeaderCellDef>
         {{ "toelichting" | translate }}
       </th>
-      <td mat-cell *matCellDef="let row">{{ row.toelichting }}</td>
+      <td mat-cell *matCellDef="let row">
+        <span>{{ row.toelichting | slice: 0 : 350 | empty }}</span>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="url_filter" stickyEnd>
