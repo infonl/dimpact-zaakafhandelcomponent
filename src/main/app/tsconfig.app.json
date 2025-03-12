@@ -3,9 +3,13 @@
   "compilerOptions": {
     "outDir": "./out-tsc/app",
     "types": [],
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "strict": false // Allows for the app to still build while we fixing all TS issues
+  },
+  "angularCompilerOptions": {
+    "strictTemplates": false // Allows for the app to still build while we fixing all TS issues
   },
   "files": ["src/main.ts", "src/polyfills.ts"],
   "include": ["src/**/*.d.ts"],
-  "exclude": ["src/test.ts", "src/**/*.spec.ts"]
+  "exclude": ["src/test-helpers.ts", "src/**/*.spec.ts"]
 }

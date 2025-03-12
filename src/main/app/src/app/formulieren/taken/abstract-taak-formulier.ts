@@ -158,7 +158,7 @@ export abstract class AbstractTaakFormulier {
     return documentNamen.join(", ");
   }
 
-  private getDataElementen(formGroup: FormGroup): Record<string, unknown> {
+  private getDataElementen(formGroup: FormGroup) {
     Object.entries(formGroup.value)
       .filter(([key]) => key !== AbstractTaakFormulier.TAAK_TOEKENNING)
       .filter(([key]) => key !== AbstractTaakFormulier.TAAK_FATALEDATUM)
@@ -169,10 +169,7 @@ export abstract class AbstractTaakFormulier {
           key === AbstractTaakFormulier.ONDERTEKENEN_FIELD,
       )
       .map(([key, value]) => {
-        this.dataElementen[key] = value as any;
-        if (typeof this.dataElementen[key] === "boolean") {
-          this.dataElementen[key] = `${this.dataElementen[key]}`; // convert to string, boolean not allowed in string map (yasson/jsonb exception)
-        }
+        this.dataElementen[key] = `${value}`;
       });
     return this.dataElementen;
   }

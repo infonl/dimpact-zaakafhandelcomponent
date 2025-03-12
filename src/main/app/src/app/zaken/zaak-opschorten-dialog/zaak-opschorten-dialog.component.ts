@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject } from "@angular/core";
+import { Component, Inject, OnDestroy } from "@angular/core";
 import { Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import moment from "moment";
@@ -23,7 +23,7 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "zaak-opschorten-dialog.component.html",
   styleUrls: ["./zaak-opschorten-dialog.component.less"],
 })
-export class ZaakOpschortenDialogComponent {
+export class ZaakOpschortenDialogComponent implements OnDestroy {
   formFields: AbstractFormField[][] = [];
   loading = true;
 

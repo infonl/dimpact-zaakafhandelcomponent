@@ -25,8 +25,6 @@ const localStorageMock = (() => {
 })();
 
 describe("SessionStorageService", () => {
-  let service: SessionStorageUtil;
-
   beforeEach(() => {
     Object.defineProperty(window, "sessionStorage", {
       value: localStorageMock,
@@ -34,7 +32,7 @@ describe("SessionStorageService", () => {
     TestBed.configureTestingModule({
       providers: [SessionStorageUtil],
     }).compileComponents();
-    service = TestBed.inject(SessionStorageUtil);
+    TestBed.inject(SessionStorageUtil);
   });
 
   afterEach(() => {
@@ -72,9 +70,6 @@ describe("SessionStorageService", () => {
     expect(JSON.parse).toHaveBeenCalled();
     expect(JSON.stringify).toHaveBeenCalled();
     expect(window.sessionStorage.setItem).toHaveBeenCalled();
-
-    const jaap = { gebruikersnaam: "Jaap" };
-    const gebruikerJSON = JSON.stringify(jaap);
 
     expect(gebruiker).toEqual("Jaap");
   });

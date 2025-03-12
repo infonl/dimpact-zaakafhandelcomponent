@@ -661,11 +661,24 @@ tasks {
         outputs.dir("$appPath/node_modules")
     }
 
+    register<NpmTask>("npmRunLint") {
+        description = "Runs the linter"
+        group = "verification"
+        dependsOn("npmInstall")
+        dependsOn("generateOpenApiSpec")
+
+        npmCommand.set(listOf("run", "lint"))
+
+        inputs.files(fileTree("$appPath/node_modules"))
+        inputs.files(fileTree("$appPath/src"))
+    }
+
     register<NpmTask>("npmRunBuild") {
         description = "Builds the frontend application"
         group = "build"
         dependsOn("npmInstall")
         dependsOn("generateOpenApiSpec")
+        dependsOn("npmRunLint")
 
         npmCommand.set(listOf("run", "build"))
 

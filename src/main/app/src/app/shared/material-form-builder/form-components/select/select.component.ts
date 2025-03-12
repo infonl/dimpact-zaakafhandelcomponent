@@ -26,9 +26,11 @@ export class SelectComponent
 
   ngOnInit(): void {
     this.loading$ = this.data.loading$.subscribe((loading) => {
-      loading
-        ? this.data.formControl.disable()
-        : this.data.formControl.enable();
+      if (loading) {
+        this.data.formControl.disable();
+      } else {
+        this.data.formControl.enable();
+      }
     });
   }
 

@@ -15,10 +15,10 @@
     "skipLibCheck": true,
     "useDefineForClassFields": false,
     "esModuleInterop": true,
-    "strict": false
+    "strict": true
   },
   "angularCompilerOptions": {
     "strictInjectionParameters": true,
-    "strictTemplates": false
+    "strictTemplates": true
   }
 }

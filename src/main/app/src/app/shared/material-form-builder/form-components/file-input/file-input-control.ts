@@ -46,6 +46,7 @@ import {
   providers: [{ provide: MatFormFieldControl, useExisting: MatFileInput }],
   standalone: true,
 })
+// eslint-disable-next-line @angular-eslint/directive-class-suffix
 export class MatFileInput extends MatInput {
   /** Make sure the input is a supported type. */
   protected _validateType() {

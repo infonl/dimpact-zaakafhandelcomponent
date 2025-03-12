@@ -11,7 +11,6 @@ import {
   Validators,
 } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
-// @ts-ignore-next-line allow to import moment
 import moment from "moment";
 import { Observable, Subject, Subscription, forkJoin, takeUntil } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
@@ -350,6 +349,7 @@ export class CaseDetailsEditComponent implements OnDestroy, OnInit {
   }
 
   private createZaakPatch(update: Record<string, any>) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { assignment, reason, ...updates } = update;
 
     return {
