@@ -109,7 +109,7 @@
                         this.taak.status === this.TaakStatusAfgerond ||
                         !this.taak.rechten.toekennen
                       "
-                      (onSave)="editToewijzing($event)"
+                      (saveField)="editToewijzing($event)"
                       [reasonField]="editFormFields.get('reden')"
                     >
                     </zac-edit-groep-behandelaar>

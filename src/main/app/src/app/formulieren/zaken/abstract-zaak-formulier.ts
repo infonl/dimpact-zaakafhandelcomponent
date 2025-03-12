@@ -22,11 +22,8 @@ export abstract class AbstractZaakFormulier {
 
   protected abstract _initForm(): void;
 
-  protected getDataElement(key: string): any {
-    if (this.dataElementen?.hasOwnProperty(key)) {
-      return this.dataElementen[key];
-    }
-    return null;
+  protected getDataElement(key: string) {
+    return this.dataElementen[key] ?? null;
   }
 
   getZaak(formGroup: FormGroup): Zaak {

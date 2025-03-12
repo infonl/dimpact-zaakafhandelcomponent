@@ -108,6 +108,7 @@ export class SmartDocumentsService {
       .map((group) => {
         const templates = (group.templates || [])
           .filter((template) => template.informatieObjectTypeUUID)
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           .map(({ parentGroupId, ...template }) => template);
 
         const groups = group.groups

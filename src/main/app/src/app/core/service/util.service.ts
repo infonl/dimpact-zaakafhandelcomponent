@@ -253,7 +253,7 @@ export class UtilService {
   /**
    * Compares two variables, if objects it will check some `keysToCompareOn` are equal
    */
-  public compare<T extends unknown>(
+  public compare<T>(
     a: T,
     b: T,
     keysToCompareOn = ["key", "id", "naam", "name"],

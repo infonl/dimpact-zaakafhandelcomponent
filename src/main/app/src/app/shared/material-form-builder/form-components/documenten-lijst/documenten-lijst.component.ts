@@ -99,6 +99,8 @@ export class DocumentenLijstComponent
   }
 
   selectDisabled(
+    // Disable for override that requires document
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     document: GeneratedType<"RestEnkelvoudigInformatieobject">,
   ): boolean {
     return this.data.readonly;
