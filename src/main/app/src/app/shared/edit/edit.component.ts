@@ -35,7 +35,7 @@ export abstract class EditComponent
 
   @Input() readonly = false;
   @Input() abstract formField: AbstractFormField;
-  @Output() onSave: EventEmitter<any> = new EventEmitter<any>();
+  @Output() saveField = new EventEmitter<any>();
 
   formFields: FormGroup;
   subscription: Subscription;
@@ -113,7 +113,7 @@ export abstract class EditComponent
       {},
     );
 
-    this.onSave.emit(values);
+    this.saveField.emit(values);
 
     this.reset();
   }

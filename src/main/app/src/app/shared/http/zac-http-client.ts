@@ -32,7 +32,7 @@ type Response<
         : unknown
       : never
     : never,
-  {},
+  Record<string, unknown>,
   "application/json"
 >["data"];
 
@@ -135,18 +135,16 @@ export class ZacHttpClient {
     let url = urlTemplate;
 
     for (const key in pathParams) {
-      if (pathParams.hasOwnProperty(key)) {
-        // Simple string replacement without regex
-        const placeholder = `{${key}}`;
-        while (url.includes(placeholder)) {
-          if (!pathParams[key]) {
-            throw new HttpParamsError(
-              `No key provided for '{${key}}', stopping request to '${urlTemplate}'`,
-            );
-          }
-
-          url = url.replace(placeholder, pathParams[key].toString());
+      // Simple string replacement without regex
+      const placeholder = `{${key}}`;
+      while (url.includes(placeholder)) {
+        if (!pathParams[key]) {
+          throw new HttpParamsError(
+            `No key provided for '{${key}}', stopping request to '${urlTemplate}'`,
+          );
         }
+
+        url = url.replace(placeholder, pathParams[key].toString());
       }
     }
 

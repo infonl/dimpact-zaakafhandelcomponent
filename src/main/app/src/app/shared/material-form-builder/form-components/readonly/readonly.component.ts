@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { FormComponent } from "../../model/form-component";
 import { ReadonlyFormField } from "./readonly-form-field";
@@ -12,12 +12,10 @@ import { ReadonlyFormField } from "./readonly-form-field";
   templateUrl: "./readonly.component.html",
   styleUrls: ["./readonly.component.less"],
 })
-export class ReadonlyComponent extends FormComponent implements OnInit {
+export class ReadonlyComponent extends FormComponent {
   data: ReadonlyFormField;
 
   constructor(public translate: TranslateService) {
     super();
   }
-
-  ngOnInit(): void {}
 }
