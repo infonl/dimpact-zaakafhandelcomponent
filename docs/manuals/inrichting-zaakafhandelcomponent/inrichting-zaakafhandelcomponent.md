@@ -200,11 +200,12 @@ Voor nu worden de volgende onderdelen gecheckt:
   - Besluittype | er wordt gecheckt of aan het zaaktype een besluittype is gekoppeld. Dit gebeurt alleen als aan het zaaktype een resultaattype is toegevoegd dat als afleidingswijze de begin- of vervaldatum van een besluit heeft.
 
 ### Roltypen
-ZAC zoekt naar een Roltype met behulp van een van deze velden:
+ZAC zoekt naar een roltype met behulp van één van deze velden:
 - Omschrijving generiek | een set vooraf gedefinieerde waarden
 - Omschrijving | beschrijving van de roltype
+![OpenZaak roltype velden](images/90beb6d0-8b0e-4462-9f86-5cae079e602f.png)
 
-ZAC zoekt eerst in `Omschrijving` en daarna in `Omschrijving generiek`.
+ZAC zoekt eerst in `Omschrijving` en daarna in `Omschrijving generiek`. Als voor een roltype zowel het `Omschrijving` als het `Omschrijving generiek` veld gevuld is dan wordt het `Omschrijving` veld gebruikt.
 
 ## Signaleringen
 De ZAC heeft naast signaleringen voor gebruikers, die in de gebruikershandleiding worden beschreven, ook signaleringen voor groepen. Deze kunnen worden verstuurd wanneer een zaak niet op naam van een behandelaar maar alleen op naam van een groep staan.
