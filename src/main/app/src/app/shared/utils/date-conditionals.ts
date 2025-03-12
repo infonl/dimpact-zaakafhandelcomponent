@@ -4,7 +4,6 @@
  */
 
 import { FormControl } from "@angular/forms";
-// @ts-ignore-next-line allow to import moment
 import moment, { Moment } from "moment";
 
 export declare type ConditionalFn = (control: FormControl) => boolean;

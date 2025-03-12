@@ -120,16 +120,14 @@ export class WebsocketService implements OnDestroy {
   private dispatch(event: ScreenEvent, key: string) {
     const callbacks: EventCallback[] = this.getCallbacks(key);
     for (const listenerId in callbacks) {
-      if (callbacks.hasOwnProperty(listenerId) && listenerId !== "length") {
-        try {
-          if (!this.isSuspended(listenerId)) {
-            console.debug("listener call: " + key);
-            callbacks[listenerId](event);
-          }
-        } catch (error) {
-          console.warn("Websocket callback error: ");
-          console.error(error);
+      try {
+        if (!this.isSuspended(listenerId)) {
+          console.debug("listener call: " + key);
+          callbacks[listenerId](event);
         }
+      } catch (error) {
+        console.warn("Websocket callback error: ");
+        console.error(error);
       }
     }
   }

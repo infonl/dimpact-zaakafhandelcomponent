@@ -30,9 +30,9 @@ export class TaakFormulierBuilder {
       this._formulier.humanTaskData.fataledatum = planItem.fataleDatum;
     }
     this._formulier.initStartForm();
-    const groep: GeneratedType<"RestGroup"> | null = planItem
+    const groep: GeneratedType<"RestGroup"> | undefined = planItem
       ? { id: planItem.groepId, naam: planItem.naam }
-      : null;
+      : undefined;
 
     this._formulier.form.push(
       [new DividerFormFieldBuilder().build()],

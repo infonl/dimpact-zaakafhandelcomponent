@@ -9,7 +9,6 @@ import {
   Input,
   OnChanges,
   Output,
-  SimpleChanges,
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { DatumRange } from "../../../zoeken/model/datum-range";
@@ -27,7 +26,7 @@ export class DateRangeFilterComponent implements OnChanges {
   dateVan = new FormControl<Date>(null);
   dateTM = new FormControl<Date>(null);
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(): void {
     if (!this.range) {
       this.range = new DatumRange();
     }

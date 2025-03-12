@@ -3,7 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
 
 import { detailExpand } from "../../shared/animations/animations";
 
@@ -33,7 +39,7 @@ import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
 })
 export class ZakenAfgehandeldComponent
   extends WerklijstComponent
-  implements AfterViewInit, OnInit
+  implements AfterViewInit, OnInit, OnDestroy
 {
   dataSource: ZakenAfgehandeldDatasource;
   @ViewChild(MatPaginator) paginator: MatPaginator;

@@ -211,7 +211,7 @@ export class TaakViewComponent
   }
 
   private initializeSpecializedFormioComponents(
-    components: Array<{ [key: string]: any }>,
+    components: Array<Record<string, any>>,
   ): void {
     for (const component of components) {
       switch (component.type) {
@@ -219,7 +219,7 @@ export class TaakViewComponent
           this.initializeGroepMedewerkerFieldsetComponent(component);
           break;
       }
-      if (component.hasOwnProperty("components")) {
+      if ("components" in component) {
         this.initializeSpecializedFormioComponents(component.components);
       }
     }
@@ -264,7 +264,7 @@ export class TaakViewComponent
       custom: () => {
         if (
           this.formioChangeData &&
-          this.formioChangeData.hasOwnProperty(groepComponentKey) &&
+          groepComponentKey in this.formioChangeData &&
           this.formioChangeData[groepComponentKey] !== ""
         ) {
           return this.identityService
@@ -381,7 +381,7 @@ export class TaakViewComponent
     }
   }
 
-  onConfigurableFormPartial(formState: {}): void {
+  onConfigurableFormPartial(formState?: Record<string, string>): void {
     if (formState) {
       this.websocketService.suspendListener(this.taakListener);
       this.taak.taakdata = formState;
@@ -393,7 +393,7 @@ export class TaakViewComponent
     }
   }
 
-  onConfigurableFormSubmit(formState: {}): void {
+  onConfigurableFormSubmit(formState?: Record<string, string>): void {
     if (formState) {
       this.websocketService.suspendListener(this.taakListener);
       this.taak.taakdata = formState;
