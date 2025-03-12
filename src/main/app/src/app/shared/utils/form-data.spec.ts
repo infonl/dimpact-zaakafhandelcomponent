@@ -61,6 +61,7 @@ describe("createFormData", () => {
   it("should skip keys that are null, undefined or an empty string", () => {
     const formData = createFormData(
       { emptyString: "", null: null, undefined: undefined },
+      // @ts-expect-error
       { emptyString: true, null: true, undefined: true },
     );
     const entries = Array.from(formData);

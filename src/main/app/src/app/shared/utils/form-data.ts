@@ -50,7 +50,7 @@ export function createFormData<T extends Record<string, any>>(
         }
       } else {
         const parsed = parseFormValue(value);
-        if (typeof parsed != "boolean") {
+        if (typeof parsed != "boolean" && Boolean(parsed)) {
           formData.append(key, parsed);
         }
       }
