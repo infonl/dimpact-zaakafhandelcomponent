@@ -44,7 +44,7 @@
     [readonly]="data.readonly"
   />
   <mat-hint *ngIf="data.hint">{{ data.hint.label | translate }}</mat-hint>
-  <mat-hint *ngIf="data.maxlength"
+  <mat-hint *ngIf="data.maxlength" align="end"
     >{{ data.formControl.value?.length ?? 0 }} /{{ data.maxlength }}</mat-hint
   >
   <mat-error appEnhanceMatError *ngIf="data.formControl.invalid">{{
