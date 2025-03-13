@@ -168,8 +168,11 @@ export abstract class AbstractTaakFormulier {
           !this.isReadonlyFormField(key) ||
           key === AbstractTaakFormulier.ONDERTEKENEN_FIELD,
       )
-      .map(([key, value]) => {
-        this.dataElementen[key] = `${value}`;
+      .forEach(([key, value]) => {
+        this.dataElementen[key] = value as any;
+        if (typeof this.dataElementen[key] === "boolean") {
+          this.dataElementen[key] = `${this.dataElementen[key]}`;
+        }
       });
     return this.dataElementen;
   }
