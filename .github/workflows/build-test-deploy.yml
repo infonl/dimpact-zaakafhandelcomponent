@@ -44,6 +44,7 @@ jobs:
         id: paths-filter
         with:
           predicate-quantifier: 'every'
+          # TODO: just for testing added '.github/workflows/build-test-deploy.yml' temporarily
           filters: |
             changes-requiring-build:
               - '**'
@@ -51,6 +52,7 @@ jobs:
               - '!**/.*.pdf'          
               - '!helm/**'                        
               - '!.github/CODEOWNERS'
+              - '.github/workflows/build-test-deploy.yml'
 
   build:
     runs-on: ubuntu-24.04
