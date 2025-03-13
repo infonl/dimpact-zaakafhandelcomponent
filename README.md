@@ -4,10 +4,10 @@
 [![Codecov](https://codecov.io/gh/infonl/dimpact-zaakafhandelcomponent/branch/main/graph/badge.svg)](https://app.codecov.io/gh/infonl/dimpact-zaakafhandelcomponent/)
 [![License](https://img.shields.io/badge/License-EUPL_1.2-blue.svg)](https://opensource.org/license/eupl-1-2/)
 
-This repository contains the source code of the "zaakafhandelcomponent" (ZAC) developed for [Dimpact](https://www.dimpact.nl/).
+This repository contains the source code of the "zaakafhandelcomponent" (ZAC), developed for [Dimpact](https://www.dimpact.nl/).
 The zaakafhandelcomponent is an open-source, generic, workflow-based component for managing 'zaken'
 in the context of [zaakgericht werken](https://www.noraonline.nl/wiki/Zaakgericht_Werken), a Dutch approach to case management.
-It is developed for Dimpact and used by Dutch municipalities.
+It is used by various Dutch municipalities.
 
 ZAC was initially [developed by Atos](https://github.com/NL-AMS-LOCGOV/zaakafhandelcomponent).
 Starting July 2023 the development of ZAC was taken over by Lifely and INFO, where INFO is a partner of Lifely.
