@@ -43,6 +43,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.File
+import java.net.URLDecoder
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -61,14 +62,14 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     ) {
         When(
             """
-                the create enkelvoudig informatie object with file upload endpoint is called for the zaak with a PDF file
-                """
+            the create enkelvoudig informatie object with file upload endpoint is called for the zaak with a PDF file
+            """
         ) {
             val endpointUrl =
                 "$ZAC_API_URI/informatieobjecten/informatieobject/$zaakProductaanvraag1Uuid/$zaakProductaanvraag1Uuid"
             logger.info { "Calling $endpointUrl endpoint" }
             val file = Thread.currentThread().contextClassLoader.getResource(TEST_PDF_FILE_NAME).let {
-                File(it!!.path)
+                File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
             }
             val requestBody =
                 MultipartBody.Builder()
@@ -108,9 +109,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 requestBody = requestBody
             )
 
-            Then(
-                "the response should be OK and contain information for the created document and uploaded file"
-            ) {
+            Then("the response should be OK and contain information for the created document and uploaded file") {
                 val responseBody = response.body!!.string()
                 logger.info { "$endpointUrl response: $responseBody" }
                 response.code shouldBe HTTP_STATUS_OK
@@ -148,16 +147,12 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 enkelvoudigInformatieObjectUUID = JSONObject(responseBody).getString("uuid")
             }
         }
-        When(
-            """
-                update of enkelvoudig informatie object with file upload endpoint is called with a TXT file
-                """
-        ) {
+        When("update of enkelvoudig informatie object with file upload endpoint is called with a TXT file") {
             val endpointUrl =
                 "$ZAC_API_URI/informatieobjecten/informatieobject/update"
             logger.info { "Calling $endpointUrl endpoint" }
             val file = Thread.currentThread().contextClassLoader.getResource(TEST_TXT_FILE_NAME).let {
-                File(it!!.path)
+                File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
             }
 
             val requestBody =
@@ -269,7 +264,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/informatieobjecten/informatieobject/$zaakProductaanvraag1Uuid/$zaakProductaanvraag1Uuid"
             logger.info { "Calling $endpointUrl endpoint" }
             val file = Thread.currentThread().contextClassLoader.getResource(TEST_TXT_FILE_NAME).let {
-                File(it!!.path)
+                File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
             }
             val requestBody =
                 MultipartBody.Builder()
@@ -417,7 +412,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 "$zaakProductaanvraag1Uuid/$task1ID?taakObject=true"
             logger.info { "Calling $endpointUrl endpoint" }
             val file = Thread.currentThread().contextClassLoader.getResource(TEST_PDF_FILE_NAME).let {
-                File(it!!.path)
+                File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
             }
             val requestBody =
                 MultipartBody.Builder()
