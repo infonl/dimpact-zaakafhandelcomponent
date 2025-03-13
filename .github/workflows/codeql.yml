@@ -45,6 +45,7 @@ jobs:
               - '!helm/**'                        
               - '!.github/CODEOWNERS'
               - '!.github/workflows/build-test-deploy.yml'
+              - '!.github/workflows/codeql.yml'
 
   analyze:
     name: Analyze
