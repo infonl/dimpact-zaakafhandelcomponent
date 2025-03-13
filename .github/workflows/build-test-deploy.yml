@@ -40,7 +40,7 @@ jobs:
       changes-requiring-build: ${{ steps.paths-filter.outputs.changes-requiring-build }}
     steps:
       - name: Skip job when only certain files or file types are changed which do not require a pull request build
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: paths-filter
         with:
           predicate-quantifier: 'every'
