@@ -24,7 +24,6 @@ import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import org.json.JSONArray
-import java.net.URLDecoder
 import java.net.URLEncoder
 import java.time.LocalDate
 
