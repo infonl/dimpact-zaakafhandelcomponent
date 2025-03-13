@@ -54,8 +54,6 @@ jobs:
               - '!docs/**'          
               - '!*.sh'
               - '!.github/CODEOWNERS'
-              - '!.github/workflows/build-test-deploy.yml'
-              - '!.github/workflows/codeql.yml'
 
   build:
     runs-on: ubuntu-24.04
