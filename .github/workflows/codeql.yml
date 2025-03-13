@@ -40,8 +40,8 @@ jobs:
           filters: |
             changes-requiring-build:
               - '**'
-              - '!**/.*.md'
-              - '!**/.*.pdf'          
+              - '!**/*.md'
+              - '!**/*.pdf'          
               - '!helm/**'                        
               - '!.github/CODEOWNERS'
               - '!.github/workflows/build-test-deploy.yml'
