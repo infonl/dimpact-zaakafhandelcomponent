@@ -79,12 +79,12 @@
                 <zac-static-text
                   [label]="'verzenddatum' | translate"
                   [value]="infoObject.verzenddatum | datum"
-                  *ngIf="!infoObject.verzenddatum"
+                  *ngIf="infoObject.verzenddatum"
                   class="flex-item"
                 ></zac-static-text>
                 <zac-static-text
                   [label]="'ontvangstdatum' | translate"
-                  *ngIf="!infoObject.ontvangstdatum"
+                  *ngIf="infoObject.ontvangstdatum"
                   [value]="infoObject.ontvangstdatum | datum"
                   class="flex-item"
                 ></zac-static-text>
