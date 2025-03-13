@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @bitnami | solr | 9.5.4 |
+| @bitnami | solr | 9.5.5 |
 | @opentelemetry | opentelemetry-collector | 0.104.0 |
 | @solr | solr-operator | 0.9.0 |
 
