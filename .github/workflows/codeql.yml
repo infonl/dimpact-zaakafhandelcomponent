@@ -44,7 +44,7 @@ jobs:
               - '!**/.*.pdf'          
               - '!helm/**'                        
               - '!.github/CODEOWNERS'
-              - '.github/workflows/build-test-deploy.yml'
+              - '!.github/workflows/build-test-deploy.yml'
 
   analyze:
     name: Analyze

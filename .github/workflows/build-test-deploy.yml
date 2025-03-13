@@ -52,7 +52,7 @@ jobs:
               - '!**/.*.pdf'          
               - '!helm/**'                        
               - '!.github/CODEOWNERS'
-              - '.github/workflows/build-test-deploy.yml'
+              - '!.github/workflows/build-test-deploy.yml'
 
   build:
     runs-on: ubuntu-24.04
