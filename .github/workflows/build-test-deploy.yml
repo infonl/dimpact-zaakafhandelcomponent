@@ -44,13 +44,15 @@ jobs:
         id: paths-filter
         with:
           predicate-quantifier: 'every'
-          # TODO: just for testing added '.github/workflows/build-test-deploy.yml' temporarily
+          # Please keep this list in sync with the one in the 'codeql.yml' workflow
           filters: |
             changes-requiring-build:
               - '**'
               - '!**/*.md'
               - '!**/*.pdf'          
-              - '!helm/**'                        
+              - '!helm/**'          
+              - '!docs/**'          
+              - '!*.sh'
               - '!.github/CODEOWNERS'
               - '!.github/workflows/build-test-deploy.yml'
               - '!.github/workflows/codeql.yml'
