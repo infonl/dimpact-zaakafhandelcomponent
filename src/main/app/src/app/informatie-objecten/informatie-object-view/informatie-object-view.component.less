@@ -1,9 +1,104 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2023 Atos
+ * SPDX-FileCopyrightText: 2021 - 2023 Atos, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
+@import "/variables";
+
+.mat-divider-wrapper {
+  margin: 10px 0;
+}
+
+.version-navigation {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 10px;
+}
+
+.top-wrapper {
+  padding-top: 10px;
+}
+
+@media (max-width: 600px) {
+  .flex-container {
+    flex-wrap: wrap;
+  }
+}
+
+mat-slide-toggle {
+  right: 30px;
+  position: absolute;
+}
+
+.zaak-actions-drawer {
+  min-width: 40vw;
+}
+
+.taken-card {
+  height: 100%;
+  margin-bottom: 10px;
+}
+
+.documenten-card {
+  min-width: 620px;
+  margin-bottom: 10px;
+}
+
+.besluiten {
+  margin-bottom: 10px;
+}
 
 .historie-table {
   height: 400px;
   overflow: auto;
+}
+
+.betrokkenen-table {
+  height: 400px;
+  overflow: auto;
+}
+
+.bagobjecten-table {
+  height: 400px;
+  overflow: auto;
+}
+
+.mat-mdc-column-betrokkenegegevens span {
+  white-space: pre-line;
+}
+
+.mat-mdc-column-actions {
+  width: 90px;
+}
+
+.mat-mdc-column-betrokkeneidentificatie span {
+  font-weight: 500;
+}
+
+.cdk-column-expandedTaakDetail zac-static-text {
+  min-width: 150px;
+}
+
+.proces-button {
+  position: relative;
+  top: -4px;
+  left: 12px;
+}
+
+.flex-item {
+  flex: 0 1 calc(33% - 5px);
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.flex-double-item {
+  flex: 0 1 calc(66%);
+  display: flex;
+  box-sizing: border-box;
+  min-width: 400px;
+  max-width: 600px;
+}
+
+.replace_me_margin {
+  margin-top: 10px;
 }
