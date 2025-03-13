@@ -72,8 +72,9 @@ data:
       error_page 555 = @longtimeout;
       error_page 556 = @normal;
 
+      include conf.d/proxy;
+
       location / {
-        include conf.d/proxy;
         set $first "B";
         if ($request_uri ~* '^/websocket') {
           set $first "${first}W";
