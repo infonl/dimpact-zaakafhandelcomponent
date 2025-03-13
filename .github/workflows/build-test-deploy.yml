@@ -34,26 +34,29 @@ concurrency:
   cancel-in-progress: ${{ !contains(github.ref, 'main')}}
 
 jobs:
-  paths-ignore:
+  paths-filter:
     runs-on: ubuntu-24.04
     outputs:
-      skip: ${{ steps.paths-ignore.outputs.skip }}
+      changes-requiring-build: ${{ steps.paths-filter.outputs.changes-requiring-build }}
     steps:
       - name: Skip job when only certain files or file types are changed which do not require a pull request build
-        uses: kunitsucom/github-actions-paths-ignore-alternative@d1b27090d1a610f8cdde46d8d937a4a9c9127619 # v1.0.1
-        id: paths-ignore
+        uses: dorny/paths-filter@v3
+        id: paths-filter
         with:
-          paths-ignore: |-
-            ^.*\.md$
-            ^.*\.pdf$
-            ^helm/
-            ^.github/CODEOWNERS$
+          predicate-quantifier: 'every'
+          filters: |
+            changes-requiring-build:
+              - '**'
+              - '!**/.*.md'
+              - '!**/.*.pdf'          
+              - '!helm/**'                        
+              - '!.github/CODEOWNERS'
 
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
-    needs: paths-ignore
-    if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
+    needs: paths-filter
+    if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' || github.ref == 'refs/heads/main'}}
     outputs:
       branch_name: ${{ steps.gen_branch_name.outputs.BRANCH_NAME }}
       build_number: ${{ steps.gen_build_number.outputs.BUILD_NUMBER }}
@@ -123,8 +126,8 @@ jobs:
           key: zac-jar-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   run-unit-tests:
-    needs: [build, paths-ignore]
-    if: ${{ needs.paths-ignore.outputs.skip != 'true' || github.ref == 'refs/heads/main'}}
+    needs: [build, paths-filter]
+    if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' || github.ref == 'refs/heads/main'}}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
@@ -241,10 +244,10 @@ jobs:
           echo "Next version tag: ${{ github.ref == 'refs/heads/main' && steps.get-tag-main.outputs.new_tag || steps.get-tag-non-main.outputs.new_tag }}"
 
   build-docker-image-and-run-itests:
-    needs: [build, paths-ignore, next-version]
-    # Do not run in the merge queue and do not run if the paths-ignore step defines it to skip
+    needs: [build, paths-filter, next-version]
+    # Do not run in the merge queue and do not run if the paths-filter step defines it to skip
     # but always run for the main branch
-    if: ${{ (github.event_name != 'merge_group' && needs.paths-ignore.outputs.skip != 'true') || github.ref == 'refs/heads/main'}}
+    if: ${{ (github.event_name != 'merge_group' && needs.paths-filter.outputs.changes-requiring-build == 'true') || github.ref == 'refs/heads/main'}}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
