@@ -6,7 +6,7 @@
   <label class="label" [class.required]="data.required">{{
     data.label | translate
   }}</label>
-  <mat-hint *ngIf="data.hint" [align]="data.hint.align">{{
+  <mat-hint *ngIf="data.hint">{{
     data.hint.label | translate
   }}</mat-hint>
   <mat-radio-group class="radio-group" [formControl]="data.formControl">

@@ -35,7 +35,6 @@ export class InputFormFieldBuilder extends AbstractFormFieldBuilder {
 
   maxlength(maxlength: number, showCount = true): this {
     this.formField.maxlength = maxlength;
-    this.formField.showCount = showCount;
     return this;
   }
 }

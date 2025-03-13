@@ -39,7 +39,7 @@
       </div>
     </mat-option>
   </mat-select>
-  <mat-hint *ngIf="data.hint" [align]="data.hint.align">{{
+  <mat-hint *ngIf="data.hint">{{
     data.hint.label | translate
   }}</mat-hint>
   <mat-error appEnhanceMatError *ngIf="data.formControl.invalid">{{
