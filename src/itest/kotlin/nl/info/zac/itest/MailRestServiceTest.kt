@@ -16,6 +16,7 @@ import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NO_CONTENT
 import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_OK
 import nl.info.zac.itest.config.ItestConfiguration.TEST_INFORMATIE_OBJECT_TYPE_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_SPEC_ORDER_AFTER_TASK_COMPLETED
+import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
@@ -23,6 +24,7 @@ import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import org.json.JSONArray
+import java.net.URLEncoder
 import java.time.LocalDate
 
 /**
@@ -32,6 +34,8 @@ import java.time.LocalDate
 class MailRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
+
+    val urlEncodedFileName = URLEncoder.encode(TEST_TXT_FILE_NAME, Charsets.UTF_8)
 
     Given("A zaak exists and SMTP server is configured") {
         When("A mail is sent with the 'create document from mail' option enabled") {
@@ -77,8 +81,8 @@ class MailRestServiceTest : BehaviorSpec({
                         getString("contentType") shouldStartWith "multipart/mixed"
                         with(getString("mimeMessage")) {
                             shouldContain(body)
-                            shouldContain("Content-Type: application/text; name=testTextDocument.txt")
-                            shouldContain("Content-Disposition: attachment; filename=testTextDocument.txt")
+                            shouldContain("Content-Type: application/text; name*=UTF-8''$urlEncodedFileName")
+                            shouldContain("Content-Disposition: attachment; filename*=UTF-8''$urlEncodedFileName")
                         }
                     }
                 }
@@ -107,7 +111,7 @@ class MailRestServiceTest : BehaviorSpec({
                   "bestandsnaam" : "subject.pdf",
                   "auteur" : "$TEST_USER_1_NAME",
                   "beschrijving" : "",
-                  "bestandsomvang" : 1848,
+                  "bestandsomvang" : 1851,
                   "creatiedatum" : "${LocalDate.now()}",
                   "formaat" : "application/pdf",
                   "indicatieGebruiksrecht" : false,

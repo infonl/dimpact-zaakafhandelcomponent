@@ -130,10 +130,10 @@ object ItestConfiguration {
         "Street # 38 & House # 10, Baghdad, Park Al-Sadoum, Hay Al-Nidhal 103, Irak"
     const val TEST_PERSON_2_BSN = "999992958"
     const val TEST_PERSON_3_BSN = "999991838"
-    const val TEST_PDF_FILE_NAME = "dummyTestDocument.pdf"
+    const val TEST_PDF_FILE_NAME = "dümmyTestDocument.pdf"
     const val TEST_PDF_FILE_SIZE = 9268
-    const val TEST_TXT_FILE_NAME = "testTextDocument.txt"
-    const val TEST_TXT_CONVERTED_TO_PDF_FILE_NAME = "testTextDocument.pdf"
+    const val TEST_TXT_FILE_NAME = "tëstTextDocument.txt"
+    const val TEST_TXT_CONVERTED_TO_PDF_FILE_NAME = "tëstTextDocument.pdf"
     const val TEST_TXT_FILE_SIZE = 63
     const val TEST_USER_1_USERNAME = "testuser1"
     const val TEST_USER_1_PASSWORD = "testuser1"
