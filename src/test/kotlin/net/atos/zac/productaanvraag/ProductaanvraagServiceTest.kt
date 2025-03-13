@@ -230,7 +230,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     "betrokkenen" to listOf(
                         mapOf(
                             "inpBsn" to bsnNumber,
-                            "rolOmschrijvingGeneriek" to "initiator"
+                            "roltypeOmschrijving" to "Initiator"
                         ),
                         mapOf(
                             "vestigingsNummer" to "dummyVestigingsNummer",
@@ -263,9 +263,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             )
         } returns createdZaakInformatieobject
         every { cmmnService.startCase(createdZaak, zaakType, zaakafhandelParameters, any()) } just Runs
-        every {
-            ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.INITIATOR)
-        } returns listOf(rolTypeInitiator)
+        every { ztcClientService.findRoltypen(any(), "Initiator") } returns listOf(rolTypeInitiator)
         every { zrcClientService.createRol(capture(roleToBeCreated)) } just runs
         every { configuratieService.readBronOrganisatie() } returns "123443210"
 

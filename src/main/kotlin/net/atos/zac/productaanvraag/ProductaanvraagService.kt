@@ -209,7 +209,7 @@ class ProductaanvraagService @Inject constructor(
                             "Only the first one will be used."
                     )
                 } else {
-                    addBetrokkene(betrokkene, OmschrijvingGeneriekEnum.INITIATOR.toString(), zaak)
+                    addBetrokkene(betrokkene, ROLTYPE_OMSCHRIJVING_INITIATOR, zaak)
                 }
                 return true
             }
