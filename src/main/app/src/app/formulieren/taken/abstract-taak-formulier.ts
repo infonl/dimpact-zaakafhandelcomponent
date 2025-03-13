@@ -169,9 +169,10 @@ export abstract class AbstractTaakFormulier {
           key === AbstractTaakFormulier.ONDERTEKENEN_FIELD,
       )
       .forEach(([key, value]) => {
-        this.dataElementen[key] = value as any;
         if (typeof this.dataElementen[key] === "boolean") {
           this.dataElementen[key] = `${this.dataElementen[key]}`;
+        } else {
+          this.dataElementen[key] = value as any;
         }
       });
     return this.dataElementen;
