@@ -68,7 +68,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             val endpointUrl =
                 "$ZAC_API_URI/informatieobjecten/informatieobject/$zaakProductaanvraag1Uuid/$zaakProductaanvraag1Uuid"
             logger.info { "Calling $endpointUrl endpoint" }
-            val file = Thread.currentThread().contextClassLoader.getResource(TEST_PDF_FILE_NAME).let {
+            val file = Thread.currentThread().contextClassLoader.getResource(TEST_PDF_FILE_NAME)?.let {
                 File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
             }
             val requestBody =
@@ -151,7 +151,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             val endpointUrl =
                 "$ZAC_API_URI/informatieobjecten/informatieobject/update"
             logger.info { "Calling $endpointUrl endpoint" }
-            val file = Thread.currentThread().contextClassLoader.getResource(TEST_TXT_FILE_NAME).let {
+            val file = Thread.currentThread().contextClassLoader.getResource(TEST_TXT_FILE_NAME)?.let {
                 File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
             }
 
@@ -263,7 +263,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             val endpointUrl =
                 "$ZAC_API_URI/informatieobjecten/informatieobject/$zaakProductaanvraag1Uuid/$zaakProductaanvraag1Uuid"
             logger.info { "Calling $endpointUrl endpoint" }
-            val file = Thread.currentThread().contextClassLoader.getResource(TEST_TXT_FILE_NAME).let {
+            val file = Thread.currentThread().contextClassLoader.getResource(TEST_TXT_FILE_NAME)?.let {
                 File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
             }
             val requestBody =
@@ -411,7 +411,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             val endpointUrl = "$ZAC_API_URI/informatieobjecten/informatieobject/" +
                 "$zaakProductaanvraag1Uuid/$task1ID?taakObject=true"
             logger.info { "Calling $endpointUrl endpoint" }
-            val file = Thread.currentThread().contextClassLoader.getResource(TEST_PDF_FILE_NAME).let {
+            val file = Thread.currentThread().contextClassLoader.getResource(TEST_PDF_FILE_NAME)?.let {
                 File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
             }
             val requestBody =
