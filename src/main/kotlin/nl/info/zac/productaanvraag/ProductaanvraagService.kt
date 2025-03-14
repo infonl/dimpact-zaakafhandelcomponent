@@ -1,8 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Dimpact
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Dimpact, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.productaanvraag
+package nl.info.zac.productaanvraag
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -27,6 +27,7 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.client.zgw.ztc.model.generated.RolType
 import net.atos.client.zgw.ztc.model.generated.ZaakType
+import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.configuratie.ConfiguratieService
@@ -47,6 +48,10 @@ import net.atos.zac.util.JsonbUtil
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.productaanvraag.model.generated.Betrokkene
+import nl.info.zac.productaanvraag.model.generated.Geometry
+import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
+import nl.info.zac.productaanvraag.util.convertToZgwPoint
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -164,7 +169,7 @@ class ProductaanvraagService @Inject constructor(
 
     /**
      * Adds all betrokkenen which are present in the provided productaanvraag to the zaak for the set
-     * of provided role types, [Betrokkene.RoltypeOmschrijving] or [Betrokkene.roltypeOmschrijving], but only for those
+     * of provided role types, [Betrokkene.rolOmschrijvingGeneriek] or [Betrokkene.roltypeOmschrijving], but only for those
      * role types which are defined in the zaaktype of the specified zaak.
      * An exception is made for betrokkenen of role type (behandelaar)[Betrokkene.RolOmschrijvingGeneriek.BEHANDELAAR]].
      * Behandelaar betrokkenen cannot be set from a productaanvraag.
@@ -237,15 +242,12 @@ class ProductaanvraagService @Inject constructor(
             Betrokkene.RolOmschrijvingGeneriek.ADVISEUR -> {
                 addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.ADVISEUR, zaak)
             }
-
             Betrokkene.RolOmschrijvingGeneriek.BELANGHEBBENDE -> {
                 addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.BELANGHEBBENDE, zaak)
             }
-
             Betrokkene.RolOmschrijvingGeneriek.BESLISSER -> {
                 addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.BESLISSER, zaak)
             }
-
             Betrokkene.RolOmschrijvingGeneriek.INITIATOR -> {
                 if (initiatorAdded) {
                     LOG.warning(
@@ -257,19 +259,15 @@ class ProductaanvraagService @Inject constructor(
                 }
                 return true
             }
-
             Betrokkene.RolOmschrijvingGeneriek.KLANTCONTACTER -> {
                 addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.KLANTCONTACTER, zaak)
             }
-
             Betrokkene.RolOmschrijvingGeneriek.MEDE_INITIATOR -> {
                 addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.MEDE_INITIATOR, zaak)
             }
-
             Betrokkene.RolOmschrijvingGeneriek.ZAAKCOORDINATOR -> {
                 addBetrokkeneGeneriek(betrokkene, OmschrijvingGeneriekEnum.ZAAKCOORDINATOR, zaak)
             }
-
             else -> {
                 LOG.warning(
                     "Betrokkene with generic role '${betrokkene.rolOmschrijvingGeneriek}' is not supported in the " +
@@ -277,7 +275,6 @@ class ProductaanvraagService @Inject constructor(
                 )
             }
         }
-
         return initiatorAdded
     }
 
@@ -312,14 +309,12 @@ class ProductaanvraagService @Inject constructor(
         generiek: Boolean = false
     ) {
         val prefix = if (generiek) "generic " else ""
-
-        if (types.isEmpty()) {
-            LOG.warning(
+        when {
+            types.isEmpty() -> LOG.warning(
                 "No roltypen found for zaaktype '${zaak.zaaktype}' and ${prefix}roltype description " +
                     "'$roltypeOmschrijving'. No betrokkene role created for zaak '$zaak'."
             )
-        } else if (types.size > 1) {
-            LOG.warning(
+            types.size > 1 -> LOG.warning(
                 "Multiple ${prefix}roltypen found for zaaktype '${zaak.zaaktype}', ${prefix}roltype description " +
                     "'$roltypeOmschrijving' and zaak '$zaak'. " +
                     "Using the first one (description: '${types.first().omschrijving}')."
@@ -343,7 +338,6 @@ class ProductaanvraagService @Inject constructor(
                     zaak.url
                 )
             }
-
             betrokkene.vestigingsNummer != null -> {
                 addVestigingRole(
                     type,
@@ -351,7 +345,6 @@ class ProductaanvraagService @Inject constructor(
                     zaak.url
                 )
             }
-
             else -> {
                 LOG.warning(
                     "Betrokkene with ${prefix}roletype description `$roltypeOmschrijving` does not contain a BSN " +

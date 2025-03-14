@@ -31,6 +31,7 @@ import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.task.TaskService
 import net.atos.zac.websocket.event.ScreenEvent
+import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
 import java.net.URI
 import java.util.UUID
