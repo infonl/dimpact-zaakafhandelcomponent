@@ -32,7 +32,6 @@ import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConvert
 import net.atos.zac.app.shared.RestPageParameters
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.model.createRESTZaakOverzicht
-import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.createTestTask
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -51,6 +50,7 @@ import net.atos.zac.signalering.model.createSignaleringType
 import net.atos.zac.signalering.model.createSignaleringZoekParameters
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.model.createZaak
+import nl.info.zac.authentication.LoggedInUser
 import java.time.ZonedDateTime
 import java.util.UUID
 

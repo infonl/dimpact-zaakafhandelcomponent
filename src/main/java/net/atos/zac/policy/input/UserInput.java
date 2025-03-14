@@ -9,7 +9,7 @@ import java.util.Objects;
 
 import jakarta.json.bind.annotation.JsonbProperty;
 
-import net.atos.zac.authentication.LoggedInUser;
+import nl.info.zac.authentication.LoggedInUser;
 
 public class UserInput {
 

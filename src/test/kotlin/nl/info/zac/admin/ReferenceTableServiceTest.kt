@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.admin
+package nl.info.zac.admin
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -12,9 +12,9 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.persistence.EntityManager
-import net.atos.zac.admin.model.ReferenceTable
-import net.atos.zac.admin.model.createReferenceTable
-import net.atos.zac.admin.model.createReferenceTableValue
+import nl.info.zac.admin.model.ReferenceTable
+import nl.info.zac.admin.model.createReferenceTable
+import nl.info.zac.admin.model.createReferenceTableValue
 
 class ReferenceTableServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>()

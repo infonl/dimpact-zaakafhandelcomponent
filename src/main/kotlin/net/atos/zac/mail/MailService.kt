@@ -29,7 +29,6 @@ import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
-import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.identity.model.getFullName
 import net.atos.zac.mail.model.Attachment
@@ -40,6 +39,7 @@ import net.atos.zac.mailtemplates.model.MailGegevens
 import net.atos.zac.util.MediaTypes
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String

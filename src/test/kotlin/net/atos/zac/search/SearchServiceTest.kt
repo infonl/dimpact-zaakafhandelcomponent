@@ -14,7 +14,6 @@ import io.mockk.mockkConstructor
 import io.mockk.mockkStatic
 import io.mockk.slot
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.search.model.DatumRange
 import net.atos.zac.search.model.DatumVeld
 import net.atos.zac.search.model.FilterParameters
@@ -27,6 +26,7 @@ import net.atos.zac.search.model.zoekobject.ZaakZoekObject
 import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import net.atos.zac.shared.model.SorteerRichting
 import nl.info.zac.app.search.createZoekParameters
+import nl.info.zac.authentication.LoggedInUser
 import org.apache.solr.client.solrj.beans.DocumentObjectBinder
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.client.solrj.response.QueryResponse

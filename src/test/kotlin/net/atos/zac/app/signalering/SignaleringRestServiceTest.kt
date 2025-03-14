@@ -15,10 +15,10 @@ import net.atos.zac.app.shared.RestPageParameters
 import net.atos.zac.app.signalering.converter.RestSignaleringInstellingenConverter
 import net.atos.zac.app.signalering.exception.SignaleringException
 import net.atos.zac.app.zaak.model.createRESTZaakOverzicht
-import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringType
+import nl.info.zac.authentication.LoggedInUser
 
 class SignaleringRestServiceTest : BehaviorSpec({
     val signaleringService = mockk<SignaleringService>()

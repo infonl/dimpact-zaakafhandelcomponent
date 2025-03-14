@@ -14,12 +14,12 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.app.admin.model.RESTDeletedSignaleringenResponse
-import net.atos.zac.authentication.ActiveSession
-import net.atos.zac.authentication.setFunctioneelGebruiker
 import net.atos.zac.event.EventingService
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.util.event.JobEvent
 import net.atos.zac.util.event.JobId
+import nl.info.zac.authentication.ActiveSession
+import nl.info.zac.authentication.setFunctioneelGebruiker
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty

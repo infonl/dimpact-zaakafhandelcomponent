@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.admin.exception
+package nl.info.zac.admin.exception
 
 import jakarta.ws.rs.NotFoundException
 

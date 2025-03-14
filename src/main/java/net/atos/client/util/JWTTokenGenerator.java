@@ -15,7 +15,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 
-import net.atos.zac.authentication.LoggedInUser;
+import nl.info.zac.authentication.LoggedInUser;
 
 public final class JWTTokenGenerator {
 

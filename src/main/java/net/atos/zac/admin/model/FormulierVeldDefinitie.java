@@ -5,6 +5,8 @@
 
 package net.atos.zac.admin.model;
 
+import nl.info.zac.admin.model.ReferenceTable;
+
 public enum FormulierVeldDefinitie {
     ADVIES(ReferenceTable.Systeem.ADVIES);
 

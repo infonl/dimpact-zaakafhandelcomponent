@@ -40,7 +40,6 @@ import net.atos.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigIn
 import net.atos.zac.app.policy.converter.RestRechtenConverter;
 import net.atos.zac.app.task.model.RestTaskDocumentData;
 import net.atos.zac.app.zaak.model.RelatieType;
-import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.configuratie.model.Taal;
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
@@ -50,6 +49,7 @@ import net.atos.zac.policy.PolicyService;
 import net.atos.zac.policy.output.DocumentRechten;
 import nl.info.client.zgw.brc.BrcClientService;
 import nl.info.client.zgw.ztc.ZtcClientService;
+import nl.info.zac.authentication.LoggedInUser;
 
 public class RestInformatieobjectConverter {
     private static final Logger LOG = Logger.getLogger(RestInformatieobjectConverter.class.getName());

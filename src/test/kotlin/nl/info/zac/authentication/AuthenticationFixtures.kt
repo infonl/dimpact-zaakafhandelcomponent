@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.authentication
+package nl.info.zac.authentication
 
 import net.atos.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
 import net.atos.zac.app.zaak.model.ZAAK_TYPE_2_OMSCHRIJVING

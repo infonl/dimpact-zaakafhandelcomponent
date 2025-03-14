@@ -27,7 +27,6 @@ import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.ztc.model.generated.StatusType;
 import net.atos.client.zgw.ztc.model.generated.ZaakType;
-import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
 import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
 import net.atos.zac.policy.exception.PolicyException;
@@ -49,6 +48,7 @@ import net.atos.zac.search.model.zoekobject.DocumentZoekObject;
 import net.atos.zac.search.model.zoekobject.TaakZoekObject;
 import net.atos.zac.search.model.zoekobject.ZaakZoekObject;
 import nl.info.client.zgw.ztc.ZtcClientService;
+import nl.info.zac.authentication.LoggedInUser;
 
 @ApplicationScoped
 public class PolicyService {

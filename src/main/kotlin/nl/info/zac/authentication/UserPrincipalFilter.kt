@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.authentication
+package nl.info.zac.authentication
 
 import jakarta.inject.Inject
 import jakarta.servlet.Filter
@@ -26,7 +26,7 @@ class UserPrincipalFilter @Inject constructor(
     private val zaakafhandelParameterService: ZaakafhandelParameterService
 ) : Filter {
     companion object {
-        private val LOG: Logger = Logger.getLogger(UserPrincipalFilter::class.java.name)
+        private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
         private const val ROL_DOMEIN_ELK_ZAAKTYPE = "domein_elk_zaaktype"
         private const val GROUP_MEMBERSHIP_CLAIM_NAME = "group_membership"
     }
@@ -74,14 +74,14 @@ class UserPrincipalFilter @Inject constructor(
         oidcSecurityContext.token.let { accessToken ->
             accessToken.rolesClaim.toSet().let { roles ->
                 LoggedInUser(
-                    accessToken.preferredUsername,
-                    accessToken.givenName,
-                    accessToken.familyName,
-                    accessToken.name,
-                    accessToken.email,
-                    roles,
-                    accessToken.getStringListClaimValue(GROUP_MEMBERSHIP_CLAIM_NAME).toSet(),
-                    getAuthorisedZaaktypen(roles)
+                    id = accessToken.preferredUsername,
+                    firstName = accessToken.givenName,
+                    lastName = accessToken.familyName,
+                    displayName = accessToken.name,
+                    email = accessToken.email,
+                    roles = roles,
+                    groupIds = accessToken.getStringListClaimValue(GROUP_MEMBERSHIP_CLAIM_NAME).toSet(),
+                    geautoriseerdeZaaktypen = getAuthorisedZaaktypen(roles)
                 )
             }
         }

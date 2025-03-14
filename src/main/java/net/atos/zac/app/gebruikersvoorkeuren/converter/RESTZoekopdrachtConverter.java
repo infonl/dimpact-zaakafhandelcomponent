@@ -12,8 +12,8 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
 import net.atos.zac.app.gebruikersvoorkeuren.model.RESTZoekopdracht;
-import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.gebruikersvoorkeuren.model.Zoekopdracht;
+import nl.info.zac.authentication.LoggedInUser;
 
 public class RESTZoekopdrachtConverter {
 

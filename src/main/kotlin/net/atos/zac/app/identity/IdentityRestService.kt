@@ -19,8 +19,8 @@ import net.atos.zac.app.identity.model.RestUser
 import net.atos.zac.app.identity.model.toRestGroups
 import net.atos.zac.app.identity.model.toRestLoggedInUser
 import net.atos.zac.app.identity.model.toRestUsers
-import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.identity.IdentityService
+import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 

@@ -18,7 +18,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
 
 import net.atos.client.util.JWTTokenGenerator;
-import net.atos.zac.authentication.LoggedInUser;
+import nl.info.zac.authentication.LoggedInUser;
 
 public class ZGWClientHeadersFactory implements ClientHeadersFactory {
     public static final String X_AUDIT_TOELICHTING_HEADER = "X-Audit-Toelichting";

@@ -5,7 +5,7 @@
 
 package net.atos.zac.policy.input;
 
-import net.atos.zac.authentication.LoggedInUser;
+import nl.info.zac.authentication.LoggedInUser;
 
 public class ZaakInput extends UserInput {
 

@@ -13,7 +13,7 @@ import jakarta.ws.rs.core.MultivaluedMap;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
 
-import net.atos.zac.authentication.LoggedInUser;
+import nl.info.zac.authentication.LoggedInUser;
 
 public class KlantClientHeadersFactory implements ClientHeadersFactory {
 
