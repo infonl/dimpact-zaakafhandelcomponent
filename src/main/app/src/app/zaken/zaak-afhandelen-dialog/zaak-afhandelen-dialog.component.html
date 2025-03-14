@@ -61,7 +61,9 @@
         maxlength="80"
         matInput
       />
-      <mat-hint align="end">{{ formGroup.get("toelichting")!.value.length }}/80</mat-hint>
+      <mat-hint align="end"
+        >{{ formGroup.get("toelichting")!.value.length }}/80</mat-hint
+      >
     </mat-form-field>
   </div>
   <div *ngIf="mailBeschikbaar">
@@ -112,7 +114,9 @@
         maxlength="200"
         formControlName="ontvanger"
       />
-      <mat-hint align="end">{{ formGroup.get("ontvanger")!.value.length }}/200</mat-hint>
+      <mat-hint align="end"
+        >{{ formGroup.get("ontvanger")!.value.length }}/200</mat-hint
+      >
       <mat-error>{{
         getError(formGroup.get("ontvanger")!, "ontvanger")
       }}</mat-error>
