@@ -42,6 +42,8 @@ import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.admin.ZaakafhandelParameterBeheerService
+import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
 import nl.info.zac.admin.model.createZaakafhandelParameters
