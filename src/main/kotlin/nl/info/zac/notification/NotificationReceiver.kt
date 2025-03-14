@@ -20,7 +20,6 @@ import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.search.IndexingService
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.event.SignaleringEventUtil
@@ -33,6 +32,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.setFunctioneelGebruiker
+import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty

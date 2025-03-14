@@ -26,7 +26,6 @@ import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.getFullName
-import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.util.StringUtil
 import nl.info.client.brp.BrpClientService
@@ -41,6 +40,7 @@ import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.decodedBase64StringLength
 import java.net.URI
