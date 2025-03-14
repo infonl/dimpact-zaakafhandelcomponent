@@ -5,10 +5,8 @@
 
 export class FormFieldHint {
   label: string;
-  align: "start" | "end";
 
-  constructor(label: string, align?: "start" | "end") {
+  constructor(label: string) {
     this.label = label;
-    this.align = align ? align : "end";
   }
 }

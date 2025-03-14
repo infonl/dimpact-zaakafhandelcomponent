@@ -15,9 +15,8 @@ export class TextareaFormFieldBuilder extends AbstractFormFieldBuilder {
     this.formField.initControl(value);
   }
 
-  maxlength(maxlength: number, showCount = true): this {
+  maxlength(maxlength: number): this {
     this.formField.maxlength = maxlength;
-    this.formField.showCount = showCount;
     return this;
   }
 

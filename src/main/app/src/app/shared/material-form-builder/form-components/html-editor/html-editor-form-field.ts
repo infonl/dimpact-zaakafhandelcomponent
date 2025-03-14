@@ -18,7 +18,6 @@ export class HtmlEditorFormField extends AbstractFormControlField {
   variabelen: MailtemplateVariabele[];
   emptyToolbar: boolean;
   maxlength: number;
-  showCount = false;
 
   constructor() {
     super();

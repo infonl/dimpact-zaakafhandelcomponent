@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Atos
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2025 Lifely
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -39,9 +39,7 @@
       </div>
     </mat-option>
   </mat-select>
-  <mat-hint *ngIf="data.hint" [align]="data.hint.align">{{
-    data.hint.label | translate
-  }}</mat-hint>
+  <mat-hint *ngIf="data.hint">{{ data.hint.label | translate }}</mat-hint>
   <mat-error appEnhanceMatError *ngIf="data.formControl.invalid">{{
     getErrorMessage()
   }}</mat-error>
