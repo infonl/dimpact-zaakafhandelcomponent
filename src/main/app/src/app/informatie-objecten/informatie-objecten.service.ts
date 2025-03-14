@@ -147,28 +147,26 @@ export class InformatieObjectenService {
     zaakUuid: string,
     infoObject: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">,
   ) {
-    const mergedInfoObject = {
-      ...infoObject,
-      uuid,
-      zaakUuid,
-    };
-    const formData = createFormData(mergedInfoObject, {
-      uuid: true,
-      zaakUuid: true,
-      titel: true,
-      vertrouwelijkheidaanduiding: true,
-      auteur: true,
-      status: true,
-      taal: ([k, v]) => [k, JSON.stringify(v)],
-      bestandsnaam: true,
-      formaat: true,
-      file: ([k, v]) => [k, v as unknown as Blob, infoObject.bestandsnaam],
-      beschrijving: true,
-      verzenddatum: formatDateForFormData,
-      ontvangstdatum: formatDateForFormData,
-      toelichting: true,
-      informatieobjectTypeUUID: true,
-    });
+    const formData = createFormData(
+      { ...infoObject, uuid, zaakUuid },
+      {
+        uuid: true,
+        zaakUuid: true,
+        titel: true,
+        vertrouwelijkheidaanduiding: true,
+        auteur: true,
+        status: true,
+        taal: ([k, v]) => [k, JSON.stringify(v)],
+        bestandsnaam: true,
+        formaat: true,
+        file: ([k, v]) => [k, v as unknown as Blob, infoObject.bestandsnaam],
+        beschrijving: true,
+        verzenddatum: formatDateForFormData,
+        ontvangstdatum: formatDateForFormData,
+        toelichting: true,
+        informatieobjectTypeUUID: true,
+      },
+    );
 
     return this.http
       .post<GeneratedType<"RestEnkelvoudigInformatieobject">>(

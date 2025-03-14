@@ -282,6 +282,7 @@ export class InformatieObjectEditComponent
     > = {
       uuid: this.infoObject.uuid,
     };
+
     Object.keys(formGroup.controls).forEach((key) => {
       const control = formGroup.controls[key];
       const value = control.value;
