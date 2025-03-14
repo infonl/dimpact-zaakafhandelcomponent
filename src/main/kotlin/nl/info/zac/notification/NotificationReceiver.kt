@@ -37,6 +37,7 @@ import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.setFunctioneelGebruiker
+import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty

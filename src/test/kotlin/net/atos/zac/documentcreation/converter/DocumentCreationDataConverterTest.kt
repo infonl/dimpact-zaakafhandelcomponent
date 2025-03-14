@@ -20,7 +20,6 @@ import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.getFullName
-import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.createAdres
@@ -36,6 +35,7 @@ import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.productaanvraag.ProductaanvraagService
 
 class DocumentCreationDataConverterTest : BehaviorSpec({
     val zgwApiService = mockk<ZGWApiService>()
