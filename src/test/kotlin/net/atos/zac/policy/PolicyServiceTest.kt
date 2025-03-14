@@ -17,8 +17,6 @@ import net.atos.client.opa.model.RuleResponse
 import net.atos.client.zgw.drc.model.generated.Ondertekening
 import net.atos.client.zgw.drc.model.generated.SoortEnum
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.zac.authentication.LoggedInUser
-import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import net.atos.zac.enkelvoudiginformatieobject.model.createEnkelvoudigInformatieObjectLock
@@ -37,6 +35,8 @@ import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.createLoggedInUser
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID

@@ -11,7 +11,6 @@ import jakarta.ws.rs.core.UriBuilder
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
-import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.converter.DocumentCreationDataConverter
 import net.atos.zac.documentcreation.model.DocumentCreationAttendedResponse
@@ -24,6 +23,7 @@ import nl.info.client.smartdocuments.model.document.OutputFormat
 import nl.info.client.smartdocuments.model.document.Selection
 import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.smartdocuments.model.document.Variables
+import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI

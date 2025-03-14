@@ -1,15 +1,15 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos ,2024 Lifely
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.admin
+package nl.info.zac.admin
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import net.atos.zac.admin.exception.ReferenceTableNotFoundException
-import net.atos.zac.admin.model.ReferenceTable
+import nl.info.zac.admin.exception.ReferenceTableNotFoundException
+import nl.info.zac.admin.model.ReferenceTable
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 

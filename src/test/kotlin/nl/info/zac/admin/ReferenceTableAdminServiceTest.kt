@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.admin
+package nl.info.zac.admin
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -18,8 +18,8 @@ import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Root
 import net.atos.zac.admin.model.HumanTaskReferentieTabel
-import net.atos.zac.admin.model.createHumanTaskReferentieTabel
-import net.atos.zac.admin.model.createReferenceTable
+import nl.info.zac.admin.model.createHumanTaskReferentieTabel
+import nl.info.zac.admin.model.createReferenceTable
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKAFHANDELPARAMETERS
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_SYSTEM_REFERENCE_TABLE_CANNOT_BE_DELETED
 import nl.info.zac.exception.InputValidationFailedException

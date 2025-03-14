@@ -22,11 +22,11 @@ import net.atos.zac.app.signalering.exception.SignaleringException
 import net.atos.zac.app.signalering.model.RestSignaleringInstellingen
 import net.atos.zac.app.signalering.model.RestSignaleringTaskSummary
 import net.atos.zac.app.zaak.model.RestZaakOverzicht
-import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringInstellingenZoekParameters
 import net.atos.zac.signalering.model.SignaleringType
+import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 

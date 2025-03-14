@@ -8,9 +8,7 @@ import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import net.atos.client.zgw.ztc.model.generated.ZaakType
-import net.atos.zac.admin.ReferenceTableService
 import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.model.ReferenceTable.Systeem
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.healthcheck.exception.BuildInformationException
 import net.atos.zac.healthcheck.model.BuildInformatie
@@ -20,6 +18,8 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.Afleidingswijze
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
+import nl.info.zac.admin.ReferenceTableService
+import nl.info.zac.admin.model.ReferenceTable.Systeem
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.io.File

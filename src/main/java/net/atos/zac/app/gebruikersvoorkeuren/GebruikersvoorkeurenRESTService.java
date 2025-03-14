@@ -26,13 +26,13 @@ import net.atos.zac.app.gebruikersvoorkeuren.model.RESTDashboardCardInstelling;
 import net.atos.zac.app.gebruikersvoorkeuren.model.RESTTabelGegevens;
 import net.atos.zac.app.gebruikersvoorkeuren.model.RESTZoekopdracht;
 import net.atos.zac.app.policy.converter.RestRechtenConverter;
-import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.gebruikersvoorkeuren.GebruikersvoorkeurenService;
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen;
 import net.atos.zac.gebruikersvoorkeuren.model.Werklijst;
 import net.atos.zac.gebruikersvoorkeuren.model.Zoekopdracht;
 import net.atos.zac.gebruikersvoorkeuren.model.ZoekopdrachtListParameters;
 import net.atos.zac.policy.PolicyService;
+import nl.info.zac.authentication.LoggedInUser;
 
 @Singleton
 @Path("gebruikersvoorkeuren")

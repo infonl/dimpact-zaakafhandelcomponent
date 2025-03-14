@@ -11,12 +11,12 @@ import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 
-import net.atos.zac.admin.ReferenceTableService;
 import net.atos.zac.admin.model.FormulierVeldDefinitie;
 import net.atos.zac.admin.model.HumanTaskReferentieTabel;
-import net.atos.zac.admin.model.ReferenceTable;
-import net.atos.zac.admin.model.ReferenceTableKt;
 import net.atos.zac.app.admin.model.RestHumanTaskReferenceTable;
+import nl.info.zac.admin.ReferenceTableService;
+import nl.info.zac.admin.model.ReferenceTable;
+import nl.info.zac.admin.model.ReferenceTableKt;
 
 
 public class RestHumanTaskReferenceTableConverter {

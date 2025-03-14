@@ -15,7 +15,6 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import net.atos.zac.flowable.createTestTask
@@ -27,6 +26,7 @@ import net.atos.zac.policy.output.createTaakRechten
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.model.createZaakInformatieobject
 import nl.info.client.zgw.shared.ZGWApiService
+import nl.info.zac.authentication.LoggedInUser
 import java.util.UUID
 
 class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
