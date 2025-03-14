@@ -34,15 +34,12 @@ import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.flowable.bpmn.BpmnService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.identity.IdentityService
+import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
-import net.atos.zac.productaanvraag.model.generated.Betrokkene
-import net.atos.zac.productaanvraag.model.generated.Geometry
-import net.atos.zac.productaanvraag.model.generated.ProductaanvraagDimpact
 import net.atos.zac.productaanvraag.util.BetalingStatusEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.GeometryTypeEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.IndicatieMachtigingEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter
-import net.atos.zac.productaanvraag.util.convertToZgwPoint
 import net.atos.zac.util.JsonbUtil
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid

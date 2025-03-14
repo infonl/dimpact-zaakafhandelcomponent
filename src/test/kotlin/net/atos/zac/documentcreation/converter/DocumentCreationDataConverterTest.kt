@@ -33,7 +33,6 @@ import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.productaanvraag.ProductaanvraagService
 
