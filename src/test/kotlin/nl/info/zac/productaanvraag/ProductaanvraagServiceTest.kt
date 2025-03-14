@@ -45,8 +45,6 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
 import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.productaanvraag.model.generated.Geometry
-import nl.info.zac.admin.ZaakafhandelParameterBeheerService
-import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.test.util.createRandomStringWithAlphanumericCharacters
 import java.net.URI
 import java.util.UUID

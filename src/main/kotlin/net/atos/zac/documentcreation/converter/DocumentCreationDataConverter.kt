@@ -42,8 +42,6 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.productaanvraag.ProductaanvraagService
-import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.decodedBase64StringLength
 import java.net.URI
