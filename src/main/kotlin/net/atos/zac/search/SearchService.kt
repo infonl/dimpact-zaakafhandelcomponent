@@ -53,6 +53,7 @@ class SearchService @Inject constructor(
         ).build()
     }
 
+    @Suppress("LongMethod")
     fun zoek(zoekParameters: ZoekParameters): ZoekResultaat<out ZoekObject> {
         val query = SolrQuery("*:*")
         applyAllowedZaaktypenPolicy(query)
