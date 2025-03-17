@@ -23,10 +23,10 @@ class BRPClientHeadersFactory @Inject constructor(
     private val originOIN: Optional<String> = Optional.empty(),
 
     @ConfigProperty(name = "brp.doelbinding")
-    private val doelbinding: Optional<String> = Optional.empty(),
+    private val purpose: Optional<String> = Optional.empty(),
 
     @ConfigProperty(name = "brp.verwerking")
-    private val verwerking: Optional<String> = Optional.empty(),
+    private val process: Optional<String> = Optional.empty(),
 
     @Inject
     private var loggedInUserInstance: Instance<LoggedInUser>
@@ -39,7 +39,7 @@ class BRPClientHeadersFactory @Inject constructor(
         private const val X_VERWERKING = "X-VERWERKING"
         private const val X_GEBRUIKER = "X-GEBRUIKER"
 
-        private const val SYSTEM_USER = "systeem"
+        private const val SYSTEM_USER = "BurgerZelf"
 
         private val LOG = Logger.getLogger(BRPClientHeadersFactory::class.java.name)
     }
@@ -48,22 +48,24 @@ class BRPClientHeadersFactory @Inject constructor(
         incomingHeaders: MultivaluedMap<String, String>,
         clientOutgoingHeaders: MultivaluedMap<String, String>
     ): MultivaluedMap<String, String> {
-        if (apiKey.isPresent) {
-            clientOutgoingHeaders.add(X_API_KEY, apiKey.get())
-        }
+        addHeader(clientOutgoingHeaders, X_API_KEY, apiKey)
 
-        if (originOIN.isPresent) {
-            clientOutgoingHeaders.add(X_ORIGIN_OIN, originOIN.get())
-        }
-        if (doelbinding.isPresent) {
-            clientOutgoingHeaders.add(X_DOELBINDING, doelbinding.get())
-        }
-        if (verwerking.isPresent) {
-            clientOutgoingHeaders.add(X_VERWERKING, verwerking.get())
-        }
+        addHeader(clientOutgoingHeaders, X_ORIGIN_OIN, originOIN)
+        addHeader(clientOutgoingHeaders, X_DOELBINDING, purpose)
+        addHeader(clientOutgoingHeaders, X_VERWERKING, process)
         clientOutgoingHeaders.add(X_GEBRUIKER, getUser())
 
         return clientOutgoingHeaders
+    }
+
+    private fun addHeader(
+        headerMap: MultivaluedMap<String, String>,
+        headerName: String,
+        value: Optional<String>
+    ) {
+        if (value.isPresent) {
+            headerMap.add(headerName, value.get())
+        }
     }
 
     private fun getUser(): String =
