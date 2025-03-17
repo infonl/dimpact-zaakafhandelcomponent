@@ -30,6 +30,7 @@ Versiegeschiedenis:
 | 1.6.0 | Gebruikershandleiding geconverteerd naar Markdown                                                                                          |
 | 1.6.1 | Toevoeging indicaties voor personen |
 | 1.6.2 | Laatste veranderingen tekstueel verwerkt; opschorten, verlengen en andere kleine aanpassingen |
+| 1.6.3 | Screendumps vernieuwd naar aanleiding van menu en detailveld, en kleine tekstuele aanpassingen |
 
 <div style="page-break-after: always"></div>
 
@@ -142,7 +143,7 @@ De ZAC is een applicatie waarmee zaken volledig behandeld kunnen worden, van reg
 
 De behandeling van zaken wordt voor een deel bepaald door parameters die in de ZAC per zaaktype zijn ingesteld zoals de doorlooptijd van de zaak en de taken en standaard ingevulde waarden in bepaalde velden. Deze instellingen worden gedaan in de Zaakafhandel-parameters waar in deze handleiding soms naar verwezen wordt met de verkorte naam ‘zaps’.
 
-## Indeling van de ZAC
+## Indeling van ZAC
 
 Na het inloggen wordt standaard het persoonlijke dashboard van de gebruiker geopend. Vanuit het dashboard kan een zaak of een taak geopend worden.
 ![Indeling van ZAC](./images/Indeling-van-de-ZAC.png)
@@ -229,7 +230,7 @@ De kolommen kunnen van plek gewisseld worden door de kolomkop te slepen met de m
 
 In alle werklijsten zijn er sorteer- en filteropties beschikbaar op de verschillende gegevenskolommen. De verschillende opties kunnen in combinatie met elkaar gebruikt worden om zo een gewenst overzicht te maken.
 
-Een gebruiker kan met het pijl icoon in de kolomkop het geopende overzicht sorteren op basis van de gegevens in een kolom. Door nog een keer op de pijl te klikken wordt de andere kant op gesorteerd.
+Een gebruiker kan door op de kolomnaam te klikken in het geopende overzicht sorteren op basis van de gegevens in een kolom. Door nog een keer op de kolomnaam te klikken wordt de andere kant op gesorteerd, bij de derde maal is kom je weer terug bij de default sortering.
 ![Sorteren](./images/filteren-en-sorteren-1.png)
 
 Een gebruiker kan filters op meerdere gegevenskolommen toepassen. Door te klikken op het vergrootglas in de kolomkop kan gefilterd worden op trefwoorden, met de keuzelijst kan gefilterd worden op één keuze en door te klikken op de kalender kan een datumbereik worden ingevuld.
@@ -476,37 +477,32 @@ De datums van een zaak zijn als geheel aan te passen door op het potlood van é�
 
 ## Locatie vastleggen of wijzigen
 
-Met het potlood icoon op het locatie veld is het mogelijk om een locatie bij een zaak vast te leggen. Van de gekozen locatie worden de coördinaten vastgelegd. Deze locatie kan op de kaart bekeken worden door met de muisaanwijzer op de locatie te klikken. Door de vastgelegde locatie te openen in de kaart kan ook het dichtstbijzijnde adres bij die locatie bekeken worden.
+Met het potlood icoon in het zaakdetail veld is het mogelijk om een locatie in het tabblad 'Locatie'bij een zaak vast te leggen. Van de gekozen locatie worden de coördinaten vastgelegd. Deze locatie kan op de kaart bekeken worden door met de muisaanwijzer op de locatie te klikken. Door de vastgelegde locatie te openen in de kaart kan ook het dichtstbijzijnde adres bij die locatie bekeken worden.
 ![Locatie vastleggen wijzigen 1](./images/locatie-vastleggen-wijzigen-1.png)
 
 ![Locatie vastleggen wijzigen 2](./images/locatie-vastleggen-wijzigen-2.png)
 
 **Stappen:**
 
-1 In een zaak in het tabblad ‘Gegevens’ klik je op locatie
+1 In een zaak in het tabblad ‘Locatie’ kies je een locatie:
+- een locatie kan gezocht worden op straatnaam, huisnummer, postcode of plaatsnaam. Het is ook mogelijk om de locatie in de kaart met een muisklik te selecteren.
 
-2 Zoek de locatie
+2 Vul de verplichte reden voor het vastleggen of wijzigen van de locatie in
 
-Een locatie kan gezocht worden op straatnaam, huisnummer, postcode of plaatsnaam. Het is ook mogelijk om de locatie in de kaart te selecteren.
+3 Klik op ‘Opslaan’ om de locatie vast te leggen
 
-3 Vul de verplichte reden voor het vastleggen of wijzigen van de locatie in
+## Locatie ontkoppelen
 
-4 Klik op ‘Opslaan’ om de locatie vast te leggen
-
-## Locatie verwijderen
-
-Het is ook mogelijk een locatie te verwijderen.
+Het is ook mogelijk een locatie te ontkoppelen.
 ![Locatie verwijderen](./images/locatie-verwijderen.png)
 
 **Stappen:**
 
-1 In een zaak in het tabblad ‘Gegevens’ klik je op locatie
+1 In een zaak in het tabblad ‘Locatie’ klik je op het ontkoppel ikoon
 
-2 Voer niets in het adres veld in
+2 Vul de verplichte reden voor het ontkoppelen van de locatie in
 
-3 Vul de verplichte reden voor het verwijderen van de locatie in
-
-4 Klik op ‘Verwijderen’ om de locatie te verwijderen
+3 Klik op ‘Opslaan’ om de locatie te ontkoppelen
 
 ## Zaak opschorten
 
@@ -618,9 +614,9 @@ Deze actie maakt het mogelijk om een document met sjablonen in een documentcreat
 
 4 Klik op de Toevoegen knop om de documentcreatieapplicatie te starten. Deze opent in een nieuw tabblad
 
-4 Maak het document en klik op Klaar en sluit dit tabblad af
+5 Maak het document en klik op Klaar en sluit dit tabblad af
 
-5 Het document is aan de zaak toegevoegd en beschikbaar in het documentenoverzicht
+6 Het document is aan de zaak toegevoegd en beschikbaar in het documentenoverzicht
 
 ### Document toevoegen
 
