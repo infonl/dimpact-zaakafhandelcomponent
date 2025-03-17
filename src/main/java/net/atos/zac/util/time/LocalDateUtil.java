@@ -8,7 +8,7 @@ package net.atos.zac.util.time;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import net.atos.client.zgw.ztc.model.generated.BesluitType;
+import nl.info.client.zgw.ztc.model.generated.BesluitType;
 
 public final class LocalDateUtil {
 

@@ -15,10 +15,10 @@ import jakarta.ws.rs.QueryParam;
 
 import org.apache.commons.collections4.CollectionUtils;
 
-import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
 import net.atos.client.zgw.shared.model.AbstractListParameters;
 import net.atos.client.zgw.shared.model.Archiefnominatie;
-import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
+import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 
 /**
  * Parameters to retrieve lists of zaken.

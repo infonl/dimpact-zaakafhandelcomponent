@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 
-import net.atos.client.zgw.ztc.model.generated.InformatieObjectType;
 import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype;
 import nl.info.client.zgw.ztc.ZtcClientService;
+import nl.info.client.zgw.ztc.model.generated.InformatieObjectType;
 
 public class RestInformatieobjecttypeConverter {
 

@@ -7,14 +7,14 @@ package net.atos.zac.app.bag.converter;
 
 import java.net.URI;
 
-import net.atos.client.bag.model.generated.Indicatie;
-import net.atos.client.bag.model.generated.Woonplaats;
-import net.atos.client.bag.model.generated.WoonplaatsIOHal;
-import net.atos.client.bag.model.generated.WoonplaatsIOHalBasis;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectWoonplaats;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats;
 import net.atos.zac.app.bag.model.RESTWoonplaats;
+import nl.info.client.bag.model.generated.Indicatie;
+import nl.info.client.bag.model.generated.Woonplaats;
+import nl.info.client.bag.model.generated.WoonplaatsIOHal;
+import nl.info.client.bag.model.generated.WoonplaatsIOHalBasis;
 
 public class RestWoonplaatsConverter {
     public static RESTWoonplaats convertToREST(final WoonplaatsIOHalBasis woonplaatsIO) {
