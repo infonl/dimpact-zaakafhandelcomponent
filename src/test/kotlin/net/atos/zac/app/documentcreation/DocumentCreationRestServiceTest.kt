@@ -14,7 +14,6 @@ import io.mockk.mockk
 import io.mockk.slot
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.app.documentcreation.model.createRestDocumentCreationAttendedData
 import net.atos.zac.documentcreation.DocumentCreationService
 import net.atos.zac.documentcreation.model.DocumentCreationDataAttended
@@ -29,6 +28,7 @@ import net.atos.zac.smartdocuments.exception.SmartDocumentsDisabledException
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
+import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_SMARTDOCUMENTS_DISABLED
 import java.net.URI
 import java.util.UUID

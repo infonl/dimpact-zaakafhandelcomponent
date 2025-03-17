@@ -7,7 +7,6 @@ package net.atos.zac.search
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
-import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.search.IndexingService.Companion.SOLR_CORE
 import net.atos.zac.search.model.FilterParameters
 import net.atos.zac.search.model.FilterResultaat
@@ -22,6 +21,7 @@ import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import net.atos.zac.shared.model.SorteerRichting
 import net.atos.zac.solr.encoded
 import net.atos.zac.solr.quoted
+import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.solr.client.solrj.SolrClient

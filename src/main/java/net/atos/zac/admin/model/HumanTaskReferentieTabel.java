@@ -19,6 +19,8 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import nl.info.zac.admin.model.ReferenceTable;
+
 @Entity
 @Table(schema = SCHEMA, name = "humantask_referentie_tabel")
 @SequenceGenerator(schema = SCHEMA, name = "sq_humantask_referentie_tabel", sequenceName = "sq_humantask_referentie_tabel", allocationSize = 1)

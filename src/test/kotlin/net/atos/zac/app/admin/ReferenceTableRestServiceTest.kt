@@ -12,12 +12,12 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
-import net.atos.zac.admin.ReferenceTableAdminService
-import net.atos.zac.admin.ReferenceTableService
-import net.atos.zac.admin.model.ReferenceTable
-import net.atos.zac.admin.model.createReferenceTable
-import net.atos.zac.admin.model.createReferenceTableValue
 import net.atos.zac.policy.PolicyService
+import nl.info.zac.admin.ReferenceTableAdminService
+import nl.info.zac.admin.ReferenceTableService
+import nl.info.zac.admin.model.ReferenceTable
+import nl.info.zac.admin.model.createReferenceTable
+import nl.info.zac.admin.model.createReferenceTableValue
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNOT_BE_CHANGED
 import nl.info.zac.exception.InputValidationFailedException
 

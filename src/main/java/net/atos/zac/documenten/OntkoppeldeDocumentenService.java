@@ -32,12 +32,12 @@ import org.apache.commons.lang3.StringUtils;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.shared.util.DateTimeUtil;
 import net.atos.client.zgw.zrc.model.Zaak;
-import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.documenten.model.OntkoppeldDocument;
 import net.atos.zac.documenten.model.OntkoppeldDocumentListParameters;
 import net.atos.zac.documenten.model.OntkoppeldeDocumentenResultaat;
 import net.atos.zac.search.model.DatumRange;
 import net.atos.zac.shared.model.SorteerRichting;
+import nl.info.zac.authentication.LoggedInUser;
 
 
 @ApplicationScoped

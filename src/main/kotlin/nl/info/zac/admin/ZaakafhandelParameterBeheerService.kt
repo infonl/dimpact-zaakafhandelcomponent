@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.admin
+package nl.info.zac.admin
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -10,6 +10,7 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import net.atos.client.zgw.ztc.model.generated.ResultaatType
 import net.atos.client.zgw.ztc.model.generated.ZaakType
+import net.atos.zac.admin.ZaakafhandelParameterService
 import net.atos.zac.admin.model.HumanTaskParameters
 import net.atos.zac.admin.model.MailtemplateKoppeling
 import net.atos.zac.admin.model.UserEventListenerParameters
@@ -58,7 +59,7 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(ZaakafhandelParameters::class.java)
         val root = query.from(ZaakafhandelParameters::class.java)
-        query.select(root).where(builder.equal(root.get<Any>(ZaakafhandelParameters.ZAAKTYPE_UUID), zaaktypeUUID))
+        query.select(root).where(builder.equal(root.get<Any>(ZAAKTYPE_UUID), zaaktypeUUID))
         val resultList = entityManager.createQuery(query).setMaxResults(1).resultList
         return resultList.firstOrNull() ?: ZaakafhandelParameters().apply {
             zaakTypeUUID = zaaktypeUUID

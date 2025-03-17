@@ -9,7 +9,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.string.shouldStartWith
-import net.atos.zac.authentication.createLoggedInUser
+import nl.info.zac.authentication.createLoggedInUser
 
 class UserInputTest : BehaviorSpec({
 

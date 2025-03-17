@@ -28,6 +28,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import net.atos.zac.app.planitems.converter.FormulierKoppelingConverterKt;
+import nl.info.zac.admin.model.ReferenceTable;
 
 @Entity
 @Table(schema = SCHEMA, name = "humantask_parameters")

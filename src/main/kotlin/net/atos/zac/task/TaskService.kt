@@ -11,7 +11,6 @@ import net.atos.zac.app.task.model.RestTaskAssignData
 import net.atos.zac.app.task.model.RestTaskDistributeData
 import net.atos.zac.app.task.model.RestTaskDistributeTask
 import net.atos.zac.app.task.model.RestTaskReleaseData
-import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
@@ -20,6 +19,7 @@ import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.AllOpen
 import org.flowable.task.api.Task
 import org.flowable.task.api.TaskInfo

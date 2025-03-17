@@ -6,9 +6,9 @@
 package net.atos.zac.websocket;
 
 import static jakarta.websocket.CloseReason.CloseCodes.VIOLATED_POLICY;
-import static net.atos.zac.authentication.SecurityUtil.LOGGED_IN_USER_SESSION_ATTRIBUTE;
 import static net.atos.zac.websocket.SubscriptionType.DELETE_ALL;
 import static net.atos.zac.websocket.WebsocketHandshakeInterceptor.HTTP_SESSION;
+import static nl.info.zac.authentication.SecurityUtil.LOGGED_IN_USER_SESSION_ATTRIBUTE;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -25,7 +25,7 @@ import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
 
-import net.atos.zac.authentication.LoggedInUser;
+import nl.info.zac.authentication.LoggedInUser;
 
 @ServerEndpoint(value = "/websocket", configurator = WebsocketHandshakeInterceptor.class, decoders = {WebSocketSubscriptionMessageDecoder.class})
 public class WebSocketServerEndPoint {

@@ -2,14 +2,14 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.authentication
+package nl.info.zac.authentication
 
 import jakarta.enterprise.inject.Instance
 import jakarta.enterprise.inject.Produces
 import jakarta.inject.Inject
 import jakarta.servlet.http.HttpSession
-import net.atos.zac.authentication.SecurityUtil.Companion.FUNCTIONEEL_GEBRUIKER
-import net.atos.zac.authentication.SecurityUtil.Companion.LOGGED_IN_USER_SESSION_ATTRIBUTE
+import nl.info.zac.authentication.SecurityUtil.Companion.FUNCTIONEEL_GEBRUIKER
+import nl.info.zac.authentication.SecurityUtil.Companion.LOGGED_IN_USER_SESSION_ATTRIBUTE
 import java.io.Serial
 import java.io.Serializable
 

@@ -22,8 +22,8 @@ import org.apache.commons.collections4.map.LRUMap;
 
 import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.util.MediaTypes;
+import nl.info.zac.authentication.LoggedInUser;
 
 @Singleton
 public class WebdavHelper {

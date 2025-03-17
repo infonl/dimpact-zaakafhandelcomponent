@@ -22,8 +22,6 @@ import jakarta.mail.internet.MimeMultipart
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.zac.authentication.LoggedInUser
-import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.mail.model.Bronnen
 import net.atos.zac.mail.model.getBronnenFromZaak
@@ -35,6 +33,8 @@ import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.createLoggedInUser
 import org.flowable.task.api.Task
 import java.net.URI
 import java.util.Properties

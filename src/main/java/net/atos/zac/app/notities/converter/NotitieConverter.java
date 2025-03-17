@@ -11,10 +11,10 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
 import net.atos.zac.app.notities.model.RESTNotitie;
-import net.atos.zac.authentication.LoggedInUser;
 import net.atos.zac.identity.IdentityService;
 import net.atos.zac.identity.model.User;
 import net.atos.zac.notities.model.Notitie;
+import nl.info.zac.authentication.LoggedInUser;
 
 public class NotitieConverter {
 

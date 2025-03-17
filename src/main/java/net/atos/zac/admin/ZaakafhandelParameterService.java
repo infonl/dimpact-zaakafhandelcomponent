@@ -23,6 +23,7 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats;
 
 import net.atos.client.zgw.shared.cache.Caching;
 import net.atos.zac.admin.model.ZaakafhandelParameters;
+import nl.info.zac.admin.ZaakafhandelParameterBeheerService;
 
 @ApplicationScoped
 public class ZaakafhandelParameterService implements Caching {
