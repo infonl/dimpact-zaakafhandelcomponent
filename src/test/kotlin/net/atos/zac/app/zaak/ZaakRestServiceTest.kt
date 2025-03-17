@@ -90,8 +90,6 @@ import net.atos.zac.policy.output.createWerklijstRechten
 import net.atos.zac.policy.output.createZaakRechten
 import net.atos.zac.policy.output.createZaakRechtenAllDeny
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
-import net.atos.zac.productaanvraag.ProductaanvraagService
-import net.atos.zac.productaanvraag.createProductaanvraagDimpact
 import net.atos.zac.search.IndexingService
 import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import net.atos.zac.shared.helper.SuspensionZaakHelper
@@ -117,6 +115,8 @@ import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.productaanvraag.ProductaanvraagService
+import nl.info.zac.productaanvraag.createProductaanvraagDimpact
 import nl.info.zac.test.date.toDate
 import org.apache.http.HttpStatus
 import org.flowable.task.api.Task

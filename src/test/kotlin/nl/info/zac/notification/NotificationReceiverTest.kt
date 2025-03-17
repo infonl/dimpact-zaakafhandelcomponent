@@ -23,7 +23,6 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.createTestTask
-import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.search.IndexingService
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringSubject
@@ -32,6 +31,7 @@ import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.task.TaskService
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
+import nl.info.zac.productaanvraag.ProductaanvraagService
 import java.net.URI
 import java.util.UUID
 
