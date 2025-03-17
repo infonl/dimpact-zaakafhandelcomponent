@@ -23,10 +23,6 @@ import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.UriInfo
 import net.atos.client.officeconverter.OfficeConverterClientService
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
-import net.atos.client.zgw.drc.model.generated.StatusEnum
-import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
@@ -54,6 +50,10 @@ import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.util.MediaTypes
 import net.atos.zac.webdav.WebdavHelper
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
+import nl.info.client.zgw.drc.model.generated.StatusEnum
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService

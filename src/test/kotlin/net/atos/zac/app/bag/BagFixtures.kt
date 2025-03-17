@@ -5,22 +5,22 @@
 
 package net.atos.zac.app.bag
 
-import net.atos.client.bag.model.generated.AdresseerbaarObjectIOHal
-import net.atos.client.bag.model.generated.Ligplaats
-import net.atos.client.bag.model.generated.LigplaatsIOHal
-import net.atos.client.bag.model.generated.PointGeoJSON
-import net.atos.client.bag.model.generated.PuntOfVlak
-import net.atos.client.bag.model.generated.Standplaats
-import net.atos.client.bag.model.generated.StandplaatsIOHal
-import net.atos.client.bag.model.generated.StatusPlaats
-import net.atos.client.bag.model.generated.StatusVerblijfsobject
-import net.atos.client.bag.model.generated.Surface
-import net.atos.client.bag.model.generated.Verblijfsobject
-import net.atos.client.bag.model.generated.VerblijfsobjectIOHal
 import net.atos.zac.app.bag.model.BAGObjectType
 import net.atos.zac.app.bag.model.RESTBAGAdres
 import net.atos.zac.app.bag.model.RESTListAdressenParameters
 import net.atos.zac.app.bag.model.RESTWoonplaats
+import nl.info.client.bag.model.generated.AdresseerbaarObjectIOHal
+import nl.info.client.bag.model.generated.Ligplaats
+import nl.info.client.bag.model.generated.LigplaatsIOHal
+import nl.info.client.bag.model.generated.PointGeoJSON
+import nl.info.client.bag.model.generated.PuntOfVlak
+import nl.info.client.bag.model.generated.Standplaats
+import nl.info.client.bag.model.generated.StandplaatsIOHal
+import nl.info.client.bag.model.generated.StatusPlaats
+import nl.info.client.bag.model.generated.StatusVerblijfsobject
+import nl.info.client.bag.model.generated.Surface
+import nl.info.client.bag.model.generated.Verblijfsobject
+import nl.info.client.bag.model.generated.VerblijfsobjectIOHal
 import java.math.BigDecimal
 
 fun createLigplaatsAdresseerbaarObject(status: StatusPlaats) =

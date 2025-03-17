@@ -4,7 +4,7 @@
  */
 package net.atos.zac.app.klant.model.bedrijven
 
-import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging
+import nl.info.client.kvk.vestigingsprofiel.model.generated.Vestiging
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 

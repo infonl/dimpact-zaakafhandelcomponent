@@ -20,7 +20,6 @@ import kotlinx.coroutines.withContext
 import net.atos.client.klant.KlantClientService
 import net.atos.client.klant.model.ExpandBetrokkene
 import net.atos.client.kvk.KvkClientService
-import net.atos.client.kvk.zoeken.model.generated.ResultaatItem
 import net.atos.zac.app.klant.exception.RechtspersoonNotFoundException
 import net.atos.zac.app.klant.exception.VestigingNotFoundException
 import net.atos.zac.app.klant.model.bedrijven.RestBedrijf
@@ -48,6 +47,7 @@ import net.atos.zac.app.shared.RESTResultaat
 import net.atos.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
+import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor

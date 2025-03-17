@@ -22,10 +22,10 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import net.atos.client.or.objects.model.generated.ModelObject;
 import net.atos.client.or.shared.exception.FoutExceptionMapper;
 import net.atos.client.or.shared.exception.ORRuntimeResponseExceptionMapper;
 import net.atos.client.or.shared.exception.ValidatieFoutExceptionMapper;
+import nl.info.client.or.objects.model.generated.ModelObject;
 
 /**
  *

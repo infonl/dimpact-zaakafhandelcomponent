@@ -5,9 +5,6 @@
 package net.atos.zac.history.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.brc.model.generated.Besluit
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import net.atos.client.zgw.drc.model.generated.Gebruiksrechten
 import net.atos.client.zgw.shared.model.ObjectType.BESLUIT
 import net.atos.client.zgw.shared.model.ObjectType.BESLUIT_INFORMATIEOBJECT
 import net.atos.client.zgw.shared.model.ObjectType.ENKELVOUDIG_INFORMATIEOBJECT
@@ -21,6 +18,9 @@ import net.atos.zac.history.converter.documenten.AuditEnkelvoudigInformatieobjec
 import net.atos.zac.history.converter.documenten.AuditGebruiksrechtenWijzigingConverter
 import net.atos.zac.history.model.HistoryAction
 import net.atos.zac.history.model.HistoryLine
+import nl.info.client.zgw.brc.model.generated.Besluit
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
 
 private const val CREATE = "create"
 private const val DESTROY = "destroy"

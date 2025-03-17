@@ -4,7 +4,7 @@
  */
 package nl.info.client.zgw.ztc.model.extensions
 
-import net.atos.client.zgw.ztc.model.generated.ZaakType
+import nl.info.client.zgw.ztc.model.generated.ZaakType
 import java.time.LocalDate
 import java.time.Period
 

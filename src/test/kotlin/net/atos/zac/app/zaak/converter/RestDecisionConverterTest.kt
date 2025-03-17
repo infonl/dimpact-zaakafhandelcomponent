@@ -11,7 +11,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.zgw.brc.model.generated.VervalredenEnum
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
@@ -19,6 +18,7 @@ import net.atos.zac.app.zaak.model.createRestDecisionCreateData
 import net.atos.zac.configuratie.ConfiguratieService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
+import nl.info.client.zgw.brc.model.generated.VervalredenEnum
 import nl.info.client.zgw.brc.model.generated.createBesluitInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak

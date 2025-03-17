@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.bag.model;
 
-import net.atos.client.bag.model.generated.StatusWoonplaats;
+import nl.info.client.bag.model.generated.StatusWoonplaats;
 
 public class RESTWoonplaats extends RESTBAGObject {
 

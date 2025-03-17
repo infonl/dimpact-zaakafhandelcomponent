@@ -9,13 +9,13 @@ import jakarta.json.bind.JsonbConfig
 import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.bind.serializer.JsonbDeserializer
 import jakarta.json.stream.JsonParser
-import net.atos.client.brp.model.generated.PersonenQueryResponse
-import net.atos.client.brp.model.generated.RaadpleegMetBurgerservicenummerResponse
-import net.atos.client.brp.model.generated.ZoekMetGeslachtsnaamEnGeboortedatumResponse
-import net.atos.client.brp.model.generated.ZoekMetNaamEnGemeenteVanInschrijvingResponse
-import net.atos.client.brp.model.generated.ZoekMetNummeraanduidingIdentificatieResponse
-import net.atos.client.brp.model.generated.ZoekMetPostcodeEnHuisnummerResponse
-import net.atos.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse
+import nl.info.client.brp.model.generated.PersonenQueryResponse
+import nl.info.client.brp.model.generated.RaadpleegMetBurgerservicenummerResponse
+import nl.info.client.brp.model.generated.ZoekMetGeslachtsnaamEnGeboortedatumResponse
+import nl.info.client.brp.model.generated.ZoekMetNaamEnGemeenteVanInschrijvingResponse
+import nl.info.client.brp.model.generated.ZoekMetNummeraanduidingIdentificatieResponse
+import nl.info.client.brp.model.generated.ZoekMetPostcodeEnHuisnummerResponse
+import nl.info.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse
 import nl.info.zac.exception.InputValidationFailedException
 import java.lang.reflect.Type
 

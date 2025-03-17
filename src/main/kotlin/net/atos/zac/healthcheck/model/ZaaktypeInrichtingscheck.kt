@@ -4,7 +4,7 @@
  */
 package net.atos.zac.healthcheck.model
 
-import net.atos.client.zgw.ztc.model.generated.ZaakType
+import nl.info.client.zgw.ztc.model.generated.ZaakType
 
 /**
  * 4 statustype; Intake, In behandeling, Heropend, Afgerond: met Afgerond als laatste statustypevolgnummer
