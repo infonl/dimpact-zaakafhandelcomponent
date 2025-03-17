@@ -52,7 +52,7 @@ export abstract class AbstractFormFieldBuilder {
   }
 
   hint(hint: string): this {
-    this.formField.hint = new FormFieldHint(hint, "start");
+    this.formField.hint = new FormFieldHint(hint);
     return this;
   }
 
