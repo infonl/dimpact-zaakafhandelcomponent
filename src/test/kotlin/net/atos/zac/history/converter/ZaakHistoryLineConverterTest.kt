@@ -8,7 +8,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.zgw.brc.model.generated.Besluit
 import net.atos.client.zgw.shared.model.Bron
 import net.atos.client.zgw.shared.model.ObjectType
 import net.atos.client.zgw.shared.model.audit.AuditWijziging
@@ -18,6 +17,7 @@ import net.atos.zac.history.converter.documenten.AuditEnkelvoudigInformatieobjec
 import net.atos.zac.history.model.HistoryAction
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
+import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.brc.model.generated.createBesluitInformatieObject
 import nl.info.client.zgw.shared.model.audit.createAuditTrailRegel
 import nl.info.client.zgw.ztc.ZtcClientService

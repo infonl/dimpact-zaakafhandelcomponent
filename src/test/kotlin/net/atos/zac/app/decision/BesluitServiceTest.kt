@@ -13,8 +13,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import net.atos.client.zgw.brc.model.generated.Besluit
-import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.app.zaak.converter.RestDecisionConverter
@@ -22,6 +20,8 @@ import net.atos.zac.app.zaak.model.createRestDecisionChangeData
 import net.atos.zac.app.zaak.model.createRestDecisionCreateData
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
+import nl.info.client.zgw.brc.model.generated.Besluit
+import nl.info.client.zgw.brc.model.generated.BesluitInformatieObject
 import nl.info.client.zgw.brc.model.generated.createBesluitInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak

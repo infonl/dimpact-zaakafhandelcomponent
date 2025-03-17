@@ -16,7 +16,6 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.shared.exception.ZgwErrorException
 import net.atos.client.zgw.shared.model.ZgwError
 import net.atos.client.zgw.zrc.ZrcClientService
@@ -28,6 +27,7 @@ import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.documenten.model.OntkoppeldDocument
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.output.createWerklijstRechten
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import java.net.URI
 import java.util.Optional
 import java.util.UUID

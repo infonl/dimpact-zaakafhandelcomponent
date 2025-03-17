@@ -5,7 +5,6 @@
 
 package net.atos.zac.app.zaak.model
 
-import net.atos.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.zac.app.admin.createRestZaakAfhandelParameters
 import net.atos.zac.app.bag.model.RESTBAGObject
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte
@@ -16,6 +15,7 @@ import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.policy.model.RestZaakRechten
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
 import net.atos.zac.search.model.ZaakIndicatie
+import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import java.net.URI
 import java.time.LocalDate
 import java.util.EnumSet

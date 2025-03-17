@@ -23,9 +23,9 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.StreamingOutput;
 
 import net.atos.client.zgw.drc.DrcClientService;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 
 public class EnkelvoudigInformatieObjectDownloadService {
     private static final String RICHTING_INKOMEND = "inkomend";

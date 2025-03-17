@@ -9,12 +9,12 @@ import java.net.URI;
 
 import org.apache.commons.lang3.BooleanUtils;
 
-import net.atos.client.bag.model.generated.AdresIOHal;
-import net.atos.client.bag.model.generated.Geconstateerd;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectAdres;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdres;
 import net.atos.zac.app.bag.model.RESTBAGAdres;
+import nl.info.client.bag.model.generated.AdresIOHal;
+import nl.info.client.bag.model.generated.Geconstateerd;
 
 public class RestAdresConverter {
     public static RESTBAGAdres convertToREST(final AdresIOHal adres) {

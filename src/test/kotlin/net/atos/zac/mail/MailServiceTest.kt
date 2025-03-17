@@ -20,13 +20,13 @@ import jakarta.mail.Message
 import jakarta.mail.Transport
 import jakarta.mail.internet.MimeMultipart
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.mail.model.Bronnen
 import net.atos.zac.mail.model.getBronnenFromZaak
 import net.atos.zac.mailtemplates.MailTemplateHelper
 import net.atos.zac.mailtemplates.model.createMailGegevens
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobject
 import nl.info.client.zgw.shared.ZGWApiService

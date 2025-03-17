@@ -4,18 +4,18 @@
  */
 package nl.info.client.zgw.ztc.model
 
-import net.atos.client.zgw.ztc.model.generated.AfleidingswijzeEnum
-import net.atos.client.zgw.ztc.model.generated.ArchiefnominatieEnum
-import net.atos.client.zgw.ztc.model.generated.BesluitType
-import net.atos.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
-import net.atos.client.zgw.ztc.model.generated.InformatieObjectType
-import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
-import net.atos.client.zgw.ztc.model.generated.ReferentieProces
-import net.atos.client.zgw.ztc.model.generated.ResultaatType
-import net.atos.client.zgw.ztc.model.generated.RolType
-import net.atos.client.zgw.ztc.model.generated.StatusType
-import net.atos.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
-import net.atos.client.zgw.ztc.model.generated.ZaakType
+import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
+import nl.info.client.zgw.ztc.model.generated.ArchiefnominatieEnum
+import nl.info.client.zgw.ztc.model.generated.BesluitType
+import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
+import nl.info.client.zgw.ztc.model.generated.InformatieObjectType
+import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import nl.info.client.zgw.ztc.model.generated.ReferentieProces
+import nl.info.client.zgw.ztc.model.generated.ResultaatType
+import nl.info.client.zgw.ztc.model.generated.RolType
+import nl.info.client.zgw.ztc.model.generated.StatusType
+import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.client.zgw.ztc.model.generated.ZaakType
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
