@@ -14,8 +14,6 @@ import io.mockk.mockkStatic
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
-import net.atos.zac.authentication.LoggedInUser
-import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documentcreation.converter.DocumentCreationDataConverter
 import net.atos.zac.documentcreation.model.createData
@@ -29,6 +27,8 @@ import nl.info.client.smartdocuments.model.createFile
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobject
+import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.createLoggedInUser
 import java.net.URI
 import java.time.ZoneOffset
 import java.time.ZonedDateTime

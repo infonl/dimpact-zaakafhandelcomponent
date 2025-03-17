@@ -17,7 +17,6 @@ import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.Response
-import net.atos.zac.admin.ZaakafhandelParameterBeheerService
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.model.InboxDocument
 import net.atos.zac.event.EventingService
@@ -32,6 +31,7 @@ import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.task.TaskService
 import net.atos.zac.websocket.event.ScreenEvent
+import nl.info.zac.admin.ZaakafhandelParameterBeheerService
 import java.net.URI
 import java.util.UUID
 

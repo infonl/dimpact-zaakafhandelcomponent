@@ -3,8 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.admin.model
+package nl.info.zac.admin.model
 
+import net.atos.zac.admin.model.HumanTaskParameters
+import net.atos.zac.admin.model.HumanTaskReferentieTabel
+import net.atos.zac.admin.model.MailtemplateKoppeling
+import net.atos.zac.admin.model.ZaakAfzender
+import net.atos.zac.admin.model.ZaakafhandelParameters
+import net.atos.zac.admin.model.ZaakbeeindigParameter
 import net.atos.zac.mailtemplates.model.Mail
 import net.atos.zac.mailtemplates.model.MailTemplate
 import java.time.ZonedDateTime

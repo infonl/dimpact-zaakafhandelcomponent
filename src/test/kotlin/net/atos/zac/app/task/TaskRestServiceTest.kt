@@ -33,8 +33,6 @@ import net.atos.zac.app.task.model.createRestTaskAssignData
 import net.atos.zac.app.task.model.createRestTaskDistributeData
 import net.atos.zac.app.task.model.createRestTaskDistributeTask
 import net.atos.zac.app.task.model.createRestTaskReleaseData
-import net.atos.zac.authentication.LoggedInUser
-import net.atos.zac.authentication.createLoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.createTestTask
@@ -62,6 +60,8 @@ import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockReq
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.test.org.flowable.task.service.impl.persistence.entity.createHistoricTaskInstanceEntityImpl
+import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.createLoggedInUser
 import org.flowable.task.api.Task
 import org.flowable.task.api.history.HistoricTaskInstance
 import java.net.URI

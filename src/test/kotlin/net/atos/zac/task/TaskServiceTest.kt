@@ -21,7 +21,6 @@ import net.atos.zac.app.task.model.createRestTaskAssignData
 import net.atos.zac.app.task.model.createRestTaskDistributeData
 import net.atos.zac.app.task.model.createRestTaskDistributeTask
 import net.atos.zac.app.task.model.createRestTaskReleaseData
-import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -31,6 +30,7 @@ import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import net.atos.zac.signalering.event.SignaleringEvent
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.zac.authentication.LoggedInUser
 import org.flowable.task.api.Task
 
 class TaskServiceTest : BehaviorSpec({

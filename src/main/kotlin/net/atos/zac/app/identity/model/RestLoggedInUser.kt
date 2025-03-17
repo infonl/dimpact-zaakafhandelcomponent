@@ -4,8 +4,8 @@
  */
 package net.atos.zac.app.identity.model
 
-import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.identity.model.getFullName
+import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 

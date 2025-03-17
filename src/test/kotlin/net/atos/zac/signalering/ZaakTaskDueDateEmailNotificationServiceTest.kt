@@ -13,7 +13,6 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import net.atos.zac.admin.ZaakafhandelParameterService
-import net.atos.zac.admin.model.createZaakafhandelParameters
 import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.search.SearchService
@@ -25,6 +24,7 @@ import net.atos.zac.signalering.model.createSignaleringInstellingen
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.admin.model.createZaakafhandelParameters
 import nl.info.zac.app.search.createZaakZoekObject
 import nl.info.zac.app.search.createZoekResultaatForZaakZoekObjecten
 import org.flowable.task.api.Task

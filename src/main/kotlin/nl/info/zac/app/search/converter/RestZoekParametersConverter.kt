@@ -8,7 +8,6 @@ package nl.info.zac.app.search.converter
 
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
-import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.search.model.DatumRange
 import net.atos.zac.search.model.DatumVeld
 import net.atos.zac.search.model.FilterParameters
@@ -21,6 +20,7 @@ import net.atos.zac.search.model.zoekobject.ZaakZoekObject
 import net.atos.zac.shared.model.fromValue
 import nl.info.zac.app.search.model.RestDatumRange
 import nl.info.zac.app.search.model.RestZoekParameters
+import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.lang3.BooleanUtils

@@ -12,8 +12,8 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
-import net.atos.zac.authentication.LoggedInUser
 import net.atos.zac.identity.model.getFullName
+import nl.info.zac.authentication.LoggedInUser
 
 class JWTTokenGeneratorTest : BehaviorSpec({
 
