@@ -4,7 +4,12 @@
  */
 
 import { Component, OnDestroy, ViewChild } from "@angular/core";
-import { FormGroup, Validators } from "@angular/forms";
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -20,6 +25,7 @@ import { KlantenService } from "../../klanten/klanten.service";
 import { Klant } from "../../klanten/model/klanten/klant";
 import { InboxProductaanvraag } from "../../productaanvragen/model/inbox-productaanvraag";
 import { ActionIcon } from "../../shared/edit/action-icon";
+import { CustomValidators } from "../../shared/form/helpers";
 import { AutocompleteFormFieldBuilder } from "../../shared/material-form-builder/form-components/autocomplete/autocomplete-form-field-builder";
 import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { HeadingLevel } from "../../shared/material-form-builder/form-components/heading/heading-form-field";
@@ -76,16 +82,30 @@ export class ZaakCreateComponent implements OnDestroy {
   private readonly inboxProductaanvraag: InboxProductaanvraag;
   private communicatiekanalen: Observable<string[]>;
   private communicatiekanaalField: SelectFormField;
+  form: FormGroup<{
+    zaaktype: FormControl<Zaaktype | null>;
+    startDate: FormControl<string | null>;
+  }>;
 
   constructor(
-    private zakenService: ZakenService,
+    public zakenService: ZakenService,
     private router: Router,
     private navigation: NavigationService,
     private klantenService: KlantenService,
     private referentieTabelService: ReferentieTabelService,
     private translateService: TranslateService,
     private utilService: UtilService,
+    private formBuilder: FormBuilder,
   ) {
+    this.form = formBuilder.group({
+      zaaktype: new FormControl<Zaaktype | null>(null, [Validators.required]),
+      startDate: new FormControl<string | null>(null, [
+        Validators.required,
+        CustomValidators.minDate(
+          moment(new Date()).subtract(1, "days").toISOString(),
+        ),
+      ]),
+    });
     this.inboxProductaanvraag =
       this.router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
 
@@ -223,6 +243,14 @@ export class ZaakCreateComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.ngDestroy.next();
     this.ngDestroy.complete();
+  }
+
+  formSubmit(form: FormGroup): void {
+    console.log(form);
+  }
+
+  zaakLabel(option: Zaaktype) {
+    return option.omschrijving;
   }
 
   onFormSubmit(formGroup: FormGroup): void {
