@@ -24,11 +24,6 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 
 import net.atos.client.zgw.drc.DrcClientService;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest;
-import net.atos.client.zgw.drc.model.generated.StatusEnum;
-import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
 import net.atos.client.zgw.shared.exception.ZgwErrorException;
 import net.atos.client.zgw.zrc.ZrcClientService;
 import net.atos.client.zgw.zrc.model.Zaak;
@@ -48,6 +43,11 @@ import net.atos.zac.identity.IdentityService;
 import net.atos.zac.policy.PolicyService;
 import net.atos.zac.policy.output.DocumentRechten;
 import nl.info.client.zgw.brc.BrcClientService;
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest;
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest;
+import nl.info.client.zgw.drc.model.generated.StatusEnum;
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
 import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.zac.authentication.LoggedInUser;
 

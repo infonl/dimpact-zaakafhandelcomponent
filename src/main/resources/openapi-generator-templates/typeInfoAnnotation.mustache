@@ -2,8 +2,8 @@
 {{! generates '@JsonbTypeInfo(key = "type")' annotations in the generated model classes both for }}
 {{! parent and child polymorphic classes resulting in errors such as: }}
 {{! "Caused by: jakarta.json.bind.JsonbException: One polymorphic chain cannot have two conflicting property names. }}
-{{! Polymorphic type defined on the type net.atos.client.bag.model.generated.Standplaats }}
-{{! and net.atos.client.bag.model.generated.AdresseerbaarObject have conflicting property name" }}
+{{! Polymorphic type defined on the type nl.info.client.bag.model.generated.Standplaats }}
+{{! and nl.info.client.bag.model.generated.AdresseerbaarObject have conflicting property name" }}
 {{! This was most likely introduced by: https://github.com/OpenAPITools/openapi-generator/pull/20164 }}
 
 {{! This template is based on a copy of the Java Mustache model template of the main branch of https://github.com/OpenAPITools/openapi-generator }}

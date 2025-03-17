@@ -4,9 +4,9 @@
  */
 package net.atos.zac.app.klant.model.klant
 
-import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
-import net.atos.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID

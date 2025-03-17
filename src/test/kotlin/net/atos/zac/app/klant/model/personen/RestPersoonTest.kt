@@ -6,20 +6,20 @@ package net.atos.zac.app.klant.model.personen
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import net.atos.client.brp.model.generated.AbstractDatum
-import net.atos.client.brp.model.generated.Adres
-import net.atos.client.brp.model.generated.Adressering
-import net.atos.client.brp.model.generated.AdresseringBeperkt
-import net.atos.client.brp.model.generated.OpschortingBijhouding
-import net.atos.client.brp.model.generated.PersoonInOnderzoek
-import net.atos.client.brp.model.generated.PersoonInOnderzoekBeperkt
-import net.atos.client.brp.model.generated.RniDeelnemer
-import net.atos.client.brp.model.generated.VerblijfadresBinnenland
-import net.atos.client.brp.model.generated.VerblijfadresBuitenland
-import net.atos.client.brp.model.generated.VerblijfplaatsBuitenland
-import net.atos.client.brp.model.generated.Waardetabel
 import nl.info.client.brp.model.createPersoon
 import nl.info.client.brp.model.createPersoonBeperkt
+import nl.info.client.brp.model.generated.AbstractDatum
+import nl.info.client.brp.model.generated.Adres
+import nl.info.client.brp.model.generated.Adressering
+import nl.info.client.brp.model.generated.AdresseringBeperkt
+import nl.info.client.brp.model.generated.OpschortingBijhouding
+import nl.info.client.brp.model.generated.PersoonInOnderzoek
+import nl.info.client.brp.model.generated.PersoonInOnderzoekBeperkt
+import nl.info.client.brp.model.generated.RniDeelnemer
+import nl.info.client.brp.model.generated.VerblijfadresBinnenland
+import nl.info.client.brp.model.generated.VerblijfadresBuitenland
+import nl.info.client.brp.model.generated.VerblijfplaatsBuitenland
+import nl.info.client.brp.model.generated.Waardetabel
 import java.util.EnumSet
 
 class RestPersoonTest : BehaviorSpec({

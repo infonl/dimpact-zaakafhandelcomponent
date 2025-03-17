@@ -25,14 +25,14 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import net.atos.client.util.JAXRSClientFactory;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters;
 import net.atos.client.zgw.drc.model.Lock;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest;
-import net.atos.client.zgw.drc.model.generated.Gebruiksrechten;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
 import net.atos.zac.configuratie.ConfiguratieService;
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest;
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest;
+import nl.info.client.zgw.drc.model.generated.Gebruiksrechten;
 
 
 @ApplicationScoped

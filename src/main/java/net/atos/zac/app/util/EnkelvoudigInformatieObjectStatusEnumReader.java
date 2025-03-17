@@ -18,8 +18,8 @@ import jakarta.ws.rs.ext.Provider;
 
 import org.apache.commons.lang3.StringUtils;
 
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.drc.model.generated.StatusEnum;
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import nl.info.client.zgw.drc.model.generated.StatusEnum;
 
 @Provider
 @Produces(MediaType.TEXT_PLAIN)

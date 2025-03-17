@@ -4,11 +4,11 @@
  */
 package net.atos.zac.app.klant.model.bedrijven
 
-import net.atos.client.kvk.zoeken.model.generated.ResultaatItem
 import net.atos.zac.app.klant.model.klant.IdentificatieType
 import net.atos.zac.app.klant.model.klant.RestKlant
 import net.atos.zac.app.shared.RESTResultaat
 import net.atos.zac.util.StringUtil
+import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.Locale

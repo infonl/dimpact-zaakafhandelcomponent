@@ -10,7 +10,7 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
-import net.atos.client.zgw.ztc.model.generated.RolType;
+import nl.info.client.zgw.ztc.model.generated.RolType;
 
 public class RolNietNatuurlijkPersoon extends Rol<NietNatuurlijkPersoon> {
 

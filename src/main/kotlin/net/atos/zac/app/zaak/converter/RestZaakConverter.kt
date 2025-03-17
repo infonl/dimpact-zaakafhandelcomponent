@@ -5,15 +5,12 @@
 package net.atos.zac.app.zaak.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Status
 import net.atos.client.zgw.zrc.model.Verlenging
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.util.StatusTypeUtil
-import net.atos.client.zgw.ztc.model.generated.StatusType
-import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.zac.app.identity.converter.RestGroupConverter
 import net.atos.zac.app.identity.converter.RestUserConverter
 import net.atos.zac.app.klant.model.klant.IdentificatieType
@@ -33,8 +30,11 @@ import net.atos.zac.policy.PolicyService
 import net.atos.zac.search.model.ZaakIndicatie
 import net.atos.zac.util.time.PeriodUtil
 import nl.info.client.zgw.brc.BrcClientService
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.generated.StatusType
+import nl.info.client.zgw.ztc.model.generated.ZaakType
 import java.time.LocalDate
 import java.time.Period
 import java.util.EnumSet

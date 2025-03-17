@@ -5,12 +5,12 @@
 
 package net.atos.client.kvk.zoeken.model
 
-import net.atos.client.kvk.vestigingsprofiel.model.generated.SBIActiviteit
-import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging
-import net.atos.client.kvk.zoeken.model.generated.Adres
-import net.atos.client.kvk.zoeken.model.generated.AdresType
-import net.atos.client.kvk.zoeken.model.generated.BinnenlandsAdres
-import net.atos.client.kvk.zoeken.model.generated.ResultaatItem
+import nl.info.client.kvk.vestigingsprofiel.model.generated.SBIActiviteit
+import nl.info.client.kvk.vestigingsprofiel.model.generated.Vestiging
+import nl.info.client.kvk.zoeken.model.generated.Adres
+import nl.info.client.kvk.zoeken.model.generated.AdresType
+import nl.info.client.kvk.zoeken.model.generated.BinnenlandsAdres
+import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 
 @Suppress("LongParameterList")
 fun createAdresWithBinnenlandsAdres(
@@ -80,7 +80,7 @@ fun createVestiging(
             indHoofdactiviteit = "nee"
         )
     ),
-    adressen: List<net.atos.client.kvk.vestigingsprofiel.model.generated.Adres>? = listOf(createVestigingsAdres())
+    adressen: List<nl.info.client.kvk.vestigingsprofiel.model.generated.Adres>? = listOf(createVestigingsAdres())
 ) = Vestiging().apply {
     this.vestigingsnummer = vestigingsnummer
     this.kvkNummer = kvkNumber
@@ -96,7 +96,7 @@ fun createVestigingsAdres(
     type: String = "dummyType",
     indAfgeschermd: String = "nee",
     volledigAdres: String = "dummyVolledigAdres"
-) = net.atos.client.kvk.vestigingsprofiel.model.generated.Adres().apply {
+) = nl.info.client.kvk.vestigingsprofiel.model.generated.Adres().apply {
     this.type = type
     this.indAfgeschermd = indAfgeschermd
     this.volledigAdres = volledigAdres

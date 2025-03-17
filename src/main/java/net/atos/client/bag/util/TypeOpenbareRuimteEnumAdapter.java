@@ -7,7 +7,7 @@ package net.atos.client.bag.util;
 
 import jakarta.json.bind.adapter.JsonbAdapter;
 
-import net.atos.client.bag.model.generated.TypeOpenbareRuimte;
+import nl.info.client.bag.model.generated.TypeOpenbareRuimte;
 
 public class TypeOpenbareRuimteEnumAdapter implements JsonbAdapter<TypeOpenbareRuimte, String> {
 
