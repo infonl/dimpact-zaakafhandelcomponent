@@ -11,22 +11,19 @@ import jakarta.ws.rs.core.MultivaluedMap
 import nl.info.zac.authentication.LoggedInUser
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory
-import java.util.Optional
-import java.util.logging.Level
-import java.util.logging.Logger
 
 class BRPClientHeadersFactory @Inject constructor(
     @ConfigProperty(name = "brp.api.key")
-    private val apiKey: Optional<String> = Optional.empty(),
+    private val apiKey: String,
 
     @ConfigProperty(name = "brp.origin.oin")
-    private val originOIN: Optional<String> = Optional.empty(),
+    private val originOIN: String,
 
-    @ConfigProperty(name = "brp.doelbinding")
-    private val purpose: Optional<String> = Optional.empty(),
+    @ConfigProperty(name = "brp.doelbinding.default")
+    private val purpose: String,
 
-    @ConfigProperty(name = "brp.verwerking")
-    private val process: Optional<String> = Optional.empty(),
+    @ConfigProperty(name = "brp.verwerking.default")
+    private val process: String,
 
     @Inject
     private var loggedInUserInstance: Instance<LoggedInUser>
@@ -40,39 +37,25 @@ class BRPClientHeadersFactory @Inject constructor(
         private const val X_GEBRUIKER = "X-GEBRUIKER"
 
         private const val SYSTEM_USER = "BurgerZelf"
-
-        private val LOG = Logger.getLogger(BRPClientHeadersFactory::class.java.name)
     }
 
     override fun update(
         incomingHeaders: MultivaluedMap<String, String>,
         clientOutgoingHeaders: MultivaluedMap<String, String>
     ): MultivaluedMap<String, String> {
-        addHeader(clientOutgoingHeaders, X_API_KEY, apiKey)
-
-        addHeader(clientOutgoingHeaders, X_ORIGIN_OIN, originOIN)
-        addHeader(clientOutgoingHeaders, X_DOELBINDING, purpose)
-        addHeader(clientOutgoingHeaders, X_VERWERKING, process)
+        clientOutgoingHeaders.add(X_API_KEY, apiKey)
+        clientOutgoingHeaders.add(X_ORIGIN_OIN, originOIN)
+        clientOutgoingHeaders.add(X_DOELBINDING, purpose)
+        clientOutgoingHeaders.add(X_VERWERKING, process)
         clientOutgoingHeaders.add(X_GEBRUIKER, getUser())
 
         return clientOutgoingHeaders
     }
 
-    private fun addHeader(
-        headerMap: MultivaluedMap<String, String>,
-        headerName: String,
-        value: Optional<String>
-    ) {
-        if (value.isPresent) {
-            headerMap.add(headerName, value.get())
-        }
-    }
-
     private fun getUser(): String =
         try {
             loggedInUserInstance.get().id
-        } catch (urException: UnsatisfiedResolutionException) {
-            LOG.log(Level.WARNING, "No logged in user found!", urException.message)
+        } catch (_: UnsatisfiedResolutionException) {
             SYSTEM_USER
         }
 }
