@@ -24,6 +24,18 @@
       (bagObject)="bagGeselecteerd($event)"
     ></zac-bag-zoek>
   </mat-sidenav>
+  <section class="content">
+    <form [formGroup]="form" (ngSubmit)="formSubmit(form)">
+      <zac-auto-compete
+        [key]="'zaaktype'"
+        [form]="form"
+        [options]="zakenService.listZaaktypes()"
+        [optionLabel]="'omschrijving'"
+      ></zac-auto-compete>
+      <zac-date [key]="'startDate'" [form]="form"></zac-date>
+      <button type="submit" [disabled]="!form.valid">submit</button>
+    </form>
+  </section>
   <div class="content" class="zaak-create-form">
     <div class="form">
       <mfb-form

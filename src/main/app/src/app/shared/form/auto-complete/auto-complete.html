@@ -1,0 +1,27 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 Lifely
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  ~
+  -->
+
+<mat-form-field [formGroup]="form" appearance="fill">
+  <mat-label>{{ key | translate }}</mat-label>
+  <input
+    type="text"
+    matInput
+    [matAutocomplete]="auto"
+    [formControlName]="key"
+  />
+  <button *ngIf="!control?.value" mat-icon-button matSuffix disabled>
+    <mat-icon>search</mat-icon>
+  </button>
+  <button *ngIf="control?.value" mat-icon-button matSuffix (click)="reset()">
+    <mat-icon>clear</mat-icon>
+  </button>
+  <mat-autocomplete #auto="matAutocomplete" [displayWith]="getOptionLabel">
+    <mat-option *ngFor="let option of filteredOptions" [value]="option">
+      {{ getOptionLabel(option) | translate }}
+    </mat-option>
+  </mat-autocomplete>
+  <mat-error>{{ getErrorMessage() | translate }}</mat-error>
+</mat-form-field>
