@@ -4,7 +4,7 @@
  */
 
 export class OrderUtil {
-  static orderBy<T>(sortKey?: keyof T) {
+  static orderBy<T>(sortKey?: keyof T | null) {
     return (a: T, b: T): number => {
       const valueA = sortKey ? a[sortKey] : a;
       const valueB = sortKey ? b[sortKey] : b;
