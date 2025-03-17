@@ -31,7 +31,7 @@ export function createFormData<T extends Record<string, any>>(
 ): FormData {
   const formData = new FormData();
   Object.entries(mapper).forEach(([key, mappingFunction]) => {
-    const value: unknown = obj[key];
+    const value = obj[key];
     if (Array.isArray(value)) {
       value.forEach(add);
     } else {
@@ -50,7 +50,7 @@ export function createFormData<T extends Record<string, any>>(
         }
       } else {
         const parsed = parseFormValue(value);
-        if (typeof parsed != "boolean" && Boolean(parsed)) {
+        if (typeof parsed != "boolean") {
           formData.append(key, parsed);
         }
       }
