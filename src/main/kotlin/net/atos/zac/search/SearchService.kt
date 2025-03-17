@@ -73,10 +73,13 @@ class SearchService @Inject constructor(
         query.setParam("q.op", SimpleParams.AND_OPERATOR)
         query.rows = zoekParameters.rows
         query.start = zoekParameters.start
-        query.addSort(
-            zoekParameters.sortering.sorteerVeld.veld,
-            if (zoekParameters.sortering.richting == SorteerRichting.DESCENDING) SolrQuery.ORDER.desc else SolrQuery.ORDER.asc
-        )
+        if (zoekParameters.sortering.richting != SorteerRichting.NONE) {
+            query.addSort(
+                zoekParameters.sortering.sorteerVeld.veld,
+                if (zoekParameters.sortering.richting == SorteerRichting.DESCENDING) SolrQuery.ORDER.desc else SolrQuery.ORDER.asc
+            )
+        }
+
         if (zoekParameters.sortering.sorteerVeld != SorteerVeld.CREATED) {
             query.addSort(SorteerVeld.CREATED.veld, SolrQuery.ORDER.desc)
         }
