@@ -111,7 +111,9 @@ class ConfigurationRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                responseBody shouldEqualJson "[]"
+                responseBody shouldEqualJson """
+                    [ "dummyFileExtension1", "dummyFileExtension2"]
+                """.trimIndent()
             }
         }
         When("the gemeente name is retrieved") {
