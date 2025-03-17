@@ -7,6 +7,8 @@ package net.atos.zac.search
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldInclude
+import io.kotest.matchers.string.shouldNotInclude
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -59,7 +61,7 @@ class SearchServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A logged-in user authorised for all zaaktypes and wo objects of type ZAAK in the search index") {
+    Given("A logged-in user authorised for all zaaktypes and two objects of type ZAAK in the search index") {
         val zaakDescriptionSearchField = "dummyZaakDescription"
         val behandelaarFilterValue1 = "dummyBehandelaarFilterValue1"
         val behandelaarFilterValue2 = "dummyBehandelaarFilterValue2"
@@ -295,6 +297,79 @@ class SearchServiceTest : BehaviorSpec({
                     get("rows") shouldBe "0"
                     get("start") shouldBe "0"
                     get("sort") shouldBe "informatieobject_titel_sort desc,created desc,zaak_identificatie desc,id desc"
+                }
+            }
+        }
+    }
+    Given("A users sorts") {
+        val queryResponse = mockk<QueryResponse>()
+        val solrDocumentList = mockk<SolrDocumentList>()
+        val solrDocument1 = mockk<SolrDocument>()
+        val solrDocument2 = mockk<SolrDocument>()
+        val documentObjectBinder = mockk<DocumentObjectBinder>()
+        val zaakZoekObject1 = mockk<ZaakZoekObject>()
+        val zaakZoekObject2 = mockk<ZaakZoekObject>()
+        val solrParamsSlot = slot<SolrParams>()
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { loggedInUser.isAuthorisedForAllZaaktypen() } returns true
+        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { queryResponse.results } returns solrDocumentList
+        every { solrDocumentList.size } returns 2
+        every { solrDocumentList.iterator() } returns listOf(
+            solrDocument1,
+            solrDocument2
+        ).iterator() as MutableIterator<SolrDocument>
+        every { solrDocument1["type"] } returns "ZAAK"
+        every { solrDocument2["type"] } returns "ZAAK"
+        every { solrClient.binder } returns documentObjectBinder
+        every { documentObjectBinder.getBean(ZaakZoekObject::class.java, solrDocument1) } returns zaakZoekObject1
+        every { documentObjectBinder.getBean(ZaakZoekObject::class.java, solrDocument2) } returns zaakZoekObject2
+        every { solrDocumentList.numFound } returns 2
+        every { queryResponse.facetFields } returns emptyList()
+
+        When("searching ${SorteerRichting.ASCENDING.value}") {
+            zoekService.zoek(
+                createZoekParameters(
+                    zoekObjectType = ZoekObjectType.ZAAK,
+                    sorteerRichting = SorteerRichting.ASCENDING,
+                    sorteerVeld = SorteerVeld.ZAAK_STATUS
+                )
+            )
+
+            Then("it should add the correct sort to the query") {
+                with(solrParamsSlot.captured) {
+                    get("sort") shouldInclude "zaak_statustypeOmschrijving asc"
+                }
+            }
+        }
+
+        When("searching ${SorteerRichting.DESCENDING.value}") {
+            zoekService.zoek(
+                createZoekParameters(
+                    zoekObjectType = ZoekObjectType.ZAAK,
+                    sorteerRichting = SorteerRichting.DESCENDING,
+                    sorteerVeld = SorteerVeld.ZAAK_STATUS
+                )
+            )
+
+            Then("it should add the correct sort to the query") {
+                with(solrParamsSlot.captured) {
+                    get("sort") shouldInclude "zaak_statustypeOmschrijving desc"
+                }
+            }
+        }
+        When("searching ${SorteerRichting.NONE.value}") {
+            zoekService.zoek(
+                createZoekParameters(
+                    zoekObjectType = ZoekObjectType.ZAAK,
+                    sorteerRichting = SorteerRichting.NONE,
+                    sorteerVeld = SorteerVeld.ZAAK_STATUS
+                )
+            )
+
+            Then("it should not add a sort to the query") {
+                with(solrParamsSlot.captured) {
+                    get("sort") shouldNotInclude "zaak_statustypeOmschrijving"
                 }
             }
         }

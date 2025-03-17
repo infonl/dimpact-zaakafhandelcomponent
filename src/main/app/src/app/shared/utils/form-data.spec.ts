@@ -26,6 +26,15 @@ describe("createFormData", () => {
     expect((<File>value).name).toBe("dummy");
   });
 
+  it("should preserve key and value for empty strings", () => {
+    const formData = createFormData({ key: "" }, { key: true });
+    const entries = Array.from(formData);
+    expect(entries).toHaveLength(1);
+    const [key, value] = entries[0];
+    expect(key).toBe("key");
+    expect(value).toBe("");
+  });
+
   it("should preserve key and call toString on value if that method exists and no mapping is specified", () => {
     const formData = createFormData({ key: 5 }, { key: true });
     const entries = Array.from(formData);
@@ -58,13 +67,13 @@ describe("createFormData", () => {
     expect(value).toBe("new-value");
   });
 
-  it("should skip keys that are null, undefined or an empty string", () => {
+  it("should skip keys that are null, undefined", () => {
     const formData = createFormData(
       { emptyString: "", null: null, undefined: undefined },
       { emptyString: true, null: true, undefined: true },
     );
     const entries = Array.from(formData);
-    expect(entries).toHaveLength(0);
+    expect(entries).toHaveLength(1);
   });
 
   it("should overwrite filename if specified in the mapper", () => {

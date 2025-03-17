@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.productaanvraag
+package nl.info.zac.productaanvraag
 
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
-import net.atos.zac.productaanvraag.model.generated.Betrokkene
-import net.atos.zac.productaanvraag.model.generated.Bron
-import net.atos.zac.productaanvraag.model.generated.ProductaanvraagDimpact
+import nl.info.zac.productaanvraag.model.generated.Betrokkene
+import nl.info.zac.productaanvraag.model.generated.Bron
+import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
