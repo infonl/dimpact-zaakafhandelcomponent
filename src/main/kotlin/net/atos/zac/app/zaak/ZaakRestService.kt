@@ -99,7 +99,6 @@ import net.atos.zac.identity.IdentityService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
-import net.atos.zac.productaanvraag.ProductaanvraagService
 import net.atos.zac.search.IndexingService
 import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import net.atos.zac.shared.helper.SuspensionZaakHelper
@@ -114,6 +113,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.collections4.CollectionUtils

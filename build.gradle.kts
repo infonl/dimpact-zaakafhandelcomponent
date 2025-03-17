@@ -243,7 +243,7 @@ jsonSchema2Pojo {
     setSource(srcResources.dir("json-schemas/productaanvraag").asFileTree)
     setSourceType("jsonschema")
     targetDirectory = srcGenerated.dir("productaanvraag/java").asFile
-    targetPackage = "net.atos.zac.productaanvraag.model.generated"
+    targetPackage = "nl.info.zac.productaanvraag.model.generated"
     setAnnotationStyle("JSONB2")
     dateType = "java.time.LocalDate"
     dateTimeType = "java.time.ZonedDateTime"
