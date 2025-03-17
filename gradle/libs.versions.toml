@@ -106,7 +106,7 @@ apache-solr = { group = "org.apache.solr", name = "solr-solrj", version.ref = "a
 webdav-servlet = { group = "nl.info.webdav", name = "webdav-servlet", version.ref = "webdav-servlet" }
 htmlcleaner = { group = "net.sourceforge.htmlcleaner", name = "htmlcleaner", version.ref = "htmlcleaner" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
-kotlin-csv-jvm = { group = "com.github.doyaaaaaken", name = "kotlin-csv-jvm", version.ref = "kotlin-csv" }
+kotlin-csv-jvm = { group = "com.jsoizo", name = "kotlin-csv-jvm", version.ref = "kotlin-csv" }
 
 swagger-ui = { group = "org.webjars", name = "swagger-ui", version.ref = "swagger" }
 
