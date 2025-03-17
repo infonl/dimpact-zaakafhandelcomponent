@@ -19,7 +19,6 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
     val originOin = "originOin"
     val purpose = "doelbinding"
     val process = "verwerking"
-    val username = "username"
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
 
     val brpClientHeadersFactory = BRPClientHeadersFactory(
@@ -35,7 +34,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
     }
 
     Given("BRP headers and a valid user") {
-        every { loggedInUserInstance.get().id } returns username
+        every { loggedInUserInstance.get().id } returns "username"
 
         When("headers are updated") {
             val headers = brpClientHeadersFactory.update(Headers<String>(), Headers<String>())
@@ -46,7 +45,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
                     shouldContain("X-ORIGIN-OIN", listOf(originOin))
                     shouldContain("X-DOELBINDING", listOf(purpose))
                     shouldContain("X-VERWERKING", listOf(process))
-                    shouldContain("X-GEBRUIKER", listOf(username))
+                    shouldContain("X-GEBRUIKER", listOf("username"))
                 }
             }
         }
