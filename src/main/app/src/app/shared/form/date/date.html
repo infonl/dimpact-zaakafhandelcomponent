@@ -6,7 +6,9 @@
 
 <mat-form-field [formGroup]="form" class="full-width" appearance="fill">
   <mat-label>
-    <ng-content select="mat-label"></ng-content>
+    <ng-content select="mat-label">
+        {{ key | translate | capitalizeFirstLetter }}
+    </ng-content>
   </mat-label>
   <input
     type="date"
@@ -22,7 +24,6 @@
   <!--        }}</span>-->
   <mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
   <mat-datepicker #date></mat-datepicker>
-  <!--    <mat-hint *ngIf="data.hint">{{ data.hint.label | translate }}</mat-hint>-->
   <mat-error>{{ getErrorMessage() }}</mat-error>
   <mat-hint>
     <ng-content select="mat-hint"></ng-content>

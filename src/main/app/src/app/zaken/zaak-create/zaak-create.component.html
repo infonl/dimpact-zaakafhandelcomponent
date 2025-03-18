@@ -24,55 +24,111 @@
       (bagObject)="bagGeselecteerd($event)"
     ></zac-bag-zoek>
   </mat-sidenav>
-    <mat-grid-list cols="2">
-        <mat-grid-tile colspan="1">
-            <zac-auto-complete
-                    [key]="'zaaktype'"
-                    [form]="form"
-                    [options]="zakenService.listZaaktypes()"
-                    [optionLabel]="'omschrijving'"
-            >
-                <mat-label>hello</mat-label>
-                <mat-hint>this is a hint</mat-hint>
-            </zac-auto-complete>
-        </mat-grid-tile>
-        <mat-grid-tile colspan="1">
-            <zac-date
-                    [key]="'startDate'"
-                    [form]="form"
-                    [min]="minDate"
-                    [max]="maxDate"
-            >
-                <mat-label>date</mat-label>
-                <mat-hint>this is a hint</mat-hint>
-            </zac-date>
-        </mat-grid-tile>
-    </mat-grid-list>
-  <section class="content">
-
-    <form [formGroup]="form" (ngSubmit)="formSubmit(form)">
-
-      <zac-date
-        [key]="'startDate'"
+  <form [formGroup]="form" (ngSubmit)="formSubmit(form)" class="flex">
+    <fieldset class="flex-col gap-12">
+      <label><h1>Create case</h1></label>
+      <section class="flex-row gap-12">
+        <zac-auto-complete
+          class="flex-1"
+          [key]="'zaaktype'"
+          [form]="form"
+          [options]="zaaktypes"
+          [optionLabel]="'omschrijving'"
+        >
+          <mat-hint>{{
+            "zaps.step.algemeen.zaaktype.hint" | translate
+          }}</mat-hint>
+        </zac-auto-complete>
+        <zac-input
+          [key]="'initiator'"
+          [form]="form"
+          readonly
+          class="flex-1"
+          (click)="openSideNav('actie.initiator.toevoegen')()"
+        >
+          <button mat-icon-button matSuffix type="button"><mat-icon >person</mat-icon></button>
+        </zac-input>
+      </section>
+      <section class="flex-row gap-12">
+        <zac-date
+          class="flex-1"
+          [key]="'startdatum'"
+          [form]="form"
+          [min]="minDate"
+          [max]="maxDate"
+        >
+        </zac-date>
+        <zac-input
+          [key]="'bagObjecten'"
+          [form]="form"
+          readonly
+          class="flex-1"
+          (click)="openSideNav('actie.bagObject.toevoegen')()"
+        >
+          <button mat-icon-button matSuffix>
+            <mat-icon>gps_fixed</mat-icon>
+          </button>
+        </zac-input>
+      </section>
+    </fieldset>
+    <fieldset class="flex-col gap-12">
+      <label><h2>Case assignment</h2></label>
+      <zac-auto-complete
+        class="flex-1"
+        [key]="'groep'"
         [form]="form"
-        [min]="minDate"
-        [max]="maxDate"
+        [options]="groups"
+        [optionLabel]="'naam'"
       >
-        <mat-label>date</mat-label>
-          <mat-hint>this is a hint</mat-hint>
-      </zac-date>
-      <zac-select
-        [key]="'communicationChannel'"
+        <mat-label>{{ "actie.zaak.toekennen.groep" | translate }}</mat-label>
+      </zac-auto-complete>
+      <zac-auto-complete
+        class="flex-1"
+        [key]="'medewerker'"
         [form]="form"
-        [options]="this.referentieTabelService.listCommunicatiekanalen()"
-        [label]="'test'"
+        [options]="users"
+        [optionLabel]="'naam'"
       >
-          <mat-label>communication channel</mat-label>
-          <mat-hint>this is a hint</mat-hint>
-      </zac-select>
-      <button type="submit" [disabled]="!form.valid">submit</button>
-    </form>
-  </section>
+        <mat-label>{{
+          "actie.zaak.toekennen.medewerker" | translate
+        }}</mat-label>
+      </zac-auto-complete>
+    </fieldset>
+    <fieldset class="flex-col gap-12">
+      <label><h2>Other information</h2></label>
+      <section class="flex-row gap-12">
+        <zac-auto-complete
+          class="flex-1"
+          [key]="'communicatiekanaal'"
+          [form]="form"
+          [options]="comminucationChannels"
+        >
+        </zac-auto-complete>
+        <zac-auto-complete
+          class="flex-1"
+          [key]="'vertrouwelijkheidaanduiding'"
+          [form]="form"
+          [options]="confidentialityNotices"
+          [optionLabel]="'label'"
+        >
+        </zac-auto-complete>
+      </section>
+      <zac-input [key]="'description'" [form]="form" maxLength="80">
+        <button mat-icon-button matSuffix><mat-icon>close</mat-icon></button>
+      </zac-input>
+    </fieldset>
+    <fieldset>
+      <button
+        mat-raised-button
+        type="submit"
+        color="primary"
+        [disabled]="!form.valid"
+      >
+        Create
+      </button>
+      <button mat-raised-button>Cancel</button>
+    </fieldset>
+  </form>
   <div class="content" class="zaak-create-form">
     <div class="form">
       <mfb-form
