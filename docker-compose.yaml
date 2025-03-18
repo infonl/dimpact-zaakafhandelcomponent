@@ -671,7 +671,7 @@ services:
       - BAG_API_KEY=${BAG_API_KEY:-dummyBagApiKey}
       - BRP_API_CLIENT_MP_REST_URL=http://brp-personen-mock:5010/haalcentraal/api/brp
       - BRON_ORGANISATIE_RSIN=${BRON_ORGANISATIE_RSIN:-123443210}
-      - BRP_API_KEY=dummyKey # still required with BRP protocollering (to be revisited with PZ-5882)
+      - BRP_API_KEY=dummyKey # not used when using the BRP proxy
       - BRP_ORIGIN_OIN=${BRP_ORIGIN_OIN:-dummyOIN} # used by BRP protocollering
       - BRP_DOELBINDING_DEFAULT=${BRP_DOELBINDING_DEFAULT:-BRPACT-Totaal} # used by BRP protocollering
       - BRP_VERWERKING_DEFAULT=${BRP_VERWERKING_DEFAULT:-zaakafhandelcomponent} # used by BRP protocollering
