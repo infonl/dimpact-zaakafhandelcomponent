@@ -27,7 +27,7 @@ export class ZacSelect<
     @Input({ required: true }) options!:
         | Observable<Array<Option>>
         | Array<Option>;
-    @Input({ required: true }) optionLabel!: OptionLabel;
+    @Input() optionLabel?: OptionLabel;
     @Input() compare?: Compare;
     /**
      * The suffix to display after the input field.
@@ -60,6 +60,10 @@ export class ZacSelect<
 
         if (typeof this.optionLabel === "function") {
             return this.optionLabel(option);
+        }
+
+        if(!this.optionLabel) {
+            return String(option);
         }
 
         return String(option[this.optionLabel as keyof Option]);
