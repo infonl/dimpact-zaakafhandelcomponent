@@ -89,10 +89,13 @@ export class ZaakCreateComponent implements OnDestroy {
     groep: FormControl<GeneratedType<"RestGroup"> | null>;
     medewerker: FormControl<GeneratedType<"RestUser"> | null>;
     communicatiekanaal: FormControl<string | null>;
-    vertrouwelijkheidaanduiding: FormControl< { label: string, value: string } | null>;
+    vertrouwelijkheidaanduiding: FormControl<{
+      label: string;
+      value: string;
+    } | null>;
     description: FormControl<string | null>;
-    initiator: FormControl<string | null>;
-    bagObjecten: FormControl<Array<GeneratedType<'RESTBAGObject'>> | null>;
+    initiator: FormControl<string | null | undefined>;
+    bagObjecten: FormControl<string | null>;
   }>;
 
   minDate = moment(new Date()).subtract(4, "days").toISOString();
@@ -103,6 +106,8 @@ export class ZaakCreateComponent implements OnDestroy {
   zaaktypes: Zaaktype[] = [];
   comminucationChannels: string[] = [];
   confidentialityNotices: { label: string; value: string }[] = [];
+  bagObjectenFormControl = new FormControl<string | null>(null);
+  initiatorFormControl = new FormControl<string | null | undefined>(null);
 
   constructor(
     private zakenService: ZakenService,
@@ -121,20 +126,25 @@ export class ZaakCreateComponent implements OnDestroy {
     identityService.listGroups().subscribe((groups) => {
       this.groups = groups ?? [];
     });
-    this.referentieTabelService.listCommunicatiekanalen(
-        this.inboxProductaanvraag != null,
-    ).subscribe(communicatiekanalen => {
-        this.comminucationChannels = communicatiekanalen;
-    })
-    this.confidentialityNotices = this.utilService.getEnumAsSelectList("vertrouwelijkheidaanduiding", Vertrouwelijkheidaanduiding)
 
+    this.inboxProductaanvraag =
+      this.router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
+    this.referentieTabelService
+      .listCommunicatiekanalen(this.inboxProductaanvraag != null)
+      .subscribe((communicatiekanalen) => {
+        this.comminucationChannels = communicatiekanalen;
+      });
+    this.confidentialityNotices = this.utilService.getEnumAsSelectList(
+      "vertrouwelijkheidaanduiding",
+      Vertrouwelijkheidaanduiding,
+    );
 
     const groep = new FormControl<GeneratedType<"RestGroup"> | null>(null, [
       Validators.required,
     ]);
 
     const medewerker = new FormControl<GeneratedType<"RestUser"> | null>(null);
-    medewerker.disable()
+    medewerker.disable();
 
     this.form = this.formBuilder.group({
       zaaktype: new FormControl<Zaaktype | null>(null, [Validators.required]),
@@ -144,27 +154,32 @@ export class ZaakCreateComponent implements OnDestroy {
       ]),
       groep,
       medewerker,
-      communicatiekanaal: new FormControl<string | null>(null, [Validators.required]),
-      vertrouwelijkheidaanduiding: new FormControl< { label: string, value: string } | null>(null, [Validators.required]),
-      description: new FormControl<string | null>(null, [Validators.required, Validators.maxLength(80)]),
-      initiator: new FormControl<string | null>(null),
-      bagObjecten: new FormControl<Array<GeneratedType<'RESTBAGObject'>> | null>(null),
+      communicatiekanaal: new FormControl<string | null>(null, [
+        Validators.required,
+      ]),
+      vertrouwelijkheidaanduiding: new FormControl<{
+        label: string;
+        value: string;
+      } | null>(null, [Validators.required]),
+      description: new FormControl<string | null>(null, [
+        Validators.required,
+        Validators.maxLength(80),
+      ]),
+      initiator: this.initiatorFormControl,
+      bagObjecten: this.bagObjectenFormControl,
     });
 
     groep.valueChanges.subscribe((value) => {
       if (!value) {
         medewerker.setValue(null);
-        medewerker.disable()
+        medewerker.disable();
         return;
       }
       this.identityService.listUsersInGroup(value.id).subscribe((users) => {
         this.users = users ?? [];
-        medewerker.enable()
+        medewerker.enable();
       });
     });
-
-    this.inboxProductaanvraag =
-      this.router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
 
     this.utilService.setTitle("title.zaak.aanmaken");
 
@@ -363,7 +378,7 @@ export class ZaakCreateComponent implements OnDestroy {
 
   initiatorGeselecteerd(initiator: Klant): void {
     this.initiator = initiator;
-    this.initiatorField.formControl.setValue(initiator?.naam);
+    this.initiatorFormControl.setValue(initiator?.naam);
     this.actionsSidenav.close();
   }
 
@@ -426,26 +441,26 @@ export class ZaakCreateComponent implements OnDestroy {
       "Vanuit productaanvraag van type " + this.inboxProductaanvraag.type;
     if (this.inboxProductaanvraag.initiatorID) {
       if (this.inboxProductaanvraag.initiatorID.length === bsnLength) {
-        this.initiatorField.formControl.setValue(
+        this.initiatorFormControl.setValue(
           this.inboxProductaanvraag.initiatorID,
         );
         this.klantenService
           .readPersoon(this.inboxProductaanvraag.initiatorID)
           .subscribe((initiator) => {
             this.initiator = initiator as Klant;
-            this.initiatorField.formControl.setValue(initiator.naam);
+            this.initiatorFormControl.setValue(initiator.naam);
           });
       } else if (
         this.inboxProductaanvraag.initiatorID.length === vestigingsnummerLength
       ) {
-        this.initiatorField.formControl.setValue(
+        this.initiatorFormControl.setValue(
           this.inboxProductaanvraag.initiatorID,
         );
         this.klantenService
           .readVestiging(this.inboxProductaanvraag.initiatorID)
           .subscribe((initiator) => {
             this.initiator = initiator;
-            this.initiatorField.formControl.setValue(initiator.naam);
+            this.initiatorFormControl.setValue(initiator.naam);
           });
       }
     }
@@ -453,17 +468,19 @@ export class ZaakCreateComponent implements OnDestroy {
   }
 
   bagGeselecteerd(): void {
-    this.bagObjectenField.formControl.setValue(
-      this.bagObjecten.map((b) => b.omschrijving).join(" | "),
-    );
-    if (this.bagObjectenField.formControl.value.length > 100) {
+    const value = this.bagObjecten
+      .map(({ omschrijving }) => omschrijving)
+      .join(" | ");
+    if (value.length > 100) {
       this.translateService
         .get("msg.aantal.bagObjecten.geselecteerd", {
           aantal: this.bagObjecten.length,
         })
         .subscribe((v) => {
-          this.bagObjectenField.formControl.setValue(v);
+          this.bagObjectenFormControl.setValue(v);
         });
+      return;
     }
+    this.bagObjectenFormControl.setValue(value);
   }
 }

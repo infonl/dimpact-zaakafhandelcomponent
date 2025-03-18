@@ -5,28 +5,36 @@
   -->
 
 <mat-form-field [formGroup]="form" class="full-width" appearance="fill">
-    <mat-label>
-        <ng-content select="mat-label">
-            {{ key | translate | capitalizeFirstLetter }}
-        </ng-content>
-    </mat-label>
-    <input
-        matInput
-        autocomplete="off"
-        [formControlName]="key"
-        [maxLength]="maxLength"
-        [readonly]="readonly"
-        [type]="type ?? 'text'"
-    />
-    <span matSuffix>
-        <ng-content select="button"></ng-content>
-        <ng-content select="mat-icon"></ng-content>
-    </span>
-    <mat-error>{{ getErrorMessage() }}</mat-error>
-    <mat-hint>
-        <ng-content select="mat-hint"></ng-content>
-    </mat-hint>
-    <mat-hint align="end" *ngIf="maxLength">
-        {{ control?.value?.length ?? 0 }} / {{ maxLength }}
-    </mat-hint>
+  <mat-label>
+    <ng-content select="mat-label">
+      {{ key | translate | capitalizeFirstLetter }}
+    </ng-content>
+  </mat-label>
+  <input
+    matInput
+    autocomplete="off"
+    [formControlName]="key"
+    [maxLength]="maxLength"
+    [readonly]="readonly"
+    [type]="type ?? 'text'"
+  />
+  <button
+    matSuffix
+    mat-icon-button
+    *ngIf="!readonly && !disabled && control?.value?.length"
+    (click)="control?.reset(undefined)"
+  >
+    <mat-icon>clear</mat-icon>
+  </button>
+  <span matSuffix>
+    <ng-content select="button"></ng-content>
+    <ng-content select="mat-icon"></ng-content>
+  </span>
+  <mat-error>{{ getErrorMessage() }}</mat-error>
+  <mat-hint>
+    <ng-content select="mat-hint"></ng-content>
+  </mat-hint>
+  <mat-hint align="end" *ngIf="maxLength">
+    {{ control?.value?.length ?? 0 }} / {{ maxLength }}
+  </mat-hint>
 </mat-form-field>

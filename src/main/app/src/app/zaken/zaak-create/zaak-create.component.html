@@ -21,7 +21,7 @@
       *ngSwitchCase="'actie.bagObject.toevoegen'"
       [gekoppeldeBagObjecten]="bagObjecten"
       [sideNav]="actionsSidenav"
-      (bagObject)="bagGeselecteerd($event)"
+      (bagObject)="bagGeselecteerd()"
     ></zac-bag-zoek>
   </mat-sidenav>
   <form [formGroup]="form" (ngSubmit)="formSubmit(form)" class="flex">
@@ -114,7 +114,6 @@
         </zac-auto-complete>
       </section>
       <zac-input [key]="'description'" [form]="form" maxLength="80">
-        <button mat-icon-button matSuffix><mat-icon>close</mat-icon></button>
       </zac-input>
     </fieldset>
     <fieldset>
