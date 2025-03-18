@@ -25,7 +25,6 @@ import net.atos.zac.app.planitems.converter.RESTPlanItemConverter
 import net.atos.zac.app.planitems.model.UserEventListenerActie
 import net.atos.zac.app.planitems.model.createRESTHumanTaskData
 import net.atos.zac.app.planitems.model.createRESTUserEventListenerData
-import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.mail.MailService
@@ -46,6 +45,7 @@ import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.zac.admin.model.createHumanTaskParameters
 import nl.info.zac.admin.model.createZaakafhandelParameters
+import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.exception.InputValidationFailedException
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI

@@ -15,7 +15,6 @@ import jakarta.enterprise.inject.Instance
 import net.atos.client.opa.model.RuleQuery
 import net.atos.client.opa.model.RuleResponse
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import net.atos.zac.enkelvoudiginformatieobject.model.createEnkelvoudigInformatieObjectLock
 import net.atos.zac.policy.input.DocumentInput
@@ -37,6 +36,7 @@ import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.configuratie.ConfiguratieService
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID

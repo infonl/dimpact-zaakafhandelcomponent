@@ -2,8 +2,7 @@
  * SPDX-FileCopyrightText: 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
-package net.atos.zac.task
+package nl.info.zac.task
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -131,7 +130,11 @@ class TaskServiceTest : BehaviorSpec({
         every { indexingService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, any()) } returns Unit
         every { flowableTaskService.readOpenTask(taskId) } returns task
         every {
-            flowableTaskService.assignTaskToGroup(task, restTaakToekennenGegevens.groepId, restTaakToekennenGegevens.reden)
+            flowableTaskService.assignTaskToGroup(
+                task,
+                restTaakToekennenGegevens.groepId,
+                restTaakToekennenGegevens.reden
+            )
         } returns task
 
         When("the 'assign task' function is called with REST taak toekennen gegevens with a group and WITHOUT a user") {

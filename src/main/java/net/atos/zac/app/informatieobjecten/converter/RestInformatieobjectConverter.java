@@ -6,9 +6,9 @@ package net.atos.zac.app.informatieobjecten.converter;
 
 import static net.atos.zac.app.configuratie.model.RestTaalKt.toRestTaal;
 import static net.atos.zac.app.identity.model.RestUserKt.toRestUser;
-import static net.atos.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
 import static net.atos.zac.identity.model.UserKt.getFullName;
 import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
+import static nl.info.zac.configuratie.ConfiguratieService.OMSCHRIJVING_TAAK_DOCUMENT;
 import static nl.info.zac.util.Base64ConvertersKt.toBase64String;
 
 import java.time.LocalDate;
@@ -35,8 +35,6 @@ import net.atos.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigIn
 import net.atos.zac.app.policy.converter.RestRechtenConverter;
 import net.atos.zac.app.task.model.RestTaskDocumentData;
 import net.atos.zac.app.zaak.model.RelatieType;
-import net.atos.zac.configuratie.ConfiguratieService;
-import net.atos.zac.configuratie.model.Taal;
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
 import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
 import net.atos.zac.identity.IdentityService;
@@ -50,6 +48,8 @@ import nl.info.client.zgw.drc.model.generated.StatusEnum;
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
 import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.zac.authentication.LoggedInUser;
+import nl.info.zac.configuratie.ConfiguratieService;
+import nl.info.zac.configuratie.model.Taal;
 
 public class RestInformatieobjectConverter {
     private static final Logger LOG = Logger.getLogger(RestInformatieobjectConverter.class.getName());

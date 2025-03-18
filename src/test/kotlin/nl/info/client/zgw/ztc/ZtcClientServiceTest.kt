@@ -13,8 +13,8 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
-import net.atos.zac.configuratie.ConfiguratieService
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.configuratie.ConfiguratieService
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID
