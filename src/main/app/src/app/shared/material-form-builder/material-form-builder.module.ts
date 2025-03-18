@@ -44,6 +44,8 @@ import { FileDragAndDropDirective } from "../directives/file-drag-and-drop.direc
 import { DocumentIconComponent } from "../document-icon/document-icon.component";
 import { ZacAutoComplete } from "../form/auto-complete/auto-complete";
 import { ZacDate } from "../form/date/date";
+import { ZacInput } from "../form/input/input";
+import { ZacSelect } from "../form/select/select";
 import { InformatieObjectIndicatiesComponent } from "../indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { EnhanceMatErrorDirective } from "../material/mat-zac-error";
 import { CapitalizeFirstLetterPipe } from "../pipes/capitalizeFirstLetter.pipe";
@@ -76,7 +78,6 @@ import {
   BUILDER_CONFIG,
   MaterialFormBuilderConfig,
 } from "./material-form-builder-config";
-import {ZacSelect} from "../form/select/select";
 
 @NgModule({
   declarations: [
@@ -108,7 +109,8 @@ import {ZacSelect} from "../form/select/select";
     CapitalizeFirstLetterPipe,
     ZacAutoComplete,
     ZacDate,
-      ZacSelect
+    ZacSelect,
+    ZacInput,
   ],
   exports: [
     FileDragAndDropDirective,
@@ -133,7 +135,8 @@ import {ZacSelect} from "../form/select/select";
     MessageComponent,
     ZacAutoComplete,
     ZacDate,
-      ZacSelect,
+    ZacSelect,
+    ZacInput,
   ],
   imports: [
     FileDragAndDropDirective,
