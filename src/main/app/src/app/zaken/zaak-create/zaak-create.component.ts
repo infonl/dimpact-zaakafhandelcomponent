@@ -84,27 +84,29 @@ export class ZaakCreateComponent implements OnDestroy {
   private communicatiekanaalField: SelectFormField;
   form: FormGroup<{
     zaaktype: FormControl<Zaaktype | null>;
-    startDate: FormControl<string | null>;
+    startDate: FormControl<moment.Moment | null>;
+    communicationChannel: FormControl<string | null>;
   }>;
 
   minDate = moment(new Date()).subtract(4, "days").toISOString();
   maxDate = moment(new Date()).add(4, "days").toISOString();
   constructor(
-    public zakenService: ZakenService,
+    protected zakenService: ZakenService,
     private router: Router,
     private navigation: NavigationService,
     private klantenService: KlantenService,
-    private referentieTabelService: ReferentieTabelService,
+    protected referentieTabelService: ReferentieTabelService,
     private translateService: TranslateService,
     private utilService: UtilService,
     private formBuilder: FormBuilder,
   ) {
     this.form = this.formBuilder.group({
       zaaktype: new FormControl<Zaaktype | null>(null, [Validators.required]),
-      startDate: new FormControl<string | null>(null, [
+      startDate: new FormControl<moment.Moment | null>(null, [
         Validators.required,
         CustomValidators.minDate(this.minDate),
       ]),
+      communicationChannel: new FormControl<string | null>(null, [Validators.required])
     });
     this.inboxProductaanvraag =
       this.router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;

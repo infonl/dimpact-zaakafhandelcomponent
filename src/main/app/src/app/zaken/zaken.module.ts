@@ -43,6 +43,7 @@ import { ZakenVerdelenDialogComponent } from "./zaken-verdelen-dialog/zaken-verd
 import { ZakenVrijgevenDialogComponent } from "./zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component";
 import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorraad.component";
 import { LocatieZoekComponent } from "./zoek/locatie-zoek/locatie-zoek.component";
+import {MatGridList, MatGridTile} from "@angular/material/grid-list";
 
 @NgModule({
   declarations: [
@@ -73,20 +74,22 @@ import { LocatieZoekComponent } from "./zoek/locatie-zoek/locatie-zoek.component
     ZaakdataFormComponent,
   ],
   exports: [ZaakVerkortComponent, ZaakDocumentenComponent],
-  imports: [
-    SharedModule,
-    ZakenRoutingModule,
-    KlantenModule,
-    InformatieObjectenModule,
-    PlanItemsModule,
-    MailModule,
-    ZoekenModule,
-    GebruikersvoorkeurenModule,
-    BAGModule,
-    DocumentIconComponent,
-    InformatieObjectIndicatiesComponent,
-    KlantKoppelComponent,
-    MimetypeToExtensionPipe,
-  ],
+    imports: [
+        SharedModule,
+        ZakenRoutingModule,
+        KlantenModule,
+        InformatieObjectenModule,
+        PlanItemsModule,
+        MailModule,
+        ZoekenModule,
+        GebruikersvoorkeurenModule,
+        BAGModule,
+        DocumentIconComponent,
+        InformatieObjectIndicatiesComponent,
+        KlantKoppelComponent,
+        MimetypeToExtensionPipe,
+        MatGridList,
+        MatGridTile,
+    ],
 })
 export class ZakenModule {}
