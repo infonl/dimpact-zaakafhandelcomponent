@@ -12,7 +12,7 @@ data:
   BAG_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.bagApi.url entry required!" .Values.bagApi.url }}
   BRON_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.bron.rsin entry required!" .Values.organizations.bron.rsin | quote }}
   BRP_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.brpApi.url entry required!" .Values.brpApi.url }}
-  BRP_ORIGIN_OIN: {{ required "Valid .Values.brpApi.origin.oin entry required!" .Values.brpApi.origin.oin }}
+  BRP_ORIGIN_OIN: {{ required "Valid .Values.brpApi.origin.oin entry required!" .Values.brpApi.origin.oin | toString }}
   BRP_DOELBINDING_DEFAULT: {{ required "Valid .Values.brpApi.defaults.doelbinding entry required!" .Values.brpApi.defaults.doelbinding }}
   BRP_VERWERKING_DEFAULT: {{ required "Valid .Values.brpApi.defaults.verwerking entry required!" .Values.brpApi.defaults.verwerking }}
   {{- if .Values.catalogusDomein }}
