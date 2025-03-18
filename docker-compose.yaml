@@ -352,7 +352,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.121.0@sha256:5fdfd70f8e54b0dfb1ce3f403978a56054aba49a2922b6b118bb30d301812cde
+    image: docker.io/otel/opentelemetry-collector:0.122.0@sha256:3b25add9bc26bd81f9c14fe8b30d7ef6dea3377fcfdd78a3e56faba198f73e09
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
