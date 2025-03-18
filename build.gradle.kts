@@ -456,6 +456,14 @@ tasks {
 
     getByName("spotlessApply").finalizedBy(listOf("detektApply"))
 
+    // run all spotless frontend tasks after the frontend linting task because
+    // the linting task has as it's output the frontend source files which are
+    // input for the spotless tasks
+    getByName("spotlessApp").mustRunAfter("npmRunLint")
+    getByName("spotlessHtml").mustRunAfter("npmRunLint")
+    getByName("spotlessJson").mustRunAfter("npmRunLint")
+    getByName("spotlessLess").mustRunAfter("npmRunLint")
+
     getByName("generateSwaggerUIZaakafhandelcomponent").setDependsOn(listOf("generateOpenApiSpec"))
 
     getByName("compileItestKotlin") {
