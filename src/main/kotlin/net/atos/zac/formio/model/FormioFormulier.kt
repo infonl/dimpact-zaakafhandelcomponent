@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-FileCopyrightText: 2024 Dimpact, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -26,7 +26,7 @@ import nl.info.zac.util.AllOpen
     allocationSize = 1
 )
 @AllOpen
-class FomioFormulier {
+class FormioFormulier {
 
     @Id
     @GeneratedValue(generator = "sq_formio_formulier", strategy = GenerationType.SEQUENCE)

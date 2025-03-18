@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-FileCopyrightText: 2024 Dimpact, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -11,7 +11,7 @@ import jakarta.json.Json
 import jakarta.json.JsonObject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import net.atos.zac.formio.model.FomioFormulier
+import net.atos.zac.formio.model.FormioFormulier
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
@@ -23,16 +23,13 @@ import org.apache.commons.lang3.StringUtils
 class FormioService @Inject constructor(
     private val entityManager: EntityManager
 ) {
-
     fun readFormioFormulier(name: String): JsonObject =
-        findFormulierByName(name)?.let {
-            parseJsonObject(it.content)
-        } ?: throw NoSuchElementException("No FormioFormulier found with name: $name")
+        findFormulierByName(name)?.content?.toJsonObject() ?: throw NoSuchElementException("No Formio form found with name: '$name'")
 
-    fun listFormulieren(): List<FomioFormulier> =
+    fun listFormulieren(): List<FormioFormulier> =
         entityManager.criteriaBuilder.let { criteriaBuilder ->
-            criteriaBuilder.createQuery(FomioFormulier::class.java).let { query ->
-                query.from(FomioFormulier::class.java).let {
+            criteriaBuilder.createQuery(FormioFormulier::class.java).let { query ->
+                query.from(FormioFormulier::class.java).let {
                     query.orderBy(criteriaBuilder.asc(it.get<String>("name")))
                 }
                 entityManager.createQuery(query).resultList
@@ -41,8 +38,8 @@ class FormioService @Inject constructor(
 
     @Transactional(Transactional.TxType.REQUIRED)
     fun addFormulier(filename: String, content: String) {
-        FomioFormulier().apply {
-            val formulier = parseJsonObject(content)
+        val formulier = content.toJsonObject()
+        FormioFormulier().apply {
             this.filename = filename
             this.content = content
             name = formulier.getJsonString("name")?.string ?: filename.removeSuffix(".json")
@@ -54,20 +51,17 @@ class FormioService @Inject constructor(
     }
 
     @Transactional(Transactional.TxType.REQUIRED)
-    fun deleteFormulier(id: Long) {
-        entityManager.remove(entityManager.find(FomioFormulier::class.java, id))
-    }
+    fun deleteFormulier(id: Long) = entityManager.remove(entityManager.find(FormioFormulier::class.java, id))
 
-    private fun findFormulierByName(name: String): FomioFormulier? =
+    private fun findFormulierByName(name: String): FormioFormulier? =
         entityManager.criteriaBuilder.let { criteriaBuilder ->
-            criteriaBuilder.createQuery(FomioFormulier::class.java).let { query ->
-                query.from(FomioFormulier::class.java).let {
+            criteriaBuilder.createQuery(FormioFormulier::class.java).let { query ->
+                query.from(FormioFormulier::class.java).let {
                     query.where(criteriaBuilder.equal(it.get<String>("name"), name))
                 }
                 entityManager.createQuery(query).resultStream.findFirst().orElse(null)
             }
         }
 
-    private fun parseJsonObject(content: String): JsonObject =
-        Json.createReader(content.reader()).readObject()
+    private fun String.toJsonObject(): JsonObject = Json.createReader(this.reader()).readObject()
 }
