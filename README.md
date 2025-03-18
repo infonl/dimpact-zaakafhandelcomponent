@@ -26,7 +26,7 @@ Please see [solution architecture](docs/solution-architecture/README.md).
 
 ## User manuals
 
-Please see [manuals](docs/manuals/README.md) for instructions on how to use ZAC.
+Please see [manuals](docs/manuals/README.md) for instructions on how to install and use ZAC.
 
 ## License
 
