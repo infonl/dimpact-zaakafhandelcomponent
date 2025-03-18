@@ -14,17 +14,16 @@ import { AbstractFormControlField } from "./abstract-form-control-field";
  */
 export abstract class AbstractChoicesFormField extends AbstractFormControlField {
   optionsChanged$ = new EventEmitter<void>();
-  private options$: Observable<any[]>;
-  private valueOptions: any[];
-  public optionLabel: string | null;
-  public optionSuffix: string | null;
-  public optionValue: string | null;
-  public optionOrderFn: (a: any, b: any) => number;
+  private options$: Observable<any[]> = new Observable();
+  private valueOptions: any[] = [];
+  public optionLabel: string | null = null;
+  public optionSuffix: string | null = null;
+  public optionValue: string | null = null;
+  public optionOrderFn?: (a: any, b: any) => number;
   public settings: {
     translateLabels?: boolean;
     capitalizeFirstLetter?: boolean;
   } = {};
-  loading$ = new EventEmitter<boolean>();
 
   protected constructor() {
     super();
@@ -65,10 +64,6 @@ export abstract class AbstractChoicesFormField extends AbstractFormControlField 
   set options(options: Observable<any[]>) {
     this.valueOptions = [];
     this.options$ = options.pipe(
-      tap({
-        subscribe: () => this.loading$.emit(true),
-        next: () => this.loading$.emit(false),
-      }),
       tap((value) => {
         this.valueOptions = value;
         value?.sort(this.optionOrderFn || OrderUtil.orderBy(this.optionLabel));
