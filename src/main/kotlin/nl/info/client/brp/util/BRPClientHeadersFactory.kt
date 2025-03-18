@@ -11,22 +11,23 @@ import jakarta.ws.rs.core.MultivaluedMap
 import nl.info.zac.authentication.LoggedInUser
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory
+import java.util.Optional
 
 class BRPClientHeadersFactory @Inject constructor(
     @ConfigProperty(name = "brp.api.key")
-    private val apiKey: String,
+    private val apiKey: Optional<String> = Optional.empty(),
 
     @ConfigProperty(name = "brp.origin.oin")
-    private val originOIN: String,
-
-    @ConfigProperty(name = "brp.doelbinding.default")
-    private val purpose: String,
-
-    @ConfigProperty(name = "brp.verwerking.default")
-    private val process: String,
+    private val originOIN: Optional<String> = Optional.empty(),
 
     @Inject
-    private var loggedInUserInstance: Instance<LoggedInUser>
+    private var loggedInUserInstance: Instance<LoggedInUser>,
+
+    @ConfigProperty(name = "brp.doelbinding.default")
+    private val purpose: Optional<String> = Optional.of("BRPACT-Totaal"),
+
+    @ConfigProperty(name = "brp.verwerking.default")
+    private val process: Optional<String> = Optional.of("zaakafhandelcomponent")
 ) : ClientHeadersFactory {
 
     companion object {
@@ -35,21 +36,31 @@ class BRPClientHeadersFactory @Inject constructor(
         private const val X_DOELBINDING = "X-DOELBINDING"
         private const val X_VERWERKING = "X-VERWERKING"
         private const val X_GEBRUIKER = "X-GEBRUIKER"
-
         private const val SYSTEM_USER = "BurgerZelf"
     }
 
     override fun update(
         incomingHeaders: MultivaluedMap<String, String>,
         clientOutgoingHeaders: MultivaluedMap<String, String>
-    ): MultivaluedMap<String, String> {
-        clientOutgoingHeaders.add(X_API_KEY, apiKey)
-        clientOutgoingHeaders.add(X_ORIGIN_OIN, originOIN)
-        clientOutgoingHeaders.add(X_DOELBINDING, purpose)
-        clientOutgoingHeaders.add(X_VERWERKING, process)
-        clientOutgoingHeaders.add(X_GEBRUIKER, getUser())
+    ): MultivaluedMap<String, String> =
+        clientOutgoingHeaders.apply {
+            createHeader(X_API_KEY, apiKey)
+            createHeader(X_ORIGIN_OIN, originOIN)
+            createHeader(X_DOELBINDING, purpose)
+            createHeader(X_VERWERKING, process)
+            createHeader(X_GEBRUIKER, getUser())
+        }
 
-        return clientOutgoingHeaders
+    private fun MultivaluedMap<String, String>.createHeader(name: String, value: Optional<String>) {
+        if (value.isPresent) {
+            createHeader(name, value.get())
+        }
+    }
+
+    private fun MultivaluedMap<String, String>.createHeader(name: String, value: String) {
+        if (!containsKey(name)) {
+            add(name, value)
+        }
     }
 
     private fun getUser(): String =

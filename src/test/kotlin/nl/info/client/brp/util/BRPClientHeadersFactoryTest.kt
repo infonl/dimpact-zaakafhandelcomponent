@@ -13,28 +13,25 @@ import jakarta.enterprise.inject.Instance
 import jakarta.enterprise.inject.UnsatisfiedResolutionException
 import nl.info.zac.authentication.LoggedInUser
 import org.jboss.resteasy.core.Headers
+import java.util.Optional
 
 class BRPClientHeadersFactoryTest : BehaviorSpec({
     val apiKey = "apiKey"
     val originOin = "originOin"
-    val purpose = "doelbinding"
-    val process = "verwerking"
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-
-    val brpClientHeadersFactory = BRPClientHeadersFactory(
-        apiKey,
-        originOin,
-        purpose,
-        process,
-        loggedInUserInstance
-    )
 
     beforeEach {
         checkUnnecessaryStub()
     }
 
-    Given("BRP headers and a valid user") {
+    Given("No previously set BRP headers, no custom doelbinding and verwerking and a valid user") {
         every { loggedInUserInstance.get().id } returns "username"
+
+        val brpClientHeadersFactory = BRPClientHeadersFactory(
+            Optional.of(apiKey),
+            Optional.of(originOin),
+            loggedInUserInstance
+        )
 
         When("headers are updated") {
             val headers = brpClientHeadersFactory.update(Headers<String>(), Headers<String>())
@@ -43,16 +40,22 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
                 with(headers) {
                     shouldContain("X-API-KEY", listOf(apiKey))
                     shouldContain("X-ORIGIN-OIN", listOf(originOin))
-                    shouldContain("X-DOELBINDING", listOf(purpose))
-                    shouldContain("X-VERWERKING", listOf(process))
+                    shouldContain("X-DOELBINDING", listOf("BRPACT-Totaal"))
+                    shouldContain("X-VERWERKING", listOf("zaakafhandelcomponent"))
                     shouldContain("X-GEBRUIKER", listOf("username"))
                 }
             }
         }
     }
 
-    Given("BRP headers and a missing active user") {
+    Given("No previously set BRP headers, no custom doelbinding and verwerking and a missing active user") {
         every { loggedInUserInstance.get().id } throws UnsatisfiedResolutionException()
+
+        val brpClientHeadersFactory = BRPClientHeadersFactory(
+            Optional.of(apiKey),
+            Optional.of(originOin),
+            loggedInUserInstance
+        )
 
         When("headers are updated") {
             val headers = brpClientHeadersFactory.update(Headers<String>(), Headers<String>())
@@ -61,9 +64,63 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
                 with(headers) {
                     shouldContain("X-API-KEY", listOf(apiKey))
                     shouldContain("X-ORIGIN-OIN", listOf(originOin))
-                    shouldContain("X-DOELBINDING", listOf(purpose))
-                    shouldContain("X-VERWERKING", listOf(process))
+                    shouldContain("X-DOELBINDING", listOf("BRPACT-Totaal"))
+                    shouldContain("X-VERWERKING", listOf("zaakafhandelcomponent"))
                     shouldContain("X-GEBRUIKER", listOf("BurgerZelf"))
+                }
+            }
+        }
+    }
+
+    Given("No previously set BRP headers, custom doelbinding and verwerking, an active user") {
+        every { loggedInUserInstance.get().id } returns "username"
+
+        val brpClientHeadersFactory = BRPClientHeadersFactory(
+            Optional.of(apiKey),
+            Optional.of(originOin),
+            loggedInUserInstance,
+            Optional.of("customPurpose"),
+            Optional.of("customProcess")
+        )
+
+        When("headers are updated") {
+            val headers = brpClientHeadersFactory.update(Headers<String>(), Headers<String>())
+
+            Then("correct BRP protocollering headers are generated") {
+                with(headers) {
+                    shouldContain("X-API-KEY", listOf(apiKey))
+                    shouldContain("X-ORIGIN-OIN", listOf(originOin))
+                    shouldContain("X-DOELBINDING", listOf("customPurpose"))
+                    shouldContain("X-VERWERKING", listOf("customProcess"))
+                    shouldContain("X-GEBRUIKER", listOf("username"))
+                }
+            }
+        }
+    }
+
+    Given("Previously set BRP headers, no custom doelbinding and verwerking and a valid user") {
+        val outgoingHeaders = Headers<String>().apply {
+            add("X-API-KEY", apiKey)
+            add("X-DOELBINDING", "test")
+        }
+        every { loggedInUserInstance.get().id } returns "username"
+
+        val brpClientHeadersFactory = BRPClientHeadersFactory(
+            Optional.of(apiKey),
+            Optional.of(originOin),
+            loggedInUserInstance
+        )
+
+        When("headers are updated") {
+            val headers = brpClientHeadersFactory.update(Headers<String>(), outgoingHeaders)
+
+            Then("correct BRP protocollering headers are generated") {
+                with(headers) {
+                    shouldContain("X-API-KEY", listOf(apiKey))
+                    shouldContain("X-ORIGIN-OIN", listOf(originOin))
+                    shouldContain("X-DOELBINDING", listOf("test"))
+                    shouldContain("X-VERWERKING", listOf("zaakafhandelcomponent"))
+                    shouldContain("X-GEBRUIKER", listOf("username"))
                 }
             }
         }

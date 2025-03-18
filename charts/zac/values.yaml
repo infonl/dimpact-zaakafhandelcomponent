@@ -79,14 +79,8 @@ objectenApi:
 brpApi:
   url: ""  # https://www.haalcentraal.nl/haalcentraal
   apiKey: ""
-  origin:
-    # -- OIN for BRP Protocollering
-    oin: ""
-  defaults:
-    # -- Default value for BRP Protocollering doelbinding
-    doelbinding: BRPACT-Totaal
-    # -- Default value for BRP Protocollering verwerking
-    verwerking: zaakafhandelcomponent
+  # -- OIN for BRP Protocollering
+  originOin: ""
 
 # kvkApi Configuration of the KVK API provider (KVK)
 kvkApi:
