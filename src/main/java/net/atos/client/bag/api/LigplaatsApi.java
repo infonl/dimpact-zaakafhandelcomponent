@@ -31,12 +31,12 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.bag.exception.BagResponseExceptionMapper;
-import net.atos.client.bag.model.generated.LigplaatsIOHal;
-import net.atos.client.bag.model.generated.LigplaatsIOHalCollection;
-import net.atos.client.bag.model.generated.LigplaatsIOLvcHalCollection;
-import net.atos.client.bag.model.generated.PointGeoJSON;
 import net.atos.client.bag.util.BagClientHeadersFactory;
 import net.atos.zac.util.MediaTypes;
+import nl.info.client.bag.model.generated.LigplaatsIOHal;
+import nl.info.client.bag.model.generated.LigplaatsIOHalCollection;
+import nl.info.client.bag.model.generated.LigplaatsIOLvcHalCollection;
+import nl.info.client.bag.model.generated.PointGeoJSON;
 
 /**
  * IMBAG API - van de LVBAG

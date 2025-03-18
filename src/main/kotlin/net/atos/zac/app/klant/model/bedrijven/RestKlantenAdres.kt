@@ -4,7 +4,7 @@
  */
 package net.atos.zac.app.klant.model.bedrijven
 
-import net.atos.client.kvk.vestigingsprofiel.model.generated.Adres
+import nl.info.client.kvk.vestigingsprofiel.model.generated.Adres
 import java.util.Locale
 
 data class RestKlantenAdres(

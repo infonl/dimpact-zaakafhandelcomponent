@@ -5,20 +5,20 @@
 
 package nl.info.client.brp.model
 
-import net.atos.client.brp.model.generated.AbstractVerblijfplaats
-import net.atos.client.brp.model.generated.Adres
-import net.atos.client.brp.model.generated.Adressering
-import net.atos.client.brp.model.generated.AdresseringBeperkt
-import net.atos.client.brp.model.generated.OpschortingBijhouding
-import net.atos.client.brp.model.generated.Persoon
-import net.atos.client.brp.model.generated.PersoonBeperkt
-import net.atos.client.brp.model.generated.PersoonInOnderzoek
-import net.atos.client.brp.model.generated.PersoonInOnderzoekBeperkt
-import net.atos.client.brp.model.generated.RaadpleegMetBurgerservicenummer
-import net.atos.client.brp.model.generated.RaadpleegMetBurgerservicenummerResponse
-import net.atos.client.brp.model.generated.RniDeelnemer
-import net.atos.client.brp.model.generated.VerblijfadresBinnenland
-import net.atos.client.brp.model.generated.Waardetabel
+import nl.info.client.brp.model.generated.AbstractVerblijfplaats
+import nl.info.client.brp.model.generated.Adres
+import nl.info.client.brp.model.generated.Adressering
+import nl.info.client.brp.model.generated.AdresseringBeperkt
+import nl.info.client.brp.model.generated.OpschortingBijhouding
+import nl.info.client.brp.model.generated.Persoon
+import nl.info.client.brp.model.generated.PersoonBeperkt
+import nl.info.client.brp.model.generated.PersoonInOnderzoek
+import nl.info.client.brp.model.generated.PersoonInOnderzoekBeperkt
+import nl.info.client.brp.model.generated.RaadpleegMetBurgerservicenummer
+import nl.info.client.brp.model.generated.RaadpleegMetBurgerservicenummerResponse
+import nl.info.client.brp.model.generated.RniDeelnemer
+import nl.info.client.brp.model.generated.VerblijfadresBinnenland
+import nl.info.client.brp.model.generated.Waardetabel
 
 fun createAdres(
     verblijfAdresBinnenland: VerblijfadresBinnenland = createVerblijfadresBinnenland()

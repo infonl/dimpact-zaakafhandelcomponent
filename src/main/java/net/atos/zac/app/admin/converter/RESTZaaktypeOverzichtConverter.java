@@ -9,8 +9,8 @@ import static nl.info.client.zgw.util.UriUtilsKt.extractUuid;
 import static nl.info.client.zgw.ztc.model.extensions.ZaakTypeExtensionsKt.isNuGeldig;
 import static nl.info.client.zgw.ztc.model.extensions.ZaakTypeExtensionsKt.isServicenormBeschikbaar;
 
-import net.atos.client.zgw.ztc.model.generated.ZaakType;
 import net.atos.zac.app.admin.model.RESTZaaktypeOverzicht;
+import nl.info.client.zgw.ztc.model.generated.ZaakType;
 
 public final class RESTZaaktypeOverzichtConverter {
 

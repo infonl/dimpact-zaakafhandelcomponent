@@ -22,10 +22,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Length;
 
-import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
 import net.atos.client.zgw.shared.model.Archiefnominatie;
-import net.atos.client.zgw.zrc.model.generated.Opschorting;
-import net.atos.client.zgw.zrc.model.generated.ZaakKenmerk;
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
+import nl.info.client.zgw.zrc.model.generated.Opschorting;
+import nl.info.client.zgw.zrc.model.generated.ZaakKenmerk;
 
 /**
  * Zaak
