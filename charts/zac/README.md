@@ -57,10 +57,10 @@ helm install my-release zac/zaakafhandelcomponent
 | bagApi.apiKey | string | `""` |  |
 | bagApi.url | string | `""` |  |
 | brpApi.apiKey | string | `""` |  |
-| brpApi.doelbinding | string | `"BRPACT-Totaal"` | Doelbinding for BRP Protocollering |
-| brpApi.originOin | string | `""` | OIN for BRP Protocollering |
+| brpApi.protocollering.doelbinding | string | `"BRPACT-Totaal"` | Doelbinding for BRP Protocollering |
+| brpApi.protocollering.originOin | string | `""` | If specified, enables the BRP Protocollering |
+| brpApi.protocollering.verwerking | string | `"zaakafhandelcomponent"` | Verwerking for BRP Protocollering |
 | brpApi.url | string | `""` |  |
-| brpApi.verwerking | string | `"zaakafhandelcomponent"` | Verwerking for BRP Protocollering |
 | catalogusDomein | string | `"ALG"` | OpenZaak Catalogus Domein |
 | contextUrl | string | `""` | External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com) |
 | db.host | string | `""` |  |
