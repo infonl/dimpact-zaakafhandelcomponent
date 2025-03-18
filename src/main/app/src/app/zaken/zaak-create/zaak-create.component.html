@@ -24,20 +24,52 @@
       (bagObject)="bagGeselecteerd($event)"
     ></zac-bag-zoek>
   </mat-sidenav>
+    <mat-grid-list cols="2">
+        <mat-grid-tile colspan="1">
+            <zac-auto-complete
+                    [key]="'zaaktype'"
+                    [form]="form"
+                    [options]="zakenService.listZaaktypes()"
+                    [optionLabel]="'omschrijving'"
+            >
+                <mat-label>hello</mat-label>
+                <mat-hint>this is a hint</mat-hint>
+            </zac-auto-complete>
+        </mat-grid-tile>
+        <mat-grid-tile colspan="1">
+            <zac-date
+                    [key]="'startDate'"
+                    [form]="form"
+                    [min]="minDate"
+                    [max]="maxDate"
+            >
+                <mat-label>date</mat-label>
+                <mat-hint>this is a hint</mat-hint>
+            </zac-date>
+        </mat-grid-tile>
+    </mat-grid-list>
   <section class="content">
+
     <form [formGroup]="form" (ngSubmit)="formSubmit(form)">
-      <zac-auto-complete
-        [key]="'zaaktype'"
+
+      <zac-date
+        [key]="'startDate'"
         [form]="form"
-        [options]="zakenService.listZaaktypes()"
-        [optionLabel]="'omschrijving'"
+        [min]="minDate"
+        [max]="maxDate"
       >
-          <mat-label>hello</mat-label>
+        <mat-label>date</mat-label>
           <mat-hint>this is a hint</mat-hint>
-      </zac-auto-complete>
-      <zac-date [key]="'startDate'" [form]="form" [min]="minDate" [max]="maxDate">
-          <mat-label>date</mat-label>
       </zac-date>
+      <zac-select
+        [key]="'communicationChannel'"
+        [form]="form"
+        [options]="this.referentieTabelService.listCommunicatiekanalen()"
+        [label]="'test'"
+      >
+          <mat-label>communication channel</mat-label>
+          <mat-hint>this is a hint</mat-hint>
+      </zac-select>
       <button type="submit" [disabled]="!form.valid">submit</button>
     </form>
   </section>
