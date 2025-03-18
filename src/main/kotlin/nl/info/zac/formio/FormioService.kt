@@ -50,7 +50,9 @@ class FormioService @Inject constructor(
     }
 
     @Transactional(Transactional.TxType.REQUIRED)
-    fun deleteFormulier(id: Long) = entityManager.remove(entityManager.find(FormioFormulier::class.java, id))
+    fun deleteFormulier(id: Long) {
+        entityManager.find(FormioFormulier::class.java, id)?.let { entityManager.remove(it) }
+    }
 
     private fun findFormulierByName(name: String): FormioFormulier? =
         entityManager.criteriaBuilder.let { criteriaBuilder ->
