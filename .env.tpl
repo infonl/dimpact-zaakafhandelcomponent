@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
-# This file contains a list of environment variables that need to be set when running ZAC locally.
+# This file contains a list of environment variables that need to, or in case of optional variables can be, set when running ZAC locally.
 
 # To use this file you need to use the 1Password CLI extensions.
 # Please see the docs/INSTALL.md file for instructions.

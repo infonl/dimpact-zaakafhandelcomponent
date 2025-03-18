@@ -9,9 +9,9 @@ import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.client.brp.model.generated.PersonenQuery
-import net.atos.client.brp.model.generated.PersonenQueryResponse
 import nl.info.client.brp.exception.BrpResponseExceptionMapper
+import nl.info.client.brp.model.generated.PersonenQuery
+import nl.info.client.brp.model.generated.PersonenQueryResponse
 import nl.info.client.brp.util.BRPClientHeadersFactory
 import nl.info.client.brp.util.JsonbConfiguration
 import org.eclipse.microprofile.faulttolerance.Timeout

@@ -7,8 +7,8 @@
 
 package net.atos.client.or.`object`.model
 
-import net.atos.client.or.objects.model.generated.ModelObject
-import net.atos.client.or.objects.model.generated.ObjectRecord
+import nl.info.client.or.objects.model.generated.ModelObject
+import nl.info.client.or.objects.model.generated.ObjectRecord
 import java.net.URI
 import java.util.UUID
 

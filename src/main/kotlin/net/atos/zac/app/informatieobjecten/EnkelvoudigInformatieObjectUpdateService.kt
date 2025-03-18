@@ -10,12 +10,6 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
-import net.atos.client.zgw.drc.model.generated.OndertekeningRequest
-import net.atos.client.zgw.drc.model.generated.SoortEnum
-import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.configuratie.ConfiguratieService
@@ -27,6 +21,12 @@ import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.policy.PolicyService.assertPolicy
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
+import nl.info.client.zgw.drc.model.generated.OndertekeningRequest
+import nl.info.client.zgw.drc.model.generated.SoortEnum
+import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.authentication.LoggedInUser

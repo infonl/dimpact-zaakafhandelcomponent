@@ -28,8 +28,6 @@ import net.atos.client.zgw.zrc.model.RolMedewerker;
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
-import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
-import net.atos.client.zgw.ztc.model.generated.RolType;
 import net.atos.zac.event.AbstractEventObserver;
 import net.atos.zac.flowable.task.FlowableTaskService;
 import net.atos.zac.identity.IdentityService;
@@ -38,6 +36,8 @@ import net.atos.zac.signalering.SignaleringService;
 import net.atos.zac.signalering.model.Signalering;
 import net.atos.zac.signalering.model.SignaleringInstellingen;
 import nl.info.client.zgw.ztc.ZtcClientService;
+import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
+import nl.info.client.zgw.ztc.model.generated.RolType;
 
 /**
  * This bean listens for SignaleringEvents and handles them.

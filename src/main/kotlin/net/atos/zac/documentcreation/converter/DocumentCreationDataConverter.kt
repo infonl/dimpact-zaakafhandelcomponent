@@ -5,15 +5,8 @@
 package net.atos.zac.documentcreation.converter
 
 import jakarta.inject.Inject
-import net.atos.client.brp.model.generated.Adres
-import net.atos.client.brp.model.generated.Persoon
-import net.atos.client.brp.model.generated.VerblijfadresBinnenland
 import net.atos.client.kvk.KvkClientService
-import net.atos.client.kvk.zoeken.model.generated.ResultaatItem
 import net.atos.client.or.`object`.ObjectsClientService
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
-import net.atos.client.zgw.drc.model.generated.StatusEnum
-import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.BetrokkeneType
 import net.atos.client.zgw.zrc.model.Objecttype
@@ -29,6 +22,10 @@ import net.atos.zac.identity.model.getFullName
 import net.atos.zac.smartdocuments.SmartDocumentsTemplatesService
 import net.atos.zac.util.StringUtil
 import nl.info.client.brp.BrpClientService
+import nl.info.client.brp.model.generated.Adres
+import nl.info.client.brp.model.generated.Persoon
+import nl.info.client.brp.model.generated.VerblijfadresBinnenland
+import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.client.smartdocuments.model.document.AanvragerData
 import nl.info.client.smartdocuments.model.document.Data
 import nl.info.client.smartdocuments.model.document.File
@@ -36,6 +33,9 @@ import nl.info.client.smartdocuments.model.document.GebruikerData
 import nl.info.client.smartdocuments.model.document.StartformulierData
 import nl.info.client.smartdocuments.model.document.TaskData
 import nl.info.client.smartdocuments.model.document.ZaakData
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.drc.model.generated.StatusEnum
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService

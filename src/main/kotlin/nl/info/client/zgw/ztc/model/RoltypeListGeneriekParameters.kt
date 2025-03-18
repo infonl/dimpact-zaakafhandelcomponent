@@ -5,7 +5,7 @@
 package nl.info.client.zgw.ztc.model
 
 import jakarta.ws.rs.QueryParam
-import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import java.net.URI
 
 class RoltypeListGeneriekParameters(

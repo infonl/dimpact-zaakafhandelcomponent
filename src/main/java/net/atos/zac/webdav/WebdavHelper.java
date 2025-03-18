@@ -21,8 +21,8 @@ import jakarta.ws.rs.core.UriInfo;
 import org.apache.commons.collections4.map.LRUMap;
 
 import net.atos.client.zgw.drc.DrcClientService;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.zac.util.MediaTypes;
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.zac.authentication.LoggedInUser;
 
 @Singleton

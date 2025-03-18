@@ -11,11 +11,11 @@ import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.zgw.shared.model.Bron
 import net.atos.client.zgw.zrc.ZrcClientService
-import net.atos.client.zgw.zrc.model.generated.Wijzigingen
 import net.atos.zac.history.converter.ZaakHistoryPartialUpdateConverter
 import net.atos.zac.history.model.HistoryAction
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.model.audit.createZRCAuditTrailRegel
+import nl.info.client.zgw.zrc.model.generated.Wijzigingen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType

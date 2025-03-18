@@ -23,14 +23,14 @@ import net.atos.client.bag.api.OpenbareRuimteApi;
 import net.atos.client.bag.api.PandApi;
 import net.atos.client.bag.api.WoonplaatsApi;
 import net.atos.client.bag.model.BevraagAdressenParameters;
-import net.atos.client.bag.model.generated.AdresIOHal;
-import net.atos.client.bag.model.generated.AdresIOHalCollectionEmbedded;
-import net.atos.client.bag.model.generated.NummeraanduidingIOHal;
-import net.atos.client.bag.model.generated.OpenbareRuimteIOHal;
-import net.atos.client.bag.model.generated.PandIOHal;
-import net.atos.client.bag.model.generated.WoonplaatsIOHal;
 import net.atos.client.util.JAXRSClientFactory;
 import net.atos.zac.util.MediaTypes;
+import nl.info.client.bag.model.generated.AdresIOHal;
+import nl.info.client.bag.model.generated.AdresIOHalCollectionEmbedded;
+import nl.info.client.bag.model.generated.NummeraanduidingIOHal;
+import nl.info.client.bag.model.generated.OpenbareRuimteIOHal;
+import nl.info.client.bag.model.generated.PandIOHal;
+import nl.info.client.bag.model.generated.WoonplaatsIOHal;
 
 @ApplicationScoped
 public class BagClientService {

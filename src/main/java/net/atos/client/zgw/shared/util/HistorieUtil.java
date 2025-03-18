@@ -12,8 +12,8 @@ import java.time.format.DateTimeFormatter;
 
 import org.apache.commons.lang3.BooleanUtils;
 
-import net.atos.client.zgw.drc.model.generated.StatusEnum;
-import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
+import nl.info.client.zgw.drc.model.generated.StatusEnum;
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
 
 
 public final class HistorieUtil {

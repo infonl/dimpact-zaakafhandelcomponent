@@ -5,8 +5,8 @@
 
 package net.atos.zac.app.bag.model;
 
-import net.atos.client.bag.model.generated.TypeAdresseerbaarObject;
 import net.atos.zac.app.zaak.model.RestGeometry;
+import nl.info.client.bag.model.generated.TypeAdresseerbaarObject;
 
 public class RESTAdresseerbaarObject extends RESTBAGObject {
 

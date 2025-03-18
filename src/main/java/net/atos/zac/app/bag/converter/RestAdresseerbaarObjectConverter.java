@@ -9,14 +9,14 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.ListUtils;
 
-import net.atos.client.bag.model.generated.AdresseerbaarObjectIOHal;
-import net.atos.client.bag.model.generated.Gebruiksdoel;
-import net.atos.client.bag.model.generated.Indicatie;
-import net.atos.client.bag.model.generated.Ligplaats;
-import net.atos.client.bag.model.generated.Standplaats;
-import net.atos.client.bag.model.generated.TypeAdresseerbaarObject;
-import net.atos.client.bag.model.generated.Verblijfsobject;
 import net.atos.zac.app.bag.model.RESTAdresseerbaarObject;
+import nl.info.client.bag.model.generated.AdresseerbaarObjectIOHal;
+import nl.info.client.bag.model.generated.Gebruiksdoel;
+import nl.info.client.bag.model.generated.Indicatie;
+import nl.info.client.bag.model.generated.Ligplaats;
+import nl.info.client.bag.model.generated.Standplaats;
+import nl.info.client.bag.model.generated.TypeAdresseerbaarObject;
+import nl.info.client.bag.model.generated.Verblijfsobject;
 
 public class RestAdresseerbaarObjectConverter {
     public static RESTAdresseerbaarObject convertToREST(final AdresseerbaarObjectIOHal adresseerbaarObjectIOHal) {

@@ -7,7 +7,7 @@ package net.atos.client.bag.util;
 
 import jakarta.json.bind.adapter.JsonbAdapter;
 
-import net.atos.client.bag.model.generated.StatusPand;
+import nl.info.client.bag.model.generated.StatusPand;
 
 public class StatusPandEnumAdapter implements JsonbAdapter<StatusPand, String> {
 

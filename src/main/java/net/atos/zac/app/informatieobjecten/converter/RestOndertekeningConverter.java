@@ -5,8 +5,8 @@
 
 package net.atos.zac.app.informatieobjecten.converter;
 
-import net.atos.client.zgw.drc.model.generated.Ondertekening;
 import net.atos.zac.app.informatieobjecten.model.RESTOndertekening;
+import nl.info.client.zgw.drc.model.generated.Ondertekening;
 
 public class RestOndertekeningConverter {
     public static RESTOndertekening convert(final Ondertekening ondertekening) {

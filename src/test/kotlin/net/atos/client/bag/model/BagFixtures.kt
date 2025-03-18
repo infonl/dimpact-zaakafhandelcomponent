@@ -4,9 +4,9 @@
  */
 package net.atos.client.bag.model
 
-import net.atos.client.bag.model.generated.AdresIOHal
-import net.atos.client.bag.model.generated.AdresIOLinks
-import net.atos.client.bag.model.generated.HalLink
+import nl.info.client.bag.model.generated.AdresIOHal
+import nl.info.client.bag.model.generated.AdresIOLinks
+import nl.info.client.bag.model.generated.HalLink
 
 @Suppress("LongParameterList")
 fun createAdresIOHal(

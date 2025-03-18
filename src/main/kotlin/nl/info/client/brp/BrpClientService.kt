@@ -6,16 +6,16 @@ package nl.info.client.brp
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.client.brp.model.generated.PersonenQuery
-import net.atos.client.brp.model.generated.PersonenQueryResponse
-import net.atos.client.brp.model.generated.Persoon
-import net.atos.client.brp.model.generated.RaadpleegMetBurgerservicenummer
-import net.atos.client.brp.model.generated.RaadpleegMetBurgerservicenummerResponse
-import net.atos.client.brp.model.generated.ZoekMetGeslachtsnaamEnGeboortedatum
-import net.atos.client.brp.model.generated.ZoekMetNaamEnGemeenteVanInschrijving
-import net.atos.client.brp.model.generated.ZoekMetNummeraanduidingIdentificatie
-import net.atos.client.brp.model.generated.ZoekMetPostcodeEnHuisnummer
-import net.atos.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijving
+import nl.info.client.brp.model.generated.PersonenQuery
+import nl.info.client.brp.model.generated.PersonenQueryResponse
+import nl.info.client.brp.model.generated.Persoon
+import nl.info.client.brp.model.generated.RaadpleegMetBurgerservicenummer
+import nl.info.client.brp.model.generated.RaadpleegMetBurgerservicenummerResponse
+import nl.info.client.brp.model.generated.ZoekMetGeslachtsnaamEnGeboortedatum
+import nl.info.client.brp.model.generated.ZoekMetNaamEnGemeenteVanInschrijving
+import nl.info.client.brp.model.generated.ZoekMetNummeraanduidingIdentificatie
+import nl.info.client.brp.model.generated.ZoekMetPostcodeEnHuisnummer
+import nl.info.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijving
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.RAADPLEEG_MET_BURGERSERVICENUMMER
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_GESLACHTSNAAM_EN_GEBOORTEDATUM
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_NAAM_EN_GEMEENTE_VAN_INSCHRIJVING

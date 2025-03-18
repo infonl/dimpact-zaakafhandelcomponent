@@ -16,8 +16,6 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.client.zgw.brc.model.generated.Besluit
-import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
 import net.atos.client.zgw.shared.exception.ZgwErrorExceptionMapper
 import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper
 import net.atos.client.zgw.shared.model.Results
@@ -26,6 +24,8 @@ import net.atos.client.zgw.shared.util.JsonbConfiguration
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory
 import nl.info.client.zgw.brc.exception.BrcResponseExceptionMapper
 import nl.info.client.zgw.brc.model.BesluitenListParameters
+import nl.info.client.zgw.brc.model.generated.Besluit
+import nl.info.client.zgw.brc.model.generated.BesluitInformatieObject
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParams
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders

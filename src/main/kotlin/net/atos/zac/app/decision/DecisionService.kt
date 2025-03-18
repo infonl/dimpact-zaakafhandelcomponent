@@ -5,9 +5,6 @@
 package net.atos.zac.app.decision
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.brc.model.generated.Besluit
-import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
-import net.atos.client.zgw.brc.model.generated.VervalredenEnum
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
@@ -18,6 +15,9 @@ import net.atos.zac.app.zaak.model.RestDecisionWithdrawalData
 import net.atos.zac.app.zaak.model.updateDecisionWithDecisionChangeData
 import net.atos.zac.util.time.PeriodUtil
 import nl.info.client.zgw.brc.BrcClientService
+import nl.info.client.zgw.brc.model.generated.Besluit
+import nl.info.client.zgw.brc.model.generated.BesluitInformatieObject
+import nl.info.client.zgw.brc.model.generated.VervalredenEnum
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.util.extractedUuidIsEqual

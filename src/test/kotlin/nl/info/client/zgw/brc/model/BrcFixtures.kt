@@ -5,7 +5,7 @@
 
 package nl.info.client.zgw.brc.model
 
-import net.atos.client.zgw.brc.model.generated.Besluit
+import nl.info.client.zgw.brc.model.generated.Besluit
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID

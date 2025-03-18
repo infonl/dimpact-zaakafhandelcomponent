@@ -7,7 +7,7 @@ package net.atos.client.bag.util;
 
 import jakarta.json.bind.adapter.JsonbAdapter;
 
-import net.atos.client.bag.model.generated.Indicatie;
+import nl.info.client.bag.model.generated.Indicatie;
 
 public class IndicatieEnumAdapter implements JsonbAdapter<Indicatie, String> {
 

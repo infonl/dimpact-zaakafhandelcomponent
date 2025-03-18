@@ -7,7 +7,7 @@ package net.atos.client.zgw.zrc.util;
 import static net.atos.zac.configuratie.ConfiguratieService.STATUSTYPE_OMSCHRIJVING_HEROPEND;
 import static net.atos.zac.configuratie.ConfiguratieService.STATUSTYPE_OMSCHRIJVING_INTAKE;
 
-import net.atos.client.zgw.ztc.model.generated.StatusType;
+import nl.info.client.zgw.ztc.model.generated.StatusType;
 
 public class StatusTypeUtil {
     private StatusTypeUtil() {

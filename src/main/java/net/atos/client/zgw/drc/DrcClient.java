@@ -30,17 +30,17 @@ import net.atos.client.zgw.drc.exception.DrcRuntimeResponseExceptionMapper;
 import net.atos.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters;
 import net.atos.client.zgw.drc.model.Lock;
 import net.atos.client.zgw.drc.model.ObjectInformatieobjectListParameters;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest;
-import net.atos.client.zgw.drc.model.generated.Gebruiksrechten;
-import net.atos.client.zgw.drc.model.generated.ObjectInformatieObject;
 import net.atos.client.zgw.shared.exception.ZgwErrorExceptionMapper;
 import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper;
 import net.atos.client.zgw.shared.model.Results;
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel;
 import net.atos.client.zgw.shared.util.JsonbConfiguration;
 import net.atos.client.zgw.shared.util.ZGWClientHeadersFactory;
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest;
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest;
+import nl.info.client.zgw.drc.model.generated.Gebruiksrechten;
+import nl.info.client.zgw.drc.model.generated.ObjectInformatieObject;
 
 @RegisterRestClient(configKey = "ZGW-API-Client")
 @RegisterClientHeaders(ZGWClientHeadersFactory.class)

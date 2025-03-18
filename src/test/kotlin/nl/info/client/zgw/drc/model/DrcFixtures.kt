@@ -5,11 +5,11 @@
 
 package nl.info.client.zgw.drc.model
 
-import net.atos.client.zgw.drc.model.generated.BestandsDeel
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
-import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.client.zgw.drc.model.generated.BestandsDeel
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import java.net.URI
 import java.time.LocalDate
 import java.time.OffsetDateTime

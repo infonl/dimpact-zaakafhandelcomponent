@@ -8,12 +8,12 @@ package net.atos.zac.app.bag.converter
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import net.atos.client.bag.model.generated.StatusPlaats
-import net.atos.client.bag.model.generated.StatusVerblijfsobject
-import net.atos.client.bag.model.generated.TypeAdresseerbaarObject
 import net.atos.zac.app.bag.createLigplaatsAdresseerbaarObject
 import net.atos.zac.app.bag.createStandplaatsAdresseerbaarObject
 import net.atos.zac.app.bag.createVerblijfsAdresseerbaarObject
+import nl.info.client.bag.model.generated.StatusPlaats
+import nl.info.client.bag.model.generated.StatusVerblijfsobject
+import nl.info.client.bag.model.generated.TypeAdresseerbaarObject
 
 class RESTAdresseerbaarObjectConverterTest : BehaviorSpec({
     beforeEach {

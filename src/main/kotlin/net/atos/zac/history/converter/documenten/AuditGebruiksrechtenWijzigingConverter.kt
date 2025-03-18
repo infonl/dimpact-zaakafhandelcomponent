@@ -4,9 +4,9 @@
  */
 package net.atos.zac.history.converter.documenten
 
-import net.atos.client.zgw.drc.model.generated.Gebruiksrechten
 import net.atos.client.zgw.shared.model.audit.AuditWijziging
 import net.atos.zac.history.model.HistoryLine
+import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
 
 object AuditGebruiksrechtenWijzigingConverter {
     fun convert(wijziging: AuditWijziging<Gebruiksrechten>): List<HistoryLine> =

@@ -16,9 +16,9 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import net.atos.client.kvk.exception.KvkClientNoResultException;
 import net.atos.client.kvk.model.KvkZoekenParameters;
-import net.atos.client.kvk.vestigingsprofiel.model.generated.Vestiging;
-import net.atos.client.kvk.zoeken.model.generated.Resultaat;
-import net.atos.client.kvk.zoeken.model.generated.ResultaatItem;
+import nl.info.client.kvk.vestigingsprofiel.model.generated.Vestiging;
+import nl.info.client.kvk.zoeken.model.generated.Resultaat;
+import nl.info.client.kvk.zoeken.model.generated.ResultaatItem;
 
 @ApplicationScoped
 public class KvkClientService {

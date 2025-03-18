@@ -9,13 +9,13 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.client.zgw.ztc.model.generated.ZaakType
 import net.atos.zac.admin.model.ZaakafhandelParameters
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.exception.CaseDefinitionNotFoundException
 import net.atos.zac.flowable.cmmn.exception.OpenTaskItemNotFoundException
 import net.atos.zac.flowable.task.CreateUserTaskInterceptor
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor

@@ -5,7 +5,6 @@
 
 package nl.info.client.zgw.brc.model.generated
 
-import net.atos.client.zgw.brc.model.generated.BesluitInformatieObject
 import java.net.URI
 import java.util.UUID
 

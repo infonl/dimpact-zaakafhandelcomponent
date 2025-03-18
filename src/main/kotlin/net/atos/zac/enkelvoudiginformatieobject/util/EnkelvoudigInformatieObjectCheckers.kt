@@ -4,8 +4,8 @@
  */
 package net.atos.zac.enkelvoudiginformatieobject.util
 
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import net.atos.client.zgw.drc.model.generated.SoortEnum
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.generated.SoortEnum
 
 /**
  * Check if EnkelvoudigInformatieObject is signed

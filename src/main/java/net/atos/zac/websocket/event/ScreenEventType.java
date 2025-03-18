@@ -25,12 +25,12 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.kotlin.KotlinModule;
 
-import net.atos.client.zgw.brc.model.generated.Besluit;
-import net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.zac.app.zaak.model.RestZaakOverzicht;
 import net.atos.zac.event.Opcode;
 import net.atos.zac.signalering.model.Signalering;
+import nl.info.client.zgw.brc.model.generated.Besluit;
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.zac.notification.Channel;
 import nl.info.zac.notification.Notification;
 

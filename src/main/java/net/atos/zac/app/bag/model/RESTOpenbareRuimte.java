@@ -5,8 +5,8 @@
 
 package net.atos.zac.app.bag.model;
 
-import net.atos.client.bag.model.generated.StatusNaamgeving;
-import net.atos.client.bag.model.generated.TypeOpenbareRuimte;
+import nl.info.client.bag.model.generated.StatusNaamgeving;
+import nl.info.client.bag.model.generated.TypeOpenbareRuimte;
 
 public class RESTOpenbareRuimte extends RESTBAGObject {
     public String naam;

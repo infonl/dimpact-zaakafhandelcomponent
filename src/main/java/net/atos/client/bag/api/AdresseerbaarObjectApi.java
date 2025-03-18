@@ -28,15 +28,15 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.bag.exception.BagResponseExceptionMapper;
-import net.atos.client.bag.model.generated.AdresseerbaarObjectIOHal;
-import net.atos.client.bag.model.generated.AdresseerbaarObjectLvcIOHalCollection;
-import net.atos.client.bag.model.generated.AdresseerbareObjectenIOHalCollection;
-import net.atos.client.bag.model.generated.Gebruiksdoel;
-import net.atos.client.bag.model.generated.OppervlakteFilter;
-import net.atos.client.bag.model.generated.TypeAdresseerbaarObject;
 import net.atos.client.bag.util.BagClientHeadersFactory;
 import net.atos.client.bag.util.JsonbConfiguration;
 import net.atos.zac.util.MediaTypes;
+import nl.info.client.bag.model.generated.AdresseerbaarObjectIOHal;
+import nl.info.client.bag.model.generated.AdresseerbaarObjectLvcIOHalCollection;
+import nl.info.client.bag.model.generated.AdresseerbareObjectenIOHalCollection;
+import nl.info.client.bag.model.generated.Gebruiksdoel;
+import nl.info.client.bag.model.generated.OppervlakteFilter;
+import nl.info.client.bag.model.generated.TypeAdresseerbaarObject;
 
 /**
  * IMBAG API - van de LVBAG

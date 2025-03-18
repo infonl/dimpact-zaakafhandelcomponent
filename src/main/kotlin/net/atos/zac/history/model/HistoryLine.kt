@@ -4,9 +4,9 @@
  */
 package net.atos.zac.history.model
 
-import net.atos.client.zgw.drc.model.generated.StatusEnum
-import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.util.HistorieUtil
+import nl.info.client.zgw.drc.model.generated.StatusEnum
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import java.time.LocalDate
 import java.time.ZonedDateTime
 

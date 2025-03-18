@@ -10,11 +10,11 @@ import jakarta.json.bind.JsonbConfig
 import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.bind.serializer.JsonbDeserializer
 import jakarta.json.stream.JsonParser
-import net.atos.client.brp.model.generated.AbstractDatum
-import net.atos.client.brp.model.generated.DatumOnbekend
-import net.atos.client.brp.model.generated.JaarDatum
-import net.atos.client.brp.model.generated.JaarMaandDatum
-import net.atos.client.brp.model.generated.VolledigeDatum
+import nl.info.client.brp.model.generated.AbstractDatum
+import nl.info.client.brp.model.generated.DatumOnbekend
+import nl.info.client.brp.model.generated.JaarDatum
+import nl.info.client.brp.model.generated.JaarMaandDatum
+import nl.info.client.brp.model.generated.VolledigeDatum
 import nl.info.zac.exception.InputValidationFailedException
 import java.lang.reflect.Type
 

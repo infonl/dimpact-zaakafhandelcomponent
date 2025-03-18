@@ -4,9 +4,9 @@
  */
 package net.atos.zac.history.converter
 
-import net.atos.client.zgw.drc.model.generated.StatusEnum
-import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.zac.history.model.HistoryLine
+import nl.info.client.zgw.drc.model.generated.StatusEnum
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import org.apache.commons.lang3.ObjectUtils
 import org.apache.commons.lang3.StringUtils
 import java.time.LocalDate

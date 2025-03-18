@@ -7,7 +7,7 @@ package net.atos.client.bag.util;
 
 import jakarta.json.bind.adapter.JsonbAdapter;
 
-import net.atos.client.bag.model.generated.TypeAdresseerbaarObject;
+import nl.info.client.bag.model.generated.TypeAdresseerbaarObject;
 
 public class TypeAdresseerbaarObjectEnumAdapter implements JsonbAdapter<TypeAdresseerbaarObject, String> {
 

@@ -8,7 +8,7 @@ package net.atos.zac.app.util
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import net.atos.client.zgw.drc.model.generated.StatusEnum
+import nl.info.client.zgw.drc.model.generated.StatusEnum
 
 class EnkelvoudigInformatieObjectStatusEnumReaderTest : DescribeSpec({
     val statusReader = EnkelvoudigInformatieObjectStatusEnumReader()
@@ -35,7 +35,7 @@ class EnkelvoudigInformatieObjectStatusEnumReaderTest : DescribeSpec({
                 null,
                 null,
                 null,
-                "net.atos.client.zgw.drc.model.generated.EnkelvoudigInformatieObject.StatusEnum.in_bewerking".byteInputStream()
+                "nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject.StatusEnum.in_bewerking".byteInputStream()
             ) shouldBe StatusEnum.valueOf("IN_BEWERKING")
         }
 

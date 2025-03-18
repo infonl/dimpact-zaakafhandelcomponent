@@ -4,12 +4,12 @@
  */
 package net.atos.zac.app.klant.model.personen
 
-import net.atos.client.brp.model.generated.PersonenQuery
-import net.atos.client.brp.model.generated.RaadpleegMetBurgerservicenummer
-import net.atos.client.brp.model.generated.ZoekMetGeslachtsnaamEnGeboortedatum
-import net.atos.client.brp.model.generated.ZoekMetNaamEnGemeenteVanInschrijving
-import net.atos.client.brp.model.generated.ZoekMetPostcodeEnHuisnummer
-import net.atos.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijving
+import nl.info.client.brp.model.generated.PersonenQuery
+import nl.info.client.brp.model.generated.RaadpleegMetBurgerservicenummer
+import nl.info.client.brp.model.generated.ZoekMetGeslachtsnaamEnGeboortedatum
+import nl.info.client.brp.model.generated.ZoekMetNaamEnGemeenteVanInschrijving
+import nl.info.client.brp.model.generated.ZoekMetPostcodeEnHuisnummer
+import nl.info.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijving
 import java.time.LocalDate
 
 data class RestListPersonenParameters(

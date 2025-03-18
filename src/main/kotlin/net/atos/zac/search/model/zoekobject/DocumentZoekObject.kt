@@ -4,8 +4,8 @@
  */
 package net.atos.zac.search.model.zoekobject
 
-import net.atos.client.zgw.drc.model.generated.StatusEnum
 import net.atos.zac.search.model.DocumentIndicatie
+import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.zac.util.NoArgConstructor
 import org.apache.solr.client.solrj.beans.Field
 import java.util.Date

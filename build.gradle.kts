@@ -33,7 +33,7 @@ repositories {
     mavenCentral()
 }
 
-group = "net.atos.common-ground"
+group = "nl.info.common-ground"
 description = "Zaakafhandelcomponent"
 
 val branchName by extra {
@@ -540,35 +540,35 @@ tasks {
         description = "Generates Java client code for the KVK Zoeken API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/zoeken-openapi.yaml")
         outputDir.set("$rootDir/src/generated/kvk/zoeken/java")
-        modelPackage.set("net.atos.client.kvk.zoeken.model.generated")
+        modelPackage.set("nl.info.client.kvk.zoeken.model.generated")
     }
 
     register<GenerateTask>("generateKvkBasisProfielClient") {
         description = "Generates Java client code for the KVK Basisprofiel API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/basisprofiel-openapi.yaml")
         outputDir.set("$rootDir/src/generated/kvk/basisprofiel/java")
-        modelPackage.set("net.atos.client.kvk.basisprofiel.model.generated")
+        modelPackage.set("nl.info.client.kvk.basisprofiel.model.generated")
     }
 
     register<GenerateTask>("generateKvkVestigingsProfielClient") {
         description = "Generates Java client code for the KVK Vestigingsprofiel API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/kvk/vestigingsprofiel-openapi.yaml")
         outputDir.set("$rootDir/src/generated/kvk/vestigingsprofiel/java")
-        modelPackage.set("net.atos.client.kvk.vestigingsprofiel.model.generated")
+        modelPackage.set("nl.info.client.kvk.vestigingsprofiel.model.generated")
     }
 
     register<GenerateTask>("generateBrpClient") {
         description = "Generates Java client code for the BRP API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/brp/brp-openapi.yaml")
         outputDir.set("$rootDir/src/generated/brp/java")
-        modelPackage.set("net.atos.client.brp.model.generated")
+        modelPackage.set("nl.info.client.brp.model.generated")
     }
 
     register<GenerateTask>("generateBagClient") {
         description = "Generates Java client code for the BAG API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/bag/bag-openapi.yaml")
         outputDir.set("$rootDir/src/generated/bag/java")
-        modelPackage.set("net.atos.client.bag.model.generated")
+        modelPackage.set("nl.info.client.bag.model.generated")
         // we need to use the java8-localdatetime date library for this client
         // or else certain date time fields for this client cannot be deserialized
         configOptions.set(
@@ -593,14 +593,14 @@ tasks {
 
         inputSpec.set("$rootDir/src/main/resources/api-specs/klanten/klanten-openapi.yaml")
         outputDir.set("$rootDir/src/generated/klanten/java")
-        modelPackage.set("net.atos.client.klanten.model.generated")
+        modelPackage.set("nl.info.client.klanten.model.generated")
     }
 
     register<GenerateTask>("generateZgwBrcClient") {
         description = "Generates Java client code for the BRC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/brc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/brc/java")
-        modelPackage.set("net.atos.client.zgw.brc.model.generated")
+        modelPackage.set("nl.info.client.zgw.brc.model.generated")
     }
 
     register<GenerateTask>("generateZgwDrcClient") {
@@ -612,28 +612,28 @@ tasks {
         // so we disable the schema validation for this spec until this is fixed in a future version of this spec
         validateSpec.set(false)
 
-        modelPackage.set("net.atos.client.zgw.drc.model.generated")
+        modelPackage.set("nl.info.client.zgw.drc.model.generated")
     }
 
     register<GenerateTask>("generateZgwZrcClient") {
         description = "Generates Java client code for the ZRC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/zrc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/zrc/java")
-        modelPackage.set("net.atos.client.zgw.zrc.model.generated")
+        modelPackage.set("nl.info.client.zgw.zrc.model.generated")
     }
 
     register<GenerateTask>("generateZgwZtcClient") {
         description = "Generates Java client code for the ZTC API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/zgw/ztc-openapi.yaml")
         outputDir.set("$rootDir/src/generated/zgw/ztc/java")
-        modelPackage.set("net.atos.client.zgw.ztc.model.generated")
+        modelPackage.set("nl.info.client.zgw.ztc.model.generated")
     }
 
     register<GenerateTask>("generateOrObjectsClient") {
         description = "Generates Java client code for the Objects API"
         inputSpec.set("$rootDir/src/main/resources/api-specs/or/objects-openapi.yaml")
         outputDir.set("$rootDir/src/generated/or/objects/java")
-        modelPackage.set("net.atos.client.or.objects.model.generated")
+        modelPackage.set("nl.info.client.or.objects.model.generated")
     }
 
     register("generateJavaClients") {

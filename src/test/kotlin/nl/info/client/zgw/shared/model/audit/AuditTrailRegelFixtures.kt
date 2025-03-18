@@ -8,7 +8,7 @@ package nl.info.client.zgw.shared.model.audit
 import net.atos.client.zgw.shared.model.Bron
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
 import net.atos.client.zgw.shared.model.audit.AuditWijziging
-import net.atos.client.zgw.zrc.model.generated.Wijzigingen
+import nl.info.client.zgw.zrc.model.generated.Wijzigingen
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.UUID

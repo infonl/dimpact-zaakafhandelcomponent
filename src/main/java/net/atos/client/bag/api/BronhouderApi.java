@@ -22,10 +22,10 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.bag.exception.BagResponseExceptionMapper;
-import net.atos.client.bag.model.generated.BronhouderHal;
-import net.atos.client.bag.model.generated.BronhouderHalCollection;
 import net.atos.client.bag.util.BagClientHeadersFactory;
 import net.atos.zac.util.MediaTypes;
+import nl.info.client.bag.model.generated.BronhouderHal;
+import nl.info.client.bag.model.generated.BronhouderHalCollection;
 
 /**
  * IMBAG API - van de LVBAG

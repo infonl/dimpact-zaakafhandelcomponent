@@ -56,7 +56,6 @@ export abstract class AbstractFileFormFieldBuilder extends AbstractFormFieldBuil
         this.formField.maxFileSizeMB +
         " MB | Toegestane bestandstypen: " +
         this.formField.getAllowedFileTypes(),
-      "end",
     );
   }
 }

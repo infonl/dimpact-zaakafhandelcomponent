@@ -12,7 +12,7 @@ import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import net.atos.client.or.objects.model.generated.ModelObject;
+import nl.info.client.or.objects.model.generated.ModelObject;
 
 
 @ApplicationScoped
@@ -23,7 +23,7 @@ public class ObjectsClientService {
     private ObjectsClient objectsClient;
 
     /**
-     * Create {@link net.atos.client.or.objects.model.generated.ModelObject}.
+     * Create {@link nl.info.client.or.objects.model.generated.ModelObject}.
      *
      * @param object {@link ModelObject}.
      * @return Created {@link ModelObject}.

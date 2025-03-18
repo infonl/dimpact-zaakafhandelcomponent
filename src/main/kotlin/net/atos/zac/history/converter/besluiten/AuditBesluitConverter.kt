@@ -4,10 +4,10 @@
  */
 package net.atos.zac.history.converter.besluiten
 
-import net.atos.client.zgw.brc.model.generated.Besluit
 import net.atos.client.zgw.shared.model.audit.AuditWijziging
 import net.atos.zac.history.converter.addHistorieRegel
 import net.atos.zac.history.model.HistoryLine
+import nl.info.client.zgw.brc.model.generated.Besluit
 
 object AuditBesluitConverter {
 

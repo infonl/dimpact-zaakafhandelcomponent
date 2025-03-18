@@ -10,11 +10,11 @@ import jakarta.json.bind.JsonbConfig
 import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.bind.serializer.JsonbDeserializer
 import jakarta.json.stream.JsonParser
-import net.atos.client.brp.model.generated.AbstractVerblijfplaats
-import net.atos.client.brp.model.generated.Adres
-import net.atos.client.brp.model.generated.Locatie
-import net.atos.client.brp.model.generated.VerblijfplaatsBuitenland
-import net.atos.client.brp.model.generated.VerblijfplaatsOnbekend
+import nl.info.client.brp.model.generated.AbstractVerblijfplaats
+import nl.info.client.brp.model.generated.Adres
+import nl.info.client.brp.model.generated.Locatie
+import nl.info.client.brp.model.generated.VerblijfplaatsBuitenland
+import nl.info.client.brp.model.generated.VerblijfplaatsOnbekend
 import nl.info.zac.exception.InputValidationFailedException
 import java.lang.reflect.Type
 

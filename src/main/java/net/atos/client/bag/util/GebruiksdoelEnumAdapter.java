@@ -7,7 +7,7 @@ package net.atos.client.bag.util;
 
 import jakarta.json.bind.adapter.JsonbAdapter;
 
-import net.atos.client.bag.model.generated.Gebruiksdoel;
+import nl.info.client.bag.model.generated.Gebruiksdoel;
 
 public class GebruiksdoelEnumAdapter implements JsonbAdapter<Gebruiksdoel, String> {
 

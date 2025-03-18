@@ -28,13 +28,13 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.bag.exception.BagResponseExceptionMapper;
-import net.atos.client.bag.model.generated.Gebruiksdoel;
-import net.atos.client.bag.model.generated.OppervlakteFilter;
-import net.atos.client.bag.model.generated.VerblijfsobjectIOHal;
-import net.atos.client.bag.model.generated.VerblijfsobjectIOHalCollection;
-import net.atos.client.bag.model.generated.VerblijfsobjectIOLvcHalCollection;
 import net.atos.client.bag.util.BagClientHeadersFactory;
 import net.atos.zac.util.MediaTypes;
+import nl.info.client.bag.model.generated.Gebruiksdoel;
+import nl.info.client.bag.model.generated.OppervlakteFilter;
+import nl.info.client.bag.model.generated.VerblijfsobjectIOHal;
+import nl.info.client.bag.model.generated.VerblijfsobjectIOHalCollection;
+import nl.info.client.bag.model.generated.VerblijfsobjectIOLvcHalCollection;
 
 /**
  * IMBAG API - van de LVBAG

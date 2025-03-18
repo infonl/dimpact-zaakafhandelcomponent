@@ -8,16 +8,16 @@ package net.atos.zac.app.bag.converter;
 
 import java.net.URI;
 
-import net.atos.client.bag.model.generated.Indicatie;
-import net.atos.client.bag.model.generated.Nummeraanduiding;
-import net.atos.client.bag.model.generated.NummeraanduidingIOHal;
-import net.atos.client.bag.model.generated.NummeraanduidingIOHalBasis;
-import net.atos.client.bag.model.generated.StatusNaamgeving;
-import net.atos.client.bag.model.generated.TypeAdresseerbaarObject;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectNummeraanduiding;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding;
 import net.atos.zac.app.bag.model.RESTNummeraanduiding;
+import nl.info.client.bag.model.generated.Indicatie;
+import nl.info.client.bag.model.generated.Nummeraanduiding;
+import nl.info.client.bag.model.generated.NummeraanduidingIOHal;
+import nl.info.client.bag.model.generated.NummeraanduidingIOHalBasis;
+import nl.info.client.bag.model.generated.StatusNaamgeving;
+import nl.info.client.bag.model.generated.TypeAdresseerbaarObject;
 
 public class RestNummeraanduidingConverter {
     public static RESTNummeraanduiding convertToREST(final NummeraanduidingIOHalBasis nummeraanduidingIO) {

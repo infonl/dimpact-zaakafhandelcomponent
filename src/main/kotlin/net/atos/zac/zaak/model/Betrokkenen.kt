@@ -4,7 +4,7 @@
 */
 package net.atos.zac.zaak.model
 
-import net.atos.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import java.util.EnumSet
 
 object Betrokkenen {

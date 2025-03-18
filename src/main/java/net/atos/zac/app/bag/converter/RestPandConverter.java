@@ -8,14 +8,14 @@ package net.atos.zac.app.bag.converter;
 import java.net.URI;
 import java.util.List;
 
-import net.atos.client.bag.model.generated.Indicatie;
-import net.atos.client.bag.model.generated.Pand;
-import net.atos.client.bag.model.generated.PandIOHal;
-import net.atos.client.bag.model.generated.PandIOHalBasis;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectPand;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand;
 import net.atos.zac.app.bag.model.RESTPand;
+import nl.info.client.bag.model.generated.Indicatie;
+import nl.info.client.bag.model.generated.Pand;
+import nl.info.client.bag.model.generated.PandIOHal;
+import nl.info.client.bag.model.generated.PandIOHalBasis;
 
 public class RestPandConverter {
     public static List<RESTPand> convertToREST(final List<PandIOHalBasis> panden) {
