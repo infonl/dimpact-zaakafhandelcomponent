@@ -4,7 +4,7 @@
  *
  */
 
-import { Component, Input, OnInit } from "@angular/core";
+import {Component, Input, OnChanges, OnInit, SimpleChanges} from "@angular/core";
 import { AbstractControl, FormGroup } from "@angular/forms";
 import { isObservable, Observable } from "rxjs";
 import { getErrorMessage } from "../helpers";
@@ -18,14 +18,12 @@ export class ZacAutoComplete<
   Key extends keyof Form,
   Option extends Form[Key]["value"],
   OptionLabel extends keyof Option | ((option: Option) => string),
-> implements OnInit
+> implements OnInit, OnChanges
 {
   @Input({ required: true }) key!: Key;
   @Input({ required: true }) form!: FormGroup<Form>;
-  @Input({ required: true }) options!:
-    | Observable<Array<Option>>
-    | Array<Option>;
-  @Input({ required: true }) optionLabel!: OptionLabel;
+  @Input({ required: true }) options!: Array<Option>;
+  @Input() optionLabel?: OptionLabel;
 
   protected control?: AbstractControl;
 
@@ -35,19 +33,19 @@ export class ZacAutoComplete<
   ngOnInit() {
     this.control = this.form.get(String(this.key))!;
 
-    if (isObservable(this.options)) {
-      this.options.subscribe((options) => {
-        this.toFilterOptions = this.filteredOptions = options;
-      });
-    } else {
-      this.toFilterOptions = this.filteredOptions = this.options;
-    }
+    this.setOptions(this.options)
 
     this.control.valueChanges.subscribe((value) => {
       this.filteredOptions = this.toFilterOptions.filter((option) => {
         return this.getOptionLabel(option as Option)?.includes(value) ?? true;
       });
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if('options' in changes) {
+        this.setOptions(changes['options'].currentValue)
+    }
   }
 
   reset() {
@@ -63,6 +61,10 @@ export class ZacAutoComplete<
       return null;
     }
 
+    if(!this.optionLabel) {
+      return String(option);
+    }
+
     if (typeof this.optionLabel === "function") {
       return this.optionLabel(option);
     }
@@ -71,4 +73,8 @@ export class ZacAutoComplete<
   };
 
   protected getErrorMessage = () => getErrorMessage(this.control);
+
+  private setOptions(input: Array<Option>) {
+    this.toFilterOptions = this.filteredOptions = input;
+  }
 }

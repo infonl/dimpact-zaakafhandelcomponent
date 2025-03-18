@@ -77,7 +77,7 @@ export class UtilService {
     return overlayElements.length > 0;
   }
 
-  private getOverlayElements(...classList): any[] {
+  private getOverlayElements(...classList: unknown[]) {
     const overlayElements: any[] = [];
     for (const styleClass of classList) {
       overlayElements.push(...this.document.getElementsByClassName(styleClass));
@@ -97,10 +97,7 @@ export class UtilService {
     this.loading.next(loading);
   }
 
-  getEnumAsSelectList(
-    prefix: string,
-    enumValue: any,
-  ): { label: string; value: string }[] {
+  getEnumAsSelectList(prefix: string, enumValue: any) {
     const list: { label: string; value: string }[] = [];
     Object.keys(enumValue).forEach((value) => {
       this.translate
@@ -116,7 +113,7 @@ export class UtilService {
     prefix: string,
     enum_: any,
     exceptEnumValues: [string],
-  ): { label: string; value: string }[] {
+  ) {
     const list: { label: string; value: string }[] = [];
     Object.keys(enum_)
       .filter(
@@ -138,7 +135,7 @@ export class UtilService {
   }
 
   openSnackbarError(message: string, params?: Record<string, unknown>) {
-    this.openSnackbar(message, params, null);
+    this.openSnackbar(message, params);
   }
 
   openSnackbar(
@@ -161,7 +158,7 @@ export class UtilService {
         this.translate.instant(action, params),
         {
           panelClass: ["mat-snackbar"],
-          duration: durationSeconden != null ? durationSeconden * 1000 : null,
+          duration: durationSeconden ? durationSeconden * 1000 : undefined,
         },
       )
       .onAction();
