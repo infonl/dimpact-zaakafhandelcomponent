@@ -5,7 +5,9 @@
   -->
 
 <mat-form-field [formGroup]="form" appearance="fill">
-  <mat-label>{{ key | translate }}</mat-label>
+  <mat-label>
+    <ng-content select="mat-label"></ng-content>
+  </mat-label>
   <input
     type="text"
     matInput
@@ -24,4 +26,7 @@
     </mat-option>
   </mat-autocomplete>
   <mat-error>{{ getErrorMessage() | translate }}</mat-error>
+  <mat-hint>
+    <ng-content select="mat-hint"></ng-content>
+  </mat-hint>
 </mat-form-field>

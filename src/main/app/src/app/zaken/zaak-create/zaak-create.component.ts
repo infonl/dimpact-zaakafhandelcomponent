@@ -87,6 +87,8 @@ export class ZaakCreateComponent implements OnDestroy {
     startDate: FormControl<string | null>;
   }>;
 
+  minDate = moment(new Date()).subtract(4, "days").toISOString();
+  maxDate = moment(new Date()).add(4, "days").toISOString();
   constructor(
     public zakenService: ZakenService,
     private router: Router,
@@ -97,13 +99,11 @@ export class ZaakCreateComponent implements OnDestroy {
     private utilService: UtilService,
     private formBuilder: FormBuilder,
   ) {
-    this.form = formBuilder.group({
+    this.form = this.formBuilder.group({
       zaaktype: new FormControl<Zaaktype | null>(null, [Validators.required]),
       startDate: new FormControl<string | null>(null, [
         Validators.required,
-        CustomValidators.minDate(
-          moment(new Date()).subtract(1, "days").toISOString(),
-        ),
+        CustomValidators.minDate(this.minDate),
       ]),
     });
     this.inboxProductaanvraag =
@@ -247,10 +247,6 @@ export class ZaakCreateComponent implements OnDestroy {
 
   formSubmit(form: FormGroup): void {
     console.log(form);
-  }
-
-  zaakLabel(option: Zaaktype) {
-    return option.omschrijving;
   }
 
   onFormSubmit(formGroup: FormGroup): void {

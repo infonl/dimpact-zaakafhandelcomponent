@@ -76,6 +76,7 @@ import {
   BUILDER_CONFIG,
   MaterialFormBuilderConfig,
 } from "./material-form-builder-config";
+import {ZacSelect} from "../form/select/select";
 
 @NgModule({
   declarations: [
@@ -107,6 +108,7 @@ import {
     CapitalizeFirstLetterPipe,
     ZacAutoComplete,
     ZacDate,
+      ZacSelect
   ],
   exports: [
     FileDragAndDropDirective,
@@ -131,6 +133,7 @@ import {
     MessageComponent,
     ZacAutoComplete,
     ZacDate,
+      ZacSelect,
   ],
   imports: [
     FileDragAndDropDirective,

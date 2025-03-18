@@ -26,13 +26,18 @@
   </mat-sidenav>
   <section class="content">
     <form [formGroup]="form" (ngSubmit)="formSubmit(form)">
-      <zac-auto-compete
+      <zac-auto-complete
         [key]="'zaaktype'"
         [form]="form"
         [options]="zakenService.listZaaktypes()"
         [optionLabel]="'omschrijving'"
-      ></zac-auto-compete>
-      <zac-date [key]="'startDate'" [form]="form"></zac-date>
+      >
+          <mat-label>hello</mat-label>
+          <mat-hint>this is a hint</mat-hint>
+      </zac-auto-complete>
+      <zac-date [key]="'startDate'" [form]="form" [min]="minDate" [max]="maxDate">
+          <mat-label>date</mat-label>
+      </zac-date>
       <button type="submit" [disabled]="!form.valid">submit</button>
     </form>
   </section>
