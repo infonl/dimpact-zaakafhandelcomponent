@@ -81,6 +81,10 @@ brpApi:
   apiKey: ""
   # -- OIN for BRP Protocollering
   originOin: ""
+  # -- Doelbinding for BRP Protocollering
+  doelbinding: "BRPACT-Totaal"
+  # -- Verwerking for BRP Protocollering
+  verwerking: "zaakafhandelcomponent"
 
 # kvkApi Configuration of the KVK API provider (KVK)
 kvkApi:

@@ -20,14 +20,14 @@ class BRPClientHeadersFactory @Inject constructor(
     @ConfigProperty(name = "brp.origin.oin")
     private val originOIN: Optional<String> = Optional.empty(),
 
+    @ConfigProperty(name = "brp.doelbinding")
+    private val purpose: Optional<String> = Optional.empty(),
+
+    @ConfigProperty(name = "brp.verwerking")
+    private val process: Optional<String> = Optional.empty(),
+
     @Inject
     private var loggedInUserInstance: Instance<LoggedInUser>,
-
-    @ConfigProperty(name = "brp.doelbinding.default")
-    private val purpose: Optional<String> = Optional.of("BRPACT-Totaal"),
-
-    @ConfigProperty(name = "brp.verwerking.default")
-    private val process: Optional<String> = Optional.of("zaakafhandelcomponent")
 ) : ClientHeadersFactory {
 
     companion object {

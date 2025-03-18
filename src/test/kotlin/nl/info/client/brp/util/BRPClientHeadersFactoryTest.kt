@@ -6,6 +6,7 @@ package nl.info.client.brp.util
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.maps.shouldContain
+import io.kotest.matchers.maps.shouldNotHaveKey
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -30,6 +31,8 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
         val brpClientHeadersFactory = BRPClientHeadersFactory(
             Optional.of(apiKey),
             Optional.of(originOin),
+            Optional.empty(),
+            Optional.empty(),
             loggedInUserInstance
         )
 
@@ -40,8 +43,8 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
                 with(headers) {
                     shouldContain("X-API-KEY", listOf(apiKey))
                     shouldContain("X-ORIGIN-OIN", listOf(originOin))
-                    shouldContain("X-DOELBINDING", listOf("BRPACT-Totaal"))
-                    shouldContain("X-VERWERKING", listOf("zaakafhandelcomponent"))
+                    shouldNotHaveKey("X-DOELBINDING")
+                    shouldNotHaveKey("X-VERWERKING")
                     shouldContain("X-GEBRUIKER", listOf("username"))
                 }
             }
@@ -54,6 +57,8 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
         val brpClientHeadersFactory = BRPClientHeadersFactory(
             Optional.of(apiKey),
             Optional.of(originOin),
+            Optional.empty(),
+            Optional.empty(),
             loggedInUserInstance
         )
 
@@ -64,8 +69,8 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
                 with(headers) {
                     shouldContain("X-API-KEY", listOf(apiKey))
                     shouldContain("X-ORIGIN-OIN", listOf(originOin))
-                    shouldContain("X-DOELBINDING", listOf("BRPACT-Totaal"))
-                    shouldContain("X-VERWERKING", listOf("zaakafhandelcomponent"))
+                    shouldNotHaveKey("X-DOELBINDING")
+                    shouldNotHaveKey("X-VERWERKING")
                     shouldContain("X-GEBRUIKER", listOf("BurgerZelf"))
                 }
             }
@@ -78,9 +83,9 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
         val brpClientHeadersFactory = BRPClientHeadersFactory(
             Optional.of(apiKey),
             Optional.of(originOin),
-            loggedInUserInstance,
             Optional.of("customPurpose"),
-            Optional.of("customProcess")
+            Optional.of("customProcess"),
+            loggedInUserInstance
         )
 
         When("headers are updated") {
@@ -108,6 +113,8 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
         val brpClientHeadersFactory = BRPClientHeadersFactory(
             Optional.of(apiKey),
             Optional.of(originOin),
+            Optional.empty(),
+            Optional.empty(),
             loggedInUserInstance
         )
 
@@ -119,7 +126,7 @@ class BRPClientHeadersFactoryTest : BehaviorSpec({
                     shouldContain("X-API-KEY", listOf(apiKey))
                     shouldContain("X-ORIGIN-OIN", listOf(originOin))
                     shouldContain("X-DOELBINDING", listOf("test"))
-                    shouldContain("X-VERWERKING", listOf("zaakafhandelcomponent"))
+                    shouldNotHaveKey("X-VERWERKING")
                     shouldContain("X-GEBRUIKER", listOf("username"))
                 }
             }
