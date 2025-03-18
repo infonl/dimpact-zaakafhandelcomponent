@@ -1,9 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2024 Dimpact, 2025 Lifely
- * SPDX-License-Identifier: EUPL-1.2+
+ *
+ *  * SPDX-FileCopyrightText: 2025 Lifely
+ *  * SPDX-License-Identifier: EUPL-1.2+
+ *
  */
 
-package net.atos.zac.formio
+package nl.info.zac.formio
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -11,7 +13,7 @@ import jakarta.json.Json
 import jakarta.json.JsonObject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import net.atos.zac.formio.model.FormioFormulier
+import nl.info.zac.formio.model.FormioFormulier
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils

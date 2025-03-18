@@ -18,8 +18,8 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import net.atos.zac.app.admin.model.RestFormioFormulier
 import net.atos.zac.app.admin.model.RestFormioFormulierContent
-import net.atos.zac.formio.FormioService
 import net.atos.zac.policy.PolicyService
+import nl.info.zac.formio.FormioService
 import nl.info.zac.util.NoArgConstructor
 
 @Singleton
