@@ -15,7 +15,6 @@ export class InputFormField extends AbstractFormControlField {
   clicked: Subject<any> = new Subject<any>();
   onClear = new EventEmitter<void>();
   maxlength: number;
-  showCount = false;
   externalInput = false;
 
   constructor() {

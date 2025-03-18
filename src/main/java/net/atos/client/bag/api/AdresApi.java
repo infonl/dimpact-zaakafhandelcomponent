@@ -23,12 +23,12 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import net.atos.client.bag.exception.BagResponseExceptionMapper;
 import net.atos.client.bag.model.BevraagAdressenParameters;
-import net.atos.client.bag.model.generated.AdresIOHal;
-import net.atos.client.bag.model.generated.AdresIOHalCollection;
-import net.atos.client.bag.model.generated.ZoekResultaatHalCollection;
 import net.atos.client.bag.util.BagClientHeadersFactory;
 import net.atos.client.bag.util.JsonbConfiguration;
 import net.atos.zac.util.MediaTypes;
+import nl.info.client.bag.model.generated.AdresIOHal;
+import nl.info.client.bag.model.generated.AdresIOHalCollection;
+import nl.info.client.bag.model.generated.ZoekResultaatHalCollection;
 
 /**
  * IMBAG API - van de LVBAG

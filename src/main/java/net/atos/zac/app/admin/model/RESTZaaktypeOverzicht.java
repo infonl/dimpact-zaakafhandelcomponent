@@ -8,7 +8,7 @@ package net.atos.zac.app.admin.model;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import net.atos.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum;
+import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum;
 
 public class RESTZaaktypeOverzicht {
 

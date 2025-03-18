@@ -13,9 +13,6 @@ import java.util.List;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 
-import net.atos.client.bag.model.generated.PointGeoJSON;
-import net.atos.client.bag.model.generated.PuntOfVlak;
-import net.atos.client.bag.model.generated.Surface;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdres;
@@ -32,6 +29,9 @@ import net.atos.zac.app.bag.model.RESTPand;
 import net.atos.zac.app.bag.model.RESTWoonplaats;
 import net.atos.zac.app.zaak.model.RestCoordinates;
 import net.atos.zac.app.zaak.model.RestGeometry;
+import nl.info.client.bag.model.generated.PointGeoJSON;
+import nl.info.client.bag.model.generated.PuntOfVlak;
+import nl.info.client.bag.model.generated.Surface;
 
 public class RestBagConverter {
     public static Zaakobject convertToZaakobject(final RESTBAGObject restbagObject, final Zaak zaak) {

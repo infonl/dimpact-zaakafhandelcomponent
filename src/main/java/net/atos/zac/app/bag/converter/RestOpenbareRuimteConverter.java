@@ -7,15 +7,15 @@ package net.atos.zac.app.bag.converter;
 
 import java.net.URI;
 
-import net.atos.client.bag.model.generated.AdresIOHal;
-import net.atos.client.bag.model.generated.Indicatie;
-import net.atos.client.bag.model.generated.OpenbareRuimte;
-import net.atos.client.bag.model.generated.OpenbareRuimteIOHal;
-import net.atos.client.bag.model.generated.OpenbareRuimteIOHalBasis;
 import net.atos.client.zgw.zrc.model.Zaak;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte;
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte;
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte;
+import nl.info.client.bag.model.generated.AdresIOHal;
+import nl.info.client.bag.model.generated.Indicatie;
+import nl.info.client.bag.model.generated.OpenbareRuimte;
+import nl.info.client.bag.model.generated.OpenbareRuimteIOHal;
+import nl.info.client.bag.model.generated.OpenbareRuimteIOHalBasis;
 
 public class RestOpenbareRuimteConverter {
     public static RESTOpenbareRuimte convertToREST(final OpenbareRuimteIOHalBasis openbareRuimteIO, final AdresIOHal adres) {

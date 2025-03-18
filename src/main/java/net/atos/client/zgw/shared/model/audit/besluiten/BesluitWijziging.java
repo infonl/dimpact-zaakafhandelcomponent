@@ -5,9 +5,9 @@
 
 package net.atos.client.zgw.shared.model.audit.besluiten;
 
-import net.atos.client.zgw.brc.model.generated.Besluit;
 import net.atos.client.zgw.shared.model.ObjectType;
 import net.atos.client.zgw.shared.model.audit.AuditWijziging;
+import nl.info.client.zgw.brc.model.generated.Besluit;
 
 public class BesluitWijziging extends AuditWijziging<Besluit> {
 

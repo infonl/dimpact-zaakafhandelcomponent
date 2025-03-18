@@ -68,8 +68,8 @@
           [formControl]="reasonControl"
           required="true"
         />
-        <mat-hint *ngIf="reasonControl.value?.length"
-          >{{ reasonControl.value?.length }}/80</mat-hint
+        <mat-hint align="end"
+          >{{ reasonControl.value?.length ?? 0 }}/80</mat-hint
         >
       </mat-form-field>
       <div *ngIf="!readonly" class="full-width">

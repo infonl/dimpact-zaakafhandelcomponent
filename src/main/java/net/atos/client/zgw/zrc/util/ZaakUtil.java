@@ -4,7 +4,7 @@
  */
 package net.atos.client.zgw.zrc.util;
 
-import net.atos.client.zgw.zrc.model.generated.Zaak;
+import nl.info.client.zgw.zrc.model.generated.Zaak;
 
 public class ZaakUtil {
     private ZaakUtil() {

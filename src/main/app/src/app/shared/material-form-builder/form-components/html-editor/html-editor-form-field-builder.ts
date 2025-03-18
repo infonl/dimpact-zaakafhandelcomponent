@@ -49,9 +49,8 @@ export class HtmlEditorFormFieldBuilder extends AbstractFormFieldBuilder {
     return this;
   }
 
-  maxlength(maxlength: number, showCount = true): this {
+  maxlength(maxlength: number): this {
     this.formField.maxlength = maxlength;
-    this.formField.showCount = showCount;
     return this;
   }
 }

@@ -6,7 +6,7 @@ package net.atos.zac.productaanvraag.util;
 
 import jakarta.json.bind.adapter.JsonbAdapter;
 
-import net.atos.zac.productaanvraag.model.generated.Betrokkene;
+import nl.info.zac.productaanvraag.model.generated.Betrokkene;
 
 /**
  * JSON adapter for the {@link Betrokkene.RolOmschrijvingGeneriek} enum that matches on the enum's value instead

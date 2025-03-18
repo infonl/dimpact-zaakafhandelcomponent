@@ -43,7 +43,9 @@
           maxlength="100"
           matInput
         ></textarea>
-        <mat-hint>{{ formGroup.get("reden").value.length }}/100</mat-hint>
+        <mat-hint align="end"
+          >{{ formGroup.get("reden").value.length }}/100</mat-hint
+        >
         <mat-error>{{
           getError(formGroup.get("reden"), "redenNietOntvankelijk")
         }}</mat-error>
@@ -100,7 +102,9 @@
           maxlength="200"
           formControlName="ontvanger"
         />
-        <mat-hint>{{ formGroup.get("ontvanger").value.length }}/200</mat-hint>
+        <mat-hint align="end"
+          >{{ formGroup.get("ontvanger").value.length }}/200</mat-hint
+        >
         <mat-error>{{
           getError(formGroup.get("ontvanger"), "ontvanger")
         }}</mat-error>

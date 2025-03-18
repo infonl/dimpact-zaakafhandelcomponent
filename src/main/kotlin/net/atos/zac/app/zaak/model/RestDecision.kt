@@ -5,8 +5,8 @@
 package net.atos.zac.app.zaak.model
 
 import jakarta.json.bind.annotation.JsonbProperty
-import net.atos.client.zgw.brc.model.generated.VervalredenEnum
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
+import nl.info.client.zgw.brc.model.generated.VervalredenEnum
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI

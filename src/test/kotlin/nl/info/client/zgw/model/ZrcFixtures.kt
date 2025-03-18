@@ -4,7 +4,6 @@
  */
 package nl.info.client.zgw.model
 
-import net.atos.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import net.atos.client.zgw.shared.model.Archiefnominatie
 import net.atos.client.zgw.zrc.model.Medewerker
 import net.atos.client.zgw.zrc.model.NatuurlijkPersoon
@@ -18,15 +17,16 @@ import net.atos.client.zgw.zrc.model.Status
 import net.atos.client.zgw.zrc.model.Verlenging
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.client.zgw.zrc.model.generated.Opschorting
-import net.atos.client.zgw.zrc.model.generated.Resultaat
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
-import net.atos.client.zgw.ztc.model.generated.RolType
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.client.zgw.zrc.model.generated.Opschorting
+import nl.info.client.zgw.zrc.model.generated.Resultaat
 import nl.info.client.zgw.ztc.model.createRolType
+import nl.info.client.zgw.ztc.model.generated.RolType
 import java.net.URI
 import java.time.LocalDate
 import java.time.Period
