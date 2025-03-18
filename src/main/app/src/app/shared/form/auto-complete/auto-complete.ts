@@ -10,7 +10,7 @@ import { isObservable, Observable } from "rxjs";
 import { getErrorMessage } from "../helpers";
 
 @Component({
-  selector: "zac-auto-compete",
+  selector: "zac-auto-complete",
   templateUrl: "./auto-complete.html",
 })
 export class ZacAutoComplete<
