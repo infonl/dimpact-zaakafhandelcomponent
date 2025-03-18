@@ -1,0 +1,35 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 Lifely
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  ~
+  -->
+
+<mat-form-field [formGroup]="form" appearance="fill">
+  <mat-label>
+    <ng-content select="mat-label"></ng-content>
+  </mat-label>
+  <mat-select
+    placeholder="{{
+      (isRequired() ? label + '.-kies-' : label + '.-geen-') | translate
+    }}"
+    [compareWith]="compareWith"
+    [formControlName]="key"
+  >
+    <mat-select-trigger>
+      {{ getOptionLabel(control?.value) | translate | capitalizeFirstLetter }}
+    </mat-select-trigger>
+    <mat-option [value]="" *ngIf="!isRequired()">
+      {{ label + ".-geen-" | translate }}
+    </mat-option>
+    <mat-option *ngFor="let option of selectableOptions" [value]="option">
+      {{ getOptionLabel(option) | translate | capitalizeFirstLetter }}
+      <div class="suffix" *ngIf="suffix">
+        {{ suffix | translate | capitalizeFirstLetter }}
+      </div>
+    </mat-option>
+  </mat-select>
+  <mat-error>{{ getErrorMessage() }}</mat-error>
+  <mat-hint>
+    <ng-content select="mat-hint"></ng-content>
+  </mat-hint>
+</mat-form-field>

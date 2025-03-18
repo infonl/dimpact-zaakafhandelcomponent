@@ -8,8 +8,8 @@ import {AbstractControl, ValidationErrors, Validators} from "@angular/forms";
 import moment from "moment";
 
 export function getErrorMessage(control?: AbstractControl) {
-  if (!control) {
-    return "unknown error";
+  if (!control?.errors) {
+    return "an unknown error occurred";
   }
 
   const commonErrors = [
@@ -22,14 +22,14 @@ export function getErrorMessage(control?: AbstractControl) {
 
   for (const error of commonErrors) {
     if (control.hasError(error)) {
-      return errorMessage(error);
+      return commonErrorMessage(error);
     }
   }
 
-  return "unknown error";
+  return customErrorMessage(control.errors);
 }
 
-function errorMessage(error: string) {
+function commonErrorMessage(error: string) {
   switch (error) {
     case Validators.required.name:
       return "This field is required";
@@ -43,13 +43,25 @@ function errorMessage(error: string) {
       return "This value is invalid";
     default:
         console.log({error})
-      return "unknown error";
+      return "unknown common validation error";
   }
+}
+
+function customErrorMessage(errors: ValidationErrors) {
+    const errorKeys = Object.keys(errors)
+
+    if(errorKeys.includes('minDate')) {
+        return 'This date is too far back'
+    } else if(errorKeys.includes('maxDate')) {
+        return 'This date is too far in the future'
+    }
+
+    return 'unknown custom validation error'
 }
 
 export class CustomValidators {
     static minDate(minDate: Date | string | moment.Moment) {
-        return (control: AbstractControl) => {
+        return (control: AbstractControl): ValidationErrors | null => {
             if (!control.value) {
                 return null;
             }
@@ -58,6 +70,19 @@ export class CustomValidators {
             const value = moment(control.value)
 
             return value.isBefore(date) ? { minDate: true } : null;
+        };
+    }
+
+    static maxDate(maxDate: Date | string | moment.Moment) {
+        return (control: AbstractControl): ValidationErrors | null => {
+            if (!control.value) {
+                return null;
+            }
+
+            const date = moment(maxDate)
+            const value = moment(control.value)
+
+            return value.isAfter(date) ? { maxDate: true } : null;
         };
     }
 }
