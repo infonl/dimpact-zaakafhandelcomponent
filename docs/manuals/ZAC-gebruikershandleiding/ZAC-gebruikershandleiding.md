@@ -498,7 +498,7 @@ Het is ook mogelijk een locatie te ontkoppelen.
 
 **Stappen:**
 
-1 In een zaak in het tabblad ‘Locatie’ klik je op het ontkoppel ikoon
+1 In een zaak in het tabblad ‘Locatie’ klik je op het ontkoppelicoon
 
 2 Vul de verplichte reden voor het ontkoppelen van de locatie in
 
