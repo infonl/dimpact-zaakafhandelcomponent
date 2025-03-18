@@ -54,6 +54,7 @@ export class CustomValidators {
       if (!this.isValidBSN(val)) {
         return { bsn: true };
       }
+      return null;
     };
   }
 
@@ -78,6 +79,7 @@ export class CustomValidators {
       if (!CustomValidators.nummerRegex.test(val) || val.length !== 8) {
         return { kvk: true };
       }
+      return null;
     };
   }
 
@@ -90,6 +92,7 @@ export class CustomValidators {
       if (!CustomValidators.nummerRegex.test(val) || val.length !== 12) {
         return { vestigingsnummer: true };
       }
+      return null;
     };
   }
 
@@ -102,6 +105,7 @@ export class CustomValidators {
       if (!CustomValidators.nummerRegex.test(val) || val.length !== 9) {
         return { rsin: true };
       }
+      return null;
     };
   }
 
@@ -114,6 +118,7 @@ export class CustomValidators {
       if (!CustomValidators.postcodeRegex.test(val)) {
         return { postcode: true };
       }
+      return null;
     };
   }
 
@@ -130,6 +135,7 @@ export class CustomValidators {
       ) {
         return { email: true };
       }
+      return null;
     };
   }
 
@@ -142,6 +148,7 @@ export class CustomValidators {
       if (CustomValidators.bedrijfsnaamRegex.test(val)) {
         return { bedrijfsnaam: true };
       }
+      return null;
     };
   }
 
@@ -153,6 +160,7 @@ export class CustomValidators {
       if (!CustomValidators.nummerRegex.test(control.value)) {
         return { huisnummer: true };
       }
+      return null;
     };
   }
 

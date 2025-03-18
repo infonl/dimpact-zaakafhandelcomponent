@@ -125,7 +125,7 @@ describe(CustomValidators.name, () => {
       [{ vestigingsnummer: true }, "msg.error.invalid.vestigingsnummer"],
       [{ rsin: true }, "msg.error.invalid.rsin"],
       [{ postcode: true }, "msg.error.invalid.postcode"],
-      [{ huisnummer: true }, "msg.error.invalid.huisnummer.huisnummer"],
+      [{ huisnummer: true }, "msg.error.invalid.huisnummer"],
       [{ custom: { message: "custom.error.message" } }, "custom.error.message"],
     ])(
       "for the error %p it should return the message %s",
