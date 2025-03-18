@@ -1,12 +1,12 @@
 /*
- *  * SPDX-FileCopyrightText: 2025 Lifely
- *  * SPDX-License-Identifier: EUPL-1.2+
+ * SPDX-FileCopyrightText: 2025 Lifely
+ * SPDX-License-Identifier: EUPL-1.2+
  */
-
 package nl.info.zac.formio
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.persistence.EntityManager
@@ -23,16 +23,19 @@ class FormioServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>()
     val formioService = FormioService(entityManager)
 
+    beforeEach {
+        checkUnnecessaryStub()
+    }
+
     Given("A formio form") {
         val testFormName = "testForm"
-        val content = """{ "dummyKey": "dummyValue"}""".trimIndent()
-        val formioFormulier = FormioFormulier().apply {
-            this.name = testFormName
-            this.content = content
-        }
+        val content = """{ "dummyKey": "dummyValue" }""".trimIndent()
+        val formioFormulier = createFormioFormulier(
+            name = testFormName,
+            content = content
+        )
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every { criteriaBuilder.createQuery(FormioFormulier::class.java) } returns criteriaQuery
-        every { criteriaBuilder.asc(any()) } returns mockk()
         every { criteriaBuilder.equal(any(), testFormName) } returns mockk()
         every { criteriaQuery.from(FormioFormulier::class.java) } returns root
         every { criteriaQuery.where(any()) } returns criteriaQuery
@@ -44,9 +47,7 @@ class FormioServiceTest : BehaviorSpec({
             val result = formioService.readFormioFormulier(testFormName)
 
             Then("the formio form as JSON object is returned") {
-                with(result) {
-                    getString("dummyKey") shouldBe "dummyValue"
-                }
+                result.getString("dummyKey") shouldBe "dummyValue"
             }
         }
     }
