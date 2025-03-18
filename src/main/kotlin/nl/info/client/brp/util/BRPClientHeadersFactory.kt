@@ -12,7 +12,6 @@ import nl.info.zac.authentication.LoggedInUser
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory
 import java.util.Optional
-import kotlin.jvm.optionals.getOrDefault
 
 class BRPClientHeadersFactory @Inject constructor(
     @ConfigProperty(name = "brp.api.key")
