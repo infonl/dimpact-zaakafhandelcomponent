@@ -46,6 +46,7 @@ import { ZacAutoComplete } from "../form/auto-complete/auto-complete";
 import { ZacDate } from "../form/date/date";
 import { ZacInput } from "../form/input/input";
 import { ZacSelect } from "../form/select/select";
+import { ZacTextarea } from "../form/textarea/textarea";
 import { InformatieObjectIndicatiesComponent } from "../indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { EnhanceMatErrorDirective } from "../material/mat-zac-error";
 import { CapitalizeFirstLetterPipe } from "../pipes/capitalizeFirstLetter.pipe";
@@ -111,6 +112,7 @@ import {
     ZacDate,
     ZacSelect,
     ZacInput,
+    ZacTextarea,
   ],
   exports: [
     FileDragAndDropDirective,
@@ -137,6 +139,8 @@ import {
     ZacDate,
     ZacSelect,
     ZacInput,
+    ZacTextarea,
+    CapitalizeFirstLetterPipe,
   ],
   imports: [
     FileDragAndDropDirective,

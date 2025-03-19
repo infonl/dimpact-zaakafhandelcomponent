@@ -5,6 +5,7 @@
 
 import { NgModule } from "@angular/core";
 
+import { MatGridList, MatGridTile } from "@angular/material/grid-list";
 import { BAGModule } from "../bag/bag.module";
 import { GebruikersvoorkeurenModule } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.module";
 import { InformatieObjectenModule } from "../informatie-objecten/informatie-objecten.module";
@@ -43,7 +44,6 @@ import { ZakenVerdelenDialogComponent } from "./zaken-verdelen-dialog/zaken-verd
 import { ZakenVrijgevenDialogComponent } from "./zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component";
 import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorraad.component";
 import { LocatieZoekComponent } from "./zoek/locatie-zoek/locatie-zoek.component";
-import {MatGridList, MatGridTile} from "@angular/material/grid-list";
 
 @NgModule({
   declarations: [
@@ -74,22 +74,22 @@ import {MatGridList, MatGridTile} from "@angular/material/grid-list";
     ZaakdataFormComponent,
   ],
   exports: [ZaakVerkortComponent, ZaakDocumentenComponent],
-    imports: [
-        SharedModule,
-        ZakenRoutingModule,
-        KlantenModule,
-        InformatieObjectenModule,
-        PlanItemsModule,
-        MailModule,
-        ZoekenModule,
-        GebruikersvoorkeurenModule,
-        BAGModule,
-        DocumentIconComponent,
-        InformatieObjectIndicatiesComponent,
-        KlantKoppelComponent,
-        MimetypeToExtensionPipe,
-        MatGridList,
-        MatGridTile,
-    ],
+  imports: [
+    SharedModule,
+    ZakenRoutingModule,
+    KlantenModule,
+    InformatieObjectenModule,
+    PlanItemsModule,
+    MailModule,
+    ZoekenModule,
+    GebruikersvoorkeurenModule,
+    BAGModule,
+    DocumentIconComponent,
+    InformatieObjectIndicatiesComponent,
+    KlantKoppelComponent,
+    MimetypeToExtensionPipe,
+    MatGridList,
+    MatGridTile,
+  ],
 })
 export class ZakenModule {}

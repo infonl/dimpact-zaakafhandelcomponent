@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+@import "variables.less";
+
 .flex-row {
   display: flex;
   flex-direction: row;
@@ -22,43 +24,43 @@
 }
 
 .flex-col-xs {
-  @media screen and (max-width: 599px) {
+  @media screen and (max-width: @sm) {
     flex-direction: column !important;
   }
 }
 
 .flex-col-sm {
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: @md) {
     flex-direction: column !important;
   }
 }
 
 .flex-col-md {
-  @media screen and (max-width: 959px) {
+  @media screen and (max-width: @lg) {
     flex-direction: column !important;
   }
 }
 
 .flex-row-md {
-  @media screen and (max-width: 959px) {
+  @media screen and (max-width: @lg) {
     flex-direction: row !important;
   }
 }
 
 .flex-col-lg {
-  @media screen and (max-width: 1279px) {
+  @media screen and (max-width: @md) {
     flex-direction: column !important;
   }
 }
 
 .flex-col-xl {
-  @media screen and (max-width: 1399px) {
+  @media screen and (max-width: @lg) {
     flex-direction: column !important;
   }
 }
 
 .flex-row-lg {
-  @media screen and (max-width: 1279px) {
+  @media screen and (max-width: @md) {
     flex-direction: row !important;
   }
 }
@@ -136,31 +138,31 @@
 }
 
 .hide-xs {
-  @media screen and (max-width: 599px) {
+  @media screen and (max-width: @sm) {
     display: none !important;
   }
 }
 
 .hide-gt-xs {
-  @media screen and (min-width: 600px) {
+  @media screen and (min-width: @sm) {
     display: none !important;
   }
 }
 
 .hide-sm {
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: @sm) {
     display: none !important;
   }
 }
 
 .hide-md {
-  @media screen and (max-width: 959px) {
+  @media screen and (max-width: @lg) {
     display: none !important;
   }
 }
 
 .hide-gt-sm {
-  @media screen and (min-width: 768px) {
+  @media screen and (min-width: @md) {
     display: none !important;
   }
 }
@@ -226,35 +228,35 @@
 }
 
 .w100-md {
-  @media screen and (max-width: 959px) {
+  @media screen and (max-width: @lg) {
     min-width: 100%;
     flex-basis: calc(100% - 20px);
   }
 }
 
 .w50-md {
-  @media screen and (max-width: 959px) {
+  @media screen and (max-width: @lg) {
     min-width: calc(50% - 20px);
     flex-basis: calc(50% - 20px);
   }
 }
 
 .w80-md {
-  @media screen and (max-width: 959px) {
+  @media screen and (max-width: @lg) {
     min-width: calc(80% - 20px);
     flex-basis: calc(80% - 20px);
   }
 }
 
 .w100-sm {
-  @media screen and (max-width: 599px) {
+  @media screen and (max-width: @sm) {
     min-width: 100%;
     flex-basis: 100%;
   }
 }
 
 .w50-sm {
-  @media screen and (max-width: 599px) {
+  @media screen and (max-width: @sm) {
     min-width: calc(50% - 20px);
     flex-basis: calc(50% - 20px);
   }
