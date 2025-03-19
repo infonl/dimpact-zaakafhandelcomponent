@@ -3,10 +3,10 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 <mat-sidenav-container>
-  <mat-sidenav #actionsSideNav position="end" [ngSwitch]="activeSideAction">
+  <mat-sidenav position="end" [ngSwitch]="activeSideAction">
     <zac-klant-koppel
       *ngSwitchCase="'actie.initiator.toevoegen'"
-      (klantGegevens)="initiatorGeselecteerd($event.klant)"
+      (klantGegevens)="initiatorSelected($event.klant)"
       [sideNav]="actionsSidenav"
       [initiator]="true"
       [allowBedrijf]="true"
@@ -14,7 +14,7 @@
     ></zac-klant-koppel>
     <zac-bag-zoek
       *ngSwitchCase="'actie.bagObject.toevoegen'"
-      [gekoppeldeBagObjecten]="bagObjecten"
+      [gekoppeldeBagObjecten]="bagObjects"
       [sideNav]="actionsSidenav"
       (bagObject)="bagGeselecteerd()"
     ></zac-bag-zoek>
@@ -53,8 +53,6 @@
           class="col"
           key="startdatum"
           [form]="form"
-          [min]="minDate"
-          [max]="maxDate"
         >
         </zac-date>
         <zac-input
@@ -76,7 +74,7 @@
       >
       <zac-auto-complete
         class="col"
-        key="groep"
+        key="group"
         optionDisplayValue="naam"
         [form]="form"
         [options]="groups"
@@ -85,7 +83,7 @@
       </zac-auto-complete>
       <zac-auto-complete
         class="col"
-        key="medewerker"
+        key="user"
         optionDisplayValue="naam"
         [form]="form"
         [options]="users"
@@ -105,7 +103,7 @@
           label="communicatiekanaal"
           key="communicatiekanaal"
           [form]="form"
-          [options]="comminucationChannels"
+          [options]="communicationChannels"
         >
         </zac-select>
         <zac-select
