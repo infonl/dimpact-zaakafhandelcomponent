@@ -145,11 +145,11 @@ class ConfigurationRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/configuratie/feature-flags/bpmn-support"
             )
 
-            Then("'false' is returned because BPMN support is disabled by default") {
+            Then("'true' is returned because BPMN support is enabled for the integration tests") {
                 response.code shouldBe HTTP_STATUS_OK
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                responseBody shouldEqualJson "false"
+                responseBody shouldEqualJson "true"
             }
         }
     }

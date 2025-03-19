@@ -286,13 +286,15 @@ class ZaakRestService @Inject constructor(
             bpmnService.startProcess(
                 zaak = zaak,
                 zaaktype = zaaktype,
-                processDefinitionKey = processDefinition.bpmn_process_definition_key
+                processDefinitionKey = processDefinition.bpmnProcessDefinitionKey
             )
         } else {
             cmmnService.startCase(
                 zaak = zaak,
                 zaaktype = zaaktype,
-                zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaaktype.url.extractUuid())
+                zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(
+                    zaaktype.url.extractUuid()
+                )
             )
         }
         restZaakAanmaakGegevens.inboxProductaanvraag?.let { koppelInboxProductaanvraag(zaak, it) }

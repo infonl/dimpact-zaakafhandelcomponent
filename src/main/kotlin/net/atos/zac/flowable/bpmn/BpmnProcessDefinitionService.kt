@@ -24,7 +24,7 @@ class BpmnProcessDefinitionService @Inject constructor(
         entityManager.criteriaBuilder.let { criteriaBuilder ->
             criteriaBuilder.createQuery(ZaaktypeBpmnProcessDefinition::class.java).let { query ->
                 query.from(ZaaktypeBpmnProcessDefinition::class.java).let {
-                    query.where(criteriaBuilder.equal(it.get<UUID>("zaaktype_uuid"), zaaktypeUUID))
+                    query.where(criteriaBuilder.equal(it.get<UUID>("zaaktypeUuid"), zaaktypeUUID))
                 }
                 entityManager.createQuery(query).resultStream.findFirst().orElse(null)
             }

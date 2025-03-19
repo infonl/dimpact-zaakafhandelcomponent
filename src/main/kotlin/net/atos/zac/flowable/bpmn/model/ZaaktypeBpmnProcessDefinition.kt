@@ -4,6 +4,7 @@
  */
 package net.atos.zac.flowable.bpmn.model
 
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -30,8 +31,10 @@ class ZaaktypeBpmnProcessDefinition {
     var id: Long = 0
 
     @NotBlank
-    lateinit var zaaktype_uuid: UUID
+    @Column(name = "zaaktype_uuid")
+    lateinit var zaaktypeUuid: UUID
 
     @NotBlank
-    lateinit var bpmn_process_definition_key: String
+    @Column(name = "bpmn_process_definition_key")
+    lateinit var bpmnProcessDefinitionKey: String
 }
