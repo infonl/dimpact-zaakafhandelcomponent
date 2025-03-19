@@ -84,7 +84,6 @@ import net.atos.zac.app.zaak.model.toGeometry
 import net.atos.zac.app.zaak.model.toRestDecisionTypes
 import net.atos.zac.app.zaak.model.toRestResultaatTypes
 import net.atos.zac.app.zaak.model.toRestZaakBetrokkenen
-import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.documenten.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -113,6 +112,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor

@@ -14,9 +14,9 @@ import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Readiness;
 
-import net.atos.zac.configuratie.ConfiguratieService;
 import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.client.zgw.ztc.model.CatalogusListParameters;
+import nl.info.zac.configuratie.ConfiguratieService;
 
 @Readiness
 @ApplicationScoped

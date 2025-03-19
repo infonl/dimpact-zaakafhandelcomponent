@@ -4,7 +4,7 @@
  */
 package net.atos.zac.app.configuratie.model
 
-import net.atos.zac.configuratie.model.Taal
+import nl.info.zac.configuratie.model.Taal
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 

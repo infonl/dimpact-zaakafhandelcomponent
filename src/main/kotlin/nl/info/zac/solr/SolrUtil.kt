@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.solr
+package nl.info.zac.solr
 
 private const val SOLR_ESCAPE = '\\'
 private const val SOLR_QUOTE = '\"'

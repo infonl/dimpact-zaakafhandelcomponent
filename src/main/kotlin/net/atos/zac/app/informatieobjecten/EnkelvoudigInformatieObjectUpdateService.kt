@@ -12,7 +12,6 @@ import jakarta.transaction.Transactional
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import net.atos.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -30,6 +29,7 @@ import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate

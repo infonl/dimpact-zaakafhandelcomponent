@@ -26,13 +26,13 @@ import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
-import net.atos.zac.task.TaskService
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.admin.ZaakafhandelParameterBeheerService
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.setFunctioneelGebruiker
 import nl.info.zac.productaanvraag.ProductaanvraagService
+import nl.info.zac.task.TaskService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
