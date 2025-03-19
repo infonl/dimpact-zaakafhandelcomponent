@@ -96,6 +96,7 @@ export class ZaakCreateComponent implements OnDestroy {
     description: FormControl<string | null>;
     initiator: FormControl<string | null | undefined>;
     bagObjecten: FormControl<string | null>;
+    toelichting: FormControl<string | null>;
   }>;
 
   minDate = moment(new Date()).subtract(4, "days").toISOString();
@@ -167,6 +168,7 @@ export class ZaakCreateComponent implements OnDestroy {
       ]),
       initiator: this.initiatorFormControl,
       bagObjecten: this.bagObjectenFormControl,
+      toelichting: new FormControl<string | null>(null),
     });
 
     groep.valueChanges.subscribe((value) => {
