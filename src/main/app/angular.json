@@ -39,8 +39,8 @@
               "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
               "node_modules/ol/ol.css",
               "src/variables.less",
-              "src/styles.less",
-              "src/flex.less"
+              "src/flex.less",
+              "src/styles.less"
             ],
             "scripts": [],
             "vendorChunk": true,
