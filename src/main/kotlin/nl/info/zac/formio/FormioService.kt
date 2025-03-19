@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2025 Lifely
+ * SPDX-FileCopyrightText: 2024 Dimpact, 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.formio
