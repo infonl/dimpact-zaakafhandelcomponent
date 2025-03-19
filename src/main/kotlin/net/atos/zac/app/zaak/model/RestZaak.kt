@@ -6,6 +6,7 @@ package net.atos.zac.app.zaak.model
 
 import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.validation.Valid
+import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.Size
 import net.atos.client.zgw.zrc.model.Zaak.OMSCHRIJVING_MAX_LENGTH
 import net.atos.client.zgw.zrc.model.Zaak.TOELICHTING_MAX_LENGTH
@@ -28,7 +29,8 @@ data class RestZaak(
     var behandelaar: RestUser?,
     var besluiten: List<RestDecision>?,
     var bronorganisatie: String?,
-    var communicatiekanaal: String?,
+    @field:NotEmpty
+    var communicatiekanaal: String,
     var duurVerlenging: String?,
     var einddatumGepland: LocalDate?,
     var einddatum: LocalDate?,

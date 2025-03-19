@@ -37,6 +37,7 @@ describe(InformatieObjectViewComponent.name, () => {
     uuid: "zaak-001",
     identificatie: "test",
     indicaties: [],
+    communicatiekanaal: "E-formulier",
     omschrijving: "test omschrijving",
     vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding.openbaar,
     rechten: {},
