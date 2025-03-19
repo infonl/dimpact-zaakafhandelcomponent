@@ -135,7 +135,7 @@ fun createRestZaak(
     uuid: UUID = UUID.randomUUID(),
     rechten: RestZaakRechten = createRestZaakRechten(),
     einddatumGepland: LocalDate? = LocalDate.of(2023, 10, 10),
-    communicatiekanaal: String = "dummyCommunicatiekanaal",
+    communicatiekanaal: String? = "dummyCommunicatiekanaal",
 ) = RestZaak(
     uuid = uuid,
     identificatie = "ZA2023001",
