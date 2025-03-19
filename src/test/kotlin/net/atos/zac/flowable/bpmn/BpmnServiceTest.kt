@@ -4,7 +4,6 @@
  */
 package net.atos.zac.flowable.bpmn
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -29,10 +28,12 @@ class BpmnServiceTest : BehaviorSpec({
     val repositoryService = mockk<RepositoryService>()
     val runtimeService = mockk<RuntimeService>()
     val processEngine = mockk<ProcessEngine>()
+    val bpmnProcessDefinitionService = mockk<BpmnProcessDefinitionService>()
     val bpmnService = BpmnService(
         repositoryService,
         runtimeService,
-        processEngine
+        processEngine,
+        bpmnProcessDefinitionService
     )
 
     Given("A UUID for which a BPMN process instance exists") {
@@ -97,34 +98,17 @@ class BpmnServiceTest : BehaviorSpec({
                 .variable(VAR_ZAAK_IDENTIFICATIE, zaak.identificatie)
                 .variable(VAR_ZAAKTYPE_UUUID, zaakTypeUUID)
                 .variable(VAR_ZAAKTYPE_OMSCHRIJVING, zaakType.omschrijving)
-                .variables(zaakData)
         } returns processInstanceBuilder
+        every { processInstanceBuilder.variables(zaakData) } returns processInstanceBuilder
         every { processInstanceBuilder.start() } returns processInstance
 
         When("the zaak is started using a BPMN process definition") {
-            bpmnService.startProcess(zaak, zaakType, zaakData)
+            bpmnService.startProcess(zaak, zaakType, referentieProcesName, zaakData)
 
             Then("a Flowable BPMN process instance should be started") {
                 verify(exactly = 1) {
                     processInstanceBuilder.start()
                 }
-            }
-        }
-    }
-
-    Given("A zaak and zaakdata and a zaaktype without a 'referentieproces'") {
-        val zaakTypeUUID = UUID.randomUUID()
-        val zaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$zaakTypeUUID"))
-        val zaak = createZaak(zaakTypeURI = zaakType.url)
-        val zaakData = mapOf<String, Any>("dummyKey" to "dummyValue")
-
-        When("the zaak is started using a BPMN process definition") {
-            val exception = shouldThrow<IllegalArgumentException> {
-                bpmnService.startProcess(zaak, zaakType, zaakData)
-            }
-
-            Then("an exception should be thrown") {
-                exception.message shouldBe "No referentieproces found for zaaktype with UUID: '$zaakTypeUUID'"
             }
         }
     }

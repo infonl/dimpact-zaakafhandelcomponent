@@ -274,8 +274,14 @@ class ZaakRestServiceTest : BehaviorSpec({
                 explanation = "Toegekend door de medewerker tijdens het behandelen van de zaak"
             )
         } just runs
+        every { bpmnService.findProcessDefinitionForZaaktype(zaakTypeUUID) } returns null
 
-        When("createZaak is called for a zaaktype for which the logged in user has permissions") {
+        When(
+            """
+                createZaak is called for a zaaktype for which the logged in user has permissions and for which
+                no BPMN process definition is found
+            """
+        ) {
             every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
             every {
                 policyService.readZaakRechten(zaak)
