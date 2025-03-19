@@ -39,9 +39,7 @@ class RestTaskConverter @Inject constructor(
     private val formulierDefinitieService: FormulierDefinitieService,
     private val formioService: FormioService,
 ) {
-    fun convert(tasks: List<TaskInfo>) = tasks
-        .map { convert(it) }
-        .toList()
+    fun convert(tasks: List<TaskInfo>) = tasks.map(::convert)
 
     @Suppress("LongMethod", "ComplexMethod")
     fun convert(taskInfo: TaskInfo): RestTask {

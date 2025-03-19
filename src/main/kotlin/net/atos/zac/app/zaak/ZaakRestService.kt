@@ -249,7 +249,8 @@ class ZaakRestService @Inject constructor(
     @Path("zaak")
     fun createZaak(@Valid restZaakAanmaakGegevens: RESTZaakAanmaakGegevens): RestZaak {
         val restZaak = restZaakAanmaakGegevens.zaak
-        val zaaktype = ztcClientService.readZaaktype(restZaak.zaaktype.uuid)
+        val zaaktypeUUID = restZaak.zaaktype.uuid
+        val zaaktype = ztcClientService.readZaaktype(zaaktypeUUID)
         // make sure to use the omschrijving of the zaaktype that was retrieved to perform
         // authorisation on zaaktype
         assertPolicy(
@@ -278,23 +279,20 @@ class ZaakRestService @Inject constructor(
                 AANMAKEN_ZAAK_REDEN
             )
         }
-        // if BPMN support is enabled and if a referentieproces is defined for the zaaktype, start a BPMN process
-        // note that we misuse the referentieproces-name field to indicate that we use BPMN for a certain zaaktype
-        // however this needs to be changed because this field is actually filled for all our 'CMMN' zaaktypes currently..
-        if (configuratieService.featureFlagBpmnSupport() && zaaktype.referentieproces?.naam?.isNotEmpty() == true) {
+        // if BPMN support is enabled and a BPMN process definition is defined for the zaaktype, start a BPMN process;
+        // otherwise start a CMMN case
+        val processDefinition = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
+        if (configuratieService.featureFlagBpmnSupport() && processDefinition != null) {
             bpmnService.startProcess(
-                zaak,
-                zaaktype,
-                null
+                zaak = zaak,
+                zaaktype = zaaktype,
+                processDefinitionKey = processDefinition.bpmn_process_definition_key
             )
         } else {
             cmmnService.startCase(
-                zaak,
-                zaaktype,
-                zaakafhandelParameterService.readZaakafhandelParameters(
-                    zaaktype.url.extractUuid()
-                ),
-                null
+                zaak = zaak,
+                zaaktype = zaaktype,
+                zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaaktype.url.extractUuid())
             )
         }
         restZaakAanmaakGegevens.inboxProductaanvraag?.let { koppelInboxProductaanvraag(zaak, it) }
@@ -510,6 +508,7 @@ class ZaakRestService @Inject constructor(
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
             .filter {
+                // TODO: no longer use referentieproces name here
                 (configuratieService.featureFlagBpmnSupport() && it.referentieproces?.naam?.isNotEmpty() == true) ||
                     healthCheckService.controleerZaaktype(it.url).isValide
             }

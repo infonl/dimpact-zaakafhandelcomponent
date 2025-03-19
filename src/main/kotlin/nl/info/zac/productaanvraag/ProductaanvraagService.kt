@@ -531,14 +531,17 @@ class ProductaanvraagService @Inject constructor(
             verantwoordelijkeOrganisatie = configuratieService.readBronOrganisatie()
             startdatum = LocalDate.now()
         }.let(zgwApiService::createZaak)
-        bpmnService.readProcessDefinitionByprocessDefinitionKey(zaaktype.referentieproces.naam).let {
+        // TODO: referentieproces niet meer gebruiken; ook error handling indien niet gevonden
+        val processDefinitionKey = zaaktype.referentieproces.naam
+        bpmnService.readProcessDefinitionByprocessDefinitionKey(processDefinitionKey).let {
             zrcClientService.createRol(creeerRolGroep(it.description, createdZaak))
         }
         pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, createdZaak)
         bpmnService.startProcess(
-            createdZaak,
-            zaaktype,
-            getAanvraaggegevens(productaanvraagObject)
+            zaak = createdZaak,
+            zaaktype = zaaktype,
+            processDefinitionKey = processDefinitionKey,
+            zaakData = getAanvraaggegevens(productaanvraagObject)
         )
     }
 

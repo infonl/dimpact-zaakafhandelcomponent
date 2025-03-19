@@ -30,7 +30,8 @@ import java.util.logging.Logger
 class BpmnService @Inject constructor(
     private val repositoryService: RepositoryService,
     private val runtimeService: RuntimeService,
-    private val processEngine: ProcessEngine
+    private val processEngine: ProcessEngine,
+    private val bpmnProcessDefinitionService: BpmnProcessDefinitionService
 ) {
     companion object {
         private val LOG = Logger.getLogger(BpmnService::class.java.getName())
@@ -77,20 +78,20 @@ class BpmnService @Inject constructor(
     fun startProcess(
         zaak: Zaak,
         zaaktype: ZaakType,
-        zaakData: Map<String, Any>? = mapOf()
+        processDefinitionKey: String,
+        zaakData: Map<String, Any>? = null
     ) {
-        val processDefinitionKey = zaaktype.referentieproces?.naam
-            ?: throw IllegalArgumentException("No referentieproces found for zaaktype with UUID: '${zaaktype.url.extractUuid()}'")
+        val zaaktypeUUID = zaaktype.url.extractUuid()
         LOG.info("Starting zaak '${zaak.uuid}' using BPMN model '$processDefinitionKey'")
-        runtimeService.createProcessInstanceBuilder()
+        val processInstanceBuilder = runtimeService.createProcessInstanceBuilder()
             .processDefinitionKey(processDefinitionKey)
             .businessKey(zaak.uuid.toString())
             .variable(ZaakVariabelenService.VAR_ZAAK_UUID, zaak.uuid)
             .variable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE, zaak.identificatie)
-            .variable(ZaakVariabelenService.VAR_ZAAKTYPE_UUUID, zaaktype.url.extractUuid())
+            .variable(ZaakVariabelenService.VAR_ZAAKTYPE_UUUID, zaaktypeUUID)
             .variable(ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING, zaaktype.omschrijving)
-            .variables(zaakData)
-            .start()
+        zaakData?.let(processInstanceBuilder::variables)
+        processInstanceBuilder.start()
     }
 
     fun listProcessDefinitions(): List<ProcessDefinition> =
@@ -111,6 +112,9 @@ class BpmnService @Inject constructor(
             .processDefinitionKey(processDefinitionKey)
             .list()
             .forEach { repositoryService.deleteDeployment(it.id, true) }
+
+    fun findProcessDefinitionForZaaktype(zaaktypeUUID: UUID) =
+        bpmnProcessDefinitionService.findZaaktypeProcessDefinition(zaaktypeUUID)
 
     /**
      * Returns a process instance for the given zaak UUID or null if no process instance is found.
