@@ -510,9 +510,12 @@ class ZaakRestService @Inject constructor(
             .filter { !it.concept }
             .filter { it.isNuGeldig() }
             .filter {
-                // TODO: no longer use referentieproces name here
-                (configuratieService.featureFlagBpmnSupport() && it.referentieproces?.naam?.isNotEmpty() == true) ||
-                    healthCheckService.controleerZaaktype(it.url).isValide
+                // return zaaktypes for which a BPMN process definition key
+                // or a valid (CMMN) zaakafhandelparameters has been configured
+                (
+                    configuratieService.featureFlagBpmnSupport() &&
+                        bpmnService.findProcessDefinitionForZaaktype(it.url.extractUuid()) != null
+                    ) || healthCheckService.controleerZaaktype(it.url).isValide
             }
             .map(restZaaktypeConverter::convert)
 
