@@ -7,7 +7,7 @@
 <mat-form-field [formGroup]="form" class="full-width" appearance="fill">
   <mat-label>
     <ng-content select="mat-label">
-        {{ key | translate | capitalizeFirstLetter }}
+      {{ key | translate | capitalizeFirstLetter }}
     </ng-content>
   </mat-label>
   <input
@@ -16,15 +16,29 @@
     [matAutocomplete]="auto"
     [formControlName]="key"
   />
-  <button *ngIf="!control?.value" mat-icon-button matSuffix>
+  <button
+    *ngIf="!control?.value"
+    mat-icon-button
+    matSuffix
+    [disabled]="control?.disabled"
+  >
     <mat-icon>search</mat-icon>
   </button>
-  <button *ngIf="control?.value" mat-icon-button matSuffix (click)="reset()">
+  <button
+    *ngIf="control?.value"
+    mat-icon-button
+    matSuffix
+    (click)="reset()"
+    [disabled]="control?.disabled"
+  >
     <mat-icon>clear</mat-icon>
   </button>
-  <mat-autocomplete #auto="matAutocomplete" [displayWith]="getOptionLabel">
+  <mat-autocomplete
+    #auto="matAutocomplete"
+    [displayWith]="getOptionDisplayValue"
+  >
     <mat-option *ngFor="let option of filteredOptions" [value]="option">
-      {{ getOptionLabel(option) | translate }}
+      {{ getOptionDisplayValue(option) | translate }}
     </mat-option>
   </mat-autocomplete>
   <mat-error>{{ getErrorMessage() | translate }}</mat-error>

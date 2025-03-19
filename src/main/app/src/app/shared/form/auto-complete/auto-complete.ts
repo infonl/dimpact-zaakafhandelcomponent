@@ -4,9 +4,14 @@
  *
  */
 
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from "@angular/core";
+import {
+  Component,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+} from "@angular/core";
 import { AbstractControl, FormGroup } from "@angular/forms";
-import { isObservable, Observable } from "rxjs";
 import { getErrorMessage } from "../helpers";
 
 @Component({
@@ -14,37 +19,40 @@ import { getErrorMessage } from "../helpers";
   templateUrl: "./auto-complete.html",
 })
 export class ZacAutoComplete<
-  Form extends Record<string, AbstractControl>,
-  Key extends keyof Form,
-  Option extends Form[Key]["value"],
-  OptionLabel extends keyof Option | ((option: Option) => string),
-> implements OnInit, OnChanges
+    Form extends Record<string, AbstractControl>,
+    Key extends keyof Form,
+    Option extends Form[Key]["value"],
+    OptionDisplayValue extends keyof Option | ((option: Option) => string),
+  >
+  implements OnInit, OnChanges
 {
   @Input({ required: true }) key!: Key;
   @Input({ required: true }) form!: FormGroup<Form>;
   @Input({ required: true }) options!: Array<Option>;
-  @Input() optionLabel?: OptionLabel;
+  @Input() optionDisplayValue?: OptionDisplayValue;
 
   protected control?: AbstractControl;
 
-  private toFilterOptions: unknown[] = [];
-  protected filteredOptions: unknown[] = [];
+  private toFilterOptions: Option[] = [];
+  protected filteredOptions: Option[] = [];
 
   ngOnInit() {
     this.control = this.form.get(String(this.key))!;
 
-    this.setOptions(this.options)
+    this.setOptions(this.options);
 
     this.control.valueChanges.subscribe((value) => {
       this.filteredOptions = this.toFilterOptions.filter((option) => {
-        return this.getOptionLabel(option as Option)?.includes(value) ?? true;
+        return (
+          this.getOptionDisplayValue(option as Option)?.includes(value) ?? true
+        );
       });
     });
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if('options' in changes) {
-        this.setOptions(changes['options'].currentValue)
+    if ("options" in changes) {
+      this.setOptions(changes["options"].currentValue);
     }
   }
 
@@ -56,20 +64,19 @@ export class ZacAutoComplete<
 
   // Needs to be an arrow function in order to de-link the reference to `this`
   // when used in the template `[displayWith]="displayWith"`
-  getOptionLabel = (option?: Option) => {
+  protected getOptionDisplayValue = (option?: Option) => {
     if (!option) {
       return null;
     }
 
-    if(!this.optionLabel) {
-      return String(option);
+    switch (typeof this.optionDisplayValue) {
+      case "undefined":
+        return String(option);
+      case "function":
+        return this.optionDisplayValue(option);
+      default:
+        return String(option[this.optionDisplayValue as keyof Option]);
     }
-
-    if (typeof this.optionLabel === "function") {
-      return this.optionLabel(option);
-    }
-
-    return String(option[this.optionLabel as keyof Option]);
   };
 
   protected getErrorMessage = () => getErrorMessage(this.control);
