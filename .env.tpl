@@ -21,7 +21,6 @@ BAG_API_CLIENT_MP_REST_URL=op://Dimpact/ZAC-.env-$APP_ENV/BAG/API_CLIENT_MP_REST
 BAG_API_KEY=op://Dimpact/ZAC-.env-$APP_ENV/BAG/API_KEY
 BRON_ORGANISATIE_RSIN=123443210
 BRP_API_CLIENT_MP_REST_URL=http://localhost:5010/haalcentraal/api/brp
-BRP_API_KEY=dummyKey
 CONTEXT_URL=http://localhost:8080
 DB_HOST=localhost:54320
 DB_NAME=zac
