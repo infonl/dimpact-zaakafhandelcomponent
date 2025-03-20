@@ -24,7 +24,7 @@ class ConfiguratieServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val catalogus = mockk<Catalogus>()
 
-    val additionalAllowedFileTypes = Optional.empty<String>()
+    val additionalAllowedFileTypes = Optional.of("dummyFileType1,dummyFileType2")
     val zgwApiClientMpRestUrl = "https://example.com:1111"
     val contextUrl = "https://example.com:2222"
     val gemeenteCode = "gemeenteCode"
@@ -84,6 +84,14 @@ class ConfiguratieServiceTest : BehaviorSpec({
                 informatieobjectTonenUrl.toString() shouldBe "$contextUrl/informatie-objecten/$uuid"
             }
         }
+
+        When("additional allowed file types are requested") {
+            val fileTypes = configurationService.readAdditionalAllowedFileTypes()
+
+            Then("Correct list is returned") {
+                fileTypes shouldBe listOf("dummyFileType1", "dummyFileType2")
+            }
+        }
     }
 
     Given("An invalid bron organisatie BSN") {
@@ -110,6 +118,39 @@ class ConfiguratieServiceTest : BehaviorSpec({
                         catalogusDomein
                     )
                 }
+            }
+        }
+    }
+
+    Given("An empty additional file list") {
+        val catalogusUri = "https://example.com/catalogus"
+        every { catalogus.url } returns URI(catalogusUri)
+        every { ztcClientService.readCatalogus(any<CatalogusListParameters>()) } returns catalogus
+
+        val bronOrganisatie = "123443210"
+        val verantwoordelijkeOrganisatie = "316245124"
+        val catalogusDomein = "ALG"
+
+        val configurationService = ConfiguratieService(
+            entityManager,
+            ztcClientService,
+            Optional.empty(),
+            zgwApiClientMpRestUrl,
+            contextUrl,
+            gemeenteCode,
+            gemeenteNaam,
+            gemeenteMail,
+            bpmnSupport,
+            bronOrganisatie,
+            verantwoordelijkeOrganisatie,
+            catalogusDomein
+        )
+
+        When("a list of additional allowed file types are requested") {
+            val fileTypes = configurationService.readAdditionalAllowedFileTypes()
+
+            Then("an empty list is returned") {
+                fileTypes.size shouldBe 0
             }
         }
     }
