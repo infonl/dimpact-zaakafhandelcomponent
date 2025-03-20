@@ -46,8 +46,9 @@ export class InformatieObjectEditComponent
   implements OnInit, OnDestroy, OnChanges
 {
   @Input()
-  infoObject!: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
-  @Input() sideNav!: MatDrawer;
+  @Input({ required: true }) infoObject!: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
+  @Input({ required: true }) sideNav!: MatDrawer;
+
   @Input() zaakUuid?: string;
   @Output() document = new EventEmitter<
     GeneratedType<"RestEnkelvoudigInformatieobject">
@@ -203,7 +204,7 @@ export class InformatieObjectEditComponent
     const toelichting = new InputFormFieldBuilder()
       .id("toelichting")
       .label("toelichting")
-      .maxlength(200)
+      .maxlength(1000)
       .build();
 
     this.subscriptions$.push(
@@ -313,7 +314,7 @@ export class InformatieObjectEditComponent
 
     this.informatieObjectenService
       .updateEnkelvoudigInformatieobject(
-        nieuweVersie.uuid!,
+        nieuweVersie.uuid as string,
         this.zaakUuid!,
         nieuweVersie as GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">,
       )
