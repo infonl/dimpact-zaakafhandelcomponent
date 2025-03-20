@@ -45,11 +45,10 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
 export class InformatieObjectEditComponent
   implements OnInit, OnDestroy, OnChanges
 {
-  @Input()
   @Input({ required: true }) infoObject!: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
   @Input({ required: true }) sideNav!: MatDrawer;
+  @Input({ required: true }) zaakUuid!: string;
 
-  @Input() zaakUuid?: string;
   @Output() document = new EventEmitter<
     GeneratedType<"RestEnkelvoudigInformatieobject">
   >();
@@ -188,7 +187,7 @@ export class InformatieObjectEditComponent
     const vertrouwelijk = new SelectFormFieldBuilder({
       label: this.translateService.instant(
         this.vertrouwelijkaanduidingToTranslationKeyPipe.transform(
-          this.infoObject.vertrouwelijkheidaanduiding ?? "",
+          this.infoObject.vertrouwelijkheidaanduiding,
         ),
       ),
       value: this.infoObject.vertrouwelijkheidaanduiding,
@@ -314,7 +313,7 @@ export class InformatieObjectEditComponent
 
     this.informatieObjectenService
       .updateEnkelvoudigInformatieobject(
-        nieuweVersie.uuid as string,
+        nieuweVersie.uuid,
         this.zaakUuid!,
         nieuweVersie as GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">,
       )
