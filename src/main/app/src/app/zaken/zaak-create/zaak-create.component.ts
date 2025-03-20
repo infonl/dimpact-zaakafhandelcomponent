@@ -49,7 +49,6 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaak-create.component.html",
 })
 export class ZaakCreateComponent implements OnDestroy {
-  static KANAAL_E_FORMULIER = "E-formulier";
   createZaakFields: Array<AbstractFormField[]>;
   bagObjecten: BAGObject[] = [];
   formConfig: FormConfig;
@@ -153,10 +152,7 @@ export class ZaakCreateComponent implements OnDestroy {
       .label("initiator")
       .build();
 
-    // if the list of communicatiekanalen includes E-formulier, it should be set as default
-    this.communicatiekanaalField = new SelectFormFieldBuilder(
-      ZaakCreateComponent.KANAAL_E_FORMULIER,
-    )
+    this.communicatiekanaalField = new SelectFormFieldBuilder()
       .id("communicatiekanaal")
       .label("communicatiekanaal")
       .options(this.communicatiekanalen)
