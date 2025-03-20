@@ -48,13 +48,13 @@
       </ng-container>
       <ng-container matColumnDef="status">
         <th *matHeaderCellDef mat-header-cell mat-sort-header>
-          {{ "omschrijving" | translate }}
+          {{ "status" | translate }}
         </th>
         <td *matCellDef="let zaak" mat-cell>{{ zaak.status | empty }}</td>
       </ng-container>
       <ng-container matColumnDef="registratiedatum">
         <th *matHeaderCellDef mat-header-cell mat-sort-header>
-          {{ "status" | translate }}
+          {{ "registratiedatum" | translate }}
         </th>
         <td *matCellDef="let zaak" mat-cell>
           {{ zaak.registratiedatum | datum | empty }}
