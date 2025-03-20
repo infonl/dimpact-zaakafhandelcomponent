@@ -788,6 +788,7 @@
   "msg.error.besluit.response.date.invalid": "Response date for decision should not be before publication date.",
   "msg.error.case.has.open.subcases": "This case has open subcases and cannot be closed.",
   "msg.error.case.has.locked.information.objects": "This case has locked documents and cannot be closed.",
+  "msg.error.case.has.no.communication.channel": "The case has no communication channel.",
   "msg.email.verstuurd": "E-mail has been sent",
   "msg.extern.advies.vastleggen.behandelen": "An external advice has been requested. The answer can be recorded below.",
   "msg.formioformulier.verwijderen.bevestigen": "Delete form '{{naam}}'?",

@@ -51,6 +51,7 @@ import net.atos.zac.app.zaak.converter.RestDecisionConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
+import net.atos.zac.app.zaak.exception.CommunicationChannelNotFound
 import net.atos.zac.app.zaak.model.RESTDocumentOntkoppelGegevens
 import net.atos.zac.app.zaak.model.RESTReden
 import net.atos.zac.app.zaak.model.RESTZaakAanmaakGegevens
@@ -250,12 +251,12 @@ class ZaakRestService @Inject constructor(
     fun createZaak(@Valid restZaakAanmaakGegevens: RESTZaakAanmaakGegevens): RestZaak {
         val restZaak = restZaakAanmaakGegevens.zaak
         val zaaktype = ztcClientService.readZaaktype(restZaak.zaaktype.uuid)
-        // make sure to use the omschrijving of the zaaktype that was retrieved to perform
-        // authorisation on zaaktype
+        // make sure to use the omschrijving of the zaaktype that was retrieved to perform authorisation on zaaktype
         assertPolicy(
             policyService.readOverigeRechten().startenZaak &&
                 loggedInUserInstance.get().isAuthorisedForZaaktype(zaaktype.omschrijving)
         )
+        restZaak.communicatiekanaal?.isNotBlank() == true || throw CommunicationChannelNotFound()
         val zaak = restZaakConverter.toZaak(restZaak, zaaktype).let(zgwApiService::createZaak)
         restZaak.initiatorIdentificatie?.takeIf { it.isNotEmpty() }?.let {
             addInitiator(
