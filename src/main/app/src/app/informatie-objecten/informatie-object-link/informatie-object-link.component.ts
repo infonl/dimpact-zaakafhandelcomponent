@@ -4,13 +4,13 @@
  */
 
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
-import { FormBuilder, FormGroup } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { AbstractFormControlField } from "src/app/shared/material-form-builder/model/abstract-form-control-field";
 import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
-import { Validators } from "ngx-editor";
+import { MatTableDataSource } from "@angular/material/table";
+import { Subject, takeUntil } from "rxjs";
 
 @Component({
   selector: "zac-informatie-object-link",
@@ -26,6 +26,16 @@ export class InformatieObjectLinkComponent implements OnInit, OnDestroy {
   issValid: boolean = false;
   loading: boolean = false;
 
+  cases = new MatTableDataSource<GeneratedType<"RestZaak">>();
+  caseColumns: string[] = [
+    "identificatie",
+    "zaaktypeOmschrijving",
+    "status",
+    "registratiedatum",
+  ];
+
+  private ngDestroy = new Subject<void>();
+
   constructor(private informatieObjectenService: InformatieObjectenService) {}
 
   ngOnInit() {
@@ -34,22 +44,27 @@ export class InformatieObjectLinkComponent implements OnInit, OnDestroy {
       .label("Zaaknummer")
       .build();
 
-    this.caseSearchField.formControl.valueChanges.subscribe((value) => {
-      console.log("valueChanges", value);
-      this.issValid = value?.length > 2;
-    });
+    this.caseSearchField.formControl.valueChanges
+      .pipe(takeUntil(this.ngDestroy))
+      .subscribe((value) => {
+        console.log("valueChanges", value);
+        this.issValid = value?.length > 2;
+      });
   }
 
-  zoekZaken(): void {
-    console.log("zoekZaken");
+  searchCases(): void {
+    console.log("searchCases");
   }
 
   wissen(): void {
-    console.log("wissen");
     this.caseSearchField?.formControl.reset();
+    this.cases.data = [];
   }
 
-  ngOnDestroy() {}
+  private destroy$ = new Subject<void>();
 
-  onFormSubmit(formGroup: FormGroup): void {}
+  ngOnDestroy() {
+    this.ngDestroy.next();
+    this.ngDestroy.complete();
+  }
 }

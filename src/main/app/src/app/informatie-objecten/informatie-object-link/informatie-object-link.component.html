@@ -20,7 +20,7 @@
     mat-flat-button
     color="primary"
     [disabled]="!issValid"
-    (click)="zoekZaken()"
+    (click)="searchCases()"
   >
     {{ "actie.zoeken" | translate }}
   </button>
@@ -28,5 +28,46 @@
     {{ "actie.wissen" | translate }}
   </button>
 
-  <div class="table-wrapper"></div>
+  <div class="table-wrapper">
+    <table mat-table [dataSource]="cases" matSort>
+      <ng-container matColumnDef="identificatie">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header>
+          {{ "identificatie" | translate }}
+        </th>
+        <td *matCellDef="let zaak" mat-cell>
+          {{ zaak.identificatie | empty }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="zaaktypeOmschrijving">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header>
+          {{ "zaaktypeOmschrijving" | translate }}
+        </th>
+        <td *matCellDef="let zaak" mat-cell>
+          {{ zaak.zaaktypeOmschrijving | empty }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header>
+          {{ "omschrijving" | translate }}
+        </th>
+        <td *matCellDef="let zaak" mat-cell>{{ zaak.status | empty }}</td>
+      </ng-container>
+      <ng-container matColumnDef="registratiedatum">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header>
+          {{ "status" | translate }}
+        </th>
+        <td *matCellDef="let zaak" mat-cell>
+          {{ zaak.registratiedatum | datum | empty }}
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="caseColumns; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: caseColumns"></tr>
+    </table>
+    <p *ngIf="cases.data.length == 0 && !loading">
+      {{
+        foutmelding ? foutmelding : ("msg.geen.gegevens.gevonden" | translate)
+      }}
+    </p>
+    <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
+  </div>
 </div>
