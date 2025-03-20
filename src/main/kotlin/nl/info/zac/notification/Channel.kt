@@ -21,7 +21,8 @@ enum class Channel(private val code: String, val resourceType: Resource) {
     INFORMATIEOBJECTTYPEN("informatieobjecttypen", Resource.INFORMATIEOBJECTTYPE),
     OBJECTEN("objecten", Resource.OBJECT),
     ZAKEN("zaken", Resource.ZAAK),
-    ZAAKTYPEN("zaaktypen", Resource.ZAAKTYPE);
+    ZAAKTYPEN("zaaktypen", Resource.ZAAKTYPE),
+    CALLBACK_URL_TEST("test", Resource.CALLBACK_URL_TEST);
 
     companion object {
         private val LOG = Logger.getLogger(Channel::class.java.getName())
