@@ -23,6 +23,7 @@
   <button
     matSuffix
     mat-icon-button
+    type="button"
     *ngIf="!readonly && !disabled && control?.value?.length"
     (click)="control?.reset(undefined)"
   >

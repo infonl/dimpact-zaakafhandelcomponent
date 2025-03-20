@@ -4,12 +4,7 @@
  */
 
 import { Component, ViewChild } from "@angular/core";
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators,
-} from "@angular/forms";
+import { FormBuilder, FormControl, Validators } from "@angular/forms";
 import { MatSidenav } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -27,8 +22,6 @@ import { Bedrijf } from "../../klanten/model/bedrijven/bedrijf";
 import { Klant } from "../../klanten/model/klanten/klant";
 import { InboxProductaanvraag } from "../../productaanvragen/model/inbox-productaanvraag";
 import { NavigationService } from "../../shared/navigation/navigation.service";
-import { Zaak } from "../model/zaak";
-import { ZaakAanmaakGegevens } from "../model/zaak-aanmaak-gegevens";
 import { Zaaktype } from "../model/zaaktype";
 import { ZakenService } from "../zaken.service";
 
@@ -39,7 +32,7 @@ import { ZakenService } from "../zaken.service";
 export class ZaakCreateComponent {
   static KANAAL_E_FORMULIER = "E-formulier";
 
-  @ViewChild('mat-sidenav') protected readonly actionsSidenav!: MatSidenav;
+  @ViewChild("actionsSidenav") protected readonly actionsSidenav!: MatSidenav;
 
   protected activeSideAction: string | null = null;
 
@@ -49,183 +42,148 @@ export class ZaakCreateComponent {
   protected bagObjects: BAGObject[] = [];
   protected groups: GeneratedType<"RestGroup">[] = [];
   protected users: GeneratedType<"RestUser">[] = [];
-  protected zaaktypes: Zaaktype[] = [];
+  protected caseTypes: Zaaktype[] = [];
   protected communicationChannels: string[] = [];
   protected confidentialityNotices = this.utilService.getEnumAsSelectList(
     "vertrouwelijkheidaanduiding",
     Vertrouwelijkheidaanduiding,
   );
 
-  private readonly bagObjectenFormControl = new FormControl<string | null>(
-    null,
-  );
-  private readonly initiatorFormControl = new FormControl<
-    string | null | undefined
-  >(null);
-  private readonly commentFormControl = new FormControl<string | null>(null);
-  private readonly userFormControl = new FormControl<
-    GeneratedType<"RestUser"> | null | undefined
-  >(null);
-  private readonly confidentialityNoticeFormControl = new FormControl<
-    (typeof this.confidentialityNotices)[number] | null | undefined
-  >(null, [Validators.required]);
-  private readonly groupFormControl = new FormControl<
-    GeneratedType<"RestGroup"> | null | undefined
-  >(null, [Validators.required]);
-
-  protected form: FormGroup<{
-    zaaktype: FormControl<Zaaktype | null>;
-    startdatum: FormControl<moment.Moment | null>;
-    group: typeof ZaakCreateComponent.prototype.groupFormControl;
-    initiator: typeof ZaakCreateComponent.prototype.initiatorFormControl;
-    communicatiekanaal: FormControl<string | null>;
-    vertrouwelijkheidaanduiding: typeof ZaakCreateComponent.prototype.confidentialityNoticeFormControl;
-    description: FormControl<string | null>;
-    bagObjecten: typeof ZaakCreateComponent.prototype.bagObjectenFormControl;
-    toelichting: typeof ZaakCreateComponent.prototype.commentFormControl;
-    user: typeof ZaakCreateComponent.prototype.userFormControl;
-  }>;
+  protected readonly form = this.formBuilder.group({
+    zaaktype: new FormControl<Zaaktype | null>(null, [Validators.required]),
+    startdatum: new FormControl<moment.Moment | null>(null, [
+      Validators.required,
+    ]),
+    groep: new FormControl<GeneratedType<"RestGroup"> | null | undefined>(
+      null,
+      [Validators.required],
+    ),
+    behandelaar: new FormControl<GeneratedType<"RestUser"> | null | undefined>(
+      null,
+    ),
+    initiator: new FormControl<string | null | undefined>(null),
+    communicatiekanaal: new FormControl<string | null>(null, [
+      Validators.required,
+    ]),
+    vertrouwelijkheidaanduiding: new FormControl<
+      (typeof this.confidentialityNotices)[number] | null | undefined
+    >(null, [Validators.required]),
+    omschrijving: new FormControl<string | null>(null, [
+      Validators.required,
+      Validators.maxLength(80),
+    ]),
+    bagObjecten: new FormControl<string | null>(null),
+    toelichting: new FormControl<string | null>(null),
+  });
 
   constructor(
     private readonly zakenService: ZakenService,
     private readonly router: Router,
-    private readonly navigation: NavigationService,
     private readonly klantenService: KlantenService,
     referentieTabelService: ReferentieTabelService,
     private readonly translateService: TranslateService,
     private readonly utilService: UtilService,
-    formBuilder: FormBuilder,
+    private readonly formBuilder: FormBuilder,
     identityService: IdentityService,
+    protected readonly navigationService: NavigationService,
   ) {
     this.inboxProductaanvraag =
       router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
 
-    zakenService.listZaaktypes().subscribe((zaaktypes) => {
-      this.zaaktypes = zaaktypes;
+    zakenService.listZaaktypes().subscribe((caseTypes) => {
+      this.caseTypes = caseTypes;
     });
     identityService.listGroups().subscribe((groups) => {
       this.groups = groups ?? [];
     });
     referentieTabelService
-      .listCommunicatiekanalen(this.inboxProductaanvraag != null)
-      .subscribe((channels) => {
-        // TODO if the list of communicatiekanalen includes E-formulier, it should be set as default
-        this.communicationChannels = channels;
+      .listCommunicatiekanalen(Boolean(this.inboxProductaanvraag))
+      .subscribe((communicationChannels) => {
+        this.communicationChannels = communicationChannels;
+
+        if (
+          communicationChannels.includes(ZaakCreateComponent.KANAAL_E_FORMULIER)
+        ) {
+          this.form.controls.communicatiekanaal.setValue(
+            ZaakCreateComponent.KANAAL_E_FORMULIER,
+          );
+        }
       });
 
-    this.groupFormControl.valueChanges.subscribe((value) => {
+    this.form.controls.zaaktype.valueChanges.subscribe((caseType) =>
+      this.caseTypeSelected(caseType),
+    );
+
+    this.form.controls.groep.valueChanges.subscribe((value) => {
       if (!value) {
-        this.userFormControl.setValue(null);
-        this.userFormControl.disable();
+        this.form.controls.behandelaar.setValue(null);
+        this.form.controls.behandelaar.disable();
         return;
       }
       identityService.listUsersInGroup(value.id).subscribe((users) => {
-        console.log({ users });
         this.users = users ?? [];
-        this.userFormControl.enable();
+        this.form.controls.behandelaar.enable();
+        this.form.controls.behandelaar.setValue(
+          this.users.find(
+            ({ id }) =>
+              id ===
+              this.form.controls.zaaktype.value?.zaakafhandelparameters
+                .defaultBehandelaarId,
+          ),
+        );
       });
     });
 
-    const caseTypeFormControl = new FormControl<Zaaktype | null>(null, [
-      Validators.required,
-    ]);
-    caseTypeFormControl.valueChanges.subscribe(
-      this.zaaktypeGeselecteerd.bind(this),
-    );
+    this.form.controls.behandelaar.disable();
 
-    this.userFormControl.disable();
-
-    this.bagObjectenFormControl.valueChanges.subscribe((value) => {
+    this.form.controls.bagObjecten.valueChanges.subscribe((value) => {
       if (value) return;
       this.bagObjects = [];
     });
 
-    this.initiatorFormControl.valueChanges.subscribe((value) => {
+    this.form.controls.initiator.valueChanges.subscribe((value) => {
       if (value) return;
       this.initiator = null;
     });
 
-    this.form = formBuilder.group({
-      zaaktype: caseTypeFormControl,
-      startdatum: new FormControl<moment.Moment | null>(null, [
-        Validators.required,
-      ]),
-      group: this.groupFormControl,
-      user: this.userFormControl,
-      initiator: this.initiatorFormControl,
-      communicatiekanaal: new FormControl<string | null>(null, [
-        Validators.required,
-      ]),
-      vertrouwelijkheidaanduiding: this.confidentialityNoticeFormControl,
-      description: new FormControl<string | null>(null, [
-        Validators.required,
-        Validators.maxLength(80),
-      ]),
-      bagObjecten: this.bagObjectenFormControl,
-      toelichting: this.commentFormControl,
-    });
-
     utilService.setTitle("title.zaak.aanmaken");
 
-    this.verwerkInboxProductaanvraagGegevens(this.inboxProductaanvraag);
+    this.handleProductRequest(this.inboxProductaanvraag);
   }
 
-  formSubmit(form: FormGroup): void {
-    const zaak = new Zaak();
-    Object.keys(form.controls).forEach((key) => {
-      switch (key) {
-        case "vertrouwelijkheidaanduiding":
-          zaak[key] = form.controls[key].value?.value;
-          break;
-        case "initiatorIdentificatie":
-          if (this.initiator != null) {
-            zaak["initiatorIdentificatieType"] =
-              this.initiator.identificatieType;
-            zaak[key] = this.initiator.identificatie;
-          }
-          break;
-        case "bagObjecten":
-          // skip
-          break;
-        case "toekenning":
-          if (this.userFormControl.value) {
-            zaak.behandelaar = this.userFormControl.value;
-          }
-          if (this.groupFormControl.value) {
-            zaak.groep = this.groupFormControl.value;
-          }
-          break;
-        default:
-          zaak[key] = form.controls[key].value;
-          break;
-      }
-    });
+  formSubmit(form: typeof this.form): void {
+    const { bagObjecten, initiator, vertrouwelijkheidaanduiding, ...zaak } =
+      form.value;
+
     this.zakenService
-      .createZaak(
-        new ZaakAanmaakGegevens(
-          zaak,
-          this.inboxProductaanvraag,
-          this.bagObjects,
-        ),
-      )
+      .createZaak({
+        zaak: {
+          ...zaak,
+          initiatorIdentificatie: this.initiator?.identificatie,
+          initiatorIdentificatieType: this.initiator?.identificatieType,
+          vertrouwelijkheidaanduiding: vertrouwelijkheidaanduiding?.value,
+        } as any as GeneratedType<"RESTZaakAanmaakGegevens">["zaak"],
+        bagObjecten: this.bagObjects,
+        inboxProductaanvraag: this.inboxProductaanvraag,
+      })
       .pipe(
         catchError(() => {
           this.form.reset();
           return of();
         }),
       )
-      .subscribe(({ identificatie }) =>
-        this.router.navigate(["/zaken/", identificatie]),
+      .subscribe((zaak) =>
+        this.router.navigate(["/zaken/", zaak?.identificatie]),
       );
   }
 
   async initiatorSelected(user: Klant) {
     this.initiator = user;
-    this.initiatorFormControl.setValue(user?.naam);
+    this.form.controls.initiator.setValue(user?.naam);
     await this.actionsSidenav.close();
   }
 
-  zaaktypeGeselecteerd(caseType?: Zaaktype | null): void {
+  caseTypeSelected(caseType?: Zaaktype | null): void {
     if (!caseType) return;
 
     const {
@@ -233,14 +191,14 @@ export class ZaakCreateComponent {
       vertrouwelijkheidaanduiding,
     } = caseType;
 
-    this.groupFormControl.setValue(
+    this.form.controls.groep.setValue(
       this.groups.find(({ id }) => id === defaultGroepId),
     );
-    this.userFormControl.setValue(
+    this.form.controls.behandelaar.setValue(
       this.users.find(({ id }) => id === defaultBehandelaarId),
     );
 
-    this.confidentialityNoticeFormControl.setValue(
+    this.form.controls.vertrouwelijkheidaanduiding.setValue(
       this.confidentialityNotices.find(
         ({ value }) => value === vertrouwelijkheidaanduiding,
       ),
@@ -254,17 +212,15 @@ export class ZaakCreateComponent {
     };
   }
 
-  private verwerkInboxProductaanvraagGegevens(
-    productAanvraag?: InboxProductaanvraag,
-  ) {
+  private handleProductRequest(productAanvraag?: InboxProductaanvraag) {
     const bsnLength = 9;
     const vestigingsnummerLength = 12;
 
-    this.commentFormControl.setValue(
+    if (!productAanvraag?.initiatorID) return;
+
+    this.form.controls.toelichting.setValue(
       "Vanuit productaanvraag van type " + productAanvraag?.type,
     );
-
-    if (!productAanvraag?.initiatorID) return;
 
     let observable:
       | Observable<GeneratedType<"RestPersoon"> | Bedrijf>
@@ -285,7 +241,7 @@ export class ZaakCreateComponent {
 
     observable?.subscribe((result) => {
       this.initiator = result as Klant;
-      this.initiatorFormControl.setValue(result.naam);
+      this.form.controls.initiator.setValue(result.naam);
     });
   }
 
@@ -295,7 +251,7 @@ export class ZaakCreateComponent {
       .join(" | ");
 
     if (value.length <= 100) {
-      this.bagObjectenFormControl.setValue(value);
+      this.form.controls.bagObjecten.setValue(value);
       return;
     }
 
@@ -303,6 +259,8 @@ export class ZaakCreateComponent {
       .get("msg.aantal.bagObjecten.geselecteerd", {
         aantal: this.bagObjects.length,
       })
-      .subscribe(this.bagObjectenFormControl.setValue.bind(this));
+      .subscribe((translation) => {
+        this.form.controls.bagObjecten.setValue(translation);
+      });
   }
 }

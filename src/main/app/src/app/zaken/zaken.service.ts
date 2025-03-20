@@ -14,11 +14,11 @@ import { Klant } from "../klanten/model/klanten/klant";
 import { Roltype } from "../klanten/model/klanten/roltype";
 import { TableRequest } from "../shared/dynamic-table/datasource/table-request";
 import { HistorieRegel } from "../shared/historie/model/historie-regel";
+import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { ZaakZoekObject } from "../zoeken/model/zaken/zaak-zoek-object";
 import { Geometry } from "./model/geometry";
 import { Zaak } from "./model/zaak";
-import { ZaakAanmaakGegevens } from "./model/zaak-aanmaak-gegevens";
 import { ZaakAfbrekenGegevens } from "./model/zaak-afbreken-gegevens";
 import { ZaakAfsluitenGegevens } from "./model/zaak-afsluiten-gegevens";
 import { ZaakBetrokkene } from "./model/zaak-betrokkene";
@@ -36,6 +36,7 @@ export class ZakenService {
   constructor(
     private http: HttpClient,
     private foutAfhandelingService: FoutAfhandelingService,
+    private readonly zacHttpClient: ZacHttpClient,
   ) {}
 
   private basepath = "/rest/zaken";
@@ -60,9 +61,9 @@ export class ZakenService {
       );
   }
 
-  createZaak(zaakAanmaakgegevens: ZaakAanmaakGegevens): Observable<Zaak> {
-    return this.http
-      .post<Zaak>(`${this.basepath}/zaak`, zaakAanmaakgegevens)
+  createZaak(data: GeneratedType<"RESTZaakAanmaakGegevens">) {
+    return this.zacHttpClient
+      .POST("/rest/zaken/zaak", data)
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
