@@ -32,7 +32,7 @@ enum class Resource(private val code: String) {
     ZAAKEIGENSCHAP("zaakeigenschap"),
     ZAAKINFORMATIEOBJECT("zaakinformatieobject"),
     ZAAKTYPE("zaaktype"),
-    CALLBACK_URL_TEST("some_resource");
+    TEST("some_resource");
 
     companion object {
         private val LOG = Logger.getLogger(Resource::class.java.getName())

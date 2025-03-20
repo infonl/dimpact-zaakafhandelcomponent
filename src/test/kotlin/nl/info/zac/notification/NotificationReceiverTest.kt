@@ -310,8 +310,8 @@ class NotificationReceiverTest : BehaviorSpec({
 
     Given("A test callback url notification") {
         val notification = createNotificatie(
-            channel = Channel.CALLBACK_URL_TEST,
-            resource = Resource.CALLBACK_URL_TEST
+            channel = Channel.TEST,
+            resource = Resource.TEST
         )
 
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
