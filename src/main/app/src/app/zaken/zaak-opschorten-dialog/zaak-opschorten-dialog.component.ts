@@ -70,6 +70,7 @@ export class ZaakOpschortenDialogComponent implements OnDestroy {
       .id("reden")
       .label("reden")
       .validators(Validators.required)
+      .maxlength(200)
       .build();
 
     this.formFields = [

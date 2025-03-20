@@ -25,7 +25,6 @@ import jakarta.mail.Session
 import jakarta.mail.Transport
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.identity.model.getFullName
 import net.atos.zac.mail.model.Attachment
 import net.atos.zac.mail.model.Bronnen
@@ -40,6 +39,7 @@ import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.InformatieObjectType
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String

@@ -38,7 +38,6 @@ import net.atos.zac.app.task.model.RestTaskDistributeData
 import net.atos.zac.app.task.model.RestTaskDocumentData
 import net.atos.zac.app.task.model.RestTaskHistoryLine
 import net.atos.zac.app.task.model.RestTaskReleaseData
-import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -59,7 +58,6 @@ import net.atos.zac.shared.helper.SuspensionZaakHelper
 import net.atos.zac.signalering.SignaleringService
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
-import net.atos.zac.task.TaskService
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.drc.model.generated.SoortEnum
@@ -67,6 +65,8 @@ import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.configuratie.ConfiguratieService
+import nl.info.zac.task.TaskService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.task.api.Task

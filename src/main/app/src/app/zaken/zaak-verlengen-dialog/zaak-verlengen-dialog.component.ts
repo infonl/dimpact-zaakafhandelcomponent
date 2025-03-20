@@ -100,6 +100,7 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
       .id("reden")
       .label("reden")
       .validators(Validators.required)
+      .maxlength(200)
       .build();
 
     this.takenVerlengenField = new CheckboxFormFieldBuilder(false)

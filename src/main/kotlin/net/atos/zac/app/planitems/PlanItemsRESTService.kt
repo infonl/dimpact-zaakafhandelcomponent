@@ -27,7 +27,6 @@ import net.atos.zac.app.planitems.model.RESTPlanItem
 import net.atos.zac.app.planitems.model.RESTProcessTaskData
 import net.atos.zac.app.planitems.model.RESTUserEventListenerData
 import net.atos.zac.app.planitems.model.UserEventListenerActie
-import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.TaakVariabelenService
@@ -45,6 +44,7 @@ import net.atos.zac.zaak.ZaakService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
+import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor

@@ -14,8 +14,8 @@ import jakarta.ws.rs.core.MediaType
 import net.atos.zac.app.configuratie.model.RestTaal
 import net.atos.zac.app.configuratie.model.toRestTaal
 import net.atos.zac.app.configuratie.model.toRestTalen
-import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.util.JsonbUtil
+import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 

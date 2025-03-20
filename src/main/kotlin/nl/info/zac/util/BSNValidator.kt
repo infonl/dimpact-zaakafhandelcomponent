@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.util
+package nl.info.zac.util
 
 private const val BSN_LENGTH = 9
 private const val BSN_11_PROEF = 11 // https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef

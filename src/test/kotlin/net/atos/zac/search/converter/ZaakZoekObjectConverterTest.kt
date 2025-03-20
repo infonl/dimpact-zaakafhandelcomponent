@@ -15,7 +15,6 @@ import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
-import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.createUser
@@ -34,6 +33,7 @@ import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.configuratie.ConfiguratieService
 import java.net.URI
 import java.time.ZoneId
 import java.util.Date

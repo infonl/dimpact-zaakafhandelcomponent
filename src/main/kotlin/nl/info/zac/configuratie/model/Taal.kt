@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.configuratie.model
+package nl.info.zac.configuratie.model
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity

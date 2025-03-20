@@ -2,19 +2,19 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 Lifely
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.configuratie
+package nl.info.zac.configuratie
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import jakarta.ws.rs.core.UriBuilder
-import net.atos.zac.configuratie.model.Taal
-import net.atos.zac.util.validateRSIN
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
+import nl.info.zac.configuratie.model.Taal
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.validateRSIN
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.net.URI
 import java.util.UUID

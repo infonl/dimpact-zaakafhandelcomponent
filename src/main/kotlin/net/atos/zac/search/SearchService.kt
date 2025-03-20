@@ -19,9 +19,9 @@ import net.atos.zac.search.model.ZoekVeld
 import net.atos.zac.search.model.zoekobject.ZoekObject
 import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import net.atos.zac.shared.model.SorteerRichting
-import net.atos.zac.solr.encoded
-import net.atos.zac.solr.quoted
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.solr.encoded
+import nl.info.zac.solr.quoted
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.solr.client.solrj.SolrClient

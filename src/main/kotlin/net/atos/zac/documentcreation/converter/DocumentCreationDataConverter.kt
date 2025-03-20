@@ -15,7 +15,6 @@ import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
-import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.identity.IdentityService
 import net.atos.zac.identity.model.getFullName
@@ -40,6 +39,7 @@ import nl.info.client.zgw.shared.ZGWApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.configuratie.ConfiguratieService
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.decodedBase64StringLength

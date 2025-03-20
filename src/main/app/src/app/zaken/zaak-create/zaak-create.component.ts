@@ -47,7 +47,6 @@ import { ZakenService } from "../zaken.service";
 @Component({
   selector: "zac-zaak-create",
   templateUrl: "./zaak-create.component.html",
-  styleUrls: ["./zaak-create.component.less"],
 })
 export class ZaakCreateComponent implements OnDestroy {
   static KANAAL_E_FORMULIER = "E-formulier";
@@ -149,7 +148,6 @@ export class ZaakCreateComponent implements OnDestroy {
     this.medewerkerGroepFormField = this.getMedewerkerGroupFormField();
     this.initiatorField = new InputFormFieldBuilder()
       .id("initiatorIdentificatie")
-      .styleClass("input-fake-enabled")
       .icon(this.initiatorToevoegenIcon)
       .externalInput()
       .label("initiator")
@@ -188,7 +186,6 @@ export class ZaakCreateComponent implements OnDestroy {
 
     this.bagObjectenField = new InputFormFieldBuilder()
       .id("bagObjecten")
-      .styleClass("input-fake-enabled")
       .icon(this.bagObjectenToevoegenIcon)
       .externalInput()
       .label("bagObjecten")

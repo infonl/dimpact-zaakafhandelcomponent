@@ -868,6 +868,7 @@ export class ZaakViewComponent
           .id("redenOpschortingField")
           .label("reden")
           .validators(Validators.required)
+          .maxlength(200)
           .build(),
       ],
       (results: any[]) => {

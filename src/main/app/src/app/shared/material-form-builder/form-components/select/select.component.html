@@ -14,6 +14,7 @@
     [formControl]="data.formControl"
     [id]="data.id + '_select'"
     [required]="data.required"
+    [disabled]="data.formControl.disabled"
   >
     <mat-select-trigger>
       {{

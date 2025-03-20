@@ -21,7 +21,6 @@ import jakarta.mail.Transport
 import jakarta.mail.internet.MimeMultipart
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.Zaak
-import net.atos.zac.configuratie.ConfiguratieService
 import net.atos.zac.mail.model.Bronnen
 import net.atos.zac.mail.model.getBronnenFromZaak
 import net.atos.zac.mailtemplates.MailTemplateHelper
@@ -35,6 +34,7 @@ import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.configuratie.ConfiguratieService
 import org.flowable.task.api.Task
 import java.net.URI
 import java.util.Properties

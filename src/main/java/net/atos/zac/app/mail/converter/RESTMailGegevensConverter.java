@@ -7,9 +7,9 @@ package net.atos.zac.app.mail.converter;
 import jakarta.inject.Inject;
 
 import net.atos.zac.app.mail.model.RESTMailGegevens;
-import net.atos.zac.configuratie.ConfiguratieService;
 import net.atos.zac.mail.model.MailAdres;
 import net.atos.zac.mailtemplates.model.MailGegevens;
+import nl.info.zac.configuratie.ConfiguratieService;
 
 public class RESTMailGegevensConverter {
 
