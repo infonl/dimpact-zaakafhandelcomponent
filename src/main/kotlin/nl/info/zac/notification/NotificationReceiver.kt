@@ -263,7 +263,7 @@ class NotificationReceiver @Inject constructor(
     @Suppress("TooGenericExceptionCaught")
     private fun handleInboxDocuments(notification: Notification) {
         if (notification.channel == Channel.TEST) {
-            LOG.warning("Received test callback URL status notification")
+            LOG.info("Received test callback URL status notification")
             return
         }
         try {
