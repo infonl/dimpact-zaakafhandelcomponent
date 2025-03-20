@@ -17,6 +17,7 @@ import { InformatieObjectVerzendenComponent } from "./informatie-object-verzende
 import { InformatieObjectViewComponent } from "./informatie-object-view/informatie-object-view.component";
 import { InformatieObjectenRoutingModule } from "./informatie-objecten-routing.module";
 import { RouteReuseStrategyService } from "./route-reuse-strategy.service";
+import { InformatieObjectLinkComponent } from "./informatie-object-link/informatie-object-link.component";
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { RouteReuseStrategyService } from "./route-reuse-strategy.service";
     InformatieObjectAddComponent,
     InformatieObjectCreateAttendedComponent,
     InformatieObjectVerzendenComponent,
+    InformatieObjectLinkComponent,
   ],
   exports: [
     InformatieObjectAddComponent,

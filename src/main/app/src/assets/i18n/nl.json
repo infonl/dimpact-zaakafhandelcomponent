@@ -670,6 +670,7 @@
   "actie.zaak.opschorten": "Zaak opschorten",
   "actie.zaak.ontkoppelen": "Zaak ontkoppelen",
   "actie.zaak.koppelen": "Zaak koppelen",
+  "actie.informatieobject.koppelen": "Document koppelen",
   "actie.zaak.koppelen.disabled": "Ga naar de zaak waar deze zaak aan gekoppeld moet worden...",
   "actie.zaak.toekennen": "Zaak toekennen",
   "actie.zaak.toekennen.groep": "Zaak toekennen aan groep",

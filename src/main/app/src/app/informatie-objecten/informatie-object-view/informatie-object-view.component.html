@@ -37,6 +37,10 @@
       (document)="versieToegevoegd($event)"
     >
     </zac-informatie-object-edit>
+    <zac-informatie-object-link
+      *ngSwitchCase="'actie.informatieobject.koppelen'"
+      [sideNav]="actionsSidenav"
+    ></zac-informatie-object-link>
   </mat-drawer>
   <mat-drawer-content>
     <div class="flex-row flex-wrap flex-col-xl gap-10">

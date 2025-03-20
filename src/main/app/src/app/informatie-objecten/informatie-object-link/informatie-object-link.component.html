@@ -1,0 +1,32 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 Lifely
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<div class="sidenav-title">
+  <h3>
+    <mat-icon>link</mat-icon>
+    {{ "actie.informatieobject.koppelen" | translate }}
+  </h3>
+  <button mat-icon-button (click)="sideNav.close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<div class="form">
+  <p>{{ "informatieobjecten.koppelen.uitleg" | translate }}</p>
+  <mfb-form-field class="flex-1" [field]="caseSearchField"></mfb-form-field>
+  <button
+    mat-flat-button
+    color="primary"
+    [disabled]="!issValid"
+    (click)="zoekZaken()"
+  >
+    {{ "actie.zoeken" | translate }}
+  </button>
+  <button mat-flat-button (click)="wissen()">
+    {{ "actie.wissen" | translate }}
+  </button>
+
+  <div class="table-wrapper"></div>
+</div>
