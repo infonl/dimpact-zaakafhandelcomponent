@@ -19,9 +19,7 @@
     [formControlName]="key"
     [matDatepicker]="date"
   />
-  <!--    <span *ngIf="data.showDays" class="daysSuffix" matSuffix>{{-->
-  <!--            data.formControl.value | dagen-->
-  <!--        }}</span>-->
+  <span *ngIf="showAmountOfDays" matSuffix>{{ control?.value | dagen }}</span>
   <mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
   <mat-datepicker #date></mat-datepicker>
   <mat-error>{{ getErrorMessage() }}</mat-error>

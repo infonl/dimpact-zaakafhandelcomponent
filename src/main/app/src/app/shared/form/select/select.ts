@@ -32,7 +32,7 @@ export class ZacSelect<
    */
   @Input() suffix?: string;
 
-  protected control?: AbstractControl;
+  protected control?: AbstractControl<Option | null>;
 
   ngOnInit() {
     this.control = this.form.get(String(this.key))!;
@@ -41,9 +41,7 @@ export class ZacSelect<
   // Needs to be an arrow function in order to de-link the reference to `this`
   // when used in the template `[displayWith]="displayWith"`
   protected getOptionDisplayValue = (option?: Option) => {
-    if (!option) {
-      return null;
-    }
+    if (!option) return null;
 
     switch (typeof this.optionDisplayValue) {
       case "undefined":

@@ -31,7 +31,7 @@ export class ZacAutoComplete<
   @Input({ required: true }) options!: Array<Option>;
   @Input() optionDisplayValue?: OptionDisplayValue;
 
-  protected control?: AbstractControl;
+  protected control?: AbstractControl<Option | null>;
 
   private toFilterOptions: Option[] = [];
   protected filteredOptions: Option[] = [];
@@ -44,7 +44,7 @@ export class ZacAutoComplete<
     this.control.valueChanges.subscribe((value) => {
       this.filteredOptions = this.toFilterOptions.filter((option) => {
         return (
-          this.getOptionDisplayValue(option as Option)?.includes(value) ?? true
+          (value && this.getOptionDisplayValue(option)?.includes(value)) ?? true
         );
       });
     });
@@ -58,16 +58,14 @@ export class ZacAutoComplete<
 
   reset() {
     this.control?.reset();
-    this.control?.setValue(undefined, { emitModelToViewChange: true });
+    this.control?.setValue(null, { emitModelToViewChange: true });
     this.filteredOptions = this.toFilterOptions;
   }
 
   // Needs to be an arrow function in order to de-link the reference to `this`
   // when used in the template `[displayWith]="displayWith"`
   protected getOptionDisplayValue = (option?: Option) => {
-    if (!option) {
-      return null;
-    }
+    if (!option) return null;
 
     switch (typeof this.optionDisplayValue) {
       case "undefined":

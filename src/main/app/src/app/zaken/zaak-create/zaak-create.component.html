@@ -3,7 +3,7 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 <mat-sidenav-container>
-  <mat-sidenav position="end" [ngSwitch]="activeSideAction">
+  <mat-sidenav #actionsSidenav position="end" [ngSwitch]="activeSideAction">
     <zac-klant-koppel
       *ngSwitchCase="'actie.initiator.toevoegen'"
       (klantGegevens)="initiatorSelected($event.klant)"
@@ -29,7 +29,7 @@
           key="zaaktype"
           class="col"
           [form]="form"
-          [options]="zaaktypes"
+          [options]="caseTypes"
           [optionDisplayValue]="'omschrijving'"
         >
           <mat-hint>{{
@@ -49,12 +49,7 @@
         </zac-input>
       </section>
       <section class="row">
-        <zac-date
-          class="col"
-          key="startdatum"
-          [form]="form"
-        >
-        </zac-date>
+        <zac-date class="col" key="startdatum" [form]="form"> </zac-date>
         <zac-input
           key="bagObjecten"
           [form]="form"
@@ -62,7 +57,7 @@
           class="col"
           (click)="openSideNav('actie.bagObject.toevoegen')()"
         >
-          <button mat-icon-button matSuffix>
+          <button type="button" mat-icon-button matSuffix>
             <mat-icon>gps_fixed</mat-icon>
           </button>
         </zac-input>
@@ -74,7 +69,7 @@
       >
       <zac-auto-complete
         class="col"
-        key="group"
+        key="groep"
         optionDisplayValue="naam"
         [form]="form"
         [options]="groups"
@@ -83,7 +78,7 @@
       </zac-auto-complete>
       <zac-auto-complete
         class="col"
-        key="user"
+        key="behandelaar"
         optionDisplayValue="naam"
         [form]="form"
         [options]="users"
@@ -115,7 +110,7 @@
         >
         </zac-select>
       </section>
-      <zac-input key="description" [form]="form" maxlength="80"> </zac-input>
+      <zac-input key="omschrijving" [form]="form" maxlength="80"> </zac-input>
       <zac-textarea
         key="toelichting"
         [form]="form"
@@ -131,18 +126,13 @@
       >
         {{ "actie.aanmaken" | translate }}
       </button>
-      <button mat-raised-button>{{ "actie.annuleren" | translate }}</button>
+      <button
+        type="button"
+        mat-raised-button
+        (click)="navigationService.back()"
+      >
+        {{ "actie.annuleren" | translate }}
+      </button>
     </fieldset>
   </form>
-  <!--  <div class="zaak-create-form content">-->
-  <!--    <div class="form">-->
-  <!--      <mfb-form-->
-  <!--        #mfbForm-->
-  <!--        *ngIf="createZaakFields"-->
-  <!--        (formSubmit)="onFormSubmit($event)"-->
-  <!--        [formFields]="createZaakFields"-->
-  <!--        [config]="formConfig"-->
-  <!--      ></mfb-form>-->
-  <!--    </div>-->
-  <!--  </div>-->
 </mat-sidenav-container>

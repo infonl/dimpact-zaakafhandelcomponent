@@ -86,14 +86,14 @@ describe(ZaakCreateComponent.name, () => {
       .mockReturnValue(of([{ id: "test-user-id", naam: "test user" }]));
   });
 
-  describe(ZaakCreateComponent.prototype.zaaktypeGeselecteerd.name, () => {
+  describe(ZaakCreateComponent.prototype.caseTypeSelected.name, () => {
     it(`should call ${ZaakCreateComponent.prototype.getMedewerkerGroupFormField.name} with the default behandelaar and groep`, () => {
       const getMedewerkerGroupFormField = jest.spyOn(
         component,
         "getMedewerkerGroupFormField",
       );
 
-      component.zaaktypeGeselecteerd(zaakType);
+      component.caseTypeSelected(zaakType);
 
       expect(getMedewerkerGroupFormField).toHaveBeenCalledTimes(1);
       expect(getMedewerkerGroupFormField).toHaveBeenCalledWith(
