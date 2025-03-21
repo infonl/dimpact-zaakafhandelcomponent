@@ -5,6 +5,11 @@
 
 import { AbstractControl, ValidatorFn } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
+import {
+  BSN_LENGTH,
+  KVK_LENGTH,
+  VESTIGINGSNUMMER_LENGTH,
+} from "../utils/constants";
 
 export class CustomValidators {
   static postcode = CustomValidators.postcodeVFn();
@@ -59,7 +64,7 @@ export class CustomValidators {
   }
 
   private static isValidBSN(bsn: string): boolean {
-    if (!CustomValidators.nummerRegex.test(bsn) || bsn.length !== 9) {
+    if (!CustomValidators.nummerRegex.test(bsn) || bsn.length !== BSN_LENGTH) {
       return false;
     }
     let checksum = 0;

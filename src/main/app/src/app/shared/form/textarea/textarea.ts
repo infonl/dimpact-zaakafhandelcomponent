@@ -7,7 +7,8 @@
 import { Component, Input, numberAttribute, OnInit } from "@angular/core";
 import { AbstractControl, FormGroup } from "@angular/forms";
 import { MatInput } from "@angular/material/input";
-import { getErrorMessage } from "../helpers";
+import { TranslateService } from "@ngx-translate/core";
+import { CustomValidators } from "../helpers";
 
 @Component({
   selector: "zac-textarea",
@@ -28,9 +29,14 @@ export class ZacTextarea<
 
   protected control?: AbstractControl<string>;
 
+  constructor(private readonly translateService: TranslateService) {
+    super();
+  }
+
   ngOnInit() {
     this.control = this.form.get(String(this.key))!;
   }
 
-  protected getErrorMessage = () => getErrorMessage(this.control);
+  protected getErrorMessage = () =>
+    CustomValidators.getErrorMessage(this.control, this.translateService);
 }

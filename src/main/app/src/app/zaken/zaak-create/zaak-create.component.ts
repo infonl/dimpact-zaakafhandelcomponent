@@ -21,7 +21,12 @@ import { KlantenService } from "../../klanten/klanten.service";
 import { Bedrijf } from "../../klanten/model/bedrijven/bedrijf";
 import { Klant } from "../../klanten/model/klanten/klant";
 import { InboxProductaanvraag } from "../../productaanvragen/model/inbox-productaanvraag";
+import { CustomValidators } from "../../shared/form/helpers";
 import { NavigationService } from "../../shared/navigation/navigation.service";
+import {
+  BSN_LENGTH,
+  VESTIGINGSNUMMER_LENGTH,
+} from "../../shared/utils/constants";
 import { Zaaktype } from "../model/zaaktype";
 import { ZakenService } from "../zaken.service";
 
@@ -30,9 +35,9 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaak-create.component.html",
 })
 export class ZaakCreateComponent {
-  static KANAAL_E_FORMULIER = "E-formulier";
+  static DEFAULT_CHANNEL = "E-formulier";
 
-  @ViewChild("actionsSidenav") protected readonly actionsSidenav!: MatSidenav;
+  @ViewChild(MatSidenav) protected readonly actionsSidenav!: MatSidenav;
 
   protected activeSideAction: string | null = null;
 
@@ -51,9 +56,12 @@ export class ZaakCreateComponent {
 
   protected readonly form = this.formBuilder.group({
     zaaktype: new FormControl<Zaaktype | null>(null, [Validators.required]),
+    initiator: new FormControl<string | null | undefined>(null),
     startdatum: new FormControl<moment.Moment | null>(null, [
       Validators.required,
+      CustomValidators.maxDate(moment().add("5", "days")),
     ]),
+    bagObjecten: new FormControl<string | null>(null),
     groep: new FormControl<GeneratedType<"RestGroup"> | null | undefined>(
       null,
       [Validators.required],
@@ -61,7 +69,6 @@ export class ZaakCreateComponent {
     behandelaar: new FormControl<GeneratedType<"RestUser"> | null | undefined>(
       null,
     ),
-    initiator: new FormControl<string | null | undefined>(null),
     communicatiekanaal: new FormControl<string | null>(null, [
       Validators.required,
     ]),
@@ -72,7 +79,6 @@ export class ZaakCreateComponent {
       Validators.required,
       Validators.maxLength(80),
     ]),
-    bagObjecten: new FormControl<string | null>(null),
     toelichting: new FormControl<string | null>(null),
   });
 
@@ -87,8 +93,10 @@ export class ZaakCreateComponent {
     identityService: IdentityService,
     protected readonly navigationService: NavigationService,
   ) {
+    utilService.setTitle("title.zaak.aanmaken");
     this.inboxProductaanvraag =
       router.getCurrentNavigation()?.extras?.state?.inboxProductaanvraag;
+    this.form.controls.behandelaar.disable();
 
     zakenService.listZaaktypes().subscribe((caseTypes) => {
       this.caseTypes = caseTypes;
@@ -98,22 +106,20 @@ export class ZaakCreateComponent {
     });
     referentieTabelService
       .listCommunicatiekanalen(Boolean(this.inboxProductaanvraag))
-      .subscribe((communicationChannels) => {
-        this.communicationChannels = communicationChannels;
+      .subscribe((channels) => {
+        this.communicationChannels = channels;
 
-        if (
-          communicationChannels.includes(ZaakCreateComponent.KANAAL_E_FORMULIER)
-        ) {
+        if (channels.includes(ZaakCreateComponent.DEFAULT_CHANNEL)) {
           this.form.controls.communicatiekanaal.setValue(
-            ZaakCreateComponent.KANAAL_E_FORMULIER,
+            ZaakCreateComponent.DEFAULT_CHANNEL,
           );
         }
       });
 
+    // Add form listeners
     this.form.controls.zaaktype.valueChanges.subscribe((caseType) =>
       this.caseTypeSelected(caseType),
     );
-
     this.form.controls.groep.valueChanges.subscribe((value) => {
       if (!value) {
         this.form.controls.behandelaar.setValue(null);
@@ -133,20 +139,14 @@ export class ZaakCreateComponent {
         );
       });
     });
-
-    this.form.controls.behandelaar.disable();
-
     this.form.controls.bagObjecten.valueChanges.subscribe((value) => {
       if (value) return;
       this.bagObjects = [];
     });
-
     this.form.controls.initiator.valueChanges.subscribe((value) => {
       if (value) return;
       this.initiator = null;
     });
-
-    utilService.setTitle("title.zaak.aanmaken");
 
     this.handleProductRequest(this.inboxProductaanvraag);
   }
@@ -205,37 +205,29 @@ export class ZaakCreateComponent {
     );
   }
 
-  protected openSideNav(action: string) {
-    return async () => {
-      this.activeSideAction = action;
-      await this.actionsSidenav.open();
-    };
+  protected async openSideNav(action: string) {
+    this.activeSideAction = action;
+    await this.actionsSidenav.open();
   }
 
-  private handleProductRequest(productAanvraag?: InboxProductaanvraag) {
-    const bsnLength = 9;
-    const vestigingsnummerLength = 12;
-
-    if (!productAanvraag?.initiatorID) return;
+  private handleProductRequest(productRequest?: InboxProductaanvraag) {
+    if (!productRequest?.initiatorID) return;
 
     this.form.controls.toelichting.setValue(
-      "Vanuit productaanvraag van type " + productAanvraag?.type,
+      `Vanuit productaanvraag van type ${productRequest.type}`,
     );
 
     let observable:
       | Observable<GeneratedType<"RestPersoon"> | Bedrijf>
       | undefined = undefined;
 
-    switch (productAanvraag.initiatorID.length) {
-      case bsnLength:
-        observable = this.klantenService.readPersoon(
-          productAanvraag.initiatorID,
-        );
+    const { initiatorID } = productRequest;
+    switch (initiatorID.length) {
+      case BSN_LENGTH:
+        observable = this.klantenService.readPersoon(initiatorID);
         break;
-      case vestigingsnummerLength:
-        observable = this.klantenService.readVestiging(
-          productAanvraag.initiatorID,
-        );
+      case VESTIGINGSNUMMER_LENGTH:
+        observable = this.klantenService.readVestiging(initiatorID);
         break;
     }
 

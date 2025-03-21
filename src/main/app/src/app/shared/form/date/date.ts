@@ -4,11 +4,12 @@
  *
  */
 
-import {booleanAttribute, Component, Input, OnInit} from "@angular/core";
+import { booleanAttribute, Component, Input, OnInit } from "@angular/core";
 import { AbstractControl, FormGroup } from "@angular/forms";
 import { MatDatepickerInput } from "@angular/material/datepicker";
+import { TranslateService } from "@ngx-translate/core";
 import moment from "moment";
-import { getErrorMessage } from "../helpers";
+import { CustomValidators } from "../helpers";
 
 @Component({
   selector: "zac-date",
@@ -23,14 +24,20 @@ export class ZacDate<
 {
   @Input({ required: true }) key!: Key;
   @Input({ required: true }) form!: FormGroup<Form>;
-  @Input({ transform: booleanAttribute }) showAmountOfDays?: boolean
+  @Input({ transform: booleanAttribute }) showAmountOfDays?: boolean;
 
   protected control?: AbstractControl<moment.Moment>;
+
+  constructor(private readonly translateService: TranslateService) {
+    super();
+  }
 
   ngOnInit() {
     this.control = this.form.get(String(this.key))!;
   }
 
-  protected getErrorMessage = () => getErrorMessage(this.control);
+  protected getErrorMessage = () =>
+    CustomValidators.getErrorMessage(this.control, this.translateService);
+
   protected readonly console = console;
 }
