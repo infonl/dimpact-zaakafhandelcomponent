@@ -314,7 +314,7 @@ export class InformatieObjectEditComponent
     this.informatieObjectenService
       .updateEnkelvoudigInformatieobject(
         nieuweVersie.uuid,
-        this.zaakUuid!,
+        this.zaakUuid,
         nieuweVersie as GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">,
       )
       .subscribe((document) => {
