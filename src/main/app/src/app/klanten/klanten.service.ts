@@ -9,6 +9,7 @@ import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { Resultaat } from "../shared/model/resultaat";
+import { BSN_LENGTH } from "../shared/utils/constants";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { Bedrijf } from "./model/bedrijven/bedrijf";
 import { ListBedrijvenParameters } from "./model/bedrijven/list-bedrijven-parameters";
@@ -39,7 +40,7 @@ export class KlantenService {
   }
 
   readBedrijf(rsinOfVestigingsnummer: string): Observable<Bedrijf> {
-    return rsinOfVestigingsnummer.length === 9
+    return rsinOfVestigingsnummer.length === BSN_LENGTH
       ? this.readRechtspersoon(rsinOfVestigingsnummer)
       : this.readVestiging(rsinOfVestigingsnummer);
   }

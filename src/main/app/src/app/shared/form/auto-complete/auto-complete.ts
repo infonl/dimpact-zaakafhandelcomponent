@@ -12,7 +12,8 @@ import {
   SimpleChanges,
 } from "@angular/core";
 import { AbstractControl, FormGroup } from "@angular/forms";
-import { getErrorMessage } from "../helpers";
+import { TranslateService } from "@ngx-translate/core";
+import { CustomValidators } from "../helpers";
 
 @Component({
   selector: "zac-auto-complete",
@@ -35,6 +36,8 @@ export class ZacAutoComplete<
 
   private toFilterOptions: Option[] = [];
   protected filteredOptions: Option[] = [];
+
+  constructor(private readonly translateService: TranslateService) {}
 
   ngOnInit() {
     this.control = this.form.get(String(this.key))!;
@@ -77,7 +80,8 @@ export class ZacAutoComplete<
     }
   };
 
-  protected getErrorMessage = () => getErrorMessage(this.control);
+  protected getErrorMessage = () =>
+    CustomValidators.getErrorMessage(this.control, this.translateService);
 
   private setOptions(input: Array<Option>) {
     this.toFilterOptions = this.filteredOptions = input;

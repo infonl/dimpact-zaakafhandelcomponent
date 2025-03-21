@@ -3,7 +3,7 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 <mat-sidenav-container>
-  <mat-sidenav #actionsSidenav position="end" [ngSwitch]="activeSideAction">
+  <mat-sidenav position="end" [ngSwitch]="activeSideAction">
     <zac-klant-koppel
       *ngSwitchCase="'actie.initiator.toevoegen'"
       (klantGegevens)="initiatorSelected($event.klant)"
@@ -41,7 +41,7 @@
           [form]="form"
           class="col"
           readonly
-          (click)="openSideNav('actie.initiator.toevoegen')()"
+          (click)="openSideNav('actie.initiator.toevoegen')"
         >
           <button mat-icon-button matSuffix type="button">
             <mat-icon>person</mat-icon>
@@ -55,7 +55,7 @@
           [form]="form"
           readonly
           class="col"
-          (click)="openSideNav('actie.bagObject.toevoegen')()"
+          (click)="openSideNav('actie.bagObject.toevoegen')"
         >
           <button type="button" mat-icon-button matSuffix>
             <mat-icon>gps_fixed</mat-icon>
@@ -110,7 +110,8 @@
         >
         </zac-select>
       </section>
-      <zac-input key="omschrijving" [form]="form" maxlength="80"> </zac-input>
+      <zac-input key="omschrijving" [form]="form" type="number" maxlength="80">
+      </zac-input>
       <zac-textarea
         key="toelichting"
         [form]="form"

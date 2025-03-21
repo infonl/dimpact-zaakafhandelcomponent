@@ -6,7 +6,8 @@
 
 import { Component, Input, OnInit } from "@angular/core";
 import { AbstractControl, FormGroup, Validators } from "@angular/forms";
-import { getErrorMessage } from "../helpers";
+import { TranslateService } from "@ngx-translate/core";
+import { CustomValidators } from "../helpers";
 
 @Component({
   selector: "zac-select",
@@ -33,6 +34,8 @@ export class ZacSelect<
   @Input() suffix?: string;
 
   protected control?: AbstractControl<Option | null>;
+
+  constructor(private readonly translateService: TranslateService) {}
 
   ngOnInit() {
     this.control = this.form.get(String(this.key))!;
@@ -63,5 +66,6 @@ export class ZacSelect<
     return this.compare?.(a, b) ?? a === b;
   };
 
-  protected getErrorMessage = () => getErrorMessage(this.control);
+  protected getErrorMessage = () =>
+    CustomValidators.getErrorMessage(this.control, this.translateService);
 }
