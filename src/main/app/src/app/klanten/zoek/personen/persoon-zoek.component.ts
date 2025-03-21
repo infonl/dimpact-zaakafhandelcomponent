@@ -22,6 +22,10 @@ import { ActionIcon } from "../../../shared/edit/action-icon";
 import { DateFormFieldBuilder } from "../../../shared/material-form-builder/form-components/date/date-form-field-builder";
 import { InputFormFieldBuilder } from "../../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { AbstractFormControlField } from "../../../shared/material-form-builder/model/abstract-form-control-field";
+import {
+  BSN_LENGTH,
+  POSTAL_CODE_LENGTH,
+} from "../../../shared/utils/constants";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { CustomValidators } from "../../../shared/validators/customValidators";
 import { KlantenService } from "../../klanten.service";
@@ -79,7 +83,7 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
       .id("bsn")
       .label("bsn")
       .validators(CustomValidators.bsn)
-      .maxlength(9)
+      .maxlength(BSN_LENGTH)
       .build();
     this.voornamenFormField = new InputFormFieldBuilder()
       .id("voornamen")
@@ -126,7 +130,7 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
       .id("postcode")
       .label("postcode")
       .validators(CustomValidators.postcode)
-      .maxlength(7)
+      .maxlength(POSTAL_CODE_LENGTH)
       .build();
     this.huisnummerFormField = new InputFormFieldBuilder()
       .id("huisnummer")
