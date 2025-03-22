@@ -7,7 +7,7 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { AbstractControl, FormGroup, Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { CustomValidators } from "../helpers";
+import { FormHelper } from "../helpers";
 
 @Component({
   selector: "zac-select",
@@ -67,5 +67,5 @@ export class ZacSelect<
   };
 
   protected getErrorMessage = () =>
-    CustomValidators.getErrorMessage(this.control, this.translateService);
+    FormHelper.getErrorMessage(this.control, this.translateService);
 }

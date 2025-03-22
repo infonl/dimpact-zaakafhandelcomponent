@@ -21,7 +21,6 @@ import { KlantenService } from "../../klanten/klanten.service";
 import { Bedrijf } from "../../klanten/model/bedrijven/bedrijf";
 import { Klant } from "../../klanten/model/klanten/klant";
 import { InboxProductaanvraag } from "../../productaanvragen/model/inbox-productaanvraag";
-import { CustomValidators } from "../../shared/form/helpers";
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import {
   BSN_LENGTH,
@@ -59,7 +58,6 @@ export class ZaakCreateComponent {
     initiator: new FormControl<string | null | undefined>(null),
     startdatum: new FormControl<moment.Moment | null>(null, [
       Validators.required,
-      CustomValidators.maxDate(moment().add("5", "days")),
     ]),
     bagObjecten: new FormControl<string | null>(null),
     groep: new FormControl<GeneratedType<"RestGroup"> | null | undefined>(
@@ -76,10 +74,12 @@ export class ZaakCreateComponent {
       (typeof this.confidentialityNotices)[number] | null | undefined
     >(null, [Validators.required]),
     omschrijving: new FormControl<string | null>(null, [
-      Validators.required,
       Validators.maxLength(80),
+      Validators.required,
     ]),
-    toelichting: new FormControl<string | null>(null),
+    toelichting: new FormControl<string | null>(null, [
+      Validators.maxLength(1000),
+    ]),
   });
 
   constructor(
