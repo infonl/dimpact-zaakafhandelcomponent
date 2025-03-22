@@ -14,17 +14,18 @@
     matInput
     autocomplete="off"
     cdkTextareaAutosize
-    [cdkAutosizeMinRows]="minRows ?? 5"
-    [cdkAutosizeMaxRows]="maxRows ?? 15"
+    [cdkAutosizeMinRows]="minRows"
+    [cdkAutosizeMaxRows]="maxRows"
     [formControlName]="key"
-    [maxLength]="maxlength"
+    [maxLength]="maxlength ?? 999999"
     [readonly]="readonly"
+    [required]="required"
   ></textarea>
   <button
     matSuffix
     mat-icon-button
     type="button"
-    *ngIf="!readonly && !disabled && control?.value?.length"
+    *ngIf="!readonly && disabled && control?.value?.length"
     (click)="control?.reset(undefined)"
   >
     <mat-icon>clear</mat-icon>

@@ -14,15 +14,16 @@
     matInput
     autocomplete="off"
     [formControlName]="key"
-    [maxLength]="maxlength"
+    [maxlength]="maxlength ?? 999999"
     [readonly]="readonly"
+    [required]="required"
     [type]="type ?? 'text'"
   />
   <button
     matSuffix
     mat-icon-button
     type="button"
-    *ngIf="!disabled && control?.value?.length"
+    *ngIf="disabled && control?.value?.length"
     (click)="control?.reset(undefined)"
   >
     <mat-icon>clear</mat-icon>

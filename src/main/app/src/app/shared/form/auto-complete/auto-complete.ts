@@ -13,7 +13,7 @@ import {
 } from "@angular/core";
 import { AbstractControl, FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { CustomValidators } from "../helpers";
+import { FormHelper } from "../helpers";
 
 @Component({
   selector: "zac-auto-complete",
@@ -81,7 +81,7 @@ export class ZacAutoComplete<
   };
 
   protected getErrorMessage = () =>
-    CustomValidators.getErrorMessage(this.control, this.translateService);
+    FormHelper.getErrorMessage(this.control, this.translateService);
 
   private setOptions(input: Array<Option>) {
     this.toFilterOptions = this.filteredOptions = input;
