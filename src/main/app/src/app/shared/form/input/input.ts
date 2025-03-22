@@ -4,11 +4,28 @@
  *
  */
 
-import { Component, Input, numberAttribute, OnInit } from "@angular/core";
-import { AbstractControl, FormGroup } from "@angular/forms";
+import { Platform } from "@angular/cdk/platform";
+import { AutofillMonitor } from "@angular/cdk/text-field";
+import {
+  Component,
+  ElementRef,
+  Input,
+  NgZone,
+  OnInit,
+  Optional,
+} from "@angular/core";
+import {
+  AbstractControl,
+  FormGroup,
+  FormGroupDirective,
+  NgControl,
+  NgForm,
+} from "@angular/forms";
+import { ErrorStateMatcher } from "@angular/material/core";
+import { MatFormField } from "@angular/material/form-field";
 import { MatInput } from "@angular/material/input";
 import { TranslateService } from "@ngx-translate/core";
-import { CustomValidators } from "../helpers";
+import { FormHelper } from "../helpers";
 
 @Component({
   selector: "zac-input",
@@ -23,18 +40,41 @@ export class ZacInput<
 {
   @Input({ required: true }) key!: Key;
   @Input({ required: true }) form!: FormGroup<Form>;
-  @Input({ transform: numberAttribute }) maxlength?: number;
 
   protected control?: AbstractControl<string>;
+  protected maxlength?: number | null;
 
-  constructor(private readonly translateService: TranslateService) {
-    super();
+  constructor(
+    _elementRef: ElementRef,
+    _platform: Platform,
+    @Optional() ngControl: NgControl,
+    @Optional() _parentForm: NgForm,
+    @Optional() _parentFormGroup: FormGroupDirective,
+    _defaultErrorStateMatcher: ErrorStateMatcher,
+    _autoFillMonitor: AutofillMonitor,
+    _ngZone: NgZone,
+    @Optional() _formField: MatFormField,
+    private readonly translateService: TranslateService,
+  ) {
+    super(
+      _elementRef,
+      _platform,
+      ngControl,
+      _parentForm,
+      _parentFormGroup,
+      _defaultErrorStateMatcher,
+      null,
+      _autoFillMonitor,
+      _ngZone,
+      _formField,
+    );
   }
 
   ngOnInit() {
     this.control = this.form.get(String(this.key))!;
+    this.maxlength = FormHelper.getValidatorValue("maxLength", this.control);
   }
 
   protected getErrorMessage = () =>
-    CustomValidators.getErrorMessage(this.control, this.translateService);
+    FormHelper.getErrorMessage(this.control, this.translateService);
 }
