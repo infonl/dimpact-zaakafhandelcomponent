@@ -81,7 +81,10 @@ export class CustomValidators {
         return null;
       }
       const val = control.value;
-      if (!CustomValidators.nummerRegex.test(val) || val.length !== 8) {
+      if (
+        !CustomValidators.nummerRegex.test(val) ||
+        val.length !== KVK_LENGTH
+      ) {
         return { kvk: true };
       }
       return null;
@@ -94,7 +97,10 @@ export class CustomValidators {
         return null;
       }
       const val = control.value;
-      if (!CustomValidators.nummerRegex.test(val) || val.length !== 12) {
+      if (
+        !CustomValidators.nummerRegex.test(val) ||
+        val.length !== VESTIGINGSNUMMER_LENGTH
+      ) {
         return { vestigingsnummer: true };
       }
       return null;
@@ -107,7 +113,10 @@ export class CustomValidators {
         return null;
       }
       const val = control.value;
-      if (!CustomValidators.nummerRegex.test(val) || val.length !== 9) {
+      if (
+        !CustomValidators.nummerRegex.test(val) ||
+        val.length !== BSN_LENGTH
+      ) {
         return { rsin: true };
       }
       return null;
