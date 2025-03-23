@@ -20,10 +20,10 @@ import net.atos.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.model.createReferentieProcess
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.test.org.flowable.engine.repository.createProcessDefinition
 import org.flowable.engine.ProcessEngine
 import org.flowable.engine.RepositoryService
 import org.flowable.engine.RuntimeService
-import org.flowable.engine.repository.ProcessDefinition
 import org.flowable.engine.runtime.ProcessInstance
 import org.flowable.engine.runtime.ProcessInstanceBuilder
 import java.net.URI
@@ -148,8 +148,8 @@ class BpmnServiceTest : BehaviorSpec({
     }
 
     Given("A valid process definition key with an existing process definition") {
-        val processDefinitionKey = "validKey"
-        val processDefinition = mockk<ProcessDefinition>()
+        val processDefinitionKey = "dummyProcessDefinitionKey"
+        val processDefinition = createProcessDefinition()
         every { bpmnService.findProcessDefinitionByprocessDefinitionKey(processDefinitionKey) } returns processDefinition
 
         When("reading the process definition by process definition key") {
@@ -162,7 +162,7 @@ class BpmnServiceTest : BehaviorSpec({
     }
 
     Given("An invalid process definition key with no existing process definition") {
-        val processDefinitionKey = "invalidKey"
+        val processDefinitionKey = "dummyProcessDefinitionKey"
         every { bpmnService.findProcessDefinitionByprocessDefinitionKey(processDefinitionKey) } returns null
 
         When("reading the process definition by process definition key") {
@@ -170,8 +170,8 @@ class BpmnServiceTest : BehaviorSpec({
                 bpmnService.readProcessDefinitionByProcessDefinitionKey(processDefinitionKey)
             }
 
-            Then("a ProcessDefinitionNotFoundException is thrown") {
-                exception.message shouldBe "No process definition found with process definition key: '$processDefinitionKey'"
+            Then("a 'process definition not found exception' is thrown") {
+                exception.message shouldBe "No BPMN process definition found for process definition key: '$processDefinitionKey'"
             }
         }
     }

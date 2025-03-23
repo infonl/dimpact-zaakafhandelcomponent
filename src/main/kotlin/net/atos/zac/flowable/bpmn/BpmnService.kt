@@ -74,7 +74,7 @@ class BpmnService @Inject constructor(
     fun readProcessDefinitionByProcessDefinitionKey(processDefinitionKey: String): ProcessDefinition =
         findProcessDefinitionByprocessDefinitionKey(processDefinitionKey)
             ?: throw ProcessDefinitionNotFoundException(
-                "No BPMN process definition found with process definition key: '$processDefinitionKey'"
+                "No BPMN process definition found for process definition key: '$processDefinitionKey'"
             )
 
     fun startProcess(
