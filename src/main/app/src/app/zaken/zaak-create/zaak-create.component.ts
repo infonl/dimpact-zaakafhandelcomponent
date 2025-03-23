@@ -110,7 +110,6 @@ export class ZaakCreateComponent {
         }
       });
 
-    // Add form listeners
     this.form.controls.zaaktype.valueChanges.subscribe((caseType) =>
       this.caseTypeSelected(caseType),
     );
@@ -178,9 +177,6 @@ export class ZaakCreateComponent {
 
     this.form.controls.groep.setValue(
       this.groups.find(({ id }) => id === defaultGroepId),
-    );
-    this.form.controls.behandelaar.setValue(
-      this.users.find(({ id }) => id === defaultBehandelaarId),
     );
 
     this.form.controls.vertrouwelijkheidaanduiding.setValue(
