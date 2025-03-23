@@ -28,7 +28,7 @@ import { ListAdressenParameters } from "../../model/list-adressen-parameters";
 })
 export class BagZoekComponent {
   @Output() bagObject = new EventEmitter<BAGObject>();
-  @Input() gekoppeldeBagObjecten: BAGObject[];
+  @Input() gekoppeldeBagObjecten: BAGObject[] | FormControl<BAGObject[] | null>;
   @Input() sideNav: MatSidenav | MatDrawer;
   @ViewChild(MatTable) table: MatTable<BAGObject>;
   BAGObjecttype = BAGObjecttype;
@@ -61,7 +61,14 @@ export class BagZoekComponent {
   }
 
   selectBagObject(bagObject: BAGObject): void {
-    this.gekoppeldeBagObjecten.push(bagObject);
+    if (this.gekoppeldeBagObjecten instanceof FormControl) {
+      this.gekoppeldeBagObjecten.setValue([
+        ...(this.gekoppeldeBagObjecten.value ?? []),
+        bagObject,
+      ]);
+    } else {
+      this.gekoppeldeBagObjecten.push(bagObject);
+    }
     this.bagObject.emit(bagObject);
   }
 
@@ -116,14 +123,15 @@ export class BagZoekComponent {
   }
 
   reedsGekoppeld(row: BAGObject): boolean {
-    if (this.gekoppeldeBagObjecten?.length) {
-      return this.gekoppeldeBagObjecten.some(
-        (b) =>
-          b.identificatie === row.identificatie &&
-          b.bagObjectType === row.bagObjectType,
-      );
-    }
-    return false;
+    const objects =
+      this.gekoppeldeBagObjecten instanceof FormControl
+        ? (this.gekoppeldeBagObjecten.value ?? [])
+        : this.gekoppeldeBagObjecten;
+    return objects.some(
+      (b) =>
+        b.identificatie === row.identificatie &&
+        b.bagObjectType === row.bagObjectType,
+    );
   }
 
   openBagTonenPagina(bagObject: BAGObject): void {

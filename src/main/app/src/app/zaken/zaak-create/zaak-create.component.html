@@ -14,9 +14,9 @@
     ></zac-klant-koppel>
     <zac-bag-zoek
       *ngSwitchCase="'actie.bagObject.toevoegen'"
-      [gekoppeldeBagObjecten]="bagObjects"
+      [gekoppeldeBagObjecten]="form.controls.bagObjecten"
+      (bagObject)="bagObjectSelected()"
       [sideNav]="actionsSidenav"
-      (bagObject)="bagGeselecteerd()"
     ></zac-bag-zoek>
   </mat-sidenav>
   <form [formGroup]="form" (ngSubmit)="formSubmit(form)">
@@ -40,7 +40,7 @@
           key="initiator"
           [form]="form"
           class="col"
-          readonly
+          [displayValue]="'naam'"
           (click)="openSideNav('actie.initiator.toevoegen')"
         >
           <button mat-icon-button matSuffix type="button">
@@ -55,6 +55,7 @@
           [form]="form"
           readonly
           class="col"
+          [displayValue]="bagDisplayValue"
           (click)="openSideNav('actie.bagObject.toevoegen')"
         >
           <button type="button" mat-icon-button matSuffix>

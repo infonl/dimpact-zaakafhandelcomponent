@@ -10,12 +10,16 @@
       {{ key | translate | capitalizeFirstLetter }}
     </ng-content>
   </mat-label>
+  <div class="position-absolute" *ngIf="displayValue">
+    {{ getDisplayValue(control?.value) }}
+  </div>
   <input
     matInput
     autocomplete="off"
+    [ngClass]="displayValue ? 'hide-gt-xs' : ''"
     [formControlName]="key"
     [maxlength]="maxlength ?? 999999"
-    [readonly]="readonly"
+    [readonly]="readonly || displayValue"
     [required]="required"
     [type]="type"
   />
