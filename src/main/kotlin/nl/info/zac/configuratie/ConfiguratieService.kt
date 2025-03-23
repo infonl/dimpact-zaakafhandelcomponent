@@ -17,6 +17,7 @@ import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.validateRSIN
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.net.URI
+import java.util.Optional
 import java.util.UUID
 
 @ApplicationScoped
@@ -29,8 +30,8 @@ class ConfiguratieService @Inject constructor(
 
     ztcClientService: ZtcClientService,
 
-    @ConfigProperty(name = "ADDITIONAL_ALLOWED_FILE_TYPES", defaultValue = NONE)
-    private val additionalAllowedFileTypes: String,
+    @ConfigProperty(name = "ADDITIONAL_ALLOWED_FILE_TYPES")
+    private val additionalAllowedFileTypes: Optional<String>,
 
     @ConfigProperty(name = ENV_VAR_ZGW_API_CLIENT_MP_REST_URL)
     private val zgwApiClientMpRestUrl: String,
@@ -95,8 +96,6 @@ class ConfiguratieService @Inject constructor(
          * We use the Base2 system to calculate the max file size in bytes.
          */
         const val MAX_FILE_SIZE_MB: Int = 80
-
-        private const val NONE = "<NONE>"
     }
 
     init {
@@ -129,10 +128,10 @@ class ConfiguratieService @Inject constructor(
     fun readMaxFileSizeMB() = MAX_FILE_SIZE_MB.toLong()
 
     fun readAdditionalAllowedFileTypes(): List<String> =
-        if (additionalAllowedFileTypes == NONE) {
+        if (additionalAllowedFileTypes.isEmpty) {
             emptyList()
         } else {
-            additionalAllowedFileTypes.split(",").filter { it.isNotEmpty() }
+            additionalAllowedFileTypes.get().split(",").filter { it.isNotEmpty() }
         }
 
     fun readDefaultCatalogusURI(): URI = catalogusURI

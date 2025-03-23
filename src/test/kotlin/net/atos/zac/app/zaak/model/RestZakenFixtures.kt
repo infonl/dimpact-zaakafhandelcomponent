@@ -134,7 +134,8 @@ fun createRestZaak(
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.of(2023, 10, 10),
     uuid: UUID = UUID.randomUUID(),
     rechten: RestZaakRechten = createRestZaakRechten(),
-    einddatumGepland: LocalDate? = LocalDate.of(2023, 10, 10)
+    einddatumGepland: LocalDate? = LocalDate.of(2023, 10, 10),
+    communicatiekanaal: String? = "dummyCommunicatiekanaal",
 ) = RestZaak(
     uuid = uuid,
     identificatie = "ZA2023001",
@@ -154,7 +155,7 @@ fun createRestZaak(
     publicatiedatum = LocalDate.of(2023, 9, 16),
     archiefActiedatum = LocalDate.of(2023, 10, 15),
     archiefNominatie = "Sample Archief Nominatie",
-    communicatiekanaal = "dummyCommunicatiekanaal",
+    communicatiekanaal = communicatiekanaal,
     vertrouwelijkheidaanduiding = "Sample Vertrouwelijkheidaanduiding",
     zaakgeometrie = createRESTGeometry(),
     isOpgeschort = true,

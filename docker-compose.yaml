@@ -352,7 +352,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.122.0@sha256:3b25add9bc26bd81f9c14fe8b30d7ef6dea3377fcfdd78a3e56faba198f73e09
+    image: docker.io/otel/opentelemetry-collector:0.122.1@sha256:4868b0af671d201a8893f7830afdd438c93c8dc148effa9db9b3c3e4c4c22dcf
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -671,7 +671,6 @@ services:
       - BAG_API_KEY=${BAG_API_KEY:-dummyBagApiKey}
       - BRP_API_CLIENT_MP_REST_URL=http://brp-personen-mock:5010/haalcentraal/api/brp
       - BRON_ORGANISATIE_RSIN=${BRON_ORGANISATIE_RSIN:-123443210}
-      - BRP_API_KEY=dummyKey # not used when using the BRP proxy
       - CONTEXT_URL=http://localhost:8080
       - DB_HOST=zac-database
       - DB_NAME=zac

@@ -8,6 +8,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
@@ -47,6 +48,7 @@ import net.atos.zac.app.zaak.converter.RestDecisionConverter
 import net.atos.zac.app.zaak.converter.RestZaakConverter
 import net.atos.zac.app.zaak.converter.RestZaakOverzichtConverter
 import net.atos.zac.app.zaak.converter.RestZaaktypeConverter
+import net.atos.zac.app.zaak.exception.CommunicationChannelNotFound
 import net.atos.zac.app.zaak.model.RESTReden
 import net.atos.zac.app.zaak.model.RESTZaakAfbrekenGegevens
 import net.atos.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
@@ -312,6 +314,46 @@ class ZaakRestServiceTest : BehaviorSpec({
                     this.zaak shouldBe rolOrganisatorischeEenheid.zaak
                     betrokkeneType shouldBe BetrokkeneType.ORGANISATORISCHE_EENHEID
                 }
+            }
+        }
+    }
+
+    Given("zaak input data has no communication channel") {
+        val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+        val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
+            zaak = createRestZaak(communicatiekanaal = null)
+        )
+        every { ztcClientService.readZaaktype(any<UUID>()) } returns zaakType
+        every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
+        every { loggedInUserInstance.get() } returns createLoggedInUser()
+
+        When("zaak creation is attempted") {
+            val exception = shouldThrow<CommunicationChannelNotFound> {
+                zaakRestService.createZaak(restZaakAanmaakGegevens)
+            }
+
+            Then("an exception is thrown") {
+                exception.errorCode shouldNotBe null
+            }
+        }
+    }
+
+    Given("zaak input data has blank communication channel") {
+        val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+        val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
+            zaak = createRestZaak(communicatiekanaal = "      ")
+        )
+        every { ztcClientService.readZaaktype(any<UUID>()) } returns zaakType
+        every { policyService.readOverigeRechten() } returns createOverigeRechtenAllDeny(startenZaak = true)
+        every { loggedInUserInstance.get() } returns createLoggedInUser()
+
+        When("zaak creation is attempted") {
+            val exception = shouldThrow<CommunicationChannelNotFound> {
+                zaakRestService.createZaak(restZaakAanmaakGegevens)
+            }
+
+            Then("an exception is thrown") {
+                exception.errorCode shouldNotBe null
             }
         }
     }

@@ -9,7 +9,6 @@ import jakarta.enterprise.inject.Produces
 import jakarta.inject.Inject
 import jakarta.inject.Named
 import jakarta.inject.Singleton
-import net.atos.zac.identity.IdentityService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -35,7 +34,7 @@ class KeycloakEmployeesAdminClientConfiguration @Inject constructor(
     private val realmName: String,
 ) {
     companion object {
-        private val LOG = Logger.getLogger(IdentityService::class.java.name)
+        private val LOG = Logger.getLogger(KeycloakEmployeesAdminClientConfiguration::class.java.name)
     }
 
     @Produces
