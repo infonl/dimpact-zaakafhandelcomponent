@@ -4,5 +4,4 @@
  */
 package net.atos.zac.flowable.bpmn.exception
 
-class ProcessDefinitionNotFoundException(override val message: String) :
-    RuntimeException("No BPMN process definition found for process definition key: '$message'")
+class ProcessDefinitionNotFoundException(override val message: String) : RuntimeException(message)
