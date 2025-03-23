@@ -4,26 +4,8 @@
  *
  */
 
-import { Platform } from "@angular/cdk/platform";
-import { AutofillMonitor } from "@angular/cdk/text-field";
-import {
-  Component,
-  ElementRef,
-  Input,
-  NgZone,
-  OnInit,
-  Optional,
-} from "@angular/core";
-import {
-  AbstractControl,
-  FormGroup,
-  FormGroupDirective,
-  NgControl,
-  NgForm,
-} from "@angular/forms";
-import { ErrorStateMatcher } from "@angular/material/core";
-import { MatFormField } from "@angular/material/form-field";
-import { MatInput } from "@angular/material/input";
+import { booleanAttribute, Component, Input, OnInit } from "@angular/core";
+import { AbstractControl, FormGroup, Validators } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { FormHelper } from "../helpers";
 
@@ -32,47 +14,27 @@ import { FormHelper } from "../helpers";
   templateUrl: "./input.html",
 })
 export class ZacInput<
-    Form extends Record<string, AbstractControl>,
-    Key extends keyof Form,
-  >
-  extends MatInput
-  implements OnInit
+  Form extends Record<string, AbstractControl>,
+  Key extends keyof Form,
+> implements OnInit
 {
   @Input({ required: true }) key!: Key;
   @Input({ required: true }) form!: FormGroup<Form>;
+  @Input({ transform: booleanAttribute }) readonly = false;
+  @Input() type: "text" | "number" = "text";
 
   protected control?: AbstractControl<string>;
   protected maxlength?: number | null;
 
-  constructor(
-    _elementRef: ElementRef,
-    _platform: Platform,
-    @Optional() ngControl: NgControl,
-    @Optional() _parentForm: NgForm,
-    @Optional() _parentFormGroup: FormGroupDirective,
-    _defaultErrorStateMatcher: ErrorStateMatcher,
-    _autoFillMonitor: AutofillMonitor,
-    _ngZone: NgZone,
-    @Optional() _formField: MatFormField,
-    private readonly translateService: TranslateService,
-  ) {
-    super(
-      _elementRef,
-      _platform,
-      ngControl,
-      _parentForm,
-      _parentFormGroup,
-      _defaultErrorStateMatcher,
-      null,
-      _autoFillMonitor,
-      _ngZone,
-      _formField,
-    );
-  }
+  constructor(private readonly translateService: TranslateService) {}
 
   ngOnInit() {
     this.control = this.form.get(String(this.key))!;
     this.maxlength = FormHelper.getValidatorValue("maxLength", this.control);
+  }
+
+  protected get required() {
+    return this.control?.hasValidator(Validators.required) ?? false;
   }
 
   protected getErrorMessage = () =>
