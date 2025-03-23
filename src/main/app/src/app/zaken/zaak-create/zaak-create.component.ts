@@ -42,8 +42,6 @@ export class ZaakCreateComponent {
 
   private readonly inboxProductaanvraag: InboxProductaanvraag;
 
-  private initiator: Klant | null = null;
-  protected bagObjects: BAGObject[] = [];
   protected groups: GeneratedType<"RestGroup">[] = [];
   protected users: GeneratedType<"RestUser">[] = [];
   protected caseTypes: Zaaktype[] = [];
@@ -55,11 +53,11 @@ export class ZaakCreateComponent {
 
   protected readonly form = this.formBuilder.group({
     zaaktype: new FormControl<Zaaktype | null>(null, [Validators.required]),
-    initiator: new FormControl<string | null | undefined>(null),
+    initiator: new FormControl<Klant | null | undefined>(null),
     startdatum: new FormControl<moment.Moment | null>(null, [
       Validators.required,
     ]),
-    bagObjecten: new FormControl<string | null>(null),
+    bagObjecten: new FormControl<BAGObject[]>([]),
     groep: new FormControl<GeneratedType<"RestGroup"> | null | undefined>(
       null,
       [Validators.required],
@@ -67,19 +65,15 @@ export class ZaakCreateComponent {
     behandelaar: new FormControl<GeneratedType<"RestUser"> | null | undefined>(
       null,
     ),
-    communicatiekanaal: new FormControl<string | null>(null, [
-      Validators.required,
-    ]),
+    communicatiekanaal: new FormControl("", [Validators.required]),
     vertrouwelijkheidaanduiding: new FormControl<
       (typeof this.confidentialityNotices)[number] | null | undefined
     >(null, [Validators.required]),
-    omschrijving: new FormControl<string | null>(null, [
+    omschrijving: new FormControl("", [
       Validators.maxLength(80),
       Validators.required,
     ]),
-    toelichting: new FormControl<string | null>(null, [
-      Validators.maxLength(1000),
-    ]),
+    toelichting: new FormControl("", [Validators.maxLength(1000)]),
   });
 
   constructor(
@@ -139,14 +133,6 @@ export class ZaakCreateComponent {
         );
       });
     });
-    this.form.controls.bagObjecten.valueChanges.subscribe((value) => {
-      if (value) return;
-      this.bagObjects = [];
-    });
-    this.form.controls.initiator.valueChanges.subscribe((value) => {
-      if (value) return;
-      this.initiator = null;
-    });
 
     this.handleProductRequest(this.inboxProductaanvraag);
   }
@@ -159,11 +145,11 @@ export class ZaakCreateComponent {
       .createZaak({
         zaak: {
           ...zaak,
-          initiatorIdentificatie: this.initiator?.identificatie,
-          initiatorIdentificatieType: this.initiator?.identificatieType,
+          initiatorIdentificatie: initiator?.identificatie,
+          initiatorIdentificatieType: initiator?.identificatieType,
           vertrouwelijkheidaanduiding: vertrouwelijkheidaanduiding?.value,
         } as any as GeneratedType<"RESTZaakAanmaakGegevens">["zaak"],
-        bagObjecten: this.bagObjects,
+        bagObjecten: bagObjecten,
         inboxProductaanvraag: this.inboxProductaanvraag,
       })
       .pipe(
@@ -178,8 +164,7 @@ export class ZaakCreateComponent {
   }
 
   async initiatorSelected(user: Klant) {
-    this.initiator = user;
-    this.form.controls.initiator.setValue(user?.naam);
+    this.form.controls.initiator.setValue(user);
     await this.actionsSidenav.close();
   }
 
@@ -232,27 +217,25 @@ export class ZaakCreateComponent {
     }
 
     observable?.subscribe((result) => {
-      this.initiator = result as Klant;
-      this.form.controls.initiator.setValue(result.naam);
+      this.form.controls.initiator.setValue(result as Klant);
     });
   }
 
-  bagGeselecteerd(): void {
-    const value = this.bagObjects
+  protected bagDisplayValue(bagObjects: BAGObject[]) {
+    const value = bagObjects
       .map(({ omschrijving }) => omschrijving)
       .join(" | ");
 
-    if (value.length <= 100) {
-      this.form.controls.bagObjecten.setValue(value);
-      return;
-    }
+    if (value.length <= 100) return value;
 
-    this.translateService
-      .get("msg.aantal.bagObjecten.geselecteerd", {
-        aantal: this.bagObjects.length,
-      })
-      .subscribe((translation) => {
-        this.form.controls.bagObjecten.setValue(translation);
-      });
+    return this.translateService.instant(
+      "msg.aantal.bagObjecten.geselecteerd",
+      {
+        aantal: bagObjects.length,
+      },
+    );
   }
+
+  // This is required for the `zac-bag-zoek` to work as expected
+  protected bagObjectSelected() {}
 }
