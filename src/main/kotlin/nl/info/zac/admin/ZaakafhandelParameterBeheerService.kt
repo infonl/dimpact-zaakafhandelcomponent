@@ -92,12 +92,12 @@ class ZaakafhandelParameterBeheerService @Inject constructor(
     }
 
     /**
-     * Finds the active zaakafhandelparameters for the specified productaanvraag type.
+     * Finds the active [ZaakafhandelParameters] for the specified productaanvraag type.
      * If multiple active zaakafhandelparameters are found, this indicates an
      * error in the configuration of zaakafhandelparameters.
      * There should be at most only one active zaakafhandelparameters for each productaanvraagtype.
      *
-     * @return the list of found zaakafhandelparameters
+     * @return the list of found [ZaakafhandelParameters] or an empty list if none are found
      */
     fun findActiveZaakafhandelparametersByProductaanvraagtype(
         productaanvraagType: String

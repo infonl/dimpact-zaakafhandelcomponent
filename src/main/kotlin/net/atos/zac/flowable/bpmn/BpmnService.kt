@@ -9,6 +9,7 @@ import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import net.atos.client.zgw.zrc.model.Zaak
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.util.AllOpen
@@ -70,10 +71,9 @@ class BpmnService @Inject constructor(
             .latestVersion()
             .singleResult()
 
-    @Suppress("TooGenericExceptionThrown")
-    fun readProcessDefinitionByprocessDefinitionKey(processDefinitionKey: String): ProcessDefinition =
+    fun readProcessDefinitionByProcessDefinitionKey(processDefinitionKey: String): ProcessDefinition =
         findProcessDefinitionByprocessDefinitionKey(processDefinitionKey)
-            ?: throw RuntimeException("No process definition found with process definition key: '$processDefinitionKey'")
+            ?: throw ProcessDefinitionNotFoundException("No process definition found with process definition key: '$processDefinitionKey'")
 
     fun startProcess(
         zaak: Zaak,
