@@ -26,14 +26,18 @@ export class FormHelper {
     switch (key) {
       case Validators.maxLength.name:
         return control?.validator?.(new FormControl({ length: Infinity }))
-          ?.maxlength?.requiredLength;
+          ?.maxlength?.requiredLength as number | null;
       case Validators.minLength.name:
         return control?.validator?.(new FormControl({ length: -Infinity }))
-          ?.minLength?.requiredLength;
+          ?.minLength?.requiredLength as number | null;
       case Validators.min.name:
-        return control?.validator?.(new FormControl(-Infinity))?.min?.min;
+        return control?.validator?.(new FormControl(-Infinity))?.min?.min as
+          | number
+          | null;
       case Validators.max.name:
-        return control?.validator?.(new FormControl(Infinity))?.max?.max;
+        return control?.validator?.(new FormControl(Infinity))?.max?.max as
+          | number
+          | null;
       default:
         return null;
     }

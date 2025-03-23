@@ -17,13 +17,13 @@
     [maxlength]="maxlength ?? 999999"
     [readonly]="readonly"
     [required]="required"
-    [type]="type ?? 'text'"
+    [type]="type"
   />
   <button
     matSuffix
     mat-icon-button
     type="button"
-    *ngIf="disabled && control?.value?.length"
+    *ngIf="control?.disabled && control?.value?.length"
     (click)="control?.reset(undefined)"
   >
     <mat-icon>clear</mat-icon>
