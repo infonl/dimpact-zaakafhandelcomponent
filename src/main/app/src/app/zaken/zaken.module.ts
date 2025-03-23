@@ -5,7 +5,6 @@
 
 import { NgModule } from "@angular/core";
 
-import { MatGridList, MatGridTile } from "@angular/material/grid-list";
 import { BAGModule } from "../bag/bag.module";
 import { GebruikersvoorkeurenModule } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.module";
 import { InformatieObjectenModule } from "../informatie-objecten/informatie-objecten.module";
@@ -88,8 +87,6 @@ import { LocatieZoekComponent } from "./zoek/locatie-zoek/locatie-zoek.component
     InformatieObjectIndicatiesComponent,
     KlantKoppelComponent,
     MimetypeToExtensionPipe,
-    MatGridList,
-    MatGridTile,
   ],
 })
 export class ZakenModule {}
