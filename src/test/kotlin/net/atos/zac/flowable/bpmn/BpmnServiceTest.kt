@@ -6,6 +6,7 @@ package net.atos.zac.flowable.bpmn
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -13,6 +14,7 @@ import net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING
 import net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
 import net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE
 import net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID
+import net.atos.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.model.createReferentieProcess
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -35,6 +37,10 @@ class BpmnServiceTest : BehaviorSpec({
         processEngine,
         bpmnProcessDefinitionService
     )
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given("A UUID for which a BPMN process instance exists") {
         val uuid = UUID.randomUUID()
@@ -86,7 +92,6 @@ class BpmnServiceTest : BehaviorSpec({
         val zaakData = mapOf<String, Any>("dummyKey" to "dummyValue")
         val processInstanceBuilder = mockk<ProcessInstanceBuilder>()
         val processInstance = mockk<ProcessInstance>()
-        every { processInstance.id } returns "dummyProcessInstanceID"
         every {
             runtimeService.createProcessInstanceBuilder()
         } returns processInstanceBuilder
@@ -109,6 +114,32 @@ class BpmnServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     processInstanceBuilder.start()
                 }
+            }
+        }
+    }
+    Given("A valid zaaktype UUID with a process definition") {
+        val zaaktypeUUID = UUID.randomUUID()
+        val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnProcessDefinition()
+        every { bpmnProcessDefinitionService.findZaaktypeProcessDefinition(zaaktypeUUID) } returns zaaktypeBpmnProcessDefinition
+
+        When("finding the process definition for the zaaktype") {
+            val result = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
+
+            Then("the correct process definition is returned") {
+                result shouldBe zaaktypeBpmnProcessDefinition
+            }
+        }
+    }
+
+    Given("A valid zaaktype UUID without a process definition") {
+        val zaaktypeUUID = UUID.randomUUID()
+        every { bpmnProcessDefinitionService.findZaaktypeProcessDefinition(zaaktypeUUID) } returns null
+
+        When("finding the process definition for the zaaktype") {
+            val result = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
+
+            Then("null is returned") {
+                result shouldBe null
             }
         }
     }
