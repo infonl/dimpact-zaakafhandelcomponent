@@ -17,7 +17,7 @@ class BpmnProcessDefinitionService @Inject constructor(
     private val entityManager: EntityManager
 ) {
     /**
-     * Returns the 'Zaaktype - BPMN process definition relation' for the given zaaktype UUID or 'null'
+     * Returns the zaaktype - BPMN process definition relation for the given zaaktype UUID or 'null'
      * if no BPMN process definition could be found for the given zaaktype UUID.
      */
     fun findZaaktypeProcessDefinition(zaaktypeUUID: UUID): ZaaktypeBpmnProcessDefinition? =
