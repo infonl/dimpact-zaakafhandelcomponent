@@ -10,7 +10,7 @@
       {{ key | translate | capitalizeFirstLetter }}
     </ng-content>
   </mat-label>
-  <div class="position-absolute" *ngIf="displayValue">
+  <div class="position-absolute overflow-hidden" *ngIf="displayValue">
     {{ getDisplayValue(control?.value) }}
   </div>
   <input
@@ -18,7 +18,9 @@
     autocomplete="off"
     [ngClass]="displayValue ? 'hide-gt-xs' : ''"
     [formControlName]="key"
-    [maxlength]="maxlength ?? 999999"
+    [maxlength]="maxlength"
+    [min]="min"
+    [max]="max"
     [readonly]="readonly || displayValue"
     [required]="required"
     [type]="type"
