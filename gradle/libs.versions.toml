@@ -16,7 +16,6 @@ spotless = "6.25.0"
 spotless-eclipse-formatter = "4.21"
 spotless-prettier-base = "3.4.2"
 spotless-prettier-organize-imports = "4.1.0"
-microprofile-rest-client = "3.0"
 jacoco = "0.8.12"
 glassfish-expressly = "5.0.0"
 keycloak = "25.0.6"
@@ -77,9 +76,6 @@ slf4j-simple = "2.0.17"
 
 github-kotlin-logging = "7.0.5"
 okhttp = "4.12.0"
-
-os-detector = "1.7.3"
-undercouch-download = "5.6.0"
 
 [libraries]
 apache-commons-lang = { group = "org.apache.commons", name = "commons-lang3", version.ref = "apache-commons-lang" }
@@ -180,5 +176,3 @@ taskinfo = { id = "org.barfuin.gradle.taskinfo", version.ref = "taskinfo" }
 swagger-generator = { id = "org.hidetake.swagger.generator", version.ref = "swagger-generator" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
-osdetector = { id = "com.google.osdetector", version.ref = "os-detector" }
-undercouch-download = { id = "de.undercouch.download", version.ref = "undercouch-download" }
