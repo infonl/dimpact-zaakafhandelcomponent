@@ -66,8 +66,8 @@ class SearchRestService @Inject constructor(
         val searchResults = performSearch(restZoekParameters)
 
         return RestZoekResultaat(
-            searchResults.results.map { it as RestZaakZoekObject
-                restZoekResultaatConverter.convert(it, informationObjectTypeUuid)
+            searchResults.results.map {
+                restZoekResultaatConverter.convert(it as RestZaakZoekObject, informationObjectTypeUuid)
             },
             searchResults.resultCount
         )
