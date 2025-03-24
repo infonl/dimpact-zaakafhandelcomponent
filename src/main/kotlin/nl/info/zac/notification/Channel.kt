@@ -22,6 +22,7 @@ enum class Channel(private val code: String, val resourceType: Resource) {
     OBJECTEN("objecten", Resource.OBJECT),
     ZAKEN("zaken", Resource.ZAAK),
     ZAAKTYPEN("zaaktypen", Resource.ZAAKTYPE),
+
     // Used by "Abonnementen" functionality in OpenNotificaties to check if callback URL is active
     TEST("test", Resource.TEST);
 

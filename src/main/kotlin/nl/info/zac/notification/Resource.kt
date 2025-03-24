@@ -32,6 +32,7 @@ enum class Resource(private val code: String) {
     ZAAKEIGENSCHAP("zaakeigenschap"),
     ZAAKINFORMATIEOBJECT("zaakinformatieobject"),
     ZAAKTYPE("zaaktype"),
+
     // Used by "Abonnementen" functionality in OpenNotificaties to check if callback URL is active
     TEST("some_resource");
 
