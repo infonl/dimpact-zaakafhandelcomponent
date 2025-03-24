@@ -17,7 +17,11 @@ import net.atos.zac.search.model.zoekobject.TaakZoekObject
 import net.atos.zac.search.model.zoekobject.ZaakZoekObject
 import net.atos.zac.search.model.zoekobject.ZoekObject
 import net.atos.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.search.model.AbstractRestZoekObject
+import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
+import nl.info.zac.app.search.model.RestZaakZoekObject
 import nl.info.zac.app.search.model.RestZoekParameters
 import nl.info.zac.app.search.model.RestZoekResultaat
 import nl.info.zac.app.search.model.toRestDocumentZoekObject
@@ -25,10 +29,12 @@ import nl.info.zac.app.search.model.toRestTaakZoekObject
 import nl.info.zac.app.search.model.toRestZaakZoekObject
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.util.UUID
 
 @NoArgConstructor
 @AllOpen
 class RestZoekResultaatConverter @Inject constructor(
+    private val ztcClientService: ZtcClientService,
     private val policyService: PolicyService
 ) {
     fun convert(
@@ -64,4 +70,18 @@ class RestZoekResultaatConverter @Inject constructor(
                 policyService.readDocumentRechten(zoekObject)
             )
         }
+
+    fun convert(restZaakZoekObject: RestZaakZoekObject, informationObjectTypeUuid: UUID) =
+        RestZaakKoppelenZoekObject(
+            id = restZaakZoekObject.id,
+            type = restZaakZoekObject.type,
+            identificatie = restZaakZoekObject.identificatie,
+            omschrijving = restZaakZoekObject.omschrijving,
+            toelichting = restZaakZoekObject.toelichting,
+            documentKoppelen = UUID.fromString(restZaakZoekObject.zaaktypeUuid).let {
+                ztcClientService.readZaaktype(it).informatieobjecttypen.any {
+                    it.extractUuid() == informationObjectTypeUuid
+                }
+            }
+        )
 }

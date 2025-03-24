@@ -19,10 +19,12 @@ import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.app.search.converter.RestZoekParametersConverter
 import nl.info.zac.app.search.converter.RestZoekResultaatConverter
 import nl.info.zac.app.search.model.AbstractRestZoekObject
+import nl.info.zac.app.search.model.RestZaakZoekObject
 import nl.info.zac.app.search.model.RestZoekParameters
 import nl.info.zac.app.search.model.RestZoekResultaat
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.util.UUID
 
 @Path("zoeken")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -45,8 +47,29 @@ class SearchRestService @Inject constructor(
             )
             else -> PolicyService.assertPolicy(policyService.readOverigeRechten().zoeken)
         }
+        return performSearch(restZoekParameters)
+    }
+
+    private fun performSearch(restZoekParameters: RestZoekParameters): RestZoekResultaat<out AbstractRestZoekObject> {
         val zoekParameters = restZoekZaakParametersConverter.convert(restZoekParameters)
         val zoekResultaat = searchService.zoek(zoekParameters)
         return restZoekResultaatConverter.convert(zoekResultaat, restZoekParameters)
+    }
+
+    @PUT
+    @Path("listZaken")
+    fun listZakenForInformationObjectType(
+        restZoekParameters: RestZoekParameters,
+        informationObjectTypeUuid: UUID
+    ): RestZoekResultaat<out AbstractRestZoekObject?> {
+        PolicyService.assertPolicy(policyService.readWerklijstRechten().zakenTaken)
+        val searchResults = performSearch(restZoekParameters)
+
+        return RestZoekResultaat(
+            searchResults.results.map { it as RestZaakZoekObject
+                restZoekResultaatConverter.convert(it, informationObjectTypeUuid)
+            },
+            searchResults.resultCount
+        )
     }
 }
