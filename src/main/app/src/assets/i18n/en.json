@@ -748,6 +748,8 @@
   "validators.matDatepickerMin": "The minimum date is {{min}}",
   "validators.minlength": "Use at least {{requiredLength}} characters",
   "validators.maxlength": "Use at most {{requiredLength}} characters",
+  "validators.min": "Enter at least {{min}}",
+  "validators.max": "Enter at most {{max}}",
   "validators.required": "This field is required",
   "msg.error.required": "The {{label}} field is empty. Enter the required data!",
   "msg.error.teklein": "The {{label}} field contains a value that is too small. Enter at least {{min}}!",
