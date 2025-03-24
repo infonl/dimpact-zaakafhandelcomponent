@@ -13,13 +13,13 @@
   </button>
 </div>
 
-<div class="form">
+<div class="form" *ngIf="infoObject">
   <p>{{ "informatieobjecten.koppelen.uitleg" | translate }}</p>
   <mfb-form-field class="flex-1" [field]="caseSearchField"></mfb-form-field>
   <button
     mat-flat-button
     color="primary"
-    [disabled]="!issValid"
+    [disabled]="!isValid || loading"
     (click)="searchCases()"
   >
     {{ "actie.zoeken" | translate }}
@@ -32,7 +32,7 @@
     <table mat-table [dataSource]="cases" matSort>
       <ng-container matColumnDef="identificatie">
         <th *matHeaderCellDef mat-header-cell mat-sort-header>
-          {{ "identificatie" | translate }}
+          {{ "zaak.identificatie" | translate }}
         </th>
         <td *matCellDef="let zaak" mat-cell>
           {{ zaak.identificatie | empty }}
