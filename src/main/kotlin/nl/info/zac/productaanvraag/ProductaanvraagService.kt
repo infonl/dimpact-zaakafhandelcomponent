@@ -387,20 +387,19 @@ class ProductaanvraagService @Inject constructor(
         }
     }
 
-    private fun creeerRolGroep(groepID: String, zaak: Zaak): RolOrganisatorischeEenheid =
-        identityService.readGroup(groepID).let {
-            OrganisatorischeEenheid().apply {
-                identificatie = it.id
-                naam = it.name
-            }
-        }.let { organistatorischeEenheid ->
-            RolOrganisatorischeEenheid(
-                zaak.url,
-                ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR),
-                "Behandelend groep van de zaak",
-                organistatorischeEenheid
-            )
+    private fun creeerRolGroep(groepID: String, zaak: Zaak): RolOrganisatorischeEenheid {
+        val group = identityService.readGroup(groepID)
+        val organisatieEenheid = OrganisatorischeEenheid().apply {
+            identificatie = group.id
+            naam = group.name
         }
+        return RolOrganisatorischeEenheid(
+            zaak.url,
+            ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR),
+            "Behandelend groep van de zaak",
+            organisatieEenheid
+        )
+    }
 
     private fun creeerRolMedewerker(behandelaarGebruikersnaam: String, zaak: Zaak): RolMedewerker =
         identityService.readUser(behandelaarGebruikersnaam).let {
@@ -425,46 +424,64 @@ class ProductaanvraagService @Inject constructor(
         ztcClientService.listZaaktypen(configuratieService.readDefaultCatalogusURI())
             .firstOrNull { it.identificatie == zaaktypeIdentificatie }
 
-    @Suppress("TooGenericExceptionCaught", "NestedBlockDepth")
+    @Suppress("TooGenericExceptionCaught", "NestedBlockDepth", "LongMethod")
     private fun handleProductaanvraagDimpact(productaanvraagObject: ModelObject) {
         LOG.fine { "Start handling productaanvraag with object URL: ${productaanvraagObject.url}" }
         val productaanvraag = getProductaanvraag(productaanvraagObject)
-        zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
+        val zaakafhandelparameters = zaakafhandelParameterBeheerService.findActiveZaakafhandelparametersByProductaanvraagtype(
             productaanvraag.type
-        ).let { zaakafhandelparameters ->
-            if (zaakafhandelparameters.isNotEmpty()) {
-                try {
-                    if (zaakafhandelparameters.size > 1) {
-                        LOG.warning(
-                            "Multiple zaakafhandelparameters found for productaanvraag type '${productaanvraag.type}'. " +
-                                "This indicates that the zaakafhandelparameters are not configured correctly. " +
-                                "There should be at most only one active zaakafhandelparameters for each productaanvraagtype. " +
-                                "Using the first one with zaakttpe UUID: '${zaakafhandelparameters.first().zaakTypeUUID}' " +
-                                "and zaaktype omschrijving: '${zaakafhandelparameters.first().zaaktypeOmschrijving}'."
-                        )
-                    }
-                    val firstZaakafhandelparameters = zaakafhandelparameters.first()
-                    LOG.fine { "Creating a zaak using a CMMN case with zaaktype UUID: '$firstZaakafhandelparameters'" }
-                    startZaakWithCmmnProcess(
-                        firstZaakafhandelparameters.zaakTypeUUID,
-                        productaanvraag,
-                        productaanvraagObject
+        )
+        if (zaakafhandelparameters.isNotEmpty()) {
+            try {
+                if (zaakafhandelparameters.size > 1) {
+                    LOG.warning(
+                        "Multiple zaakafhandelparameters found for productaanvraag type '${productaanvraag.type}'. " +
+                            "Using the first one with zaaktype UUID: '${zaakafhandelparameters.first().zaakTypeUUID}' " +
+                            "and zaaktype omschrijving: '${zaakafhandelparameters.first().zaaktypeOmschrijving}'."
                     )
-                } catch (exception: RuntimeException) {
-                    logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
                 }
-            } else {
-                findZaaktypeByIdentificatie(productaanvraag.type)?.let {
+                val firstZaakafhandelparameters = zaakafhandelparameters.first()
+                LOG.fine { "Creating a zaak using a CMMN case with zaaktype UUID: '${firstZaakafhandelparameters.zaakTypeUUID}'" }
+                startZaakWithCmmnProcess(
+                    firstZaakafhandelparameters.zaakTypeUUID,
+                    productaanvraag,
+                    productaanvraagObject
+                )
+            } catch (exception: RuntimeException) {
+                logZaakCouldNotBeCreatedWarning("CMMN", productaanvraag, exception)
+            }
+        } else {
+            val zaaktype = findZaaktypeByIdentificatie(productaanvraag.type)
+            if (zaaktype != null) {
+                val processDefinition = bpmnService.findProcessDefinitionForZaaktype(zaaktype.url.extractUuid())
+                if (processDefinition != null) {
                     try {
-                        LOG.fine { "Creating a zaak using a BPMN proces with zaaktype: $it" }
-                        startZaakWithBpmnProcess(it, productaanvraag, productaanvraagObject)
+                        LOG.fine {
+                            """
+                            Creating a zaak using a BPMN proces with zaaktype: '$zaaktype'
+                            and BPMN process definition key: '${processDefinition.bpmnProcessDefinitionKey}'
+                            """.trimIndent()
+                        }
+                        startZaakWithBpmnProcess(
+                            zaaktype = zaaktype,
+                            processDefinitionKey = processDefinition.bpmnProcessDefinitionKey,
+                            productaanvraag = productaanvraag,
+                            productaanvraagObject = productaanvraagObject
+                        )
                     } catch (exception: RuntimeException) {
                         logZaakCouldNotBeCreatedWarning("BPMN", productaanvraag, exception)
                     }
-                } ?: run {
-                    LOG.info("No zaaktype found for productaanvraag-Dimpact type '${productaanvraag.type}'. No zaak was created.")
+                } else {
+                    LOG.info(
+                        "No BPMN process definition found for zaaktype '${zaaktype.identificatie}'. No zaak was created."
+                    )
                     registreerInbox(productaanvraag, productaanvraagObject)
                 }
+            } else {
+                LOG.info(
+                    "No zaaktype found for productaanvraag-Dimpact type '${productaanvraag.type}'. No zaak was created."
+                )
+                registreerInbox(productaanvraag, productaanvraagObject)
             }
         }
     }
@@ -522,6 +539,7 @@ class ProductaanvraagService @Inject constructor(
 
     private fun startZaakWithBpmnProcess(
         zaaktype: ZaakType,
+        processDefinitionKey: String,
         productaanvraag: ProductaanvraagDimpact,
         productaanvraagObject: ModelObject
     ) {
@@ -531,14 +549,15 @@ class ProductaanvraagService @Inject constructor(
             verantwoordelijkeOrganisatie = configuratieService.readBronOrganisatie()
             startdatum = LocalDate.now()
         }.let(zgwApiService::createZaak)
-        bpmnService.readProcessDefinitionByprocessDefinitionKey(zaaktype.referentieproces.naam).let {
-            zrcClientService.createRol(creeerRolGroep(it.description, createdZaak))
+        bpmnService.readProcessDefinitionByProcessDefinitionKey(processDefinitionKey).let {
+            creeerRolGroep(it.description, createdZaak).let(zrcClientService::createRol)
         }
         pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, createdZaak)
         bpmnService.startProcess(
-            createdZaak,
-            zaaktype,
-            getAanvraaggegevens(productaanvraagObject)
+            zaak = createdZaak,
+            zaaktype = zaaktype,
+            processDefinitionKey = processDefinitionKey,
+            zaakData = getAanvraaggegevens(productaanvraagObject)
         )
     }
 
@@ -564,8 +583,6 @@ class ProductaanvraagService @Inject constructor(
             }
             toelichting = generateZaakExplanationFromProductaanvraag(productaanvraag)
         }.let(zgwApiService::createZaak)
-
-        LOG.fine("Creating zaak using the ZGW API: $createdZaak")
         val zaakafhandelParameters = zaakafhandelParameterService.readZaakafhandelParameters(zaaktypeUuid)
         assignZaak(createdZaak, zaakafhandelParameters)
         pairProductaanvraagInfoWithZaak(productaanvraag, productaanvraagObject, createdZaak)

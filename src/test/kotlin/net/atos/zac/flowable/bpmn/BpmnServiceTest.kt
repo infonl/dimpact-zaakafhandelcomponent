@@ -7,6 +7,7 @@ package net.atos.zac.flowable.bpmn
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -14,9 +15,12 @@ import net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_OMSCHRIJVING
 import net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAKTYPE_UUUID
 import net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE
 import net.atos.zac.flowable.ZaakVariabelenService.VAR_ZAAK_UUID
+import net.atos.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
+import net.atos.zac.flowable.bpmn.model.createZaaktypeBpmnProcessDefinition
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.model.createReferentieProcess
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.test.org.flowable.engine.repository.createProcessDefinition
 import org.flowable.engine.ProcessEngine
 import org.flowable.engine.RepositoryService
 import org.flowable.engine.RuntimeService
@@ -29,11 +33,17 @@ class BpmnServiceTest : BehaviorSpec({
     val repositoryService = mockk<RepositoryService>()
     val runtimeService = mockk<RuntimeService>()
     val processEngine = mockk<ProcessEngine>()
+    val bpmnProcessDefinitionService = mockk<BpmnProcessDefinitionService>()
     val bpmnService = BpmnService(
         repositoryService,
         runtimeService,
-        processEngine
+        processEngine,
+        bpmnProcessDefinitionService
     )
+
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
     Given("A UUID for which a BPMN process instance exists") {
         val uuid = UUID.randomUUID()
@@ -85,7 +95,6 @@ class BpmnServiceTest : BehaviorSpec({
         val zaakData = mapOf<String, Any>("dummyKey" to "dummyValue")
         val processInstanceBuilder = mockk<ProcessInstanceBuilder>()
         val processInstance = mockk<ProcessInstance>()
-        every { processInstance.id } returns "dummyProcessInstanceID"
         every {
             runtimeService.createProcessInstanceBuilder()
         } returns processInstanceBuilder
@@ -97,12 +106,12 @@ class BpmnServiceTest : BehaviorSpec({
                 .variable(VAR_ZAAK_IDENTIFICATIE, zaak.identificatie)
                 .variable(VAR_ZAAKTYPE_UUUID, zaakTypeUUID)
                 .variable(VAR_ZAAKTYPE_OMSCHRIJVING, zaakType.omschrijving)
-                .variables(zaakData)
         } returns processInstanceBuilder
+        every { processInstanceBuilder.variables(zaakData) } returns processInstanceBuilder
         every { processInstanceBuilder.start() } returns processInstance
 
         When("the zaak is started using a BPMN process definition") {
-            bpmnService.startProcess(zaak, zaakType, zaakData)
+            bpmnService.startProcess(zaak, zaakType, referentieProcesName, zaakData)
 
             Then("a Flowable BPMN process instance should be started") {
                 verify(exactly = 1) {
@@ -111,20 +120,58 @@ class BpmnServiceTest : BehaviorSpec({
             }
         }
     }
+    Given("A valid zaaktype UUID with a process definition") {
+        val zaaktypeUUID = UUID.randomUUID()
+        val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnProcessDefinition()
+        every { bpmnProcessDefinitionService.findZaaktypeProcessDefinition(zaaktypeUUID) } returns zaaktypeBpmnProcessDefinition
 
-    Given("A zaak and zaakdata and a zaaktype without a 'referentieproces'") {
-        val zaakTypeUUID = UUID.randomUUID()
-        val zaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$zaakTypeUUID"))
-        val zaak = createZaak(zaakTypeURI = zaakType.url)
-        val zaakData = mapOf<String, Any>("dummyKey" to "dummyValue")
+        When("finding the process definition for the zaaktype") {
+            val result = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
 
-        When("the zaak is started using a BPMN process definition") {
-            val exception = shouldThrow<IllegalArgumentException> {
-                bpmnService.startProcess(zaak, zaakType, zaakData)
+            Then("the correct process definition is returned") {
+                result shouldBe zaaktypeBpmnProcessDefinition
+            }
+        }
+    }
+
+    Given("A valid zaaktype UUID without a process definition") {
+        val zaaktypeUUID = UUID.randomUUID()
+        every { bpmnProcessDefinitionService.findZaaktypeProcessDefinition(zaaktypeUUID) } returns null
+
+        When("finding the process definition for the zaaktype") {
+            val result = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
+
+            Then("null is returned") {
+                result shouldBe null
+            }
+        }
+    }
+
+    Given("A valid process definition key with an existing process definition") {
+        val processDefinitionKey = "dummyProcessDefinitionKey"
+        val processDefinition = createProcessDefinition()
+        every { bpmnService.findProcessDefinitionByprocessDefinitionKey(processDefinitionKey) } returns processDefinition
+
+        When("reading the process definition by process definition key") {
+            val result = bpmnService.readProcessDefinitionByProcessDefinitionKey(processDefinitionKey)
+
+            Then("the correct process definition is returned") {
+                result shouldBe processDefinition
+            }
+        }
+    }
+
+    Given("An invalid process definition key with no existing process definition") {
+        val processDefinitionKey = "dummyProcessDefinitionKey"
+        every { bpmnService.findProcessDefinitionByprocessDefinitionKey(processDefinitionKey) } returns null
+
+        When("reading the process definition by process definition key") {
+            val exception = shouldThrow<ProcessDefinitionNotFoundException> {
+                bpmnService.readProcessDefinitionByProcessDefinitionKey(processDefinitionKey)
             }
 
-            Then("an exception should be thrown") {
-                exception.message shouldBe "No referentieproces found for zaaktype with UUID: '$zaakTypeUUID'"
+            Then("a 'process definition not found exception' is thrown") {
+                exception.message shouldBe "No BPMN process definition found for process definition key: '$processDefinitionKey'"
             }
         }
     }
