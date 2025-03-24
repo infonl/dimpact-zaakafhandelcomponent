@@ -64,30 +64,32 @@
         </zac-input>
       </section>
     </fieldset>
-    <fieldset class="row">
-      <label class="col-12"
+    <fieldset>
+      <label
         ><h2>{{ "gegevens.toekennen" | translate }}</h2></label
       >
-      <zac-auto-complete
-        class="col"
-        key="groep"
-        optionDisplayValue="naam"
-        [form]="form"
-        [options]="groups"
-      >
-        <mat-label>{{ "actie.zaak.toekennen.groep" | translate }}</mat-label>
-      </zac-auto-complete>
-      <zac-auto-complete
-        class="col"
-        key="behandelaar"
-        optionDisplayValue="naam"
-        [form]="form"
-        [options]="users"
-      >
-        <mat-label>{{
-          "actie.zaak.toekennen.medewerker" | translate
-        }}</mat-label>
-      </zac-auto-complete>
+      <section class="row">
+        <zac-auto-complete
+          class="col"
+          key="groep"
+          optionDisplayValue="naam"
+          [form]="form"
+          [options]="groups"
+        >
+          <mat-label>{{ "actie.zaak.toekennen.groep" | translate }}</mat-label>
+        </zac-auto-complete>
+        <zac-auto-complete
+          class="col"
+          key="behandelaar"
+          optionDisplayValue="naam"
+          [form]="form"
+          [options]="users"
+        >
+          <mat-label>{{
+            "actie.zaak.toekennen.medewerker" | translate
+          }}</mat-label>
+        </zac-auto-complete>
+      </section>
     </fieldset>
     <fieldset>
       <label
@@ -114,7 +116,7 @@
       <zac-input key="omschrijving" [form]="form"> </zac-input>
       <zac-textarea key="toelichting" [form]="form"></zac-textarea>
     </fieldset>
-    <fieldset>
+    <fieldset class="flex-row">
       <button
         mat-raised-button
         type="submit"

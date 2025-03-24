@@ -31,13 +31,21 @@ export class ZacInput<
   @Input() displayValue?: DisplayValue;
 
   protected control?: AbstractControl<Option>;
-  protected maxlength?: number | null;
+  protected maxlength: number | null = null;
+  protected min?: number | null = null;
+  protected max?: number | null = null;
 
   constructor(private readonly translateService: TranslateService) {}
 
   ngOnInit() {
     this.control = this.form.get(String(this.key))!;
     this.maxlength = FormHelper.getValidatorValue("maxLength", this.control);
+    this.min = FormHelper.getValidatorValue("min", this.control);
+    this.max = FormHelper.getValidatorValue("max", this.control);
+
+    if (Number.isFinite(this.min) || Number.isInteger(this.max)) {
+      this.type = 'number'
+    }
   }
 
   protected getDisplayValue = (option?: Option) => {
