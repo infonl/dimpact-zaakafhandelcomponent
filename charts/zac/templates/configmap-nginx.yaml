@@ -75,6 +75,7 @@ data:
       include conf.d/proxy;
 
       location / {
+        client_max_body_size {{ .Values.nginx.client_max_body_size }};
         set $first "B";
         if ($request_uri ~* '^/websocket') {
           set $first "${first}W";
@@ -88,12 +89,10 @@ data:
       location @normal {
         proxy_connect_timeout 300s;
         proxy_read_timeout 300s;
-        client_max_body_size {{ .Values.nginx.client_max_body_size }};
         proxy_pass http://{{ include "zaakafhandelcomponent.fullname" . }}.{{ .Release.Namespace }}:{{ .Values.service.port }};
       }
 
       location @longtimeout {
-        client_max_body_size {{ .Values.nginx.client_max_body_size }};
         proxy_read_timeout 1d;
         proxy_send_timeout 1d;
         proxy_pass http://{{ include "zaakafhandelcomponent.fullname" . }}.{{ .Release.Namespace }}:{{ .Values.service.port }};
