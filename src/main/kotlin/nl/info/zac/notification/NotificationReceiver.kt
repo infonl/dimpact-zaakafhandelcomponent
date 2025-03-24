@@ -262,6 +262,7 @@ class NotificationReceiver @Inject constructor(
 
     @Suppress("TooGenericExceptionCaught")
     private fun handleInboxDocuments(notification: Notification) {
+        // Used by "Abonnementen" functionality in OpenNotificaties to check if callback URL is active
         if (notification.channel == Channel.TEST) {
             LOG.info("Received test callback URL status notification")
             return
