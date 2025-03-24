@@ -36,6 +36,7 @@ import { DatumRange } from "../../zoeken/model/datum-range";
 import { OntkoppeldDocument } from "../model/ontkoppeld-document";
 import { OntkoppeldDocumentListParameters } from "../model/ontkoppeld-document-list-parameters";
 import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
+import { MatDrawer, MatSidenav } from "@angular/material/sidenav";
 
 @Component({
   templateUrl: "./ontkoppelde-documenten-list.component.html",
@@ -49,6 +50,8 @@ export class OntkoppeldeDocumentenListComponent
   dataSource = new MatTableDataSource<OntkoppeldDocument>();
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
+
   displayedColumns: string[] = [
     "titel",
     "creatiedatum",
@@ -71,6 +74,8 @@ export class OntkoppeldeDocumentenListComponent
   filterOntkoppeldDoor: GeneratedType<"RestUser">[] = [];
   filterChange = new EventEmitter<void>();
   clearZoekopdracht = new EventEmitter<void>();
+
+  selectedDocument: OntkoppeldDocument | null = null;
 
   constructor(
     private ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
@@ -115,6 +120,17 @@ export class OntkoppeldeDocumentenListComponent
         this.filterOntkoppeldDoor = data.filterOntkoppeldDoor;
         this.dataSource.data = data.resultaten;
       });
+  }
+
+  openDrawer(ontkoppeldDocument: OntkoppeldDocument) {
+    this.selectedDocument = ontkoppeldDocument;
+
+    console.log("this.selectedDocument", this.selectedDocument);
+    this.actionsSidenav.open();
+  }
+
+  closeDrawer() {
+    this.actionsSidenav.close();
   }
 
   updateListParameters(): void {

@@ -584,6 +584,7 @@
   "actie.document.verzenden": "Send document",
   "actie.document.maken": "Create document",
   "actie.document.bekijken": "View document",
+  "actie.document.koppelen": "Link document",
   "actie.document.ontkoppelen": "Unlink document",
   "actie.document.verplaatsen": "Move document",
   "actie.document.verplaatsen.disabled.zaak": "Go to the case this document must be moved to...",

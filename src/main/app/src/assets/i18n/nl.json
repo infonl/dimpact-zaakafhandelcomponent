@@ -583,6 +583,7 @@
   "actie.document.toevoegen.nogmaals": "Nog een document toevoegen",
   "actie.document.verzenden": "Document verzenden",
   "actie.document.maken": "Document maken",
+  "actie.document.koppelen": "Document koppelen",
   "actie.document.ontkoppelen": "Document ontkoppelen",
   "actie.document.verplaatsen": "Document verplaatsen",
   "actie.document.verplaatsen.disabled.zaak": "Ga naar de zaak waar dit document naar verplaatst moet worden...",
