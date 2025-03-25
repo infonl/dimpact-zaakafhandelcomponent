@@ -44,6 +44,7 @@ export class InformatieObjectLinkComponent
   loading: boolean = false;
 
   cases = new MatTableDataSource<KoppelbareZaakListItem>();
+  totalCases: number = 0;
   caseColumns: string[] = [
     "documentKoppelen",
     "id",
@@ -109,6 +110,7 @@ export class InformatieObjectLinkComponent
         (result) => {
           console.log("result", result);
           this.cases.data = result.resultaten;
+          this.totalCases = result.totaal;
           this.loading = false;
           this.utilService.setLoading(false);
         },
