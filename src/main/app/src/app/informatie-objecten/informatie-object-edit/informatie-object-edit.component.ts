@@ -45,7 +45,8 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
 export class InformatieObjectEditComponent
   implements OnInit, OnDestroy, OnChanges
 {
-  @Input({ required: true }) infoObject!: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
+  @Input({ required: true })
+  infoObject!: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Input({ required: true }) zaakUuid!: string;
 
