@@ -422,7 +422,7 @@ class ProductaanvraagService @Inject constructor(
      * Else it will create an 'inbox productaanvraag'.
      * Note that support for starting a BPMN process from a productaanvraag is not implemented yet.
      */
-    @Suppress("TooGenericExceptionCaught", "NestedBlockDepth", "LongMethod")
+    @Suppress("TooGenericExceptionCaught")
     private fun handleProductaanvraagDimpact(productaanvraagObject: ModelObject) {
         LOG.fine { "Start handling productaanvraag with object URL: ${productaanvraagObject.url}" }
         val productaanvraag = getProductaanvraag(productaanvraagObject)
