@@ -388,7 +388,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     "rows": 5,
                     "page":0,
                     "zaakIdentificator": "zaak",
-                    "informationObjectUUID": "$enkelvoudigInformatieObjectUUID"
+                    "documentUUID": "$enkelvoudigInformatieObjectUUID"
                 }
                 """.trimIndent()
             )
@@ -461,7 +461,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     "rows": 5,
                     "page":0,
                     "zaakIdentificator": "zaak",
-                    "informationObjectUUID": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
+                    "documentUUID": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
                 }
                 """.trimIndent()
             )
