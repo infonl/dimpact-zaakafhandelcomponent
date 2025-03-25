@@ -45,19 +45,20 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
 export class InformatieObjectEditComponent
   implements OnInit, OnDestroy, OnChanges
 {
-  @Input()
-  infoObject?: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
-  @Input() sideNav: MatDrawer;
-  @Input() zaakUuid?: string;
+  @Input({ required: true })
+  infoObject!: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
+  @Input({ required: true }) sideNav!: MatDrawer;
+  @Input({ required: true }) zaakUuid!: string;
+
   @Output() document = new EventEmitter<
     GeneratedType<"RestEnkelvoudigInformatieobject">
   >();
 
-  @ViewChild(FormComponent) form: FormComponent;
+  @ViewChild(FormComponent) form!: FormComponent;
 
   fields: Array<AbstractFormField[]> = [];
-  formConfig: FormConfig;
-  private ingelogdeMedewerker?: GeneratedType<"RestLoggedInUser">;
+  formConfig!: FormConfig;
+  private ingelogdeMedewerker!: GeneratedType<"RestLoggedInUser">;
 
   private subscriptions$: Subscription[] = [];
 
@@ -203,6 +204,7 @@ export class InformatieObjectEditComponent
     const toelichting = new InputFormFieldBuilder()
       .id("toelichting")
       .label("toelichting")
+      .maxlength(1000)
       .build();
 
     this.subscriptions$.push(
@@ -327,7 +329,7 @@ export class InformatieObjectEditComponent
 
   private getIngelogdeMedewerker() {
     this.identityService.readLoggedInUser().subscribe((ingelogdeMedewerker) => {
-      this.ingelogdeMedewerker = ingelogdeMedewerker;
+      this.ingelogdeMedewerker = ingelogdeMedewerker!;
     });
   }
 }
