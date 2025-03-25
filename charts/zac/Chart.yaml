@@ -22,7 +22,7 @@ dependencies:
   # Will be used instead of solr
 - name: solr-operator
   repository: '@solr'
-  version: 0.9.0
+  version: 0.9.1
   condition: solr-operator.enabled
 maintainers:
 - name: Team Dimpact, INFO
