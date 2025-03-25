@@ -13,6 +13,8 @@ data class RestZaakKoppelenZoekObject(
     override val identificatie: String? = null,
     val omschrijving: String? = null,
     val toelichting: String? = null,
+    val zaaktypeOmschrijving: String? = null,
     val registratiedatum: LocalDate? = null,
+    val statusToelichting: String? = null,
     val documentKoppelen: Boolean = false
 ) : AbstractRestZoekObject(id, type, identificatie)

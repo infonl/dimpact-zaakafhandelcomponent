@@ -8,6 +8,7 @@ package nl.info.zac.app.search
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
@@ -63,7 +64,7 @@ class SearchRestService @Inject constructor(
     @PUT
     @Path("zaken")
     fun listZakenForInformationObjectType(
-        restZoekKoppelenParameters: RestZoekKoppelenParameters,
+        @Valid restZoekKoppelenParameters: RestZoekKoppelenParameters,
     ): RestZoekResultaat<out AbstractRestZoekObject?> {
         PolicyService.assertPolicy(policyService.readWerklijstRechten().zakenTaken)
 

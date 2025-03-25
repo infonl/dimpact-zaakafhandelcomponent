@@ -31,6 +31,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_USER_1_USERNAME
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_DOCUMENTS
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_TASKS
 import nl.info.zac.itest.config.ItestConfiguration.TOTAL_COUNT_ZAKEN
+import nl.info.zac.itest.config.ItestConfiguration.YMD_TODAY_STRING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
@@ -409,36 +410,51 @@ class SearchRestServiceTest : BehaviorSpec({
                       "documentKoppelen": true,
                       "identificatie": "ZAAK-2024-0000000001",
                       "omschrijving": "$ZAAK_DESCRIPTION_1",
+                      "registratiedatum": "$YMD_TODAY_STRING",
+                      "statusToelichting": "Status gewijzigd",
                       "toelichting": "null",
-                      "type": "ZAAK"
+                      "type": "ZAAK",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                     },
                     {
                       "documentKoppelen": false,
                       "identificatie": "$ZAAK_MANUAL_1_IDENTIFICATION",
                       "omschrijving": "changedDescription",
+                      "registratiedatum": "$YMD_TODAY_STRING",
+                      "statusToelichting": "Status gewijzigd",
                       "toelichting": "$ZAAK_EXPLANATION_1",
-                      "type": "ZAAK"
+                      "type": "ZAAK",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_MELDING_KLEIN_EVENEMENT_DESCRIPTION"
                     },
                     {
                       "documentKoppelen": true,
                       "identificatie": "ZAAK-2000-0000000006",
                       "omschrijving": "dummyOmschrijving",
+                      "registratiedatum": "$YMD_TODAY_STRING",
+                      "statusToelichting": "Zaak beeindigd",
                       "toelichting": "null",
-                      "type": "ZAAK"
+                      "type": "ZAAK",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                     },
                     {
                       "documentKoppelen": true,
                       "identificatie": "ZAAK-2000-0000000005",
                       "omschrijving": "dummyOmschrijving",
+                     "registratiedatum": "$YMD_TODAY_STRING",
+                      "statusToelichting": "dummyReason",
                       "toelichting": "null",
-                      "type": "ZAAK"
+                      "type": "ZAAK",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                     },
                     {
                       "documentKoppelen": true,
                       "identificatie": "ZAAK-2000-0000000004",
                       "omschrijving": "dummyOmschrijving",
+                      "registratiedatum": "$YMD_TODAY_STRING",
+                      "statusToelichting": "Status gewijzigd",
                       "toelichting": "null",
-                      "type": "ZAAK"
+                      "type": "ZAAK",
+                      "zaaktypeOmschrijving": "$ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_DESCRIPTION"
                     }
                   ],
                   "totaal": 10,

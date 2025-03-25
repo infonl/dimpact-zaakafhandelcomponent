@@ -4,10 +4,12 @@
  */
 package nl.info.zac.itest.config
 
+import nl.info.zac.itest.config.ItestConfiguration.zaakProductaanvraag1Uuid
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Month
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.TimeZone
 import java.util.UUID
 
@@ -347,6 +349,7 @@ object ItestConfiguration {
     val ZAAKTYPE_INDIENEN_AANSPRAKELIJKSTELLING_DOOR_DERDEN_BEHANDELEN_UUID: UUID =
         UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
     val START_DATE: LocalDateTime = LocalDateTime.now()
+    val YMD_TODAY_STRING: String = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(START_DATE)
 
     /**
      * Global variable to store the id of a task that is created in the integration tests as
