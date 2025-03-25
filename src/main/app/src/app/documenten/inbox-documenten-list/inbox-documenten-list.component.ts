@@ -34,6 +34,8 @@ import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { InboxDocumentenService } from "../inbox-documenten.service";
 import { InboxDocument } from "../model/inbox-document";
 import { InboxDocumentListParameters } from "../model/inbox-document-list-parameters";
+import { MatSidenav } from "@angular/material/sidenav";
+import { OntkoppeldDocument } from "../model/ontkoppeld-document";
 
 @Component({
   templateUrl: "./inbox-documenten-list.component.html",
@@ -48,6 +50,8 @@ export class InboxDocumentenListComponent
     new MatTableDataSource<InboxDocument>();
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
+
   displayedColumns: string[] = [
     "enkelvoudiginformatieobjectID",
     "creatiedatum",
@@ -63,6 +67,7 @@ export class InboxDocumentenListComponent
   listParameters: InboxDocumentListParameters;
   filterChange: EventEmitter<void> = new EventEmitter<void>();
   clearZoekopdracht: EventEmitter<void> = new EventEmitter<void>();
+  selectedDocument: OntkoppeldDocument | null = null;
 
   constructor(
     private inboxDocumentenService: InboxDocumentenService,
@@ -203,6 +208,13 @@ export class InboxDocumentenListComponent
 
   getWerklijst(): Werklijst {
     return Werklijst.INBOX_DOCUMENTEN;
+  }
+
+  openDrawer(selectedDocument: OntkoppeldDocument) {
+    this.selectedDocument = { ...selectedDocument };
+
+    console.log("this.selectedDocument", this.selectedDocument);
+    this.actionsSidenav.open();
   }
 
   ngOnDestroy(): void {
