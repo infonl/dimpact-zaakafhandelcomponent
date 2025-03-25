@@ -17,9 +17,13 @@ import { AbstractFormControlField } from "src/app/shared/material-form-builder/m
 import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
 import { MatTableDataSource } from "@angular/material/table";
 import { Subject, takeUntil } from "rxjs";
-import { ZakenService } from "src/app/zaken/zaken.service";
 import { OntkoppeldDocument } from "src/app/documenten/model/ontkoppeld-document";
 import { TranslateService } from "@ngx-translate/core";
+import { UtilService } from "src/app/core/service/util.service";
+import {
+  KoppelbareZaakListItem,
+  ZoekenService,
+} from "src/app/zoeken/zoeken.service";
 
 @Component({
   selector: "zac-informatie-object-link",
@@ -29,7 +33,9 @@ import { TranslateService } from "@ngx-translate/core";
 export class InformatieObjectLinkComponent
   implements OnInit, OnChanges, OnDestroy
 {
-  @Input() infoObject?: OntkoppeldDocument | null = null;
+  @Input() infoObject?:
+    | (OntkoppeldDocument & { enkelvoudiginformatieobjectUUID?: string | null })
+    | null = null;
   @Input({ required: true }) sideNav!: MatDrawer;
 
   intro: string | undefined = "";
@@ -37,18 +43,22 @@ export class InformatieObjectLinkComponent
   isValid: boolean = false;
   loading: boolean = false;
 
-  cases = new MatTableDataSource<GeneratedType<"RestZaak">>();
+  cases = new MatTableDataSource<KoppelbareZaakListItem>();
   caseColumns: string[] = [
+    "documentKoppelen",
+    "id",
     "identificatie",
-    "zaaktypeOmschrijving",
-    "status",
-    "registratiedatum",
+    "type",
+    "omschrijving",
+    // "status",
+    // "datum",
   ];
 
   private ngDestroy = new Subject<void>();
 
   constructor(
-    private zakenService: ZakenService,
+    private zoekenService: ZoekenService,
+    private utilService: UtilService,
     private translate: TranslateService,
   ) {}
 
@@ -79,14 +89,35 @@ export class InformatieObjectLinkComponent
   }
 
   searchCases(): void {
+    if (
+      !this.infoObject?.enkelvoudiginformatieobjectUUID &&
+      !this.infoObject?.documentUUID
+    )
+      return;
+
     this.loading = true;
+    this.utilService.setLoading(true);
     console.log("infoObject", this.infoObject);
-    // this.zakenService
-    //   .listZaaktypes(this.caseSearchField?.formControl.value)
-    //   .subscribe((data) => {
-    //     this.cases.data = data;
-    //     this.loading = false;
-    //   });
+
+    this.zoekenService
+      .listKoppelbareZaken(
+        this.caseSearchField?.formControl.value,
+        this.infoObject?.enkelvoudiginformatieobjectUUID ||
+          this.infoObject?.documentUUID,
+      )
+      .subscribe(
+        (result) => {
+          console.log("result", result);
+          this.cases.data = result.resultaten;
+          this.loading = false;
+          this.utilService.setLoading(false);
+        },
+        (error) => {
+          console.error("Error fetching cases:", error);
+          this.loading = false;
+          this.utilService.setLoading(false);
+        },
+      );
   }
 
   private wissen(): void {
