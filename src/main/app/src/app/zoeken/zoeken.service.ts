@@ -11,6 +11,22 @@ import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.ser
 import { ZoekObject } from "./model/zoek-object";
 import { ZoekParameters } from "./model/zoek-parameters";
 import { ZoekResultaat } from "./model/zoek-resultaat";
+import { GeneratedType } from "../shared/utils/generated-types";
+import { Resultaat } from "../shared/model/resultaat";
+
+export type KoppelbareZaakListItem = {
+  foutmelding: string;
+  resultaten: Array<{
+    documentKoppelen: boolean;
+    id: string;
+    identificatie: string;
+    omschrijving: string;
+    toelichting: string;
+    type: string;
+  }>;
+  totaal: number;
+  filters: Record<string, unknown>;
+};
 
 @Injectable({
   providedIn: "root",
@@ -29,6 +45,22 @@ export class ZoekenService {
   list(zoekParameters: ZoekParameters): Observable<ZoekResultaat<ZoekObject>> {
     return this.http
       .put<ZoekResultaat<ZoekObject>>(`${this.basepath}/list`, zoekParameters)
+      .pipe(
+        catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
+      );
+  }
+
+  listKoppelbareZaken(
+    zaakIdentificator: string,
+    documentUUID: string,
+  ): Observable<Resultaat<KoppelbareZaakListItem>> {
+    return this.http
+      .put<Resultaat<KoppelbareZaakListItem>>(`${this.basepath}/zaken`, {
+        zaakIdentificator,
+        documentUUID,
+        page: 0,
+        rows: 10,
+      })
       .pipe(
         catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
       );
