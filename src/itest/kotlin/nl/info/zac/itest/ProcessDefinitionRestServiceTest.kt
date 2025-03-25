@@ -46,7 +46,7 @@ class ProcessDefinitionRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/process-definitions"
             )
-            Then("the response is empty") {
+            Then("the response contains the BPMN process definition that was just created") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
                 response.isSuccessful shouldBe true
