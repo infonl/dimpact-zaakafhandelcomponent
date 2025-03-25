@@ -31,7 +31,10 @@ enum class Resource(private val code: String) {
     ZAAKOBJECT("zaakobject"),
     ZAAKEIGENSCHAP("zaakeigenschap"),
     ZAAKINFORMATIEOBJECT("zaakinformatieobject"),
-    ZAAKTYPE("zaaktype");
+    ZAAKTYPE("zaaktype"),
+
+    // Used by "Abonnementen" functionality in OpenNotificaties to check if callback URL is active
+    TEST("some_resource");
 
     companion object {
         private val LOG = Logger.getLogger(Resource::class.java.getName())

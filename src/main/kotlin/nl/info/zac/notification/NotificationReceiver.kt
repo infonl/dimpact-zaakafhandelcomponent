@@ -189,7 +189,10 @@ class NotificationReceiver @Inject constructor(
         try {
             // in case of a 'zaak destroy' notification remove any existing zaak
             // and task signaleringen for this zaak
-            if (notification.channel == Channel.ZAKEN && notification.resource == Resource.ZAAK && notification.action == Action.DELETE) {
+            if (notification.channel == Channel.ZAKEN &&
+                notification.resource == Resource.ZAAK &&
+                notification.action == Action.DELETE
+            ) {
                 deleteSignaleringenForZaak(notification.resourceUrl.extractUuid())
             }
             // send signalering events for this notification
@@ -259,6 +262,11 @@ class NotificationReceiver @Inject constructor(
 
     @Suppress("TooGenericExceptionCaught")
     private fun handleInboxDocuments(notification: Notification) {
+        // Used by "Abonnementen" functionality in OpenNotificaties to check if callback URL is active
+        if (notification.channel == Channel.TEST) {
+            LOG.info("Received test callback URL status notification")
+            return
+        }
         try {
             if (notification.action == Action.CREATE) {
                 val enkelvoudigInformatieobjectUuid = notification.resourceUrl.extractUuid()

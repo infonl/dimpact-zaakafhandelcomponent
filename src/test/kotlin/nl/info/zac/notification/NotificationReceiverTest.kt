@@ -307,4 +307,36 @@ class NotificationReceiverTest : BehaviorSpec({
             }
         }
     }
+
+    Given("A test callback url notification") {
+        val notification = createNotificatie(
+            channel = Channel.TEST,
+            resource = Resource.TEST
+        )
+
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+
+        When("the notification is handled") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notification)
+
+            Then("a response is returned") {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+            }
+
+            And("no processing happens") {
+                verify(exactly = 0) {
+                    indexingService.removeInformatieobject(any())
+                    eventingService.send(any<ScreenEvent>())
+                    cmmnService.deleteCase(any())
+                    zaakVariabelenService.deleteAllCaseVariables(any())
+                    indexingService.removeZaak(any())
+                    indexingService.removeTaak(any())
+                    eventingService.send(any<ScreenEvent>())
+                    signaleringService.deleteSignaleringen(any())
+                    signaleringService.deleteSignaleringVerzonden(any())
+                }
+            }
+        }
+    }
 })
