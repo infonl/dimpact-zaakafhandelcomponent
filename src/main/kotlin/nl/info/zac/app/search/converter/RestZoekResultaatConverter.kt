@@ -7,6 +7,7 @@
 package nl.info.zac.app.search.converter
 
 import jakarta.inject.Inject
+import net.atos.client.zgw.zrc.ZrcClientService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.search.model.FilterParameters
 import net.atos.zac.search.model.FilterResultaat
@@ -34,6 +35,7 @@ import java.util.UUID
 @NoArgConstructor
 @AllOpen
 class RestZoekResultaatConverter @Inject constructor(
+    private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
     private val policyService: PolicyService
 ) {
@@ -78,9 +80,11 @@ class RestZoekResultaatConverter @Inject constructor(
             identificatie = restZaakZoekObject.identificatie,
             omschrijving = restZaakZoekObject.omschrijving,
             toelichting = restZaakZoekObject.toelichting,
-            documentKoppelen = UUID.fromString(restZaakZoekObject.zaaktypeUuid).let {
-                ztcClientService.readZaaktype(it).informatieobjecttypen.any {
-                    it.extractUuid() == informationObjectTypeUuid
+            documentKoppelen = restZaakZoekObject.identificatie.let {
+                zrcClientService.readZaakByID(it).zaaktype.extractUuid().let {
+                    ztcClientService.readZaaktype(it).informatieobjecttypen.any {
+                        it.extractUuid() == informationObjectTypeUuid
+                    }
                 }
             }
         )

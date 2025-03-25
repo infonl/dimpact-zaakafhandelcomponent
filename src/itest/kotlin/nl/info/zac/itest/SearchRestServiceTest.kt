@@ -18,6 +18,7 @@ import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_A
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
+import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
@@ -34,6 +35,9 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEM
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEMENT_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_EXPLANATION_1
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_1_IDENTIFICATION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
@@ -251,6 +255,7 @@ class SearchRestServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("""Multiple zaken have been created and are indexed""") {
         When(
             """
@@ -363,6 +368,155 @@ class SearchRestServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("""Multiple zaken have been created and are indexed""") {
+        When(
+            """
+                the search endpoint is called to search for all objects of type 'ZAAK' with a specific information 
+                object type UUID
+            """.trimMargin()
+        ) {
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/zoeken/listZaken/information-object-type/$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID",
+                requestBodyAsString = """
+                {
+                    "filtersType": "ZoekParameters",
+                    "alleenMijnZaken": false,
+                    "alleenOpenstaandeZaken": true,
+                    "alleenAfgeslotenZaken": false,
+                    "alleenMijnTaken": false,
+                    "zoeken": { "ALLE": "zaak" },
+                    "filters": {},
+                    "datums": {},
+                    "rows": 10,
+                    "page":0,
+                    "type":"ZAAK",
+                    "sorteerRichting":"asc",
+                    "sorteerVeld":"ZAAK_ZAAKTYPE"
+                }
+                """.trimIndent()
+            )
+            Then(
+                """
+                   the response is successful and the search results include the indexed zaken compatible with this 
+                   information object type UUID
+                """
+            ) {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                {
+                  "foutmelding": "",
+                  "resultaten": [
+                    {
+                      "documentKoppelen": true,
+                      "identificatie": "ZAAK-2024-0000000001",
+                      "omschrijving": "$ZAAK_DESCRIPTION_1",
+                      "toelichting": "null",
+                      "type": "ZAAK"
+                    },
+                    {
+                      "documentKoppelen": true,
+                      "identificatie": "ZAAK-2000-0000000004",
+                      "omschrijving": "dummyOmschrijving",
+                      "toelichting": "null",
+                      "type": "ZAAK"
+                    },
+                    {
+                      "documentKoppelen": true,
+                      "identificatie": "ZAAK-2000-0000000002",
+                      "omschrijving": "dummyOmschrijving",
+                      "toelichting": "null",
+                      "type": "ZAAK"
+                    },
+                    {
+                      "documentKoppelen": true,
+                      "identificatie": "$ZAAK_MANUAL_2_IDENTIFICATION",
+                      "omschrijving": "dummyOmschrijving",
+                      "toelichting": "null",
+                      "type": "ZAAK"
+                    },
+                    {
+                      "documentKoppelen": true,
+                      "identificatie": "$ZAAK_MANUAL_1_IDENTIFICATION",
+                      "omschrijving": "changedDescription",
+                      "toelichting": "$ZAAK_EXPLANATION_1",
+                      "type": "ZAAK"
+                    },
+                    {
+                      "documentKoppelen": true,
+                      "identificatie": "ZAAK-2000-0000000003",
+                      "omschrijving": "dummyOmschrijving",
+                      "toelichting": "null",
+                      "type": "ZAAK"
+                    },
+                    {
+                      "documentKoppelen": true,
+                      "identificatie": "ZAAK-1999-0000000001",
+                      "toelichting": "Aangemaakt vanuit open-forms met kenmerk 'dca40822-5eb3-4acc-b915-7b020041ad55'.",
+                      "type": "ZAAK"
+                    },
+                    {
+                      "documentKoppelen": true,
+                      "identificatie": "$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
+                      "omschrijving": "$ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING",
+                      "toelichting": "Aangemaakt vanuit open-forms met kenmerk 'f8534f13-0669-4d4d-a364-6b6c4ad3d243'. dummyZaakToelichting",
+                      "type": "ZAAK"
+                    }
+                  ],
+                  "totaal": 8,
+                  "filters": {}
+                }
+                """.trimIndent()
+            }
+        }
+        When(
+            """
+                the search endpoint is called to search for all objects of type 'ZAAK' with a non-existing information 
+                object type UUID
+            """.trimMargin()
+        ) {
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/zoeken/listZaken/information-object-type/8bb53cc9-9792-4079-be35-2760cb3579d7",
+                requestBodyAsString = """
+                {
+                    "filtersType": "ZoekParameters",
+                    "alleenMijnZaken": false,
+                    "alleenOpenstaandeZaken": true,
+                    "alleenAfgeslotenZaken": false,
+                    "alleenMijnTaken": false,
+                    "zoeken": { "ALLE": "zaak" },
+                    "filters": {},
+                    "datums": {},
+                    "rows": 10,
+                    "page":0,
+                    "type":"ZAAK",
+                    "sorteerRichting":"asc",
+                    "sorteerVeld":"ZAAK_ZAAKTYPE"
+                }
+                """.trimIndent()
+            )
+            Then(
+                """
+                   the response is successful and no search results are returned
+                """
+            ) {
+                val responseBody = response.body!!.string()
+                logger.info { "Response: $responseBody" }
+                response.isSuccessful shouldBe true
+                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                {
+                  "foutmelding": "",
+                  "resultaten": [],
+                  "totaal": 8,
+                  "filters": {}
+                }
+                """.trimIndent()
+            }
+        }
+    }
+
     Given("""Multiple taken have been created and are indexed""") {
         When(
             """the search endpoint is called to search for all objects of type 'TAAK'"""

@@ -6,15 +6,20 @@
  */
 package nl.info.zac.app.search
 
+import io.swagger.v3.oas.annotations.headers.Header
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.HeaderParam
 import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
+import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.search.SearchService
+import net.atos.zac.search.model.FilterParameters
+import net.atos.zac.search.model.FilterVeld
 import net.atos.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.app.search.converter.RestZoekParametersConverter
 import nl.info.zac.app.search.converter.RestZoekResultaatConverter
@@ -57,14 +62,14 @@ class SearchRestService @Inject constructor(
     }
 
     @PUT
-    @Path("listZaken")
+    @Path("listZaken/information-object-type/{uuid}")
     fun listZakenForInformationObjectType(
         restZoekParameters: RestZoekParameters,
-        informationObjectTypeUuid: UUID
+        @PathParam("uuid") informationObjectTypeUuid: UUID
     ): RestZoekResultaat<out AbstractRestZoekObject?> {
         PolicyService.assertPolicy(policyService.readWerklijstRechten().zakenTaken)
-        val searchResults = performSearch(restZoekParameters)
 
+        val searchResults = performSearch(restZoekParameters)
         return RestZoekResultaat(
             searchResults.results.map {
                 restZoekResultaatConverter.convert(it as RestZaakZoekObject, informationObjectTypeUuid)
