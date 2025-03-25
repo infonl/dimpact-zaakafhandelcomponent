@@ -22,11 +22,10 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.app.search.converter.RestZoekParametersConverter
 import nl.info.zac.app.search.converter.RestZoekResultaatConverter
 import nl.info.zac.app.search.model.AbstractRestZoekObject
-import nl.info.zac.app.search.model.RestZaakZoekObject
 import nl.info.zac.app.search.model.RestZoekKoppelenParameters
 import nl.info.zac.app.search.model.RestZoekParameters
 import nl.info.zac.app.search.model.RestZoekResultaat
-import nl.info.zac.app.search.model.toRestZoekParameters
+import nl.info.zac.app.search.model.toZoekParameters
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -52,13 +51,11 @@ class SearchRestService @Inject constructor(
             )
             else -> PolicyService.assertPolicy(policyService.readOverigeRechten().zoeken)
         }
-        return performSearch(restZoekParameters)
-    }
-
-    private fun performSearch(restZoekParameters: RestZoekParameters): RestZoekResultaat<out AbstractRestZoekObject> {
-        val zoekParameters = restZoekZaakParametersConverter.convert(restZoekParameters)
-        val zoekResultaat = searchService.zoek(zoekParameters)
-        return restZoekResultaatConverter.convert(zoekResultaat, restZoekParameters)
+        return restZoekZaakParametersConverter.convert(restZoekParameters).let {
+            searchService.zoek(it).let {
+                restZoekResultaatConverter.convert(it, restZoekParameters)
+            }
+        }
     }
 
     @PUT
@@ -72,12 +69,8 @@ class SearchRestService @Inject constructor(
             restZoekKoppelenParameters.documentUUID
         ).informatieobjecttype.extractUuid()
 
-        val searchResults = performSearch(restZoekKoppelenParameters.toRestZoekParameters())
-        return RestZoekResultaat(
-            searchResults.results.map {
-                restZoekResultaatConverter.convert(it as RestZaakZoekObject, informationObjectTypeUuid)
-            },
-            searchResults.resultCount
-        )
+        return searchService.zoek(restZoekKoppelenParameters.toZoekParameters()).let {
+            restZoekResultaatConverter.convert(it, informationObjectTypeUuid)
+        }
     }
 }

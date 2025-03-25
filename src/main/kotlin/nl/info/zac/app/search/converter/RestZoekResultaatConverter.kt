@@ -73,7 +73,15 @@ class RestZoekResultaatConverter @Inject constructor(
             )
         }
 
-    fun convert(restZaakZoekObject: RestZaakZoekObject, informationObjectTypeUuid: UUID) =
+    fun convert(zoekResultaat: ZoekResultaat<out ZoekObject>, informationObjectTypeUuid: UUID) =
+        RestZoekResultaat(
+            zoekResultaat.items
+                .map { with(it as ZaakZoekObject) { it.toRestZaakZoekObject(policyService.readZaakRechten(it)) } }
+                .map { convert(it, informationObjectTypeUuid) },
+            zoekResultaat.count
+        )
+
+    private fun convert(restZaakZoekObject: RestZaakZoekObject, informationObjectTypeUuid: UUID) =
         RestZaakKoppelenZoekObject(
             id = restZaakZoekObject.id,
             type = restZaakZoekObject.type,

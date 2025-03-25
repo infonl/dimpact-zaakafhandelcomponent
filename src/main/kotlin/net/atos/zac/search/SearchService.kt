@@ -77,7 +77,11 @@ class SearchService @Inject constructor(
         if (zoekParameters.sortering.richting != SorteerRichting.NONE) {
             query.addSort(
                 zoekParameters.sortering.sorteerVeld.veld,
-                if (zoekParameters.sortering.richting == SorteerRichting.DESCENDING) SolrQuery.ORDER.desc else SolrQuery.ORDER.asc
+                if (zoekParameters.sortering.richting == SorteerRichting.DESCENDING) {
+                    SolrQuery.ORDER.desc
+                } else {
+                    SolrQuery.ORDER.asc
+                }
             )
         }
 
@@ -87,8 +91,14 @@ class SearchService @Inject constructor(
         if (zoekParameters.sortering.sorteerVeld != SorteerVeld.ZAAK_IDENTIFICATIE) {
             query.addSort(SorteerVeld.ZAAK_IDENTIFICATIE.veld, SolrQuery.ORDER.desc)
         }
+
         // sort on 'id' field so that results (from the same query) always have the same order
         query.addSort("id", SolrQuery.ORDER.desc)
+
+        return solrSearch(query)
+    }
+
+    private fun solrSearch(query: SolrQuery): ZoekResultaat<out ZoekObject> {
         try {
             val response = solrClient.query(query)
             val zoekObjecten = response.results
@@ -97,7 +107,7 @@ class SearchService @Inject constructor(
                     solrClient.binder.getBean(zoekObjectType.zoekObjectClass, it)
                 }
             val zoekResultaat = ZoekResultaat(zoekObjecten, response.results.numFound)
-            response.facetFields.forEach { facetField ->
+            response.facetFields?.forEach { facetField ->
                 val facetVeld = FilterVeld.fromValue(facetField.name)
                 val values = facetField.values
                     .filter { it.count > 0 }
@@ -133,16 +143,22 @@ class SearchService @Inject constructor(
 
     private fun getFilterQueriesForDatumsParameters(zoekParameters: ZoekParameters): List<String> =
         zoekParameters.datums.map { (dateField, date) ->
-            val from = date.van?.let { DateTimeFormatter.ISO_INSTANT.format(it.atStartOfDay(ZoneId.systemDefault())) } ?: "*"
-            val to = date.tot?.let { DateTimeFormatter.ISO_INSTANT.format(it.atStartOfDay(ZoneId.systemDefault())) } ?: "*"
+            val from = date.van?.let {
+                DateTimeFormatter.ISO_INSTANT.format(it.atStartOfDay(ZoneId.systemDefault()))
+            } ?: "*"
+            val to = date.tot?.let {
+                DateTimeFormatter.ISO_INSTANT.format(it.atStartOfDay(ZoneId.systemDefault()))
+            } ?: "*"
             "${dateField.veld}:[$from TO $to]"
         }
 
     private fun getFilterQueriesForZoekenParameters(zoekParameters: ZoekParameters): List<String> =
         zoekParameters.getZoeken().mapNotNull { (searchField, text) ->
             if (text.isNotBlank()) {
-                val queryText = if (searchField == ZoekVeld.ZAAK_IDENTIFICATIE || searchField == ZoekVeld.TAAK_ZAAK_ID) {
-                    "(*${encoded(text)}*)"
+                val queryText = if (
+                    searchField == ZoekVeld.ZAAK_IDENTIFICATIE || searchField == ZoekVeld.TAAK_ZAAK_ID
+                ) {
+                    "(*${encoded(text)}* OR *${encoded(text.uppercase())}* OR *${encoded(text.lowercase())})"
                 } else {
                     "(${encoded(text)})"
                 }
