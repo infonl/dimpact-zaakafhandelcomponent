@@ -68,7 +68,7 @@ class SearchRestService @Inject constructor(
         PolicyService.assertPolicy(policyService.readWerklijstRechten().zakenTaken)
 
         val informationObjectTypeUuid = drcClientService.readEnkelvoudigInformatieobject(
-            restZoekKoppelenParameters.informationObjectUUID
+            restZoekKoppelenParameters.documentUUID
         ).informatieobjecttype.extractUuid()
 
         val searchResults = performSearch(restZoekKoppelenParameters.toRestZoekParameters())

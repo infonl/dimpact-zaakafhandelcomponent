@@ -18,7 +18,7 @@ data class RestZoekKoppelenParameters(
     override var page: Int,
     override var rows: Int,
     var zaakIdentificator: String,
-    var informationObjectUUID: UUID
+    var documentUUID: UUID
 ) : RestPageParameters(page, rows)
 
 fun RestZoekKoppelenParameters.toRestZoekParameters() =
