@@ -11,21 +11,23 @@ import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
-import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.policy.PolicyService
 import net.atos.zac.search.SearchService
 import net.atos.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.app.search.converter.RestZoekParametersConverter
 import nl.info.zac.app.search.converter.RestZoekResultaatConverter
 import nl.info.zac.app.search.model.AbstractRestZoekObject
 import nl.info.zac.app.search.model.RestZaakZoekObject
+import nl.info.zac.app.search.model.RestZoekKoppelenParameters
 import nl.info.zac.app.search.model.RestZoekParameters
 import nl.info.zac.app.search.model.RestZoekResultaat
+import nl.info.zac.app.search.model.toRestZoekParameters
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.util.UUID
 
 @Path("zoeken")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -37,6 +39,7 @@ class SearchRestService @Inject constructor(
     private val searchService: SearchService,
     private val restZoekZaakParametersConverter: RestZoekParametersConverter,
     private val restZoekResultaatConverter: RestZoekResultaatConverter,
+    private val drcClientService: DrcClientService,
     private val policyService: PolicyService
 ) {
     @PUT
@@ -58,14 +61,17 @@ class SearchRestService @Inject constructor(
     }
 
     @PUT
-    @Path("listZaken/information-object-type/{uuid}")
+    @Path("zaken")
     fun listZakenForInformationObjectType(
-        restZoekParameters: RestZoekParameters,
-        @PathParam("uuid") informationObjectTypeUuid: UUID
+        restZoekKoppelenParameters: RestZoekKoppelenParameters,
     ): RestZoekResultaat<out AbstractRestZoekObject?> {
         PolicyService.assertPolicy(policyService.readWerklijstRechten().zakenTaken)
 
-        val searchResults = performSearch(restZoekParameters)
+        val informationObjectTypeUuid = drcClientService.readEnkelvoudigInformatieobject(
+            restZoekKoppelenParameters.informationObjectUUID
+        ).informatieobjecttype.extractUuid()
+
+        val searchResults = performSearch(restZoekKoppelenParameters.toRestZoekParameters())
         return RestZoekResultaat(
             searchResults.results.map {
                 restZoekResultaatConverter.convert(it as RestZaakZoekObject, informationObjectTypeUuid)

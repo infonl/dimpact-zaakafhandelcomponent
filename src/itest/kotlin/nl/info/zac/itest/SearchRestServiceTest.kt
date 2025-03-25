@@ -16,10 +16,11 @@ import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
+import nl.info.zac.itest.config.ItestConfiguration.HTTP_STATUS_NOT_FOUND
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
-import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING
+import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.TAAK_1_FATAL_DATE
@@ -37,7 +38,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_MELDING_KLEIN_EVENEM
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_EXPLANATION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_1_IDENTIFICATION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_MANUAL_2_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
@@ -46,6 +46,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_DOCUME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_DOCUMENT_TITEL
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.ItestConfiguration.enkelvoudigInformatieObjectUUID
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONObject
 
@@ -226,12 +227,16 @@ class SearchRestServiceTest : BehaviorSpec({
                             ],
                             "DOCUMENT_TYPE": [
                                 {
-                                    "aantal": 6,
-                                    "naam": "bijlage"
+                                    "aantal": 5,
+                                    "naam": "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING"
                                 },
                                 {
                                     "aantal": 1,
-                                    "naam": "e-mail"
+                                    "naam": "$INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING"
+                                },
+                                {
+                                    "aantal": 1,
+                                    "naam": "$INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING"
                                 }
                             ],
                             "DOCUMENT_VERGRENDELD_DOOR": [],
@@ -373,33 +378,24 @@ class SearchRestServiceTest : BehaviorSpec({
         When(
             """
                 the search endpoint is called to search for all objects of type 'ZAAK' with a specific information 
-                object type UUID
+                object UUID
             """.trimMargin()
         ) {
             val response = itestHttpClient.performPutRequest(
-                url = "$ZAC_API_URI/zoeken/listZaken/information-object-type/$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID",
+                url = "$ZAC_API_URI/zoeken/zaken",
                 requestBodyAsString = """
                 {
-                    "filtersType": "ZoekParameters",
-                    "alleenMijnZaken": false,
-                    "alleenOpenstaandeZaken": true,
-                    "alleenAfgeslotenZaken": false,
-                    "alleenMijnTaken": false,
-                    "zoeken": { "ALLE": "zaak" },
-                    "filters": {},
-                    "datums": {},
-                    "rows": 10,
+                    "rows": 5,
                     "page":0,
-                    "type":"ZAAK",
-                    "sorteerRichting":"asc",
-                    "sorteerVeld":"ZAAK_ZAAKTYPE"
+                    "zaakIdentificator": "zaak",
+                    "informationObjectUUID": "$enkelvoudigInformatieObjectUUID"
                 }
                 """.trimIndent()
             )
             Then(
                 """
-                   the response is successful and the search results include the indexed zaken compatible with this 
-                   information object type UUID
+                   the response is successful and the search results include the indexed zaken with compatibility info 
+                   about the information object type UUID
                 """
             ) {
                 val responseBody = response.body!!.string()
@@ -417,28 +413,7 @@ class SearchRestServiceTest : BehaviorSpec({
                       "type": "ZAAK"
                     },
                     {
-                      "documentKoppelen": true,
-                      "identificatie": "ZAAK-2000-0000000004",
-                      "omschrijving": "dummyOmschrijving",
-                      "toelichting": "null",
-                      "type": "ZAAK"
-                    },
-                    {
-                      "documentKoppelen": true,
-                      "identificatie": "ZAAK-2000-0000000002",
-                      "omschrijving": "dummyOmschrijving",
-                      "toelichting": "null",
-                      "type": "ZAAK"
-                    },
-                    {
-                      "documentKoppelen": true,
-                      "identificatie": "$ZAAK_MANUAL_2_IDENTIFICATION",
-                      "omschrijving": "dummyOmschrijving",
-                      "toelichting": "null",
-                      "type": "ZAAK"
-                    },
-                    {
-                      "documentKoppelen": true,
+                      "documentKoppelen": false,
                       "identificatie": "$ZAAK_MANUAL_1_IDENTIFICATION",
                       "omschrijving": "changedDescription",
                       "toelichting": "$ZAAK_EXPLANATION_1",
@@ -446,73 +421,54 @@ class SearchRestServiceTest : BehaviorSpec({
                     },
                     {
                       "documentKoppelen": true,
-                      "identificatie": "ZAAK-2000-0000000003",
+                      "identificatie": "ZAAK-2000-0000000006",
                       "omschrijving": "dummyOmschrijving",
                       "toelichting": "null",
                       "type": "ZAAK"
                     },
                     {
                       "documentKoppelen": true,
-                      "identificatie": "ZAAK-1999-0000000001",
-                      "toelichting": "Aangemaakt vanuit open-forms met kenmerk 'dca40822-5eb3-4acc-b915-7b020041ad55'.",
+                      "identificatie": "ZAAK-2000-0000000005",
+                      "omschrijving": "dummyOmschrijving",
+                      "toelichting": "null",
                       "type": "ZAAK"
                     },
                     {
                       "documentKoppelen": true,
-                      "identificatie": "$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
-                      "omschrijving": "$ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING",
-                      "toelichting": "Aangemaakt vanuit open-forms met kenmerk 'f8534f13-0669-4d4d-a364-6b6c4ad3d243'. dummyZaakToelichting",
+                      "identificatie": "ZAAK-2000-0000000004",
+                      "omschrijving": "dummyOmschrijving",
+                      "toelichting": "null",
                       "type": "ZAAK"
                     }
                   ],
-                  "totaal": 8,
+                  "totaal": 10,
                   "filters": {}
                 }
                 """.trimIndent()
             }
         }
+
         When(
             """
                 the search endpoint is called to search for all objects of type 'ZAAK' with a non-existing information 
-                object type UUID
+                object UUID
             """.trimMargin()
         ) {
             val response = itestHttpClient.performPutRequest(
-                url = "$ZAC_API_URI/zoeken/listZaken/information-object-type/8bb53cc9-9792-4079-be35-2760cb3579d7",
+                url = "$ZAC_API_URI/zoeken/zaken",
                 requestBodyAsString = """
                 {
-                    "filtersType": "ZoekParameters",
-                    "alleenMijnZaken": false,
-                    "alleenOpenstaandeZaken": true,
-                    "alleenAfgeslotenZaken": false,
-                    "alleenMijnTaken": false,
-                    "zoeken": { "ALLE": "zaak" },
-                    "filters": {},
-                    "datums": {},
-                    "rows": 10,
+                    "rows": 5,
                     "page":0,
-                    "type":"ZAAK",
-                    "sorteerRichting":"asc",
-                    "sorteerVeld":"ZAAK_ZAAKTYPE"
+                    "zaakIdentificator": "zaak",
+                    "informationObjectUUID": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
                 }
                 """.trimIndent()
             )
-            Then(
-                """
-                   the response is successful and no search results are returned
-                """
-            ) {
+            Then("the response is successful and search results contain no zaak that can be linked to") {
                 val responseBody = response.body!!.string()
                 logger.info { "Response: $responseBody" }
-                response.isSuccessful shouldBe true
-                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
-                {
-                  "foutmelding": "",
-                  "resultaten": [],
-                  "totaal": 8,
-                  "filters": {}
-                }
-                """.trimIndent()
+                response.code shouldBe HTTP_STATUS_NOT_FOUND
             }
         }
     }
@@ -681,11 +637,14 @@ class SearchRestServiceTest : BehaviorSpec({
                           "naam" : "$DOCUMENT_STATUS_IN_BEWERKING"
                         } ],
                         "DOCUMENT_TYPE" : [ {
-                          "aantal" : 6,
+                          "aantal" : 5,
                           "naam" : "$INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING"
                         }, {
                           "aantal" : 1,
                           "naam" : "$INFORMATIE_OBJECT_TYPE_EMAIL_OMSCHRIJVING"
+                        }, {
+                          "aantal" : 1,
+                          "naam" : "$INFORMATIE_OBJECT_TYPE_FACTUUR_OMSCHRIJVING"
                         } ],
                         "DOCUMENT_VERGRENDELD_DOOR" : [ {
                           "aantal" : $TOTAL_COUNT_DOCUMENTS,
