@@ -69,11 +69,21 @@
         <td *matCellDef="let case" mat-cell>{{ case.type | empty }}</td>
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="caseColumns; sticky: true"></tr>
-      <tr mat-row *matRowDef="let row; columns: caseColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: caseColumns"
+        [ngClass]="{ 'disabled-row': !row.documentKoppelen }"
+      ></tr>
     </table>
     <p *ngIf="cases.data.length == 0 && !loading">
       {{
         foutmelding ? foutmelding : ("msg.geen.gegevens.gevonden" | translate)
+      }}
+    </p>
+    <p *ngIf="totalCases > 10 && !loading">
+      {{
+        "Alleen de eerste 10 resultaten worden getoond. Scherp de zoekopdracht aan als het gewenste resultaat hier niet tussen staat."
+          | translate
       }}
     </p>
     <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
