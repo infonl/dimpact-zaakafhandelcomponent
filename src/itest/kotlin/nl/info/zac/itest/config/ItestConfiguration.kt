@@ -47,6 +47,7 @@ object ItestConfiguration {
     const val BETROKKENE_IDENTIFICATION_TYPE_BSN = "BSN"
     const val BETROKKENE_IDENTIFACTION_TYPE_VESTIGING = "VN"
     const val BETROKKENE_ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
+    const val BPMN_TEST_PROCESS = "bpmnTestProcess.bpmn"
     const val BRON_ORGANISATIE = "123443210"
     const val CONFIG_MAX_FILE_SIZE_IN_MB = 80L
     const val CONFIG_GEMEENTE_CODE = "9999"
