@@ -463,6 +463,7 @@
   "informatieobject.documentType.aanvraagdocument": "Aanvraagdocument",
   "informatieobject.documentType.bijlage": "Bijlage",
   "informatieobject.documentType.e-mail": "E-mail",
+  "informatieobject.koppelen.uitleg": "Koppel document '{{documentName}}' aan een zaak",
   "mail.ZAAK_ALGEMEEN": "Algemene e-mail",
   "mail.ZAAK_ONTVANKELIJK": "Zaak ontvankelijk",
   "mail.ZAAK_NIET_ONTVANKELIJK": "Zaak niet ontvankelijk",

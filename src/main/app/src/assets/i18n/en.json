@@ -463,6 +463,7 @@
   "informatieobject.documentType.aanvraagdocument": "Application document",
   "informatieobject.documentType.bijlage": "Appendix",
   "informatieobject.documentType.e-mail": "E-mail",
+  "informatieobject.koppelen.uitleg": "Link document '{{documentName}}' to a case",
   "mail.ZAAK_ALGEMEEN": "General e-mail",
   "mail.ZAAK_ONTVANKELIJK": "Case admissible",
   "mail.ZAAK_NIET_ONTVANKELIJK": "Case not admissible",

@@ -11,15 +11,15 @@ import {
   OnInit,
   SimpleChanges,
 } from "@angular/core";
-import { MatDrawer, MatSidenav } from "@angular/material/sidenav";
+import { MatDrawer } from "@angular/material/sidenav";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { InformatieObjectenService } from "../informatie-objecten.service";
 import { AbstractFormControlField } from "src/app/shared/material-form-builder/model/abstract-form-control-field";
 import { InputFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/input/input-form-field-builder";
 import { MatTableDataSource } from "@angular/material/table";
 import { Subject, takeUntil } from "rxjs";
 import { ZakenService } from "src/app/zaken/zaken.service";
 import { OntkoppeldDocument } from "src/app/documenten/model/ontkoppeld-document";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
   selector: "zac-informatie-object-link",
@@ -29,11 +29,10 @@ import { OntkoppeldDocument } from "src/app/documenten/model/ontkoppeld-document
 export class InformatieObjectLinkComponent
   implements OnInit, OnChanges, OnDestroy
 {
-  // @Input()
-  // infoObject?: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
   @Input() infoObject?: OntkoppeldDocument | null = null;
   @Input({ required: true }) sideNav!: MatDrawer;
 
+  intro: string | undefined = "";
   caseSearchField?: AbstractFormControlField;
   isValid: boolean = false;
   loading: boolean = false;
@@ -48,11 +47,12 @@ export class InformatieObjectLinkComponent
 
   private ngDestroy = new Subject<void>();
 
-  constructor(private zakenService: ZakenService) {}
+  constructor(
+    private zakenService: ZakenService,
+    private translate: TranslateService,
+  ) {}
 
   ngOnInit() {
-    console.log("infoObject", this.infoObject);
-
     this.caseSearchField = new InputFormFieldBuilder()
       .id("zaak")
       .label("zaak.identificatie")
@@ -61,27 +61,26 @@ export class InformatieObjectLinkComponent
     this.caseSearchField.formControl.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe((value) => {
-        console.log("valueChanges", value);
         this.isValid = value?.length > 2;
       });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes["infoObject"] && changes["infoObject"].currentValue) {
-      // React to the selected document change here
-      this.handleDocumentChange(changes["infoObject"].currentValue);
+    if (changes.infoObject && changes.infoObject.currentValue) {
+      this.wissen();
+      this.intro = this.translate.instant("informatieobject.koppelen.uitleg", {
+        documentName:
+          changes.infoObject.currentValue?.documentID ||
+          changes.infoObject.currentValue?.enkelvoudiginformatieobjectID,
+      });
+
+      changes.infoObject.currentValue.documentID;
     }
   }
 
-  handleDocumentChange(infoObject: OntkoppeldDocument) {
-    // Perform any action after the document has been selected
-    console.log("Document selected:", infoObject);
-    // Add any logic you need to handle the selected document
-  }
-
   searchCases(): void {
-    console.log("searchCases");
     this.loading = true;
+    console.log("infoObject", this.infoObject);
     // this.zakenService
     //   .listZaaktypes(this.caseSearchField?.formControl.value)
     //   .subscribe((data) => {
@@ -90,13 +89,11 @@ export class InformatieObjectLinkComponent
     //   });
   }
 
-  wissen(): void {
+  private wissen(): void {
     this.caseSearchField?.formControl.reset();
     this.cases.data = [];
     this.loading = false;
   }
-
-  private destroy$ = new Subject<void>();
 
   ngOnDestroy() {
     this.ngDestroy.next();

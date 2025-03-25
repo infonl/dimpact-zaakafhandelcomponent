@@ -74,7 +74,6 @@ export class OntkoppeldeDocumentenListComponent
   filterOntkoppeldDoor: GeneratedType<"RestUser">[] = [];
   filterChange = new EventEmitter<void>();
   clearZoekopdracht = new EventEmitter<void>();
-
   selectedDocument: OntkoppeldDocument | null = null;
 
   constructor(
@@ -122,15 +121,11 @@ export class OntkoppeldeDocumentenListComponent
       });
   }
 
-  openDrawer(ontkoppeldDocument: OntkoppeldDocument) {
-    this.selectedDocument = ontkoppeldDocument;
+  openDrawer(selectedDocument: OntkoppeldDocument) {
+    this.selectedDocument = { ...selectedDocument };
 
     console.log("this.selectedDocument", this.selectedDocument);
     this.actionsSidenav.open();
-  }
-
-  closeDrawer() {
-    this.actionsSidenav.close();
   }
 
   updateListParameters(): void {
